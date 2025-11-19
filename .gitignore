@@ -1,0 +1,102 @@
+# ===========================================
+# Unity 6 / Unity 2022+ .gitignore
+# ===========================================
+
+# --- ОС ---
+.DS_Store
+Thumbs.db
+
+# --- Unity generated folders ---
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+Logs/
+MemoryCaptures/
+UserSettings/
+sysinfo.xml
+
+# --- Visual Studio cache ---
+.vs/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+
+# --- Rider cache ---
+.idea/
+*.sln.iml
+
+# --- Unity cache ---
+/UnityPackageManager/
+*.pidb.meta
+*.pdb.meta
+
+# --- Crash reports ---
+Crashes/
+*.dmp
+
+# --- Generated files ---
+*.apk
+*.aab
+*.unitypackage
+*.exe
+*.app
+*.ipa
+
+# --- Addressables ---
+/Assets/AddressableAssetsData/*/*.bin*
+/ServerData/
+
+# --- Collaborate (старое) ---
+Collab/
+
+# --- Plastic SCM ---
+/PlasticSCM/Cache/
+*.plastic
+
+# --- Auto-generated meta files backups ---
+*.orig
+
+# --- Builds ---
+/Build*/
+/ExportedObj/
+
+# --- Local settings --- 
+*.local
+*.swp
+
+# --- Packed scenes / shader caches ---
+ShaderCache/
+*.shadercache
+
+# --- Rider / JetBrains ---
+/.idea/
+/*.DotSettings.user
+
+# --- Unity Search indexes ---
+/Search/
+
+# --- Ignore platform-specific build directories ---
+/Android/
+/iOS/
+/WebGL/
+/Windows/
+/Linux/
+/macOS/
+
+# --- TextMeshPro ---
+/Assets/TextMesh Pro/Resources/Font Assets/*.asset
+
+# --- Unity 6 Burst Compilation ---
+/BurstDebugInformation_DoNotShip/
+
+# --- Unity 6 Cache ---
+/Artifacts/
