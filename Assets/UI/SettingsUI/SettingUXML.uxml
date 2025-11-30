@@ -11,76 +11,91 @@
                     </ui:Label>
                     <ui:DropdownField choices="English,Russian" name="LenguageDropdown" class="panel" style="color: rgb(255, 255, 255); background-color: rgb(34, 34, 34); border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; width: 210px; min-width: 210px; max-width: 210px;" />
                 </ui:VisualElement>
-                <ui:VisualElement name="bindingRow1" style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: center; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; width: 65%;">
-                    <ui:Label text="Jump" name="ActionName1" style="color: rgb(255, 255, 255); flex-grow: 1;">
+                <ui:VisualElement name="bindingRow_Jump" style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: center; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; width: 65%;">
+                    <ui:Label text="Jump" name="ActionName_Jump" style="color: rgb(255, 255, 255); flex-grow: 1;">
                         <Bindings>
                             <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(60556304384)" />
                         </Bindings>
                     </ui:Label>
-                    <ui:VisualElement name="BindingBox1" style="flex-grow: 1; height: 80%; width: 120px; background-color: rgb(34, 34, 34); border-left-color: rgb(96, 96, 96); border-right-color: rgb(96, 96, 96); border-top-color: rgb(96, 96, 96); border-bottom-color: rgb(96, 96, 96); border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 15px; min-width: 120px; max-width: 120px;">
-                        <ui:Label text="Space" style="color: rgb(255, 234, 0); -unity-text-align: upper-center;" />
+                    <ui:VisualElement name="BindingBox_Jump" style="flex-grow: 1; height: 80%; width: 120px; background-color: rgb(34, 34, 34); border-left-color: rgb(96, 96, 96); border-right-color: rgb(96, 96, 96); border-top-color: rgb(96, 96, 96); border-bottom-color: rgb(96, 96, 96); border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 15px; min-width: 120px; max-width: 120px;">
+                        <ui:Label text="Space" name="BindingLabel_Jump" style="color: rgb(255, 234, 0); -unity-text-align: upper-center;" />
                     </ui:VisualElement>
-                    <ui:Button text="Change" name="ChangeButton1" class="change-button" style="width: 70px; height: 0%;">
+                    <ui:Button text="Change" name="ChangeButton_Jump" class="change-button" style="width: 70px; height: 0%;">
                         <Bindings>
                             <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(3344172048384)" />
                         </Bindings>
                     </ui:Button>
                 </ui:VisualElement>
-                <ui:VisualElement name="bindingRow2" style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: center; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; width: 65%;">
-                    <ui:Label text="Move Left" name="ActionName1" style="color: rgb(255, 255, 255); flex-grow: 1;">
+                <ui:VisualElement name="bindingRow_MoveLeft" style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: center; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; width: 65%;">
+                    <ui:Label text="Move Left" name="ActionName_MoveLeft" style="color: rgb(255, 255, 255); flex-grow: 1;">
                         <Bindings>
                             <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(514749095936)" />
                         </Bindings>
                     </ui:Label>
-                    <ui:VisualElement name="BindingBox1" style="flex-grow: 1; height: 80%; width: 120px; background-color: rgb(34, 34, 34); border-left-color: rgb(96, 96, 96); border-right-color: rgb(96, 96, 96); border-top-color: rgb(96, 96, 96); border-bottom-color: rgb(96, 96, 96); border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 15px; min-width: 120px; max-width: 120px;">
-                        <ui:Label text="A" style="color: rgb(255, 234, 0); -unity-text-align: upper-center;" />
+                    <ui:VisualElement name="BindingBox_MoveLeft" style="flex-grow: 1; height: 80%; width: 120px; background-color: rgb(34, 34, 34); border-left-color: rgb(96, 96, 96); border-right-color: rgb(96, 96, 96); border-top-color: rgb(96, 96, 96); border-bottom-color: rgb(96, 96, 96); border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 15px; min-width: 120px; max-width: 120px;">
+                        <ui:Label text="A" name="BindingLabel_MoveLeft" style="color: rgb(255, 234, 0); -unity-text-align: upper-center;" />
                     </ui:VisualElement>
-                    <ui:Button text="Change" name="ChangeButton1" class="change-button" style="width: 70px; height: 0%;">
+                    <ui:Button text="Change" name="ChangeButton_MoveLeft" class="change-button" style="width: 70px; height: 0%;">
                         <Bindings>
                             <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(3344172048384)" />
                         </Bindings>
                     </ui:Button>
                 </ui:VisualElement>
-                <ui:VisualElement name="bindingRow3" style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: center; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; width: 65%;">
-                    <ui:Label text="Move Right" name="ActionName1" style="color: rgb(255, 255, 255); flex-grow: 1;">
+                <ui:VisualElement name="bindingRow_MoveRight" style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: center; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; width: 65%;">
+                    <ui:Label text="Move Right" name="ActionName_MoveRight" style="color: rgb(255, 255, 255); flex-grow: 1;">
                         <Bindings>
                             <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(687751553024)" />
                         </Bindings>
                     </ui:Label>
-                    <ui:VisualElement name="BindingBox1" style="flex-grow: 1; height: 80%; width: 120px; background-color: rgb(34, 34, 34); border-left-color: rgb(96, 96, 96); border-right-color: rgb(96, 96, 96); border-top-color: rgb(96, 96, 96); border-bottom-color: rgb(96, 96, 96); border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 15px; min-width: 120px; max-width: 120px;">
-                        <ui:Label text="D" style="color: rgb(255, 234, 0); -unity-text-align: upper-center;" />
+                    <ui:VisualElement name="BindingBox_MoveRight" style="flex-grow: 1; height: 80%; width: 120px; background-color: rgb(34, 34, 34); border-left-color: rgb(96, 96, 96); border-right-color: rgb(96, 96, 96); border-top-color: rgb(96, 96, 96); border-bottom-color: rgb(96, 96, 96); border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 15px; min-width: 120px; max-width: 120px;">
+                        <ui:Label text="D" name="BindingLabel_MoveRight" style="color: rgb(255, 234, 0); -unity-text-align: upper-center;" />
                     </ui:VisualElement>
-                    <ui:Button text="Change" name="ChangeButton1" class="change-button" style="width: 70px; height: 0%;">
+                    <ui:Button text="Change" name="ChangeButton_MoveRight" class="change-button" style="width: 70px; height: 0%;">
                         <Bindings>
                             <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(3344172048384)" />
                         </Bindings>
                     </ui:Button>
                 </ui:VisualElement>
-                <ui:VisualElement name="bindingRow4" style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: center; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; width: 65%;">
-                    <ui:Label text="First Skill" name="ActionName1" style="color: rgb(255, 255, 255); flex-grow: 1;">
+                <ui:VisualElement name="bindingRow_FirstSkill" style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: center; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; width: 65%;">
+                    <ui:Label text="Second Skill" name="ActionName_FirstSkill" style="color: rgb(255, 255, 255); flex-grow: 1;">
                         <Bindings>
                             <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(777522241536)" />
                         </Bindings>
                     </ui:Label>
-                    <ui:VisualElement name="BindingBox1" style="flex-grow: 1; height: 80%; width: 120px; background-color: rgb(34, 34, 34); border-left-color: rgb(96, 96, 96); border-right-color: rgb(96, 96, 96); border-top-color: rgb(96, 96, 96); border-bottom-color: rgb(96, 96, 96); border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 15px; min-width: 120px; max-width: 120px;">
-                        <ui:Label text="LBM" style="color: rgb(255, 234, 0); -unity-text-align: upper-center;" />
+                    <ui:VisualElement name="BindingBox_FirstSkill" style="flex-grow: 1; height: 80%; width: 120px; background-color: rgb(34, 34, 34); border-left-color: rgb(96, 96, 96); border-right-color: rgb(96, 96, 96); border-top-color: rgb(96, 96, 96); border-bottom-color: rgb(96, 96, 96); border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 15px; min-width: 120px; max-width: 120px;">
+                        <ui:Label text="RBM" name="BindingLabel_FirstSkill" style="color: rgb(255, 234, 0); -unity-text-align: upper-center;" />
                     </ui:VisualElement>
-                    <ui:Button text="Change" name="ChangeButton1" class="change-button" style="width: 70px; height: 0%;">
+                    <ui:Button text="Change" name="ChangeButton_FirstSkill" class="change-button" style="width: 70px; height: 0%;">
                         <Bindings>
                             <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(3344172048384)" />
                         </Bindings>
                     </ui:Button>
                 </ui:VisualElement>
-                <ui:VisualElement name="bindingRow5" style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: center; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; width: 65%;">
-                    <ui:Label text="Second Skill" name="ActionName1" style="color: rgb(255, 255, 255); flex-grow: 1;">
+                <ui:VisualElement name="bindingRow_SecondSkill" style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: center; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; width: 65%;">
+                    <ui:Label text="Second Skill" name="ActionName_SecondSkill" style="color: rgb(255, 255, 255); flex-grow: 1;">
                         <Bindings>
                             <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(835885981696)" />
                         </Bindings>
                     </ui:Label>
-                    <ui:VisualElement name="BindingBox1" style="flex-grow: 1; height: 80%; width: 120px; background-color: rgb(34, 34, 34); border-left-color: rgb(96, 96, 96); border-right-color: rgb(96, 96, 96); border-top-color: rgb(96, 96, 96); border-bottom-color: rgb(96, 96, 96); border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 15px; min-width: 120px; max-width: 120px;">
-                        <ui:Label text="RBM" style="color: rgb(255, 234, 0); -unity-text-align: upper-center;" />
+                    <ui:VisualElement name="BindingBox_SecondSkill" style="flex-grow: 1; height: 80%; width: 120px; background-color: rgb(34, 34, 34); border-left-color: rgb(96, 96, 96); border-right-color: rgb(96, 96, 96); border-top-color: rgb(96, 96, 96); border-bottom-color: rgb(96, 96, 96); border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 15px; min-width: 120px; max-width: 120px;">
+                        <ui:Label text="RBM" name="BindingLabel_SecondSkill" style="color: rgb(255, 234, 0); -unity-text-align: upper-center;" />
                     </ui:VisualElement>
-                    <ui:Button text="Change" name="ChangeButton1" class="change-button" style="width: 70px; height: 0%;">
+                    <ui:Button text="Change" name="ChangeButton_SecondSkill" class="change-button" style="width: 70px; height: 0%;">
+                        <Bindings>
+                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(3344172048384)" />
+                        </Bindings>
+                    </ui:Button>
+                </ui:VisualElement>
+                <ui:VisualElement name="bindingRow_Interact" style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: center; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; width: 65%;">
+                    <ui:Label text="Second Skill" name="ActionName_Interact" style="color: rgb(255, 255, 255); flex-grow: 1;">
+                        <Bindings>
+                            <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(201734428286976)" />
+                        </Bindings>
+                    </ui:Label>
+                    <ui:VisualElement name="BindingBox_Interact" style="flex-grow: 1; height: 80%; width: 120px; background-color: rgb(34, 34, 34); border-left-color: rgb(96, 96, 96); border-right-color: rgb(96, 96, 96); border-top-color: rgb(96, 96, 96); border-bottom-color: rgb(96, 96, 96); border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; margin-right: 15px; min-width: 120px; max-width: 120px;">
+                        <ui:Label text="F" name="BindingLabel_Interact" style="color: rgb(255, 234, 0); -unity-text-align: upper-center;" />
+                    </ui:VisualElement>
+                    <ui:Button text="Change" name="ChangeButton_Interact" class="change-button" style="width: 70px; height: 0%;">
                         <Bindings>
                             <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(3344172048384)" />
                         </Bindings>

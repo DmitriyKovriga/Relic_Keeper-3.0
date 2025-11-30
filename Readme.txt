@@ -15,3 +15,9 @@
 Скачать:
 VSCode
 dontnet-sdk-9 https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-9.0.308-windows-x64-installer
+
+
+
+Инструкции:
+1) Как добавить кнопку к системе управления. Нужно добавить Row и в названии верно указать название импута в InputSystem, кроме того, 
+обязательно зайти на компонент ControlsUi и в OnEnable добавить по аналогии с SetupRebind("Interact");

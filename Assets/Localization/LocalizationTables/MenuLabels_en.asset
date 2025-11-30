@@ -54,6 +54,10 @@ MonoBehaviour:
     m_Localized: Russian
     m_Metadata:
       m_Items: []
+  - m_Id: 201734428286976
+    m_Localized: Interact
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
