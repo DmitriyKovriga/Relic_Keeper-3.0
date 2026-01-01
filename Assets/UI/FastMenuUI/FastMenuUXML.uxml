@@ -1,0 +1,23 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/SettingsUI/SettingUSS.uss?fileID=7433441132597879392&amp;guid=f4d264def3a964c47a5444b21d1f26c5&amp;type=3#SettingUSS" />
+    <ui:VisualElement name="WindowRoot" style="flex-grow: 1;">
+        <ui:VisualElement name="WindowPanel" class="panel" style="flex-grow: 0; width: 40%; height: 70%; flex-shrink: 0; align-items: center; position: relative; align-self: center; margin-top: 5%; justify-content: flex-start;">
+            <ui:Button text="Button" name="ContinueButton" class="change-button spacing-for-button" style="margin-top: 10%; flex-shrink: 0; width: 50%;">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(11763771482562560)" />
+                </Bindings>
+            </ui:Button>
+            <ui:Button text="Button" name="SettingsButton" class="change-button spacing-for-button" style="width: 50%;">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(11763657833701376)" />
+                </Bindings>
+            </ui:Button>
+            <ui:Button text="Button" name="ExitButton" class="change-button spacing-for-button" style="width: 50%;">
+                <Bindings>
+                    <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(11763869629276160)" />
+                </Bindings>
+            </ui:Button>
+        </ui:VisualElement>
+        <ui:VisualElement name="Overlay" class="darkener" style="flex-grow: 1;" />
+    </ui:VisualElement>
+</ui:UXML>

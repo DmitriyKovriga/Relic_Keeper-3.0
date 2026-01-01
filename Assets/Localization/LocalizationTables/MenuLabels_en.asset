@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: MenuLabels_en
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 1e98064ea36b71e4584c75c3e3fd8cae, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 60556304384
+    m_Localized: Jump
+    m_Metadata:
+      m_Items: []
+  - m_Id: 514749095936
+    m_Localized: Move Left
+    m_Metadata:
+      m_Items: []
+  - m_Id: 687751553024
+    m_Localized: Move Right
+    m_Metadata:
+      m_Items: []
+  - m_Id: 777522241536
+    m_Localized: First Skill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 835885981696
+    m_Localized: Second Skill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3344172048384
+    m_Localized: Change
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3492335837184
+    m_Localized: Choose Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4483886080000
+    m_Localized: English
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4679315480576
+    m_Localized: Russian
+    m_Metadata:
+      m_Items: []
+  - m_Id: 201734428286976
+    m_Localized: Interact
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11763657833701376
+    m_Localized: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11763771482562560
+    m_Localized: Continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11763869629276160
+    m_Localized: Exit
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []
