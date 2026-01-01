@@ -39,3 +39,8 @@
     background-color: rgb(42, 42, 42);
     color: rgb(255, 255, 255);
 }
+
+.spacing-for-button {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}

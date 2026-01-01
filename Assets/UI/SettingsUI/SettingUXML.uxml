@@ -1,7 +1,8 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/SettingsUI/SettingUSS.uss?fileID=7433441132597879392&amp;guid=f4d264def3a964c47a5444b21d1f26c5&amp;type=3#SettingUSS" />
-    <ui:VisualElement name="Background" class="darkener" style="flex-grow: 1; position: absolute; top: 0; right: 0; bottom: 0; left: 0;">
-        <ui:VisualElement name="Panel" class="panel" style="flex-grow: 1; top: 25px; right: 25px; left: 25px; bottom: 25px; position: absolute;">
+    <ui:VisualElement name="WindowRoot" style="flex-grow: 1; display: none;">
+        <ui:VisualElement name="Overlay" class="darkener" style="flex-grow: 1; position: absolute; top: 0; right: 0; bottom: 0; left: 0; visibility: visible;" />
+        <ui:VisualElement name="WindowPanel" class="panel" style="flex-grow: 1; top: 25px; right: 25px; left: 25px; bottom: 25px; position: absolute;">
             <ui:ScrollView name="BindingContainer" style="align-self: auto; align-items: flex-start; flex-shrink: 1; flex-basis: auto; width: 100%; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0;">
                 <ui:VisualElement name="BindingRowLocal" style="flex-grow: 1; flex-direction: row; justify-content: flex-start; align-items: center; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; width: 65%;">
                     <ui:Label text="Jump" name="ActionName1" style="color: rgb(255, 255, 255); flex-grow: 1;">

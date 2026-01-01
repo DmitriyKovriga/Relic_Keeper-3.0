@@ -55,6 +55,18 @@ MonoBehaviour:
     m_Key: settings.interact
     m_Metadata:
       m_Items: []
+  - m_Id: 11763657833701376
+    m_Key: fastMenu.toSettings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11763771482562560
+    m_Key: fastMenu.continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11763869629276160
+    m_Key: fastMenu.exit
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
