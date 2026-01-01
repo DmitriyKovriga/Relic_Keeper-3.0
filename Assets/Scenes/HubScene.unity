@@ -132,7 +132,6 @@ GameObject:
   - component: {fileID: 433034314}
   - component: {fileID: 433034315}
   - component: {fileID: 433034316}
-  - component: {fileID: 433034317}
   - component: {fileID: 433034318}
   m_Layer: 5
   m_Name: SettingsWindow
@@ -171,7 +170,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: 2159abdbd1cdaad468b99aee9606433d, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: ccc165508ead40e4ba8e3f34f657604e, type: 3}
-  m_SortingOrder: 1
+  m_SortingOrder: 11
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080
@@ -182,7 +181,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 433034311}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 17c9f69df49bf7746b3fd46bc3818d62, type: 3}
   m_Name: 
@@ -195,7 +194,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 433034311}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: afc1d4d0115c1a344b68b60d70f72a5c, type: 3}
   m_Name: 
@@ -209,27 +208,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 433034311}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a50c1e21bff759f418b1fff9f0eba467, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   enabledFromUI: 0
---- !u!114 &433034317
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 433034311}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 670785d4bd311bd48aab3bfe194b48eb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetWindow: {fileID: 0}
-  ui: {fileID: 433034313}
 --- !u!114 &433034318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -351,7 +336,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 6.6805553
+  orthographic size: 6.736111
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -736,7 +721,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: 2159abdbd1cdaad468b99aee9606433d, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: de4daaa54ab2f764fb5190ebe831c053, type: 3}
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
   m_WorldSpaceHeight: 1080

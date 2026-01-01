@@ -67,6 +67,10 @@ MonoBehaviour:
     m_Key: fastMenu.exit
     m_Metadata:
       m_Items: []
+  - m_Id: 11788523189862400
+    m_Key: mainMenu.StartGame
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
