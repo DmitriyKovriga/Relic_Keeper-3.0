@@ -4,6 +4,7 @@ using UnityEngine.UIElements;
 
 public class MainMenuUI : MonoBehaviour
 {
+    public string hubSceneName = "HubScene";
     public UIDocument ui;
     private Button startGameButton;
     private Button exitButton;
@@ -31,6 +32,7 @@ public class MainMenuUI : MonoBehaviour
 
     private void OnStartGameClicked()
     {
+        SceneLoader.Instance.LoadGameScene(hubSceneName);
         Debug.Log("Переход на сцену игры");
     }
 
@@ -47,6 +49,13 @@ public class MainMenuUI : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+
+    private void OnDisable()
+    {
+        startGameButton.clicked -= OnStartGameClicked;
+        exitButton.clicked -= OnExitClicked;
+        settingsButton.clicked -= OnSettingsClicked;
     }
     
 }
