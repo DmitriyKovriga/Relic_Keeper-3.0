@@ -766,6 +766,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ui: {fileID: 1639482514}
+  pauseWindow: {fileID: 1639482515}
   settingsWindow: {fileID: 433034318}
 --- !u!1 &1862690028
 GameObject:
