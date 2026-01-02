@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/SettingsUI/SettingUSS.uss?fileID=7433441132597879392&amp;guid=f4d264def3a964c47a5444b21d1f26c5&amp;type=3#SettingUSS" />
-    <ui:VisualElement name="WindowRoot" style="flex-grow: 1;">
+    <ui:VisualElement name="WindowRoot" style="flex-grow: 1; display: none;">
         <ui:VisualElement name="Overlay" class="darkener" style="flex-grow: 1;">
             <ui:VisualElement name="WindowPanel" class="panel" style="flex-grow: 0; width: 40%; height: 70%; flex-shrink: 0; align-items: center; position: relative; align-self: center; margin-top: 5%; justify-content: flex-start;">
                 <ui:Button text="Button" name="ContinueButton" class="change-button spacing-for-button" style="margin-top: 10%; flex-shrink: 0; width: 50%;">
