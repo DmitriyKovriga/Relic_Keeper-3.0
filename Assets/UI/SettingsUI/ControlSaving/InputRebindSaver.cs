@@ -1,9 +1,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.IO;
+using System; // Нужно для Action
 
 public static class InputRebindSaver
 {
+    // Событие, на которое можно подписаться
+    public static event Action RebindsChanged;
+
     private static string SavePath =>
         Path.Combine(Application.persistentDataPath, "rebinds.json");
 
@@ -12,6 +16,9 @@ public static class InputRebindSaver
         string json = actions.SaveBindingOverridesAsJson();
         File.WriteAllText(SavePath, json);
         Debug.Log($"Rebinds saved to {SavePath}");
+
+        // УВЕДОМЛЯЕМ ВСЕХ: Настройки изменились!
+        RebindsChanged?.Invoke();
     }
 
     public static void Load(InputActionAsset actions)
@@ -21,7 +28,8 @@ public static class InputRebindSaver
 
         string json = File.ReadAllText(SavePath);
         actions.LoadBindingOverridesFromJson(json);
-        Debug.Log("Rebinds loaded");
+        // Тут лог можно убрать, чтобы не спамил при каждом обновлении
+        // Debug.Log("Rebinds loaded"); 
     }
 
     public static void Clear(InputActionAsset actions)
@@ -31,5 +39,8 @@ public static class InputRebindSaver
             File.Delete(SavePath);
 
         Debug.Log("Rebinds cleared");
+        
+        // Тоже уведомляем, если вдруг сбросили настройки
+        RebindsChanged?.Invoke();
     }
 }
