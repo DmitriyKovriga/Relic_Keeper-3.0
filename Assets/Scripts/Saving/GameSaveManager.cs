@@ -12,7 +12,7 @@ public class GameSaveManager : MonoBehaviour
 
     private void Start()
     {
-        _characterDB.Init();
+        _characterDB.Init(); // Если нужно инициализировать базу
         
         if (File.Exists(SavePath))
         {
@@ -26,24 +26,49 @@ public class GameSaveManager : MonoBehaviour
 
     private void Update()
     {
-        // Управление системой сохранений (Dev Tools)
-        if (Keyboard.current.kKey.wasPressedThisFrame) SaveGame();
-        if (Keyboard.current.lKey.wasPressedThisFrame) LoadGame();
+        // Dev Tools
+        if (Keyboard.current.kKey.wasPressedThisFrame) SaveGame(); // F5 - Save
+        if (Keyboard.current.lKey.wasPressedThisFrame) LoadGame(); // F9 - Load
         if (Keyboard.current.deleteKey.wasPressedThisFrame) DeleteSave();
+
+        if (Keyboard.current.f12Key.wasPressedThisFrame)
+        {
+            string path = Application.persistentDataPath;
+            // Этот метод работает и на Windows, и на Mac
+            Application.OpenURL(path); 
+            Debug.Log($"[System] Opening Save Folder: {path}");
+        }
     }
 
     public void SaveGame()
     {
-        if (_playerStats == null) return;
+        Debug.Log("[Debug] Пытаюсь сохранить..."); // <--- Добавь это
+
+    if (_playerStats == null) 
+    {
+        Debug.LogError("[Debug] ОШИБКА: Ты забыл привязать PlayerStats в инспекторе!"); 
+        return;
+    }
+
 
         var data = new GameSaveData
         {
+            // 1. Сохраняем ID класса
             CharacterClassID = _playerStats.CurrentClassID,
-            CurrentHealth = _playerStats.CurrentHealth
+            
+            // 2. Сохраняем состояние
+            CurrentHealth = _playerStats.CurrentHealth,
+            CurrentMana = _playerStats.CurrentMana,
+            
+            // 3. Сохраняем прогресс (Уровень и Опыт)
+            CurrentLevel = _playerStats.Level,
+            CurrentXP = _playerStats.CurrentXP,
+            RequiredXP = _playerStats.RequiredXP
         };
 
-        File.WriteAllText(SavePath, JsonUtility.ToJson(data, true));
-        Debug.Log($"[System] Game Saved");
+        string json = JsonUtility.ToJson(data, true);
+        File.WriteAllText(SavePath, json);
+        Debug.Log($"[System] Game Saved. Level: {data.CurrentLevel}, XP: {data.CurrentXP}");
     }
 
     public void LoadGame()
@@ -52,26 +77,31 @@ public class GameSaveManager : MonoBehaviour
 
         try 
         {
-            var json = File.ReadAllText(SavePath);
-            var data = JsonUtility.FromJson<GameSaveData>(json);
+            string json = File.ReadAllText(SavePath);
+            GameSaveData data = JsonUtility.FromJson<GameSaveData>(json);
 
-            var characterData = _characterDB.GetCharacterByID(data.CharacterClassID);
+            CharacterDataSO characterData = _characterDB.GetCharacterByID(data.CharacterClassID);
             
             if (characterData != null)
             {
+                // Сначала инициализируем базовые статы класса
                 _playerStats.Initialize(characterData);
-                _playerStats.ApplyLoadedState(data.CurrentHealth);
-                Debug.Log($"[System] Game Loaded: {characterData.DisplayName}");
+                
+                // Потом накатываем сверху сохраненные данные (Уровень, ХП, Опыт)
+                _playerStats.ApplyLoadedState(data);
+                
+                Debug.Log($"[System] Game Loaded: {characterData.DisplayName}, Lvl {data.CurrentLevel}");
             }
             else 
             {
-                Debug.LogWarning($"[System] Save file corrupted or class missing. Starting new.");
+                Debug.LogWarning($"[System] Class '{data.CharacterClassID}' not found. Starting New Game.");
                 StartNewGame();
             }
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"[System] Save Load Error: {e.Message}");
+            Debug.LogError($"[System] Load Error: {e.Message}");
+            // В случае ошибки сейва лучше начать новую игру, чем крашить
             StartNewGame();
         }
     }
@@ -81,7 +111,7 @@ public class GameSaveManager : MonoBehaviour
         if (File.Exists(SavePath))
         {
             File.Delete(SavePath);
-            Debug.Log("[System] Save Deleted. Resetting...");
+            Debug.Log("[System] Save Deleted.");
             StartNewGame();
         }
     }

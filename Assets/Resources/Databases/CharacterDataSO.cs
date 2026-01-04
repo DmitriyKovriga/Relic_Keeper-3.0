@@ -8,6 +8,7 @@ public class CharacterDataSO : ScriptableObject
     
     [Header("Base Stats")]
     public float BaseMaxHealth = 100f;
+    public float BaseMaxManna = 50f;
     public float BaseMoveSpeed = 5f;
     public float BaseJumpForce = 12f;
 }
