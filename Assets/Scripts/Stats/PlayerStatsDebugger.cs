@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // Используем новую систему ввода
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(PlayerStats))]
 public class PlayerStatsDebugger : MonoBehaviour
@@ -22,53 +22,52 @@ public class PlayerStatsDebugger : MonoBehaviour
 
     private void Update()
     {
-        // 1. Проверка: включен ли дебаг и есть ли клавиатура
         if (!_isDebugActive || Keyboard.current == null) return;
 
-        // --- ЗДОРОВЬЕ (1 и 2) ---
-        // 1: Отнять ХП (Урон)
+        // --- ЗДОРОВЬЕ (Health Resource) ---
+        // 1: Нанести урон
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
         {
-            _stats.TakeDamage(_healthChange);
-            Debug.Log($"[Debug] Damage: -{_healthChange} HP");
+            _stats.Health.Decrease(_healthChange);
+            Debug.Log($"[Debug] HP -{_healthChange} | Current: {_stats.Health.Current}");
         }
 
-        // 2: Добавить ХП (Лечение)
+        // 2: Полечить
         if (Keyboard.current.digit2Key.wasPressedThisFrame)
         {
-            _stats.Heal(_healthChange);
-            Debug.Log($"[Debug] Heal: +{_healthChange} HP");
+            _stats.Health.Increase(_healthChange);
+            Debug.Log($"[Debug] HP +{_healthChange} | Current: {_stats.Health.Current}");
         }
 
-        // --- МАНА (3 и 4) ---
-        // 3: Отнять Ману
+        // --- МАНА (Mana Resource) ---
+        // 3: Потратить ману
         if (Keyboard.current.digit3Key.wasPressedThisFrame)
         {
-            _stats.UseMana(_manaChange);
-            Debug.Log($"[Debug] Mana Drain: -{_manaChange} MP");
+            _stats.Mana.Decrease(_manaChange);
+            Debug.Log($"[Debug] MP -{_manaChange} | Current: {_stats.Mana.Current}");
         }
 
-        // 4: Добавить Ману
+        // 4: Восстановить ману
         if (Keyboard.current.digit4Key.wasPressedThisFrame)
         {
-            _stats.RestoreMana(_manaChange);
-            Debug.Log($"[Debug] Mana Restore: +{_manaChange} MP");
+            _stats.Mana.Increase(_manaChange);
+            Debug.Log($"[Debug] MP +{_manaChange} | Current: {_stats.Mana.Current}");
         }
 
-        // --- ОПЫТ (5 и 6) ---
-        // 5: Отнять Опыт (Для тестов полоски)
+        // --- ОПЫТ (Leveling System) ---
+        // 5: Отнять опыт (для тестов UI)
         if (Keyboard.current.digit5Key.wasPressedThisFrame)
         {
-            // Передаем отрицательное значение в AddXP
-            _stats.AddXP(-_xpChange); 
-            Debug.Log($"[Debug] XP Remove: -{_xpChange} XP");
+            // AddXP принимает float, передаем отрицательное число
+            _stats.Leveling.AddXP(-_xpChange);
+            Debug.Log($"[Debug] XP -{_xpChange}");
         }
 
-        // 6: Добавить Опыт (Для тестов левелапа)
+        // 6: Добавить опыт (для Level Up)
         if (Keyboard.current.digit6Key.wasPressedThisFrame)
         {
-            _stats.AddXP(_xpChange);
-            Debug.Log($"[Debug] XP Add: +{_xpChange} XP");
+            _stats.Leveling.AddXP(_xpChange);
+            Debug.Log($"[Debug] XP +{_xpChange} | Lvl: {_stats.Leveling.Level}");
         }
     }
 }

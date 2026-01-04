@@ -3,135 +3,95 @@ using System;
 
 public class PlayerStats : MonoBehaviour
 {
-    public event Action OnStatsChanged;
-    private const int MAX_LEVEL = 30;
+    // Глобальное событие, если кто-то ленивый хочет подписаться на всё сразу
+    public event Action OnAnyStatChanged;
 
-    [Header("Settings")] // <--- НОВОЕ: Настройки поведения
-    [SerializeField] private bool _restoreStateOnLevelUp = true; // Галочка: Лечить ли при лвл-апе?
+    [Header("Config")]
+    [SerializeField] private CharacterDataSO _defaultData; // Для тестов без сейва
+    [SerializeField] private bool _restoreStateOnLevelUp = true;
 
-    // --- Характеристики ---
+    // --- 1. Характеристики (Stats) ---
+    // Удобная группировка. В будущем здесь будут Strength, Intelligence...
     public CharacterStat MaxHealth { get; private set; }
     public CharacterStat MaxMana { get; private set; }
     public CharacterStat MoveSpeed { get; private set; }
     public CharacterStat JumpForce { get; private set; }
 
-    // --- Текущие значения ---
-    public float CurrentHealth { get; private set; }
-    public float CurrentMana { get; private set; }
-    
-    // --- Прогресс ---
-    public int Level { get; private set; } = 1;
-    public float CurrentXP { get; private set; }
-    public float RequiredXP { get; private set; }
+    // --- 2. Ресурсы (Resources) ---
+    // Логика current/max ушла сюда
+    public StatResource Health { get; private set; }
+    public StatResource Mana { get; private set; }
 
-    public string CurrentClassID => _activeCharacterData != null ? _activeCharacterData.ID : string.Empty;
-    private CharacterDataSO _activeCharacterData;
+    // --- 3. Прогрессия (Leveling) ---
+    public LevelingSystem Leveling { get; private set; }
+    
+    // Свойство для удобства сохранений
+    public string CurrentClassID => _activeCharacterID;
+    private string _activeCharacterID;
 
     public void Initialize(CharacterDataSO data)
     {
-        _activeCharacterData = data;
+        _activeCharacterID = data.ID;
 
+        // 1. Создаем статы
         MaxHealth = new CharacterStat(data.BaseMaxHealth);
-        MaxMana = new CharacterStat(50f); 
+        MaxMana = new CharacterStat(data.BaseMaxManna);
         MoveSpeed = new CharacterStat(data.BaseMoveSpeed);
         JumpForce = new CharacterStat(data.BaseJumpForce);
 
-        // При старте НОВОЙ игры мы всегда полные, независимо от галочки
-        Level = 1;
-        CurrentXP = 0;
-        RequiredXP = 100f;
-
-        CurrentHealth = MaxHealth.Value;
-        CurrentMana = MaxMana.Value;
+        // 2. Создаем ресурсы, привязывая их к статам
+        Health = new StatResource(MaxHealth);
+        Mana = new StatResource(MaxMana);
         
-        RefreshUI();
+        // Подписываемся на события ресурсов, чтобы уведомлять общий ивент
+        Health.OnValueChanged += NotifyChanged;
+        Mana.OnValueChanged += NotifyChanged;
+        Health.OnDepleted += HandleDeath;
+
+        // 3. Создаем систему уровня (по дефолту 1 лвл)
+        Leveling = new LevelingSystem(1, 0, 100);
+        Leveling.OnLevelUp += HandleLevelUp;
+        Leveling.OnXPChanged += NotifyChanged;
     }
 
     public void ApplyLoadedState(GameSaveData data)
     {
-        Level = data.CurrentLevel > 0 ? data.CurrentLevel : 1; 
-        CurrentXP = data.CurrentXP;
-        RequiredXP = data.RequiredXP > 0 ? data.RequiredXP : 100f; 
+        // Восстанавливаем левелинг
+        Leveling = new LevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP);
+        Leveling.OnLevelUp += HandleLevelUp;
+        Leveling.OnXPChanged += NotifyChanged;
 
-        CurrentHealth = data.CurrentHealth;
+        // Восстанавливаем ресурсы
+        Health.SetCurrent(data.CurrentHealth);
+        Mana.SetCurrent(data.CurrentMana);
         
-        if (CurrentHealth <= 0) CurrentHealth = MaxHealth.Value;
-        if (CurrentHealth > MaxHealth.Value) CurrentHealth = MaxHealth.Value;
+        NotifyChanged();
+    }
 
-        if (data.CurrentMana > 0)
+    private void HandleLevelUp()
+    {
+        if (_restoreStateOnLevelUp)
         {
-            CurrentMana = data.CurrentMana;
-            // На всякий случай не даем выйти за пределы
-            if (CurrentMana > MaxMana.Value) CurrentMana = MaxMana.Value;
+            Health.RestoreFull();
+            Mana.RestoreFull();
         }
-
-        RefreshUI();
+        NotifyChanged();
+        Debug.Log($"[PlayerStats] Level Up! New Level: {Leveling.Level}");
     }
 
-    public void AddXP(float amount)
+    private void HandleDeath()
     {
-        if (Level >= MAX_LEVEL) return;
-
-        CurrentXP += amount;
-        CheckLevelUp();
-        RefreshUI();
+        Debug.Log("[PlayerStats] YOU DIED");
+        // Тут позже вызовем GameManager.GameOver()
     }
 
-    private void CheckLevelUp()
+    private void NotifyChanged() => OnAnyStatChanged?.Invoke();
+
+    private void OnDestroy()
     {
-        bool leveledUp = false;
-
-        while (CurrentXP >= RequiredXP && Level < MAX_LEVEL)
-        {
-            CurrentXP -= RequiredXP;
-            Level++;
-            RequiredXP *= 1.2f;
-            leveledUp = true;
-        }
-
-        // --- ЛОГИКА ЛЕЧЕНИЯ ---
-        // Лечим только если был левел-ап И стоит галочка
-        if (leveledUp && _restoreStateOnLevelUp)
-        {
-            CurrentHealth = MaxHealth.Value;
-            CurrentMana = MaxMana.Value;
-        }
-
-        if (Level >= MAX_LEVEL)
-        {
-            CurrentXP = 0;
-            RequiredXP = 0;
-        }
+        // Отписки, чтобы не текло
+        if (Health != null) Health.OnValueChanged -= NotifyChanged;
+        if (Mana != null) Mana.OnValueChanged -= NotifyChanged;
+        if (Leveling != null) Leveling.OnLevelUp -= HandleLevelUp;
     }
-
-    public void TakeDamage(float damage)
-    {
-        CurrentHealth = Mathf.Max(0, CurrentHealth - damage);
-        if (CurrentHealth <= 0) Die();
-        RefreshUI();
-    }
-
-    public void Heal(float amount)
-    {
-        CurrentHealth = Mathf.Min(CurrentHealth + amount, MaxHealth.Value);
-        RefreshUI();
-    }
-
-    public void UseMana(float amount)
-    {
-        if (CurrentMana >= amount)
-        {
-            CurrentMana -= amount;
-            RefreshUI();
-        }
-    }
-
-    public void RestoreMana(float amount)
-    {
-        CurrentMana = Mathf.Min(CurrentMana + amount, MaxMana.Value);
-        RefreshUI();
-    }
-
-    private void RefreshUI() => OnStatsChanged?.Invoke();
-    private void Die() => Debug.Log("Player Died");
 }

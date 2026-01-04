@@ -8,12 +8,11 @@ public class GameSaveManager : MonoBehaviour
     [SerializeField] private CharacterDatabaseSO _characterDB;
     [SerializeField] private CharacterDataSO _defaultCharacter;
 
-    // Используем Path.Combine для надежности путей на разных ОС
-    private string SavePath => Path.Combine(Application.persistentDataPath, "savegame.json");
+    private string SavePath => Application.persistentDataPath + "/savegame.json";
 
     private void Start()
     {
-        if (_characterDB != null) _characterDB.Init();
+        _characterDB.Init(); // Если нужно инициализировать базу
         
         if (File.Exists(SavePath))
         {
@@ -28,15 +27,14 @@ public class GameSaveManager : MonoBehaviour
     private void Update()
     {
         // Dev Tools
-        if (Keyboard.current == null) return;
-
-        if (Keyboard.current.kKey.wasPressedThisFrame) SaveGame(); // F5/K - Save
-        if (Keyboard.current.lKey.wasPressedThisFrame) LoadGame(); // F9/L - Load
+        if (Keyboard.current.kKey.wasPressedThisFrame) SaveGame(); // F5 - Save
+        if (Keyboard.current.lKey.wasPressedThisFrame) LoadGame(); // F9 - Load
         if (Keyboard.current.deleteKey.wasPressedThisFrame) DeleteSave();
 
         if (Keyboard.current.f12Key.wasPressedThisFrame)
         {
             string path = Application.persistentDataPath;
+            // Этот метод работает и на Windows, и на Mac
             Application.OpenURL(path); 
             Debug.Log($"[System] Opening Save Folder: {path}");
         }
@@ -44,28 +42,28 @@ public class GameSaveManager : MonoBehaviour
 
     public void SaveGame()
     {
-        Debug.Log("[System] Saving Game...");
+        Debug.Log("[Debug] Пытаюсь сохранить..."); // <--- Добавь это
 
-        if (_playerStats == null) 
-        {
-            Debug.LogError("[System] Error: PlayerStats ref is missing!"); 
-            return;
-        }
+    if (_playerStats == null) 
+    {
+        Debug.LogError("[Debug] ОШИБКА: Ты забыл привязать PlayerStats в инспекторе!"); 
+        return;
+    }
 
-        // Собираем данные из новых модулей
+
         var data = new GameSaveData
         {
-            // ID класса
+            // 1. Сохраняем ID класса
             CharacterClassID = _playerStats.CurrentClassID,
             
-            // Состояние ресурсов
-            CurrentHealth = _playerStats.Health.Current,
-            CurrentMana = _playerStats.Mana.Current,
+            // 2. Сохраняем состояние
+            CurrentHealth = _playerStats.CurrentHealth,
+            CurrentMana = _playerStats.CurrentMana,
             
-            // Прогресс (из LevelingSystem)
-            CurrentLevel = _playerStats.Leveling.Level,
-            CurrentXP = _playerStats.Leveling.CurrentXP,
-            RequiredXP = _playerStats.Leveling.RequiredXP
+            // 3. Сохраняем прогресс (Уровень и Опыт)
+            CurrentLevel = _playerStats.Level,
+            CurrentXP = _playerStats.CurrentXP,
+            RequiredXP = _playerStats.RequiredXP
         };
 
         string json = JsonUtility.ToJson(data, true);
@@ -86,10 +84,10 @@ public class GameSaveManager : MonoBehaviour
             
             if (characterData != null)
             {
-                // 1. Инициализируем чистые статы (База)
+                // Сначала инициализируем базовые статы класса
                 _playerStats.Initialize(characterData);
                 
-                // 2. Накатываем сохраненные значения (XP, HP, Level)
+                // Потом накатываем сверху сохраненные данные (Уровень, ХП, Опыт)
                 _playerStats.ApplyLoadedState(data);
                 
                 Debug.Log($"[System] Game Loaded: {characterData.DisplayName}, Lvl {data.CurrentLevel}");
@@ -103,6 +101,7 @@ public class GameSaveManager : MonoBehaviour
         catch (System.Exception e)
         {
             Debug.LogError($"[System] Load Error: {e.Message}");
+            // В случае ошибки сейва лучше начать новую игру, чем крашить
             StartNewGame();
         }
     }
@@ -119,14 +118,6 @@ public class GameSaveManager : MonoBehaviour
 
     private void StartNewGame()
     {
-        if (_defaultCharacter != null)
-        {
-            _playerStats.Initialize(_defaultCharacter);
-            Debug.Log("[System] Started New Game (Default Character).");
-        }
-        else
-        {
-            Debug.LogError("[System] Default Character Data is missing!");
-        }
+        _playerStats.Initialize(_defaultCharacter);
     }
 }
