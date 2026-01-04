@@ -74,6 +74,238 @@ MonoBehaviour:
     m_Localized: Start Game
     m_Metadata:
       m_Items: []
+  - m_Id: 13040696682905600
+    m_Localized: Max Health
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040720791764992
+    m_Localized: Health Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040745169059840
+    m_Localized: Health on Hit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040766731976704
+    m_Localized: Health on Block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040782506754048
+    m_Localized: Max Mana
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040799086837760
+    m_Localized: Mana Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040816262512640
+    m_Localized: Mana on Hit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040825901023232
+    m_Localized: Mana on Block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040869085577216
+    m_Localized: Max Bubbles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040886231891968
+    m_Localized: Bubble Recharge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040904019935232
+    m_Localized: Bubble Absorb
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040920193171456
+    m_Localized: Armor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040956939468800
+    m_Localized: Evasion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040973465026560
+    m_Localized: Block Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040981421621248
+    m_Localized: Fire Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041002741268480
+    m_Localized: Cold Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041034676699136
+    m_Localized: Lightning Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041048899584000
+    m_Localized: Phys. Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041064183627776
+    m_Localized: Chaos Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041081917145088
+    m_Localized: Move Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041098736304128
+    m_Localized: Jump Force
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041119015763968
+    m_Localized: Attack Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041136858333184
+    m_Localized: Cast Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041158958120960
+    m_Localized: Phys. Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041188108533760
+    m_Localized: Fire Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041212934619136
+    m_Localized: Cold Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041229380485120
+    m_Localized: Lightning Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041242428964864
+    m_Localized: Phys. to Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041276167946240
+    m_Localized: Phys. to Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041294446723072
+    m_Localized: Phys. to Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041310049533952
+    m_Localized: Elem. to Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041343960481792
+    m_Localized: Accuracy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041354811146240
+    m_Localized: Crit Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041356933464064
+    m_Localized: Crit Multiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041397018427392
+    m_Localized: Phys. Pen.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041398633234432
+    m_Localized: Fire Pen.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041493520973824
+    m_Localized: Cold Pen.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041495773315072
+    m_Localized: Light. Pen.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041585107795968
+    m_Localized: Bleed Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041588345798656
+    m_Localized: Bleed Dmg Mult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041590866575360
+    m_Localized: Bleed Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041593030836224
+    m_Localized: Poison Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041595098628096
+    m_Localized: Poison Dmg Mult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041597074145280
+    m_Localized: Poison Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041599230017536
+    m_Localized: Ignite Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041604347068416
+    m_Localized: Ignite Dmg Mult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041606393888768
+    m_Localized: Ignite Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041608017084416
+    m_Localized: Freeze Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041609686417408
+    m_Localized: Shock Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041814720774144
+    m_Localized: Area of Effect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041816645959680
+    m_Localized: Cooldown Red.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041818386595840
+    m_Localized: Effect Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041819951071232
+    m_Localized: Proj. Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041821494575104
+    m_Localized: Misc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13047299658252288
+    m_Localized: Defense
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13047374677573632
+    m_Localized: Offense
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13047409410605056
+    m_Localized: Ailments
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13047462325944320
+    m_Localized: Misc
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

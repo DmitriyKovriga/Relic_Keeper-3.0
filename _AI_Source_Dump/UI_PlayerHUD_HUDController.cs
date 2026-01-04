@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // <--- ВАЖНО: Добавь эту строчку, чтобы работал TextMeshPro
+using TMPro;
+using Scripts.Stats; // Не забудь подключить namespace со статами
 
 public class HUDController : MonoBehaviour
 {
@@ -12,75 +13,89 @@ public class HUDController : MonoBehaviour
     [SerializeField] private Image _manaFill;
     [SerializeField] private Image _xpFill;
 
-    [Header("Text Info")] // <--- НОВЫЙ РАЗДЕЛ
-    [SerializeField] private TextMeshProUGUI _levelText; // Ссылка на текст уровня
+    [Header("Value Texts")]
+    [SerializeField] private TextMeshProUGUI _healthValueText;
+    [SerializeField] private TextMeshProUGUI _manaValueText;
+    [SerializeField] private TextMeshProUGUI _xpValueText;
+    [SerializeField] private TextMeshProUGUI _levelText;
 
     [Header("Skill Slots")]
     [SerializeField] private UISkillSlot[] _skillSlots;
 
     private void Start()
     {
+        // Если игрок уже привязан в инспекторе
         if (_playerStats != null)
         {
-            _playerStats.OnStatsChanged += UpdateUI;
-            // Ждем инициализации данных, не обновляем сразу
+            SetupEvents();
+            UpdateUI();
         }
     }
 
     private void OnDestroy()
     {
-        if (_playerStats != null) _playerStats.OnStatsChanged -= UpdateUI;
+        if (_playerStats != null) _playerStats.OnAnyStatChanged -= UpdateUI;
     }
 
     public void SetPlayer(PlayerStats stats)
     {
-        if (_playerStats != null) _playerStats.OnStatsChanged -= UpdateUI;
+        if (_playerStats != null) _playerStats.OnAnyStatChanged -= UpdateUI;
         _playerStats = stats;
         
         if (_playerStats != null)
         {
-            _playerStats.OnStatsChanged += UpdateUI;
+            SetupEvents();
             UpdateUI();
         }
+    }
+
+    private void SetupEvents()
+    {
+        _playerStats.OnAnyStatChanged += UpdateUI;
     }
 
     private void UpdateUI()
     {
         if (_playerStats == null) return;
-        if (_playerStats.MaxHealth == null || _playerStats.MaxMana == null) return;
-
-        // --- BARS ---
-        if (_healthFill != null)
+        
+        // --- 1. HEALTH ---
+        // Используем ресурсы, они уже знают про свой Максимум
+        if (_playerStats.Health != null)
         {
-            float maxHp = _playerStats.MaxHealth.Value;
-            _healthFill.fillAmount = maxHp > 0 ? _playerStats.CurrentHealth / maxHp : 0;
+            if (_healthFill != null)
+                _healthFill.fillAmount = _playerStats.Health.Percent;
+
+            if (_healthValueText != null)
+                _healthValueText.text = $"{_playerStats.Health.Current:0} / {_playerStats.Health.Max:0}";
         }
 
-        if (_manaFill != null)
+        // --- 2. MANA ---
+        if (_playerStats.Mana != null)
         {
-            float maxMana = _playerStats.MaxMana.Value;
-            _manaFill.fillAmount = maxMana > 0 ? _playerStats.CurrentMana / maxMana : 0;
+            if (_manaFill != null)
+                _manaFill.fillAmount = _playerStats.Mana.Percent;
+
+            if (_manaValueText != null)
+                _manaValueText.text = $"{_playerStats.Mana.Current:0} / {_playerStats.Mana.Max:0}";
         }
 
-        if (_xpFill != null)
+        // --- 3. EXPERIENCE ---
+        if (_playerStats.Leveling != null)
         {
-            float requiredXp = _playerStats.RequiredXP;
-            // Если макс уровень (reqXP = 0), рисуем полную полоску
-            if (requiredXp > 0)
-                _xpFill.fillAmount = _playerStats.CurrentXP / requiredXp;
-            else
-                _xpFill.fillAmount = 1f;
-        }
+            float currentXP = _playerStats.Leveling.CurrentXP;
+            float reqXP = _playerStats.Leveling.RequiredXP;
 
-        // --- LEVEL TEXT (НОВОЕ) ---
-        if (_levelText != null)
-        {
-            // Просто берем цифру уровня из статов
-            _levelText.text = _playerStats.Level.ToString();
+            if (_xpFill != null)
+                _xpFill.fillAmount = (reqXP > 0) ? currentXP / reqXP : 1f;
+
+            if (_xpValueText != null)
+                _xpValueText.text = (reqXP > 0) ? $"{currentXP:0} / {reqXP:0}" : "MAX";
+            
+            if (_levelText != null)
+                _levelText.text = _playerStats.Leveling.Level.ToString();
         }
     }
     
-    // ... (Метод UpdateSkillSlot остается без изменений) ...
     public void UpdateSkillSlot(int index, Sprite icon)
     {
         if (index >= 0 && index < _skillSlots.Length && _skillSlots[index] != null)
