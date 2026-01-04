@@ -71,6 +71,238 @@ MonoBehaviour:
     m_Key: mainMenu.StartGame
     m_Metadata:
       m_Items: []
+  - m_Id: 13040696682905600
+    m_Key: stats.MaxHealth
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040720791764992
+    m_Key: stats.HealthRegen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040745169059840
+    m_Key: stats.HealthOnHit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040766731976704
+    m_Key: stats.HealthOnBlock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040782506754048
+    m_Key: stats.MaxMana
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040799086837760
+    m_Key: stats.ManaRegen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040816262512640
+    m_Key: stats.ManaOnHit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040825901023232
+    m_Key: stats.ManaOnBlock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040869085577216
+    m_Key: stats.MaxBubbles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040886231891968
+    m_Key: stats.BubbleRechargeDuration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040904019935232
+    m_Key: stats.BubbleMitigationPercent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040920193171456
+    m_Key: stats.Armor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040956939468800
+    m_Key: stats.Evasion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040973465026560
+    m_Key: stats.BlockChance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13040981421621248
+    m_Key: stats.FireResist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041002741268480
+    m_Key: stats.ColdResist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041034676699136
+    m_Key: stats.LightningResist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041048899584000
+    m_Key: stats.PhysicalResist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041064183627776
+    m_Key: stats.ChaosResist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041081917145088
+    m_Key: stats.MoveSpeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041098736304128
+    m_Key: stats.JumpForce
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041119015763968
+    m_Key: stats.AttackSpeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041136858333184
+    m_Key: stats.CastSpeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041158958120960
+    m_Key: stats.DamagePhysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041188108533760
+    m_Key: stats.DamageFire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041212934619136
+    m_Key: stats.DamageCold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041229380485120
+    m_Key: stats.DamageLightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041242428964864
+    m_Key: stats.PhysicalToFire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041276167946240
+    m_Key: stats.PhysicalToCold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041294446723072
+    m_Key: stats.PhysicalToLightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041310049533952
+    m_Key: stats.ElementalToPhysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041343960481792
+    m_Key: stats.Accuracy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041354811146240
+    m_Key: stats.CritChance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041356933464064
+    m_Key: stats.CritMultiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041397018427392
+    m_Key: stats.PenetrationPhysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041398633234432
+    m_Key: stats.PenetrationFire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041493520973824
+    m_Key: stats.PenetrationCold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041495773315072
+    m_Key: stats.PenetrationLightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041585107795968
+    m_Key: stats.BleedChance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041588345798656
+    m_Key: stats.BleedDamageMult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041590866575360
+    m_Key: stats.BleedDuration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041593030836224
+    m_Key: stats.PoisonChance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041595098628096
+    m_Key: stats.PoisonDamageMult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041597074145280
+    m_Key: stats.PoisonDuration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041599230017536
+    m_Key: stats.IgniteChance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041604347068416
+    m_Key: stats.IgniteDamageMult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041606393888768
+    m_Key: stats.IgniteDuration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041608017084416
+    m_Key: stats.FreezeChance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041609686417408
+    m_Key: stats.ShockChance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041814720774144
+    m_Key: stats.AreaOfEffect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041816645959680
+    m_Key: stats.CooldownReductionPercent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041818386595840
+    m_Key: stats.EffectDuration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041819951071232
+    m_Key: stats.ProjectileSpeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13041821494575104
+    m_Key: stats.Misc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13047299658252288
+    m_Key: headers.Defense
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13047374677573632
+    m_Key: headers.Offense
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13047409410605056
+    m_Key: headers.Statuses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13047462325944320
+    m_Key: headers.Misc
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

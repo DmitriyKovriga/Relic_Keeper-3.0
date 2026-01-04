@@ -5,12 +5,11 @@ using UnityEngine;
 [System.Serializable]
 public class CharacterStat
 {
-    public float BaseValue; // Голое значение без вещей
-    
-    // Кэшированное значение (чтобы не пересчитывать каждый кадр)
+    public float BaseValue;
+
     protected bool _isDirty = true;
     protected float _value;
-    
+
     private readonly List<StatModifier> _modifiers = new List<StatModifier>();
 
     public CharacterStat(float baseValue)
@@ -18,7 +17,6 @@ public class CharacterStat
         BaseValue = baseValue;
     }
 
-    // ГЛАВНЫЙ МЕТОД: Обращаемся сюда, чтобы узнать Макс. ХП или Скорость
     public float Value 
     {
         get {
@@ -44,8 +42,7 @@ public class CharacterStat
         }
         return false;
     }
-    
-    // Удаляем все бонусы от конкретного меча (при снятии)
+
     public bool RemoveAllModifiersFromSource(object source)
     {
         bool didRemove = _modifiers.RemoveAll(mod => mod.Source == source) > 0;
@@ -56,15 +53,28 @@ public class CharacterStat
     private float CalculateFinalValue()
     {
         float finalValue = BaseValue;
-        float sumPercentAdd = 0;
+        float sumPercentAdd = 0; // Increased
+        float finalMultiplier = 1; // More
 
         for (int i = 0; i < _modifiers.Count; i++)
         {
             StatModifier mod = _modifiers[i];
-            if (mod.Type == StatModType.Flat) finalValue += mod.Value;
-            else if (mod.Type == StatModType.PercentAdd) sumPercentAdd += mod.Value;
+
+            if (mod.Type == StatModType.Flat) 
+            {
+                finalValue += mod.Value;
+            }
+            else if (mod.Type == StatModType.PercentAdd) 
+            {
+                sumPercentAdd += mod.Value; // Складываем проценты (Increased)
+            }
+            else if (mod.Type == StatModType.PercentMult) 
+            {
+                finalMultiplier *= mod.Value; // Перемножаем (More)
+            }
         }
 
-        return (float)Math.Round(finalValue * (1 + sumPercentAdd), 4);
+        // Формула: (Base + Flat) * (1 + SumIncreased) * Product(More)
+        return (float)Math.Round(finalValue * (1 + sumPercentAdd) * finalMultiplier, 4);
     }
 }

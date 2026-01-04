@@ -1,137 +1,298 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
+using Scripts.Stats; 
 
 public class PlayerStats : MonoBehaviour
 {
-    public event Action OnStatsChanged;
-    private const int MAX_LEVEL = 30;
+    public event Action OnAnyStatChanged;
 
-    [Header("Settings")] // <--- НОВОЕ: Настройки поведения
-    [SerializeField] private bool _restoreStateOnLevelUp = true; // Галочка: Лечить ли при лвл-апе?
+    [Header("Debug / Config")]
+    [SerializeField] private bool _restoreStateOnLevelUp = true;
+    [SerializeField] private CharacterDataSO _defaultCharacterData; 
 
-    // --- Характеристики ---
-    public CharacterStat MaxHealth { get; private set; }
-    public CharacterStat MaxMana { get; private set; }
-    public CharacterStat MoveSpeed { get; private set; }
-    public CharacterStat JumpForce { get; private set; }
+    // Словарь хранит все статы
+    private Dictionary<StatType, CharacterStat> _stats = new Dictionary<StatType, CharacterStat>();
 
-    // --- Текущие значения ---
-    public float CurrentHealth { get; private set; }
-    public float CurrentMana { get; private set; }
-    
-    // --- Прогресс ---
-    public int Level { get; private set; } = 1;
-    public float CurrentXP { get; private set; }
-    public float RequiredXP { get; private set; }
+    public StatResource Health { get; private set; }
+    public StatResource Mana { get; private set; }
+    public LevelingSystem Leveling { get; private set; }
 
-    public string CurrentClassID => _activeCharacterData != null ? _activeCharacterData.ID : string.Empty;
-    private CharacterDataSO _activeCharacterData;
+    public string CurrentClassID => _activeCharacterID;
+    private string _activeCharacterID;
+
+    // ========================================================================
+    //                              INITIALIZATION
+    // ========================================================================
 
     public void Initialize(CharacterDataSO data)
     {
-        _activeCharacterData = data;
+        if (data == null)
+        {
+            Debug.LogError("[PlayerStats] Попытка инициализации без CharacterDataSO!");
+            return;
+        }
 
-        MaxHealth = new CharacterStat(data.BaseMaxHealth);
-        MaxMana = new CharacterStat(50f); 
-        MoveSpeed = new CharacterStat(data.BaseMoveSpeed);
-        JumpForce = new CharacterStat(data.BaseJumpForce);
-
-        // При старте НОВОЙ игры мы всегда полные, независимо от галочки
-        Level = 1;
-        CurrentXP = 0;
-        RequiredXP = 100f;
-
-        CurrentHealth = MaxHealth.Value;
-        CurrentMana = MaxMana.Value;
+        _activeCharacterID = data.ID;
         
-        RefreshUI();
+        // 1. ГАРАНТИЯ: Создаем ячейки под ВСЕ статы, которые есть в Enum
+        // Даже если мы забудем прописать что-то в ApplyGlobalDefaults, оно будет равно 0.
+        _stats.Clear();
+        foreach (StatType type in Enum.GetValues(typeof(StatType)))
+        {
+            _stats[type] = new CharacterStat(0f);
+        }
+
+        // 2. Установка ГЛОБАЛЬНЫХ ДЕФОЛТОВ (Баланс игры)
+        ApplyGlobalDefaults();
+
+        // 3. Применение КЛАССОВЫХ ОТЛИЧИЙ
+        if (data.StartingStats != null)
+        {
+            foreach (var config in data.StartingStats)
+            {
+                SetBaseStat(config.Type, config.Value);
+            }
+        }
+
+        // 4. Инициализация Модулей
+        InitializeModules();
+
+        NotifyChanged();
+        Debug.Log($"[PlayerStats] Initialized class: {data.DisplayName}");
     }
+
+    private void ApplyGlobalDefaults()
+    {
+        // === 1. VITALS (Жизненные показатели) ===
+        SetBaseStat(StatType.MaxHealth, 50f);
+        SetBaseStat(StatType.MaxMana, 10f);
+        SetBaseStat(StatType.HealthRegen, 0.5f);
+        SetBaseStat(StatType.ManaRegen, 0.5f);
+        SetBaseStat(StatType.HealthOnHit, 0f);
+        SetBaseStat(StatType.HealthOnBlock, 0f);
+        SetBaseStat(StatType.ManaOnHit, 0f);
+        SetBaseStat(StatType.ManaOnBlock, 0f);
+
+        // === 2. BUBBLE DEFENSE (Твоя механика) ===
+        SetBaseStat(StatType.MaxBubbles, 1f);            // 1 слой щита
+        SetBaseStat(StatType.BubbleRechargeDuration, 5f);// 5 сек откат
+        SetBaseStat(StatType.BubbleMitigationPercent, 0.7f); // 70% поглощения
+
+        // === 3. DEFENSES (Защита) ===
+        SetBaseStat(StatType.Armor, 0f);
+        SetBaseStat(StatType.Evasion, 0f);
+        SetBaseStat(StatType.BlockChance, 0f);
+        // Резисты
+        SetBaseStat(StatType.PhysicalResist, 0f);
+        SetBaseStat(StatType.FireResist, 0f);
+        SetBaseStat(StatType.ColdResist, 0f);
+        SetBaseStat(StatType.LightningResist, 0f);
+        // ChaosResist удален по просьбе
+
+        // === 4. MOBILITY (Мобильность) ===
+        SetBaseStat(StatType.MoveSpeed, 4f);
+        SetBaseStat(StatType.JumpForce, 10f);
+
+        // === 5. ACTION SPEED (Скорость действий) ===
+        SetBaseStat(StatType.AttackSpeed, 1.0f); // 100%
+        SetBaseStat(StatType.CastSpeed, 1.0f);   // 100%
+
+        // === 6. GLOBAL DAMAGE (Базовые множители) ===
+        // Обычно начинаем с 0 бонусов, урон берется с оружия
+        SetBaseStat(StatType.DamagePhysical, 0f); 
+        SetBaseStat(StatType.DamageFire, 0f);
+        SetBaseStat(StatType.DamageCold, 0f);
+        SetBaseStat(StatType.DamageLightning, 0f);
+
+        // === 7. CONVERSION (Конверсия) ===
+        SetBaseStat(StatType.PhysicalToFire, 0f);
+        SetBaseStat(StatType.PhysicalToCold, 0f);
+        SetBaseStat(StatType.PhysicalToLightning, 0f);
+        SetBaseStat(StatType.ElementalToPhysical, 0f);
+
+        // === 8. CRIT & ACCURACY ===
+        SetBaseStat(StatType.Accuracy, 100f);        // Базовая точность
+        SetBaseStat(StatType.CritChance, 0.05f);     // 5% базовый крит
+        SetBaseStat(StatType.CritMultiplier, 1.5f);  // 150% крит урон
+
+        // === 9. PENETRATION (Пробивание) ===
+        SetBaseStat(StatType.PenetrationPhysical, 0f);
+        SetBaseStat(StatType.PenetrationFire, 0f);
+        SetBaseStat(StatType.PenetrationCold, 0f);
+        SetBaseStat(StatType.PenetrationLightning, 0f);
+
+        // === 10. AILMENTS (Статусы) ===
+        // Шансы
+        SetBaseStat(StatType.BleedChance, 0f);
+        SetBaseStat(StatType.PoisonChance, 0f);
+        SetBaseStat(StatType.IgniteChance, 0f);
+        SetBaseStat(StatType.FreezeChance, 0f);
+        SetBaseStat(StatType.ShockChance, 0f);
+        // Множители урона от статусов (1.0 = 100% нормального урона)
+        SetBaseStat(StatType.BleedDamageMult, 1.0f);
+        SetBaseStat(StatType.PoisonDamageMult, 1.0f);
+        SetBaseStat(StatType.IgniteDamageMult, 1.0f);
+        // Длительность (в секундах или множитель)
+        SetBaseStat(StatType.BleedDuration, 3.0f); // Например, база 3 сек
+        SetBaseStat(StatType.PoisonDuration, 3.0f);
+        SetBaseStat(StatType.IgniteDuration, 4.0f);
+
+        // === 11. UTILITY ===
+        SetBaseStat(StatType.AreaOfEffect, 1.0f);            // 100% радиус
+        SetBaseStat(StatType.CooldownReductionPercent, 0f);  // 0% КДР
+        SetBaseStat(StatType.EffectDuration, 1.0f);          // 100% длительность баффов
+        SetBaseStat(StatType.ProjectileSpeed, 5.0f);         // Скорость снарядов
+    }
+
+    private void InitializeModules()
+    {
+        // Передаем ссылки на CharacterStat, чтобы модули видели изменения Max значений
+        Health = new StatResource(GetStat(StatType.MaxHealth));
+        Mana = new StatResource(GetStat(StatType.MaxMana));
+
+        Health.OnValueChanged += NotifyChanged;
+        Health.OnDepleted += HandleDeath;
+        Mana.OnValueChanged += NotifyChanged;
+
+        // Левелинг: 1 ур, 0 XP, 100 XP до уровня
+        Leveling = new LevelingSystem(1, 0, 100);
+        Leveling.OnLevelUp += HandleLevelUp;
+        Leveling.OnXPChanged += NotifyChanged;
+    }
+
+
+    // ========================================================================
+    //                              API (ACCESS)
+    // ========================================================================
+
+    // Структура для возврата урона (чтобы показать Мин-Макс или Среднее)
+    public struct DamageResult
+    {
+        public float Min;
+        public float Max;
+        public float Average => (Min + Max) / 2f;
+    }
+
+    /// <summary>
+    /// Рассчитывает итоговый урон определенного типа.
+    /// </summary>
+    public float CalculateAverageDamage(StatType damageType)
+    {
+        // 1. ПОЛУЧАЕМ БАЗУ (От оружия)
+        // В будущем ты будешь брать это из EquipmentManager.GetWeaponDamage()
+        // Пока захардкодим "Кулаки" (или тестовый меч)
+        float weaponBaseMin = 5f; 
+        float weaponBaseMax = 10f;
+
+        // Если считаем НЕ физический урон, а у оружия нет базы огнем/холодом,
+        // то база будет 0 (если нет конверсии).
+        // Для упрощения сейчас считаем, что оружие наносит Физ урон.
+        if (damageType != StatType.DamagePhysical)
+        {
+            weaponBaseMin = 0f; 
+            weaponBaseMax = 0f;
+            
+            // Сюда можно добавить Flat урон с колец (например, +5 Fire Damage)
+            // weaponBaseMin += GetValue(StatType.FlatFireDamage); 
+        }
+
+        // 2. ПОЛУЧАЕМ МОДИФИКАТОРЫ (%)
+        // GetValue(StatType.DamagePhysical) вернет, например, 0.5 (это 50%)
+        // Нам нужно превратить это в множитель 1.5
+        float percentBonus = GetValue(damageType); // 0.5
+        float multiplier = 1f + percentBonus;      // 1.5
+
+        // *Тут можно добавить More multipliers, если они будут
+
+        // 3. СЧИТАЕМ ИТОГ
+        float finalMin = weaponBaseMin * multiplier;
+        float finalMax = weaponBaseMax * multiplier;
+
+        // Если есть Крит, можно усреднить его сюда:
+        // float critChance = GetValue(StatType.CritChance);
+        // float critMult = GetValue(StatType.CritMultiplier);
+        // float avgCritBonus = 1f + (critChance * (critMult - 1f));
+        // return ((finalMin + finalMax) / 2f) * avgCritBonus;
+
+        return (finalMin + finalMax) / 2f;
+    }
+
+    public CharacterStat GetStat(StatType type)
+    {
+        if (_stats.TryGetValue(type, out var stat))
+        {
+            return stat;
+        }
+
+        Debug.LogWarning($"[PlayerStats] Stat {type} не найден! Создаю пустышку.");
+        var newStat = new CharacterStat(0);
+        _stats[type] = newStat;
+        return newStat;
+    }
+
+    public float GetValue(StatType type)
+    {
+        return GetStat(type).Value;
+    }
+
+    public void SetBaseStat(StatType type, float value)
+    {
+        GetStat(type).BaseValue = value;
+    }
+
+    // ========================================================================
+    //                              LOGIC & EVENTS
+    // ========================================================================
+
+    private void HandleLevelUp()
+    {
+        if (_restoreStateOnLevelUp)
+        {
+            Health.RestoreFull();
+            Mana.RestoreFull();
+        }
+        NotifyChanged();
+    }
+
+    private void HandleDeath()
+    {
+        Debug.Log("YOU DIED");
+    }
+
+    private void NotifyChanged()
+    {
+        OnAnyStatChanged?.Invoke();
+    }
+
+    // ========================================================================
+    //                              SAVE / LOAD
+    // ========================================================================
 
     public void ApplyLoadedState(GameSaveData data)
     {
-        Level = data.CurrentLevel > 0 ? data.CurrentLevel : 1; 
-        CurrentXP = data.CurrentXP;
-        RequiredXP = data.RequiredXP > 0 ? data.RequiredXP : 100f; 
+        Leveling = new LevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP);
+        Leveling.OnLevelUp += HandleLevelUp;
+        Leveling.OnXPChanged += NotifyChanged;
 
-        CurrentHealth = data.CurrentHealth;
-        
-        if (CurrentHealth <= 0) CurrentHealth = MaxHealth.Value;
-        if (CurrentHealth > MaxHealth.Value) CurrentHealth = MaxHealth.Value;
+        Health.SetCurrent(data.CurrentHealth);
+        Mana.SetCurrent(data.CurrentMana);
 
-        if (data.CurrentMana > 0)
-        {
-            CurrentMana = data.CurrentMana;
-            // На всякий случай не даем выйти за пределы
-            if (CurrentMana > MaxMana.Value) CurrentMana = MaxMana.Value;
-        }
-
-        RefreshUI();
+        NotifyChanged();
     }
-
-    public void AddXP(float amount)
+    
+    private void OnDestroy()
     {
-        if (Level >= MAX_LEVEL) return;
-
-        CurrentXP += amount;
-        CheckLevelUp();
-        RefreshUI();
-    }
-
-    private void CheckLevelUp()
-    {
-        bool leveledUp = false;
-
-        while (CurrentXP >= RequiredXP && Level < MAX_LEVEL)
+        if (Health != null)
         {
-            CurrentXP -= RequiredXP;
-            Level++;
-            RequiredXP *= 1.2f;
-            leveledUp = true;
+            Health.OnValueChanged -= NotifyChanged;
+            Health.OnDepleted -= HandleDeath;
         }
-
-        // --- ЛОГИКА ЛЕЧЕНИЯ ---
-        // Лечим только если был левел-ап И стоит галочка
-        if (leveledUp && _restoreStateOnLevelUp)
+        if (Mana != null) Mana.OnValueChanged -= NotifyChanged;
+        if (Leveling != null)
         {
-            CurrentHealth = MaxHealth.Value;
-            CurrentMana = MaxMana.Value;
-        }
-
-        if (Level >= MAX_LEVEL)
-        {
-            CurrentXP = 0;
-            RequiredXP = 0;
+            Leveling.OnLevelUp -= HandleLevelUp;
+            Leveling.OnXPChanged -= NotifyChanged;
         }
     }
-
-    public void TakeDamage(float damage)
-    {
-        CurrentHealth = Mathf.Max(0, CurrentHealth - damage);
-        if (CurrentHealth <= 0) Die();
-        RefreshUI();
-    }
-
-    public void Heal(float amount)
-    {
-        CurrentHealth = Mathf.Min(CurrentHealth + amount, MaxHealth.Value);
-        RefreshUI();
-    }
-
-    public void UseMana(float amount)
-    {
-        if (CurrentMana >= amount)
-        {
-            CurrentMana -= amount;
-            RefreshUI();
-        }
-    }
-
-    public void RestoreMana(float amount)
-    {
-        CurrentMana = Mathf.Min(CurrentMana + amount, MaxMana.Value);
-        RefreshUI();
-    }
-
-    private void RefreshUI() => OnStatsChanged?.Invoke();
-    private void Die() => Debug.Log("Player Died");
 }

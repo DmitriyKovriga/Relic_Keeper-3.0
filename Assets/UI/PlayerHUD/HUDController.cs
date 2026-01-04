@@ -1,18 +1,19 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Scripts.Stats; // Не забудь подключить namespace со статами
 
 public class HUDController : MonoBehaviour
 {
     [Header("Player Reference")]
     [SerializeField] private PlayerStats _playerStats;
 
-    [Header("Bars (Images)")]
+    [Header("Bars")]
     [SerializeField] private Image _healthFill;
     [SerializeField] private Image _manaFill;
     [SerializeField] private Image _xpFill;
 
-    [Header("Value Texts (TMP)")] // <--- НОВОЕ: Сюда перетащить текстовые поля
+    [Header("Value Texts")]
     [SerializeField] private TextMeshProUGUI _healthValueText;
     [SerializeField] private TextMeshProUGUI _manaValueText;
     [SerializeField] private TextMeshProUGUI _xpValueText;
@@ -23,9 +24,10 @@ public class HUDController : MonoBehaviour
 
     private void Start()
     {
+        // Если игрок уже привязан в инспекторе
         if (_playerStats != null)
         {
-            _playerStats.OnAnyStatChanged += UpdateUI;
+            SetupEvents();
             UpdateUI();
         }
     }
@@ -42,9 +44,14 @@ public class HUDController : MonoBehaviour
         
         if (_playerStats != null)
         {
-            _playerStats.OnAnyStatChanged += UpdateUI;
+            SetupEvents();
             UpdateUI();
         }
+    }
+
+    private void SetupEvents()
+    {
+        _playerStats.OnAnyStatChanged += UpdateUI;
     }
 
     private void UpdateUI()
@@ -52,13 +59,12 @@ public class HUDController : MonoBehaviour
         if (_playerStats == null) return;
         
         // --- 1. HEALTH ---
+        // Используем ресурсы, они уже знают про свой Максимум
         if (_playerStats.Health != null)
         {
-            // Полоска
             if (_healthFill != null)
                 _healthFill.fillAmount = _playerStats.Health.Percent;
 
-            // Текст: "50 / 100" (округляем до целого через :0)
             if (_healthValueText != null)
                 _healthValueText.text = $"{_playerStats.Health.Current:0} / {_playerStats.Health.Max:0}";
         }
@@ -66,11 +72,9 @@ public class HUDController : MonoBehaviour
         // --- 2. MANA ---
         if (_playerStats.Mana != null)
         {
-            // Полоска
             if (_manaFill != null)
                 _manaFill.fillAmount = _playerStats.Mana.Percent;
 
-            // Текст: "25 / 50"
             if (_manaValueText != null)
                 _manaValueText.text = $"{_playerStats.Mana.Current:0} / {_playerStats.Mana.Max:0}";
         }
@@ -81,29 +85,14 @@ public class HUDController : MonoBehaviour
             float currentXP = _playerStats.Leveling.CurrentXP;
             float reqXP = _playerStats.Leveling.RequiredXP;
 
-            // Полоска
             if (_xpFill != null)
-            {
-                if (reqXP > 0)
-                    _xpFill.fillAmount = currentXP / reqXP;
-                else
-                    _xpFill.fillAmount = 1f;
-            }
+                _xpFill.fillAmount = (reqXP > 0) ? currentXP / reqXP : 1f;
 
-            // Текст: "1250 / 2000"
             if (_xpValueText != null)
-            {
-                if (reqXP > 0)
-                    _xpValueText.text = $"{currentXP:0} / {reqXP:0}";
-                else
-                    _xpValueText.text = "MAX";
-            }
-        }
-
-        // --- 4. LEVEL TEXT ---
-        if (_levelText != null && _playerStats.Leveling != null)
-        {
-            _levelText.text = _playerStats.Leveling.Level.ToString();
+                _xpValueText.text = (reqXP > 0) ? $"{currentXP:0} / {reqXP:0}" : "MAX";
+            
+            if (_levelText != null)
+                _levelText.text = _playerStats.Leveling.Level.ToString();
         }
     }
     

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Scripts.Stats; // <--- ВАЖНО: Подключаем наш Enum
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(PlayerStats))]
@@ -43,38 +44,25 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnDisable()
     {
-        // 3. ОТПИСЫВАЕМСЯ (обязательно!)
+        // Отписываемся, чтобы избежать ошибок
         InputRebindSaver.RebindsChanged -= ApplyBindingOverrides;
-
+        
         _input.Player.Jump.performed -= OnJumpPerformed;
         _input.Disable();
     }
 
-    // Этот метод вызывается и при старте, и когда UI сохраняет настройки
-    private void ApplyBindingOverrides()
-    {
-        InputRebindSaver.Load(_input.asset);
-    }
-
     private void Update()
     {
-        ReadInput();
-        HandleSpriteFlip();
+        // Читаем ввод каждый кадр
+        Vector2 moveInput = _input.Player.Move.ReadValue<Vector2>();
+        _horizontalInput = moveInput.x;
     }
 
     private void FixedUpdate()
     {
         CheckGround();
         ApplyMovement();
-    }
-
-    #region Input Processing
-
-    private void ReadInput()
-    {
-        float left = _input.Player.MoveLeft.ReadValue<float>();
-        float right = _input.Player.MoveRight.ReadValue<float>();
-        _horizontalInput = right - left;
+        HandleSpriteFlip();
     }
 
     private void OnJumpPerformed(InputAction.CallbackContext context)
@@ -85,15 +73,25 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    #endregion
+    // Метод для обновления биндов (вызывается при старте и после сохранения настроек)
+    private void ApplyBindingOverrides()
+    {
+        InputRebindSaver.Load(_input.asset);
+    }
 
-    #region Physics & Movement
+    #region Physics Logic
 
     private void ApplyMovement()
     {
-        float targetSpeed = _horizontalInput * _stats.MoveSpeed.Value;
-        float currentVerticalSpeed = _rb.linearVelocity.y;
+        // --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
+        // Было: _stats.MoveSpeed.Value
+        // Стало: _stats.GetValue(StatType.MoveSpeed)
+        float speedStat = _stats.GetValue(StatType.MoveSpeed);
+        
+        float targetSpeed = _horizontalInput * speedStat;
+        float currentVerticalSpeed = _rb.linearVelocity.y; // Unity 6 (или velocity в старых)
 
+        // Мгновенная остановка, если ввод почти ноль (анти-скольжение)
         if (Mathf.Abs(targetSpeed) < _stopThreshold && _isGrounded)
         {
             _rb.linearVelocity = new Vector2(0, currentVerticalSpeed);
@@ -106,13 +104,19 @@ public class PlayerMovement : MonoBehaviour
 
     private void ApplyJumpForce()
     {
+        // Сбрасываем вертикальную скорость перед прыжком для стабильной высоты
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, 0);
-        _rb.AddForce(Vector2.up * _stats.JumpForce.Value, ForceMode2D.Impulse);
+        
+        // --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
+        float jumpStat = _stats.GetValue(StatType.JumpForce);
+        
+        _rb.AddForce(Vector2.up * jumpStat, ForceMode2D.Impulse);
     }
 
     private void CheckGround()
     {
-        _isGrounded = Physics2D.OverlapCircle(_groundCheckPoint.position, _groundCheckRadius, _groundLayer);
+        if (_groundCheckPoint != null)
+            _isGrounded = Physics2D.OverlapCircle(_groundCheckPoint.position, _groundCheckRadius, _groundLayer);
     }
 
     #endregion
@@ -133,14 +137,14 @@ public class PlayerMovement : MonoBehaviour
         transform.localScale = scaler;
     }
 
+    #endregion
+
     private void OnDrawGizmosSelected()
     {
         if (_groundCheckPoint != null)
         {
-            Gizmos.color = Color.red;
+            Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(_groundCheckPoint.position, _groundCheckRadius);
         }
     }
-
-    #endregion
 }

@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <ID>k__BackingField: 0
   <DisplayName>k__BackingField: Warrior
-  BaseMaxHealth: 200
-  BaseMaxManna: 75
-  BaseMoveSpeed: 7
-  BaseJumpForce: 14
+  Description: 
+  _startingStats:
+  - Type: 0
+    Value: 75
+  - Type: 4
+    Value: 50

@@ -1,72 +1,172 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
+using Scripts.Stats;
 
 public class PlayerStats : MonoBehaviour
 {
-    // Глобальное событие, если кто-то ленивый хочет подписаться на всё сразу
     public event Action OnAnyStatChanged;
 
     [Header("Config")]
-    [SerializeField] private CharacterDataSO _defaultData; // Для тестов без сейва
     [SerializeField] private bool _restoreStateOnLevelUp = true;
+    [SerializeField] private CharacterDataSO _defaultCharacterData; 
 
-    // --- 1. Характеристики (Stats) ---
-    // Удобная группировка. В будущем здесь будут Strength, Intelligence...
-    public CharacterStat MaxHealth { get; private set; }
-    public CharacterStat MaxMana { get; private set; }
-    public CharacterStat MoveSpeed { get; private set; }
-    public CharacterStat JumpForce { get; private set; }
+    private Dictionary<StatType, CharacterStat> _stats = new Dictionary<StatType, CharacterStat>();
 
-    // --- 2. Ресурсы (Resources) ---
-    // Логика current/max ушла сюда
     public StatResource Health { get; private set; }
     public StatResource Mana { get; private set; }
-
-    // --- 3. Прогрессия (Leveling) ---
     public LevelingSystem Leveling { get; private set; }
-    
-    // Свойство для удобства сохранений
+
     public string CurrentClassID => _activeCharacterID;
     private string _activeCharacterID;
 
+    // --- INITIALIZATION ---
+
     public void Initialize(CharacterDataSO data)
     {
+        if (data == null) return;
+
         _activeCharacterID = data.ID;
+        _stats.Clear();
 
-        // 1. Создаем статы
-        MaxHealth = new CharacterStat(data.BaseMaxHealth);
-        MaxMana = new CharacterStat(data.BaseMaxManna);
-        MoveSpeed = new CharacterStat(data.BaseMoveSpeed);
-        JumpForce = new CharacterStat(data.BaseJumpForce);
+        foreach (StatType type in Enum.GetValues(typeof(StatType)))
+        {
+            _stats[type] = new CharacterStat(0f);
+        }
 
-        // 2. Создаем ресурсы, привязывая их к статам
-        Health = new StatResource(MaxHealth);
-        Mana = new StatResource(MaxMana);
+        ApplyGlobalDefaults();
+
+        if (data.StartingStats != null)
+        {
+            foreach (var config in data.StartingStats)
+            {
+                SetBaseStat(config.Type, config.Value);
+            }
+        }
+
+        InitializeModules();
+        NotifyChanged();
+    }
+
+    private void ApplyGlobalDefaults()
+    {
+        SetBaseStat(StatType.MaxHealth, 50f);
+        SetBaseStat(StatType.MaxMana, 10f);
+        SetBaseStat(StatType.HealthRegen, 0.5f);
+        SetBaseStat(StatType.ManaRegen, 0.5f);
+
+        SetBaseStat(StatType.MaxBubbles, 1f);
+        SetBaseStat(StatType.BubbleRechargeDuration, 5f);
+        SetBaseStat(StatType.BubbleMitigationPercent, 0.7f);
+
+        SetBaseStat(StatType.MoveSpeed, 4f);
+        SetBaseStat(StatType.JumpForce, 10f);
+
+        SetBaseStat(StatType.AttackSpeed, 1.0f);
+        SetBaseStat(StatType.CastSpeed, 1.0f);
         
-        // Подписываемся на события ресурсов, чтобы уведомлять общий ивент
-        Health.OnValueChanged += NotifyChanged;
-        Mana.OnValueChanged += NotifyChanged;
-        Health.OnDepleted += HandleDeath;
+        SetBaseStat(StatType.Accuracy, 100f);
+        SetBaseStat(StatType.CritChance, 0.05f);
+        SetBaseStat(StatType.CritMultiplier, 1.5f);
+        
+        SetBaseStat(StatType.ProjectileSpeed, 5.0f);
 
-        // 3. Создаем систему уровня (по дефолту 1 лвл)
+        SetBaseStat(StatType.BleedDamageMult, 1.0f);
+        SetBaseStat(StatType.PoisonDamageMult, 1.0f);
+        SetBaseStat(StatType.IgniteDamageMult, 1.0f);
+        SetBaseStat(StatType.BleedDuration, 3.0f);
+        SetBaseStat(StatType.PoisonDuration, 3.0f);
+        SetBaseStat(StatType.IgniteDuration, 4.0f);
+        
+        SetBaseStat(StatType.AreaOfEffect, 1.0f);
+        SetBaseStat(StatType.EffectDuration, 1.0f);
+    }
+
+    private void InitializeModules()
+    {
+        Health = new StatResource(GetStat(StatType.MaxHealth));
+        Mana = new StatResource(GetStat(StatType.MaxMana));
+
+        Health.OnValueChanged += NotifyChanged;
+        Health.OnDepleted += HandleDeath;
+        Mana.OnValueChanged += NotifyChanged;
+
         Leveling = new LevelingSystem(1, 0, 100);
         Leveling.OnLevelUp += HandleLevelUp;
         Leveling.OnXPChanged += NotifyChanged;
     }
 
-    public void ApplyLoadedState(GameSaveData data)
-    {
-        // Восстанавливаем левелинг
-        Leveling = new LevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP);
-        Leveling.OnLevelUp += HandleLevelUp;
-        Leveling.OnXPChanged += NotifyChanged;
+    // --- API (MODIFIERS) ---
 
-        // Восстанавливаем ресурсы
-        Health.SetCurrent(data.CurrentHealth);
-        Mana.SetCurrent(data.CurrentMana);
-        
+    public void AddModifier(StatType type, StatModifier mod)
+    {
+        GetStat(type).AddModifier(mod);
         NotifyChanged();
     }
+
+    public void RemoveModifier(StatType type, StatModifier mod)
+    {
+        GetStat(type).RemoveModifier(mod);
+        NotifyChanged();
+    }
+
+    public void RemoveAllModifiersFromSource(object source)
+    {
+        bool changed = false;
+        foreach (var stat in _stats.Values)
+        {
+            if (stat.RemoveAllModifiersFromSource(source)) changed = true;
+        }
+        if (changed) NotifyChanged();
+    }
+
+    // --- ACCESS ---
+
+    public CharacterStat GetStat(StatType type)
+    {
+        if (_stats.TryGetValue(type, out var stat)) return stat;
+        
+        var newStat = new CharacterStat(0);
+        _stats[type] = newStat;
+        return newStat;
+    }
+
+    public float GetValue(StatType type)
+    {
+        return GetStat(type).Value;
+    }
+
+    public void SetBaseStat(StatType type, float value)
+    {
+        GetStat(type).BaseValue = value;
+    }
+
+    // --- CALCULATION LOGIC ---
+
+    public float CalculateAverageDamage(StatType damageType)
+    {
+        // В будущем: weaponBaseMin = Equipment.Weapon.MinDamage
+        float weaponBaseMin = 5f; 
+        float weaponBaseMax = 10f;
+
+        // Если урон элементальный, а оружие без конверсии - база 0
+        if (damageType != StatType.DamagePhysical)
+        {
+            weaponBaseMin = 0f; 
+            weaponBaseMax = 0f;
+        }
+
+        // DamagePhysical хранит сумму процентов (0.5 = +50%)
+        float percentBonus = GetValue(damageType); 
+        float multiplier = 1f + percentBonus;
+
+        float finalMin = weaponBaseMin * multiplier;
+        float finalMax = weaponBaseMax * multiplier;
+
+        return (finalMin + finalMax) / 2f;
+    }
+
+    // --- EVENTS ---
 
     private void HandleLevelUp()
     {
@@ -76,22 +176,44 @@ public class PlayerStats : MonoBehaviour
             Mana.RestoreFull();
         }
         NotifyChanged();
-        Debug.Log($"[PlayerStats] Level Up! New Level: {Leveling.Level}");
     }
 
     private void HandleDeath()
     {
-        Debug.Log("[PlayerStats] YOU DIED");
-        // Тут позже вызовем GameManager.GameOver()
+        // Debug.Log("YOU DIED");
     }
 
-    private void NotifyChanged() => OnAnyStatChanged?.Invoke();
+    private void NotifyChanged()
+    {
+        OnAnyStatChanged?.Invoke();
+    }
 
+    // --- SAVE / LOAD ---
+
+    public void ApplyLoadedState(GameSaveData data)
+    {
+        Leveling = new LevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP);
+        Leveling.OnLevelUp += HandleLevelUp;
+        Leveling.OnXPChanged += NotifyChanged;
+
+        Health.SetCurrent(data.CurrentHealth);
+        Mana.SetCurrent(data.CurrentMana);
+
+        NotifyChanged();
+    }
+    
     private void OnDestroy()
     {
-        // Отписки, чтобы не текло
-        if (Health != null) Health.OnValueChanged -= NotifyChanged;
+        if (Health != null)
+        {
+            Health.OnValueChanged -= NotifyChanged;
+            Health.OnDepleted -= HandleDeath;
+        }
         if (Mana != null) Mana.OnValueChanged -= NotifyChanged;
-        if (Leveling != null) Leveling.OnLevelUp -= HandleLevelUp;
+        if (Leveling != null)
+        {
+            Leveling.OnLevelUp -= HandleLevelUp;
+            Leveling.OnXPChanged -= NotifyChanged;
+        }
     }
 }
