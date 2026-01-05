@@ -1,0 +1,111 @@
+/* --- ГЛАВНЫЙ КОНТЕЙНЕР --- */
+.window-container {
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(8, 8, 8, 0.98); /* Почти черный фон */
+    padding: 0;
+    align-items: flex-start;
+}
+
+/* === КОЛОНКИ === */
+
+/* 1. СТАТЫ (Слева) */
+.col-stats {
+    flex-grow: 1; /* Занимает всё оставшееся место */
+    height: 100%;
+    /* border-right-width: 1px; border-right-color: #333; /* Дебаг-разделитель */
+}
+
+/* 2. ЭКИПИРОВКА (Центр) */
+.col-equipment {
+    width: 160px; 
+    height: 100%;
+    margin-right: 4px;
+    padding-top: 5px;
+    align-items: center; 
+}
+
+/* 3. ИНВЕНТАРЬ (Справа) */
+.col-inventory {
+    width: 250px; /* 10 слотов * 24px = 240px + запас на отступы */
+    height: 100%;
+    padding-top: 5px;
+    padding-right: 5px;
+    align-items: flex-end; /* Прижмем к правому краю */
+}
+
+/* --- ЗАГОЛОВКИ --- */
+.section-header {
+    font-size: 10px;
+    color: #cca360; 
+    -unity-font-style: bold;
+    margin-bottom: 5px; 
+    border-bottom-width: 1px;
+    border-bottom-color: #444;
+    width: 100%;
+    padding-left: 2px;
+}
+
+/* --- ЭКИПИРОВКА: КУКЛА --- */
+.equipment-doll-container {
+    width: 100%;
+    height: 200px; 
+    position: relative; /* Важно для absolute позиционирования слотов внутри */
+}
+
+/* --- ИНВЕНТАРЬ: КОНТЕЙНЕР --- */
+.inventory-grid-container {
+    /* Просто контейнер, цвет фона зададим слотам */
+    flex-direction: column; /* Вертикальный список СТРОК */
+    
+    /* Добавляем внешнюю рамку вокруг всего инвентаря */
+    border-width: 1px;
+    border-color: #444;
+    background-color: #000;
+}
+
+/* --- ИНВЕНТАРЬ: СТРОКА (Новое!) --- */
+.inventory-row {
+    flex-direction: row; /* Слоты внутри строки идут горизонтально */
+    height: 24px;
+    width: 240px; /* 10 * 24px */
+}
+
+/* --- СЛОТЫ --- */
+.slot {
+    width: 24px;
+    height: 24px;
+    
+    /* Бордюр внутри размера (в UI Toolkit это дефолт, но на всякий случай) */
+    border-width: 1px;
+    border-color: #333; 
+    background-color: #111; 
+    
+    margin: 0; 
+    padding: 0;
+    
+    align-items: center;
+    justify-content: center;
+}
+
+/* Размеры для экипировки (переписывают width/height) */
+.slot-2x2 { width: 48px; height: 48px; }
+.slot-2x3 { width: 48px; height: 72px; }
+.slot-2x4 { width: 48px; height: 96px; } 
+
+.slot:hover {
+    border-color: #cca360;
+    background-color: #222;
+    z-index: 10;
+}
+
+.slot > .unity-label {
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.15); 
+    padding: 0; margin: 0;
+}
+
+.overlay {
+    position: absolute; width: 100%; height: 100%; display: none;
+}
