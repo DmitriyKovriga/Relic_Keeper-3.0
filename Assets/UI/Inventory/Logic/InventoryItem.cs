@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using Scripts.Items;
 using Scripts.Stats;
-using Scripts.Items.Affixes; // <---
+using Scripts.Items.Affixes;
+using UnityEngine.Localization.Settings; // Для перевода аффиксов
 
 namespace Scripts.Inventory
 {
-    // Runtime-обертка для аффикса (хранит конкретные выпавшие значения)
     [Serializable]
     public class AffixInstance
     {
@@ -17,13 +17,9 @@ namespace Scripts.Inventory
         public AffixInstance(ItemAffixSO data, InventoryItem ownerItem)
         {
             Data = data;
-            
-            // Роллим значения сразу при создании
             foreach (var statData in data.Stats)
             {
                 float val = Mathf.Round(UnityEngine.Random.Range(statData.MinValue, statData.MaxValue));
-                
-                // Важно: Source = ownerItem. Это позволит удалять все моды предмета разом.
                 Modifiers.Add(new StatModifier(val, statData.Type, ownerItem));
             }
         }
@@ -33,9 +29,7 @@ namespace Scripts.Inventory
     public class InventoryItem
     {
         public string InstanceID;
-        public EquipmentItemSO Data; // База
-        
-        // Просто один список, без префиксов/суффиксов
+        public EquipmentItemSO Data;
         public List<AffixInstance> Affixes = new List<AffixInstance>();
 
         public InventoryItem(EquipmentItemSO data)
@@ -44,25 +38,49 @@ namespace Scripts.Inventory
             Data = data;
         }
 
-        // Метод для PlayerStats: собрать все модификаторы (база + аффиксы)
         public List<StatModifier> GetAllModifiers()
         {
             var result = new List<StatModifier>();
-
-            // 1. Имплиситы базы
             if (Data.ImplicitModifiers != null)
             {
                 foreach (var imp in Data.ImplicitModifiers)
                     result.Add(new StatModifier(imp.Value, imp.Type, this));
             }
-
-            // 2. Сгенерированные аффиксы
             foreach (var affix in Affixes)
             {
                 result.AddRange(affix.Modifiers);
             }
-
             return result;
+        }
+
+        // --- НОВЫЙ МЕТОД ДЛЯ ТУЛТИПА ---
+        public List<string> GetDescriptionLines()
+        {
+            List<string> lines = new List<string>();
+
+            // 1. Имплиситы (База предмета)
+            if (Data.ImplicitModifiers != null)
+            {
+                foreach (var imp in Data.ImplicitModifiers)
+                {
+                    // Для простоты выводим StatType. В будущем можно добавить локализацию самих статов.
+                    lines.Add($"<color=#9999ff>{imp.Stat}: +{imp.Value}</color>");
+                }
+            }
+
+            // 2. Аффиксы (Случайные свойства)
+            foreach (var affix in Affixes)
+            {
+                // Подтягиваем перевод из таблицы "Affixes", используя TranslationKey и ролл значения
+                string translated = LocalizationSettings.StringDatabase.GetLocalizedString(
+                    "Affixes", 
+                    affix.Data.TranslationKey, 
+                    new object[] { affix.Modifiers[0].Value }
+                );
+                lines.Add(translated);
+            }
+
+            return lines;
         }
     }
 }

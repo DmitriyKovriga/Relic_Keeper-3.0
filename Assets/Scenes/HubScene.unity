@@ -5368,8 +5368,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e12661a7ae255994d8b0dab19dcbc1eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _glovesItem: {fileID: 11400000, guid: bf0bd4209ab586144b213f66fce87ad3, type: 2}
-  _greatWeaponItem: {fileID: 11400000, guid: 802327eb71519cd4d96a2e9cc8fd189a, type: 2}
+  _testItemBase: {fileID: 11400000, guid: bf0bd4209ab586144b213f66fce87ad3, type: 2}
+  _itemLevel: 1
 --- !u!114 &635787813
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5385,12 +5385,24 @@ MonoBehaviour:
   _capacity: 40
   _cols: 10
   EquipmentItems:
-  - Data: {fileID: 0}
-  - Data: {fileID: 0}
-  - Data: {fileID: 0}
-  - Data: {fileID: 0}
-  - Data: {fileID: 0}
-  - Data: {fileID: 0}
+  - InstanceID: 
+    Data: {fileID: 0}
+    Affixes: []
+  - InstanceID: 
+    Data: {fileID: 0}
+    Affixes: []
+  - InstanceID: 
+    Data: {fileID: 0}
+    Affixes: []
+  - InstanceID: 
+    Data: {fileID: 0}
+    Affixes: []
+  - InstanceID: 
+    Data: {fileID: 0}
+    Affixes: []
+  - InstanceID: 
+    Data: {fileID: 0}
+    Affixes: []
   Items: []
 --- !u!1 &682701396
 GameObject:
@@ -5489,6 +5501,7 @@ GameObject:
   m_Component:
   - component: {fileID: 814741198}
   - component: {fileID: 814741197}
+  - component: {fileID: 814741199}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -5526,6 +5539,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &814741199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 814741196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36c8f083ccd005a48a7bb4f352fb2bd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _affixPools:
+  - {fileID: 11400000, guid: 953ccb07f8e1f624ab7aaa64b103d36f, type: 2}
 --- !u!1 &857371559
 GameObject:
   m_ObjectHideFlags: 0

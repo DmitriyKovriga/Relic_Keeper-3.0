@@ -4,42 +4,81 @@ using Scripts.Inventory;
 
 public class InventoryDebugger : MonoBehaviour
 {
-    [Header("Debug Items")]
-    [Tooltip("Перчатки (2x2)")]
-    [SerializeField] private EquipmentItemSO _glovesItem; 
+    [Header("Test Settings")]
+    [Tooltip("Предмет-пустышка, на базе которого будет генерация")]
+    [SerializeField] private EquipmentItemSO _testItemBase;
     
-    [Tooltip("Двуручный топор (2x4)")]
-    [SerializeField] private EquipmentItemSO _greatWeaponItem; // <-- Новое поле
+    [Tooltip("Уровень генерируемых предметов")]
+    [SerializeField] private int _itemLevel = 10;
 
     private void OnGUI()
     {
-        // Кнопка 1: Добавить Перчатки
-        if (GUI.Button(new Rect(10, 10, 150, 50), "Add Gloves (2x2)"))
+        // Стилизация для удобства дебага
+        GUI.skin.button.fontSize = 14;
+
+        // Кнопка 1: Генерация Магического предмета (1-2 аффикса)
+        if (GUI.Button(new Rect(10, 10, 180, 50), "Gen Magic Item (1-2 aff)"))
         {
-            AddItem(_glovesItem);
+            SpawnGeneratedItem(1); // 1 - rarity Magic
         }
 
-        // Кнопка 2: Добавить Топор (смещаем вниз по Y на 60px)
-        if (GUI.Button(new Rect(10, 70, 150, 50), "Add Axe (2x4)"))
+        // Кнопка 2: Генерация Редкого предмета (3-4 аффикса)
+        if (GUI.Button(new Rect(10, 70, 180, 50), "Gen Rare Item (3-4 aff)"))
         {
-            AddItem(_greatWeaponItem);
+            SpawnGeneratedItem(2); // 2 - rarity Rare
+        }
+
+        // Кнопка 3: Очистка инвентаря для тестов
+        if (GUI.Button(new Rect(10, 130, 180, 50), "Clear Inventory"))
+        {
+            ClearAll();
         }
     }
 
-    private void AddItem(EquipmentItemSO data)
+    private void SpawnGeneratedItem(int rarity)
     {
-        if (data != null)
+        if (_testItemBase == null)
         {
-            var newItem = new InventoryItem(data);
-            // AddItem сам найдет первое свободное место, куда влезет эта громадина
+            Debug.LogError("[Debugger] Не назначен _testItemBase в инспекторе!");
+            return;
+        }
+
+        if (ItemGenerator.Instance == null)
+        {
+            Debug.LogError("[Debugger] ItemGenerator.Instance не найден! Проверь, есть ли он на сцене.");
+            return;
+        }
+
+        // 1. Генерируем новый экземпляр через нашу систему генерации
+        InventoryItem newItem = ItemGenerator.Instance.Generate(_testItemBase, _itemLevel, rarity);
+
+        // 2. Пытаемся добавить его в инвентарь
+        if (InventoryManager.Instance != null)
+        {
             bool success = InventoryManager.Instance.AddItem(newItem);
-            
-            if (success) Debug.Log($"Added {data.ItemName}!");
-            else Debug.Log("Inventory Full or No Space for this item!");
+            if (success)
+            {
+                Debug.Log($"[Debugger] Сгенерирован и добавлен: {newItem.Data.ItemName} (Rarity: {rarity})");
+            }
+            else
+            {
+                Debug.LogWarning("[Debugger] Нет места в инвентаре!");
+            }
         }
-        else
-        {
-            Debug.LogError("SO предмета не назначен в инспекторе Debugger'а!");
-        }
+    }
+
+    private void ClearAll()
+    {
+        if (InventoryManager.Instance == null) return;
+
+        // Обнуляем массивы рюкзака и экипировки
+        for (int i = 0; i < InventoryManager.Instance.Items.Length; i++)
+            InventoryManager.Instance.Items[i] = null;
+
+        for (int i = 0; i < InventoryManager.Instance.EquipmentItems.Length; i++)
+            InventoryManager.Instance.EquipmentItems[i] = null;
+
+        // Вызываем событие обновления UI
+        // (Примечание: OnInventoryChanged в InventoryManager должен быть вызван)
     }
 }

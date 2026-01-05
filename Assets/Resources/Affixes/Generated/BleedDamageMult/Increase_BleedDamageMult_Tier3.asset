@@ -19,5 +19,5 @@ MonoBehaviour:
   Stats:
   - Stat: 38
     Type: 200
-    MinValue: 9
-    MaxValue: 12
+    MinValue: 25
+    MaxValue: 30

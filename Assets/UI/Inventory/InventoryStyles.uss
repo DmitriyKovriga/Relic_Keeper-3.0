@@ -58,6 +58,11 @@
 .inventory-grid-container {
     /* Просто контейнер, цвет фона зададим слотам */
     flex-direction: column; /* Вертикальный список СТРОК */
+
+    /*TEST*/
+    width: 240px;
+    height: 96px;
+    position: relative;
     
     /* Добавляем внешнюю рамку вокруг всего инвентаря */
     border-width: 1px;

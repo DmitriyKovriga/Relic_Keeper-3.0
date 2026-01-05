@@ -20,4 +20,4 @@ MonoBehaviour:
   - Stat: 7
     Type: 100
     MinValue: 45
-    MaxValue: 50
+    MaxValue: 80
