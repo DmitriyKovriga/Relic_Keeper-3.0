@@ -50,10 +50,8 @@ namespace Scripts.Inventory
             return Items[index];
         }
 
-        // --- ВОТ ЭТОТ МЕТОД БЫЛ ПОТЕРЯН ---
         public bool AddItem(InventoryItem newItem)
         {
-            // Ищем первый свободный слот, куда влезает предмет
             for (int i = 0; i < Items.Length; i++)
             {
                 if (CanPlaceItemAt(newItem, i))
@@ -65,22 +63,31 @@ namespace Scripts.Inventory
             }
             return false;
         }
-        // ----------------------------------
 
         public bool TryMoveOrSwap(int fromIndex, int toIndex)
         {
             InventoryItem itemFrom = GetItem(fromIndex);
-            if (itemFrom == null) return false;
+            if (itemFrom == null) 
+            {
+                Debug.LogError($"[InventoryManager] Error: Item at {fromIndex} is null!");
+                return false;
+            }
 
             bool success = false;
             
             if (toIndex >= EQUIP_OFFSET) 
+            {
                 success = TryEquipItem(fromIndex, toIndex, itemFrom);
+            }
             else if (fromIndex >= EQUIP_OFFSET) 
+            {
                 success = TryUnequipItem(fromIndex, toIndex, itemFrom);
+            }
             else 
+            {
                 success = HandleBackpackMove(fromIndex, toIndex, itemFrom);
-
+            }
+            
             if (success) TriggerUIUpdate();
             return success;
         }
@@ -90,16 +97,22 @@ namespace Scripts.Inventory
             int localEquipIndex = equipGlobalIndex - EQUIP_OFFSET;
             InventoryItem currentEquipped = EquipmentItems[localEquipIndex];
             
-            // Проверка слота
-            if ((int)itemToEquip.Data.Slot != localEquipIndex)
+            // 1. ПРОВЕРКА ТИПА СЛОТА
+            int requiredSlotType = localEquipIndex; 
+            int itemSlotType = (int)itemToEquip.Data.Slot;
+
+            if (itemSlotType != requiredSlotType)
             {
-                Debug.LogWarning($"[Inv] Неверный слот! Предмет: {itemToEquip.Data.Slot}, Слот: {(EquipmentSlot)localEquipIndex}");
+                // Оставляем Warning, чтобы знать, почему предмет не наделся
+                Debug.LogWarning($"[Inventory] Wrong slot type. Item: {itemSlotType}, Slot: {requiredSlotType}");
                 return false;
             }
 
+            // 2. УДАЛЕНИЕ ИЗ РЮКЗАКА
             Items[fromIndex] = null; 
 
-            if (currentEquipped != null)
+            // 3. ОБРАБОТКА СВАПА
+            if (currentEquipped != null && currentEquipped.Data != null)
             {
                 if (CanPlaceItemAt(currentEquipped, fromIndex))
                 {
@@ -108,14 +121,15 @@ namespace Scripts.Inventory
                 }
                 else
                 {
-                    Items[fromIndex] = itemToEquip; // Откат
+                    Debug.LogWarning("[Inventory] Swap failed (no space). Reverting.");
+                    Items[fromIndex] = itemToEquip; // Возврат
                     return false; 
                 }
             }
 
+            // 4. ФИНАЛЬНОЕ ПРИСВОЕНИЕ
             EquipmentItems[localEquipIndex] = itemToEquip;
             OnItemEquipped?.Invoke(itemToEquip);
-            
             return true;
         }
 
@@ -123,6 +137,7 @@ namespace Scripts.Inventory
         {
             InventoryItem itemInBackpack = GetItemAt(backpackIndex, out int anchorIndex);
 
+            // Если в целевом слоте рюкзака пусто
             if (itemInBackpack == null)
             {
                 if (CanPlaceItemAt(itemToUnequip, backpackIndex))
@@ -135,6 +150,7 @@ namespace Scripts.Inventory
                 return false;
             }
 
+            // Если там что-то есть - пробуем свапнуть
             return TryEquipItem(backpackIndex, equipGlobalIndex, itemInBackpack);
         }
 

@@ -184,25 +184,13 @@ public class PlayerStats : MonoBehaviour
 
     public float CalculateAverageDamage(StatType damageType)
     {
-        // В будущем: weaponBaseMin = Equipment.Weapon.MinDamage
+        // TODO: Брать базу из оружия. Пока заглушка.
         float weaponBaseMin = 5f; 
         float weaponBaseMax = 10f;
-
-        // Если урон элементальный, а оружие без конверсии - база 0
-        if (damageType != StatType.DamagePhysical)
-        {
-            weaponBaseMin = 0f; 
-            weaponBaseMax = 0f;
-        }
-
-        // DamagePhysical хранит сумму процентов (0.5 = +50%)
+        if (damageType != StatType.DamagePhysical) { weaponBaseMin = 0f; weaponBaseMax = 0f; }
         float percentBonus = GetValue(damageType); 
         float multiplier = 1f + percentBonus;
-
-        float finalMin = weaponBaseMin * multiplier;
-        float finalMax = weaponBaseMax * multiplier;
-
-        return (finalMin + finalMax) / 2f;
+        return (weaponBaseMin * multiplier + weaponBaseMax * multiplier) / 2f;
     }
 
     // --- EVENTS ---

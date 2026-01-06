@@ -4,7 +4,6 @@ using UnityEngine;
 using Scripts.Items;
 using Scripts.Stats;
 using Scripts.Items.Affixes;
-using UnityEngine.Localization.Settings;
 
 namespace Scripts.Inventory
 {
@@ -12,7 +11,6 @@ namespace Scripts.Inventory
     public class AffixInstance
     {
         public ItemAffixSO Data;
-        // Храним тип стата рядом с модификатором
         public List<(StatType Type, StatModifier Mod)> Modifiers = new List<(StatType, StatModifier)>();
 
         public AffixInstance(ItemAffixSO data, InventoryItem ownerItem)
@@ -23,10 +21,8 @@ namespace Scripts.Inventory
             foreach (var statData in data.Stats)
             {
                 float val = Mathf.Round(UnityEngine.Random.Range(statData.MinValue, statData.MaxValue));
-                // Создаем модификатор (Source = ownerItem)
+                // Source = ownerItem, чтобы можно было отследить источник
                 var mod = new StatModifier(val, statData.Type, ownerItem);
-                
-                // Сохраняем пару: Тип + Модификатор
                 Modifiers.Add((statData.Stat, mod));
             }
         }
@@ -45,62 +41,43 @@ namespace Scripts.Inventory
             Data = data;
         }
 
-        // --- ВАЖНО: Возвращаем Тип Стата вместе с Модификатором ---
-        public List<(StatType StatType, StatModifier Modifier)> GetAllModifiers()
+        // Возвращаем пары: (Какой стат, Сам модификатор)
+        public List<(StatType, StatModifier)> GetAllModifiers()
         {
             var result = new List<(StatType, StatModifier)>();
 
-            // 1. Имплиситы (Базовые свойства предмета)
+            // 1. БАЗОВЫЕ СТАТЫ (Base Stats)
+            if (Data is ArmorItemSO armor)
+            {
+                // Мы создаем модификатор и говорим, к какому стату он относится
+                
+                if (armor.BaseArmor > 0) 
+                    result.Add((StatType.Armor, new StatModifier(armor.BaseArmor, StatModType.Flat, this)));
+                
+                if (armor.BaseEvasion > 0) 
+                    result.Add((StatType.Evasion, new StatModifier(armor.BaseEvasion, StatModType.Flat, this)));
+                
+                if (armor.BaseBubbles > 0) 
+                    result.Add((StatType.MaxBubbles, new StatModifier(armor.BaseBubbles, StatModType.Flat, this)));
+            }
+
+            // 2. ИМПЛИСИТЫ (Fixed Mods)
             if (Data.ImplicitModifiers != null)
             {
                 foreach (var imp in Data.ImplicitModifiers)
                 {
-                    // Source = this (сам предмет)
-                    var mod = new StatModifier(imp.Value, imp.Type, this);
-                    result.Add((imp.Stat, mod));
+                    result.Add((imp.Stat, new StatModifier(imp.Value, imp.Type, this)));
                 }
             }
 
-            // 2. Аффиксы
+            // 3. АФФИКСЫ (Generated Mods)
             foreach (var affix in Affixes)
             {
+                // У аффиксов уже хранится готовый список (StatType, Mod)
                 result.AddRange(affix.Modifiers);
             }
 
             return result;
-        }
-
-        public List<string> GetDescriptionLines()
-        {
-            List<string> lines = new List<string>();
-
-            // Имплиситы
-            if (Data.ImplicitModifiers != null)
-            {
-                foreach (var imp in Data.ImplicitModifiers)
-                {
-                    // Временная заглушка для красивого отображения (потом можно локализовать StatType)
-                    lines.Add($"<color=#8888ff>{imp.Stat}: +{imp.Value}</color>");
-                }
-            }
-
-            // Аффиксы (с локализацией)
-            foreach (var affix in Affixes)
-            {
-                if (affix.Modifiers.Count == 0) continue;
-
-                float val = affix.Modifiers[0].Mod.Value;
-                
-                // Используем синхронный метод для простоты (или твой async вариант)
-                var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync("MenuLabels", affix.Data.TranslationKey, new object[] { val });
-                
-                if (op.IsDone && !string.IsNullOrEmpty(op.Result))
-                    lines.Add(op.Result);
-                else
-                    lines.Add($"{affix.Data.name}: {val}"); // Fallback
-            }
-
-            return lines;
         }
     }
 }

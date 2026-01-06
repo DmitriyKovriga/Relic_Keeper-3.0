@@ -3,6 +3,8 @@ using UnityEngine.UIElements;
 using System.Collections.Generic;
 using Scripts.Inventory;
 using Scripts.Items;
+using Scripts.Stats;
+using UnityEngine.Localization.Settings;
 
 public class ItemTooltipController : MonoBehaviour
 {
@@ -19,18 +21,23 @@ public class ItemTooltipController : MonoBehaviour
     private VisualElement _root;
     private VisualElement _container;
     private Label _headerLabel;
-    private VisualElement _divider; // Вынесли в поле класса, чтобы менять цвет
+    private VisualElement _headerDivider; 
     private VisualElement _statsContainer;
 
-    // Цвета (PoE Palette)
-    private readonly Color _colNormalText = new Color(0.8f, 0.8f, 0.8f); // C8C8C8
-    private readonly Color _colNormalBorder = new Color(0.5f, 0.5f, 0.5f); // Grey
+    // --- ЦВЕТА ---
+    private readonly Color _colNormalText = new Color(0.8f, 0.8f, 0.8f); 
+    private readonly Color _colNormalBorder = new Color(0.5f, 0.5f, 0.5f); 
 
-    private readonly Color _colMagicText = new Color(0.53f, 0.53f, 1f); // 8888FF
-    private readonly Color _colMagicBorder = new Color(0.3f, 0.3f, 0.7f); // Blue
+    private readonly Color _colMagicText = new Color(0.53f, 0.53f, 1f); 
+    private readonly Color _colMagicBorder = new Color(0.3f, 0.3f, 0.7f); 
 
-    private readonly Color _colRareText = new Color(1f, 1f, 0.46f); // FFFF77
-    private readonly Color _colRareBorder = new Color(0.7f, 0.6f, 0.2f); // Gold
+    private readonly Color _colRareText = new Color(1f, 1f, 0.46f); 
+    private readonly Color _colRareBorder = new Color(0.7f, 0.6f, 0.2f); 
+
+    // Цвета для контента
+    private readonly Color _colBaseStat = new Color(0.9f, 0.9f, 0.9f);
+    private readonly Color _colImplicit = new Color(0.6f, 0.8f, 1f);
+    private readonly Color _colAffix = new Color(0.5f, 0.5f, 1f);
 
     private void Awake()
     {
@@ -55,17 +62,15 @@ public class ItemTooltipController : MonoBehaviour
 
         _container = new VisualElement { name = "GlobalItemTooltip" };
 
-        // --- ГЕОМЕТРИЯ ---
+        // --- ГЕОМЕТРИЯ (Твоя) ---
         _container.style.position = Position.Absolute;
         _container.style.width = _tooltipWidth;
         _container.style.minWidth = 100f; 
         _container.style.maxWidth = 180f; 
         _container.style.flexShrink = 0; 
         
-        // Фон всегда темный
         _container.style.backgroundColor = new StyleColor(new Color(0.05f, 0.05f, 0.05f, 0.98f)); 
         
-        // Бордюры (цвета назначим в ShowTooltip)
         _container.style.borderTopWidth = 1; _container.style.borderBottomWidth = 1;
         _container.style.borderLeftWidth = 1; _container.style.borderRightWidth = 1;
 
@@ -83,17 +88,22 @@ public class ItemTooltipController : MonoBehaviour
         _headerLabel = new Label();
         _headerLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
         _headerLabel.style.whiteSpace = WhiteSpace.Normal;
-        _headerLabel.style.unityTextAlign = TextAnchor.MiddleCenter; 
+        _headerLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
+        
+        // Чуть-чуть поднимаем и заголовок тоже
+        _headerLabel.style.paddingTop = 0;
+        _headerLabel.style.paddingBottom = 2;
+        
         _container.Add(_headerLabel);
 
-        // DIVIDER
-        _divider = new VisualElement();
-        _divider.style.height = 1;
-        _divider.style.width = Length.Percent(100);
-        _divider.style.marginTop = 2; _divider.style.marginBottom = 2;
-        _container.Add(_divider);
+        // HEADER DIVIDER
+        _headerDivider = new VisualElement();
+        _headerDivider.style.height = 1;
+        _headerDivider.style.width = Length.Percent(100);
+        _headerDivider.style.marginTop = 2; _headerDivider.style.marginBottom = 2;
+        _container.Add(_headerDivider);
 
-        // STATS
+        // STATS CONTAINER
         _statsContainer = new VisualElement();
         _statsContainer.style.width = Length.Percent(100);
         _statsContainer.style.alignItems = Align.Center; 
@@ -106,10 +116,7 @@ public class ItemTooltipController : MonoBehaviour
     {
         if (_container == null || item == null || item.Data == null || slot == null) return;
 
-        // 1. Определяем редкость и цвета
-        // 0 аффиксов = Normal
-        // 1-2 аффикса = Magic
-        // 3+ аффикса = Rare
+        // 1. Цвета
         int affixCount = item.Affixes != null ? item.Affixes.Count : 0;
         
         Color targetTextColor;
@@ -131,43 +138,143 @@ public class ItemTooltipController : MonoBehaviour
             targetBorderColor = _colNormalBorder;
         }
 
-        // 2. Применяем цвета
         _headerLabel.style.color = targetTextColor;
-        
         _container.style.borderTopColor = targetBorderColor;
         _container.style.borderBottomColor = targetBorderColor;
         _container.style.borderLeftColor = targetBorderColor;
         _container.style.borderRightColor = targetBorderColor;
-        
-        // Разделитель тоже красим в цвет редкости (опционально, но стильно)
-        _divider.style.backgroundColor = targetBorderColor;
+        _headerDivider.style.backgroundColor = targetBorderColor;
 
-        // 3. Заполняем контент
         _headerLabel.text = item.Data.ItemName;
         _statsContainer.Clear();
-        List<string> lines = item.GetDescriptionLines(); 
-        
-        if (lines != null)
+
+        // === ГЕНЕРАЦИЯ КОНТЕНТА ===
+
+        bool hasBase = false;
+        bool hasImpl = false;
+        bool hasAffix = false;
+
+        // 1. БАЗОВЫЕ СТАТЫ
+        if (item.Data is ArmorItemSO armor)
         {
-            foreach (var line in lines)
+            if (armor.BaseArmor > 0) 
             {
-                Label stat = new Label(line);
-                // Статы всегда синевато-серые, чтобы не отвлекать, или белые
-                stat.style.color = new StyleColor(new Color(0.8f, 0.8f, 0.9f));
-                stat.style.fontSize = 8;
-                stat.style.whiteSpace = WhiteSpace.Normal;
-                stat.style.unityTextAlign = TextAnchor.MiddleCenter; 
-                stat.style.marginBottom = 0; 
-                _statsContainer.Add(stat);
+                AddStatRow(GetStatText(StatType.Armor, armor.BaseArmor), _colBaseStat, true);
+                hasBase = true;
+            }
+            if (armor.BaseEvasion > 0)
+            {
+                AddStatRow(GetStatText(StatType.Evasion, armor.BaseEvasion), _colBaseStat, true);
+                hasBase = true;
+            }
+            if (armor.BaseBubbles > 0)
+            {
+                AddStatRow(GetStatText(StatType.MaxBubbles, armor.BaseBubbles), _colBaseStat, true);
+                hasBase = true;
             }
         }
 
-        // 4. Отображение и Позиционирование
+        // Разделитель
+        bool hasAnyMods = (item.Data.ImplicitModifiers != null && item.Data.ImplicitModifiers.Count > 0) || affixCount > 0;
+        if (hasBase && hasAnyMods)
+        {
+            AddDivider(targetBorderColor);
+        }
+
+        // 2. ИМПЛИСИТЫ
+        if (item.Data.ImplicitModifiers != null && item.Data.ImplicitModifiers.Count > 0)
+        {
+            foreach (var mod in item.Data.ImplicitModifiers)
+            {
+                AddStatRow(GetStatText(mod.Stat, mod.Value, mod.Type), _colImplicit, false);
+            }
+            hasImpl = true;
+        }
+
+        // Разделитель
+        if (hasImpl && affixCount > 0)
+        {
+            AddDivider(targetBorderColor);
+        }
+
+        // 3. АФФИКСЫ
+        if (item.Affixes != null)
+        {
+            foreach (var affix in item.Affixes)
+            {
+                if (affix.Modifiers.Count > 0)
+                {
+                    var (statType, mod) = affix.Modifiers[0];
+                    AddStatRow(GetStatText(statType, mod.Value, mod.Type), _colAffix, false);
+                    hasAffix = true;
+                }
+            }
+        }
+
+        if (!hasBase && !hasImpl && !hasAffix)
+        {
+            AddStatRow("No Stats", Color.gray, false);
+        }
+
+        // 4. Позиционирование
         _container.style.display = DisplayStyle.Flex;
         _container.MarkDirtyRepaint();
         
-        // Расчет позиции
         _container.schedule.Execute(() => CalculateSmartPosition(slot, item));
+    }
+
+    // --- HELPER METHODS ---
+
+    private string GetStatText(StatType type, float value, StatModType modType = StatModType.Flat)
+    {
+        string key = $"stats.{type}";
+        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync("MenuLabels", key);
+        string name = op.IsDone ? op.Result : type.ToString();
+
+        if (modType == StatModType.PercentAdd || modType == StatModType.PercentMult)
+        {
+            string sign = value >= 0 ? "+" : "";
+            return $"{name}: {sign}{value}%";
+        }
+        return $"{name}: {value}";
+    }
+
+    private void AddStatRow(string text, Color color, bool isBold)
+    {
+        Label stat = new Label(text);
+        stat.style.color = new StyleColor(color);
+        stat.style.fontSize = 8;
+        stat.style.whiteSpace = WhiteSpace.Normal;
+        
+        // ВАЖНО: Центрирование
+        stat.style.unityTextAlign = TextAnchor.MiddleCenter; 
+        
+        // --- ФИКС ПОЗИЦИИ ТЕКСТА ---
+        // Убираем верхний отступ и добавляем нижний.
+        // Это визуально поднимает текст вверх внутри его строки.
+        stat.style.paddingTop = 0; 
+        stat.style.paddingBottom = 2; // <-- Поднимаем текст на 2 "пикселя" вверх
+        stat.style.marginTop = 0;
+        stat.style.marginBottom = 0;
+
+        if (isBold) stat.style.unityFontStyleAndWeight = FontStyle.Bold;
+        
+        _statsContainer.Add(stat);
+    }
+
+    private void AddDivider(Color color)
+    {
+        VisualElement div = new VisualElement();
+        div.style.height = 1;
+        div.style.width = Length.Percent(100);
+        
+        div.style.backgroundColor = new StyleColor(new Color(color.r, color.g, color.b, 0.4f));
+        
+        // Отступы разделителя
+        div.style.marginTop = 2;
+        div.style.marginBottom = 2;
+        
+        _statsContainer.Add(div);
     }
 
     public void HideTooltip()
@@ -199,7 +306,6 @@ public class ItemTooltipController : MonoBehaviour
         float finalX = 0;
         float finalY = 0;
 
-        // --- Приоритет: СВЕРХУ ---
         float tryTopY = slotPos.y - tipH - _gap;
 
         if (tryTopY >= _screenPadding)
@@ -209,7 +315,6 @@ public class ItemTooltipController : MonoBehaviour
         }
         else 
         {
-            // --- СБОКУ ---
             float spaceRight = screenW - (slotPos.x + itemW);
             float spaceLeft = slotPos.x;
 
@@ -224,11 +329,11 @@ public class ItemTooltipController : MonoBehaviour
             finalY = itemCenterY - (tipH / 2f);
         }
 
-        // --- ЖЕСТКИЙ CLAMP (Чтобы не вылез за экран) ---
         finalX = Mathf.Clamp(finalX, _screenPadding, screenW - tipW - _screenPadding);
         finalY = Mathf.Clamp(finalY, _screenPadding, screenH - tipH - _screenPadding);
 
-        _container.style.left = finalX;
-        _container.style.top = finalY;
+        // ВАЖНО: Округление убирает "дробную" кривизну текста
+        _container.style.left = Mathf.Round(finalX);
+        _container.style.top = Mathf.Round(finalY);
     }
 }

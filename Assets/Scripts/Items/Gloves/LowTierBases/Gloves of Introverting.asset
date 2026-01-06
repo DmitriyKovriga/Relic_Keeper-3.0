@@ -19,7 +19,11 @@ MonoBehaviour:
   Height: 2
   Slot: 4
   DropLevel: 1
-  ImplicitModifiers: []
+  ImplicitModifiers:
+  - Stat: 5
+    Value: 5
+    Type: 100
+    Scope: 0
   DefenseType: 3
   BaseArmor: 0
   BaseEvasion: 0

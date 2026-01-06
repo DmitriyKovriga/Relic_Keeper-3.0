@@ -134,7 +134,10 @@ public class CharacterWindowUI : MonoBehaviour
                 StatType.ManaRegen,
                 StatType.Armor,
                 StatType.Evasion,
-                StatType.BlockChance
+                StatType.BlockChance,
+                StatType.MaxBubbles,
+                StatType.BubbleRechargeDuration,
+                StatType.BubbleMitigationPercent
             }},
 
             { "headers.Resistances", new List<StatType> {

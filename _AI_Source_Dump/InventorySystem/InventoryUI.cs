@@ -62,9 +62,6 @@ public class InventoryUI : MonoBehaviour
         InventoryManager.Instance.OnInventoryChanged += RefreshInventory;
         RefreshInventory();
     }
-
-    // ... [Здесь методы GenerateBackpackGrid, RefreshInventory, DrawEquipmentIcons, CreateItemIcon - БЕЗ ИЗМЕНЕНИЙ] ...
-    // Вставь их сюда из прошлого кода, они не менялись
     
     private void GenerateBackpackGrid()
     {
@@ -132,16 +129,25 @@ public class InventoryUI : MonoBehaviour
     private void DrawEquipmentIcons()
     {
         var equipItems = InventoryManager.Instance.EquipmentItems;
+        
         for (int i = 0; i < equipItems.Length; i++)
         {
-            if (equipItems[i] == null || equipItems[i].Data == null) continue;
+            var item = equipItems[i];
+            
+            // Ищем UI слот
             int targetID = InventoryManager.EQUIP_OFFSET + i;
             VisualElement slot = _equipmentSlots.Find(s => (int)s.userData == targetID);
-            if (slot != null)
+
+            if (slot != null && item != null && item.Data != null)
             {
-                var icon = CreateItemIcon(equipItems[i]);
-                icon.style.left = 0;
+                var icon = CreateItemIcon(item);
+                
+                // Сброс позиций (на случай если Absolute сломал верстку)
+                icon.style.left = 0; 
                 icon.style.top = 0;
+                icon.style.right = StyleKeyword.Null;
+                icon.style.bottom = StyleKeyword.Null;
+                
                 slot.Add(icon);
             }
         }
@@ -173,15 +179,14 @@ public class InventoryUI : MonoBehaviour
     {
         _equipmentSlots.Clear();
         
-        // ВАЖНО: Порядок должен строго соответствовать Enum EquipmentSlot!
-        // 0: MainHand, 1: OffHand, 2: Helmet, 3: BodyArmor, 4: Gloves, 5: Boots
+        // 0: Head, 1: Body, 2: Main, 3: Off, 4: Gloves, 5: Boots
         string[] slotNames = { 
-            "Slot_MainHand", 
-            "Slot_OffHand", 
-            "Slot_Helmet", 
-            "Slot_Body",   // Убедись что в UXML он называется Slot_Body или Slot_BodyArmor
-            "Slot_Gloves", 
-            "Slot_Boots" 
+            "Slot_Helmet",      
+            "Slot_Body",        
+            "Slot_MainHand",    
+            "Slot_OffHand",     
+            "Slot_Gloves",      
+            "Slot_Boots"        
         };
 
         for (int i = 0; i < slotNames.Length; i++)
@@ -189,22 +194,20 @@ public class InventoryUI : MonoBehaviour
             var slot = _root.Q<VisualElement>(slotNames[i]);
             if (slot != null)
             {
-                // userData = 100, 101, 102...
                 slot.userData = InventoryManager.EQUIP_OFFSET + i;
                 
                 slot.RegisterCallback<PointerDownEvent>(OnSlotPointerDown);
                 slot.RegisterCallback<PointerOverEvent>(OnPointerOverSlot);
                 slot.RegisterCallback<PointerOutEvent>(OnPointerOutSlot);
+                
                 _equipmentSlots.Add(slot);
             }
             else
             {
-                Debug.LogError($"[InventoryUI] Слот '{slotNames[i]}' не найден в UXML! Проверь имена.");
+                Debug.LogError($"[InventoryUI] Слот '{slotNames[i]}' не найден в UXML!");
             }
         }
     }
-
-    // --- ОБНОВЛЕННЫЕ ИВЕНТЫ ---
 
     private void OnPointerOverSlot(PointerOverEvent evt)
     {
@@ -212,35 +215,23 @@ public class InventoryUI : MonoBehaviour
         VisualElement hoveredSlot = evt.currentTarget as VisualElement;
         if (hoveredSlot == null || hoveredSlot.userData == null) return;
 
-        // 1. Получаем предмет и индекс его ЯКОРЯ (верхний левый угол)
         InventoryItem item = InventoryManager.Instance.GetItemAt((int)hoveredSlot.userData, out int anchorIndex);
         
         if (item != null && item.Data != null && ItemTooltipController.Instance != null)
         {
-            // 2. Находим визуальный элемент именно якорного слота
             VisualElement anchorSlot = GetSlotVisual(anchorIndex);
-            
-            // (На всякий случай фолбек, если не нашли)
             if (anchorSlot == null) anchorSlot = hoveredSlot;
-
-            // 3. Передаем в тултип именно ЯКОРЬ
             ItemTooltipController.Instance.ShowTooltip(item, anchorSlot);
         }
     }
 
     private VisualElement GetSlotVisual(int index)
     {
-        // Если это экипировка (100+)
         if (index >= InventoryManager.EQUIP_OFFSET)
-        {
             return _equipmentSlots.Find(s => (int)s.userData == index);
-        }
         
-        // Если это рюкзак
         if (index >= 0 && index < _backpackSlots.Count)
-        {
             return _backpackSlots[index];
-        }
         
         return null;
     }
@@ -257,10 +248,7 @@ public class InventoryUI : MonoBehaviour
         {
             UpdateGhostPosition(evt.position);
         }
-        // ВАЖНО: Мы убрали вызов MoveTooltip. Тултип теперь статичен.
     }
-
-    // --- DRAG & DROP (Без изменений) ---
     
     private void OnSlotPointerDown(PointerDownEvent evt)
     {
@@ -290,115 +278,70 @@ public class InventoryUI : MonoBehaviour
     }
 
     private void OnPointerUp(PointerUpEvent evt)
-{
-    if (!_isDragging) return;
-
-    Debug.Log($"[DEBUG] --- START DROP ---");
-    
-    // 1. Где сейчас наш призрак (иконка)?
-    Rect ghostRect = _ghostIcon.worldBound;
-    Vector2 ghostCenter = ghostRect.center;
-    Debug.Log($"[DEBUG] Ghost Icon: Center={ghostCenter}, Rect={ghostRect}");
-
-    // 2. Проверяем список слотов экипировки
-    Debug.Log($"[DEBUG] Checking {_equipmentSlots.Count} equipment slots...");
-    
-    int foundIndex = -1;
-
-    foreach (var slot in _equipmentSlots)
     {
-        // Получаем данные слота
-        Rect slotRect = slot.worldBound;
-        string slotName = slot.name;
-        int slotID = (slot.userData != null) ? (int)slot.userData : -999;
+        if (!_isDragging) return;
 
-        // Проверяем попадание (содержит ли прямоугольник слота центр иконки)
-        bool hit = slotRect.Contains(ghostCenter);
-        
-        // ЛОГ ПО КАЖДОМУ СЛОТУ
-        Debug.Log($"[DEBUG] Slot '{slotName}' (ID: {slotID}): Rect={slotRect} | Contains GhostCenter? {hit}");
+        // 1. Где сейчас наш призрак?
+        Vector2 ghostCenter = _ghostIcon.worldBound.center;
+        int foundIndex = -1;
 
-        if (hit)
+        // 2. Проверяем список слотов экипировки
+        foreach (var slot in _equipmentSlots)
         {
-            foundIndex = slotID;
-            Debug.Log($"[DEBUG] >>> HIT MATCH! Found slot: {slotName}");
-            // Не делаем break, чтобы увидеть, нет ли перекрытий (вдруг два слота в одном месте)
+            if (slot.worldBound.Contains(ghostCenter))
+            {
+                if (slot.userData != null) foundIndex = (int)slot.userData;
+                break;
+            }
         }
-    }
 
-    // Если не нашли в экипировке, проверяем сетку (кратко)
-    if (foundIndex == -1)
-    {
-        Debug.Log("[DEBUG] Not in equipment. Checking Grid logic...");
-        // Твоя логика сетки...
-        int gridIndex = GetSmartTargetIndex(); 
-        if (gridIndex != -1 && gridIndex < InventoryManager.EQUIP_OFFSET)
+        // Если не нашли в экипировке, проверяем сетку
+        if (foundIndex == -1)
         {
-            foundIndex = gridIndex;
-            Debug.Log($"[DEBUG] Found in Grid: Index {foundIndex}");
+            int gridIndex = GetSmartTargetIndex(); 
+            if (gridIndex != -1 && gridIndex < InventoryManager.EQUIP_OFFSET)
+            {
+                foundIndex = gridIndex;
+            }
         }
+
+        // --- ЗАВЕРШЕНИЕ ---
+        _isDragging = false;
+        _ghostIcon.style.display = DisplayStyle.None;
+        _root.ReleasePointer(evt.pointerId);
+
+        if (InventoryManager.Instance != null && foundIndex != -1)
+        {
+            InventoryManager.Instance.TryMoveOrSwap(_draggedSlotIndex, foundIndex);
+        }
+
+        _draggedSlotIndex = -1;
+        RefreshInventory();
     }
 
-    Debug.Log($"[DEBUG] Final Target Index: {foundIndex}");
-    Debug.Log($"[DEBUG] --- END DROP ---");
-
-    // --- СТАНДАРТНАЯ ЛОГИКА ЗАВЕРШЕНИЯ ---
-    _isDragging = false;
-    _ghostIcon.style.display = DisplayStyle.None;
-    _root.ReleasePointer(evt.pointerId);
-
-    if (InventoryManager.Instance != null && foundIndex != -1)
-    {
-        // Пытаемся переместить
-        InventoryManager.Instance.TryMoveOrSwap(_draggedSlotIndex, foundIndex);
-    }
-    else
-    {
-         Debug.Log("[DEBUG] Drop cancelled: Invalid target.");
-    }
-
-    _draggedSlotIndex = -1;
-    RefreshInventory();
-}
-
-    /// <summary>
-    /// Вычисляет индекс слота, основываясь на положении GhostIcon.
-    /// Это делает перетаскивание "магнитным" и интуитивным.
-    /// </summary>
     private int GetSmartTargetIndex()
     {
-        // Получаем мировые координаты призрака
         Rect ghostWorld = _ghostIcon.worldBound;
-        
-        // Переводим верхний левый угол призрака в локальные координаты СЛОЯ ПРЕДМЕТОВ
-        // (ItemsLayer совпадает по координатам с сеткой)
         Vector2 localPos = _itemsLayer.WorldToLocal(new Vector2(ghostWorld.x, ghostWorld.y));
 
-        // Рассчитываем примерную колонку и строку
-        // Используем Mathf.RoundToInt для "примагничивания" к ближайшей ячейке
         int col = Mathf.RoundToInt(localPos.x / SLOT_SIZE);
         int row = Mathf.RoundToInt(localPos.y / SLOT_SIZE);
 
-        // Проверяем границы сетки (чтобы не утащить за пределы)
         if (col < 0 || col >= COLUMNS || row < 0 || row >= ROWS)
         {
-            // Возможно, игрок навел на экипировку?
-            // Пробуем старый метод Raycast только для экипировки (так как она вне сетки)
-            Vector2 mousePos = _ghostIcon.worldBound.center; // Берем центр предмета
+            // Fallback: проверяем прямой луч под мышкой, если GhostIcon улетел странно
+            Vector2 mousePos = _ghostIcon.worldBound.center;
             VisualElement picked = _root.panel.Pick(mousePos);
             VisualElement slot = FindParentSlot(picked);
             
             if (slot != null && slot.userData != null)
             {
                 int idx = (int)slot.userData;
-                // Если это слот экипировки
                 if (idx >= InventoryManager.EQUIP_OFFSET) return idx;
             }
-            
-            return -1; // Мимо всего
+            return -1; 
         }
 
-        // Превращаем Row/Col в линейный индекс
         return (row * COLUMNS) + col;
     }
 

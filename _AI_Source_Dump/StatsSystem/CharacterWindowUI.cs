@@ -36,12 +36,12 @@ public class CharacterWindowUI : MonoBehaviour
 
         if (_container == null)
         {
+            // Оставим только критические ошибки
             Debug.LogError($"[UI] Контейнер '{_containerName}' не найден!");
             return;
         }
 
         SetupContainerStyle();
-
         LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
 
         GenerateLayout();
@@ -85,113 +85,76 @@ public class CharacterWindowUI : MonoBehaviour
         var groups = GetStatGroups();
         HashSet<StatType> displayedStats = new HashSet<StatType>();
 
-        // 1. Группы
         foreach (var group in groups)
         {
-            string headerKey = group.Key;
-            List<StatType> stats = group.Value;
+            if (group.Value == null || group.Value.Count == 0) continue;
+            CreateHeader(group.Key);
 
-            if (stats == null || stats.Count == 0) continue;
-
-            CreateHeader(headerKey);
-
-            foreach (var type in stats)
+            foreach (var type in group.Value)
             {
                 if (displayedStats.Contains(type)) continue;
                 CreateStatRow(type);
                 displayedStats.Add(type);
             }
         }
-
-        // 2. Остальные ("Misc")
+        
+        // Misc (остальное) можно раскомментировать при необходимости, 
+        // но пока уберем, чтобы не захламлять окно лишними нулями.
+        /*
         bool miscHeaderAdded = false;
         foreach (StatType type in Enum.GetValues(typeof(StatType)))
         {
             if (displayedStats.Contains(type)) continue;
-
-            if (!miscHeaderAdded)
-            {
-                CreateHeader("headers.Misc"); 
-                miscHeaderAdded = true;
-            }
+            if (!miscHeaderAdded) { CreateHeader("headers.Misc"); miscHeaderAdded = true; }
             CreateStatRow(type);
         }
+        */
     }
 
+    // --- НАСТРОЙКА ГРУПП ---
     private Dictionary<string, List<StatType>> GetStatGroups()
     {
         return new Dictionary<string, List<StatType>>
         {
-            { "headers.Defense", new List<StatType> {
-                StatType.MaxHealth,
-                StatType.HealthRegen,
-                StatType.MaxMana,
-                StatType.ManaRegen,
-                
-                StatType.MaxBubbles,
-                StatType.BubbleRechargeDuration,
-                StatType.BubbleMitigationPercent,
-
-                StatType.Armor,
-                StatType.Evasion,
-                StatType.BlockChance,
-                
-                StatType.PhysicalResist,
-                StatType.FireResist,
-                StatType.ColdResist,
-                StatType.LightningResist,
-
-                StatType.HealthOnHit,
-                StatType.HealthOnBlock,
-                StatType.ManaOnHit,
-                StatType.ManaOnBlock
-            }},
-
             { "headers.Offense", new List<StatType> {
                 StatType.DamagePhysical,
                 StatType.DamageFire,
                 StatType.DamageCold,
                 StatType.DamageLightning,
-                
                 StatType.AttackSpeed,
-                StatType.CastSpeed,
-                StatType.ProjectileSpeed,
-
-                StatType.Accuracy,
                 StatType.CritChance,
                 StatType.CritMultiplier,
+                StatType.Accuracy
+            }},
 
-                StatType.PenetrationPhysical,
+            { "headers.Defense", new List<StatType> {
+                StatType.MaxHealth,
+                StatType.HealthRegen,
+                StatType.MaxMana,
+                StatType.ManaRegen,
+                StatType.Armor,
+                StatType.Evasion,
+                StatType.BlockChance,
+                StatType.MaxBubbles,
+                StatType.BubbleRechargeDuration,
+                StatType.BubbleMitigationPercent
+            }},
+
+            { "headers.Resistances", new List<StatType> {
+                StatType.PhysicalResist,
+                StatType.FireResist,
+                StatType.ColdResist,
+                StatType.LightningResist,
+                StatType.PenetrationPhysical, // Можно вынести в Offense
                 StatType.PenetrationFire,
                 StatType.PenetrationCold,
-                StatType.PenetrationLightning,
-
-                StatType.PhysicalToFire,
-                StatType.PhysicalToCold,
-                StatType.PhysicalToLightning,
-                StatType.ElementalToPhysical
+                StatType.PenetrationLightning
             }},
 
-            { "headers.Statuses", new List<StatType> {
-                StatType.BleedChance,
-                StatType.BleedDamageMult,
-                StatType.BleedDuration,
-                StatType.PoisonChance,
-                StatType.PoisonDamageMult,
-                StatType.PoisonDuration,
-                StatType.IgniteChance,
-                StatType.IgniteDamageMult,
-                StatType.IgniteDuration,
-                StatType.FreezeChance,
-                StatType.ShockChance
-            }},
-            
             { "headers.Misc", new List<StatType> {
                 StatType.MoveSpeed,
-                StatType.JumpForce,
-                StatType.AreaOfEffect,
                 StatType.CooldownReductionPercent,
-                StatType.EffectDuration
+                StatType.AreaOfEffect
             }}
         };
     }
@@ -202,7 +165,7 @@ public class CharacterWindowUI : MonoBehaviour
         spacer.style.height = 20;
         _container.Add(spacer);
 
-        Label header = new Label("Header");
+        Label header = new Label(localizationKey); // Временный текст
         header.style.fontSize = _headerFontSize;
         header.style.color = new StyleColor(new Color(1f, 0.8f, 0.4f)); 
         header.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -211,11 +174,7 @@ public class CharacterWindowUI : MonoBehaviour
         header.style.marginBottom = 10;
 
         var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(_tableName, localizationKey);
-        op.Completed += (o) => 
-        { 
-            if (o.OperationException == null) header.text = o.Result;
-            else header.text = localizationKey; 
-        };
+        op.Completed += (o) => { if (o.OperationException == null) header.text = o.Result; };
 
         _container.Add(header);
     }
@@ -229,18 +188,14 @@ public class CharacterWindowUI : MonoBehaviour
         row.style.marginBottom = 2;
 
         string key = $"stats.{type}";
-        Label nameLabel = new Label("...");
+        Label nameLabel = new Label(type.ToString());
         nameLabel.style.fontSize = _fontSize;
         nameLabel.style.width = _nameColumnWidth;
         nameLabel.style.color = new StyleColor(new Color(0.7f, 0.7f, 0.7f));
         nameLabel.style.unityTextAlign = TextAnchor.MiddleLeft;
 
         var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(_tableName, key);
-        op.Completed += (o) => 
-        {
-            if (o.OperationException == null) nameLabel.text = o.Result;
-            else nameLabel.text = System.Text.RegularExpressions.Regex.Replace(type.ToString(), "(\\B[A-Z])", " $1");
-        };
+        op.Completed += (o) => { if (o.OperationException == null) nameLabel.text = o.Result; };
 
         Label valueLabel = new Label("-");
         valueLabel.style.fontSize = _fontSize;
@@ -266,21 +221,29 @@ public class CharacterWindowUI : MonoBehaviour
             
             float rawVal = _playerStats.GetValue(type);
 
-            // --- ОБНОВЛЕННАЯ ЛОГИКА ---
-
-            // 1. УРОН: Считаем через формулу в PlayerStats
+            // 1. УРОН (Считаем средний)
             if (IsDamageStat(type))
             {
-                // CalculateAverageDamage вернет "15" (если база 10 * 1.5)
                 float avgDamage = _playerStats.CalculateAverageDamage(type);
                 label.text = $"{Mathf.Round(avgDamage)}";
             }
-            // 2. ПРОЦЕНТЫ: Показываем как %
-            else if (IsPercentageStat(type))
+            // 2. ПРОЦЕНТЫ (Где 0.05 это 5%)
+            else if (IsRatePercentage(type))
             {
-                label.text = $"{Mathf.Round(rawVal * 100)}%";
+                // Округляем до 1 знака после запятой (например 5.5%)
+                label.text = $"{Mathf.Round(rawVal * 100 * 10) / 10f}%";
             }
-            // 3. ОСТАЛЬНОЕ: Показываем как есть
+            // 3. ПРОЦЕНТЫ (Где 7 это 7%)
+            else if (IsValuePercentage(type))
+            {
+                label.text = $"{Mathf.Round(rawVal)}%";
+            }
+            // 4. СКОРОСТЬ АТАКИ (2 цифры после запятой, без %)
+            else if (type == StatType.AttackSpeed || type == StatType.CastSpeed)
+            {
+                 label.text = $"{rawVal:F2}";
+            }
+            // 5. ОБЫЧНЫЕ ЧИСЛА
             else
             {
                 label.text = $"{Mathf.Round(rawVal)}";
@@ -296,17 +259,28 @@ public class CharacterWindowUI : MonoBehaviour
                type == StatType.DamageLightning;
     }
 
-    private bool IsPercentageStat(StatType type)
+    // Типы, которые хранятся как 0.0 - 1.0, но отображаются как %
+    // Пример: CritChance 0.05 -> 5%
+    private bool IsRatePercentage(StatType type)
     {
-        string name = type.ToString();
-        return name.Contains("Percent") ||
-               name.Contains("Chance") ||
-               name.Contains("Resist") ||
-               name.Contains("Mult") ||
-               name.Contains("Penetration") ||
-               type == StatType.AttackSpeed ||
-               type == StatType.CastSpeed ||
-               type == StatType.AreaOfEffect ||
-               type == StatType.EffectDuration;
+        return type == StatType.CritChance ||
+               type == StatType.BlockChance ||
+               type == StatType.Evasion || // Если уклонение считается формулой 0-1
+               type == StatType.CritMultiplier || // 1.5 -> 150%
+               type == StatType.BleedChance ||
+               type == StatType.IgniteChance ||
+               type == StatType.FreezeChance ||
+               type == StatType.ShockChance ||
+               type == StatType.PoisonChance;
+    }
+
+    // Типы, которые хранятся как 0 - 100, и отображаются как %
+    // Пример: FireResist 75 -> 75%
+    private bool IsValuePercentage(StatType type)
+    {
+        return type.ToString().Contains("Resist") ||
+               type.ToString().Contains("Penetration") ||
+               type == StatType.CooldownReductionPercent ||
+               type == StatType.MoveSpeed; // Если мувспид это +% к базе
     }
 }
