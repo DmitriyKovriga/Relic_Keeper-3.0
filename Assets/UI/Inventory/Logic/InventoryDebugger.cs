@@ -29,8 +29,7 @@ public class InventoryDebugger : MonoBehaviour
         InventoryItem newItem = ItemGenerator.Instance.Generate(_testItemBase, _itemLevel, rarity);
         bool success = InventoryManager.Instance.AddItem(newItem);
         
-        if (success) Debug.Log($"[Debugger] Added: {newItem.Data.ItemName}");
-        else Debug.LogWarning("[Debugger] Inventory Full");
+        if (!success) Debug.LogWarning("[Debugger] Inventory Full");
     }
 
     private void ClearAll()
@@ -43,7 +42,6 @@ public class InventoryDebugger : MonoBehaviour
         for (int i = 0; i < InventoryManager.Instance.EquipmentItems.Length; i++)
             InventoryManager.Instance.EquipmentItems[i] = null;
 
-        // ПРИНУДИТЕЛЬНО ОБНОВЛЯЕМ UI
         InventoryManager.Instance.TriggerUIUpdate();
     }
 }

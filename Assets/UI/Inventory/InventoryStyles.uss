@@ -109,6 +109,14 @@
     font-size: 8px;
     color: rgba(255, 255, 255, 0.15); 
     padding: 0; margin: 0;
+    /* Добавляем это, чтобы клик проходил сквозь текст прямо в слот */
+    picking-mode: ignore; 
+}
+
+.dragged-item {
+    position: absolute;
+    /* Самое главное: делаем иконку "прозрачной" для кликов */
+    picking-mode: ignore; 
 }
 
 .overlay {

@@ -875,6 +875,10 @@ MonoBehaviour:
     m_Key: affix_more_shockchance
     m_Metadata:
       m_Items: []
+  - m_Id: 13459565192970240
+    m_Key: headers.Resistances
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

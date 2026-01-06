@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using Scripts.Stats;
+using Scripts.Inventory;
 
 public class PlayerStats : MonoBehaviour
 {
@@ -21,6 +22,44 @@ public class PlayerStats : MonoBehaviour
     private string _activeCharacterID;
 
     // --- INITIALIZATION ---
+
+    private void Start()
+    {
+        if (_stats.Count == 0 && _defaultCharacterData != null)
+            Initialize(_defaultCharacterData);
+
+        // ПОДПИСКА
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.OnItemEquipped += HandleItemEquipped;
+            InventoryManager.Instance.OnItemUnequipped += HandleItemUnequipped;
+        }
+    }
+
+    private void HandleItemEquipped(InventoryItem item)
+    {
+        if (item == null) return;
+
+        // Получаем список (Тип, Модификатор)
+        var mods = item.GetAllModifiers();
+        
+        foreach (var entry in mods)
+        {
+            // entry.StatType - "Куда"
+            // entry.Modifier - "Что"
+            AddModifier(entry.StatType, entry.Modifier);
+        }
+        Debug.Log($"[Stats] Applied stats from {item.Data.ItemName}");
+    }
+
+    private void HandleItemUnequipped(InventoryItem item)
+    {
+        if (item == null) return;
+
+        // Удаляем все модификаторы от этого предмета
+        RemoveAllModifiersFromSource(item);
+        Debug.Log($"[Stats] Removed stats from {item.Data.ItemName}");
+    }
 
     public void Initialize(CharacterDataSO data)
     {
@@ -204,16 +243,14 @@ public class PlayerStats : MonoBehaviour
     
     private void OnDestroy()
     {
-        if (Health != null)
+        // ОТПИСКА
+        if (InventoryManager.Instance != null)
         {
-            Health.OnValueChanged -= NotifyChanged;
-            Health.OnDepleted -= HandleDeath;
+            InventoryManager.Instance.OnItemEquipped -= HandleItemEquipped;
+            InventoryManager.Instance.OnItemUnequipped -= HandleItemUnequipped;
         }
+        
+        if (Health != null) Health.OnValueChanged -= NotifyChanged;
         if (Mana != null) Mana.OnValueChanged -= NotifyChanged;
-        if (Leveling != null)
-        {
-            Leveling.OnLevelUp -= HandleLevelUp;
-            Leveling.OnXPChanged -= NotifyChanged;
-        }
     }
 }
