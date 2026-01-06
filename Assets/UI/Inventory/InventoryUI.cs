@@ -9,26 +9,18 @@ public class InventoryUI : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private UIDocument _uiDoc;
     
-    // Настройки сетки
     private const int ROWS = 4;
     private const int COLUMNS = 10;
     private const float SLOT_SIZE = 24f; 
 
-    // Основные элементы
     private VisualElement _root;
     private VisualElement _inventoryContainer;
     private VisualElement _itemsLayer; 
     private VisualElement _ghostIcon; 
     
-    // Тултип
-    private VisualElement _tooltip;
-    private Label _tooltipLabel;
-    
-    // Списки слотов
     private List<VisualElement> _backpackSlots = new List<VisualElement>();
     private List<VisualElement> _equipmentSlots = new List<VisualElement>();
     
-    // Drag & Drop
     private bool _isDragging;
     private int _draggedSlotIndex = -1;
 
@@ -37,33 +29,18 @@ public class InventoryUI : MonoBehaviour
         if (_uiDoc == null) _uiDoc = GetComponent<UIDocument>();
         _root = _uiDoc.rootVisualElement;
         
-        // 1. Ищем контейнер в UXML. Убедись, что в UXML он называется "InventoryGrid"
         _inventoryContainer = _root.Q<VisualElement>("InventoryGrid"); 
-        
-        if (_inventoryContainer == null)
-        {
-            Debug.LogError("[InventoryUI] Элемент 'InventoryGrid' не найден в UXML! Сетка не будет построена.");
-            return;
-        }
-
+        if (_inventoryContainer == null) { Debug.LogError("InventoryGrid not found"); return; }
         _inventoryContainer.style.overflow = Overflow.Visible;
 
-        // 2. Инициализация UI компонентов
         CreateGhostIcon();
-        CreateTooltip(); 
         GenerateBackpackGrid();
         SetupEquipmentSlots();
 
-        // 3. Безопасная подписка на Менеджера (ждем его инициализации)
         if (InventoryManager.Instance == null)
-        {
-            // Проверяем каждые 100мс, появился ли менеджер
             _root.schedule.Execute(TrySubscribe).Every(100).Until(() => InventoryManager.Instance != null);
-        }
         else
-        {
             TrySubscribe();
-        }
 
         _root.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         _root.RegisterCallback<PointerUpEvent>(OnPointerUp);
@@ -81,28 +58,25 @@ public class InventoryUI : MonoBehaviour
     private void TrySubscribe()
     {
         if (InventoryManager.Instance == null) return;
-        
-        // Отписываемся во избежание дублей
         InventoryManager.Instance.OnInventoryChanged -= RefreshInventory;
         InventoryManager.Instance.OnInventoryChanged += RefreshInventory;
-        
-        // Первичная отрисовка
         RefreshInventory();
     }
 
+    // ... [Здесь методы GenerateBackpackGrid, RefreshInventory, DrawEquipmentIcons, CreateItemIcon - БЕЗ ИЗМЕНЕНИЙ] ...
+    // Вставь их сюда из прошлого кода, они не менялись
+    
     private void GenerateBackpackGrid()
     {
         if (_inventoryContainer == null) return;
-
         _inventoryContainer.Clear();
         _backpackSlots.Clear();
 
-        // Создаем слой для иконок предметов (поверх слотов)
         _itemsLayer = new VisualElement { name = "ItemsLayer" };
         _itemsLayer.style.position = Position.Absolute;
         _itemsLayer.StretchToParentSize();
         _itemsLayer.pickingMode = PickingMode.Ignore;
-        _itemsLayer.style.overflow = Overflow.Visible; // Важно для Unity 6
+        _itemsLayer.style.overflow = Overflow.Visible;
         _inventoryContainer.Add(_itemsLayer);
 
         int slotIndex = 0;
@@ -130,19 +104,13 @@ public class InventoryUI : MonoBehaviour
     private void RefreshInventory()
     {
         if (_itemsLayer == null || InventoryManager.Instance == null) return;
-
-        // --- FIX VISIBILITY: Скрываем и показываем слой, чтобы форсировать пересчет Layout ---
         _itemsLayer.style.display = DisplayStyle.None;
         _itemsLayer.Clear();
-
-        // Очистка экипировки
         foreach (var slot in _equipmentSlots) 
         {
             var oldImg = slot.Q<Image>();
             if (oldImg != null) slot.Remove(oldImg);
         }
-
-        // Отрисовка рюкзака
         var items = InventoryManager.Instance.Items;
         for (int i = 0; i < items.Length; i++)
         {
@@ -152,16 +120,12 @@ public class InventoryUI : MonoBehaviour
                 icon.style.left = (i % COLUMNS) * SLOT_SIZE;
                 icon.style.top = (i / COLUMNS) * SLOT_SIZE;
                 _itemsLayer.Add(icon);
+                icon.MarkDirtyRepaint();
             }
         }
-
         DrawEquipmentIcons();
-
-        // --- ВКЛЮЧАЕМ ОБРАТНО ---
         _itemsLayer.style.display = DisplayStyle.Flex;
         _itemsLayer.BringToFront(); 
-        
-        // Финальный пинок движку
         _root.MarkDirtyRepaint();
     }
 
@@ -171,10 +135,8 @@ public class InventoryUI : MonoBehaviour
         for (int i = 0; i < equipItems.Length; i++)
         {
             if (equipItems[i] == null || equipItems[i].Data == null) continue;
-
             int targetID = InventoryManager.EQUIP_OFFSET + i;
             VisualElement slot = _equipmentSlots.Find(s => (int)s.userData == targetID);
-
             if (slot != null)
             {
                 var icon = CreateItemIcon(equipItems[i]);
@@ -193,32 +155,8 @@ public class InventoryUI : MonoBehaviour
         icon.style.height = item.Data.Height * SLOT_SIZE;
         icon.style.position = Position.Absolute;
         icon.pickingMode = PickingMode.Ignore;
-        // Для надежности дублируем через background
-        if (item.Data.Icon != null)
-            icon.style.backgroundImage = new StyleBackground(item.Data.Icon);
-            
+        if (item.Data.Icon != null) icon.style.backgroundImage = new StyleBackground(item.Data.Icon);
         return icon;
-    }
-
-    // --- Вспомогательные методы инициализации ---
-
-    private void CreateTooltip()
-    {
-        _tooltip = new VisualElement { name = "ItemTooltip" };
-        _tooltip.style.position = Position.Absolute;
-        _tooltip.style.backgroundColor = new StyleColor(new Color(0.05f, 0.05f, 0.05f, 0.95f));
-        _tooltip.style.borderBottomWidth = 1; _tooltip.style.borderTopWidth = 1;
-        _tooltip.style.borderLeftWidth = 1; _tooltip.style.borderRightWidth = 1;
-        _tooltip.style.borderTopColor = new StyleColor(new Color(0.5f, 0.5f, 0.5f));
-        _tooltip.style.paddingLeft = 8; _tooltip.style.paddingRight = 8;
-        _tooltip.style.paddingTop = 8; _tooltip.style.paddingBottom = 8;
-        _tooltip.style.display = DisplayStyle.None;
-        _tooltip.pickingMode = PickingMode.Ignore;
-        
-        _tooltipLabel = new Label();
-        _tooltipLabel.style.color = Color.white;
-        _tooltip.Add(_tooltipLabel);
-        _root.Add(_tooltip);
     }
 
     private void CreateGhostIcon()
@@ -249,42 +187,69 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
-    // --- Обработка ввода (Drag & Drop) ---
+    // --- ОБНОВЛЕННЫЕ ИВЕНТЫ ---
 
     private void OnPointerOverSlot(PointerOverEvent evt)
     {
         if (_isDragging || InventoryManager.Instance == null) return;
-        VisualElement slot = evt.currentTarget as VisualElement;
-        if (slot == null || slot.userData == null) return;
+        VisualElement hoveredSlot = evt.currentTarget as VisualElement;
+        if (hoveredSlot == null || hoveredSlot.userData == null) return;
 
-        InventoryItem item = InventoryManager.Instance.GetItemAt((int)slot.userData, out _);
-        if (item != null && item.Data != null)
+        // 1. Получаем предмет и индекс его ЯКОРЯ (верхний левый угол)
+        InventoryItem item = InventoryManager.Instance.GetItemAt((int)hoveredSlot.userData, out int anchorIndex);
+        
+        if (item != null && item.Data != null && ItemTooltipController.Instance != null)
         {
-            _tooltipLabel.text = item.Data.ItemName; 
-            _tooltip.style.display = DisplayStyle.Flex;
-            UpdateTooltipPosition(evt.position);
+            // 2. Находим визуальный элемент именно якорного слота
+            VisualElement anchorSlot = GetSlotVisual(anchorIndex);
+            
+            // (На всякий случай фолбек, если не нашли)
+            if (anchorSlot == null) anchorSlot = hoveredSlot;
+
+            // 3. Передаем в тултип именно ЯКОРЬ
+            ItemTooltipController.Instance.ShowTooltip(item, anchorSlot);
         }
     }
 
-    private void OnPointerOutSlot(PointerOutEvent evt) => _tooltip.style.display = DisplayStyle.None;
-
-    private void UpdateTooltipPosition(Vector2 pos)
+    private VisualElement GetSlotVisual(int index)
     {
-        Vector2 localPos = _root.WorldToLocal(pos);
-        _tooltip.style.left = localPos.x + 15;
-        _tooltip.style.top = localPos.y + 15;
+        // Если это экипировка (100+)
+        if (index >= InventoryManager.EQUIP_OFFSET)
+        {
+            return _equipmentSlots.Find(s => (int)s.userData == index);
+        }
+        
+        // Если это рюкзак
+        if (index >= 0 && index < _backpackSlots.Count)
+        {
+            return _backpackSlots[index];
+        }
+        
+        return null;
     }
 
+    private void OnPointerOutSlot(PointerOutEvent evt)
+    {
+        if (ItemTooltipController.Instance != null)
+            ItemTooltipController.Instance.HideTooltip();
+    }
+
+    private void OnPointerMove(PointerMoveEvent evt)
+    {
+        if (_isDragging) 
+        {
+            UpdateGhostPosition(evt.position);
+        }
+        // ВАЖНО: Мы убрали вызов MoveTooltip. Тултип теперь статичен.
+    }
+
+    // --- DRAG & DROP (Без изменений) ---
+    
     private void OnSlotPointerDown(PointerDownEvent evt)
     {
         VisualElement slot = evt.currentTarget as VisualElement;
-        if (slot == null || slot.userData == null) return;
-        
         int idx = (int)slot.userData;
-        if (InventoryManager.Instance == null) return;
-        
         InventoryItem item = InventoryManager.Instance.GetItemAt(idx, out int anchorIdx);
-
         if (item == null) return;
 
         _isDragging = true;
@@ -294,14 +259,10 @@ public class InventoryUI : MonoBehaviour
         _ghostIcon.style.height = item.Data.Height * SLOT_SIZE;
         _ghostIcon.style.display = DisplayStyle.Flex;
         
+        if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
+
         UpdateGhostPosition(evt.position);
         _root.CapturePointer(evt.pointerId);
-    }
-
-    private void OnPointerMove(PointerMoveEvent evt)
-    {
-        if (_isDragging) UpdateGhostPosition(evt.position);
-        if (_tooltip.style.display == DisplayStyle.Flex) UpdateTooltipPosition(evt.position);
     }
 
     private void UpdateGhostPosition(Vector2 pos)
@@ -315,19 +276,76 @@ public class InventoryUI : MonoBehaviour
     {
         if (!_isDragging) return;
         _isDragging = false;
+        
+        // 1. Скрываем Ghost
         _ghostIcon.style.display = DisplayStyle.None;
         _root.ReleasePointer(evt.pointerId);
 
         if (InventoryManager.Instance == null) return;
 
-        VisualElement target = FindParentSlot(_root.panel.Pick(evt.position));
-        if (target != null && target.userData != null)
+        // 2. Получаем исходный предмет
+        InventoryItem draggedItem = InventoryManager.Instance.GetItem(_draggedSlotIndex);
+        if (draggedItem == null) 
+        { 
+            RefreshInventory(); 
+            return; 
+        }
+
+        // 3. УМНЫЙ РАСЧЕТ ЦЕЛИ
+        // Вместо того чтобы тыкать мышкой, мы смотрим, куда лег "Призрак"
+        int targetIndex = GetSmartTargetIndex();
+
+        // 4. Пытаемся переместить или свапнуть
+        // Если индекс валиден и это не тот же самый слот
+        if (targetIndex != -1 && targetIndex != _draggedSlotIndex)
         {
-            InventoryManager.Instance.TryMoveOrSwap(_draggedSlotIndex, (int)target.userData);
+            InventoryManager.Instance.TryMoveOrSwap(_draggedSlotIndex, targetIndex);
         }
         
+        // 5. Сброс и обновление
         _draggedSlotIndex = -1;
         RefreshInventory();
+    }
+
+    /// <summary>
+    /// Вычисляет индекс слота, основываясь на положении GhostIcon.
+    /// Это делает перетаскивание "магнитным" и интуитивным.
+    /// </summary>
+    private int GetSmartTargetIndex()
+    {
+        // Получаем мировые координаты призрака
+        Rect ghostWorld = _ghostIcon.worldBound;
+        
+        // Переводим верхний левый угол призрака в локальные координаты СЛОЯ ПРЕДМЕТОВ
+        // (ItemsLayer совпадает по координатам с сеткой)
+        Vector2 localPos = _itemsLayer.WorldToLocal(new Vector2(ghostWorld.x, ghostWorld.y));
+
+        // Рассчитываем примерную колонку и строку
+        // Используем Mathf.RoundToInt для "примагничивания" к ближайшей ячейке
+        int col = Mathf.RoundToInt(localPos.x / SLOT_SIZE);
+        int row = Mathf.RoundToInt(localPos.y / SLOT_SIZE);
+
+        // Проверяем границы сетки (чтобы не утащить за пределы)
+        if (col < 0 || col >= COLUMNS || row < 0 || row >= ROWS)
+        {
+            // Возможно, игрок навел на экипировку?
+            // Пробуем старый метод Raycast только для экипировки (так как она вне сетки)
+            Vector2 mousePos = _ghostIcon.worldBound.center; // Берем центр предмета
+            VisualElement picked = _root.panel.Pick(mousePos);
+            VisualElement slot = FindParentSlot(picked);
+            
+            if (slot != null && slot.userData != null)
+            {
+                int idx = (int)slot.userData;
+                // Если это слот экипировки
+                if (idx >= InventoryManager.EQUIP_OFFSET) return idx;
+            }
+            
+            return -1; // Мимо всего
+        }
+
+        // Превращаем Row/Col в линейный индекс
+        return (row * COLUMNS) + col;
     }
 
     private VisualElement FindParentSlot(VisualElement target)

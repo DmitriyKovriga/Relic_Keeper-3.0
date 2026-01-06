@@ -124,34 +124,64 @@ namespace Scripts.Inventory
 
         private bool HandleBackpackMove(int fromIndex, int toIndex, InventoryItem itemA)
         {
+            // Смотрим, что лежит в целевом слоте (и получаем его "родной" индекс-якорь)
             InventoryItem itemB = GetItemAt(toIndex, out int indexB);
+
+            // Сценарий 1: В целевом слоте ПУСТО
             if (itemB == null)
             {
+                // Удаляем со старого места
                 Items[fromIndex] = null;
+                
+                // Проверяем, влезает ли на новое
                 if (CanPlaceItemAt(itemA, toIndex))
                 {
                     Items[toIndex] = itemA;
+                    OnInventoryChanged?.Invoke();
                     return true;
                 }
+                
+                // Откат (не влезло)
                 Items[fromIndex] = itemA;
                 return false;
             }
+            // Сценарий 2: СВАП (В целевом слоте что-то есть)
             else
             {
+                // Нельзя свапать предмет сам с собой
                 if (fromIndex == indexB) return false;
-                InventoryItem itemTarget = Items[indexB];
+
+                InventoryItem itemTarget = Items[indexB]; // Это itemB
+                
+                // --- НАЧАЛО ТРАНЗАКЦИИ ---
+                // 1. Временно удаляем ОБА предмета из сетки, 
+                // чтобы они не мешали проверкам (Collision Check)
                 Items[fromIndex] = null;
                 Items[indexB] = null;
 
-                if (CanPlaceItemAt(itemA, indexB) && CanPlaceItemAt(itemTarget, fromIndex))
+                // 2. Проверяем перекрестную совместимость:
+                // - Влезет ли Перетаскиваемый (A) на место Целевого (indexB)?
+                // - Влезет ли Целевой (Target) на место Старого (fromIndex)?
+                bool aFitsB = CanPlaceItemAt(itemA, indexB);
+                bool bFitsA = CanPlaceItemAt(itemTarget, fromIndex);
+
+                if (aFitsB && bFitsA)
                 {
+                    // Успех! Фиксируем новые позиции
                     Items[indexB] = itemA;
                     Items[fromIndex] = itemTarget;
+                    OnInventoryChanged?.Invoke();
                     return true;
                 }
-                Items[fromIndex] = itemA;
-                Items[indexB] = itemTarget;
-                return false;
+                else
+                {
+                    // Провал! Откат (Rollback) на исходные позиции
+                    Items[fromIndex] = itemA;
+                    Items[indexB] = itemTarget;
+                    
+                    Debug.LogWarning($"Swap failed: A fits B? {aFitsB}, B fits A? {bFitsA}");
+                    return false;
+                }
             }
         }
 
