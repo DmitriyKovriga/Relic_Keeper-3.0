@@ -12,13 +12,16 @@ namespace Scripts.Inventory
         [SerializeField] private int _capacity = 40; 
         [SerializeField] private int _cols = 10; 
 
-        // --- ЭКИПИРОВКА ---
+        // ИНДЕКСЫ: 0=Head, 1=Body, 2=Main, 3=Off, 4=Gloves, 5=Boots
         public InventoryItem[] EquipmentItems = new InventoryItem[6];
         public const int EQUIP_OFFSET = 100; 
 
-        public InventoryItem[] Items; // Рюкзак
+        public InventoryItem[] Items; 
 
+        // События
         public event Action OnInventoryChanged;
+        public event Action<InventoryItem> OnItemEquipped;
+        public event Action<InventoryItem> OnItemUnequipped;
 
         private void Awake()
         {
@@ -29,18 +32,11 @@ namespace Scripts.Inventory
             }
             Instance = this;
 
-            if (Items == null || Items.Length != _capacity)
-                Items = new InventoryItem[_capacity];
-            
-            if (EquipmentItems == null || EquipmentItems.Length != 6)
-                EquipmentItems = new InventoryItem[6];
+            if (Items == null || Items.Length != _capacity) Items = new InventoryItem[_capacity];
+            if (EquipmentItems == null || EquipmentItems.Length != 6) EquipmentItems = new InventoryItem[6];
         }
 
-        // Публичный метод для принудительного обновления UI (нужен дебаггеру)
-        public void TriggerUIUpdate()
-        {
-            OnInventoryChanged?.Invoke();
-        }
+        public void TriggerUIUpdate() => OnInventoryChanged?.Invoke();
 
         public InventoryItem GetItem(int index)
         {
@@ -50,7 +46,6 @@ namespace Scripts.Inventory
                 if (localIndex < 0 || localIndex >= EquipmentItems.Length) return null;
                 return EquipmentItems[localIndex];
             }
-
             if (index < 0 || index >= Items.Length) return null;
             return Items[index];
         }
@@ -62,8 +57,7 @@ namespace Scripts.Inventory
                 if (CanPlaceItemAt(newItem, i))
                 {
                     Items[i] = newItem;
-                    // ВАЖНО: Уведомляем подписчиков сразу
-                    TriggerUIUpdate(); 
+                    TriggerUIUpdate();
                     return true;
                 }
             }
@@ -73,115 +67,131 @@ namespace Scripts.Inventory
         public bool TryMoveOrSwap(int fromIndex, int toIndex)
         {
             InventoryItem itemFrom = GetItem(fromIndex);
-            if (itemFrom == null) return false;
+            if (itemFrom == null) 
+            {
+                Debug.LogError($"[InventoryManager] Error: Item at {fromIndex} is null!");
+                return false;
+            }
 
             bool success = false;
-            // Логика свапа в зависимости от источника и назначения
-            if (toIndex >= EQUIP_OFFSET) success = TryEquipItem(fromIndex, toIndex, itemFrom);
-            else if (fromIndex >= EQUIP_OFFSET) success = TryUnequipItem(fromIndex, toIndex, itemFrom);
-            else success = HandleBackpackMove(fromIndex, toIndex, itemFrom);
-
+            
+            if (toIndex >= EQUIP_OFFSET) 
+            {
+                success = TryEquipItem(fromIndex, toIndex, itemFrom);
+            }
+            else if (fromIndex >= EQUIP_OFFSET) 
+            {
+                success = TryUnequipItem(fromIndex, toIndex, itemFrom);
+            }
+            else 
+            {
+                success = HandleBackpackMove(fromIndex, toIndex, itemFrom);
+            }
+            
             if (success) TriggerUIUpdate();
             return success;
         }
 
-        // --- Внутренняя логика перемещения (оставляем как было, сокращено для краткости) ---
         private bool TryEquipItem(int fromIndex, int equipGlobalIndex, InventoryItem itemToEquip)
         {
             int localEquipIndex = equipGlobalIndex - EQUIP_OFFSET;
             InventoryItem currentEquipped = EquipmentItems[localEquipIndex];
-            EquipmentSlot targetSlotType = (EquipmentSlot)localEquipIndex;
+            
+            // 1. ПРОВЕРКА ТИПА СЛОТА
+            int requiredSlotType = localEquipIndex; 
+            int itemSlotType = (int)itemToEquip.Data.Slot;
 
-            if (itemToEquip.Data.Slot != targetSlotType) return false;
-
-            Items[fromIndex] = null; 
-
-            if (currentEquipped != null)
+            if (itemSlotType != requiredSlotType)
             {
-                if (CanPlaceItemAt(currentEquipped, fromIndex)) Items[fromIndex] = currentEquipped;
-                else { Items[fromIndex] = itemToEquip; return false; }
+                // Оставляем Warning, чтобы знать, почему предмет не наделся
+                Debug.LogWarning($"[Inventory] Wrong slot type. Item: {itemSlotType}, Slot: {requiredSlotType}");
+                return false;
             }
 
+            // 2. УДАЛЕНИЕ ИЗ РЮКЗАКА
+            Items[fromIndex] = null; 
+
+            // 3. ОБРАБОТКА СВАПА
+            if (currentEquipped != null && currentEquipped.Data != null)
+            {
+                if (CanPlaceItemAt(currentEquipped, fromIndex))
+                {
+                    Items[fromIndex] = currentEquipped;
+                    OnItemUnequipped?.Invoke(currentEquipped);
+                }
+                else
+                {
+                    Debug.LogWarning("[Inventory] Swap failed (no space). Reverting.");
+                    Items[fromIndex] = itemToEquip; // Возврат
+                    return false; 
+                }
+            }
+
+            // 4. ФИНАЛЬНОЕ ПРИСВОЕНИЕ
             EquipmentItems[localEquipIndex] = itemToEquip;
+            OnItemEquipped?.Invoke(itemToEquip);
             return true;
         }
 
         private bool TryUnequipItem(int equipGlobalIndex, int backpackIndex, InventoryItem itemToUnequip)
         {
             InventoryItem itemInBackpack = GetItemAt(backpackIndex, out int anchorIndex);
+
+            // Если в целевом слоте рюкзака пусто
             if (itemInBackpack == null)
             {
                 if (CanPlaceItemAt(itemToUnequip, backpackIndex))
                 {
                     EquipmentItems[equipGlobalIndex - EQUIP_OFFSET] = null;
                     Items[backpackIndex] = itemToUnequip;
+                    OnItemUnequipped?.Invoke(itemToUnequip);
                     return true;
                 }
                 return false;
             }
+
+            // Если там что-то есть - пробуем свапнуть
             return TryEquipItem(backpackIndex, equipGlobalIndex, itemInBackpack);
         }
 
         private bool HandleBackpackMove(int fromIndex, int toIndex, InventoryItem itemA)
         {
-            // Смотрим, что лежит в целевом слоте (и получаем его "родной" индекс-якорь)
             InventoryItem itemB = GetItemAt(toIndex, out int indexB);
 
-            // Сценарий 1: В целевом слоте ПУСТО
-            if (itemB == null)
+            if (itemB == null) 
             {
-                // Удаляем со старого места
                 Items[fromIndex] = null;
-                
-                // Проверяем, влезает ли на новое
                 if (CanPlaceItemAt(itemA, toIndex))
                 {
                     Items[toIndex] = itemA;
                     OnInventoryChanged?.Invoke();
                     return true;
                 }
-                
-                // Откат (не влезло)
                 Items[fromIndex] = itemA;
                 return false;
             }
-            // Сценарий 2: СВАП (В целевом слоте что-то есть)
-            else
+            else 
             {
-                // Нельзя свапать предмет сам с собой
                 if (fromIndex == indexB) return false;
-
-                InventoryItem itemTarget = Items[indexB]; // Это itemB
+                InventoryItem itemTarget = Items[indexB];
                 
-                // --- НАЧАЛО ТРАНЗАКЦИИ ---
-                // 1. Временно удаляем ОБА предмета из сетки, 
-                // чтобы они не мешали проверкам (Collision Check)
                 Items[fromIndex] = null;
                 Items[indexB] = null;
 
-                // 2. Проверяем перекрестную совместимость:
-                // - Влезет ли Перетаскиваемый (A) на место Целевого (indexB)?
-                // - Влезет ли Целевой (Target) на место Старого (fromIndex)?
                 bool aFitsB = CanPlaceItemAt(itemA, indexB);
                 bool bFitsA = CanPlaceItemAt(itemTarget, fromIndex);
 
                 if (aFitsB && bFitsA)
                 {
-                    // Успех! Фиксируем новые позиции
                     Items[indexB] = itemA;
                     Items[fromIndex] = itemTarget;
                     OnInventoryChanged?.Invoke();
                     return true;
                 }
-                else
-                {
-                    // Провал! Откат (Rollback) на исходные позиции
-                    Items[fromIndex] = itemA;
-                    Items[indexB] = itemTarget;
-                    
-                    Debug.LogWarning($"Swap failed: A fits B? {aFitsB}, B fits A? {bFitsA}");
-                    return false;
-                }
+                
+                Items[fromIndex] = itemA;
+                Items[indexB] = itemTarget;
+                return false;
             }
         }
 
@@ -196,7 +206,7 @@ namespace Scripts.Inventory
             int col = targetIndex % _cols;
 
             if (col + w > _cols) return false; 
-            if (row + h > (_capacity / _cols)) return false; 
+            if (targetIndex + (h - 1) * _cols >= Items.Length) return false; 
 
             for (int r = 0; r < h; r++)
             {

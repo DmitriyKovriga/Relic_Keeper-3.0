@@ -4,7 +4,7 @@ using UnityEngine;
 using Scripts.Items;
 using Scripts.Stats;
 using Scripts.Items.Affixes;
-using UnityEngine.Localization.Settings; // Для перевода аффиксов
+using UnityEngine.Localization.Settings;
 
 namespace Scripts.Inventory
 {
@@ -12,15 +12,22 @@ namespace Scripts.Inventory
     public class AffixInstance
     {
         public ItemAffixSO Data;
-        public List<StatModifier> Modifiers = new List<StatModifier>();
+        // Храним тип стата рядом с модификатором
+        public List<(StatType Type, StatModifier Mod)> Modifiers = new List<(StatType, StatModifier)>();
 
         public AffixInstance(ItemAffixSO data, InventoryItem ownerItem)
         {
             Data = data;
+            if (data.Stats == null) return;
+
             foreach (var statData in data.Stats)
             {
                 float val = Mathf.Round(UnityEngine.Random.Range(statData.MinValue, statData.MaxValue));
-                Modifiers.Add(new StatModifier(val, statData.Type, ownerItem));
+                // Создаем модификатор (Source = ownerItem)
+                var mod = new StatModifier(val, statData.Type, ownerItem);
+                
+                // Сохраняем пару: Тип + Модификатор
+                Modifiers.Add((statData.Stat, mod));
             }
         }
     }
@@ -38,46 +45,59 @@ namespace Scripts.Inventory
             Data = data;
         }
 
-        public List<StatModifier> GetAllModifiers()
+        // --- ВАЖНО: Возвращаем Тип Стата вместе с Модификатором ---
+        public List<(StatType StatType, StatModifier Modifier)> GetAllModifiers()
         {
-            var result = new List<StatModifier>();
-            if (Data.ImplicitModifiers != null)
-            {
-                foreach (var imp in Data.ImplicitModifiers)
-                    result.Add(new StatModifier(imp.Value, imp.Type, this));
-            }
-            foreach (var affix in Affixes)
-            {
-                result.AddRange(affix.Modifiers);
-            }
-            return result;
-        }
+            var result = new List<(StatType, StatModifier)>();
 
-        // --- НОВЫЙ МЕТОД ДЛЯ ТУЛТИПА ---
-        public List<string> GetDescriptionLines()
-        {
-            List<string> lines = new List<string>();
-
-            // 1. Имплиситы (База предмета)
+            // 1. Имплиситы (Базовые свойства предмета)
             if (Data.ImplicitModifiers != null)
             {
                 foreach (var imp in Data.ImplicitModifiers)
                 {
-                    // Для простоты выводим StatType. В будущем можно добавить локализацию самих статов.
-                    lines.Add($"<color=#9999ff>{imp.Stat}: +{imp.Value}</color>");
+                    // Source = this (сам предмет)
+                    var mod = new StatModifier(imp.Value, imp.Type, this);
+                    result.Add((imp.Stat, mod));
                 }
             }
 
-            // 2. Аффиксы (Случайные свойства)
+            // 2. Аффиксы
             foreach (var affix in Affixes)
             {
-                // Подтягиваем перевод из таблицы "Affixes", используя TranslationKey и ролл значения
-                string translated = LocalizationSettings.StringDatabase.GetLocalizedString(
-                    "Affixes", 
-                    affix.Data.TranslationKey, 
-                    new object[] { affix.Modifiers[0].Value }
-                );
-                lines.Add(translated);
+                result.AddRange(affix.Modifiers);
+            }
+
+            return result;
+        }
+
+        public List<string> GetDescriptionLines()
+        {
+            List<string> lines = new List<string>();
+
+            // Имплиситы
+            if (Data.ImplicitModifiers != null)
+            {
+                foreach (var imp in Data.ImplicitModifiers)
+                {
+                    // Временная заглушка для красивого отображения (потом можно локализовать StatType)
+                    lines.Add($"<color=#8888ff>{imp.Stat}: +{imp.Value}</color>");
+                }
+            }
+
+            // Аффиксы (с локализацией)
+            foreach (var affix in Affixes)
+            {
+                if (affix.Modifiers.Count == 0) continue;
+
+                float val = affix.Modifiers[0].Mod.Value;
+                
+                // Используем синхронный метод для простоты (или твой async вариант)
+                var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync("MenuLabels", affix.Data.TranslationKey, new object[] { val });
+                
+                if (op.IsDone && !string.IsNullOrEmpty(op.Result))
+                    lines.Add(op.Result);
+                else
+                    lines.Add($"{affix.Data.name}: {val}"); // Fallback
             }
 
             return lines;

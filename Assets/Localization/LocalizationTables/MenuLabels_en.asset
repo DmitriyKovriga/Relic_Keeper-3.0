@@ -1022,6 +1022,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 3920291242802151514
+  - m_Id: 13459565192970240
+    m_Localized: Resistances
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
