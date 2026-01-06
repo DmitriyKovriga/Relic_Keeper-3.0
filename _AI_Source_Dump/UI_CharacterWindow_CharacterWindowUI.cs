@@ -25,7 +25,6 @@ public class CharacterWindowUI : MonoBehaviour
     [SerializeField] private int _rowHeight = 40;
 
     private VisualElement _container;
-    // Словарь для обновления значений (StatType -> Label)
     private Dictionary<StatType, Label> _valueLabels = new Dictionary<StatType, Label>();
 
     private void OnEnable()
@@ -37,7 +36,7 @@ public class CharacterWindowUI : MonoBehaviour
 
         if (_container == null)
         {
-            Debug.LogError($"[UI] Контейнер '{_containerName}' не найден! Проверь имя в UXML.");
+            Debug.LogError($"[UI] Контейнер '{_containerName}' не найден!");
             return;
         }
 
@@ -83,46 +82,35 @@ public class CharacterWindowUI : MonoBehaviour
         _container.Clear();
         _valueLabels.Clear();
 
-        // Получаем настройку групп
         var groups = GetStatGroups();
-        
-        // HashSet нужен, чтобы запомнить, какие статы мы уже показали в группах
         HashSet<StatType> displayedStats = new HashSet<StatType>();
 
-        // ЭТАП 1: Рисуем настроенные группы
+        // 1. Группы
         foreach (var group in groups)
         {
             string headerKey = group.Key;
             List<StatType> stats = group.Value;
 
-            // Если группа пустая — пропускаем заголовок
             if (stats == null || stats.Count == 0) continue;
 
             CreateHeader(headerKey);
 
             foreach (var type in stats)
             {
-                // Защита от дублей: если один стат добавлен в две группы, покажем только в первой
                 if (displayedStats.Contains(type)) continue;
-
                 CreateStatRow(type);
                 displayedStats.Add(type);
             }
         }
 
-        // ЭТАП 2: Автоматический сбор "потерянных" статов (Fallback)
-        // Проходим по всему Enum. Если стат еще не был отрисован, значит он не попал ни в одну группу.
-        // Мы добавляем его в конец под общий заголовок "Misc".
+        // 2. Остальные ("Misc")
         bool miscHeaderAdded = false;
-        
         foreach (StatType type in Enum.GetValues(typeof(StatType)))
         {
             if (displayedStats.Contains(type)) continue;
 
-            // Если мы дошли до сюда — значит нашли стат, которого нет в группах выше.
             if (!miscHeaderAdded)
             {
-                // Используем тот же ключ локализации или специальный "headers.Other"
                 CreateHeader("headers.Misc"); 
                 miscHeaderAdded = true;
             }
@@ -130,13 +118,10 @@ public class CharacterWindowUI : MonoBehaviour
         }
     }
 
-    // Здесь мы декларативно описываем желаемый порядок.
-    // Если ты удалил ChaosResist из Enum, он просто не должен быть упомянут здесь.
     private Dictionary<string, List<StatType>> GetStatGroups()
     {
         return new Dictionary<string, List<StatType>>
         {
-            // === ОБОРОНА (Defense) ===
             { "headers.Defense", new List<StatType> {
                 StatType.MaxHealth,
                 StatType.HealthRegen,
@@ -156,16 +141,12 @@ public class CharacterWindowUI : MonoBehaviour
                 StatType.ColdResist,
                 StatType.LightningResist,
 
-                StatType.MoveSpeed,
-                StatType.JumpForce,
-                
                 StatType.HealthOnHit,
                 StatType.HealthOnBlock,
                 StatType.ManaOnHit,
                 StatType.ManaOnBlock
             }},
 
-            // === АТАКА (Offense) ===
             { "headers.Offense", new List<StatType> {
                 StatType.DamagePhysical,
                 StatType.DamageFire,
@@ -175,7 +156,6 @@ public class CharacterWindowUI : MonoBehaviour
                 StatType.AttackSpeed,
                 StatType.CastSpeed,
                 StatType.ProjectileSpeed,
-                StatType.AreaOfEffect,
 
                 StatType.Accuracy,
                 StatType.CritChance,
@@ -192,27 +172,24 @@ public class CharacterWindowUI : MonoBehaviour
                 StatType.ElementalToPhysical
             }},
 
-            // === ЭФФЕКТЫ (Statuses) ===
             { "headers.Statuses", new List<StatType> {
                 StatType.BleedChance,
                 StatType.BleedDamageMult,
                 StatType.BleedDuration,
-                
                 StatType.PoisonChance,
                 StatType.PoisonDamageMult,
                 StatType.PoisonDuration,
-                
                 StatType.IgniteChance,
                 StatType.IgniteDamageMult,
                 StatType.IgniteDuration,
-                
                 StatType.FreezeChance,
                 StatType.ShockChance
             }},
             
-            // === УТИЛИТЫ (Utility) ===
-            // Это то, что мы хотим видеть внизу, но оформленное красиво
             { "headers.Misc", new List<StatType> {
+                StatType.MoveSpeed,
+                StatType.JumpForce,
+                StatType.AreaOfEffect,
                 StatType.CooldownReductionPercent,
                 StatType.EffectDuration
             }}
@@ -252,7 +229,6 @@ public class CharacterWindowUI : MonoBehaviour
         row.style.marginBottom = 2;
 
         string key = $"stats.{type}";
-        
         Label nameLabel = new Label("...");
         nameLabel.style.fontSize = _fontSize;
         nameLabel.style.width = _nameColumnWidth;
@@ -262,11 +238,8 @@ public class CharacterWindowUI : MonoBehaviour
         var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(_tableName, key);
         op.Completed += (o) => 
         {
-            if (o.OperationException == null) 
-                nameLabel.text = o.Result;
-            else 
-                // Fallback: разбиваем CamelCase (MaxHealth -> Max Health)
-                nameLabel.text = System.Text.RegularExpressions.Regex.Replace(type.ToString(), "(\\B[A-Z])", " $1");
+            if (o.OperationException == null) nameLabel.text = o.Result;
+            else nameLabel.text = System.Text.RegularExpressions.Regex.Replace(type.ToString(), "(\\B[A-Z])", " $1");
         };
 
         Label valueLabel = new Label("-");
@@ -291,31 +264,23 @@ public class CharacterWindowUI : MonoBehaviour
             StatType type = kvp.Key;
             Label label = kvp.Value;
             
-            // Сначала получаем "сырое" значение стата
             float rawVal = _playerStats.GetValue(type);
 
-            // --- СПЕЦИАЛЬНАЯ ЛОГИКА ОТОБРАЖЕНИЯ ---
+            // --- ОБНОВЛЕННАЯ ЛОГИКА ---
 
-            // 1. Если это УРОН - мы хотим видеть не % бонуса, а реальный урон удара
+            // 1. УРОН: Считаем через формулу в PlayerStats
             if (IsDamageStat(type))
             {
-                // Вызываем наш новый метод расчета (пока он внутри PlayerStats)
-                // Но так как метода в интерфейсе может не быть, 
-                // пока давай просто отобразим сырой % красиво, 
-                // ИЛИ раскомментируй строку ниже, если добавил метод CalculateAverageDamage
-                
-                // float damage = _playerStats.CalculateAverageDamage(type);
-                // label.text = $"{Mathf.Round(damage)}"; 
-                
-                // ВРЕМЕННО: Покажем, что это модификатор (например "+50%")
-                label.text = $"+{Mathf.Round(rawVal * 100)}%";
+                // CalculateAverageDamage вернет "15" (если база 10 * 1.5)
+                float avgDamage = _playerStats.CalculateAverageDamage(type);
+                label.text = $"{Mathf.Round(avgDamage)}";
             }
-            // 2. Если это ПРОЦЕНТЫ (Шансы, Резисты, Скорости)
+            // 2. ПРОЦЕНТЫ: Показываем как %
             else if (IsPercentageStat(type))
             {
                 label.text = $"{Mathf.Round(rawVal * 100)}%";
             }
-            // 3. Если это ОБЫЧНЫЕ ЧИСЛА (Здоровье, Броня, Уклонение)
+            // 3. ОСТАЛЬНОЕ: Показываем как есть
             else
             {
                 label.text = $"{Mathf.Round(rawVal)}";
@@ -334,7 +299,6 @@ public class CharacterWindowUI : MonoBehaviour
     private bool IsPercentageStat(StatType type)
     {
         string name = type.ToString();
-        // Используем универсальные правила именования, принятые в проекте
         return name.Contains("Percent") ||
                name.Contains("Chance") ||
                name.Contains("Resist") ||

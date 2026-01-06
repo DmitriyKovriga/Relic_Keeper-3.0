@@ -1,0 +1,34 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Inventory/InventoryStyles.uss?fileID=7433441132597879392&amp;guid=1e629191834a868468974c58ffc4d126&amp;type=3#InventoryStyles" />
+    <ui:VisualElement name="WindowRoot" class="window-container">
+        <ui:VisualElement class="col-stats" />
+        <ui:VisualElement class="col-equipment">
+            <ui:Label text="Equipment" class="section-header" />
+            <ui:VisualElement class="equipment-doll-container">
+                <ui:VisualElement name="Slot_Helmet" class="slot slot-2x2" style="position: absolute; top: 0; left: 56px;">
+                    <ui:Label text="Head" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot_Body" class="slot slot-2x3" style="position: absolute; top: 50px; left: 56px;">
+                    <ui:Label text="Body" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot_MainHand" class="slot slot-2x4" style="position: absolute; top: 50px; left: 6px;">
+                    <ui:Label text="Main" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot_OffHand" class="slot slot-2x4" style="position: absolute; top: 50px; left: 106px;">
+                    <ui:Label text="Off" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot_Gloves" class="slot slot-2x2" style="position: absolute; top: 148px; left: 6px;">
+                    <ui:Label text="Hand" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Slot_Boots" class="slot slot-2x2" style="position: absolute; top: 148px; left: 106px;">
+                    <ui:Label text="Feet" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="col-inventory">
+            <ui:Label text="Backpack" class="section-header" />
+            <ui:VisualElement name="InventoryGrid" class="inventory-grid-container" style="margin-top: 50px;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="Overlay" class="overlay" />
+    </ui:VisualElement>
+</ui:UXML>

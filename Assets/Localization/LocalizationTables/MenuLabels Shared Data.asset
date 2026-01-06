@@ -303,6 +303,578 @@ MonoBehaviour:
     m_Key: headers.Misc
     m_Metadata:
       m_Items: []
+  - m_Id: 13285951785172992
+    m_Key: affix_flat_accuracy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951814533120
+    m_Key: affix_increase_accuracy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951818727424
+    m_Key: affix_more_accuracy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951822921728
+    m_Key: affix_increase_areaofeffect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951822921729
+    m_Key: affix_more_areaofeffect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951831310336
+    m_Key: affix_flat_armor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951835504640
+    m_Key: affix_increase_armor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951835504641
+    m_Key: affix_more_armor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951839698944
+    m_Key: affix_flat_attackspeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951839698945
+    m_Key: affix_increase_attackspeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951848087552
+    m_Key: affix_more_attackspeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951848087553
+    m_Key: affix_flat_bleedchance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951852281856
+    m_Key: affix_increase_bleeddamagemult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951852281857
+    m_Key: affix_more_bleeddamagemult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951856476160
+    m_Key: affix_flat_bleedduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951860670464
+    m_Key: affix_increase_bleedduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951860670465
+    m_Key: affix_more_bleedduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951869059072
+    m_Key: affix_flat_blockchance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951873253376
+    m_Key: affix_increase_blockchance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951873253377
+    m_Key: affix_more_blockchance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951877447680
+    m_Key: affix_flat_bubblemitigationpercent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951881641984
+    m_Key: affix_increase_bubblemitigationpercent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951881641985
+    m_Key: affix_more_bubblemitigationpercent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951890030592
+    m_Key: affix_flat_bubblerechargeduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951890030593
+    m_Key: affix_increase_bubblerechargeduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951894224896
+    m_Key: affix_more_bubblerechargeduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951898419200
+    m_Key: affix_increase_castspeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951902613504
+    m_Key: affix_more_castspeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951902613505
+    m_Key: affix_flat_coldresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951902613506
+    m_Key: affix_increase_cooldownreductionpercent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951906807808
+    m_Key: affix_more_cooldownreductionpercent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951911002112
+    m_Key: affix_flat_critchance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951915196416
+    m_Key: affix_increase_critchance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951919390720
+    m_Key: affix_more_critchance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951923585024
+    m_Key: affix_flat_critmultiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951923585025
+    m_Key: affix_increase_critmultiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951927779328
+    m_Key: affix_more_critmultiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951927779329
+    m_Key: affix_flat_damagecold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951931973632
+    m_Key: affix_increase_damagecold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951936167936
+    m_Key: affix_more_damagecold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951940362240
+    m_Key: affix_flat_damagefire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951940362241
+    m_Key: affix_increase_damagefire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951948750848
+    m_Key: affix_more_damagefire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951948750849
+    m_Key: affix_flat_damagelightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951952945152
+    m_Key: affix_increase_damagelightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951952945153
+    m_Key: affix_more_damagelightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951957139456
+    m_Key: affix_flat_damagephysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951961333760
+    m_Key: affix_increase_damagephysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951961333761
+    m_Key: affix_more_damagephysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951969722368
+    m_Key: affix_increase_effectduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951969722369
+    m_Key: affix_more_effectduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951973916672
+    m_Key: affix_flat_elementaltophysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951978110976
+    m_Key: affix_flat_evasion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951982305280
+    m_Key: affix_increase_evasion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951982305281
+    m_Key: affix_more_evasion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951986499584
+    m_Key: affix_flat_fireresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951990693888
+    m_Key: affix_increase_fireresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951990693889
+    m_Key: affix_more_fireresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951999082496
+    m_Key: affix_flat_freezechance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285951999082497
+    m_Key: affix_increase_freezechance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952003276800
+    m_Key: affix_more_freezechance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952007471104
+    m_Key: affix_flat_healthonblock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952011665408
+    m_Key: affix_increase_healthonblock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952011665409
+    m_Key: affix_more_healthonblock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952015859712
+    m_Key: affix_flat_healthonhit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952015859713
+    m_Key: affix_increase_healthonhit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952020054016
+    m_Key: affix_more_healthonhit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952020054017
+    m_Key: affix_flat_healthregen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952028442624
+    m_Key: affix_increase_healthregen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952032636928
+    m_Key: affix_more_healthregen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952032636929
+    m_Key: affix_flat_ignitechance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952036831232
+    m_Key: affix_increase_ignitechance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952041025536
+    m_Key: affix_more_ignitechance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952045219840
+    m_Key: affix_flat_ignitedamagemult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952045219841
+    m_Key: affix_increase_ignitedamagemult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952045219842
+    m_Key: affix_more_ignitedamagemult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952053608448
+    m_Key: affix_flat_igniteduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952057802752
+    m_Key: affix_increase_igniteduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952057802753
+    m_Key: affix_more_igniteduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952061997056
+    m_Key: affix_flat_jumpforce
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952066191360
+    m_Key: affix_increase_jumpforce
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952066191361
+    m_Key: affix_more_jumpforce
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952070385664
+    m_Key: affix_flat_lightningresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952070385665
+    m_Key: affix_increase_lightningresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952078774272
+    m_Key: affix_more_lightningresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952082968576
+    m_Key: affix_flat_manaonblock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952082968577
+    m_Key: affix_increase_manaonblock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952087162880
+    m_Key: affix_more_manaonblock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952087162881
+    m_Key: affix_flat_manaonhit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952091357184
+    m_Key: affix_increase_manaonhit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952091357185
+    m_Key: affix_more_manaonhit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952099745792
+    m_Key: affix_flat_manaregen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952099745793
+    m_Key: affix_increase_manaregen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952103940096
+    m_Key: affix_more_manaregen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952108134400
+    m_Key: affix_flat_maxbubbles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952112328704
+    m_Key: affix_flat_maxhealth
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952112328705
+    m_Key: affix_increase_maxhealth
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952116523008
+    m_Key: affix_more_maxhealth
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952124911616
+    m_Key: affix_flat_maxmana
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952124911617
+    m_Key: affix_increase_maxmana
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952129105920
+    m_Key: affix_more_maxmana
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952129105921
+    m_Key: affix_flat_movespeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952133300224
+    m_Key: affix_increase_movespeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952137494528
+    m_Key: affix_more_movespeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952137494529
+    m_Key: affix_flat_penetrationcold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952145883136
+    m_Key: affix_increase_penetrationcold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952145883137
+    m_Key: affix_more_penetrationcold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952150077440
+    m_Key: affix_flat_penetrationfire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952154271744
+    m_Key: affix_increase_penetrationfire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952154271745
+    m_Key: affix_more_penetrationfire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952158466048
+    m_Key: affix_flat_penetrationlightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952162660352
+    m_Key: affix_increase_penetrationlightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952162660353
+    m_Key: affix_more_penetrationlightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952171048960
+    m_Key: affix_flat_penetrationphysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952171048961
+    m_Key: affix_increase_penetrationphysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952175243264
+    m_Key: affix_more_penetrationphysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952179437568
+    m_Key: affix_flat_physicalresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952183631872
+    m_Key: affix_increase_physicalresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952183631873
+    m_Key: affix_more_physicalresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952187826176
+    m_Key: affix_flat_physicaltocold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952187826177
+    m_Key: affix_increase_physicaltocold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952196214784
+    m_Key: affix_more_physicaltocold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952196214785
+    m_Key: affix_flat_physicaltofire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952204603392
+    m_Key: affix_increase_physicaltofire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952204603393
+    m_Key: affix_more_physicaltofire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952208797696
+    m_Key: affix_flat_physicaltolightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952212992000
+    m_Key: affix_increase_physicaltolightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952217186304
+    m_Key: affix_more_physicaltolightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952217186305
+    m_Key: affix_flat_poisonchance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952221380608
+    m_Key: affix_increase_poisonchance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952221380609
+    m_Key: affix_more_poisonchance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952225574912
+    m_Key: affix_flat_poisondamagemult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952229769216
+    m_Key: affix_increase_poisondamagemult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952233963520
+    m_Key: affix_more_poisondamagemult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952233963521
+    m_Key: affix_flat_poisonduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952242352128
+    m_Key: affix_increase_poisonduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952242352129
+    m_Key: affix_more_poisonduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952246546432
+    m_Key: affix_flat_projectilespeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952250740736
+    m_Key: affix_increase_projectilespeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952250740737
+    m_Key: affix_more_projectilespeed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952254935040
+    m_Key: affix_flat_shockchance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952254935041
+    m_Key: affix_increase_shockchance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13285952263323648
+    m_Key: affix_more_shockchance
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
