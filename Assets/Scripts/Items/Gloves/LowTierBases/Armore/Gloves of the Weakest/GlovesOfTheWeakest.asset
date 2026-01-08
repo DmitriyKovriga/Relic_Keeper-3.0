@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 707924c3c674e324ab126931e524eab8, type: 3}
+  m_Name: GlovesOfTheWeakest
+  m_EditorClassIdentifier: 
+  ID: 2
+  ItemName: Gloves of the Weakest
+  Icon: {fileID: 21300000, guid: 647bae26d9a6b0c4abcb7a4b68f9a89d, type: 3}
+  Width: 2
+  Height: 2
+  Slot: 4
+  DropLevel: 1
+  ImplicitModifiers:
+  - Stat: 0
+    Value: 25
+    Type: 100
+    Scope: 0
+  DefenseType: 1
+  BaseArmor: 50
+  BaseEvasion: 0
+  BaseBubbles: 0

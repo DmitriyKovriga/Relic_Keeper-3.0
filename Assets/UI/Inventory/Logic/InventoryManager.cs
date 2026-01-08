@@ -197,9 +197,9 @@ namespace Scripts.Inventory
 
         public bool CanPlaceItemAt(InventoryItem item, int targetIndex)
         {
-            if (item == null || item.Data == null) return false;
+            if (item == null || item.Data == null) return false; 
             if (targetIndex >= EQUIP_OFFSET) return true;
-
+            
             int w = item.Data.Width;
             int h = item.Data.Height;
             int row = targetIndex / _cols;
@@ -239,6 +239,11 @@ namespace Scripts.Inventory
 
         private bool IsItemCoveringSlot(int anchorIndex, InventoryItem item, int targetSlot)
         {
+            if (item == null || item.Data == null) 
+            {
+                return false; 
+            }
+
             int startRow = anchorIndex / _cols;
             int startCol = anchorIndex % _cols;
             int targetRow = targetSlot / _cols;

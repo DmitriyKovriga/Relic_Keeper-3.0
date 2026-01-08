@@ -20,5 +20,5 @@ MonoBehaviour:
   - Stat: 32
     Type: 100
     Scope: 1
-    MinValue: 41
-    MaxValue: 50
+    MinValue: 160
+    MaxValue: 300

@@ -5364,7 +5364,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e12661a7ae255994d8b0dab19dcbc1eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _testItemBase: {fileID: 11400000, guid: 802327eb71519cd4d96a2e9cc8fd189a, type: 2}
+  _testItemBase: {fileID: 11400000, guid: ddfb08f184b04c74bb95f559d0997a2a, type: 2}
   _itemLevel: 1
 --- !u!114 &635787813
 MonoBehaviour:
@@ -5550,6 +5550,7 @@ MonoBehaviour:
   _affixPools:
   - {fileID: 11400000, guid: 953ccb07f8e1f624ab7aaa64b103d36f, type: 2}
   - {fileID: 11400000, guid: 31230be056ade334b81dd8bba6c0b4d0, type: 2}
+  - {fileID: 11400000, guid: d404d09ed3f96bb43aa65cd4341711ec, type: 2}
 --- !u!1 &857371559
 GameObject:
   m_ObjectHideFlags: 0
