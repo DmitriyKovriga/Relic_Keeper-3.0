@@ -16,9 +16,12 @@ public class ItemTooltipController : MonoBehaviour
     [SerializeField] private Font _customFont;
 
     [Header("Layout Settings")]
-    [SerializeField] private float _tooltipWidth = 160f; // ВЕРНУЛ 160
-    [SerializeField] private float _gap = 5f;            // ВЕРНУЛ 5
-    [SerializeField] private float _screenPadding = 2f;  // ВЕРНУЛ 2
+    [SerializeField] private float _tooltipWidth = 160f; 
+    [SerializeField] private float _gap = 5f; 
+    [SerializeField] private float _screenPadding = 2f; 
+    
+    [SerializeField, Tooltip("Задержка в миллисекундах перед скрытием тултипа")] 
+    private long _hideDelayMs = 50;
     
     private const float SLOT_SIZE = 24f; 
 
@@ -35,29 +38,28 @@ public class ItemTooltipController : MonoBehaviour
 
     private VisualElement _skillTooltipBox;
     private Label _skillHeaderLabel;
+    private Image _skillIconImage; 
     private Label _skillDescLabel;
 
     // --- State ---
     private InventoryItem _currentTargetItem;
     private VisualElement _targetAnchorSlot;
+    
+    // Переменная для таймера скрытия
+    private IVisualElementScheduledItem _hideScheduler;
 
     // --- Colors ---
-    private readonly Color _colBg = new Color(0.02f, 0.02f, 0.02f, 0.98f); 
-    private readonly Color _colSkillBg = new Color(0.05f, 0.1f, 0.15f, 0.98f);
-    
+    private readonly Color _colBg = new Color(0.02f, 0.02f, 0.02f, 1f); 
+    private readonly Color _colSkillBg = new Color(0.05f, 0.1f, 0.15f, 1f);
     private readonly Color _colNormalText = new Color(0.9f, 0.9f, 0.9f);
     private readonly Color _colModifiedText = new Color(0.5f, 0.6f, 1f);
-    
     private readonly Color _colTitleCommon = Color.white;
     private readonly Color _colTitleMagic = new Color(0.3f, 0.3f, 1f); 
     private readonly Color _colTitleRare = new Color(1f, 1f, 0.4f); 
-    
     private readonly Color _colMagicBorder = new Color(0.3f, 0.3f, 0.7f);
     private readonly Color _colRareBorder = new Color(0.7f, 0.6f, 0.2f);
-
     private readonly Color _colImplicit = new Color(0.6f, 0.8f, 1f);
     private readonly Color _colAffix = new Color(0.5f, 0.5f, 1f);
-    
     private readonly Color _colFireText = new Color(1f, 0.5f, 0.5f);
     private readonly Color _colColdText = new Color(0.5f, 0.6f, 1f);
     private readonly Color _colLightningText = new Color(1f, 1f, 0.5f);
@@ -85,9 +87,9 @@ public class ItemTooltipController : MonoBehaviour
         var old2 = _root.Q<VisualElement>("GlobalSkillTooltip");
         if (old2 != null) _root.Remove(old2);
 
-        // 1. Item Tooltip
+        // --- 1. Item Tooltip ---
         _itemTooltipBox = CreateContainer("GlobalItemTooltip", _colBg);
-        _headerLabel = CreateLabel("", 8, FontStyle.Bold, TextAnchor.MiddleCenter); // Font 8
+        _headerLabel = CreateLabel("", 8, FontStyle.Bold, TextAnchor.MiddleCenter);
         _statsContainer = new VisualElement { style = { width = Length.Percent(100) } };
         
         _itemTooltipBox.Add(_headerLabel);
@@ -95,17 +97,26 @@ public class ItemTooltipController : MonoBehaviour
         _itemTooltipBox.Add(_statsContainer);
         _root.Add(_itemTooltipBox);
 
-        // 2. Skill Tooltip
+        // --- 2. Skill Tooltip ---
         _skillTooltipBox = CreateContainer("GlobalSkillTooltip", _colSkillBg);
         _skillTooltipBox.style.borderTopColor = Color.cyan; _skillTooltipBox.style.borderBottomColor = Color.cyan;
         _skillTooltipBox.style.borderLeftColor = Color.cyan; _skillTooltipBox.style.borderRightColor = Color.cyan;
 
-        _skillHeaderLabel = CreateLabel("", 8, FontStyle.Bold, TextAnchor.MiddleCenter); // Font 8
+        _skillHeaderLabel = CreateLabel("", 8, FontStyle.Bold, TextAnchor.MiddleCenter);
         _skillHeaderLabel.style.color = new StyleColor(Color.cyan);
-        _skillDescLabel = CreateLabel("", 8, FontStyle.Normal, TextAnchor.UpperLeft); // Font 8
+        
+        _skillIconImage = new Image();
+        _skillIconImage.style.width = 32;
+        _skillIconImage.style.height = 32;
+        _skillIconImage.style.marginTop = 4;
+        _skillIconImage.style.marginBottom = 4;
+        _skillIconImage.style.alignSelf = Align.Center;
+        
+        _skillDescLabel = CreateLabel("", 8, FontStyle.Normal, TextAnchor.UpperLeft);
         
         _skillTooltipBox.Add(_skillHeaderLabel);
         _skillTooltipBox.Add(CreateDivider());
+        _skillTooltipBox.Add(_skillIconImage);
         _skillTooltipBox.Add(_skillDescLabel);
         _root.Add(_skillTooltipBox);
 
@@ -120,8 +131,6 @@ public class ItemTooltipController : MonoBehaviour
         el.style.backgroundColor = new StyleColor(bg);
         el.style.borderTopWidth = 1; el.style.borderBottomWidth = 1;
         el.style.borderLeftWidth = 1; el.style.borderRightWidth = 1;
-        
-        // ВЕРНУЛ ПАДДИНГИ КАК БЫЛО
         el.style.paddingTop = 4; el.style.paddingBottom = 4;
         el.style.paddingLeft = 4; el.style.paddingRight = 4;
         
@@ -158,8 +167,6 @@ public class ItemTooltipController : MonoBehaviour
         var d = new VisualElement();
         d.style.height = 1;
         d.style.width = Length.Percent(100);
-        
-        // ВЕРНУЛ MARGIN КАК БЫЛО
         d.style.marginTop = 2; d.style.marginBottom = 2;
         d.style.backgroundColor = new StyleColor(new Color(0.5f, 0.5f, 0.5f, 0.5f));
         return d;
@@ -170,7 +177,15 @@ public class ItemTooltipController : MonoBehaviour
     public void ShowTooltip(InventoryItem item, VisualElement anchorSlot)
     {
         if (_itemTooltipBox == null || item == null || item.Data == null) return;
+        
+        // --- ФИКС МОРГАНИЯ (ОТМЕНА СТАРОГО СКРЫТИЯ) ---
+        if (_hideScheduler != null)
+        {
+            _hideScheduler.Pause(); // Отменяем запланированное скрытие
+            _hideScheduler = null;
+        }
 
+        // Если тот же предмет, выходим.
         if (_currentTargetItem == item && _itemTooltipBox.style.display == DisplayStyle.Flex) return;
 
         _currentTargetItem = item;
@@ -199,18 +214,30 @@ public class ItemTooltipController : MonoBehaviour
 
     public void HideTooltip()
     {
-        if (_itemTooltipBox != null) 
+        // --- ФИКС МОРГАНИЯ (ОТЛОЖЕННОЕ СКРЫТИЕ) ---
+        // Если уже запланировано скрытие, не дублируем
+        if (_hideScheduler != null) return;
+
+        // Создаем таймер
+        _hideScheduler = _root.schedule.Execute(() =>
         {
-            _itemTooltipBox.style.display = DisplayStyle.None;
-            _itemTooltipBox.style.visibility = Visibility.Hidden;
-        }
-        if (_skillTooltipBox != null) 
-        {
-            _skillTooltipBox.style.display = DisplayStyle.None;
-            _skillTooltipBox.style.visibility = Visibility.Hidden;
-        }
-        _currentTargetItem = null;
-        _targetAnchorSlot = null;
+            if (_itemTooltipBox != null) 
+            {
+                _itemTooltipBox.style.display = DisplayStyle.None;
+                _itemTooltipBox.style.visibility = Visibility.Hidden;
+            }
+            if (_skillTooltipBox != null) 
+            {
+                _skillTooltipBox.style.display = DisplayStyle.None;
+                _skillTooltipBox.style.visibility = Visibility.Hidden;
+            }
+            _currentTargetItem = null;
+            _targetAnchorSlot = null;
+            _hideScheduler = null; // Очищаем ссылку после выполнения
+        });
+        
+        // Запускаем через N мс
+        _hideScheduler.ExecuteLater(_hideDelayMs);
     }
 
     // --- Positioning Logic ---
@@ -230,17 +257,14 @@ public class ItemTooltipController : MonoBehaviour
         float screenW = _root.resolvedStyle.width;
         float screenH = _root.resolvedStyle.height;
 
-        Vector2 slotPos = _root.WorldToLocal(_targetAnchorSlot.worldBound.position);
+        Rect r = _targetAnchorSlot.worldBound;
+        Vector2 slotPos = _root.WorldToLocal(r.position);
         
-        // Размеры предмета
         float itemPhysicalWidth = _currentTargetItem.Data.Width * SLOT_SIZE;
-        float itemPhysicalHeight = _currentTargetItem.Data.Height * SLOT_SIZE;
 
-        // Края предмета
-        float itemRightX = slotPos.x + itemPhysicalWidth + _gap;
-        float itemLeftX = slotPos.x - _gap;
+        float itemRightEdge = slotPos.x + itemPhysicalWidth + _gap;
+        float itemLeftEdge = slotPos.x - _gap;
 
-        // Размеры тултипов
         float itemW = _itemTooltipBox.resolvedStyle.width;
         if (float.IsNaN(itemW) || itemW < 10) itemW = _tooltipWidth;
         float itemH = _itemTooltipBox.resolvedStyle.height;
@@ -252,57 +276,46 @@ public class ItemTooltipController : MonoBehaviour
         float finalItemX, finalSkillX;
         float y = slotPos.y;
 
-        // 1. Попытка: Все СПРАВА
-        // [Предмет] [gap] [Item] [gap] [Skill]
         float widthNeededRight = itemW + (hasSkill ? (_gap + skillW) : 0) + _screenPadding;
         
-        if (itemRightX + widthNeededRight < screenW)
+        if (itemRightEdge + widthNeededRight < screenW)
         {
-            finalItemX = itemRightX;
+            finalItemX = itemRightEdge;
             finalSkillX = finalItemX + itemW + _gap;
         }
-        // 2. Попытка: Все СЛЕВА
-        // [Skill] [gap] [Item] [gap] [Предмет]
-        else if (itemLeftX - widthNeededRight > 0)
-        {
-            finalItemX = itemLeftX - itemW;
-            finalSkillX = finalItemX - _gap - skillW;
-        }
-        // 3. Fallback: БУТЕРБРОД (Разбиваем)
         else
         {
-            float spaceRight = screenW - itemRightX;
-            float spaceLeft = itemLeftX;
-
-            // Ставим основной тултип туда, где больше места
-            if (spaceRight > spaceLeft)
+            float widthNeededLeft = itemW + (hasSkill ? (_gap + skillW) : 0) + _screenPadding;
+            if (itemLeftEdge - widthNeededLeft > 0)
             {
-                finalItemX = itemRightX; // Справа
-                finalSkillX = itemLeftX - skillW; // Скилл слева
+                finalItemX = itemLeftEdge - itemW;
+                finalSkillX = finalItemX - _gap - skillW;
             }
             else
             {
-                finalItemX = itemLeftX - itemW; // Слева
-                finalSkillX = itemRightX; // Скилл справа
+                float spaceRight = screenW - itemRightEdge;
+                float spaceLeft = itemLeftEdge;
+
+                if (spaceRight > spaceLeft)
+                {
+                    finalItemX = itemRightEdge;
+                    finalSkillX = itemLeftEdge - skillW;
+                }
+                else
+                {
+                    finalItemX = itemLeftEdge - itemW;
+                    finalSkillX = itemRightEdge;
+                }
             }
         }
 
-        // --- ВЕРТИКАЛЬНАЯ КОРРЕКЦИЯ (CLAMP) ---
         float maxHeight = Mathf.Max(itemH, hasSkill ? _skillTooltipBox.resolvedStyle.height : 0);
-        
-        // 1. Если вылезает вниз -> двигаем вверх
         if (y + maxHeight > screenH - _screenPadding)
         {
             y = screenH - maxHeight - _screenPadding;
         }
+        if (y < _screenPadding) y = _screenPadding;
 
-        // 2. Если после сдвига вверх вылезло за верхний край -> прижимаем к верху
-        if (y < _screenPadding) 
-        {
-            y = _screenPadding;
-        }
-
-        // Применяем
         _itemTooltipBox.style.left = finalItemX;
         _itemTooltipBox.style.top = y;
         _itemTooltipBox.style.visibility = Visibility.Visible;
@@ -315,7 +328,7 @@ public class ItemTooltipController : MonoBehaviour
         }
     }
 
-    // --- Fill Data ---
+    // --- Fill Data Logic ---
 
     private void FillSkillData(InventoryItem item)
     {
@@ -326,6 +339,9 @@ public class ItemTooltipController : MonoBehaviour
         {
             var skill = item.GrantedSkills[0];
             _skillHeaderLabel.text = $"Grants Skill: {skill.SkillName}";
+            
+            _skillIconImage.sprite = skill.Icon;
+            _skillIconImage.style.display = skill.Icon != null ? DisplayStyle.Flex : DisplayStyle.None;
             
             string desc = skill.Description;
             if (skill.Cooldown > 0) desc += $"\n\n<color=#aaaaaa>Cooldown: {skill.Cooldown}s</color>";
