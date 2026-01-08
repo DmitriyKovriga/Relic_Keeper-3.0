@@ -19,6 +19,7 @@ public class CharacterWindowUI : MonoBehaviour
     private VisualElement _contentContainer;
     
     private Dictionary<StatType, Label> _valueLabels = new Dictionary<StatType, Label>();
+    private Dictionary<StatType, Label> _nameLabels = new Dictionary<StatType, Label>();
     private Font _pixelFont;
     private bool _isStylesApplied = false;
 
@@ -56,6 +57,8 @@ public class CharacterWindowUI : MonoBehaviour
 
         if (_playerStats != null)
             _playerStats.OnAnyStatChanged += UpdateValues;
+
+        LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
     }
 
     private void OnDisable()
@@ -65,6 +68,8 @@ public class CharacterWindowUI : MonoBehaviour
             
         if (_scrollView != null)
             _scrollView.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+
+        LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
     }
 
     // --- ГЕНЕРАЦИЯ СТРОК (МАКСИМАЛЬНАЯ ПЛОТНОСТЬ) ---
@@ -75,56 +80,55 @@ public class CharacterWindowUI : MonoBehaviour
         // Лейаут строки
         row.style.flexDirection = FlexDirection.Row;
         row.style.alignItems = Align.Center; 
-        
-        // === УПЛОТНЕНИЕ ===
         row.style.height = ROW_HEIGHT; 
         row.style.minHeight = ROW_HEIGHT;
-        row.style.marginBottom = 0; // Убрали отступы между строками
+        row.style.marginBottom = 0;
         row.style.paddingTop = 0;
         row.style.paddingBottom = 0;
 
-        // Зебра (еле заметная, чтобы не рябило)
+        // Зебра
         if (_valueLabels.Count % 2 == 0)
             row.style.backgroundColor = new StyleColor(new Color(1, 1, 1, 0.03f));
 
-        // === НАЗВАНИЕ ===
+        // === НАЗВАНИЕ (NAME) ===
+        // Объявляем переменную ОДИН раз
         var nameLabel = new Label(type.ToString());
         
-        nameLabel.style.fontSize = FONT_SIZE; // 6px
+        nameLabel.style.fontSize = FONT_SIZE;
         nameLabel.style.color = new Color(0.8f, 0.8f, 0.8f); 
         if (_pixelFont != null) nameLabel.style.unityFontDefinition = FontDefinition.FromFont(_pixelFont);
         
         nameLabel.style.flexGrow = 1; 
         nameLabel.style.flexShrink = 1;
-        nameLabel.style.whiteSpace = WhiteSpace.NoWrap; // В одну строку, обрезаем
+        nameLabel.style.whiteSpace = WhiteSpace.NoWrap;
         nameLabel.style.textOverflow = TextOverflow.Ellipsis;
         nameLabel.style.overflow = Overflow.Hidden; 
-        
-        nameLabel.style.marginLeft = 2f; // Минимальный отступ
+        nameLabel.style.marginLeft = 2f;
         nameLabel.style.unityTextAlign = TextAnchor.MiddleLeft;
 
-        // Локализация
-        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(_tableName, $"stats.{type}");
-        if (op.IsDone) nameLabel.text = op.Result;
-        else op.Completed += (h) => nameLabel.text = h.Result;
+        // Запрашиваем перевод (тут используется переменная nameLabel)
+        UpdateLabelText(nameLabel, type);
 
-        // === ЗНАЧЕНИЕ ===
+        // === ЗНАЧЕНИЕ (VALUE) ===
         var valueLabel = new Label("0");
         
-        valueLabel.style.fontSize = FONT_SIZE; // 6px
-        valueLabel.style.color = new Color(1f, 0.85f, 0.5f); // Золотистый
+        valueLabel.style.fontSize = FONT_SIZE;
+        valueLabel.style.color = new Color(1f, 0.85f, 0.5f);
         if (_pixelFont != null) valueLabel.style.unityFontDefinition = FontDefinition.FromFont(_pixelFont);
 
-        valueLabel.style.width = 40f; // Уменьшили ширину колонки цифр
+        valueLabel.style.width = 40f;
         valueLabel.style.flexShrink = 0; 
         valueLabel.style.unityTextAlign = TextAnchor.MiddleRight;
-        valueLabel.style.marginRight = 6f; // Отступ под тонкий скроллбар
+        valueLabel.style.marginRight = 6f;
 
+        // Добавляем элементы в строку
         row.Add(nameLabel);
         row.Add(valueLabel);
         _contentContainer.Add(row);
 
+        // Сохраняем ссылки в словари
         _valueLabels.Add(type, valueLabel);
+        _nameLabels.Add(type, nameLabel);
     }
 
     // --- СТИЛИЗАЦИЯ (ТОНКИЙ СКРОЛЛ) ---
@@ -135,6 +139,32 @@ public class CharacterWindowUI : MonoBehaviour
         {
             ApplyScrollbarStyles();
             _isStylesApplied = true;
+        }
+    }
+
+    private void OnLocaleChanged(UnityEngine.Localization.Locale locale)
+    {
+        // Проходим по всем сохраненным лейблам названий и обновляем текст
+        foreach (var kvp in _nameLabels)
+        {
+            UpdateLabelText(kvp.Value, kvp.Key);
+        }
+    }
+
+    private void UpdateLabelText(Label label, StatType type)
+    {
+        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(_tableName, $"stats.{type}");
+        if (op.IsDone) 
+        {
+            label.text = op.Result;
+        }
+        else 
+        {
+            op.Completed += (h) => 
+            {
+                // Проверка на null нужна, если окно закрылось/уничтожилось пока грузился текст
+                if (label != null) label.text = h.Result;
+            };
         }
     }
 
@@ -208,6 +238,7 @@ public class CharacterWindowUI : MonoBehaviour
     {
         _contentContainer.Clear();
         _valueLabels.Clear();
+        _nameLabels.Clear();
         // Уменьшили padding справа, так как скроллбар теперь 4px
         _contentContainer.style.paddingRight = 5f; 
 
