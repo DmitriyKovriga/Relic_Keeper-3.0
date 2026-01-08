@@ -1,10 +1,10 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/SettingsUI/SettingUSS.uss?fileID=7433441132597879392&amp;guid=f4d264def3a964c47a5444b21d1f26c5&amp;type=3#SettingUSS" />
+    <Style src="project://database/Assets/UI/CharacterWindow/CharacterWindowUSS.uss?fileID=7433441132597879392&amp;guid=1e7287af22105d948ba2de8aaad716d0&amp;type=3#CharacterWindowUSS" />
     <ui:VisualElement name="WindowRoot" style="flex-grow: 1; display: flex;">
-        <ui:VisualElement name="Overlay" class="darkener" style="flex-grow: 1;">
-            <ui:VisualElement name="WindowPanel" class="panel" style="flex-grow: 0; width: 40%; height: 80%; flex-shrink: 0; align-items: auto; position: relative; align-self: flex-start; margin-top: 5%; justify-content: flex-start; left: 10%;">
-                <ui:ScrollView name="StatsContainer" style="flex-grow: 0; width: 100%;" />
-            </ui:VisualElement>
+        <ui:VisualElement name="Overlay" class="darkener" style="position: absolute; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6);" />
+        <ui:VisualElement name="WindowPanel" style="position: absolute; left: 5%; top: 10%; bottom: 10%; width: 220px; background-color: rgb(32, 32, 32); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-color: rgb(100, 100, 100); padding: 4px;">
+            <ui:Label text="Character Stats" style="-unity-font-style: bold; color: rgb(255, 215, 0); -unity-text-align: middle-center; font-size: 10px; padding-bottom: 4px; border-bottom-width: 1px; border-bottom-color: rgb(80, 80, 80); margin-bottom: 2px;" />
+            <ui:ScrollView name="StatsContainer" mode="Vertical" style="flex-grow: 1;" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -11,6 +11,8 @@ public class PlayerStats : MonoBehaviour
     [Header("Config")]
     [SerializeField] private bool _restoreStateOnLevelUp = true;
     [SerializeField] private CharacterDataSO _defaultCharacterData; 
+    [Header("Base Stat Defaults")]
+    [SerializeField] private GlobalBaseStatsSO _globalBaseStats; // Ссылка на глобальные базовые статы
 
     private Dictionary<StatType, CharacterStat> _stats = new Dictionary<StatType, CharacterStat>();
 
@@ -21,150 +23,57 @@ public class PlayerStats : MonoBehaviour
     public string CurrentClassID => _activeCharacterID;
     private string _activeCharacterID;
 
-    // --- INITIALIZATION ---
+    private void Awake()
+    {
+        // Инициализируем ВСЕ статы сразу
+        foreach (StatType type in Enum.GetValues(typeof(StatType)))
+        {
+            if (!_stats.ContainsKey(type))
+                _stats[type] = new CharacterStat(0);
+        }
+
+        Health = new StatResource(GetStat(StatType.MaxHealth));
+        Mana = new StatResource(GetStat(StatType.MaxMana));
+        Leveling = new LevelingSystem(1, 0, 100);
+
+        Health.OnValueChanged += NotifyChanged;
+        Mana.OnValueChanged += NotifyChanged;
+        Health.OnDepleted += HandleDeath;
+        Leveling.OnLevelUp += HandleLevelUp;
+        Leveling.OnXPChanged += NotifyChanged;
+    }
 
     private void Start()
     {
-        if (_stats.Count == 0 && _defaultCharacterData != null)
+        if (_defaultCharacterData != null && GetStat(StatType.MaxHealth).BaseValue <= 0)
             Initialize(_defaultCharacterData);
 
-        // ПОДПИСКА
         if (InventoryManager.Instance != null)
         {
             InventoryManager.Instance.OnItemEquipped += HandleItemEquipped;
             InventoryManager.Instance.OnItemUnequipped += HandleItemUnequipped;
         }
-    }
-
-    private void HandleItemEquipped(InventoryItem item)
-    {
-        if (item == null) return;
-
-        // Получаем список (Тип, Модификатор)
-        var mods = item.GetAllModifiers();
-        
-        foreach (var entry in mods)
-        {
-            // entry.StatType - "Куда"
-            // entry.Modifier - "Что"
-            AddModifier(entry.StatType, entry.Modifier);
-        }
-        Debug.Log($"[Stats] Applied stats from {item.Data.ItemName}");
-    }
-
-    private void HandleItemUnequipped(InventoryItem item)
-    {
-        if (item == null) return;
-
-        // Удаляем все модификаторы от этого предмета
-        RemoveAllModifiersFromSource(item);
-        Debug.Log($"[Stats] Removed stats from {item.Data.ItemName}");
-    }
-
-    public void Initialize(CharacterDataSO data)
-    {
-        if (data == null) return;
-
-        _activeCharacterID = data.ID;
-        _stats.Clear();
-
-        foreach (StatType type in Enum.GetValues(typeof(StatType)))
-        {
-            _stats[type] = new CharacterStat(0f);
-        }
-
-        ApplyGlobalDefaults();
-
-        if (data.StartingStats != null)
-        {
-            foreach (var config in data.StartingStats)
-            {
-                SetBaseStat(config.Type, config.Value);
-            }
-        }
-
-        InitializeModules();
         NotifyChanged();
     }
 
-    private void ApplyGlobalDefaults()
+    private void OnDestroy()
     {
-        SetBaseStat(StatType.MaxHealth, 50f);
-        SetBaseStat(StatType.MaxMana, 10f);
-        SetBaseStat(StatType.HealthRegen, 0.5f);
-        SetBaseStat(StatType.ManaRegen, 0.5f);
-
-        SetBaseStat(StatType.MaxBubbles, 1f);
-        SetBaseStat(StatType.BubbleRechargeDuration, 5f);
-        SetBaseStat(StatType.BubbleMitigationPercent, 0.7f);
-
-        SetBaseStat(StatType.MoveSpeed, 4f);
-        SetBaseStat(StatType.JumpForce, 10f);
-
-        SetBaseStat(StatType.AttackSpeed, 1.0f);
-        SetBaseStat(StatType.CastSpeed, 1.0f);
-        
-        SetBaseStat(StatType.Accuracy, 100f);
-        SetBaseStat(StatType.CritChance, 0.05f);
-        SetBaseStat(StatType.CritMultiplier, 1.5f);
-        
-        SetBaseStat(StatType.ProjectileSpeed, 5.0f);
-
-        SetBaseStat(StatType.BleedDamageMult, 1.0f);
-        SetBaseStat(StatType.PoisonDamageMult, 1.0f);
-        SetBaseStat(StatType.IgniteDamageMult, 1.0f);
-        SetBaseStat(StatType.BleedDuration, 3.0f);
-        SetBaseStat(StatType.PoisonDuration, 3.0f);
-        SetBaseStat(StatType.IgniteDuration, 4.0f);
-        
-        SetBaseStat(StatType.AreaOfEffect, 1.0f);
-        SetBaseStat(StatType.EffectDuration, 1.0f);
-    }
-
-    private void InitializeModules()
-    {
-        Health = new StatResource(GetStat(StatType.MaxHealth));
-        Mana = new StatResource(GetStat(StatType.MaxMana));
-
-        Health.OnValueChanged += NotifyChanged;
-        Health.OnDepleted += HandleDeath;
-        Mana.OnValueChanged += NotifyChanged;
-
-        Leveling = new LevelingSystem(1, 0, 100);
-        Leveling.OnLevelUp += HandleLevelUp;
-        Leveling.OnXPChanged += NotifyChanged;
-    }
-
-    // --- API (MODIFIERS) ---
-
-    public void AddModifier(StatType type, StatModifier mod)
-    {
-        GetStat(type).AddModifier(mod);
-        NotifyChanged();
-    }
-
-    public void RemoveModifier(StatType type, StatModifier mod)
-    {
-        GetStat(type).RemoveModifier(mod);
-        NotifyChanged();
-    }
-
-    public void RemoveAllModifiersFromSource(object source)
-    {
-        bool changed = false;
-        foreach (var stat in _stats.Values)
+        if (InventoryManager.Instance != null)
         {
-            if (stat.RemoveAllModifiersFromSource(source)) changed = true;
+            InventoryManager.Instance.OnItemEquipped -= HandleItemEquipped;
+            InventoryManager.Instance.OnItemUnequipped -= HandleItemUnequipped;
         }
-        if (changed) NotifyChanged();
+        if (Health != null) Health.OnValueChanged -= NotifyChanged;
+        if (Mana != null) Mana.OnValueChanged -= NotifyChanged;
     }
 
-    // --- ACCESS ---
-
+    // --- БЕЗОПАСНЫЙ ДОСТУП К СТАТАМ (FIX NRE) ---
     public CharacterStat GetStat(StatType type)
     {
-        if (_stats.TryGetValue(type, out var stat)) return stat;
+        if (_stats.TryGetValue(type, out CharacterStat stat))
+            return stat;
         
+        // Lazy Initialization: Если стата нет (например, UI обратился раньше Awake), создаем его
         var newStat = new CharacterStat(0);
         _stats[type] = newStat;
         return newStat;
@@ -175,70 +84,167 @@ public class PlayerStats : MonoBehaviour
         return GetStat(type).Value;
     }
 
-    public void SetBaseStat(StatType type, float value)
+    // --- РАСЧЕТ DOT DPS (БЕЗОПАСНЫЙ) ---
+
+    public float CalculateBleedDPS()
     {
-        GetStat(type).BaseValue = value;
+        // Используем GetStat(), который теперь гарантированно вернет объект (даже пустой)
+        
+        // 1. База
+        float basePhysFlat = GetStat(StatType.DamagePhysical).GetRawFlatValue();
+
+        // 2. Эффективность
+        float efficiency = GetValue(StatType.BleedDamageMult); 
+        if (efficiency <= 0) efficiency = 70f; 
+
+        float baseBleed = basePhysFlat * (efficiency / 100f);
+
+        // 3. Скейлинг
+        float totalIncrease = GetStat(StatType.DamagePhysical).GetTotalPercentAdd() + 
+                              GetStat(StatType.BleedDamage).GetTotalPercentAdd();
+        
+        float incMult = 1f + (totalIncrease / 100f);
+
+        // 4. More
+        float moreMult = GetStat(StatType.DamagePhysical).GetTotalMultiplier() * GetStat(StatType.BleedDamage).GetTotalMultiplier();
+
+        return baseBleed * incMult * moreMult;
     }
 
-    // --- CALCULATION LOGIC ---
-
-    public float CalculateAverageDamage(StatType damageType)
+    public float CalculatePoisonDPS()
     {
-        // TODO: Брать базу из оружия. Пока заглушка.
-        float weaponBaseMin = 5f; 
-        float weaponBaseMax = 10f;
-        if (damageType != StatType.DamagePhysical) { weaponBaseMin = 0f; weaponBaseMax = 0f; }
-        float percentBonus = GetValue(damageType); 
-        float multiplier = 1f + percentBonus;
-        return (weaponBaseMin * multiplier + weaponBaseMax * multiplier) / 2f;
+        float baseFlat = GetStat(StatType.DamagePhysical).GetRawFlatValue(); 
+        float efficiency = GetValue(StatType.PoisonDamageMult); 
+        if (efficiency <= 0) efficiency = 20f; 
+
+        float basePoison = baseFlat * (efficiency / 100f);
+
+        float totalIncrease = GetStat(StatType.PoisonDamage).GetTotalPercentAdd();
+        
+        float incMult = 1f + (totalIncrease / 100f);
+        float moreMult = GetStat(StatType.PoisonDamage).GetTotalMultiplier();
+
+        return basePoison * incMult * moreMult;
     }
 
-    // --- EVENTS ---
-
-    private void HandleLevelUp()
+    public float CalculateIgniteDPS()
     {
-        if (_restoreStateOnLevelUp)
+        float baseFireFlat = GetStat(StatType.DamageFire).GetRawFlatValue();
+        float efficiency = GetValue(StatType.IgniteDamageMult);
+        if (efficiency <= 0) efficiency = 50f; 
+
+        float baseIgnite = baseFireFlat * (efficiency / 100f);
+
+        float totalIncrease = GetStat(StatType.DamageFire).GetTotalPercentAdd() + 
+                              GetStat(StatType.IgniteDamage).GetTotalPercentAdd();
+        
+        float incMult = 1f + (totalIncrease / 100f);
+        float moreMult = GetStat(StatType.DamageFire).GetTotalMultiplier() * GetStat(StatType.IgniteDamage).GetTotalMultiplier();
+
+        return baseIgnite * incMult * moreMult;
+    }
+
+    // ... Остальные методы (Initialize, HandleItemEquipped и т.д.) без изменений ...
+    
+    public void Initialize(CharacterDataSO data)
+    {
+        _activeCharacterID = data != null ? data.ID : "Unknown";
+    
+    // 1. Сбросить все статы до 0, чтобы начать с чистого листа
+    foreach (var stat in _stats.Values) stat.BaseValue = 0;
+
+    // 2. Применить ГЛОБАЛЬНЫЕ базовые статы (если есть)
+    // Эти статы являются фундаментом, на который опираются все персонажи.
+    if (_globalBaseStats != null && _globalBaseStats.BaseStats != null)
+    {
+        foreach (var config in _globalBaseStats.BaseStats)
         {
-            Health.RestoreFull();
-            Mana.RestoreFull();
+            GetStat(config.Type).BaseValue = config.Value;
         }
+    }
+
+    // 3. Применить стартовые статы для КОНКРЕТНОГО класса (перезапишут глобальные, если совпадают, или добавят новые)
+    // Это позволяет классу Варвара иметь больше ХП, чем базовое, или уникальный стартовый стат.
+    if (data != null && data.StartingStats != null)
+    {
+        foreach (var config in data.StartingStats)
+        {
+            GetStat(config.Type).BaseValue = config.Value; // Это перезаписывает или добавляет
+        }
+    }
+
+    // 4. Убедиться, что критически важные ресурсы имеют минимальное значение.
+    // Эти вызовы EnsureMinStat теперь служат "последней линией обороны"
+    // на случай, если ни глобальные, ни классовые данные не установили эти статы.
+    // Например, если забыли добавить MaxHealth в GlobalBaseStats.
+    EnsureMinStat(StatType.MaxHealth, 10);
+    EnsureMinStat(StatType.MaxMana, 10);
+    EnsureMinStat(StatType.AttackSpeed, 0f);
+    EnsureMinStat(StatType.CritMultiplier, 150f);
+
+    // Теперь, когда все базовые статы установлены, инициализируем ресурсы
+    Health.RestoreFull();
+    Mana.RestoreFull();
+    
+    // Обновляем систему левелинга, чтобы она была привязана к новым статам.
+    // Важно: если LevelingSystem переинициализируется, старые подписчики на OnLevelUp и OnXPChanged
+    // могут потеряться. Возможно, лучше вынести создание LevelingSystem в Awake/Start и
+    // просто вызывать метод Reset/Setup, а не создавать новый объект.
+    // Для простоты пока оставляем так, но имей в виду.
+    if (Leveling != null) // Отписываемся от старых событий, если Leveling уже был создан
+    {
+        Leveling.OnLevelUp -= HandleLevelUp;
+        Leveling.OnXPChanged -= NotifyChanged;
+    }
+    Leveling = new LevelingSystem(1, 0, 100); 
+    Leveling.OnLevelUp += HandleLevelUp;
+    Leveling.OnXPChanged += NotifyChanged;
+
+    NotifyChanged();
+}
+
+    private void EnsureMinStat(StatType type, float minVal)
+    {
+        var stat = GetStat(type);
+        if (stat.BaseValue <= 0) stat.BaseValue = minVal;
+    }
+
+    private void HandleItemEquipped(InventoryItem item)
+    {
+        if (item == null) return;
+        var mods = item.GetAllModifiers();
+        foreach (var (statType, mod) in mods) GetStat(statType).AddModifier(mod);
         NotifyChanged();
     }
 
-    private void HandleDeath()
+    private void HandleItemUnequipped(InventoryItem item)
     {
-        // Debug.Log("YOU DIED");
+        if (item == null) return;
+        foreach (var stat in _stats.Values) stat.RemoveAllModifiersFromSource(item);
+        NotifyChanged();
     }
 
-    private void NotifyChanged()
+    public float GetPercentMultiplier(StatType statType)
     {
-        OnAnyStatChanged?.Invoke();
+        return 1f + (GetValue(statType) / 100f);
     }
 
-    // --- SAVE / LOAD ---
+    public float CalculateAverageDamage(StatType damageType)
+    {
+        return GetValue(damageType);
+    }
+
+    private void HandleLevelUp() { if (_restoreStateOnLevelUp) { Health.RestoreFull(); Mana.RestoreFull(); } NotifyChanged(); }
+    private void HandleDeath() { Debug.Log("YOU DIED"); }
+    private void NotifyChanged() { OnAnyStatChanged?.Invoke(); }
 
     public void ApplyLoadedState(GameSaveData data)
     {
         Leveling = new LevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP);
         Leveling.OnLevelUp += HandleLevelUp;
         Leveling.OnXPChanged += NotifyChanged;
-
         Health.SetCurrent(data.CurrentHealth);
         Mana.SetCurrent(data.CurrentMana);
-
         NotifyChanged();
-    }
-    
-    private void OnDestroy()
-    {
-        // ОТПИСКА
-        if (InventoryManager.Instance != null)
-        {
-            InventoryManager.Instance.OnItemEquipped -= HandleItemEquipped;
-            InventoryManager.Instance.OnItemUnequipped -= HandleItemUnequipped;
-        }
-        
-        if (Health != null) Health.OnValueChanged -= NotifyChanged;
-        if (Mana != null) Mana.OnValueChanged -= NotifyChanged;
     }
 }

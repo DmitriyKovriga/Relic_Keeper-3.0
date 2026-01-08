@@ -1,0 +1,64 @@
+/* --- ЗАТЕМНЕНИЕ ФОНА --- */
+.darkener {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* --- САМО ОКНО --- */
+.panel {
+    background-color: rgb(32, 32, 32);
+    border-width: 1px;
+    border-color: rgb(80, 80, 80);
+    padding: 4px;
+}
+
+/* --- ПИКСЕЛЬНЫЙ SCROLLBAR (Более заметный) --- */
+
+/* 1. Общий контейнер скроллбара (полоса справа) */
+.unity-scroller--vertical {
+    width: 10px; /* Чуть шире, чтобы было удобнее */
+    border-left-width: 1px;
+    border-left-color: rgb(50, 50, 50);
+    background-color: rgb(20, 20, 20); /* Темный фон трека */
+    margin-left: 2px;
+}
+
+/* 2. Скрываем стандартные кнопки (стрелки) */
+.unity-scroller__low-button, 
+.unity-scroller__high-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* 3. Трек слайдера (подложка) */
+.unity-base-slider__tracker {
+    background-color: rgba(0,0,0,0); /* Прозрачный, т.к. фон задан в scroller */
+    border-width: 0;
+}
+
+/* 4. Ползунок (Dragger) */
+.unity-base-slider__dragger {
+    width: 8px; /* Чуть меньше контейнера (10px) */
+    background-color: rgb(140, 140, 140); /* Светло-серый, заметный */
+    border-width: 0;
+    border-radius: 0; /* Квадратный */
+    margin-left: 1px; /* Центрируем в треке */
+    margin-right: 1px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+/* Ползунок при наведении */
+.unity-base-slider__dragger:hover {
+    background-color: rgb(180, 180, 180); /* Белеет */
+}
+
+/* Ползунок при нажатии */
+.unity-base-slider__dragger:active {
+    background-color: rgb(220, 220, 220); /* Почти белый */
+}
+
+/* Горизонтальный скролл убираем */
+.unity-scroller--horizontal {
+    display: none;
+}

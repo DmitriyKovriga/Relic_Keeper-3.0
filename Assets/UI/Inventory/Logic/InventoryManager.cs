@@ -195,11 +195,81 @@ namespace Scripts.Inventory
             }
         }
 
+         public InventorySaveData GetSaveData()
+        {
+            var data = new InventorySaveData();
+
+            // 1. Сохраняем рюкзак
+            for (int i = 0; i < Items.Length; i++)
+            {
+                if (Items[i] != null && Items[i].Data != null)
+                {
+                    data.Items.Add(Items[i].GetSaveData(i));
+                }
+            }
+
+            // 2. Сохраняем экипировку (индексы будут 100, 101 и т.д.)
+            for (int i = 0; i < EquipmentItems.Length; i++)
+            {
+                if (EquipmentItems[i] != null && EquipmentItems[i].Data != null)
+                {
+                    data.Items.Add(EquipmentItems[i].GetSaveData(EQUIP_OFFSET + i));
+                }
+            }
+
+            return data;
+        }
+
+        public void LoadState(InventorySaveData data, ItemDatabaseSO itemDB)
+        {
+            // 1. Очистка текущего состояния
+            // Сначала снимаем все вещи, чтобы статы откатились
+            for (int i = 0; i < EquipmentItems.Length; i++)
+            {
+                if (EquipmentItems[i] != null)
+                {
+                    OnItemUnequipped?.Invoke(EquipmentItems[i]);
+                    EquipmentItems[i] = null;
+                }
+            }
+            // Чистим рюкзак
+            Array.Clear(Items, 0, Items.Length);
+
+            // 2. Восстановление
+            foreach (var itemData in data.Items)
+            {
+                InventoryItem newItem = InventoryItem.LoadFromSave(itemData, itemDB);
+                if (newItem == null) continue;
+
+                if (itemData.SlotIndex >= EQUIP_OFFSET)
+                {
+                    // Это экипировка
+                    int equipIndex = itemData.SlotIndex - EQUIP_OFFSET;
+                    if (equipIndex < EquipmentItems.Length)
+                    {
+                        EquipmentItems[equipIndex] = newItem;
+                        // ВАЖНО: Уведомляем PlayerStats, что вещь надета
+                        OnItemEquipped?.Invoke(newItem); 
+                    }
+                }
+                else
+                {
+                    // Это рюкзак
+                    if (itemData.SlotIndex < Items.Length)
+                    {
+                        Items[itemData.SlotIndex] = newItem;
+                    }
+                }
+            }
+
+            TriggerUIUpdate();
+        }
+
         public bool CanPlaceItemAt(InventoryItem item, int targetIndex)
         {
-            if (item == null || item.Data == null) return false;
+            if (item == null || item.Data == null) return false; 
             if (targetIndex >= EQUIP_OFFSET) return true;
-
+            
             int w = item.Data.Width;
             int h = item.Data.Height;
             int row = targetIndex / _cols;
@@ -239,6 +309,11 @@ namespace Scripts.Inventory
 
         private bool IsItemCoveringSlot(int anchorIndex, InventoryItem item, int targetSlot)
         {
+            if (item == null || item.Data == null) 
+            {
+                return false; 
+            }
+
             int startRow = anchorIndex / _cols;
             int startCol = anchorIndex % _cols;
             int targetRow = targetSlot / _cols;

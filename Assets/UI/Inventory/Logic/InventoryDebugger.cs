@@ -24,9 +24,22 @@ public class InventoryDebugger : MonoBehaviour
 
     private void SpawnGeneratedItem(int rarity)
     {
+        if (_testItemBase == null)
+        {
+            Debug.LogError("[Debugger] ОШИБКА: Не назначен 'Test Item Base' в инспекторе InventoryDebugger!");
+            return;
+        }
+
         if (_testItemBase == null || ItemGenerator.Instance == null || InventoryManager.Instance == null) return;
 
         InventoryItem newItem = ItemGenerator.Instance.Generate(_testItemBase, _itemLevel, rarity);
+        
+        if (newItem.Data == null)
+        {
+            Debug.LogError("[Debugger] ItemGenerator создал предмет с Data == null!");
+            return;
+        }
+        
         bool success = InventoryManager.Instance.AddItem(newItem);
         
         if (!success) Debug.LogWarning("[Debugger] Inventory Full");

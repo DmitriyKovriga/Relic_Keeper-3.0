@@ -445,10 +445,6 @@ MonoBehaviour:
   _playerStats: {fileID: 1563690799}
   _containerName: StatsContainer
   _tableName: MenuLabels
-  _fontSize: 24
-  _headerFontSize: 28
-  _nameColumnWidth: 525
-  _rowHeight: 40
 --- !u!114 &146347650
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -474,7 +470,7 @@ MonoBehaviour:
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PanelSettings: {fileID: 11400000, guid: 2159abdbd1cdaad468b99aee9606433d, type: 2}
+  m_PanelSettings: {fileID: 11400000, guid: dd2c158f9978f6641b7e5ee9b8cd2cca, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: f2ae67980aeb8e44ea673ca9f22552f6, type: 3}
   m_SortingOrder: 100
@@ -4818,7 +4814,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 7.5
+  orthographic size: 0
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -5368,7 +5364,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e12661a7ae255994d8b0dab19dcbc1eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _testItemBase: {fileID: 11400000, guid: bf0bd4209ab586144b213f66fce87ad3, type: 2}
+  _testItemBase: {fileID: 11400000, guid: ddfb08f184b04c74bb95f559d0997a2a, type: 2}
   _itemLevel: 1
 --- !u!114 &635787813
 MonoBehaviour:
@@ -5524,6 +5520,7 @@ MonoBehaviour:
   _playerStats: {fileID: 1563690799}
   _characterDB: {fileID: 11400000, guid: c9eba859c613cc04bbe81967cf4d02f9, type: 2}
   _defaultCharacter: {fileID: 11400000, guid: 7a280e056672c5b4285aac0bd852f35d, type: 2}
+  _itemDatabase: {fileID: 11400000, guid: 7b8a48aad2ee3804281551ef65ee48b9, type: 2}
 --- !u!4 &814741198
 Transform:
   m_ObjectHideFlags: 0
@@ -5553,6 +5550,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _affixPools:
   - {fileID: 11400000, guid: 953ccb07f8e1f624ab7aaa64b103d36f, type: 2}
+  - {fileID: 11400000, guid: 31230be056ade334b81dd8bba6c0b4d0, type: 2}
+  - {fileID: 11400000, guid: d404d09ed3f96bb43aa65cd4341711ec, type: 2}
 --- !u!1 &857371559
 GameObject:
   m_ObjectHideFlags: 0
@@ -6046,7 +6045,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _uiDoc: {fileID: 635787810}
   _tooltipWidth: 135
-  _offset: 10
+  _gap: 5
+  _screenPadding: 2
 --- !u!1 &1238520804
 GameObject:
   m_ObjectHideFlags: 0
@@ -6569,6 +6569,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _restoreStateOnLevelUp: 0
   _defaultCharacterData: {fileID: 11400000, guid: 7a280e056672c5b4285aac0bd852f35d, type: 2}
+  _globalBaseStats: {fileID: 11400000, guid: 19e67b471123e944eb9bdaa976eb72b0, type: 2}
 --- !u!114 &1563690800
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -3,7 +3,6 @@ using UnityEngine.UIElements;
 using Scripts.Stats;
 using System;
 using System.Collections.Generic;
-using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 
 public class CharacterWindowUI : MonoBehaviour
@@ -14,200 +13,242 @@ public class CharacterWindowUI : MonoBehaviour
 
     [Header("UI Settings")]
     [SerializeField] private string _containerName = "StatsContainer";
-
-    [Header("Localization Settings")]
     [SerializeField] private string _tableName = "MenuLabels";
 
-    [Header("Visual")]
-    [SerializeField] private int _fontSize = 24;
-    [SerializeField] private int _headerFontSize = 28;
-    [SerializeField] private int _nameColumnWidth = 350;
-    [SerializeField] private int _rowHeight = 40;
-
-    private VisualElement _container;
+    private ScrollView _scrollView; 
+    private VisualElement _contentContainer;
+    
     private Dictionary<StatType, Label> _valueLabels = new Dictionary<StatType, Label>();
+    private Dictionary<StatType, Label> _nameLabels = new Dictionary<StatType, Label>();
+    private Font _pixelFont;
+    private bool _isStylesApplied = false;
+
+    // --- НАСТРОЙКИ РАЗМЕРОВ ---
+    private const float ROW_HEIGHT = 10f; // Очень плотная строка
+    private const float FONT_SIZE = 6f;   // Мелкий текст
+    private const float SCROLLBAR_WIDTH = 4f; // Тончайший скролл
+
+    private void Awake()
+    {
+        Debug.Log($"[UI] CharacterWindowUI Awake на объекте {gameObject.name}");
+    }
 
     private void OnEnable()
     {
         if (_uiDoc == null) _uiDoc = GetComponent<UIDocument>();
+        if (_uiDoc == null) return;
 
         var root = _uiDoc.rootVisualElement;
-        _container = root.Q<VisualElement>(_containerName);
-
-        if (_container == null)
+        
+        _scrollView = root.Q<ScrollView>(_containerName);
+        if (_scrollView == null) 
         {
-            // Оставим только критические ошибки
-            Debug.LogError($"[UI] Контейнер '{_containerName}' не найден!");
+            Debug.LogError($"[UI] ОШИБКА: Не найден ScrollView '{_containerName}'");
             return;
         }
 
-        SetupContainerStyle();
-        LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+        _contentContainer = _scrollView.contentContainer;
+        _pixelFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        
+        GenerateStatRows();
+        UpdateValues();
 
-        GenerateLayout();
-        SubscribeToStats();
+        _scrollView.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+
+        if (_playerStats != null)
+            _playerStats.OnAnyStatChanged += UpdateValues;
+
+        LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
     }
 
     private void OnDisable()
     {
-        LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
-        if (_playerStats != null) _playerStats.OnAnyStatChanged -= RefreshValues;
-    }
-
-    private void SetupContainerStyle()
-    {
-        _container.style.paddingLeft = 40;
-        _container.style.paddingRight = 40;
-        _container.style.paddingTop = 20;
-        _container.style.paddingBottom = 20;
-    }
-
-    private void OnLocaleChanged(Locale locale)
-    {
-        GenerateLayout();
-        RefreshValues();
-    }
-
-    private void SubscribeToStats()
-    {
         if (_playerStats != null)
-        {
-            _playerStats.OnAnyStatChanged += RefreshValues;
-            RefreshValues();
-        }
+            _playerStats.OnAnyStatChanged -= UpdateValues;
+            
+        if (_scrollView != null)
+            _scrollView.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+
+        LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
     }
 
-    private void GenerateLayout()
-    {
-        _container.Clear();
-        _valueLabels.Clear();
-
-        var groups = GetStatGroups();
-        HashSet<StatType> displayedStats = new HashSet<StatType>();
-
-        foreach (var group in groups)
-        {
-            if (group.Value == null || group.Value.Count == 0) continue;
-            CreateHeader(group.Key);
-
-            foreach (var type in group.Value)
-            {
-                if (displayedStats.Contains(type)) continue;
-                CreateStatRow(type);
-                displayedStats.Add(type);
-            }
-        }
-        
-        // Misc (остальное) можно раскомментировать при необходимости, 
-        // но пока уберем, чтобы не захламлять окно лишними нулями.
-        /*
-        bool miscHeaderAdded = false;
-        foreach (StatType type in Enum.GetValues(typeof(StatType)))
-        {
-            if (displayedStats.Contains(type)) continue;
-            if (!miscHeaderAdded) { CreateHeader("headers.Misc"); miscHeaderAdded = true; }
-            CreateStatRow(type);
-        }
-        */
-    }
-
-    // --- НАСТРОЙКА ГРУПП ---
-    private Dictionary<string, List<StatType>> GetStatGroups()
-    {
-        return new Dictionary<string, List<StatType>>
-        {
-            { "headers.Offense", new List<StatType> {
-                StatType.DamagePhysical,
-                StatType.DamageFire,
-                StatType.DamageCold,
-                StatType.DamageLightning,
-                StatType.AttackSpeed,
-                StatType.CritChance,
-                StatType.CritMultiplier,
-                StatType.Accuracy
-            }},
-
-            { "headers.Defense", new List<StatType> {
-                StatType.MaxHealth,
-                StatType.HealthRegen,
-                StatType.MaxMana,
-                StatType.ManaRegen,
-                StatType.Armor,
-                StatType.Evasion,
-                StatType.BlockChance
-            }},
-
-            { "headers.Resistances", new List<StatType> {
-                StatType.PhysicalResist,
-                StatType.FireResist,
-                StatType.ColdResist,
-                StatType.LightningResist,
-                StatType.PenetrationPhysical, // Можно вынести в Offense
-                StatType.PenetrationFire,
-                StatType.PenetrationCold,
-                StatType.PenetrationLightning
-            }},
-
-            { "headers.Misc", new List<StatType> {
-                StatType.MoveSpeed,
-                StatType.CooldownReductionPercent,
-                StatType.AreaOfEffect
-            }}
-        };
-    }
-
-    private void CreateHeader(string localizationKey)
-    {
-        VisualElement spacer = new VisualElement();
-        spacer.style.height = 20;
-        _container.Add(spacer);
-
-        Label header = new Label(localizationKey); // Временный текст
-        header.style.fontSize = _headerFontSize;
-        header.style.color = new StyleColor(new Color(1f, 0.8f, 0.4f)); 
-        header.style.unityFontStyleAndWeight = FontStyle.Bold;
-        header.style.borderBottomWidth = 1;
-        header.style.borderBottomColor = new StyleColor(new Color(1, 1, 1, 0.3f));
-        header.style.marginBottom = 10;
-
-        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(_tableName, localizationKey);
-        op.Completed += (o) => { if (o.OperationException == null) header.text = o.Result; };
-
-        _container.Add(header);
-    }
-
+    // --- ГЕНЕРАЦИЯ СТРОК (МАКСИМАЛЬНАЯ ПЛОТНОСТЬ) ---
     private void CreateStatRow(StatType type)
     {
-        VisualElement row = new VisualElement();
+        var row = new VisualElement();
+        
+        // Лейаут строки
         row.style.flexDirection = FlexDirection.Row;
-        row.style.height = _rowHeight;
-        row.style.alignItems = Align.Center;
-        row.style.marginBottom = 2;
+        row.style.alignItems = Align.Center; 
+        row.style.height = ROW_HEIGHT; 
+        row.style.minHeight = ROW_HEIGHT;
+        row.style.marginBottom = 0;
+        row.style.paddingTop = 0;
+        row.style.paddingBottom = 0;
 
-        string key = $"stats.{type}";
-        Label nameLabel = new Label(type.ToString());
-        nameLabel.style.fontSize = _fontSize;
-        nameLabel.style.width = _nameColumnWidth;
-        nameLabel.style.color = new StyleColor(new Color(0.7f, 0.7f, 0.7f));
+        // Зебра
+        if (_valueLabels.Count % 2 == 0)
+            row.style.backgroundColor = new StyleColor(new Color(1, 1, 1, 0.03f));
+
+        // === НАЗВАНИЕ (NAME) ===
+        // Объявляем переменную ОДИН раз
+        var nameLabel = new Label(type.ToString());
+        
+        nameLabel.style.fontSize = FONT_SIZE;
+        nameLabel.style.color = new Color(0.8f, 0.8f, 0.8f); 
+        if (_pixelFont != null) nameLabel.style.unityFontDefinition = FontDefinition.FromFont(_pixelFont);
+        
+        nameLabel.style.flexGrow = 1; 
+        nameLabel.style.flexShrink = 1;
+        nameLabel.style.whiteSpace = WhiteSpace.NoWrap;
+        nameLabel.style.textOverflow = TextOverflow.Ellipsis;
+        nameLabel.style.overflow = Overflow.Hidden; 
+        nameLabel.style.marginLeft = 2f;
         nameLabel.style.unityTextAlign = TextAnchor.MiddleLeft;
 
-        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(_tableName, key);
-        op.Completed += (o) => { if (o.OperationException == null) nameLabel.text = o.Result; };
+        // Запрашиваем перевод (тут используется переменная nameLabel)
+        UpdateLabelText(nameLabel, type);
 
-        Label valueLabel = new Label("-");
-        valueLabel.style.fontSize = _fontSize;
-        valueLabel.style.color = new StyleColor(Color.white);
-        valueLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-        valueLabel.style.unityTextAlign = TextAnchor.MiddleLeft;
+        // === ЗНАЧЕНИЕ (VALUE) ===
+        var valueLabel = new Label("0");
+        
+        valueLabel.style.fontSize = FONT_SIZE;
+        valueLabel.style.color = new Color(1f, 0.85f, 0.5f);
+        if (_pixelFont != null) valueLabel.style.unityFontDefinition = FontDefinition.FromFont(_pixelFont);
 
+        valueLabel.style.width = 40f;
+        valueLabel.style.flexShrink = 0; 
+        valueLabel.style.unityTextAlign = TextAnchor.MiddleRight;
+        valueLabel.style.marginRight = 6f;
+
+        // Добавляем элементы в строку
         row.Add(nameLabel);
         row.Add(valueLabel);
-        _container.Add(row);
+        _contentContainer.Add(row);
 
-        _valueLabels[type] = valueLabel;
+        // Сохраняем ссылки в словари
+        _valueLabels.Add(type, valueLabel);
+        _nameLabels.Add(type, nameLabel);
     }
 
-    private void RefreshValues()
+    // --- СТИЛИЗАЦИЯ (ТОНКИЙ СКРОЛЛ) ---
+    private void OnGeometryChanged(GeometryChangedEvent evt)
+    {
+        if (_isStylesApplied) return;
+        if (_scrollView.resolvedStyle.width > 0 && _scrollView.resolvedStyle.height > 0)
+        {
+            ApplyScrollbarStyles();
+            _isStylesApplied = true;
+        }
+    }
+
+    private void OnLocaleChanged(UnityEngine.Localization.Locale locale)
+    {
+        // Проходим по всем сохраненным лейблам названий и обновляем текст
+        foreach (var kvp in _nameLabels)
+        {
+            UpdateLabelText(kvp.Value, kvp.Key);
+        }
+    }
+
+    private void UpdateLabelText(Label label, StatType type)
+    {
+        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(_tableName, $"stats.{type}");
+        if (op.IsDone) 
+        {
+            label.text = op.Result;
+        }
+        else 
+        {
+            op.Completed += (h) => 
+            {
+                // Проверка на null нужна, если окно закрылось/уничтожилось пока грузился текст
+                if (label != null) label.text = h.Result;
+            };
+        }
+    }
+
+    private void ApplyScrollbarStyles()
+    {
+        _scrollView.mode = ScrollViewMode.Vertical;
+        _scrollView.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+        _scrollView.verticalScrollerVisibility = ScrollerVisibility.AlwaysVisible;
+
+        var vScroller = _scrollView.Q<Scroller>(className: "unity-scroller--vertical");
+        if (vScroller == null) vScroller = _scrollView.verticalScroller;
+
+        if (vScroller != null)
+        {
+            // Сдираем стандартную шкуру Unity
+            vScroller.style.backgroundImage = null; 
+            
+            // Ширина скроллбара
+            vScroller.style.width = SCROLLBAR_WIDTH; 
+            vScroller.style.minWidth = SCROLLBAR_WIDTH;
+            vScroller.style.maxWidth = SCROLLBAR_WIDTH;
+
+            // Убираем все отступы и рамки
+            vScroller.style.borderTopWidth = 0; vScroller.style.borderBottomWidth = 0;
+            vScroller.style.borderLeftWidth = 0; vScroller.style.borderRightWidth = 0;
+            vScroller.style.borderTopLeftRadius = 0; vScroller.style.borderTopRightRadius = 0;
+            vScroller.style.borderBottomLeftRadius = 0; vScroller.style.borderBottomRightRadius = 0;
+
+            vScroller.style.backgroundColor = new StyleColor(new Color(0, 0, 0, 0.2f)); 
+            vScroller.style.marginLeft = 1f;
+
+            // --- ТРЕКЕР ---
+            var tracker = vScroller.Q<VisualElement>(className: "unity-base-slider__tracker");
+            if (tracker != null)
+            {
+                tracker.style.backgroundImage = null;
+                tracker.style.backgroundColor = new StyleColor(Color.clear);
+                tracker.style.borderTopWidth = 0; tracker.style.borderBottomWidth = 0;
+                tracker.style.borderLeftWidth = 0; tracker.style.borderRightWidth = 0;
+            }
+
+            // --- ПОЛЗУНОК ---
+            var dragger = vScroller.Q<VisualElement>(className: "unity-base-slider__dragger");
+            if (dragger != null)
+            {
+                dragger.style.backgroundImage = null;
+                
+                dragger.style.width = SCROLLBAR_WIDTH; // 4px
+                dragger.style.backgroundColor = new StyleColor(new Color(0.5f, 0.5f, 0.5f)); 
+                
+                dragger.style.marginLeft = 0; 
+                dragger.style.marginRight = 0;
+                
+                dragger.style.borderTopLeftRadius = 0; dragger.style.borderTopRightRadius = 0;
+                dragger.style.borderBottomLeftRadius = 0; dragger.style.borderBottomRightRadius = 0;
+                dragger.style.borderTopWidth = 0; dragger.style.borderBottomWidth = 0;
+                dragger.style.borderLeftWidth = 0; dragger.style.borderRightWidth = 0;
+            }
+
+            // --- КНОПКИ ---
+            var lowBtn = vScroller.Q<VisualElement>(className: "unity-scroller__low-button");
+            var highBtn = vScroller.Q<VisualElement>(className: "unity-scroller__high-button");
+            
+            if (lowBtn != null) { lowBtn.style.display = DisplayStyle.None; lowBtn.style.width = 0; lowBtn.style.height = 0; }
+            if (highBtn != null) { highBtn.style.display = DisplayStyle.None; highBtn.style.width = 0; highBtn.style.height = 0; }
+        }
+    }
+
+    // --- ОСТАЛЬНОЕ БЕЗ ИЗМЕНЕНИЙ ---
+    private void GenerateStatRows()
+    {
+        _contentContainer.Clear();
+        _valueLabels.Clear();
+        _nameLabels.Clear();
+        // Уменьшили padding справа, так как скроллбар теперь 4px
+        _contentContainer.style.paddingRight = 5f; 
+
+        foreach (StatType type in Enum.GetValues(typeof(StatType)))
+        {
+            if (ShouldShowStat(type)) CreateStatRow(type);
+        }
+    }
+
+    private void UpdateValues()
     {
         if (_playerStats == null) return;
 
@@ -215,32 +256,40 @@ public class CharacterWindowUI : MonoBehaviour
         {
             StatType type = kvp.Key;
             Label label = kvp.Value;
-            
             float rawVal = _playerStats.GetValue(type);
 
-            // 1. УРОН (Считаем средний)
+            // 1. Урон (Average Damage)
             if (IsDamageStat(type))
             {
-                float avgDamage = _playerStats.CalculateAverageDamage(type);
-                label.text = $"{Mathf.Round(avgDamage)}";
+                float avgDmg = _playerStats.CalculateAverageDamage(type);
+                label.text = $"{Mathf.Round(avgDmg)}";
             }
-            // 2. ПРОЦЕНТЫ (Где 0.05 это 5%)
-            else if (IsRatePercentage(type))
+            // 2. DOT уроны
+            else if (type == StatType.BleedDamage || type == StatType.PoisonDamage || type == StatType.IgniteDamage)
             {
-                // Округляем до 1 знака после запятой (например 5.5%)
-                label.text = $"{Mathf.Round(rawVal * 100 * 10) / 10f}%";
+                float dps = 0;
+                if (type == StatType.BleedDamage) dps = _playerStats.CalculateBleedDPS();
+                else if (type == StatType.PoisonDamage) dps = _playerStats.CalculatePoisonDPS();
+                else dps = _playerStats.CalculateIgniteDPS();
+                label.text = $"{dps:F1}/s";
             }
-            // 3. ПРОЦЕНТЫ (Где 7 это 7%)
-            else if (IsValuePercentage(type))
+            // 3. Attack Speed (число, APS) - Исправлено по запросу
+            else if (type == StatType.AttackSpeed)
+            {
+                // Округляем до 2 знаков (1.45)
+                label.text = $"{rawVal:F2}";
+            }
+            // 4. Секунды (Shock Duration и т.д.)
+            else if (IsTimeStat(type))
+            {
+                label.text = $"{rawVal:F2}s";
+            }
+            // 5. Проценты
+            else if (IsPercentageStat(type))
             {
                 label.text = $"{Mathf.Round(rawVal)}%";
             }
-            // 4. СКОРОСТЬ АТАКИ (2 цифры после запятой, без %)
-            else if (type == StatType.AttackSpeed || type == StatType.CastSpeed)
-            {
-                 label.text = $"{rawVal:F2}";
-            }
-            // 5. ОБЫЧНЫЕ ЧИСЛА
+            // 6. Обычные числа (HP, Mana, Armor)
             else
             {
                 label.text = $"{Mathf.Round(rawVal)}";
@@ -248,36 +297,49 @@ public class CharacterWindowUI : MonoBehaviour
         }
     }
 
+    private bool IsTimeStat(StatType type)
+    {
+        // Длительности шока, заморозки и т.д. в секундах
+        return type == StatType.ShockDuration || 
+               type == StatType.FreezeDuration || 
+               type == StatType.BleedDuration || 
+               type == StatType.PoisonDuration || 
+               type == StatType.IgniteDuration ||
+               type == StatType.BubbleRechargeDuration;
+    }
+
+    private bool ShouldShowStat(StatType type)
+    {
+        if (type == StatType.HealthRegenPercent || type == StatType.ManaRegenPercent) return false;
+        return true;
+    }
+
     private bool IsDamageStat(StatType type)
     {
-        return type == StatType.DamagePhysical || 
-               type == StatType.DamageFire || 
-               type == StatType.DamageCold || 
-               type == StatType.DamageLightning;
+        return type == StatType.DamagePhysical || type == StatType.DamageFire || 
+               type == StatType.DamageCold || type == StatType.DamageLightning;
     }
 
-    // Типы, которые хранятся как 0.0 - 1.0, но отображаются как %
-    // Пример: CritChance 0.05 -> 5%
-    private bool IsRatePercentage(StatType type)
+    private bool IsPercentageStat(StatType type)
     {
-        return type == StatType.CritChance ||
-               type == StatType.BlockChance ||
-               type == StatType.Evasion || // Если уклонение считается формулой 0-1
-               type == StatType.CritMultiplier || // 1.5 -> 150%
-               type == StatType.BleedChance ||
-               type == StatType.IgniteChance ||
-               type == StatType.FreezeChance ||
-               type == StatType.ShockChance ||
-               type == StatType.PoisonChance;
-    }
+        string s = type.ToString();
+        
+        // AttackSpeed убрали отсюда
+        if (type == StatType.AttackSpeed) return false;
 
-    // Типы, которые хранятся как 0 - 100, и отображаются как %
-    // Пример: FireResist 75 -> 75%
-    private bool IsValuePercentage(StatType type)
-    {
-        return type.ToString().Contains("Resist") ||
-               type.ToString().Contains("Penetration") ||
-               type == StatType.CooldownReductionPercent ||
-               type == StatType.MoveSpeed; // Если мувспид это +% к базе
+        // Явные списки того, что должно быть в %
+        if (type == StatType.AreaOfEffect) return true;
+        if (type == StatType.ReduceDamageTaken) return true;
+        if (type == StatType.ProjectileSpeed) return true;
+        if (type == StatType.EffectDuration) return true; // Обычно "Inc Effect Duration" это %
+        
+        // Множители DoT
+        if (type == StatType.BleedDamageMult) return true;
+        if (type == StatType.PoisonDamageMult) return true;
+        if (type == StatType.IgniteDamageMult) return true;
+
+        // Все шансы, резисты, множители и %
+        return s.Contains("Percent") || s.Contains("Chance") || s.Contains("Multiplier") || 
+               s.Contains("Resist") || s.Contains("Reduction") || type == StatType.MoveSpeed;
     }
 }

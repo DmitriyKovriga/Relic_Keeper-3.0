@@ -5,11 +5,13 @@ namespace Scripts.Stats
         // --- 1. Жизненные показатели (Vitals) ---
         MaxHealth,
         HealthRegen,     // Единиц в секунду
+        HealthRegenPercent,     // Единиц в секунду
         HealthOnHit,     // Единиц за удар (Flat)
         HealthOnBlock,   // Единиц за блок (Flat)
 
         MaxMana,
         ManaRegen,
+        ManaRegenPercent,
         ManaOnHit,
         ManaOnBlock,
 
@@ -17,17 +19,23 @@ namespace Scripts.Stats
         MaxBubbles,              // Максимальное кол-во слоев (Base: 1)
         BubbleRechargeDuration,  // Время восстановления одного слоя в секундах
         BubbleMitigationPercent, // % урона, который впитывает слой (0.7 = 70%)
+        MaxBubbleMitigationPercent, // % урона, который впитывает слой (0.7 = 70%)
 
         // --- 3. Защита (Defenses) ---
         Armor,               // Броня (для формулы снижения физ. урона)
         Evasion,             // Рейтинг уклонения
         BlockChance,         // Шанс блока (0.0 - 1.0)
+        MaxBlockChance,       // Шанс блока (0.0 - 1.0)
 
         // Резисты (Сопротивления, обычно кап 75%)
         FireResist,
+        MaxFireResist, 
         ColdResist,
+        MaxColdResist, 
         LightningResist,
+        MaxLightningResist, 
         PhysicalResist,      // Прямое снижение физ. урона %
+        MaxPhysicalResist,   // Прямое снижение физ. урона %
 
         // --- 4. Мобильность ---
         MoveSpeed,
@@ -52,9 +60,25 @@ namespace Scripts.Stats
         PhysicalToLightning,
         ElementalToPhysical, 
 
+        TakePhysAsCold,
+        TakePhysAsFire,
+        TakePhysAsLightning,
+
+        TakeLightningAsPhys,
+        TakeLightningAsFire,
+        TakeLightningAsCold,
+
+        TakeColdAsPhys,
+        TakeColdAsFire,
+        TakeColdAsLightning,
+
+        TakeFireAsLightning,
+        TakeFireAsPhys,
+        TakeFireAsCold,
+
         // --- 8. Крит и Точность ---
         Accuracy,            // Рейтинг точности
-        CritChance,          // Глобальная прибавка к шансу крита (Base: 0)
+        CritChance,         
         CritMultiplier,      // Множитель крита (Base: 1.5 = 150%)
         
         // --- 9. Пробивание (Penetration) ---
@@ -65,24 +89,43 @@ namespace Scripts.Stats
 
         // --- 10. Статусы (Ailments) ---
         BleedChance,
+        BleedDamage, 
         BleedDamageMult,
         BleedDuration,
+        ChanseToAvoidBleed, 
 
-        PoisonChance,
+        PoisonChance, 
+        PoisonDamage, 
         PoisonDamageMult,
         PoisonDuration,
+        ChanseToAvoidPoison, 
 
         IgniteChance,
+        IgniteDamage, 
         IgniteDamageMult,
         IgniteDuration,
+        ChanseToAvoidIgnite, 
         
         FreezeChance,
+        FreezeDuration, //Перевести и создать аффикс!!!!!
+
+        ChanseToAvoidFreeze, //Перевести и создать аффикс!!!!!
+
+
         ShockChance,
+        ShockDuration, 
+        ChanseToAvoidShock, 
+
+        ReduceDamageTaken, 
 
         // --- 11. Утилиты ---
         AreaOfEffect,             // Множитель радиуса (Base: 1.0)
         CooldownReductionPercent, // % Снижение КД
         EffectDuration,           // Множитель длительности эффектов
-        ProjectileSpeed           // Скорость полета снарядов
+
+        ProjectileSpeed,           // Скорость полета снарядов
+        ProjectileCount, 
+        ProjectileFork, 
+        ProjectileChain 
     }
 }

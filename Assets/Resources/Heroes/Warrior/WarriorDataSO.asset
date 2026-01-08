@@ -18,5 +18,5 @@ MonoBehaviour:
   _startingStats:
   - Type: 0
     Value: 75
-  - Type: 4
+  - Type: 5
     Value: 50
