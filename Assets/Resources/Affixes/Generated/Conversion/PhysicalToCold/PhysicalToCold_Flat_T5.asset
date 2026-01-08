@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
   m_Name: PhysicalToCold_Flat_T5
   m_EditorClassIdentifier: 
+  UniqueID: Resources/Affixes/Generated/Conversion/PhysicalToCold/PhysicalToCold_Flat_T5
   GroupID: PhysicalToCold_Flat
   Tier: 5
   RequiredLevel: 1

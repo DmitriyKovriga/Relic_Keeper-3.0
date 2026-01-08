@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
   m_Name: PenetrationCold_Flat_T4
   m_EditorClassIdentifier: 
+  UniqueID: Resources/Affixes/Generated/Misc/PenetrationCold/PenetrationCold_Flat_T4
   GroupID: PenetrationCold_Flat
   Tier: 4
   RequiredLevel: 5

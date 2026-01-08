@@ -7,6 +7,9 @@ namespace Scripts.Items.Affixes
     [CreateAssetMenu(menuName = "RPG/Affixes/Affix")]
     public class ItemAffixSO : ScriptableObject
     {
+        [HideInInspector] // Скрываем, чтобы случайно не сломать руками, он авто-генерируемый
+        public string UniqueID;    
+
         public string GroupID; 
         public int Tier;
         public int RequiredLevel;

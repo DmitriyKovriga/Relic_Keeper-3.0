@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
   m_Name: MaxLightningResist_Flat_T3
   m_EditorClassIdentifier: 
+  UniqueID: Resources/Affixes/Generated/Resistances/MaxLightningResist/MaxLightningResist_Flat_T3
   GroupID: MaxLightningResist_Flat
   Tier: 3
   RequiredLevel: 10

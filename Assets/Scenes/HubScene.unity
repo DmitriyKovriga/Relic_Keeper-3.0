@@ -4814,7 +4814,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 7.5
+  orthographic size: 0
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -5520,6 +5520,7 @@ MonoBehaviour:
   _playerStats: {fileID: 1563690799}
   _characterDB: {fileID: 11400000, guid: c9eba859c613cc04bbe81967cf4d02f9, type: 2}
   _defaultCharacter: {fileID: 11400000, guid: 7a280e056672c5b4285aac0bd852f35d, type: 2}
+  _itemDatabase: {fileID: 11400000, guid: 7b8a48aad2ee3804281551ef65ee48b9, type: 2}
 --- !u!4 &814741198
 Transform:
   m_ObjectHideFlags: 0
