@@ -12,6 +12,15 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField, Min(0.01f)] private float _groundCheckRadius = 0.2f;
 
+
+    [Tooltip("Базовая скорость без предметов (например, 5)")]
+    [SerializeField] private float _baseMoveSpeed = 5f;
+    
+    [Tooltip("Базовая сила прыжка (например, 12)")]
+    [SerializeField] private float _baseJumpForce = 12f;
+
+
+
     [Header("Movement Settings")]
     [SerializeField] private float _stopThreshold = 0.01f;
 
@@ -83,15 +92,15 @@ public class PlayerMovement : MonoBehaviour
 
     private void ApplyMovement()
     {
-        // --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
-        // Было: _stats.MoveSpeed.Value
-        // Стало: _stats.GetValue(StatType.MoveSpeed)
-        float speedStat = _stats.GetValue(StatType.MoveSpeed);
+        // 1. Получаем бонус скорости в процентах (например, 20 = 20%)
+        float speedBonusPercent = _stats.GetValue(StatType.MoveSpeed);
         
-        float targetSpeed = _horizontalInput * speedStat;
-        float currentVerticalSpeed = _rb.linearVelocity.y; // Unity 6 (или velocity в старых)
+        // 2. Формула: Base * (1 + Bonus/100)
+        float finalSpeed = _baseMoveSpeed * (1f + (speedBonusPercent / 100f));
+        
+        float targetSpeed = _horizontalInput * finalSpeed;
+        float currentVerticalSpeed = _rb.linearVelocity.y;
 
-        // Мгновенная остановка, если ввод почти ноль (анти-скольжение)
         if (Mathf.Abs(targetSpeed) < _stopThreshold && _isGrounded)
         {
             _rb.linearVelocity = new Vector2(0, currentVerticalSpeed);
@@ -104,13 +113,15 @@ public class PlayerMovement : MonoBehaviour
 
     private void ApplyJumpForce()
     {
-        // Сбрасываем вертикальную скорость перед прыжком для стабильной высоты
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, 0);
         
-        // --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
-        float jumpStat = _stats.GetValue(StatType.JumpForce);
+        // 1. Получаем бонус прыжка в процентах
+        float jumpBonusPercent = _stats.GetValue(StatType.JumpForce);
         
-        _rb.AddForce(Vector2.up * jumpStat, ForceMode2D.Impulse);
+        // 2. Формула: Base * (1 + Bonus/100)
+        float finalJump = _baseJumpForce * (1f + (jumpBonusPercent / 100f));
+        
+        _rb.AddForce(Vector2.up * finalJump, ForceMode2D.Impulse);
     }
 
     private void CheckGround()
