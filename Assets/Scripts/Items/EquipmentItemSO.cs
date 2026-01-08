@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Scripts.Stats;
+using Scripts.Skills;
 
 namespace Scripts.Items
 {
@@ -23,6 +24,13 @@ namespace Scripts.Items
 
         [Header("Implicit / Fixed Mods")]
         public List<ItemStatModifier> ImplicitModifiers = new List<ItemStatModifier>();
+
+        [Header("Skill Configuration")]
+        [Tooltip("Пул скиллов, которые могут выпасть на этом предмете")]
+        public SkillPoolSO SkillPool;
+        
+        [Tooltip("Сколько скиллов роллить? (Обычно 1, для двуручек мб 2)")]
+        public int SkillCount = 1;
 
         [System.Serializable]
         public class ItemStatModifier

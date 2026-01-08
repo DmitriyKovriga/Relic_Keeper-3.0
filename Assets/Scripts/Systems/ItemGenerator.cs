@@ -37,6 +37,15 @@ public class ItemGenerator : MonoBehaviour
                 newItem.Affixes.Add(new AffixInstance(data, newItem));
             }
         }
+
+        if (baseItem.SkillPool != null)
+        {
+            for (int i = 0; i < baseItem.SkillCount; i++)
+            {
+                var skill = baseItem.SkillPool.GetRandomSkill();
+                if (skill != null) newItem.GrantedSkills.Add(skill);
+            }
+        }
         return newItem;
     }
 }
