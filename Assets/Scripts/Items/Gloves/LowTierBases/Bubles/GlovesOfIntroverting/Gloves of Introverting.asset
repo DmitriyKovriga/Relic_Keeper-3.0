@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 707924c3c674e324ab126931e524eab8, type: 3}
   m_Name: Gloves of Introverting
   m_EditorClassIdentifier: 
-  ID: 0
+  ID: GlovesOfIntroverting
   ItemName: Gloves of Introverting
   Icon: {fileID: 21300000, guid: c31dfbcc0f5da52458584374e0c70f69, type: 3}
   Width: 2
@@ -24,6 +24,8 @@ MonoBehaviour:
     Value: 5
     Type: 100
     Scope: 0
+  SkillPool: {fileID: 0}
+  SkillCount: 1
   DefenseType: 3
   BaseArmor: 0
   BaseEvasion: 0

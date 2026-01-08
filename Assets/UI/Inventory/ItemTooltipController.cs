@@ -4,8 +4,10 @@ using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Stats;
 using Scripts.Skills;
+using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using System.Text;
 
 public class ItemTooltipController : MonoBehaviour
 {
@@ -18,15 +20,18 @@ public class ItemTooltipController : MonoBehaviour
     [Header("Layout Settings")]
     [SerializeField] private float _tooltipWidth = 160f; 
     [SerializeField] private float _gap = 5f; 
-    [SerializeField] private float _screenPadding = 2f; 
+    [SerializeField] private float _screenPadding = 5f; 
     
     [SerializeField, Tooltip("Задержка в миллисекундах перед скрытием тултипа")] 
     private long _hideDelayMs = 50;
     
     private const float SLOT_SIZE = 24f; 
 
+    // --- Localization Tables ---
     private const string TABLE_MENU = "MenuLabels";
     private const string TABLE_AFFIXES = "AffixesLabels";
+    private const string TABLE_ITEMS = "ItemsLabels";
+    private const string TABLE_SKILLS = "SkillsLabels"; // <--- ОБНОВЛЕНО
 
     // --- UI Elements ---
     private VisualElement _root;
@@ -44,8 +49,6 @@ public class ItemTooltipController : MonoBehaviour
     // --- State ---
     private InventoryItem _currentTargetItem;
     private VisualElement _targetAnchorSlot;
-    
-    // Переменная для таймера скрытия
     private IVisualElementScheduledItem _hideScheduler;
 
     // --- Colors ---
@@ -77,6 +80,28 @@ public class ItemTooltipController : MonoBehaviour
         {
             _root = _uiDoc.rootVisualElement;
             _root.schedule.Execute(RebuildTooltipStructure).ExecuteLater(50);
+        }
+        
+        // Подписка на смену языка
+        LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+    }
+
+    private void OnDisable()
+    {
+        // Отписка
+        LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+    }
+
+    // --- Обработка смены языка "на лету" ---
+    private void OnLocaleChanged(Locale locale)
+    {
+        // Если тултип сейчас открыт, обновляем все тексты
+        if (_currentTargetItem != null && _itemTooltipBox.style.display == DisplayStyle.Flex)
+        {
+            FillItemData(_currentTargetItem);
+            FillSkillData(_currentTargetItem);
+            // Пересчитываем позицию (вдруг текст стал длиннее/короче)
+            _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
         }
     }
 
@@ -178,14 +203,12 @@ public class ItemTooltipController : MonoBehaviour
     {
         if (_itemTooltipBox == null || item == null || item.Data == null) return;
         
-        // --- ФИКС МОРГАНИЯ (ОТМЕНА СТАРОГО СКРЫТИЯ) ---
         if (_hideScheduler != null)
         {
-            _hideScheduler.Pause(); // Отменяем запланированное скрытие
+            _hideScheduler.Pause(); 
             _hideScheduler = null;
         }
 
-        // Если тот же предмет, выходим.
         if (_currentTargetItem == item && _itemTooltipBox.style.display == DisplayStyle.Flex) return;
 
         _currentTargetItem = item;
@@ -214,11 +237,8 @@ public class ItemTooltipController : MonoBehaviour
 
     public void HideTooltip()
     {
-        // --- ФИКС МОРГАНИЯ (ОТЛОЖЕННОЕ СКРЫТИЕ) ---
-        // Если уже запланировано скрытие, не дублируем
         if (_hideScheduler != null) return;
 
-        // Создаем таймер
         _hideScheduler = _root.schedule.Execute(() =>
         {
             if (_itemTooltipBox != null) 
@@ -233,10 +253,9 @@ public class ItemTooltipController : MonoBehaviour
             }
             _currentTargetItem = null;
             _targetAnchorSlot = null;
-            _hideScheduler = null; // Очищаем ссылку после выполнения
+            _hideScheduler = null; 
         });
         
-        // Запускаем через N мс
         _hideScheduler.ExecuteLater(_hideDelayMs);
     }
 
@@ -328,7 +347,7 @@ public class ItemTooltipController : MonoBehaviour
         }
     }
 
-    // --- Fill Data Logic ---
+    // --- Fill Data Logic (LOCALIZED) ---
 
     private void FillSkillData(InventoryItem item)
     {
@@ -338,25 +357,71 @@ public class ItemTooltipController : MonoBehaviour
         if (hasSkill)
         {
             var skill = item.GrantedSkills[0];
-            _skillHeaderLabel.text = $"Grants Skill: {skill.SkillName}";
+
+            // 1. Имя скилла (TABLE_SKILLS, key: "skills.{ID}")
+            LocalizeLabel(_skillHeaderLabel, TABLE_SKILLS, $"skills.{skill.ID}", skill.SkillName);
             
+            // Иконка
             _skillIconImage.sprite = skill.Icon;
             _skillIconImage.style.display = skill.Icon != null ? DisplayStyle.Flex : DisplayStyle.None;
             
-            string desc = skill.Description;
-            if (skill.Cooldown > 0) desc += $"\n\n<color=#aaaaaa>Cooldown: {skill.Cooldown}s</color>";
-            if (skill.ManaCost > 0) desc += $"\nMana Cost: {skill.ManaCost}</color>";
-            
-            _skillDescLabel.text = desc;
+            // 2. Тело скилла (Локализация + Сборка)
+            LocalizeSkillBody(skill);
         }
     }
+
+    // Локализация тела скилла: Описание + Кулдаун + Мана
+    private void LocalizeSkillBody(SkillDataSO skill)
+    {
+        _skillDescLabel.text = skill.Description; // Fallback
+
+        // Запрашиваем описание из TABLE_SKILLS
+        var opDesc = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, $"skills.{skill.ID}.description");
+        
+        opDesc.Completed += (hDesc) =>
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(hDesc.Status == AsyncOperationStatus.Succeeded ? hDesc.Result : skill.Description);
+
+            // Запрашиваем слово "Cooldown" из TABLE_SKILLS (как просили)
+            var opCD = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, "skills.cooldown");
+            opCD.Completed += (hCD) =>
+            {
+                if (skill.Cooldown > 0)
+                {
+                    string cdLabel = hCD.Status == AsyncOperationStatus.Succeeded ? hCD.Result : "Cooldown";
+                    sb.Append($"\n\n<color=#aaaaaa>{cdLabel}: {skill.Cooldown}s</color>");
+                }
+
+                // Запрашиваем слово "Mana Cost" из TABLE_SKILLS (как просили)
+                var opMana = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, "skills.manaCost");
+                opMana.Completed += (hMana) =>
+                {
+                    if (skill.ManaCost > 0)
+                    {
+                        string manaLabel = hMana.Status == AsyncOperationStatus.Succeeded ? hMana.Result : "Mana Cost";
+                        sb.Append($"\n<color=#aaaaaa>{manaLabel}: {skill.ManaCost}</color>");
+                    }
+
+                    if (_skillDescLabel != null) 
+                    {
+                        _skillDescLabel.text = sb.ToString();
+                        // Обновляем позицию после изменения текста, так как высота могла измениться
+                        if(_root != null) _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
+                    }
+                };
+            };
+        };
+    }
+
 
     private void FillItemData(InventoryItem item)
     {
         int affixes = item.Affixes != null ? item.Affixes.Count : 0;
         Color rarityCol = affixes >= 3 ? _colTitleRare : (affixes > 0 ? _colTitleMagic : _colTitleCommon);
         
-        _headerLabel.text = item.Data.ItemName;
+        // 1. Имя предмета (TABLE_ITEMS)
+        LocalizeLabel(_headerLabel, TABLE_ITEMS, $"items.{item.Data.ID}", item.Data.ItemName);
         _headerLabel.style.color = new StyleColor(rarityCol);
         
         Color borderCol = affixes >= 3 ? _colRareBorder : (affixes > 0 ? _colMagicBorder : Color.gray);
@@ -407,6 +472,18 @@ public class ItemTooltipController : MonoBehaviour
     }
 
     // --- Helpers ---
+
+    private void LocalizeLabel(Label label, string table, string key, string fallback)
+    {
+        label.text = fallback;
+        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(table, key);
+        op.Completed += (h) => 
+        {
+            if (label == null) return;
+            if (h.Status == AsyncOperationStatus.Succeeded)
+                label.text = h.Result;
+        };
+    }
 
     private void AddRow(StatType type, InventoryItem item, float min, float max, Color? c = null)
     {

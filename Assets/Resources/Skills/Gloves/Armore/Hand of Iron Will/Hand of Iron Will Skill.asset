@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 037112ba607a5b2409ab1b0826944402, type: 3}
   m_Name: Hand of Iron Will Skill
   m_EditorClassIdentifier: 
-  ID: Hand of Iron Will
+  ID: HandofIronWill
   SkillName: Hand of Iron Will
   Description: Gain 30% of all damage reduction for 5 second
   Icon: {fileID: 21300000, guid: 8e1cbaf60a2a9f04391f33debb58cbd1, type: 3}
