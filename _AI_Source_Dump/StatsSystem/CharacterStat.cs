@@ -74,6 +74,39 @@ namespace Scripts.Stats
             return didRemove;
         }
 
+        public float GetRawFlatValue()
+{
+    float finalValue = BaseValue;
+    for (int i = 0; i < _modifiers.Count; i++)
+    {
+        if (_modifiers[i].Type == StatModType.Flat)
+            finalValue += _modifiers[i].Value;
+    }
+    return finalValue;
+}
+
+public float GetTotalPercentAdd()
+{
+    float sum = 0;
+    for (int i = 0; i < _modifiers.Count; i++)
+    {
+        if (_modifiers[i].Type == StatModType.PercentAdd)
+            sum += _modifiers[i].Value;
+    }
+    return sum;
+}
+
+public float GetTotalMultiplier()
+{
+    float mult = 1;
+    for (int i = 0; i < _modifiers.Count; i++)
+    {
+        if (_modifiers[i].Type == StatModType.PercentMult)
+            mult *= _modifiers[i].Value;
+    }
+    return mult;
+}
+
         protected virtual int CompareModifierOrder(StatModifier a, StatModifier b)
         {
             if (a.Order < b.Order) return -1;

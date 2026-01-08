@@ -1,0 +1,1695 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Affixes_en
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: 5c97267dc7eac0a4aab027b3d8a147d0, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 14018847211520
+    m_Localized: +{0}% to Bleed Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018855600128
+    m_Localized: '{0}% increased Bleed Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018855600129
+    m_Localized: '{0}% more Bleed Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018855600130
+    m_Localized: +{0}% to Damage over Time Multiplier for Bleeding
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018855600131
+    m_Localized: Adds {0} to Bleed Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018855600132
+    m_Localized: '{0}% increased Bleed Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018855600133
+    m_Localized: '{0}% more Bleed Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018855600134
+    m_Localized: Adds {0} to Chanse To Avoid Bleed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018855600135
+    m_Localized: Adds {0} to Chanse To Avoid Ignite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794432
+    m_Localized: Adds {0} to Chanse To Avoid Poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794433
+    m_Localized: +{0}% to Ignite Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794434
+    m_Localized: '{0}% increased Ignite Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794435
+    m_Localized: '{0}% more Ignite Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794436
+    m_Localized: +{0}% to Ignite Damage Mult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794437
+    m_Localized: Adds {0} to Ignite Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794438
+    m_Localized: '{0}% increased Ignite Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794439
+    m_Localized: '{0}% more Ignite Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794440
+    m_Localized: +{0}% to Poison Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794441
+    m_Localized: '{0}% increased Poison Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794442
+    m_Localized: '{0}% more Poison Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794443
+    m_Localized: +{0}% to Poison Damage Mult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794444
+    m_Localized: Adds {0} to Poison Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794445
+    m_Localized: '{0}% increased Poison Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794446
+    m_Localized: '{0}% more Poison Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794447
+    m_Localized: Adds {0} to Accuracy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794448
+    m_Localized: '{0}% increased Accuracy'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794449
+    m_Localized: '{0}% more Accuracy'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794450
+    m_Localized: +{0}% to Critical Strike Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794451
+    m_Localized: '{0}% increased Critical Strike Chance'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794452
+    m_Localized: '{0}% more Critical Strike Chance'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794453
+    m_Localized: +{0}% to Critical Strike Multiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794454
+    m_Localized: '{0}% increased Critical Strike Multiplier'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794455
+    m_Localized: '{0}% more Critical Strike Multiplier'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794456
+    m_Localized: Adds {0} to Damage Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794457
+    m_Localized: '{0}% increased Damage Cold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794458
+    m_Localized: '{0}% more Damage Cold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794459
+    m_Localized: Adds {0} to Damage Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794460
+    m_Localized: '{0}% increased Damage Fire'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794461
+    m_Localized: '{0}% more Damage Fire'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794462
+    m_Localized: Adds {0} to Damage Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018859794463
+    m_Localized: '{0}% increased Damage Lightning'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018863988736
+    m_Localized: '{0}% more Damage Lightning'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018863988737
+    m_Localized: Adds {0} to Physical Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018863988738
+    m_Localized: '{0}% increased Physical Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018863988739
+    m_Localized: '{0}% more Physical Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018863988740
+    m_Localized: Adds {0} to Armour
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018863988741
+    m_Localized: '{0}% increased Armour'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018863988742
+    m_Localized: '{0}% more Armour'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018863988743
+    m_Localized: +{0}% to Chance to Block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018863988744
+    m_Localized: Adds {0} to Evasion Rating
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018863988745
+    m_Localized: '{0}% increased Evasion Rating'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018863988746
+    m_Localized: '{0}% more Evasion Rating'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018863988747
+    m_Localized: +{0}% to Max Block Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018863988748
+    m_Localized: Adds {0} to Maximum Bubbles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183040
+    m_Localized: '{0}% increased Maximum Bubbles'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183041
+    m_Localized: '{0}% more Maximum Bubbles'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183042
+    m_Localized: Adds {0} to Reduce Damage Taken
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183043
+    m_Localized: '{0}% increased Area Of Effect'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183044
+    m_Localized: '{0}% more Area Of Effect'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183045
+    m_Localized: Adds {0} to Bubble Recharge Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183046
+    m_Localized: '{0}% increased Bubble Recharge Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183047
+    m_Localized: '{0}% more Bubble Recharge Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183048
+    m_Localized: Adds {0} to Chanse To Avoid Shock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183049
+    m_Localized: +{0}% to Cooldown Reduction Percent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183050
+    m_Localized: '{0}% increased Effect Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183051
+    m_Localized: '{0}% more Effect Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183052
+    m_Localized: Adds {0} to Elemental To Physical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183053
+    m_Localized: +{0}% to Freeze Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183054
+    m_Localized: Adds {0} to Freeze Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183055
+    m_Localized: '{0}% increased Freeze Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183056
+    m_Localized: '{0}% more Freeze Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183057
+    m_Localized: Adds {0} to Jump Force
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183058
+    m_Localized: '{0}% increased Jump Force'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183059
+    m_Localized: '{0}% more Jump Force'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183060
+    m_Localized: Adds {0} to Penetration Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018868183061
+    m_Localized: Adds {0} to Penetration Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377344
+    m_Localized: Adds {0} to Penetration Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377345
+    m_Localized: Adds {0} to Penetration Physical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377346
+    m_Localized: Adds {0} to Physical To Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377347
+    m_Localized: Adds {0} to Physical To Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377348
+    m_Localized: Adds {0} to Physical To Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377349
+    m_Localized: Adds {0} to Projectile Chain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377350
+    m_Localized: Adds {0} to Projectile Count
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377351
+    m_Localized: Adds {0} to Projectile Fork
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377352
+    m_Localized: +{0}% to Shock Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377353
+    m_Localized: Adds {0} to Shock Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377354
+    m_Localized: '{0}% increased Shock Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377355
+    m_Localized: '{0}% more Shock Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377356
+    m_Localized: Adds {0} to Take Cold As Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377357
+    m_Localized: Adds {0} to Take Cold As Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377358
+    m_Localized: Adds {0} to Take Cold As Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377359
+    m_Localized: Adds {0} to Take Fire As Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377360
+    m_Localized: Adds {0} to Take Fire As Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377361
+    m_Localized: Adds {0} to Take Fire As Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377362
+    m_Localized: Adds {0} to Take Lightning As Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377363
+    m_Localized: Adds {0} to Take Lightning As Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377364
+    m_Localized: Adds {0} to Take Lightning As Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377365
+    m_Localized: Adds {0} to Take Phys As Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018872377366
+    m_Localized: Adds {0} to Take Phys As Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571648
+    m_Localized: Adds {0} to Take Phys As Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571649
+    m_Localized: +{0}% to Cold Resistance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571650
+    m_Localized: +{0}% to Fire Resistance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571651
+    m_Localized: +{0}% to Lightning Resistance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571652
+    m_Localized: +{0}% to Max Cold Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571653
+    m_Localized: +{0}% to Max Fire Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571654
+    m_Localized: +{0}% to Max Lightning Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571655
+    m_Localized: +{0}% to Max Physical Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571656
+    m_Localized: +{0}% to Physical Damage Reduction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571657
+    m_Localized: '{0}% increased Attack Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571658
+    m_Localized: '{0}% more Attack Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571659
+    m_Localized: '{0}% increased Cast Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571660
+    m_Localized: '{0}% more Cast Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571661
+    m_Localized: Adds {0} to Movement Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571662
+    m_Localized: '{0}% increased Movement Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571663
+    m_Localized: '{0}% more Movement Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571664
+    m_Localized: Adds {0} to Projectile Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571665
+    m_Localized: '{0}% increased Projectile Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571666
+    m_Localized: '{0}% more Projectile Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571667
+    m_Localized: Adds {0} to Health Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571668
+    m_Localized: '{0}% increased Health Regen'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571669
+    m_Localized: '{0}% more Health Regen'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571670
+    m_Localized: Adds {0} to Mana Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018876571671
+    m_Localized: '{0}% increased Mana Regen'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018880765952
+    m_Localized: '{0}% more Mana Regen'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018880765953
+    m_Localized: Adds {0} to Maximum Life
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018880765954
+    m_Localized: '{0}% increased Maximum Life'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018880765955
+    m_Localized: '{0}% more Maximum Life'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018880765956
+    m_Localized: Adds {0} to Maximum Mana
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018880765957
+    m_Localized: '{0}% increased Maximum Mana'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14018880765958
+    m_Localized: '{0}% more Maximum Mana'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479727263744
+    m_Localized: +{0}% to Bleed Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479756623872
+    m_Localized: '{0}% increased Bleed Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479760818176
+    m_Localized: '{0}% more Bleed Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479765012480
+    m_Localized: +{0}% to Damage over Time Multiplier for Bleeding
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479765012481
+    m_Localized: Adds {0} to Bleed Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479773401088
+    m_Localized: '{0}% increased Bleed Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479777595392
+    m_Localized: '{0}% more Bleed Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479781789696
+    m_Localized: Adds {0} to Chanse To Avoid Bleed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479785984000
+    m_Localized: Adds {0} to Chanse To Avoid Ignite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479785984001
+    m_Localized: Adds {0} to Chanse To Avoid Poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479790178304
+    m_Localized: +{0}% to Ignite Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479794372608
+    m_Localized: '{0}% increased Ignite Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479798566912
+    m_Localized: '{0}% more Ignite Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479802761216
+    m_Localized: +{0}% to Ignite Damage Mult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479806955520
+    m_Localized: Adds {0} to Ignite Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479806955521
+    m_Localized: '{0}% increased Ignite Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479811149824
+    m_Localized: '{0}% more Ignite Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479815344128
+    m_Localized: +{0}% to Poison Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479815344129
+    m_Localized: '{0}% increased Poison Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479819538432
+    m_Localized: '{0}% more Poison Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479823732736
+    m_Localized: +{0}% to Poison Damage Mult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479827927040
+    m_Localized: Adds {0} to Poison Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479827927041
+    m_Localized: '{0}% increased Poison Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479836315648
+    m_Localized: '{0}% more Poison Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479840509952
+    m_Localized: Adds {0} to Chanse To Avoid Shock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479840509953
+    m_Localized: Adds {0} to Elemental To Physical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479844704256
+    m_Localized: Adds {0} to Physical To Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479848898560
+    m_Localized: Adds {0} to Physical To Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479857287168
+    m_Localized: Adds {0} to Physical To Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479861481472
+    m_Localized: Adds {0} to Take Cold As Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479861481473
+    m_Localized: Adds {0} to Take Cold As Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479865675776
+    m_Localized: Adds {0} to Take Cold As Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479869870080
+    m_Localized: Adds {0} to Take Fire As Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479869870081
+    m_Localized: Adds {0} to Take Fire As Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479878258688
+    m_Localized: Adds {0} to Take Fire As Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479882452992
+    m_Localized: Adds {0} to Take Lightning As Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479886647296
+    m_Localized: Adds {0} to Take Lightning As Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479886647297
+    m_Localized: Adds {0} to Take Lightning As Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479890841600
+    m_Localized: Adds {0} to Take Phys As Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479895035904
+    m_Localized: Adds {0} to Take Phys As Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479899230208
+    m_Localized: Adds {0} to Take Phys As Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479899230209
+    m_Localized: Adds {0} to Accuracy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479903424512
+    m_Localized: '{0}% increased Accuracy'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479907618816
+    m_Localized: '{0}% more Accuracy'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479911813120
+    m_Localized: +{0}% to Critical Strike Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479916007424
+    m_Localized: '{0}% increased Critical Strike Chance'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479920201728
+    m_Localized: '{0}% more Critical Strike Chance'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479920201729
+    m_Localized: +{0}% to Critical Strike Multiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479928590336
+    m_Localized: Adds {0} to Damage Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479932784640
+    m_Localized: '{0}% increased Damage Cold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479932784641
+    m_Localized: '{0}% more Damage Cold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479936978944
+    m_Localized: Adds {0} to Damage Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479941173248
+    m_Localized: '{0}% increased Damage Fire'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479945367552
+    m_Localized: '{0}% more Damage Fire'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479945367553
+    m_Localized: Adds {0} to Damage Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479949561856
+    m_Localized: '{0}% increased Damage Lightning'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479953756160
+    m_Localized: '{0}% more Damage Lightning'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479957950464
+    m_Localized: Adds {0} to Physical Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479962144768
+    m_Localized: '{0}% increased Physical Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479962144769
+    m_Localized: '{0}% more Physical Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479970533376
+    m_Localized: Adds {0} to Reduce Damage Taken
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479970533377
+    m_Localized: Adds {0} to Armour
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479974727680
+    m_Localized: '{0}% increased Armour'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479978921984
+    m_Localized: '{0}% more Armour'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479978921985
+    m_Localized: +{0}% to Chance to Block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479983116288
+    m_Localized: Adds {0} to Evasion Rating
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479987310592
+    m_Localized: '{0}% increased Evasion Rating'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479987310593
+    m_Localized: '{0}% more Evasion Rating'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479995699200
+    m_Localized: +{0}% to Max Block Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22479999893504
+    m_Localized: Adds {0} to Maximum Bubbles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480004087808
+    m_Localized: '{0}% increased Maximum Bubbles'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480008282112
+    m_Localized: '{0}% more Maximum Bubbles'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480008282113
+    m_Localized: '{0}% increased Area Of Effect'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480012476416
+    m_Localized: '{0}% more Area Of Effect'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480016670720
+    m_Localized: Adds {0} to Bubble Recharge Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480016670721
+    m_Localized: '{0}% increased Bubble Recharge Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480020865024
+    m_Localized: '{0}% more Bubble Recharge Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480033447936
+    m_Localized: +{0}% to Cooldown Reduction Percent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480033447937
+    m_Localized: '{0}% increased Effect Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480037642240
+    m_Localized: '{0}% more Effect Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480046030848
+    m_Localized: +{0}% to Freeze Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480046030849
+    m_Localized: Adds {0} to Freeze Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480050225152
+    m_Localized: '{0}% increased Freeze Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480054419456
+    m_Localized: '{0}% more Freeze Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480054419457
+    m_Localized: Adds {0} to Jump Force
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480058613760
+    m_Localized: '{0}% increased Jump Force'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480067002368
+    m_Localized: '{0}% more Jump Force'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480067002369
+    m_Localized: Adds {0} to Penetration Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480071196672
+    m_Localized: Adds {0} to Penetration Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480075390976
+    m_Localized: Adds {0} to Penetration Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480079585280
+    m_Localized: Adds {0} to Penetration Physical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480092168192
+    m_Localized: Adds {0} to Projectile Chain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480092168193
+    m_Localized: Adds {0} to Projectile Count
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480096362496
+    m_Localized: Adds {0} to Projectile Fork
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480096362497
+    m_Localized: +{0}% to Shock Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480104751104
+    m_Localized: Adds {0} to Shock Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480108945408
+    m_Localized: '{0}% increased Shock Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480108945409
+    m_Localized: '{0}% more Shock Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480155082752
+    m_Localized: +{0}% to Bubble Mitigation Percent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480163471360
+    m_Localized: +{0}% to Cold Resistance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480167665664
+    m_Localized: +{0}% to Fire Resistance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480167665665
+    m_Localized: +{0}% to Lightning Resistance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480171859968
+    m_Localized: +{0}% to Max Bubble Mitigation Percent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480176054272
+    m_Localized: +{0}% to Max Cold Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480176054273
+    m_Localized: +{0}% to Max Fire Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480184442880
+    m_Localized: +{0}% to Max Lightning Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480188637184
+    m_Localized: +{0}% to Max Physical Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480205414400
+    m_Localized: +{0}% to Physical Damage Reduction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480209608704
+    m_Localized: '{0}% increased Attack Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480213803008
+    m_Localized: '{0}% more Attack Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480217997312
+    m_Localized: '{0}% increased Cast Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480217997313
+    m_Localized: '{0}% more Cast Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480226385920
+    m_Localized: Adds {0} to Movement Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480230580224
+    m_Localized: '{0}% increased Movement Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480230580225
+    m_Localized: '{0}% more Movement Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480234774528
+    m_Localized: Adds {0} to Projectile Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480234774529
+    m_Localized: '{0}% increased Projectile Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480238968832
+    m_Localized: '{0}% more Projectile Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480247357440
+    m_Localized: Adds {0} to Health On Block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480247357441
+    m_Localized: '{0}% increased Health On Block'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480251551744
+    m_Localized: '{0}% more Health On Block'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480255746048
+    m_Localized: Adds {0} to Health On Hit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480259940352
+    m_Localized: '{0}% increased Health On Hit'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480259940353
+    m_Localized: '{0}% more Health On Hit'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480264134656
+    m_Localized: Adds {0} to Health Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480268328960
+    m_Localized: '{0}% increased Health Regen'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480272523264
+    m_Localized: '{0}% more Health Regen'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480272523265
+    m_Localized: +{0}% to Health Regen Percent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480276717568
+    m_Localized: Adds {0} to Mana On Block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480280911872
+    m_Localized: '{0}% increased Mana On Block'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480280911873
+    m_Localized: '{0}% more Mana On Block'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480289300480
+    m_Localized: Adds {0} to Mana On Hit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480289300481
+    m_Localized: '{0}% increased Mana On Hit'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480293494784
+    m_Localized: '{0}% more Mana On Hit'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480297689088
+    m_Localized: Adds {0} to Mana Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480297689089
+    m_Localized: '{0}% increased Mana Regen'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480301883392
+    m_Localized: '{0}% more Mana Regen'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480306077696
+    m_Localized: +{0}% to Mana Regen Percent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480310272000
+    m_Localized: Adds {0} to Maximum Life
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480310272001
+    m_Localized: '{0}% increased Maximum Life'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480318660608
+    m_Localized: '{0}% more Maximum Life'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480322854912
+    m_Localized: Adds {0} to Maximum Mana
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480322854913
+    m_Localized: '{0}% increased Maximum Mana'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22480327049216
+    m_Localized: '{0}% more Maximum Mana'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700330651648
+    m_Localized: +{0}% to Bleed Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700360011776
+    m_Localized: '{0}% increased Bleed Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700364206080
+    m_Localized: '{0}% more Bleed Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700368400384
+    m_Localized: +{0}% to Damage over Time Multiplier for Bleeding
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700368400385
+    m_Localized: Adds {0} to Bleed Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700372594688
+    m_Localized: '{0}% increased Bleed Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700376788992
+    m_Localized: '{0}% more Bleed Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700380983296
+    m_Localized: Adds {0} to Chanse To Avoid Bleed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700385177600
+    m_Localized: Adds {0} to Chanse To Avoid Ignite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700389371904
+    m_Localized: Adds {0} to Chanse To Avoid Poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700393566208
+    m_Localized: +{0}% to Ignite Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700397760512
+    m_Localized: '{0}% increased Ignite Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700397760513
+    m_Localized: '{0}% more Ignite Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700401954816
+    m_Localized: +{0}% to Ignite Damage Mult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700401954817
+    m_Localized: Adds {0} to Ignite Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700410343424
+    m_Localized: '{0}% increased Ignite Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700414537728
+    m_Localized: '{0}% more Ignite Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700414537729
+    m_Localized: +{0}% to Poison Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700418732032
+    m_Localized: '{0}% increased Poison Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700422926336
+    m_Localized: '{0}% more Poison Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700427120640
+    m_Localized: +{0}% to Poison Damage Mult
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700427120641
+    m_Localized: Adds {0} to Poison Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700431314944
+    m_Localized: '{0}% increased Poison Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700435509248
+    m_Localized: '{0}% more Poison Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700439703552
+    m_Localized: Adds {0} to Chanse To Avoid Shock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700439703553
+    m_Localized: Adds {0} to Elemental To Physical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700448092160
+    m_Localized: Adds {0} to Physical To Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700452286464
+    m_Localized: Adds {0} to Physical To Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700456480768
+    m_Localized: Adds {0} to Physical To Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700456480769
+    m_Localized: Adds {0} to Take Cold As Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700460675072
+    m_Localized: Adds {0} to Take Cold As Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700464869376
+    m_Localized: Adds {0} to Take Cold As Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700469063680
+    m_Localized: Adds {0} to Take Fire As Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700469063681
+    m_Localized: Adds {0} to Take Fire As Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700473257984
+    m_Localized: Adds {0} to Take Fire As Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700473257985
+    m_Localized: Adds {0} to Take Lightning As Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700481646592
+    m_Localized: Adds {0} to Take Lightning As Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700485840896
+    m_Localized: Adds {0} to Take Lightning As Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700485840897
+    m_Localized: Adds {0} to Take Phys As Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700490035200
+    m_Localized: Adds {0} to Take Phys As Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700490035201
+    m_Localized: Adds {0} to Take Phys As Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700494229504
+    m_Localized: Adds {0} to Accuracy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700498423808
+    m_Localized: '{0}% increased Accuracy'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700502618112
+    m_Localized: '{0}% more Accuracy'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700506812416
+    m_Localized: +{0}% to Critical Strike Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700506812417
+    m_Localized: '{0}% increased Critical Strike Chance'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700511006720
+    m_Localized: '{0}% more Critical Strike Chance'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700515201024
+    m_Localized: +{0}% to Critical Strike Multiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700515201025
+    m_Localized: Adds {0} to Damage Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700523589632
+    m_Localized: '{0}% increased Damage Cold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700523589633
+    m_Localized: '{0}% more Damage Cold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700527783936
+    m_Localized: Adds {0} to Damage Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700531978240
+    m_Localized: '{0}% increased Damage Fire'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700536172544
+    m_Localized: '{0}% more Damage Fire'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700540366848
+    m_Localized: Adds {0} to Damage Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700540366849
+    m_Localized: '{0}% increased Damage Lightning'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700540366850
+    m_Localized: '{0}% more Damage Lightning'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700548755456
+    m_Localized: Adds {0} to Physical Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700552949760
+    m_Localized: '{0}% increased Physical Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700552949761
+    m_Localized: '{0}% more Physical Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700557144064
+    m_Localized: Adds {0} to Reduce Damage Taken
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700561338368
+    m_Localized: Adds {0} to Armour
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700561338369
+    m_Localized: '{0}% increased Armour'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700569726976
+    m_Localized: '{0}% more Armour'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700569726977
+    m_Localized: +{0}% to Chance to Block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700569726978
+    m_Localized: Adds {0} to Evasion Rating
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700578115584
+    m_Localized: '{0}% increased Evasion Rating'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700582309888
+    m_Localized: '{0}% more Evasion Rating'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700586504192
+    m_Localized: +{0}% to Max Block Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700586504193
+    m_Localized: Adds {0} to Maximum Bubbles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700590698496
+    m_Localized: '{0}% increased Maximum Bubbles'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700594892800
+    m_Localized: '{0}% more Maximum Bubbles'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700594892801
+    m_Localized: '{0}% increased Area Of Effect'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700599087104
+    m_Localized: '{0}% more Area Of Effect'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700603281408
+    m_Localized: Adds {0} to Bubble Recharge Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700603281409
+    m_Localized: '{0}% increased Bubble Recharge Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700611670016
+    m_Localized: '{0}% more Bubble Recharge Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700615864320
+    m_Localized: +{0}% to Cooldown Reduction Percent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700620058624
+    m_Localized: '{0}% increased Effect Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700620058625
+    m_Localized: '{0}% more Effect Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700628447232
+    m_Localized: +{0}% to Freeze Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700636835840
+    m_Localized: Adds {0} to Freeze Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700636835841
+    m_Localized: '{0}% increased Freeze Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700641030144
+    m_Localized: '{0}% more Freeze Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700645224448
+    m_Localized: Adds {0} to Jump Force
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700649418752
+    m_Localized: '{0}% increased Jump Force'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700653613056
+    m_Localized: '{0}% more Jump Force'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700653613057
+    m_Localized: Adds {0} to Penetration Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700657807360
+    m_Localized: Adds {0} to Penetration Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700657807361
+    m_Localized: Adds {0} to Penetration Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700662001664
+    m_Localized: Adds {0} to Penetration Physical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700678778880
+    m_Localized: Adds {0} to Projectile Chain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700682973184
+    m_Localized: Adds {0} to Projectile Count
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700682973185
+    m_Localized: Adds {0} to Projectile Fork
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700687167488
+    m_Localized: +{0}% to Shock Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700691361792
+    m_Localized: Adds {0} to Shock Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700695556096
+    m_Localized: '{0}% increased Shock Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700695556097
+    m_Localized: '{0}% more Shock Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700741693440
+    m_Localized: +{0}% to Bubble Mitigation Percent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700745887744
+    m_Localized: +{0}% to Cold Resistance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700750082048
+    m_Localized: +{0}% to Fire Resistance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700750082049
+    m_Localized: +{0}% to Lightning Resistance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700754276352
+    m_Localized: +{0}% to Max Bubble Mitigation Percent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700754276353
+    m_Localized: +{0}% to Max Cold Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700762664960
+    m_Localized: +{0}% to Max Fire Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700766859264
+    m_Localized: +{0}% to Max Lightning Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700771053568
+    m_Localized: +{0}% to Max Physical Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700783636480
+    m_Localized: +{0}% to Physical Damage Reduction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700792025088
+    m_Localized: '{0}% increased Attack Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700796219392
+    m_Localized: '{0}% more Attack Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700796219393
+    m_Localized: '{0}% increased Cast Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700796219394
+    m_Localized: '{0}% more Cast Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700804608000
+    m_Localized: Adds {0} to Movement Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700804608001
+    m_Localized: '{0}% increased Movement Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700812996608
+    m_Localized: '{0}% more Movement Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700812996609
+    m_Localized: Adds {0} to Projectile Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700817190912
+    m_Localized: '{0}% increased Projectile Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700821385216
+    m_Localized: '{0}% more Projectile Speed'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700825579520
+    m_Localized: Adds {0} to Health On Block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700829773824
+    m_Localized: '{0}% increased Health On Block'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700829773825
+    m_Localized: '{0}% more Health On Block'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700833968128
+    m_Localized: Adds {0} to Health On Hit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700838162432
+    m_Localized: '{0}% increased Health On Hit'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700838162433
+    m_Localized: '{0}% more Health On Hit'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700842356736
+    m_Localized: Adds {0} to Health Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700846551040
+    m_Localized: '{0}% increased Health Regen'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700850745344
+    m_Localized: '{0}% more Health Regen'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700850745345
+    m_Localized: +{0}% to Health Regen Percent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700854939648
+    m_Localized: Adds {0} to Mana On Block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700854939649
+    m_Localized: '{0}% increased Mana On Block'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700859133952
+    m_Localized: '{0}% more Mana On Block'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700863328256
+    m_Localized: Adds {0} to Mana On Hit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700867522560
+    m_Localized: '{0}% increased Mana On Hit'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700871716864
+    m_Localized: '{0}% more Mana On Hit'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700871716865
+    m_Localized: Adds {0} to Mana Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700875911168
+    m_Localized: '{0}% increased Mana Regen'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700875911169
+    m_Localized: '{0}% more Mana Regen'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700880105472
+    m_Localized: +{0}% to Mana Regen Percent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700880105473
+    m_Localized: Adds {0} to Maximum Life
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700888494080
+    m_Localized: '{0}% increased Maximum Life'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700888494081
+    m_Localized: '{0}% more Maximum Life'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700896882688
+    m_Localized: Adds {0} to Maximum Mana
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700901076992
+    m_Localized: '{0}% increased Maximum Mana'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29700901076993
+    m_Localized: '{0}% more Maximum Mana'
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

@@ -3,12 +3,12 @@ namespace Scripts.Items
     // Куда надеваем
     public enum EquipmentSlot
     {
-        MainHand,   // Правая рука
-        OffHand,    // Левая рука (Щит, Колчан)
-        Helmet,     // Голова
-        BodyArmor,  // Тело
-        Gloves,     // Руки
-        Boots       // Ноги
+        Helmet = 0,     // Голова (Был 2, стал 0)
+        BodyArmor = 1,  // Тело
+        MainHand = 2,   // Правая рука (Оружие)
+        OffHand = 3,    // Левая рука (Щит)
+        Gloves = 4,     // Перчатки
+        Boots = 5       // Сапоги
     }
 
     // Тип защиты базы (определяет пул аффиксов)

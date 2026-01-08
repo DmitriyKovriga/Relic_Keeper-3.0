@@ -15,7 +15,8 @@ namespace Scripts.Items
         [Tooltip("Атак в секунду (APS)")]
         public float AttacksPerSecond = 1.0f;
         
-        [Tooltip("Базовый шанс крита (0.05 = 5%). Локальные моды будут умножать это число.")]
-        public float BaseCritChance = 0.05f;
+        // ОБНОВЛЕНО: Используем 5.0 для 5%
+        [Tooltip("Базовый шанс крита в процентах (5 = 5%). Локальные моды будут умножать это число.")]
+        public float BaseCritChance = 5f; 
     }
 }
