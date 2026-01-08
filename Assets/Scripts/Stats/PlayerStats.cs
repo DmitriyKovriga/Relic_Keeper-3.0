@@ -11,6 +11,8 @@ public class PlayerStats : MonoBehaviour
     [Header("Config")]
     [SerializeField] private bool _restoreStateOnLevelUp = true;
     [SerializeField] private CharacterDataSO _defaultCharacterData; 
+    [Header("Base Stat Defaults")]
+    [SerializeField] private GlobalBaseStatsSO _globalBaseStats; // Ссылка на глобальные базовые статы
 
     private Dictionary<StatType, CharacterStat> _stats = new Dictionary<StatType, CharacterStat>();
 
@@ -147,26 +149,59 @@ public class PlayerStats : MonoBehaviour
     public void Initialize(CharacterDataSO data)
     {
         _activeCharacterID = data != null ? data.ID : "Unknown";
-        foreach (var stat in _stats.Values) stat.BaseValue = 0;
-        if (data != null && data.StartingStats != null)
+    
+    // 1. Сбросить все статы до 0, чтобы начать с чистого листа
+    foreach (var stat in _stats.Values) stat.BaseValue = 0;
+
+    // 2. Применить ГЛОБАЛЬНЫЕ базовые статы (если есть)
+    // Эти статы являются фундаментом, на который опираются все персонажи.
+    if (_globalBaseStats != null && _globalBaseStats.BaseStats != null)
+    {
+        foreach (var config in _globalBaseStats.BaseStats)
         {
-            foreach (var config in data.StartingStats) GetStat(config.Type).BaseValue = config.Value;
+            GetStat(config.Type).BaseValue = config.Value;
         }
-
-        EnsureMinStat(StatType.MaxHealth, 100f);
-        EnsureMinStat(StatType.MaxMana, 50f);
-        EnsureMinStat(StatType.MoveSpeed, 5f); 
-        EnsureMinStat(StatType.JumpForce, 12f);
-        EnsureMinStat(StatType.AttackSpeed, 1.0f);
-        EnsureMinStat(StatType.CritMultiplier, 150f);
-
-        Health.RestoreFull();
-        Mana.RestoreFull();
-        Leveling = new LevelingSystem(1, 0, 100); 
-        Leveling.OnLevelUp += HandleLevelUp;
-        Leveling.OnXPChanged += NotifyChanged;
-        NotifyChanged();
     }
+
+    // 3. Применить стартовые статы для КОНКРЕТНОГО класса (перезапишут глобальные, если совпадают, или добавят новые)
+    // Это позволяет классу Варвара иметь больше ХП, чем базовое, или уникальный стартовый стат.
+    if (data != null && data.StartingStats != null)
+    {
+        foreach (var config in data.StartingStats)
+        {
+            GetStat(config.Type).BaseValue = config.Value; // Это перезаписывает или добавляет
+        }
+    }
+
+    // 4. Убедиться, что критически важные ресурсы имеют минимальное значение.
+    // Эти вызовы EnsureMinStat теперь служат "последней линией обороны"
+    // на случай, если ни глобальные, ни классовые данные не установили эти статы.
+    // Например, если забыли добавить MaxHealth в GlobalBaseStats.
+    EnsureMinStat(StatType.MaxHealth, 10);
+    EnsureMinStat(StatType.MaxMana, 10);
+    EnsureMinStat(StatType.AttackSpeed, 0f);
+    EnsureMinStat(StatType.CritMultiplier, 150f);
+
+    // Теперь, когда все базовые статы установлены, инициализируем ресурсы
+    Health.RestoreFull();
+    Mana.RestoreFull();
+    
+    // Обновляем систему левелинга, чтобы она была привязана к новым статам.
+    // Важно: если LevelingSystem переинициализируется, старые подписчики на OnLevelUp и OnXPChanged
+    // могут потеряться. Возможно, лучше вынести создание LevelingSystem в Awake/Start и
+    // просто вызывать метод Reset/Setup, а не создавать новый объект.
+    // Для простоты пока оставляем так, но имей в виду.
+    if (Leveling != null) // Отписываемся от старых событий, если Leveling уже был создан
+    {
+        Leveling.OnLevelUp -= HandleLevelUp;
+        Leveling.OnXPChanged -= NotifyChanged;
+    }
+    Leveling = new LevelingSystem(1, 0, 100); 
+    Leveling.OnLevelUp += HandleLevelUp;
+    Leveling.OnXPChanged += NotifyChanged;
+
+    NotifyChanged();
+}
 
     private void EnsureMinStat(StatType type, float minVal)
     {
@@ -196,12 +231,7 @@ public class PlayerStats : MonoBehaviour
 
     public float CalculateAverageDamage(StatType damageType)
     {
-        float weaponBaseMin = 5; 
-        float weaponBaseMax = 10;
-        if (damageType != StatType.DamagePhysical) { weaponBaseMin = 0f; weaponBaseMax = 0f; }
-        
-        float multiplier = GetPercentMultiplier(damageType); 
-        return ((weaponBaseMin + weaponBaseMax) / 2f) * multiplier;
+        return GetValue(damageType);
     }
 
     private void HandleLevelUp() { if (_restoreStateOnLevelUp) { Health.RestoreFull(); Mana.RestoreFull(); } NotifyChanged(); }

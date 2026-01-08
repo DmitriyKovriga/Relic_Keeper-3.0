@@ -25,17 +25,17 @@ namespace Scripts.Stats
         Armor,               // Броня (для формулы снижения физ. урона)
         Evasion,             // Рейтинг уклонения
         BlockChance,         // Шанс блока (0.0 - 1.0)
-        MaxBlockChance,         // Шанс блока (0.0 - 1.0)
+        MaxBlockChance,       // Шанс блока (0.0 - 1.0)
 
         // Резисты (Сопротивления, обычно кап 75%)
         FireResist,
-        MaxFireResist,
+        MaxFireResist, 
         ColdResist,
-        MaxColdResist,
+        MaxColdResist, 
         LightningResist,
-        MaxLightningResist,
+        MaxLightningResist, 
         PhysicalResist,      // Прямое снижение физ. урона %
-        MaxPhysicalResist,      // Прямое снижение физ. урона %
+        MaxPhysicalResist,   // Прямое снижение физ. урона %
 
         // --- 4. Мобильность ---
         MoveSpeed,
@@ -89,30 +89,34 @@ namespace Scripts.Stats
 
         // --- 10. Статусы (Ailments) ---
         BleedChance,
-        BleedDamage,
+        BleedDamage, 
         BleedDamageMult,
         BleedDuration,
-        ChanseToAvoidBleed,
+        ChanseToAvoidBleed, 
 
-        PoisonChance,
-        PoisonDamage,
+        PoisonChance, 
+        PoisonDamage, 
         PoisonDamageMult,
         PoisonDuration,
-        ChanseToAvoidPoison,
+        ChanseToAvoidPoison, 
 
         IgniteChance,
-        IgniteDamage,
+        IgniteDamage, 
         IgniteDamageMult,
         IgniteDuration,
-        ChanseToAvoidIgnite,
+        ChanseToAvoidIgnite, 
         
         FreezeChance,
-        FreezeDuration,
-        ShockChance,
-        ShockDuration,
-        ChanseToAvoidShock,
+        FreezeDuration, //Перевести и создать аффикс!!!!!
 
-        ReduceDamageTaken,
+        ChanseToAvoidFreeze, //Перевести и создать аффикс!!!!!
+
+
+        ShockChance,
+        ShockDuration, 
+        ChanseToAvoidShock, 
+
+        ReduceDamageTaken, 
 
         // --- 11. Утилиты ---
         AreaOfEffect,             // Множитель радиуса (Base: 1.0)
@@ -120,8 +124,8 @@ namespace Scripts.Stats
         EffectDuration,           // Множитель длительности эффектов
 
         ProjectileSpeed,           // Скорость полета снарядов
-        ProjectileCount,
-        ProjectileFork,
-        ProjectileChain
+        ProjectileCount, 
+        ProjectileFork, 
+        ProjectileChain 
     }
 }

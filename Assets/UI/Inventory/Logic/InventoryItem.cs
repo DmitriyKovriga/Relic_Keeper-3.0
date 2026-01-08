@@ -79,12 +79,28 @@ namespace Scripts.Inventory
             return (float)Math.Round(finalValue * multiplier, 2);
         }
 
+        private void AddWeaponDamage(List<(StatType, StatModifier)> result, StatType type, float min, float max)
+        {
+            // Считаем локальные моды на самом предмете
+            float finalMin = GetCalculatedStat(type, min);
+            float finalMax = GetCalculatedStat(type, max);
+            
+            // В PoE урон оружия добавляется как Flat Damage к атакам
+            // Мы берем среднее для упрощения системы статов (если у тебя нет разделения на Min/Max в StatType)
+            float avg = (finalMin + finalMax) / 2f;
+
+            if (avg > 0)
+            {
+                result.Add((type, new StatModifier(avg, StatModType.Flat, this)));
+            }
+        }
+
         // --- ПОЛУЧЕНИЕ ГЛОБАЛЬНЫХ МОДИФИКАТОРОВ ---
-        public List<(StatType, StatModifier)> GetAllModifiers()
+         public List<(StatType, StatModifier)> GetAllModifiers()
         {
             var result = new List<(StatType, StatModifier)>();
 
-            // 1. БАЗА БРОНИ
+            // 1. БАЗА БРОНИ (ArmorItemSO)
             if (Data is ArmorItemSO armor)
             {
                 float finalArmor = GetCalculatedStat(StatType.Armor, armor.BaseArmor);
@@ -95,8 +111,34 @@ namespace Scripts.Inventory
                 if (finalEva > 0) result.Add((StatType.Evasion, new StatModifier(finalEva, StatModType.Flat, this)));
                 if (finalBubbles > 0) result.Add((StatType.MaxBubbles, new StatModifier(finalBubbles, StatModType.Flat, this)));
             }
+            // 2. БАЗА ОРУЖИЯ (WeaponItemSO) -> AI ADDED
+             else if (Data is WeaponItemSO weapon)
+            {
+                // -- ФИЗИЧЕСКИЙ УРОН --
+                AddWeaponDamage(result, StatType.DamagePhysical, weapon.MinPhysicalDamage, weapon.MaxPhysicalDamage);
 
-            // 2. ИМПЛИСИТЫ
+                // -- ЭЛЕМЕНТАЛЬНЫЙ УРОН (AI ADDED) --
+                AddWeaponDamage(result, StatType.DamageFire, weapon.MinFireDamage, weapon.MaxFireDamage);
+                AddWeaponDamage(result, StatType.DamageCold, weapon.MinColdDamage, weapon.MaxColdDamage);
+                AddWeaponDamage(result, StatType.DamageLightning, weapon.MinLightningDamage, weapon.MaxLightningDamage);
+
+                // -- СКОРОСТЬ АТАКИ --
+                // Важно: Мы передаем это как Flat, но в UI будем показывать как APS (число)
+                float finalAps = GetCalculatedStat(StatType.AttackSpeed, weapon.AttacksPerSecond);
+                if (finalAps > 0)
+                {
+                    result.Add((StatType.AttackSpeed, new StatModifier(finalAps, StatModType.Flat, this)));
+                }
+
+                // -- КРИТ --
+                float finalCrit = GetCalculatedStat(StatType.CritChance, weapon.BaseCritChance);
+                if (finalCrit > 0)
+                {
+                    result.Add((StatType.CritChance, new StatModifier(finalCrit, StatModType.Flat, this)));
+                }
+            }
+
+            // 3. ИМПЛИСИТЫ
             if (Data.ImplicitModifiers != null)
             {
                 foreach (var imp in Data.ImplicitModifiers)
@@ -105,7 +147,7 @@ namespace Scripts.Inventory
                 }
             }
 
-            // 3. АФФИКСЫ (Только GLOBAL)
+            // 4. АФФИКСЫ (Только GLOBAL)
             foreach (var affix in Affixes)
             {
                 foreach (var (type, mod, scope) in affix.Modifiers)

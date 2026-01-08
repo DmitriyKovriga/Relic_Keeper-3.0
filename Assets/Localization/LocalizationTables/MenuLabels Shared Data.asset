@@ -307,6 +307,136 @@ MonoBehaviour:
     m_Key: headers.Resistances
     m_Metadata:
       m_Items: []
+  - m_Id: 14172855191764992
+    m_Key: stats.MaxBubbleMitigationPercent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14172897814282240
+    m_Key: stats.MaxBlockChance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14172903258488832
+    m_Key: 'stats.MaxFireResist
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14172907771559936
+    m_Key: stats.MaxColdResist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14172911953281024
+    m_Key: stats.MaxLightningResist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173185363181568
+    m_Key: stats.MaxPhysicalResist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173307190935552
+    m_Key: stats.TakePhysAsCold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173326593785856
+    m_Key: stats.TakePhysAsFire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173382516441088
+    m_Key: stats.TakePhysAsLightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173434039271424
+    m_Key: stats.TakeLightningAsPhys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173459041517568
+    m_Key: stats.TakeLightningAsFire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173512036548608
+    m_Key: stats.TakeLightningAsCold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173535948275712
+    m_Key: stats.TakeColdAsPhys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173556517142528
+    m_Key: stats.TakeColdAsFire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173583566209024
+    m_Key: stats.TakeColdAsLightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173608346157056
+    m_Key: stats.TakeFireAsLightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173626910146560
+    m_Key: stats.TakeFireAsPhys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173646040367104
+    m_Key: stats.TakeFireAsCold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173805793017856
+    m_Key: stats.BleedDamage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173829134319616
+    m_Key: stats.ChanseToAvoidBleed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173848981766144
+    m_Key: stats.PoisonDamage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173866111303680
+    m_Key: stats.ChanseToAvoidPoison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173890853502976
+    m_Key: stats.IgniteDamage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173910927441920
+    m_Key: stats.ChanseToAvoidIgnite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173932993675264
+    m_Key: stats.FreezeDuration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173950655889408
+    m_Key: stats.ChanseToAvoidFreeze
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173980770992128
+    m_Key: stats.ShockDuration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173998705836032
+    m_Key: stats.ChanseToAvoidShock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14174021153751040
+    m_Key: stats.ReduceDamageTaken
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14174041500319744
+    m_Key: stats.ProjectileCount
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14174053407948800
+    m_Key: stats.ProjectileFork
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14174093056704512
+    m_Key: stats.ProjectileChain
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

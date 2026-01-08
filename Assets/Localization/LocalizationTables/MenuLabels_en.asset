@@ -1202,6 +1202,134 @@ MonoBehaviour:
     m_Localized: '{0}% more Take Phys As Lightning'
     m_Metadata:
       m_Items: []
+  - m_Id: 14172855191764992
+    m_Localized: Max Bubble Mitigation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14172897814282240
+    m_Localized: Max Block Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14172903258488832
+    m_Localized: Max Fire Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14172907771559936
+    m_Localized: Max Cold Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14172911953281024
+    m_Localized: Max Lightning Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173185363181568
+    m_Localized: Max Physical Resist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173307190935552
+    m_Localized: Take Phys As Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173326593785856
+    m_Localized: Take Phys As Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173382516441088
+    m_Localized: Take Phys As Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173434039271424
+    m_Localized: Take Lightning As Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173459041517568
+    m_Localized: Take Lightning As Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173512036548608
+    m_Localized: Take Lightning As Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173535948275712
+    m_Localized: Take Cold As Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173556517142528
+    m_Localized: Take Cold As Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173583566209024
+    m_Localized: Take Cold As Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173608346157056
+    m_Localized: Take Fire As Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173626910146560
+    m_Localized: Take Fire As Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173646040367104
+    m_Localized: Take Fire As Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173805793017856
+    m_Localized: Bleed Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173829134319616
+    m_Localized: Chanse To Avoid Bleed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173848981766144
+    m_Localized: Poison Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173866111303680
+    m_Localized: Chanse To Avoid Poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173890853502976
+    m_Localized: Ignite Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173910927441920
+    m_Localized: Chanse To Avoid Ignite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173932993675264
+    m_Localized: Freeze Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173950655889408
+    m_Localized: Chanse To Avoid Freeze
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173980770992128
+    m_Localized: Shock Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14173998705836032
+    m_Localized: Chanse To Avoid Shock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14174021153751040
+    m_Localized: Reduce Damage Taken
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14174041500319744
+    m_Localized: Projectile Count
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14174053407948800
+    m_Localized: Projectile Fork
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14174093056704512
+    m_Localized: Projectile Chain
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -6567,6 +6567,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _restoreStateOnLevelUp: 0
   _defaultCharacterData: {fileID: 11400000, guid: 7a280e056672c5b4285aac0bd852f35d, type: 2}
+  _globalBaseStats: {fileID: 11400000, guid: 19e67b471123e944eb9bdaa976eb72b0, type: 2}
 --- !u!114 &1563690800
 MonoBehaviour:
   m_ObjectHideFlags: 0

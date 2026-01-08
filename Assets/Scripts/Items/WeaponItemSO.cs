@@ -12,6 +12,17 @@ namespace Scripts.Items
         public float MinPhysicalDamage;
         public float MaxPhysicalDamage;
 
+        [Space]
+        public float MinFireDamage;
+        public float MaxFireDamage;
+
+        public float MinColdDamage;
+        public float MaxColdDamage;
+
+        public float MinLightningDamage;
+        public float MaxLightningDamage;
+        // AI ADDED END
+
         [Tooltip("Атак в секунду (APS)")]
         public float AttacksPerSecond = 1.0f;
         

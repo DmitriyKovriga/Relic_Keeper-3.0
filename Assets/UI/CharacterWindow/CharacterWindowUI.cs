@@ -227,11 +227,13 @@ public class CharacterWindowUI : MonoBehaviour
             Label label = kvp.Value;
             float rawVal = _playerStats.GetValue(type);
 
+            // 1. Урон (Average Damage)
             if (IsDamageStat(type))
             {
                 float avgDmg = _playerStats.CalculateAverageDamage(type);
                 label.text = $"{Mathf.Round(avgDmg)}";
             }
+            // 2. DOT уроны
             else if (type == StatType.BleedDamage || type == StatType.PoisonDamage || type == StatType.IgniteDamage)
             {
                 float dps = 0;
@@ -240,15 +242,39 @@ public class CharacterWindowUI : MonoBehaviour
                 else dps = _playerStats.CalculateIgniteDPS();
                 label.text = $"{dps:F1}/s";
             }
+            // 3. Attack Speed (число, APS) - Исправлено по запросу
+            else if (type == StatType.AttackSpeed)
+            {
+                // Округляем до 2 знаков (1.45)
+                label.text = $"{rawVal:F2}";
+            }
+            // 4. Секунды (Shock Duration и т.д.)
+            else if (IsTimeStat(type))
+            {
+                label.text = $"{rawVal:F2}s";
+            }
+            // 5. Проценты
             else if (IsPercentageStat(type))
             {
                 label.text = $"{Mathf.Round(rawVal)}%";
             }
+            // 6. Обычные числа (HP, Mana, Armor)
             else
             {
                 label.text = $"{Mathf.Round(rawVal)}";
             }
         }
+    }
+
+    private bool IsTimeStat(StatType type)
+    {
+        // Длительности шока, заморозки и т.д. в секундах
+        return type == StatType.ShockDuration || 
+               type == StatType.FreezeDuration || 
+               type == StatType.BleedDuration || 
+               type == StatType.PoisonDuration || 
+               type == StatType.IgniteDuration ||
+               type == StatType.BubbleRechargeDuration;
     }
 
     private bool ShouldShowStat(StatType type)
@@ -259,12 +285,30 @@ public class CharacterWindowUI : MonoBehaviour
 
     private bool IsDamageStat(StatType type)
     {
-        return type == StatType.DamagePhysical || type == StatType.DamageFire || type == StatType.DamageCold || type == StatType.DamageLightning;
+        return type == StatType.DamagePhysical || type == StatType.DamageFire || 
+               type == StatType.DamageCold || type == StatType.DamageLightning;
     }
 
     private bool IsPercentageStat(StatType type)
     {
         string s = type.ToString();
-        return s.Contains("Percent") || s.Contains("Chance") || s.Contains("Multiplier") || s.Contains("Resist") || s.Contains("Reduction") || type == StatType.AttackSpeed || type == StatType.MoveSpeed;
+        
+        // AttackSpeed убрали отсюда
+        if (type == StatType.AttackSpeed) return false;
+
+        // Явные списки того, что должно быть в %
+        if (type == StatType.AreaOfEffect) return true;
+        if (type == StatType.ReduceDamageTaken) return true;
+        if (type == StatType.ProjectileSpeed) return true;
+        if (type == StatType.EffectDuration) return true; // Обычно "Inc Effect Duration" это %
+        
+        // Множители DoT
+        if (type == StatType.BleedDamageMult) return true;
+        if (type == StatType.PoisonDamageMult) return true;
+        if (type == StatType.IgniteDamageMult) return true;
+
+        // Все шансы, резисты, множители и %
+        return s.Contains("Percent") || s.Contains("Chance") || s.Contains("Multiplier") || 
+               s.Contains("Resist") || s.Contains("Reduction") || type == StatType.MoveSpeed;
     }
 }
