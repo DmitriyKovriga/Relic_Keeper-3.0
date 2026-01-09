@@ -34,6 +34,22 @@ MonoBehaviour:
     m_Localized: Cooldown
     m_Metadata:
       m_Items: []
+  - m_Id: 29836062523392
+    m_Localized: Cleave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30834269126656
+    m_Localized: Deal 100% damage in a front of character
+    m_Metadata:
+      m_Items: []
+  - m_Id: 31169817640960
+    m_Localized: Deal 250% damage around character
+    m_Metadata:
+      m_Items: []
+  - m_Id: 31152650354688
+    m_Localized: Sweep
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

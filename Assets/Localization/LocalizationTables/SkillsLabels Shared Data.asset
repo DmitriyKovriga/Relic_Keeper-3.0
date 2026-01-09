@@ -31,6 +31,22 @@ MonoBehaviour:
     m_Key: skills.cooldown
     m_Metadata:
       m_Items: []
+  - m_Id: 29836062523392
+    m_Key: skills.CleaveLB
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30834269126656
+    m_Key: skills.CleaveLB.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 31152650354688
+    m_Key: skills.SweepRB
+    m_Metadata:
+      m_Items: []
+  - m_Id: 31169817640960
+    m_Key: skills.SweepRB.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

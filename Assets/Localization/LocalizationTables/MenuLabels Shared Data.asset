@@ -437,6 +437,22 @@ MonoBehaviour:
     m_Key: stats.ProjectileChain
     m_Metadata:
       m_Items: []
+  - m_Id: 14534633117483008
+    m_Key: skill_type_granted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14534716634464256
+    m_Key: skill_type_weapon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14534792962408448
+    m_Key: skill_type_mainhand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14534872385748992
+    m_Key: skill_type_offhand
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

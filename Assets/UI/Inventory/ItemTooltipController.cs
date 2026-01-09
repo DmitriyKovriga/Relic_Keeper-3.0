@@ -4,7 +4,6 @@ using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Stats;
 using Scripts.Skills;
-using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Text;
@@ -17,10 +16,10 @@ public class ItemTooltipController : MonoBehaviour
     [SerializeField] private UIDocument _uiDoc;
     [SerializeField] private Font _customFont;
 
-    [Header("Layout Settings")]
-    [SerializeField] private float _tooltipWidth = 160f; 
+    [Header("Layout Settings (Pixel Perfect)")]
+    [SerializeField] private float _tooltipWidth = 150f; // Чуть уже (было 160)
     [SerializeField] private float _gap = 5f; 
-    [SerializeField] private float _screenPadding = 5f; 
+    [SerializeField] private float _screenPadding = 4f; 
     
     [SerializeField, Tooltip("Задержка в миллисекундах перед скрытием тултипа")] 
     private long _hideDelayMs = 50;
@@ -31,20 +30,19 @@ public class ItemTooltipController : MonoBehaviour
     private const string TABLE_MENU = "MenuLabels";
     private const string TABLE_AFFIXES = "AffixesLabels";
     private const string TABLE_ITEMS = "ItemsLabels";
-    private const string TABLE_SKILLS = "SkillsLabels"; // <--- ОБНОВЛЕНО
+    private const string TABLE_SKILLS = "SkillsLabels";
 
     // --- UI Elements ---
     private VisualElement _root;
     
+    // 1. Основной (Item)
     private VisualElement _itemTooltipBox;
     private Label _headerLabel;
     private VisualElement _headerDivider; 
     private VisualElement _statsContainer;
 
+    // 2. Вторичный (Skill)
     private VisualElement _skillTooltipBox;
-    private Label _skillHeaderLabel;
-    private Image _skillIconImage; 
-    private Label _skillDescLabel;
 
     // --- State ---
     private InventoryItem _currentTargetItem;
@@ -52,20 +50,27 @@ public class ItemTooltipController : MonoBehaviour
     private IVisualElementScheduledItem _hideScheduler;
 
     // --- Colors ---
-    private readonly Color _colBg = new Color(0.02f, 0.02f, 0.02f, 1f); 
-    private readonly Color _colSkillBg = new Color(0.05f, 0.1f, 0.15f, 1f);
+    private readonly Color _colBg = new Color(0.05f, 0.05f, 0.05f, 0.98f); 
+    private readonly Color _colSkillBg = new Color(0.05f, 0.1f, 0.15f, 0.98f);
+    
     private readonly Color _colNormalText = new Color(0.9f, 0.9f, 0.9f);
     private readonly Color _colModifiedText = new Color(0.5f, 0.6f, 1f);
+    
     private readonly Color _colTitleCommon = Color.white;
     private readonly Color _colTitleMagic = new Color(0.3f, 0.3f, 1f); 
     private readonly Color _colTitleRare = new Color(1f, 1f, 0.4f); 
+    
     private readonly Color _colMagicBorder = new Color(0.3f, 0.3f, 0.7f);
     private readonly Color _colRareBorder = new Color(0.7f, 0.6f, 0.2f);
+
     private readonly Color _colImplicit = new Color(0.6f, 0.8f, 1f);
     private readonly Color _colAffix = new Color(0.5f, 0.5f, 1f);
+    
     private readonly Color _colFireText = new Color(1f, 0.5f, 0.5f);
     private readonly Color _colColdText = new Color(0.5f, 0.6f, 1f);
     private readonly Color _colLightningText = new Color(1f, 1f, 0.5f);
+
+    private readonly Color _colSkillType = new Color(0.6f, 0.6f, 0.6f); 
 
     private void Awake()
     {
@@ -82,25 +87,20 @@ public class ItemTooltipController : MonoBehaviour
             _root.schedule.Execute(RebuildTooltipStructure).ExecuteLater(50);
         }
         
-        // Подписка на смену языка
         LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
     }
 
     private void OnDisable()
     {
-        // Отписка
         LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
     }
 
-    // --- Обработка смены языка "на лету" ---
-    private void OnLocaleChanged(Locale locale)
+    private void OnLocaleChanged(UnityEngine.Localization.Locale locale)
     {
-        // Если тултип сейчас открыт, обновляем все тексты
         if (_currentTargetItem != null && _itemTooltipBox.style.display == DisplayStyle.Flex)
         {
             FillItemData(_currentTargetItem);
             FillSkillData(_currentTargetItem);
-            // Пересчитываем позицию (вдруг текст стал длиннее/короче)
             _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
         }
     }
@@ -124,25 +124,11 @@ public class ItemTooltipController : MonoBehaviour
 
         // --- 2. Skill Tooltip ---
         _skillTooltipBox = CreateContainer("GlobalSkillTooltip", _colSkillBg);
-        _skillTooltipBox.style.borderTopColor = Color.cyan; _skillTooltipBox.style.borderBottomColor = Color.cyan;
-        _skillTooltipBox.style.borderLeftColor = Color.cyan; _skillTooltipBox.style.borderRightColor = Color.cyan;
-
-        _skillHeaderLabel = CreateLabel("", 8, FontStyle.Bold, TextAnchor.MiddleCenter);
-        _skillHeaderLabel.style.color = new StyleColor(Color.cyan);
+        _skillTooltipBox.style.borderTopColor = new Color(0, 0.5f, 0.5f); 
+        _skillTooltipBox.style.borderBottomColor = new Color(0, 0.5f, 0.5f);
+        _skillTooltipBox.style.borderLeftColor = new Color(0, 0.5f, 0.5f); 
+        _skillTooltipBox.style.borderRightColor = new Color(0, 0.5f, 0.5f);
         
-        _skillIconImage = new Image();
-        _skillIconImage.style.width = 32;
-        _skillIconImage.style.height = 32;
-        _skillIconImage.style.marginTop = 4;
-        _skillIconImage.style.marginBottom = 4;
-        _skillIconImage.style.alignSelf = Align.Center;
-        
-        _skillDescLabel = CreateLabel("", 8, FontStyle.Normal, TextAnchor.UpperLeft);
-        
-        _skillTooltipBox.Add(_skillHeaderLabel);
-        _skillTooltipBox.Add(CreateDivider());
-        _skillTooltipBox.Add(_skillIconImage);
-        _skillTooltipBox.Add(_skillDescLabel);
         _root.Add(_skillTooltipBox);
 
         _itemTooltipBox.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
@@ -154,10 +140,14 @@ public class ItemTooltipController : MonoBehaviour
         el.style.position = Position.Absolute;
         el.style.width = _tooltipWidth;
         el.style.backgroundColor = new StyleColor(bg);
+        
+        // C# совместимые бордеры
         el.style.borderTopWidth = 1; el.style.borderBottomWidth = 1;
         el.style.borderLeftWidth = 1; el.style.borderRightWidth = 1;
-        el.style.paddingTop = 4; el.style.paddingBottom = 4;
-        el.style.paddingLeft = 4; el.style.paddingRight = 4;
+        
+        // --- ИСПРАВЛЕНИЕ 1: УМЕНЬШИЛ ОТСТУПЫ (БЫЛО 4) ---
+        el.style.paddingTop = 2; el.style.paddingBottom = 2;
+        el.style.paddingLeft = 3; el.style.paddingRight = 3;
         
         el.style.visibility = Visibility.Hidden; 
         el.style.display = DisplayStyle.None;
@@ -184,6 +174,8 @@ public class ItemTooltipController : MonoBehaviour
         lbl.style.unityTextAlign = align;
         lbl.style.whiteSpace = WhiteSpace.Normal;
         lbl.style.color = new StyleColor(_colNormalText);
+        // Уменьшил внутренние отступы лейблов
+        lbl.style.paddingTop = 0; lbl.style.paddingBottom = 1;
         return lbl;
     }
 
@@ -220,7 +212,7 @@ public class ItemTooltipController : MonoBehaviour
         _itemTooltipBox.style.display = DisplayStyle.Flex;
         _itemTooltipBox.style.visibility = Visibility.Hidden;
 
-        bool hasSkill = _skillTooltipBox.userData != null;
+        bool hasSkill = _skillTooltipBox.userData != null; // userData "true" если есть скиллы
         if (hasSkill)
         {
             _skillTooltipBox.style.display = DisplayStyle.Flex;
@@ -280,61 +272,77 @@ public class ItemTooltipController : MonoBehaviour
         Vector2 slotPos = _root.WorldToLocal(r.position);
         
         float itemPhysicalWidth = _currentTargetItem.Data.Width * SLOT_SIZE;
-
         float itemRightEdge = slotPos.x + itemPhysicalWidth + _gap;
         float itemLeftEdge = slotPos.x - _gap;
 
+        // Размеры Item Tooltip
         float itemW = _itemTooltipBox.resolvedStyle.width;
         if (float.IsNaN(itemW) || itemW < 10) itemW = _tooltipWidth;
         float itemH = _itemTooltipBox.resolvedStyle.height;
+        if (float.IsNaN(itemH) || itemH < 10) itemH = 100f; 
 
+        // Размеры Skill Tooltip
         bool hasSkill = _skillTooltipBox.style.display == DisplayStyle.Flex;
         float skillW = hasSkill ? _skillTooltipBox.resolvedStyle.width : 0;
         if (hasSkill && (float.IsNaN(skillW) || skillW < 10)) skillW = _tooltipWidth;
+        float skillH = hasSkill ? _skillTooltipBox.resolvedStyle.height : 0;
+        if (hasSkill && (float.IsNaN(skillH) || skillH < 10)) skillH = 100f;
 
-        float finalItemX, finalSkillX;
+        float finalItemX = 0, finalSkillX = 0;
         float y = slotPos.y;
 
-        float widthNeededRight = itemW + (hasSkill ? (_gap + skillW) : 0) + _screenPadding;
+        // --- ЛОГИКА РАСПОЛОЖЕНИЯ ПО ГОРИЗОНТАЛИ ---
+
+        float totalWidthIfNeeded = itemW + (hasSkill ? (_gap + skillW) : 0);
         
-        if (itemRightEdge + widthNeededRight < screenW)
+        // 1. Пробуем разместить всё СПРАВА от слота
+        if (itemRightEdge + totalWidthIfNeeded + _screenPadding < screenW)
         {
             finalItemX = itemRightEdge;
             finalSkillX = finalItemX + itemW + _gap;
         }
+        // 2. Пробуем разместить всё СЛЕВА от слота
+        else if (itemLeftEdge - totalWidthIfNeeded - _screenPadding > 0)
+        {
+            finalItemX = itemLeftEdge - itemW;
+            finalSkillX = finalItemX - _gap - skillW;
+        }
+        // 3. Не влезает ни туда, ни сюда -> "Бутерброд" (Один слева, один справа)
         else
         {
-            float widthNeededLeft = itemW + (hasSkill ? (_gap + skillW) : 0) + _screenPadding;
-            if (itemLeftEdge - widthNeededLeft > 0)
+            float spaceRight = screenW - itemRightEdge;
+            float spaceLeft = itemLeftEdge;
+
+            if (spaceRight > spaceLeft)
             {
-                finalItemX = itemLeftEdge - itemW;
-                finalSkillX = finalItemX - _gap - skillW;
+                finalItemX = itemRightEdge;
+                finalSkillX = itemLeftEdge - skillW; // Скилл уходит влево
             }
             else
             {
-                float spaceRight = screenW - itemRightEdge;
-                float spaceLeft = itemLeftEdge;
-
-                if (spaceRight > spaceLeft)
-                {
-                    finalItemX = itemRightEdge;
-                    finalSkillX = itemLeftEdge - skillW;
-                }
-                else
-                {
-                    finalItemX = itemLeftEdge - itemW;
-                    finalSkillX = itemRightEdge;
-                }
+                finalItemX = itemLeftEdge - itemW;
+                finalSkillX = itemRightEdge; // Скилл уходит вправо
             }
         }
 
-        float maxHeight = Mathf.Max(itemH, hasSkill ? _skillTooltipBox.resolvedStyle.height : 0);
+        // --- ИСПРАВЛЕНИЕ 2: ЖЕСТКОЕ ОГРАНИЧЕНИЕ ПО ВЕРТИКАЛИ (Y-CLAMP) ---
+        // Находим максимальную высоту из двух окон
+        float maxHeight = Mathf.Max(itemH, skillH);
+        
+        // Если нижний край уходит под экран
         if (y + maxHeight > screenH - _screenPadding)
         {
+            // Поднимаем вверх ровно настолько, чтобы влезло
             y = screenH - maxHeight - _screenPadding;
         }
-        if (y < _screenPadding) y = _screenPadding;
 
+        // Если после поднятия уперлись в потолок
+        if (y < _screenPadding) 
+        {
+            y = _screenPadding;
+        }
+
+        // Применяем координаты
         _itemTooltipBox.style.left = finalItemX;
         _itemTooltipBox.style.top = y;
         _itemTooltipBox.style.visibility = Visibility.Visible;
@@ -347,43 +355,80 @@ public class ItemTooltipController : MonoBehaviour
         }
     }
 
-    // --- Fill Data Logic (LOCALIZED) ---
+    // --- Fill Data Logic (SKILLS) - ТВОЙ КОД ---
 
     private void FillSkillData(InventoryItem item)
     {
-        bool hasSkill = item.GrantedSkills != null && item.GrantedSkills.Count > 0 && item.GrantedSkills[0] != null;
-        _skillTooltipBox.userData = hasSkill ? "true" : null;
+        _skillTooltipBox.Clear(); 
+        bool hasSkill = item.GrantedSkills != null && item.GrantedSkills.Count > 0;
+        _skillTooltipBox.userData = hasSkill ? "true" : null; // Маркер для ShowTooltip
 
         if (hasSkill)
         {
-            var skill = item.GrantedSkills[0];
+            for (int i = 0; i < item.GrantedSkills.Count; i++)
+            {
+                var skill = item.GrantedSkills[i];
+                if (skill == null) continue;
 
-            // 1. Имя скилла (TABLE_SKILLS, key: "skills.{ID}")
-            LocalizeLabel(_skillHeaderLabel, TABLE_SKILLS, $"skills.{skill.ID}", skill.SkillName);
-            
-            // Иконка
-            _skillIconImage.sprite = skill.Icon;
-            _skillIconImage.style.display = skill.Icon != null ? DisplayStyle.Flex : DisplayStyle.None;
-            
-            // 2. Тело скилла (Локализация + Сборка)
-            LocalizeSkillBody(skill);
+                if (i > 0) 
+                {
+                    var div = CreateDivider();
+                    div.style.marginTop = 4; div.style.marginBottom = 4;
+                    _skillTooltipBox.Add(div);
+                }
+
+                // 1. Тип
+                string slotKey = "skill_type_granted";
+                if (item.Data is WeaponItemSO weapon)
+                {
+                    if (weapon.IsTwoHanded) slotKey = (i == 0) ? "skill_type_mainhand" : "skill_type_offhand";
+                    else slotKey = "skill_type_weapon"; 
+                }
+
+                var typeLabel = CreateLabel("", 7, FontStyle.Italic, TextAnchor.UpperLeft);
+                typeLabel.style.color = new StyleColor(_colSkillType);
+                _skillTooltipBox.Add(typeLabel);
+                LocalizeLabel(typeLabel, TABLE_MENU, slotKey, (i == 0 ? "Primary Action" : "Secondary Action"));
+
+                // 2. Имя
+                var nameLabel = CreateLabel("", 8, FontStyle.Bold, TextAnchor.MiddleCenter);
+                nameLabel.style.color = new StyleColor(Color.cyan);
+                nameLabel.style.marginTop = 2;
+                _skillTooltipBox.Add(nameLabel);
+                LocalizeLabel(nameLabel, TABLE_SKILLS, $"skills.{skill.ID}", skill.SkillName);
+
+                // 3. Иконка
+                if (skill.Icon != null)
+                {
+                    var icon = new Image();
+                    icon.sprite = skill.Icon;
+                    icon.style.width = 24; // Чуть меньше для компактности (было 32)
+                    icon.style.height = 24;
+                    icon.style.alignSelf = Align.Center;
+                    icon.style.marginTop = 2;
+                    _skillTooltipBox.Add(icon);
+                }
+
+                // 4. Описание
+                var descLabel = CreateLabel("", 8, FontStyle.Normal, TextAnchor.UpperLeft);
+                descLabel.style.marginTop = 4;
+                _skillTooltipBox.Add(descLabel);
+                LocalizeSkillBody(descLabel, skill);
+            }
         }
     }
 
-    // Локализация тела скилла: Описание + Кулдаун + Мана
-    private void LocalizeSkillBody(SkillDataSO skill)
+    private void LocalizeSkillBody(Label label, SkillDataSO skill)
     {
-        _skillDescLabel.text = skill.Description; // Fallback
+        label.text = skill.Description; 
 
-        // Запрашиваем описание из TABLE_SKILLS
         var opDesc = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, $"skills.{skill.ID}.description");
-        
         opDesc.Completed += (hDesc) =>
         {
+            if (label == null) return;
             StringBuilder sb = new StringBuilder();
             sb.Append(hDesc.Status == AsyncOperationStatus.Succeeded ? hDesc.Result : skill.Description);
 
-            // Запрашиваем слово "Cooldown" из TABLE_SKILLS (как просили)
             var opCD = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, "skills.cooldown");
             opCD.Completed += (hCD) =>
             {
@@ -393,7 +438,6 @@ public class ItemTooltipController : MonoBehaviour
                     sb.Append($"\n\n<color=#aaaaaa>{cdLabel}: {skill.Cooldown}s</color>");
                 }
 
-                // Запрашиваем слово "Mana Cost" из TABLE_SKILLS (как просили)
                 var opMana = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, "skills.manaCost");
                 opMana.Completed += (hMana) =>
                 {
@@ -403,24 +447,24 @@ public class ItemTooltipController : MonoBehaviour
                         sb.Append($"\n<color=#aaaaaa>{manaLabel}: {skill.ManaCost}</color>");
                     }
 
-                    if (_skillDescLabel != null) 
+                    if (label != null) 
                     {
-                        _skillDescLabel.text = sb.ToString();
-                        // Обновляем позицию после изменения текста, так как высота могла измениться
-                        if(_root != null) _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
+                        label.text = sb.ToString();
+                        if (_root != null) 
+                            _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
                     }
                 };
             };
         };
     }
 
+    // --- Fill Data Logic (ITEMS) ---
 
     private void FillItemData(InventoryItem item)
     {
         int affixes = item.Affixes != null ? item.Affixes.Count : 0;
         Color rarityCol = affixes >= 3 ? _colTitleRare : (affixes > 0 ? _colTitleMagic : _colTitleCommon);
         
-        // 1. Имя предмета (TABLE_ITEMS)
         LocalizeLabel(_headerLabel, TABLE_ITEMS, $"items.{item.Data.ID}", item.Data.ItemName);
         _headerLabel.style.color = new StyleColor(rarityCol);
         
@@ -471,7 +515,7 @@ public class ItemTooltipController : MonoBehaviour
         }
     }
 
-    // --- Helpers ---
+    // --- Helpers (ТВОЙ КОД) ---
 
     private void LocalizeLabel(Label label, string table, string key, string fallback)
     {

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Scripts.Skills;
 
 namespace Scripts.Items
 {
@@ -29,5 +30,10 @@ namespace Scripts.Items
         // ОБНОВЛЕНО: Используем 5.0 для 5%
         [Tooltip("Базовый шанс крита в процентах (5 = 5%). Локальные моды будут умножать это число.")]
         public float BaseCritChance = 5f; 
+    
+
+        [Header("2H Special Skills")]
+        [Tooltip("Только для двуручного оружия: Пул скиллов для правой кнопки мыши (Secondary Attack)")]
+        public SkillPoolSO SecondarySkillPool;
     }
 }

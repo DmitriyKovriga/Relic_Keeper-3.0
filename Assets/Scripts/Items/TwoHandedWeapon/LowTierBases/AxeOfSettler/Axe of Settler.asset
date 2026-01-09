@@ -24,8 +24,8 @@ MonoBehaviour:
     Value: 5
     Type: 100
     Scope: 0
-  SkillPool: {fileID: 0}
-  SkillCount: 1
+  SkillPool: {fileID: 11400000, guid: 5cb8e1ae36057bb41bb854829e382bf6, type: 2}
+  SkillCount: 2
   IsTwoHanded: 1
   MinPhysicalDamage: 12
   MaxPhysicalDamage: 24
@@ -37,3 +37,4 @@ MonoBehaviour:
   MaxLightningDamage: 0
   AttacksPerSecond: 1
   BaseCritChance: 5
+  SecondarySkillPool: {fileID: 11400000, guid: c2e24a0e862eee64ebce92fbd1287663, type: 2}

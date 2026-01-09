@@ -1330,6 +1330,22 @@ MonoBehaviour:
     m_Localized: Projectile Chain
     m_Metadata:
       m_Items: []
+  - m_Id: 14534633117483008
+    m_Localized: Equipped Skill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14534716634464256
+    m_Localized: Weapon Skill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14534792962408448
+    m_Localized: Main Hand Action
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14534872385748992
+    m_Localized: Off Hand Action
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
