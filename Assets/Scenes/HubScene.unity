@@ -4814,7 +4814,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 0
+  orthographic size: 7.5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -5384,21 +5384,27 @@ MonoBehaviour:
   - InstanceID: 
     Data: {fileID: 0}
     Affixes: []
+    GrantedSkills: []
   - InstanceID: 
     Data: {fileID: 0}
     Affixes: []
+    GrantedSkills: []
   - InstanceID: 
     Data: {fileID: 0}
     Affixes: []
+    GrantedSkills: []
   - InstanceID: 
     Data: {fileID: 0}
     Affixes: []
+    GrantedSkills: []
   - InstanceID: 
     Data: {fileID: 0}
     Affixes: []
+    GrantedSkills: []
   - InstanceID: 
     Data: {fileID: 0}
     Affixes: []
+    GrantedSkills: []
   Items: []
 --- !u!1 &682701396
 GameObject:
@@ -6044,9 +6050,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _uiDoc: {fileID: 635787810}
+  _customFont: {fileID: 0}
   _tooltipWidth: 135
   _gap: 5
   _screenPadding: 2
+  _hideDelayMs: 50
 --- !u!1 &1238520804
 GameObject:
   m_ObjectHideFlags: 0
@@ -6477,6 +6485,7 @@ GameObject:
   - component: {fileID: 1563690801}
   - component: {fileID: 1563690800}
   - component: {fileID: 1563690803}
+  - component: {fileID: 1563690804}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -6587,6 +6596,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   _groundCheckRadius: 0.2
+  _baseMoveSpeed: 5
+  _baseJumpForce: 12
   _stopThreshold: 0.01
 --- !u!70 &1563690801
 CapsuleCollider2D:
@@ -6668,6 +6679,18 @@ MonoBehaviour:
   _healthChange: 10
   _manaChange: 10
   _xpChange: 50
+--- !u!114 &1563690804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1563690796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d070a04ee1dd88141a1e823353a2dba8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1593680216
 GameObject:
   m_ObjectHideFlags: 0
@@ -7777,6 +7800,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerStats: {fileID: 1563690799}
+  _skillManager: {fileID: 0}
   _healthFill: {fileID: 96443682}
   _manaFill: {fileID: 17368890}
   _xpFill: {fileID: 352212999}
@@ -7787,9 +7811,9 @@ MonoBehaviour:
   _skillSlots:
   - {fileID: 1015107935}
   - {fileID: 857371564}
-  - {fileID: 61900418}
   - {fileID: 498515642}
   - {fileID: 563462195}
+  - {fileID: 61900418}
 --- !u!1 &2103509671
 GameObject:
   m_ObjectHideFlags: 0

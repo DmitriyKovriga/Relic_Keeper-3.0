@@ -3,30 +3,46 @@ using UnityEngine.UI;
 
 public class UISkillSlot : MonoBehaviour
 {
-    [Tooltip("Перетащи сюда компонент Image, который внутри рамки")]
+    [Header("UI References")]
+    [Tooltip("Перетащи сюда дочерний объект Icon (Image). НЕ фон слота!")]
     [SerializeField] private Image _iconImage; 
 
     private void Awake()
     {
-        // Если картинки нет — просто ничего не делаем, это норма для пустых/недоделанных слотов
+        // 1. Если забыли назначить в инспекторе, ищем ДОЧЕРНИЙ объект с именем "Icon"
         if (_iconImage == null)
         {
+            var iconTransform = transform.Find("Icon");
+            if (iconTransform != null)
+            {
+                _iconImage = iconTransform.GetComponent<Image>();
+            }
+        }
+
+        // 2. Если все равно не нашли - ругаемся, но НЕ берем GetComponent<Image>() с самого себя,
+        // чтобы не выключить фон слота.
+        if (_iconImage == null)
+        {
+            Debug.LogError($"[UISkillSlot] В объекте {gameObject.name} не найдена иконка! " +
+                           "Создай дочерний Image 'Icon' или назначь его вручную.");
             return;
         }
 
-        // По умолчанию очищаем слот при старте
+        // Убеждаемся, что спрайт не перекрывает клики (опционально, но полезно для тултипов)
+        _iconImage.raycastTarget = false; 
+
         Clear();
     }
 
     public void Setup(Sprite icon)
     {
-        if (_iconImage == null) return; // Молчаливая защита
+        if (_iconImage == null) return;
 
         if (icon != null)
         {
             _iconImage.sprite = icon;
-            _iconImage.enabled = true;
-            _iconImage.color = Color.white; 
+            _iconImage.enabled = true;  // Включаем иконку
+            _iconImage.color = Color.white;
         }
         else
         {
@@ -36,9 +52,9 @@ public class UISkillSlot : MonoBehaviour
 
     public void Clear()
     {
-        if (_iconImage == null) return; // Молчаливая защита
+        if (_iconImage == null) return;
 
         _iconImage.sprite = null;
-        _iconImage.enabled = false;
+        _iconImage.enabled = false; // Выключаем ТОЛЬКО иконку, фон остается
     }
 }

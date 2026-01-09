@@ -38,15 +38,48 @@ namespace Scripts.Skills
 
         private void HandleItemEquipped(InventoryItem item)
         {
-            if (item == null || item.GrantedSkills.Count == 0) return;
+            // LOG 1: Проверяем, вызвался ли метод вообще
+            Debug.Log($"[SkillManager] Item Equipped: {item.Data.ItemName}");
 
-            // Определяем, в какой слот скиллов пойдет этот предмет
-            // Это упрощенная логика. В будущем можно сделать маппинг в ScriptableObject.
+             if (item == null || item.GrantedSkills.Count == 0) 
+            {
+                // LOG 2: Если скиллов нет
+                Debug.LogWarning($"[SkillManager] У предмета {item.Data.ItemName} НЕТ скиллов в списке GrantedSkills!");
+                return;
+            }
+
+            // 1. Логика для ОРУЖИЯ (MainHand / OffHand / TwoHanded)
+            if (item.Data is WeaponItemSO weapon)
+            {
+                // Если оружие в левой руке (щит/меч), просто ставим в слот OffHand (1)
+                if (weapon.Slot == EquipmentSlot.OffHand)
+                {
+                    if (item.GrantedSkills.Count > 0) 
+                        EquipSkill(1, item.GrantedSkills[0]);
+                    return;
+                }
+
+                // Если оружие в правой руке (MainHand)
+                if (weapon.Slot == EquipmentSlot.MainHand)
+                {
+                    // Первый скилл всегда идет в MainHand (0)
+                    if (item.GrantedSkills.Count > 0) 
+                        EquipSkill(0, item.GrantedSkills[0]);
+
+                    // Если это ДВУРУЧНОЕ оружие, оно может дать второй скилл в слот OffHand (1)
+                    if (weapon.IsTwoHanded && item.GrantedSkills.Count > 1)
+                    {
+                        EquipSkill(1, item.GrantedSkills[1]);
+                    }
+                    return;
+                }
+            }
+
+            // 2. Логика для БРОНИ (Gloves, Boots, Helm)
             int skillSlotIndex = GetSkillSlotByItemSlot(item.Data.Slot);
-
+            Debug.Log($"[SkillManager] Item Slot: {item.Data.Slot}, Mapped to Skill Slot Index: {skillSlotIndex}");
             if (skillSlotIndex != -1)
             {
-                // Берем первый скилл с предмета (пока так)
                 var skill = item.GrantedSkills[0];
                 EquipSkill(skillSlotIndex, skill);
             }
@@ -54,6 +87,29 @@ namespace Scripts.Skills
 
         private void HandleItemUnequipped(InventoryItem item)
         {
+            // --- FIX START: Защита от null ---
+            // Если предмет пустой или у него потерялась ссылка на ScriptableObject, 
+            // мы не можем определить, какой слот очищать. Просто выходим.
+            if (item == null || item.Data == null) return;
+            // --- FIX END ---
+
+            // 1. ОРУЖИЕ
+            if (item.Data is WeaponItemSO weapon)
+            {
+                if (weapon.Slot == EquipmentSlot.OffHand)
+                {
+                    UnequipSkill(1);
+                    return;
+                }
+                if (weapon.Slot == EquipmentSlot.MainHand)
+                {
+                    UnequipSkill(0);
+                    if (weapon.IsTwoHanded) UnequipSkill(1);
+                    return;
+                }
+            }
+
+            // 2. БРОНЯ
             int skillSlotIndex = GetSkillSlotByItemSlot(item.Data.Slot);
             if (skillSlotIndex != -1)
             {
