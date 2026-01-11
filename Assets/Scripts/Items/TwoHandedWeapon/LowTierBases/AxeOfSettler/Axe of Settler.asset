@@ -27,6 +27,7 @@ MonoBehaviour:
   SkillPool: {fileID: 11400000, guid: 5cb8e1ae36057bb41bb854829e382bf6, type: 2}
   SkillCount: 2
   IsTwoHanded: 1
+  InHandSprite: {fileID: 21300000, guid: b17d68f1887e7ba4cb19d25e409a816f, type: 3}
   MinPhysicalDamage: 12
   MaxPhysicalDamage: 24
   MinFireDamage: 0

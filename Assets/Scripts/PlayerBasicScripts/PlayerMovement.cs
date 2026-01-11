@@ -32,6 +32,18 @@ public class PlayerMovement : MonoBehaviour
     private bool _isGrounded;
     private bool _isFacingRight = true;
 
+    private bool _isMovementLocked = false;
+
+    public void SetMovementLock(bool isLocked)
+    {
+        _isMovementLocked = isLocked;
+        if (_isMovementLocked)
+        {
+            _horizontalInput = 0; // Сбрасываем ввод
+            _rb.linearVelocity = new Vector2(0, _rb.linearVelocity.y); // Останавливаем движение по X
+        }
+    }
+
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
@@ -62,7 +74,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        // Читаем ввод каждый кадр
+        // Если заблокированы - не читаем ввод движения
+        if (_isMovementLocked) 
+        {
+            _horizontalInput = 0;
+            return;
+        }
+
         Vector2 moveInput = _input.Player.Move.ReadValue<Vector2>();
         _horizontalInput = moveInput.x;
     }
@@ -70,13 +88,19 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         CheckGround();
-        ApplyMovement();
-        HandleSpriteFlip();
+        
+        // Если заблокированы - физику движения не применяем (но гравитация работает)
+        if (!_isMovementLocked)
+        {
+            ApplyMovement();
+            HandleSpriteFlip();
+        }
     }
 
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
-        if (_isGrounded)
+        // Нельзя прыгать в атаке
+        if (_isGrounded && !_isMovementLocked)
         {
             ApplyJumpForce();
         }

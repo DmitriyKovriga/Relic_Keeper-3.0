@@ -9,6 +9,10 @@ namespace Scripts.Items
         [Header("Weapon Config")]
         public bool IsTwoHanded;
 
+        [Header("Visuals")]
+        [Tooltip("Спрайт, который отображается в руке персонажа")]
+        public Sprite InHandSprite; 
+
         [Header("Base Offense Stats")]
         public float MinPhysicalDamage;
         public float MaxPhysicalDamage;
