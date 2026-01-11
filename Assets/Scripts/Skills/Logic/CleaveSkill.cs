@@ -13,14 +13,9 @@ namespace Scripts.Skills
     public class CleaveSkill : SkillBehaviour
     {
         [Header("Timeline Config (0.0 - 1.0)")]
-        [Tooltip("Блокируем движение (чуть-чуть дали проскользить в начале)")]
         [Range(0f, 1f)] [SerializeField] private float _lockTime = 0.1f;
-        
-        [Tooltip("Момент нанесения урона и вспышки VFX")]
         [Range(0f, 1f)] [SerializeField] private float _impactTime = 0.35f;
-        
-        [Tooltip("Момент, когда уже МОЖНО БЕЖАТЬ (Animation Cancel). Ставим сразу после удара.")]
-        [Range(0f, 1f)] [SerializeField] private float _unlockTime = 0.4f; 
+        [Range(0f, 1f)] [SerializeField] private float _unlockTime = 0.4f;
 
         // Модули
         private SkillHitbox _hitbox;
@@ -28,6 +23,11 @@ namespace Scripts.Skills
         private SkillVFX _vfx;
         private SkillMovementControl _moveCtrl;
         private SkillHandAnimation _animCtrl;
+
+        // Кэшированные данные для текущего каста
+        private float _currentDuration;
+        private float _currentAoe;
+        private float _currentAps;
 
         private void Awake()
         {
@@ -48,87 +48,134 @@ namespace Scripts.Skills
 
         protected override void Execute()
         {
-            StartCoroutine(SkillRoutine());
+            StartCoroutine(SkillPipeline());
         }
 
-        private IEnumerator SkillRoutine()
+        // --- ГЛАВНЫЙ ОРКЕСТРАТОР (Теперь он чистый) ---
+        private IEnumerator SkillPipeline()
         {
             _isCasting = true;
 
-            float aps = _ownerStats.GetValue(StatType.AttackSpeed);
-            if (aps <= 0) aps = 1f;
+            // 1. Снапшот статов (запоминаем параметры на начало удара)
+            CalculateSkillStats();
+
+            // 2. Фаза Замаха (от 0 до ImpactTime)
+            // Внутри происходит блокировка движения
+            yield return StartCoroutine(PhaseWindup());
+
+            // 3. Фаза Удара (Моментальное событие)
+            PerformImpact();
+
+            // 4. Фаза Возврата (от ImpactTime до 1.0)
+            // Внутри происходит разблокировка движения
+            yield return StartCoroutine(PhaseRecovery());
+
+            // 5. Завершение
+            Cleanup();
+        }
+
+        // --- ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ФАЗ ---
+
+        private void CalculateSkillStats()
+        {
+            _currentAps = _ownerStats.GetValue(StatType.AttackSpeed);
+            if (_currentAps <= 0) _currentAps = 1f;
             
-            float duration = 1f / aps;
-            float aoeMod = 1f + (_ownerStats.GetValue(StatType.AreaOfEffect) / 100f);
-            
+            _currentDuration = 1f / _currentAps;
+            _currentAoe = 1f + (_ownerStats.GetValue(StatType.AreaOfEffect) / 100f);
+        }
+
+        private IEnumerator PhaseWindup()
+        {
+            float windupDuration = _currentDuration * _impactTime;
             float timer = 0f;
-            
             bool locked = false;
-            bool impacted = false;
-            bool unlocked = false;
 
-            while (timer < duration)
+            while (timer < windupDuration)
             {
-                float progress = timer / duration;
+                // Нормализованное время ОТНОСИТЕЛЬНО ВСЕГО СКИЛЛА (0.0 -> ImpactTime)
+                float globalProgress = timer / _currentDuration;
+                
+                // Нормализованное время ОТНОСИТЕЛЬНО ФАЗЫ ЗАМАХА (0.0 -> 1.0)
+                // Нужно для Lerp анимации
+                float phaseProgress = timer / windupDuration;
 
-                // 1. LOCK
-                if (!locked && progress >= _lockTime)
+                // Логика блокировки
+                if (!locked && globalProgress >= _lockTime)
                 {
                     _moveCtrl.SetLock(true);
                     locked = true;
                 }
 
-                // 2. IMPACT (Удар)
-                if (!impacted && progress >= _impactTime)
-                {
-                    // Прячем оружие (теперь роль визуала играет VFX)
-                    _animCtrl.SetWeaponVisible(false); 
-                    _animCtrl.SnapToImpact();        
-
-                    float dir = _ownerStats.transform.localScale.x > 0 ? 1 : -1;
-                    
-                    _vfx.Play(_ownerStats.transform, dir, aoeMod, aps);
-                    
-                    var targets = _hitbox.GetTargets(_ownerStats.transform.position, dir, aoeMod);
-                    _damage.DealDamage(targets);
-
-                    impacted = true;
-                }
-
-                // 3. UNLOCK (Разрешаем бежать!)
-                // Обрати внимание: мы НЕ включаем здесь отображение оружия.
-                // Игрок бежит, рука опускается невидимой, VFX доигрывает.
-                if (!unlocked && progress >= _unlockTime)
-                {
-                    _moveCtrl.SetLock(false);
-                    unlocked = true;
-                }
-
-                // --- Анимация руки ---
-                // Даже если мы уже бежим (Unlock сработал), рука продолжает опускаться (Recovery).
-                // Это не мешает движению, но сохраняет плавность для следующего удара.
-                if (progress < _impactTime)
-                {
-                    float t = progress / _impactTime;
-                    _animCtrl.LerpWindup(t);
-                }
-                else
-                {
-                    float t = (progress - _impactTime) / (1f - _impactTime);
-                    _animCtrl.LerpRecovery(t);
-                }
+                // Анимация
+                _animCtrl.LerpSlashWindup(phaseProgress);
 
                 timer += Time.deltaTime;
                 yield return null;
             }
+            
+            // Гарантируем, что блокировка сработала, даже если лагануло
+            if (!locked) _moveCtrl.SetLock(true);
+        }
 
-            // --- ФИНАЛ ---
-            // Анимация закончилась полностью.
+        private void PerformImpact()
+        {
+            // Визуал
+            _animCtrl.SetWeaponVisible(false);
+            _animCtrl.SnapToSlashImpact();
+
+            // Логика (VFX + Урон)
+            float dir = _ownerStats.transform.localScale.x > 0 ? 1 : -1;
             
-            _animCtrl.ForceReset();          // Возвращаем руку в 0 и ВКЛЮЧАЕМ спрайт оружия
-            _moveCtrl.SetLock(false);        // На всякий случай разблокируем (если UnlockTime был > 1)
+            _vfx.Play(_ownerStats.transform, dir, _currentAoe, _currentAps);
             
-            _isCasting = false;              // Разрешаем следующий удар
+            var targets = _hitbox.GetTargets(_ownerStats.transform.position, dir, _currentAoe);
+            _damage.DealDamage(targets);
+        }
+
+        private IEnumerator PhaseRecovery()
+        {
+            float impactTimeSeconds = _currentDuration * _impactTime;
+            float recoveryDuration = _currentDuration - impactTimeSeconds;
+            
+            float timer = 0f;
+            bool unlocked = false;
+
+            while (timer < recoveryDuration)
+            {
+                // Время относительно всего скилла
+                float globalProgress = (impactTimeSeconds + timer) / _currentDuration;
+                
+                // Время относительно фазы возврата (0.0 -> 1.0)
+                float phaseProgress = timer / recoveryDuration;
+
+                // Логика разблокировки
+                if (!unlocked && globalProgress >= _unlockTime)
+                {
+                    _moveCtrl.SetLock(false);
+                    // Можно вернуть оружие визуально, если игрок побежал
+                    // _animCtrl.SetWeaponVisible(true); // Опционально
+                    unlocked = true;
+                }
+
+                // Анимация
+                _animCtrl.LerpSlashRecovery(phaseProgress);
+
+                timer += Time.deltaTime;
+                yield return null;
+            }
+        }
+
+        private void Cleanup()
+        {
+            _animCtrl.ForceReset();
+            _moveCtrl.SetLock(false);
+            _isCasting = false;
+        }
+
+        private void OnDisable()
+        {
+            Cleanup();
         }
     }
 }

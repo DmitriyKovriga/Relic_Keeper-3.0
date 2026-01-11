@@ -4,73 +4,75 @@ using Scripts.Stats;
 namespace Scripts.Skills.Modules
 {
     /// <summary>
-    /// Процедурная анимация руки (HandPivot) и скрытие оружия.
+    /// Модуль отвечает за процедурную анимацию руки и скрытие оружия во время VFX.
     /// </summary>
     public class SkillHandAnimation : MonoBehaviour
     {
-        [Header("Rotation Settings")]
-        [Tooltip("Угол максимального замаха (назад)")]
-        [SerializeField] private float _startAngle = 110f; 
-        
-        [Tooltip("Угол конечного удара (вперед)")]
-        [SerializeField] private float _endAngle = -30f;   
+        // Хардкод углов для стандартизации всех рубящих ударов
+        private const float SLASH_START_ANGLE = 110f; // Замах назад
+        private const float SLASH_END_ANGLE = -30f;   // Удар вперед
 
         private Transform _handPivot;
         private SpriteRenderer _weaponRenderer;
         
+        // Кэшированные кватернионы
         private Quaternion _rotStart;
         private Quaternion _rotEnd;
         private Quaternion _rotDefault = Quaternion.identity;
 
         private void Awake()
         {
-            _rotStart = Quaternion.Euler(0, 0, _startAngle);
-            _rotEnd = Quaternion.Euler(0, 0, _endAngle);
+            _rotStart = Quaternion.Euler(0, 0, SLASH_START_ANGLE);
+            _rotEnd = Quaternion.Euler(0, 0, SLASH_END_ANGLE);
         }
 
         public void Initialize(PlayerStats stats)
         {
+            // Ищем структуру визуализации игрока
             _handPivot = stats.transform.Find("Visuals/HandPivot");
+            
             if (_handPivot != null)
             {
                 _weaponRenderer = _handPivot.GetComponentInChildren<SpriteRenderer>();
             }
             else
             {
-                Debug.LogError($"[SkillHandAnimation] HandPivot not found on {stats.name}");
+                Debug.LogError($"[SkillHandAnimation] HandPivot не найден в иерархии {stats.name}!");
             }
         }
 
-        // --- НОВЫЙ МЕТОД: ЗАМАХ ---
+        // --- API АНИМАЦИИ ---
+
         /// <summary>
-        /// Поднимает руку из обычного положения в позицию замаха.
+        /// Плавный переход от 0 (покой) к Замаху.
         /// </summary>
-        public void LerpWindup(float t)
+        /// <param name="t">0.0 -> 1.0</param>
+        public void LerpSlashWindup(float t)
         {
             if (_handPivot == null) return;
-            // От 0 (Default) к 110 (Start)
             _handPivot.localRotation = Quaternion.Slerp(_rotDefault, _rotStart, t);
         }
 
-        // --- МЕТОД УДАРА ---
         /// <summary>
-        /// Мгновенно ставит руку в конечную точку удара (для кадра Impact).
+        /// Мгновенная установка руки в конечную точку удара (для кадра Impact).
         /// </summary>
-        public void SnapToImpact()
+        public void SnapToSlashImpact()
         {
              if (_handPivot == null) return;
              _handPivot.localRotation = _rotEnd;
         }
 
         /// <summary>
-        /// Возвращает руку в исходное (мирное) положение.
+        /// Плавный возврат руки в исходное положение.
         /// </summary>
-        public void LerpRecovery(float t)
+        /// <param name="t">0.0 -> 1.0</param>
+        public void LerpSlashRecovery(float t)
         {
             if (_handPivot == null) return;
-            // От -30 (End) к 0 (Default)
             _handPivot.localRotation = Quaternion.Slerp(_rotEnd, _rotDefault, t);
         }
+
+        // --- УПРАВЛЕНИЕ ВИДИМОСТЬЮ ---
 
         public void SetWeaponVisible(bool isVisible)
         {
