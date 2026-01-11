@@ -1,6 +1,7 @@
 using UnityEngine;
+using Scripts.Combat;
 
 public interface IDamageable
 {
-    void TakeDamage(float amount);
+    void TakeDamage(DamageSnapshot damage);
 }
