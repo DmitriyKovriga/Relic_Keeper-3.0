@@ -261,25 +261,28 @@ public class CharacterWindowUI : MonoBehaviour
             // 1. Урон (Average Damage)
             if (IsDamageStat(type))
             {
-                float avgDmg = _playerStats.CalculateAverageDamage(type);
+                // ИСПРАВЛЕНО: Используем DamageCalculator
+                float avgDmg = DamageCalculator.CalculateAverageDamage(_playerStats, type);
                 label.text = $"{Mathf.Round(avgDmg)}";
             }
             // 2. DOT уроны
             else if (type == StatType.BleedDamage || type == StatType.PoisonDamage || type == StatType.IgniteDamage)
             {
                 float dps = 0;
-                if (type == StatType.BleedDamage) dps = _playerStats.CalculateBleedDPS();
-                else if (type == StatType.PoisonDamage) dps = _playerStats.CalculatePoisonDPS();
-                else dps = _playerStats.CalculateIgniteDPS();
+                
+                // ИСПРАВЛЕНО: Используем DamageCalculator и передаем _playerStats
+                if (type == StatType.BleedDamage) dps = DamageCalculator.CalculateBleedDPS(_playerStats);
+                else if (type == StatType.PoisonDamage) dps = DamageCalculator.CalculatePoisonDPS(_playerStats);
+                else dps = DamageCalculator.CalculateIgniteDPS(_playerStats);
+                
                 label.text = $"{dps:F1}/s";
             }
-            // 3. Attack Speed (число, APS) - Исправлено по запросу
+            // 3. Attack Speed (число, APS)
             else if (type == StatType.AttackSpeed)
             {
-                // Округляем до 2 знаков (1.45)
                 label.text = $"{rawVal:F2}";
             }
-            // 4. Секунды (Shock Duration и т.д.)
+            // 4. Секунды
             else if (IsTimeStat(type))
             {
                 label.text = $"{rawVal:F2}s";
@@ -289,7 +292,7 @@ public class CharacterWindowUI : MonoBehaviour
             {
                 label.text = $"{Mathf.Round(rawVal)}%";
             }
-            // 6. Обычные числа (HP, Mana, Armor)
+            // 6. Обычные числа
             else
             {
                 label.text = $"{Mathf.Round(rawVal)}";

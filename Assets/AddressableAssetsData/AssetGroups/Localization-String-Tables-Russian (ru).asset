@@ -21,8 +21,20 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ru
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6250054317ba3ae4485d4531f19144e6
+    m_Address: SkillsLabels_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 98d473f6efe179d46aa4b4d60207b7a9
     m_Address: MenuLabels_ru
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ru
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ed0b6c5b967ea82459a8fd3c826eb2da
+    m_Address: ItemsLabels_ru
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ru

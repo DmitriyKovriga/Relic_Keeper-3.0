@@ -3,6 +3,7 @@ using UnityEditor;
 using System.Collections.Generic;
 using Scripts.Items;
 using Scripts.Items.Affixes;
+using Scripts.Skills;
 
 [CustomEditor(typeof(ItemDatabaseSO))]
 public class ItemDatabaseEditor : Editor
@@ -50,14 +51,15 @@ public class ItemDatabaseEditor : Editor
                 EditorUtility.SetDirty(affix); // Помечаем, что файл изменился
             }
         }
-        
+
+        db.AllSkills = FindAssetsByType<SkillDataSO>();
         db.AllAffixes = affixes;
 
         // 3. Сохраняем всё
         EditorUtility.SetDirty(db);
         AssetDatabase.SaveAssets(); // Физически записываем новые ID в файлы аффиксов
         
-        Debug.Log($"<color=green>[ItemDatabase]</color> Обновлено! Аффиксы получили уникальные ID на основе путей.");
+        Debug.Log($"DB Updated. Items: {db.AllItems.Count}, Skills: {db.AllSkills.Count}");
     }
 
     private List<T> FindAssetsByType<T>() where T : ScriptableObject

@@ -14,6 +14,7 @@ public class ItemSaveData
     public string ItemID;       // ID из EquipmentItemSO
     public int SlotIndex;       // Где лежит (включая экипировку > 100)
     public List<AffixSaveData> Affixes = new List<AffixSaveData>();
+    public List<string> RolledSkillIDs = new List<string>();
 }
 
 [Serializable]

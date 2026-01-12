@@ -1,50 +1,76 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using System.Collections.Generic;
 using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Stats;
+using Scripts.Skills;
 using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using System.Text;
 
 public class ItemTooltipController : MonoBehaviour
 {
     public static ItemTooltipController Instance { get; private set; }
 
-    [Header("Settings")]
-    [SerializeField] private UIDocument _uiDoc; 
-    
-    [Header("Tooltip Config")]
-    [SerializeField] private float _tooltipWidth = 160f; 
-    [SerializeField] private float _gap = 5f; 
-    [SerializeField] private float _screenPadding = 2f; 
+    [Header("UI Dependencies")]
+    [SerializeField] private UIDocument _uiDoc;
+    [SerializeField] private Font _customFont;
 
+    [Header("Layout Settings (Pixel Perfect)")]
+    [SerializeField] private float _tooltipWidth = 150f; // Чуть уже (было 160)
+    [SerializeField] private float _gap = 5f; 
+    [SerializeField] private float _screenPadding = 4f; 
+    
+    [SerializeField, Tooltip("Задержка в миллисекундах перед скрытием тултипа")] 
+    private long _hideDelayMs = 50;
+    
+    private const float SLOT_SIZE = 24f; 
+
+    // --- Localization Tables ---
     private const string TABLE_MENU = "MenuLabels";
     private const string TABLE_AFFIXES = "AffixesLabels";
+    private const string TABLE_ITEMS = "ItemsLabels";
+    private const string TABLE_SKILLS = "SkillsLabels";
 
+    // --- UI Elements ---
     private VisualElement _root;
-    private VisualElement _container;
+    
+    // 1. Основной (Item)
+    private VisualElement _itemTooltipBox;
     private Label _headerLabel;
     private VisualElement _headerDivider; 
     private VisualElement _statsContainer;
 
-    // --- State для пересчета позиции ---
-    private VisualElement _targetSlot;
-    private InventoryItem _targetItem;
+    // 2. Вторичный (Skill)
+    private VisualElement _skillTooltipBox;
 
-    // --- ЦВЕТА ---
-    private readonly Color _colNormalText = new Color(0.8f, 0.8f, 0.8f); 
-    private readonly Color _colModifiedText = new Color(0.53f, 0.53f, 1f); 
+    // --- State ---
+    private InventoryItem _currentTargetItem;
+    private VisualElement _targetAnchorSlot;
+    private IVisualElementScheduledItem _hideScheduler;
+
+    // --- Colors ---
+    private readonly Color _colBg = new Color(0.05f, 0.05f, 0.05f, 0.98f); 
+    private readonly Color _colSkillBg = new Color(0.05f, 0.1f, 0.15f, 0.98f);
     
-    private readonly Color _colFireText = new Color(1f, 0.5f, 0.5f); 
-    private readonly Color _colColdText = new Color(0.5f, 0.6f, 1f); 
-    private readonly Color _colLightningText = new Color(1f, 1f, 0.5f); 
+    private readonly Color _colNormalText = new Color(0.9f, 0.9f, 0.9f);
+    private readonly Color _colModifiedText = new Color(0.5f, 0.6f, 1f);
+    
+    private readonly Color _colTitleCommon = Color.white;
+    private readonly Color _colTitleMagic = new Color(0.3f, 0.3f, 1f); 
+    private readonly Color _colTitleRare = new Color(1f, 1f, 0.4f); 
+    
+    private readonly Color _colMagicBorder = new Color(0.3f, 0.3f, 0.7f);
+    private readonly Color _colRareBorder = new Color(0.7f, 0.6f, 0.2f);
 
-    private readonly Color _colMagicBorder = new Color(0.3f, 0.3f, 0.7f); 
-    private readonly Color _colRareText = new Color(1f, 1f, 0.46f); 
-    private readonly Color _colRareBorder = new Color(0.7f, 0.6f, 0.2f); 
     private readonly Color _colImplicit = new Color(0.6f, 0.8f, 1f);
     private readonly Color _colAffix = new Color(0.5f, 0.5f, 1f);
+    
+    private readonly Color _colFireText = new Color(1f, 0.5f, 0.5f);
+    private readonly Color _colColdText = new Color(0.5f, 0.6f, 1f);
+    private readonly Color _colLightningText = new Color(1f, 1f, 0.5f);
+
+    private readonly Color _colSkillType = new Color(0.6f, 0.6f, 0.6f); 
 
     private void Awake()
     {
@@ -58,335 +84,499 @@ public class ItemTooltipController : MonoBehaviour
         if (_uiDoc != null)
         {
             _root = _uiDoc.rootVisualElement;
-            _root.schedule.Execute(CreateTooltipVisuals).ExecuteLater(50);
+            _root.schedule.Execute(RebuildTooltipStructure).ExecuteLater(50);
+        }
+        
+        LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+    }
+
+    private void OnDisable()
+    {
+        LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+    }
+
+    private void OnLocaleChanged(UnityEngine.Localization.Locale locale)
+    {
+        if (_currentTargetItem != null && _itemTooltipBox.style.display == DisplayStyle.Flex)
+        {
+            FillItemData(_currentTargetItem);
+            FillSkillData(_currentTargetItem);
+            _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
         }
     }
 
-    private void CreateTooltipVisuals()
+    private void RebuildTooltipStructure()
     {
-        var old = _root.Q<VisualElement>("GlobalItemTooltip");
-        if (old != null) _root.Remove(old);
+        var old1 = _root.Q<VisualElement>("GlobalItemTooltip");
+        if (old1 != null) _root.Remove(old1);
+        var old2 = _root.Q<VisualElement>("GlobalSkillTooltip");
+        if (old2 != null) _root.Remove(old2);
 
-        _container = new VisualElement { name = "GlobalItemTooltip" };
-        _container.style.position = Position.Absolute;
-        _container.style.width = _tooltipWidth;
-        _container.style.backgroundColor = new StyleColor(new Color(0.05f, 0.05f, 0.05f, 0.95f)); 
+        // --- 1. Item Tooltip ---
+        _itemTooltipBox = CreateContainer("GlobalItemTooltip", _colBg);
+        _headerLabel = CreateLabel("", 8, FontStyle.Bold, TextAnchor.MiddleCenter);
+        _statsContainer = new VisualElement { style = { width = Length.Percent(100) } };
+        
+        _itemTooltipBox.Add(_headerLabel);
+        _itemTooltipBox.Add(CreateDivider());
+        _itemTooltipBox.Add(_statsContainer);
+        _root.Add(_itemTooltipBox);
 
-        _container.style.borderTopWidth = 1; _container.style.borderBottomWidth = 1;
-        _container.style.borderLeftWidth = 1; _container.style.borderRightWidth = 1;
-        _container.style.paddingTop = 4; _container.style.paddingBottom = 4;
-        _container.style.paddingLeft = 4; _container.style.paddingRight = 4;
+        // --- 2. Skill Tooltip ---
+        _skillTooltipBox = CreateContainer("GlobalSkillTooltip", _colSkillBg);
+        _skillTooltipBox.style.borderTopColor = new Color(0, 0.5f, 0.5f); 
+        _skillTooltipBox.style.borderBottomColor = new Color(0, 0.5f, 0.5f);
+        _skillTooltipBox.style.borderLeftColor = new Color(0, 0.5f, 0.5f); 
+        _skillTooltipBox.style.borderRightColor = new Color(0, 0.5f, 0.5f);
+        
+        _root.Add(_skillTooltipBox);
 
-        _container.style.display = DisplayStyle.None; 
-        _container.pickingMode = PickingMode.Ignore; 
-        _container.style.unityFontDefinition = FontDefinition.FromFont(Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
-        _container.style.fontSize = 8;
-        _container.style.alignItems = Align.Center; 
-
-        // ВАЖНО: Подписываемся на изменение геометрии. 
-        // Это сработает, когда UI Toolkit рассчитает реальные размеры после появления.
-        _container.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
-
-        _headerLabel = new Label();
-        _headerLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-        _headerLabel.style.whiteSpace = WhiteSpace.Normal;
-        _headerLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
-        _container.Add(_headerLabel);
-
-        _headerDivider = new VisualElement();
-        _headerDivider.style.height = 1;
-        _headerDivider.style.width = Length.Percent(100);
-        _headerDivider.style.marginTop = 2; _headerDivider.style.marginBottom = 2;
-        _container.Add(_headerDivider);
-
-        _statsContainer = new VisualElement();
-        _statsContainer.style.width = Length.Percent(100);
-        _statsContainer.style.alignItems = Align.Center; 
-        _container.Add(_statsContainer);
-
-        _root.Add(_container);
+        _itemTooltipBox.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
     }
 
-    public void ShowTooltip(InventoryItem item, VisualElement slot)
+    private VisualElement CreateContainer(string name, Color bg)
     {
-        if (_container == null || item == null || item.Data == null) return;
-
-        // Сохраняем цели для пересчета
-        _targetSlot = slot;
-        _targetItem = item;
-
-        // 1. Стиль рамки
-        int affixCount = item.Affixes != null ? item.Affixes.Count : 0;
-        Color borderColor = (affixCount >= 3) ? _colRareBorder : (affixCount > 0 ? _colMagicBorder : _colNormalText);
-        Color nameColor = (affixCount >= 3) ? _colRareText : (affixCount > 0 ? _colModifiedText : _colNormalText);
-
-        _container.style.borderTopColor = borderColor; _container.style.borderBottomColor = borderColor;
-        _container.style.borderLeftColor = borderColor; _container.style.borderRightColor = borderColor;
-        _headerDivider.style.backgroundColor = borderColor;
-        _headerLabel.style.color = nameColor;
-        _headerLabel.text = item.Data.ItemName;
+        var el = new VisualElement { name = name };
+        el.style.position = Position.Absolute;
+        el.style.width = _tooltipWidth;
+        el.style.backgroundColor = new StyleColor(bg);
         
-        _statsContainer.Clear();
-
-        // === 1. БАЗОВЫЕ СТАТЫ ===
-        bool hasBase = false;
-
-        if (item.Data is WeaponItemSO weapon)
-        {
-            float baseMin = weapon.MinPhysicalDamage;
-            float baseMax = weapon.MaxPhysicalDamage;
-            float finalMin = item.GetCalculatedStat(StatType.DamagePhysical, baseMin);
-            float finalMax = item.GetCalculatedStat(StatType.DamagePhysical, baseMax);
-            
-            AddCalculatedRangeRow(StatType.DamagePhysical, finalMin, finalMax, baseMin, baseMax);
-
-            CheckAndAddElementalRow(item, StatType.DamageFire, _colFireText);
-            CheckAndAddElementalRow(item, StatType.DamageCold, _colColdText);
-            CheckAndAddElementalRow(item, StatType.DamageLightning, _colLightningText);
-
-            float baseCrit = weapon.BaseCritChance; 
-            float finalCrit = item.GetCalculatedStat(StatType.CritChance, weapon.BaseCritChance);
-            AddCalculatedStatRow(StatType.CritChance, finalCrit, baseCrit, "{0}%");
-
-            float baseAps = weapon.AttacksPerSecond;
-            float finalAps = item.GetCalculatedStat(StatType.AttackSpeed, baseAps);
-            AddCalculatedStatRow(StatType.AttackSpeed, finalAps, baseAps, "{0}");
-
-            hasBase = true;
-        }
-        else if (item.Data is ArmorItemSO armor)
-        {
-            if (armor.BaseArmor > 0)
-                AddCalculatedStatRow(StatType.Armor, item.GetCalculatedStat(StatType.Armor, armor.BaseArmor), armor.BaseArmor);
-            if (armor.BaseEvasion > 0)
-                AddCalculatedStatRow(StatType.Evasion, item.GetCalculatedStat(StatType.Evasion, armor.BaseEvasion), armor.BaseEvasion);
-            if (armor.BaseBubbles > 0)
-                AddCalculatedStatRow(StatType.MaxBubbles, item.GetCalculatedStat(StatType.MaxBubbles, armor.BaseBubbles), armor.BaseBubbles);
-
-            hasBase = true;
-        }
-
-        bool hasMods = (item.Data.ImplicitModifiers != null && item.Data.ImplicitModifiers.Count > 0) || affixCount > 0;
-        if (hasBase && hasMods) AddDivider(borderColor);
-
-        // === 2. ИМПЛИСИТЫ ===
-        if (item.Data.ImplicitModifiers != null)
-        {
-            foreach (var mod in item.Data.ImplicitModifiers)
-                AddSimpleStatRow(mod.Stat, mod.Value, mod.Type, _colImplicit);
-        }
-
-        if (item.Data.ImplicitModifiers != null && item.Data.ImplicitModifiers.Count > 0 && affixCount > 0)
-            AddDivider(borderColor);
-
-        // === 3. АФФИКСЫ ===
-        if (item.Affixes != null)
-        {
-            foreach (var affix in item.Affixes)
-            {
-                if (affix.Modifiers.Count == 0) continue;
-                string key = affix.Data.TranslationKey;
-                float value = affix.Modifiers[0].Mod.Value;
-                
-                if (string.IsNullOrEmpty(key))
-                {
-                     var m = affix.Modifiers[0];
-                     string suff = m.Mod.Type == StatModType.PercentAdd ? "Increase" : "Flat";
-                     key = $"affix_{suff.ToLower()}_{m.Type.ToString().ToLower()}";
-                }
-                AddAffixRow(key, value, _colAffix);
-            }
-        }
-
-        // --- ВАЖНОЕ ИЗМЕНЕНИЕ: СКРЫВАЕМ, ПОКА НЕ ПОСЧИТАЕМ ---
-        // Делаем невидимым, но layout активным (Flex), чтобы движок посчитал ширину/высоту.
-        _container.style.visibility = Visibility.Hidden; 
-        _container.style.display = DisplayStyle.Flex;
+        // C# совместимые бордеры
+        el.style.borderTopWidth = 1; el.style.borderBottomWidth = 1;
+        el.style.borderLeftWidth = 1; el.style.borderRightWidth = 1;
         
-        // Помечаем, что нужно перерисовать
-        _container.MarkDirtyRepaint();
+        // --- ИСПРАВЛЕНИЕ 1: УМЕНЬШИЛ ОТСТУПЫ (БЫЛО 4) ---
+        el.style.paddingTop = 2; el.style.paddingBottom = 2;
+        el.style.paddingLeft = 3; el.style.paddingRight = 3;
         
-        // Запускаем принудительный пересчет на следующем кадре, на случай если Event не сработает
-        _container.schedule.Execute(() => {
-            UpdatePosition();
-        }).ExecuteLater(1);
+        el.style.visibility = Visibility.Hidden; 
+        el.style.display = DisplayStyle.None;
+        el.pickingMode = PickingMode.Ignore; 
+        
+        if (_customFont != null) 
+            el.style.unityFontDefinition = FontDefinition.FromFont(_customFont);
+        else 
+        {
+            var defFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (defFont) el.style.unityFontDefinition = FontDefinition.FromFont(defFont);
+        }
+        
+        el.style.fontSize = 8;
+        el.style.alignItems = Align.Center; 
+        return el;
+    }
+
+    private Label CreateLabel(string txt, int size, FontStyle style, TextAnchor align)
+    {
+        var lbl = new Label(txt);
+        lbl.style.fontSize = size;
+        lbl.style.unityFontStyleAndWeight = style;
+        lbl.style.unityTextAlign = align;
+        lbl.style.whiteSpace = WhiteSpace.Normal;
+        lbl.style.color = new StyleColor(_colNormalText);
+        // Уменьшил внутренние отступы лейблов
+        lbl.style.paddingTop = 0; lbl.style.paddingBottom = 1;
+        return lbl;
+    }
+
+    private VisualElement CreateDivider()
+    {
+        var d = new VisualElement();
+        d.style.height = 1;
+        d.style.width = Length.Percent(100);
+        d.style.marginTop = 2; d.style.marginBottom = 2;
+        d.style.backgroundColor = new StyleColor(new Color(0.5f, 0.5f, 0.5f, 0.5f));
+        return d;
+    }
+
+    // --- Public API ---
+
+    public void ShowTooltip(InventoryItem item, VisualElement anchorSlot)
+    {
+        if (_itemTooltipBox == null || item == null || item.Data == null) return;
+        
+        if (_hideScheduler != null)
+        {
+            _hideScheduler.Pause(); 
+            _hideScheduler = null;
+        }
+
+        if (_currentTargetItem == item && _itemTooltipBox.style.display == DisplayStyle.Flex) return;
+
+        _currentTargetItem = item;
+        _targetAnchorSlot = anchorSlot;
+
+        FillItemData(item);
+        FillSkillData(item);
+
+        _itemTooltipBox.style.display = DisplayStyle.Flex;
+        _itemTooltipBox.style.visibility = Visibility.Hidden;
+
+        bool hasSkill = _skillTooltipBox.userData != null; // userData "true" если есть скиллы
+        if (hasSkill)
+        {
+            _skillTooltipBox.style.display = DisplayStyle.Flex;
+            _skillTooltipBox.style.visibility = Visibility.Hidden;
+        }
+        else
+        {
+            _skillTooltipBox.style.display = DisplayStyle.None;
+        }
+
+        _itemTooltipBox.MarkDirtyRepaint();
+        _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
     }
 
     public void HideTooltip()
     {
-        if (_container != null) 
+        if (_hideScheduler != null) return;
+
+        _hideScheduler = _root.schedule.Execute(() =>
         {
-            _container.style.display = DisplayStyle.None;
-            _targetSlot = null;
-            _targetItem = null;
-        }
+            if (_itemTooltipBox != null) 
+            {
+                _itemTooltipBox.style.display = DisplayStyle.None;
+                _itemTooltipBox.style.visibility = Visibility.Hidden;
+            }
+            if (_skillTooltipBox != null) 
+            {
+                _skillTooltipBox.style.display = DisplayStyle.None;
+                _skillTooltipBox.style.visibility = Visibility.Hidden;
+            }
+            _currentTargetItem = null;
+            _targetAnchorSlot = null;
+            _hideScheduler = null; 
+        });
+        
+        _hideScheduler.ExecuteLater(_hideDelayMs);
     }
 
-    // Этот метод вызывается автоматически, когда меняется размер тултипа (текст загрузился, layout сработал)
+    // --- Positioning Logic ---
+
     private void OnGeometryChanged(GeometryChangedEvent evt)
     {
-        // Если размеры изменились (ширина или высота) и тултип активен
-        if (_container.style.display == DisplayStyle.Flex && 
-           (evt.oldRect.width != evt.newRect.width || evt.oldRect.height != evt.newRect.height))
+        if (_itemTooltipBox.style.display == DisplayStyle.Flex)
         {
-            UpdatePosition();
+            RecalculatePosition();
         }
     }
 
-    private void UpdatePosition()
+    private void RecalculatePosition()
     {
-        if (_targetSlot == null || _targetItem == null) return;
-
-        CalculateSmartPosition(_targetSlot, _targetItem);
-        
-        // Теперь, когда позиция верная, показываем
-        _container.style.visibility = Visibility.Visible;
-    }
-
-    // ================= HELPER METHODS =================
-
-    private void CheckAndAddElementalRow(InventoryItem item, StatType type, Color color)
-    {
-        float val = item.GetCalculatedStat(type, 0f);
-        if (val > 0) CreateAsyncRow(type, val, color, "{0}");
-    }
-
-    private void AddCalculatedStatRow(StatType type, float finalVal, float baseVal, string format = "{0}")
-    {
-        bool isModified = Mathf.Abs(finalVal - baseVal) > 0.01f;
-        Color valColor = isModified ? _colModifiedText : _colNormalText;
-        CreateAsyncRow(type, finalVal, valColor, format);
-    }
-
-    private void AddCalculatedRangeRow(StatType type, float finalMin, float finalMax, float baseMin, float baseMax)
-    {
-        bool isModified = Mathf.Abs(finalMin - baseMin) > 0.01f || Mathf.Abs(finalMax - baseMax) > 0.01f;
-        Color valColor = isModified ? _colModifiedText : _colNormalText;
-
-        string key = $"stats.{type}";
-        Label lbl = CreateLabel("...", valColor, false);
-        _statsContainer.Add(lbl);
-
-        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_MENU, key);
-        op.Completed += (h) =>
-        {
-            string name = h.Status == AsyncOperationStatus.Succeeded ? h.Result : type.ToString();
-            lbl.text = $"{name}: {Mathf.Round(finalMin)}-{Mathf.Round(finalMax)}";
-            // После загрузки текста размер может измениться -> вызываем апдейт
-            UpdatePosition();
-        };
-    }
-
-    private void CreateAsyncRow(StatType type, float value, Color valColor, string valueFormat)
-    {
-        string key = $"stats.{type}";
-        Label lbl = CreateLabel("...", valColor, false);
-        _statsContainer.Add(lbl);
-
-        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_MENU, key);
-        op.Completed += (h) =>
-        {
-            string name = h.Status == AsyncOperationStatus.Succeeded ? h.Result : type.ToString();
-            string valStr = string.Format(valueFormat, value); 
-            lbl.text = $"{name}: {valStr}";
-            UpdatePosition();
-        };
-    }
-
-    private void AddSimpleStatRow(StatType type, float value, StatModType modType, Color color)
-    {
-        string key = $"stats.{type}";
-        Label lbl = CreateLabel("...", color, false);
-        _statsContainer.Add(lbl);
-
-        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_MENU, key);
-        op.Completed += (h) =>
-        {
-            string name = h.Status == AsyncOperationStatus.Succeeded ? h.Result : type.ToString();
-            string sign = (modType != StatModType.Flat || value < 0) ? "" : "+"; 
-            string end = (modType == StatModType.PercentAdd || modType == StatModType.PercentMult) ? "%" : "";
-            lbl.text = $"{name}: {sign}{value}{end}";
-            UpdatePosition();
-        };
-    }
-
-    private void AddAffixRow(string key, float value, Color color)
-    {
-        Label lbl = CreateLabel("...", color, false);
-        _statsContainer.Add(lbl);
-
-        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_AFFIXES, key, new object[] { value });
-        op.Completed += (h) =>
-        {
-            if (h.Status == AsyncOperationStatus.Succeeded) lbl.text = h.Result;
-            else lbl.text = $"[{key}] {value}";
-            UpdatePosition();
-        };
-    }
-
-    private void AddDivider(Color color)
-    {
-        VisualElement div = new VisualElement();
-        div.style.height = 1; div.style.width = Length.Percent(100);
-        div.style.backgroundColor = new StyleColor(new Color(color.r, color.g, color.b, 0.4f));
-        div.style.marginTop = 2; div.style.marginBottom = 2;
-        _statsContainer.Add(div);
-    }
-
-    private Label CreateLabel(string text, Color color, bool isBold)
-    {
-        Label lbl = new Label(text);
-        lbl.style.color = new StyleColor(color);
-        lbl.style.fontSize = 8;
-        lbl.style.whiteSpace = WhiteSpace.Normal;
-        lbl.style.unityTextAlign = TextAnchor.MiddleCenter;
-        lbl.style.paddingTop = 0; lbl.style.paddingBottom = 2;
-        if (isBold) lbl.style.unityFontStyleAndWeight = FontStyle.Bold;
-        return lbl;
-    }
-
-    private void CalculateSmartPosition(VisualElement slot, InventoryItem item)
-    {
-        if (_container == null || _root == null) return;
-        
-        float tipW = _container.resolvedStyle.width;
-        float tipH = _container.resolvedStyle.height;
-        if (float.IsNaN(tipW) || tipW < 10) tipW = _tooltipWidth;
-        if (float.IsNaN(tipH) || tipH < 10) tipH = 50f; 
+        if (_targetAnchorSlot == null || _currentTargetItem == null) return;
 
         float screenW = _root.resolvedStyle.width;
         float screenH = _root.resolvedStyle.height;
 
-        Rect r = slot.worldBound;
+        Rect r = _targetAnchorSlot.worldBound;
         Vector2 slotPos = _root.WorldToLocal(r.position);
         
-        float itemPixelW = r.width * item.Data.Width;
-        float itemPixelH = r.height * item.Data.Height;
-        float centerX = slotPos.x + (itemPixelW / 2f);
-        
-        float tryY = slotPos.y - tipH - _gap;
-        float finalX, finalY;
+        float itemPhysicalWidth = _currentTargetItem.Data.Width * SLOT_SIZE;
+        float itemRightEdge = slotPos.x + itemPhysicalWidth + _gap;
+        float itemLeftEdge = slotPos.x - _gap;
 
-        if (tryY >= _screenPadding)
+        // Размеры Item Tooltip
+        float itemW = _itemTooltipBox.resolvedStyle.width;
+        if (float.IsNaN(itemW) || itemW < 10) itemW = _tooltipWidth;
+        float itemH = _itemTooltipBox.resolvedStyle.height;
+        if (float.IsNaN(itemH) || itemH < 10) itemH = 100f; 
+
+        // Размеры Skill Tooltip
+        bool hasSkill = _skillTooltipBox.style.display == DisplayStyle.Flex;
+        float skillW = hasSkill ? _skillTooltipBox.resolvedStyle.width : 0;
+        if (hasSkill && (float.IsNaN(skillW) || skillW < 10)) skillW = _tooltipWidth;
+        float skillH = hasSkill ? _skillTooltipBox.resolvedStyle.height : 0;
+        if (hasSkill && (float.IsNaN(skillH) || skillH < 10)) skillH = 100f;
+
+        float finalItemX = 0, finalSkillX = 0;
+        float y = slotPos.y;
+
+        // --- ЛОГИКА РАСПОЛОЖЕНИЯ ПО ГОРИЗОНТАЛИ ---
+
+        float totalWidthIfNeeded = itemW + (hasSkill ? (_gap + skillW) : 0);
+        
+        // 1. Пробуем разместить всё СПРАВА от слота
+        if (itemRightEdge + totalWidthIfNeeded + _screenPadding < screenW)
         {
-            finalY = tryY;
-            finalX = centerX - (tipW / 2f);
+            finalItemX = itemRightEdge;
+            finalSkillX = finalItemX + itemW + _gap;
         }
+        // 2. Пробуем разместить всё СЛЕВА от слота
+        else if (itemLeftEdge - totalWidthIfNeeded - _screenPadding > 0)
+        {
+            finalItemX = itemLeftEdge - itemW;
+            finalSkillX = finalItemX - _gap - skillW;
+        }
+        // 3. Не влезает ни туда, ни сюда -> "Бутерброд" (Один слева, один справа)
         else
         {
-            float spaceLeft = slotPos.x;
-            float spaceRight = screenW - (slotPos.x + itemPixelW);
+            float spaceRight = screenW - itemRightEdge;
+            float spaceLeft = itemLeftEdge;
 
-            if (spaceRight > spaceLeft) finalX = slotPos.x + itemPixelW + _gap;
-            else finalX = slotPos.x - tipW - _gap;
-            
-            finalY = slotPos.y + (itemPixelH / 2f) - (tipH / 2f);
+            if (spaceRight > spaceLeft)
+            {
+                finalItemX = itemRightEdge;
+                finalSkillX = itemLeftEdge - skillW; // Скилл уходит влево
+            }
+            else
+            {
+                finalItemX = itemLeftEdge - itemW;
+                finalSkillX = itemRightEdge; // Скилл уходит вправо
+            }
         }
 
-        finalX = Mathf.Clamp(finalX, _screenPadding, screenW - tipW - _screenPadding);
-        finalY = Mathf.Clamp(finalY, _screenPadding, screenH - tipH - _screenPadding);
+        // --- ИСПРАВЛЕНИЕ 2: ЖЕСТКОЕ ОГРАНИЧЕНИЕ ПО ВЕРТИКАЛИ (Y-CLAMP) ---
+        // Находим максимальную высоту из двух окон
+        float maxHeight = Mathf.Max(itemH, skillH);
+        
+        // Если нижний край уходит под экран
+        if (y + maxHeight > screenH - _screenPadding)
+        {
+            // Поднимаем вверх ровно настолько, чтобы влезло
+            y = screenH - maxHeight - _screenPadding;
+        }
 
-        _container.style.left = finalX;
-        _container.style.top = finalY;
+        // Если после поднятия уперлись в потолок
+        if (y < _screenPadding) 
+        {
+            y = _screenPadding;
+        }
+
+        // Применяем координаты
+        _itemTooltipBox.style.left = finalItemX;
+        _itemTooltipBox.style.top = y;
+        _itemTooltipBox.style.visibility = Visibility.Visible;
+
+        if (hasSkill)
+        {
+            _skillTooltipBox.style.left = finalSkillX;
+            _skillTooltipBox.style.top = y;
+            _skillTooltipBox.style.visibility = Visibility.Visible;
+        }
+    }
+
+    // --- Fill Data Logic (SKILLS) - ТВОЙ КОД ---
+
+    private void FillSkillData(InventoryItem item)
+    {
+        _skillTooltipBox.Clear(); 
+        bool hasSkill = item.GrantedSkills != null && item.GrantedSkills.Count > 0;
+        _skillTooltipBox.userData = hasSkill ? "true" : null; // Маркер для ShowTooltip
+
+        if (hasSkill)
+        {
+            for (int i = 0; i < item.GrantedSkills.Count; i++)
+            {
+                var skill = item.GrantedSkills[i];
+                if (skill == null) continue;
+
+                if (i > 0) 
+                {
+                    var div = CreateDivider();
+                    div.style.marginTop = 4; div.style.marginBottom = 4;
+                    _skillTooltipBox.Add(div);
+                }
+
+                // 1. Тип
+                string slotKey = "skill_type_granted";
+                if (item.Data is WeaponItemSO weapon)
+                {
+                    if (weapon.IsTwoHanded) slotKey = (i == 0) ? "skill_type_mainhand" : "skill_type_offhand";
+                    else slotKey = "skill_type_weapon"; 
+                }
+
+                var typeLabel = CreateLabel("", 7, FontStyle.Italic, TextAnchor.UpperLeft);
+                typeLabel.style.color = new StyleColor(_colSkillType);
+                _skillTooltipBox.Add(typeLabel);
+                LocalizeLabel(typeLabel, TABLE_MENU, slotKey, (i == 0 ? "Primary Action" : "Secondary Action"));
+
+                // 2. Имя
+                var nameLabel = CreateLabel("", 8, FontStyle.Bold, TextAnchor.MiddleCenter);
+                nameLabel.style.color = new StyleColor(Color.cyan);
+                nameLabel.style.marginTop = 2;
+                _skillTooltipBox.Add(nameLabel);
+                LocalizeLabel(nameLabel, TABLE_SKILLS, $"skills.{skill.ID}", skill.SkillName);
+
+                // 3. Иконка
+                if (skill.Icon != null)
+                {
+                    var icon = new Image();
+                    icon.sprite = skill.Icon;
+                    icon.style.width = 24; // Чуть меньше для компактности (было 32)
+                    icon.style.height = 24;
+                    icon.style.alignSelf = Align.Center;
+                    icon.style.marginTop = 2;
+                    _skillTooltipBox.Add(icon);
+                }
+
+                // 4. Описание
+                var descLabel = CreateLabel("", 8, FontStyle.Normal, TextAnchor.UpperLeft);
+                descLabel.style.marginTop = 4;
+                _skillTooltipBox.Add(descLabel);
+                LocalizeSkillBody(descLabel, skill);
+            }
+        }
+    }
+
+    private void LocalizeSkillBody(Label label, SkillDataSO skill)
+    {
+        label.text = skill.Description; 
+
+        var opDesc = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, $"skills.{skill.ID}.description");
+        opDesc.Completed += (hDesc) =>
+        {
+            if (label == null) return;
+            StringBuilder sb = new StringBuilder();
+            sb.Append(hDesc.Status == AsyncOperationStatus.Succeeded ? hDesc.Result : skill.Description);
+
+            var opCD = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, "skills.cooldown");
+            opCD.Completed += (hCD) =>
+            {
+                if (skill.Cooldown > 0)
+                {
+                    string cdLabel = hCD.Status == AsyncOperationStatus.Succeeded ? hCD.Result : "Cooldown";
+                    sb.Append($"\n\n<color=#aaaaaa>{cdLabel}: {skill.Cooldown}s</color>");
+                }
+
+                var opMana = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, "skills.manaCost");
+                opMana.Completed += (hMana) =>
+                {
+                    if (skill.ManaCost > 0)
+                    {
+                        string manaLabel = hMana.Status == AsyncOperationStatus.Succeeded ? hMana.Result : "Mana Cost";
+                        sb.Append($"\n<color=#aaaaaa>{manaLabel}: {skill.ManaCost}</color>");
+                    }
+
+                    if (label != null) 
+                    {
+                        label.text = sb.ToString();
+                        if (_root != null) 
+                            _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
+                    }
+                };
+            };
+        };
+    }
+
+    // --- Fill Data Logic (ITEMS) ---
+
+    private void FillItemData(InventoryItem item)
+    {
+        int affixes = item.Affixes != null ? item.Affixes.Count : 0;
+        Color rarityCol = affixes >= 3 ? _colTitleRare : (affixes > 0 ? _colTitleMagic : _colTitleCommon);
+        
+        LocalizeLabel(_headerLabel, TABLE_ITEMS, $"items.{item.Data.ID}", item.Data.ItemName);
+        _headerLabel.style.color = new StyleColor(rarityCol);
+        
+        Color borderCol = affixes >= 3 ? _colRareBorder : (affixes > 0 ? _colMagicBorder : Color.gray);
+        _itemTooltipBox.style.borderTopColor = borderCol; _itemTooltipBox.style.borderBottomColor = borderCol;
+        _itemTooltipBox.style.borderLeftColor = borderCol; _itemTooltipBox.style.borderRightColor = borderCol;
+
+        _statsContainer.Clear();
+
+        if (item.Data is WeaponItemSO weapon)
+        {
+            AddRow(StatType.DamagePhysical, item, weapon.MinPhysicalDamage, weapon.MaxPhysicalDamage);
+            AddRow(StatType.DamageFire, item, weapon.MinFireDamage, weapon.MaxFireDamage, _colFireText);
+            AddRow(StatType.DamageCold, item, weapon.MinColdDamage, weapon.MaxColdDamage, _colColdText);
+            AddRow(StatType.DamageLightning, item, weapon.MinLightningDamage, weapon.MaxLightningDamage, _colLightningText);
+            
+            AddSimpleRow(StatType.AttackSpeed, item, weapon.AttacksPerSecond, "{0:F2}");
+            AddSimpleRow(StatType.CritChance, item, weapon.BaseCritChance, "{0}%");
+        }
+        else if (item.Data is ArmorItemSO armor)
+        {
+            if (armor.BaseArmor > 0) AddSimpleRow(StatType.Armor, item, armor.BaseArmor);
+            if (armor.BaseEvasion > 0) AddSimpleRow(StatType.Evasion, item, armor.BaseEvasion);
+            if (armor.BaseBubbles > 0) AddSimpleRow(StatType.MaxBubbles, item, armor.BaseBubbles);
+        }
+
+        if (_statsContainer.childCount > 0) AddDivToContainer();
+
+        if (item.Data.ImplicitModifiers != null)
+        {
+            foreach(var mod in item.Data.ImplicitModifiers)
+                AddModRow(mod.Stat, mod.Value, mod.Type, _colImplicit);
+        }
+
+        if (item.Data.ImplicitModifiers != null && item.Data.ImplicitModifiers.Count > 0 && affixes > 0)
+            AddDivToContainer();
+
+        if (item.Affixes != null)
+        {
+            foreach(var aff in item.Affixes)
+            {
+                if(aff.Modifiers.Count == 0) continue;
+                string key = aff.Data.TranslationKey;
+                float val = aff.Modifiers[0].Mod.Value;
+                if (string.IsNullOrEmpty(key)) key = $"stats.{aff.Modifiers[0].Type}";
+                AddAffixRow(key, val, _colAffix);
+            }
+        }
+    }
+
+    // --- Helpers (ТВОЙ КОД) ---
+
+    private void LocalizeLabel(Label label, string table, string key, string fallback)
+    {
+        label.text = fallback;
+        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(table, key);
+        op.Completed += (h) => 
+        {
+            if (label == null) return;
+            if (h.Status == AsyncOperationStatus.Succeeded)
+                label.text = h.Result;
+        };
+    }
+
+    private void AddRow(StatType type, InventoryItem item, float min, float max, Color? c = null)
+    {
+        float fMin = item.GetCalculatedStat(type, min);
+        float fMax = item.GetCalculatedStat(type, max);
+        if (fMax <= 0) return;
+        bool mod = Mathf.Abs(fMax - max) > 0.01f;
+        CreateAsyncLabel(type.ToString(), (n) => $"{n}: {Mathf.Round(fMin)}-{Mathf.Round(fMax)}", c ?? (mod ? _colModifiedText : _colNormalText));
+    }
+
+    private void AddSimpleRow(StatType type, InventoryItem item, float baseVal, string fmt = "{0}")
+    {
+        float f = item.GetCalculatedStat(type, baseVal);
+        CreateAsyncLabel(type.ToString(), (n) => $"{n}: {string.Format(fmt, f)}", Mathf.Abs(f - baseVal) > 0.01f ? _colModifiedText : _colNormalText);
+    }
+
+    private void AddModRow(StatType type, float val, StatModType mt, Color c)
+    {
+        string sign = (mt != StatModType.Flat || val < 0) ? "" : "+";
+        string end = (mt != StatModType.Flat) ? "%" : "";
+        CreateAsyncLabel($"stats.{type}", (n) => $"{n}: {sign}{val}{end}", c);
+    }
+
+    private void AddAffixRow(string key, float val, Color c)
+    {
+        var lbl = CreateLabel("...", 8, FontStyle.Normal, TextAnchor.MiddleCenter);
+        lbl.style.color = new StyleColor(c);
+        _statsContainer.Add(lbl);
+        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_AFFIXES, key, new object[]{ val });
+        op.Completed += (h) => { if(lbl!=null) lbl.text = h.Result; };
+    }
+
+    private void CreateAsyncLabel(string key, System.Func<string, string> fmt, Color c)
+    {
+        var lbl = CreateLabel("...", 8, FontStyle.Normal, TextAnchor.MiddleCenter);
+        lbl.style.color = new StyleColor(c);
+        _statsContainer.Add(lbl);
+        var k = key.Contains(".") ? key : $"stats.{key}";
+        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_MENU, k);
+        op.Completed += (h) => { if(lbl!=null) lbl.text = fmt(h.Status == AsyncOperationStatus.Succeeded ? h.Result : key); };
+    }
+
+    private void AddDivToContainer()
+    {
+        var d = new VisualElement();
+        d.style.height = 1;
+        d.style.width = Length.Percent(100);
+        d.style.marginTop = 2; d.style.marginBottom = 2;
+        d.style.backgroundColor = new StyleColor(new Color(0.4f, 0.4f, 0.4f));
+        _statsContainer.Add(d);
     }
 }

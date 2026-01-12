@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: SkillsLabels Shared Data
+  m_EditorClassIdentifier: 
+  m_TableCollectionName: SkillsLabels
+  m_TableCollectionNameGuidString: 77b5b59924e30184e8a6fd48cf76f6f9
+  m_Entries:
+  - m_Id: 89441992704
+    m_Key: skills.HandofIronWill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91648196608
+    m_Key: skills.HandofIronWill.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1742131986432
+    m_Key: skills.manaCost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1827142139904
+    m_Key: skills.cooldown
+    m_Metadata:
+      m_Items: []
+  - m_Id: 29836062523392
+    m_Key: skills.CleaveLB
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30834269126656
+    m_Key: skills.CleaveLB.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 31152650354688
+    m_Key: skills.SweepRB
+    m_Metadata:
+      m_Items: []
+  - m_Id: 31169817640960
+    m_Key: skills.SweepRB.description
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 3920291319822155853
+  references:
+    version: 2
+    RefIds:
+    - rid: 3920291319822155853
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1767915220390

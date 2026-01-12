@@ -4,6 +4,7 @@ using UnityEngine;
 using Scripts.Items;
 using Scripts.Stats;
 using Scripts.Items.Affixes;
+using Scripts.Skills;
 
 namespace Scripts.Inventory
 {
@@ -56,6 +57,8 @@ namespace Scripts.Inventory
         public EquipmentItemSO Data;
         public List<AffixInstance> Affixes = new List<AffixInstance>();
 
+        public List<SkillDataSO> GrantedSkills = new List<SkillDataSO>();
+
         // Обычный конструктор
         public InventoryItem(EquipmentItemSO data)
         {
@@ -70,7 +73,8 @@ namespace Scripts.Inventory
             {
                 ItemID = Data.ID,
                 SlotIndex = slotIndex,
-                Affixes = new List<AffixSaveData>()
+                Affixes = new List<AffixSaveData>(),
+                RolledSkillIDs = new List<string>()
             };
 
             foreach (var affix in Affixes)
@@ -86,6 +90,11 @@ namespace Scripts.Inventory
                 {
                     afData.Values.Add(mod.Mod.Value);
                 }
+
+                foreach (var skill in GrantedSkills)
+            {
+                if(skill != null) saveData.RolledSkillIDs.Add(skill.ID);
+            }
                 saveData.Affixes.Add(afData);
             }
 
@@ -115,6 +124,15 @@ namespace Scripts.Inventory
                 }
             }
 
+            if (save.RolledSkillIDs != null)
+            {
+                foreach (var skillID in save.RolledSkillIDs)
+                {
+                    var skillSO = db.GetSkill(skillID); // Метод GetSkill нужно добавить в DB!
+                    if (skillSO != null) newItem.GrantedSkills.Add(skillSO);
+                }
+            }
+
             return newItem;
         }
 
@@ -123,7 +141,6 @@ namespace Scripts.Inventory
         {
             float finalValue = baseValue;
             float sumPercentAdd = 0f;
-
             foreach (var affix in Affixes)
             {
                 foreach (var (type, mod, scope) in affix.Modifiers)

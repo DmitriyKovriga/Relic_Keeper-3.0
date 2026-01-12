@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using Scripts.Items;
 using Scripts.Items.Affixes;
+using Scripts.Skills;
 
 [CreateAssetMenu(menuName = "RPG/Database/Item Database")]
 public class ItemDatabaseSO : ScriptableObject
 {
     public List<EquipmentItemSO> AllItems = new List<EquipmentItemSO>();
     public List<ItemAffixSO> AllAffixes = new List<ItemAffixSO>();
+    public List<SkillDataSO> AllSkills = new List<SkillDataSO>();
 
     private Dictionary<string, EquipmentItemSO> _itemLookup;
     private Dictionary<string, ItemAffixSO> _affixLookup;
+    private Dictionary<string, SkillDataSO> _skillLookup;
 
     public void Init()
         {
@@ -54,7 +57,16 @@ public class ItemDatabaseSO : ScriptableObject
                     }
                 }
             }
-            
+
+            _skillLookup = new Dictionary<string, SkillDataSO>();
+            if (AllSkills != null)
+            {
+                foreach(var skill in AllSkills)
+                {
+                    if (skill != null && !string.IsNullOrEmpty(skill.ID) && !_skillLookup.ContainsKey(skill.ID))
+                        _skillLookup.Add(skill.ID, skill);
+                }
+            }
             Debug.Log($"[ItemDatabase] Initialized. Items: {_itemLookup.Count}, Affixes: {_affixLookup.Count}");
         }
 
@@ -92,4 +104,10 @@ public class ItemDatabaseSO : ScriptableObject
             Debug.LogWarning($"[ItemDatabase] Аффикс с ID '{id}' не найден в базе!");
             return null;
         }
+
+        public SkillDataSO GetSkill(string id)
+{
+    if (_skillLookup == null) Init();
+    return _skillLookup != null ? _skillLookup.GetValueOrDefault(id) : null;
+}
 }

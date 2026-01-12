@@ -2,11 +2,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Scripts.Stats; // Не забудь подключить namespace со статами
+using Scripts.Skills;
 
 public class HUDController : MonoBehaviour
 {
     [Header("Player Reference")]
     [SerializeField] private PlayerStats _playerStats;
+    [SerializeField] private PlayerSkillManager _skillManager;
 
     [Header("Bars")]
     [SerializeField] private Image _healthFill;
@@ -30,11 +32,36 @@ public class HUDController : MonoBehaviour
             SetupEvents();
             UpdateUI();
         }
+        if (_skillManager != null)
+        {
+            _skillManager.OnSkillSlotUpdated += UpdateSkillSlotUI;
+        }
+        else
+        {
+            // Пытаемся найти, если не назначено
+            _skillManager = FindFirstObjectByType<PlayerSkillManager>();
+            if (_skillManager != null) _skillManager.OnSkillSlotUpdated += UpdateSkillSlotUI;
+        }
     }
 
     private void OnDestroy()
     {
         if (_playerStats != null) _playerStats.OnAnyStatChanged -= UpdateUI;
+        if (_skillManager != null) _skillManager.OnSkillSlotUpdated -= UpdateSkillSlotUI;
+    }
+
+    private void UpdateSkillSlotUI(int index, SkillDataSO skill)
+    {
+        if (index < 0 || index >= _skillSlots.Length) return;
+
+        if (skill != null)
+        {
+            _skillSlots[index].Setup(skill.Icon);
+        }
+        else
+        {
+            _skillSlots[index].Clear();
+        }
     }
 
     public void SetPlayer(PlayerStats stats)

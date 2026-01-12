@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ab3c1233e08acf4fb693bfdd7c93c19, type: 3}
+  m_Name: AxeSkillsPoolRB
+  m_EditorClassIdentifier: 
+  PossibleSkills:
+  - Skill: {fileID: 11400000, guid: 7d830c52fefe95c488585c8fdef05834, type: 2}
+    Weight: 0
