@@ -23,7 +23,6 @@ namespace Scripts.Skills.Modules
             // 2. Логирование попытки (Где ищем?)
             if (_showDebugLogs)
             {
-                Debug.Log($"[Hitbox] SCAN: Center={hitCenter}, Radius={finalRadius}, Dir={facingDirection}");
                 // Рисуем линию в редакторе (будет видна в Scene View 2 секунды)
                 Debug.DrawLine(origin, hitCenter, Color.yellow, 2f); 
                 Debug.DrawRay(hitCenter, Vector3.up * finalRadius, Color.red, 2f);
@@ -43,11 +42,6 @@ namespace Scripts.Skills.Modules
                 if (hit.TryGetComponent(out IDamageable target))
                 {
                     targets.Add(target);
-                    if (_showDebugLogs) Debug.Log($"[Hitbox] -> TARGET ADDED: {hit.name}");
-                }
-                else
-                {
-                    if (_showDebugLogs) Debug.Log($"[Hitbox] -> IGNORED: {hit.name} (No IDamageable)");
                 }
             }
             return targets;
