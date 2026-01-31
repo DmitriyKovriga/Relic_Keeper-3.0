@@ -316,9 +316,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14172903258488832
-    m_Key: 'stats.MaxFireResist
-
-'
+    m_Key: stats.MaxFireResist
     m_Metadata:
       m_Items: []
   - m_Id: 14172907771559936

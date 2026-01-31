@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using Scripts.Stats;
 using Scripts.Inventory;
-using Scripts.Enemies; // Добавлен namespace для доступа к EnemyHealth
+using Scripts.Enemies;
 
 public class PlayerStats : MonoBehaviour
 {
@@ -34,7 +34,9 @@ public class PlayerStats : MonoBehaviour
 
         Health = new StatResource(GetStat(StatType.MaxHealth));
         Mana = new StatResource(GetStat(StatType.MaxMana));
-        Leveling = new LevelingSystem(1, 0, 100);
+        
+        // По дефолту 1 уровень, 0 очков
+        Leveling = new LevelingSystem(1, 0, 100, 0);
 
         Health.OnValueChanged += NotifyChanged;
         Mana.OnValueChanged += NotifyChanged;
@@ -56,7 +58,6 @@ public class PlayerStats : MonoBehaviour
         NotifyChanged();
     }
     
-    // --- AI ADDED: Подписка на глобальные события ---
     private void OnEnable()
     {
         EnemyHealth.OnEnemyKilled += HandleEnemyKilled;
@@ -67,16 +68,13 @@ public class PlayerStats : MonoBehaviour
         EnemyHealth.OnEnemyKilled -= HandleEnemyKilled;
     }
     
-    // Обработчик получения опыта
     private void HandleEnemyKilled(float xpAmount)
     {
         if (Leveling != null)
         {
             Leveling.AddXP(xpAmount);
-            // Debug.Log($"[Player] Gained {xpAmount} XP. Current: {Leveling.CurrentXP}/{Leveling.RequiredXP}");
         }
     }
-    // -----------------------------------------------
 
     private void OnDestroy()
     {
@@ -89,10 +87,6 @@ public class PlayerStats : MonoBehaviour
         if (Mana != null) Mana.OnValueChanged -= NotifyChanged;
     }
 
-    // ... (Остальной код GetStat, GetValue, Initialize и т.д. без изменений) ...
-    // Вставь сюда остаток файла, который был (Initialize, HandleItemEquipped, и т.д.)
-    
-    // --- КОПИЯ ДЛЯ КОНТЕКСТА (чтобы файл был валидным) ---
     public CharacterStat GetStat(StatType type)
     {
         if (_stats.TryGetValue(type, out CharacterStat stat)) return stat;
@@ -126,12 +120,14 @@ public class PlayerStats : MonoBehaviour
         Health.RestoreFull();
         Mana.RestoreFull();
         
+        // Пересоздаем систему левелинга для новой игры (сброс XP и очков)
         if (Leveling != null) 
         {
             Leveling.OnLevelUp -= HandleLevelUp;
             Leveling.OnXPChanged -= NotifyChanged;
         }
-        Leveling = new LevelingSystem(1, 0, 100); 
+        // Уровень 1, 0 XP, 100 Req, 0 Points
+        Leveling = new LevelingSystem(1, 0, 100, 0); 
         Leveling.OnLevelUp += HandleLevelUp;
         Leveling.OnXPChanged += NotifyChanged;
 
@@ -170,9 +166,19 @@ public class PlayerStats : MonoBehaviour
 
     public void ApplyLoadedState(GameSaveData data)
     {
-        Leveling = new LevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP);
+        // Восстанавливаем состояние левелинга, включая Очки Навыков
+        if (Leveling != null) 
+        {
+            Leveling.OnLevelUp -= HandleLevelUp;
+            Leveling.OnXPChanged -= NotifyChanged;
+        }
+        
+        // AI MODIFIED: Передаем data.SkillPoints в конструктор
+        Leveling = new LevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP, data.SkillPoints);
+        
         Leveling.OnLevelUp += HandleLevelUp;
         Leveling.OnXPChanged += NotifyChanged;
+        
         Health.SetCurrent(data.CurrentHealth);
         Mana.SetCurrent(data.CurrentMana);
         NotifyChanged();
