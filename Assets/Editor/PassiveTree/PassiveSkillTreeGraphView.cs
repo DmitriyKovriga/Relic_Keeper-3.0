@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq; // Важно для .First()
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -10,30 +11,58 @@ namespace Scripts.Editor.PassiveTree
 {
     public class PassiveSkillTreeGraphView : GraphView
     {
+        public Action<PassiveSkillTreeNode> OnNodeSelected; // Событие для окна
         private PassiveSkillTreeSO _treeAsset;
 
         public PassiveSkillTreeGraphView()
         {
-            // 1. Настройка управления
             this.AddManipulator(new ContentDragger());
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
             this.AddManipulator(new ContentZoomer());
 
-            // 2. Сетка на фоне
             var grid = new GridBackground();
             Insert(0, grid);
             grid.StretchToParentSize();
 
-            // 3. Стиль (БЕЗОПАСНАЯ ЗАГРУЗКА)
             var styleSheet = Resources.Load<StyleSheet>("GraphViewStyle");
-            if (styleSheet != null)
-            {
-                styleSheets.Add(styleSheet);
-            }
+            if (styleSheet != null) styleSheets.Add(styleSheet);
+        }
+        
+        // --- ПЕРЕХВАТ ВЫБОРА ---
+        // GraphView вызывает этот метод сам, когда выбор меняется
+        public override void AddToSelection(ISelectable selectable)
+        {
+            base.AddToSelection(selectable);
+            CheckSelection();
         }
 
-        // --- ЗАГРУЗКА ДЕРЕВА ---
+        public override void RemoveFromSelection(ISelectable selectable)
+        {
+            base.RemoveFromSelection(selectable);
+            CheckSelection();
+        }
+
+        public override void ClearSelection()
+        {
+            base.ClearSelection();
+            CheckSelection();
+        }
+
+        private void CheckSelection()
+        {
+            // Если выбран ровно 1 нод -> показываем его
+            if (selection.Count == 1 && selection[0] is PassiveSkillTreeNode node)
+            {
+                OnNodeSelected?.Invoke(node);
+            }
+            else
+            {
+                OnNodeSelected?.Invoke(null); // Если пусто или выбрано много -> очищаем инспектор
+            }
+        }
+        // -----------------------
+
         public void PopulateView(PassiveSkillTreeSO treeAsset)
         {
             _treeAsset = treeAsset;
@@ -45,26 +74,18 @@ namespace Scripts.Editor.PassiveTree
             if (_treeAsset.Nodes == null) 
                 _treeAsset.Nodes = new List<PassiveNodeDefinition>();
 
-            // 1. Создаем Ноды
-            foreach (var nodeData in _treeAsset.Nodes)
-            {
-                CreateNodeView(nodeData);
-            }
+            // Ноды
+            foreach (var nodeData in _treeAsset.Nodes) CreateNodeView(nodeData);
 
-            // 2. Создаем Связи (Edges)
-            // Чтобы не дублировать связи (A->B и B->A), используем HashSet
+            // Связи
             HashSet<string> processedConnections = new HashSet<string>();
-
             foreach (var nodeData in _treeAsset.Nodes)
             {
                 var nodeView = GetNodeByGuid(nodeData.ID) as PassiveSkillTreeNode;
-                
                 foreach (var childID in nodeData.ConnectionIDs)
                 {
-                    // Проверяем, не рисовали ли мы уже эту связь (в обратную сторону)
                     string connectionKey = string.Compare(nodeData.ID, childID) < 0 
-                        ? $"{nodeData.ID}-{childID}" 
-                        : $"{childID}-{nodeData.ID}";
+                        ? $"{nodeData.ID}-{childID}" : $"{childID}-{nodeData.ID}";
 
                     if (!processedConnections.Contains(connectionKey))
                     {
@@ -80,30 +101,24 @@ namespace Scripts.Editor.PassiveTree
             }
         }
 
-        // --- СОЗДАНИЕ НОДОВ ---
         private void CreateNodeView(PassiveNodeDefinition nodeData)
         {
             PassiveSkillTreeNode nodeView = new PassiveSkillTreeNode(nodeData);
             AddElement(nodeView);
         }
         
-        // Контекстное меню (ПКМ)
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
-            // Добавляем пункты меню для разных типов нодов
             evt.menu.AppendAction("Create Small Node", (a) => CreateNode(PassiveNodeType.Small, a.eventInfo.localMousePosition));
             evt.menu.AppendAction("Create Notable Node", (a) => CreateNode(PassiveNodeType.Notable, a.eventInfo.localMousePosition));
             evt.menu.AppendAction("Create Keystone", (a) => CreateNode(PassiveNodeType.Keystone, a.eventInfo.localMousePosition));
             evt.menu.AppendAction("Create START Node", (a) => CreateNode(PassiveNodeType.Start, a.eventInfo.localMousePosition));
-            
             base.BuildContextualMenu(evt);
         }
 
         private void CreateNode(PassiveNodeType type, Vector2 mousePos)
         {
-            // Конвертируем позицию мыши в координаты графа
             Vector2 graphPos = viewTransform.matrix.inverse.MultiplyPoint(mousePos);
-
             var newNodeData = new PassiveNodeDefinition
             {
                 ID = Guid.NewGuid().ToString(),
@@ -111,46 +126,33 @@ namespace Scripts.Editor.PassiveTree
                 Position = graphPos,
                 ConnectionIDs = new List<string>()
             };
-
-            // Сразу добавляем в ассет и сохраняем
             _treeAsset.Nodes.Add(newNodeData);
             SaveAsset();
-
             CreateNodeView(newNodeData);
         }
 
-        // --- ЛОГИКА СОЕДИНЕНИЙ ---
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
         {
             var compatiblePorts = new List<Port>();
             ports.ForEach(port =>
             {
-                // Нельзя соединять с самим собой и с тем же нодом
-                if (startPort != port && startPort.node != port.node)
-                {
-                    compatiblePorts.Add(port);
-                }
+                if (startPort != port && startPort.node != port.node) compatiblePorts.Add(port);
             });
             return compatiblePorts;
         }
 
         private GraphViewChange OnGraphViewChanged(GraphViewChange graphViewChange)
         {
-            // Обработка удалений
             if (graphViewChange.elementsToRemove != null)
             {
                 foreach (var elem in graphViewChange.elementsToRemove)
                 {
                     if (elem is PassiveSkillTreeNode nodeView)
-                    {
                         _treeAsset.Nodes.Remove(nodeView.Data);
-                    }
                     else if (elem is Edge edge)
                     {
-                        // При удалении связи нужно удалить ID из обоих нодов
                         PassiveSkillTreeNode parent = edge.output.node as PassiveSkillTreeNode;
                         PassiveSkillTreeNode child = edge.input.node as PassiveSkillTreeNode;
-                        
                         if (parent != null && child != null)
                         {
                             parent.Data.ConnectionIDs.Remove(child.Data.ID);
@@ -160,41 +162,30 @@ namespace Scripts.Editor.PassiveTree
                 }
             }
 
-            // Обработка создания связей (Edges)
             if (graphViewChange.edgesToCreate != null)
             {
                 foreach (var edge in graphViewChange.edgesToCreate)
                 {
                     PassiveSkillTreeNode parent = edge.output.node as PassiveSkillTreeNode;
                     PassiveSkillTreeNode child = edge.input.node as PassiveSkillTreeNode;
-
                     if (parent != null && child != null)
                     {
-                        // Добавляем связь обоим (двусторонняя)
                         if (!parent.Data.ConnectionIDs.Contains(child.Data.ID))
                             parent.Data.ConnectionIDs.Add(child.Data.ID);
-                            
                         if (!child.Data.ConnectionIDs.Contains(parent.Data.ID))
                             child.Data.ConnectionIDs.Add(parent.Data.ID);
                     }
                 }
             }
             
-            // Обработка перемещения нодов
             if (graphViewChange.movedElements != null)
             {
                 foreach (var elem in graphViewChange.movedElements)
                 {
-                    if (elem is PassiveSkillTreeNode nodeView)
-                    {
-                        nodeView.UpdateDataPosition();
-                    }
+                    if (elem is PassiveSkillTreeNode nodeView) nodeView.UpdateDataPosition();
                 }
             }
-
-            // Сохраняем изменения (можно оптимизировать и сохранять реже, но для надежности пока так)
             SaveAsset();
-            
             return graphViewChange;
         }
 

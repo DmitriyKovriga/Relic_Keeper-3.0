@@ -1,8 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEditor.UIElements; // Важно для Toolbar и InspectorElement
 using Scripts.Skills.PassiveTree;
-using UnityEditor.UIElements; // Для InspectorElement
+using System.Linq;
 
 namespace Scripts.Editor.PassiveTree
 {
@@ -10,6 +11,7 @@ namespace Scripts.Editor.PassiveTree
     {
         private PassiveSkillTreeGraphView _graphView;
         private PassiveSkillTreeSO _currentTree;
+        private VisualElement _inspectorContainer; // Контейнер для правой панели
 
         [MenuItem("Tools/Passive Tree Editor")]
         public static void OpenWindow()
@@ -18,7 +20,6 @@ namespace Scripts.Editor.PassiveTree
             window.titleContent = new GUIContent("Passive Tree");
         }
 
-        // Вызывается при открытии ассета двойным кликом (Удобно!)
         [UnityEditor.Callbacks.OnOpenAsset(1)]
         public static bool OnOpenAsset(int instanceID, int line)
         {
@@ -36,27 +37,45 @@ namespace Scripts.Editor.PassiveTree
         {
             var root = rootVisualElement;
 
-            // 1. Создаем Toolbar
-            var toolbar = new UnityEditor.UIElements.Toolbar();
-            
-            // Кнопка сохранения (хотя мы сохраняем авто, но пусть будет)
-            var saveBtn = new UnityEditor.UIElements.ToolbarButton(() => 
+            // 1. Toolbar (Верхняя панель)
+            var toolbar = new Toolbar();
+            var saveBtn = new ToolbarButton(() => 
             { 
                 AssetDatabase.SaveAssets(); 
                 Debug.Log("Tree Saved!");
-            }) { text = "Save Data" };
-            
+            }) { text = "Save Asset" };
             toolbar.Add(saveBtn);
             root.Add(toolbar);
 
-            // 2. Создаем GraphView
+            // 2. Split View (Разделитель экрана)
+            var splitView = new TwoPaneSplitView(0, 250, TwoPaneSplitViewOrientation.Horizontal);
+            root.Add(splitView);
+            // Растягиваем на все окно под тулбаром
+            splitView.style.flexGrow = 1; 
+
+            // 3. Левая панель (Граф)
             _graphView = new PassiveSkillTreeGraphView
             {
                 style = { flexGrow = 1 }
             };
-            root.Add(_graphView);
+            // Подписываемся на изменение выбора внутри графа
+            _graphView.OnNodeSelected = OnNodeSelectionChanged;
             
-            // Если дерево уже выбрано, грузим
+            splitView.Add(_graphView);
+
+            // 4. Правая панель (Инспектор)
+            _inspectorContainer = new ScrollView(ScrollViewMode.Vertical);
+            _inspectorContainer.style.paddingLeft = 10;
+            _inspectorContainer.style.paddingRight = 10;
+            _inspectorContainer.style.paddingTop = 10;
+            
+            // Добавляем заголовок "Settings"
+            var label = new Label("Node Settings") { style = { unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 10 } };
+            _inspectorContainer.Add(label);
+
+            splitView.Add(_inspectorContainer);
+
+            // Загрузка если уже есть
             if (_currentTree != null) LoadTree(_currentTree);
         }
 
@@ -69,24 +88,45 @@ namespace Scripts.Editor.PassiveTree
             }
         }
 
-        // --- МАГИЯ ИНСПЕКТОРА ---
-        // Когда мы выделяем что-то в графе, мы хотим видеть это в Инспекторе Unity
-        private void OnSelectionChange()
+        // Этот метод вызывается из GraphView (нужно добавить вызов туда!)
+        private void OnNodeSelectionChanged(PassiveSkillTreeNode node)
         {
-            // Этот метод вызывается Unity, когда меняется выделение в проекте/сцене.
-            // Для GraphView нужна своя логика, но пока мы используем "хак":
-            // Мы не будем рисовать кастомный инспектор внутри окна.
-            // Вместо этого мы будем полагаться на то, что ноды сериализуются внутри SO.
-            // Чтобы редактировать свойства нода (Template, UniqueModifiers), 
-            // нам нужно будет выбрать сам ассет SO и найти в списке нужный элемент.
+            _inspectorContainer.Clear();
             
-            // ПРОДВИНУТЫЙ ВАРИАНТ:
-            // Чтобы редактировать нод кликом, нам нужно создать CustomEditor для NodeDefinition
-            // или рисовать свойства прямо в GraphView (Blackboard).
-            // Для старта самый простой способ: 
-            // 1. Открываешь GraphView.
-            // 2. Создаешь структуру.
-            // 3. Чтобы настроить цифры -> идешь в Inspector самого SO-файла.
+            var titleLabel = new Label("Node Settings") { style = { unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 10 } };
+            _inspectorContainer.Add(titleLabel);
+
+            if (node == null) return;
+
+            // 1. Создаем SerializedObject для всего дерева
+            var so = new SerializedObject(_currentTree);
+            var nodesProp = so.FindProperty("Nodes");
+
+            // 2. Ищем индекс нашего нода в списке
+            int index = _currentTree.Nodes.IndexOf(node.Data);
+            if (index < 0) return;
+
+            // 3. Получаем свойство конкретного элемента
+            var nodeProp = nodesProp.GetArrayElementAtIndex(index);
+
+            // --- FIX: Используем PropertyField вместо InspectorElement ---
+            var propertyField = new PropertyField(nodeProp);
+            
+            // Важно: Привязываем (Bind) поле к сериализованному объекту, чтобы данные отображались
+            propertyField.Bind(so);
+
+            // 4. Подписываемся на изменения
+            // TrackPropertyValue - это метод расширения UnityEditor.UIElements
+            propertyField.TrackPropertyValue(nodeProp, (prop) => 
+            {
+                // Применяем изменения (хотя Bind делает это автоматически, Apply гарантирует запись)
+                so.ApplyModifiedProperties(); 
+                
+                // Обновляем визуал нода на графе (цвет, заголовок)
+                node.RefreshVisuals();
+            });
+
+            _inspectorContainer.Add(propertyField);
         }
     }
 }

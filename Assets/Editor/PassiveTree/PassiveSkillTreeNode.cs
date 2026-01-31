@@ -1,46 +1,46 @@
 using UnityEngine;
 using UnityEditor.Experimental.GraphView;
+using UnityEngine.UIElements; // Для StyleColor
 using Scripts.Skills.PassiveTree;
 
 namespace Scripts.Editor.PassiveTree
 {
-    // Это визуальная коробка на графе
     public class PassiveSkillTreeNode : Node
     {
-        // Ссылка на "чистые данные", которые мы редактируем
         public PassiveNodeDefinition Data { get; private set; }
-        
-        // Порты для соединений
         public Port InputPort { get; private set; }
         public Port OutputPort { get; private set; }
 
         public PassiveSkillTreeNode(PassiveNodeDefinition data)
         {
             Data = data;
-            title = data.GetDisplayName();
-            viewDataKey = data.ID; // Важно для сохранения состояния UI (свернут/развернут)
-
-            // Позиция
+            viewDataKey = data.ID;
+            
             style.left = data.Position.x;
             style.top = data.Position.y;
 
-            // Раскраска в зависимости от типа
-            SetStyleByType(data.NodeType);
-
             CreatePorts();
+            RefreshVisuals(); // <-- Используем общий метод обновления
+        }
+
+        // Вызывается при создании и при изменении данных в инспекторе
+        public void RefreshVisuals()
+        {
+            // Обновляем заголовок (вдруг сменился шаблон)
+            title = Data.GetDisplayName();
+            
+            // Обновляем цвет (вдруг сменился тип)
+            SetStyleByType(Data.NodeType);
+            
+            // Перерисовка
             RefreshExpandedState();
             RefreshPorts();
         }
 
         private void CreatePorts()
         {
-            // В пассивном дереве связи двусторонние (Undirected), но GraphView требует Input и Output.
-            // Мы создадим оба порта, чтобы можно было тянуть связь "от любого к любому".
-            // Логика сохранения потом разберется и сделает связи взаимными.
-
-            // Port.Capacity.Multi = можно подключать много проводов
             InputPort = InstantiatePort(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(bool));
-            InputPort.portName = "In"; // Можно скрыть имя через CSS, если мешает
+            InputPort.portName = "In";
             inputContainer.Add(InputPort);
 
             OutputPort = InstantiatePort(Orientation.Horizontal, Direction.Output, Port.Capacity.Multi, typeof(bool));
@@ -50,25 +50,23 @@ namespace Scripts.Editor.PassiveTree
 
         private void SetStyleByType(PassiveNodeType type)
         {
-            // Простая цветовая кодировка для наглядности
             switch (type)
             {
                 case PassiveNodeType.Start:
-                    titleContainer.style.backgroundColor = new UnityEngine.UIElements.StyleColor(Color.green);
+                    titleContainer.style.backgroundColor = new StyleColor(Color.green);
                     break;
                 case PassiveNodeType.Keystone:
-                    titleContainer.style.backgroundColor = new UnityEngine.UIElements.StyleColor(new Color(1f, 0.5f, 0f)); // Orange
+                    titleContainer.style.backgroundColor = new StyleColor(new Color(1f, 0.5f, 0f)); // Orange
                     break;
                 case PassiveNodeType.Notable:
-                    titleContainer.style.backgroundColor = new UnityEngine.UIElements.StyleColor(Color.cyan);
+                    titleContainer.style.backgroundColor = new StyleColor(Color.cyan);
                     break;
                 default: // Small
-                    titleContainer.style.backgroundColor = new UnityEngine.UIElements.StyleColor(Color.gray);
+                    titleContainer.style.backgroundColor = new StyleColor(Color.gray);
                     break;
             }
         }
-        
-        // Обновляем позицию данных, когда двигаем нод мышкой
+
         public void UpdateDataPosition()
         {
             Data.Position = GetPosition().position;
