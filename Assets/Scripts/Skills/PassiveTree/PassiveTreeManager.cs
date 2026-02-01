@@ -8,11 +8,23 @@ namespace Scripts.Skills.PassiveTree
     public class PassiveTreeManager : MonoBehaviour
     {
         [Header("Data")]
-        [SerializeField] private PassiveSkillTreeSO _treeData;
+        [SerializeField] public  PassiveSkillTreeSO _treeData;
         
         [Header("Dependencies")]
         [SerializeField] private PlayerStats _playerStats;
 
+        public PassiveSkillTreeSO TreeData => _treeData;
+        public PlayerStats PlayerStats => _playerStats;
+
+        public int SkillPoints
+        {
+            get
+            {
+                if (_playerStats == null) return 0;
+                if (_playerStats.Leveling == null) return 0;
+                return _playerStats.Leveling.SkillPoints;
+            }
+        }
         // Храним ID купленных нодов
         private HashSet<string> _allocatedNodeIDs = new HashSet<string>();
         
@@ -50,14 +62,13 @@ namespace Scripts.Skills.PassiveTree
             if (_allocatedNodeIDs.Contains(nodeID)) return false;
 
             // 2. Хватает очков?
-            if (_playerStats.Leveling.SkillPoints <= 0) return false;
+            // FIX: Используем свойство SkillPoints, в котором уже есть проверка на null!
+            if (SkillPoints <= 0) return false; 
 
             // 3. Соединен ли с уже купленным?
-            // Ищем нод в базе
             var nodeDef = _treeData.GetNode(nodeID);
             if (nodeDef == null) return false;
 
-            // Проходимся по соседям этого нода. Если хотя бы один сосед куплен -> можно брать.
             foreach (var neighborID in nodeDef.ConnectionIDs)
             {
                 if (_allocatedNodeIDs.Contains(neighborID)) return true;

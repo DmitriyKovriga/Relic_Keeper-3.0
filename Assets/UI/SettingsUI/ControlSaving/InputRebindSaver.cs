@@ -1,3 +1,6 @@
+// ==========================================
+// FILENAME: Assets/UI/SettingsUI/ControlSaving/InputRebindSaver.cs
+// ==========================================
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.IO;
@@ -23,7 +26,6 @@ public static class InputRebindSaver
     {
         if (File.Exists(SavePath))
         {
-            // 1. Если есть сохранение — грузим его
             try 
             {
                 string json = File.ReadAllText(SavePath);
@@ -38,7 +40,6 @@ public static class InputRebindSaver
         }
         else
         {
-            // 2. Если сохранения НЕТ — применяем дефолты из кода
             Debug.Log("[InputSaver] Save file not found. Applying Hardcoded Defaults.");
             ApplyHardcodedDefaults(actions);
         }
@@ -52,44 +53,31 @@ public static class InputRebindSaver
 
         Debug.Log("[InputSaver] Rebinds cleared.");
         
-        // После очистки тоже накатываем дефолты, чтобы управление не пропало совсем
         ApplyHardcodedDefaults(actions);
         
         RebindsChanged?.Invoke();
     }
-
-    // --- ГЛАВНАЯ МАГИЯ ЗДЕСЬ ---
+    
     private static void ApplyHardcodedDefaults(InputActionAsset actions)
     {
-        // Здесь мы прописываем "Заводские настройки", если в ассете пусто.
-        
-        // 1. Находим карту (Action Map)
         var map = actions.FindActionMap("Player");
         if (map == null) return;
 
-        // 2. Назначаем кнопки (Проверяем, чтобы не дублировать, если в ассете что-то есть)
-        
-        // --- Скиллы ---
-        BindIfNotExists(map.FindAction("FirstSkill"), "<Keyboard>/z");  // Твой Z
-        BindIfNotExists(map.FindAction("SecondSkill"), "<Keyboard>/x"); // Допустим X
+        // --- Скиллы и Действия ---
+        BindIfNotExists(map.FindAction("FirstSkill"), "<Keyboard>/z");
+        BindIfNotExists(map.FindAction("SecondSkill"), "<Keyboard>/x");
         BindIfNotExists(map.FindAction("Interact"), "<Keyboard>/e");
-        BindIfNotExists(map.FindAction("OpenInventory"), "<Keyboard>/i");
         BindIfNotExists(map.FindAction("Jump"), "<Keyboard>/space");
-
-        // --- Движение (Composite Binding сложнее, но для теста добавим базу) ---
-        // Если движение WASD уже настроено в ассете (обычно Movement там есть), 
-        // лучше его не трогать кодом, это сложно.
-        // Но если там пусто, нужно добавить Composite.
-        // Для простоты, я предполагаю, что WASD у тебя все-таки в ассете есть, 
-        // так как движение работало. Если нет — напиши, добавлю код для Composite.
+        
+        // --- Интерфейс ---
+        BindIfNotExists(map.FindAction("OpenInventory"), "<Keyboard>/i");
+        // --- ДОБАВЛЕНО ---
+        BindIfNotExists(map.FindAction("OpenSkillTree"), "<Keyboard>/t");
     }
 
     private static void BindIfNotExists(InputAction action, string path)
     {
         if (action == null) return;
-
-        // Если у экшена вообще нет биндов (Count == 0), добавляем новый.
-        // Если бинды есть (например, пустые заглушки), мы их оверрайдим.
         
         if (action.bindings.Count == 0)
         {
@@ -97,8 +85,7 @@ public static class InputRebindSaver
         }
         else
         {
-            // Если бинды есть, но мы хотим гарантировать дефолт,
-            // можно применить оверрайд к первому бинду
+            // Этот метод более надежный: он применяет оверрайд, даже если бинд есть, но он "сломан" или пустой.
             action.ApplyBindingOverride(0, path);
         }
     }
