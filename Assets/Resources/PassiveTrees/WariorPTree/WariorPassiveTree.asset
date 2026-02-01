@@ -36,6 +36,7 @@ MonoBehaviour:
     UniqueModifiers: []
     ConnectionIDs:
     - 3d91ca11-3966-4ef3-bfe6-b22fa5d93a4a
+    - 43936829-767c-4a5b-b73d-f75c3728c4c7
   - ID: 4f567811-40bc-4a88-bc5f-9640fed8654a
     Position: {x: 550, y: 402}
     NodeType: 0
@@ -43,3 +44,10 @@ MonoBehaviour:
     UniqueModifiers: []
     ConnectionIDs:
     - 3d91ca11-3966-4ef3-bfe6-b22fa5d93a4a
+  - ID: 43936829-767c-4a5b-b73d-f75c3728c4c7
+    Position: {x: 777, y: 293}
+    NodeType: 1
+    Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 42d0d8fc-b1c8-4c8c-ae82-9a8c94e8069f

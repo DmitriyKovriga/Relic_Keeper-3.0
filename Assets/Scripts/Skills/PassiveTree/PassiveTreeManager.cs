@@ -1,6 +1,8 @@
+// ==========================================
+// FILENAME: Assets/Scripts/Skills/PassiveTree/PassiveTreeManager.cs
+// ==========================================
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 using Scripts.Stats;
 
 namespace Scripts.Skills.PassiveTree
@@ -8,7 +10,7 @@ namespace Scripts.Skills.PassiveTree
     public class PassiveTreeManager : MonoBehaviour
     {
         [Header("Data")]
-        [SerializeField] public  PassiveSkillTreeSO _treeData;
+        [SerializeField] public PassiveSkillTreeSO _treeData;
         
         [Header("Dependencies")]
         [SerializeField] private PlayerStats _playerStats;
@@ -20,82 +22,123 @@ namespace Scripts.Skills.PassiveTree
         {
             get
             {
-                if (_playerStats == null) return 0;
-                if (_playerStats.Leveling == null) return 0;
+                if (_playerStats == null || _playerStats.Leveling == null) return 0;
                 return _playerStats.Leveling.SkillPoints;
             }
         }
-        // Храним ID купленных нодов
+
         private HashSet<string> _allocatedNodeIDs = new HashSet<string>();
-        
-        // Список модификаторов, наложенных деревом (чтобы можно было их снять при респеке)
-        // Ключ: NodeID, Значение: Список примененных модификаторов
         private Dictionary<string, List<StatModifier>> _activeModifiers = new Dictionary<string, List<StatModifier>>();
 
-        public event System.Action OnTreeUpdated; // UI будет слушать это
+        public event System.Action OnTreeUpdated; 
 
-        private void Start()
+        private void Awake()
         {
             if (_playerStats == null) _playerStats = GetComponent<PlayerStats>();
-            
-            // Инициализация словаря в SO для быстрого поиска
             if (_treeData != null) _treeData.InitLookup();
+        }
 
-            // Если это новая игра, ищем стартовые ноды
-            // В будущем здесь будет загрузка из сейва
-            if (_allocatedNodeIDs.Count == 0 && _treeData != null)
+        private void Start()
+{
+    // Если список пуст (новая игра), ищем старт
+    if (_allocatedNodeIDs.Count == 0 && _treeData != null)
+    {
+        AutoAllocateStartNodes();
+    }
+    
+    // --- ДОБАВЛЕНО: Защита "на всякий случай" ---
+    // Пробегаемся и проверяем, что все стартовые ноды точно добавлены
+    EnsureStartNodesAllocated();
+    
+    OnTreeUpdated?.Invoke();
+}
+
+private void EnsureStartNodesAllocated()
+{
+    if (_treeData == null) return;
+    foreach (var node in _treeData.Nodes)
+    {
+        if (node.NodeType == PassiveNodeType.Start && !_allocatedNodeIDs.Contains(node.ID))
+        {
+            _allocatedNodeIDs.Add(node.ID);
+            ApplyNodeStats(node.ID);
+        }
+    }
+}
+
+        private void OnEnable()
+        {
+            if (_playerStats != null)
             {
-                AutoAllocateStartNodes();
+                // 1. Слушаем, если PlayerStats решит заменить объект Leveling
+                _playerStats.OnLevelingInitialized += RefreshLevelingSubscription;
+                
+                // 2. И сразу подписываемся на текущий
+                RefreshLevelingSubscription();
             }
         }
 
-        // --- PUBLIC API ---
-
-        public bool IsAllocated(string nodeID)
+        private void OnDisable()
         {
-            return _allocatedNodeIDs.Contains(nodeID);
+            if (_playerStats != null)
+            {
+                _playerStats.OnLevelingInitialized -= RefreshLevelingSubscription;
+                
+                // Отписываемся от левелинга
+                if (_playerStats.Leveling != null)
+                {
+                    _playerStats.Leveling.OnSkillPointsChanged -= HandlePointsChanged;
+                }
+            }
         }
+
+        // --- ВАЖНЫЙ МЕТОД ---
+        // Вызывается при старте и каждый раз, когда загружается игра/сбрасываются статы
+        private void RefreshLevelingSubscription()
+        {
+            if (_playerStats.Leveling != null)
+            {
+                // Сначала отписываемся (на всякий случай, чтобы не дублировать)
+                _playerStats.Leveling.OnSkillPointsChanged -= HandlePointsChanged;
+                // Подписываемся заново к НОВОМУ объекту
+                _playerStats.Leveling.OnSkillPointsChanged += HandlePointsChanged;
+                
+                // Обновляем UI прямо сейчас
+                HandlePointsChanged();
+            }
+        }
+
+        private void HandlePointsChanged()
+        {
+            OnTreeUpdated?.Invoke();
+        }
+        
+        // ... (Остальной код без изменений: IsAllocated, CanAllocate, AllocateNode, AutoAllocateStartNodes, ApplyNodeStats, GetSaveData, LoadState) ...
+        
+        public bool IsAllocated(string nodeID) => _allocatedNodeIDs.Contains(nodeID);
 
         public bool CanAllocate(string nodeID)
         {
-            // 1. Уже куплен?
             if (_allocatedNodeIDs.Contains(nodeID)) return false;
-
-            // 2. Хватает очков?
-            // FIX: Используем свойство SkillPoints, в котором уже есть проверка на null!
             if (SkillPoints <= 0) return false; 
-
-            // 3. Соединен ли с уже купленным?
             var nodeDef = _treeData.GetNode(nodeID);
             if (nodeDef == null) return false;
-
             foreach (var neighborID in nodeDef.ConnectionIDs)
-            {
                 if (_allocatedNodeIDs.Contains(neighborID)) return true;
-            }
-
             return false;
         }
 
         public void AllocateNode(string nodeID)
         {
             if (!CanAllocate(nodeID)) return;
-
-            // Тратим очко
             if (_playerStats.Leveling.TrySpendPoint(1))
             {
-                // Добавляем в список купленных
                 _allocatedNodeIDs.Add(nodeID);
-
-                // Применяем статы
                 ApplyNodeStats(nodeID);
-
                 OnTreeUpdated?.Invoke();
                 Debug.Log($"[PassiveTree] Node {nodeID} allocated!");
             }
         }
-
-        // --- INTERNAL LOGIC ---
 
         private void AutoAllocateStartNodes()
         {
@@ -103,7 +146,6 @@ namespace Scripts.Skills.PassiveTree
             {
                 if (node.NodeType == PassiveNodeType.Start)
                 {
-                    // Стартовые ноды даются бесплатно и без проверки связей
                     _allocatedNodeIDs.Add(node.ID);
                     ApplyNodeStats(node.ID);
                 }
@@ -115,49 +157,35 @@ namespace Scripts.Skills.PassiveTree
         {
             var nodeDef = _treeData.GetNode(nodeID);
             if (nodeDef == null) return;
-
             var modifiers = nodeDef.GetFinalModifiers();
             if (modifiers.Count == 0) return;
-
             var appliedMods = new List<StatModifier>();
-
             foreach (var modData in modifiers)
             {
-                // Создаем рантайм модификатор. Источник (Source) = этот скрипт или сам объект NodeDefinition
                 var runtimeMod = modData.ToStatModifier(this);
-                
-                // Накладываем на игрока
                 _playerStats.GetStat(modData.Stat).AddModifier(runtimeMod);
-                
                 appliedMods.Add(runtimeMod);
             }
-
-            // Запоминаем, чтобы потом можно было удалить (при респеке)
             _activeModifiers[nodeID] = appliedMods;
-            
-            // Форсируем обновление статов игрока
-            // (В PlayerStats уже есть событие OnAnyStatChanged, оно сработает само при добавлении мода)
-        }
-        
-        // Метод для сохранения (вызовем в GameSaveManager)
-        public List<string> GetSaveData()
-        {
-            return new List<string>(_allocatedNodeIDs);
         }
 
-        // Метод для загрузки
+        public List<string> GetSaveData() => new List<string>(_allocatedNodeIDs);
+
         public void LoadState(List<string> savedIDs)
-        {
-            _allocatedNodeIDs.Clear();
-            _activeModifiers.Clear(); // Очистить старые, если были (надо бы удалить их из статов тоже, но при загрузке статы и так чистые)
-            
-            // Важно: При загрузке мы не тратим очки и не проверяем связи, просто восстанавливаем
-            foreach (var id in savedIDs)
-            {
-                _allocatedNodeIDs.Add(id);
-                ApplyNodeStats(id);
-            }
-            OnTreeUpdated?.Invoke();
-        }
+{
+    _allocatedNodeIDs.Clear();
+    _activeModifiers.Clear();
+
+    foreach (var id in savedIDs)
+    {
+        _allocatedNodeIDs.Add(id);
+        ApplyNodeStats(id);
+    }
+    
+    // Гарантируем старт даже после загрузки
+    EnsureStartNodesAllocated();
+
+    OnTreeUpdated?.Invoke();
+}
     }
 }

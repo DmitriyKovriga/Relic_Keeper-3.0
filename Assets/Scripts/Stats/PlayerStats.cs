@@ -8,6 +8,8 @@ using Scripts.Enemies;
 public class PlayerStats : MonoBehaviour
 {
     public event Action OnAnyStatChanged;
+    // --- НОВОЕ СОБЫТИЕ: Сообщает, что объект LevelingSystem был пересоздан ---
+    public event Action OnLevelingInitialized; 
 
     [Header("Config")]
     [SerializeField] private bool _restoreStateOnLevelUp = true;
@@ -35,14 +37,33 @@ public class PlayerStats : MonoBehaviour
         Health = new StatResource(GetStat(StatType.MaxHealth));
         Mana = new StatResource(GetStat(StatType.MaxMana));
         
-        // По дефолту 1 уровень, 0 очков
-        Leveling = new LevelingSystem(1, 0, 100, 0);
+        // Начальная инициализация
+        CreateLevelingSystem(1, 0, 100, 0);
 
         Health.OnValueChanged += NotifyChanged;
         Mana.OnValueChanged += NotifyChanged;
         Health.OnDepleted += HandleDeath;
+    }
+
+    // --- ВЫНЕСЛИ СОЗДАНИЕ В ОТДЕЛЬНЫЙ МЕТОД ДЛЯ УДОБСТВА ---
+    private void CreateLevelingSystem(int level, float xp, float reqXp, int points)
+    {
+        // Отписываемся от старой системы, если она была
+        if (Leveling != null) 
+        {
+            Leveling.OnLevelUp -= HandleLevelUp;
+            Leveling.OnXPChanged -= NotifyChanged;
+        }
+
+        // Создаем новую
+        Leveling = new LevelingSystem(level, xp, reqXp, points);
+        
+        // Подписываемся на новую
         Leveling.OnLevelUp += HandleLevelUp;
         Leveling.OnXPChanged += NotifyChanged;
+        
+        // --- ВАЖНО: Уведомляем внешние системы (UI, Дерево), что ссылка изменилась ---
+        OnLevelingInitialized?.Invoke();
     }
 
     private void Start()
@@ -58,7 +79,7 @@ public class PlayerStats : MonoBehaviour
         NotifyChanged();
     }
     
-    private void OnEnable()
+     private void OnEnable()
     {
         EnemyHealth.OnEnemyKilled += HandleEnemyKilled;
     }
@@ -97,6 +118,7 @@ public class PlayerStats : MonoBehaviour
 
     public float GetValue(StatType type) => GetStat(type).Value;
 
+
     public void Initialize(CharacterDataSO data)
     {
         _activeCharacterID = data != null ? data.ID : "Unknown";
@@ -120,17 +142,19 @@ public class PlayerStats : MonoBehaviour
         Health.RestoreFull();
         Mana.RestoreFull();
         
-        // Пересоздаем систему левелинга для новой игры (сброс XP и очков)
-        if (Leveling != null) 
-        {
-            Leveling.OnLevelUp -= HandleLevelUp;
-            Leveling.OnXPChanged -= NotifyChanged;
-        }
-        // Уровень 1, 0 XP, 100 Req, 0 Points
-        Leveling = new LevelingSystem(1, 0, 100, 0); 
-        Leveling.OnLevelUp += HandleLevelUp;
-        Leveling.OnXPChanged += NotifyChanged;
+        // --- ИЗМЕНЕНО: Используем единый метод создания ---
+        CreateLevelingSystem(1, 0, 100, 0);
 
+        NotifyChanged();
+    }
+
+    public void ApplyLoadedState(GameSaveData data)
+    {
+        // --- ИЗМЕНЕНО: Используем единый метод создания ---
+        CreateLevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP, data.SkillPoints);
+        
+        Health.SetCurrent(data.CurrentHealth);
+        Mana.SetCurrent(data.CurrentMana);
         NotifyChanged();
     }
 
@@ -163,24 +187,4 @@ public class PlayerStats : MonoBehaviour
     private void HandleLevelUp() { if (_restoreStateOnLevelUp) { Health.RestoreFull(); Mana.RestoreFull(); } NotifyChanged(); }
     private void HandleDeath() { Debug.Log("YOU DIED"); }
     private void NotifyChanged() { OnAnyStatChanged?.Invoke(); }
-
-    public void ApplyLoadedState(GameSaveData data)
-    {
-        // Восстанавливаем состояние левелинга, включая Очки Навыков
-        if (Leveling != null) 
-        {
-            Leveling.OnLevelUp -= HandleLevelUp;
-            Leveling.OnXPChanged -= NotifyChanged;
-        }
-        
-        // AI MODIFIED: Передаем data.SkillPoints в конструктор
-        Leveling = new LevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP, data.SkillPoints);
-        
-        Leveling.OnLevelUp += HandleLevelUp;
-        Leveling.OnXPChanged += NotifyChanged;
-        
-        Health.SetCurrent(data.CurrentHealth);
-        Mana.SetCurrent(data.CurrentMana);
-        NotifyChanged();
-    }
 }
