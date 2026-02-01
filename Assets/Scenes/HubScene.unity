@@ -355,13 +355,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _uiDoc: {fileID: 77833674}
   _treeManager: {fileID: 1563690807}
-  _nodeSizeSmall: 24
-  _nodeSizeNotable: 48
-  _nodeSizeKeystone: 96
-  _lineThickness: 4
-  _zoomSpeed: 0.1
-  _minZoom: 0.3
-  _maxZoom: 2
+  _theme: {fileID: 11400000, guid: 9a6c58ecd4cf6374cb37de54755a7912, type: 2}
 --- !u!114 &77833674
 MonoBehaviour:
   m_ObjectHideFlags: 0
