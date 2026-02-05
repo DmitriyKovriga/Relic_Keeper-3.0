@@ -1351,6 +1351,14 @@ MonoBehaviour:
       \u043F\u0430\u0441\u0441\u0438\u0432\u043D\u044B\u0445 \u043D\u0430\u0432\u044B\u043A\u043E\u0432"
     m_Metadata:
       m_Items: []
+  - m_Id: 24614909579395072
+    m_Localized: Maximum Bleed Stacks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24618186836574208
+    m_Localized: Extra Targets For Melee Hits
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
