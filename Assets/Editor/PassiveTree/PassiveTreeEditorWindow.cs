@@ -1,23 +1,26 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements; // Важно для Toolbar и InspectorElement
+using UnityEditor.UIElements;
 using Scripts.Skills.PassiveTree;
-using System.Linq;
 
 namespace Scripts.Editor.PassiveTree
 {
+    /// <summary>
+    /// Окно редактирования дерева пассивок (Canvas: кластеры, орбиты, ноды, связи).
+    /// </summary>
     public class PassiveTreeEditorWindow : EditorWindow
     {
-        private PassiveSkillTreeGraphView _graphView;
+        private PassiveTreeEditorCanvas _canvas;
         private PassiveSkillTreeSO _currentTree;
-        private VisualElement _inspectorContainer; // Контейнер для правой панели
+        private VisualElement _inspectorContainer;
+        private ToolbarToggle _snapToggle;
 
         [MenuItem("Tools/Passive Tree Editor")]
         public static void OpenWindow()
         {
-            var window = GetWindow<PassiveTreeEditorWindow>();
-            window.titleContent = new GUIContent("Passive Tree");
+            var w = GetWindow<PassiveTreeEditorWindow>();
+            w.titleContent = new GUIContent("Passive Tree Editor");
         }
 
         [UnityEditor.Callbacks.OnOpenAsset(1)]
@@ -26,8 +29,7 @@ namespace Scripts.Editor.PassiveTree
             if (Selection.activeObject is PassiveSkillTreeSO tree)
             {
                 OpenWindow();
-                var window = GetWindow<PassiveTreeEditorWindow>();
-                window.LoadTree(tree);
+                GetWindow<PassiveTreeEditorWindow>().LoadTree(tree);
                 return true;
             }
             return false;
@@ -37,96 +39,77 @@ namespace Scripts.Editor.PassiveTree
         {
             var root = rootVisualElement;
 
-            // 1. Toolbar (Верхняя панель)
             var toolbar = new Toolbar();
-            var saveBtn = new ToolbarButton(() => 
-            { 
-                AssetDatabase.SaveAssets(); 
-                Debug.Log("Tree Saved!");
-            }) { text = "Save Asset" };
-            toolbar.Add(saveBtn);
+            toolbar.Add(new ToolbarButton(() => { AssetDatabase.SaveAssets(); Debug.Log("Tree Saved!"); }) { text = "Save Asset" });
+            toolbar.Add(new ToolbarSpacer());
+            _snapToggle = new ToolbarToggle { text = "Snap to Grid" };
+            _snapToggle.RegisterValueChangedCallback(evt =>
+            {
+                if (_currentTree != null) { _currentTree.SnapToGrid = evt.newValue; EditorUtility.SetDirty(_currentTree); }
+            });
+            toolbar.Add(_snapToggle);
             root.Add(toolbar);
 
-            // 2. Split View (Разделитель экрана)
             var splitView = new TwoPaneSplitView(0, 250, TwoPaneSplitViewOrientation.Horizontal);
+            splitView.style.flexGrow = 1;
             root.Add(splitView);
-            // Растягиваем на все окно под тулбаром
-            splitView.style.flexGrow = 1; 
 
-            // 3. Левая панель (Граф)
-            _graphView = new PassiveSkillTreeGraphView
-            {
-                style = { flexGrow = 1 }
-            };
-            // Подписываемся на изменение выбора внутри графа
-            _graphView.OnNodeSelected = OnNodeSelectionChanged;
-            
-            splitView.Add(_graphView);
+            _canvas = new PassiveTreeEditorCanvas { style = { flexGrow = 1 } };
+            _canvas.OnNodeSelected = OnNodeSelectionChanged;
+            _canvas.OnSelectionCleared = () => OnNodeSelectionChanged(null);
+            splitView.Add(_canvas);
 
-            // 4. Правая панель (Инспектор)
+            root.RegisterCallback<KeyDownEvent>(OnKeyDown);
+
             _inspectorContainer = new ScrollView(ScrollViewMode.Vertical);
             _inspectorContainer.style.paddingLeft = 10;
             _inspectorContainer.style.paddingRight = 10;
             _inspectorContainer.style.paddingTop = 10;
-            
-            // Добавляем заголовок "Settings"
-            var label = new Label("Node Settings") { style = { unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 10 } };
-            _inspectorContainer.Add(label);
-
+            _inspectorContainer.Add(new Label("Node Settings") { style = { unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 10 } });
             splitView.Add(_inspectorContainer);
 
-            // Загрузка если уже есть
             if (_currentTree != null) LoadTree(_currentTree);
         }
 
         private void LoadTree(PassiveSkillTreeSO tree)
         {
             _currentTree = tree;
-            if (_graphView != null)
+            if (_snapToggle != null)
+                _snapToggle.SetValueWithoutNotify(tree != null && tree.SnapToGrid);
+            _canvas?.PopulateView(_currentTree);
+        }
+
+        private void OnKeyDown(KeyDownEvent evt)
+        {
+            if (evt.keyCode != KeyCode.Delete && evt.keyCode != KeyCode.Backspace) return;
+            if (_canvas != null && _canvas.TryHandleDeleteKey())
             {
-                _graphView.PopulateView(_currentTree);
+                evt.StopPropagation();
+                evt.PreventDefault();
             }
         }
 
-        // Этот метод вызывается из GraphView (нужно добавить вызов туда!)
-        private void OnNodeSelectionChanged(PassiveSkillTreeNode node)
+        private void OnNodeSelectionChanged(PassiveNodeDefinition nodeData)
         {
             _inspectorContainer.Clear();
-            
-            var titleLabel = new Label("Node Settings") { style = { unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 10 } };
-            _inspectorContainer.Add(titleLabel);
+            _inspectorContainer.Add(new Label("Node Settings") { style = { unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 10 } });
 
-            if (node == null) return;
+            if (nodeData == null || _currentTree == null) return;
 
-            // 1. Создаем SerializedObject для всего дерева
             var so = new SerializedObject(_currentTree);
             var nodesProp = so.FindProperty("Nodes");
-
-            // 2. Ищем индекс нашего нода в списке
-            int index = _currentTree.Nodes.IndexOf(node.Data);
+            int index = _currentTree.Nodes.IndexOf(nodeData);
             if (index < 0) return;
 
-            // 3. Получаем свойство конкретного элемента
             var nodeProp = nodesProp.GetArrayElementAtIndex(index);
-
-            // --- FIX: Используем PropertyField вместо InspectorElement ---
-            var propertyField = new PropertyField(nodeProp);
-            
-            // Важно: Привязываем (Bind) поле к сериализованному объекту, чтобы данные отображались
-            propertyField.Bind(so);
-
-            // 4. Подписываемся на изменения
-            // TrackPropertyValue - это метод расширения UnityEditor.UIElements
-            propertyField.TrackPropertyValue(nodeProp, (prop) => 
+            var pf = new PropertyField(nodeProp);
+            pf.Bind(so);
+            pf.TrackPropertyValue(nodeProp, _ =>
             {
-                // Применяем изменения (хотя Bind делает это автоматически, Apply гарантирует запись)
-                so.ApplyModifiedProperties(); 
-                
-                // Обновляем визуал нода на графе (цвет, заголовок)
-                node.RefreshVisuals();
+                so.ApplyModifiedProperties();
+                _canvas?.RefreshNodeVisuals(nodeData);
             });
-
-            _inspectorContainer.Add(propertyField);
+            _inspectorContainer.Add(pf);
         }
     }
 }

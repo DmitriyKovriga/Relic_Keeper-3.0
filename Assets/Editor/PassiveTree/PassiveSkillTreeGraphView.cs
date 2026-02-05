@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq; // Важно для .First()
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -9,17 +8,20 @@ using Scripts.Skills.PassiveTree;
 
 namespace Scripts.Editor.PassiveTree
 {
+    /// <summary>
+    /// GraphView для редактирования дерева пассивок (ноды + связи по портам).
+    /// </summary>
     public class PassiveSkillTreeGraphView : GraphView
     {
-        public Action<PassiveSkillTreeNode> OnNodeSelected; // Событие для окна
+        public Action<PassiveSkillTreeNode> OnNodeSelected;
         private PassiveSkillTreeSO _treeAsset;
 
         public PassiveSkillTreeGraphView()
         {
-            this.AddManipulator(new ContentDragger());
-            this.AddManipulator(new SelectionDragger());
-            this.AddManipulator(new RectangleSelector());
-            this.AddManipulator(new ContentZoomer());
+            UnityEngine.UIElements.VisualElementExtensions.AddManipulator(this, new ContentDragger());
+            UnityEngine.UIElements.VisualElementExtensions.AddManipulator(this, new SelectionDragger());
+            UnityEngine.UIElements.VisualElementExtensions.AddManipulator(this, new RectangleSelector());
+            UnityEngine.UIElements.VisualElementExtensions.AddManipulator(this, new ContentZoomer());
 
             var grid = new GridBackground();
             Insert(0, grid);
@@ -28,9 +30,7 @@ namespace Scripts.Editor.PassiveTree
             var styleSheet = Resources.Load<StyleSheet>("GraphViewStyle");
             if (styleSheet != null) styleSheets.Add(styleSheet);
         }
-        
-        // --- ПЕРЕХВАТ ВЫБОРА ---
-        // GraphView вызывает этот метод сам, когда выбор меняется
+
         public override void AddToSelection(ISelectable selectable)
         {
             base.AddToSelection(selectable);
@@ -51,17 +51,11 @@ namespace Scripts.Editor.PassiveTree
 
         private void CheckSelection()
         {
-            // Если выбран ровно 1 нод -> показываем его
             if (selection.Count == 1 && selection[0] is PassiveSkillTreeNode node)
-            {
                 OnNodeSelected?.Invoke(node);
-            }
             else
-            {
-                OnNodeSelected?.Invoke(null); // Если пусто или выбрано много -> очищаем инспектор
-            }
+                OnNodeSelected?.Invoke(null);
         }
-        // -----------------------
 
         public void PopulateView(PassiveSkillTreeSO treeAsset)
         {
@@ -71,31 +65,28 @@ namespace Scripts.Editor.PassiveTree
             DeleteElements(graphElements);
             graphViewChanged += OnGraphViewChanged;
 
-            if (_treeAsset.Nodes == null) 
+            if (_treeAsset.Nodes == null)
                 _treeAsset.Nodes = new List<PassiveNodeDefinition>();
 
-            // Ноды
-            foreach (var nodeData in _treeAsset.Nodes) CreateNodeView(nodeData);
+            foreach (var nodeData in _treeAsset.Nodes)
+                CreateNodeView(nodeData);
 
-            // Связи
-            HashSet<string> processedConnections = new HashSet<string>();
+            var processedConnections = new HashSet<string>();
             foreach (var nodeData in _treeAsset.Nodes)
             {
                 var nodeView = GetNodeByGuid(nodeData.ID) as PassiveSkillTreeNode;
+                if (nodeView == null) continue;
                 foreach (var childID in nodeData.ConnectionIDs)
                 {
-                    string connectionKey = string.Compare(nodeData.ID, childID) < 0 
+                    string key = string.Compare(nodeData.ID, childID) < 0
                         ? $"{nodeData.ID}-{childID}" : $"{childID}-{nodeData.ID}";
-
-                    if (!processedConnections.Contains(connectionKey))
+                    if (processedConnections.Contains(key)) continue;
+                    processedConnections.Add(key);
+                    var childView = GetNodeByGuid(childID) as PassiveSkillTreeNode;
+                    if (childView != null)
                     {
-                        var childView = GetNodeByGuid(childID) as PassiveSkillTreeNode;
-                        if (childView != null)
-                        {
-                            Edge edge = nodeView.OutputPort.ConnectTo(childView.InputPort);
-                            AddElement(edge);
-                            processedConnections.Add(connectionKey);
-                        }
+                        var edge = nodeView.OutputPort.ConnectTo(childView.InputPort);
+                        AddElement(edge);
                     }
                 }
             }
@@ -103,26 +94,33 @@ namespace Scripts.Editor.PassiveTree
 
         private void CreateNodeView(PassiveNodeDefinition nodeData)
         {
-            PassiveSkillTreeNode nodeView = new PassiveSkillTreeNode(nodeData);
+            var nodeView = new PassiveSkillTreeNode(nodeData, _treeAsset);
             AddElement(nodeView);
         }
-        
+
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
-            evt.menu.AppendAction("Create Small Node", (a) => CreateNode(PassiveNodeType.Small, a.eventInfo.localMousePosition));
-            evt.menu.AppendAction("Create Notable Node", (a) => CreateNode(PassiveNodeType.Notable, a.eventInfo.localMousePosition));
-            evt.menu.AppendAction("Create Keystone", (a) => CreateNode(PassiveNodeType.Keystone, a.eventInfo.localMousePosition));
-            evt.menu.AppendAction("Create START Node", (a) => CreateNode(PassiveNodeType.Start, a.eventInfo.localMousePosition));
+            Vector2 graphPos = viewTransform.matrix.inverse.MultiplyPoint(evt.localMousePosition);
+            evt.menu.AppendAction("Create Small Node", _ => CreateNode(PassiveNodeType.Small, graphPos));
+            evt.menu.AppendAction("Create Notable Node", _ => CreateNode(PassiveNodeType.Notable, graphPos));
+            evt.menu.AppendAction("Create Keystone", _ => CreateNode(PassiveNodeType.Keystone, graphPos));
+            evt.menu.AppendAction("Create START Node", _ => CreateNode(PassiveNodeType.Start, graphPos));
             base.BuildContextualMenu(evt);
         }
 
-        private void CreateNode(PassiveNodeType type, Vector2 mousePos)
+        private void CreateNode(PassiveNodeType type, Vector2 graphPos)
         {
-            Vector2 graphPos = viewTransform.matrix.inverse.MultiplyPoint(mousePos);
+            if (_treeAsset.SnapToGrid && _treeAsset.GridSize > 0)
+            {
+                graphPos.x = Mathf.Round(graphPos.x / _treeAsset.GridSize) * _treeAsset.GridSize;
+                graphPos.y = Mathf.Round(graphPos.y / _treeAsset.GridSize) * _treeAsset.GridSize;
+            }
+
             var newNodeData = new PassiveNodeDefinition
             {
                 ID = Guid.NewGuid().ToString(),
                 NodeType = type,
+                PlacementMode = NodePlacementMode.Free,
                 Position = graphPos,
                 ConnectionIDs = new List<string>()
             };
@@ -133,26 +131,27 @@ namespace Scripts.Editor.PassiveTree
 
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
         {
-            var compatiblePorts = new List<Port>();
-            ports.ForEach(port =>
+            var list = new List<Port>();
+            ports.ForEach(p =>
             {
-                if (startPort != port && startPort.node != port.node) compatiblePorts.Add(port);
+                if (startPort != p && startPort.node != p.node)
+                    list.Add(p);
             });
-            return compatiblePorts;
+            return list;
         }
 
-        private GraphViewChange OnGraphViewChanged(GraphViewChange graphViewChange)
+        private GraphViewChange OnGraphViewChanged(GraphViewChange change)
         {
-            if (graphViewChange.elementsToRemove != null)
+            if (change.elementsToRemove != null)
             {
-                foreach (var elem in graphViewChange.elementsToRemove)
+                foreach (var elem in change.elementsToRemove)
                 {
                     if (elem is PassiveSkillTreeNode nodeView)
                         _treeAsset.Nodes.Remove(nodeView.Data);
                     else if (elem is Edge edge)
                     {
-                        PassiveSkillTreeNode parent = edge.output.node as PassiveSkillTreeNode;
-                        PassiveSkillTreeNode child = edge.input.node as PassiveSkillTreeNode;
+                        var parent = edge.output.node as PassiveSkillTreeNode;
+                        var child = edge.input.node as PassiveSkillTreeNode;
                         if (parent != null && child != null)
                         {
                             parent.Data.ConnectionIDs.Remove(child.Data.ID);
@@ -162,12 +161,12 @@ namespace Scripts.Editor.PassiveTree
                 }
             }
 
-            if (graphViewChange.edgesToCreate != null)
+            if (change.edgesToCreate != null)
             {
-                foreach (var edge in graphViewChange.edgesToCreate)
+                foreach (var edge in change.edgesToCreate)
                 {
-                    PassiveSkillTreeNode parent = edge.output.node as PassiveSkillTreeNode;
-                    PassiveSkillTreeNode child = edge.input.node as PassiveSkillTreeNode;
+                    var parent = edge.output.node as PassiveSkillTreeNode;
+                    var child = edge.input.node as PassiveSkillTreeNode;
                     if (parent != null && child != null)
                     {
                         if (!parent.Data.ConnectionIDs.Contains(child.Data.ID))
@@ -177,22 +176,27 @@ namespace Scripts.Editor.PassiveTree
                     }
                 }
             }
-            
-            if (graphViewChange.movedElements != null)
+
+            if (change.movedElements != null)
             {
-                foreach (var elem in graphViewChange.movedElements)
+                foreach (var elem in change.movedElements)
                 {
-                    if (elem is PassiveSkillTreeNode nodeView) nodeView.UpdateDataPosition();
+                    if (elem is PassiveSkillTreeNode nodeView)
+                        nodeView.UpdateDataPosition();
                 }
             }
+
             SaveAsset();
-            return graphViewChange;
+            return change;
         }
 
         private void SaveAsset()
         {
-            EditorUtility.SetDirty(_treeAsset);
-            AssetDatabase.SaveAssets();
+            if (_treeAsset != null)
+            {
+                EditorUtility.SetDirty(_treeAsset);
+                AssetDatabase.SaveAssets();
+            }
         }
     }
 }

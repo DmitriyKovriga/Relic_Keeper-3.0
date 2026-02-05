@@ -1,38 +1,38 @@
 using UnityEngine;
 using UnityEditor.Experimental.GraphView;
-using UnityEngine.UIElements; // Для StyleColor
+using UnityEngine.UIElements;
 using Scripts.Skills.PassiveTree;
 
 namespace Scripts.Editor.PassiveTree
 {
+    /// <summary>
+    /// Нода дерева пассивок в GraphView-редакторе.
+    /// </summary>
     public class PassiveSkillTreeNode : Node
     {
         public PassiveNodeDefinition Data { get; private set; }
         public Port InputPort { get; private set; }
         public Port OutputPort { get; private set; }
+        private PassiveSkillTreeSO _tree;
 
-        public PassiveSkillTreeNode(PassiveNodeDefinition data)
+        public PassiveSkillTreeNode(PassiveNodeDefinition data, PassiveSkillTreeSO tree)
         {
             Data = data;
+            _tree = tree;
             viewDataKey = data.ID;
-            
-            style.left = data.Position.x;
-            style.top = data.Position.y;
+
+            Vector2 pos = tree != null ? data.GetWorldPosition(tree) : data.Position;
+            style.left = pos.x;
+            style.top = pos.y;
 
             CreatePorts();
-            RefreshVisuals(); // <-- Используем общий метод обновления
+            RefreshVisuals();
         }
 
-        // Вызывается при создании и при изменении данных в инспекторе
         public void RefreshVisuals()
         {
-            // Обновляем заголовок (вдруг сменился шаблон)
             title = Data.GetDisplayName();
-            
-            // Обновляем цвет (вдруг сменился тип)
             SetStyleByType(Data.NodeType);
-            
-            // Перерисовка
             RefreshExpandedState();
             RefreshPorts();
         }
@@ -56,12 +56,12 @@ namespace Scripts.Editor.PassiveTree
                     titleContainer.style.backgroundColor = new StyleColor(Color.green);
                     break;
                 case PassiveNodeType.Keystone:
-                    titleContainer.style.backgroundColor = new StyleColor(new Color(1f, 0.5f, 0f)); // Orange
+                    titleContainer.style.backgroundColor = new StyleColor(new Color(1f, 0.5f, 0f));
                     break;
                 case PassiveNodeType.Notable:
                     titleContainer.style.backgroundColor = new StyleColor(Color.cyan);
                     break;
-                default: // Small
+                default:
                     titleContainer.style.backgroundColor = new StyleColor(Color.gray);
                     break;
             }
@@ -69,7 +69,22 @@ namespace Scripts.Editor.PassiveTree
 
         public void UpdateDataPosition()
         {
-            Data.Position = GetPosition().position;
+            Vector2 newPos = GetPosition().position;
+
+            if (Data.PlacementMode == NodePlacementMode.OnOrbit && _tree != null)
+            {
+                var cluster = _tree.GetCluster(Data.ClusterID);
+                if (cluster != null && Data.OrbitIndex >= 0 && Data.OrbitIndex < cluster.Orbits.Count)
+                {
+                    var orbit = cluster.Orbits[Data.OrbitIndex];
+                    Vector2 toNode = newPos - cluster.Center;
+                    Data.OrbitAngle = Mathf.Atan2(toNode.y, toNode.x) * Mathf.Rad2Deg;
+                    if (Data.OrbitAngle < 0) Data.OrbitAngle += 360f;
+                    return;
+                }
+            }
+
+            Data.Position = newPos;
         }
     }
 }

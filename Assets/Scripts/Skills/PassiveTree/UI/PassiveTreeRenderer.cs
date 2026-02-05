@@ -43,6 +43,8 @@ namespace Scripts.Skills.PassiveTree.UI
 
             var processedConnections = new HashSet<string>();
 
+            treeData.InitLookup();
+
             // 1. Lines
             foreach (var node in treeData.Nodes)
             {
@@ -56,7 +58,7 @@ namespace Scripts.Skills.PassiveTree.UI
 
                     if (!processedConnections.Contains(key))
                     {
-                        CreateLine(node.Position, neighbor.Position, node.ID, neighborID);
+                        CreateLine(treeData, node, neighbor, node.ID, neighborID);
                         processedConnections.Add(key);
                     }
                 }
@@ -65,7 +67,29 @@ namespace Scripts.Skills.PassiveTree.UI
             // 2. Nodes
             foreach (var node in treeData.Nodes)
             {
-                CreateNode(node);
+                CreateNode(treeData, node);
+            }
+        }
+
+        /// <summary>
+        /// Применить стиль «превью» (все ноды и линии как заблокированные).
+        /// Используется в редакторе в окне просмотра без PassiveTreeManager.
+        /// </summary>
+        public void ApplyPreviewStyle()
+        {
+            foreach (var kvp in _nodeVisuals)
+            {
+                var circle = kvp.Value.Q("Circle");
+                var highlight = kvp.Value.Q("Highlight");
+                if (circle != null) SetStyle(circle, _theme.LockedFill, _theme.LockedBorder);
+                if (highlight != null) highlight.style.display = DisplayStyle.None;
+            }
+            foreach (var conn in _connections)
+            {
+                if (conn.line is ArcLineElement arcLine)
+                    arcLine.SetStrokeColor(_theme.LineLocked);
+                else
+                    conn.line.style.backgroundColor = _theme.LineLocked;
             }
         }
 
@@ -108,12 +132,18 @@ namespace Scripts.Skills.PassiveTree.UI
                 bool avail1 = !a1 && manager.CanAllocate(conn.id1);
                 bool avail2 = !a2 && manager.CanAllocate(conn.id2);
 
+                Color lineColor;
                 if (a1 && a2)
-                    conn.line.style.backgroundColor = _theme.LineAllocated;
+                    lineColor = _theme.LineAllocated;
                 else if ((a1 && avail2) || (a2 && avail1))
-                    conn.line.style.backgroundColor = _theme.LinePath;
+                    lineColor = _theme.LinePath;
                 else
-                    conn.line.style.backgroundColor = _theme.LineLocked;
+                    lineColor = _theme.LineLocked;
+
+                if (conn.line is ArcLineElement arcLine)
+                    arcLine.SetStrokeColor(lineColor);
+                else
+                    conn.line.style.backgroundColor = lineColor;
             }
         }
 
@@ -124,19 +154,21 @@ namespace Scripts.Skills.PassiveTree.UI
             el.style.borderLeftColor = border; el.style.borderRightColor = border;
         }
 
-        private void CreateNode(PassiveNodeDefinition node)
+        private void CreateNode(PassiveSkillTreeSO treeData, PassiveNodeDefinition node)
         {
             float size = _theme.NodeSizeSmall;
             if (node.NodeType == PassiveNodeType.Notable) size = _theme.NodeSizeNotable;
             if (node.NodeType == PassiveNodeType.Keystone) size = _theme.NodeSizeKeystone;
             if (node.NodeType == PassiveNodeType.Start) size = _theme.NodeSizeNotable;
 
+            Vector2 pos = node.GetWorldPosition(treeData);
+
             var nodeRoot = new VisualElement();
             nodeRoot.style.position = Position.Absolute;
             nodeRoot.style.width = size;
             nodeRoot.style.height = size;
-            nodeRoot.style.left = node.Position.x - (size / 2f);
-            nodeRoot.style.top = node.Position.y - (size / 2f);
+            nodeRoot.style.left = pos.x - (size / 2f);
+            nodeRoot.style.top = pos.y - (size / 2f);
 
             // Highlight
             var highlight = new VisualElement { name = "Highlight" };
@@ -185,7 +217,25 @@ namespace Scripts.Skills.PassiveTree.UI
             _nodeVisuals.Add(node.ID, nodeRoot);
         }
 
-        private void CreateLine(Vector2 posA, Vector2 posB, string id1, string id2)
+        private void CreateLine(PassiveSkillTreeSO treeData, PassiveNodeDefinition nodeA, PassiveNodeDefinition nodeB, string id1, string id2)
+        {
+            Vector2 posA = nodeA.GetWorldPosition(treeData);
+            Vector2 posB = nodeB.GetWorldPosition(treeData);
+
+            // Проверяем, находятся ли оба нода на одной орбите
+            if (treeData.AreNodesOnSameOrbit(id1, id2, out string clusterId, out int orbitIndex))
+            {
+                // Рисуем дугу
+                CreateArcLine(treeData, nodeA, nodeB, clusterId, orbitIndex, id1, id2);
+            }
+            else
+            {
+                // Рисуем прямую линию
+                CreateStraightLine(posA, posB, id1, id2);
+            }
+        }
+
+        private void CreateStraightLine(Vector2 posA, Vector2 posB, string id1, string id2)
         {
             var line = new VisualElement();
             Vector2 diff = posB - posA;
@@ -202,6 +252,81 @@ namespace Scripts.Skills.PassiveTree.UI
 
             _container.Add(line);
             _connections.Add((id1, id2, line));
+        }
+
+        private void CreateArcLine(PassiveSkillTreeSO treeData, PassiveNodeDefinition nodeA, PassiveNodeDefinition nodeB, 
+                                   string clusterId, int orbitIndex, string id1, string id2)
+        {
+            var cluster = treeData.GetCluster(clusterId);
+            if (cluster == null || orbitIndex >= cluster.Orbits.Count) 
+            {
+                // Fallback к прямой линии
+                CreateStraightLine(nodeA.GetWorldPosition(treeData), nodeB.GetWorldPosition(treeData), id1, id2);
+                return;
+            }
+
+            // Для дуги используем generateVisualContent
+            var arcLine = new ArcLineElement(cluster.Center, cluster.Orbits[orbitIndex].Radius,
+                                             nodeA.OrbitAngle, nodeB.OrbitAngle, _theme.LineThickness, _theme.LineLocked);
+
+            _container.Add(arcLine);
+            _connections.Add((id1, id2, arcLine));
+        }
+
+        /// <summary>
+        /// Элемент дуги для связи нодов на одной орбите. Цвет задаётся через SetStrokeColor для UpdateVisuals.
+        /// </summary>
+        internal class ArcLineElement : VisualElement
+        {
+            private Vector2 _center;
+            private float _radius;
+            private float _startAngle;
+            private float _endAngle;
+            private float _thickness;
+            private Color _strokeColor;
+
+            public ArcLineElement(Vector2 center, float radius, float startAngle, float endAngle, float thickness, Color strokeColor)
+            {
+                _center = center;
+                _radius = radius;
+                _startAngle = startAngle;
+                _endAngle = endAngle;
+                _thickness = thickness;
+                _strokeColor = strokeColor;
+
+                style.position = Position.Absolute;
+                style.left = 0;
+                style.top = 0;
+                style.width = 2000;
+                style.height = 2000;
+                pickingMode = PickingMode.Ignore;
+
+                generateVisualContent += OnGenerateVisualContent;
+            }
+
+            public void SetStrokeColor(Color color)
+            {
+                if (_strokeColor == color) return;
+                _strokeColor = color;
+                MarkDirtyRepaint();
+            }
+
+            private void OnGenerateVisualContent(MeshGenerationContext ctx)
+            {
+                var painter = ctx.painter2D;
+                painter.lineWidth = _thickness;
+                painter.strokeColor = _strokeColor;
+
+                float startAngle = _startAngle;
+                float endAngle = _endAngle;
+                float diff = endAngle - startAngle;
+                if (diff > 180f) endAngle -= 360f;
+                else if (diff < -180f) endAngle += 360f;
+
+                painter.BeginPath();
+                painter.Arc(_center, _radius, Angle.Degrees(startAngle), Angle.Degrees(endAngle), ArcDirection.Clockwise);
+                painter.Stroke();
+            }
         }
     }
 }

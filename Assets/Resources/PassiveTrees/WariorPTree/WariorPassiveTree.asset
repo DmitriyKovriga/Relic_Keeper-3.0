@@ -14,8 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Nodes:
   - ID: 3d91ca11-3966-4ef3-bfe6-b22fa5d93a4a
-    Position: {x: 346, y: 293}
     NodeType: 3
+    PlacementMode: 0
+    Position: {x: 340, y: 300}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
     Template: {fileID: 0}
     UniqueModifiers: []
     ConnectionIDs:
@@ -23,31 +27,50 @@ MonoBehaviour:
     - 42d0d8fc-b1c8-4c8c-ae82-9a8c94e8069f
     - 4f567811-40bc-4a88-bc5f-9640fed8654a
   - ID: 1950f39c-9522-4813-82f5-074d19dfbf4c
-    Position: {x: 550, y: 184}
     NodeType: 0
+    PlacementMode: 0
+    Position: {x: 560, y: 220}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
     ConnectionIDs:
     - 3d91ca11-3966-4ef3-bfe6-b22fa5d93a4a
   - ID: 42d0d8fc-b1c8-4c8c-ae82-9a8c94e8069f
-    Position: {x: 550, y: 293}
     NodeType: 0
+    PlacementMode: 0
+    Position: {x: 560, y: 300}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
     ConnectionIDs:
     - 3d91ca11-3966-4ef3-bfe6-b22fa5d93a4a
     - 43936829-767c-4a5b-b73d-f75c3728c4c7
   - ID: 4f567811-40bc-4a88-bc5f-9640fed8654a
-    Position: {x: 550, y: 402}
     NodeType: 0
+    PlacementMode: 0
+    Position: {x: 560, y: 380}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
     ConnectionIDs:
     - 3d91ca11-3966-4ef3-bfe6-b22fa5d93a4a
   - ID: 43936829-767c-4a5b-b73d-f75c3728c4c7
-    Position: {x: 777, y: 293}
     NodeType: 1
+    PlacementMode: 0
+    Position: {x: 768, y: 300}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
     ConnectionIDs:
     - 42d0d8fc-b1c8-4c8c-ae82-9a8c94e8069f
+  Clusters: []
+  GridSize: 20
+  SnapToGrid: 1
