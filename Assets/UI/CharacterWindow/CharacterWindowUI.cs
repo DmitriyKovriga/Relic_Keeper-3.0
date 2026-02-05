@@ -22,6 +22,7 @@ public class CharacterWindowUI : MonoBehaviour
     private Dictionary<StatType, Label> _nameLabels = new Dictionary<StatType, Label>();
     private Font _pixelFont;
     private bool _isStylesApplied = false;
+    private StatsDatabaseSO _statsDb;
 
     // --- НАСТРОЙКИ РАЗМЕРОВ ---
     private const float ROW_HEIGHT = 10f; // Очень плотная строка
@@ -30,6 +31,7 @@ public class CharacterWindowUI : MonoBehaviour
 
     private void Awake()
     {
+        _statsDb = Resources.Load<StatsDatabaseSO>("Databases/StatsDatabase");
         Debug.Log($"[UI] CharacterWindowUI Awake на объекте {gameObject.name}");
     }
 
@@ -258,10 +260,11 @@ public class CharacterWindowUI : MonoBehaviour
             Label label = kvp.Value;
             float rawVal = _playerStats.GetValue(type);
 
-            // 1. Урон (Average Damage)
-            if (IsDamageStat(type))
+            var format = _statsDb?.GetFormat(type);
+
+            // 1. Урон (Average Damage) — from metadata or fallback
+            if (format == StatDisplayFormat.Damage || (format == null && IsDamageStat(type)))
             {
-                // ИСПРАВЛЕНО: Используем DamageCalculator
                 float avgDmg = DamageCalculator.CalculateAverageDamage(_playerStats, type);
                 label.text = $"{Mathf.Round(avgDmg)}";
             }
@@ -269,12 +272,9 @@ public class CharacterWindowUI : MonoBehaviour
             else if (type == StatType.BleedDamage || type == StatType.PoisonDamage || type == StatType.IgniteDamage)
             {
                 float dps = 0;
-                
-                // ИСПРАВЛЕНО: Используем DamageCalculator и передаем _playerStats
                 if (type == StatType.BleedDamage) dps = DamageCalculator.CalculateBleedDPS(_playerStats);
                 else if (type == StatType.PoisonDamage) dps = DamageCalculator.CalculatePoisonDPS(_playerStats);
                 else dps = DamageCalculator.CalculateIgniteDPS(_playerStats);
-                
                 label.text = $"{dps:F1}/s";
             }
             // 3. Attack Speed (число, APS)
@@ -282,13 +282,13 @@ public class CharacterWindowUI : MonoBehaviour
             {
                 label.text = $"{rawVal:F2}";
             }
-            // 4. Секунды
-            else if (IsTimeStat(type))
+            // 4. Секунды — from metadata or fallback
+            else if (format == StatDisplayFormat.Time || (format == null && IsTimeStat(type)))
             {
                 label.text = $"{rawVal:F2}s";
             }
-            // 5. Проценты
-            else if (IsPercentageStat(type))
+            // 5. Проценты — from metadata or fallback
+            else if (format == StatDisplayFormat.Percent || (format == null && IsPercentageStat(type)))
             {
                 label.text = $"{Mathf.Round(rawVal)}%";
             }
@@ -313,6 +313,8 @@ public class CharacterWindowUI : MonoBehaviour
 
     private bool ShouldShowStat(StatType type)
     {
+        if (_statsDb != null && _statsDb.GetMetadata(type) != null)
+            return _statsDb.ShouldShowInCharacterWindow(type);
         if (type == StatType.HealthRegenPercent || type == StatType.ManaRegenPercent) return false;
         return true;
     }

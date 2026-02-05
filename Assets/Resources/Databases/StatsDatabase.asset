@@ -1,0 +1,359 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8e0909c3412d8c4ba4cc1561b1d5d8a, type: 3}
+  m_Name: StatsDatabase
+  m_EditorClassIdentifier: 
+  _entries:
+  - StatTypeId: MaxHealth
+    Category: Vitals
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: HealthRegen
+    Category: Vitals
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: HealthRegenPercent
+    Category: Vitals
+    Format: 1
+    ShowInCharacterWindow: 0
+  - StatTypeId: HealthOnHit
+    Category: Vitals
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: HealthOnBlock
+    Category: Vitals
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: MaxMana
+    Category: Vitals
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: ManaRegen
+    Category: Vitals
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: ManaRegenPercent
+    Category: Vitals
+    Format: 1
+    ShowInCharacterWindow: 0
+  - StatTypeId: ManaOnHit
+    Category: Vitals
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: ManaOnBlock
+    Category: Vitals
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: MaxBubbles
+    Category: Defense
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: BubbleRechargeDuration
+    Category: Misc
+    Format: 2
+    ShowInCharacterWindow: 1
+  - StatTypeId: BubbleMitigationPercent
+    Category: Resistances
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: MaxBubbleMitigationPercent
+    Category: Resistances
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: Armor
+    Category: Defense
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: Evasion
+    Category: Defense
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: BlockChance
+    Category: Defense
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: MaxBlockChance
+    Category: Defense
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: FireResist
+    Category: Resistances
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: MaxFireResist
+    Category: Resistances
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: ColdResist
+    Category: Resistances
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: MaxColdResist
+    Category: Resistances
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: LightningResist
+    Category: Resistances
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: MaxLightningResist
+    Category: Resistances
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: PhysicalResist
+    Category: Resistances
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: MaxPhysicalResist
+    Category: Resistances
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: MoveSpeed
+    Category: Speed
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: JumpForce
+    Category: Misc
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: AttackSpeed
+    Category: Speed
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: CastSpeed
+    Category: Speed
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: DamagePhysical
+    Category: Damage
+    Format: 3
+    ShowInCharacterWindow: 1
+  - StatTypeId: DamageFire
+    Category: Damage
+    Format: 3
+    ShowInCharacterWindow: 1
+  - StatTypeId: DamageCold
+    Category: Damage
+    Format: 3
+    ShowInCharacterWindow: 1
+  - StatTypeId: DamageLightning
+    Category: Damage
+    Format: 3
+    ShowInCharacterWindow: 1
+  - StatTypeId: PhysicalToFire
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: PhysicalToCold
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: PhysicalToLightning
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: ElementalToPhysical
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: TakePhysAsCold
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: TakePhysAsFire
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: TakePhysAsLightning
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: TakeLightningAsPhys
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: TakeLightningAsFire
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: TakeLightningAsCold
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: TakeColdAsPhys
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: TakeColdAsFire
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: TakeColdAsLightning
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: TakeFireAsLightning
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: TakeFireAsPhys
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: TakeFireAsCold
+    Category: Conversion
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: Accuracy
+    Category: Critical
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: CritChance
+    Category: Critical
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: CritMultiplier
+    Category: Critical
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: PenetrationPhysical
+    Category: Resistances
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: PenetrationFire
+    Category: Resistances
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: PenetrationCold
+    Category: Resistances
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: PenetrationLightning
+    Category: Resistances
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: BleedChance
+    Category: Ailments
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: BleedDamage
+    Category: Ailments
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: BleedDamageMult
+    Category: Ailments
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: BleedDuration
+    Category: Ailments
+    Format: 2
+    ShowInCharacterWindow: 1
+  - StatTypeId: ChanseToAvoidBleed
+    Category: Ailments
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: PoisonChance
+    Category: Ailments
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: PoisonDamage
+    Category: Ailments
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: PoisonDamageMult
+    Category: Ailments
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: PoisonDuration
+    Category: Ailments
+    Format: 2
+    ShowInCharacterWindow: 1
+  - StatTypeId: ChanseToAvoidPoison
+    Category: Ailments
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: IgniteChance
+    Category: Ailments
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: IgniteDamage
+    Category: Ailments
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: IgniteDamageMult
+    Category: Ailments
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: IgniteDuration
+    Category: Ailments
+    Format: 2
+    ShowInCharacterWindow: 1
+  - StatTypeId: ChanseToAvoidIgnite
+    Category: Ailments
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: FreezeChance
+    Category: Ailments
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: FreezeDuration
+    Category: Ailments
+    Format: 2
+    ShowInCharacterWindow: 1
+  - StatTypeId: ChanseToAvoidFreeze
+    Category: Ailments
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: ShockChance
+    Category: Ailments
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: ShockDuration
+    Category: Ailments
+    Format: 2
+    ShowInCharacterWindow: 1
+  - StatTypeId: ChanseToAvoidShock
+    Category: Ailments
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: ReduceDamageTaken
+    Category: Resistances
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: AreaOfEffect
+    Category: Misc
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: CooldownReductionPercent
+    Category: Misc
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: EffectDuration
+    Category: Misc
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: ProjectileSpeed
+    Category: Speed
+    Format: 1
+    ShowInCharacterWindow: 1
+  - StatTypeId: ProjectileCount
+    Category: Misc
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: ProjectileFork
+    Category: Misc
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: ProjectileChain
+    Category: Misc
+    Format: 0
+    ShowInCharacterWindow: 1
