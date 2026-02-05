@@ -6,6 +6,7 @@ using System.Linq;
 using Scripts.Stats;
 using Scripts.Skills.PassiveTree;
 using Scripts.Items.Affixes;
+using Scripts.Editor.PassiveTree;
 using UnityEngine.Localization.Tables;
 using UnityEditor.Localization;
 
@@ -34,12 +35,14 @@ namespace Scripts.Editor.Stats
         private List<UnityEngine.Object> _passiveTreesUsingStat = new List<UnityEngine.Object>();
         private List<UnityEngine.Object> _characterDataUsingStat = new List<UnityEngine.Object>();
 
-        private const string MenuPath = "Tools/RPG/Stats Editor";
+        private const string MenuPath = "Tools/Stats Editor";
         private const string MenuLabelsPath = "Assets/Localization/LocalizationTables/MenuLabels.asset";
         private const string SessionKeySelectedStat = "StatsEditorWindow_SelectedStat";
         private const string StatsDatabaseResourcePath = "Databases/StatsDatabase";
 
         [SerializeField] private StatsDatabaseSO _statsDatabase;
+        [SerializeField] private StringTableCollection _affixesCollection;
+        private string _newStatName = "";
 
         [MenuItem(MenuPath)]
         public static void OpenWindow()
@@ -159,6 +162,9 @@ namespace Scripts.Editor.Stats
             DrawMetadataSection(type);
 
             DrawLocalizationSection(id);
+
+            EditorGUILayout.Space(12);
+            DrawStatLifecycleSection(type, id);
 
             EditorGUILayout.Space(12);
             DrawUsageSection(type);
@@ -315,6 +321,91 @@ namespace Scripts.Editor.Stats
                 table.AddEntry(key, value);
         }
 
+        private void DrawStatLifecycleSection(StatType type, string id)
+        {
+            GUILayout.Label("Stat lifecycle", EditorStyles.boldLabel);
+            EditorGUILayout.Space(4);
+
+            // Add new stat to enum (no need to edit code)
+            EditorGUILayout.LabelField("Add new stat to enum", EditorStyles.miniBoldLabel);
+            EditorGUILayout.BeginHorizontal();
+            _newStatName = EditorGUILayout.TextField("New stat name", _newStatName);
+            if (GUILayout.Button("Add to enum", GUILayout.Width(100)))
+            {
+                if (StatsEditorStatLifecycle.AddToEnum(_newStatName))
+                {
+                    _newStatName = "";
+                    _selectedStat = null;
+                    SessionState.SetString(SessionKeySelectedStat, "");
+                    Repaint();
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.HelpBox("Use PascalCase (e.g. MyNewStat). After recompile the stat appears in the list — then use \"Initialize stat\" for localization.", MessageType.None);
+            EditorGUILayout.Space(8);
+
+            _affixesCollection = (StringTableCollection)EditorGUILayout.ObjectField("Affixes table (for new affixes)", _affixesCollection, typeof(StringTableCollection), false);
+            EditorGUILayout.Space(4);
+
+            bool hasLoc = _menuLabelsCollection != null && StatsEditorStatLifecycle.HasLocalizationKey(_menuLabelsCollection, type);
+
+            if (!hasLoc && _menuLabelsCollection != null && GUILayout.Button("Initialize stat (localization + metadata)", GUILayout.Height(24)))
+            {
+                if (StatsEditorStatLifecycle.InitializeStat(type, _menuLabelsCollection, _statsDatabase))
+                {
+                    _lastLoadedKey = "";
+                    Repaint();
+                }
+            }
+            if (hasLoc && _menuLabelsCollection != null)
+                EditorGUILayout.HelpBox("Localization key exists. Use fields above to edit.", MessageType.None);
+
+            EditorGUILayout.Space(4);
+            if (GUILayout.Button("Create sample affix for this stat", GUILayout.Height(22)))
+            {
+                var affix = StatsEditorStatLifecycle.CreateSampleAffix(type, _affixesCollection);
+                if (affix != null) { Selection.activeObject = affix; EditorGUIUtility.PingObject(affix); }
+            }
+            if (GUILayout.Button("Create sample passive node for this stat", GUILayout.Height(22)))
+            {
+                var template = StatsEditorStatLifecycle.CreateSamplePassiveNode(type);
+                if (template != null) { Selection.activeObject = template; EditorGUIUtility.PingObject(template); }
+            }
+
+            EditorGUILayout.Space(8);
+            GUI.backgroundColor = new Color(1f, 0.85f, 0.7f);
+            if (GUILayout.Button("Prepare stat for removal (cleanup all references)", GUILayout.Height(26)))
+            {
+                int affixes = _affixesUsingStat?.Count ?? 0, templates = _passiveTemplatesUsingStat?.Count ?? 0, trees = _passiveTreesUsingStat?.Count ?? 0, chars = _characterDataUsingStat?.Count ?? 0;
+                bool ok = EditorUtility.DisplayDialog("Prepare stat for removal", $"This will remove \"{id}\" from:\n• MenuLabels (en/ru)\n• Stats Database\n• Affixes ({affixes})\n• Passive templates ({templates})\n• Passive trees ({trees})\n• Character data ({chars})\n\nProceed?", "Proceed", "Cancel");
+                if (ok)
+                {
+                    string report = StatsEditorStatLifecycle.PrepareStatForRemoval(type, _menuLabelsCollection, _statsDatabase, out _, out _, out _, out _);
+                    Debug.Log($"Stats Editor: Prepare for removal — {report}");
+                    _cachedUsageStat = null;
+                    _lastLoadedKey = "";
+                    Repaint();
+                }
+            }
+            GUI.backgroundColor = Color.white;
+
+            EditorGUILayout.Space(4);
+            GUI.backgroundColor = new Color(1f, 0.7f, 0.7f);
+            if (GUILayout.Button("Remove from enum (edit StatType.cs)", GUILayout.Height(24)))
+            {
+                if (EditorUtility.DisplayDialog("Remove from enum", $"Remove \"{id}\" from StatType.cs? Unity will recompile. Use \"Prepare stat for removal\" first to clean references.", "Remove", "Cancel"))
+                {
+                    if (StatsEditorStatLifecycle.RemoveFromEnum(type))
+                    {
+                        _selectedStat = null;
+                        SessionState.SetString(SessionKeySelectedStat, "");
+                        Repaint();
+                    }
+                }
+            }
+            GUI.backgroundColor = Color.white;
+        }
+
         private void DrawUsageSection(StatType stat)
         {
             EditorGUILayout.BeginHorizontal();
@@ -331,13 +422,13 @@ namespace Scripts.Editor.Stats
                 RefreshUsageCache(stat);
             }
 
-            DrawUsageList("Affixes", _affixesUsingStat, "ItemAffixSO");
-            DrawUsageList("Passive node templates", _passiveTemplatesUsingStat, "PassiveNodeTemplateSO");
-            DrawUsageList("Passive trees (nodes with this stat)", _passiveTreesUsingStat, "PassiveSkillTreeSO");
-            DrawUsageList("Character data (starting stats)", _characterDataUsingStat, "CharacterDataSO");
+            DrawUsageList("Affixes", _affixesUsingStat, "ItemAffixSO", isTree: false);
+            DrawUsageList("Passive node templates", _passiveTemplatesUsingStat, "PassiveNodeTemplateSO", isTree: false);
+            DrawUsageList("Passive trees (nodes with this stat)", _passiveTreesUsingStat, "PassiveSkillTreeSO", isTree: true);
+            DrawUsageList("Character data (starting stats)", _characterDataUsingStat, "CharacterDataSO", isTree: false);
         }
 
-        private void DrawUsageList(string title, List<UnityEngine.Object> list, string typeLabel)
+        private void DrawUsageList(string title, List<UnityEngine.Object> list, string typeLabel, bool isTree)
         {
             EditorGUILayout.LabelField(title, EditorStyles.miniLabel);
             if (list == null || list.Count == 0)
@@ -349,11 +440,20 @@ namespace Scripts.Editor.Stats
             {
                 if (obj == null) continue;
                 string name = obj.name;
-                if (GUILayout.Button($"  {name}", EditorStyles.linkLabel))
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button($"  {name}", EditorStyles.linkLabel, GUILayout.ExpandWidth(true)))
                 {
                     Selection.activeObject = obj;
                     EditorGUIUtility.PingObject(obj);
                 }
+                if (GUILayout.Button("Open", GUILayout.Width(40)))
+                {
+                    Selection.activeObject = obj;
+                    EditorGUIUtility.PingObject(obj);
+                    if (isTree && obj is PassiveSkillTreeSO tree)
+                        PassiveTreeEditorWindow.OpenWithTree(tree);
+                }
+                EditorGUILayout.EndHorizontal();
             }
         }
 

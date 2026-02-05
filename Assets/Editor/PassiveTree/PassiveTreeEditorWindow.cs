@@ -23,6 +23,15 @@ namespace Scripts.Editor.PassiveTree
             w.titleContent = new GUIContent("Passive Tree Editor");
         }
 
+        /// <summary>
+        /// Open the Passive Tree Editor and load the given tree (e.g. from Stats Editor).
+        /// </summary>
+        public static void OpenWithTree(PassiveSkillTreeSO tree)
+        {
+            OpenWindow();
+            GetWindow<PassiveTreeEditorWindow>().LoadTree(tree);
+        }
+
         [UnityEditor.Callbacks.OnOpenAsset(1)]
         public static bool OnOpenAsset(int instanceID, int line)
         {

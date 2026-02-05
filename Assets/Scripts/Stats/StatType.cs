@@ -126,6 +126,8 @@ namespace Scripts.Stats
         ProjectileSpeed,           // Скорость полета снарядов
         ProjectileCount, 
         ProjectileFork, 
-        ProjectileChain 
+        ProjectileChain,
+        MaxBleedStack,
+        ExtraTargetsForMeleeHits
     }
 }

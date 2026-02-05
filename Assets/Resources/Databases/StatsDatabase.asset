@@ -357,3 +357,11 @@ MonoBehaviour:
     Category: Misc
     Format: 0
     ShowInCharacterWindow: 1
+  - StatTypeId: MaxBleedStack
+    Category: Ailments
+    Format: 0
+    ShowInCharacterWindow: 1
+  - StatTypeId: ExtraTargetsForMeleeHits
+    Category: Damage
+    Format: 0
+    ShowInCharacterWindow: 1
