@@ -3,11 +3,13 @@ using System;
 using System.Collections.Generic;
 using Scripts.Stats;
 using Scripts.Inventory;
-using Scripts.Enemies; // Добавлен namespace для доступа к EnemyHealth
+using Scripts.Enemies;
 
 public class PlayerStats : MonoBehaviour
 {
     public event Action OnAnyStatChanged;
+    // --- НОВОЕ СОБЫТИЕ: Сообщает, что объект LevelingSystem был пересоздан ---
+    public event Action OnLevelingInitialized; 
 
     [Header("Config")]
     [SerializeField] private bool _restoreStateOnLevelUp = true;
@@ -34,13 +36,34 @@ public class PlayerStats : MonoBehaviour
 
         Health = new StatResource(GetStat(StatType.MaxHealth));
         Mana = new StatResource(GetStat(StatType.MaxMana));
-        Leveling = new LevelingSystem(1, 0, 100);
+        
+        // Начальная инициализация
+        CreateLevelingSystem(1, 0, 100, 0);
 
         Health.OnValueChanged += NotifyChanged;
         Mana.OnValueChanged += NotifyChanged;
         Health.OnDepleted += HandleDeath;
+    }
+
+    // --- ВЫНЕСЛИ СОЗДАНИЕ В ОТДЕЛЬНЫЙ МЕТОД ДЛЯ УДОБСТВА ---
+    private void CreateLevelingSystem(int level, float xp, float reqXp, int points)
+    {
+        // Отписываемся от старой системы, если она была
+        if (Leveling != null) 
+        {
+            Leveling.OnLevelUp -= HandleLevelUp;
+            Leveling.OnXPChanged -= NotifyChanged;
+        }
+
+        // Создаем новую
+        Leveling = new LevelingSystem(level, xp, reqXp, points);
+        
+        // Подписываемся на новую
         Leveling.OnLevelUp += HandleLevelUp;
         Leveling.OnXPChanged += NotifyChanged;
+        
+        // --- ВАЖНО: Уведомляем внешние системы (UI, Дерево), что ссылка изменилась ---
+        OnLevelingInitialized?.Invoke();
     }
 
     private void Start()
@@ -56,8 +79,7 @@ public class PlayerStats : MonoBehaviour
         NotifyChanged();
     }
     
-    // --- AI ADDED: Подписка на глобальные события ---
-    private void OnEnable()
+     private void OnEnable()
     {
         EnemyHealth.OnEnemyKilled += HandleEnemyKilled;
     }
@@ -67,16 +89,13 @@ public class PlayerStats : MonoBehaviour
         EnemyHealth.OnEnemyKilled -= HandleEnemyKilled;
     }
     
-    // Обработчик получения опыта
     private void HandleEnemyKilled(float xpAmount)
     {
         if (Leveling != null)
         {
             Leveling.AddXP(xpAmount);
-            // Debug.Log($"[Player] Gained {xpAmount} XP. Current: {Leveling.CurrentXP}/{Leveling.RequiredXP}");
         }
     }
-    // -----------------------------------------------
 
     private void OnDestroy()
     {
@@ -89,10 +108,6 @@ public class PlayerStats : MonoBehaviour
         if (Mana != null) Mana.OnValueChanged -= NotifyChanged;
     }
 
-    // ... (Остальной код GetStat, GetValue, Initialize и т.д. без изменений) ...
-    // Вставь сюда остаток файла, который был (Initialize, HandleItemEquipped, и т.д.)
-    
-    // --- КОПИЯ ДЛЯ КОНТЕКСТА (чтобы файл был валидным) ---
     public CharacterStat GetStat(StatType type)
     {
         if (_stats.TryGetValue(type, out CharacterStat stat)) return stat;
@@ -102,6 +117,7 @@ public class PlayerStats : MonoBehaviour
     }
 
     public float GetValue(StatType type) => GetStat(type).Value;
+
 
     public void Initialize(CharacterDataSO data)
     {
@@ -126,15 +142,19 @@ public class PlayerStats : MonoBehaviour
         Health.RestoreFull();
         Mana.RestoreFull();
         
-        if (Leveling != null) 
-        {
-            Leveling.OnLevelUp -= HandleLevelUp;
-            Leveling.OnXPChanged -= NotifyChanged;
-        }
-        Leveling = new LevelingSystem(1, 0, 100); 
-        Leveling.OnLevelUp += HandleLevelUp;
-        Leveling.OnXPChanged += NotifyChanged;
+        // --- ИЗМЕНЕНО: Используем единый метод создания ---
+        CreateLevelingSystem(1, 0, 100, 0);
 
+        NotifyChanged();
+    }
+
+    public void ApplyLoadedState(GameSaveData data)
+    {
+        // --- ИЗМЕНЕНО: Используем единый метод создания ---
+        CreateLevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP, data.SkillPoints);
+        
+        Health.SetCurrent(data.CurrentHealth);
+        Mana.SetCurrent(data.CurrentMana);
         NotifyChanged();
     }
 
@@ -166,15 +186,8 @@ public class PlayerStats : MonoBehaviour
 
     private void HandleLevelUp() { if (_restoreStateOnLevelUp) { Health.RestoreFull(); Mana.RestoreFull(); } NotifyChanged(); }
     private void HandleDeath() { Debug.Log("YOU DIED"); }
-    private void NotifyChanged() { OnAnyStatChanged?.Invoke(); }
-
-    public void ApplyLoadedState(GameSaveData data)
-    {
-        Leveling = new LevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP);
-        Leveling.OnLevelUp += HandleLevelUp;
-        Leveling.OnXPChanged += NotifyChanged;
-        Health.SetCurrent(data.CurrentHealth);
-        Mana.SetCurrent(data.CurrentMana);
-        NotifyChanged();
-    }
+    public void NotifyChanged() 
+{ 
+    OnAnyStatChanged?.Invoke(); 
+}
 }

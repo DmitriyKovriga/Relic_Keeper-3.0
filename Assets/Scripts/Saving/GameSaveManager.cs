@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.IO;
 using Scripts.Inventory;
-
+using Scripts.Skills.PassiveTree; // Добавлен namespace
 
 public class GameSaveManager : MonoBehaviour
 {
@@ -14,20 +14,27 @@ public class GameSaveManager : MonoBehaviour
     [Header("Inventory Dependencies")]
     [SerializeField] private ItemDatabaseSO _itemDatabase;
 
-    // Используем Path.Combine для надежности путей на разных ОС
+    // AI ADDED: Ссылка на менеджер дерева (найдем автоматически или назначь вручную)
+    private PassiveTreeManager _passiveTreeManager;
+
     private string SavePath => Path.Combine(Application.persistentDataPath, "savegame.json");
 
     private System.Collections.IEnumerator Start()
     {
+        // Ищем менеджер дерева на игроке
+        if (_playerStats != null)
+        {
+            _passiveTreeManager = _playerStats.GetComponent<PassiveTreeManager>();
+        }
+
         // 1. Инициализация баз данных
         if (_characterDB != null) _characterDB.Init();
         if (_itemDatabase != null) _itemDatabase.Init();
 
-        // 2. ВАЖНО: Ждем 1 кадр.
-        // Это дает время InventoryManager'у и UI проинициализироваться (выполнить свои Awake/Start).
+        // 2. Ждем 1 кадр
         yield return null; 
 
-        // 3. Теперь загружаем
+        // 3. Загружаем
         if (File.Exists(SavePath))
         {
             LoadGame();
@@ -40,11 +47,10 @@ public class GameSaveManager : MonoBehaviour
 
     private void Update()
     {
-        // Dev Tools
         if (Keyboard.current == null) return;
 
-        if (Keyboard.current.kKey.wasPressedThisFrame) SaveGame(); // F5/K - Save
-        if (Keyboard.current.lKey.wasPressedThisFrame) LoadGame(); // F9/L - Load
+        if (Keyboard.current.kKey.wasPressedThisFrame) SaveGame(); 
+        if (Keyboard.current.lKey.wasPressedThisFrame) LoadGame(); 
         if (Keyboard.current.deleteKey.wasPressedThisFrame) DeleteSave();
 
         if (Keyboard.current.f12Key.wasPressedThisFrame)
@@ -59,33 +65,30 @@ public class GameSaveManager : MonoBehaviour
     {
         Debug.Log("[System] Saving Game...");
 
-        if (_playerStats == null) 
-        {
-            Debug.LogError("[System] Error: PlayerStats ref is missing!"); 
-            return;
-        }
+        if (_playerStats == null) return;
 
-        // Собираем данные из новых модулей
         var data = new GameSaveData
         {
-            // ID класса
             CharacterClassID = _playerStats.CurrentClassID,
-            
-            // Состояние ресурсов
             CurrentHealth = _playerStats.Health.Current,
             CurrentMana = _playerStats.Mana.Current,
             
-            // Прогресс (из LevelingSystem)
             CurrentLevel = _playerStats.Leveling.Level,
             CurrentXP = _playerStats.Leveling.CurrentXP,
             RequiredXP = _playerStats.Leveling.RequiredXP,
+            
+            // AI ADDED: Сохраняем очки навыков
+            SkillPoints = _playerStats.Leveling.SkillPoints,
 
-            Inventory = InventoryManager.Instance != null ? InventoryManager.Instance.GetSaveData() : new InventorySaveData()
+            Inventory = InventoryManager.Instance != null ? InventoryManager.Instance.GetSaveData() : new InventorySaveData(),
+            
+            // AI ADDED: Сохраняем дерево
+            AllocatedPassiveNodes = _passiveTreeManager != null ? _passiveTreeManager.GetSaveData() : new System.Collections.Generic.List<string>()
         };
 
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(SavePath, json);
-        Debug.Log($"[System] Game Saved. Level: {data.CurrentLevel}, XP: {data.CurrentXP}");
+        Debug.Log($"[System] Game Saved. Level: {data.CurrentLevel}, SP: {data.SkillPoints}");
     }
 
     public void LoadGame()
@@ -101,14 +104,20 @@ public class GameSaveManager : MonoBehaviour
             
             if (characterData != null)
             {
-                // 1. Инит статов
+                // 1. Инит статов и левелинга (включая SkillPoints)
                 _playerStats.Initialize(characterData);
                 _playerStats.ApplyLoadedState(data);
 
-                // 2. Инит инвентаря (AI ADDED)
+                // 2. Инит инвентаря
                 if (InventoryManager.Instance != null && _itemDatabase != null)
                 {
                     InventoryManager.Instance.LoadState(data.Inventory, _itemDatabase);
+                }
+
+                // 3. AI ADDED: Инит дерева пассивок
+                if (_passiveTreeManager != null && data.AllocatedPassiveNodes != null)
+                {
+                    _passiveTreeManager.LoadState(data.AllocatedPassiveNodes);
                 }
                 
                 Debug.Log($"[System] Game Loaded.");

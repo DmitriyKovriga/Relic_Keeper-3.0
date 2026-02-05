@@ -1,0 +1,114 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d371fe250f0d624db51c662da4fdb36, type: 3}
+  m_Name: WariorPassiveTree
+  m_EditorClassIdentifier: 
+  Nodes:
+  - ID: 3d91ca11-3966-4ef3-bfe6-b22fa5d93a4a
+    NodeType: 3
+    PlacementMode: 0
+    Position: {x: 400, y: 500}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 42d0d8fc-b1c8-4c8c-ae82-9a8c94e8069f
+  - ID: 42d0d8fc-b1c8-4c8c-ae82-9a8c94e8069f
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 560, y: 500}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 3d91ca11-3966-4ef3-bfe6-b22fa5d93a4a
+    - a4a965d8-bf4c-458b-8617-35b16c2f8b27
+    - 248bdace-3338-4810-9578-8fe0926fecd2
+  - ID: a4a965d8-bf4c-458b-8617-35b16c2f8b27
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 760, y: 500}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 42d0d8fc-b1c8-4c8c-ae82-9a8c94e8069f
+    - d37c8b2e-6577-4a03-a217-e69c3e0b0468
+  - ID: 248bdace-3338-4810-9578-8fe0926fecd2
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 8f596495-a306-4c03-95b4-fc50b3980db0
+    OrbitIndex: 0
+    OrbitAngle: 135
+    Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 42d0d8fc-b1c8-4c8c-ae82-9a8c94e8069f
+    - 18304033-8753-4cbf-ba5a-ea0e483a015f
+  - ID: e895e94d-4e6b-4857-9919-22726486a915
+    NodeType: 1
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 8f596495-a306-4c03-95b4-fc50b3980db0
+    OrbitIndex: 0
+    OrbitAngle: 255
+    Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 18304033-8753-4cbf-ba5a-ea0e483a015f
+  - ID: 18304033-8753-4cbf-ba5a-ea0e483a015f
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 8f596495-a306-4c03-95b4-fc50b3980db0
+    OrbitIndex: 0
+    OrbitAngle: 15
+    Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 248bdace-3338-4810-9578-8fe0926fecd2
+    - e895e94d-4e6b-4857-9919-22726486a915
+  - ID: d37c8b2e-6577-4a03-a217-e69c3e0b0468
+    NodeType: 2
+    PlacementMode: 0
+    Position: {x: 940, y: 500}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - a4a965d8-bf4c-458b-8617-35b16c2f8b27
+  Clusters:
+  - ID: 8f596495-a306-4c03-95b4-fc50b3980db0
+    Name: Cluster 1
+    Center: {x: 660, y: 400}
+    Orbits:
+    - Radius: 80
+      IsPartialArc: 0
+      ArcStartAngle: 0
+      ArcEndAngle: 360
+    - Radius: 120
+      IsPartialArc: 0
+      ArcStartAngle: 0
+      ArcEndAngle: 360
+    EditorColor: {r: 0.43673494, g: 0.6562948, b: 0.7671424, a: 0.4}
+    RoadConnections: []
+  GridSize: 20
+  SnapToGrid: 1

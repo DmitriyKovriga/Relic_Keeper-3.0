@@ -1,3 +1,6 @@
+// ==========================================
+// FILENAME: Assets/Scripts/PlayerBasicScripts/PlayerAttackInput.cs
+// ==========================================
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Scripts.Skills;
@@ -6,46 +9,51 @@ using Scripts.Skills;
 public class PlayerAttackInput : MonoBehaviour
 {
     private PlayerSkillManager _skillManager;
-    private GameInput _input;
+    // --- УДАЛЕНО: private GameInput _input; ---
 
-    // Флаги состояния кнопок
     private bool _isMainHandPressed;
     private bool _isOffHandPressed;
 
     private void Awake()
     {
         _skillManager = GetComponent<PlayerSkillManager>();
-        _input = new GameInput();
+        // --- УДАЛЕНО: _input = new GameInput(); ---
     }
 
     private void OnEnable()
     {
-        _input.Enable();
-        _input.Player.Enable();
-        InputRebindSaver.Load(_input.asset);
+        // --- ИЗМЕНЕНО: Используем InputManager ---
+        var playerActions = InputManager.InputActions.Player;
 
-        // Подписываемся на НАЖАТИЕ (started/performed) и ОТПУСКАНИЕ (canceled)
-        _input.Player.FirstSkill.started += ctx => _isMainHandPressed = true;
-        _input.Player.FirstSkill.canceled += ctx => _isMainHandPressed = false;
+        // Не нужно вызывать Load здесь, это делает PlayerMovement
+        // InputRebindSaver.Load(InputManager.InputActions.asset);
 
-        _input.Player.SecondSkill.started += ctx => _isOffHandPressed = true;
-        _input.Player.SecondSkill.canceled += ctx => _isOffHandPressed = false;
+        playerActions.FirstSkill.started += ctx => _isMainHandPressed = true;
+        playerActions.FirstSkill.canceled += ctx => _isMainHandPressed = false;
+
+        playerActions.SecondSkill.started += ctx => _isOffHandPressed = true;
+        playerActions.SecondSkill.canceled += ctx => _isOffHandPressed = false;
     }
 
     private void OnDisable()
     {
-        // При выключении сбрасываем флаги, чтобы не "залипло"
         _isMainHandPressed = false;
         _isOffHandPressed = false;
-        _input.Disable();
+        
+        // --- ИЗМЕНЕНО: Отписываемся от статического экземпляра ---
+        if (InputManager.InputActions != null)
+        {
+            var playerActions = InputManager.InputActions.Player;
+            playerActions.FirstSkill.started -= ctx => _isMainHandPressed = true;
+            playerActions.FirstSkill.canceled -= ctx => _isMainHandPressed = false;
+
+            playerActions.SecondSkill.started -= ctx => _isOffHandPressed = true;
+            playerActions.SecondSkill.canceled -= ctx => _isOffHandPressed = false;
+        }
     }
 
     private void Update()
     {
-        // Каждый кадр проверяем, зажата ли кнопка.
-        // Если да - пытаемся использовать скилл.
-        // SkillManager сам решит, можно ли сейчас бить (проверка IsCasting и Cooldown внутри).
-
         if (_isMainHandPressed)
         {
             _skillManager.UseSkill(0);

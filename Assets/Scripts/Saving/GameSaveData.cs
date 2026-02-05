@@ -11,9 +11,12 @@ public class GameSaveData
     public int CurrentLevel;
     public float CurrentXP;
     public float RequiredXP;
+    public int SkillPoints; 
 
     public InventorySaveData Inventory;
 
     // Конструктор по умолчанию нужен для JsonUtility
+
+    public List<string> AllocatedPassiveNodes = new List<string>();
     public GameSaveData() {}
 }

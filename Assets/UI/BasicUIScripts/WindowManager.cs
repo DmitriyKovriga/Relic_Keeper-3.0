@@ -1,3 +1,6 @@
+// ==========================================
+// FILENAME: Assets/UI/BasicUIScripts/WindowManager.cs
+// ==========================================
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -5,39 +8,55 @@ public class WindowManager : MonoBehaviour
 {
     private readonly Stack<WindowView> windowStack = new();
 
+    public WindowView TopWindow => windowStack.Count > 0 ? windowStack.Peek() : null;
+    public bool HasOpenWindow => windowStack.Count > 0;
+
     public void OpenWindow(WindowView window)
     {
-        if (windowStack.Count > 0 && windowStack.Peek() == window)
-            return;
+        // Если уже есть открытое окно, закрываем его
+        if (HasOpenWindow && TopWindow != window)
+        {
+            CloseTop();
+        }
 
-        windowStack.Push(window);
-        window.OpenInternal();
+        if (!windowStack.Contains(window))
+        {
+            // --- НОВАЯ ЛОГИКА ---
+            // Если это первое открываемое окно, отключаем управление игроком
+            if (!HasOpenWindow)
+            {
+                InputManager.InputActions.Player.Disable();
+                Debug.Log("<color=red>INPUT: Player Controls DISABLED</color>");
+            }
+            
+            windowStack.Push(window);
+            window.OpenInternal();
+        }
     }
 
     public void CloseTop()
     {
-        if (windowStack.Count == 0)
-            return;
+        if (!HasOpenWindow) return;
 
         var top = windowStack.Pop();
         top.CloseInternal();
+
+        // --- НОВАЯ ЛОГИКА ---
+        // Если после закрытия больше не осталось окон, возвращаем управление
+        if (!HasOpenWindow)
+        {
+            InputManager.InputActions.Player.Enable();
+            Debug.Log("<color=green>INPUT: Player Controls ENABLED</color>");
+        }
     }
 
     public void NotifyClosed(WindowView window)
     {
-        // если окно закрылось само (overlay)
         if (windowStack.Contains(window))
         {
-            var temp = new Stack<WindowView>();
-            while (windowStack.Peek() != window)
-                temp.Push(windowStack.Pop());
-
-            windowStack.Pop(); // убрали нужное
-
-            while (temp.Count > 0)
-                windowStack.Push(temp.Pop());
+            // Эта логика для закрытия по клику на оверлей, она сложная, пока оставим
+            // Но добавим проверку на возврат управления
+            CloseTop();
         }
     }
-
-    public bool HasOpenWindow => windowStack.Count > 0;
 }

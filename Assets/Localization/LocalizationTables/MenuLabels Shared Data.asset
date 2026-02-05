@@ -52,7 +52,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 201734428286976
-    m_Key: settings.interact
+    m_Key: 
     m_Metadata:
       m_Items: []
   - m_Id: 11763657833701376
@@ -316,9 +316,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14172903258488832
-    m_Key: 'stats.MaxFireResist
-
-'
+    m_Key: stats.MaxFireResist
     m_Metadata:
       m_Items: []
   - m_Id: 14172907771559936
@@ -451,6 +449,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 14534872385748992
     m_Key: skill_type_offhand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23014609609326592
+    m_Key: menu_labels.SkillTree
     m_Metadata:
       m_Items: []
   m_Metadata:
