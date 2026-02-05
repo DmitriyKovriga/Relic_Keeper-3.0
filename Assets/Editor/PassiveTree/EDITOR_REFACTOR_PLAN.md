@@ -1,8 +1,8 @@
 # План рефакторинга редактора дерева пассивок (PoE-подобный, SRP)
 
-## 1. Текущее состояние
+## 1. Исходное состояние (до рефакторинга)
 
-### Два редактора в коде
+### Два редактора в коде (исторически)
 - **PassiveTreeEditorWindow** использует **PassiveSkillTreeGraphView** (Unity GraphView): ноды с портами, рёбра между портами, pan/zoom через манипуляторы. **Кластеры и орбиты не поддерживаются** — только свободные ноды и связи.
 - **PassiveTreeEditorCanvas** (~857 строк) — кастомный canvas с полной моделью: кластеры, орбиты, ноды на орбитах, линии связей, контекстные меню, перетаскивание нод/кластеров. **Сейчас не используется в окне** — только GraphView.
 
@@ -85,8 +85,8 @@
 13. **Search**: новый класс **PassiveTreeSearchFilter** (поле в тулбаре), подсветка/фильтр нод по строке.
 
 ### Фаза 4 (опционально)
-14. Удалить или скрыть **PassiveSkillTreeGraphView** и **PassiveSkillTreeNode**, если решено не поддерживать два режима редактирования.
-15. Улучшение линий: дуги для связей на одной орбите (если ещё не сделано в рантайме).
+14. ~~Удалить или скрыть **PassiveSkillTreeGraphView** и **PassiveSkillTreeNode**~~ — выполнено: файлы удалены, редактор только на Canvas.
+15. Улучшение линий: дуги для связей на одной орбите — уже сделано в редакторе (PassiveTreeConnectionLines).
 
 ---
 
@@ -108,15 +108,12 @@ PassiveTree/
     PassiveTreeConnectionLines.cs
   Overlays/
     PassiveTreeGridOverlay.cs
-    PassiveTreeMinimap.cs          # фаза 3
+    PassiveTreeMinimap.cs          # фаза 3 (опционально)
   Nodes/
     PassiveTreeEditorNode.cs
     PassiveTreeClusterView.cs
   Search/
-    PassiveTreeSearchFilter.cs     # фаза 3
-  # Опционально: GraphView (если оставляем)
-  PassiveSkillTreeGraphView.cs
-  PassiveSkillTreeNode.cs
+    PassiveTreeSearchFilter.cs     # фаза 3 (опционально)
 ```
 
 Подпапки (Viewport, Services, UI, Overlays, Nodes, Search) — по желанию; минимум — плоский список с префиксами имён для группировки.
@@ -125,8 +122,7 @@ PassiveTree/
 
 ## 5. Итог
 
-- **Сейчас**: окно использует GraphView (без кластеров); Canvas с полной логикой не используется и собран в один большой файл.
-- **Цель**: один редактор на Canvas, разбитый по SRP на много маленьких классов, с PoE-подобными фичами (minimap, search, frame, undo).
-- **Шаги**: сначала рефакторинг Canvas по плану выше, затем переключение окна на Canvas, затем добавление Undo, Frame, Minimap, Search.
-
-После рефакторинга поддержка и добавление новых фич должны сводиться к правкам одного узкого класса или добавлению нового маленького файла.
+- **Статус: рефакторинг завершён.**
+- **Сейчас**: один редактор на **Canvas** (окно использует PassiveTreeEditorCanvas). Логика разнесена по SRP: ViewportController, SelectionService, EditorCommands, ContextMenuBuilder, ConnectionLines, AssetPersistence. Реализованы Undo, Frame All / Frame Selection; дуги для связей на одной орбите. GraphView и PassiveSkillTreeNode удалены.
+- **Опционально позже**: Minimap, Search Filter — по мере необходимости.
+- Поддержка и новые фичи сводятся к правкам одного узкого класса или добавлению нового файла.

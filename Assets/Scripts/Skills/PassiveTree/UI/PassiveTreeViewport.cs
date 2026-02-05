@@ -45,13 +45,31 @@ namespace Scripts.Skills.PassiveTree.UI
         {
             float viewWidth = _viewport.resolvedStyle.width;
             float viewHeight = _viewport.resolvedStyle.height;
-            
-            // Если стиль еще не разрешен (первый кадр), берем fallback или 0
             if (float.IsNaN(viewWidth)) viewWidth = 0;
             if (float.IsNaN(viewHeight)) viewHeight = 0;
-
             _content.style.left = -position.x * _currentZoom + viewWidth / 2f;
             _content.style.top = -position.y * _currentZoom + viewHeight / 2f;
+        }
+
+        /// <summary>
+        /// Подогнать вид так, чтобы заданный rect в координатах дерева был виден целиком (как Frame All в редакторе).
+        /// Вызывать только когда у viewport уже есть реальные размеры (например, по GeometryChangedEvent).
+        /// </summary>
+        public void FrameContentRect(UnityEngine.Rect contentRect, float padding = 40f)
+        {
+            float vw = _viewport.resolvedStyle.width;
+            float vh = _viewport.resolvedStyle.height;
+            if (float.IsNaN(vw) || vw < 100f || float.IsNaN(vh) || vh < 100f) return;
+            if (contentRect.width <= 0 || contentRect.height <= 0) return;
+
+            float fitZoomX = (vw - padding * 2f) / contentRect.width;
+            float fitZoomY = (vh - padding * 2f) / contentRect.height;
+            _currentZoom = Mathf.Clamp(Mathf.Min(fitZoomX, fitZoomY), MinZoom, MaxZoom);
+
+            Vector2 contentCenter = new Vector2(contentRect.x + contentRect.width * 0.5f, contentRect.y + contentRect.height * 0.5f);
+            _content.style.left = vw * 0.5f - contentCenter.x * _currentZoom;
+            _content.style.top = vh * 0.5f - contentCenter.y * _currentZoom;
+            _content.transform.scale = Vector3.one * _currentZoom;
         }
 
         private void OnWheel(WheelEvent evt)

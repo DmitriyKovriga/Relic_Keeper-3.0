@@ -103,6 +103,25 @@ namespace Scripts.Editor.PassiveTree
             return viewportDelta / _zoom;
         }
 
+        /// <summary>
+        /// Подогнать viewport так, чтобы заданный rect в content-координатах был виден по центру с отступом.
+        /// </summary>
+        public void FrameContentRect(Rect contentRect, float padding = 40f)
+        {
+            float vw = _viewport.resolvedStyle.width;
+            float vh = _viewport.resolvedStyle.height;
+            if (vw <= 0 || vh <= 0 || contentRect.width <= 0 || contentRect.height <= 0) return;
+
+            float fitZoomX = (vw - padding * 2f) / contentRect.width;
+            float fitZoomY = (vh - padding * 2f) / contentRect.height;
+            _zoom = Mathf.Clamp(Mathf.Min(fitZoomX, fitZoomY), MinZoom, MaxZoom);
+
+            Vector2 contentCenter = new Vector2(contentRect.x + contentRect.width * 0.5f, contentRect.y + contentRect.height * 0.5f);
+            _content.style.left = vw * 0.5f - contentCenter.x * _zoom;
+            _content.style.top = vh * 0.5f - contentCenter.y * _zoom;
+            _content.transform.scale = Vector3.one * _zoom;
+        }
+
         private void OnWheel(WheelEvent evt)
         {
             float zoomDelta = -evt.delta.y > 0 ? 1 + ZoomSpeed : 1 - ZoomSpeed;

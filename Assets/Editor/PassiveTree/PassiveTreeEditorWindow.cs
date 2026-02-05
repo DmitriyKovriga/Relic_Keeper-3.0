@@ -42,6 +42,9 @@ namespace Scripts.Editor.PassiveTree
             var toolbar = new Toolbar();
             toolbar.Add(new ToolbarButton(() => { AssetDatabase.SaveAssets(); Debug.Log("Tree Saved!"); }) { text = "Save Asset" });
             toolbar.Add(new ToolbarSpacer());
+            toolbar.Add(new ToolbarButton(() => _canvas?.FrameAll()) { text = "Frame All" });
+            toolbar.Add(new ToolbarButton(() => _canvas?.FrameSelection()) { text = "Frame Selection" });
+            toolbar.Add(new ToolbarSpacer());
             _snapToggle = new ToolbarToggle { text = "Snap to Grid" };
             _snapToggle.RegisterValueChangedCallback(evt =>
             {

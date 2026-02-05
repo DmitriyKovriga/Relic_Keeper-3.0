@@ -412,6 +412,77 @@ namespace Scripts.Editor.PassiveTree
         /// <summary>
         /// Удалить выбранные ноды или выбранный кластер по клавише Delete/Backspace. Возвращает true, если что-то удалено.
         /// </summary>
+        /// <summary>
+        /// Подогнать вид так, чтобы всё дерево (ноды + кластеры) было в кадре.
+        /// </summary>
+        public void FrameAll()
+        {
+            if (_tree == null) return;
+            Rect bounds = ComputeTreeBounds();
+            if (bounds.width > 0 && bounds.height > 0)
+                _viewportController.FrameContentRect(bounds);
+        }
+
+        /// <summary>
+        /// Подогнать вид по выделению (ноды или кластер). Если ничего не выбрано — кадрирует всё дерево.
+        /// </summary>
+        public void FrameSelection()
+        {
+            Rect? bounds = ComputeSelectionBounds();
+            if (bounds.HasValue && bounds.Value.width > 0 && bounds.Value.height > 0)
+                _viewportController.FrameContentRect(bounds.Value);
+            else
+                FrameAll();
+        }
+
+        private Rect ComputeTreeBounds()
+        {
+            if (_tree == null) return new Rect(0, 0, 0, 0);
+            float margin = 80f;
+            float minX = float.MaxValue, minY = float.MaxValue, maxX = float.MinValue, maxY = float.MinValue;
+            bool any = false;
+            foreach (var node in _tree.Nodes)
+            {
+                Vector2 p = node.GetWorldPosition(_tree);
+                minX = Mathf.Min(minX, p.x); maxX = Mathf.Max(maxX, p.x);
+                minY = Mathf.Min(minY, p.y); maxY = Mathf.Max(maxY, p.y);
+                any = true;
+            }
+            foreach (var cluster in _tree.Clusters)
+            {
+                float r = 0f;
+                if (cluster.Orbits != null) foreach (var o in cluster.Orbits) r = Mathf.Max(r, o.Radius);
+                minX = Mathf.Min(minX, cluster.Center.x - r); maxX = Mathf.Max(maxX, cluster.Center.x + r);
+                minY = Mathf.Min(minY, cluster.Center.y - r); maxY = Mathf.Max(maxY, cluster.Center.y + r);
+                any = true;
+            }
+            if (!any) return new Rect(0, 0, 400, 400);
+            return new Rect(minX - margin, minY - margin, maxX - minX + margin * 2f, maxY - minY + margin * 2f);
+        }
+
+        private Rect? ComputeSelectionBounds()
+        {
+            float margin = 60f;
+            var cluster = _selection.SelectedClusterData;
+            if (cluster != null)
+            {
+                float r = 0f;
+                if (cluster.Orbits != null) foreach (var o in cluster.Orbits) r = Mathf.Max(r, o.Radius);
+                r += margin;
+                return new Rect(cluster.Center.x - r, cluster.Center.y - r, r * 2f, r * 2f);
+            }
+            var nodes = _selection.GetSelectedNodeViews();
+            if (nodes == null || nodes.Count == 0) return null;
+            float minX = float.MaxValue, minY = float.MaxValue, maxX = float.MinValue, maxY = float.MinValue;
+            foreach (var nv in nodes)
+            {
+                Vector2 p = nv.Data.GetWorldPosition(_tree);
+                minX = Mathf.Min(minX, p.x); maxX = Mathf.Max(maxX, p.x);
+                minY = Mathf.Min(minY, p.y); maxY = Mathf.Max(maxY, p.y);
+            }
+            return new Rect(minX - margin, minY - margin, maxX - minX + margin * 2f, maxY - minY + margin * 2f);
+        }
+
         public bool TryHandleDeleteKey()
         {
             if (_tree == null) return false;

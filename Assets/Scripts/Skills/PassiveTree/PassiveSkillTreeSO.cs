@@ -137,6 +137,58 @@ namespace Scripts.Skills.PassiveTree
             orbitIndex = nodeA.OrbitIndex;
             return true;
         }
+
+        /// <summary>
+        /// Для отрисовки дуги: обе ноды должны лежать на одной окружности орбиты (по позициям).
+        /// Иначе при неверном OrbitIndex рисуется дуга между разными орбитами и ломается логика прокачки.
+        /// </summary>
+        public bool AreNodesOnSameOrbitCircleForDrawing(string nodeIdA, string nodeIdB, string clusterId, int orbitIndex)
+        {
+            var cluster = GetCluster(clusterId);
+            if (cluster == null || orbitIndex < 0 || orbitIndex >= cluster.Orbits.Count) return false;
+            var nodeA = GetNode(nodeIdA);
+            var nodeB = GetNode(nodeIdB);
+            if (nodeA == null || nodeB == null) return false;
+            float expectedR = cluster.Orbits[orbitIndex].Radius;
+            float distA = (nodeA.GetWorldPosition(this) - cluster.Center).magnitude;
+            float distB = (nodeB.GetWorldPosition(this) - cluster.Center).magnitude;
+            // Достаточный допуск, чтобы редактор и игра давали один и тот же результат (дуга/линия)
+            const float tolerance = 8f;
+            return Mathf.Abs(distA - expectedR) <= tolerance && Mathf.Abs(distB - expectedR) <= tolerance;
+        }
+
+        /// <summary>
+        /// Bounding box всего дерева (ноды + кластеры) для Frame All в игре и редакторе.
+        /// </summary>
+        public Rect GetTreeContentBounds(float margin = 80f)
+        {
+            float minX = float.MaxValue, minY = float.MaxValue, maxX = float.MinValue, maxY = float.MinValue;
+            bool any = false;
+            if (Nodes != null)
+            {
+                foreach (var node in Nodes)
+                {
+                    Vector2 p = node.GetWorldPosition(this);
+                    minX = Mathf.Min(minX, p.x); maxX = Mathf.Max(maxX, p.x);
+                    minY = Mathf.Min(minY, p.y); maxY = Mathf.Max(maxY, p.y);
+                    any = true;
+                }
+            }
+            if (Clusters != null)
+            {
+                foreach (var cluster in Clusters)
+                {
+                    float r = 0f;
+                    if (cluster.Orbits != null)
+                        foreach (var o in cluster.Orbits) r = Mathf.Max(r, o.Radius);
+                    minX = Mathf.Min(minX, cluster.Center.x - r); maxX = Mathf.Max(maxX, cluster.Center.x + r);
+                    minY = Mathf.Min(minY, cluster.Center.y - r); maxY = Mathf.Max(maxY, cluster.Center.y + r);
+                    any = true;
+                }
+            }
+            if (!any) return new Rect(0, 0, 400, 400);
+            return new Rect(minX - margin, minY - margin, maxX - minX + margin * 2f, maxY - minY + margin * 2f);
+        }
     }
 
     [Serializable]

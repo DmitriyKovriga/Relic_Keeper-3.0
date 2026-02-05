@@ -37,7 +37,8 @@ namespace Scripts.Editor.PassiveTree
                     if (tree.AreNodesOnSameOrbit(node.ID, neighborID, out var clusterId, out var orbitIndex))
                     {
                         var cluster = tree.GetCluster(clusterId);
-                        if (cluster != null && orbitIndex >= 0 && orbitIndex < cluster.Orbits.Count)
+                        if (cluster != null && orbitIndex >= 0 && orbitIndex < cluster.Orbits.Count
+                            && tree.AreNodesOnSameOrbitCircleForDrawing(node.ID, neighborID, clusterId, orbitIndex))
                             line = CreateArcElement(node, neighbor, cluster.Center, cluster.Orbits[orbitIndex].Radius);
                         else
                             line = CreateLineElement(node, neighbor, tree);

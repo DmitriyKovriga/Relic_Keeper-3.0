@@ -222,15 +222,14 @@ namespace Scripts.Skills.PassiveTree.UI
             Vector2 posA = nodeA.GetWorldPosition(treeData);
             Vector2 posB = nodeB.GetWorldPosition(treeData);
 
-            // Проверяем, находятся ли оба нода на одной орбите
-            if (treeData.AreNodesOnSameOrbit(id1, id2, out string clusterId, out int orbitIndex))
+            // Дугу рисуем только если оба нода на одной орбите и реально на одной окружности (по позициям)
+            if (treeData.AreNodesOnSameOrbit(id1, id2, out string clusterId, out int orbitIndex)
+                && treeData.AreNodesOnSameOrbitCircleForDrawing(id1, id2, clusterId, orbitIndex))
             {
-                // Рисуем дугу
                 CreateArcLine(treeData, nodeA, nodeB, clusterId, orbitIndex, id1, id2);
             }
             else
             {
-                // Рисуем прямую линию
                 CreateStraightLine(posA, posB, id1, id2);
             }
         }
@@ -260,45 +259,60 @@ namespace Scripts.Skills.PassiveTree.UI
             var cluster = treeData.GetCluster(clusterId);
             if (cluster == null || orbitIndex >= cluster.Orbits.Count) 
             {
-                // Fallback к прямой линии
                 CreateStraightLine(nodeA.GetWorldPosition(treeData), nodeB.GetWorldPosition(treeData), id1, id2);
                 return;
             }
 
-            // Для дуги используем generateVisualContent
-            var arcLine = new ArcLineElement(cluster.Center, cluster.Orbits[orbitIndex].Radius,
-                                             nodeA.OrbitAngle, nodeB.OrbitAngle, _theme.LineThickness, _theme.LineLocked);
+            // В точности как в редакторе: позиция и размер элемента дуги, короткая дуга по углам
+            var arcLine = new ArcLineElement(
+                cluster.Center,
+                cluster.Orbits[orbitIndex].Radius,
+                nodeA.OrbitAngle,
+                nodeB.OrbitAngle,
+                _theme.LineThickness,
+                _theme.LineLocked);
 
             _container.Add(arcLine);
             _connections.Add((id1, id2, arcLine));
         }
 
         /// <summary>
-        /// Элемент дуги для связи нодов на одной орбите. Цвет задаётся через SetStrokeColor для UpdateVisuals.
+        /// Элемент дуги — в точности как в редакторе (PassiveTreeConnectionLines.CreateArcElement):
+        /// элемент позиционируется как в редакторе, дуга рисуется по короткой дуге окружности.
         /// </summary>
         internal class ArcLineElement : VisualElement
         {
-            private Vector2 _center;
+            private float _localCenter;
             private float _radius;
             private float _startAngle;
             private float _endAngle;
             private float _thickness;
             private Color _strokeColor;
 
-            public ArcLineElement(Vector2 center, float radius, float startAngle, float endAngle, float thickness, Color strokeColor)
+            public ArcLineElement(Vector2 center, float radius, float angleA, float angleB, float thickness, Color strokeColor)
             {
-                _center = center;
                 _radius = radius;
-                _startAngle = startAngle;
-                _endAngle = endAngle;
                 _thickness = thickness;
                 _strokeColor = strokeColor;
 
+                // Короткая дуга — как в редакторе
+                float delta = (angleB - angleA + 360f) % 360f;
+                if (delta > 180f)
+                {
+                    (angleA, angleB) = (angleB, angleA);
+                }
+                _startAngle = angleA;
+                _endAngle = angleB;
+
+                float padding = thickness * 2f;
+                _localCenter = radius + padding;
+                float size = (radius + padding) * 2f;
+
                 style.position = Position.Absolute;
-                style.left = 0;
-                style.top = 0;
-                style.width = 2000;
-                style.height = 2000;
+                style.left = center.x - radius - padding;
+                style.top = center.y - radius - padding;
+                style.width = size;
+                style.height = size;
                 pickingMode = PickingMode.Ignore;
 
                 generateVisualContent += OnGenerateVisualContent;
@@ -316,15 +330,13 @@ namespace Scripts.Skills.PassiveTree.UI
                 var painter = ctx.painter2D;
                 painter.lineWidth = _thickness;
                 painter.strokeColor = _strokeColor;
-
-                float startAngle = _startAngle;
-                float endAngle = _endAngle;
-                float diff = endAngle - startAngle;
-                if (diff > 180f) endAngle -= 360f;
-                else if (diff < -180f) endAngle += 360f;
-
                 painter.BeginPath();
-                painter.Arc(_center, _radius, Angle.Degrees(startAngle), Angle.Degrees(endAngle), ArcDirection.Clockwise);
+                painter.Arc(
+                    new Vector2(_localCenter, _localCenter),
+                    _radius,
+                    Angle.Degrees(_startAngle),
+                    Angle.Degrees(_endAngle),
+                    ArcDirection.Clockwise);
                 painter.Stroke();
             }
         }

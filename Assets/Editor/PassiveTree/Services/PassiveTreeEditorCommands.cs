@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using Scripts.Skills.PassiveTree;
 
@@ -7,7 +8,7 @@ namespace Scripts.Editor.PassiveTree
 {
     /// <summary>
     /// Все мутации дерева пассивок: создание/удаление нод и кластеров, связи, конвертация размещения.
-    /// После каждой мутации вызывает SaveAssets. Не знает о UI и выборе — выбор передаётся снаружи для Connect/Disconnect.
+    /// Перед мутацией — Undo.RecordObject, после — SaveAssets.
     /// </summary>
     public class PassiveTreeEditorCommands
     {
@@ -19,6 +20,12 @@ namespace Scripts.Editor.PassiveTree
         }
 
         public PassiveSkillTreeSO Tree => _tree;
+
+        private void RecordTree(string operationName)
+        {
+            if (_tree != null)
+                Undo.RecordObject(_tree, operationName);
+        }
 
         private Vector2 SnapPosition(Vector2 pos)
         {
@@ -32,6 +39,7 @@ namespace Scripts.Editor.PassiveTree
         public void CreateNodeAtPosition(Vector2 contentPos, PassiveNodeType type)
         {
             if (_tree == null) return;
+            RecordTree("Create Node");
             contentPos = SnapPosition(contentPos);
 
             var newNodeData = new PassiveNodeDefinition
@@ -49,6 +57,7 @@ namespace Scripts.Editor.PassiveTree
         public void CreateClusterAtPosition(Vector2 contentPos)
         {
             if (_tree == null) return;
+            RecordTree("Create Cluster");
             contentPos = SnapPosition(contentPos);
 
             var cluster = new PassiveClusterDefinition
@@ -76,6 +85,7 @@ namespace Scripts.Editor.PassiveTree
         public void AddOrbitToCluster(PassiveClusterDefinition cluster)
         {
             if (cluster == null || cluster.Orbits == null) return;
+            RecordTree("Add Orbit");
             float newRadius = 80f;
             if (cluster.Orbits.Count > 0)
                 newRadius = cluster.Orbits[cluster.Orbits.Count - 1].Radius + 40f;
@@ -87,6 +97,7 @@ namespace Scripts.Editor.PassiveTree
         {
             if (_tree == null || cluster == null) return;
             if (orbitIndex < 0 || orbitIndex >= cluster.Orbits.Count) return;
+            RecordTree("Create Node on Orbit");
 
             Vector2 toMouse = contentPos - cluster.Center;
             float angle = Mathf.Atan2(toMouse.y, toMouse.x) * Mathf.Rad2Deg;
@@ -109,6 +120,7 @@ namespace Scripts.Editor.PassiveTree
         public void DeleteNode(PassiveNodeDefinition nodeData)
         {
             if (_tree == null || nodeData == null) return;
+            RecordTree("Delete Node");
             foreach (var neighborID in new List<string>(nodeData.ConnectionIDs))
             {
                 var neighbor = _tree.GetNode(neighborID);
@@ -122,6 +134,7 @@ namespace Scripts.Editor.PassiveTree
         public void DeleteCluster(PassiveClusterDefinition cluster)
         {
             if (_tree == null || cluster == null) return;
+            RecordTree("Delete Cluster");
             foreach (var node in _tree.Nodes)
             {
                 if (node.PlacementMode == NodePlacementMode.OnOrbit && node.ClusterID == cluster.ID)
@@ -139,6 +152,7 @@ namespace Scripts.Editor.PassiveTree
         {
             if (_tree == null || nodeA == null || nodeB == null) return;
             if (nodeA.ConnectionIDs.Contains(nodeB.ID)) return;
+            RecordTree("Connect Nodes");
             nodeA.ConnectionIDs.Add(nodeB.ID);
             nodeB.ConnectionIDs.Add(nodeA.ID);
             PassiveTreeAssetPersistence.SaveAssets(_tree);
@@ -147,6 +161,7 @@ namespace Scripts.Editor.PassiveTree
         public void DisconnectNodes(PassiveNodeDefinition nodeA, PassiveNodeDefinition nodeB)
         {
             if (nodeA == null || nodeB == null) return;
+            RecordTree("Disconnect Nodes");
             nodeA.ConnectionIDs.Remove(nodeB.ID);
             nodeB.ConnectionIDs.Remove(nodeA.ID);
             PassiveTreeAssetPersistence.SaveAssets(_tree);
@@ -155,6 +170,7 @@ namespace Scripts.Editor.PassiveTree
         public void ConvertNodeToFree(PassiveNodeDefinition node)
         {
             if (_tree == null || node == null) return;
+            RecordTree("Convert Node to Free");
             node.Position = node.GetWorldPosition(_tree);
             node.PlacementMode = NodePlacementMode.Free;
             node.ClusterID = null;
@@ -164,6 +180,7 @@ namespace Scripts.Editor.PassiveTree
         public void PlaceNodeOnClusterOrbit(PassiveNodeDefinition node, PassiveClusterDefinition cluster)
         {
             if (_tree == null || node == null || cluster == null || cluster.Orbits.Count == 0) return;
+            RecordTree("Place Node on Orbit");
             Vector2 currentPos = node.GetWorldPosition(_tree);
             Vector2 toNode = currentPos - cluster.Center;
             float angle = Mathf.Atan2(toNode.y, toNode.x) * Mathf.Rad2Deg;
