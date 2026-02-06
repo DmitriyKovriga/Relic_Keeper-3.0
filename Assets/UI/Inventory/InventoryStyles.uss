@@ -212,5 +212,10 @@
     bottom: 2px;
     font-size: 10px;
     color: #fff;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding-left: 3px;
+    padding-right: 3px;
+    min-width: 12px;
+    -unity-text-align: middle-center;
 }
 

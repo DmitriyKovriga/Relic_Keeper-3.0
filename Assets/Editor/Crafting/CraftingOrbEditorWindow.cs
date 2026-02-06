@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Localization;
+using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
 using System.Collections.Generic;
 using System.Linq;
@@ -318,10 +319,14 @@ namespace Scripts.Editor.Crafting
             _locNameRu = EditorGUILayout.TextField("Name (RU)", _locNameRu);
             _locDescEn = EditorGUILayout.TextField("Description (EN)", _locDescEn);
             _locDescRu = EditorGUILayout.TextField("Description (RU)", _locDescRu);
-            if (GUILayout.Button("Save locale"))
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Save locale")) SaveOrbLocalizationValues();
+            if (GUILayout.Button("Reload locale", GUILayout.Width(100)))
             {
-                SaveOrbLocalizationValues();
+                _lastLoadedOrbKey = "";
+                LoadOrbLocalizationValues();
             }
+            EditorGUILayout.EndHorizontal();
         }
 
         private static string GetOrbKeyBase(CraftingOrbSO orb)
@@ -333,15 +338,16 @@ namespace Scripts.Editor.Crafting
         {
             if (_selectedOrb == null) return;
             string keyBase = GetOrbKeyBase(_selectedOrb);
-            string nameKey = $"crafting_orb.{keyBase}.name";
-            string descKey = $"crafting_orb.{keyBase}.description";
-            _locNameEn = GetLocalizedStringFromTable(nameKey, "en");
-            _locNameRu = GetLocalizedStringFromTable(nameKey, "ru");
-            _locDescEn = GetLocalizedStringFromTable(descKey, "en");
-            _locDescRu = GetLocalizedStringFromTable(descKey, "ru");
+            // Use keys stored on the orb so we load what runtime will use; fallback to standard pattern.
+            string nameKey = !string.IsNullOrEmpty(_selectedOrb.NameKey) ? _selectedOrb.NameKey : $"crafting_orb.{keyBase}.name";
+            string descKey = !string.IsNullOrEmpty(_selectedOrb.DescriptionKey) ? _selectedOrb.DescriptionKey : $"crafting_orb.{keyBase}.description";
+            _locNameEn = GetLocalizedStringFromTable(nameKey, new LocaleIdentifier("en"));
+            _locNameRu = GetLocalizedStringFromTable(nameKey, new LocaleIdentifier("ru"));
+            _locDescEn = GetLocalizedStringFromTable(descKey, new LocaleIdentifier("en"));
+            _locDescRu = GetLocalizedStringFromTable(descKey, new LocaleIdentifier("ru"));
         }
 
-        private string GetLocalizedStringFromTable(string key, string localeId)
+        private string GetLocalizedStringFromTable(string key, LocaleIdentifier localeId)
         {
             if (_menuLabelsCollection == null) return "";
             var table = _menuLabelsCollection.GetTable(localeId) as StringTable;
@@ -356,9 +362,20 @@ namespace Scripts.Editor.Crafting
             string keyBase = GetOrbKeyBase(_selectedOrb);
             string nameKey = $"crafting_orb.{keyBase}.name";
             string descKey = $"crafting_orb.{keyBase}.description";
-            var enTable = _menuLabelsCollection.GetTable("en") as StringTable;
-            var ruTable = _menuLabelsCollection.GetTable("ru") as StringTable;
-            if (enTable == null || ruTable == null) { Debug.LogWarning("Crafting Orb Editor: en or ru table not found."); return; }
+            var enTable = _menuLabelsCollection.GetTable(new LocaleIdentifier("en")) as StringTable;
+            var ruTable = _menuLabelsCollection.GetTable(new LocaleIdentifier("ru")) as StringTable;
+            if (enTable == null || ruTable == null)
+            {
+                Debug.LogWarning("Crafting Orb Editor: en or ru table not found. Check that MenuLabels has tables with LocaleIdentifier Code 'en' and 'ru'.");
+                return;
+            }
+
+            var sharedData = _menuLabelsCollection.SharedData;
+            if (sharedData == null) { Debug.LogWarning("Crafting Orb Editor: SharedData is null."); return; }
+            // Ensure keys exist in SharedData so runtime can resolve them.
+            if (!sharedData.Contains(nameKey)) sharedData.AddKey(nameKey);
+            if (!sharedData.Contains(descKey)) sharedData.AddKey(descKey);
+            EditorUtility.SetDirty(sharedData);
 
             RemoveOldOrbKeysFromTables(enTable, ruTable, keyBase);
 
@@ -371,9 +388,6 @@ namespace Scripts.Editor.Crafting
             EditorUtility.SetDirty(enTable);
             EditorUtility.SetDirty(ruTable);
             EditorUtility.SetDirty(_selectedOrb);
-            // Shared Table Data stores keys; without SetDirty it may not save and runtime won't find the key.
-            var sharedData = _menuLabelsCollection.SharedData;
-            if (sharedData != null) EditorUtility.SetDirty(sharedData);
 
             TryRenameOrbAssetToId(keyBase);
             AssetDatabase.SaveAssets();
@@ -390,8 +404,10 @@ namespace Scripts.Editor.Crafting
             string oldNameKey = orb.NameKey;
             string oldDescKey = orb.DescriptionKey;
             var toRemove = new List<string>();
-            if (!string.IsNullOrEmpty(oldNameKey) && oldNameKey != $"crafting_orb.{newKeyBase}.name") toRemove.Add(oldNameKey);
-            if (!string.IsNullOrEmpty(oldDescKey) && oldDescKey != $"crafting_orb.{newKeyBase}.description") toRemove.Add(oldDescKey);
+            string newNameKey = $"crafting_orb.{newKeyBase}.name";
+            string newDescKey = $"crafting_orb.{newKeyBase}.description";
+            if (!string.IsNullOrEmpty(oldNameKey) && oldNameKey != newNameKey) toRemove.Add(oldNameKey);
+            if (!string.IsNullOrEmpty(oldDescKey) && oldDescKey != newDescKey) toRemove.Add(oldDescKey);
             if (oldKeyBaseFromName != newKeyBase)
             {
                 toRemove.Add($"crafting_orb.{oldKeyBaseFromName}.name");

@@ -1,9 +1,11 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using System;
 using System.Collections;
 
 public class WindowView : MonoBehaviour
 {
+    public event Action OnClosed;
     public UIDocument ui;
 
     private VisualElement root;
@@ -84,6 +86,7 @@ public class WindowView : MonoBehaviour
     {
         if (!isInitialized) return;
         root.style.display = DisplayStyle.None;
+        OnClosed?.Invoke();
     }
 
     private void CloseInstant()

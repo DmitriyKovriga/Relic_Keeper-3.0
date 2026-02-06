@@ -12,6 +12,12 @@
                 <ui:Button name="CreateButton" text="Create" class="debug-btn" />
                 <ui:Button name="ClearButton" text="Clear Inventory" class="debug-btn debug-btn-clear" />
             </ui:VisualElement>
+            <ui:VisualElement name="OrbRow" class="debug-field debug-item-row">
+                <ui:Label text="Orb" class="debug-field-label" />
+                <ui:Button name="OrbSelectorButton" text="(select orb)" class="debug-item-trigger" />
+                <ui:Button name="AddOrbButton" text="+1" class="debug-btn" />
+            </ui:VisualElement>
+            <ui:ScrollView name="OrbListPopup" class="debug-item-list-popup" />
             <ui:ScrollView name="ItemListPopup" class="debug-item-list-popup" />
         </ui:VisualElement>
     </ui:VisualElement>

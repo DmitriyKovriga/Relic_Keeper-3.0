@@ -455,6 +455,14 @@ MonoBehaviour:
     m_Key: menu_labels.SkillTree
     m_Metadata:
       m_Items: []
+  - m_Id: 24953468211462144
+    m_Key: crafting_orb.FartuneOrb.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24953468240822272
+    m_Key: crafting_orb.FartuneOrb.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

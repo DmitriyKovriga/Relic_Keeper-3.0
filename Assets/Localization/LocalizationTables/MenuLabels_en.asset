@@ -1375,6 +1375,14 @@ MonoBehaviour:
     m_Localized: Reroll Rare Item Affixes
     m_Metadata:
       m_Items: []
+  - m_Id: 24953468211462144
+    m_Localized: Fortune Orb
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24953468240822272
+    m_Localized: Reroll Rare Item
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

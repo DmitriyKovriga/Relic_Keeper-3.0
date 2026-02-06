@@ -22,6 +22,13 @@ public class DebugInventoryWindowUI : MonoBehaviour
     private Button _createButton;
     private Button _clearButton;
 
+    private Button _orbSelectorButton;
+    private ScrollView _orbListPopup;
+    private Button _addOrbButton;
+    private List<CraftingOrbSO> _orbList = new List<CraftingOrbSO>();
+    private List<string> _orbChoiceNames = new List<string>();
+    private int _selectedOrbIndex = 0;
+
     private ItemDatabaseSO _itemDb;
     private List<EquipmentItemSO> _itemList = new List<EquipmentItemSO>();
     private int _selectedItemIndex = 0;
@@ -50,6 +57,9 @@ public class DebugInventoryWindowUI : MonoBehaviour
         _levelField = _root.Q<IntegerField>("LevelField");
         _createButton = _root.Q<Button>("CreateButton");
         _clearButton = _root.Q<Button>("ClearButton");
+        _orbSelectorButton = _root.Q<Button>("OrbSelectorButton");
+        _orbListPopup = _root.Q<ScrollView>("OrbListPopup");
+        _addOrbButton = _root.Q<Button>("AddOrbButton");
 
         if (_itemSelectorButton == null || _itemListPopup == null || _rarityDropdown == null || _createButton == null || _clearButton == null)
         {
@@ -66,6 +76,14 @@ public class DebugInventoryWindowUI : MonoBehaviour
         _createButton.clicked += OnCreateClicked;
         _clearButton.clicked += OnClearClicked;
 
+        if (_orbSelectorButton != null && _orbListPopup != null && _addOrbButton != null)
+        {
+            BuildOrbList();
+            _orbListPopup.style.display = DisplayStyle.None;
+            _orbSelectorButton.clicked += OnOrbSelectorClick;
+            _addOrbButton.clicked += OnAddOrbClicked;
+        }
+
         _root.style.display = DisplayStyle.None;
     }
 
@@ -74,6 +92,8 @@ public class DebugInventoryWindowUI : MonoBehaviour
         if (_itemSelectorButton != null) _itemSelectorButton.clicked -= OnItemSelectorClick;
         if (_createButton != null) _createButton.clicked -= OnCreateClicked;
         if (_clearButton != null) _clearButton.clicked -= OnClearClicked;
+        if (_orbSelectorButton != null) _orbSelectorButton.clicked -= OnOrbSelectorClick;
+        if (_addOrbButton != null) _addOrbButton.clicked -= OnAddOrbClicked;
     }
 
     private void LoadItemDatabase()
@@ -195,6 +215,87 @@ public class DebugInventoryWindowUI : MonoBehaviour
         for (int i = 0; i < InventoryManager.Instance.Items.Length; i++)
             InventoryManager.Instance.Items[i] = null;
 
+        InventoryManager.Instance.TriggerUIUpdate();
+    }
+
+    private void BuildOrbList()
+    {
+        _orbList.Clear();
+        _orbChoiceNames.Clear();
+        _orbChoiceNames.Add("(select orb)");
+        var orbs = Resources.LoadAll<CraftingOrbSO>("CraftingOrbs");
+        if (orbs != null && orbs.Length > 0)
+        {
+            foreach (var orb in orbs)
+            {
+                if (orb == null) continue;
+                _orbList.Add(orb);
+                _orbChoiceNames.Add(string.IsNullOrEmpty(orb.ID) ? orb.name : orb.ID);
+            }
+        }
+        _selectedOrbIndex = 0;
+        if (_orbSelectorButton != null) _orbSelectorButton.text = _orbChoiceNames[0];
+        FillOrbListPopup();
+    }
+
+    private void FillOrbListPopup()
+    {
+        if (_orbListPopup == null) return;
+        _orbListPopup.Clear();
+        for (int i = 0; i < _orbChoiceNames.Count; i++)
+        {
+            int idx = i;
+            var btn = new Button(() => OnOrbListEntryClick(idx)) { text = _orbChoiceNames[i] };
+            btn.AddToClassList("debug-item-list-entry");
+            _orbListPopup.Add(btn);
+        }
+    }
+
+    private void OnOrbSelectorClick()
+    {
+        if (_orbListPopup == null) return;
+        bool visible = _orbListPopup.style.display == DisplayStyle.Flex;
+        if (visible)
+        {
+            _orbListPopup.style.display = DisplayStyle.None;
+            return;
+        }
+        _orbListPopup.style.display = DisplayStyle.Flex;
+        _orbListPopup.BringToFront();
+        var row = _orbSelectorButton?.parent;
+        if (row != null)
+        {
+            float top = row.layout.y + _orbSelectorButton.layout.y + _orbSelectorButton.layout.height + 2f;
+            float left = row.layout.x + _orbSelectorButton.layout.x;
+            _orbListPopup.style.top = top;
+            _orbListPopup.style.left = left;
+        }
+    }
+
+    private void OnOrbListEntryClick(int choiceIndex)
+    {
+        _selectedOrbIndex = choiceIndex;
+        if (_orbSelectorButton != null) _orbSelectorButton.text = _orbChoiceNames[choiceIndex];
+        if (_orbListPopup != null) _orbListPopup.style.display = DisplayStyle.None;
+    }
+
+    private void OnAddOrbClicked()
+    {
+        if (InventoryManager.Instance == null)
+        {
+            Debug.LogWarning("[DebugInventoryWindow] InventoryManager not found.");
+            return;
+        }
+        int index = _selectedOrbIndex - 1;
+        if (index < 0 || index >= _orbList.Count)
+        {
+            Debug.LogWarning("[DebugInventoryWindow] Select an orb.");
+            return;
+        }
+        var orb = _orbList[index];
+        string orbId = string.IsNullOrEmpty(orb.ID) ? orb.name : orb.ID;
+        if (string.IsNullOrEmpty(orbId)) return;
+        InventoryManager.Instance.AddOrb(orbId, 1);
         InventoryManager.Instance.TriggerUIUpdate();
     }
 

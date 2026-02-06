@@ -284,6 +284,19 @@ public class ItemTooltipController : MonoBehaviour
         _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
     }
 
+    /// <summary>
+    /// Refreshes the item tooltip content and position if it is currently showing (e.g. after orb reroll).
+    /// </summary>
+    public void RefreshCurrentItemTooltip()
+    {
+        if (_currentTargetItem == null || _itemTooltipBox == null || _itemTooltipBox.style.display != DisplayStyle.Flex)
+            return;
+        FillItemData(_currentTargetItem);
+        FillSkillData(_currentTargetItem);
+        _itemTooltipBox.MarkDirtyRepaint();
+        _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
+    }
+
     public void HideTooltip()
     {
         if (_hideScheduler != null) return;
@@ -610,9 +623,14 @@ public class ItemTooltipController : MonoBehaviour
         op.Completed += (h) => 
         {
             if (label == null) return;
-            if (h.Status == AsyncOperationStatus.Succeeded)
+            if (h.Status == AsyncOperationStatus.Succeeded && !IsMissingTranslationResult(h.Result))
                 label.text = h.Result;
         };
+    }
+
+    private static bool IsMissingTranslationResult(string result)
+    {
+        return string.IsNullOrEmpty(result) || (result != null && result.Contains("No translation found"));
     }
 
     private void AddRow(StatType type, InventoryItem item, float min, float max, Color? c = null)

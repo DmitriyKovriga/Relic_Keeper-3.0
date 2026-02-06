@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: FartuneOrb
   m_EditorClassIdentifier: 
   ID: FartuneOrb
-  Icon: {fileID: 21300000, guid: 10e2d69b5315b5f43926d8b9b0bc3df7, type: 3}
+  Icon: {fileID: -666257928, guid: d429aca0f159a1045a23351eb6d0b259, type: 3}
   NameKey: crafting_orb.FartuneOrb.name
   DescriptionKey: crafting_orb.FartuneOrb.description
   EffectId: reroll_rare

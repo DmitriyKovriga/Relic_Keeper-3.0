@@ -8,6 +8,8 @@ public class InventoryUI : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private UIDocument _uiDoc;
+    [Tooltip("Если задано, при закрытии окна инвентаря сбрасывается режим крафта орбой.")]
+    [SerializeField] private WindowView _windowView;
     [Header("Crafting")]
     [SerializeField] private CraftingOrbSlotsConfigSO _orbSlotsConfig;
     
@@ -36,6 +38,7 @@ public class InventoryUI : MonoBehaviour
     private bool _applyOrbMode;
     private CraftingOrbSO _applyOrbOrb;
     private VisualElement _applyOrbSlotHighlight;
+    private int _capturedPointerId = -1;
 
     private void OnEnable()
     {
@@ -60,17 +63,52 @@ public class InventoryUI : MonoBehaviour
 
         _root.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         _root.RegisterCallback<PointerUpEvent>(OnPointerUp);
+        _root.RegisterCallback<PointerDownEvent>(OnRootPointerDown);
         _root.RegisterCallback<KeyDownEvent>(OnKeyDown);
+        _root.RegisterCallback<MouseDownEvent>(OnRootMouseDown, TrickleDown.TrickleDown);
+
+        if (_windowView == null) _windowView = GetComponent<WindowView>();
+        if (_windowView != null) _windowView.OnClosed += OnInventoryWindowClosed;
     }
 
     private void OnDisable()
     {
         if (InventoryManager.Instance != null)
             InventoryManager.Instance.OnInventoryChanged -= RefreshInventory;
-            
+        if (_windowView != null) _windowView.OnClosed -= OnInventoryWindowClosed;
+        ExitApplyOrbMode();
+
         _root.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
         _root.UnregisterCallback<PointerUpEvent>(OnPointerUp);
+        _root.UnregisterCallback<PointerDownEvent>(OnRootPointerDown);
         _root.UnregisterCallback<KeyDownEvent>(OnKeyDown);
+        _root.UnregisterCallback<MouseDownEvent>(OnRootMouseDown, TrickleDown.TrickleDown);
+    }
+
+    private void OnInventoryWindowClosed()
+    {
+        ExitApplyOrbMode();
+    }
+
+    private void OnRootPointerDown(PointerDownEvent evt)
+    {
+        if (_applyOrbMode && evt.button == 0 && _capturedPointerId < 0)
+        {
+            _root.CapturePointer(evt.pointerId);
+            _capturedPointerId = evt.pointerId;
+        }
+    }
+
+    private void OnRootMouseDown(MouseDownEvent evt)
+    {
+        if (evt.button != 1) return;
+        VisualElement slot = evt.target as VisualElement;
+        while (slot != null && !slot.ClassListContains("orb-slot")) slot = slot.parent;
+        if (slot != null && TryEnterApplyOrbModeFromSlot(slot))
+        {
+            evt.StopPropagation();
+            evt.PreventDefault();
+        }
     }
 
     private void TrySubscribe()
@@ -197,8 +235,8 @@ public class InventoryUI : MonoBehaviour
             var orb = _orbSlotsConfig != null ? _orbSlotsConfig.GetOrbInSlot(i) : null;
             int count = orb != null ? InventoryManager.Instance.GetOrbCount(orb.ID) : 0;
             slot.style.backgroundImage = (orb != null && orb.Icon != null) ? new StyleBackground(orb.Icon) : default;
-            countLabel.text = count > 0 ? count.ToString() : "";
-            countLabel.style.visibility = count > 0 ? Visibility.Visible : Visibility.Hidden;
+            countLabel.text = count.ToString();
+            countLabel.style.visibility = Visibility.Visible;
         }
     }
 
@@ -339,6 +377,7 @@ public class InventoryUI : MonoBehaviour
                 countLabel.AddToClassList("orb-count");
                 slot.Add(countLabel);
                 slot.RegisterCallback<PointerDownEvent>(OnOrbSlotPointerDown);
+                slot.RegisterCallback<MouseDownEvent>(OnOrbSlotMouseDown);
                 slot.RegisterCallback<PointerOverEvent>(OnOrbSlotPointerOver);
                 slot.RegisterCallback<PointerOutEvent>(OnOrbSlotPointerOut);
                 _orbSlotsRow.Add(slot);
@@ -349,14 +388,29 @@ public class InventoryUI : MonoBehaviour
 
     private void OnOrbSlotPointerDown(PointerDownEvent evt)
     {
-        if (evt.button != 1 || _orbSlotsConfig == null || InventoryManager.Instance == null) return;
-        var slot = evt.currentTarget as VisualElement;
-        if (slot?.userData == null) return;
+        if (evt.button != 1) return;
+        TryEnterApplyOrbModeFromSlot(evt.currentTarget as VisualElement);
+    }
+
+    private void OnOrbSlotMouseDown(MouseDownEvent evt)
+    {
+        if (evt.button != 1) return;
+        if (TryEnterApplyOrbModeFromSlot(evt.currentTarget as VisualElement))
+        {
+            evt.StopPropagation();
+            evt.PreventDefault();
+        }
+    }
+
+    private bool TryEnterApplyOrbModeFromSlot(VisualElement slot)
+    {
+        if (_orbSlotsConfig == null || InventoryManager.Instance == null || slot?.userData == null) return false;
         int idx = (int)slot.userData;
         var orb = _orbSlotsConfig.GetOrbInSlot(idx);
-        if (orb == null || string.IsNullOrEmpty(orb.ID)) return;
-        if (InventoryManager.Instance.GetOrbCount(orb.ID) <= 0) return;
+        if (orb == null || string.IsNullOrEmpty(orb.ID)) return false;
+        if (InventoryManager.Instance.GetOrbCount(orb.ID) <= 0) return false;
         EnterApplyOrbMode(orb, slot);
+        return true;
     }
 
     private void OnOrbSlotPointerOver(PointerOverEvent evt)
@@ -391,6 +445,11 @@ public class InventoryUI : MonoBehaviour
 
     private void ExitApplyOrbMode()
     {
+        if (_capturedPointerId >= 0 && _root != null)
+        {
+            _root.ReleasePointer(_capturedPointerId);
+            _capturedPointerId = -1;
+        }
         _applyOrbMode = false;
         if (_applyOrbSlotHighlight != null)
         {
@@ -415,6 +474,8 @@ public class InventoryUI : MonoBehaviour
         ItemGenerator.Instance.RerollRare(craftItem);
         ExitApplyOrbMode();
         InventoryManager.Instance.TriggerUIUpdate();
+        if (ItemTooltipController.Instance != null)
+            ItemTooltipController.Instance.RefreshCurrentItemTooltip();
         return true;
     }
 
