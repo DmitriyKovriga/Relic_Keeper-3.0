@@ -113,6 +113,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleDebugInventory",
+                    "type": "Button",
+                    "id": "b1e8c9d0-1234-4e5f-a6b7-c8d9e0f1a2b3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -443,6 +452,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "OpenSkillTree",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f2d7a1b4-5678-4c9d-e0f1-a2b3c4d5e6f7",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleDebugInventory",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

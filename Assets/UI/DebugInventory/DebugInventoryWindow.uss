@@ -1,0 +1,231 @@
+/* Компактная панель дебага с фоном и читаемым текстом */
+.debug-root {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0;
+}
+
+.debug-panel {
+    position: relative;
+    width: 200px;
+    padding: 6px 8px;
+    background-color: rgba(18, 16, 14, 0.98);
+    border-width: 1px;
+    border-color: #555;
+    border-radius: 3px;
+}
+
+.debug-title {
+    font-size: 10px;
+    color: #c9a347;
+    -unity-font-style: bold;
+    margin-bottom: 4px;
+    padding-bottom: 2px;
+    border-bottom-width: 1px;
+    border-bottom-color: #444;
+}
+
+.debug-field {
+    margin-bottom: 3px;
+    min-height: 18px;
+}
+
+.debug-field .unity-label {
+    min-width: 40px;
+    width: 40px;
+    font-size: 9px;
+    color: #b0b0b0;
+}
+
+/* Кастомный селектор предметов (вместо дропдауна) */
+.debug-item-row {
+    position: relative;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.debug-field-label,
+.debug-item-row .debug-field-label {
+    width: 40px;
+    min-width: 40px;
+    font-size: 9px;
+    color: #b0b0b0;
+}
+
+.debug-item-trigger {
+    flex-grow: 1;
+    height: 20px;
+    font-size: 10px;
+    background-color: #2a2826;
+    border-width: 1px;
+    border-color: #444;
+    color: #e8e8e8;
+    -unity-text-align: middle-left;
+}
+
+.debug-item-trigger:hover {
+    background-color: #3d3b39;
+    border-color: #555;
+}
+
+/* Список предметов — последний ребёнок панели, рисуется поверх всего; позиция под строкой Item */
+.debug-item-list-popup {
+    display: none;
+    position: absolute;
+    left: 46px;
+    top: 34px;
+    max-height: 180px;
+    min-width: 160px;
+    width: 220px;
+    background-color: #252220;
+    border-width: 1px;
+    border-color: #555;
+    padding: 4px;
+    z-index: 9999;
+}
+
+.debug-item-list-popup .unity-scroll-view__content-viewport {
+    background-color: transparent;
+}
+
+.debug-item-list-entry {
+    height: auto;
+    min-height: 22px;
+    padding: 4px 6px;
+    margin-bottom: 1px;
+    background-color: transparent;
+    border-width: 0;
+    color: #e8e8e8;
+    font-size: 11px;
+    -unity-text-align: middle-left;
+    white-space: normal;
+}
+
+.debug-item-list-entry:hover {
+    background-color: #3d3b39;
+    color: #fff;
+}
+
+/* Текст внутри дропдауна и поля ввода — светлый на тёмном фоне */
+.debug-panel .unity-base-field__input {
+    background-color: #2a2826;
+    border-width: 1px;
+    border-color: #444;
+    color: #e8e8e8;
+    font-size: 10px;
+    padding: 2px 4px;
+    min-height: 18px;
+}
+
+.debug-panel .unity-dropdown-field .unity-base-field__input {
+    color: #e8e8e8;
+}
+
+.debug-panel .unity-integer-field .unity-base-field__input {
+    color: #e8e8e8;
+}
+
+.debug-panel .unity-base-popup-field__input {
+    color: #e8e8e8;
+}
+
+/* Выпадающий список (popup) — тёмный фон, светлый текст, ширина чтобы не обрезать названия */
+.unity-base-popup-field .unity-list-view {
+    background-color: #2a2826;
+    border-width: 1px;
+    border-color: #555;
+    min-width: 220px;
+    max-width: 320px;
+}
+
+.unity-base-popup-field .unity-list-view__item {
+    background-color: transparent;
+    color: #e8e8e8;
+    font-size: 11px;
+    padding: 4px 8px;
+    min-height: 22px;
+    -unity-text-align: middle-left;
+}
+
+.unity-base-popup-field .unity-list-view__item:hover {
+    background-color: #3d3b39;
+    color: #fff;
+}
+
+.unity-base-popup-field .unity-list-view__item:selected {
+    background-color: #4a4744;
+    color: #c9a347;
+}
+
+.unity-base-popup-field .unity-list-view__item .unity-label {
+    color: inherit;
+    overflow: visible;
+    min-width: 180px;
+    white-space: normal;
+}
+
+/* На случай если popup рендерится не внутри base-popup-field */
+.unity-list-view {
+    background-color: #2a2826;
+    border-width: 1px;
+    border-color: #555;
+    min-width: 220px;
+    max-width: 320px;
+}
+
+.unity-list-view__item {
+    background-color: transparent;
+    color: #e8e8e8;
+    font-size: 11px;
+    padding: 4px 8px;
+    min-height: 22px;
+}
+
+.unity-list-view__item:hover {
+    background-color: #3d3b39;
+    color: #fff;
+}
+
+.unity-list-view__item .unity-label {
+    color: inherit;
+    min-width: 180px;
+    overflow: visible;
+}
+
+.debug-buttons {
+    flex-direction: row;
+    margin-top: 6px;
+    gap: 6px;
+}
+
+.debug-btn {
+    flex-grow: 1;
+    height: 22px;
+    font-size: 10px;
+    background-color: #333;
+    border-width: 1px;
+    border-color: #555;
+    color: #e8e8e8;
+}
+
+.debug-btn:hover {
+    background-color: #444;
+    border-color: #c9a347;
+    color: #fff;
+}
+
+.debug-btn-clear {
+    background-color: #3d2222;
+    border-color: #554444;
+    color: #e0c0c0;
+}
+
+.debug-btn-clear:hover {
+    background-color: #4d3030;
+    border-color: #664444;
+    color: #fff;
+}

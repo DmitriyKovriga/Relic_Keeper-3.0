@@ -1,103 +1,109 @@
-/* --- ГЛАВНЫЙ КОНТЕЙНЕР --- */
+/* --- Панель: отступы по краям, кнопка прижата к правому краю. --- */
 .window-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 276px;
+    max-width: 276px;
+    height: 276px;
+    max-height: 480px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px;
+    background-color: rgba(12, 11, 10, 0.92);
+    border-left-width: 1px;
+    border-left-color: rgba(80, 70, 60, 0.8);
+    overflow: hidden;
+}
+
+.content-row {
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 1;
+    align-items: stretch;
+    min-height: 0;
+}
+
+.equipment-and-toggle-row {
     flex-direction: row;
+    flex-shrink: 0;
+    align-items: flex-end;
+    justify-content: center;
     width: 100%;
-    height: 100%;
-    background-color: rgba(8, 8, 8, 0.98); /* Почти черный фон */
     padding: 0;
-    align-items: flex-start;
+    padding-bottom: 6px;
+    position: relative;
 }
 
-/* === КОЛОНКИ === */
-
-/* 1. СТАТЫ (Слева) */
-.col-stats {
-    flex-grow: 1; /* Занимает всё оставшееся место */
-    height: 100%;
-    /* border-right-width: 1px; border-right-color: #333; /* Дебаг-разделитель */
+.col-equipment-wrap {
+    flex-shrink: 0;
+    flex-direction: column;
 }
 
-/* 2. ЭКИПИРОВКА (Центр) */
 .col-equipment {
-    width: 160px; 
-    height: 100%;
-    margin-right: 4px;
-    padding-top: 5px;
-    align-items: center; 
-}
-
-/* 3. ИНВЕНТАРЬ (Справа) */
-.col-inventory {
-    width: 250px; /* 10 слотов * 24px = 240px + запас на отступы */
-    height: 100%;
-    padding-top: 5px;
-    padding-right: 5px;
-    align-items: flex-end; /* Прижмем к правому краю */
-}
-
-/* --- ЗАГОЛОВКИ --- */
-.section-header {
-    font-size: 10px;
-    color: #cca360; 
-    -unity-font-style: bold;
-    margin-bottom: 5px; 
-    border-bottom-width: 1px;
-    border-bottom-color: #444;
+    flex-shrink: 0;
+    padding: 0;
+    padding-bottom: 0;
+    align-items: center;
     width: 100%;
-    padding-left: 2px;
 }
 
-/* --- ЭКИПИРОВКА: КУКЛА --- */
+.col-inventory-wrap {
+    flex-shrink: 0;
+    padding: 0;
+    margin-left: 8px;
+    margin-right: 8px;
+    width: 240px;
+    align-self: center;
+}
+
+.col-inventory-wrap .inventory-grid-container {
+    flex-shrink: 0;
+}
+
+/* --- ЭКИПИРОВКА: 150×147 --- */
 .equipment-doll-container {
-    width: 100%;
-    height: 200px; 
-    position: relative; /* Важно для absolute позиционирования слотов внутри */
+    width: 150px;
+    height: 147px;
+    position: relative;
 }
 
-/* --- ИНВЕНТАРЬ: КОНТЕЙНЕР --- */
+/* --- ИНВЕНТАРЬ: 240×96 (10 слотов) --- */
 .inventory-grid-container {
-    /* Просто контейнер, цвет фона зададим слотам */
-    flex-direction: column; /* Вертикальный список СТРОК */
-
-    /*TEST*/
+    flex-direction: column;
     width: 240px;
     height: 96px;
     position: relative;
-    
-    /* Добавляем внешнюю рамку вокруг всего инвентаря */
     border-width: 1px;
     border-color: #444;
     background-color: #000;
 }
 
-/* --- ИНВЕНТАРЬ: СТРОКА (Новое!) --- */
 .inventory-row {
-    flex-direction: row; /* Слоты внутри строки идут горизонтально */
+    flex-direction: row;
     height: 24px;
-    width: 240px; /* 10 * 24px */
+    width: 240px;
 }
 
 /* --- СЛОТЫ --- */
 .slot {
     width: 24px;
     height: 24px;
-    
-    /* Бордюр внутри размера (в UI Toolkit это дефолт, но на всякий случай) */
     border-width: 1px;
-    border-color: #333; 
-    background-color: #111; 
-    
-    margin: 0; 
+    border-color: #333;
+    background-color: #111;
+    margin: 0;
     padding: 0;
-    
     align-items: center;
     justify-content: center;
 }
 
-/* Размеры для экипировки (переписывают width/height) */
 .slot-2x2 { width: 48px; height: 48px; }
 .slot-2x3 { width: 48px; height: 72px; }
-.slot-2x4 { width: 48px; height: 96px; } 
+.slot-2x4 { width: 48px; height: 96px; }
 
 .slot:hover {
     border-color: #cca360;
@@ -107,18 +113,109 @@
 
 .slot > .unity-label {
     font-size: 8px;
-    color: rgba(255, 255, 255, 0.15); 
-    padding: 0; margin: 0;
-    /* Добавляем это, чтобы клик проходил сквозь текст прямо в слот */
-    picking-mode: ignore; 
+    color: rgba(255, 255, 255, 0.15);
+    padding: 0;
+    margin: 0;
+    picking-mode: ignore;
 }
 
 .dragged-item {
     position: absolute;
-    /* Самое главное: делаем иконку "прозрачной" для кликов */
-    picking-mode: ignore; 
+    picking-mode: ignore;
 }
 
-.overlay {
-    position: absolute; width: 100%; height: 100%; display: none;
+/* --- Кнопка переключения: правый верхний угол, на уровне шлема --- */
+.toggle-mode-slot {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    min-width: 12px;
+    min-height: 12px;
+    margin: 0;
+    padding: 0;
+    font-size: 8px;
+    border-width: 1px;
+    border-color: #333;
+    background-color: #222;
+    color: rgba(255, 255, 255, 0.9);
+    -unity-text-align: middle-center;
+    flex-shrink: 0;
 }
+
+.toggle-mode-slot:hover {
+    border-color: #cca360;
+    background-color: #333;
+}
+
+.toggle-mode-slot:active {
+    background-color: #cca360;
+    color: #111;
+}
+
+
+.craft-view {
+    display: none;
+    max-height: 152px;
+    min-height: 147px;
+    align-items: center;
+}
+
+.craft-view.visible {
+    display: flex;
+}
+
+.col-equipment.hidden {
+    display: none;
+}
+
+.craft-slot {
+    align-self: center;
+}
+
+.orb-slots-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    margin-top: 4px;
+    -unity-content-container: none;
+}
+
+.orb-slot {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    position: relative;
+    border-width: 1px;
+    border-color: #333;
+    background-color: #111;
+    margin: 2px;
+    align-items: center;
+    justify-content: center;
+}
+
+.orb-slot:hover {
+    border-color: #666;
+    background-color: #222;
+}
+
+.orb-slot-applying {
+    border-color: #cca360;
+    background-color: rgba(204, 163, 96, 0.25);
+}
+
+.orb-slot .orb-count {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    font-size: 10px;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding-left: 3px;
+    padding-right: 3px;
+    min-width: 12px;
+    -unity-text-align: middle-center;
+}
+

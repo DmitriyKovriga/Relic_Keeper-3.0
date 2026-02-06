@@ -43,6 +43,7 @@ public static class InputRebindSaver
             Debug.Log("[InputSaver] Save file not found. Applying Hardcoded Defaults.");
             ApplyHardcodedDefaults(actions);
         }
+        ApplyHardcodedDebugKeys(actions);
     }
 
     public static void Clear(InputActionAsset actions)
@@ -54,8 +55,18 @@ public static class InputRebindSaver
         Debug.Log("[InputSaver] Rebinds cleared.");
         
         ApplyHardcodedDefaults(actions);
-        
+        ApplyHardcodedDebugKeys(actions);
         RebindsChanged?.Invoke();
+    }
+
+    /// <summary> Всегда захардкоженные бинды (не сохраняются в настройках). Дебаг-окно: клавиша X. </summary>
+    private static void ApplyHardcodedDebugKeys(InputActionAsset actions)
+    {
+        var map = actions.FindActionMap("Player");
+        if (map == null) return;
+        var action = map.FindAction("ToggleDebugInventory");
+        if (action != null)
+            action.ApplyBindingOverride(0, "<Keyboard>/x");
     }
     
     private static void ApplyHardcodedDefaults(InputActionAsset actions)

@@ -37,6 +37,8 @@ public class InventoryWindowToggle : MonoBehaviour
 
     private void OnToggleInput(InputAction.CallbackContext ctx)
     {
+        if (Keyboard.current != null && Keyboard.current.ctrlKey.isPressed && Keyboard.current.altKey.isPressed)
+            return;
         Toggle();
     }
 
@@ -44,22 +46,9 @@ public class InventoryWindowToggle : MonoBehaviour
     {
         if (_inventoryWindow == null || _manager == null) return;
 
-        // Логика:
-        // 1. Если это окно уже открыто (и оно сверху) -> Закрыть.
-        // 2. Иначе -> Открыть.
-        
-        // Так как в WindowManager нет публичного метода "IsWindowOpen", 
-        // мы просто пытаемся открыть. Если оно уже открыто, менеджер сам разберется 
-        // (но для закрытия нужна проверка).
-        
-        // Упрощенный вариант (как мы делали с CharacterWindow):
-        // Просто открываем. Чтобы работало закрытие на ту же кнопку, 
-        // нужно будет доработать WindowManager, но пока так:
-        
-        _manager.OpenWindow(_inventoryWindow);
-        
-        // P.S. Чтобы закрывать на "I", нужно знать, открыто ли оно.
-        // Пока закрытие будет работать на ESC (через PauseMenuToggle логику) 
-        // или крестик.
+        if (_manager.IsOpen(_inventoryWindow))
+            _manager.CloseWindow(_inventoryWindow);
+        else
+            _manager.OpenWindow(_inventoryWindow);
     }
 }

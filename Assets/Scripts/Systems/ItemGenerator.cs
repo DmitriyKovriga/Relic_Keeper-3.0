@@ -24,7 +24,7 @@ public class ItemGenerator : MonoBehaviour
 
         var pool = _affixPools.FirstOrDefault(p => p.Slot == baseItem.Slot && p.DefenseType == defType);
 
-        if (pool != null)
+        if (pool != null && rarity > 0)
         {
             int count = (rarity == 1) ? Random.Range(1, 3) : Random.Range(3, 7);
             var affixDatas = pool.GetRandomAffixes(count, itemLevel);
@@ -68,5 +68,29 @@ public class ItemGenerator : MonoBehaviour
         }
 
         return newItem;
+    }
+
+    /// <summary> Перезаралить аффиксы редкого предмета (остаётся та же база, скиллы, уровень). </summary>
+    public void RerollRare(InventoryItem item)
+    {
+        if (item == null || item.Data == null) return;
+        item.Affixes.Clear();
+
+        var baseItem = item.Data;
+        ArmorDefenseType defType = ArmorDefenseType.None;
+        if (baseItem is ArmorItemSO armor) defType = armor.DefenseType;
+        var pool = _affixPools.FirstOrDefault(p => p.Slot == baseItem.Slot && p.DefenseType == defType);
+        if (pool == null) return;
+
+        int count = Random.Range(3, 7);
+        var affixDatas = pool.GetRandomAffixes(count, baseItem.DropLevel);
+        foreach (var data in affixDatas)
+            item.Affixes.Add(new AffixInstance(data, item));
+    }
+
+    /// <summary> Редкий = 3+ аффикса. </summary>
+    public static bool IsRare(InventoryItem item)
+    {
+        return item != null && item.Affixes != null && item.Affixes.Count >= 3;
     }
 }
