@@ -13,25 +13,17 @@ public class CharacterWindowToggle : MonoBehaviour
 
     private void Update()
     {
-        // В ИДЕАЛЕ: Добавить Action "OpenCharacter" в InputSystem_Actions
-        // ПОКА ЧТО: Хардкод для теста клавиши C
         if (Keyboard.current.cKey.wasPressedThisFrame)
-        {
             Toggle();
-        }
     }
 
     private void Toggle()
     {
-        // Логика:
-        // 1. Если окно открыто -> закрыть его.
-        // 2. Если открыто другое окно -> закрыть верхнее, открыть это (или добавить поверх).
-        // 3. Если ничего не открыто -> открыть это.
+        if (_manager == null || _characterWindow == null) return;
 
-        // Простой вариант через WindowManager (если он поддерживает проверку конкретного окна)
-        // Но в твоем WindowManager нет метода IsWindowOpen(WindowView).
-        // Поэтому напишем простую логику "Открыть".
-        
-        _manager.OpenWindow(_characterWindow);
+        if (_manager.IsOpen(_characterWindow))
+            _manager.CloseWindow(_characterWindow);
+        else
+            _manager.OpenWindow(_characterWindow);
     }
 }

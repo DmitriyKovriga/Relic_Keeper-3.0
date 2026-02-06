@@ -43,14 +43,11 @@ public class PassiveTreeWindowToggle : MonoBehaviour
 
     private void Toggle()
     {
-        // Эта логика теперь абсолютно корректна благодаря новому WindowManager
-        if (_manager.TopWindow == _skillTreeWindow)
-        {
-            _manager.CloseTop();
-        }
+        if (_manager == null || _skillTreeWindow == null) return;
+
+        if (_manager.IsOpen(_skillTreeWindow))
+            _manager.CloseWindow(_skillTreeWindow);
         else
-        {
             _manager.OpenWindow(_skillTreeWindow);
-        }
     }
 }

@@ -80,7 +80,7 @@ public class InventoryUI : MonoBehaviour
         for (int r = 0; r < ROWS; r++)
         {
             VisualElement row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
+            row.AddToClassList("inventory-row");
             _inventoryContainer.Add(row);
 
             for (int c = 0; c < COLUMNS; c++)
