@@ -15,7 +15,20 @@ public class InventoryUI : MonoBehaviour
     
     private const int ROWS = 4;
     private const int COLUMNS = 10;
-    private const float SLOT_SIZE = 24f; 
+    private const float SLOT_SIZE = 24f;
+
+    /// <summary>Размеры слотов экипировки/крафта в пикселях (должны совпадать с USS: slot-2x2, slot-2x3, slot-2x4).</summary>
+    private static readonly (float w, float h)[] EquipmentSlotSizes =
+    {
+        (48f, 48f),  // Helmet 2x2
+        (48f, 72f),  // Body 2x3
+        (48f, 96f),  // MainHand 2x4
+        (48f, 96f),  // OffHand 2x4
+        (48f, 48f),  // Gloves 2x2
+        (48f, 48f),  // Boots 2x2
+    };
+    private const float CraftSlotWidth = 48f;
+    private const float CraftSlotHeight = 96f; 
 
     private VisualElement _root;
     private VisualElement _inventoryContainer;
@@ -200,8 +213,12 @@ public class InventoryUI : MonoBehaviour
             if (slot != null && item != null && item.Data != null)
             {
                 var icon = CreateItemIcon(item);
-                icon.style.left = 0; 
-                icon.style.top = 0;
+                float iconW = item.Data.Width * SLOT_SIZE;
+                float iconH = item.Data.Height * SLOT_SIZE;
+                float slotW = i < EquipmentSlotSizes.Length ? EquipmentSlotSizes[i].w : 48f;
+                float slotH = i < EquipmentSlotSizes.Length ? EquipmentSlotSizes[i].h : 48f;
+                icon.style.left = (slotW - iconW) * 0.5f;
+                icon.style.top = (slotH - iconH) * 0.5f;
                 icon.style.right = StyleKeyword.Null;
                 icon.style.bottom = StyleKeyword.Null;
                 slot.Add(icon);
@@ -218,8 +235,10 @@ public class InventoryUI : MonoBehaviour
         if (item != null && item.Data != null)
         {
             var icon = CreateItemIcon(item);
-            icon.style.left = 0;
-            icon.style.top = 0;
+            float iconW = item.Data.Width * SLOT_SIZE;
+            float iconH = item.Data.Height * SLOT_SIZE;
+            icon.style.left = (CraftSlotWidth - iconW) * 0.5f;
+            icon.style.top = (CraftSlotHeight - iconH) * 0.5f;
             icon.style.right = StyleKeyword.Null;
             icon.style.bottom = StyleKeyword.Null;
             _craftSlot.Add(icon);
