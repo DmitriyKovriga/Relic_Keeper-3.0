@@ -26,7 +26,8 @@ public class OrbCountEntry
 public class ItemSaveData
 {
     public string ItemID;       // ID из EquipmentItemSO
-    public int SlotIndex;       // Где лежит (включая экипировку > 100)
+    [Tooltip("Индекс слота: рюкзак 0..N, экипировка = InventoryManager.EQUIP_OFFSET + slot, крафт = InventoryManager.CRAFT_SLOT_INDEX.")]
+    public int SlotIndex;
     public List<AffixSaveData> Affixes = new List<AffixSaveData>();
     public List<string> RolledSkillIDs = new List<string>();
 }

@@ -11,8 +11,6 @@ namespace Scripts.Editor.Crafting
 {
     public class CraftingOrbEditorWindow : EditorWindow
     {
-        private const string OrbPath = "Assets/Resources/CraftingOrbs";
-        private const string ConfigPath = "Assets/Resources/CraftingOrbs/CraftingOrbSlotsConfig.asset";
         private const string MenuPath = "Tools/Crafting Orb Editor";
         private const int DefaultSlotCount = 6;
 
@@ -44,7 +42,7 @@ namespace Scripts.Editor.Crafting
             LoadOrbs();
             LoadConfig();
             if (_menuLabelsCollection == null)
-                _menuLabelsCollection = AssetDatabase.LoadAssetAtPath<StringTableCollection>("Assets/Localization/LocalizationTables/MenuLabels.asset");
+                _menuLabelsCollection = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.MenuLabels);
         }
 
         private void LoadOrbs()
@@ -62,7 +60,7 @@ namespace Scripts.Editor.Crafting
 
         private void LoadConfig()
         {
-            _slotsConfig = AssetDatabase.LoadAssetAtPath<CraftingOrbSlotsConfigSO>(ConfigPath);
+            _slotsConfig = AssetDatabase.LoadAssetAtPath<CraftingOrbSlotsConfigSO>(EditorPaths.CraftingOrbSlotsConfig);
             if (_slotsConfig != null && _serializedConfig != null) _serializedConfig = new SerializedObject(_slotsConfig);
         }
 
@@ -282,7 +280,7 @@ namespace Scripts.Editor.Crafting
             if (!AssetDatabase.IsValidFolder("Assets/Resources/CraftingOrbs")) AssetDatabase.CreateFolder("Assets/Resources", "CraftingOrbs");
             var config = CreateInstance<CraftingOrbSlotsConfigSO>();
             for (int i = 0; i < DefaultSlotCount; i++) config.Slots.Add(null);
-            AssetDatabase.CreateAsset(config, ConfigPath);
+            AssetDatabase.CreateAsset(config, EditorPaths.CraftingOrbSlotsConfig);
             AssetDatabase.SaveAssets();
             _slotsConfig = config;
             _serializedConfig = new SerializedObject(config);
@@ -456,9 +454,9 @@ namespace Scripts.Editor.Crafting
             if (!AssetDatabase.IsValidFolder("Assets/Resources")) AssetDatabase.CreateFolder("Assets", "Resources");
             if (!AssetDatabase.IsValidFolder("Assets/Resources/CraftingOrbs")) AssetDatabase.CreateFolder("Assets/Resources", "CraftingOrbs");
 
-            string path = AssetDatabase.GenerateUniqueAssetPath(OrbPath + "/CraftingOrb.asset");
+            string path = AssetDatabase.GenerateUniqueAssetPath(EditorPaths.CraftingOrbsFolder + "/CraftingOrb.asset");
             var orb = CreateInstance<CraftingOrbSO>();
-            orb.EffectId = "reroll_rare";
+            orb.EffectId = CraftingOrbEffectId.RerollRare;
             AssetDatabase.CreateAsset(orb, path);
             string assetName = System.IO.Path.GetFileNameWithoutExtension(path);
             orb.ID = assetName;

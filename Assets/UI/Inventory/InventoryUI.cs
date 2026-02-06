@@ -265,12 +265,11 @@ public class InventoryUI : MonoBehaviour
     private void SetupEquipmentSlots()
     {
         _equipmentSlots.Clear();
-        
-        string[] slotNames = { "Slot_Helmet", "Slot_Body", "Slot_MainHand", "Slot_OffHand", "Slot_Gloves", "Slot_Boots" };
-
-        for (int i = 0; i < slotNames.Length; i++)
+        for (int i = 0; i < EquipmentSlotUxmlNames.Count; i++)
         {
-            var slot = _root.Q<VisualElement>(slotNames[i]);
+            string name = EquipmentSlotUxmlNames.GetName((EquipmentSlot)i);
+            if (string.IsNullOrEmpty(name)) continue;
+            var slot = _root.Q<VisualElement>(name);
             if (slot != null)
             {
                 slot.userData = InventoryManager.EQUIP_OFFSET + i;
@@ -281,7 +280,7 @@ public class InventoryUI : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"[InventoryUI] Слот '{slotNames[i]}' не найден в UXML!");
+                Debug.LogError($"[InventoryUI] Слот '{name}' не найден в UXML!");
             }
         }
     }
@@ -289,7 +288,7 @@ public class InventoryUI : MonoBehaviour
     private void LoadOrbSlotsConfig()
     {
         if (_orbSlotsConfig == null)
-            _orbSlotsConfig = Resources.Load<CraftingOrbSlotsConfigSO>("CraftingOrbs/CraftingOrbSlotsConfig");
+            _orbSlotsConfig = Resources.Load<CraftingOrbSlotsConfigSO>(ProjectPaths.ResourcesCraftingOrbSlotsConfig);
     }
 
     private Button _toggleModeButton;
@@ -467,7 +466,7 @@ public class InventoryUI : MonoBehaviour
 
         var craftItem = InventoryManager.Instance.CraftingSlotItem;
         if (craftItem == null || !ItemGenerator.IsRare(craftItem)) return false;
-        if (_applyOrbOrb.EffectId != "reroll_rare") return false;
+        if (_applyOrbOrb.EffectId != CraftingOrbEffectId.RerollRare) return false;
         if (ItemGenerator.Instance == null) return false;
 
         if (!InventoryManager.Instance.ConsumeOrb(_applyOrbOrb.ID)) return false;

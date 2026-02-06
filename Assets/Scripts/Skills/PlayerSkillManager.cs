@@ -198,17 +198,14 @@ namespace Scripts.Skills
             OnSkillSlotUpdated?.Invoke(slotIndex, null);
         }
 
+        /// <summary> Маппинг слот экипировки -> индекс слота навыка (0=MainHand, 1=OffHand, 2=Gloves, 3=Boots, 4=Helmet). -1 = слот не даёт навыка (BodyArmor и др.). </summary>
+        private static readonly int[] _equipmentSlotToSkillSlot = { 4, -1, 0, 1, 2, 3 }; // Helmet, BodyArmor, MainHand, OffHand, Gloves, Boots
+
         private int GetSkillSlotByItemSlot(EquipmentSlot itemSlot)
         {
-            switch (itemSlot)
-            {
-                case EquipmentSlot.MainHand: return 0;
-                case EquipmentSlot.OffHand: return 1;
-                case EquipmentSlot.Gloves: return 2;
-                case EquipmentSlot.Boots: return 3; 
-                case EquipmentSlot.Helmet: return 4;
-                default: return -1;
-            }
+            int i = (int)itemSlot;
+            if (i < 0 || i >= _equipmentSlotToSkillSlot.Length) return -1;
+            return _equipmentSlotToSkillSlot[i];
         }
     }
 }

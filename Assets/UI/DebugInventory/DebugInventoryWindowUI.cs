@@ -11,7 +11,7 @@ public class DebugInventoryWindowUI : MonoBehaviour
     [SerializeField] private StyleSheet _styleSheet;
 
     [Header("Data")]
-    [SerializeField] private string _itemDatabasePath = "Databases/ItemDatabaseSO";
+    [SerializeField] private string _itemDatabasePath = ProjectPaths.ResourcesItemDatabase;
 
     private VisualElement _root;
     private Button _itemSelectorButton;
@@ -223,7 +223,7 @@ public class DebugInventoryWindowUI : MonoBehaviour
         _orbList.Clear();
         _orbChoiceNames.Clear();
         _orbChoiceNames.Add("(select orb)");
-        var orbs = Resources.LoadAll<CraftingOrbSO>("CraftingOrbs");
+        var orbs = Resources.LoadAll<CraftingOrbSO>(ProjectPaths.ResourcesCraftingOrbsFolder);
         if (orbs != null && orbs.Length > 0)
         {
             foreach (var orb in orbs)

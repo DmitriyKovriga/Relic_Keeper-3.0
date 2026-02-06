@@ -31,7 +31,7 @@ public class CharacterWindowUI : MonoBehaviour
 
     private void Awake()
     {
-        _statsDb = Resources.Load<StatsDatabaseSO>("Databases/StatsDatabase");
+        _statsDb = Resources.Load<StatsDatabaseSO>(ProjectPaths.ResourcesStatsDatabase);
         Debug.Log($"[UI] CharacterWindowUI Awake на объекте {gameObject.name}");
     }
 
