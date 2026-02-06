@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 using Scripts.Items;
 
 namespace Scripts.Inventory
@@ -9,14 +10,20 @@ namespace Scripts.Inventory
         public static InventoryManager Instance { get; private set; }
 
         [Header("Config")]
-        [SerializeField] private int _capacity = 40; 
+        [SerializeField] private int _capacity = 40;
         [SerializeField] private int _cols = 10; 
 
         // ИНДЕКСЫ: 0=Head, 1=Body, 2=Main, 3=Off, 4=Gloves, 5=Boots
         public InventoryItem[] EquipmentItems = new InventoryItem[6];
-        public const int EQUIP_OFFSET = 100; 
+        public const int EQUIP_OFFSET = 100;
 
-        public InventoryItem[] Items; 
+        /// <summary> Один слот крафта (предмет сверху в режиме крафта). Сохраняется как инвентарь. </summary>
+        public const int CRAFT_SLOT_INDEX = 200;
+        public InventoryItem CraftingSlotItem { get; private set; }
+
+        public InventoryItem[] Items;
+
+        private List<OrbCountEntry> _orbCounts = new List<OrbCountEntry>(); 
 
         // События
         public event Action OnInventoryChanged;
@@ -34,12 +41,39 @@ namespace Scripts.Inventory
 
             if (Items == null || Items.Length != _capacity) Items = new InventoryItem[_capacity];
             if (EquipmentItems == null || EquipmentItems.Length != 6) EquipmentItems = new InventoryItem[6];
+            if (_orbCounts == null) _orbCounts = new List<OrbCountEntry>();
+        }
+
+        public int GetOrbCount(string orbId)
+        {
+            if (string.IsNullOrEmpty(orbId)) return 0;
+            var e = _orbCounts.Find(x => x.OrbId == orbId);
+            return e?.Count ?? 0;
+        }
+
+        public void AddOrb(string orbId, int count = 1)
+        {
+            if (string.IsNullOrEmpty(orbId) || count <= 0) return;
+            var e = _orbCounts.Find(x => x.OrbId == orbId);
+            if (e != null) e.Count += count;
+            else _orbCounts.Add(new OrbCountEntry { OrbId = orbId, Count = count });
+        }
+
+        public bool ConsumeOrb(string orbId)
+        {
+            if (string.IsNullOrEmpty(orbId)) return false;
+            var e = _orbCounts.Find(x => x.OrbId == orbId);
+            if (e == null || e.Count <= 0) return false;
+            e.Count--;
+            if (e.Count <= 0) _orbCounts.Remove(e);
+            return true;
         }
 
         public void TriggerUIUpdate() => OnInventoryChanged?.Invoke();
 
         public InventoryItem GetItem(int index)
         {
+            if (index == CRAFT_SLOT_INDEX) return CraftingSlotItem;
             if (index >= EQUIP_OFFSET)
             {
                 int localIndex = index - EQUIP_OFFSET;
@@ -74,8 +108,16 @@ namespace Scripts.Inventory
             }
 
             bool success = false;
-            
-            if (toIndex >= EQUIP_OFFSET) 
+
+            if (fromIndex == CRAFT_SLOT_INDEX)
+            {
+                success = HandleMoveFromCraftSlot(toIndex);
+            }
+            else if (toIndex == CRAFT_SLOT_INDEX)
+            {
+                success = HandleMoveToCraftSlot(fromIndex);
+            }
+            else if (toIndex >= EQUIP_OFFSET) 
             {
                 success = TryEquipItem(fromIndex, toIndex, itemFrom);
             }
@@ -154,6 +196,54 @@ namespace Scripts.Inventory
             return TryEquipItem(backpackIndex, equipGlobalIndex, itemInBackpack);
         }
 
+        private bool HandleMoveFromCraftSlot(int toIndex)
+        {
+            if (CraftingSlotItem == null) return false;
+            var item = CraftingSlotItem;
+
+            if (toIndex >= EQUIP_OFFSET)
+            {
+                int localEquipIndex = toIndex - EQUIP_OFFSET;
+                if ((int)item.Data.Slot != localEquipIndex) return false;
+                var currentEquipped = EquipmentItems[localEquipIndex];
+                CraftingSlotItem = null;
+                EquipmentItems[localEquipIndex] = item;
+                if (currentEquipped != null)
+                {
+                    CraftingSlotItem = currentEquipped;
+                    OnItemUnequipped?.Invoke(currentEquipped);
+                }
+                OnItemEquipped?.Invoke(item);
+                return true;
+            }
+
+            if (!CanPlaceItemAt(item, toIndex)) return false;
+            CraftingSlotItem = null;
+            Items[toIndex] = item;
+            return true;
+        }
+
+        private bool HandleMoveToCraftSlot(int fromIndex)
+        {
+            var itemFrom = GetItem(fromIndex);
+            if (itemFrom == null) return false;
+            var previousCraft = CraftingSlotItem;
+
+            if (fromIndex >= EQUIP_OFFSET)
+            {
+                int localIndex = fromIndex - EQUIP_OFFSET;
+                EquipmentItems[localIndex] = previousCraft;
+                if (previousCraft != null) OnItemUnequipped?.Invoke(itemFrom);
+                CraftingSlotItem = itemFrom;
+                OnItemEquipped?.Invoke(previousCraft);
+                return true;
+            }
+
+            Items[fromIndex] = previousCraft;
+            CraftingSlotItem = itemFrom;
+            return true;
+        }
+
         private bool HandleBackpackMove(int fromIndex, int toIndex, InventoryItem itemA)
         {
             InventoryItem itemB = GetItemAt(toIndex, out int indexB);
@@ -217,6 +307,11 @@ namespace Scripts.Inventory
                 }
             }
 
+            // 3. Слот крафта и сферы
+            if (CraftingSlotItem != null && CraftingSlotItem.Data != null)
+                data.CraftingSlotItem = CraftingSlotItem.GetSaveData(CRAFT_SLOT_INDEX);
+            data.OrbCounts = new List<OrbCountEntry>(_orbCounts);
+
             return data;
         }
 
@@ -234,6 +329,9 @@ namespace Scripts.Inventory
             }
             // Чистим рюкзак
             Array.Clear(Items, 0, Items.Length);
+            CraftingSlotItem = null;
+            _orbCounts.Clear();
+            if (data.OrbCounts != null) _orbCounts.AddRange(data.OrbCounts);
 
             // 2. Восстановление
             foreach (var itemData in data.Items)
@@ -262,12 +360,20 @@ namespace Scripts.Inventory
                 }
             }
 
+            // 3. Слот крафта
+            if (data.CraftingSlotItem != null)
+            {
+                var craftItem = InventoryItem.LoadFromSave(data.CraftingSlotItem, itemDB);
+                if (craftItem != null) CraftingSlotItem = craftItem;
+            }
+
             TriggerUIUpdate();
         }
 
         public bool CanPlaceItemAt(InventoryItem item, int targetIndex)
         {
-            if (item == null || item.Data == null) return false; 
+            if (item == null || item.Data == null) return false;
+            if (targetIndex == CRAFT_SLOT_INDEX) return true;
             if (targetIndex >= EQUIP_OFFSET) return true;
             
             int w = item.Data.Width;
@@ -295,6 +401,7 @@ namespace Scripts.Inventory
         public bool IsSlotOccupied(int slotIndex, out InventoryItem occupier)
         {
             occupier = null;
+            if (slotIndex == CRAFT_SLOT_INDEX) { occupier = CraftingSlotItem; return CraftingSlotItem != null; }
             if (slotIndex < 0 || slotIndex >= Items.Length) return true;
             for (int i = 0; i < Items.Length; i++)
             {
@@ -325,6 +432,7 @@ namespace Scripts.Inventory
         public InventoryItem GetItemAt(int slotIndex, out int anchorIndex)
         {
             anchorIndex = -1;
+            if (slotIndex == CRAFT_SLOT_INDEX) { anchorIndex = CRAFT_SLOT_INDEX; return CraftingSlotItem; }
             if (slotIndex >= EQUIP_OFFSET) { anchorIndex = slotIndex; return GetItem(slotIndex); }
             for (int i = 0; i < Items.Length; i++)
             {

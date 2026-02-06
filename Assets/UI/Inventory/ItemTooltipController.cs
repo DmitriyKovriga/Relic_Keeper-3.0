@@ -46,8 +46,14 @@ public class ItemTooltipController : MonoBehaviour
 
     // --- State ---
     private InventoryItem _currentTargetItem;
+    private CraftingOrbSO _currentTargetOrb;
     private VisualElement _targetAnchorSlot;
     private IVisualElementScheduledItem _hideScheduler;
+
+    // --- Orb Tooltip ---
+    private VisualElement _orbTooltipBox;
+    private Label _orbTitleLabel;
+    private Label _orbDescLabel;
 
     // --- Colors ---
     private readonly Color _colBg = new Color(0.05f, 0.05f, 0.05f, 0.98f); 
@@ -103,6 +109,14 @@ public class ItemTooltipController : MonoBehaviour
             FillSkillData(_currentTargetItem);
             _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
         }
+        else if (_currentTargetOrb != null && _orbTooltipBox != null && _orbTooltipBox.style.display == DisplayStyle.Flex)
+        {
+            string nameKey = string.IsNullOrEmpty(_currentTargetOrb.NameKey) ? $"crafting_orb.{_currentTargetOrb.ID}.name" : _currentTargetOrb.NameKey;
+            string descKey = string.IsNullOrEmpty(_currentTargetOrb.DescriptionKey) ? $"crafting_orb.{_currentTargetOrb.ID}.description" : _currentTargetOrb.DescriptionKey;
+            LocalizeLabel(_orbTitleLabel, TABLE_MENU, nameKey, _currentTargetOrb.name);
+            LocalizeLabel(_orbDescLabel, TABLE_MENU, descKey, "");
+            _root.schedule.Execute(RecalculateOrbPosition).ExecuteLater(1);
+        }
     }
 
     private void RebuildTooltipStructure()
@@ -130,6 +144,20 @@ public class ItemTooltipController : MonoBehaviour
         _skillTooltipBox.style.borderRightColor = new Color(0, 0.5f, 0.5f);
         
         _root.Add(_skillTooltipBox);
+
+        // --- 3. Orb Tooltip (crafting orbs) ---
+        _orbTooltipBox = CreateContainer("GlobalOrbTooltip", _colSkillBg);
+        _orbTooltipBox.style.borderTopColor = new Color(0.4f, 0.35f, 0.2f);
+        _orbTooltipBox.style.borderBottomColor = new Color(0.4f, 0.35f, 0.2f);
+        _orbTooltipBox.style.borderLeftColor = new Color(0.4f, 0.35f, 0.2f);
+        _orbTooltipBox.style.borderRightColor = new Color(0.4f, 0.35f, 0.2f);
+        _orbTitleLabel = CreateLabel("", 9, FontStyle.Bold, TextAnchor.MiddleCenter);
+        _orbTitleLabel.style.color = new StyleColor(_colTitleRare);
+        _orbDescLabel = CreateLabel("", 8, FontStyle.Normal, TextAnchor.MiddleCenter);
+        _orbTooltipBox.Add(_orbTitleLabel);
+        _orbTooltipBox.Add(CreateDivider());
+        _orbTooltipBox.Add(_orbDescLabel);
+        _root.Add(_orbTooltipBox);
 
         _itemTooltipBox.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
     }
@@ -191,6 +219,32 @@ public class ItemTooltipController : MonoBehaviour
 
     // --- Public API ---
 
+    public void ShowOrbTooltip(CraftingOrbSO orb, VisualElement anchorSlot)
+    {
+        if (_orbTooltipBox == null || orb == null) return;
+        if (_hideScheduler != null) { _hideScheduler.Pause(); _hideScheduler = null; }
+
+        _currentTargetItem = null;
+        _currentTargetOrb = orb;
+        _targetAnchorSlot = anchorSlot;
+
+        if (_itemTooltipBox != null) { _itemTooltipBox.style.display = DisplayStyle.None; }
+        if (_skillTooltipBox != null) { _skillTooltipBox.style.display = DisplayStyle.None; }
+
+        string nameKey = string.IsNullOrEmpty(orb.NameKey) ? $"crafting_orb.{orb.ID}.name" : orb.NameKey;
+        string descKey = string.IsNullOrEmpty(orb.DescriptionKey) ? $"crafting_orb.{orb.ID}.description" : orb.DescriptionKey;
+        _orbTitleLabel.text = orb.name;
+        _orbDescLabel.text = "";
+
+        LocalizeLabel(_orbTitleLabel, TABLE_MENU, nameKey, orb.name);
+        LocalizeLabel(_orbDescLabel, TABLE_MENU, descKey, "");
+
+        _orbTooltipBox.style.display = DisplayStyle.Flex;
+        _orbTooltipBox.style.visibility = Visibility.Hidden;
+        _orbTooltipBox.MarkDirtyRepaint();
+        _root.schedule.Execute(RecalculateOrbPosition).ExecuteLater(1);
+    }
+
     public void ShowTooltip(InventoryItem item, VisualElement anchorSlot)
     {
         if (_itemTooltipBox == null || item == null || item.Data == null) return;
@@ -200,6 +254,9 @@ public class ItemTooltipController : MonoBehaviour
             _hideScheduler.Pause(); 
             _hideScheduler = null;
         }
+
+        _currentTargetOrb = null;
+        if (_orbTooltipBox != null) _orbTooltipBox.style.display = DisplayStyle.None;
 
         if (_currentTargetItem == item && _itemTooltipBox.style.display == DisplayStyle.Flex) return;
 
@@ -243,7 +300,13 @@ public class ItemTooltipController : MonoBehaviour
                 _skillTooltipBox.style.display = DisplayStyle.None;
                 _skillTooltipBox.style.visibility = Visibility.Hidden;
             }
+            if (_orbTooltipBox != null)
+            {
+                _orbTooltipBox.style.display = DisplayStyle.None;
+                _orbTooltipBox.style.visibility = Visibility.Hidden;
+            }
             _currentTargetItem = null;
+            _currentTargetOrb = null;
             _targetAnchorSlot = null;
             _hideScheduler = null; 
         });
@@ -353,6 +416,29 @@ public class ItemTooltipController : MonoBehaviour
             _skillTooltipBox.style.top = y;
             _skillTooltipBox.style.visibility = Visibility.Visible;
         }
+    }
+
+    private void RecalculateOrbPosition()
+    {
+        if (_targetAnchorSlot == null || _currentTargetOrb == null || _orbTooltipBox == null) return;
+        float screenW = _root.resolvedStyle.width;
+        float screenH = _root.resolvedStyle.height;
+        Rect r = _targetAnchorSlot.worldBound;
+        Vector2 slotPos = _root.WorldToLocal(r.position);
+        float orbW = _orbTooltipBox.resolvedStyle.width;
+        if (float.IsNaN(orbW) || orbW < 10) orbW = _tooltipWidth;
+        float orbH = _orbTooltipBox.resolvedStyle.height;
+        if (float.IsNaN(orbH) || orbH < 10) orbH = 40f;
+        float slotW = 32f;
+        float x = slotPos.x + slotW + _gap;
+        if (x + orbW + _screenPadding > screenW) x = slotPos.x - orbW - _gap;
+        if (x < _screenPadding) x = _screenPadding;
+        float y = slotPos.y;
+        if (y + orbH > screenH - _screenPadding) y = screenH - orbH - _screenPadding;
+        if (y < _screenPadding) y = _screenPadding;
+        _orbTooltipBox.style.left = x;
+        _orbTooltipBox.style.top = y;
+        _orbTooltipBox.style.visibility = Visibility.Visible;
     }
 
     // --- Fill Data Logic (SKILLS) - ТВОЙ КОД ---

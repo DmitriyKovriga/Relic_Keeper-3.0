@@ -8,6 +8,8 @@ public class InventoryUI : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private UIDocument _uiDoc;
+    [Header("Crafting")]
+    [SerializeField] private CraftingOrbSlotsConfigSO _orbSlotsConfig;
     
     private const int ROWS = 4;
     private const int COLUMNS = 10;
@@ -16,13 +18,24 @@ public class InventoryUI : MonoBehaviour
     private VisualElement _root;
     private VisualElement _inventoryContainer;
     private VisualElement _itemsLayer; 
-    private VisualElement _ghostIcon; 
+    private VisualElement _ghostIcon;
+
+    private VisualElement _equipmentView;
+    private VisualElement _craftView;
+    private VisualElement _craftSlot;
+    private VisualElement _orbSlotsRow;
+    private int _currentTab; // 0 = Equipment, 1 = Craft
     
     private List<VisualElement> _backpackSlots = new List<VisualElement>();
     private List<VisualElement> _equipmentSlots = new List<VisualElement>();
+    private List<(VisualElement slot, Label countLabel)> _orbSlots = new List<(VisualElement, Label)>();
     
     private bool _isDragging;
     private int _draggedSlotIndex = -1;
+
+    private bool _applyOrbMode;
+    private CraftingOrbSO _applyOrbOrb;
+    private VisualElement _applyOrbSlotHighlight;
 
     private void OnEnable()
     {
@@ -36,6 +49,9 @@ public class InventoryUI : MonoBehaviour
         CreateGhostIcon();
         GenerateBackpackGrid();
         SetupEquipmentSlots();
+        LoadOrbSlotsConfig();
+        SetupTabs();
+        SetupCraftView();
 
         if (InventoryManager.Instance == null)
             _root.schedule.Execute(TrySubscribe).Every(100).Until(() => InventoryManager.Instance != null);
@@ -44,6 +60,7 @@ public class InventoryUI : MonoBehaviour
 
         _root.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         _root.RegisterCallback<PointerUpEvent>(OnPointerUp);
+        _root.RegisterCallback<KeyDownEvent>(OnKeyDown);
     }
 
     private void OnDisable()
@@ -53,6 +70,7 @@ public class InventoryUI : MonoBehaviour
             
         _root.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
         _root.UnregisterCallback<PointerUpEvent>(OnPointerUp);
+        _root.UnregisterCallback<KeyDownEvent>(OnKeyDown);
     }
 
     private void TrySubscribe()
@@ -120,7 +138,11 @@ public class InventoryUI : MonoBehaviour
                 icon.MarkDirtyRepaint();
             }
         }
-        DrawEquipmentIcons();
+        if (_currentTab == 0)
+            DrawEquipmentIcons();
+        else
+            DrawCraftSlotIcon();
+        RefreshOrbSlots();
         _itemsLayer.style.display = DisplayStyle.Flex;
         _itemsLayer.BringToFront(); 
         _root.MarkDirtyRepaint();
@@ -134,22 +156,49 @@ public class InventoryUI : MonoBehaviour
         {
             var item = equipItems[i];
             
-            // Ищем UI слот
             int targetID = InventoryManager.EQUIP_OFFSET + i;
             VisualElement slot = _equipmentSlots.Find(s => (int)s.userData == targetID);
 
             if (slot != null && item != null && item.Data != null)
             {
                 var icon = CreateItemIcon(item);
-                
-                // Сброс позиций (на случай если Absolute сломал верстку)
                 icon.style.left = 0; 
                 icon.style.top = 0;
                 icon.style.right = StyleKeyword.Null;
                 icon.style.bottom = StyleKeyword.Null;
-                
                 slot.Add(icon);
             }
+        }
+    }
+
+    private void DrawCraftSlotIcon()
+    {
+        if (_craftSlot == null) return;
+        var oldImg = _craftSlot.Q<Image>();
+        if (oldImg != null) _craftSlot.Remove(oldImg);
+        var item = InventoryManager.Instance.CraftingSlotItem;
+        if (item != null && item.Data != null)
+        {
+            var icon = CreateItemIcon(item);
+            icon.style.left = 0;
+            icon.style.top = 0;
+            icon.style.right = StyleKeyword.Null;
+            icon.style.bottom = StyleKeyword.Null;
+            _craftSlot.Add(icon);
+        }
+    }
+
+    private void RefreshOrbSlots()
+    {
+        if (InventoryManager.Instance == null) return;
+        for (int i = 0; i < _orbSlots.Count; i++)
+        {
+            var (slot, countLabel) = _orbSlots[i];
+            var orb = _orbSlotsConfig != null ? _orbSlotsConfig.GetOrbInSlot(i) : null;
+            int count = orb != null ? InventoryManager.Instance.GetOrbCount(orb.ID) : 0;
+            slot.style.backgroundImage = (orb != null && orb.Icon != null) ? new StyleBackground(orb.Icon) : default;
+            countLabel.text = count > 0 ? count.ToString() : "";
+            countLabel.style.visibility = count > 0 ? Visibility.Visible : Visibility.Hidden;
         }
     }
 
@@ -179,15 +228,7 @@ public class InventoryUI : MonoBehaviour
     {
         _equipmentSlots.Clear();
         
-        // 0: Head, 1: Body, 2: Main, 3: Off, 4: Gloves, 5: Boots
-        string[] slotNames = { 
-            "Slot_Helmet",      
-            "Slot_Body",        
-            "Slot_MainHand",    
-            "Slot_OffHand",     
-            "Slot_Gloves",      
-            "Slot_Boots"        
-        };
+        string[] slotNames = { "Slot_Helmet", "Slot_Body", "Slot_MainHand", "Slot_OffHand", "Slot_Gloves", "Slot_Boots" };
 
         for (int i = 0; i < slotNames.Length; i++)
         {
@@ -195,17 +236,194 @@ public class InventoryUI : MonoBehaviour
             if (slot != null)
             {
                 slot.userData = InventoryManager.EQUIP_OFFSET + i;
-                
                 slot.RegisterCallback<PointerDownEvent>(OnSlotPointerDown);
                 slot.RegisterCallback<PointerOverEvent>(OnPointerOverSlot);
                 slot.RegisterCallback<PointerOutEvent>(OnPointerOutSlot);
-                
                 _equipmentSlots.Add(slot);
             }
             else
             {
                 Debug.LogError($"[InventoryUI] Слот '{slotNames[i]}' не найден в UXML!");
             }
+        }
+    }
+
+    private void LoadOrbSlotsConfig()
+    {
+        if (_orbSlotsConfig == null)
+            _orbSlotsConfig = Resources.Load<CraftingOrbSlotsConfigSO>("CraftingOrbs/CraftingOrbSlotsConfig");
+    }
+
+    private Button _toggleModeButton;
+
+    private void SetupTabs()
+    {
+        _equipmentView = _root.Q<VisualElement>("EquipmentView");
+        _craftView = _root.Q<VisualElement>("CraftView");
+        _toggleModeButton = _root.Q<Button>("ToggleModeButton");
+        if (_equipmentView != null) _equipmentView.AddToClassList("hidden");
+        if (_craftView != null) _craftView.RemoveFromClassList("visible");
+        _currentTab = 0;
+        if (_equipmentView != null) _equipmentView.RemoveFromClassList("hidden");
+
+        if (_toggleModeButton != null)
+        {
+            _toggleModeButton.clicked += OnToggleModeClicked;
+            UpdateToggleButtonLabel();
+        }
+    }
+
+    private void OnToggleModeClicked()
+    {
+        SwitchTab(_currentTab == 0 ? 1 : 0);
+    }
+
+    private void UpdateToggleButtonLabel()
+    {
+        if (_toggleModeButton == null) return;
+        _toggleModeButton.text = _currentTab == 0 ? "K" : "E";
+        _toggleModeButton.tooltip = _currentTab == 0 ? "Крафт" : "Экипировка";
+    }
+
+    private void SwitchTab(int tab)
+    {
+        if (_currentTab == tab) return;
+        _currentTab = tab;
+        if (_equipmentView != null)
+        {
+            if (tab == 0) _equipmentView.RemoveFromClassList("hidden");
+            else _equipmentView.AddToClassList("hidden");
+        }
+        if (_craftView != null)
+        {
+            if (tab == 1) _craftView.AddToClassList("visible");
+            else _craftView.RemoveFromClassList("visible");
+        }
+        UpdateToggleButtonLabel();
+        RefreshInventory();
+    }
+
+    private void SetupCraftView()
+    {
+        _craftSlot = _root.Q<VisualElement>("CraftSlot");
+        _orbSlotsRow = _root.Q<VisualElement>("OrbSlotsRow");
+        if (_craftSlot != null)
+        {
+            _craftSlot.userData = InventoryManager.CRAFT_SLOT_INDEX;
+            _craftSlot.RegisterCallback<PointerDownEvent>(OnSlotPointerDown);
+            _craftSlot.RegisterCallback<PointerOverEvent>(OnPointerOverSlot);
+            _craftSlot.RegisterCallback<PointerOutEvent>(OnPointerOutSlot);
+        }
+        if (_orbSlotsRow != null)
+        {
+            _orbSlotsRow.Clear();
+            _orbSlots.Clear();
+            int count = _orbSlotsConfig != null ? _orbSlotsConfig.SlotCount : 0;
+            if (count == 0)
+            {
+                var hint = new Label(_orbSlotsConfig == null
+                    ? "Сферы: Tools → Crafting Orb Editor → Create config. Либо перетащите конфиг в поле Orb Slots Config у Inventory UI."
+                    : "Сферы: в Crafting Orb Editor назначьте орбы в слоты и Save config.");
+                hint.style.fontSize = 9;
+                hint.style.color = new StyleColor(new UnityEngine.Color(0.6f, 0.6f, 0.6f));
+                hint.style.unityTextAlign = TextAnchor.MiddleCenter;
+                _orbSlotsRow.Add(hint);
+            }
+            for (int i = 0; i < count; i++)
+            {
+                var orb = _orbSlotsConfig.GetOrbInSlot(i);
+                var slot = new VisualElement();
+                slot.AddToClassList("orb-slot");
+                slot.userData = i;
+                var countLabel = new Label { name = "OrbCount" };
+                countLabel.AddToClassList("orb-count");
+                slot.Add(countLabel);
+                slot.RegisterCallback<PointerDownEvent>(OnOrbSlotPointerDown);
+                slot.RegisterCallback<PointerOverEvent>(OnOrbSlotPointerOver);
+                slot.RegisterCallback<PointerOutEvent>(OnOrbSlotPointerOut);
+                _orbSlotsRow.Add(slot);
+                _orbSlots.Add((slot, countLabel));
+            }
+        }
+    }
+
+    private void OnOrbSlotPointerDown(PointerDownEvent evt)
+    {
+        if (evt.button != 1 || _orbSlotsConfig == null || InventoryManager.Instance == null) return;
+        var slot = evt.currentTarget as VisualElement;
+        if (slot?.userData == null) return;
+        int idx = (int)slot.userData;
+        var orb = _orbSlotsConfig.GetOrbInSlot(idx);
+        if (orb == null || string.IsNullOrEmpty(orb.ID)) return;
+        if (InventoryManager.Instance.GetOrbCount(orb.ID) <= 0) return;
+        EnterApplyOrbMode(orb, slot);
+    }
+
+    private void OnOrbSlotPointerOver(PointerOverEvent evt)
+    {
+        if (_orbSlotsConfig == null) return;
+        var slot = evt.currentTarget as VisualElement;
+        if (slot?.userData == null) return;
+        int idx = (int)slot.userData;
+        var orb = _orbSlotsConfig.GetOrbInSlot(idx);
+        if (orb != null && ItemTooltipController.Instance != null)
+            ItemTooltipController.Instance.ShowOrbTooltip(orb, slot);
+    }
+
+    private void OnOrbSlotPointerOut(PointerOutEvent evt)
+    {
+        if (ItemTooltipController.Instance != null)
+            ItemTooltipController.Instance.HideTooltip();
+    }
+
+    private void EnterApplyOrbMode(CraftingOrbSO orb, VisualElement orbSlotElement)
+    {
+        _applyOrbMode = true;
+        _applyOrbOrb = orb;
+        _applyOrbSlotHighlight = orbSlotElement;
+        orbSlotElement.AddToClassList("orb-slot-applying");
+        _ghostIcon.style.backgroundImage = orb.Icon != null ? new StyleBackground(orb.Icon) : default;
+        _ghostIcon.style.width = 32;
+        _ghostIcon.style.height = 32;
+        _ghostIcon.style.display = DisplayStyle.Flex;
+        if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
+    }
+
+    private void ExitApplyOrbMode()
+    {
+        _applyOrbMode = false;
+        if (_applyOrbSlotHighlight != null)
+        {
+            _applyOrbSlotHighlight.RemoveFromClassList("orb-slot-applying");
+            _applyOrbSlotHighlight = null;
+        }
+        _applyOrbOrb = null;
+        _ghostIcon.style.display = DisplayStyle.None;
+    }
+
+    private bool TryApplyOrbOnPointerUp(Vector2 pointerPosition)
+    {
+        if (_applyOrbOrb == null || _craftSlot == null || InventoryManager.Instance == null) return false;
+        if (!_craftSlot.worldBound.Contains(pointerPosition)) return false;
+
+        var craftItem = InventoryManager.Instance.CraftingSlotItem;
+        if (craftItem == null || !ItemGenerator.IsRare(craftItem)) return false;
+        if (_applyOrbOrb.EffectId != "reroll_rare") return false;
+        if (ItemGenerator.Instance == null) return false;
+
+        if (!InventoryManager.Instance.ConsumeOrb(_applyOrbOrb.ID)) return false;
+        ItemGenerator.Instance.RerollRare(craftItem);
+        ExitApplyOrbMode();
+        InventoryManager.Instance.TriggerUIUpdate();
+        return true;
+    }
+
+    private void OnKeyDown(KeyDownEvent evt)
+    {
+        if (evt.keyCode == KeyCode.Escape && _applyOrbMode)
+        {
+            ExitApplyOrbMode();
+            evt.StopPropagation();
         }
     }
 
@@ -227,12 +445,12 @@ public class InventoryUI : MonoBehaviour
 
     private VisualElement GetSlotVisual(int index)
     {
+        if (index == InventoryManager.CRAFT_SLOT_INDEX)
+            return _craftSlot;
         if (index >= InventoryManager.EQUIP_OFFSET)
             return _equipmentSlots.Find(s => (int)s.userData == index);
-        
         if (index >= 0 && index < _backpackSlots.Count)
             return _backpackSlots[index];
-        
         return null;
     }
 
@@ -244,14 +462,17 @@ public class InventoryUI : MonoBehaviour
 
     private void OnPointerMove(PointerMoveEvent evt)
     {
-        if (_isDragging) 
-        {
+        if (_isDragging)
             UpdateGhostPosition(evt.position);
-        }
+        else if (_applyOrbMode)
+            UpdateGhostPosition(evt.position);
     }
     
     private void OnSlotPointerDown(PointerDownEvent evt)
     {
+        if (_applyOrbMode) return;
+        if (evt.button != 0) return;
+
         VisualElement slot = evt.currentTarget as VisualElement;
         int idx = (int)slot.userData;
         InventoryItem item = InventoryManager.Instance.GetItemAt(idx, out int anchorIdx);
@@ -279,30 +500,43 @@ public class InventoryUI : MonoBehaviour
 
     private void OnPointerUp(PointerUpEvent evt)
     {
+        if (_applyOrbMode)
+        {
+            if (evt.button == 0)
+            {
+                bool applied = TryApplyOrbOnPointerUp(evt.position);
+                if (!applied) ExitApplyOrbMode();
+            }
+            return;
+        }
+
         if (!_isDragging) return;
 
         // 1. Где сейчас наш призрак?
         Vector2 ghostCenter = _ghostIcon.worldBound.center;
         int foundIndex = -1;
 
-        // 2. Проверяем список слотов экипировки
-        foreach (var slot in _equipmentSlots)
+        if (_currentTab == 1 && _craftSlot != null && _craftSlot.worldBound.Contains(ghostCenter))
         {
-            if (slot.worldBound.Contains(ghostCenter))
+            foundIndex = InventoryManager.CRAFT_SLOT_INDEX;
+        }
+        else if (_currentTab == 0)
+        {
+            foreach (var slot in _equipmentSlots)
             {
-                if (slot.userData != null) foundIndex = (int)slot.userData;
-                break;
+                if (slot.worldBound.Contains(ghostCenter))
+                {
+                    if (slot.userData != null) foundIndex = (int)slot.userData;
+                    break;
+                }
             }
         }
 
-        // Если не нашли в экипировке, проверяем сетку
         if (foundIndex == -1)
         {
             int gridIndex = GetSmartTargetIndex(); 
             if (gridIndex != -1 && gridIndex < InventoryManager.EQUIP_OFFSET)
-            {
                 foundIndex = gridIndex;
-            }
         }
 
         // --- ЗАВЕРШЕНИЕ ---

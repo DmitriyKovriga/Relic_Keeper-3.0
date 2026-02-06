@@ -1359,6 +1359,22 @@ MonoBehaviour:
     m_Localized: Extra Targets For Melee Hits
     m_Metadata:
       m_Items: []
+  - m_Id: 24940143348056065
+    m_Localized: Reroll Rare Item
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24940143348056064
+    m_Localized: Fartune Orb
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24946905052643328
+    m_Localized: Fartune Orb
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24946905086197760
+    m_Localized: Reroll Rare Item Affixes
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

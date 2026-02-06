@@ -5793,6 +5793,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _uiDoc: {fileID: 635787810}
+  _orbSlotsConfig: {fileID: 11400000, guid: a557f46737fdbcc4aa9684cef8789069, type: 2}
 --- !u!114 &635787809
 MonoBehaviour:
   m_ObjectHideFlags: 0

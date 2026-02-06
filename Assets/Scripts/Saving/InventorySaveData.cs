@@ -1,11 +1,25 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using Scripts.Stats;
 
 [Serializable]
 public class InventorySaveData
 {
     public List<ItemSaveData> Items = new List<ItemSaveData>();
+
+    [Tooltip("Предмет в слоте крафта (один слот сверху в режиме крафта).")]
+    public ItemSaveData CraftingSlotItem;
+
+    [Tooltip("Количество сфер по OrbId. Сериализуется как список пар.")]
+    public List<OrbCountEntry> OrbCounts = new List<OrbCountEntry>();
+}
+
+[Serializable]
+public class OrbCountEntry
+{
+    public string OrbId;
+    public int Count;
 }
 
 [Serializable]
