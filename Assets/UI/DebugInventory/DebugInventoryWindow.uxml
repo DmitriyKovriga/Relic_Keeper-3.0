@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="DebugRoot" class="debug-root">
+        <ui:VisualElement class="debug-panel">
+            <ui:Label text="Debug — Items" class="debug-title" />
+            <ui:VisualElement name="ItemSelectorRow" class="debug-field debug-item-row">
+                <ui:Label text="Item" class="debug-field-label" />
+                <ui:Button name="ItemSelectorButton" text="(select item)" class="debug-item-trigger" />
+            </ui:VisualElement>
+            <ui:DropdownField name="RarityDropdown" label="Rarity" class="debug-field" />
+            <ui:IntegerField name="LevelField" label="Level" value="10" class="debug-field" />
+            <ui:VisualElement class="debug-buttons">
+                <ui:Button name="CreateButton" text="Create" class="debug-btn" />
+                <ui:Button name="ClearButton" text="Clear Inventory" class="debug-btn debug-btn-clear" />
+            </ui:VisualElement>
+            <ui:ScrollView name="ItemListPopup" class="debug-item-list-popup" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

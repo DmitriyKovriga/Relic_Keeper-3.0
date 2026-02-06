@@ -11,6 +11,12 @@ public class InventoryDebugger : MonoBehaviour
     [SerializeField] private EquipmentItemSO _testItemBase;
     [SerializeField] private int _itemLevel = 10;
 
+    private void OnEnable()
+    {
+        if (FindFirstObjectByType<DebugInventoryWindowUI>() != null)
+            enabled = false;
+    }
+
     private void OnGUI()
     {
         GUI.skin.button.fontSize = 14;

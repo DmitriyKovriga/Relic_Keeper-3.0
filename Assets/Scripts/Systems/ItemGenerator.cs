@@ -24,7 +24,7 @@ public class ItemGenerator : MonoBehaviour
 
         var pool = _affixPools.FirstOrDefault(p => p.Slot == baseItem.Slot && p.DefenseType == defType);
 
-        if (pool != null)
+        if (pool != null && rarity > 0)
         {
             int count = (rarity == 1) ? Random.Range(1, 3) : Random.Range(3, 7);
             var affixDatas = pool.GetRandomAffixes(count, itemLevel);
