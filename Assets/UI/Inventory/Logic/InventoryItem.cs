@@ -81,21 +81,17 @@ namespace Scripts.Inventory
             {
                 var afData = new AffixSaveData
                 {
-                    // --- FIX: Сохраняем UniqueID (путь), а не имя файла ---
-                    AffixID = affix.Data.UniqueID, 
+                    AffixID = affix.Data.UniqueID,
                     Values = new List<float>()
                 };
-
                 foreach (var mod in affix.Modifiers)
-                {
                     afData.Values.Add(mod.Mod.Value);
-                }
-
-                foreach (var skill in GrantedSkills)
-            {
-                if(skill != null) saveData.RolledSkillIDs.Add(skill.ID);
-            }
                 saveData.Affixes.Add(afData);
+            }
+
+            foreach (var skill in GrantedSkills)
+            {
+                if (skill != null) saveData.RolledSkillIDs.Add(skill.ID);
             }
 
             return saveData;
@@ -104,6 +100,12 @@ namespace Scripts.Inventory
         // --- МЕТОД ЗАГРУЗКИ ---
         public static InventoryItem LoadFromSave(ItemSaveData save, ItemDatabaseSO db)
         {
+            if (save == null) return null;
+            if (string.IsNullOrEmpty(save.ItemID))
+            {
+                Debug.LogWarning("[InventoryItem] Пропуск записи с пустым ItemID (битый слот сохранения).");
+                return null;
+            }
             var baseItem = db.GetItem(save.ItemID);
             if (baseItem == null)
             {
@@ -126,10 +128,16 @@ namespace Scripts.Inventory
 
             if (save.RolledSkillIDs != null)
             {
+                var addedIds = new HashSet<string>();
                 foreach (var skillID in save.RolledSkillIDs)
                 {
-                    var skillSO = db.GetSkill(skillID); // Метод GetSkill нужно добавить в DB!
-                    if (skillSO != null) newItem.GrantedSkills.Add(skillSO);
+                    if (string.IsNullOrEmpty(skillID) || addedIds.Contains(skillID)) continue;
+                    var skillSO = db.GetSkill(skillID);
+                    if (skillSO != null)
+                    {
+                        newItem.GrantedSkills.Add(skillSO);
+                        addedIds.Add(skillID);
+                    }
                 }
             }
 
