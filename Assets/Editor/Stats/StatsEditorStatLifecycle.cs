@@ -19,10 +19,6 @@ namespace Scripts.Editor.Stats
     public static class StatsEditorStatLifecycle
     {
         private const string StatTypeScriptPath = "Assets/Scripts/Stats/StatType.cs";
-        private const string MenuLabelsPath = "Assets/Localization/LocalizationTables/MenuLabels.asset";
-        private const string AffixesTablePath = "Assets/Localization/LocalizationTables/Affixes.asset";
-        private const string AffixesBasePath = "Assets/Resources/Affixes";
-        private const string PassiveTemplatesPath = "Assets/Resources/PassiveTrees";
 
         public static bool HasLocalizationKey(StringTableCollection menuLabels, StatType stat)
         {
@@ -359,12 +355,12 @@ namespace Scripts.Editor.Stats
         {
             string category = StatsEditorWindow.GetStatCategory(stat);
             string statName = stat.ToString();
-            string folder = $"{AffixesBasePath}/ByStat/{category}/{statName}";
+            string folder = $"{EditorPaths.AffixesBaseFolder}/ByStat/{category}/{statName}";
             if (!AssetDatabase.IsValidFolder("Assets/Resources")) AssetDatabase.CreateFolder("Assets", "Resources");
-            if (!AssetDatabase.IsValidFolder("Assets/Resources/Affixes")) AssetDatabase.CreateFolder("Assets/Resources", "Affixes");
-            if (!AssetDatabase.IsValidFolder("Assets/Resources/Affixes/ByStat")) AssetDatabase.CreateFolder("Assets/Resources/Affixes", "ByStat");
-            if (!AssetDatabase.IsValidFolder("Assets/Resources/Affixes/ByStat/" + category)) AssetDatabase.CreateFolder("Assets/Resources/Affixes/ByStat", category);
-            if (!AssetDatabase.IsValidFolder("Assets/Resources/Affixes/ByStat/" + category + "/" + statName)) AssetDatabase.CreateFolder("Assets/Resources/Affixes/ByStat/" + category, statName);
+            if (!AssetDatabase.IsValidFolder(EditorPaths.AffixesBaseFolder)) AssetDatabase.CreateFolder("Assets/Resources", "Affixes");
+            if (!AssetDatabase.IsValidFolder(EditorPaths.AffixesBaseFolder + "/ByStat")) AssetDatabase.CreateFolder(EditorPaths.AffixesBaseFolder, "ByStat");
+            if (!AssetDatabase.IsValidFolder(EditorPaths.AffixesBaseFolder + "/ByStat/" + category)) AssetDatabase.CreateFolder(EditorPaths.AffixesBaseFolder + "/ByStat", category);
+            if (!AssetDatabase.IsValidFolder(EditorPaths.AffixesBaseFolder + "/ByStat/" + category + "/" + statName)) AssetDatabase.CreateFolder(EditorPaths.AffixesBaseFolder + "/ByStat/" + category, statName);
 
             string path = $"{folder}/{statName}_Flat_T1.asset";
             if (AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path) != null)
@@ -410,10 +406,10 @@ namespace Scripts.Editor.Stats
         {
             string category = StatsEditorWindow.GetStatCategory(stat);
             string statName = stat.ToString();
-            string folder = $"{PassiveTemplatesPath}/Templates/{category}";
-            EnsureFolderExists("Assets/Resources/PassiveTrees");
-            EnsureFolderExists("Assets/Resources/PassiveTrees/Templates");
-            EnsureFolderExists("Assets/Resources/PassiveTrees/Templates/" + category);
+            string folder = $"{EditorPaths.PassiveTemplatesFolder}/Templates/{category}";
+            EnsureFolderExists(EditorPaths.PassiveTemplatesFolder);
+            EnsureFolderExists(EditorPaths.PassiveTemplatesFolder + "/Templates");
+            EnsureFolderExists(EditorPaths.PassiveTemplatesFolder + "/Templates/" + category);
 
             string path = $"{folder}/{statName}_Sample.asset";
             if (AssetDatabase.LoadAssetAtPath<PassiveNodeTemplateSO>(path) != null)

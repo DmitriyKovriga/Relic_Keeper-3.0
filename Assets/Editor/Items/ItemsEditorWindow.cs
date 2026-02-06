@@ -78,7 +78,7 @@ namespace Scripts.Editor.Items
                 if (affix != null) _selectedAffix = affix;
             }
             if (_itemDatabase == null)
-                _itemDatabase = AssetDatabase.LoadAssetAtPath<ItemDatabaseSO>("Assets/Resources/Databases/ItemDatabaseSO.asset");
+                _itemDatabase = AssetDatabase.LoadAssetAtPath<ItemDatabaseSO>(EditorPaths.ItemDatabase);
         }
 
         private void LoadItems()

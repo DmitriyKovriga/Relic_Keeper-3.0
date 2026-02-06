@@ -106,8 +106,13 @@ public class ItemDatabaseSO : ScriptableObject
         }
 
         public SkillDataSO GetSkill(string id)
-{
-    if (_skillLookup == null) Init();
-    return _skillLookup != null ? _skillLookup.GetValueOrDefault(id) : null;
-}
+        {
+            if (_skillLookup == null) Init();
+            if (_skillLookup == null) return null;
+            if (string.IsNullOrEmpty(id)) return null;
+            if (_skillLookup.TryGetValue(id, out var skill))
+                return skill;
+            Debug.LogWarning($"[ItemDatabase] Скилл с ID '{id}' не найден в базе!");
+            return null;
+        }
 }

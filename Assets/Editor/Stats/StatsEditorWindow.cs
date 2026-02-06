@@ -36,9 +36,7 @@ namespace Scripts.Editor.Stats
         private List<UnityEngine.Object> _characterDataUsingStat = new List<UnityEngine.Object>();
 
         private const string MenuPath = "Tools/Stats Editor";
-        private const string MenuLabelsPath = "Assets/Localization/LocalizationTables/MenuLabels.asset";
         private const string SessionKeySelectedStat = "StatsEditorWindow_SelectedStat";
-        private const string StatsDatabaseResourcePath = "Databases/StatsDatabase";
 
         [SerializeField] private StatsDatabaseSO _statsDatabase;
         [SerializeField] private StringTableCollection _affixesCollection;
@@ -54,12 +52,12 @@ namespace Scripts.Editor.Stats
         private void OnEnable()
         {
             if (_menuLabelsCollection == null)
-                _menuLabelsCollection = AssetDatabase.LoadAssetAtPath<StringTableCollection>(MenuLabelsPath);
+                _menuLabelsCollection = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.MenuLabels);
             if (_statsDatabase == null)
             {
-                _statsDatabase = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>("Assets/Resources/Databases/StatsDatabase.asset");
+                _statsDatabase = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase);
                 if (_statsDatabase == null)
-                    _statsDatabase = Resources.Load<StatsDatabaseSO>(StatsDatabaseResourcePath);
+                    _statsDatabase = Resources.Load<StatsDatabaseSO>(ProjectPaths.ResourcesStatsDatabase);
             }
             string saved = SessionState.GetString(SessionKeySelectedStat, null);
             if (!string.IsNullOrEmpty(saved) && Enum.TryParse<StatType>(saved, out var parsed))
@@ -190,19 +188,18 @@ namespace Scripts.Editor.Stats
                 EditorGUILayout.HelpBox("Assign or create a Stats Database (e.g. in Assets/Resources/Databases/StatsDatabase.asset) to edit metadata.", MessageType.Info);
                 if (GUILayout.Button("Create new Stats Database in Resources/Databases"))
                 {
-                    const string path = "Assets/Resources/Databases/StatsDatabase.asset";
-                    if (AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(path) != null)
+                    if (AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase) != null)
                     {
-                        _statsDatabase = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(path);
+                        _statsDatabase = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase);
                         return;
                     }
                     var db = CreateInstance<StatsDatabaseSO>();
                     if (!AssetDatabase.IsValidFolder("Assets/Resources")) AssetDatabase.CreateFolder("Assets", "Resources");
                     if (!AssetDatabase.IsValidFolder("Assets/Resources/Databases")) AssetDatabase.CreateFolder("Assets/Resources", "Databases");
-                    AssetDatabase.CreateAsset(db, path);
+                    AssetDatabase.CreateAsset(db, EditorPaths.StatsDatabase);
                     AssetDatabase.SaveAssets();
                     _statsDatabase = db;
-                    Debug.Log("Stats Editor: Created StatsDatabase.asset at " + path);
+                    Debug.Log("Stats Editor: Created StatsDatabase.asset at " + EditorPaths.StatsDatabase);
                 }
                 return;
             }

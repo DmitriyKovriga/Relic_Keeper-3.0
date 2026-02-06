@@ -15,7 +15,20 @@ public class InventoryUI : MonoBehaviour
     
     private const int ROWS = 4;
     private const int COLUMNS = 10;
-    private const float SLOT_SIZE = 24f; 
+    private const float SLOT_SIZE = 24f;
+
+    /// <summary>Размеры слотов экипировки/крафта в пикселях (должны совпадать с USS: slot-2x2, slot-2x3, slot-2x4).</summary>
+    private static readonly (float w, float h)[] EquipmentSlotSizes =
+    {
+        (48f, 48f),  // Helmet 2x2
+        (48f, 72f),  // Body 2x3
+        (48f, 96f),  // MainHand 2x4
+        (48f, 96f),  // OffHand 2x4
+        (48f, 48f),  // Gloves 2x2
+        (48f, 48f),  // Boots 2x2
+    };
+    private const float CraftSlotWidth = 48f;
+    private const float CraftSlotHeight = 96f; 
 
     private VisualElement _root;
     private VisualElement _inventoryContainer;
@@ -200,8 +213,12 @@ public class InventoryUI : MonoBehaviour
             if (slot != null && item != null && item.Data != null)
             {
                 var icon = CreateItemIcon(item);
-                icon.style.left = 0; 
-                icon.style.top = 0;
+                float iconW = item.Data.Width * SLOT_SIZE;
+                float iconH = item.Data.Height * SLOT_SIZE;
+                float slotW = i < EquipmentSlotSizes.Length ? EquipmentSlotSizes[i].w : 48f;
+                float slotH = i < EquipmentSlotSizes.Length ? EquipmentSlotSizes[i].h : 48f;
+                icon.style.left = (slotW - iconW) * 0.5f;
+                icon.style.top = (slotH - iconH) * 0.5f;
                 icon.style.right = StyleKeyword.Null;
                 icon.style.bottom = StyleKeyword.Null;
                 slot.Add(icon);
@@ -218,8 +235,10 @@ public class InventoryUI : MonoBehaviour
         if (item != null && item.Data != null)
         {
             var icon = CreateItemIcon(item);
-            icon.style.left = 0;
-            icon.style.top = 0;
+            float iconW = item.Data.Width * SLOT_SIZE;
+            float iconH = item.Data.Height * SLOT_SIZE;
+            icon.style.left = (CraftSlotWidth - iconW) * 0.5f;
+            icon.style.top = (CraftSlotHeight - iconH) * 0.5f;
             icon.style.right = StyleKeyword.Null;
             icon.style.bottom = StyleKeyword.Null;
             _craftSlot.Add(icon);
@@ -265,12 +284,11 @@ public class InventoryUI : MonoBehaviour
     private void SetupEquipmentSlots()
     {
         _equipmentSlots.Clear();
-        
-        string[] slotNames = { "Slot_Helmet", "Slot_Body", "Slot_MainHand", "Slot_OffHand", "Slot_Gloves", "Slot_Boots" };
-
-        for (int i = 0; i < slotNames.Length; i++)
+        for (int i = 0; i < EquipmentSlotUxmlNames.Count; i++)
         {
-            var slot = _root.Q<VisualElement>(slotNames[i]);
+            string name = EquipmentSlotUxmlNames.GetName((EquipmentSlot)i);
+            if (string.IsNullOrEmpty(name)) continue;
+            var slot = _root.Q<VisualElement>(name);
             if (slot != null)
             {
                 slot.userData = InventoryManager.EQUIP_OFFSET + i;
@@ -281,7 +299,7 @@ public class InventoryUI : MonoBehaviour
             }
             else
             {
-                Debug.LogError($"[InventoryUI] Слот '{slotNames[i]}' не найден в UXML!");
+                Debug.LogError($"[InventoryUI] Слот '{name}' не найден в UXML!");
             }
         }
     }
@@ -289,7 +307,7 @@ public class InventoryUI : MonoBehaviour
     private void LoadOrbSlotsConfig()
     {
         if (_orbSlotsConfig == null)
-            _orbSlotsConfig = Resources.Load<CraftingOrbSlotsConfigSO>("CraftingOrbs/CraftingOrbSlotsConfig");
+            _orbSlotsConfig = Resources.Load<CraftingOrbSlotsConfigSO>(ProjectPaths.ResourcesCraftingOrbSlotsConfig);
     }
 
     private Button _toggleModeButton;
@@ -467,7 +485,7 @@ public class InventoryUI : MonoBehaviour
 
         var craftItem = InventoryManager.Instance.CraftingSlotItem;
         if (craftItem == null || !ItemGenerator.IsRare(craftItem)) return false;
-        if (_applyOrbOrb.EffectId != "reroll_rare") return false;
+        if (_applyOrbOrb.EffectId != CraftingOrbEffectId.RerollRare) return false;
         if (ItemGenerator.Instance == null) return false;
 
         if (!InventoryManager.Instance.ConsumeOrb(_applyOrbOrb.ID)) return false;

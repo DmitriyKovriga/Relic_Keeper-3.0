@@ -6,6 +6,8 @@ using Scripts.Skills.PassiveTree; // Добавлен namespace
 
 public class GameSaveManager : MonoBehaviour
 {
+    public const int CurrentSaveVersion = 1;
+
     [Header("Core Dependencies")]
     [SerializeField] private PlayerStats _playerStats;
     [SerializeField] private CharacterDatabaseSO _characterDB;
@@ -69,6 +71,7 @@ public class GameSaveManager : MonoBehaviour
 
         var data = new GameSaveData
         {
+            SaveVersion = CurrentSaveVersion,
             CharacterClassID = _playerStats.CurrentClassID,
             CurrentHealth = _playerStats.Health.Current,
             CurrentMana = _playerStats.Mana.Current,
@@ -99,6 +102,9 @@ public class GameSaveManager : MonoBehaviour
         {
             string json = File.ReadAllText(SavePath);
             GameSaveData data = JsonUtility.FromJson<GameSaveData>(json);
+
+            if (data.SaveVersion < CurrentSaveVersion)
+                MigrateSaveData(data);
 
             CharacterDataSO characterData = _characterDB.GetCharacterByID(data.CharacterClassID);
             
@@ -141,6 +147,16 @@ public class GameSaveManager : MonoBehaviour
             File.Delete(SavePath);
             Debug.Log("[System] Save Deleted.");
             StartNewGame();
+        }
+    }
+
+    private void MigrateSaveData(GameSaveData data)
+    {
+        if (data.SaveVersion >= CurrentSaveVersion) return;
+        if (data.SaveVersion == 0)
+        {
+            data.SaveVersion = 1;
+            Debug.Log("[System] Save migrated: 0 -> 1 (SaveVersion added).");
         }
     }
 
