@@ -22,6 +22,6 @@ MonoBehaviour:
   Stats:
   - Stat: 31
     Type: 300
-    Scope: 0
+    Scope: 1
     MinValue: 10
     MaxValue: 13

@@ -135,6 +135,7 @@ namespace Scripts.Editor.Affixes
             if (GUILayout.Button("Refresh")) LoadAll();
             if (GUILayout.Button("Assign suggested tags to all affixes")) AssignSuggestedTagsToAllAffixes();
             if (GUILayout.Button("Generate names (empty only)")) GenerateNamesForAffixesWithoutName();
+            if (GUILayout.Button("Sync missing name & value text")) SyncMissingNameAndValueText();
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal();
             GUI.backgroundColor = new Color(1f, 0.85f, 0.7f);
@@ -416,6 +417,31 @@ namespace Scripts.Editor.Affixes
             AssetDatabase.SaveAssets();
             if (_selectedAffix != null) RefreshNameFields();
             EditorUtility.DisplayDialog("Names", $"Generated names for {generated} affixes (format: stat name + type + scope).", "OK");
+        }
+
+        /// <summary> Заполняет пустые Affix name и Value text в таблице для всех аффиксов (формат как при генерации: strength + stat + type). </summary>
+        private void SyncMissingNameAndValueText()
+        {
+            if (_affixesLabelsCollection == null) { EditorUtility.DisplayDialog("Sync", "AffixesLabels table not found.", "OK"); return; }
+            if (_menuLabelsCollection == null) { EditorUtility.DisplayDialog("Sync", "MenuLabels table not found (for stat names).", "OK"); return; }
+            int filled = 0;
+            foreach (var affix in _affixes)
+            {
+                if (affix == null || affix.Stats == null || affix.Stats.Length == 0) continue;
+                string nameKey = GetAffixNameKey(affix);
+                string valueKey = GetAffixValueKey(affix);
+                string nameEn = GetLocalizedString(_affixesLabelsCollection, "en", nameKey);
+                string valueEn = GetLocalizedString(_affixesLabelsCollection, "en", valueKey);
+                if (string.IsNullOrWhiteSpace(nameEn) || string.IsNullOrWhiteSpace(valueEn))
+                {
+                    AffixSetGenerator.FillMissingLocalization(affix, _menuLabelsCollection, _affixesLabelsCollection);
+                    EditorUtility.SetDirty(affix);
+                    filled++;
+                }
+            }
+            AssetDatabase.SaveAssets();
+            if (_selectedAffix != null) { RefreshNameFields(); RefreshTranslationValueFields(); }
+            EditorUtility.DisplayDialog("Sync", $"Filled missing name and/or value text for {filled} affixes.", "OK");
         }
 
         private static string GetTypeDisplayName(StatModType t)

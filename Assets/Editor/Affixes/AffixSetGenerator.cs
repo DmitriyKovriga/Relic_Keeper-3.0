@@ -306,5 +306,70 @@ namespace Scripts.Editor.Affixes
             if (modType == "More") return $"{{0}}% больше {statName}";
             return $"+{{0}} {statName}";
         }
+
+        /// <summary> Заполняет имя и value text в таблице, если они пустые. Использует тот же формат, что и при генерации (strength + stat + type). </summary>
+        public static void FillMissingLocalization(ItemAffixSO affix, StringTableCollection menuLabels, StringTableCollection affixesLabels)
+        {
+            if (affix == null || affixesLabels == null) return;
+            if (affix.Stats == null || affix.Stats.Length == 0) return;
+
+            var s = affix.Stats[0];
+            StatType stat = s.Stat;
+            string modSuffix = s.Type == StatModType.PercentAdd ? "Increase" : s.Type == StatModType.PercentMult ? "More" : "Flat";
+            string strength = ParseStrengthFromGroupId(affix.GroupID);
+
+            string statKey = "stats." + stat;
+            string statNameEn = GetLocalizedString(menuLabels, "en", statKey);
+            string statNameRu = GetLocalizedString(menuLabels, "ru", statKey);
+            if (string.IsNullOrEmpty(statNameEn)) statNameEn = stat.ToString();
+            if (string.IsNullOrEmpty(statNameRu)) statNameRu = stat.ToString();
+
+            string nameKey = string.IsNullOrEmpty(affix.NameKey) ? "affix_name_" + SanitizeKey(affix.name) : affix.NameKey;
+            string nameEnExisting = GetLocalizedString(affixesLabels, "en", nameKey);
+            if (string.IsNullOrWhiteSpace(nameEnExisting))
+            {
+                string strengthRu = strength == StrengthStrong ? "Сильный" : strength == StrengthMedium ? "Средний" : "Лёгкий";
+                string typeEn = modSuffix == "Flat" ? "flat" : modSuffix == "Increase" ? "increase" : "more";
+                string typeRu = modSuffix == "Flat" ? "flat" : modSuffix == "Increase" ? "увеличение" : "больше";
+                string nameEn = $"{strength} {statNameEn} {typeEn}";
+                string nameRu = $"{strengthRu} {statNameRu} {typeRu}";
+                SetOrAddEntry(affixesLabels, "en", nameKey, nameEn);
+                SetOrAddEntry(affixesLabels, "ru", nameKey, nameRu);
+                if (string.IsNullOrEmpty(affix.NameKey)) affix.NameKey = nameKey;
+            }
+
+            string valueKey = string.IsNullOrEmpty(affix.TranslationKey) ? "affix_" + modSuffix.ToLowerInvariant() + "_" + stat.ToString().ToLowerInvariant() : affix.TranslationKey;
+            string valueEnExisting = GetLocalizedString(affixesLabels, "en", valueKey);
+            if (string.IsNullOrWhiteSpace(valueEnExisting))
+            {
+                string rawStat = stat.ToString();
+                string valueEn = GenerateValueTemplateEn(modSuffix, rawStat, statNameEn);
+                string valueRu = GenerateValueTemplateRu(modSuffix, rawStat, statNameRu);
+                SetOrAddEntry(affixesLabels, "en", valueKey, valueEn);
+                SetOrAddEntry(affixesLabels, "ru", valueKey, valueRu);
+                if (string.IsNullOrEmpty(affix.TranslationKey)) affix.TranslationKey = valueKey;
+            }
+        }
+
+        private static string ParseStrengthFromGroupId(string groupId)
+        {
+            if (string.IsNullOrEmpty(groupId)) return StrengthMedium;
+            var parts = groupId.Split('_');
+            if (parts.Length >= 3)
+            {
+                string last = parts[parts.Length - 1];
+                if (last == StrengthStrong || last == StrengthMedium || last == StrengthLight) return last;
+            }
+            return StrengthMedium;
+        }
+
+        private static string SanitizeKey(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return s;
+            var arr = s.ToCharArray();
+            for (int i = 0; i < arr.Length; i++)
+                if (!char.IsLetterOrDigit(arr[i])) arr[i] = '_';
+            return new string(arr).ToLowerInvariant();
+        }
     }
 }
