@@ -65,13 +65,13 @@
     margin-right: 0;
 }
 
-/* Дуо: слева не добавляем (склад у края), справа 8px. */
+/* Дуо: отступы по пикселям. */
 .main-row.stash-open {
     margin-left: 0;
     margin-right: 8px;
 }
 
-/* Комбо: 480−16 padding = 464, −8 margin = 456. Склад 210 + 6 + инвентарь 240 = 456. */
+/* Окно 270px, padding 10 сверху/снизу → main-row = 250px. Инвентарь 96px внизу → низ на 250px. */
 .main-row.stash-open .content-row {
     width: 240px;
     flex-grow: 0;
@@ -81,20 +81,24 @@
     min-width: 0;
 }
 
-/* Фон не задаём. Зазор 6px. Ширина 210px (456−6−240 под инвентарь при окне 480px). */
+/* Склад: выравнивание по пикселям. main-row = 250px. Чтобы низ сетки склада (216px) был на 250px: padding только сверху 8px, снизу 0. Вкладки 26px, без margin-bottom. Блок вкладки+сетка = 242px, flex-end прижимает к низу → сетка 34..250. */
 .stash-panel {
     display: none;
     flex-direction: column;
-    flex-grow: 0;
+    flex-grow: 1;
     flex-shrink: 0;
-    width: 210px;
+    width: 212px;
+    min-height: 0;
     border-left-width: 0;
     border-right-width: 0;
-    padding: 8px;
+    padding-top: 8px;
+    padding-bottom: 0;
+    padding-left: 8px;
     padding-right: 12px;
     margin-right: 6px;
     margin-left: 0;
     background-color: transparent;
+    justify-content: flex-end;
 }
 
 .stash-panel.visible {
@@ -105,7 +109,7 @@
     flex-direction: row;
     flex-wrap: nowrap;
     flex-shrink: 0;
-    margin-bottom: 6px;
+    margin-bottom: 0;
     min-height: 26px;
     height: 26px;
     align-items: center;
@@ -160,8 +164,8 @@
     flex-direction: column;
     flex-shrink: 0;
     position: relative;
-    width: 144px;
-    height: 240px;
+    width: 192px;
+    height: 216px;
     border-width: 1px;
     border-color: #444;
     background-color: #111;
@@ -171,7 +175,7 @@
 .stash-row {
     flex-direction: row;
     height: 24px;
-    width: 144px;
+    width: 192px;
 }
 
 /* Правило: края окна отступают от элементов — контент внутри padding, при переполнении скролл. */
