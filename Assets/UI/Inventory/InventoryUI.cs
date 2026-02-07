@@ -312,6 +312,11 @@ public class InventoryUI : MonoBehaviour
     private void RefreshStashTabs()
     {
         if (_stashTabsRow == null || StashManager.Instance == null) return;
+        float savedScrollOffset = 0f;
+        var existingScroll = _stashTabsRow.Q<ScrollView>();
+        if (existingScroll != null && existingScroll.horizontalScroller != null)
+            savedScrollOffset = existingScroll.horizontalScroller.value;
+
         _stashTabsRow.Clear();
         var scroll = new ScrollView(ScrollViewMode.Horizontal);
         scroll.AddToClassList("stash-tabs-scroll");
@@ -366,6 +371,16 @@ public class InventoryUI : MonoBehaviour
         _stashTabsRow.Add(scroll);
         HideStashVerticalScrollerDelayed(scroll);
         HideStashHorizontalScrollerArrows(scroll);
+
+        float offsetToRestore = savedScrollOffset;
+        void RestoreScroll()
+        {
+            if (scroll == null || scroll.horizontalScroller == null) return;
+            float high = scroll.horizontalScroller.highValue;
+            scroll.horizontalScroller.value = Mathf.Clamp(offsetToRestore, 0, high);
+        }
+        scroll.schedule.Execute(RestoreScroll).ExecuteLater(1);
+        scroll.schedule.Execute(RestoreScroll).ExecuteLater(5);
     }
 
     private void HideStashHorizontalScrollerArrows(ScrollView scroll)
