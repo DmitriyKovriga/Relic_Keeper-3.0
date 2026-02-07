@@ -5754,6 +5754,8 @@ GameObject:
   - component: {fileID: 635787811}
   - component: {fileID: 635787813}
   - component: {fileID: 635787812}
+  - component: {fileID: 635787815}
+  - component: {fileID: 635787814}
   m_Layer: 5
   m_Name: UI_InventoryWindow
   m_TagString: Untagged
@@ -5793,6 +5795,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _uiDoc: {fileID: 635787810}
+  _windowView: {fileID: 0}
   _orbSlotsConfig: {fileID: 11400000, guid: a557f46737fdbcc4aa9684cef8789069, type: 2}
 --- !u!114 &635787809
 MonoBehaviour:
@@ -5894,6 +5897,34 @@ MonoBehaviour:
     Affixes: []
     GrantedSkills: []
   Items: []
+--- !u!114 &635787814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 635787806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d785dcad77dce844b8afa398dc830635, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &635787815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 635787806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2905e2db6c816f1429137d504f2d1eea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _inventoryUI: {fileID: 635787808}
+  _openStashAction: {fileID: 0}
+  _openInventoryWhenOpeningStash: 1
+  _inventoryWindow: {fileID: 635787809}
 --- !u!1 &682701396
 GameObject:
   m_ObjectHideFlags: 0

@@ -82,7 +82,7 @@ public static class InputRebindSaver
         
         // --- Интерфейс ---
         BindIfNotExists(map.FindAction("OpenInventory"), "<Keyboard>/i");
-        // --- ДОБАВЛЕНО ---
+        BindIfNotExists(map.FindAction("OpenStash"), "<Keyboard>/b");
         BindIfNotExists(map.FindAction("OpenSkillTree"), "<Keyboard>/t");
     }
 

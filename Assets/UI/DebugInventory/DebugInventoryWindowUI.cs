@@ -9,6 +9,8 @@ public class DebugInventoryWindowUI : MonoBehaviour
     [Header("UI")]
     [SerializeField] private UIDocument _uiDoc;
     [SerializeField] private StyleSheet _styleSheet;
+    [Tooltip("Sorting order при показе окна — выше инвентаря/сундука, чтобы окно было поверх и прокликивалось.")]
+    [SerializeField] private float _sortOrderWhenVisible = 1000f;
 
     [Header("Data")]
     [SerializeField] private string _itemDatabasePath = ProjectPaths.ResourcesItemDatabase;
@@ -33,6 +35,8 @@ public class DebugInventoryWindowUI : MonoBehaviour
     private List<EquipmentItemSO> _itemList = new List<EquipmentItemSO>();
     private int _selectedItemIndex = 0;
     private List<string> _itemChoiceNames = new List<string>();
+    private float _sortOrderWhenHidden;
+    private float _panelSortOrderWhenHidden;
 
     private void OnEnable()
     {
@@ -85,6 +89,20 @@ public class DebugInventoryWindowUI : MonoBehaviour
         }
 
         _root.style.display = DisplayStyle.None;
+        _root.pickingMode = PickingMode.Position;
+        if (_uiDoc != null)
+        {
+            _sortOrderWhenHidden = _uiDoc.sortingOrder;
+            if (_uiDoc.panelSettings != null)
+                _panelSortOrderWhenHidden = _uiDoc.panelSettings.sortingOrder;
+        }
+    }
+
+    private VisualElement GetInventoryRoot()
+    {
+        var inv = GetComponentInParent<InventoryUI>();
+        if (inv == null) inv = Object.FindObjectOfType<InventoryUI>(true);
+        return inv != null ? inv.RootVisualElement : null;
     }
 
     private void OnDisable()
@@ -301,8 +319,39 @@ public class DebugInventoryWindowUI : MonoBehaviour
 
     public void SetVisible(bool visible)
     {
-        if (_root != null)
-            _root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+        if (_root == null) return;
+
+        VisualElement targetParent = null;
+        if (visible)
+        {
+            VisualElement inventoryRoot = GetInventoryRoot();
+            if (inventoryRoot != null && _root.parent != inventoryRoot)
+            {
+                _root.RemoveFromHierarchy();
+                inventoryRoot.Add(_root);
+                targetParent = inventoryRoot;
+            }
+            _root.style.display = DisplayStyle.Flex;
+            _root.BringToFront();
+            if (targetParent != null)
+                _root.schedule.Execute(() => _root.BringToFront()).ExecuteLater(1);
+        }
+        else
+        {
+            _root.style.display = DisplayStyle.None;
+            if (_uiDoc != null && _uiDoc.rootVisualElement != null && _root.parent != _uiDoc.rootVisualElement)
+            {
+                _root.RemoveFromHierarchy();
+                _uiDoc.rootVisualElement.Add(_root);
+            }
+        }
+
+        if (_uiDoc != null)
+        {
+            _uiDoc.sortingOrder = visible ? _sortOrderWhenVisible : _sortOrderWhenHidden;
+            if (_uiDoc.panelSettings != null)
+                _uiDoc.panelSettings.sortingOrder = visible ? _sortOrderWhenVisible : _panelSortOrderWhenHidden;
+        }
     }
 
     public bool IsVisible()

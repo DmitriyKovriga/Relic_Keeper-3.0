@@ -7,7 +7,7 @@ public static class DamageCalculator
     /// <summary>
     /// Расчет среднего урона за удар (Hit Damage).
     /// </summary>
-    public static float CalculateAverageDamage(PlayerStats stats, StatType damageType)
+    public static float CalculateAverageDamage(IStatsProvider stats, StatType damageType)
     {
         // В будущем тут будет сложная формула (Min/Max range).
         // Сейчас берем значение стата, куда уже "влиты" база оружия и модификаторы.
@@ -17,7 +17,7 @@ public static class DamageCalculator
     /// <summary>
     /// Создает снапшот урона для нанесения врагу.
     /// </summary>
-    public static DamageSnapshot CreateDamageSnapshot(PlayerStats attackerStats, float skillMultiplier = 1.0f)
+    public static DamageSnapshot CreateDamageSnapshot(IStatsProvider attackerStats, float skillMultiplier = 1.0f)
     {
         var snapshot = new DamageSnapshot(attackerStats);
 
@@ -59,7 +59,7 @@ public static class DamageCalculator
 
     // --- DOT CALCULATIONS (Для UI и эффектов) ---
 
-    public static float CalculateBleedDPS(PlayerStats stats)
+    public static float CalculateBleedDPS(IStatsProvider stats)
     {
         float basePhys = stats.GetValue(StatType.DamagePhysical);
         float efficiency = stats.GetValue(StatType.BleedDamageMult); 
@@ -71,7 +71,7 @@ public static class DamageCalculator
         return baseBleed * (1f + bleedInc / 100f);
     }
 
-    public static float CalculatePoisonDPS(PlayerStats stats)
+    public static float CalculatePoisonDPS(IStatsProvider stats)
     {
         // Яд скейлится от Физы и Хаоса (пока только физа)
         float baseDmg = stats.GetValue(StatType.DamagePhysical); 
@@ -84,7 +84,7 @@ public static class DamageCalculator
         return basePoison * (1f + poisonInc / 100f);
     }
 
-    public static float CalculateIgniteDPS(PlayerStats stats)
+    public static float CalculateIgniteDPS(IStatsProvider stats)
     {
         // Поджог скейлится от Огня
         float baseFire = stats.GetValue(StatType.DamageFire);
@@ -99,7 +99,7 @@ public static class DamageCalculator
 
     // --- HELPERS ---
 
-    private static void ApplyConversion(PlayerStats stats, ref float sourceDmg, ref float targetDmg, StatType conversionStat)
+    private static void ApplyConversion(IStatsProvider stats, ref float sourceDmg, ref float targetDmg, StatType conversionStat)
     {
         float percent = stats.GetValue(conversionStat);
         if (percent > 0 && sourceDmg > 0)

@@ -208,6 +208,15 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""OpenStash"",
+                    ""type"": ""Button"",
+                    ""id"": ""c2e9d0f1-2345-5f6a-b8c9-d0e1f2a3b4c5"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -549,6 +558,17 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""ToggleDebugInventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a3f8e1b2-6789-6a7b-c9d0-e1f2a3b4c5d6"",
+                    ""path"": ""<Keyboard>/b"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""OpenStash"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1169,6 +1189,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Player_OpenInventory = m_Player.FindAction("OpenInventory", throwIfNotFound: true);
         m_Player_OpenSkillTree = m_Player.FindAction("OpenSkillTree", throwIfNotFound: true);
         m_Player_ToggleDebugInventory = m_Player.FindAction("ToggleDebugInventory", throwIfNotFound: true);
+        m_Player_OpenStash = m_Player.FindAction("OpenStash", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1276,6 +1297,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_OpenInventory;
     private readonly InputAction m_Player_OpenSkillTree;
     private readonly InputAction m_Player_ToggleDebugInventory;
+    private readonly InputAction m_Player_OpenStash;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1339,6 +1361,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/ToggleDebugInventory".
         /// </summary>
         public InputAction @ToggleDebugInventory => m_Wrapper.m_Player_ToggleDebugInventory;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/OpenStash".
+        /// </summary>
+        public InputAction @OpenStash => m_Wrapper.m_Player_OpenStash;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1404,6 +1430,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @ToggleDebugInventory.started += instance.OnToggleDebugInventory;
             @ToggleDebugInventory.performed += instance.OnToggleDebugInventory;
             @ToggleDebugInventory.canceled += instance.OnToggleDebugInventory;
+            @OpenStash.started += instance.OnOpenStash;
+            @OpenStash.performed += instance.OnOpenStash;
+            @OpenStash.canceled += instance.OnOpenStash;
         }
 
         /// <summary>
@@ -1454,6 +1483,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @ToggleDebugInventory.started -= instance.OnToggleDebugInventory;
             @ToggleDebugInventory.performed -= instance.OnToggleDebugInventory;
             @ToggleDebugInventory.canceled -= instance.OnToggleDebugInventory;
+            @OpenStash.started -= instance.OnOpenStash;
+            @OpenStash.performed -= instance.OnOpenStash;
+            @OpenStash.canceled -= instance.OnOpenStash;
         }
 
         /// <summary>
@@ -1856,6 +1888,13 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnToggleDebugInventory(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "OpenStash" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnOpenStash(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

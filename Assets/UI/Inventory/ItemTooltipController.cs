@@ -21,8 +21,8 @@ public class ItemTooltipController : MonoBehaviour
     [SerializeField] private float _gap = 5f; 
     [SerializeField] private float _screenPadding = 4f; 
     
-    [SerializeField, Tooltip("Задержка в миллисекундах перед скрытием тултипа")] 
-    private long _hideDelayMs = 50;
+    [SerializeField, Tooltip("Задержка в миллисекундах перед скрытием тултипа (увеличена против мерцания при наведении на экипировку)")]
+    private long _hideDelayMs = 180;
     
     private const float SLOT_SIZE = 24f; 
 
@@ -87,12 +87,15 @@ public class ItemTooltipController : MonoBehaviour
     private void OnEnable()
     {
         if (_uiDoc == null) _uiDoc = GetComponent<UIDocument>();
-        if (_uiDoc != null)
-        {
+        // Тултип должен жить в том же UIDocument, что и инвентарь — иначе WorldToLocal даёт неверные координаты (другая панель).
+        var inv = UnityEngine.Object.FindObjectOfType<InventoryUI>(true);
+        if (inv != null && inv.RootVisualElement != null)
+            _root = inv.RootVisualElement;
+        else if (_uiDoc != null)
             _root = _uiDoc.rootVisualElement;
+        if (_root != null)
             _root.schedule.Execute(RebuildTooltipStructure).ExecuteLater(50);
-        }
-        
+
         LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
     }
 
@@ -121,6 +124,14 @@ public class ItemTooltipController : MonoBehaviour
 
     private void RebuildTooltipStructure()
     {
+        // Тултип в том же корне, что и инвентарь — иначе позиция считается в другой панели и "ничего не меняется".
+        var inv = UnityEngine.Object.FindObjectOfType<InventoryUI>(true);
+        if (inv != null && inv.RootVisualElement != null)
+            _root = inv.RootVisualElement;
+        else if (_root == null && _uiDoc != null)
+            _root = _uiDoc.rootVisualElement;
+        if (_root == null) return;
+
         var old1 = _root.Q<VisualElement>("GlobalItemTooltip");
         if (old1 != null) _root.Remove(old1);
         var old2 = _root.Q<VisualElement>("GlobalSkillTooltip");
@@ -159,7 +170,14 @@ public class ItemTooltipController : MonoBehaviour
         _orbTooltipBox.Add(_orbDescLabel);
         _root.Add(_orbTooltipBox);
 
-        _itemTooltipBox.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+        _itemTooltipBox.RegisterCallback<GeometryChangedEvent>(OnItemTooltipGeometryChangedOnce);
+    }
+
+    private void OnItemTooltipGeometryChangedOnce(GeometryChangedEvent evt)
+    {
+        _itemTooltipBox.UnregisterCallback<GeometryChangedEvent>(OnItemTooltipGeometryChangedOnce);
+        if (_itemTooltipBox.style.display == DisplayStyle.Flex && _currentTargetItem != null)
+            RecalculatePosition();
     }
 
     private VisualElement CreateContainer(string name, Color bg)
@@ -281,7 +299,8 @@ public class ItemTooltipController : MonoBehaviour
         }
 
         _itemTooltipBox.MarkDirtyRepaint();
-        _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
+        RecalculatePosition();
+        _root.schedule.Execute(RecalculatePosition).ExecuteLater(50);
     }
 
     /// <summary>
@@ -329,14 +348,6 @@ public class ItemTooltipController : MonoBehaviour
 
     // --- Positioning Logic ---
 
-    private void OnGeometryChanged(GeometryChangedEvent evt)
-    {
-        if (_itemTooltipBox.style.display == DisplayStyle.Flex)
-        {
-            RecalculatePosition();
-        }
-    }
-
     private void RecalculatePosition()
     {
         if (_targetAnchorSlot == null || _currentTargetItem == null) return;
@@ -344,81 +355,119 @@ public class ItemTooltipController : MonoBehaviour
         float screenW = _root.resolvedStyle.width;
         float screenH = _root.resolvedStyle.height;
 
+        // Якорь = слот или иконка; границы предмета берём по worldBound якоря (для иконки это весь предмет)
         Rect r = _targetAnchorSlot.worldBound;
-        Vector2 slotPos = _root.WorldToLocal(r.position);
-        
-        float itemPhysicalWidth = _currentTargetItem.Data.Width * SLOT_SIZE;
-        float itemRightEdge = slotPos.x + itemPhysicalWidth + _gap;
-        float itemLeftEdge = slotPos.x - _gap;
+        Vector2 pMin = _root.WorldToLocal(r.min);
+        Vector2 pMax = _root.WorldToLocal(r.max);
+        float itemLeft = pMin.x;
+        float itemRight = pMax.x;
+        float itemCenterY = (pMin.y + pMax.y) * 0.5f;
 
-        // Размеры Item Tooltip
+        // Размеры тултипов
         float itemW = _itemTooltipBox.resolvedStyle.width;
         if (float.IsNaN(itemW) || itemW < 10) itemW = _tooltipWidth;
         float itemH = _itemTooltipBox.resolvedStyle.height;
-        if (float.IsNaN(itemH) || itemH < 10) itemH = 100f; 
+        if (float.IsNaN(itemH) || itemH < 10) itemH = 100f;
 
-        // Размеры Skill Tooltip
         bool hasSkill = _skillTooltipBox.style.display == DisplayStyle.Flex;
         float skillW = hasSkill ? _skillTooltipBox.resolvedStyle.width : 0;
         if (hasSkill && (float.IsNaN(skillW) || skillW < 10)) skillW = _tooltipWidth;
         float skillH = hasSkill ? _skillTooltipBox.resolvedStyle.height : 0;
         if (hasSkill && (float.IsNaN(skillH) || skillH < 10)) skillH = 100f;
 
-        float finalItemX = 0, finalSkillX = 0;
-        float y = slotPos.y;
+        float maxHeight = Mathf.Max(itemH, skillH);
+        float finalItemX;
+        float finalSkillX;
+        float y;
+        bool isEquipmentSlot = _targetAnchorSlot.userData is int sid && sid >= 100;
 
-        // --- ЛОГИКА РАСПОЛОЖЕНИЯ ПО ГОРИЗОНТАЛИ ---
-
-        float totalWidthIfNeeded = itemW + (hasSkill ? (_gap + skillW) : 0);
-        
-        // 1. Пробуем разместить всё СПРАВА от слота
-        if (itemRightEdge + totalWidthIfNeeded + _screenPadding < screenW)
+        if (isEquipmentSlot)
         {
-            finalItemX = itemRightEdge;
-            finalSkillX = finalItemX + itemW + _gap;
+            // Экипировка: тултип слева от предмета
+            y = pMin.y;
+            finalItemX = itemLeft - itemW - _gap;
+            finalSkillX = hasSkill ? (finalItemX - _gap - skillW) : 0;
         }
-        // 2. Пробуем разместить всё СЛЕВА от слота
-        else if (itemLeftEdge - totalWidthIfNeeded - _screenPadding > 0)
-        {
-            finalItemX = itemLeftEdge - itemW;
-            finalSkillX = finalItemX - _gap - skillW;
-        }
-        // 3. Не влезает ни туда, ни сюда -> "Бутерброд" (Один слева, один справа)
         else
         {
-            float spaceRight = screenW - itemRightEdge;
-            float spaceLeft = itemLeftEdge;
+            // Рюкзак/склад: сначала пробуем сверху (центр по горизонтали), иначе справа/слева (центр по вертикали)
+            float itemTop = pMin.y;
+            float itemCenterX = (itemLeft + itemRight) * 0.5f;
+            float totalW = itemW + (hasSkill ? (_gap + skillW) : 0);
+            float yAbove = itemTop - maxHeight - _gap;
 
-            if (spaceRight > spaceLeft)
+            if (yAbove >= _screenPadding)
             {
-                finalItemX = itemRightEdge;
-                finalSkillX = itemLeftEdge - skillW; // Скилл уходит влево
+                // Место сверху есть — тултип над предметом, центрирован по горизонтали
+                y = yAbove;
+                finalItemX = Mathf.Clamp(itemCenterX - itemW * 0.5f, _screenPadding, screenW - itemW - _screenPadding);
+                finalSkillX = hasSkill ? Mathf.Clamp(finalItemX + itemW + _gap, _screenPadding, screenW - skillW - _screenPadding) : 0;
+                if (hasSkill && finalSkillX + skillW > screenW - _screenPadding)
+                    finalSkillX = Mathf.Clamp(finalItemX - _gap - skillW, _screenPadding, screenW - skillW - _screenPadding);
             }
             else
             {
-                finalItemX = itemLeftEdge - itemW;
-                finalSkillX = itemRightEdge; // Скилл уходит вправо
+                // Сверху не влезает — справа или слева, центрирован по вертикали
+                y = itemCenterY - maxHeight * 0.5f;
+                if (itemRight + totalW + _screenPadding <= screenW)
+                {
+                    finalItemX = itemRight + _gap;
+                    finalSkillX = hasSkill ? (finalItemX + itemW + _gap) : 0;
+                }
+                else if (itemLeft - totalW - _screenPadding >= 0)
+                {
+                    finalItemX = itemLeft - itemW - _gap;
+                    finalSkillX = hasSkill ? (finalItemX - _gap - skillW) : 0;
+                }
+                else
+                {
+                    finalItemX = itemRight + _gap;
+                    finalSkillX = hasSkill ? Mathf.Clamp(finalItemX - _gap - skillW, _screenPadding, screenW - skillW - _screenPadding) : 0;
+                }
             }
         }
 
-        // --- ИСПРАВЛЕНИЕ 2: ЖЕСТКОЕ ОГРАНИЧЕНИЕ ПО ВЕРТИКАЛИ (Y-CLAMP) ---
-        // Находим максимальную высоту из двух окон
-        float maxHeight = Mathf.Max(itemH, skillH);
-        
-        // Если нижний край уходит под экран
+        // Ограничение по вертикали
         if (y + maxHeight > screenH - _screenPadding)
-        {
-            // Поднимаем вверх ровно настолько, чтобы влезло
             y = screenH - maxHeight - _screenPadding;
-        }
-
-        // Если после поднятия уперлись в потолок
-        if (y < _screenPadding) 
-        {
+        if (y < _screenPadding)
             y = _screenPadding;
+        finalItemX = Mathf.Clamp(finalItemX, _screenPadding, screenW - itemW - _screenPadding);
+
+        // Скилл-тултип строго слева или справа: не перекрывать ни тултип предмета, ни иконку предмета (itemLeft..itemRight)
+        if (hasSkill)
+        {
+            float zoneLeft = Mathf.Min(finalItemX, itemLeft);
+            float zoneRight = Mathf.Max(finalItemX + itemW, itemRight);
+            float skillRightX = Mathf.Max(finalItemX + itemW + _gap, itemRight + _gap);
+            float skillLeftX = Mathf.Min(finalItemX - _gap - skillW, itemLeft - _gap - skillW);
+            bool fitsRight = skillRightX + skillW <= screenW - _screenPadding;
+            bool fitsLeft = skillLeftX >= _screenPadding;
+            if (fitsRight)
+                finalSkillX = skillRightX;
+            else if (fitsLeft)
+                finalSkillX = skillLeftX;
+            else
+            {
+                float spaceRight = screenW - _screenPadding - skillRightX;
+                float spaceLeft = skillLeftX - _screenPadding;
+                if (spaceRight >= spaceLeft)
+                    finalSkillX = Mathf.Clamp(skillRightX, skillRightX, screenW - skillW - _screenPadding);
+                else
+                    finalSkillX = Mathf.Clamp(skillLeftX, _screenPadding, skillLeftX);
+            }
+            finalSkillX = Mathf.Clamp(finalSkillX, _screenPadding, screenW - skillW - _screenPadding);
+            // Жёстко: не заходить в зону предмета и тултипа (даже после clamp)
+            if (finalSkillX + skillW > zoneLeft - _gap && finalSkillX < zoneRight + _gap)
+            {
+                if (finalSkillX >= zoneLeft)
+                    finalSkillX = zoneRight + _gap;
+                else
+                    finalSkillX = zoneLeft - _gap - skillW;
+                finalSkillX = Mathf.Clamp(finalSkillX, _screenPadding, screenW - skillW - _screenPadding);
+            }
         }
 
-        // Применяем координаты
         _itemTooltipBox.style.left = finalItemX;
         _itemTooltipBox.style.top = y;
         _itemTooltipBox.style.visibility = Visibility.Visible;

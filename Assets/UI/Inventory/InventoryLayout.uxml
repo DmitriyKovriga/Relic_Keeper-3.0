@@ -1,7 +1,13 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Inventory/InventoryStyles.uss?fileID=7433441132597879392&amp;guid=1e629191834a868468974c58ffc4d126&amp;type=3#InventoryStyles" />
-    <ui:VisualElement name="WindowRoot" class="window-container">
-        <ui:VisualElement name="ContentRow" class="content-row">
+    <ui:VisualElement name="InventoryScreenRoot" class="inventory-screen-root">
+        <ui:VisualElement name="WindowRoot" class="window-container">
+        <ui:VisualElement name="MainRow" class="main-row">
+            <ui:VisualElement name="StashPanel" class="stash-panel">
+                <ui:VisualElement name="StashTabsRow" class="stash-tabs-row" />
+                <ui:VisualElement name="StashGridContainer" class="stash-grid-container" />
+            </ui:VisualElement>
+            <ui:VisualElement name="ContentRow" class="content-row">
             <ui:VisualElement name="EquipmentAndToggleRow" class="equipment-and-toggle-row">
                 <ui:VisualElement class="col-equipment-wrap">
                     <ui:VisualElement name="EquipmentView" class="col-equipment">
@@ -38,6 +44,8 @@
             <ui:VisualElement class="col-inventory-wrap">
                 <ui:VisualElement name="InventoryGrid" class="inventory-grid-container" />
             </ui:VisualElement>
+        </ui:VisualElement>
+        </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

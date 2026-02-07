@@ -4,6 +4,7 @@ using UnityEngine;
 using Scripts.Items;
 using Scripts.Stats;
 using Scripts.Items.Affixes;
+using Scripts.Saving;
 using Scripts.Skills;
 
 namespace Scripts.Inventory

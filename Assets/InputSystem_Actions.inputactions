@@ -122,6 +122,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "OpenStash",
+                    "type": "Button",
+                    "id": "c2e9d0f1-2345-5f6a-b8c9-d0e1f2a3b4c5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -463,6 +472,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleDebugInventory",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a3f8e1b2-6789-6a7b-c9d0-e1f2a3b4c5d6",
+                    "path": "<Keyboard>/b",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OpenStash",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

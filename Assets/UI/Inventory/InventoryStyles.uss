@@ -1,30 +1,288 @@
-/* --- Панель: отступы по краям, кнопка прижата к правому краю. --- */
+/* --- Корень: 480×270 px, прижат к правому краю экрана (чтобы в соло не было пустой полосы справа). --- */
+.inventory-screen-root {
+    position: absolute;
+    right: 0;
+    left: auto;
+    top: 0;
+    width: 480px;
+    height: 270px;
+    flex-grow: 0;
+}
+
+/* --- Окно. Соло: 256px (240 контент + 8+8 отступы). Дуо: 480px. Контракт: INVENTORY_UI_LAYOUT.md --- */
 .window-container {
     position: absolute;
     right: 0;
     top: 0;
     bottom: 0;
-    width: 276px;
-    max-width: 276px;
-    height: 276px;
-    max-height: 480px;
+    width: 256px;
+    height: 270px;
     flex-grow: 0;
     flex-shrink: 0;
     flex-direction: column;
     align-items: stretch;
-    padding: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 0;
+    padding-right: 0;
     background-color: rgba(12, 11, 10, 0.92);
     border-left-width: 1px;
     border-left-color: rgba(80, 70, 60, 0.8);
+    border-right-width: 0;
     overflow: hidden;
 }
 
+/* Комбо: окно на всю ширину 480px (без полосы пустоты слева). Склад ужимаем до 210px. */
+.window-container.stash-open {
+    left: 0;
+    right: 0;
+    width: 480px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-width: 0;
+}
+
+/* Внутренние отступы: соло — слева и справа (padding окна); дуо — только справа (margin main-row). */
+.main-row {
+    flex-direction: row;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    align-items: stretch;
+    justify-content: flex-start;
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+/* Соло: padding окна даёт видимую полосу фона 8px слева и справа; margin у ряда не нужен. */
+.window-container.inventory-solo {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.main-row.inventory-solo {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* Дуо: отступы по пикселям. */
+.main-row.stash-open {
+    margin-left: 0;
+    margin-right: 8px;
+}
+
+/* Окно 270px, padding 10 сверху/снизу → main-row = 250px. Инвентарь 96px внизу → низ на 250px. */
+.main-row.stash-open .content-row {
+    width: 240px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin-left: 6px;
+    overflow-x: auto;
+    min-width: 0;
+}
+
+/* Склад: выравнивание по пикселям. main-row = 250px. Чтобы низ сетки склада (216px) был на 250px: padding только сверху 8px, снизу 0. Вкладки 26px, без margin-bottom. Блок вкладки+сетка = 242px, flex-end прижимает к низу → сетка 34..250. */
+.stash-panel {
+    display: none;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 0;
+    width: 212px;
+    min-height: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    padding-top: 8px;
+    padding-bottom: 0;
+    padding-left: 8px;
+    padding-right: 12px;
+    margin-right: 6px;
+    margin-left: 0;
+    background-color: transparent;
+    justify-content: flex-end;
+}
+
+.stash-panel.visible {
+    display: flex;
+}
+
+.stash-tabs-row {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    margin-bottom: 0;
+    min-height: 18px;
+    height: 18px;
+    align-items: stretch;
+}
+
+.stash-tabs-scroll {
+    flex-grow: 1;
+    min-width: 0;
+    height: 18px;
+    max-height: 18px;
+    min-height: 18px;
+    overflow: hidden;
+    background-color: transparent;
+    border-width: 0;
+}
+
+.stash-tabs-scroll .unity-scroll-view__content-viewport {
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 18px;
+}
+
+.stash-tabs-scroll .unity-scroll-view__content-container {
+    height: 18px;
+}
+
+.stash-tabs-scroll .unity-scroll-view__vertical-scroller,
+.stash-tabs-scroll .unity-scroller {
+    display: none;
+}
+
+.stash-tabs-scroll .unity-scroll-view__horizontal-scroller {
+    flex-grow: 1;
+    min-width: 0;
+    height: 4px;
+    min-height: 4px;
+    margin-top: 0;
+    background-color: rgba(40, 40, 40, 0.9);
+    border-width: 0;
+    border-radius: 2px;
+}
+
+.stash-tabs-scroll .unity-scroll-view__horizontal-scroller .unity-scroller__low-button,
+.stash-tabs-scroll .unity-scroll-view__horizontal-scroller .unity-scroller__high-button {
+    display: none;
+}
+
+.stash-tabs-scroll .unity-scroll-view__horizontal-scroller .unity-base-slider__tracker,
+.stash-tabs-scroll .unity-scroll-view__horizontal-scroller .unity-base-slider__track {
+    background-color: rgba(50, 50, 50, 0.95);
+    border-color: #333;
+    border-width: 1px;
+}
+
+.stash-tabs-scroll .unity-scroll-view__horizontal-scroller .unity-base-slider__dragger {
+    background-color: rgba(90, 90, 90, 0.95);
+    border-color: #555;
+    border-width: 1px;
+}
+
+.stash-tabs-scroll .unity-scroll-view__horizontal-scroller .unity-base-slider__dragger:hover {
+    background-color: rgba(110, 110, 110, 0.95);
+}
+
+.stash-tabs-carousel {
+    flex-direction: row;
+    flex-shrink: 0;
+    height: 16px;
+    min-height: 16px;
+    align-items: center;
+    padding-right: 2px;
+}
+
+.stash-tab-wrap {
+    flex-direction: row;
+    flex-shrink: 0;
+    align-items: center;
+    margin-right: 1px;
+}
+
+.stash-tab-delete {
+    min-width: 12px;
+    width: 12px;
+    height: 12px;
+    margin-left: 0;
+    padding: 0;
+    font-size: 10px;
+    line-height: 12px;
+    -unity-text-align: middle-center;
+    border-width: 1px;
+    border-color: #443333;
+    background-color: rgba(60, 30, 30, 0.9);
+    color: rgba(255, 180, 180, 0.9);
+}
+
+.stash-tab-delete:hover {
+    background-color: rgba(90, 40, 40, 0.95);
+    border-color: #664444;
+    color: #fff;
+}
+
+.stash-tab {
+    min-width: 20px;
+    height: 14px;
+    margin-right: 1px;
+    padding-left: 4px;
+    padding-right: 4px;
+    border-width: 1px;
+    border-color: #444;
+    background-color: #252525;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 9px;
+    -unity-text-align: middle-center;
+}
+
+.stash-tab:hover {
+    border-color: #555;
+    background-color: #333;
+}
+
+.stash-tab.active {
+    border-color: #aa8844;
+    background-color: rgba(180, 140, 70, 0.25);
+}
+
+.stash-tab-add {
+    min-width: 20px;
+    height: 14px;
+    margin-left: 1px;
+    padding-left: 4px;
+    padding-right: 4px;
+    border-width: 1px;
+    border-color: rgba(80, 80, 80, 0.8);
+    border-style: solid;
+    background-color: rgba(45, 45, 45, 0.9);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 11px;
+    -unity-text-align: middle-center;
+}
+
+.stash-tab-add:hover {
+    background-color: rgba(65, 65, 65, 0.95);
+    color: #fff;
+    border-color: #666;
+}
+
+.stash-grid-container {
+    flex-direction: column;
+    flex-shrink: 0;
+    position: relative;
+    width: 192px;
+    height: 216px;
+    border-width: 1px;
+    border-color: #444;
+    background-color: #111;
+    overflow: hidden;
+}
+
+.stash-row {
+    flex-direction: row;
+    height: 24px;
+    width: 192px;
+}
+
+/* Правило: края окна отступают от элементов — контент внутри padding, при переполнении скролл. */
 .content-row {
     flex-direction: column;
-    flex-grow: 0;
+    flex-grow: 1;
     flex-shrink: 1;
     align-items: stretch;
     min-height: 0;
+    min-width: 0;
+    overflow-x: auto;
 }
 
 .equipment-and-toggle-row {
@@ -32,7 +290,7 @@
     flex-shrink: 0;
     align-items: flex-end;
     justify-content: center;
-    width: 100%;
+    flex-grow: 1;
     padding: 0;
     padding-bottom: 6px;
     position: relative;
@@ -48,7 +306,7 @@
     padding: 0;
     padding-bottom: 0;
     align-items: center;
-    width: 100%;
+    flex-grow: 1;
 }
 
 .col-inventory-wrap {
