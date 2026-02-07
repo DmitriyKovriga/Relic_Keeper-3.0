@@ -3,9 +3,10 @@ using System;
 using System.Collections.Generic;
 using Scripts.Stats;
 using Scripts.Inventory;
+using Scripts.Saving;
 using Scripts.Enemies;
 
-public class PlayerStats : MonoBehaviour
+public class PlayerStats : MonoBehaviour, IStatsProvider
 {
     public event Action OnAnyStatChanged;
     // --- НОВОЕ СОБЫТИЕ: Сообщает, что объект LevelingSystem был пересоздан ---

@@ -6,6 +6,7 @@ using System.Collections;
 public class WindowView : MonoBehaviour
 {
     public event Action OnClosed;
+    public event Action OnOpened;
     public UIDocument ui;
 
     private VisualElement root;
@@ -74,6 +75,7 @@ public class WindowView : MonoBehaviour
     {
         if (!isInitialized) return;
         root.style.display = DisplayStyle.Flex;
+        OnOpened?.Invoke();
     }
 
     public void Close()

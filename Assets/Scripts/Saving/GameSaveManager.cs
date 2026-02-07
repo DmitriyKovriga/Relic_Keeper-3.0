@@ -2,7 +2,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.IO;
 using Scripts.Inventory;
-using Scripts.Skills.PassiveTree; // Добавлен namespace
+using Scripts.Saving;
+using Scripts.Skills.PassiveTree;
 
 public class GameSaveManager : MonoBehaviour
 {
@@ -84,8 +85,8 @@ public class GameSaveManager : MonoBehaviour
             SkillPoints = _playerStats.Leveling.SkillPoints,
 
             Inventory = InventoryManager.Instance != null ? InventoryManager.Instance.GetSaveData() : new InventorySaveData(),
-            
-            // AI ADDED: Сохраняем дерево
+            Stash = StashManager.Instance != null ? StashManager.Instance.GetSaveData() : new StashSaveData(),
+
             AllocatedPassiveNodes = _passiveTreeManager != null ? _passiveTreeManager.GetSaveData() : new System.Collections.Generic.List<string>()
         };
 
@@ -117,10 +118,15 @@ public class GameSaveManager : MonoBehaviour
                 // 2. Инит инвентаря
                 if (InventoryManager.Instance != null && _itemDatabase != null)
                 {
-                    InventoryManager.Instance.LoadState(data.Inventory, _itemDatabase);
+                    InventoryManager.Instance.LoadState(data.Inventory ?? new InventorySaveData(), _itemDatabase);
                 }
 
-                // 3. AI ADDED: Инит дерева пассивок
+                // 3. Склад
+                if (StashManager.Instance != null && _itemDatabase != null)
+                {
+                    StashManager.Instance.LoadState(data.Stash ?? new StashSaveData(), _itemDatabase);
+                }
+
                 if (_passiveTreeManager != null && data.AllocatedPassiveNodes != null)
                 {
                     _passiveTreeManager.LoadState(data.AllocatedPassiveNodes);

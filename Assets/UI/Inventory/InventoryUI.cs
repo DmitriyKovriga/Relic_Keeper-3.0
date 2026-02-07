@@ -28,12 +28,27 @@ public class InventoryUI : MonoBehaviour
         (48f, 48f),  // Boots 2x2
     };
     private const float CraftSlotWidth = 48f;
-    private const float CraftSlotHeight = 96f; 
+    private const float CraftSlotHeight = 96f;
+
+    /// <summary>userData для слотов склада = STASH_SLOT_OFFSET + slotIndex (0..STASH_SLOTS_PER_TAB-1).</summary>
+    private const int STASH_SLOT_OFFSET = 500000;
 
     private VisualElement _root;
+    /// <summary>Окно инвентаря/склада внутри полноэкранного корня. Позиционируем именно его.</summary>
+    private VisualElement _windowRoot;
     private VisualElement _inventoryContainer;
     private VisualElement _itemsLayer; 
     private VisualElement _ghostIcon;
+
+    private VisualElement _stashPanel;
+    private VisualElement _stashTabsRow;
+    private VisualElement _stashGridContainer;
+    private VisualElement _stashItemsLayer;
+    private VisualElement _mainRow;
+    private List<VisualElement> _stashSlots = new List<VisualElement>();
+
+    /// <summary>Склад открыт отдельно (бинт B). По умолчанию скрыт при открытии инвентаря по I.</summary>
+    public bool IsStashVisible { get; private set; }
 
     private VisualElement _equipmentView;
     private VisualElement _craftView;
@@ -46,7 +61,13 @@ public class InventoryUI : MonoBehaviour
     private List<(VisualElement slot, Label countLabel)> _orbSlots = new List<(VisualElement, Label)>();
     
     private bool _isDragging;
-    private int _draggedSlotIndex = -1;
+    /// <summary>Предмет, взятый при начале перетаскивания (уже изъят из слота в бэкенде).</summary>
+    private InventoryItem _draggedItem;
+    /// <summary>Якорь слота инвентаря, откуда взяли (для возврата или свопа).</summary>
+    private int _draggedSourceAnchor = -1;
+    private bool _draggedFromStash;
+    private int _draggedStashTab = -1;
+    private int _draggedStashAnchorSlot = -1;
 
     private bool _applyOrbMode;
     private CraftingOrbSO _applyOrbOrb;
@@ -57,14 +78,23 @@ public class InventoryUI : MonoBehaviour
     {
         if (_uiDoc == null) _uiDoc = GetComponent<UIDocument>();
         _root = _uiDoc.rootVisualElement;
+        _windowRoot = _root.Q<VisualElement>("WindowRoot");
+        if (_windowRoot == null) _windowRoot = _root;
         
         _inventoryContainer = _root.Q<VisualElement>("InventoryGrid"); 
         if (_inventoryContainer == null) { Debug.LogError("InventoryGrid not found"); return; }
         _inventoryContainer.style.overflow = Overflow.Visible;
 
+        _stashPanel = _root.Q<VisualElement>("StashPanel");
+        _stashTabsRow = _root.Q<VisualElement>("StashTabsRow");
+        _stashGridContainer = _root.Q<VisualElement>("StashGridContainer");
+        _mainRow = _root.Q<VisualElement>("MainRow");
+        SetStashPanelVisible(false);
+
         CreateGhostIcon();
         GenerateBackpackGrid();
         SetupEquipmentSlots();
+        SetupStashPanel();
         LoadOrbSlotsConfig();
         SetupTabs();
         SetupCraftView();
@@ -73,6 +103,10 @@ public class InventoryUI : MonoBehaviour
             _root.schedule.Execute(TrySubscribe).Every(100).Until(() => InventoryManager.Instance != null);
         else
             TrySubscribe();
+        if (StashManager.Instance == null)
+            _root.schedule.Execute(TrySubscribeStash).Every(100).Until(() => StashManager.Instance != null);
+        else
+            TrySubscribeStash();
 
         _root.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         _root.RegisterCallback<PointerUpEvent>(OnPointerUp);
@@ -81,14 +115,25 @@ public class InventoryUI : MonoBehaviour
         _root.RegisterCallback<MouseDownEvent>(OnRootMouseDown, TrickleDown.TrickleDown);
 
         if (_windowView == null) _windowView = GetComponent<WindowView>();
-        if (_windowView != null) _windowView.OnClosed += OnInventoryWindowClosed;
+        if (_windowView != null)
+        {
+            _windowView.OnClosed += OnInventoryWindowClosed;
+            _windowView.OnOpened += OnInventoryWindowOpened;
+        }
+        _root.schedule.Execute(() => ApplyInventorySpacing(IsStashVisible)).ExecuteLater(3);
     }
 
     private void OnDisable()
     {
         if (InventoryManager.Instance != null)
             InventoryManager.Instance.OnInventoryChanged -= RefreshInventory;
-        if (_windowView != null) _windowView.OnClosed -= OnInventoryWindowClosed;
+        if (StashManager.Instance != null)
+            StashManager.Instance.OnStashChanged -= RefreshStash;
+        if (_windowView != null)
+        {
+            _windowView.OnClosed -= OnInventoryWindowClosed;
+            _windowView.OnOpened -= OnInventoryWindowOpened;
+        }
         ExitApplyOrbMode();
 
         _root.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
@@ -101,6 +146,87 @@ public class InventoryUI : MonoBehaviour
     private void OnInventoryWindowClosed()
     {
         ExitApplyOrbMode();
+        SetStashPanelVisible(false);
+    }
+
+    private void OnInventoryWindowOpened()
+    {
+        ApplyInventorySpacing(IsStashVisible);
+    }
+
+    /// <summary>Переключает видимость склада. Раскладка задаётся только в USS: класс stash-open на WindowRoot и MainRow.</summary>
+    public void SetStashPanelVisible(bool visible)
+    {
+        IsStashVisible = visible;
+        if (_stashPanel != null)
+        {
+            if (visible) _stashPanel.AddToClassList("visible");
+            else _stashPanel.RemoveFromClassList("visible");
+        }
+        if (_mainRow != null)
+        {
+            if (visible)
+            {
+                _mainRow.AddToClassList("stash-open");
+                _mainRow.RemoveFromClassList("inventory-solo");
+            }
+            else
+            {
+                _mainRow.RemoveFromClassList("stash-open");
+                _mainRow.AddToClassList("inventory-solo");
+            }
+        }
+        VisualElement target = _windowRoot != null ? _windowRoot : _root;
+        if (target != null)
+        {
+            if (visible)
+            {
+                target.AddToClassList("stash-open");
+                target.RemoveFromClassList("inventory-solo");
+            }
+            else
+            {
+                target.RemoveFromClassList("stash-open");
+                target.AddToClassList("inventory-solo");
+            }
+        }
+        ApplyInventorySpacing(visible);
+    }
+
+    /// <summary>Внутренние отступы: соло — 8px слева и справа у окна; дуо — 8px справа у контента. Задаём из кода в пикселях.</summary>
+    private void ApplyInventorySpacing(bool stashOpen)
+    {
+        Debug.Log($"[InventoryUI] ApplyInventorySpacing stashOpen={stashOpen} _windowRoot={(_windowRoot != null)} _mainRow={(_mainRow != null)}");
+        const float paddingSoloPx = 8f;
+        const float marginDuoRightPx = 8f;
+
+        if (_windowRoot != null)
+        {
+            if (stashOpen)
+            {
+                _windowRoot.style.paddingLeft = new Length(paddingSoloPx, LengthUnit.Pixel);
+                _windowRoot.style.paddingRight = new Length(paddingSoloPx, LengthUnit.Pixel);
+            }
+            else
+            {
+                _windowRoot.style.paddingLeft = new Length(paddingSoloPx, LengthUnit.Pixel);
+                _windowRoot.style.paddingRight = new Length(paddingSoloPx, LengthUnit.Pixel);
+            }
+        }
+
+        if (_mainRow != null)
+        {
+            if (stashOpen)
+            {
+                _mainRow.style.marginLeft = new Length(0f, LengthUnit.Pixel);
+                _mainRow.style.marginRight = new Length(marginDuoRightPx, LengthUnit.Pixel);
+            }
+            else
+            {
+                _mainRow.style.marginLeft = new Length(0f, LengthUnit.Pixel);
+                _mainRow.style.marginRight = new Length(0f, LengthUnit.Pixel);
+            }
+        }
     }
 
     private void OnRootPointerDown(PointerDownEvent evt)
@@ -130,6 +256,99 @@ public class InventoryUI : MonoBehaviour
         InventoryManager.Instance.OnInventoryChanged -= RefreshInventory;
         InventoryManager.Instance.OnInventoryChanged += RefreshInventory;
         RefreshInventory();
+    }
+
+    private void TrySubscribeStash()
+    {
+        if (StashManager.Instance == null) return;
+        StashManager.Instance.OnStashChanged -= RefreshStash;
+        StashManager.Instance.OnStashChanged += RefreshStash;
+        RefreshStash();
+    }
+
+    private void SetupStashPanel()
+    {
+        if (_stashGridContainer == null) return;
+        _stashGridContainer.Clear();
+        _stashSlots.Clear();
+        _stashItemsLayer = new VisualElement { name = "StashItemsLayer" };
+        _stashItemsLayer.style.position = Position.Absolute;
+        _stashItemsLayer.StretchToParentSize();
+        _stashItemsLayer.pickingMode = PickingMode.Ignore;
+        _stashItemsLayer.style.overflow = Overflow.Visible;
+        _stashGridContainer.Add(_stashItemsLayer);
+
+        for (int r = 0; r < StashManager.STASH_ROWS; r++)
+        {
+            var row = new VisualElement();
+            row.AddToClassList("stash-row");
+            _stashGridContainer.Add(row);
+            for (int c = 0; c < StashManager.STASH_COLS; c++)
+            {
+                int slotIndex = r * StashManager.STASH_COLS + c;
+                var slot = new VisualElement();
+                slot.AddToClassList("slot");
+                slot.userData = STASH_SLOT_OFFSET + slotIndex;
+                slot.RegisterCallback<PointerDownEvent>(OnStashSlotPointerDown);
+                slot.RegisterCallback<PointerOverEvent>(OnPointerOverSlot);
+                slot.RegisterCallback<PointerOutEvent>(OnPointerOutSlot);
+                row.Add(slot);
+                _stashSlots.Add(slot);
+            }
+        }
+    }
+
+    private void RefreshStash()
+    {
+        RefreshStashTabs();
+        RefreshStashGrid();
+    }
+
+    private void RefreshStashTabs()
+    {
+        if (_stashTabsRow == null || StashManager.Instance == null) return;
+        _stashTabsRow.Clear();
+        int tabCount = StashManager.Instance.TabCount;
+        int current = StashManager.Instance.CurrentTabIndex;
+        for (int i = 0; i < tabCount; i++)
+        {
+            int t = i;
+            var tab = new Button(() => { if (StashManager.Instance != null) StashManager.Instance.SetCurrentTab(t); }) { text = (i + 1).ToString() };
+            tab.AddToClassList("stash-tab");
+            if (i == current) tab.AddToClassList("active");
+            _stashTabsRow.Add(tab);
+        }
+        var addTab = new Button(() => { if (StashManager.Instance != null) StashManager.Instance.AddTab(); }) { text = "+" };
+        addTab.AddToClassList("stash-tab");
+        addTab.AddToClassList("stash-tab-add");
+        _stashTabsRow.Add(addTab);
+    }
+
+    private void RefreshStashGrid()
+    {
+        DrawStashIcons();
+    }
+
+    private void DrawStashIcons()
+    {
+        if (_stashItemsLayer == null || StashManager.Instance == null) return;
+        _stashItemsLayer.Clear();
+        int tab = StashManager.Instance.CurrentTabIndex;
+        for (int i = 0; i < StashManager.STASH_SLOTS_PER_TAB; i++)
+        {
+            var item = StashManager.Instance.GetItem(tab, i);
+            if (item != null && item.Data != null)
+            {
+                bool isAnchor = (i % StashManager.STASH_COLS == 0 || StashManager.Instance.GetItem(tab, i - 1) != item) &&
+                               (i < StashManager.STASH_COLS || StashManager.Instance.GetItem(tab, i - StashManager.STASH_COLS) != item);
+                if (!isAnchor) continue;
+                var icon = CreateItemIcon(item);
+                icon.style.left = (i % StashManager.STASH_COLS) * SLOT_SIZE;
+                icon.style.top = (i / StashManager.STASH_COLS) * SLOT_SIZE;
+                _stashItemsLayer.Add(icon);
+            }
+        }
+        _stashItemsLayer.BringToFront();
     }
     
     private void GenerateBackpackGrid()
@@ -177,17 +396,18 @@ public class InventoryUI : MonoBehaviour
             var oldImg = slot.Q<Image>();
             if (oldImg != null) slot.Remove(oldImg);
         }
-        var items = InventoryManager.Instance.Items;
-        for (int i = 0; i < items.Length; i++)
+        var inv = InventoryManager.Instance;
+        for (int i = 0; i < inv.Items.Length; i++)
         {
-            if (items[i] != null && items[i].Data != null)
-            {
-                var icon = CreateItemIcon(items[i]);
-                icon.style.left = (i % COLUMNS) * SLOT_SIZE;
-                icon.style.top = (i / COLUMNS) * SLOT_SIZE;
-                _itemsLayer.Add(icon);
-                icon.MarkDirtyRepaint();
-            }
+            InventoryItem item = inv.GetItemAt(i, out int anchorIndex);
+            if (item == null || item.Data == null) continue;
+            // Рисуем только в якорной ячейке (один раз на предмет)
+            if (i != anchorIndex) continue;
+            var icon = CreateItemIcon(item);
+            icon.style.left = (i % COLUMNS) * SLOT_SIZE;
+            icon.style.top = (i / COLUMNS) * SLOT_SIZE;
+            _itemsLayer.Add(icon);
+            icon.MarkDirtyRepaint();
         }
         if (_currentTab == 0)
             DrawEquipmentIcons();
@@ -541,40 +761,89 @@ public class InventoryUI : MonoBehaviour
 
     private void OnPointerMove(PointerMoveEvent evt)
     {
+        Vector2 rootLocal = GetPointerRootLocal(_root, evt);
         if (_isDragging)
-            UpdateGhostPosition(evt.position);
+            UpdateGhostPosition(rootLocal);
         else if (_applyOrbMode)
-            UpdateGhostPosition(evt.position);
+            UpdateGhostPosition(rootLocal);
     }
     
+    private void OnStashSlotPointerDown(PointerDownEvent evt)
+    {
+        if (_applyOrbMode) return;
+        if (evt.button != 0) return;
+        if (StashManager.Instance == null) return;
+
+        VisualElement slot = evt.currentTarget as VisualElement;
+        if (slot.userData == null) return;
+        int raw = (int)slot.userData;
+        if (raw < STASH_SLOT_OFFSET) return;
+        int slotIndex = raw - STASH_SLOT_OFFSET;
+        int tab = StashManager.Instance.CurrentTabIndex;
+        InventoryItem item = StashManager.Instance.GetItemAt(tab, slotIndex, out int anchorSlot);
+        if (item == null) return;
+        InventoryItem taken = StashManager.Instance.TakeItemFromStash(tab, anchorSlot);
+        if (taken == null) return;
+
+        _isDragging = true;
+        _draggedItem = taken;
+        _draggedFromStash = true;
+        _draggedStashTab = tab;
+        _draggedStashAnchorSlot = anchorSlot;
+        RefreshStash();
+        _ghostIcon.style.backgroundImage = new StyleBackground(taken.Data.Icon);
+        _ghostIcon.style.width = taken.Data.Width * SLOT_SIZE;
+        _ghostIcon.style.height = taken.Data.Height * SLOT_SIZE;
+        _ghostIcon.style.display = DisplayStyle.Flex;
+        if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
+        UpdateGhostPosition(GetPointerRootLocal(_root, evt));
+        _root.CapturePointer(evt.pointerId);
+    }
+
     private void OnSlotPointerDown(PointerDownEvent evt)
     {
         if (_applyOrbMode) return;
         if (evt.button != 0) return;
+        if (InventoryManager.Instance == null) return;
 
         VisualElement slot = evt.currentTarget as VisualElement;
+        if (slot.userData != null && (int)slot.userData >= STASH_SLOT_OFFSET) return;
         int idx = (int)slot.userData;
-        InventoryItem item = InventoryManager.Instance.GetItemAt(idx, out int anchorIdx);
-        if (item == null) return;
+        InventoryManager.Instance.GetItemAt(idx, out int anchorIdx);
+        InventoryItem taken = InventoryManager.Instance.TakeItemFromSlot(anchorIdx);
+        if (taken == null) return;
 
         _isDragging = true;
-        _draggedSlotIndex = anchorIdx;
-        _ghostIcon.style.backgroundImage = new StyleBackground(item.Data.Icon);
-        _ghostIcon.style.width = item.Data.Width * SLOT_SIZE;
-        _ghostIcon.style.height = item.Data.Height * SLOT_SIZE;
+        _draggedItem = taken;
+        _draggedSourceAnchor = anchorIdx;
+        _draggedFromStash = false;
+        _draggedStashTab = -1;
+        _draggedStashAnchorSlot = -1;
+        RefreshInventory();
+        _ghostIcon.style.backgroundImage = new StyleBackground(taken.Data.Icon);
+        _ghostIcon.style.width = taken.Data.Width * SLOT_SIZE;
+        _ghostIcon.style.height = taken.Data.Height * SLOT_SIZE;
         _ghostIcon.style.display = DisplayStyle.Flex;
-        
         if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
-
-        UpdateGhostPosition(evt.position);
+        UpdateGhostPosition(GetPointerRootLocal(_root, evt));
         _root.CapturePointer(evt.pointerId);
     }
 
-    private void UpdateGhostPosition(Vector2 pos)
+    /// <summary>pos — координаты в локальном пространстве _root (чтобы призрак шёл за курсором при любом target события).</summary>
+    private void UpdateGhostPosition(Vector2 rootLocalPos)
     {
-        Vector2 localPos = _root.WorldToLocal(pos);
-        _ghostIcon.style.left = localPos.x - (_ghostIcon.resolvedStyle.width / 2);
-        _ghostIcon.style.top = localPos.y - (_ghostIcon.resolvedStyle.height / 2);
+        float w = _ghostIcon.resolvedStyle.width;
+        float h = _ghostIcon.resolvedStyle.height;
+        _ghostIcon.style.left = rootLocalPos.x - (w * 0.5f);
+        _ghostIcon.style.top = rootLocalPos.y - (h * 0.5f);
+    }
+
+    private static Vector2 GetPointerRootLocal(VisualElement root, EventBase evt)
+    {
+        var ve = evt.target as VisualElement;
+        if (ve == null || root == null) return Vector2.zero;
+        Vector2 pos = ((IPointerEvent)evt).position;
+        return ve.ChangeCoordinatesTo(root, pos);
     }
 
     private void OnPointerUp(PointerUpEvent evt)
@@ -589,73 +858,119 @@ public class InventoryUI : MonoBehaviour
             return;
         }
 
-        if (!_isDragging) return;
-
-        // 1. Где сейчас наш призрак?
-        Vector2 ghostCenter = _ghostIcon.worldBound.center;
-        int foundIndex = -1;
-
-        if (_currentTab == 1 && _craftSlot != null && _craftSlot.worldBound.Contains(ghostCenter))
+        if (!_isDragging || _draggedItem == null)
         {
-            foundIndex = InventoryManager.CRAFT_SLOT_INDEX;
+            _isDragging = false;
+            _ghostIcon.style.display = DisplayStyle.None;
+            return;
         }
-        else if (_currentTab == 0)
+
+        Vector2 ghostCenter = _ghostIcon.worldBound.center;
+        Rect ghostWorld = _ghostIcon.worldBound;
+        int itemW = _draggedItem.Data != null ? _draggedItem.Data.Width : 1;
+        int itemH = _draggedItem.Data != null ? _draggedItem.Data.Height : 1;
+
+        // Склад — только если призрак реально над панелью склада (иначе после загрузки сейва предметы летят в склад)
+        int stashFoundSlotIndex = -1;
+        int stashFoundTab = StashManager.Instance != null ? StashManager.Instance.CurrentTabIndex : -1;
+        if (IsStashVisible && _stashPanel != null && _stashPanel.worldBound.Contains(ghostCenter))
+            stashFoundSlotIndex = GetSmartStashTargetIndex(itemW, itemH);
+
+        int foundIndex = -1;
+        if (stashFoundSlotIndex < 0)
         {
-            foreach (var slot in _equipmentSlots)
+            if (_currentTab == 1 && _craftSlot != null && _craftSlot.worldBound.Contains(ghostCenter))
+                foundIndex = InventoryManager.CRAFT_SLOT_INDEX;
+            else if (_currentTab == 0)
             {
-                if (slot.worldBound.Contains(ghostCenter))
+                foreach (var slot in _equipmentSlots)
                 {
-                    if (slot.userData != null) foundIndex = (int)slot.userData;
-                    break;
+                    if (slot.worldBound.Contains(ghostCenter) && slot.userData != null)
+                    {
+                        foundIndex = (int)slot.userData;
+                        break;
+                    }
                 }
             }
+            if (foundIndex == -1 && _inventoryContainer != null && _inventoryContainer.worldBound.Contains(ghostCenter))
+            {
+                int gridIndex = GetSmartTargetIndex(itemW, itemH);
+                if (gridIndex >= 0)
+                    foundIndex = gridIndex;
+            }
         }
 
-        if (foundIndex == -1)
+        bool placed = false;
+        if (_draggedFromStash && StashManager.Instance != null)
         {
-            int gridIndex = GetSmartTargetIndex(); 
-            if (gridIndex != -1 && gridIndex < InventoryManager.EQUIP_OFFSET)
-                foundIndex = gridIndex;
+            if (stashFoundSlotIndex >= 0)
+                placed = StashManager.Instance.PlaceItemInStash(_draggedItem, stashFoundTab, stashFoundSlotIndex, _draggedStashTab, _draggedStashAnchorSlot);
+            else if (foundIndex >= 0 && InventoryManager.Instance != null)
+                placed = InventoryManager.Instance.PlaceItemAt(_draggedItem, foundIndex, -1);
+        }
+        else
+        {
+            if (stashFoundSlotIndex >= 0 && StashManager.Instance != null)
+                placed = StashManager.Instance.PlaceItemInStash(_draggedItem, stashFoundTab, stashFoundSlotIndex);
+            else if (foundIndex >= 0 && InventoryManager.Instance != null)
+                placed = InventoryManager.Instance.PlaceItemAt(_draggedItem, foundIndex, _draggedSourceAnchor);
         }
 
-        // --- ЗАВЕРШЕНИЕ ---
+        // В любом исходе, кроме успешного размещения, возвращаем предмет туда, откуда взяли
+        if (!placed)
+        {
+            if (_draggedFromStash && StashManager.Instance != null)
+                StashManager.Instance.PlaceItemInStash(_draggedItem, _draggedStashTab, _draggedStashAnchorSlot, -1, -1);
+            else if (_draggedSourceAnchor >= 0 && InventoryManager.Instance != null)
+                InventoryManager.Instance.PlaceItemAt(_draggedItem, _draggedSourceAnchor, -1);
+        }
+
         _isDragging = false;
+        _draggedItem = null;
+        _draggedSourceAnchor = -1;
+        _draggedFromStash = false;
+        _draggedStashTab = -1;
+        _draggedStashAnchorSlot = -1;
         _ghostIcon.style.display = DisplayStyle.None;
         _root.ReleasePointer(evt.pointerId);
-
-        if (InventoryManager.Instance != null && foundIndex != -1)
-        {
-            InventoryManager.Instance.TryMoveOrSwap(_draggedSlotIndex, foundIndex);
-        }
-
-        _draggedSlotIndex = -1;
         RefreshInventory();
+        RefreshStash();
     }
 
-    private int GetSmartTargetIndex()
+    /// <summary>Целевой якорь в складе: левый верх призрака в сетке, с clamp чтобы предмет WxH помещался.</summary>
+    private int GetSmartStashTargetIndex(int itemWidth, int itemHeight)
     {
-        Rect ghostWorld = _ghostIcon.worldBound;
-        Vector2 localPos = _itemsLayer.WorldToLocal(new Vector2(ghostWorld.x, ghostWorld.y));
+        if (_stashItemsLayer == null || itemWidth <= 0 || itemHeight <= 0) return -1;
+        Vector2 ghostTopLeft = new Vector2(_ghostIcon.worldBound.xMin, _ghostIcon.worldBound.yMin);
+        Vector2 localPos = _stashItemsLayer.WorldToLocal(ghostTopLeft);
 
-        int col = Mathf.RoundToInt(localPos.x / SLOT_SIZE);
-        int row = Mathf.RoundToInt(localPos.y / SLOT_SIZE);
+        int col = Mathf.FloorToInt(localPos.x / SLOT_SIZE);
+        int row = Mathf.FloorToInt(localPos.y / SLOT_SIZE);
 
-        if (col < 0 || col >= COLUMNS || row < 0 || row >= ROWS)
-        {
-            // Fallback: проверяем прямой луч под мышкой, если GhostIcon улетел странно
-            Vector2 mousePos = _ghostIcon.worldBound.center;
-            VisualElement picked = _root.panel.Pick(mousePos);
-            VisualElement slot = FindParentSlot(picked);
-            
-            if (slot != null && slot.userData != null)
-            {
-                int idx = (int)slot.userData;
-                if (idx >= InventoryManager.EQUIP_OFFSET) return idx;
-            }
-            return -1; 
-        }
+        col = Mathf.Clamp(col, 0, StashManager.STASH_COLS - itemWidth);
+        row = Mathf.Clamp(row, 0, StashManager.STASH_ROWS - itemHeight);
 
-        return (row * COLUMNS) + col;
+        if (col < 0 || row < 0) return -1;
+        if (col + itemWidth > StashManager.STASH_COLS || row + itemHeight > StashManager.STASH_ROWS) return -1;
+        return row * StashManager.STASH_COLS + col;
+    }
+
+    /// <summary>Целевой якорь в рюкзаке: левый верх призрака в сетке, с clamp чтобы предмет WxH помещался (4x10).</summary>
+    private int GetSmartTargetIndex(int itemWidth, int itemHeight)
+    {
+        if (_itemsLayer == null || itemWidth <= 0 || itemHeight <= 0) return -1;
+        Vector2 ghostTopLeft = new Vector2(_ghostIcon.worldBound.xMin, _ghostIcon.worldBound.yMin);
+        Vector2 localPos = _itemsLayer.WorldToLocal(ghostTopLeft);
+
+        int col = Mathf.FloorToInt(localPos.x / SLOT_SIZE);
+        int row = Mathf.FloorToInt(localPos.y / SLOT_SIZE);
+
+        col = Mathf.Clamp(col, 0, COLUMNS - itemWidth);
+        row = Mathf.Clamp(row, 0, ROWS - itemHeight);
+
+        if (col < 0 || row < 0) return -1;
+        if (col + itemWidth > COLUMNS || row + itemHeight > ROWS) return -1;
+        return row * COLUMNS + col;
     }
 
     private VisualElement FindParentSlot(VisualElement target)
