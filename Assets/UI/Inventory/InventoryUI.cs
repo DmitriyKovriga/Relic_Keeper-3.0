@@ -313,20 +313,82 @@ public class InventoryUI : MonoBehaviour
     {
         if (_stashTabsRow == null || StashManager.Instance == null) return;
         _stashTabsRow.Clear();
+        var scroll = new ScrollView(ScrollViewMode.Horizontal);
+        scroll.AddToClassList("stash-tabs-scroll");
+        scroll.style.height = 18;
+        scroll.style.minHeight = 18;
+        scroll.style.maxHeight = 18;
+        if (scroll.verticalScroller != null)
+        {
+            scroll.verticalScroller.style.display = DisplayStyle.None;
+            scroll.verticalScroller.style.width = 0;
+            scroll.verticalScroller.style.minWidth = 0;
+            scroll.verticalScroller.style.maxWidth = 0;
+        }
+        var content = new VisualElement();
+        content.AddToClassList("stash-tabs-carousel");
+        content.style.flexDirection = FlexDirection.Row;
+        content.style.flexShrink = 0;
+
         int tabCount = StashManager.Instance.TabCount;
         int current = StashManager.Instance.CurrentTabIndex;
         for (int i = 0; i < tabCount; i++)
         {
             int t = i;
+            var wrap = new VisualElement();
+            wrap.AddToClassList("stash-tab-wrap");
+            wrap.style.flexDirection = FlexDirection.Row;
+            wrap.style.alignItems = Align.Center;
             var tab = new Button(() => { if (StashManager.Instance != null) StashManager.Instance.SetCurrentTab(t); }) { text = (i + 1).ToString() };
             tab.AddToClassList("stash-tab");
             if (i == current) tab.AddToClassList("active");
-            _stashTabsRow.Add(tab);
+            wrap.Add(tab);
+            if (tabCount > 1 && i == current)
+            {
+                var del = new Button(() =>
+                {
+                    if (StashManager.Instance != null && StashManager.Instance.TryRemoveTab(t))
+                    {
+                        StashManager.Instance.SetCurrentTab(0);
+                        RefreshStash();
+                    }
+                }) { text = "×", tooltip = "Закрыть вкладку (только пустую). Переход на первую." };
+                del.AddToClassList("stash-tab-delete");
+                wrap.Add(del);
+            }
+            content.Add(wrap);
         }
-        var addTab = new Button(() => { if (StashManager.Instance != null) StashManager.Instance.AddTab(); }) { text = "+" };
+        var addTab = new Button(() => { if (StashManager.Instance != null) StashManager.Instance.AddTab(); }) { text = "+", tooltip = "Новая вкладка" };
         addTab.AddToClassList("stash-tab");
         addTab.AddToClassList("stash-tab-add");
-        _stashTabsRow.Add(addTab);
+        content.Add(addTab);
+        scroll.Add(content);
+        _stashTabsRow.Add(scroll);
+        HideStashVerticalScrollerDelayed(scroll);
+        HideStashHorizontalScrollerArrows(scroll);
+    }
+
+    private void HideStashHorizontalScrollerArrows(ScrollView scroll)
+    {
+        if (scroll?.horizontalScroller == null) return;
+        var h = scroll.horizontalScroller;
+        if (h.lowButton != null) h.lowButton.style.display = DisplayStyle.None;
+        if (h.highButton != null) h.highButton.style.display = DisplayStyle.None;
+    }
+
+    private void HideStashVerticalScrollerDelayed(ScrollView scroll)
+    {
+        void TryHide()
+        {
+            if (scroll == null || scroll.verticalScroller == null) return;
+            var v = scroll.verticalScroller;
+            v.style.display = DisplayStyle.None;
+            v.style.width = 0;
+            v.style.minWidth = 0;
+            v.style.maxWidth = 0;
+        }
+        scroll.schedule.Execute(TryHide).ExecuteLater(2);
+        scroll.schedule.Execute(TryHide).ExecuteLater(10);
     }
 
     private void RefreshStashGrid()
@@ -809,7 +871,8 @@ public class InventoryUI : MonoBehaviour
             evt.StopPropagation();
             InventoryItem taken = InventoryManager.Instance.TakeItemFromSlot(anchorIdx);
             if (taken == null) return;
-            if (StashManager.Instance.TryAddItemToAnyTab(taken))
+            int currentTab = StashManager.Instance.CurrentTabIndex;
+            if (StashManager.Instance.TryAddItemPreferringTab(taken, currentTab))
             {
                 RefreshInventory();
                 RefreshStash();
@@ -875,7 +938,7 @@ public class InventoryUI : MonoBehaviour
                 if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
                 return;
             }
-            StashManager.Instance.TryAddItemToAnyTab(taken);
+            StashManager.Instance.TryAddItemPreferringTab(taken, StashManager.Instance.CurrentTabIndex);
             return;
         }
 

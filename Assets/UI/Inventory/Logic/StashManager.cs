@@ -66,6 +66,30 @@ namespace Scripts.Inventory
             OnStashChanged?.Invoke();
         }
 
+        public bool IsTabEmpty(int tabIndex)
+        {
+            if (tabIndex < 0 || tabIndex >= _tabs.Count) return false;
+            var grid = _tabs[tabIndex];
+            for (int i = 0; i < grid.Length; i++)
+                if (grid[i] != null) return false;
+            return true;
+        }
+
+        /// <summary>Удалить вкладку, только если она пустая. Нельзя удалить последнюю (должна остаться минимум одна).</summary>
+        public bool TryRemoveTab(int tabIndex)
+        {
+            if (_tabs.Count <= 1) return false;
+            if (tabIndex < 0 || tabIndex >= _tabs.Count) return false;
+            if (!IsTabEmpty(tabIndex)) return false;
+            _tabs.RemoveAt(tabIndex);
+            if (_currentTabIndex >= _tabs.Count)
+                _currentTabIndex = _tabs.Count - 1;
+            else if (_currentTabIndex > tabIndex)
+                _currentTabIndex--;
+            OnStashChanged?.Invoke();
+            return true;
+        }
+
         public InventoryItem GetItem(int tabIndex, int slotIndex)
         {
             if (tabIndex < 0 || tabIndex >= _tabs.Count) return null;
@@ -188,10 +212,33 @@ namespace Scripts.Inventory
         /// <summary>Защита: положить предмет в первый свободный слот любой вкладки (если инвентарь полон).</summary>
         public bool TryAddItemToAnyTab(InventoryItem item)
         {
+            return TryAddItemPreferringTab(item, -1);
+        }
+
+        /// <summary>Положить предмет в склад; сначала пробуем preferredTab, затем остальные вкладки.</summary>
+        public bool TryAddItemPreferringTab(InventoryItem item, int preferredTab)
+        {
             if (item?.Data == null) return false;
             GetStashItemSize(item, out int w, out int h);
-            for (int t = 0; t < _tabs.Count; t++)
+            int n = _tabs.Count;
+            if (n == 0) return false;
+            if (preferredTab >= 0 && preferredTab < n)
             {
+                for (int row = 0; row <= STASH_ROWS - h; row++)
+                    for (int col = 0; col <= STASH_COLS - w; col++)
+                    {
+                        int anchor = row * STASH_COLS + col;
+                        if (CanPlaceItemAt(preferredTab, anchor, item))
+                        {
+                            PlaceItem(preferredTab, anchor, item);
+                            OnStashChanged?.Invoke();
+                            return true;
+                        }
+                    }
+            }
+            for (int t = 0; t < n; t++)
+            {
+                if (t == preferredTab) continue;
                 for (int row = 0; row <= STASH_ROWS - h; row++)
                     for (int col = 0; col <= STASH_COLS - w; col++)
                     {
