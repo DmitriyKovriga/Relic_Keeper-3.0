@@ -80,9 +80,11 @@ namespace Scripts.Inventory
 
             foreach (var affix in Affixes)
             {
+                // Ключ для загрузки: UniqueID или имя ассета (как в ItemDatabaseSO.Init)
+                string affixKey = string.IsNullOrEmpty(affix.Data.UniqueID) ? affix.Data.name : affix.Data.UniqueID;
                 var afData = new AffixSaveData
                 {
-                    AffixID = affix.Data.UniqueID,
+                    AffixID = affixKey,
                     Values = new List<float>()
                 };
                 foreach (var mod in affix.Modifiers)

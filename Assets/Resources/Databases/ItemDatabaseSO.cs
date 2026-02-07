@@ -39,7 +39,7 @@ public class ItemDatabaseSO : ScriptableObject
                 }
             }
 
-            // 2. Инициализация АФФИКСОВ
+            // 2. Инициализация АФФИКСОВ (список + подгрузка из Resources для сгенерированных)
             _affixLookup = new Dictionary<string, ItemAffixSO>();
             
             if (AllAffixes != null)
@@ -47,14 +47,21 @@ public class ItemDatabaseSO : ScriptableObject
                 foreach (var affix in AllAffixes)
                 {
                     if (affix == null) continue;
-
-                    // Используем UniqueID (путь), если есть, иначе имя файла
                     string key = string.IsNullOrEmpty(affix.UniqueID) ? affix.name : affix.UniqueID;
-
                     if (!_affixLookup.ContainsKey(key))
-                    {
                         _affixLookup.Add(key, affix);
-                    }
+                }
+            }
+            // Подгрузить аффиксы из Resources/Affixes, чтобы сгенерированные были в базе без ручного Auto-Find
+            var fromResources = Resources.LoadAll<ItemAffixSO>("Affixes");
+            if (fromResources != null)
+            {
+                foreach (var affix in fromResources)
+                {
+                    if (affix == null) continue;
+                    string key = string.IsNullOrEmpty(affix.UniqueID) ? affix.name : affix.UniqueID;
+                    if (!_affixLookup.ContainsKey(key))
+                        _affixLookup.Add(key, affix);
                 }
             }
 

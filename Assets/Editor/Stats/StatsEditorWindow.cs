@@ -178,7 +178,7 @@ namespace Scripts.Editor.Stats
 
         private void DrawMetadataSection(StatType type)
         {
-            GUILayout.Label("Metadata (Category, Format, Show in Character Window)", EditorStyles.boldLabel);
+            GUILayout.Label("Metadata (Category, Format, Affix Gen Type, Show in Character Window)", EditorStyles.boldLabel);
             var newDb = (StatsDatabaseSO)EditorGUILayout.ObjectField("Stats Database", _statsDatabase, typeof(StatsDatabaseSO), false);
             if (newDb != _statsDatabase)
                 _statsDatabase = newDb;
@@ -229,6 +229,7 @@ namespace Scripts.Editor.Stats
             EditorGUI.BeginChangeCheck();
             meta.Category = EditorGUILayout.TextField("Category", meta.Category);
             meta.Format = (StatDisplayFormat)EditorGUILayout.EnumPopup("Display Format", meta.Format);
+            meta.AffixGenType = (StatAffixGenType)EditorGUILayout.EnumPopup("Affix Gen Type", meta.AffixGenType);
             meta.ShowInCharacterWindow = EditorGUILayout.Toggle("Show in Character Window", meta.ShowInCharacterWindow);
             if (EditorGUI.EndChangeCheck())
             {

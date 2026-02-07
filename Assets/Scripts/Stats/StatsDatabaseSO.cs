@@ -16,6 +16,16 @@ namespace Scripts.Stats
     }
 
     /// <summary>
+    /// Тип стата для генерации аффиксов: полный расчёт (flat+increase+more), только % (только flat с малыми значениями), или без расчёта (константа, только flat).
+    /// </summary>
+    public enum StatAffixGenType
+    {
+        FullCalcStat,  // flat, increase, more — три набора strong/medium/light по 5 тиров
+        PercentStat,   // только flat, малые значения 1–7 (strong/medium/light × T1–5)
+        NOCalcStat     // как PercentStat — только flat, малые значения
+    }
+
+    /// <summary>
     /// Single metadata entry for one StatType. Used by StatsDatabaseSO and editable in Stats Editor.
     /// </summary>
     [Serializable]
@@ -25,6 +35,7 @@ namespace Scripts.Stats
         public string Category = "Misc";
         public StatDisplayFormat Format = StatDisplayFormat.Number;
         public bool ShowInCharacterWindow = true;
+        public StatAffixGenType AffixGenType = StatAffixGenType.FullCalcStat;
     }
 
     /// <summary>
@@ -70,6 +81,13 @@ namespace Scripts.Stats
             return meta?.Category ?? "Misc";
         }
 
+        /// <summary> Тип стата для генерации аффиксов (strong/medium/light, flat/increase/more или только flat). </summary>
+        public StatAffixGenType GetAffixGenType(StatType type)
+        {
+            var meta = GetMetadata(type);
+            return meta != null ? meta.AffixGenType : StatAffixGenType.FullCalcStat;
+        }
+
         private void EnsureLookup()
         {
             if (_lookup != null) return;
@@ -97,7 +115,8 @@ namespace Scripts.Stats
                 StatTypeId = id,
                 Category = DefaultCategoryFor(type),
                 Format = DefaultFormatFor(type),
-                ShowInCharacterWindow = DefaultShowInCharacterWindow(type)
+                ShowInCharacterWindow = DefaultShowInCharacterWindow(type),
+                AffixGenType = DefaultAffixGenTypeFor(type)
             };
             _entries.Add(entry);
             _lookup[id] = entry;
@@ -119,7 +138,8 @@ namespace Scripts.Stats
                     StatTypeId = id,
                     Category = DefaultCategoryFor(type),
                     Format = DefaultFormatFor(type),
-                    ShowInCharacterWindow = DefaultShowInCharacterWindow(type)
+                    ShowInCharacterWindow = DefaultShowInCharacterWindow(type),
+                    AffixGenType = DefaultAffixGenTypeFor(type)
                 });
             }
             _lookup = null;
@@ -159,6 +179,16 @@ namespace Scripts.Stats
         {
             if (type == StatType.HealthRegenPercent || type == StatType.ManaRegenPercent) return false;
             return true;
+        }
+
+        private static StatAffixGenType DefaultAffixGenTypeFor(StatType type)
+        {
+            string s = type.ToString();
+            if (type == StatType.AreaOfEffect || type == StatType.MoveSpeed || type == StatType.ProjectileSpeed || type == StatType.EffectDuration || type == StatType.ReduceDamageTaken)
+                return StatAffixGenType.PercentStat;
+            if (s.Contains("Stack") || s.Contains("ExtraTargets") || s.Contains("MaxBleed") || s.Contains("MaxPoison") || s.Contains("MaxIgnite"))
+                return StatAffixGenType.NOCalcStat;
+            return StatAffixGenType.FullCalcStat;
         }
 #endif
     }

@@ -20,11 +20,12 @@ namespace Scripts.Items.Affixes
             List<ItemAffixSO> result = new List<ItemAffixSO>();
             List<string> usedGroups = new List<string>();
             
-            // Создаем копию списка кандидатов, подходящих по уровню
+            // Кандидаты: аффиксы, чей тир допускает данный уровень предмета (захардкожено в AffixTierHelper)
             var candidates = new List<ItemAffixSO>();
-            foreach(var a in Affixes)
+            foreach (var a in Affixes)
             {
-                if (a.RequiredLevel <= itemLevel) candidates.Add(a);
+                if (a != null && AffixTierHelper.IsTierAllowedForLevel(itemLevel, a.Tier))
+                    candidates.Add(a);
             }
 
             // Пытаемся набрать нужное количество
