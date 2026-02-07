@@ -800,22 +800,39 @@ public class InventoryUI : MonoBehaviour
     private void OnBackpackIconPointerDown(PointerDownEvent evt)
     {
         if (_applyOrbMode || evt.button != 0 || InventoryManager.Instance == null) return;
-        evt.StopPropagation();
         var icon = evt.currentTarget as VisualElement;
         if (icon?.userData == null) return;
         int anchorIdx = (int)icon.userData;
-        InventoryItem taken = InventoryManager.Instance.TakeItemFromSlot(anchorIdx);
-        if (taken == null) return;
+
+        if (evt.ctrlKey && IsStashVisible && StashManager.Instance != null)
+        {
+            evt.StopPropagation();
+            InventoryItem taken = InventoryManager.Instance.TakeItemFromSlot(anchorIdx);
+            if (taken == null) return;
+            if (StashManager.Instance.TryAddItemToAnyTab(taken))
+            {
+                RefreshInventory();
+                RefreshStash();
+                if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
+                return;
+            }
+            InventoryManager.Instance.AddItem(taken);
+            return;
+        }
+
+        evt.StopPropagation();
+        InventoryItem takenDrag = InventoryManager.Instance.TakeItemFromSlot(anchorIdx);
+        if (takenDrag == null) return;
         _isDragging = true;
-        _draggedItem = taken;
+        _draggedItem = takenDrag;
         _draggedSourceAnchor = anchorIdx;
         _draggedFromStash = false;
         _draggedStashTab = -1;
         _draggedStashAnchorSlot = -1;
         RefreshInventory();
-        _ghostIcon.style.backgroundImage = new StyleBackground(taken.Data.Icon);
-        _ghostIcon.style.width = taken.Data.Width * SLOT_SIZE;
-        _ghostIcon.style.height = taken.Data.Height * SLOT_SIZE;
+        _ghostIcon.style.backgroundImage = new StyleBackground(takenDrag.Data.Icon);
+        _ghostIcon.style.width = takenDrag.Data.Width * SLOT_SIZE;
+        _ghostIcon.style.height = takenDrag.Data.Height * SLOT_SIZE;
         _ghostIcon.style.display = DisplayStyle.None;
         if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
         _root.CapturePointer(evt.pointerId);
@@ -841,22 +858,39 @@ public class InventoryUI : MonoBehaviour
     private void OnStashIconPointerDown(PointerDownEvent evt)
     {
         if (_applyOrbMode || evt.button != 0 || StashManager.Instance == null) return;
-        evt.StopPropagation();
         var icon = evt.currentTarget as VisualElement;
         if (icon?.userData == null) return;
         int anchorSlot = (int)icon.userData;
         int tab = StashManager.Instance.CurrentTabIndex;
-        InventoryItem taken = StashManager.Instance.TakeItemFromStash(tab, anchorSlot);
-        if (taken == null) return;
+
+        if (evt.ctrlKey && InventoryManager.Instance != null)
+        {
+            evt.StopPropagation();
+            InventoryItem taken = StashManager.Instance.TakeItemFromStash(tab, anchorSlot);
+            if (taken == null) return;
+            if (InventoryManager.Instance.AddItem(taken))
+            {
+                RefreshInventory();
+                RefreshStash();
+                if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
+                return;
+            }
+            StashManager.Instance.TryAddItemToAnyTab(taken);
+            return;
+        }
+
+        evt.StopPropagation();
+        InventoryItem takenDrag = StashManager.Instance.TakeItemFromStash(tab, anchorSlot);
+        if (takenDrag == null) return;
         _isDragging = true;
-        _draggedItem = taken;
+        _draggedItem = takenDrag;
         _draggedFromStash = true;
         _draggedStashTab = tab;
         _draggedStashAnchorSlot = anchorSlot;
         RefreshStash();
-        _ghostIcon.style.backgroundImage = new StyleBackground(taken.Data.Icon);
-        _ghostIcon.style.width = taken.Data.Width * SLOT_SIZE;
-        _ghostIcon.style.height = taken.Data.Height * SLOT_SIZE;
+        _ghostIcon.style.backgroundImage = new StyleBackground(takenDrag.Data.Icon);
+        _ghostIcon.style.width = takenDrag.Data.Width * SLOT_SIZE;
+        _ghostIcon.style.height = takenDrag.Data.Height * SLOT_SIZE;
         _ghostIcon.style.display = DisplayStyle.None;
         if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
         _root.CapturePointer(evt.pointerId);
