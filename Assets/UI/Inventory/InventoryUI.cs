@@ -937,40 +937,92 @@ public class InventoryUI : MonoBehaviour
         RefreshStash();
     }
 
-    /// <summary>Целевой якорь в складе: левый верх призрака в сетке, с clamp чтобы предмет WxH помещался.</summary>
+    /// <summary>
+    /// Площадь пересечения двух прямоугольников (в одной системе координат).
+    /// </summary>
+    private static float OverlapArea(float aMinX, float aMinY, float aMaxX, float aMaxY, float bMinX, float bMinY, float bMaxX, float bMaxY)
+    {
+        float iMinX = Mathf.Max(aMinX, bMinX);
+        float iMinY = Mathf.Max(aMinY, bMinY);
+        float iMaxX = Mathf.Min(aMaxX, bMaxX);
+        float iMaxY = Mathf.Min(aMaxY, bMaxY);
+        float w = Mathf.Max(0f, iMaxX - iMinX);
+        float h = Mathf.Max(0f, iMaxY - iMinY);
+        return w * h;
+    }
+
+    /// <summary>
+    /// Якорь по максимальному пересечению: перебираем все допустимые позиции предмета WxH
+    /// и выбираем ту, при которой прямоугольник призрака сильнее всего пересекается с прямоугольником предмета.
+    /// Так для 2x2 не важно, в какой из четырёх слотов попал «центр» — выигрывает тот 2x2-блок, на который призрак реально наехал.
+    /// </summary>
     private int GetSmartStashTargetIndex(int itemWidth, int itemHeight)
     {
         if (_stashItemsLayer == null || itemWidth <= 0 || itemHeight <= 0) return -1;
-        Vector2 ghostTopLeft = new Vector2(_ghostIcon.worldBound.xMin, _ghostIcon.worldBound.yMin);
-        Vector2 localPos = _stashItemsLayer.WorldToLocal(ghostTopLeft);
+        Rect ghostWorld = _ghostIcon.worldBound;
+        Vector2 localMin = _stashItemsLayer.WorldToLocal(new Vector2(ghostWorld.xMin, ghostWorld.yMin));
+        Vector2 localMax = _stashItemsLayer.WorldToLocal(new Vector2(ghostWorld.xMax, ghostWorld.yMax));
+        float gMinX = Mathf.Min(localMin.x, localMax.x);
+        float gMaxX = Mathf.Max(localMin.x, localMax.x);
+        float gMinY = Mathf.Min(localMin.y, localMax.y);
+        float gMaxY = Mathf.Max(localMin.y, localMax.y);
 
-        int col = Mathf.FloorToInt(localPos.x / SLOT_SIZE);
-        int row = Mathf.FloorToInt(localPos.y / SLOT_SIZE);
-
-        col = Mathf.Clamp(col, 0, StashManager.STASH_COLS - itemWidth);
-        row = Mathf.Clamp(row, 0, StashManager.STASH_ROWS - itemHeight);
-
-        if (col < 0 || row < 0) return -1;
-        if (col + itemWidth > StashManager.STASH_COLS || row + itemHeight > StashManager.STASH_ROWS) return -1;
-        return row * StashManager.STASH_COLS + col;
+        int bestCol = 0, bestRow = 0;
+        float bestArea = -1f;
+        for (int row = 0; row <= StashManager.STASH_ROWS - itemHeight; row++)
+        {
+            for (int col = 0; col <= StashManager.STASH_COLS - itemWidth; col++)
+            {
+                float iMinX = col * SLOT_SIZE;
+                float iMinY = row * SLOT_SIZE;
+                float iMaxX = (col + itemWidth) * SLOT_SIZE;
+                float iMaxY = (row + itemHeight) * SLOT_SIZE;
+                float area = OverlapArea(gMinX, gMinY, gMaxX, gMaxY, iMinX, iMinY, iMaxX, iMaxY);
+                if (area > bestArea)
+                {
+                    bestArea = area;
+                    bestCol = col;
+                    bestRow = row;
+                }
+            }
+        }
+        return bestArea > 0 ? bestRow * StashManager.STASH_COLS + bestCol : -1;
     }
 
-    /// <summary>Целевой якорь в рюкзаке: левый верх призрака в сетке, с clamp чтобы предмет WxH помещался (4x10).</summary>
+    /// <summary>
+    /// Якорь в рюкзаке по максимальному пересечению призрака с кандидатом-прямоугольником предмета (аналогично складу).
+    /// </summary>
     private int GetSmartTargetIndex(int itemWidth, int itemHeight)
     {
         if (_itemsLayer == null || itemWidth <= 0 || itemHeight <= 0) return -1;
-        Vector2 ghostTopLeft = new Vector2(_ghostIcon.worldBound.xMin, _ghostIcon.worldBound.yMin);
-        Vector2 localPos = _itemsLayer.WorldToLocal(ghostTopLeft);
+        Rect ghostWorld = _ghostIcon.worldBound;
+        Vector2 localMin = _itemsLayer.WorldToLocal(new Vector2(ghostWorld.xMin, ghostWorld.yMin));
+        Vector2 localMax = _itemsLayer.WorldToLocal(new Vector2(ghostWorld.xMax, ghostWorld.yMax));
+        float gMinX = Mathf.Min(localMin.x, localMax.x);
+        float gMaxX = Mathf.Max(localMin.x, localMax.x);
+        float gMinY = Mathf.Min(localMin.y, localMax.y);
+        float gMaxY = Mathf.Max(localMin.y, localMax.y);
 
-        int col = Mathf.FloorToInt(localPos.x / SLOT_SIZE);
-        int row = Mathf.FloorToInt(localPos.y / SLOT_SIZE);
-
-        col = Mathf.Clamp(col, 0, COLUMNS - itemWidth);
-        row = Mathf.Clamp(row, 0, ROWS - itemHeight);
-
-        if (col < 0 || row < 0) return -1;
-        if (col + itemWidth > COLUMNS || row + itemHeight > ROWS) return -1;
-        return row * COLUMNS + col;
+        int bestCol = 0, bestRow = 0;
+        float bestArea = -1f;
+        for (int row = 0; row <= ROWS - itemHeight; row++)
+        {
+            for (int col = 0; col <= COLUMNS - itemWidth; col++)
+            {
+                float iMinX = col * SLOT_SIZE;
+                float iMinY = row * SLOT_SIZE;
+                float iMaxX = (col + itemWidth) * SLOT_SIZE;
+                float iMaxY = (row + itemHeight) * SLOT_SIZE;
+                float area = OverlapArea(gMinX, gMinY, gMaxX, gMaxY, iMinX, iMinY, iMaxX, iMaxY);
+                if (area > bestArea)
+                {
+                    bestArea = area;
+                    bestCol = col;
+                    bestRow = row;
+                }
+            }
+        }
+        return bestArea > 0 ? bestRow * COLUMNS + bestCol : -1;
     }
 
     private VisualElement FindParentSlot(VisualElement target)
