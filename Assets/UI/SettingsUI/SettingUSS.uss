@@ -44,3 +44,135 @@
     margin-top: 5px;
     margin-bottom: 5px;
 }
+
+/* --- Строка биндинга: все размеры в px, окно 480×270 --- */
+.binding-row {
+    flex-direction: row;
+    align-items: center;
+    width: 436px;
+    height: 20px;
+    min-height: 20px;
+    padding: 0 6px;
+    flex-shrink: 0;
+}
+
+.binding-action-name {
+    color: rgb(255, 255, 255);
+    font-size: 10px;
+    width: 110px;
+    min-width: 110px;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.binding-box {
+    background-color: rgb(34, 34, 34);
+    border-left-color: rgb(96, 96, 96);
+    border-right-color: rgb(96, 96, 96);
+    border-top-color: rgb(96, 96, 96);
+    border-bottom-color: rgb(96, 96, 96);
+    border-width: 1px;
+    border-radius: 1px;
+    width: 52px;
+    min-width: 52px;
+    height: 16px;
+    margin-left: 6px;
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+.binding-box .unity-label {
+    font-size: 10px;
+}
+
+.change-button.binding-change {
+    width: 44px;
+    min-width: 44px;
+    height: 16px;
+    font-size: 9px;
+    padding-left: 2px;
+    padding-right: 2px;
+    flex-shrink: 0;
+}
+
+/* --- Окно настроек: строго 480×270 px, только пиксели --- */
+.settings-window-root {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 480px;
+    height: 270px;
+}
+
+.settings-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 480px;
+    height: 270px;
+}
+
+.settings-panel {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 456px;
+    height: 246px;
+}
+
+.settings-scroll {
+    width: 454px;
+    height: 244px;
+    flex-shrink: 0;
+}
+
+.settings-scroll .unity-scroll-view__content-viewport {
+    padding: 0;
+}
+
+.settings-scroll .unity-scroll-view__content-container {
+    min-height: 0;
+}
+
+.settings-scroll .unity-scroll-view__vertical-scroller {
+    width: 10px;
+}
+
+.settings-language-row {
+    flex-direction: row;
+    align-items: center;
+    width: 436px;
+    height: 22px;
+    min-height: 22px;
+    padding: 0 6px;
+    flex-shrink: 0;
+}
+
+.settings-language-label {
+    color: rgb(255, 255, 255);
+    font-size: 10px;
+    width: 110px;
+    min-width: 110px;
+}
+
+.settings-language-dropdown {
+    color: rgb(255, 255, 255);
+    background-color: rgb(34, 34, 34);
+    width: 90px;
+    min-width: 90px;
+    height: 18px;
+    font-size: 10px;
+    flex-shrink: 0;
+}
+
+.settings-language-dropdown .unity-base-field__input {
+    font-size: 10px;
+}
+
+.settings-rows-container {
+    flex-direction: column;
+    width: 436px;
+    padding: 0 6px;
+}

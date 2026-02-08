@@ -463,6 +463,42 @@ MonoBehaviour:
     m_Key: crafting_orb.FartuneOrb.description
     m_Metadata:
       m_Items: []
+  - m_Id: 25736290421473280
+    m_Key: input.Jump
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25738360620875776
+    m_Key: input.MoveLeft
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25738596256874496
+    m_Key: input.MoveRight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25738733305757696
+    m_Key: input.FirstSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25738806076932096
+    m_Key: input.SecondSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25738857725591552
+    m_Key: input.Interact
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25738944660930560
+    m_Key: input.OpenInventory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25739023870361600
+    m_Key: input.OpenSkillTree
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25739153386274816
+    m_Key: input.OpenStash
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

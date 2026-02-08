@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/SettingsUI/SettingUSS.uss?fileID=7433441132597879392&amp;guid=f4d264def3a964c47a5444b21d1f26c5&amp;type=3#SettingUSS" />
+    <ui:VisualElement name="BindingRow_Template" class="binding-row">
+        <ui:Label text="Action" name="ActionName_Template" class="binding-action-name" />
+        <ui:VisualElement name="BindingBox_Template" class="binding-box">
+            <ui:Label text="Key" name="BindingLabel_Template" style="color: rgb(255, 234, 0); -unity-text-align: middle-center;" />
+        </ui:VisualElement>
+        <ui:Button text="Change" name="ChangeButton_Template" class="change-button binding-change" />
+    </ui:VisualElement>
+</ui:UXML>

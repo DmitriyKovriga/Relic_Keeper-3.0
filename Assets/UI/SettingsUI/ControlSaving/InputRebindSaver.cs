@@ -22,11 +22,12 @@ public static class InputRebindSaver
         RebindsChanged?.Invoke();
     }
 
-    public static void Load(InputActionAsset actions)
+    /// <summary> Загружает бинды из сейва; если сейва нет — применяет дефолты из config (если задан) или захардкоженные. </summary>
+    public static void Load(InputActionAsset actions, ControlsEditorConfig config = null)
     {
         if (File.Exists(SavePath))
         {
-            try 
+            try
             {
                 string json = File.ReadAllText(SavePath);
                 actions.LoadBindingOverridesFromJson(json);
@@ -35,26 +36,36 @@ public static class InputRebindSaver
             catch (Exception e)
             {
                 Debug.LogError($"[InputSaver] Failed to load binds: {e.Message}. Applying defaults.");
-                ApplyHardcodedDefaults(actions);
+                ApplyDefaults(actions, config);
             }
         }
         else
         {
-            Debug.Log("[InputSaver] Save file not found. Applying Hardcoded Defaults.");
-            ApplyHardcodedDefaults(actions);
+            Debug.Log("[InputSaver] Save file not found. Applying defaults.");
+            ApplyDefaults(actions, config);
         }
         ApplyHardcodedDebugKeys(actions);
     }
 
-    public static void Clear(InputActionAsset actions)
+    private static void ApplyDefaults(InputActionAsset actions, ControlsEditorConfig config)
+    {
+        if (config != null)
+        {
+            config.ApplyDefaultBindings();
+            Debug.Log("[InputSaver] Applied defaults from ControlsEditorConfig.");
+        }
+        else
+            ApplyHardcodedDefaults(actions);
+    }
+
+    public static void Clear(InputActionAsset actions, ControlsEditorConfig config = null)
     {
         actions.RemoveAllBindingOverrides();
         if (File.Exists(SavePath))
             File.Delete(SavePath);
 
         Debug.Log("[InputSaver] Rebinds cleared.");
-        
-        ApplyHardcodedDefaults(actions);
+        ApplyDefaults(actions, config);
         ApplyHardcodedDebugKeys(actions);
         RebindsChanged?.Invoke();
     }
