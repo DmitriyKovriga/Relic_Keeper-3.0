@@ -11,6 +11,9 @@ namespace Scripts.Skills
         protected float _lastCastTime;
         protected bool _isCasting;
 
+        /// <summary> Вызвать при додже/прерывании — рантайм скилла должен выйти и сделать Cleanup. </summary>
+        public virtual void Cancel() { }
+
         // Инициализация (вызывается при экипировке)
         public virtual void Initialize(PlayerStats stats, SkillDataSO data)
         {
