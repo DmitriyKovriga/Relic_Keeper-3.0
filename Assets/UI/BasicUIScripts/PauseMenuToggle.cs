@@ -14,16 +14,11 @@ public class PauseMenuToggle : MonoBehaviour
     {
         if (!Input.GetKeyDown(KeyCode.Escape))
             return;
+        if (manager == null || pauseMenu == null) return;
 
-        // Если есть открытые окна → закрываем верхнее
         if (manager.HasOpenWindow)
-        {
             manager.CloseTop();
-        }
         else
-        {
-            // Иначе открываем PauseMenu
             pauseMenu.Open();
-        }
     }
 }
