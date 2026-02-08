@@ -36,6 +36,7 @@ public class WindowManager : MonoBehaviour
 
         _windows.Add(window);
         window.OpenInternal();
+        RefreshPanelSortOrders();
     }
 
     public void CloseTop()
@@ -45,6 +46,7 @@ public class WindowManager : MonoBehaviour
         var top = _windows[_windows.Count - 1];
         _windows.RemoveAt(_windows.Count - 1);
         top.CloseInternal();
+        RefreshPanelSortOrders();
 
         if (_windows.Count == 0)
         {
@@ -59,6 +61,7 @@ public class WindowManager : MonoBehaviour
 
         _windows.Remove(window);
         window.CloseInternal();
+        RefreshPanelSortOrders();
 
         if (_windows.Count == 0)
         {
@@ -71,5 +74,12 @@ public class WindowManager : MonoBehaviour
     {
         if (window != null && _windows.Contains(window))
             CloseWindow(window);
+    }
+
+    private void RefreshPanelSortOrders()
+    {
+        const int baseOrder = 1000;
+        for (int i = 0; i < _windows.Count; i++)
+            _windows[i].SetPanelSortOrder(baseOrder + i);
     }
 }

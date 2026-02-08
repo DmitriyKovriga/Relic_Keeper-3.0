@@ -1,4 +1,5 @@
 using UnityEngine;
+using Scripts.Skills.Steps;
 
 namespace Scripts.Skills
 {
@@ -17,10 +18,13 @@ namespace Scripts.Skills
         public float ManaCost;
 
         [Header("Visuals & Logic")]
-        [Tooltip("Префаб, который спавнится при атаке (снаряд, эффект удара)")]
+        [Tooltip("Префаб, который спавнится при атаке (снаряд, эффект удара). Если задан Recipe — используется StepRunner на префабе.")]
         public GameObject SkillPrefab;
-        
         [Tooltip("Анимация игрока при касте")]
         public string AnimationTrigger = "Attack";
+
+        [Header("Step-based (optional)")]
+        [Tooltip("Если задан — скилл выполняется по рецепту степов (StepRunner на префабе). Иначе — классический SkillBehaviour (например CleaveSkill).")]
+        public SkillRecipeSO Recipe;
     }
 }

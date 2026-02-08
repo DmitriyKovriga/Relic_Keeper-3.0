@@ -18,4 +18,6 @@ public static class EditorPaths
     public const string AffixTagDatabase = "Assets/Resources/Databases/AffixTagDatabase.asset";
     public const string AffixesBaseFolder = "Assets/Resources/Affixes";
     public const string PassiveTemplatesFolder = "Assets/Resources/PassiveTrees";
+    public const string StepDefinitionsFolder = "Assets/Resources/Skills/StepDefinitions";
+    public const string SkillsFolder = "Assets/Resources/Skills";
 }

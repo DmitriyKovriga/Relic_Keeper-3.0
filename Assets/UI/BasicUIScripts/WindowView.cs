@@ -9,7 +9,10 @@ public class WindowView : MonoBehaviour
     public event Action OnOpened;
     public UIDocument ui;
 
+    /// <summary> Внутренний контейнер окна (WindowRoot из UXML). Показ/скрытие окна — через root. </summary>
     private VisualElement root;
+    /// <summary> Корень UIDocument. При закрытии ставим pickingMode = Ignore, чтобы не перехватывать ввод; видимость меняем у root. </summary>
+    private VisualElement documentRoot;
     private VisualElement overlay;
     private WindowManager manager;
     
@@ -46,22 +49,17 @@ public class WindowView : MonoBehaviour
 
         if (ui == null || ui.rootVisualElement == null) return;
 
-        // Ищем WindowRoot, который создал PassiveTreeUI
-        root = ui.rootVisualElement.Q<VisualElement>("WindowRoot");
-
+        documentRoot = ui.rootVisualElement;
+        root = documentRoot.Q<VisualElement>("WindowRoot");
         if (root == null)
-        {
-            // Если все равно не нашли - значит что-то сломалось в генерации
-            Debug.LogError($"[WindowView] Не найден 'WindowRoot' в '{gameObject.name}'. Проверь PassiveTreeUI.", gameObject);
-            return;
-        }
+            root = documentRoot;
 
-        overlay = root.Q<VisualElement>("Overlay"); // Оверлея может и не быть в коде генерации, это не критично
-        if (overlay != null) overlay.RegisterCallback<ClickEvent>(_ => Close());
+        overlay = root.Q<VisualElement>("Overlay");
+        if (overlay != null)
+            overlay.RegisterCallback<ClickEvent>(evt => { if (evt.target == overlay) Close(); });
 
-        // ГЛАВНОЕ: Скрываем окно сразу после того, как нашли корень
+        // Скрываем содержимое окна и отключаем приём ввода у корня документа (чтобы не блокировать другие окна)
         CloseInstant();
-        
         isInitialized = true;
     }
 
@@ -74,8 +72,17 @@ public class WindowView : MonoBehaviour
     internal void OpenInternal()
     {
         if (!isInitialized) return;
-        root.style.display = DisplayStyle.Flex;
+        if (documentRoot != null) documentRoot.pickingMode = PickingMode.Position;
+        if (root != null) root.style.display = DisplayStyle.Flex;
+        if (documentRoot != null) documentRoot.Focus();
         OnOpened?.Invoke();
+    }
+
+    /// <summary> Вызывается WindowManager: больший order = окно поверх и первым получает ввод. </summary>
+    internal void SetPanelSortOrder(int order)
+    {
+        if (ui != null)
+            ui.sortingOrder = order;
     }
 
     public void Close()
@@ -87,15 +94,16 @@ public class WindowView : MonoBehaviour
     internal void CloseInternal()
     {
         if (!isInitialized) return;
-        root.style.display = DisplayStyle.None;
+        if (root != null) root.style.display = DisplayStyle.None;
+        if (documentRoot != null) documentRoot.pickingMode = PickingMode.Ignore;
+        SetPanelSortOrder(0);
         OnClosed?.Invoke();
     }
 
     private void CloseInstant()
     {
-        if (root != null)
-        {
-            root.style.display = DisplayStyle.None;
-        }
+        if (root != null) root.style.display = DisplayStyle.None;
+        if (documentRoot != null) documentRoot.pickingMode = PickingMode.Ignore;
+        SetPanelSortOrder(0);
     }
 }
