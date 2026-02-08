@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
+  m_Name: DamageLightning_Increase_Medium_T3
+  m_EditorClassIdentifier: 
+  UniqueID: 
+  GroupID: DamageLightning_Increase_Medium
+  Tier: 3
+  NameKey: affix_name_damagelightning_increase_medium_t3
+  TranslationKey: affix_increase_damagelightning
+  TagIds:
+  - Damage
+  Stats:
+  - Stat: 33
+    Type: 200
+    Scope: 1
+    MinValue: 12
+    MaxValue: 16

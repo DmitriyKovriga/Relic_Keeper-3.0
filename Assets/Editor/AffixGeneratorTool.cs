@@ -85,10 +85,9 @@ public class AffixGeneratorTool
             ItemAffixSO asset = ScriptableObject.CreateInstance<ItemAffixSO>();
             AssetDatabase.CreateAsset(asset, fullPath);
 
-            asset.GroupID = $"{stat}_{typeSuffix}"; 
+            asset.GroupID = $"{stat}_{typeSuffix}";
             asset.Tier = tier;
-            asset.TranslationKey = $"affix_{typeSuffix.ToLower()}_{stat.ToString().ToLower()}"; 
-            asset.RequiredLevel = GetLevelForTier(tier); 
+            asset.TranslationKey = $"affix_{typeSuffix.ToLower()}_{stat.ToString().ToLower()}";
 
             asset.Stats = new ItemAffixSO.AffixStatData[1];
             asset.Stats[0].Stat = stat;
@@ -100,11 +99,6 @@ public class AffixGeneratorTool
             EditorUtility.SetDirty(asset);
             count++;
         }
-    }
-
-    private static int GetLevelForTier(int tier)
-    {
-        return tier switch { 1 => 30, 2 => 20, 3 => 10, 4 => 5, 5 => 1, _ => 1 };
     }
 
     private static void SetValues(ref ItemAffixSO.AffixStatData data, StatType stat, StatModType type, int tier)

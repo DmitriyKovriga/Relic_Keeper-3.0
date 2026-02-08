@@ -407,7 +407,7 @@ namespace Scripts.Editor.Items
                 foreach (var a in available.Take(100))
                 {
                     var affix = a;
-                    menu.AddItem(new GUIContent($"{affix.name}  (T{affix.Tier}, Lvl{affix.RequiredLevel})"), false, () =>
+                    menu.AddItem(new GUIContent($"{affix.name}  (T{affix.Tier})"), false, () =>
                     {
                         if (_selectedPool.Affixes == null) _selectedPool.Affixes = new List<ItemAffixSO>();
                         _selectedPool.Affixes.Add(affix);
@@ -461,7 +461,7 @@ namespace Scripts.Editor.Items
             {
                 bool sel = _selectedAffix == affix;
                 GUI.backgroundColor = sel ? new Color(0.5f, 0.7f, 1f) : Color.white;
-                if (GUILayout.Button($"{affix.name}  T{affix.Tier} Lvl{affix.RequiredLevel}", GUILayout.Height(22)))
+                if (GUILayout.Button($"{affix.name}  T{affix.Tier}", GUILayout.Height(22)))
                 {
                     _selectedAffix = affix;
                     SessionState.SetString(SessionKeySelectedAffix, AssetDatabase.GetAssetPath(affix));

@@ -1383,6 +1383,10 @@ MonoBehaviour:
     m_Localized: Reroll Rare Item
     m_Metadata:
       m_Items: []
+  - m_Id: 25360759851089920
+    m_Localized: Max Bleed Stacks
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

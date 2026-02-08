@@ -372,7 +372,6 @@ namespace Scripts.Editor.Stats
             var affix = ScriptableObject.CreateInstance<ItemAffixSO>();
             affix.GroupID = $"{statName}_Flat";
             affix.Tier = 1;
-            affix.RequiredLevel = 5;
             affix.TranslationKey = $"affix_flat_{statName.ToLowerInvariant()}_t1";
             affix.Stats = new ItemAffixSO.AffixStatData[1];
             affix.Stats[0].Stat = stat;
