@@ -1375,16 +1375,52 @@ MonoBehaviour:
     m_Localized: Reroll Rare Item Affixes
     m_Metadata:
       m_Items: []
-  - m_Id: 24953468211462144
-    m_Localized: Fortune Orb
+  - m_Id: 25988269329080320
+    m_Localized: Reroll Rare Item
     m_Metadata:
       m_Items: []
-  - m_Id: 24953468240822272
-    m_Localized: Reroll Rare Item
+  - m_Id: 25988269287137280
+    m_Localized: Fortune Orb
     m_Metadata:
       m_Items: []
   - m_Id: 25360759851089920
     m_Localized: Max Bleed Stacks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25736290421473280
+    m_Localized: Jump
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25738360620875776
+    m_Localized: Move Left
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25738596256874496
+    m_Localized: Move Right
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25738733305757696
+    m_Localized: Left Arm Skill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25738806076932096
+    m_Localized: Right Arm Skill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25738857725591552
+    m_Localized: Interact
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25738944660930560
+    m_Localized: Open Inventory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25739023870361600
+    m_Localized: Open Skill Tree
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25739153386274816
+    m_Localized: Open Stash
     m_Metadata:
       m_Items: []
   references:

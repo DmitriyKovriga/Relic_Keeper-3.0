@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6938af4bc39c92a4494385ef0a234873, type: 3}
+  m_Name: ControlsEditorConfig
+  m_EditorClassIdentifier: 
+  inputActionAsset: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
+  entries:
+  - actionName: Jump
+    displayOrder: 0
+    showInSettings: 1
+    defaultBindingPath: 
+  - actionName: MoveLeft
+    displayOrder: 1
+    showInSettings: 1
+    defaultBindingPath: a
+  - actionName: MoveRight
+    displayOrder: 2
+    showInSettings: 1
+    defaultBindingPath: d
+  - actionName: FirstSkill
+    displayOrder: 3
+    showInSettings: 1
+    defaultBindingPath: 
+  - actionName: SecondSkill
+    displayOrder: 4
+    showInSettings: 1
+    defaultBindingPath: 
+  - actionName: Interact
+    displayOrder: 5
+    showInSettings: 1
+    defaultBindingPath: 
+  - actionName: OpenInventory
+    displayOrder: 6
+    showInSettings: 1
+    defaultBindingPath: 
+  - actionName: OpenSkillTree
+    displayOrder: 7
+    showInSettings: 1
+    defaultBindingPath: 
+  - actionName: Move
+    displayOrder: 8
+    showInSettings: 0
+    defaultBindingPath: 
+  - actionName: Look
+    displayOrder: 9
+    showInSettings: 0
+    defaultBindingPath: 
+  - actionName: Previous
+    displayOrder: 10
+    showInSettings: 0
+    defaultBindingPath: 
+  - actionName: Next
+    displayOrder: 11
+    showInSettings: 0
+    defaultBindingPath: 
+  - actionName: ToggleDebugInventory
+    displayOrder: 12
+    showInSettings: 0
+    defaultBindingPath: 
+  - actionName: OpenStash
+    displayOrder: 13
+    showInSettings: 1
+    defaultBindingPath: 

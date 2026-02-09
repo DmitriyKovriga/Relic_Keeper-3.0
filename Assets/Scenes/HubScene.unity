@@ -5053,8 +5053,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afc1d4d0115c1a344b68b60d70f72a5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  config: {fileID: 11400000, guid: d51c4aff35b1f104fa150cac1bd75f2d, type: 2}
   ui: {fileID: 433034313}
   actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
+  bindingRowTemplate: {fileID: 9197481963319205126, guid: 388ba335b76ba4c4d986f769b58e2f79, type: 3}
 --- !u!114 &433034316
 MonoBehaviour:
   m_ObjectHideFlags: 0
