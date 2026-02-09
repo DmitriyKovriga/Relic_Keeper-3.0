@@ -49,6 +49,7 @@ MonoBehaviour:
     ConnectionIDs:
     - 42d0d8fc-b1c8-4c8c-ae82-9a8c94e8069f
     - d37c8b2e-6577-4a03-a217-e69c3e0b0468
+    - 2bcc13de-d58f-4f52-a3fd-d9cd8bff87e5
   - ID: 248bdace-3338-4810-9578-8fe0926fecd2
     NodeType: 0
     PlacementMode: 1
@@ -95,6 +96,29 @@ MonoBehaviour:
     UniqueModifiers: []
     ConnectionIDs:
     - a4a965d8-bf4c-458b-8617-35b16c2f8b27
+  - ID: bd2c9281-fcdc-4ce6-89e6-09675553870d
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 9366d1f2-3b9a-4550-abf2-df343d81efe5
+    OrbitIndex: 0
+    OrbitAngle: 333.47583
+    Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 2bcc13de-d58f-4f52-a3fd-d9cd8bff87e5
+  - ID: 2bcc13de-d58f-4f52-a3fd-d9cd8bff87e5
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 9366d1f2-3b9a-4550-abf2-df343d81efe5
+    OrbitIndex: 0
+    OrbitAngle: 260.7024
+    Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - bd2c9281-fcdc-4ce6-89e6-09675553870d
+    - a4a965d8-bf4c-458b-8617-35b16c2f8b27
   Clusters:
   - ID: 8f596495-a306-4c03-95b4-fc50b3980db0
     Name: Cluster 1
@@ -109,6 +133,20 @@ MonoBehaviour:
       ArcStartAngle: 0
       ArcEndAngle: 360
     EditorColor: {r: 0.43673494, g: 0.6562948, b: 0.7671424, a: 0.4}
+    RoadConnections: []
+  - ID: 9366d1f2-3b9a-4550-abf2-df343d81efe5
+    Name: Cluster 2
+    Center: {x: 820, y: 620}
+    Orbits:
+    - Radius: 80
+      IsPartialArc: 0
+      ArcStartAngle: 0
+      ArcEndAngle: 360
+    - Radius: 120
+      IsPartialArc: 0
+      ArcStartAngle: 0
+      ArcEndAngle: 360
+    EditorColor: {r: 0.5895448, g: 0.73198175, b: 0.9077467, a: 0.4}
     RoadConnections: []
   GridSize: 20
   SnapToGrid: 1
