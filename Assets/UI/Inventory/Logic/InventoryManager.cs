@@ -6,27 +6,34 @@ using Scripts.Saving;
 
 namespace Scripts.Inventory
 {
+    /// <summary>
+    /// Инвентарь в стиле PoE: рюкзак — одна сетка (GridContainer), отдельно слот крафта и экипировка.
+    /// Предмет в руке (carried) не хранится в контейнере — только в UI при перетаскивании.
+    /// </summary>
     public class InventoryManager : MonoBehaviour
     {
         public static InventoryManager Instance { get; private set; }
 
         [Header("Config")]
         [SerializeField] private int _capacity = 40;
-        [SerializeField] private int _cols = 10; 
+        [SerializeField] private int _cols = 10;
+
+        private int _rows => (_capacity > 0 && _cols > 0) ? Mathf.Max(1, _capacity / _cols) : 4;
+
+        // Рюкзак — единственный источник правды для сетки; Items — копия для совместимости с UI/сейвом
+        private GridContainer _backpack;
+        public InventoryItem[] Items;
 
         // ИНДЕКСЫ: 0=Head, 1=Body, 2=Main, 3=Off, 4=Gloves, 5=Boots
         public InventoryItem[] EquipmentItems = new InventoryItem[6];
         public const int EQUIP_OFFSET = 100;
 
-        /// <summary> Один слот крафта (предмет сверху в режиме крафта). Сохраняется как инвентарь. </summary>
+        /// <summary>Один слот крафта (предмет сверху в режиме крафта). Сохраняется как инвентарь.</summary>
         public const int CRAFT_SLOT_INDEX = 200;
         public InventoryItem CraftingSlotItem { get; private set; }
 
-        public InventoryItem[] Items;
+        private List<OrbCountEntry> _orbCounts = new List<OrbCountEntry>();
 
-        private List<OrbCountEntry> _orbCounts = new List<OrbCountEntry>(); 
-
-        // События
         public event Action OnInventoryChanged;
         public event Action<InventoryItem> OnItemEquipped;
         public event Action<InventoryItem> OnItemUnequipped;
@@ -40,21 +47,22 @@ namespace Scripts.Inventory
             }
             Instance = this;
 
+            _backpack = new GridContainer(_cols, _rows);
             if (Items == null || Items.Length != _capacity) Items = new InventoryItem[_capacity];
             if (EquipmentItems == null || EquipmentItems.Length != 6) EquipmentItems = new InventoryItem[6];
             if (_orbCounts == null) _orbCounts = new List<OrbCountEntry>();
         }
 
-        /// <summary>Размер предмета для сетки рюкзака: только из Data, ограничен границами сетки (защита от битых данных).</summary>
+        /// <summary>Размер предмета для сетки рюкзака.</summary>
         public void GetBackpackItemSize(InventoryItem item, out int w, out int h)
         {
-            w = 1; h = 1;
-            if (item?.Data == null) return;
-            int maxCols = _cols;
-            int maxRows = Items.Length / _cols;
-            if (maxRows <= 0) return;
-            w = Mathf.Clamp(item.Data.Width, 1, maxCols);
-            h = Mathf.Clamp(item.Data.Height, 1, maxRows);
+            GridContainer.GetItemSize(item, _cols, _rows, out w, out h);
+        }
+
+        /// <summary>Уникальные предметы в области рюкзака (rootIndex + размер item). Для Swap-if-One: если Count==1 — своп, если >1 — блок.</summary>
+        public HashSet<InventoryItem> GetUniqueItemsInBackpackArea(InventoryItem item, int rootIndex)
+        {
+            return _backpack != null ? _backpack.GetUniqueItemsInAreaAtRoot(item, rootIndex) : new HashSet<InventoryItem>();
         }
 
         public int GetOrbCount(string orbId)
@@ -97,6 +105,13 @@ namespace Scripts.Inventory
         /// <summary>Вызвать событие снятия (для внешнего кода).</summary>
         public void NotifyItemUnequipped(InventoryItem item) => OnItemUnequipped?.Invoke(item);
 
+        private void SyncFromBackpack()
+        {
+            if (_backpack == null || Items == null) return;
+            for (int i = 0; i < _backpack.Length && i < Items.Length; i++)
+                _backpack.GetItemAt(i, out Items[i], out _);
+        }
+
         public InventoryItem GetItem(int index)
         {
             if (index == CRAFT_SLOT_INDEX) return CraftingSlotItem;
@@ -107,21 +122,18 @@ namespace Scripts.Inventory
                 return EquipmentItems[localIndex];
             }
             if (index < 0 || index >= Items.Length) return null;
-            return Items[index];
+            return _backpack != null ? _backpack.GetItemAt(index) : null;
         }
 
         public bool AddItem(InventoryItem newItem)
         {
-            for (int i = 0; i < Items.Length; i++)
-            {
-                if (CanPlaceItemAt(newItem, i))
-                {
-                    PlaceItemAtAnchor(i, newItem);
-                    TriggerUIUpdate();
-                    return true;
-                }
-            }
-            return false;
+            if (_backpack == null || newItem?.Data == null) return false;
+            int root = _backpack.FindFirstEmptyRoot(newItem, -1);
+            if (root < 0) return false;
+            if (!_backpack.Place(newItem, root)) return false;
+            SyncFromBackpack();
+            TriggerUIUpdate();
+            return true;
         }
 
         /// <summary>Защитная механика: если предмет мог бы быть разрушен (некуда положить), добавляем в рюкзак или в склад и пишем в лог.</summary>
@@ -144,7 +156,7 @@ namespace Scripts.Inventory
             return false;
         }
 
-        /// <summary>Забрать предмет из слота (рюкзак/экипировка/крафт). Предмет больше не числится в инвентаре — только в возвращаемой ссылке.</summary>
+        /// <summary>Забрать предмет из слота (рюкзак/экипировка/крафт). Предмет больше не в контейнере — «в руке» у вызывающего.</summary>
         public InventoryItem TakeItemFromSlot(int slotIndex)
         {
             InventoryItem item = GetItemAt(slotIndex, out int anchor);
@@ -165,7 +177,8 @@ namespace Scripts.Inventory
                 TriggerUIUpdate();
                 return item;
             }
-            ClearItemAtAnchor(anchor, item);
+            _backpack.Take(anchor);
+            SyncFromBackpack();
             TriggerUIUpdate();
             return item;
         }
@@ -186,13 +199,13 @@ namespace Scripts.Inventory
             // Слот крафта
             if (toIndex == CRAFT_SLOT_INDEX)
             {
-                InventoryItem displaced = CraftingSlotItem;
-                if (displaced != null && sourceAnchorForSwap >= 0)
+                InventoryItem prevCraft = CraftingSlotItem;
+                if (prevCraft != null && sourceAnchorForSwap >= 0)
                 {
-                    int dest = FindSlotForDisplacedItem(displaced, -1, -1, 0, 0, sourceAnchorForSwap);
+                    int dest = FindSlotForDisplacedItem(prevCraft, -1, -1, 0, 0, sourceAnchorForSwap);
                     if (dest < 0) return false;
                     CraftingSlotItem = item;
-                    PlaceItemAtSlotInternal(displaced, dest);
+                    PlaceItemAtSlotInternal(prevCraft, dest);
                 }
                 else
                     CraftingSlotItem = item;
@@ -206,14 +219,14 @@ namespace Scripts.Inventory
                 int local = toIndex - EQUIP_OFFSET;
                 if (local < 0 || local >= EquipmentItems.Length) return false;
                 if ((int)item.Data.Slot != local) return false;
-                InventoryItem displaced = EquipmentItems[local];
-                if (displaced != null && sourceAnchorForSwap >= 0)
+                InventoryItem prevEquip = EquipmentItems[local];
+                if (prevEquip != null && sourceAnchorForSwap >= 0)
                 {
-                    int dest = FindSlotForDisplacedItem(displaced, -1, -1, 0, 0, sourceAnchorForSwap);
+                    int dest = FindSlotForDisplacedItem(prevEquip, -1, -1, 0, 0, sourceAnchorForSwap);
                     if (dest < 0) return false;
                     EquipmentItems[local] = item;
                     OnItemEquipped?.Invoke(item);
-                    PlaceItemAtSlotInternal(displaced, dest);
+                    PlaceItemAtSlotInternal(prevEquip, dest);
                 }
                 else
                 {
@@ -224,23 +237,48 @@ namespace Scripts.Inventory
                 return true;
             }
 
-            // Рюкзак
-            InventoryItem other = GetItemAt(toIndex, out int otherAnchor);
-            if (other != null && other != item)
+            // Рюкзак — Swap-if-One: 0 предметов → место, 1 → своп, >1 → блок
+            var uniqueInArea = GetUniqueItemsInBackpackArea(item, toIndex);
+            if (uniqueInArea.Count > 1) return false;
+            if (uniqueInArea.Count == 0)
             {
-                if (!CanPlaceItemAt(item, toIndex)) return false;
-                GetBackpackItemSize(item, out int ourW, out int ourH);
-                int destAnchor = FindSlotForDisplacedItem(other, otherAnchor, toIndex, ourW, ourH, sourceAnchorForSwap);
-                if (destAnchor < 0) return false;
-                ClearItemAtAnchor(otherAnchor, other);
-                PlaceItemAtAnchor(destAnchor, other);
-                PlaceItemAtAnchor(toIndex, item);
+                if (!_backpack.CanPlace(item, toIndex)) return false;
+                if (!_backpack.Place(item, toIndex)) return false;
+                SyncFromBackpack();
+                TriggerUIUpdate();
+                return true;
             }
-            else
+            InventoryItem other = null;
+            foreach (var x in uniqueInArea) { other = x; break; }
+            if (other == null || other == item)
             {
-                if (!CanPlaceItemAt(item, toIndex)) return false;
-                PlaceItemAtAnchor(toIndex, item);
+                if (!_backpack.CanPlace(item, toIndex)) return false;
+                if (!_backpack.Place(item, toIndex)) return false;
+                SyncFromBackpack();
+                TriggerUIUpdate();
+                return true;
             }
+            // PoE-style: сначала полностью очищаем все ячейки вытесняемого (Take), затем вписываем новый — иначе возможна потеря предмета
+            _backpack.GetItemAt(toIndex, out _, out int otherRoot);
+            InventoryItem displaced = _backpack.Take(otherRoot);
+            if (displaced == null) return false;
+            if (!_backpack.Place(item, toIndex))
+            {
+                _backpack.Place(displaced, otherRoot);
+                SyncFromBackpack();
+                return false;
+            }
+            int destRoot = (sourceAnchorForSwap >= 0 && _backpack.CanPlace(displaced, sourceAnchorForSwap))
+                ? sourceAnchorForSwap
+                : _backpack.FindFirstEmptyRoot(displaced, -1);
+            if (destRoot < 0 || !_backpack.Place(displaced, destRoot))
+            {
+                _backpack.Take(toIndex);
+                _backpack.Place(displaced, otherRoot);
+                SyncFromBackpack();
+                return false;
+            }
+            SyncFromBackpack();
             TriggerUIUpdate();
             return true;
         }
@@ -253,46 +291,24 @@ namespace Scripts.Inventory
             return r1 < r2 + h2 && r2 < r1 + h1 && c1 < c2 + w2 && c2 < c1 + w1;
         }
 
-        /// <summary>Можно ли поставить item в anchor, считая ячейки, занятые ignoreItem в ignoreAnchor, свободными (ignoreAnchor &lt; 0 = ничего не игнорируем).</summary>
-        private bool CanPlaceAtIgnoring(InventoryItem item, int anchor, InventoryItem ignoreItem, int ignoreAnchor)
-        {
-            if (item?.Data == null || anchor < 0 || anchor >= Items.Length) return false;
-            GetBackpackItemSize(item, out int w, out int h);
-            if (anchor % _cols + w > _cols || anchor / _cols + h > (Items.Length / _cols)) return false;
-            for (int r = 0; r < h; r++)
-            {
-                for (int c = 0; c < w; c++)
-                {
-                    int idx = anchor + r * _cols + c;
-                    if (idx < 0 || idx >= Items.Length) return false;
-                    InventoryItem occupier = Items[idx];
-                    if (occupier == null) continue;
-                    if (ignoreAnchor >= 0 && occupier == ignoreItem && IsItemCoveringSlot(ignoreAnchor, ignoreItem, idx)) continue;
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        /// <summary>Найти якорь для вытесненного предмета: не пересекаться с областью (excludeAnchor + excludeW*excludeH), предпочитать preferredAnchor. excludeAnchor &lt; 0 = без исключения.</summary>
+        /// <summary>Найти якорь для вытесненного предмета: не пересекаться с областью exclude, предпочитать preferredAnchor.</summary>
         private int FindSlotForDisplacedItem(InventoryItem displaced, int displacedCurrentAnchor, int excludeAnchor, int excludeW, int excludeH, int preferredAnchor)
         {
-            if (displaced?.Data == null) return -1;
+            if (displaced?.Data == null || _backpack == null) return -1;
             GetBackpackItemSize(displaced, out int w, out int h);
             bool hasExclude = excludeAnchor >= 0;
-            if (preferredAnchor >= 0 && preferredAnchor < Items.Length)
+            if (preferredAnchor >= 0 && preferredAnchor < _backpack.Length)
             {
-                if ((!hasExclude || !GridRectsOverlap(preferredAnchor, w, h, excludeAnchor, excludeW, excludeH)) && CanPlaceAtIgnoring(displaced, preferredAnchor, displaced, displacedCurrentAnchor))
+                if ((!hasExclude || !GridRectsOverlap(preferredAnchor, w, h, excludeAnchor, excludeW, excludeH)) && _backpack.CanPlace(displaced, preferredAnchor))
                     return preferredAnchor;
             }
-            for (int row = 0; row <= (Items.Length / _cols) - h; row++)
+            for (int row = 0; row <= _rows - h; row++)
             {
                 for (int col = 0; col <= _cols - w; col++)
                 {
                     int anchor = row * _cols + col;
                     if (hasExclude && GridRectsOverlap(anchor, w, h, excludeAnchor, excludeW, excludeH)) continue;
-                    if (CanPlaceAtIgnoring(displaced, anchor, displaced, displacedCurrentAnchor))
-                        return anchor;
+                    if (_backpack.CanPlace(displaced, anchor)) return anchor;
                 }
             }
             return -1;
@@ -479,26 +495,16 @@ namespace Scripts.Inventory
 
         private void ClearItemAtAnchor(int anchorIndex, InventoryItem item)
         {
-            if (item?.Data == null || anchorIndex < 0 || anchorIndex >= Items.Length) return;
-            GetBackpackItemSize(item, out int w, out int h);
-            for (int r = 0; r < h; r++)
-                for (int c = 0; c < w; c++)
-                {
-                    int idx = anchorIndex + r * _cols + c;
-                    if (idx >= 0 && idx < Items.Length) Items[idx] = null;
-                }
+            if (item?.Data == null || _backpack == null || anchorIndex < 0 || anchorIndex >= _backpack.Length) return;
+            _backpack.Remove(item);
+            SyncFromBackpack();
         }
 
         private void PlaceItemAtAnchor(int anchorIndex, InventoryItem item)
         {
-            if (item?.Data == null || anchorIndex < 0 || anchorIndex >= Items.Length) return;
-            GetBackpackItemSize(item, out int w, out int h);
-            for (int r = 0; r < h; r++)
-                for (int c = 0; c < w; c++)
-                {
-                    int idx = anchorIndex + r * _cols + c;
-                    if (idx >= 0 && idx < Items.Length) Items[idx] = item;
-                }
+            if (item?.Data == null || _backpack == null || anchorIndex < 0 || anchorIndex >= _backpack.Length) return;
+            _backpack.Place(item, anchorIndex);
+            SyncFromBackpack();
         }
 
         /// <summary>Удалить предмет из рюкзака по любому слоту (очищает все ячейки многоклеточного предмета).</summary>
@@ -517,22 +523,10 @@ namespace Scripts.Inventory
             PlaceItemAtAnchor(anchorIndex, item);
         }
 
-        /// <summary>Подсчитать уникальные предметы в области (targetIndex + размер item).</summary>
+        /// <summary>Подсчитать уникальные предметы в области рюкзака (targetIndex + размер item).</summary>
         private int CountUniqueItemsInArea(int targetIndex, InventoryItem item)
         {
-            if (item?.Data == null || targetIndex < 0 || targetIndex >= Items.Length) return 0;
-            HashSet<InventoryItem> uniqueItems = new HashSet<InventoryItem>();
-            GetBackpackItemSize(item, out int w, out int h);
-            for (int r = 0; r < h; r++)
-            {
-                for (int c = 0; c < w; c++)
-                {
-                    int idx = targetIndex + r * _cols + c;
-                    if (idx >= 0 && idx < Items.Length && Items[idx] != null)
-                        uniqueItems.Add(Items[idx]);
-                }
-            }
-            return uniqueItems.Count;
+            return GetUniqueItemsInBackpackArea(item, targetIndex).Count;
         }
 
         /// <summary>Получить единственный предмет в области (если он один) и его якорь.</summary>
@@ -540,34 +534,12 @@ namespace Scripts.Inventory
         {
             foundItem = null;
             foundAnchor = -1;
-            if (item?.Data == null || targetIndex < 0 || targetIndex >= Items.Length) return false;
-            GetBackpackItemSize(item, out int w, out int h);
-            InventoryItem firstItem = null;
-            int firstAnchor = -1;
-            for (int r = 0; r < h; r++)
+            var unique = GetUniqueItemsInBackpackArea(item, targetIndex);
+            if (unique.Count != 1) return false;
+            foreach (var u in unique)
             {
-                for (int c = 0; c < w; c++)
-                {
-                    int idx = targetIndex + r * _cols + c;
-                    if (idx >= 0 && idx < Items.Length && Items[idx] != null)
-                    {
-                        InventoryItem cellItem = GetItemAt(idx, out int anchor);
-                        if (firstItem == null)
-                        {
-                            firstItem = cellItem;
-                            firstAnchor = anchor;
-                        }
-                        else if (cellItem != firstItem)
-                        {
-                            return false; // Больше одного уникального предмета
-                        }
-                    }
-                }
-            }
-            if (firstItem != null)
-            {
-                foundItem = firstItem;
-                foundAnchor = firstAnchor;
+                foundItem = u;
+                _backpack.GetItemAt(targetIndex, out _, out foundAnchor);
                 return true;
             }
             return false;
@@ -630,14 +602,14 @@ namespace Scripts.Inventory
         {
             var data = new InventorySaveData();
 
-            // 1. Сохраняем рюкзак (только по якорю каждого предмета, чтобы не дублировать многоклеточные)
-            for (int i = 0; i < Items.Length; i++)
+            // 1. Рюкзак: по одному сохранению на предмет (по корню)
+            if (_backpack != null)
             {
-                if (Items[i] != null && Items[i].Data != null)
+                for (int i = 0; i < _backpack.Length; i++)
                 {
-                    GetItemAt(i, out int anchor);
-                    if (anchor == i)
-                        data.Items.Add(Items[i].GetSaveData(i));
+                    _backpack.GetItemAt(i, out InventoryItem item, out int root);
+                    if (item != null && item.Data != null && root == i)
+                        data.Items.Add(item.GetSaveData(i));
                 }
             }
 
@@ -670,13 +642,23 @@ namespace Scripts.Inventory
                     EquipmentItems[i] = null;
                 }
             }
-            // Чистим рюкзак
-            Array.Clear(Items, 0, Items.Length);
+            // Чистим рюкзак (удаляем все предметы по корням)
+            if (_backpack != null)
+            {
+                var toRemove = new List<InventoryItem>();
+                for (int i = 0; i < _backpack.Length; i++)
+                {
+                    _backpack.GetItemAt(i, out InventoryItem it, out int root);
+                    if (it != null && root == i) toRemove.Add(it);
+                }
+                foreach (var it in toRemove) _backpack.Remove(it);
+            }
+            SyncFromBackpack();
             CraftingSlotItem = null;
             _orbCounts.Clear();
             if (data.OrbCounts != null) _orbCounts.AddRange(data.OrbCounts);
 
-            // 2. Восстановление (рюкзак: пропускаем дубликаты из старых сохранений, где писали по ячейке)
+            // 2. Восстановление (рюкзак: по якорю)
             var claimedBackpack = new HashSet<int>();
             foreach (var itemData in data.Items)
             {
@@ -695,20 +677,20 @@ namespace Scripts.Inventory
                 }
                 if (itemData.SlotIndex == CRAFT_SLOT_INDEX) continue;
 
-                // Рюкзак: размер только из SO (GetBackpackItemSize), не размещаем если область занята (нет фантомов/перезаписи)
                 int anchor = itemData.SlotIndex;
-                if (anchor < 0 || anchor >= Items.Length) continue;
+                if (anchor < 0 || anchor >= (_backpack?.Length ?? 0)) continue;
                 GetBackpackItemSize(newItem, out int w, out int h);
                 bool anyClaimed = false;
                 for (int r = 0; r < h && !anyClaimed; r++)
                     for (int c = 0; c < w; c++)
                         if (claimedBackpack.Contains(anchor + r * _cols + c)) { anyClaimed = true; break; }
                 if (anyClaimed) continue;
-                PlaceItemAtAnchor(anchor, newItem);
+                _backpack.Place(newItem, anchor);
                 for (int r = 0; r < h; r++)
                     for (int c = 0; c < w; c++)
                         claimedBackpack.Add(anchor + r * _cols + c);
             }
+            SyncFromBackpack();
 
             // 3. Слот крафта
             if (data.CraftingSlotItem != null)
@@ -725,42 +707,22 @@ namespace Scripts.Inventory
             if (item == null || item.Data == null) return false;
             if (targetIndex == CRAFT_SLOT_INDEX) return true;
             if (targetIndex >= EQUIP_OFFSET) return true;
-
-            GetBackpackItemSize(item, out int w, out int h);
-            int row = targetIndex / _cols;
-            int col = targetIndex % _cols;
-
-            if (col + w > _cols) return false;
-            if (targetIndex + (h - 1) * _cols >= Items.Length) return false; 
-
-            for (int r = 0; r < h; r++)
-            {
-                for (int c = 0; c < w; c++)
-                {
-                    int checkIndex = targetIndex + (r * _cols) + c;
-                    if (IsSlotOccupied(checkIndex, out var occupier))
-                    {
-                        if (occupier != item) return false;
-                    }
-                }
-            }
-            return true;
+            return _backpack != null && _backpack.CanPlace(item, targetIndex);
         }
 
         public bool IsSlotOccupied(int slotIndex, out InventoryItem occupier)
         {
             occupier = null;
             if (slotIndex == CRAFT_SLOT_INDEX) { occupier = CraftingSlotItem; return CraftingSlotItem != null; }
-            if (slotIndex < 0 || slotIndex >= Items.Length) return true;
-            for (int i = 0; i < Items.Length; i++)
+            if (slotIndex >= EQUIP_OFFSET)
             {
-                if (Items[i] != null && IsItemCoveringSlot(i, Items[i], slotIndex))
-                {
-                    occupier = Items[i];
-                    return true;
-                }
+                int local = slotIndex - EQUIP_OFFSET;
+                if (local >= 0 && local < EquipmentItems.Length) { occupier = EquipmentItems[local]; return occupier != null; }
+                return false;
             }
-            return false;
+            if (slotIndex < 0 || slotIndex >= (_backpack?.Length ?? 0)) return false;
+            occupier = _backpack.GetItemAt(slotIndex);
+            return occupier != null;
         }
 
         private bool IsItemCoveringSlot(int anchorIndex, InventoryItem item, int targetSlot)
@@ -779,15 +741,52 @@ namespace Scripts.Inventory
             anchorIndex = -1;
             if (slotIndex == CRAFT_SLOT_INDEX) { anchorIndex = CRAFT_SLOT_INDEX; return CraftingSlotItem; }
             if (slotIndex >= EQUIP_OFFSET) { anchorIndex = slotIndex; return GetItem(slotIndex); }
-            for (int i = 0; i < Items.Length; i++)
+            if (_backpack == null || slotIndex < 0 || slotIndex >= _backpack.Length) return null;
+            _backpack.GetItemAt(slotIndex, out InventoryItem backpackItem, out anchorIndex);
+            return backpackItem;
+        }
+
+        /// <summary>Количество слотов рюкзака (для итерации в UI).</summary>
+        public int BackpackSlotCount => _backpack?.Length ?? 0;
+
+        /// <summary>Первый свободный корень в рюкзаке для item. -1 если нет места.</summary>
+        public int FindFreeBackpackAnchor(InventoryItem item, int excludeAnchor = -1)
+        {
+            return _backpack?.FindFirstEmptyRoot(item, excludeAnchor) ?? -1;
+        }
+
+        /// <summary>Снять предмет с экипировки в первый свободный слот рюкзака. Для дебаггера/очистки.</summary>
+        public bool UnequipToBackpack(int equipSlotIndex)
+        {
+            if (equipSlotIndex < 0 || equipSlotIndex >= EquipmentItems.Length) return true;
+            InventoryItem item = EquipmentItems[equipSlotIndex];
+            if (item == null) return true;
+            int root = FindFreeBackpackAnchor(item, -1);
+            if (root < 0) return false;
+            EquipmentItems[equipSlotIndex] = null;
+            OnItemUnequipped?.Invoke(item);
+            _backpack.Place(item, root);
+            SyncFromBackpack();
+            TriggerUIUpdate();
+            return true;
+        }
+
+        /// <summary>Очистить весь рюкзак (все уникальные предметы удаляются из сетки). Для дебаггера.</summary>
+        public void ClearBackpack()
+        {
+            if (_backpack == null) return;
+            var seen = new HashSet<InventoryItem>();
+            for (int i = 0; i < _backpack.Length; i++)
             {
-                if (Items[i] != null && IsItemCoveringSlot(i, Items[i], slotIndex))
+                _backpack.GetItemAt(i, out InventoryItem it, out _);
+                if (it != null && !seen.Contains(it))
                 {
-                    anchorIndex = i;
-                    return Items[i];
+                    seen.Add(it);
+                    _backpack.Remove(it);
                 }
             }
-            return null;
+            SyncFromBackpack();
+            TriggerUIUpdate();
         }
     }
 }
