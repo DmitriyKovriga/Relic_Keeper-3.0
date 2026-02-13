@@ -45,12 +45,12 @@ namespace Scripts.Inventory
             if (slotIndex < 0 || slotIndex >= _grid.Length) return;
             item = _grid[slotIndex];
             if (item == null) return;
-            GetItemSize(item, _cols, _rows, out int w, out int h);
             int row = slotIndex / _cols;
             int col = slotIndex % _cols;
-            int rootRow = Mathf.Max(0, row - h + 1);
-            int rootCol = Mathf.Max(0, col - w + 1);
-            rootIndex = rootRow * _cols + rootCol;
+            // Реальный корень = верх-лево блока: идём влево и вверх, пока та же ссылка
+            while (col > 0 && _grid[Index(col - 1, row)] == item) col--;
+            while (row > 0 && _grid[Index(col, row - 1)] == item) row--;
+            rootIndex = row * _cols + col;
         }
 
         public InventoryItem GetItemAt(int slotIndex)
