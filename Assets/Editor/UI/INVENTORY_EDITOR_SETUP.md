@@ -59,7 +59,7 @@
 
 ### StashManager
 
-- Константы заданы в коде: `STASH_COLS = 8`, `STASH_ROWS = 9`. Менять только в коде, не в Inspector.
+- Константы заданы в коде: `STASH_COLS = 9`, `STASH_ROWS = 11` (99 слотов на вкладку, влезает в панель 212px при 20px/слот). Менять только в коде, не в Inspector.
 
 ### StashPanelToggle (если используется)
 
@@ -133,7 +133,7 @@
 | Размер ячейки рюкзака | `InventoryUI`: **Inventory Slot Size** в Inspector | 24f (родной, под 480×270) |
 | Размер ячейки склада | `InventoryUI`: **Stash Slot Size** в Inspector | 20f (уменьшенный) |
 | Сетка рюкзака | `InventoryUI`: ROWS=4, COLUMNS=10 | 4×10 = 40 слотов |
-| Сетка склада | `StashManager`: STASH_ROWS=9, STASH_COLS=8 | 8×9 на вкладку |
+| Сетка склада | `StashManager`: STASH_ROWS=11, STASH_COLS=9 | 9×11 на вкладку |
 | Рюкзак в менеджере | `InventoryManager`: _capacity=40, _cols=10 | _rows = 40/10 = 4 |
 
 Размеры сеток и обёртки рюкзака задаются **из кода** при создании сетки (по **Inventory Slot Size** и **Stash Slot Size**). Значения в USS для `.inventory-grid-container`, `.col-inventory-wrap`, `.stash-grid-container` и т.д. переопределяются кодом (при 32px рюкзак 320×128, при 20px склад 160×180).

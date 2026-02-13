@@ -14,8 +14,8 @@ namespace Scripts.Inventory
     {
         public static StashManager Instance { get; private set; }
 
-        public const int STASH_COLS = 8;
-        public const int STASH_ROWS = 9;
+        public const int STASH_COLS = 9;
+        public const int STASH_ROWS = 11;
         public const int STASH_SLOTS_PER_TAB = STASH_COLS * STASH_ROWS;
 
         public event Action OnStashChanged;
