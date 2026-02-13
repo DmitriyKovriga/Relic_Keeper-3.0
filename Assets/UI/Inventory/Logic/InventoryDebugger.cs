@@ -103,23 +103,19 @@ public class InventoryDebugger : MonoBehaviour
     private void ClearAll()
     {
         if (InventoryManager.Instance == null) return;
-        
-        // Очищаем слоты экипировки
+
+        // Снимаем экипировку в рюкзак (первый свободный слот)
         for (int i = 0; i < InventoryManager.Instance.EquipmentItems.Length; i++)
         {
-            var item = InventoryManager.Instance.EquipmentItems[i];
-            if (item != null)
+            if (InventoryManager.Instance.EquipmentItems[i] != null)
             {
-                // Вызываем Unequip для обновления статов/визуала
-                InventoryManager.Instance.TryMoveOrSwap(InventoryManager.EQUIP_OFFSET + i, -1);
-                InventoryManager.Instance.EquipmentItems[i] = null;
+                bool ok = InventoryManager.Instance.UnequipToBackpack(i);
+                if (!ok)
+                    Debug.LogWarning("[Debugger] Не удалось снять экипировку в слот " + i + " (рюкзак полон).");
             }
         }
 
-        // Очищаем рюкзак
-        for (int i = 0; i < InventoryManager.Instance.Items.Length; i++)
-            InventoryManager.Instance.Items[i] = null;
-
-        InventoryManager.Instance.TriggerUIUpdate();
+        // Очищаем рюкзак через бэкенд (не трогаем массив Items напрямую)
+        InventoryManager.Instance.ClearBackpack();
     }
 }

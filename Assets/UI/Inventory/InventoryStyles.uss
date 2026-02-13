@@ -260,8 +260,8 @@
     flex-direction: column;
     flex-shrink: 0;
     position: relative;
-    width: 192px;
-    height: 216px;
+    width: 160px;
+    height: 180px;
     border-width: 1px;
     border-color: #444;
     background-color: #111;
@@ -270,8 +270,8 @@
 
 .stash-row {
     flex-direction: row;
-    height: 24px;
-    width: 192px;
+    height: 20px;
+    width: 160px;
 }
 
 /* Правило: края окна отступают от элементов — контент внутри padding, при переполнении скролл. */
@@ -329,11 +329,11 @@
     position: relative;
 }
 
-/* --- ИНВЕНТАРЬ: 240×96 (10 слотов) --- */
+/* --- ИНВЕНТАРЬ: 200×80 (10×4 слотов по 20px под 480×270) --- */
 .inventory-grid-container {
     flex-direction: column;
-    width: 240px;
-    height: 96px;
+    width: 200px;
+    height: 80px;
     position: relative;
     border-width: 1px;
     border-color: #444;
@@ -342,14 +342,14 @@
 
 .inventory-row {
     flex-direction: row;
-    height: 24px;
-    width: 240px;
+    height: 20px;
+    width: 200px;
 }
 
 /* --- СЛОТЫ --- */
 .slot {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     border-width: 1px;
     border-color: #333;
     background-color: #111;
