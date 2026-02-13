@@ -15,8 +15,14 @@ public class InventoryUI : MonoBehaviour
     
     private const int ROWS = 4;
     private const int COLUMNS = 10;
-    /// <summary>Под 480×270 уменьшен размер слотов, чтобы инвентарь и склад влезали.</summary>
-    private const float SLOT_SIZE = 20f;
+    [Tooltip("Размер одной ячейки рюкзака в px (родной размер). Иконки в инвентаре масштабируются под этот размер. Под 480×270: 24px влезает в экран.")]
+    [SerializeField] [Min(16f)] private float _inventorySlotSize = 24f;
+    [Tooltip("Размер одной ячейки на складе в px (уменьшенный, чтобы влезало больше). Иконки на складе и при перетаскивании со склада используют этот размер.")]
+    [SerializeField] [Min(12f)] private float _stashSlotSize = 20f;
+    private float InventorySlotSize => _inventorySlotSize;
+    private float StashSlotSize => _stashSlotSize;
+    /// <summary>Размер «клетки» для иконок экипировки/крафта (слот 2×2 = 48px → 24 на клетку).</summary>
+    private const float EquipmentIconCellSize = 24f;
 
     /// <summary>Размеры слотов экипировки/крафта в пикселях (должны совпадать с USS: slot-2x2, slot-2x3, slot-2x4).</summary>
     private static readonly (float w, float h)[] EquipmentSlotSizes =
@@ -304,6 +310,10 @@ public class InventoryUI : MonoBehaviour
         if (_stashGridContainer == null) return;
         _stashGridContainer.Clear();
         _stashSlots.Clear();
+
+        _stashGridContainer.style.width = StashManager.STASH_COLS * StashSlotSize;
+        _stashGridContainer.style.height = StashManager.STASH_ROWS * StashSlotSize;
+
         _stashItemsLayer = new VisualElement { name = "StashItemsLayer" };
         _stashItemsLayer.style.position = Position.Absolute;
         _stashItemsLayer.StretchToParentSize();
@@ -313,12 +323,16 @@ public class InventoryUI : MonoBehaviour
         {
             var row = new VisualElement();
             row.AddToClassList("stash-row");
+            row.style.width = StashManager.STASH_COLS * StashSlotSize;
+            row.style.height = StashSlotSize;
             _stashGridContainer.Add(row);
             for (int c = 0; c < StashManager.STASH_COLS; c++)
             {
                 int slotIndex = r * StashManager.STASH_COLS + c;
                 var slot = new VisualElement();
                 slot.AddToClassList("slot");
+                slot.style.width = StashSlotSize;
+                slot.style.height = StashSlotSize;
                 slot.userData = STASH_SLOT_OFFSET + slotIndex;
                 slot.RegisterCallback<PointerDownEvent>(OnStashSlotPointerDown);
                 slot.RegisterCallback<PointerOverEvent>(OnPointerOverSlot);
@@ -452,9 +466,9 @@ public class InventoryUI : MonoBehaviour
                                (i < StashManager.STASH_COLS || StashManager.Instance.GetItem(tab, i - StashManager.STASH_COLS) != item);
                 if (!isAnchor) continue;
                 StashManager.GetStashItemSize(item, out int sw, out int sh);
-                var icon = CreateItemIcon(item, sw, sh, receivePointerEvents: true);
-                icon.style.left = (i % StashManager.STASH_COLS) * SLOT_SIZE;
-                icon.style.top = (i / StashManager.STASH_COLS) * SLOT_SIZE;
+                var icon = CreateItemIcon(item, sw, sh, StashSlotSize, receivePointerEvents: true);
+                icon.style.left = (i % StashManager.STASH_COLS) * StashSlotSize;
+                icon.style.top = (i / StashManager.STASH_COLS) * StashSlotSize;
                 icon.userData = i;
                 icon.RegisterCallback<PointerOverEvent>(OnPointerOverStashIcon);
                 icon.RegisterCallback<PointerOutEvent>(OnPointerOutStashIcon);
@@ -471,6 +485,15 @@ public class InventoryUI : MonoBehaviour
         _inventoryContainer.Clear();
         _backpackSlots.Clear();
 
+        _inventoryContainer.style.width = COLUMNS * InventorySlotSize;
+        _inventoryContainer.style.height = ROWS * InventorySlotSize;
+        var inventoryWrap = _inventoryContainer.parent;
+        if (inventoryWrap != null)
+        {
+            inventoryWrap.style.minWidth = COLUMNS * InventorySlotSize;
+            inventoryWrap.style.width = COLUMNS * InventorySlotSize;
+        }
+
         _itemsLayer = new VisualElement { name = "ItemsLayer" };
         _itemsLayer.style.position = Position.Absolute;
         _itemsLayer.StretchToParentSize();
@@ -481,12 +504,16 @@ public class InventoryUI : MonoBehaviour
         {
             VisualElement row = new VisualElement();
             row.AddToClassList("inventory-row");
+            row.style.width = COLUMNS * InventorySlotSize;
+            row.style.height = InventorySlotSize;
             _inventoryContainer.Add(row);
 
             for (int c = 0; c < COLUMNS; c++)
             {
                 VisualElement slot = new VisualElement();
                 slot.AddToClassList("slot");
+                slot.style.width = InventorySlotSize;
+                slot.style.height = InventorySlotSize;
                 slot.userData = slotIndex;
                 slot.RegisterCallback<PointerDownEvent>(OnSlotPointerDown);
                 slot.RegisterCallback<PointerOverEvent>(OnPointerOverSlot);
@@ -517,9 +544,9 @@ public class InventoryUI : MonoBehaviour
             if (item == null || item.Data == null) continue;
             if (i != anchorIndex) continue;
             inv.GetBackpackItemSize(item, out int w, out int h);
-            var icon = CreateItemIcon(item, w, h, receivePointerEvents: true);
-            icon.style.left = (i % COLUMNS) * SLOT_SIZE;
-            icon.style.top = (i / COLUMNS) * SLOT_SIZE;
+            var icon = CreateItemIcon(item, w, h, InventorySlotSize, receivePointerEvents: true);
+            icon.style.left = (i % COLUMNS) * InventorySlotSize;
+            icon.style.top = (i / COLUMNS) * InventorySlotSize;
             icon.userData = i;
             icon.RegisterCallback<PointerOverEvent>(OnPointerOverBackpackIcon);
             icon.RegisterCallback<PointerOutEvent>(OnPointerOutBackpackIcon);
@@ -550,9 +577,9 @@ public class InventoryUI : MonoBehaviour
 
             if (slot != null && item != null && item.Data != null)
             {
-                var icon = CreateItemIcon(item);
-                float iconW = item.Data.Width * SLOT_SIZE;
-                float iconH = item.Data.Height * SLOT_SIZE;
+                var icon = CreateItemIcon(item, null, null, EquipmentIconCellSize);
+                float iconW = item.Data.Width * EquipmentIconCellSize;
+                float iconH = item.Data.Height * EquipmentIconCellSize;
                 float slotW = i < EquipmentSlotSizes.Length ? EquipmentSlotSizes[i].w : 48f;
                 float slotH = i < EquipmentSlotSizes.Length ? EquipmentSlotSizes[i].h : 48f;
                 icon.style.left = (slotW - iconW) * 0.5f;
@@ -572,9 +599,9 @@ public class InventoryUI : MonoBehaviour
         var item = InventoryManager.Instance.CraftingSlotItem;
         if (item != null && item.Data != null)
         {
-            var icon = CreateItemIcon(item);
-            float iconW = item.Data.Width * SLOT_SIZE;
-            float iconH = item.Data.Height * SLOT_SIZE;
+            var icon = CreateItemIcon(item, null, null, EquipmentIconCellSize);
+            float iconW = item.Data.Width * EquipmentIconCellSize;
+            float iconH = item.Data.Height * EquipmentIconCellSize;
             icon.style.left = (CraftSlotWidth - iconW) * 0.5f;
             icon.style.top = (CraftSlotHeight - iconH) * 0.5f;
             icon.style.right = StyleKeyword.Null;
@@ -597,8 +624,9 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+    /// <param name="slotSizePx">Размер одной клетки в px (инвентарь, склад или экипировка).</param>
     /// <param name="receivePointerEvents">True для рюкзака/склада — иконка принимает hover/click, тултип только над иконкой.</param>
-    private VisualElement CreateItemIcon(InventoryItem item, int? widthSlots = null, int? heightSlots = null, bool receivePointerEvents = false)
+    private VisualElement CreateItemIcon(InventoryItem item, int? widthSlots, int? heightSlots, float slotSizePx, bool receivePointerEvents = false)
     {
         Image icon = new Image();
         icon.sprite = item.Data.Icon;
@@ -606,8 +634,8 @@ public class InventoryUI : MonoBehaviour
         int h = heightSlots ?? item.Data.Height;
         w = Mathf.Clamp(w, 1, 10);
         h = Mathf.Clamp(h, 1, 10);
-        icon.style.width = w * SLOT_SIZE;
-        icon.style.height = h * SLOT_SIZE;
+        icon.style.width = w * slotSizePx;
+        icon.style.height = h * slotSizePx;
         icon.style.position = Position.Absolute;
         icon.pickingMode = receivePointerEvents ? PickingMode.Position : PickingMode.Ignore;
         if (item.Data.Icon != null) icon.style.backgroundImage = new StyleBackground(item.Data.Icon);
@@ -712,9 +740,9 @@ public class InventoryUI : MonoBehaviour
         if (_itemsLayer == null) return;
         int row = rootIndex / COLUMNS;
         int col = rootIndex % COLUMNS;
-        float x = col * SLOT_SIZE;
-        float y = row * SLOT_SIZE;
-        Rect localRect = new Rect(x, y, itemW * SLOT_SIZE, itemH * SLOT_SIZE);
+        float x = col * InventorySlotSize;
+        float y = row * InventorySlotSize;
+        Rect localRect = new Rect(x, y, itemW * InventorySlotSize, itemH * InventorySlotSize);
         Vector2 minWorld = _itemsLayer.LocalToWorld(localRect.min);
         Vector2 maxWorld = _itemsLayer.LocalToWorld(localRect.max);
         Vector2 minRoot = _root.WorldToLocal(minWorld);
@@ -732,9 +760,9 @@ public class InventoryUI : MonoBehaviour
         if (_stashItemsLayer == null) return;
         int row = rootIndex / StashManager.STASH_COLS;
         int col = rootIndex % StashManager.STASH_COLS;
-        float x = col * SLOT_SIZE;
-        float y = row * SLOT_SIZE;
-        Rect localRect = new Rect(x, y, itemW * SLOT_SIZE, itemH * SLOT_SIZE);
+        float x = col * StashSlotSize;
+        float y = row * StashSlotSize;
+        Rect localRect = new Rect(x, y, itemW * StashSlotSize, itemH * StashSlotSize);
         Vector2 minWorld = _stashItemsLayer.LocalToWorld(localRect.min);
         Vector2 maxWorld = _stashItemsLayer.LocalToWorld(localRect.max);
         Vector2 minRoot = _root.WorldToLocal(minWorld);
@@ -1070,8 +1098,8 @@ public class InventoryUI : MonoBehaviour
         _draggedStashAnchorSlot = -1;
         RefreshInventory();
         _ghostIcon.style.backgroundImage = new StyleBackground(takenDrag.Data.Icon);
-        _ghostIcon.style.width = takenDrag.Data.Width * SLOT_SIZE;
-        _ghostIcon.style.height = takenDrag.Data.Height * SLOT_SIZE;
+        _ghostIcon.style.width = takenDrag.Data.Width * InventorySlotSize;
+        _ghostIcon.style.height = takenDrag.Data.Height * InventorySlotSize;
         _ghostIcon.style.display = DisplayStyle.None;
         if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
         _root.CapturePointer(evt.pointerId);
@@ -1131,8 +1159,8 @@ public class InventoryUI : MonoBehaviour
         _draggedStashAnchorSlot = anchorSlot;
         RefreshStash();
         _ghostIcon.style.backgroundImage = new StyleBackground(takenDrag.Data.Icon);
-        _ghostIcon.style.width = takenDrag.Data.Width * SLOT_SIZE;
-        _ghostIcon.style.height = takenDrag.Data.Height * SLOT_SIZE;
+        _ghostIcon.style.width = takenDrag.Data.Width * StashSlotSize;
+        _ghostIcon.style.height = takenDrag.Data.Height * StashSlotSize;
         _ghostIcon.style.display = DisplayStyle.None;
         if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
         _root.CapturePointer(evt.pointerId);
@@ -1195,7 +1223,7 @@ public class InventoryUI : MonoBehaviour
 
         if (_stashItemsLayer != null)
         {
-            Vector2 iconTopLeftRoot = _stashItemsLayer.ChangeCoordinatesTo(_root, new Vector2((anchorSlot % StashManager.STASH_COLS) * SLOT_SIZE, (anchorSlot / StashManager.STASH_COLS) * SLOT_SIZE));
+            Vector2 iconTopLeftRoot = _stashItemsLayer.ChangeCoordinatesTo(_root, new Vector2((anchorSlot % StashManager.STASH_COLS) * StashSlotSize, (anchorSlot / StashManager.STASH_COLS) * StashSlotSize));
             _grabOffsetRootLocal = GetPointerRootLocalFromScreen() - iconTopLeftRoot;
         }
         else
@@ -1207,8 +1235,8 @@ public class InventoryUI : MonoBehaviour
         _draggedStashAnchorSlot = anchorSlot;
         RefreshStash();
         _ghostIcon.style.backgroundImage = new StyleBackground(taken.Data.Icon);
-        _ghostIcon.style.width = taken.Data.Width * SLOT_SIZE;
-        _ghostIcon.style.height = taken.Data.Height * SLOT_SIZE;
+        _ghostIcon.style.width = taken.Data.Width * StashSlotSize;
+        _ghostIcon.style.height = taken.Data.Height * StashSlotSize;
         _ghostIcon.style.display = DisplayStyle.None;
         if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
         _root.CapturePointer(evt.pointerId);
@@ -1231,7 +1259,7 @@ public class InventoryUI : MonoBehaviour
         if (idx >= InventoryManager.EQUIP_OFFSET && slot != null)
             originRoot = _root.WorldToLocal(slot.worldBound.min);
         else if (_itemsLayer != null)
-            originRoot = _root.WorldToLocal(_itemsLayer.LocalToWorld(new Vector2((anchorIdx % COLUMNS) * SLOT_SIZE, (anchorIdx / COLUMNS) * SLOT_SIZE)));
+            originRoot = _root.WorldToLocal(_itemsLayer.LocalToWorld(new Vector2((anchorIdx % COLUMNS) * InventorySlotSize, (anchorIdx / COLUMNS) * InventorySlotSize)));
         else
             originRoot = GetPointerRootLocalFromScreen();
         _grabOffsetRootLocal = GetPointerRootLocalFromScreen() - originRoot;
@@ -1243,8 +1271,8 @@ public class InventoryUI : MonoBehaviour
         _draggedStashAnchorSlot = -1;
         RefreshInventory();
         _ghostIcon.style.backgroundImage = new StyleBackground(taken.Data.Icon);
-        _ghostIcon.style.width = taken.Data.Width * SLOT_SIZE;
-        _ghostIcon.style.height = taken.Data.Height * SLOT_SIZE;
+        _ghostIcon.style.width = taken.Data.Width * InventorySlotSize;
+        _ghostIcon.style.height = taken.Data.Height * InventorySlotSize;
         _ghostIcon.style.display = DisplayStyle.None;
         if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
         _root.CapturePointer(evt.pointerId);
@@ -1267,8 +1295,9 @@ public class InventoryUI : MonoBehaviour
         float w, h;
         if (_isDragging && _draggedItem?.Data != null)
         {
-            w = _draggedItem.Data.Width * SLOT_SIZE;
-            h = _draggedItem.Data.Height * SLOT_SIZE;
+            float cell = _draggedFromStash ? StashSlotSize : InventorySlotSize;
+            w = _draggedItem.Data.Width * cell;
+            h = _draggedItem.Data.Height * cell;
             _ghostIcon.style.left = rootLocalPos.x - _grabOffsetRootLocal.x;
             _ghostIcon.style.top = rootLocalPos.y - _grabOffsetRootLocal.y;
         }
@@ -1426,8 +1455,8 @@ public class InventoryUI : MonoBehaviour
     private int GetSmartStashTargetIndex(Vector2 dropCenterPanel, int itemWidth, int itemHeight)
     {
         if (_stashItemsLayer == null || itemWidth <= 0 || itemHeight <= 0) return -1;
-        float w = itemWidth * SLOT_SIZE;
-        float h = itemHeight * SLOT_SIZE;
+        float w = itemWidth * StashSlotSize;
+        float h = itemHeight * StashSlotSize;
         Rect ghostWorld = new Rect(dropCenterPanel.x - w * 0.5f, dropCenterPanel.y - h * 0.5f, w, h);
         Vector2 localMin = _stashItemsLayer.WorldToLocal(new Vector2(ghostWorld.xMin, ghostWorld.yMin));
         Vector2 localMax = _stashItemsLayer.WorldToLocal(new Vector2(ghostWorld.xMax, ghostWorld.yMax));
@@ -1442,10 +1471,10 @@ public class InventoryUI : MonoBehaviour
         {
             for (int col = 0; col <= StashManager.STASH_COLS - itemWidth; col++)
             {
-                float iMinX = col * SLOT_SIZE;
-                float iMinY = row * SLOT_SIZE;
-                float iMaxX = (col + itemWidth) * SLOT_SIZE;
-                float iMaxY = (row + itemHeight) * SLOT_SIZE;
+                float iMinX = col * StashSlotSize;
+                float iMinY = row * StashSlotSize;
+                float iMaxX = (col + itemWidth) * StashSlotSize;
+                float iMaxY = (row + itemHeight) * StashSlotSize;
                 float area = OverlapArea(gMinX, gMinY, gMaxX, gMaxY, iMinX, iMinY, iMaxX, iMaxY);
                 if (area > bestArea)
                 {
@@ -1464,8 +1493,8 @@ public class InventoryUI : MonoBehaviour
     private int GetSmartTargetIndex(Vector2 dropCenterPanel, int itemWidth, int itemHeight)
     {
         if (_itemsLayer == null || itemWidth <= 0 || itemHeight <= 0) return -1;
-        float w = itemWidth * SLOT_SIZE;
-        float h = itemHeight * SLOT_SIZE;
+        float w = itemWidth * InventorySlotSize;
+        float h = itemHeight * InventorySlotSize;
         Rect ghostWorld = new Rect(dropCenterPanel.x - w * 0.5f, dropCenterPanel.y - h * 0.5f, w, h);
         Vector2 localMin = _itemsLayer.WorldToLocal(new Vector2(ghostWorld.xMin, ghostWorld.yMin));
         Vector2 localMax = _itemsLayer.WorldToLocal(new Vector2(ghostWorld.xMax, ghostWorld.yMax));
@@ -1480,10 +1509,10 @@ public class InventoryUI : MonoBehaviour
         {
             for (int col = 0; col <= COLUMNS - itemWidth; col++)
             {
-                float iMinX = col * SLOT_SIZE;
-                float iMinY = row * SLOT_SIZE;
-                float iMaxX = (col + itemWidth) * SLOT_SIZE;
-                float iMaxY = (row + itemHeight) * SLOT_SIZE;
+                float iMinX = col * InventorySlotSize;
+                float iMinY = row * InventorySlotSize;
+                float iMaxX = (col + itemWidth) * InventorySlotSize;
+                float iMaxY = (row + itemHeight) * InventorySlotSize;
                 float area = OverlapArea(gMinX, gMinY, gMaxX, gMaxY, iMinX, iMinY, iMaxX, iMaxY);
                 if (area > bestArea)
                 {

@@ -109,28 +109,40 @@
 
 ---
 
-## 4. Согласование размеров (код ↔ USS)
+## 4. Размеры на экране: инвентарь и склад раздельно
+
+### Два размера ячеек
+
+- **Рюкзак (инвентарь)** — «родной» размер: поле **Inventory Slot Size** (по умолчанию **24** px, влезает в 480×270). Сетка рюкзака, иконки в рюкзаке и при перетаскивании из рюкзака используют этот размер. Контейнер и обёртка (col-inventory-wrap) подстраиваются под него из кода.
+- **Склад** — уменьшенный размер: поле **Stash Slot Size** (по умолчанию **20** px). Сетка склада, иконки на складе и при перетаскивании со склада используют этот размер. Так предмет в контексте склада отображается мельче, при переносе в инвентарь — в полном размере.
+- **Иконки** масштабируются под размер ячейки контекста: в рюкзаке — под Inventory Slot Size, на складе — под Stash Slot Size. Призрак при перетаскивании имеет размер в зависимости от источника (из рюкзака — крупный, со склада — мелкий).
+- **Панель** (PixelArtPanelSettings): Reference Resolution = **480×270**, Scale With Screen Size. Итоговый размер на экране = размер ячейки в UI × (высота экрана / 270).
+
+### Настройка
+
+- В Inspector у **InventoryUI**: **Inventory Slot Size** (по умолчанию 24), **Stash Slot Size** (по умолчанию 20). Размеры сеток и обёртки задаются из кода, USS менять не обязательно.
+
+---
+
+## 5. Согласование размеров (код ↔ USS)
 
 Чтобы координаты дропа и подсветки совпадали с сеткой:
 
 | Что | Где задаётся | Значение |
 |-----|--------------|----------|
-| Размер ячейки рюкзака/склада | `InventoryUI.SLOT_SIZE` (константа) | 20f |
+| Размер ячейки рюкзака | `InventoryUI`: **Inventory Slot Size** в Inspector | 24f (родной, под 480×270) |
+| Размер ячейки склада | `InventoryUI`: **Stash Slot Size** в Inspector | 20f (уменьшенный) |
 | Сетка рюкзака | `InventoryUI`: ROWS=4, COLUMNS=10 | 4×10 = 40 слотов |
 | Сетка склада | `StashManager`: STASH_ROWS=9, STASH_COLS=8 | 8×9 на вкладку |
 | Рюкзак в менеджере | `InventoryManager`: _capacity=40, _cols=10 | _rows = 40/10 = 4 |
 
-В **InventoryStyles.uss** должно быть:
-
-- `.inventory-grid-container`: ширина = COLUMNS × 20px = **200px**, высота = ROWS × 20px = **80px**.
-- `.inventory-row`: высота **20px**, ширина **200px**.
-- Слоты рюкзака/склада в этой сетке: **20×20 px** (класс `.slot` без slot-2x2/2x3/2x4).
+Размеры сеток и обёртки рюкзака задаются **из кода** при создании сетки (по **Inventory Slot Size** и **Stash Slot Size**). Значения в USS для `.inventory-grid-container`, `.col-inventory-wrap`, `.stash-grid-container` и т.д. переопределяются кодом (при 32px рюкзак 320×128, при 20px склад 160×180).
 
 Экипировка и крафт используют другие классы (slot-2x2, slot-2x3, slot-2x4) — их размеры в USS (48×48, 48×72, 48×96) заданы в `EquipmentSlotSizes` в коде для позиционирования; главное — не менять только одну сторону (только USS или только код).
 
 ---
 
-## 5. Порядок инициализации
+## 6. Порядок инициализации
 
 1. **Awake**: InventoryManager, StashManager (создают Instance).
 2. **Открытие окна** (или старт сцены): объект с UIDocument + InventoryUI включается, в OnEnable:
@@ -142,14 +154,14 @@
 
 ---
 
-## 6. Краткий чеклист
+## 7. Краткий чеклист
 
 - [ ] В сцене есть ровно один **InventoryManager** и один **StashManager** (или они подгружаются до открытия инвентаря).
 - [ ] Окно инвентаря имеет **UIDocument** с Source = `InventoryLayout.uxml`.
 - [ ] На том же (или дочернем) объекте висит **InventoryUI**; при необходимости в него проставлен **Ui Doc** и **Window View**.
 - [ ] В UXML присутствуют все **name** из таблицы выше (в т.ч. InventoryGrid, WindowRoot, MainRow, StashPanel, StashGridContainer, EquipmentView, CraftView, CraftSlot, OrbSlotsRow, ToggleModeButton, Slot_Helmet … Slot_Boots).
 - [ ] **InventoryManager**: Capacity=40, Cols=10 (сетка 4×10).
-- [ ] В USS размеры сетки рюкзака: 200×80 px, слот 20×20 px; константа SLOT_SIZE=20 в коде не менялась (или изменена и там, и в USS).
+- [ ] Размеры: **Inventory Slot Size** (24) и **Stash Slot Size** (20) в Inspector у InventoryUI; сетки и обёртка задаются из кода.
 - [ ] Тултипы: **ItemTooltipController** использует тот же UIDocument/root, что и InventoryUI (тот же panel).
 - [ ] Открытие по I/B: **InventoryWindowToggle** и **StashPanelToggle** имеют ссылки на **WindowView** и при необходимости на **InventoryUI**.
 
