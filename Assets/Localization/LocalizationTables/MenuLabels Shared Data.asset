@@ -583,6 +583,14 @@ MonoBehaviour:
     m_Key: tavern.ui.close
     m_Metadata:
       m_Items: []
+  - m_Id: 28263538823299080
+    m_Key: passive.node.SmallLifeNPS.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299081
+    m_Key: passive.node.SmallLifeNPS.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

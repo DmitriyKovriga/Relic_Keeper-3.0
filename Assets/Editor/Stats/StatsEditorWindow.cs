@@ -450,6 +450,8 @@ namespace Scripts.Editor.Stats
                     EditorGUIUtility.PingObject(obj);
                     if (isTree && obj is PassiveSkillTreeSO tree)
                         PassiveTreeEditorWindow.OpenWithTree(tree);
+                    else if (!isTree && obj is PassiveNodeTemplateSO template)
+                        PassiveNodeEditorWindow.OpenWithTemplate(template);
                 }
                 EditorGUILayout.EndHorizontal();
             }

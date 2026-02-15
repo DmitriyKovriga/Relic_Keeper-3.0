@@ -1,7 +1,9 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using Scripts.Skills.PassiveTree;
-using Scripts.Skills.PassiveTree.UI; // Наш новый namespace
+using Scripts.Skills.PassiveTree.UI;
 
 public class PassiveTreeUI : MonoBehaviour
 {
@@ -40,6 +42,7 @@ public class PassiveTreeUI : MonoBehaviour
         InitializeSubsystems();
 
         _treeManager.OnTreeUpdated += OnTreeUpdated;
+        LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
 
         _lastBuiltTree = _treeManager.TreeData;
         _renderer.BuildGraph(_treeManager.TreeData);
@@ -50,11 +53,17 @@ public class PassiveTreeUI : MonoBehaviour
 
     private void OnDisable()
     {
+        LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
         if (_treeManager != null)
             _treeManager.OnTreeUpdated -= OnTreeUpdated;
         if (_contentViewport != null)
             _contentViewport.UnregisterCallback<GeometryChangedEvent>(OnViewportGeometryChanged);
         _viewport?.Cleanup();
+    }
+
+    private void OnLocaleChanged(Locale locale)
+    {
+        _tooltip?.RefreshIfVisible();
     }
 
     private void OnViewportGeometryChanged(GeometryChangedEvent evt)

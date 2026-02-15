@@ -1507,6 +1507,14 @@ MonoBehaviour:
     m_Localized: x
     m_Metadata:
       m_Items: []
+  - m_Id: 28263538823299080
+    m_Localized: +5 to maximum life
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299081
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
