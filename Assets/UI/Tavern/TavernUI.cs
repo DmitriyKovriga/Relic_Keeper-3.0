@@ -65,6 +65,22 @@ public class TavernUI : MonoBehaviour
 
     private void OnTavernWindowClosed() => OnClosed?.Invoke();
 
+    private void SetLocalizedLabel(Label label, string key, string fallback)
+    {
+        if (label == null) return;
+        label.text = fallback;
+        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(MenuLabelsTable, key);
+        op.Completed += _ => { if (label != null && label.panel != null) label.text = !string.IsNullOrEmpty(op.Result) ? op.Result : fallback; };
+    }
+
+    private void SetLocalizedButton(Button btn, string key, string fallback)
+    {
+        if (btn == null) return;
+        btn.text = fallback;
+        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(MenuLabelsTable, key);
+        op.Completed += _ => { if (btn != null && btn.panel != null) btn.text = !string.IsNullOrEmpty(op.Result) ? op.Result : fallback; };
+    }
+
     public void Open(bool forNewGame = false)
     {
         _isNewGameMode = forNewGame;
@@ -145,9 +161,12 @@ public class TavernUI : MonoBehaviour
         title.style.color = new Color(0.9f, 0.8f, 0.6f);
         title.style.marginRight = 8;
         headerRow.Add(title);
+        SetLocalizedLabel(title, TavernLocKeys.Title, "Tavern");
 
         var tabHostel = new Button(() => { _activeTabIndex = 0; ShowTab(0); UpdateTabStyles(); }) { text = "Hostel" };
         var tabRecruit = new Button(() => { _activeTabIndex = 1; ShowTab(1); UpdateTabStyles(); }) { text = "Recruit" };
+        SetLocalizedButton(tabHostel, TavernLocKeys.Hostel, "Hostel");
+        SetLocalizedButton(tabRecruit, TavernLocKeys.Recruit, "Recruit");
         _tabHostel = tabHostel; _tabRecruit = tabRecruit;
         foreach (var btn in new[] { tabHostel, tabRecruit })
         {
@@ -163,6 +182,7 @@ public class TavernUI : MonoBehaviour
         spacer.style.flexGrow = 1;
         headerRow.Add(spacer);
         _closeButton = new Button(Close) { text = "×" };
+        SetLocalizedButton(_closeButton, TavernLocKeys.Close, "×");
         _closeButton.style.fontSize = 10;
         _closeButton.style.width = 20;
         _closeButton.style.height = 14;
@@ -198,7 +218,9 @@ public class TavernUI : MonoBehaviour
         hireLabel.style.fontSize = 8;
         hireLabel.style.color = new Color(0.85f, 0.75f, 0.55f);
         recruitTop.Add(hireLabel);
+        SetLocalizedLabel(hireLabel, TavernLocKeys.PickOne, "Pick one:");
         _rerollButton = new Button(RerollHireChoices) { text = "Reroll" };
+        SetLocalizedButton(_rerollButton, TavernLocKeys.Reroll, "Reroll");
         _rerollButton.style.fontSize = 7;
         _rerollButton.style.width = 36;
         _rerollButton.style.height = 12;
@@ -380,6 +402,7 @@ public class TavernUI : MonoBehaviour
         if (ch.PassiveTree != null)
         {
             var treeBtn = new Button(() => ShowTreePreview(ch)) { text = "Tree" };
+            SetLocalizedButton(treeBtn, TavernLocKeys.Tree, "Tree");
             treeBtn.style.fontSize = 8;
             treeBtn.style.width = 36;
             treeBtn.style.height = 14;
@@ -390,6 +413,7 @@ public class TavernUI : MonoBehaviour
         if (isHire)
         {
             var hireBtn = new Button(() => OnHireClicked(ch)) { text = "Hire" };
+            SetLocalizedButton(hireBtn, TavernLocKeys.Hire, "Hire");
             hireBtn.style.fontSize = 9;
             hireBtn.style.width = 44;
             hireBtn.style.height = 16;
@@ -399,6 +423,7 @@ public class TavernUI : MonoBehaviour
         else if (isHostel)
         {
             var swapBtn = new Button(() => OnSwapToHostelClicked(ch)) { text = "Swap" };
+            SetLocalizedButton(swapBtn, TavernLocKeys.Swap, "Swap");
             swapBtn.style.fontSize = 9;
             swapBtn.style.width = 44;
             swapBtn.style.height = 16;
@@ -474,6 +499,10 @@ public class TavernUI : MonoBehaviour
         _savedAllocationsForRestore = treeMgr.GetSaveData();
         treeMgr.IsPreviewMode = true;
         treeMgr.SetTreeData(ch.PassiveTree);
+        // Подгружаем прокачку из сейва, если персонаж в партии (хостел или активный)
+        var chData = CharacterPartyManager.Instance?.GetCharacterData(ch.ID);
+        if (chData?.AllocatedPassiveNodes != null && chData.AllocatedPassiveNodes.Count > 0)
+            treeMgr.LoadState(chData.AllocatedPassiveNodes);
         treeWindow.OnClosed -= RestoreActiveCharacterTree;
         treeWindow.OnClosed += RestoreActiveCharacterTree;
         if (!windowMgr.IsOpen(treeWindow))

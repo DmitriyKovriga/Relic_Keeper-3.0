@@ -36,6 +36,26 @@ namespace Scripts.Editor.Characters
         private string _locDescRu = "";
         private string _lastLoadedLocKey = "";
 
+        private int _mainTabIndex; // 0 = Tavern Localization, 1 = Character Data
+        private string _tavernTitleEn = "";
+        private string _tavernTitleRu = "";
+        private string _tavernHostelEn = "";
+        private string _tavernHostelRu = "";
+        private string _tavernRecruitEn = "";
+        private string _tavernRecruitRu = "";
+        private string _tavernPickOneEn = "";
+        private string _tavernPickOneRu = "";
+        private string _tavernRerollEn = "";
+        private string _tavernRerollRu = "";
+        private string _tavernTreeEn = "";
+        private string _tavernTreeRu = "";
+        private string _tavernHireEn = "";
+        private string _tavernHireRu = "";
+        private string _tavernSwapEn = "";
+        private string _tavernSwapRu = "";
+        private string _tavernCloseEn = "";
+        private string _tavernCloseRu = "";
+
         [MenuItem(MenuPath)]
         public static void OpenWindow()
         {
@@ -152,26 +172,149 @@ namespace Scripts.Editor.Characters
         private void DrawDetailsPanel()
         {
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
+
+            _mainTabIndex = GUILayout.Toolbar(_mainTabIndex, new[] { "Tavern Localization", "Character Data" });
+            EditorGUILayout.Space(4);
+
             _detailsScroll = EditorGUILayout.BeginScrollView(_detailsScroll);
 
-            if (_selectedCharacter == null)
+            if (_mainTabIndex == 0)
             {
-                EditorGUILayout.HelpBox("Select a character from the list or create a new one.", MessageType.Info);
-                EditorGUILayout.EndScrollView();
-                EditorGUILayout.EndVertical();
-                return;
+                DrawTavernLocalizationTab();
             }
-
-            DrawCharacterDetails();
-            EditorGUILayout.Space(12);
-            DrawLocalizationSection();
-            EditorGUILayout.Space(12);
-            DrawPassiveTreeSection();
-            EditorGUILayout.Space(12);
-            DrawTreeTotalsSection();
+            else
+            {
+                if (_selectedCharacter == null)
+                {
+                    EditorGUILayout.HelpBox("Select a character from the list or create a new one.", MessageType.Info);
+                }
+                else
+                {
+                    DrawCharacterDetails();
+                    EditorGUILayout.Space(12);
+                    DrawLocalizationSection();
+                    EditorGUILayout.Space(12);
+                    DrawPassiveTreeSection();
+                    EditorGUILayout.Space(12);
+                    DrawTreeTotalsSection();
+                }
+            }
 
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
+        }
+
+        private void DrawTavernLocalizationTab()
+        {
+            GUILayout.Label("Tavern UI Localization", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("Локали для элементов интерфейса таверны. Ключи: tavern.ui.* (MenuLabels). Введите значения — ключи создаются автоматически.", MessageType.Info);
+            EditorGUILayout.Space(4);
+
+            var prevCollection = _menuLabelsCollection;
+            _menuLabelsCollection = (StringTableCollection)EditorGUILayout.ObjectField("MenuLabels", _menuLabelsCollection, typeof(StringTableCollection), false);
+
+            if (_menuLabelsCollection == null)
+            {
+                EditorGUILayout.HelpBox("Assign MenuLabels to edit tavern strings.", MessageType.Warning);
+                return;
+            }
+
+            if (prevCollection != _menuLabelsCollection || (string.IsNullOrEmpty(_tavernTitleEn) && string.IsNullOrEmpty(_tavernTitleRu))) LoadTavernLocalizationValues();
+
+            EditorGUILayout.Space(8);
+            DrawTavernLocField("Title (заголовок окна)", TavernLocKeys.Title, ref _tavernTitleEn, ref _tavernTitleRu);
+            DrawTavernLocField("Hostel (вкладка)", TavernLocKeys.Hostel, ref _tavernHostelEn, ref _tavernHostelRu);
+            DrawTavernLocField("Recruit (вкладка)", TavernLocKeys.Recruit, ref _tavernRecruitEn, ref _tavernRecruitRu);
+            DrawTavernLocField("Pick one (подпись)", TavernLocKeys.PickOne, ref _tavernPickOneEn, ref _tavernPickOneRu);
+            DrawTavernLocField("Reroll (кнопка)", TavernLocKeys.Reroll, ref _tavernRerollEn, ref _tavernRerollRu);
+            DrawTavernLocField("Tree (кнопка)", TavernLocKeys.Tree, ref _tavernTreeEn, ref _tavernTreeRu);
+            DrawTavernLocField("Hire (кнопка)", TavernLocKeys.Hire, ref _tavernHireEn, ref _tavernHireRu);
+            DrawTavernLocField("Swap (кнопка)", TavernLocKeys.Swap, ref _tavernSwapEn, ref _tavernSwapRu);
+            DrawTavernLocField("Close (кнопка ×)", TavernLocKeys.Close, ref _tavernCloseEn, ref _tavernCloseRu);
+
+            EditorGUILayout.Space(12);
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Reload", GUILayout.Width(80))) LoadTavernLocalizationValues();
+            if (GUILayout.Button("Save to MenuLabels", GUILayout.Height(24))) SaveTavernLocalization();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawTavernLocField(string label, string key, ref string en, ref string ru)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField(key, EditorStyles.miniLabel);
+            en = EditorGUILayout.TextField($"{label} (EN)", en ?? "");
+            ru = EditorGUILayout.TextField($"{label} (RU)", ru ?? "");
+            EditorGUILayout.EndVertical();
+        }
+
+        private void LoadTavernLocalizationValues()
+        {
+            if (_menuLabelsCollection == null) return;
+            _tavernTitleEn = GetLocalizedString(TavernLocKeys.Title, "en");
+            _tavernTitleRu = GetLocalizedString(TavernLocKeys.Title, "ru");
+            _tavernHostelEn = GetLocalizedString(TavernLocKeys.Hostel, "en");
+            _tavernHostelRu = GetLocalizedString(TavernLocKeys.Hostel, "ru");
+            _tavernRecruitEn = GetLocalizedString(TavernLocKeys.Recruit, "en");
+            _tavernRecruitRu = GetLocalizedString(TavernLocKeys.Recruit, "ru");
+            _tavernPickOneEn = GetLocalizedString(TavernLocKeys.PickOne, "en");
+            _tavernPickOneRu = GetLocalizedString(TavernLocKeys.PickOne, "ru");
+            _tavernRerollEn = GetLocalizedString(TavernLocKeys.Reroll, "en");
+            _tavernRerollRu = GetLocalizedString(TavernLocKeys.Reroll, "ru");
+            _tavernTreeEn = GetLocalizedString(TavernLocKeys.Tree, "en");
+            _tavernTreeRu = GetLocalizedString(TavernLocKeys.Tree, "ru");
+            _tavernHireEn = GetLocalizedString(TavernLocKeys.Hire, "en");
+            _tavernHireRu = GetLocalizedString(TavernLocKeys.Hire, "ru");
+            _tavernSwapEn = GetLocalizedString(TavernLocKeys.Swap, "en");
+            _tavernSwapRu = GetLocalizedString(TavernLocKeys.Swap, "ru");
+            _tavernCloseEn = GetLocalizedString(TavernLocKeys.Close, "en");
+            _tavernCloseRu = GetLocalizedString(TavernLocKeys.Close, "ru");
+        }
+
+        private void SaveTavernLocalization()
+        {
+            if (_menuLabelsCollection == null) return;
+            var enTable = _menuLabelsCollection.GetTable("en") as StringTable ?? _menuLabelsCollection.GetTable(new LocaleIdentifier("en")) as StringTable;
+            var ruTable = _menuLabelsCollection.GetTable("ru") as StringTable ?? _menuLabelsCollection.GetTable(new LocaleIdentifier("ru")) as StringTable;
+            if (enTable == null || ruTable == null)
+            {
+                EditorUtility.DisplayDialog("Save", "MenuLabels: en or ru table not found.", "OK");
+                return;
+            }
+
+            var sharedData = _menuLabelsCollection.SharedData;
+            if (sharedData != null)
+            {
+                foreach (var key in new[] { TavernLocKeys.Title, TavernLocKeys.Hostel, TavernLocKeys.Recruit, TavernLocKeys.PickOne, TavernLocKeys.Reroll, TavernLocKeys.Tree, TavernLocKeys.Hire, TavernLocKeys.Swap, TavernLocKeys.Close })
+                {
+                    if (!sharedData.Contains(key)) sharedData.AddKey(key);
+                }
+                EditorUtility.SetDirty(sharedData);
+            }
+
+            SetOrAddEntry(enTable, TavernLocKeys.Title, _tavernTitleEn ?? "");
+            SetOrAddEntry(ruTable, TavernLocKeys.Title, _tavernTitleRu ?? "");
+            SetOrAddEntry(enTable, TavernLocKeys.Hostel, _tavernHostelEn ?? "");
+            SetOrAddEntry(ruTable, TavernLocKeys.Hostel, _tavernHostelRu ?? "");
+            SetOrAddEntry(enTable, TavernLocKeys.Recruit, _tavernRecruitEn ?? "");
+            SetOrAddEntry(ruTable, TavernLocKeys.Recruit, _tavernRecruitRu ?? "");
+            SetOrAddEntry(enTable, TavernLocKeys.PickOne, _tavernPickOneEn ?? "");
+            SetOrAddEntry(ruTable, TavernLocKeys.PickOne, _tavernPickOneRu ?? "");
+            SetOrAddEntry(enTable, TavernLocKeys.Reroll, _tavernRerollEn ?? "");
+            SetOrAddEntry(ruTable, TavernLocKeys.Reroll, _tavernRerollRu ?? "");
+            SetOrAddEntry(enTable, TavernLocKeys.Tree, _tavernTreeEn ?? "");
+            SetOrAddEntry(ruTable, TavernLocKeys.Tree, _tavernTreeRu ?? "");
+            SetOrAddEntry(enTable, TavernLocKeys.Hire, _tavernHireEn ?? "");
+            SetOrAddEntry(ruTable, TavernLocKeys.Hire, _tavernHireRu ?? "");
+            SetOrAddEntry(enTable, TavernLocKeys.Swap, _tavernSwapEn ?? "");
+            SetOrAddEntry(ruTable, TavernLocKeys.Swap, _tavernSwapRu ?? "");
+            SetOrAddEntry(enTable, TavernLocKeys.Close, _tavernCloseEn ?? "");
+            SetOrAddEntry(ruTable, TavernLocKeys.Close, _tavernCloseRu ?? "");
+
+            EditorUtility.SetDirty(enTable);
+            EditorUtility.SetDirty(ruTable);
+            AssetDatabase.SaveAssets();
+            EditorUtility.DisplayDialog("Save", "Tavern localization saved to MenuLabels.", "OK");
         }
 
         private void DrawCharacterDetails()

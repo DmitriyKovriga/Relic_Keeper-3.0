@@ -547,6 +547,42 @@ MonoBehaviour:
     m_Key: character.Mage.description
     m_Metadata:
       m_Items: []
+  - m_Id: 28263538793938944
+    m_Key: tavern.ui.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299072
+    m_Key: tavern.ui.hostel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299073
+    m_Key: tavern.ui.recruit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299074
+    m_Key: tavern.ui.pickOne
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299075
+    m_Key: tavern.ui.reroll
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299076
+    m_Key: tavern.ui.tree
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299077
+    m_Key: tavern.ui.hire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299078
+    m_Key: tavern.ui.swap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299079
+    m_Key: tavern.ui.close
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
