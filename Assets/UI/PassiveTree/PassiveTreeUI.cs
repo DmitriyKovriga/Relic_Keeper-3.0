@@ -25,6 +25,7 @@ public class PassiveTreeUI : MonoBehaviour
     private VisualElement _overlayHeader;
     private Label _pointsLabel;
     private bool _frameAllScheduled;
+    private PassiveSkillTreeSO _lastBuiltTree;
 
     private void OnEnable()
     {
@@ -40,6 +41,7 @@ public class PassiveTreeUI : MonoBehaviour
 
         _treeManager.OnTreeUpdated += OnTreeUpdated;
 
+        _lastBuiltTree = _treeManager.TreeData;
         _renderer.BuildGraph(_treeManager.TreeData);
         _frameAllScheduled = false;
         _contentViewport.RegisterCallback<GeometryChangedEvent>(OnViewportGeometryChanged);
@@ -124,8 +126,16 @@ public class PassiveTreeUI : MonoBehaviour
 
     private void OnTreeUpdated()
     {
-        if (_pointsLabel != null)
+        if (_overlayHeader != null)
+            _overlayHeader.style.display = _treeManager.IsPreviewMode ? DisplayStyle.None : DisplayStyle.Flex;
+        if (_pointsLabel != null && !_treeManager.IsPreviewMode)
             _pointsLabel.text = $"Skill Points: {_treeManager.SkillPoints}";
+        if (_treeManager.TreeData != _lastBuiltTree)
+        {
+            _lastBuiltTree = _treeManager.TreeData;
+            _renderer.BuildGraph(_treeManager.TreeData);
+            _frameAllScheduled = false;
+        }
         _renderer.UpdateVisuals(_treeManager);
     }
 

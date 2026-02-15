@@ -151,9 +151,16 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
 
     public void ApplyLoadedState(GameSaveData data)
     {
-        // --- ИЗМЕНЕНО: Используем единый метод создания ---
         CreateLevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP, data.SkillPoints);
-        
+        Health.SetCurrent(data.CurrentHealth);
+        Mana.SetCurrent(data.CurrentMana);
+        NotifyChanged();
+    }
+
+    public void ApplyLoadedState(CharacterSaveData data)
+    {
+        if (data == null) return;
+        CreateLevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP, data.SkillPoints);
         Health.SetCurrent(data.CurrentHealth);
         Mana.SetCurrent(data.CurrentMana);
         NotifyChanged();

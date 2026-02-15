@@ -158,6 +158,35 @@ namespace Scripts.Skills.PassiveTree
         }
 
         /// <summary>
+        /// Суммы всех модификаторов по всем нодам дерева (для балансировки в редакторе).
+        /// Ключ = StatType, значение = словарь по типу модификатора (Flat, PercentAdd, PercentMult).
+        /// </summary>
+        public Dictionary<StatType, Dictionary<StatModType, float>> GetTreeModifierTotals()
+        {
+            var result = new Dictionary<StatType, Dictionary<StatModType, float>>();
+            if (Nodes == null) return result;
+
+            foreach (var node in Nodes)
+            {
+                var mods = node.GetFinalModifiers();
+                if (mods == null) continue;
+
+                foreach (var m in mods)
+                {
+                    if (!result.TryGetValue(m.Stat, out var byType))
+                    {
+                        byType = new Dictionary<StatModType, float>();
+                        result[m.Stat] = byType;
+                    }
+                    if (!byType.ContainsKey(m.Type))
+                        byType[m.Type] = 0;
+                    byType[m.Type] += m.Value;
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Bounding box всего дерева (ноды + кластеры) для Frame All в игре и редакторе.
         /// </summary>
         public Rect GetTreeContentBounds(float margin = 80f)

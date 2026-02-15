@@ -7,7 +7,7 @@ using Scripts.Skills.PassiveTree;
 
 public class GameSaveManager : MonoBehaviour
 {
-    public const int CurrentSaveVersion = 1;
+    public const int CurrentSaveVersion = 2;
 
     [Header("Core Dependencies")]
     [SerializeField] private PlayerStats _playerStats;
@@ -17,35 +17,32 @@ public class GameSaveManager : MonoBehaviour
     [Header("Inventory Dependencies")]
     [SerializeField] private ItemDatabaseSO _itemDatabase;
 
-    // AI ADDED: Ссылка на менеджер дерева (найдем автоматически или назначь вручную)
+    [Header("New Game (optional)")]
+    [Tooltip("Если задан, при новой игре откроется окно найма вместо дефолтного персонажа")]
+    [SerializeField] private TavernUI _tavernUIForNewGame;
+
     private PassiveTreeManager _passiveTreeManager;
+    private CharacterPartyManager _partyManager;
 
     private string SavePath => Path.Combine(Application.persistentDataPath, "savegame.json");
 
     private System.Collections.IEnumerator Start()
     {
-        // Ищем менеджер дерева на игроке
         if (_playerStats != null)
-        {
             _passiveTreeManager = _playerStats.GetComponent<PassiveTreeManager>();
-        }
+        _partyManager = FindObjectOfType<CharacterPartyManager>();
 
-        // 1. Инициализация баз данных
         if (_characterDB != null) _characterDB.Init();
         if (_itemDatabase != null) _itemDatabase.Init();
 
-        // 2. Ждем 1 кадр
-        yield return null; 
+        yield return null;
 
-        // 3. Загружаем
         if (File.Exists(SavePath))
-        {
             LoadGame();
-        }
+        else if (_tavernUIForNewGame != null)
+            _tavernUIForNewGame.Open(forNewGame: true);
         else
-        {
             StartNewGame();
-        }
     }
 
     private void Update()
@@ -67,39 +64,43 @@ public class GameSaveManager : MonoBehaviour
     public void SaveGame()
     {
         Debug.Log("[System] Saving Game...");
-
         if (_playerStats == null) return;
 
-        var data = new GameSaveData
+        var data = new GameSaveData { SaveVersion = CurrentSaveVersion };
+        data.Stash = StashManager.Instance != null ? StashManager.Instance.GetSaveData() : new StashSaveData();
+
+        if (_partyManager != null)
         {
-            SaveVersion = CurrentSaveVersion,
-            CharacterClassID = _playerStats.CurrentClassID,
-            CurrentHealth = _playerStats.Health.Current,
-            CurrentMana = _playerStats.Mana.Current,
-            
-            CurrentLevel = _playerStats.Leveling.Level,
-            CurrentXP = _playerStats.Leveling.CurrentXP,
-            RequiredXP = _playerStats.Leveling.RequiredXP,
-            
-            // AI ADDED: Сохраняем очки навыков
-            SkillPoints = _playerStats.Leveling.SkillPoints,
-
-            Inventory = InventoryManager.Instance != null ? InventoryManager.Instance.GetSaveData() : new InventorySaveData(),
-            Stash = StashManager.Instance != null ? StashManager.Instance.GetSaveData() : new StashSaveData(),
-
-            AllocatedPassiveNodes = _passiveTreeManager != null ? _passiveTreeManager.GetSaveData() : new System.Collections.Generic.List<string>()
-        };
+            _partyManager.SaveCurrentToParty();
+            _partyManager.WriteToSave(data);
+        }
+        else
+        {
+            data.ActiveCharacterID = _playerStats.CurrentClassID;
+            data.Characters.Add(new CharacterSaveData
+            {
+                CharacterClassID = _playerStats.CurrentClassID,
+                CurrentHealth = _playerStats.Health.Current,
+                CurrentMana = _playerStats.Mana.Current,
+                CurrentLevel = _playerStats.Leveling.Level,
+                CurrentXP = _playerStats.Leveling.CurrentXP,
+                RequiredXP = _playerStats.Leveling.RequiredXP,
+                SkillPoints = _playerStats.Leveling.SkillPoints,
+                Inventory = InventoryManager.Instance != null ? InventoryManager.Instance.GetSaveData() : new InventorySaveData(),
+                AllocatedPassiveNodes = _passiveTreeManager != null ? _passiveTreeManager.GetSaveData() : new System.Collections.Generic.List<string>()
+            });
+        }
 
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(SavePath, json);
-        Debug.Log($"[System] Game Saved. Level: {data.CurrentLevel}, SP: {data.SkillPoints}");
+        Debug.Log($"[System] Game Saved.");
     }
 
     public void LoadGame()
     {
         if (!File.Exists(SavePath)) return;
 
-        try 
+        try
         {
             string json = File.ReadAllText(SavePath);
             GameSaveData data = JsonUtility.FromJson<GameSaveData>(json);
@@ -107,34 +108,39 @@ public class GameSaveManager : MonoBehaviour
             if (data.SaveVersion < CurrentSaveVersion)
                 MigrateSaveData(data);
 
-            CharacterDataSO characterData = _characterDB.GetCharacterByID(data.CharacterClassID);
-            
+            string activeId = !string.IsNullOrEmpty(data.ActiveCharacterID) ? data.ActiveCharacterID : data.CharacterClassID;
+            CharacterDataSO characterData = _characterDB?.GetCharacterByID(activeId);
+
+            if (_partyManager != null)
+            {
+                _partyManager.LoadFromSave(data, _characterDB, _itemDatabase);
+                activeId = _partyManager.ActiveCharacterID;
+                characterData = _characterDB?.GetCharacterByID(activeId);
+            }
+
             if (characterData != null)
             {
-                // 1. Инит статов и левелинга (включая SkillPoints)
-                _playerStats.Initialize(characterData);
-                _playerStats.ApplyLoadedState(data);
-
-                // 2. Инит инвентаря
-                if (InventoryManager.Instance != null && _itemDatabase != null)
+                if (_partyManager != null)
                 {
-                    InventoryManager.Instance.LoadState(data.Inventory ?? new InventorySaveData(), _itemDatabase);
+                    var chData = _partyManager.GetCharacterData(activeId);
+                    _partyManager.LoadCharacterIntoGame(chData, characterData, _itemDatabase);
+                }
+                else
+                {
+                    _playerStats.Initialize(characterData);
+                    _playerStats.ApplyLoadedState(data);
+                    if (InventoryManager.Instance != null && _itemDatabase != null)
+                        InventoryManager.Instance.LoadState(data.Inventory ?? new InventorySaveData(), _itemDatabase);
+                    if (_passiveTreeManager != null && data.AllocatedPassiveNodes != null)
+                        _passiveTreeManager.LoadState(data.AllocatedPassiveNodes);
                 }
 
-                // 3. Склад
                 if (StashManager.Instance != null && _itemDatabase != null)
-                {
                     StashManager.Instance.LoadState(data.Stash ?? new StashSaveData(), _itemDatabase);
-                }
 
-                if (_passiveTreeManager != null && data.AllocatedPassiveNodes != null)
-                {
-                    _passiveTreeManager.LoadState(data.AllocatedPassiveNodes);
-                }
-                
                 Debug.Log($"[System] Game Loaded.");
             }
-            else 
+            else
             {
                 StartNewGame();
             }
@@ -164,18 +170,56 @@ public class GameSaveManager : MonoBehaviour
             data.SaveVersion = 1;
             Debug.Log("[System] Save migrated: 0 -> 1 (SaveVersion added).");
         }
+        if (data.SaveVersion == 1)
+        {
+            data.ActiveCharacterID = data.CharacterClassID;
+            if (data.Characters == null) data.Characters = new System.Collections.Generic.List<CharacterSaveData>();
+            if (data.Characters.Count == 0 && !string.IsNullOrEmpty(data.CharacterClassID))
+            {
+                data.Characters.Add(new CharacterSaveData
+                {
+                    CharacterClassID = data.CharacterClassID,
+                    CurrentHealth = data.CurrentHealth,
+                    CurrentMana = data.CurrentMana,
+                    CurrentLevel = data.CurrentLevel,
+                    CurrentXP = data.CurrentXP,
+                    RequiredXP = data.RequiredXP,
+                    SkillPoints = data.SkillPoints,
+                    Inventory = data.Inventory ?? new InventorySaveData(),
+                    AllocatedPassiveNodes = data.AllocatedPassiveNodes ?? new System.Collections.Generic.List<string>()
+                });
+            }
+            data.SaveVersion = 2;
+            Debug.Log("[System] Save migrated: 1 -> 2 (per-character save).");
+        }
     }
 
     private void StartNewGame()
     {
         if (_defaultCharacter != null)
         {
-            _playerStats.Initialize(_defaultCharacter);
+            if (_partyManager != null)
+            {
+                _partyManager.AddCharacterToParty(_defaultCharacter.ID);
+                _partyManager.SwapToCharacter(_defaultCharacter.ID, _characterDB, _itemDatabase);
+            }
+            else
+            {
+                _playerStats.Initialize(_defaultCharacter);
+            }
             Debug.Log("[System] Started New Game (Default Character).");
         }
         else
         {
             Debug.LogError("[System] Default Character Data is missing!");
         }
+    }
+
+    /// <summary>Вызвать для показа окна найма при новой игре (вместо StartNewGame с дефолтом).</summary>
+    public void RequestHireWindowForNewGame()
+    {
+        if (File.Exists(SavePath)) return;
+        // Окно найма вызовется из TavernUI; GameSaveManager не запускает игру до выбора героя
+        Debug.Log("[System] New game - waiting for hire selection.");
     }
 }

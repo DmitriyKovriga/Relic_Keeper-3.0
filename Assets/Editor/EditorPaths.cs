@@ -20,4 +20,5 @@ public static class EditorPaths
     public const string PassiveTemplatesFolder = "Assets/Resources/PassiveTrees";
     public const string StepDefinitionsFolder = "Assets/Resources/Skills/StepDefinitions";
     public const string SkillsFolder = "Assets/Resources/Skills";
+    public const string CharactersFolder = "Assets/Resources/Heroes";
 }

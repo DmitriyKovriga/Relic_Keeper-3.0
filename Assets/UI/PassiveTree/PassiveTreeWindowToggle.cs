@@ -9,6 +9,8 @@ public class PassiveTreeWindowToggle : MonoBehaviour
     [Header("UI Dependencies")]
     [Tooltip("Перетащи сюда объект с компонентом WindowView для дерева пассивок")]
     [SerializeField] private WindowView _skillTreeWindow;
+
+    public WindowView SkillTreeWindow => _skillTreeWindow;
     
     private WindowManager _manager;
 

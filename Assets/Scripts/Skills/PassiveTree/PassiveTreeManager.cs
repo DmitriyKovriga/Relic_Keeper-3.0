@@ -16,6 +16,21 @@ namespace Scripts.Skills.PassiveTree
         public PassiveSkillTreeSO TreeData => _treeData;
         public PlayerStats PlayerStats => _playerStats;
 
+        /// <summary>Режим предпросмотра (из таверны): скрыть Skill Points.</summary>
+        public bool IsPreviewMode { get; set; }
+
+        /// <summary>Сменить дерево (при смене персонажа). Очищает текущие ноды и устанавливает новое дерево.</summary>
+        public void SetTreeData(PassiveSkillTreeSO newTree)
+        {
+            foreach (var id in new List<string>(_activeModifiers.Keys))
+                RemoveNodeStats(id);
+            _allocatedNodeIDs.Clear();
+            _activeModifiers.Clear();
+            _treeData = newTree;
+            if (_treeData != null) _treeData.InitLookup();
+            OnTreeUpdated?.Invoke();
+        }
+
         public int SkillPoints
         {
             get

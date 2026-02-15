@@ -507,6 +507,46 @@ MonoBehaviour:
     m_Key: crafting_orb.FortuneOrb.description
     m_Metadata:
       m_Items: []
+  - m_Id: 28232212627881984
+    m_Key: character.NewCharacter.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28232212657242112
+    m_Key: character.NewCharacter.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28232320048201728
+    m_Key: character.0.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28232320048201729
+    m_Key: character.0.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28232796261089280
+    m_Key: character..name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28232796261089281
+    m_Key: character..description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28259186821857280
+    m_Key: character.Rogue.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28259186838634496
+    m_Key: character.Rogue.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28259506796920832
+    m_Key: character.Mage.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28259506817892352
+    m_Key: character.Mage.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
