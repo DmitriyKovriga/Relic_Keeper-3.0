@@ -10,10 +10,14 @@
                             <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(3492335837184)" />
                         </Bindings>
                     </ui:Label>
-                    <ui:DropdownField choices="English,Russian" name="LenguageDropdown" class="panel settings-language-dropdown" />
+                    <ui:Button text="English" name="LanguageButton" class="settings-language-button" />
                 </ui:VisualElement>
                 <ui:VisualElement name="BindingRowsContainer" class="settings-rows-container" />
             </ui:ScrollView>
+            <ui:VisualElement name="LanguagePopup" class="settings-language-popup">
+                <ui:Button text="English" name="LanguageOptionEnglish" class="settings-language-option" />
+                <ui:Button text="Russian" name="LanguageOptionRussian" class="settings-language-option" />
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

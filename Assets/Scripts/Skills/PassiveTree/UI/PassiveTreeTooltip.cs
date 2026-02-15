@@ -2,16 +2,23 @@ using System.Text;
 using Scripts.Stats;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.Localization.Settings;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Scripts.Skills.PassiveTree.UI
 {
     public class PassiveTreeTooltip
     {
+        private const string MenuLabelsTable = "MenuLabels";
+
         private VisualElement _tooltipBox;
         private Label _title;
         private Label _desc;
         private Label _stats;
-        private VisualElement _rootContainer; // Куда добавлять (WindowRoot)
+        private VisualElement _rootContainer;
+
+        private PassiveNodeDefinition _currentNode;
+        private Vector2 _lastWorldPosition;
 
         public PassiveTreeTooltip(VisualElement rootContainer)
         {
@@ -21,32 +28,95 @@ namespace Scripts.Skills.PassiveTree.UI
 
         public void Show(PassiveNodeDefinition node, Vector2 worldPosition)
         {
-            // Заполнение
-            _title.text = node.GetDisplayName();
-            string descText = node.Template != null ? node.Template.Description : "";
-            _desc.text = descText;
-            _desc.style.display = string.IsNullOrEmpty(descText) ? DisplayStyle.None : DisplayStyle.Flex;
+            _currentNode = node;
+            _lastWorldPosition = worldPosition;
 
-            StringBuilder sb = new StringBuilder();
-            var mods = node.GetFinalModifiers();
-            foreach (var mod in mods)
-            {
-                string sign = mod.Type == StatModType.Flat ? "+" : "";
-                string end = mod.Type != StatModType.Flat ? "%" : "";
-                sb.AppendLine($"{mod.Stat}: {sign}{mod.Value}{end}");
-            }
-            _stats.text = sb.ToString();
+            string nameFallback = node.GetDisplayName();
+            string descFallback = node.Template != null ? node.Template.Description : "";
+            string nameKey = ResolveNameKey(node);
+            string descKey = ResolveDescriptionKey(node);
 
-            // Позиционирование
+            _title.text = nameFallback;
+            _desc.text = descFallback;
+            _desc.style.display = string.IsNullOrEmpty(descFallback) && string.IsNullOrEmpty(descKey) ? DisplayStyle.None : DisplayStyle.Flex;
+
+            LocalizeLabel(_title, nameKey, nameFallback);
+            LocalizeLabel(_desc, descKey, descFallback);
+
+            FillStats(node);
+
             Vector2 localPos = _rootContainer.WorldToLocal(worldPosition);
-            _tooltipBox.style.left = localPos.x + 20; 
+            _tooltipBox.style.left = localPos.x + 20;
             _tooltipBox.style.top = localPos.y - 20;
             _tooltipBox.style.display = DisplayStyle.Flex;
         }
 
         public void Hide()
         {
+            _currentNode = null;
             _tooltipBox.style.display = DisplayStyle.None;
+        }
+
+        public void RefreshIfVisible()
+        {
+            if (_currentNode != null && _tooltipBox.style.display == DisplayStyle.Flex)
+                Show(_currentNode, _lastWorldPosition);
+        }
+
+        private static string ResolveNameKey(PassiveNodeDefinition node)
+        {
+            if (node?.Template == null) return null;
+            return $"passive.node.{node.Template.name}.name";
+        }
+
+        private static string ResolveDescriptionKey(PassiveNodeDefinition node)
+        {
+            if (node?.Template == null) return null;
+            return $"passive.node.{node.Template.name}.description";
+        }
+
+        private void LocalizeLabel(Label label, string key, string fallback)
+        {
+            if (string.IsNullOrEmpty(key)) return;
+            label.text = fallback;
+            var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(MenuLabelsTable, key);
+            op.Completed += (h) =>
+            {
+                if (label == null) return;
+                if (h.Status == AsyncOperationStatus.Succeeded && !IsMissingTranslation(h.Result))
+                    label.text = h.Result;
+            };
+        }
+
+        private static bool IsMissingTranslation(string result) =>
+            string.IsNullOrEmpty(result) || (result != null && result.Contains("No translation found"));
+
+        private void FillStats(PassiveNodeDefinition node)
+        {
+            var mods = node.GetFinalModifiers();
+            if (mods == null || mods.Count == 0)
+            {
+                _stats.text = "";
+                return;
+            }
+            var results = new string[mods.Count];
+            int pending = mods.Count;
+            for (int i = 0; i < mods.Count; i++)
+            {
+                var mod = mods[i];
+                int idx = i;
+                string sign = mod.Type == StatModType.Flat ? "+" : "";
+                string end = mod.Type != StatModType.Flat ? "%" : "";
+                string statKey = $"stats.{mod.Stat}";
+                var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(MenuLabelsTable, statKey);
+                op.Completed += (h) =>
+                {
+                    string statName = (h.Status == AsyncOperationStatus.Succeeded && !IsMissingTranslation(h.Result)) ? h.Result : mod.Stat.ToString();
+                    results[idx] = $"{statName}: {sign}{mod.Value}{end}";
+                    if (--pending == 0 && _stats != null)
+                        _stats.text = string.Join("\n", results);
+                };
+            }
         }
 
         private void CreateElements()

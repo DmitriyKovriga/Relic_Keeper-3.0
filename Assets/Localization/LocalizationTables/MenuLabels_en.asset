@@ -1423,6 +1423,98 @@ MonoBehaviour:
     m_Localized: Open Stash
     m_Metadata:
       m_Items: []
+  - m_Id: 28228698157645824
+    m_Localized: Mage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28228698191200256
+    m_Localized: Versatile and balanced
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28232212627881984
+    m_Localized: Mage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28232212657242112
+    m_Localized: Versatile and balanced
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28232320048201728
+    m_Localized: Warrior
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28232320048201729
+    m_Localized: Savage!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28232796261089280
+    m_Localized: Rogue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28232796261089281
+    m_Localized: Nimble
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28259186821857280
+    m_Localized: Rogue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28259186838634496
+    m_Localized: Take and Run
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28259506796920832
+    m_Localized: Mage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28259506817892352
+    m_Localized: Magical power!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538793938944
+    m_Localized: Tavern
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299072
+    m_Localized: Hostel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299073
+    m_Localized: Recruit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299074
+    m_Localized: Pick One
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299075
+    m_Localized: Reroll
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299076
+    m_Localized: Tree
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299077
+    m_Localized: Hire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299078
+    m_Localized: Swap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299079
+    m_Localized: x
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299080
+    m_Localized: +5 to maximum life
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299081
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
