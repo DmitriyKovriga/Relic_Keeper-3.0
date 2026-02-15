@@ -9,40 +9,93 @@ public class LanguageSelector : MonoBehaviour
 
     private const string LANGUAGE_KEY = "selected_language";
 
-    // Словарь: видимое имя → код локали
-    private Dictionary<string, string> languageCodes = new Dictionary<string, string>()
+    private readonly Dictionary<string, string> _languageCodes = new Dictionary<string, string>()
     {
         { "English", "en" },
         { "Russian", "ru" }
     };
 
-    private DropdownField dropdown;
+    private Button _languageButton;
+    private VisualElement _popup;
+    private Button _optEnglish;
+    private Button _optRussian;
+    private EventCallback<ClickEvent> _rootClickCallback;
 
     private void OnEnable()
     {
         var root = ui.rootVisualElement;
-        dropdown = root.Q<DropdownField>("LenguageDropdown");
+        _languageButton = root.Q<Button>("LanguageButton");
+        _popup = root.Q<VisualElement>("LanguagePopup");
+        _optEnglish = root.Q<Button>("LanguageOptionEnglish");
+        _optRussian = root.Q<Button>("LanguageOptionRussian");
 
-        // Загружаем язык перед подпиской на callback
+        if (_languageButton == null || _popup == null) return;
+
         LoadLanguage();
+        UpdateButtonText();
 
-        dropdown.RegisterValueChangedCallback(evt =>
+        _popup.style.display = DisplayStyle.None;
+
+        _languageButton.clicked += OnLanguageButtonClick;
+        if (_optEnglish != null) _optEnglish.clicked += OnOptEnglishClick;
+        if (_optRussian != null) _optRussian.clicked += OnOptRussianClick;
+
+        _rootClickCallback = OnRootClick;
+        root.RegisterCallback(_rootClickCallback);
+    }
+
+    private void OnDisable()
+    {
+        if (_languageButton != null) _languageButton.clicked -= OnLanguageButtonClick;
+        if (_optEnglish != null) _optEnglish.clicked -= OnOptEnglishClick;
+        if (_optRussian != null) _optRussian.clicked -= OnOptRussianClick;
+        if (ui?.rootVisualElement != null && _rootClickCallback != null)
+            ui.rootVisualElement.UnregisterCallback(_rootClickCallback);
+    }
+
+    private void OnOptEnglishClick() => SelectLanguage("English");
+    private void OnOptRussianClick() => SelectLanguage("Russian");
+
+    private void OnRootClick(ClickEvent evt)
+    {
+        if (_popup == null || _popup.style.display != DisplayStyle.Flex) return;
+        var target = evt.target as VisualElement;
+        // Не закрывать при клике по кнопке языка или по popup
+        if (target != null && (target == _languageButton || _languageButton.Contains(target) || _popup.Contains(target)))
+            return;
+        _popup.style.display = DisplayStyle.None;
+    }
+
+    private void OnLanguageButtonClick()
+    {
+        if (_popup.style.display == DisplayStyle.Flex)
         {
-            string selectedName = evt.newValue;
+            _popup.style.display = DisplayStyle.None;
+            return;
+        }
+        // Позиционируем popup под кнопкой (координаты относительно родителя)
+        var btnWorld = _languageButton.worldBound;
+        var parent = _popup.parent;
+        if (parent != null)
+        {
+            var parentWorld = parent.worldBound;
+            _popup.style.position = Position.Absolute;
+            _popup.style.left = btnWorld.x - parentWorld.x;
+            _popup.style.top = btnWorld.yMax - parentWorld.y;
+        }
+        _popup.style.display = DisplayStyle.Flex;
+    }
 
-            if (languageCodes.TryGetValue(selectedName, out string localeCode))
-            {
-                var locale = LocalizationSettings.AvailableLocales.GetLocale(localeCode);
-                LocalizationSettings.SelectedLocale = locale;
-
-                // Сохраняем выбор
-                SaveLanguage(selectedName);
-            }
-            else
-            {
-                Debug.LogWarning($"Unknown language selected: {selectedName}");
-            }
-        });
+    private void SelectLanguage(string name)
+    {
+        if (_languageCodes.TryGetValue(name, out string localeCode))
+        {
+            var locale = LocalizationSettings.AvailableLocales.GetLocale(localeCode);
+            LocalizationSettings.SelectedLocale = locale;
+            SaveLanguage(name);
+            UpdateButtonText();
+        }
+        _popup.style.display = DisplayStyle.None;
     }
 
     private void SaveLanguage(string languageName)
@@ -55,13 +108,10 @@ public class LanguageSelector : MonoBehaviour
     {
         string savedLanguage = PlayerPrefs.GetString(LANGUAGE_KEY, "");
 
-        // Если ничего не сохранено → берём текущий Locale из Localization Settings
         if (string.IsNullOrEmpty(savedLanguage))
         {
             string currentLocaleCode = LocalizationSettings.SelectedLocale.Identifier.Code;
-
-            // Пытаемся найти в словаре язык с таким кодом
-            foreach (var pair in languageCodes)
+            foreach (var pair in _languageCodes)
             {
                 if (pair.Value == currentLocaleCode)
                 {
@@ -69,26 +119,21 @@ public class LanguageSelector : MonoBehaviour
                     break;
                 }
             }
-
-            // Если вдруг языка нет в словаре — просто ставим первый доступный
-            if (string.IsNullOrEmpty(savedLanguage))
-                savedLanguage = dropdown.choices[0];
-
+            if (string.IsNullOrEmpty(savedLanguage)) savedLanguage = "English";
             PlayerPrefs.SetString(LANGUAGE_KEY, savedLanguage);
         }
 
-        // Восстанавливаем dropdown UI
-        dropdown?.SetValueWithoutNotify(savedLanguage);
-
-        // Применяем локаль
-        if (languageCodes.TryGetValue(savedLanguage, out string localeCode))
+        if (_languageCodes.TryGetValue(savedLanguage, out string localeCode))
         {
             var locale = LocalizationSettings.AvailableLocales.GetLocale(localeCode);
             LocalizationSettings.SelectedLocale = locale;
         }
-        else
-        {
-            Debug.LogWarning($"Saved language not found in dictionary: {savedLanguage}");
-        }
+    }
+
+    private void UpdateButtonText()
+    {
+        if (_languageButton == null) return;
+        string saved = PlayerPrefs.GetString(LANGUAGE_KEY, "English");
+        _languageButton.text = saved;
     }
 }
