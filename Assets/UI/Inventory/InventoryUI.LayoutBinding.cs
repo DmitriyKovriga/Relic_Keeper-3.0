@@ -59,7 +59,6 @@ public partial class InventoryUI
 
         _itemsLayer.style.overflow = Overflow.Visible;
         _itemsLayer.BringToFront();
-        _inventoryFrameArt?.BringToFront();
         return true;
     }
 
@@ -101,7 +100,6 @@ public partial class InventoryUI
 
         _stashItemsLayer.style.overflow = Overflow.Visible;
         _stashItemsLayer.BringToFront();
-        _stashFrameArt?.BringToFront();
         return true;
     }
 
@@ -137,8 +135,6 @@ public partial class InventoryUI
             ApplyBackground(_craftSlot, slot2x4);
 
         _equipmentFrameArt?.BringToFront();
-        _inventoryFrameArt?.BringToFront();
-        _stashFrameArt?.BringToFront();
     }
 
     private static Dictionary<string, Sprite> GetInventoryAtlasSprites()

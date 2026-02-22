@@ -482,7 +482,6 @@ public partial class InventoryUI : MonoBehaviour
             }
         }
         _stashItemsLayer.BringToFront();
-        _stashFrameArt?.BringToFront();
     }
     
     private void GenerateBackpackGrid()
@@ -571,7 +570,6 @@ public partial class InventoryUI : MonoBehaviour
         RefreshOrbSlots();
         _itemsLayer.style.display = DisplayStyle.Flex;
         _itemsLayer.BringToFront();
-        _inventoryFrameArt?.BringToFront();
         _root.MarkDirtyRepaint();
     }
 

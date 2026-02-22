@@ -487,7 +487,7 @@
 
 .equipment-frame-art {
     position: absolute;
-    top: -3px;
+    top: -8px;
     left: -5px;
     width: 160px;
     height: 158px;
