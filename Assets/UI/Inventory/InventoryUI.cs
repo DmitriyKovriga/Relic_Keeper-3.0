@@ -236,36 +236,18 @@ public partial class InventoryUI : MonoBehaviour
     /// <summary>Внутренние отступы: соло — 8px слева и справа у окна; дуо — 8px справа у контента. Задаём из кода в пикселях.</summary>
     private void ApplyInventorySpacing(bool stashOpen)
     {
-        Debug.Log($"[InventoryUI] ApplyInventorySpacing stashOpen={stashOpen} _windowRoot={(_windowRoot != null)} _mainRow={(_mainRow != null)}");
-        const float paddingSoloPx = 8f;
-        const float marginDuoRightPx = 8f;
-
+        // Keep spacing fully class-driven in USS to avoid runtime inline style conflicts
+        // between inventory-only and stash-open states.
         if (_windowRoot != null)
         {
-            if (stashOpen)
-            {
-                _windowRoot.style.paddingLeft = new Length(paddingSoloPx, LengthUnit.Pixel);
-                _windowRoot.style.paddingRight = new Length(paddingSoloPx, LengthUnit.Pixel);
-            }
-            else
-            {
-                _windowRoot.style.paddingLeft = new Length(paddingSoloPx, LengthUnit.Pixel);
-                _windowRoot.style.paddingRight = new Length(paddingSoloPx, LengthUnit.Pixel);
-            }
+            _windowRoot.style.paddingLeft = StyleKeyword.Null;
+            _windowRoot.style.paddingRight = StyleKeyword.Null;
         }
 
         if (_mainRow != null)
         {
-            if (stashOpen)
-            {
-                _mainRow.style.marginLeft = new Length(0f, LengthUnit.Pixel);
-                _mainRow.style.marginRight = new Length(marginDuoRightPx, LengthUnit.Pixel);
-            }
-            else
-            {
-                _mainRow.style.marginLeft = new Length(0f, LengthUnit.Pixel);
-                _mainRow.style.marginRight = new Length(0f, LengthUnit.Pixel);
-            }
+            _mainRow.style.marginLeft = StyleKeyword.Null;
+            _mainRow.style.marginRight = StyleKeyword.Null;
         }
     }
 
