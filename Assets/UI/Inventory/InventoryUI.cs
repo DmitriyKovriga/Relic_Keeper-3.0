@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Scripts.Inventory;
 using Scripts.Items;
 
-public class InventoryUI : MonoBehaviour
+public partial class InventoryUI : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private UIDocument _uiDoc;
@@ -112,6 +112,7 @@ public class InventoryUI : MonoBehaviour
         LoadOrbSlotsConfig();
         SetupTabs();
         SetupCraftView();
+        ApplyInventoryArtTheme();
 
         if (InventoryManager.Instance == null)
             _root.schedule.Execute(TrySubscribe).Every(100).Until(() => InventoryManager.Instance != null);
@@ -308,6 +309,10 @@ public class InventoryUI : MonoBehaviour
     private void SetupStashPanel()
     {
         if (_stashGridContainer == null) return;
+
+        if (TryBindStashGridFromUxml())
+            return;
+
         _stashGridContainer.Clear();
         _stashSlots.Clear();
 
@@ -477,11 +482,16 @@ public class InventoryUI : MonoBehaviour
             }
         }
         _stashItemsLayer.BringToFront();
+        _stashFrameArt?.BringToFront();
     }
     
     private void GenerateBackpackGrid()
     {
         if (_inventoryContainer == null) return;
+
+        if (TryBindBackpackGridFromUxml())
+            return;
+
         _inventoryContainer.Clear();
         _backpackSlots.Clear();
 
@@ -560,7 +570,8 @@ public class InventoryUI : MonoBehaviour
             DrawCraftSlotIcon();
         RefreshOrbSlots();
         _itemsLayer.style.display = DisplayStyle.Flex;
-        _itemsLayer.BringToFront(); 
+        _itemsLayer.BringToFront();
+        _inventoryFrameArt?.BringToFront();
         _root.MarkDirtyRepaint();
     }
 
