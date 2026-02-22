@@ -497,7 +497,7 @@
 
 .ghost-left-art {
     position: absolute;
-    left: -68px;
+    left: -64px;
     top: 0;
     width: 57px;
     height: 147px;
