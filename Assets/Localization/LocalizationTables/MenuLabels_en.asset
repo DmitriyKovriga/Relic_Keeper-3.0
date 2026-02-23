@@ -1515,6 +1515,14 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 31131956090011648
+    m_Localized: ' Maximum bleeding stacks'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 31132150797991936
+    m_Localized: Extra targets for melee hits
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

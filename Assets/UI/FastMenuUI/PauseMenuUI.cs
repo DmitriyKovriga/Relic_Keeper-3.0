@@ -31,6 +31,7 @@ public class PauseMenuUI : MonoBehaviour
 
         var root = ui != null ? ui.rootVisualElement : null;
         if (root == null) return;
+        UIFontApplier.ApplyToRoot(root);
 
         continueButton = root.Q<Button>("ContinueButton");
         exitButton = root.Q<Button>("ExitButton");

@@ -24,6 +24,7 @@ public class LanguageSelector : MonoBehaviour
     private void OnEnable()
     {
         var root = ui.rootVisualElement;
+        UIFontApplier.ApplyToRoot(root);
         _languageButton = root.Q<Button>("LanguageButton");
         _popup = root.Q<VisualElement>("LanguagePopup");
         _optEnglish = root.Q<Button>("LanguageOptionEnglish");

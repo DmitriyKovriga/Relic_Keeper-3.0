@@ -20,6 +20,7 @@ public class MainMenuUI : MonoBehaviour
         manager = Object.FindFirstObjectByType<WindowManager>();
 
         var root = ui.rootVisualElement;
+        UIFontApplier.ApplyToRoot(root);
 
         startGameButton = root.Q<Button>("StartGameButton");
         exitButton = root.Q<Button>("ExitButton");

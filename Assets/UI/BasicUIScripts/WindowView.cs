@@ -50,6 +50,7 @@ public class WindowView : MonoBehaviour
         if (ui == null || ui.rootVisualElement == null) return;
 
         documentRoot = ui.rootVisualElement;
+        UIFontApplier.ApplyToRoot(documentRoot);
         root = documentRoot.Q<VisualElement>("WindowRoot");
         if (root == null)
             root = documentRoot;

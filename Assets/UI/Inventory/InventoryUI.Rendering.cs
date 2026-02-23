@@ -91,6 +91,8 @@ public partial class InventoryUI
         _itemsLayer.style.display = DisplayStyle.Flex;
         _itemsLayer.BringToFront();
         _root.MarkDirtyRepaint();
+        if (ItemTooltipController.Instance != null)
+            ItemTooltipController.Instance.ValidateCurrentTarget();
     }
 
     private void DrawEquipmentIcons()

@@ -20,7 +20,7 @@ public class CharacterWindowUI : MonoBehaviour
     
     private Dictionary<StatType, Label> _valueLabels = new Dictionary<StatType, Label>();
     private Dictionary<StatType, Label> _nameLabels = new Dictionary<StatType, Label>();
-    private Font _pixelFont;
+    private Font _resolvedFont;
     private bool _isStylesApplied = false;
     private StatsDatabaseSO _statsDb;
 
@@ -41,6 +41,8 @@ public class CharacterWindowUI : MonoBehaviour
         if (_uiDoc == null) return;
 
         var root = _uiDoc.rootVisualElement;
+        _resolvedFont = UIFontResolver.ResolveUIToolkitFont(Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
+        UIFontApplier.ApplyToRoot(root, _resolvedFont);
         
         _scrollView = root.Q<ScrollView>(_containerName);
         if (_scrollView == null) 
@@ -50,7 +52,6 @@ public class CharacterWindowUI : MonoBehaviour
         }
 
         _contentContainer = _scrollView.contentContainer;
-        _pixelFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         
         GenerateStatRows();
         UpdateValues();
@@ -98,7 +99,7 @@ public class CharacterWindowUI : MonoBehaviour
         
         nameLabel.style.fontSize = FONT_SIZE;
         nameLabel.style.color = new Color(0.8f, 0.8f, 0.8f); 
-        if (_pixelFont != null) nameLabel.style.unityFontDefinition = FontDefinition.FromFont(_pixelFont);
+        if (_resolvedFont != null) nameLabel.style.unityFontDefinition = FontDefinition.FromFont(_resolvedFont);
         
         nameLabel.style.flexGrow = 1; 
         nameLabel.style.flexShrink = 1;
@@ -116,7 +117,7 @@ public class CharacterWindowUI : MonoBehaviour
         
         valueLabel.style.fontSize = FONT_SIZE;
         valueLabel.style.color = new Color(1f, 0.85f, 0.5f);
-        if (_pixelFont != null) valueLabel.style.unityFontDefinition = FontDefinition.FromFont(_pixelFont);
+        if (_resolvedFont != null) valueLabel.style.unityFontDefinition = FontDefinition.FromFont(_resolvedFont);
 
         valueLabel.style.width = 40f;
         valueLabel.style.flexShrink = 0; 

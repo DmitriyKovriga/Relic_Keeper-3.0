@@ -50,11 +50,24 @@ namespace Scripts.Dungeon
                 return;
 
             int totalWeight = 0;
+            int validEntries = 0;
             foreach (var e in _enemyEntries)
             {
-                if (e?.EnemyData != null) totalWeight += e.Weight;
+                if (e?.EnemyData == null) continue;
+                validEntries++;
+                // Legacy-safe: старые префабы могут содержать Weight = 0.
+                totalWeight += Mathf.Max(1, e.Weight);
             }
-            if (totalWeight <= 0) return;
+            if (validEntries == 0)
+            {
+                Debug.LogWarning($"[EnemySpawner] {gameObject.name}: Нет валидных Enemy Entries (EnemyData = null).");
+                return;
+            }
+            if (totalWeight <= 0)
+            {
+                Debug.LogWarning($"[EnemySpawner] {gameObject.name}: totalWeight <= 0, fallback to 1.");
+                totalWeight = validEntries;
+            }
 
             for (int i = 0; i < _spawnCount; i++)
             {
@@ -74,10 +87,14 @@ namespace Scripts.Dungeon
             foreach (var e in _enemyEntries)
             {
                 if (e?.EnemyData == null) continue;
-                r -= e.Weight;
+                r -= Mathf.Max(1, e.Weight);
                 if (r < 0) return e.EnemyData;
             }
-            return _enemyEntries[0].EnemyData;
+            foreach (var e in _enemyEntries)
+            {
+                if (e?.EnemyData != null) return e.EnemyData;
+            }
+            return null;
         }
     }
 }

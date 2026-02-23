@@ -95,6 +95,7 @@ public partial class InventoryUI : MonoBehaviour
     {
         if (_uiDoc == null) _uiDoc = GetComponent<UIDocument>();
         _root = _uiDoc.rootVisualElement;
+        UIFontApplier.ApplyToRoot(_root);
         _windowRoot = _root.Q<VisualElement>("WindowRoot");
         if (_windowRoot == null) _windowRoot = _root;
         
@@ -154,6 +155,8 @@ public partial class InventoryUI : MonoBehaviour
             _windowView.OnClosed -= OnInventoryWindowClosed;
             _windowView.OnOpened -= OnInventoryWindowOpened;
         }
+        if (ItemTooltipController.Instance != null)
+            ItemTooltipController.Instance.HideTooltipImmediate();
         CancelDragSession(restoreHeldItem: true);
         ExitApplyOrbMode();
         UnregisterQuickTransferEndpoints();
@@ -168,6 +171,8 @@ public partial class InventoryUI : MonoBehaviour
 
     private void OnInventoryWindowClosed()
     {
+        if (ItemTooltipController.Instance != null)
+            ItemTooltipController.Instance.HideTooltipImmediate();
         ExitApplyOrbMode();
         SetStashPanelVisible(false);
         CancelDragSession(restoreHeldItem: true);

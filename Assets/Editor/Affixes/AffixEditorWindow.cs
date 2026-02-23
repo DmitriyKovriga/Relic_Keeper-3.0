@@ -25,10 +25,19 @@ namespace Scripts.Editor.Affixes
         private int _tierFilter = 0; // 0 = All, 1..5
         private int _tagFilterIndex; // 0 = All, 1+ = tag from list
         private int _statFilterIndex; // 0 = All stats, 1+ = StatType index
+        private int _missingLocalizationFilterIndex; // 0 = All, 1 = Missing RU, 2 = Missing EN, 3 = Missing RU/EN, 4 = Missing RU&EN
         private bool _showSystemFields;
         private SerializedObject _serializedAffix;
         private int _detailsTab; // 0 Main, 1 Tags, 2 Pools, 3 Tag DB
         private static readonly string[] DetailsTabs = { "Main", "Tags", "Pools", "Tag DB" };
+        private static readonly string[] MissingLocalizationFilterOptions =
+        {
+            "All localization",
+            "Missing RU",
+            "Missing EN",
+            "Missing RU or EN",
+            "Missing RU & EN"
+        };
 
         private StatsDatabaseSO _statsDatabase;
         private AffixTagDatabaseSO _tagDatabase;
@@ -131,6 +140,7 @@ namespace Scripts.Editor.Affixes
             statOpts.AddRange(System.Enum.GetNames(typeof(StatType)));
             _statFilterIndex = EditorGUILayout.Popup("Stat", Mathf.Clamp(_statFilterIndex, 0, statOpts.Count - 1), statOpts.ToArray());
             EditorGUILayout.EndHorizontal();
+            _missingLocalizationFilterIndex = EditorGUILayout.Popup("Localization", Mathf.Clamp(_missingLocalizationFilterIndex, 0, MissingLocalizationFilterOptions.Length - 1), MissingLocalizationFilterOptions);
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Refresh")) LoadAll();
             if (GUILayout.Button("Assign suggested tags to all affixes")) AssignSuggestedTagsToAllAffixes();
@@ -170,6 +180,7 @@ namespace Scripts.Editor.Affixes
                         if (a.Stats[i].Stat == filterStatVal.Value) { hasStat = true; break; }
                     if (!hasStat) return false;
                 }
+                if (!MatchesMissingLocalizationFilter(a)) return false;
                 if (search.Length > 0 && !(a.name + (a.GroupID ?? "") + (a.TranslationKey ?? "") + (a.NameKey ?? "")).ToLowerInvariant().Contains(search)) return false;
                 return true;
             }).ToList();
@@ -690,10 +701,50 @@ namespace Scripts.Editor.Affixes
             EditorGUIUtility.PingObject(affix);
         }
 
+        private bool MatchesMissingLocalizationFilter(ItemAffixSO affix)
+        {
+            if (_missingLocalizationFilterIndex == 0 || affix == null) return true;
+
+            string nameKey = GetAffixNameKey(affix);
+            string valueKey = GetAffixValueKey(affix);
+
+            bool nameMissingRu = IsMissingLocalizationValue(GetLocalizedString(_affixesLabelsCollection, "ru", nameKey));
+            bool nameMissingEn = IsMissingLocalizationValue(GetLocalizedString(_affixesLabelsCollection, "en", nameKey));
+
+            bool valueMissingRu = false;
+            bool valueMissingEn = false;
+            if (!string.IsNullOrEmpty(valueKey))
+            {
+                valueMissingRu = IsMissingLocalizationValue(GetLocalizedString(_affixesLabelsCollection, "ru", valueKey));
+                valueMissingEn = IsMissingLocalizationValue(GetLocalizedString(_affixesLabelsCollection, "en", valueKey));
+            }
+
+            bool missingRu = nameMissingRu || valueMissingRu;
+            bool missingEn = nameMissingEn || valueMissingEn;
+
+            switch (_missingLocalizationFilterIndex)
+            {
+                case 1: return missingRu;
+                case 2: return missingEn;
+                case 3: return missingRu || missingEn;
+                case 4: return missingRu && missingEn;
+                default: return true;
+            }
+        }
+
+        private static bool IsMissingLocalizationValue(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return true;
+            string trimmed = value.Trim();
+            return trimmed == "No translation found";
+        }
+
         private static string GetLocalizedString(StringTableCollection collection, string locale, string key)
         {
             if (collection == null || string.IsNullOrEmpty(key)) return "";
             var table = collection.GetTable(locale) as StringTable;
+            if (table == null)
+                table = collection.GetTable(new UnityEngine.Localization.LocaleIdentifier(locale)) as StringTable;
             if (table == null) return "";
             var entry = table.GetEntry(key);
             return entry?.Value ?? "";
@@ -703,11 +754,22 @@ namespace Scripts.Editor.Affixes
         {
             if (collection == null || string.IsNullOrEmpty(key)) return;
             var table = collection.GetTable(locale) as StringTable;
+            if (table == null)
+                table = collection.GetTable(new UnityEngine.Localization.LocaleIdentifier(locale)) as StringTable;
             if (table == null) return;
+
+            var sharedData = collection.SharedData;
+            if (sharedData != null && !sharedData.Contains(key))
+            {
+                sharedData.AddKey(key);
+                EditorUtility.SetDirty(sharedData);
+            }
+
             var entry = table.GetEntry(key);
             if (entry != null) entry.Value = value;
             else table.AddEntry(key, value);
             EditorUtility.SetDirty(table);
+            EditorUtility.SetDirty(collection);
         }
     }
 }

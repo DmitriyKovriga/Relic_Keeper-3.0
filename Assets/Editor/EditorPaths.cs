@@ -6,6 +6,7 @@ using UnityEngine;
 public static class EditorPaths
 {
     public const string MenuLabels = "Assets/Localization/LocalizationTables/MenuLabels.asset";
+    public const string UIFontProfile = "Assets/Resources/UI/UIFontProfile.asset";
     public const string CraftingOrbsFolder = "Assets/Resources/CraftingOrbs";
     public const string CraftingOrbSlotsConfig = "Assets/Resources/CraftingOrbs/CraftingOrbSlotsConfig.asset";
     public const string ItemDatabase = "Assets/Resources/Databases/ItemDatabaseSO.asset";
