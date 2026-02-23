@@ -942,7 +942,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _enemyEntries:
   - EnemyData: {fileID: 11400000, guid: ddc6f62b7855f6f4996626a9d443dceb, type: 2}
-    Weight: 0
+    Weight: 1
   _spawnCount: 1
   _spawnOnRoomEnter: 1
   _enemyPrefab: {fileID: 3239475662571640954, guid: d3dcec50cd6f0304fbba7a9e8d2e8c0e, type: 3}

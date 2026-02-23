@@ -7,8 +7,23 @@ namespace Scripts.Visuals
     public class WeaponVisualController : MonoBehaviour
     {
         [Header("Components")]
-        [Tooltip("SpriteRenderer, который находится в руке персонажа")]
+        [Tooltip("Weapon renderer located in the character hand")]
         [SerializeField] private SpriteRenderer _weaponRenderer;
+        [SerializeField] private SpriteRenderer _playerRenderer;
+
+        [Header("Sorting")]
+        [Tooltip("Keeps player above world sprites. UI is not affected.")]
+        [SerializeField] private bool _enforceTopCharacterSorting = true;
+        [SerializeField] private int _playerSortingOrder = 20000;
+        [SerializeField] private int _weaponOrderOffset = 10;
+
+        private void Awake()
+        {
+            if (_playerRenderer == null)
+                _playerRenderer = GetComponent<SpriteRenderer>();
+
+            ApplySortingOrder();
+        }
 
         private void Start()
         {
@@ -16,8 +31,6 @@ namespace Scripts.Visuals
             {
                 InventoryManager.Instance.OnItemEquipped += UpdateVisuals;
                 InventoryManager.Instance.OnItemUnequipped += UpdateVisuals;
-                
-                // Инициализация при старте (если загрузка прошла раньше)
                 CheckCurrentWeapon();
             }
         }
@@ -33,19 +46,12 @@ namespace Scripts.Visuals
 
         private void CheckCurrentWeapon()
         {
-            // Ищем оружие в MainHand (индекс 0 в EquipmentItems, смещение 100)
-            // В твоем InventoryManager: 0=Head, 1=Body, 2=MainHand
-            // Значит индекс в массиве EquipmentItems = 2.
-            
             var weaponItem = InventoryManager.Instance.EquipmentItems[2];
             UpdateVisuals(weaponItem);
         }
 
         private void UpdateVisuals(InventoryItem item)
         {
-            // Если событие не про оружие (например, надели шлем), нам все равно нужно проверить текущее оружие.
-            // Но для оптимизации: если item == null или это не оружие MainHand, проверяем массив.
-            
             var mainHandItem = InventoryManager.Instance.EquipmentItems[2];
 
             if (mainHandItem != null && mainHandItem.Data is WeaponItemSO weaponData)
@@ -58,6 +64,30 @@ namespace Scripts.Visuals
                 _weaponRenderer.sprite = null;
                 _weaponRenderer.enabled = false;
             }
+
+            ApplySortingOrder();
         }
+
+        private void ApplySortingOrder()
+        {
+            if (!_enforceTopCharacterSorting)
+                return;
+
+            if (_playerRenderer != null)
+                _playerRenderer.sortingOrder = _playerSortingOrder;
+
+            if (_weaponRenderer != null)
+                _weaponRenderer.sortingOrder = _playerSortingOrder + _weaponOrderOffset;
+        }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (_playerRenderer == null)
+                _playerRenderer = GetComponent<SpriteRenderer>();
+
+            ApplySortingOrder();
+        }
+#endif
     }
 }
