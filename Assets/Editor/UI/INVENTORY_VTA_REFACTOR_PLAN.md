@@ -23,6 +23,9 @@ Move Inventory UI to a VTA-first architecture:
 1. Build a dedicated Inventory visual theme mapper (sprite -> named element/class).
 2. Move remaining inline style mutations from C# to USS classes.
 3. Replace hardcoded pixel constants with centralized layout config where needed.
+4. Introduce shared item transfer layer (`ItemQuickTransferService`) so windows can exchange items without hard-coding each other.
+5. Migrate Ctrl+Click transfers to shared transfer endpoints (inventory/stash done, next: craft windows).
+6. Introduce shared pointer drop layer (`ItemDragDropService`) and register inventory/stash drop endpoints as first adopters.
 
 ## Phase 3
 1. Split `InventoryManager` into modules:
@@ -47,3 +50,5 @@ Move Inventory UI to a VTA-first architecture:
 - Inventory can be visually edited in UXML/USS with minimal runtime visual mutations.
 - Runtime code no longer builds primary visual tree.
 - Core inventory interactions remain behavior-compatible.
+- Item quick-transfer (Ctrl+Click) is routed via shared endpoints, not direct window coupling.
+- Item pointer drop can be routed via shared drop endpoints (inventory/stash implemented).

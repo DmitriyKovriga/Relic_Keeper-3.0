@@ -44,14 +44,15 @@
 
 /* Внутренние отступы: соло — слева и справа (padding окна); дуо — только справа (margin main-row). */
 .main-row {
+    position: relative;
     flex-direction: row;
     flex-grow: 1;
     flex-shrink: 1;
     min-height: 0;
     align-items: stretch;
-    justify-content: flex-start;
-    margin-left: 8px;
-    margin-right: 8px;
+    justify-content: flex-end;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 /* Соло: padding окна даёт видимую полосу фона 8px слева и справа; margin у ряда не нужен. */
@@ -63,19 +64,18 @@
 .main-row.inventory-solo {
     margin-left: 0;
     margin-right: 0;
-    justify-content: center;
+    justify-content: flex-end;
 }
 
 /* Дуо: отступы по пикселям. */
 .main-row.stash-open {
-    position: relative;
     margin-left: 0;
     margin-right: 0;
     justify-content: flex-end;
 }
 
 /* Окно 270px, padding 10 сверху/снизу → main-row = 250px. Инвентарь 96px внизу → низ на 250px. */
-.main-row.stash-open .content-row {
+.content-row {
     position: absolute;
     right: 0;
     top: 0;
@@ -95,21 +95,18 @@
     flex-direction: column;
     flex-grow: 0;
     flex-shrink: 0;
-    width: 208px;
+    width: 202px;
     min-height: 0;
     border-left-width: 0;
     border-right-width: 0;
     padding-top: 8px;
     padding-bottom: 0;
     padding-left: 8px;
-    padding-right: 12px;
+    padding-right: 8px;
     margin-right: 0;
     margin-left: 0;
     background-color: transparent;
     justify-content: flex-end;
-}
-
-.main-row.stash-open .stash-panel {
     position: absolute;
     left: 0;
     top: 0;
@@ -289,16 +286,6 @@
 }
 
 /* Правило: края окна отступают от элементов — контент внутри padding, при переполнении скролл. */
-.content-row {
-    flex-direction: column;
-    flex-grow: 1;
-    flex-shrink: 1;
-    align-items: stretch;
-    min-height: 0;
-    min-width: 0;
-    overflow-x: auto;
-}
-
 .equipment-and-toggle-row {
     flex-direction: row;
     flex-shrink: 0;

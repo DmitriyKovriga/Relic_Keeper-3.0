@@ -103,6 +103,7 @@ public partial class InventoryUI : MonoBehaviour
         _stashTabsRow = _root.Q<VisualElement>("StashTabsRow");
         _stashGridContainer = _root.Q<VisualElement>("StashGridContainer");
         _mainRow = _root.Q<VisualElement>("MainRow");
+        ApplyCompanionWindowConstraints();
         SetStashPanelVisible(false);
 
         CreateGhostIcon();
@@ -113,6 +114,7 @@ public partial class InventoryUI : MonoBehaviour
         SetupTabs();
         SetupCraftView();
         ApplyInventoryArtTheme();
+        RegisterQuickTransferEndpoints();
 
         if (InventoryManager.Instance == null)
             _root.schedule.Execute(TrySubscribe).Every(100).Until(() => InventoryManager.Instance != null);
@@ -151,6 +153,7 @@ public partial class InventoryUI : MonoBehaviour
             _windowView.OnOpened -= OnInventoryWindowOpened;
         }
         ExitApplyOrbMode();
+        UnregisterQuickTransferEndpoints();
 
         _root.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
         _root.UnregisterCallback<PointerUpEvent>(OnPointerUp);
@@ -198,6 +201,7 @@ public partial class InventoryUI : MonoBehaviour
     public void SetStashPanelVisible(bool visible)
     {
         IsStashVisible = visible;
+        ApplyCompanionWindowConstraints();
         if (_stashPanel != null)
         {
             if (visible) _stashPanel.AddToClassList("visible");
@@ -248,6 +252,26 @@ public partial class InventoryUI : MonoBehaviour
         {
             _mainRow.style.marginLeft = StyleKeyword.Null;
             _mainRow.style.marginRight = StyleKeyword.Null;
+        }
+    }
+
+    private void ApplyCompanionWindowConstraints()
+    {
+        if (_windowRoot != null)
+        {
+            _windowRoot.style.width = IsStashVisible
+                ? InventoryCompanionLayout.ScreenWidth
+                : InventoryCompanionLayout.InventoryDockWidth;
+            _windowRoot.style.height = InventoryCompanionLayout.ScreenHeight;
+        }
+
+        if (_stashPanel != null)
+        {
+            _stashPanel.style.width = InventoryCompanionLayout.LeftCompanionWidth;
+            _stashPanel.style.left = 0;
+            _stashPanel.style.top = 0;
+            _stashPanel.style.bottom = 0;
+            _stashPanel.style.position = Position.Absolute;
         }
     }
 
@@ -1058,13 +1082,12 @@ public partial class InventoryUI : MonoBehaviour
         if (icon?.userData == null) return;
         int anchorIdx = (int)icon.userData;
 
-        if (evt.ctrlKey && IsStashVisible && StashManager.Instance != null)
+        if (evt.ctrlKey)
         {
             evt.StopPropagation();
             InventoryItem taken = InventoryManager.Instance.TakeItemFromSlot(anchorIdx);
             if (taken == null) return;
-            int currentTab = StashManager.Instance.CurrentTabIndex;
-            if (StashManager.Instance.TryAddItemPreferringTab(taken, currentTab))
+            if (ItemQuickTransferService.TryQuickTransfer(QuickTransferEndpointInventory, taken, isShortcut: true))
             {
                 RefreshInventory();
                 RefreshStash();
@@ -1121,19 +1144,19 @@ public partial class InventoryUI : MonoBehaviour
         int anchorSlot = (int)icon.userData;
         int tab = StashManager.Instance.CurrentTabIndex;
 
-        if (evt.ctrlKey && InventoryManager.Instance != null)
+        if (evt.ctrlKey)
         {
             evt.StopPropagation();
             InventoryItem taken = StashManager.Instance.TakeItemFromStash(tab, anchorSlot);
             if (taken == null) return;
-            if (InventoryManager.Instance.AddItem(taken))
+            if (ItemQuickTransferService.TryQuickTransfer(QuickTransferEndpointStash, taken, isShortcut: true))
             {
                 RefreshInventory();
                 RefreshStash();
                 if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
                 return;
             }
-            StashManager.Instance.TryAddItemPreferringTab(taken, StashManager.Instance.CurrentTabIndex);
+            StashManager.Instance.TryAddItemPreferringTab(taken, tab);
             return;
         }
 
@@ -1396,6 +1419,12 @@ public partial class InventoryUI : MonoBehaviour
                 placed = StashManager.Instance.PlaceItemInStash(itemToPlace, stashFoundTab, stashFoundSlotIndex, -1, -1, invSourceAnchor);
             else if (foundIndex >= 0 && InventoryManager.Instance != null)
                 placed = InventoryManager.Instance.PlaceItemAt(itemToPlace, foundIndex, invSourceAnchor);
+        }
+
+        if (!placed)
+        {
+            string sourceEndpointId = fromStash ? QuickTransferEndpointStash : QuickTransferEndpointInventory;
+            placed = ItemDragDropService.TryDrop(sourceEndpointId, itemToPlace, dropCenter);
         }
 
         if (!placed)
