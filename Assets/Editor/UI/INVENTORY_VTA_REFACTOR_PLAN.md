@@ -6,8 +6,8 @@ Move Inventory UI to a VTA-first architecture:
 - C# handles binding, events, state updates, and gameplay actions only.
 
 ## Current Phase
-- **Phase 3 (started 2026-02-23)**.
-- Phase 2 is considered baseline-complete for the transfer/drop architecture in inventory+stash, with craft-slot adopted as the next shared endpoint.
+- **Phase 4 (started 2026-02-23)**.
+- Phase 3 decomposition is completed with green `dotnet build` after module extraction.
 
 ## Scope
 - `Assets/UI/Inventory/InventoryLayout.uxml`
@@ -39,12 +39,27 @@ Move Inventory UI to a VTA-first architecture:
 - craft slot interactions
 - orb economy
 - save/load adapters
-  - Started: save/load methods moved into `InventoryManager.SaveLoad.cs`.
-  - Started: craft-slot operations moved into `InventoryManager.Craft.cs`.
+  - Done: save/load methods moved into `InventoryManager.SaveLoad.cs`.
+  - Done: craft-slot operations moved into `InventoryManager.Craft.cs`.
+  - Done: backpack/equipment move/swap logic moved into `InventoryManager.MoveLogic.cs`.
+  - Done: placement/query methods moved into `InventoryManager.Placement.cs`.
+  - Done: orb methods moved into `InventoryManager.Orbs.cs`.
 2. Split `TavernUI` into:
 - layout/presenter
 - localization adapter
 - party actions service
+  - Done: presenter/layout methods moved into `TavernUI.Presenter.cs`.
+  - Done: party actions moved into `TavernUI.PartyActions.cs`.
+  - Done: cards/tree-preview logic moved into `TavernUI.CardsAndPreview.cs`.
+  - Done: localization adapter lives in `TavernUI.Localization.cs`.
+3. Split `InventoryUI` into focused modules:
+- layout/art binding: `InventoryUI.LayoutBinding.cs`
+- transfer/drop endpoints: `InventoryUI.QuickTransfer.cs`
+- stash view/panel: `InventoryUI.Stash.cs`
+- item rendering: `InventoryUI.Rendering.cs`
+- craft/tabs/orbs: `InventoryUI.Crafting.cs`
+- pointer/drag-drop interactions: `InventoryUI.DragDrop.cs`
+- lifecycle/orchestration shell: `InventoryUI.cs`
 
 ## Phase 4
 1. Add regression tests/checklists:
@@ -53,6 +68,7 @@ Move Inventory UI to a VTA-first architecture:
 - stash <-> inventory transfer
 - craft slot + orb apply flow
 - save/load integrity for inventory
+  - Started: manual checklist created in `Assets/Editor/UI/INVENTORY_REGRESSION_CHECKLIST.md`.
 
 ## Definition of Done for this track
 - Inventory can be visually edited in UXML/USS with minimal runtime visual mutations.
