@@ -268,6 +268,8 @@ namespace Scripts.Editor.Affixes
         {
             if (col == null || string.IsNullOrEmpty(key)) return "";
             var table = col.GetTable(locale) as StringTable;
+            if (table == null)
+                table = col.GetTable(new UnityEngine.Localization.LocaleIdentifier(locale)) as StringTable;
             if (table == null) return "";
             var entry = table.GetEntry(key);
             return entry?.Value ?? "";
@@ -277,11 +279,22 @@ namespace Scripts.Editor.Affixes
         {
             if (col == null || string.IsNullOrEmpty(key)) return;
             var table = col.GetTable(locale) as StringTable;
+            if (table == null)
+                table = col.GetTable(new UnityEngine.Localization.LocaleIdentifier(locale)) as StringTable;
             if (table == null) return;
+
+            var sharedData = col.SharedData;
+            if (sharedData != null && !sharedData.Contains(key))
+            {
+                sharedData.AddKey(key);
+                EditorUtility.SetDirty(sharedData);
+            }
+
             var entry = table.GetEntry(key);
             if (entry != null) entry.Value = value;
             else table.AddEntry(key, value);
             EditorUtility.SetDirty(table);
+            EditorUtility.SetDirty(col);
         }
 
         private static bool IsPercentageStat(string raw)

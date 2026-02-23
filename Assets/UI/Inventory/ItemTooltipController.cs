@@ -103,6 +103,7 @@ public class ItemTooltipController : MonoBehaviour
     private void OnDisable()
     {
         LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+        HideTooltipImmediate();
     }
 
     private void OnLocaleChanged(UnityEngine.Localization.Locale locale)
@@ -318,31 +319,103 @@ public class ItemTooltipController : MonoBehaviour
     public void HideTooltip()
     {
         if (_hideScheduler != null) return;
-
-        _hideScheduler = _root.schedule.Execute(() =>
+        if (_root == null || _root.panel == null)
         {
-            if (_itemTooltipBox != null) 
-            {
-                _itemTooltipBox.style.display = DisplayStyle.None;
-                _itemTooltipBox.style.visibility = Visibility.Hidden;
-            }
-            if (_skillTooltipBox != null) 
-            {
-                _skillTooltipBox.style.display = DisplayStyle.None;
-                _skillTooltipBox.style.visibility = Visibility.Hidden;
-            }
-            if (_orbTooltipBox != null)
-            {
-                _orbTooltipBox.style.display = DisplayStyle.None;
-                _orbTooltipBox.style.visibility = Visibility.Hidden;
-            }
-            _currentTargetItem = null;
-            _currentTargetOrb = null;
-            _targetAnchorSlot = null;
-            _hideScheduler = null; 
-        });
-        
+            HideTooltipImmediate();
+            return;
+        }
+
+        _hideScheduler = _root.schedule.Execute(HideTooltipImmediate);
         _hideScheduler.ExecuteLater(_hideDelayMs);
+    }
+
+    public void HideTooltipImmediate()
+    {
+        if (_hideScheduler != null)
+        {
+            _hideScheduler.Pause();
+            _hideScheduler = null;
+        }
+
+        if (_itemTooltipBox != null)
+        {
+            _itemTooltipBox.style.display = DisplayStyle.None;
+            _itemTooltipBox.style.visibility = Visibility.Hidden;
+        }
+        if (_skillTooltipBox != null)
+        {
+            _skillTooltipBox.style.display = DisplayStyle.None;
+            _skillTooltipBox.style.visibility = Visibility.Hidden;
+        }
+        if (_orbTooltipBox != null)
+        {
+            _orbTooltipBox.style.display = DisplayStyle.None;
+            _orbTooltipBox.style.visibility = Visibility.Hidden;
+        }
+        _currentTargetItem = null;
+        _currentTargetOrb = null;
+        _targetAnchorSlot = null;
+    }
+
+    /// <summary>
+    /// Hides tooltip if its anchor element was rebuilt/removed or referenced item no longer exists in inventory/stash.
+    /// Call after inventory/stash redraws.
+    /// </summary>
+    public void ValidateCurrentTarget()
+    {
+        bool anyVisible =
+            (_itemTooltipBox != null && _itemTooltipBox.style.display == DisplayStyle.Flex) ||
+            (_skillTooltipBox != null && _skillTooltipBox.style.display == DisplayStyle.Flex) ||
+            (_orbTooltipBox != null && _orbTooltipBox.style.display == DisplayStyle.Flex);
+
+        if (!anyVisible) return;
+        if (_targetAnchorSlot == null || _targetAnchorSlot.panel == null)
+        {
+            HideTooltipImmediate();
+            return;
+        }
+
+        if (_currentTargetItem != null && !IsItemStillPresent(_currentTargetItem))
+            HideTooltipImmediate();
+    }
+
+    private static bool IsItemStillPresent(InventoryItem target)
+    {
+        if (target == null) return false;
+
+        var inv = InventoryManager.Instance;
+        if (inv != null)
+        {
+            for (int i = 0; i < inv.BackpackSlotCount; i++)
+            {
+                if (ReferenceEquals(inv.GetItemAt(i, out _), target))
+                    return true;
+            }
+
+            for (int i = 0; i < 6; i++)
+            {
+                if (ReferenceEquals(inv.GetItem(InventoryManager.EQUIP_OFFSET + i), target))
+                    return true;
+            }
+
+            if (ReferenceEquals(inv.GetItem(InventoryManager.CRAFT_SLOT_INDEX), target))
+                return true;
+        }
+
+        var stash = StashManager.Instance;
+        if (stash != null)
+        {
+            for (int tab = 0; tab < stash.TabCount; tab++)
+            {
+                for (int i = 0; i < StashManager.STASH_SLOTS_PER_TAB; i++)
+                {
+                    if (ReferenceEquals(stash.GetItem(tab, i), target))
+                        return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     // --- Positioning Logic ---

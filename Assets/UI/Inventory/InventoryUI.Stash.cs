@@ -87,6 +87,8 @@ public partial class InventoryUI
     private void DrawStashIcons()
     {
         _stashWindowController?.DrawIcons(_stashItemsLayer, StashSlotSize);
+        if (ItemTooltipController.Instance != null)
+            ItemTooltipController.Instance.ValidateCurrentTarget();
     }
 
     private void OnPointerOverStashIcon(PointerOverEvent evt)

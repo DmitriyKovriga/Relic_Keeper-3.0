@@ -155,6 +155,8 @@ public partial class InventoryUI : MonoBehaviour
             _windowView.OnClosed -= OnInventoryWindowClosed;
             _windowView.OnOpened -= OnInventoryWindowOpened;
         }
+        if (ItemTooltipController.Instance != null)
+            ItemTooltipController.Instance.HideTooltipImmediate();
         CancelDragSession(restoreHeldItem: true);
         ExitApplyOrbMode();
         UnregisterQuickTransferEndpoints();
@@ -169,6 +171,8 @@ public partial class InventoryUI : MonoBehaviour
 
     private void OnInventoryWindowClosed()
     {
+        if (ItemTooltipController.Instance != null)
+            ItemTooltipController.Instance.HideTooltipImmediate();
         ExitApplyOrbMode();
         SetStashPanelVisible(false);
         CancelDragSession(restoreHeldItem: true);
