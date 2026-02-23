@@ -1,51 +1,234 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+﻿<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Inventory/InventoryStyles.uss?fileID=7433441132597879392&amp;guid=1e629191834a868468974c58ffc4d126&amp;type=3#InventoryStyles" />
     <ui:VisualElement name="InventoryScreenRoot" class="inventory-screen-root">
-        <ui:VisualElement name="WindowRoot" class="window-container">
-        <ui:VisualElement name="MainRow" class="main-row">
-            <ui:VisualElement name="StashPanel" class="stash-panel">
-                <ui:VisualElement name="StashTabsRow" class="stash-tabs-row" />
-                <ui:VisualElement name="StashGridContainer" class="stash-grid-container" />
-            </ui:VisualElement>
-            <ui:VisualElement name="ContentRow" class="content-row">
-            <ui:VisualElement name="EquipmentAndToggleRow" class="equipment-and-toggle-row">
-                <ui:VisualElement class="col-equipment-wrap">
-                    <ui:VisualElement name="EquipmentView" class="col-equipment">
-                        <ui:VisualElement class="equipment-doll-container">
-                            <ui:VisualElement name="Slot_Helmet" class="slot slot-2x2" style="position: absolute; top: 3px; left: 51px;">
-                                <ui:Label text="Head" />
+        <ui:VisualElement name="WindowRoot" class="window-container inventory-solo">
+            <ui:VisualElement name="InventoryBackgroundArt" class="inventory-background-art" />
+            <ui:VisualElement name="MainRow" class="main-row inventory-solo">
+                <ui:VisualElement name="StashPanel" class="stash-panel">
+                    <ui:VisualElement name="StashTabsRow" class="stash-tabs-row" />
+                    <ui:VisualElement name="StashGridContainer" class="stash-grid-container">
+                        <ui:VisualElement name="StashSlotsLayer" class="stash-slots-layer">
+                            <ui:VisualElement class="stash-row">
+                                <ui:VisualElement name='StashSlot_0' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_1' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_2' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_3' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_4' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_5' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_6' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_7' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_8' class='slot stash-slot' />
                             </ui:VisualElement>
-                            <ui:VisualElement name="Slot_Body" class="slot slot-2x3" style="position: absolute; top: 54px; left: 51px;">
-                                <ui:Label text="Body" />
+                            <ui:VisualElement class="stash-row">
+                                <ui:VisualElement name='StashSlot_9' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_10' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_11' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_12' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_13' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_14' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_15' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_16' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_17' class='slot stash-slot' />
                             </ui:VisualElement>
-                            <ui:VisualElement name="Slot_MainHand" class="slot slot-2x4" style="position: absolute; top: 0; left: 0;">
-                                <ui:Label text="Main" />
+                            <ui:VisualElement class="stash-row">
+                                <ui:VisualElement name='StashSlot_18' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_19' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_20' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_21' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_22' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_23' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_24' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_25' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_26' class='slot stash-slot' />
                             </ui:VisualElement>
-                            <ui:VisualElement name="Slot_OffHand" class="slot slot-2x4" style="position: absolute; top: 0; left: 102px;">
-                                <ui:Label text="Off" />
+                            <ui:VisualElement class="stash-row">
+                                <ui:VisualElement name='StashSlot_27' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_28' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_29' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_30' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_31' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_32' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_33' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_34' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_35' class='slot stash-slot' />
                             </ui:VisualElement>
-                            <ui:VisualElement name="Slot_Gloves" class="slot slot-2x2" style="position: absolute; top: 99px; left: 0;">
-                                <ui:Label text="Hand" />
+                            <ui:VisualElement class="stash-row">
+                                <ui:VisualElement name='StashSlot_36' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_37' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_38' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_39' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_40' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_41' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_42' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_43' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_44' class='slot stash-slot' />
                             </ui:VisualElement>
-                            <ui:VisualElement name="Slot_Boots" class="slot slot-2x2" style="position: absolute; top: 99px; left: 102px;">
-                                <ui:Label text="Feet" />
+                            <ui:VisualElement class="stash-row">
+                                <ui:VisualElement name='StashSlot_45' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_46' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_47' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_48' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_49' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_50' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_51' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_52' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_53' class='slot stash-slot' />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="stash-row">
+                                <ui:VisualElement name='StashSlot_54' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_55' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_56' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_57' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_58' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_59' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_60' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_61' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_62' class='slot stash-slot' />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="stash-row">
+                                <ui:VisualElement name='StashSlot_63' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_64' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_65' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_66' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_67' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_68' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_69' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_70' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_71' class='slot stash-slot' />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="stash-row">
+                                <ui:VisualElement name='StashSlot_72' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_73' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_74' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_75' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_76' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_77' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_78' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_79' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_80' class='slot stash-slot' />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="stash-row">
+                                <ui:VisualElement name='StashSlot_81' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_82' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_83' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_84' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_85' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_86' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_87' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_88' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_89' class='slot stash-slot' />
+                            </ui:VisualElement>
+                            <ui:VisualElement class="stash-row">
+                                <ui:VisualElement name='StashSlot_90' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_91' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_92' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_93' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_94' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_95' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_96' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_97' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_98' class='slot stash-slot' />
                             </ui:VisualElement>
                         </ui:VisualElement>
-                    </ui:VisualElement>
-                    <ui:VisualElement name="CraftView" class="col-equipment craft-view">
-                        <ui:VisualElement name="CraftSlot" class="slot slot-2x4 craft-slot" style="margin-bottom: 4px;">
-                            <ui:Label text="Предмет" class="slot-label" />
-                        </ui:VisualElement>
-                        <ui:VisualElement name="OrbSlotsRow" class="orb-slots-row" />
+                        <ui:VisualElement name="StashFrameArt" class="stash-frame-art" />
+                        <ui:VisualElement name="StashItemsLayer" class="items-layer stash-items-layer" />
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:Button name="ToggleModeButton" class="toggle-mode-slot" tooltip="Экипировка / Крафт" />
+                <ui:VisualElement name="ContentRow" class="content-row">
+                    <ui:VisualElement name="EquipmentAndToggleRow" class="equipment-and-toggle-row">
+                        <ui:VisualElement class="col-equipment-wrap">
+                            <ui:VisualElement name="EquipmentView" class="col-equipment">
+                                <ui:VisualElement class="equipment-doll-container">
+                                    <ui:VisualElement name="GhostLeftArt" class="ghost-left-art" />
+                                    <ui:VisualElement name="GhostRightArt" class="ghost-right-art" />
+                                    <ui:VisualElement name="Slot_Helmet" class="slot slot-2x2 equipment-slot" style="position: absolute; top: -3px; left: 51px;">
+                                        <ui:Label text="Head" class="slot-label" />
+                                    </ui:VisualElement>
+                                    <ui:VisualElement name="Slot_Body" class="slot slot-2x3 equipment-slot" style="position: absolute; top: 48px; left: 51px;">
+                                        <ui:Label text="Body" class="slot-label" />
+                                    </ui:VisualElement>
+                                    <ui:VisualElement name="Slot_MainHand" class="slot slot-2x4 equipment-slot" style="position: absolute; top: -3px; left: 0;">
+                                        <ui:Label text="Main" class="slot-label" />
+                                    </ui:VisualElement>
+                                    <ui:VisualElement name="Slot_OffHand" class="slot slot-2x4 equipment-slot" style="position: absolute; top: -3px; left: 102px;">
+                                        <ui:Label text="Off" class="slot-label" />
+                                    </ui:VisualElement>
+                                    <ui:VisualElement name="Slot_Gloves" class="slot slot-2x2 equipment-slot" style="position: absolute; top: 97px; left: 0;">
+                                        <ui:Label text="Hand" class="slot-label" />
+                                    </ui:VisualElement>
+                                    <ui:VisualElement name="Slot_Boots" class="slot slot-2x2 equipment-slot" style="position: absolute; top: 97px; left: 102px;">
+                                        <ui:Label text="Feet" class="slot-label" />
+                                    </ui:VisualElement>
+                                    <ui:VisualElement name="EquipmentFrameArt" class="equipment-frame-art" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement name="CraftView" class="col-equipment craft-view">
+                                <ui:VisualElement name="CraftSlot" class="slot slot-2x4 craft-slot" style="margin-bottom: 4px;">
+                                    <ui:Label text="Item" class="slot-label" />
+                                </ui:VisualElement>
+                                <ui:VisualElement name="OrbSlotsRow" class="orb-slots-row" />
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                        <ui:Button name="ToggleModeButton" class="toggle-mode-slot" tooltip="Equipment / Craft" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="col-inventory-wrap">
+                        <ui:VisualElement name="InventoryGrid" class="inventory-grid-container">
+                            <ui:VisualElement name="BackpackSlotsLayer" class="backpack-slots-layer">
+                                <ui:VisualElement class="inventory-row">
+                                    <ui:VisualElement name='BackpackSlot_0' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_1' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_2' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_3' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_4' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_5' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_6' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_7' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_8' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_9' class='slot backpack-slot' />
+                                </ui:VisualElement>
+                                <ui:VisualElement class="inventory-row">
+                                    <ui:VisualElement name='BackpackSlot_10' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_11' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_12' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_13' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_14' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_15' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_16' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_17' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_18' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_19' class='slot backpack-slot' />
+                                </ui:VisualElement>
+                                <ui:VisualElement class="inventory-row">
+                                    <ui:VisualElement name='BackpackSlot_20' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_21' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_22' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_23' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_24' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_25' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_26' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_27' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_28' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_29' class='slot backpack-slot' />
+                                </ui:VisualElement>
+                                <ui:VisualElement class="inventory-row">
+                                    <ui:VisualElement name='BackpackSlot_30' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_31' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_32' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_33' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_34' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_35' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_36' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_37' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_38' class='slot backpack-slot' />
+                                    <ui:VisualElement name='BackpackSlot_39' class='slot backpack-slot' />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                            <ui:VisualElement name="InventoryFrameArt" class="inventory-frame-art" />
+                            <ui:VisualElement name="ItemsLayer" class="items-layer backpack-items-layer" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement class="col-inventory-wrap">
-                <ui:VisualElement name="InventoryGrid" class="inventory-grid-container" />
-            </ui:VisualElement>
-        </ui:VisualElement>
-        </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

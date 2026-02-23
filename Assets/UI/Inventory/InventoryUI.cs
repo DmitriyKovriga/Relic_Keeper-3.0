@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Scripts.Inventory;
 using Scripts.Items;
 
-public class InventoryUI : MonoBehaviour
+public partial class InventoryUI : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private UIDocument _uiDoc;
@@ -112,6 +112,7 @@ public class InventoryUI : MonoBehaviour
         LoadOrbSlotsConfig();
         SetupTabs();
         SetupCraftView();
+        ApplyInventoryArtTheme();
 
         if (InventoryManager.Instance == null)
             _root.schedule.Execute(TrySubscribe).Every(100).Until(() => InventoryManager.Instance != null);
@@ -235,36 +236,18 @@ public class InventoryUI : MonoBehaviour
     /// <summary>Внутренние отступы: соло — 8px слева и справа у окна; дуо — 8px справа у контента. Задаём из кода в пикселях.</summary>
     private void ApplyInventorySpacing(bool stashOpen)
     {
-        Debug.Log($"[InventoryUI] ApplyInventorySpacing stashOpen={stashOpen} _windowRoot={(_windowRoot != null)} _mainRow={(_mainRow != null)}");
-        const float paddingSoloPx = 8f;
-        const float marginDuoRightPx = 8f;
-
+        // Keep spacing fully class-driven in USS to avoid runtime inline style conflicts
+        // between inventory-only and stash-open states.
         if (_windowRoot != null)
         {
-            if (stashOpen)
-            {
-                _windowRoot.style.paddingLeft = new Length(paddingSoloPx, LengthUnit.Pixel);
-                _windowRoot.style.paddingRight = new Length(paddingSoloPx, LengthUnit.Pixel);
-            }
-            else
-            {
-                _windowRoot.style.paddingLeft = new Length(paddingSoloPx, LengthUnit.Pixel);
-                _windowRoot.style.paddingRight = new Length(paddingSoloPx, LengthUnit.Pixel);
-            }
+            _windowRoot.style.paddingLeft = StyleKeyword.Null;
+            _windowRoot.style.paddingRight = StyleKeyword.Null;
         }
 
         if (_mainRow != null)
         {
-            if (stashOpen)
-            {
-                _mainRow.style.marginLeft = new Length(0f, LengthUnit.Pixel);
-                _mainRow.style.marginRight = new Length(marginDuoRightPx, LengthUnit.Pixel);
-            }
-            else
-            {
-                _mainRow.style.marginLeft = new Length(0f, LengthUnit.Pixel);
-                _mainRow.style.marginRight = new Length(0f, LengthUnit.Pixel);
-            }
+            _mainRow.style.marginLeft = StyleKeyword.Null;
+            _mainRow.style.marginRight = StyleKeyword.Null;
         }
     }
 
@@ -308,6 +291,10 @@ public class InventoryUI : MonoBehaviour
     private void SetupStashPanel()
     {
         if (_stashGridContainer == null) return;
+
+        if (TryBindStashGridFromUxml())
+            return;
+
         _stashGridContainer.Clear();
         _stashSlots.Clear();
 
@@ -482,6 +469,10 @@ public class InventoryUI : MonoBehaviour
     private void GenerateBackpackGrid()
     {
         if (_inventoryContainer == null) return;
+
+        if (TryBindBackpackGridFromUxml())
+            return;
+
         _inventoryContainer.Clear();
         _backpackSlots.Clear();
 
@@ -560,7 +551,7 @@ public class InventoryUI : MonoBehaviour
             DrawCraftSlotIcon();
         RefreshOrbSlots();
         _itemsLayer.style.display = DisplayStyle.Flex;
-        _itemsLayer.BringToFront(); 
+        _itemsLayer.BringToFront();
         _root.MarkDirtyRepaint();
     }
 

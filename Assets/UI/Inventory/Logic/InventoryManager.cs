@@ -10,7 +10,7 @@ namespace Scripts.Inventory
     /// Инвентарь в стиле PoE: рюкзак — одна сетка (GridContainer), отдельно слот крафта и экипировка.
     /// Предмет в руке (carried) не хранится в контейнере — только в UI при перетаскивании.
     /// </summary>
-    public class InventoryManager : MonoBehaviour
+    public partial class InventoryManager : MonoBehaviour
     {
         public static InventoryManager Instance { get; private set; }
 
@@ -63,31 +63,6 @@ namespace Scripts.Inventory
         public HashSet<InventoryItem> GetUniqueItemsInBackpackArea(InventoryItem item, int rootIndex)
         {
             return _backpack != null ? _backpack.GetUniqueItemsInAreaAtRoot(item, rootIndex) : new HashSet<InventoryItem>();
-        }
-
-        public int GetOrbCount(string orbId)
-        {
-            if (string.IsNullOrEmpty(orbId)) return 0;
-            var e = _orbCounts.Find(x => x.OrbId == orbId);
-            return e?.Count ?? 0;
-        }
-
-        public void AddOrb(string orbId, int count = 1)
-        {
-            if (string.IsNullOrEmpty(orbId) || count <= 0) return;
-            var e = _orbCounts.Find(x => x.OrbId == orbId);
-            if (e != null) e.Count += count;
-            else _orbCounts.Add(new OrbCountEntry { OrbId = orbId, Count = count });
-        }
-
-        public bool ConsumeOrb(string orbId)
-        {
-            if (string.IsNullOrEmpty(orbId)) return false;
-            var e = _orbCounts.Find(x => x.OrbId == orbId);
-            if (e == null || e.Count <= 0) return false;
-            e.Count--;
-            if (e.Count <= 0) _orbCounts.Remove(e);
-            return true;
         }
 
         public void TriggerUIUpdate() => OnInventoryChanged?.Invoke();
