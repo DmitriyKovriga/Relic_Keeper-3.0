@@ -850,7 +850,12 @@ MonoBehaviour:
   _portalType: 0
   _interactPrompt: "\u0412\u044B\u0439\u0442\u0438"
   _isActive: 1
-  _debugLogs: 1
+  _autoFixSpriteOrder: 1
+  _autoFixSpriteLayer: 1
+  _preferredSortingLayer: Foreground
+  _minOrderInLayer: 10
+  _forceWorldZ: 1
+  _targetWorldZ: 0
   _targetDungeon: {fileID: 11400000, guid: 64bc3e0b491f45e49a08db131ed4d64c, type: 2}
 --- !u!212 &304245602
 SpriteRenderer:
@@ -6537,8 +6542,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 50/50
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 733713d96bd1d5341ae18834d7314542, type: 2}
+  m_sharedMaterial: {fileID: -1403235717811640009, guid: 733713d96bd1d5341ae18834d7314542, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -6562,7 +6567,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 13.4
+  m_fontSize: 12.45
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -7195,8 +7200,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 50/50
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 733713d96bd1d5341ae18834d7314542, type: 2}
+  m_sharedMaterial: {fileID: -1403235717811640009, guid: 733713d96bd1d5341ae18834d7314542, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7220,7 +7225,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 19.65
+  m_fontSize: 18.3
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -7704,6 +7709,7 @@ MonoBehaviour:
   _interactLayer:
     serializedVersion: 2
     m_Bits: 4294967295
+  _debugInput: 1
 --- !u!1 &1575109989
 GameObject:
   m_ObjectHideFlags: 0
@@ -7737,7 +7743,7 @@ MonoBehaviour:
   _hubWorld: {fileID: 2010537611}
   _hubSpawnPoint: {fileID: 1321133210}
   _playerTransform: {fileID: 1563690798}
-  _debugLogs: 1
+  _roomWorldZ: 0
 --- !u!4 &1575109991
 Transform:
   m_ObjectHideFlags: 0
@@ -7812,8 +7818,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 30
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 733713d96bd1d5341ae18834d7314542, type: 2}
+  m_sharedMaterial: {fileID: -1403235717811640009, guid: 733713d96bd1d5341ae18834d7314542, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -8571,8 +8577,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 50/50
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 733713d96bd1d5341ae18834d7314542, type: 2}
+  m_sharedMaterial: {fileID: -1403235717811640009, guid: 733713d96bd1d5341ae18834d7314542, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -8596,7 +8602,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 19.65
+  m_fontSize: 18.3
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1

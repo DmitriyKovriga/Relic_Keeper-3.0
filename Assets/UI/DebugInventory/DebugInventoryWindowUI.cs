@@ -42,6 +42,7 @@ public class DebugInventoryWindowUI : MonoBehaviour
     {
         if (_uiDoc == null) _uiDoc = GetComponent<UIDocument>();
         if (_uiDoc == null || _uiDoc.rootVisualElement == null) return;
+        UIFontApplier.ApplyToRoot(_uiDoc.rootVisualElement);
 
         _root = _uiDoc.rootVisualElement.Q<VisualElement>("DebugRoot");
         if (_root == null) return;

@@ -95,6 +95,7 @@ public partial class InventoryUI : MonoBehaviour
     {
         if (_uiDoc == null) _uiDoc = GetComponent<UIDocument>();
         _root = _uiDoc.rootVisualElement;
+        UIFontApplier.ApplyToRoot(_root);
         _windowRoot = _root.Q<VisualElement>("WindowRoot");
         if (_windowRoot == null) _windowRoot = _root;
         

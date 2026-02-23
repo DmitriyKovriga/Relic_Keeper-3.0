@@ -37,6 +37,7 @@ public class ControlsUI : MonoBehaviour
         InputRebindSaver.Load(actions, config);
         root = ui?.rootVisualElement;
         if (root == null) return;
+        UIFontApplier.ApplyToRoot(root);
 
         bindingRowsContainer = root.Q<VisualElement>("BindingRowsContainer");
         if (bindingRowsContainer == null)

@@ -24,6 +24,11 @@ public class HUDController : MonoBehaviour
     [Header("Skill Slots")]
     [SerializeField] private UISkillSlot[] _skillSlots;
 
+    private void Awake()
+    {
+        ApplyConfiguredFont();
+    }
+
     private void Start()
     {
         // Если игрок уже привязан в инспекторе
@@ -129,5 +134,17 @@ public class HUDController : MonoBehaviour
         {
             _skillSlots[index].Setup(icon);
         }
+    }
+
+    private void ApplyConfiguredFont()
+    {
+        var configuredFont = UIFontResolver.ResolveTMPFontAsset();
+        if (configuredFont == null)
+            return;
+
+        if (_healthValueText != null) _healthValueText.font = configuredFont;
+        if (_manaValueText != null) _manaValueText.font = configuredFont;
+        if (_xpValueText != null) _xpValueText.font = configuredFont;
+        if (_levelText != null) _levelText.font = configuredFont;
     }
 }

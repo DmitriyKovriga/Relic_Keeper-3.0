@@ -93,6 +93,7 @@ public class ItemTooltipController : MonoBehaviour
             _root = inv.RootVisualElement;
         else if (_uiDoc != null)
             _root = _uiDoc.rootVisualElement;
+        UIFontApplier.ApplyToRoot(_root);
         if (_root != null)
             _root.schedule.Execute(RebuildTooltipStructure).ExecuteLater(50);
 
@@ -199,13 +200,11 @@ public class ItemTooltipController : MonoBehaviour
         el.style.display = DisplayStyle.None;
         el.pickingMode = PickingMode.Ignore; 
         
-        if (_customFont != null) 
-            el.style.unityFontDefinition = FontDefinition.FromFont(_customFont);
-        else 
-        {
-            var defFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            if (defFont) el.style.unityFontDefinition = FontDefinition.FromFont(defFont);
-        }
+        var resolvedFont = _customFont != null
+            ? _customFont
+            : UIFontResolver.ResolveUIToolkitFont(Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
+        if (resolvedFont != null)
+            el.style.unityFontDefinition = FontDefinition.FromFont(resolvedFont);
         
         el.style.fontSize = 8;
         el.style.alignItems = Align.Center; 

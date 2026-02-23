@@ -12,6 +12,7 @@ public partial class TavernUI
 
         var root = _uiDoc.rootVisualElement;
         root.Clear();
+        UIFontApplier.ApplyToRoot(root);
 
         int panelW = ScreenWidth - PanelMargin * 2;
         int panelH = ScreenHeight - PanelMargin * 2;

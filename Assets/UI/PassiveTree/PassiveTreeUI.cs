@@ -80,6 +80,7 @@ public class PassiveTreeUI : MonoBehaviour
     {
         var root = _uiDoc.rootVisualElement;
         root.Clear();
+        UIFontApplier.ApplyToRoot(root);
 
         // 1. Window Root — на весь экран, фон в стиле Path of Exile (тёмный, непрозрачный)
         _windowRoot = new VisualElement { name = "WindowRoot" };
