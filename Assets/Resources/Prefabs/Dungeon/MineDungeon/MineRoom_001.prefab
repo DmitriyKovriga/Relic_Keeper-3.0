@@ -922,7 +922,7 @@ Transform:
   m_GameObject: {fileID: 4440765176116150753}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.41, y: 0.275, z: 0}
+  m_LocalPosition: {x: 9.41, y: 0.83, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -943,7 +943,7 @@ MonoBehaviour:
   _enemyEntries:
   - EnemyData: {fileID: 11400000, guid: ddc6f62b7855f6f4996626a9d443dceb, type: 2}
     Weight: 0
-  _spawnCount: 2
+  _spawnCount: 1
   _spawnOnRoomEnter: 1
   _enemyPrefab: {fileID: 3239475662571640954, guid: d3dcec50cd6f0304fbba7a9e8d2e8c0e, type: 3}
 --- !u!1 &5604288891661710384

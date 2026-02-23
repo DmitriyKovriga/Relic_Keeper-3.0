@@ -37,21 +37,25 @@
     left: 0;
     right: 0;
     width: 480px;
+    padding-top: 0;
+    padding-bottom: 0;
     padding-left: 0;
     padding-right: 0;
+    background-color: transparent;
     border-width: 0;
 }
 
 /* Внутренние отступы: соло — слева и справа (padding окна); дуо — только справа (margin main-row). */
 .main-row {
+    position: relative;
     flex-direction: row;
     flex-grow: 1;
     flex-shrink: 1;
     min-height: 0;
     align-items: stretch;
-    justify-content: flex-start;
-    margin-left: 8px;
-    margin-right: 8px;
+    justify-content: flex-end;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 /* Соло: padding окна даёт видимую полосу фона 8px слева и справа; margin у ряда не нужен. */
@@ -63,19 +67,23 @@
 .main-row.inventory-solo {
     margin-left: 0;
     margin-right: 0;
-    justify-content: center;
+    justify-content: flex-end;
 }
 
 /* Дуо: отступы по пикселям. */
 .main-row.stash-open {
-    position: relative;
     margin-left: 0;
     margin-right: 0;
     justify-content: flex-end;
 }
 
-/* Окно 270px, padding 10 сверху/снизу → main-row = 250px. Инвентарь 96px внизу → низ на 250px. */
 .main-row.stash-open .content-row {
+    top: 10px;
+    bottom: 10px;
+}
+
+/* Окно 270px, padding 10 сверху/снизу → main-row = 250px. Инвентарь 96px внизу → низ на 250px. */
+.content-row {
     position: absolute;
     right: 0;
     top: 0;
@@ -89,27 +97,29 @@
     margin-right: 0;
 }
 
-/* Склад: выравнивание по пикселям. main-row = 250px. Чтобы низ сетки склада (216px) был на 250px: padding только сверху 8px, снизу 0. Вкладки 26px, без margin-bottom. Блок вкладки+сетка = 242px, flex-end прижимает к низу → сетка 34..250. */
+/* Склад: в режиме stash-open фон должен тянуться на всю высоту окна (без внешних вертикальных отступов).
+   Контент склада оставляем на прежней вертикали за счёт внутренней компенсации padding-bottom. */
 .stash-panel {
     display: none;
     flex-direction: column;
     flex-grow: 0;
     flex-shrink: 0;
-    width: 208px;
+    width: 200px;
     min-height: 0;
     border-left-width: 0;
     border-right-width: 0;
     padding-top: 8px;
-    padding-bottom: 0;
+    padding-bottom: 20px;
     padding-left: 8px;
-    padding-right: 12px;
+    padding-right: 8px;
     margin-right: 0;
     margin-left: 0;
-    background-color: transparent;
+    background-color: rgba(12, 11, 10, 1);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-left-color: rgba(80, 70, 60, 0.8);
+    border-right-color: rgba(80, 70, 60, 0.8);
     justify-content: flex-end;
-}
-
-.main-row.stash-open .stash-panel {
     position: absolute;
     left: 0;
     top: 0;
@@ -289,16 +299,6 @@
 }
 
 /* Правило: края окна отступают от элементов — контент внутри padding, при переполнении скролл. */
-.content-row {
-    flex-direction: column;
-    flex-grow: 1;
-    flex-shrink: 1;
-    align-items: stretch;
-    min-height: 0;
-    min-width: 0;
-    overflow-x: auto;
-}
-
 .equipment-and-toggle-row {
     flex-direction: row;
     flex-shrink: 0;
