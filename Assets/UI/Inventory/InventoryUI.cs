@@ -57,6 +57,7 @@ public partial class InventoryUI : MonoBehaviour
     private VisualElement _stashItemsLayer;
     private VisualElement _mainRow;
     private List<VisualElement> _stashSlots = new List<VisualElement>();
+    private StashWindowController _stashWindowController;
 
     /// <summary>Склад открыт отдельно (бинт B). По умолчанию скрыт при открытии инвентаря по I.</summary>
     public bool IsStashVisible { get; private set; }

@@ -356,7 +356,6 @@ namespace Scripts.Inventory
                 return TryMoveFromInventory(invSlotIndex, stashTab, stashSlotIndex);
             if (invItem != null && stashItem != null)
             {
-                if (!InventoryManager.Instance.CanPlaceItemAt(stashItem, invSlotIndex)) return false;
                 _tabs[stashTab].GetItemAt(stashSlotIndex, out _, out int stashRoot);
                 InventoryItem a = InventoryManager.Instance.TakeItemFromSlot(invSlotIndex);
                 InventoryItem b = _tabs[stashTab].Take(stashRoot);

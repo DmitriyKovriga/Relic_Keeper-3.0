@@ -1,50 +1,66 @@
-# Inventory UI Regression Checklist
+# Чеклист Регрессии UI Инвентаря
 
-Date: 2026-02-23
-Build gate: `dotnet build Relic_Keeper.slnx -nologo` must pass before and after checks.
+Дата: 2026-02-23  
+Гейт сборки: `dotnet build Relic_Keeper.slnx -nologo` должен проходить до и после проверки.
 
 ## Drag & Drop
-1. Pick item from backpack and drop to empty backpack area.
-Expected: item is placed under pointer target with correct anchor.
-2. Drop item onto occupied area with exactly one overlapping item.
-Expected: swap behavior, no duplication/loss.
-3. Drop item to invalid area.
-Expected: item returns to source slot.
-4. Drag item from stash to inventory and back.
-Expected: transfer is atomic, no ghost copy remains.
+1. Взять предмет из рюкзака и бросить в пустую область рюкзака.  
+Ожидаемо: предмет ставится под целевой указатель с корректным якорем.
+2. Бросить предмет на занятую область, где пересекается ровно один предмет.  
+Ожидаемо: срабатывает swap, без дюпов и потерь.
+3. Бросить предмет в невалидную область.  
+Ожидаемо: предмет возвращается в исходный слот.
+4. Перетащить предмет из склада в инвентарь и обратно.  
+Ожидаемо: перенос атомарный, ghost-копии не остаются.
 
-## Ctrl+Click Transfers
-1. Ctrl+Click backpack item when stash is open.
-Expected: item moves to stash current tab.
-2. Ctrl+Click stash item when inventory is open.
-Expected: item moves to backpack/equipment if valid.
-3. Ctrl+Click craft-slot item.
-Expected: item transfers via shared quick-transfer endpoint.
+## Ctrl+Click Переносы
+1. Ctrl+Click по предмету рюкзака при открытом складе.  
+Ожидаемо: предмет уходит в текущую вкладку склада.
+2. Ctrl+Click по предмету склада при открытом инвентаре.  
+Ожидаемо: предмет уходит в рюкзак/экипировку, если валидно.
+3. Ctrl+Click по предмету в craft-slot.  
+Ожидаемо: перенос выполняется через общий quick-transfer endpoint.
 
-## Craft Slot / Orbs
-1. Switch to craft tab and move rare item into craft slot.
-Expected: item renders and stays after refresh.
-2. Right-click orb with positive count and apply to rare item.
-Expected: orb count decrements by 1 and item rerolls.
-3. Press `Escape` while apply-orb mode is active.
-Expected: mode cancels and ghost orb cursor is removed.
+## Craft Slot / Орбы
+1. Открыть вкладку крафта и положить редкий предмет в craft-slot.  
+Ожидаемо: предмет рендерится и остаётся после refresh.
+2. ПКМ по орбе с положительным количеством и применить к редкому предмету.  
+Ожидаемо: количество орбов уменьшается на 1, предмет рероллится.
+3. Нажать `Escape` в режиме применения орбы.  
+Ожидаемо: режим отменяется, ghost-орба под курсором исчезает.
 
-## Window Composition
-1. Open inventory without stash.
-Expected: inventory layout remains in fixed position.
-2. Open stash with inventory.
-Expected: both windows are visible, independent, no inventory shift.
-3. Close inventory while holding an item.
-Expected: item safely returns to source/fallback inventory.
+## Компоновка Окон
+1. Открыть инвентарь без склада.  
+Ожидаемо: layout инвентаря остаётся на фиксированной позиции.
+2. Открыть склад вместе с инвентарём.  
+Ожидаемо: оба окна видны, независимы, инвентарь не сдвигается.
+3. Закрыть инвентарь, удерживая предмет в drag.  
+Ожидаемо: предмет безопасно возвращается в source/fallback контейнер.
 
 ## Save/Load
-1. Save game with items in backpack/equipment/craft slot/stash.
-2. Reload scene or game state.
-Expected: full item state restored with no missing anchors.
+1. Сохранить игру с предметами в рюкзаке/экипировке/craft-slot/складе.
+2. Перезагрузить сцену или состояние игры.  
+Ожидаемо: состояние предметов полностью восстановлено, без потери якорей.
 
-## Result Log
-- [ ] Drag & Drop
-- [ ] Ctrl+Click Transfers
-- [ ] Craft Slot / Orbs
-- [ ] Window Composition
-- [ ] Save/Load
+## Журнал Результатов
+- [+] Drag & Drop
+- [+] Ctrl+Click Переносы
+- [+] Craft Slot / Орбы
+- [+] Компоновка Окон
+- [+] Save/Load
+
+## Карта Автопокрытия (EditMode)
+- `Drag & Drop возврат в источник`:
+  - `Assets/Tests/EditMode/Editor/InventoryUIDragCloseTests.cs`
+  - `Assets/Tests/EditMode/Editor/InventoryStashIntegrationTests.cs` (atomic rollback)
+- `Swap-if-one`:
+  - `Assets/Tests/EditMode/Editor/InventoryManagerPlacementTests.cs`
+  - `Assets/Tests/EditMode/Editor/InventoryStashIntegrationTests.cs`
+- `stash <-> inventory transfer`:
+  - `Assets/Tests/EditMode/Editor/InventoryTransferServicesTests.cs`
+  - `Assets/Tests/EditMode/Editor/InventoryStashIntegrationTests.cs`
+- `craft slot + орбы`:
+  - `Assets/Tests/EditMode/Editor/InventoryManagerCraftOrbsSaveLoadTests.cs`
+- `save/load целостность`:
+  - `Assets/Tests/EditMode/Editor/InventoryManagerCraftOrbsSaveLoadTests.cs`
+  - `Assets/Tests/EditMode/Editor/InventoryStashIntegrationTests.cs`
