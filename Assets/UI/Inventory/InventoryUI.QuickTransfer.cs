@@ -5,13 +5,12 @@ using UnityEngine.UIElements;
 
 public partial class InventoryUI
 {
-    private const string QuickTransferEndpointInventory = "inventory.backpack";
-    private const string QuickTransferEndpointStash = "inventory.stash.current-tab";
-
     private IDisposable _inventoryQuickTransferRegistration;
     private IDisposable _stashQuickTransferRegistration;
+    private IDisposable _craftQuickTransferRegistration;
     private IDisposable _inventoryDropRegistration;
     private IDisposable _stashDropRegistration;
+    private IDisposable _craftDropRegistration;
 
     private void RegisterQuickTransferEndpoints()
     {
@@ -19,7 +18,7 @@ public partial class InventoryUI
 
         _inventoryQuickTransferRegistration = ItemQuickTransferService.Register(
             new DelegateItemQuickTransferEndpoint(
-                QuickTransferEndpointInventory,
+                ItemTransferEndpointIds.InventoryBackpack,
                 priority: 100,
                 isOpen: IsInventoryWindowVisible,
                 canAccept: context => context.Item != null && context.Item.Data != null,
@@ -30,7 +29,7 @@ public partial class InventoryUI
 
         _stashQuickTransferRegistration = ItemQuickTransferService.Register(
             new DelegateItemQuickTransferEndpoint(
-                QuickTransferEndpointStash,
+                ItemTransferEndpointIds.StashCurrentTab,
                 priority: 90,
                 isOpen: () => IsInventoryWindowVisible() && IsStashVisible,
                 canAccept: context => context.Item != null && context.Item.Data != null,
@@ -39,26 +38,42 @@ public partial class InventoryUI
                     context.Item != null &&
                     StashManager.Instance.TryAddItemPreferringTab(context.Item, StashManager.Instance.CurrentTabIndex)));
 
+        _craftQuickTransferRegistration = ItemQuickTransferService.Register(
+            new DelegateItemQuickTransferEndpoint(
+                ItemTransferEndpointIds.CraftSlot,
+                priority: 95,
+                isOpen: IsCraftEndpointOpen,
+                canAccept: CanAcceptCraftEndpoint,
+                tryAccept: TryAcceptCraftEndpoint));
+
         _inventoryDropRegistration = ItemDragDropService.Register(
             new DelegateItemDragDropEndpoint(
-                QuickTransferEndpointInventory,
+                ItemTransferEndpointIds.InventoryBackpack,
                 priority: 100,
                 isOpen: IsInventoryWindowVisible,
                 isPointerOver: pointerWorld =>
                     (_inventoryContainer != null && _inventoryContainer.worldBound.Contains(pointerWorld)) ||
-                    (_currentTab == 0 && IsAnyEquipmentSlotContains(pointerWorld)) ||
-                    (_currentTab == 1 && _craftSlot != null && _craftSlot.worldBound.Contains(pointerWorld)),
+                    (_currentTab == 0 && IsAnyEquipmentSlotContains(pointerWorld)),
                 canAccept: context => context.Item != null && context.Item.Data != null,
                 tryAccept: TryAcceptInventoryDrop));
 
         _stashDropRegistration = ItemDragDropService.Register(
             new DelegateItemDragDropEndpoint(
-                QuickTransferEndpointStash,
+                ItemTransferEndpointIds.StashCurrentTab,
                 priority: 90,
                 isOpen: () => IsInventoryWindowVisible() && IsStashVisible,
                 isPointerOver: pointerWorld => _stashPanel != null && _stashPanel.worldBound.Contains(pointerWorld),
                 canAccept: context => context.Item != null && context.Item.Data != null,
                 tryAccept: TryAcceptStashDrop));
+
+        _craftDropRegistration = ItemDragDropService.Register(
+            new DelegateItemDragDropEndpoint(
+                ItemTransferEndpointIds.CraftSlot,
+                priority: 95,
+                isOpen: IsCraftEndpointOpen,
+                isPointerOver: pointerWorld => _craftSlot != null && _craftSlot.worldBound.Contains(pointerWorld),
+                canAccept: CanAcceptCraftEndpoint,
+                tryAccept: TryAcceptCraftEndpoint));
     }
 
     private void UnregisterQuickTransferEndpoints()
@@ -67,10 +82,14 @@ public partial class InventoryUI
         _inventoryQuickTransferRegistration = null;
         _stashQuickTransferRegistration?.Dispose();
         _stashQuickTransferRegistration = null;
+        _craftQuickTransferRegistration?.Dispose();
+        _craftQuickTransferRegistration = null;
         _inventoryDropRegistration?.Dispose();
         _inventoryDropRegistration = null;
         _stashDropRegistration?.Dispose();
         _stashDropRegistration = null;
+        _craftDropRegistration?.Dispose();
+        _craftDropRegistration = null;
     }
 
     private bool IsInventoryWindowVisible()
@@ -99,11 +118,7 @@ public partial class InventoryUI
         Vector2 dropCenter = context.PointerWorldPosition;
 
         int targetIndex = -1;
-        if (_currentTab == 1 && _craftSlot != null && _craftSlot.worldBound.Contains(dropCenter))
-        {
-            targetIndex = InventoryManager.CRAFT_SLOT_INDEX;
-        }
-        else if (_currentTab == 0)
+        if (_currentTab == 0)
         {
             foreach (var slot in _equipmentSlots)
             {
@@ -143,5 +158,38 @@ public partial class InventoryUI
 
         int tab = StashManager.Instance.CurrentTabIndex;
         return StashManager.Instance.PlaceItemInStash(context.Item, tab, stashTarget, -1, -1, -1);
+    }
+
+    private bool IsCraftEndpointOpen()
+    {
+        return IsInventoryWindowVisible() && _currentTab == 1 && _craftSlot != null;
+    }
+
+    private bool CanAcceptCraftEndpoint(ItemQuickTransferContext context)
+    {
+        return context.Item != null &&
+               context.Item.Data != null &&
+               InventoryManager.Instance != null &&
+               InventoryManager.Instance.CraftingSlotItem == null;
+    }
+
+    private bool CanAcceptCraftEndpoint(ItemDragDropContext context)
+    {
+        return context.Item != null &&
+               context.Item.Data != null &&
+               InventoryManager.Instance != null &&
+               InventoryManager.Instance.CraftingSlotItem == null;
+    }
+
+    private bool TryAcceptCraftEndpoint(ItemQuickTransferContext context)
+    {
+        return InventoryManager.Instance != null &&
+               InventoryManager.Instance.PlaceItemAt(context.Item, InventoryManager.CRAFT_SLOT_INDEX, -1);
+    }
+
+    private bool TryAcceptCraftEndpoint(ItemDragDropContext context)
+    {
+        return InventoryManager.Instance != null &&
+               InventoryManager.Instance.PlaceItemAt(context.Item, InventoryManager.CRAFT_SLOT_INDEX, -1);
     }
 }

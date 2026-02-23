@@ -103,7 +103,6 @@ public partial class InventoryUI : MonoBehaviour
         _stashTabsRow = _root.Q<VisualElement>("StashTabsRow");
         _stashGridContainer = _root.Q<VisualElement>("StashGridContainer");
         _mainRow = _root.Q<VisualElement>("MainRow");
-        ApplyCompanionWindowConstraints();
         SetStashPanelVisible(false);
 
         CreateGhostIcon();
@@ -201,7 +200,6 @@ public partial class InventoryUI : MonoBehaviour
     public void SetStashPanelVisible(bool visible)
     {
         IsStashVisible = visible;
-        ApplyCompanionWindowConstraints();
         if (_stashPanel != null)
         {
             if (visible) _stashPanel.AddToClassList("visible");
@@ -252,26 +250,6 @@ public partial class InventoryUI : MonoBehaviour
         {
             _mainRow.style.marginLeft = StyleKeyword.Null;
             _mainRow.style.marginRight = StyleKeyword.Null;
-        }
-    }
-
-    private void ApplyCompanionWindowConstraints()
-    {
-        if (_windowRoot != null)
-        {
-            _windowRoot.style.width = IsStashVisible
-                ? InventoryCompanionLayout.ScreenWidth
-                : InventoryCompanionLayout.InventoryDockWidth;
-            _windowRoot.style.height = InventoryCompanionLayout.ScreenHeight;
-        }
-
-        if (_stashPanel != null)
-        {
-            _stashPanel.style.width = InventoryCompanionLayout.LeftCompanionWidth;
-            _stashPanel.style.left = 0;
-            _stashPanel.style.top = 0;
-            _stashPanel.style.bottom = 0;
-            _stashPanel.style.position = Position.Absolute;
         }
     }
 
@@ -1087,7 +1065,7 @@ public partial class InventoryUI : MonoBehaviour
             evt.StopPropagation();
             InventoryItem taken = InventoryManager.Instance.TakeItemFromSlot(anchorIdx);
             if (taken == null) return;
-            if (ItemQuickTransferService.TryQuickTransfer(QuickTransferEndpointInventory, taken, isShortcut: true))
+            if (ItemQuickTransferService.TryQuickTransfer(ItemTransferEndpointIds.InventoryBackpack, taken, isShortcut: true))
             {
                 RefreshInventory();
                 RefreshStash();
@@ -1149,7 +1127,7 @@ public partial class InventoryUI : MonoBehaviour
             evt.StopPropagation();
             InventoryItem taken = StashManager.Instance.TakeItemFromStash(tab, anchorSlot);
             if (taken == null) return;
-            if (ItemQuickTransferService.TryQuickTransfer(QuickTransferEndpointStash, taken, isShortcut: true))
+            if (ItemQuickTransferService.TryQuickTransfer(ItemTransferEndpointIds.StashCurrentTab, taken, isShortcut: true))
             {
                 RefreshInventory();
                 RefreshStash();
@@ -1266,6 +1244,29 @@ public partial class InventoryUI : MonoBehaviour
         if (slot.userData != null && (int)slot.userData >= STASH_SLOT_OFFSET) return;
         int idx = (int)slot.userData;
         InventoryManager.Instance.GetItemAt(idx, out int anchorIdx);
+
+        if (evt.ctrlKey)
+        {
+            evt.StopPropagation();
+            InventoryItem takenCtrl = InventoryManager.Instance.TakeItemFromSlot(anchorIdx);
+            if (takenCtrl == null) return;
+
+            string sourceEndpointId = anchorIdx == InventoryManager.CRAFT_SLOT_INDEX
+                ? ItemTransferEndpointIds.CraftSlot
+                : ItemTransferEndpointIds.InventoryBackpack;
+
+            if (ItemQuickTransferService.TryQuickTransfer(sourceEndpointId, takenCtrl, isShortcut: true))
+            {
+                RefreshInventory();
+                RefreshStash();
+                if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
+                return;
+            }
+
+            InventoryManager.Instance.PlaceItemAt(takenCtrl, anchorIdx, -1);
+            return;
+        }
+
         InventoryItem taken = InventoryManager.Instance.TakeItemFromSlot(anchorIdx);
         if (taken == null) return;
 
@@ -1423,7 +1424,11 @@ public partial class InventoryUI : MonoBehaviour
 
         if (!placed)
         {
-            string sourceEndpointId = fromStash ? QuickTransferEndpointStash : QuickTransferEndpointInventory;
+            string sourceEndpointId = fromStash
+                ? ItemTransferEndpointIds.StashCurrentTab
+                : (invSourceAnchor == InventoryManager.CRAFT_SLOT_INDEX
+                    ? ItemTransferEndpointIds.CraftSlot
+                    : ItemTransferEndpointIds.InventoryBackpack);
             placed = ItemDragDropService.TryDrop(sourceEndpointId, itemToPlace, dropCenter);
         }
 

@@ -67,13 +67,6 @@ namespace Scripts.Inventory
 
         public void TriggerUIUpdate() => OnInventoryChanged?.Invoke();
 
-        /// <summary>Установить предмет в слот крафта (для переноса из склада и т.п.).</summary>
-        public void SetCraftingSlotItem(InventoryItem item)
-        {
-            CraftingSlotItem = item;
-            TriggerUIUpdate();
-        }
-
         /// <summary>Вызвать событие экипировки (для внешнего кода, например StashManager).</summary>
         public void NotifyItemEquipped(InventoryItem item) => OnItemEquipped?.Invoke(item);
 
@@ -419,55 +412,6 @@ namespace Scripts.Inventory
             return TryEquipItem(backpackAnchor, equipGlobalIndex, itemInBackpack);
         }
 
-        private bool HandleMoveFromCraftSlot(int toIndex)
-        {
-            if (CraftingSlotItem == null) return false;
-            var item = CraftingSlotItem;
-
-            if (toIndex >= EQUIP_OFFSET)
-            {
-                int localEquipIndex = toIndex - EQUIP_OFFSET;
-                if ((int)item.Data.Slot != localEquipIndex) return false;
-                var currentEquipped = EquipmentItems[localEquipIndex];
-                CraftingSlotItem = null;
-                EquipmentItems[localEquipIndex] = item;
-                if (currentEquipped != null)
-                {
-                    CraftingSlotItem = currentEquipped;
-                    OnItemUnequipped?.Invoke(currentEquipped);
-                }
-                OnItemEquipped?.Invoke(item);
-                return true;
-            }
-
-            if (!CanPlaceItemAt(item, toIndex)) return false;
-            CraftingSlotItem = null;
-            PlaceItemAtAnchor(toIndex, item);
-            return true;
-        }
-
-        private bool HandleMoveToCraftSlot(int fromIndex)
-        {
-            var itemFrom = GetItemAt(fromIndex, out int fromAnchor);
-            if (itemFrom == null) return false;
-            var previousCraft = CraftingSlotItem;
-
-            if (fromIndex >= EQUIP_OFFSET)
-            {
-                int localIndex = fromIndex - EQUIP_OFFSET;
-                EquipmentItems[localIndex] = previousCraft;
-                if (previousCraft != null) OnItemUnequipped?.Invoke(itemFrom);
-                CraftingSlotItem = itemFrom;
-                OnItemEquipped?.Invoke(previousCraft);
-                return true;
-            }
-
-            ClearItemAtAnchor(fromAnchor, itemFrom);
-            if (previousCraft != null) PlaceItemAtAnchor(fromAnchor, previousCraft);
-            CraftingSlotItem = itemFrom;
-            return true;
-        }
-
         private void ClearItemAtAnchor(int anchorIndex, InventoryItem item)
         {
             if (item?.Data == null || _backpack == null || anchorIndex < 0 || anchorIndex >= _backpack.Length) return;
@@ -571,110 +515,6 @@ namespace Scripts.Inventory
                 OnInventoryChanged?.Invoke();
                 return true;
             }
-        }
-
-        public InventorySaveData GetSaveData()
-        {
-            var data = new InventorySaveData();
-
-            // 1. Рюкзак: по одному сохранению на предмет (по корню)
-            if (_backpack != null)
-            {
-                for (int i = 0; i < _backpack.Length; i++)
-                {
-                    _backpack.GetItemAt(i, out InventoryItem item, out int root);
-                    if (item != null && item.Data != null && root == i)
-                        data.Items.Add(item.GetSaveData(i));
-                }
-            }
-
-            // 2. Сохраняем экипировку (индексы будут 100, 101 и т.д.)
-            for (int i = 0; i < EquipmentItems.Length; i++)
-            {
-                if (EquipmentItems[i] != null && EquipmentItems[i].Data != null)
-                {
-                    data.Items.Add(EquipmentItems[i].GetSaveData(EQUIP_OFFSET + i));
-                }
-            }
-
-            // 3. Слот крафта и сферы
-            if (CraftingSlotItem != null && CraftingSlotItem.Data != null)
-                data.CraftingSlotItem = CraftingSlotItem.GetSaveData(CRAFT_SLOT_INDEX);
-            data.OrbCounts = new List<OrbCountEntry>(_orbCounts);
-
-            return data;
-        }
-
-        public void LoadState(InventorySaveData data, ItemDatabaseSO itemDB)
-        {
-            // 1. Очистка текущего состояния
-            // Сначала снимаем все вещи, чтобы статы откатились
-            for (int i = 0; i < EquipmentItems.Length; i++)
-            {
-                if (EquipmentItems[i] != null)
-                {
-                    OnItemUnequipped?.Invoke(EquipmentItems[i]);
-                    EquipmentItems[i] = null;
-                }
-            }
-            // Чистим рюкзак (удаляем все предметы по корням)
-            if (_backpack != null)
-            {
-                var toRemove = new List<InventoryItem>();
-                for (int i = 0; i < _backpack.Length; i++)
-                {
-                    _backpack.GetItemAt(i, out InventoryItem it, out int root);
-                    if (it != null && root == i) toRemove.Add(it);
-                }
-                foreach (var it in toRemove) _backpack.Remove(it);
-            }
-            SyncFromBackpack();
-            CraftingSlotItem = null;
-            _orbCounts.Clear();
-            if (data.OrbCounts != null) _orbCounts.AddRange(data.OrbCounts);
-
-            // 2. Восстановление (рюкзак: по якорю)
-            var claimedBackpack = new HashSet<int>();
-            foreach (var itemData in data.Items)
-            {
-                InventoryItem newItem = InventoryItem.LoadFromSave(itemData, itemDB);
-                if (newItem == null) continue;
-
-                if (itemData.SlotIndex >= EQUIP_OFFSET)
-                {
-                    int equipIndex = itemData.SlotIndex - EQUIP_OFFSET;
-                    if (equipIndex < EquipmentItems.Length)
-                    {
-                        EquipmentItems[equipIndex] = newItem;
-                        OnItemEquipped?.Invoke(newItem);
-                    }
-                    continue;
-                }
-                if (itemData.SlotIndex == CRAFT_SLOT_INDEX) continue;
-
-                int anchor = itemData.SlotIndex;
-                if (anchor < 0 || anchor >= (_backpack?.Length ?? 0)) continue;
-                GetBackpackItemSize(newItem, out int w, out int h);
-                bool anyClaimed = false;
-                for (int r = 0; r < h && !anyClaimed; r++)
-                    for (int c = 0; c < w; c++)
-                        if (claimedBackpack.Contains(anchor + r * _cols + c)) { anyClaimed = true; break; }
-                if (anyClaimed) continue;
-                _backpack.Place(newItem, anchor);
-                for (int r = 0; r < h; r++)
-                    for (int c = 0; c < w; c++)
-                        claimedBackpack.Add(anchor + r * _cols + c);
-            }
-            SyncFromBackpack();
-
-            // 3. Слот крафта
-            if (data.CraftingSlotItem != null)
-            {
-                var craftItem = InventoryItem.LoadFromSave(data.CraftingSlotItem, itemDB);
-                if (craftItem != null) CraftingSlotItem = craftItem;
-            }
-
-            TriggerUIUpdate();
         }
 
         public bool CanPlaceItemAt(InventoryItem item, int targetIndex)
