@@ -18,6 +18,10 @@ namespace Scripts.Enemies
         private float _maxHealth;
         private bool _isDead;
 
+        public float CurrentHealth => _currentHealth;
+        public float MaxHealth => _maxHealth;
+        public bool IsDead => _isDead;
+
         public event System.Action<EnemyHealth> OnDeath;
         public event System.Action<float, float> OnHealthChanged;
 
