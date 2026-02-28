@@ -12,6 +12,7 @@ using UObject = UnityEngine.Object;
 public sealed class WorldStatusBarsManager : MonoBehaviour
 {
     private const float RescanInterval = 0.5f;
+    private const float DamageTrailDuration = 0.22f;
     private const float MinAutoHeight = 0.45f;
     private const float EnemyExtraYOffset = 0.12f;
     private const float PlayerExtraYOffset = 0.18f;
@@ -222,6 +223,7 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             tracked.CachedManaNormalized = Mathf.Clamp01(mp.Percent);
             tracked.View.SetHealth(tracked.CachedHealthNormalized);
             tracked.View.SetMana(tracked.CachedManaNormalized);
+            tracked.View.Tick(Time.unscaledDeltaTime);
 
             var worldPos = tracked.Transform.position + Vector3.up * (Mathf.Max(MinAutoHeight, tracked.AutoHeight) + PlayerExtraYOffset);
             tracked.View.SetVisible(SetUiPosition(tracked.View.Root, worldPos));
@@ -255,6 +257,7 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             // Poll as fallback, events are still the main update path.
             tracked.CachedHealthNormalized = Mathf.Clamp01(cur / max);
             tracked.View.SetHealth(tracked.CachedHealthNormalized);
+            tracked.View.Tick(Time.unscaledDeltaTime);
             var worldPos = tracked.Transform.position + Vector3.up * (Mathf.Max(MinAutoHeight, tracked.AutoHeight) + EnemyExtraYOffset);
             tracked.View.SetVisible(SetUiPosition(tracked.View.Root, worldPos));
         }
@@ -334,6 +337,19 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         bg.color = bgColor;
         bg.raycastTarget = false;
 
+        var trailGo = new GameObject(name + "_Trail");
+        var trailRect = trailGo.AddComponent<RectTransform>();
+        trailRect.SetParent(bgRect, false);
+        trailRect.anchorMin = new Vector2(0f, 0f);
+        trailRect.anchorMax = new Vector2(0f, 1f);
+        trailRect.pivot = new Vector2(0f, 0.5f);
+        trailRect.anchoredPosition = Vector2.zero;
+        trailRect.sizeDelta = new Vector2(width, 0f);
+
+        var trail = trailGo.AddComponent<Image>();
+        trail.color = new Color(1f, 0.55f, 0.15f, 0f);
+        trail.raycastTarget = false;
+
         var fillGo = new GameObject(name + "_Fill");
         var fillRect = fillGo.AddComponent<RectTransform>();
         fillRect.SetParent(bgRect, false);
@@ -346,7 +362,7 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         var fill = fillGo.AddComponent<Image>();
         fill.color = fillColor;
         fill.raycastTarget = false;
-        return new BarRow(fill, fillRect, width);
+        return new BarRow(fill, fillRect, trail, trailRect, width);
     }
 
     private static float ComputeAutoHeight(Transform target)
@@ -460,12 +476,20 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
     {
         public Image FillImage { get; }
         public RectTransform FillRect { get; }
+        public Image TrailImage { get; }
+        public RectTransform TrailRect { get; }
         public float MaxWidth { get; }
+        public bool TrailActive;
+        public float TrailElapsed;
+        public float TrailStartWidth;
+        public float TrailTargetWidth;
 
-        public BarRow(Image fillImage, RectTransform fillRect, float maxWidth)
+        public BarRow(Image fillImage, RectTransform fillRect, Image trailImage, RectTransform trailRect, float maxWidth)
         {
             FillImage = fillImage;
             FillRect = fillRect;
+            TrailImage = trailImage;
+            TrailRect = trailRect;
             MaxWidth = maxWidth;
         }
     }
@@ -485,12 +509,17 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
 
         public void SetHealth(float normalized)
         {
-            SetRowNormalized(_healthRow, normalized);
+            SetRowNormalized(_healthRow, normalized, useDamageTrail: true);
         }
 
         public void SetMana(float normalized)
         {
-            SetRowNormalized(_manaRow, normalized);
+            SetRowNormalized(_manaRow, normalized, useDamageTrail: false);
+        }
+
+        public void Tick(float dt)
+        {
+            TickRowTrail(_healthRow, dt);
         }
 
         public void SetVisible(bool visible)
@@ -505,17 +534,86 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
                 UObject.Destroy(Root.gameObject);
         }
 
-        private static void SetRowNormalized(BarRow row, float normalized)
+        private static void SetRowNormalized(BarRow row, float normalized, bool useDamageTrail)
         {
             if (row == null || row.FillRect == null)
                 return;
 
             float n = Mathf.Clamp01(normalized);
+            float prevWidth = row.FillRect.sizeDelta.x;
+            float newWidth = row.MaxWidth * n;
+
+            if (useDamageTrail)
+            {
+                if (newWidth < prevWidth - 0.01f)
+                {
+                    float currentTrailWidth = row.TrailRect != null ? row.TrailRect.sizeDelta.x : prevWidth;
+                    row.TrailStartWidth = Mathf.Max(prevWidth, currentTrailWidth);
+                    row.TrailTargetWidth = newWidth;
+                    row.TrailElapsed = 0f;
+                    row.TrailActive = true;
+                    SetTrailWidth(row, row.TrailStartWidth);
+                    SetTrailAlpha(row, 1f);
+                }
+                else if (newWidth > prevWidth + 0.01f)
+                {
+                    row.TrailActive = false;
+                    SetTrailWidth(row, newWidth);
+                    SetTrailAlpha(row, 0f);
+                }
+            }
+            else
+            {
+                row.TrailActive = false;
+                SetTrailWidth(row, newWidth);
+                SetTrailAlpha(row, 0f);
+            }
+
             var size = row.FillRect.sizeDelta;
-            size.x = row.MaxWidth * n;
+            size.x = newWidth;
             row.FillRect.sizeDelta = size;
             if (row.FillImage != null)
                 row.FillImage.enabled = n > 0.001f;
+        }
+
+        private static void TickRowTrail(BarRow row, float dt)
+        {
+            if (row == null || !row.TrailActive)
+                return;
+
+            row.TrailElapsed += Mathf.Max(0f, dt);
+            float t = Mathf.Clamp01(row.TrailElapsed / DamageTrailDuration);
+            float width = Mathf.Lerp(row.TrailStartWidth, row.TrailTargetWidth, t);
+            float alpha = 1f - t;
+
+            SetTrailWidth(row, width);
+            SetTrailAlpha(row, alpha);
+
+            if (t >= 1f)
+            {
+                row.TrailActive = false;
+                SetTrailWidth(row, row.TrailTargetWidth);
+                SetTrailAlpha(row, 0f);
+            }
+        }
+
+        private static void SetTrailWidth(BarRow row, float width)
+        {
+            if (row == null || row.TrailRect == null)
+                return;
+            var size = row.TrailRect.sizeDelta;
+            size.x = Mathf.Clamp(width, 0f, row.MaxWidth);
+            row.TrailRect.sizeDelta = size;
+        }
+
+        private static void SetTrailAlpha(BarRow row, float alpha)
+        {
+            if (row == null || row.TrailImage == null)
+                return;
+            var c = row.TrailImage.color;
+            c.a = Mathf.Clamp01(alpha);
+            row.TrailImage.color = c;
+            row.TrailImage.enabled = c.a > 0.001f;
         }
     }
 }
