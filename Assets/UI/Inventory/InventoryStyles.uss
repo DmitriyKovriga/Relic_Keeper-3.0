@@ -101,51 +101,54 @@
    Контент склада оставляем на прежней вертикали за счёт внутренней компенсации padding-bottom. */
 .stash-panel {
     display: none;
-    flex-direction: column;
+    width: 200px;
+    height: 270px;
+    min-height: 270px;
+    max-height: 270px;
     flex-grow: 0;
     flex-shrink: 0;
-    width: 200px;
-    min-height: 0;
-    border-left-width: 0;
-    border-right-width: 0;
-    padding-top: 8px;
-    padding-bottom: 20px;
-    padding-left: 8px;
-    padding-right: 8px;
-    margin-right: 0;
-    margin-left: 0;
-    background-color: rgba(12, 11, 10, 1);
-    border-left-width: 1px;
-    border-right-width: 1px;
-    border-left-color: rgba(80, 70, 60, 0.8);
-    border-right-color: rgba(80, 70, 60, 0.8);
-    justify-content: flex-end;
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
+    border-width: 0;
+    justify-content: flex-start;
     position: absolute;
     left: 0;
     top: 0;
-    bottom: 0;
+    overflow: visible;
 }
 
 .stash-panel.visible {
     display: flex;
 }
 
+.stash-background-art {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 200px;
+    height: 270px;
+    opacity: 1;
+    z-index: 0;
+}
+
 .stash-tabs-row {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    flex-shrink: 0;
-    margin-bottom: 0;
-    min-height: 18px;
-    height: 18px;
-    align-items: stretch;
+    position: absolute;
+    left: 7px;
+    top: 14px;
+    width: 172px;
+    min-height: 14px;
+    max-height: 14px;
+    height: 14px;
+    z-index: 3;
 }
 
 .stash-tabs-scroll {
     flex-grow: 1;
     min-width: 0;
-    height: 18px;
-    max-height: 18px;
-    min-height: 18px;
+    height: 14px;
+    max-height: 14px;
+    min-height: 14px;
     overflow: hidden;
     background-color: transparent;
     border-width: 0;
@@ -154,11 +157,11 @@
 .stash-tabs-scroll .unity-scroll-view__content-viewport {
     overflow-x: auto;
     overflow-y: hidden;
-    height: 18px;
+    height: 14px;
 }
 
 .stash-tabs-scroll .unity-scroll-view__content-container {
-    height: 18px;
+    height: 14px;
 }
 
 .stash-tabs-scroll .unity-scroll-view__vertical-scroller,
@@ -167,14 +170,7 @@
 }
 
 .stash-tabs-scroll .unity-scroll-view__horizontal-scroller {
-    flex-grow: 1;
-    min-width: 0;
-    height: 4px;
-    min-height: 4px;
-    margin-top: 0;
-    background-color: rgba(40, 40, 40, 0.9);
-    border-width: 0;
-    border-radius: 2px;
+    display: none;
 }
 
 .stash-tabs-scroll .unity-scroll-view__horizontal-scroller .unity-scroller__low-button,
@@ -202,8 +198,8 @@
 .stash-tabs-carousel {
     flex-direction: row;
     flex-shrink: 0;
-    height: 16px;
-    min-height: 16px;
+    height: 14px;
+    min-height: 14px;
     align-items: center;
     padding-right: 2px;
 }
@@ -224,15 +220,15 @@
     font-size: 10px;
     line-height: 12px;
     -unity-text-align: middle-center;
-    border-width: 1px;
-    border-color: #443333;
-    background-color: rgba(60, 30, 30, 0.9);
+    border-width: 0;
+    border-color: transparent;
+    background-color: rgba(0, 0, 0, 0);
     color: rgba(255, 180, 180, 0.9);
 }
 
 .stash-tab-delete:hover {
-    background-color: rgba(90, 40, 40, 0.95);
-    border-color: #664444;
+    background-color: rgba(90, 40, 40, 0.35);
+    border-color: transparent;
     color: #fff;
 }
 
@@ -242,22 +238,22 @@
     margin-right: 1px;
     padding-left: 4px;
     padding-right: 4px;
-    border-width: 1px;
-    border-color: #444;
-    background-color: #252525;
+    border-width: 0;
+    border-color: transparent;
+    background-color: rgba(0, 0, 0, 0);
     color: rgba(255, 255, 255, 0.9);
     font-size: 9px;
     -unity-text-align: middle-center;
 }
 
 .stash-tab:hover {
-    border-color: #555;
-    background-color: #333;
+    border-color: transparent;
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .stash-tab.active {
-    border-color: #aa8844;
-    background-color: rgba(180, 140, 70, 0.25);
+    border-color: transparent;
+    background-color: rgba(180, 140, 70, 0.2);
 }
 
 .stash-tab-add {
@@ -266,36 +262,37 @@
     margin-left: 1px;
     padding-left: 4px;
     padding-right: 4px;
-    border-width: 1px;
-    border-color: rgba(80, 80, 80, 0.8);
+    border-width: 0;
+    border-color: transparent;
     border-style: solid;
-    background-color: rgba(45, 45, 45, 0.9);
+    background-color: rgba(0, 0, 0, 0);
     color: rgba(255, 255, 255, 0.85);
     font-size: 11px;
     -unity-text-align: middle-center;
 }
 
 .stash-tab-add:hover {
-    background-color: rgba(65, 65, 65, 0.95);
+    background-color: rgba(255, 255, 255, 0.08);
     color: #fff;
-    border-color: #666;
+    border-color: transparent;
 }
 
 .stash-grid-container {
-    flex-direction: column;
-    flex-shrink: 0;
-    position: relative;
-    width: 180px;
-    height: 220px;
+    position: absolute;
+    left: 7px;
+    top: 29px;
+    width: 172px;
+    height: 210px;
     border-width: 0;
-    background-color: #111;
-    overflow: hidden;
+    background-color: transparent;
+    overflow: visible;
+    z-index: 1;
 }
 
 .stash-row {
     flex-direction: row;
-    height: 20px;
-    width: 180px;
+    height: 19px;
+    width: 172px;
 }
 
 /* Правило: края окна отступают от элементов — контент внутри padding, при переполнении скролл. */
@@ -542,10 +539,10 @@
 
 .stash-frame-art {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: -4px;
+    left: -4px;
+    width: 188px;
+    height: 228px;
     opacity: 1;
 }
 
@@ -573,7 +570,7 @@
 
 .backpack-slot,
 .stash-slot {
-    background-color: #111;
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .stash-frame-art {

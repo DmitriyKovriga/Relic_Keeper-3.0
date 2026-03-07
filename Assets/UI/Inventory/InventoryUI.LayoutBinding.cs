@@ -6,13 +6,17 @@ using Scripts.Inventory;
 public partial class InventoryUI
 {
     private static Dictionary<string, Sprite> _inventoryAtlasSprites;
+    private static Dictionary<string, Sprite> _stashAtlasSprites;
 
     private VisualElement _inventoryBackgroundArt;
     private VisualElement _inventoryFrameArt;
     private VisualElement _equipmentFrameArt;
     private VisualElement _ghostLeftArt;
     private VisualElement _ghostRightArt;
+    private VisualElement _stashBackgroundArt;
     private VisualElement _stashFrameArt;
+    private Sprite _stashTabBackgroundSprite;
+    private Sprite _stashTabDeleteBackgroundSprite;
 
     private bool TryBindBackpackGridFromUxml()
     {
@@ -72,10 +76,10 @@ public partial class InventoryUI
         _stashSlots.Clear();
         _stashItemsLayer = itemsLayer;
 
-        _stashGridContainer.style.width = StashManager.STASH_COLS * StashSlotSize;
-        _stashGridContainer.style.height = StashManager.STASH_ROWS * StashSlotSize;
-        slotsLayer.style.width = StashManager.STASH_COLS * StashSlotSize;
-        slotsLayer.style.height = StashManager.STASH_ROWS * StashSlotSize;
+        _stashGridContainer.style.width = StashGridWidth;
+        _stashGridContainer.style.height = StashGridHeight;
+        slotsLayer.style.width = StashGridWidth;
+        slotsLayer.style.height = StashGridHeight;
 
         for (int i = 0; i < StashManager.STASH_SLOTS_PER_TAB; i++)
         {
@@ -113,6 +117,7 @@ public partial class InventoryUI
         _equipmentFrameArt = _root.Q<VisualElement>("EquipmentFrameArt");
         _ghostLeftArt = _root.Q<VisualElement>("GhostLeftArt");
         _ghostRightArt = _root.Q<VisualElement>("GhostRightArt");
+        _stashBackgroundArt = _root.Q<VisualElement>("StashBackgroundArt");
         _stashFrameArt = _root.Q<VisualElement>("StashFrameArt");
 
         SetDecorativeIgnorePointer(_inventoryBackgroundArt);
@@ -120,6 +125,7 @@ public partial class InventoryUI
         SetDecorativeIgnorePointer(_equipmentFrameArt);
         SetDecorativeIgnorePointer(_ghostLeftArt);
         SetDecorativeIgnorePointer(_ghostRightArt);
+        SetDecorativeIgnorePointer(_stashBackgroundArt);
         SetDecorativeIgnorePointer(_stashFrameArt);
 
         var sprites = GetInventoryAtlasSprites();
@@ -134,6 +140,7 @@ public partial class InventoryUI
         if (_craftSlot != null)
             ApplyBackground(_craftSlot, slot2x4);
 
+        ApplyStashArtTheme();
         _equipmentFrameArt?.BringToFront();
     }
 
@@ -150,12 +157,81 @@ public partial class InventoryUI
         return _inventoryAtlasSprites;
     }
 
+    private static Dictionary<string, Sprite> GetStashAtlasSprites()
+    {
+        if (_stashAtlasSprites != null)
+            return _stashAtlasSprites;
+
+        _stashAtlasSprites = new Dictionary<string, Sprite>();
+        LoadStashSpritesFromResource("UI/Stash/stash2.2", _stashAtlasSprites);
+        LoadStashSpritesFromResource("UI/Stash/stash2", _stashAtlasSprites);
+
+        return _stashAtlasSprites;
+    }
+
+    private void ApplyStashArtTheme()
+    {
+        var sprites = GetStashAtlasSprites();
+        if (sprites == null || sprites.Count == 0)
+            return;
+
+        // New panel sprite first, then legacy fallback names.
+        var stashPanelSprite = GetSprite(sprites, "stash2.2_0", "stash2_2");
+        _stashTabBackgroundSprite = GetSprite(sprites, "stash2.2_1", "stash2_0");
+        _stashTabDeleteBackgroundSprite = GetSprite(sprites, "stash2.2_2", "stash2_1");
+
+        ApplyBackground(_stashBackgroundArt, stashPanelSprite);
+        ApplyStashPanelFill(_stashBackgroundArt);
+
+        // Separate frame layer is disabled: frame is integrated into stash2_2 art.
+        if (_stashFrameArt != null)
+        {
+            _stashFrameArt.style.display = DisplayStyle.None;
+            _stashFrameArt.style.backgroundImage = StyleKeyword.Null;
+        }
+
+        _stashWindowController?.SetTabArt(_stashTabBackgroundSprite, _stashTabDeleteBackgroundSprite);
+        if (_stashTabsRow != null)
+            _stashWindowController?.RefreshTabs(_stashTabsRow);
+    }
+
     private static Sprite GetSprite(Dictionary<string, Sprite> sprites, string name)
     {
         if (sprites == null || string.IsNullOrEmpty(name))
             return null;
 
         return sprites.TryGetValue(name, out var sprite) ? sprite : null;
+    }
+
+    private static Sprite GetSprite(Dictionary<string, Sprite> sprites, params string[] names)
+    {
+        if (sprites == null || names == null)
+            return null;
+
+        for (int i = 0; i < names.Length; i++)
+        {
+            if (sprites.TryGetValue(names[i], out var sprite) && sprite != null)
+                return sprite;
+        }
+
+        return null;
+    }
+
+    private static void LoadStashSpritesFromResource(string resourcePath, Dictionary<string, Sprite> target)
+    {
+        if (target == null || string.IsNullOrEmpty(resourcePath))
+            return;
+
+        var sprites = Resources.LoadAll<Sprite>(resourcePath);
+        for (int i = 0; i < sprites.Length; i++)
+        {
+            var sprite = sprites[i];
+            if (sprite == null || string.IsNullOrEmpty(sprite.name))
+                continue;
+
+            if (!target.ContainsKey(sprite.name))
+                target[sprite.name] = sprite;
+        }
     }
 
     private static void ApplyBackground(VisualElement element, Sprite sprite)
@@ -170,6 +246,39 @@ public partial class InventoryUI
         }
 
         element.style.backgroundImage = new StyleBackground(sprite);
+    }
+
+    private static void ApplyNativeSpriteBox(VisualElement element, Sprite sprite, float parentWidth, float parentHeight, float offsetX, float offsetY)
+    {
+        if (element == null)
+            return;
+
+        if (sprite == null)
+        {
+            element.style.width = StyleKeyword.Null;
+            element.style.height = StyleKeyword.Null;
+            element.style.left = StyleKeyword.Null;
+            element.style.top = StyleKeyword.Null;
+            return;
+        }
+
+        float width = sprite.rect.width;
+        float height = sprite.rect.height;
+        element.style.width = width;
+        element.style.height = height;
+        element.style.left = Mathf.Round((parentWidth - width) * 0.5f + offsetX);
+        element.style.top = Mathf.Round((parentHeight - height) * 0.5f + offsetY);
+    }
+
+    private static void ApplyStashPanelFill(VisualElement element)
+    {
+        if (element == null)
+            return;
+
+        element.style.left = 0;
+        element.style.top = 0;
+        element.style.width = 200f;
+        element.style.height = 270f;
     }
 
     private static void SetDecorativeIgnorePointer(VisualElement element)

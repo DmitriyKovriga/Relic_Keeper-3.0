@@ -191,7 +191,7 @@ public partial class InventoryUI
         int col = rootIndex % StashManager.STASH_COLS;
         float x = col * StashSlotSize;
         float y = row * StashSlotSize;
-        Rect localRect = new Rect(x, y, itemW * StashSlotSize, itemH * StashSlotSize);
+        Rect localRect = new Rect(x, y, GetStashSpanSize(itemW), GetStashSpanSize(itemH));
         Vector2 minWorld = _stashItemsLayer.LocalToWorld(localRect.min);
         Vector2 maxWorld = _stashItemsLayer.LocalToWorld(localRect.max);
         Vector2 minRoot = _root.WorldToLocal(minWorld);
@@ -406,9 +406,16 @@ public partial class InventoryUI
         float h;
         if (_isDragging && _draggedItem?.Data != null)
         {
-            float cell = _draggedFromStash ? StashSlotSize : InventorySlotSize;
-            w = _draggedItem.Data.Width * cell;
-            h = _draggedItem.Data.Height * cell;
+            if (_draggedFromStash)
+            {
+                w = GetStashSpanSize(_draggedItem.Data.Width);
+                h = GetStashSpanSize(_draggedItem.Data.Height);
+            }
+            else
+            {
+                w = _draggedItem.Data.Width * InventorySlotSize;
+                h = _draggedItem.Data.Height * InventorySlotSize;
+            }
             _ghostIcon.style.left = rootLocalPos.x - _grabOffsetRootLocal.x;
             _ghostIcon.style.top = rootLocalPos.y - _grabOffsetRootLocal.y;
         }
