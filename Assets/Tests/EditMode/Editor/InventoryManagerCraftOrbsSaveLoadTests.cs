@@ -4,6 +4,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Scripts.Inventory;
 using Scripts.Items;
+using Scripts.Saving;
 using UnityEngine;
 
 namespace RelicKeeper.Tests.EditMode
@@ -125,6 +126,36 @@ namespace RelicKeeper.Tests.EditMode
             Assert.AreEqual("save-equip", target.GetItem(InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.MainHand).Data.ID);
             Assert.AreEqual("save-craft", target.CraftingSlotItem.Data.ID);
             Assert.AreEqual(7, target.GetOrbCount("orb.reroll"));
+        }
+
+        [Test]
+        public void LoadState_UnequipEventFiresAfterEquipSlotIsCleared()
+        {
+            var manager = CreateManager("mgr-load-unequip-order");
+            var equippedItem = CreateWeapon("old-main", EquipmentSlot.MainHand);
+            Assert.IsTrue(manager.PlaceItemAt(equippedItem, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.MainHand, -1));
+
+            var itemDb = ScriptableObject.CreateInstance<ItemDatabaseSO>();
+            _createdObjects.Add(itemDb);
+            itemDb.Init();
+
+            bool callbackHit = false;
+            bool mainHandWasClearedInCallback = false;
+
+            manager.OnItemUnequipped += item =>
+            {
+                if (item?.Data?.ID != "old-main")
+                    return;
+
+                callbackHit = true;
+                mainHandWasClearedInCallback =
+                    manager.GetItem(InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.MainHand) == null;
+            };
+
+            manager.LoadState(new InventorySaveData(), itemDb);
+
+            Assert.IsTrue(callbackHit, "Expected unequip callback for previous main-hand item.");
+            Assert.IsTrue(mainHandWasClearedInCallback, "Main-hand slot must be cleared before unequip event is dispatched.");
         }
 
         private InventoryManager CreateManager(string name)

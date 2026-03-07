@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &2586033976023169708
 GameObject:
@@ -941,11 +941,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _enemyEntries:
-  - EnemyData: {fileID: 11400000, guid: ddc6f62b7855f6f4996626a9d443dceb, type: 2}
+  - EnemyData: {fileID: 11400000, guid: 86f594a954a54d529f642a882326dd19, type: 2}
     Weight: 1
   _spawnCount: 1
   _spawnOnRoomEnter: 1
-  _enemyPrefab: {fileID: 3239475662571640954, guid: d3dcec50cd6f0304fbba7a9e8d2e8c0e, type: 3}
+  _enemyPrefab: {fileID: 3239475662571640954, guid: 388cf9e0d0714e8a95fbe17f07e934bf, type: 3}
 --- !u!1 &5604288891661710384
 GameObject:
   m_ObjectHideFlags: 0
@@ -9176,3 +9176,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _roomLevel: 1
   _playerSpawnPoint: {fileID: 861953363116460975}
+
