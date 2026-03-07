@@ -23,8 +23,8 @@ public partial class InventoryUI
         _stashGridContainer.Clear();
         _stashSlots.Clear();
 
-        _stashGridContainer.style.width = StashManager.STASH_COLS * StashSlotSize;
-        _stashGridContainer.style.height = StashManager.STASH_ROWS * StashSlotSize;
+        _stashGridContainer.style.width = StashGridWidth;
+        _stashGridContainer.style.height = StashGridHeight;
 
         _stashItemsLayer = new VisualElement { name = "StashItemsLayer" };
         _stashItemsLayer.style.position = Position.Absolute;
@@ -35,7 +35,7 @@ public partial class InventoryUI
         {
             var row = new VisualElement();
             row.AddToClassList("stash-row");
-            row.style.width = StashManager.STASH_COLS * StashSlotSize;
+            row.style.width = StashGridWidth;
             row.style.height = StashSlotSize;
             _stashGridContainer.Add(row);
             for (int c = 0; c < StashManager.STASH_COLS; c++)
@@ -86,7 +86,7 @@ public partial class InventoryUI
 
     private void DrawStashIcons()
     {
-        _stashWindowController?.DrawIcons(_stashItemsLayer, StashSlotSize);
+        _stashWindowController?.DrawIcons(_stashItemsLayer, StashSlotSize, StashSharedBorderSize);
         if (ItemTooltipController.Instance != null)
             ItemTooltipController.Instance.ValidateCurrentTarget();
     }
@@ -155,8 +155,8 @@ public partial class InventoryUI
         _draggedStashAnchorSlot = anchorSlot;
         RefreshStash();
         _ghostIcon.style.backgroundImage = new StyleBackground(item.Data.Icon);
-        _ghostIcon.style.width = item.Data.Width * StashSlotSize;
-        _ghostIcon.style.height = item.Data.Height * StashSlotSize;
+        _ghostIcon.style.width = GetStashSpanSize(item.Data.Width);
+        _ghostIcon.style.height = GetStashSpanSize(item.Data.Height);
         _ghostIcon.style.display = DisplayStyle.None;
         if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
         CaptureDragPointer(pointerId);
@@ -165,8 +165,8 @@ public partial class InventoryUI
     private int GetSmartStashTargetIndex(Vector2 dropCenterPanel, int itemWidth, int itemHeight)
     {
         if (_stashItemsLayer == null || itemWidth <= 0 || itemHeight <= 0) return -1;
-        float w = itemWidth * StashSlotSize;
-        float h = itemHeight * StashSlotSize;
+        float w = GetStashSpanSize(itemWidth);
+        float h = GetStashSpanSize(itemHeight);
         Rect ghostWorld = new Rect(dropCenterPanel.x - w * 0.5f, dropCenterPanel.y - h * 0.5f, w, h);
         Vector2 localMin = _stashItemsLayer.WorldToLocal(new Vector2(ghostWorld.xMin, ghostWorld.yMin));
         Vector2 localMax = _stashItemsLayer.WorldToLocal(new Vector2(ghostWorld.xMax, ghostWorld.yMax));
@@ -184,8 +184,8 @@ public partial class InventoryUI
             {
                 float iMinX = col * StashSlotSize;
                 float iMinY = row * StashSlotSize;
-                float iMaxX = (col + itemWidth) * StashSlotSize;
-                float iMaxY = (row + itemHeight) * StashSlotSize;
+                float iMaxX = iMinX + GetStashSpanSize(itemWidth);
+                float iMaxY = iMinY + GetStashSpanSize(itemHeight);
                 float area = OverlapArea(gMinX, gMinY, gMaxX, gMaxY, iMinX, iMinY, iMaxX, iMaxY);
                 if (area > bestArea)
                 {
@@ -222,9 +222,14 @@ internal sealed class StashWindowController
         _tabsPresenter.Render(stashTabsRow);
     }
 
-    public void DrawIcons(VisualElement stashItemsLayer, float stashSlotSize)
+    public void SetTabArt(Sprite tabBackgroundSprite, Sprite tabDeleteBackgroundSprite)
     {
-        _gridPresenter.RenderIcons(stashItemsLayer, stashSlotSize);
+        _tabsPresenter.SetArt(tabBackgroundSprite, tabDeleteBackgroundSprite);
+    }
+
+    public void DrawIcons(VisualElement stashItemsLayer, float stashSlotSize, float sharedBorderSize)
+    {
+        _gridPresenter.RenderIcons(stashItemsLayer, stashSlotSize, sharedBorderSize);
     }
 
     public StashPointerAction ResolveIconPointerDown(PointerDownEvent evt)
@@ -282,6 +287,8 @@ internal sealed class StashTabsPresenter
 {
     private readonly System.Func<StashManager> _getStash;
     private readonly System.Action _refreshStash;
+    private Sprite _tabBackgroundSprite;
+    private Sprite _tabDeleteBackgroundSprite;
 
     public StashTabsPresenter(System.Func<StashManager> getStash, System.Action refreshStash)
     {
@@ -290,6 +297,12 @@ internal sealed class StashTabsPresenter
     }
 
     public StashManager GetStash() => _getStash?.Invoke();
+
+    public void SetArt(Sprite tabBackgroundSprite, Sprite tabDeleteBackgroundSprite)
+    {
+        _tabBackgroundSprite = tabBackgroundSprite;
+        _tabDeleteBackgroundSprite = tabDeleteBackgroundSprite;
+    }
 
     public void Render(VisualElement stashTabsRow)
     {
@@ -304,9 +317,9 @@ internal sealed class StashTabsPresenter
         stashTabsRow.Clear();
         var scroll = new ScrollView(ScrollViewMode.Horizontal);
         scroll.AddToClassList("stash-tabs-scroll");
-        scroll.style.height = 18;
-        scroll.style.minHeight = 18;
-        scroll.style.maxHeight = 18;
+        scroll.style.height = 14;
+        scroll.style.minHeight = 14;
+        scroll.style.maxHeight = 14;
         if (scroll.verticalScroller != null)
         {
             scroll.verticalScroller.style.display = DisplayStyle.None;
@@ -337,6 +350,7 @@ internal sealed class StashTabsPresenter
             }) { text = (i + 1).ToString() };
             tab.AddToClassList("stash-tab");
             if (i == current) tab.AddToClassList("active");
+            ApplyButtonArt(tab, _tabBackgroundSprite);
             wrap.Add(tab);
 
             if (tabCount > 1 && i == current)
@@ -351,6 +365,7 @@ internal sealed class StashTabsPresenter
                     }
                 }) { text = "x", tooltip = "Close empty tab and switch to first tab." };
                 del.AddToClassList("stash-tab-delete");
+                ApplyButtonArt(del, _tabDeleteBackgroundSprite);
                 wrap.Add(del);
             }
 
@@ -364,6 +379,7 @@ internal sealed class StashTabsPresenter
         }) { text = "+", tooltip = "New tab" };
         addTab.AddToClassList("stash-tab");
         addTab.AddToClassList("stash-tab-add");
+        ApplyButtonArt(addTab, _tabBackgroundSprite);
         content.Add(addTab);
 
         scroll.Add(content);
@@ -381,6 +397,20 @@ internal sealed class StashTabsPresenter
 
         scroll.schedule.Execute(RestoreScroll).ExecuteLater(1);
         scroll.schedule.Execute(RestoreScroll).ExecuteLater(5);
+    }
+
+    private static void ApplyButtonArt(Button button, Sprite sprite)
+    {
+        if (button == null)
+            return;
+
+        if (sprite == null)
+        {
+            button.style.backgroundImage = StyleKeyword.Null;
+            return;
+        }
+
+        button.style.backgroundImage = new StyleBackground(sprite);
     }
 
     private static void HideHorizontalScrollerArrows(ScrollView scroll)
@@ -478,7 +508,7 @@ internal sealed class StashGridPresenter
         _onPointerDown = onPointerDown;
     }
 
-    public void RenderIcons(VisualElement stashItemsLayer, float stashSlotSize)
+    public void RenderIcons(VisualElement stashItemsLayer, float stashSlotSize, float sharedBorderSize)
     {
         var stash = _getStash?.Invoke();
         if (stashItemsLayer == null || stash == null || _createItemIcon == null) return;
@@ -497,6 +527,8 @@ internal sealed class StashGridPresenter
 
             StashManager.GetStashItemSize(item, out int sw, out int sh);
             var icon = _createItemIcon(item, sw, sh, stashSlotSize, true);
+            icon.style.width = sw * stashSlotSize + sharedBorderSize;
+            icon.style.height = sh * stashSlotSize + sharedBorderSize;
             icon.style.left = (i % StashManager.STASH_COLS) * stashSlotSize;
             icon.style.top = (i / StashManager.STASH_COLS) * stashSlotSize;
             icon.userData = i;

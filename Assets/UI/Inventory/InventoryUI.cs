@@ -18,9 +18,13 @@ public partial class InventoryUI : MonoBehaviour
     [Tooltip("Размер одной ячейки рюкзака в px (родной размер). Иконки в инвентаре масштабируются под этот размер. Под 480×270: 24px влезает в экран.")]
     [SerializeField] [Min(16f)] private float _inventorySlotSize = 24f;
     [Tooltip("Размер одной ячейки на складе в px (уменьшенный, чтобы влезало больше). Иконки на складе и при перетаскивании со склада используют этот размер.")]
-    [SerializeField] [Min(12f)] private float _stashSlotSize = 20f;
+    [SerializeField] [Min(12f)] private float _stashSlotSize = 19f;
     private float InventorySlotSize => _inventorySlotSize;
     private float StashSlotSize => _stashSlotSize;
+    private const float StashSharedBorderSize = 1f;
+    private float StashGridWidth => StashManager.STASH_COLS * StashSlotSize + StashSharedBorderSize;
+    private float StashGridHeight => StashManager.STASH_ROWS * StashSlotSize + StashSharedBorderSize;
+    private float GetStashSpanSize(int slotCount) => slotCount <= 0 ? 0f : (slotCount * StashSlotSize + StashSharedBorderSize);
     /// <summary>Размер «клетки» для иконок экипировки/крафта (слот 2×2 = 48px → 24 на клетку).</summary>
     private const float EquipmentIconCellSize = 24f;
 
