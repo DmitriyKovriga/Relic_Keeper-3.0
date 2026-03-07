@@ -5,7 +5,7 @@ using Scripts.Stats;
 namespace Scripts.Skills.Steps
 {
     /// <summary>
-    /// Контекст выполнения рецепта скилла: статы, длительность, кэш результатов степов, флаг отмены.
+    /// Runtime context for step-based skill execution.
     /// </summary>
     public class SkillStepContext
     {
@@ -15,7 +15,7 @@ namespace Scripts.Skills.Steps
         public float AoeScale = 1f;
         public bool Cancelled;
 
-        /// <summary> Результаты степов по индексу: позиция/масштаб VFX для привязки хитбокса. </summary>
+        /// <summary>Per-step cached results used by dependent steps.</summary>
         public Dictionary<int, StepResult> StepResults = new Dictionary<int, StepResult>();
 
         public struct StepResult
@@ -23,13 +23,32 @@ namespace Scripts.Skills.Steps
             public Vector3 Position;
             public float Scale;
             public float Duration;
-            /// <summary> Время спавна (Time.time), для отложенного урона по % жизни VFX. </summary>
+            /// <summary>Spawn timestamp (Time.time), used for delayed triggers by VFX lifetime.</summary>
             public float SpawnTime;
+            /// <summary>Visual center in world-space if known.</summary>
+            public Vector3 VisualCenter;
+            /// <summary>Visual radius in world-space if known.</summary>
+            public float VisualRadius;
         }
 
-        public void SetStepResult(int stepIndex, Vector3 position, float scale, float duration = 0f, float spawnTime = 0f)
+        public void SetStepResult(
+            int stepIndex,
+            Vector3 position,
+            float scale,
+            float duration = 0f,
+            float spawnTime = 0f,
+            Vector3 visualCenter = default,
+            float visualRadius = 0f)
         {
-            StepResults[stepIndex] = new StepResult { Position = position, Scale = scale, Duration = duration, SpawnTime = spawnTime };
+            StepResults[stepIndex] = new StepResult
+            {
+                Position = position,
+                Scale = scale,
+                Duration = duration,
+                SpawnTime = spawnTime,
+                VisualCenter = visualCenter == default ? position : visualCenter,
+                VisualRadius = visualRadius
+            };
         }
 
         public bool TryGetStepResult(int stepIndex, out StepResult result)

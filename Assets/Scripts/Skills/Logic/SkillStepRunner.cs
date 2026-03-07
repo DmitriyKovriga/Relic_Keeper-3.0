@@ -297,7 +297,7 @@ namespace Scripts.Skills
                     float scaleForVfx = _ctx.AoeScale * scaleMult;
                     vfxModule.Play(_ownerStats.transform, _ctx.FacingDirection, scaleForVfx, _ctx.TotalDuration > 0 ? 1f / _ctx.TotalDuration : 1f);
                     Vector3 pos = _ownerStats.transform.position + new Vector3(step.GetFloat("OffsetX", 0f) * _ctx.FacingDirection, step.GetFloat("OffsetY", 0f), 0f);
-                    _ctx.SetStepResult(stepIndex, pos, scaleForVfx, step.GetFloat("BaseDuration", 0.5f), Time.time);
+                    _ctx.SetStepResult(stepIndex, pos, scaleForVfx, step.GetFloat("BaseDuration", 0.5f), Time.time, pos, 0f);
                 }
                 return;
             }
@@ -323,7 +323,18 @@ namespace Scripts.Skills
             if (autoDestroy != null) autoDestroy.Initialize(lifetime);
             else Destroy(vfx, lifetime);
             if (attachToParent) vfx.transform.SetParent(_ownerStats.transform);
-            _ctx.SetStepResult(stepIndex, spawnPos, effectiveScale, lifetime, Time.time);
+
+            Vector3 visualCenter = spawnPos;
+            float visualRadius = 0f;
+            var sr = vfx.GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                Bounds b = sr.bounds;
+                visualCenter = b.center;
+                visualRadius = Mathf.Max(b.extents.x, b.extents.y);
+            }
+
+            _ctx.SetStepResult(stepIndex, spawnPos, effectiveScale, lifetime, Time.time, visualCenter, visualRadius);
         }
 
         private void ExecuteDealDamageCircle(int stepIndex, StepEntry step)
@@ -333,8 +344,18 @@ namespace Scripts.Skills
             int sourceIdx = step.GetInt("SourceStepIndex", -1);
             if (sourceIdx >= 0 && _ctx.TryGetStepResult(sourceIdx, out var res))
             {
-                center = res.Position;
-                radius = step.GetFloat("Radius", 1.5f) * res.Scale;
+                center = res.VisualCenter;
+                float configuredRadius = step.GetFloat("Radius", 1.5f) * res.Scale;
+                radius = configuredRadius;
+
+                // Keep hitbox from exceeding the spawned VFX footprint when VFX bounds are known.
+                if (res.VisualRadius > 0f)
+                {
+                    float vfxRadiusMultiplier = step.GetFloat("VfxRadiusMultiplier", 1f);
+                    float maxByVfx = res.VisualRadius * Mathf.Max(0f, vfxRadiusMultiplier);
+                    if (maxByVfx > 0f)
+                        radius = Mathf.Min(configuredRadius, maxByVfx);
+                }
             }
             else
             {
