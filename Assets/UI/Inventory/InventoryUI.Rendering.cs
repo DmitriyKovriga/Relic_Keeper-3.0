@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Scripts.Inventory;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -60,6 +61,7 @@ public partial class InventoryUI
         if (_itemsLayer == null || InventoryManager.Instance == null) return;
         _itemsLayer.style.display = DisplayStyle.None;
         _itemsLayer.Clear();
+        ClearOccupiedSlotClasses(_backpackSlots);
         foreach (var slot in _equipmentSlots)
         {
             var oldImg = slot.Q<Image>();
@@ -73,6 +75,7 @@ public partial class InventoryUI
             if (item == null || item.Data == null) continue;
             if (i != anchorIndex) continue;
             inv.GetBackpackItemSize(item, out int w, out int h);
+            MarkOccupiedSlots(_backpackSlots, COLUMNS, ROWS, anchorIndex, w, h);
             var icon = CreateItemIcon(item, w, h, InventorySlotSize, receivePointerEvents: true);
             icon.style.left = (i % COLUMNS) * InventorySlotSize;
             icon.style.top = (i / COLUMNS) * InventorySlotSize;
@@ -160,6 +163,7 @@ public partial class InventoryUI
     private VisualElement CreateItemIcon(InventoryItem item, int? widthSlots, int? heightSlots, float slotSizePx, bool receivePointerEvents = false)
     {
         Image icon = new Image();
+        icon.AddToClassList("item-icon-framed");
         icon.sprite = item.Data.Icon;
         int w = widthSlots ?? item.Data.Width;
         int h = heightSlots ?? item.Data.Height;
@@ -171,6 +175,37 @@ public partial class InventoryUI
         icon.pickingMode = receivePointerEvents ? PickingMode.Position : PickingMode.Ignore;
         if (item.Data.Icon != null) icon.style.backgroundImage = new StyleBackground(item.Data.Icon);
         return icon;
+    }
+
+    private static void ClearOccupiedSlotClasses(IList<VisualElement> slots)
+    {
+        if (slots == null) return;
+        for (int i = 0; i < slots.Count; i++)
+            slots[i]?.RemoveFromClassList("slot-occupied");
+    }
+
+    private static void MarkOccupiedSlots(IList<VisualElement> slots, int cols, int rows, int anchorIndex, int widthSlots, int heightSlots)
+    {
+        if (slots == null || cols <= 0 || rows <= 0) return;
+
+        int startRow = anchorIndex / cols;
+        int startCol = anchorIndex % cols;
+        int w = Mathf.Max(1, widthSlots);
+        int h = Mathf.Max(1, heightSlots);
+
+        for (int r = 0; r < h; r++)
+        {
+            int row = startRow + r;
+            if (row < 0 || row >= rows) continue;
+            for (int c = 0; c < w; c++)
+            {
+                int col = startCol + c;
+                if (col < 0 || col >= cols) continue;
+                int index = row * cols + col;
+                if (index >= 0 && index < slots.Count)
+                    slots[index]?.AddToClassList("slot-occupied");
+            }
+        }
     }
 
     private VisualElement GetSlotVisual(int index)

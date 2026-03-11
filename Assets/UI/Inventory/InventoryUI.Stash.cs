@@ -81,6 +81,7 @@ public partial class InventoryUI
 
     private void RefreshStashGrid()
     {
+        UpdateStashOccupiedSlotVisuals();
         DrawStashIcons();
     }
 
@@ -89,6 +90,25 @@ public partial class InventoryUI
         _stashWindowController?.DrawIcons(_stashItemsLayer, StashSlotSize, StashSharedBorderSize);
         if (ItemTooltipController.Instance != null)
             ItemTooltipController.Instance.ValidateCurrentTarget();
+    }
+
+    private void UpdateStashOccupiedSlotVisuals()
+    {
+        ClearOccupiedSlotClasses(_stashSlots);
+
+        var stash = StashManager.Instance;
+        if (stash == null) return;
+
+        int tab = stash.CurrentTabIndex;
+        for (int i = 0; i < StashManager.STASH_SLOTS_PER_TAB; i++)
+        {
+            InventoryItem item = stash.GetItemAt(tab, i, out int anchorIndex);
+            if (item == null || item.Data == null) continue;
+            if (i != anchorIndex) continue;
+
+            StashManager.GetStashItemSize(item, out int w, out int h);
+            MarkOccupiedSlots(_stashSlots, StashManager.STASH_COLS, StashManager.STASH_ROWS, anchorIndex, w, h);
+        }
     }
 
     private void OnPointerOverStashIcon(PointerOverEvent evt)
