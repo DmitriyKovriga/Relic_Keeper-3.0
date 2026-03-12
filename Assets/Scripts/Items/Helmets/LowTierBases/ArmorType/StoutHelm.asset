@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: e0e23dfc
   ItemName: StoutHelm
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 121016c14891120429d2c8c5f2ff5de5, type: 3}
   Width: 2
   Height: 2
   Slot: 0

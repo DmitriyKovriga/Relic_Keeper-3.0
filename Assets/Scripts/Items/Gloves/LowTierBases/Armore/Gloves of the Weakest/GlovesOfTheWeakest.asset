@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: GlovesOfTheWeakest
   ItemName: Gloves of the Weakest
-  Icon: {fileID: 21300000, guid: 647bae26d9a6b0c4abcb7a4b68f9a89d, type: 3}
+  Icon: {fileID: 21300000, guid: 494e3c1bbbcd3b542867eb77a7d6207b, type: 3}
   Width: 2
   Height: 2
   Slot: 4
