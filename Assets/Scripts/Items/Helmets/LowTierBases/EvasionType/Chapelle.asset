@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 707924c3c674e324ab126931e524eab8, type: 3}
-  m_Name: StoutHelm
+  m_Name: Chapelle
   m_EditorClassIdentifier: 
-  ID: e0e23dfc
-  ItemName: StoutHelm
-  Icon: {fileID: 21300000, guid: 121016c14891120429d2c8c5f2ff5de5, type: 3}
+  ID: 971ae335
+  ItemName: Chapelle
+  Icon: {fileID: 21300000, guid: d1c9ca7001cb361429e64831aabd1817, type: 3}
   Width: 2
   Height: 2
   Slot: 0
   DropLevel: 1
   ImplicitModifiers:
-  - Stat: 14
-    Value: 25
-    Type: 200
+  - Stat: 24
+    Value: 5
+    Type: 100
     Scope: 0
   SkillPool: {fileID: 0}
   SkillCount: 1
-  DefenseType: 1
-  BaseArmor: 100
-  BaseEvasion: 0
+  DefenseType: 2
+  BaseArmor: 0
+  BaseEvasion: 25
   BaseBubbles: 0

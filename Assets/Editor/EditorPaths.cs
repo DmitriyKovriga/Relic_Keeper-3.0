@@ -16,6 +16,7 @@ public static class EditorPaths
     public const string AffixesTable = "Assets/Localization/LocalizationTables/Affixes.asset";
     public const string AffixesLabelsTable = "Assets/Localization/LocalizationTables/AffixesLabels.asset";
     public const string AffixTagsTable = "Assets/Localization/LocalizationTables/AffixTags.asset";
+    public const string ItemsLabelsTable = "Assets/Localization/LocalizationTables/ItemsLabels.asset";
     public const string AffixTagDatabase = "Assets/Resources/Databases/AffixTagDatabase.asset";
     public const string AffixesBaseFolder = "Assets/Resources/Affixes";
     public const string PassiveTemplatesFolder = "Assets/Resources/PassiveTrees";

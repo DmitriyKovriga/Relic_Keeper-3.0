@@ -72,7 +72,11 @@ namespace Scripts.Editor.Affixes
             if (!string.IsNullOrEmpty(path))
             {
                 var affix = _affixes.FirstOrDefault(a => a != null && AssetDatabase.GetAssetPath(a) == path);
-                if (affix != null) { _selectedAffix = affix; RefreshNameFields(); RefreshTranslationValueFields(); }
+                if (affix != null)
+                {
+                    _selectedAffix = affix;
+                    ReloadSelectedAffixLocalizationFields(resetInputState: true);
+                }
             }
         }
 
@@ -191,11 +195,12 @@ namespace Scripts.Editor.Affixes
                 GUI.backgroundColor = sel ? new Color(0.5f, 0.7f, 1f) : Color.white;
                 if (GUILayout.Button($"{affix.name}  T{affix.Tier}", GUILayout.Height(22)))
                 {
+                    if (_selectedAffix != affix)
+                        ResetLocalizationInputState(clearValues: true);
                     _selectedAffix = affix;
                     SessionState.SetString(SessionKeySelectedAffix, AssetDatabase.GetAssetPath(affix));
                     _serializedAffix = null;
-                    RefreshNameFields();
-                    RefreshTranslationValueFields();
+                    ReloadSelectedAffixLocalizationFields(resetInputState: false);
                 }
                 GUI.backgroundColor = Color.white;
             }
@@ -258,6 +263,8 @@ namespace Scripts.Editor.Affixes
             DrawNameLocalization();
             EditorGUILayout.Space(4);
             DrawTranslationValueSection();
+            EditorGUILayout.Space(4);
+            DrawLocalizationActions();
             EditorGUILayout.EndVertical();
         }
 
@@ -347,6 +354,7 @@ namespace Scripts.Editor.Affixes
                 {
                     foreach (var p in _pools) { if (p.Affixes != null && p.Affixes.Remove(_selectedAffix)) EditorUtility.SetDirty(p); }
                     AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(_selectedAffix));
+                    ResetLocalizationInputState(clearValues: true);
                     _selectedAffix = null;
                     LoadAll();
                 }
@@ -375,6 +383,7 @@ namespace Scripts.Editor.Affixes
             if (!EditorUtility.DisplayDialog("Delete all affixes", "Remove all affixes from pools and delete every ItemAffixSO asset in the project. This cannot be undone.", "Delete all", "Cancel"))
                 return;
             int n = AffixSetGenerator.DeleteAllAffixes(_pools);
+            ResetLocalizationInputState(clearValues: true);
             _selectedAffix = null;
             LoadAll();
             EditorUtility.DisplayDialog("Done", $"Removed and deleted {n} affixes.", "OK");
@@ -486,6 +495,44 @@ namespace Scripts.Editor.Affixes
             _translationValueRu = GetLocalizedString(_affixesLabelsCollection, "ru", key);
         }
 
+        private void ReloadSelectedAffixLocalizationFields(bool resetInputState)
+        {
+            if (resetInputState)
+                ResetLocalizationInputState(clearValues: false);
+            RefreshNameFields();
+            RefreshTranslationValueFields();
+        }
+
+        private void RegenerateSelectedAffixLocalizationFromStat()
+        {
+            if (_selectedAffix == null)
+                return;
+            if (_affixesLabelsCollection == null)
+            {
+                EditorUtility.DisplayDialog("Localization", "AffixesLabels table not found.", "OK");
+                return;
+            }
+
+            GUI.FocusControl(null);
+            EditorGUIUtility.editingTextField = false;
+            AffixSetGenerator.RegenerateLocalizationFromStat(_selectedAffix, _menuLabelsCollection, _affixesLabelsCollection);
+            AssetDatabase.SaveAssets();
+            ReloadSelectedAffixLocalizationFields(resetInputState: false);
+        }
+
+        private void ResetLocalizationInputState(bool clearValues)
+        {
+            GUI.FocusControl(null);
+            EditorGUIUtility.editingTextField = false;
+            if (clearValues)
+            {
+                _nameEn = "";
+                _nameRu = "";
+                _translationValueEn = "";
+                _translationValueRu = "";
+            }
+        }
+
         private void DrawTranslationValueSection()
         {
             GUILayout.Label("Value text (shown on item tooltip)", EditorStyles.miniBoldLabel);
@@ -493,6 +540,8 @@ namespace Scripts.Editor.Affixes
             _translationValueRu = EditorGUILayout.TextField("RU", _translationValueRu);
             if (GUILayout.Button("Save value"))
             {
+                GUI.FocusControl(null);
+                EditorGUIUtility.editingTextField = false;
                 string key = GetAffixValueKey(_selectedAffix);
                 if (string.IsNullOrEmpty(key)) { EditorUtility.DisplayDialog("Value", "Add at least one stat to the affix, then save.", "OK"); return; }
                 _selectedAffix.TranslationKey = key;
@@ -500,6 +549,7 @@ namespace Scripts.Editor.Affixes
                 SetOrAddEntry(_affixesLabelsCollection, "en", key, _translationValueEn);
                 SetOrAddEntry(_affixesLabelsCollection, "ru", key, _translationValueRu);
                 AssetDatabase.SaveAssets();
+                ReloadSelectedAffixLocalizationFields(resetInputState: false);
             }
         }
 
@@ -538,13 +588,30 @@ namespace Scripts.Editor.Affixes
             _nameRu = EditorGUILayout.TextField("RU", _nameRu);
             if (GUILayout.Button("Save"))
             {
+                GUI.FocusControl(null);
+                EditorGUIUtility.editingTextField = false;
                 string key = "affix_name_" + SanitizeKey(_selectedAffix.name);
                 SetOrAddEntry(_affixesLabelsCollection, "en", key, _nameEn);
                 SetOrAddEntry(_affixesLabelsCollection, "ru", key, _nameRu);
                 _selectedAffix.NameKey = key;
                 EditorUtility.SetDirty(_selectedAffix);
                 AssetDatabase.SaveAssets();
+                ReloadSelectedAffixLocalizationFields(resetInputState: false);
             }
+        }
+
+        private void DrawLocalizationActions()
+        {
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Reload"))
+            {
+                ReloadSelectedAffixLocalizationFields(resetInputState: true);
+            }
+            if (GUILayout.Button("Auto regenerate by stat"))
+            {
+                RegenerateSelectedAffixLocalizationFromStat();
+            }
+            EditorGUILayout.EndHorizontal();
         }
 
         private List<string> GetSuggestedTagsFromStats(ItemAffixSO affix)
@@ -657,6 +724,8 @@ namespace Scripts.Editor.Affixes
                 string selectedId = tagIds[_selectedTagIndex];
                 if (selectedId != _lastEditedTagId)
                 {
+                    GUI.FocusControl(null);
+                    EditorGUIUtility.editingTextField = false;
                     _lastEditedTagId = selectedId;
                     string locKey = GetTagLocKey(selectedId);
                     _tagNameEn = GetLocalizedString(_affixTagsCollection, "en", locKey);
@@ -697,6 +766,7 @@ namespace Scripts.Editor.Affixes
             _selectedAffix = affix;
             SessionState.SetString(SessionKeySelectedAffix, path);
             _serializedAffix = null;
+            ReloadSelectedAffixLocalizationFields(resetInputState: true);
             Selection.activeObject = affix;
             EditorGUIUtility.PingObject(affix);
         }

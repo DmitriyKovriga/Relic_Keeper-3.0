@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: HelmetsArmorePool
   m_EditorClassIdentifier: 
   Slot: 0
-  DefenseType: 0
+  DefenseType: 1
   Affixes: []

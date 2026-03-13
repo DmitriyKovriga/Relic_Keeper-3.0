@@ -30,6 +30,10 @@ MonoBehaviour:
     m_Localized: Axe of Settler
     m_Metadata:
       m_Items: []
+  - m_Id: 23066792224653312
+    m_Localized: Chapelle
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

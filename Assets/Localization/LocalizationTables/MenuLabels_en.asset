@@ -1531,6 +1531,26 @@ MonoBehaviour:
     m_Localized: Extra targets for melee hits
     m_Metadata:
       m_Items: []
+  - m_Id: 37584033888632832
+    m_Localized: Maximum to bleed stacks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37586294010314752
+    m_Localized: Max to bleed stacks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37586428672638976
+    m_Localized: Extra targets for melee hits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37589479936524288
+    m_Localized: Maximum to bleed stacks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37589619535544320
+    m_Localized: Extra targets for melee hits
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

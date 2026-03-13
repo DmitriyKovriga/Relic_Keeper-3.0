@@ -27,6 +27,10 @@ MonoBehaviour:
     m_Key: items.AxeOfSettler
     m_Metadata:
       m_Items: []
+  - m_Id: 23066792224653312
+    m_Key: items.971ae335
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

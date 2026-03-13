@@ -7,6 +7,7 @@ using Scripts.Stats;
 using Scripts.Skills.PassiveTree;
 using Scripts.Items.Affixes;
 using Scripts.Editor.PassiveTree;
+using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
 using UnityEditor.Localization;
 
@@ -122,6 +123,8 @@ namespace Scripts.Editor.Stats
                 GUI.backgroundColor = selected ? new Color(0.5f, 0.7f, 1f) : Color.white;
                 if (GUILayout.Button($"{id}  —  {category}", GUILayout.Height(22)))
                 {
+                    if (_selectedStat != type)
+                        ResetLocalizationInputState(clearValues: true);
                     _selectedStat = type;
                     SessionState.SetString(SessionKeySelectedStat, type.ToString());
                     Repaint();
@@ -244,7 +247,7 @@ namespace Scripts.Editor.Stats
             if (newCollection != _menuLabelsCollection)
             {
                 _menuLabelsCollection = newCollection;
-                _lastLoadedKey = "";
+                ResetLocalizationInputState(clearValues: true);
             }
             if (_menuLabelsCollection == null)
             {
@@ -267,10 +270,18 @@ namespace Scripts.Editor.Stats
             _editValueRu = EditorGUILayout.TextArea(_editValueRu, GUILayout.Height(40));
 
             EditorGUILayout.Space(4);
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Reload", GUILayout.Width(80)))
+            {
+                ResetLocalizationInputState(clearValues: false);
+            }
             if (GUILayout.Button("Save Localization", GUILayout.Height(28)))
             {
+                GUI.FocusControl(null);
+                EditorGUIUtility.editingTextField = false;
                 SaveLocalizationValues(localizationKey);
             }
+            EditorGUILayout.EndHorizontal();
         }
 
         private void LoadLocalizationValues(string key)
@@ -283,7 +294,8 @@ namespace Scripts.Editor.Stats
         private string GetLocalizedStringFromTable(string key, string localeId)
         {
             if (_menuLabelsCollection == null) return "";
-            var table = _menuLabelsCollection.GetTable(localeId) as StringTable;
+            var table = _menuLabelsCollection.GetTable(localeId) as StringTable
+                ?? _menuLabelsCollection.GetTable(new LocaleIdentifier(localeId)) as StringTable;
             if (table == null) return "";
             var entry = table.GetEntry(key);
             if (entry == null) return "";
@@ -294,8 +306,16 @@ namespace Scripts.Editor.Stats
         {
             if (_menuLabelsCollection == null) return;
             string fullKey = "stats." + key;
-            var enTable = _menuLabelsCollection.GetTable("en") as StringTable;
-            var ruTable = _menuLabelsCollection.GetTable("ru") as StringTable;
+            var sharedData = _menuLabelsCollection.SharedData;
+            if (sharedData != null && !sharedData.Contains(fullKey))
+            {
+                sharedData.AddKey(fullKey);
+                EditorUtility.SetDirty(sharedData);
+            }
+            var enTable = _menuLabelsCollection.GetTable("en") as StringTable
+                ?? _menuLabelsCollection.GetTable(new LocaleIdentifier("en")) as StringTable;
+            var ruTable = _menuLabelsCollection.GetTable("ru") as StringTable
+                ?? _menuLabelsCollection.GetTable(new LocaleIdentifier("ru")) as StringTable;
             if (enTable == null || ruTable == null)
             {
                 Debug.LogWarning("Stats Editor: en or ru table not found in MenuLabels.");
@@ -308,6 +328,18 @@ namespace Scripts.Editor.Stats
             AssetDatabase.SaveAssets();
             _lastLoadedKey = "";
             Debug.Log($"Stats Editor: Saved localization for stats.{key}");
+        }
+
+        private void ResetLocalizationInputState(bool clearValues)
+        {
+            GUI.FocusControl(null);
+            EditorGUIUtility.editingTextField = false;
+            _lastLoadedKey = "";
+            if (clearValues)
+            {
+                _editValueEn = "";
+                _editValueRu = "";
+            }
         }
 
         private static void SetOrAddEntry(StringTable table, string key, string value)

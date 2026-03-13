@@ -41955,63 +41955,63 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060527
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Light Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060528
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Light Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060529
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Light Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060530
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Light Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060531
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Light Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060532
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Medium Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060533
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Medium Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060534
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Medium Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060535
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Medium Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060536
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Medium Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060537
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Strong Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060538
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Strong Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060539
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Strong Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060540
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Strong Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060541
-    m_Localized: ExtraTargetsForMeleeHits Flat Global
+    m_Localized: Strong Extra targets for melee hits flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782032060542
@@ -43635,63 +43635,63 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449052
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Light Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449053
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Light Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449054
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Light Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449055
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Light Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449056
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Light Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449057
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Medium Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449058
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Medium Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449059
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Medium Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449060
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Medium Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449061
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Medium Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449062
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Strong Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449063
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Strong Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449064
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Strong Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449065
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Strong Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449066
-    m_Localized: MaxBleedStack Flat Global
+    m_Localized: Strong Maximum to bleed stacks flat
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449067
@@ -46539,7 +46539,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17252827724808198
-    m_Localized: Adds {0} to ExtraTargetsForMeleeHits
+    m_Localized: Adds {0} to Extra targets for melee hits
     m_Metadata:
       m_Items: []
   - m_Id: 17252827724808199
@@ -46555,7 +46555,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17252827729002496
-    m_Localized: Adds {0} to MaxBleedStack
+    m_Localized: Adds {0} to Maximum to bleed stacks
     m_Metadata:
       m_Items: []
   - m_Id: 17252827729002497
