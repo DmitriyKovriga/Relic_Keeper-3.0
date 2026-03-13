@@ -1551,7 +1551,10 @@ MonoBehaviour:
     m_Localized: Extra targets for melee hits
     m_Metadata:
       m_Items: []
+  - m_Id: 37686302508351488
+    m_Localized: Health Regen % per second
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
-

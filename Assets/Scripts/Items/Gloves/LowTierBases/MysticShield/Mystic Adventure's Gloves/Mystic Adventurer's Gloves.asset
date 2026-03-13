@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 707924c3c674e324ab126931e524eab8, type: 3}
-  m_Name: Chapelle
+  m_Name: Mystic Adventurer's Gloves
   m_EditorClassIdentifier: 
-  ID: 971ae335
-  ItemName: Chapelle
-  Icon: {fileID: 21300000, guid: d1c9ca7001cb361429e64831aabd1817, type: 3}
+  ID: 1e10cdb5
+  ItemName: Mystic Adventurer's Gloves
+  Icon: {fileID: 21300000, guid: ea5cb0a43b3fc8f4da754ad5c5dabdf6, type: 3}
   Width: 2
   Height: 2
-  Slot: 0
+  Slot: 4
   DropLevel: 1
   ImplicitModifiers:
-  - Stat: 24
-    Value: 5
-    Type: 100
+  - Stat: 11
+    Value: 25
+    Type: 200
     Scope: 0
   SkillPool: {fileID: 0}
   SkillCount: 1
-  DefenseType: 2
+  DefenseType: 3
   BaseArmor: 0
-  BaseEvasion: 25
-  BaseMysticShield: 0
+  BaseEvasion: 0
+  BaseMysticShield: 1

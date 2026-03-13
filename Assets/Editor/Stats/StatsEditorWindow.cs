@@ -24,6 +24,7 @@ namespace Scripts.Editor.Stats
         private string _searchFilter = "";
         private string _categoryFilter = "";
         private int _sortMode; // 0 = By ID, 1 = By Category
+        private int _missingLocalizationFilterIndex; // 0 = All, 1 = Missing RU, 2 = Missing EN, 3 = Missing RU/EN, 4 = Missing RU&EN
 
         [SerializeField] private StringTableCollection _menuLabelsCollection;
         private string _editValueEn = "";
@@ -38,6 +39,14 @@ namespace Scripts.Editor.Stats
 
         private const string MenuPath = "Tools/Stats Editor";
         private const string SessionKeySelectedStat = "StatsEditorWindow_SelectedStat";
+        private static readonly string[] MissingLocalizationFilterOptions =
+        {
+            "All localization",
+            "Missing RU",
+            "Missing EN",
+            "Missing RU or EN",
+            "Missing RU & EN"
+        };
 
         [SerializeField] private StatsDatabaseSO _statsDatabase;
         [SerializeField] private StringTableCollection _affixesCollection;
@@ -98,6 +107,10 @@ namespace Scripts.Editor.Stats
                 _categoryFilter = categories[newCat];
 
             _sortMode = EditorGUILayout.Popup("Sort", _sortMode, new[] { "By ID", "By Category" });
+            _missingLocalizationFilterIndex = EditorGUILayout.Popup(
+                "Localization",
+                Mathf.Clamp(_missingLocalizationFilterIndex, 0, MissingLocalizationFilterOptions.Length - 1),
+                MissingLocalizationFilterOptions);
 
             _listScroll = EditorGUILayout.BeginScrollView(_listScroll, GUILayout.ExpandHeight(true));
 
@@ -108,6 +121,7 @@ namespace Scripts.Editor.Stats
                 string id = type.ToString();
                 string category = _statsDatabase != null ? _statsDatabase.GetCategory(type) : GetStatCategory(type);
                 if (_categoryFilter != "" && category != _categoryFilter) return false;
+                if (!MatchesMissingLocalizationFilter(type)) return false;
                 if (search.Length > 0 && !id.ToLowerInvariant().Contains(search)) return false;
                 return true;
             }).ToList();
@@ -300,6 +314,30 @@ namespace Scripts.Editor.Stats
             var entry = table.GetEntry(key);
             if (entry == null) return "";
             return entry.Value ?? "";
+        }
+
+        private bool MatchesMissingLocalizationFilter(StatType type)
+        {
+            if (_missingLocalizationFilterIndex == 0) return true;
+
+            string fullKey = "stats." + type;
+            bool missingRu = IsMissingLocalizationValue(GetLocalizedStringFromTable(fullKey, "ru"));
+            bool missingEn = IsMissingLocalizationValue(GetLocalizedStringFromTable(fullKey, "en"));
+
+            switch (_missingLocalizationFilterIndex)
+            {
+                case 1: return missingRu;
+                case 2: return missingEn;
+                case 3: return missingRu || missingEn;
+                case 4: return missingRu && missingEn;
+                default: return true;
+            }
+        }
+
+        private static bool IsMissingLocalizationValue(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return true;
+            return value.Trim() == "No translation found";
         }
 
         private void SaveLocalizationValues(string key)

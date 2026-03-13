@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 707924c3c674e324ab126931e524eab8, type: 3}
-  m_Name: GlovesOfTheWeakest
+  m_Name: Leather Adventurer's Boots
   m_EditorClassIdentifier: 
-  ID: GlovesOfTheWeakest
-  ItemName: Gloves of the Weakest
-  Icon: {fileID: 21300000, guid: 494e3c1bbbcd3b542867eb77a7d6207b, type: 3}
+  ID: 5431819a
+  ItemName: Leather Adventurer's Boots
+  Icon: {fileID: 21300000, guid: 810661cfde542004fb1234f441422f53, type: 3}
   Width: 2
   Height: 2
-  Slot: 4
+  Slot: 5
   DropLevel: 1
   ImplicitModifiers:
-  - Stat: 0
-    Value: 25
-    Type: 100
+  - Stat: 26
+    Value: 20
+    Type: 200
     Scope: 0
-  SkillPool: {fileID: 11400000, guid: 57d5897bb47ce994094965eb6d2d1a33, type: 2}
+  SkillPool: {fileID: 0}
   SkillCount: 1
-  DefenseType: 1
-  BaseArmor: 50
-  BaseEvasion: 0
+  DefenseType: 2
+  BaseArmor: 0
+  BaseEvasion: 25
   BaseMysticShield: 0
