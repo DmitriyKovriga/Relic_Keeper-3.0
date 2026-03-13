@@ -34,6 +34,10 @@ MonoBehaviour:
     m_Localized: Chapelle
     m_Metadata:
       m_Items: []
+  - m_Id: 23101037102006272
+    m_Localized: Wanderer's Hat
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

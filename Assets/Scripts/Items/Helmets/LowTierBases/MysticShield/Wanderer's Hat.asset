@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 707924c3c674e324ab126931e524eab8, type: 3}
-  m_Name: StoutHelm
+  m_Name: Wanderer's Hat
   m_EditorClassIdentifier: 
-  ID: e0e23dfc
-  ItemName: StoutHelm
-  Icon: {fileID: 21300000, guid: 121016c14891120429d2c8c5f2ff5de5, type: 3}
+  ID: ee8901a5
+  ItemName: Wanderer's Hat
+  Icon: {fileID: 21300000, guid: a64c3bd80e4b18a4787763d145c12825, type: 3}
   Width: 2
   Height: 2
   Slot: 0
   DropLevel: 1
   ImplicitModifiers:
-  - Stat: 0
-    Value: 25
+  - Stat: 8
+    Value: 10
     Type: 100
     Scope: 0
   SkillPool: {fileID: 0}
   SkillCount: 1
-  DefenseType: 1
-  BaseArmor: 25
+  DefenseType: 3
+  BaseArmor: 0
   BaseEvasion: 0
-  BaseBubbles: 0
+  BaseBubbles: 1

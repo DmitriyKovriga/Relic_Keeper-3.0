@@ -8,6 +8,7 @@ using Scripts.Skills;
 using UnityEditor.Localization;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
+using System.IO;
 
 namespace Scripts.Editor.Items
 {
@@ -464,12 +465,16 @@ namespace Scripts.Editor.Items
         private void CreateNewItem(bool armor)
         {
             string baseName = string.IsNullOrWhiteSpace(_newItemName) ? (armor ? "NewArmor" : "NewWeapon") : _newItemName.Trim();
-            string folder = string.IsNullOrWhiteSpace(_newItemFolder) ? "Assets/Resources" : _newItemFolder.Trim().Replace("\\", "/");
-            if (!folder.StartsWith("Assets"))
+            string rawFolder = string.IsNullOrWhiteSpace(_newItemFolder) ? "Assets/Resources" : _newItemFolder;
+            if (!TryNormalizeItemFolderPath(rawFolder, out string folder, out string error))
             {
-                EditorUtility.DisplayDialog("Invalid folder", "Folder must be under Assets.", "OK");
+                EditorUtility.DisplayDialog("Invalid folder", error, "OK");
                 return;
             }
+
+            _newItemFolder = folder;
+            SessionState.SetString(SessionKeyNewItemFolder, _newItemFolder ?? string.Empty);
+
             if (!EnsureProjectFolderExists(folder))
             {
                 EditorUtility.DisplayDialog("Create item", $"Could not create or access folder:\n{folder}", "OK");
@@ -497,6 +502,64 @@ namespace Scripts.Editor.Items
             SessionState.SetString(SessionKeySelectedItem, path);
             Selection.activeObject = newItem;
             EditorGUIUtility.PingObject(newItem);
+        }
+
+        private static bool TryNormalizeItemFolderPath(string inputPath, out string folderPath, out string error)
+        {
+            folderPath = null;
+            error = null;
+
+            string path = (inputPath ?? string.Empty).Trim().Replace("\\", "/");
+            if (string.IsNullOrEmpty(path))
+            {
+                folderPath = "Assets/Resources";
+                return true;
+            }
+
+            if (TryConvertAbsoluteFolderToProjectPath(path, out string projectPath))
+                path = projectPath;
+
+            path = path.TrimEnd('/');
+
+            if (path.EndsWith(".asset", System.StringComparison.OrdinalIgnoreCase))
+            {
+                path = Path.GetDirectoryName(path)?.Replace("\\", "/");
+            }
+            else if (!AssetDatabase.IsValidFolder(path))
+            {
+                // If user pasted an asset path, convert it to its folder.
+                var mainAsset = AssetDatabase.LoadMainAssetAtPath(path);
+                if (mainAsset != null)
+                {
+                    path = Path.GetDirectoryName(path)?.Replace("\\", "/");
+                }
+                else
+                {
+                    // If user pasted file path without extension (e.g. ".../MysticShield"), resolve to parent if ".../MysticShield.asset" exists.
+                    string parent = Path.GetDirectoryName(path)?.Replace("\\", "/");
+                    string leaf = Path.GetFileName(path);
+                    if (!string.IsNullOrEmpty(parent) && !string.IsNullOrEmpty(leaf))
+                    {
+                        string siblingAssetPath = $"{parent}/{leaf}.asset";
+                        if (AssetDatabase.LoadMainAssetAtPath(siblingAssetPath) != null)
+                            path = parent;
+                    }
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                error = "Folder is empty.";
+                return false;
+            }
+            if (!path.StartsWith("Assets"))
+            {
+                error = "Folder must be under Assets.";
+                return false;
+            }
+
+            folderPath = path;
+            return true;
         }
 
         private string GenerateUniqueItemId(EquipmentItemSO exclude = null)
@@ -545,7 +608,14 @@ namespace Scripts.Editor.Items
                 string next = $"{current}/{parts[i]}";
                 if (!AssetDatabase.IsValidFolder(next))
                 {
-                    AssetDatabase.CreateFolder(current, parts[i]);
+                    try
+                    {
+                        AssetDatabase.CreateFolder(current, parts[i]);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
                 }
                 current = next;
             }
