@@ -15,11 +15,11 @@ namespace Scripts.Stats
         ManaOnHit,
         ManaOnBlock,
 
-        // --- 2. Mystic Shield (legacy enum ids kept for compatibility) ---
-        MaxBubbles,              // Max Mystic Shield layers
-        BubbleRechargeDuration,  // Mystic Shield recharge time
-        BubbleMitigationPercent, // Mystic Shield absorb percent
-        MaxBubbleMitigationPercent, // Mystic Shield absorb cap
+        // --- 2. Mystic Shield ---
+        MaxMysticShield,              // Max Mystic Shield layers
+        MysticShieldRechargeDuration,  // Mystic Shield recharge time
+        MysticShieldMitigationPercent, // Mystic Shield absorb percent
+        MaxMysticShieldMitigationPercent, // Mystic Shield absorb cap
 
         // --- 3. Защита (Defenses) ---
         Armor,               // Броня (для формулы снижения физ. урона)

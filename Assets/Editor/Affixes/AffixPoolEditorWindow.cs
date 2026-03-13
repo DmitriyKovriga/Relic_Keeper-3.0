@@ -340,7 +340,7 @@ namespace Scripts.Editor.Affixes
 
         private static string GetDefenseTypeDisplayName(ArmorDefenseType type)
         {
-            return type == ArmorDefenseType.Bubbles ? "Mystic Shield" : type.ToString();
+            return type == ArmorDefenseType.MysticShield ? "Mystic Shield" : type.ToString();
         }
     }
 }

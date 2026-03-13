@@ -971,7 +971,7 @@ namespace Scripts.Editor.Items
 
         private static string GetDefenseTypeDisplayName(ArmorDefenseType type)
         {
-            return type == ArmorDefenseType.Bubbles ? "Mystic Shield" : type.ToString();
+            return type == ArmorDefenseType.MysticShield ? "Mystic Shield" : type.ToString();
         }
 
         #endregion

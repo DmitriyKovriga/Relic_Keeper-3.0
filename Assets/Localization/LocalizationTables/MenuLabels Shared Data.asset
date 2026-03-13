@@ -104,15 +104,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13040869085577216
-    m_Key: stats.MaxBubbles
+    m_Key: stats.MaxMysticShield
     m_Metadata:
       m_Items: []
   - m_Id: 13040886231891968
-    m_Key: stats.BubbleRechargeDuration
+    m_Key: stats.MysticShieldRechargeDuration
     m_Metadata:
       m_Items: []
   - m_Id: 13040904019935232
-    m_Key: stats.BubbleMitigationPercent
+    m_Key: stats.MysticShieldMitigationPercent
     m_Metadata:
       m_Items: []
   - m_Id: 13040920193171456
@@ -308,7 +308,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14172855191764992
-    m_Key: stats.MaxBubbleMitigationPercent
+    m_Key: stats.MaxMysticShieldMitigationPercent
     m_Metadata:
       m_Items: []
   - m_Id: 14172897814282240

@@ -7,7 +7,7 @@
 | Тип | Файл | Поля |
 |-----|------|------|
 | **EquipmentItemSO** | `Scripts/Items/EquipmentItemSO.cs` | ID, ItemName, Icon, Width, Height, Slot, DropLevel, ImplicitModifiers, **SkillPool**, SkillCount |
-| **ArmorItemSO** | `ArmorItemSO.cs` | + DefenseType, BaseArmor, BaseEvasion, BaseMysticShield (legacy serialized name: BaseBubbles) |
+| **ArmorItemSO** | `ArmorItemSO.cs` | + DefenseType, BaseArmor, BaseEvasion, BaseMysticShield |
 | **WeaponItemSO** | `WeaponItemSO.cs` | + IsTwoHanded, InHandSprite, Min/Max damages (Phys/Fire/Cold/Lightning), APS, BaseCritChance, **SecondarySkillPool** |
 
 - **Slot**: Helmet, BodyArmor, MainHand, OffHand, Gloves, Boots.
@@ -18,7 +18,7 @@
 
 | Компонент | Файл | Назначение |
 |-----------|------|------------|
-| **AffixPoolSO** | `Scripts/Items/AffixPoolSO.cs` | **Slot** + **DefenseType** (Armour, Evasion, Mystic Shield, Hybrid, None; legacy enum id: `Bubbles`), список **Affixes** (List&lt;ItemAffixSO&gt;). |
+| **AffixPoolSO** | `Scripts/Items/AffixPoolSO.cs` | **Slot** + **DefenseType** (Armour, Evasion, Mystic Shield, Hybrid, None), список **Affixes** (List&lt;ItemAffixSO&gt;). |
 
 - **ItemGenerator** (в сцене) хранит список пулов и при генерации предмета выбирает пул по правилу: `pool.Slot == item.Slot && pool.DefenseType == (armor ? armor.DefenseType : None)`.
 - Предметы **не ссылаются** на пул напрямую — связь идёт через пару (Slot, DefenseType).

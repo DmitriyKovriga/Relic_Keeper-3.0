@@ -184,11 +184,11 @@ namespace Scripts.Inventory
             {
                 float finalArmor = GetCalculatedStat(StatType.Armor, armor.BaseArmor);
                 float finalEva = GetCalculatedStat(StatType.Evasion, armor.BaseEvasion);
-                float finalMysticShield = GetCalculatedStat(StatType.MaxBubbles, armor.BaseMysticShield);
+                float finalMysticShield = GetCalculatedStat(StatType.MaxMysticShield, armor.BaseMysticShield);
 
                 if (finalArmor > 0) result.Add((StatType.Armor, new StatModifier(finalArmor, StatModType.Flat, this)));
                 if (finalEva > 0) result.Add((StatType.Evasion, new StatModifier(finalEva, StatModType.Flat, this)));
-                if (finalMysticShield > 0) result.Add((StatType.MaxBubbles, new StatModifier(finalMysticShield, StatModType.Flat, this)));
+                if (finalMysticShield > 0) result.Add((StatType.MaxMysticShield, new StatModifier(finalMysticShield, StatModType.Flat, this)));
             }
             else if (Data is WeaponItemSO weapon)
             {

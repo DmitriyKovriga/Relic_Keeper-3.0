@@ -17,7 +17,7 @@ namespace Scripts.Items
         None,       // Бижутерия / Без защиты
         Armour,     // Сила -> Броня
         Evasion,    // Ловкость -> Уклонение
-        Bubbles,    // Интеллект -> Баблы (вместо Energy Shield)
+        MysticShield,    // Интеллект -> Баблы (вместо Energy Shield)
         Hybrid      // Смешанный (Броня + Баблы и т.д.)
     }
 

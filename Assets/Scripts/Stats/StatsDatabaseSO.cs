@@ -152,7 +152,7 @@ namespace Scripts.Stats
             if (s.Contains("Bleed") || s.Contains("Poison") || s.Contains("Ignite") || s.Contains("Freeze") || s.Contains("Shock")) return "Ailments";
             if (s.Contains("Resist") || s.Contains("Penetration") || s.Contains("Mitigation") || s.Contains("ReduceDamage")) return "Resistances";
             if (s.Contains("Health") || s.Contains("Mana")) return "Vitals";
-            if (s.Contains("Armor") || s.Contains("Evasion") || s.Contains("Block") || s.Contains("Bubbles") || s.Contains("MysticShield")) return "Defense";
+            if (s.Contains("Armor") || s.Contains("Evasion") || s.Contains("Block") || s.Contains("MysticShield")) return "Defense";
             if (s.Contains("Crit") || s.Contains("Accuracy")) return "Critical";
             if (s.Contains("Speed")) return "Speed";
             if (s.Contains("Damage") && !s.Contains("Mult") && !s.Contains("Taken")) return "Damage";
@@ -165,7 +165,7 @@ namespace Scripts.Stats
             if (type == StatType.DamagePhysical || type == StatType.DamageFire || type == StatType.DamageCold || type == StatType.DamageLightning)
                 return StatDisplayFormat.Damage;
             if (type == StatType.ShockDuration || type == StatType.FreezeDuration || type == StatType.BleedDuration ||
-                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.BubbleRechargeDuration)
+                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.MysticShieldRechargeDuration)
                 return StatDisplayFormat.Time;
             string s = type.ToString();
             if (type == StatType.AreaOfEffect || type == StatType.ReduceDamageTaken || type == StatType.ProjectileSpeed || type == StatType.EffectDuration) return StatDisplayFormat.Percent;

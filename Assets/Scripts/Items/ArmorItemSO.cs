@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Scripts.Items
 {
@@ -16,7 +15,6 @@ namespace Scripts.Items
         [Tooltip("Base evasion value.")]
         public float BaseEvasion;
 
-        [FormerlySerializedAs("BaseBubbles")]
         [Tooltip("Base Mystic Shield value.")]
         public float BaseMysticShield;
     }

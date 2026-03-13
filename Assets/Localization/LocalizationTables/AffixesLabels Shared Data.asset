@@ -292,15 +292,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62002855936
-    m_Key: affix_flat_maxbubbles
+    m_Key: affix_flat_maxmysticshield
     m_Metadata:
       m_Items: []
   - m_Id: 62002855937
-    m_Key: affix_increase_maxbubbles
+    m_Key: affix_increase_maxmysticshield
     m_Metadata:
       m_Items: []
   - m_Id: 62011244544
-    m_Key: affix_more_maxbubbles
+    m_Key: affix_more_maxmysticshield
     m_Metadata:
       m_Items: []
   - m_Id: 62011244545
@@ -312,15 +312,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62019633152
-    m_Key: affix_flat_bubblerechargeduration
+    m_Key: affix_flat_mysticshieldrechargeduration
     m_Metadata:
       m_Items: []
   - m_Id: 62019633153
-    m_Key: affix_increase_bubblerechargeduration
+    m_Key: affix_increase_mysticshieldrechargeduration
     m_Metadata:
       m_Items: []
   - m_Id: 62023827456
-    m_Key: affix_more_bubblerechargeduration
+    m_Key: affix_more_mysticshieldrechargeduration
     m_Metadata:
       m_Items: []
   - m_Id: 62028021760
@@ -408,7 +408,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62141267968
-    m_Key: affix_flat_bubblemitigationpercent
+    m_Key: affix_flat_mysticshieldmitigationpercent
     m_Metadata:
       m_Items: []
   - m_Id: 62141267969
@@ -424,7 +424,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62153850880
-    m_Key: affix_flat_maxbubblemitigationpercent
+    m_Key: affix_flat_maxmysticshieldmitigationpercent
     m_Metadata:
       m_Items: []
   - m_Id: 62153850881
@@ -1372,123 +1372,123 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477587
-    m_Key: affix_name_bubblemitigationpercent_flat_light_t1
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_light_t1
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477588
-    m_Key: affix_name_bubblemitigationpercent_flat_light_t2
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_light_t2
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477589
-    m_Key: affix_name_bubblemitigationpercent_flat_light_t3
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_light_t3
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477590
-    m_Key: affix_name_bubblemitigationpercent_flat_light_t4
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_light_t4
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477591
-    m_Key: affix_name_bubblemitigationpercent_flat_light_t5
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_light_t5
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477592
-    m_Key: affix_name_bubblemitigationpercent_flat_medium_t1
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_medium_t1
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477593
-    m_Key: affix_name_bubblemitigationpercent_flat_medium_t2
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_medium_t2
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477594
-    m_Key: affix_name_bubblemitigationpercent_flat_medium_t3
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_medium_t3
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477595
-    m_Key: affix_name_bubblemitigationpercent_flat_medium_t4
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_medium_t4
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477596
-    m_Key: affix_name_bubblemitigationpercent_flat_medium_t5
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_medium_t5
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477597
-    m_Key: affix_name_bubblemitigationpercent_flat_strong_t1
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_strong_t1
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477598
-    m_Key: affix_name_bubblemitigationpercent_flat_strong_t2
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_strong_t2
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477599
-    m_Key: affix_name_bubblemitigationpercent_flat_strong_t3
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_strong_t3
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477600
-    m_Key: affix_name_bubblemitigationpercent_flat_strong_t4
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_strong_t4
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477601
-    m_Key: affix_name_bubblemitigationpercent_flat_strong_t5
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_strong_t5
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671808
-    m_Key: affix_name_bubblerechargeduration_flat_light_t1
+    m_Key: affix_name_mysticshieldrechargeduration_flat_light_t1
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671809
-    m_Key: affix_name_bubblerechargeduration_flat_light_t2
+    m_Key: affix_name_mysticshieldrechargeduration_flat_light_t2
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671810
-    m_Key: affix_name_bubblerechargeduration_flat_light_t3
+    m_Key: affix_name_mysticshieldrechargeduration_flat_light_t3
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671811
-    m_Key: affix_name_bubblerechargeduration_flat_light_t4
+    m_Key: affix_name_mysticshieldrechargeduration_flat_light_t4
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671812
-    m_Key: affix_name_bubblerechargeduration_flat_light_t5
+    m_Key: affix_name_mysticshieldrechargeduration_flat_light_t5
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671813
-    m_Key: affix_name_bubblerechargeduration_flat_medium_t1
+    m_Key: affix_name_mysticshieldrechargeduration_flat_medium_t1
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671814
-    m_Key: affix_name_bubblerechargeduration_flat_medium_t2
+    m_Key: affix_name_mysticshieldrechargeduration_flat_medium_t2
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671815
-    m_Key: affix_name_bubblerechargeduration_flat_medium_t3
+    m_Key: affix_name_mysticshieldrechargeduration_flat_medium_t3
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671816
-    m_Key: affix_name_bubblerechargeduration_flat_medium_t4
+    m_Key: affix_name_mysticshieldrechargeduration_flat_medium_t4
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671817
-    m_Key: affix_name_bubblerechargeduration_flat_medium_t5
+    m_Key: affix_name_mysticshieldrechargeduration_flat_medium_t5
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671818
-    m_Key: affix_name_bubblerechargeduration_flat_strong_t1
+    m_Key: affix_name_mysticshieldrechargeduration_flat_strong_t1
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671819
-    m_Key: affix_name_bubblerechargeduration_flat_strong_t2
+    m_Key: affix_name_mysticshieldrechargeduration_flat_strong_t2
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671820
-    m_Key: affix_name_bubblerechargeduration_flat_strong_t3
+    m_Key: affix_name_mysticshieldrechargeduration_flat_strong_t3
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671821
-    m_Key: affix_name_bubblerechargeduration_flat_strong_t4
+    m_Key: affix_name_mysticshieldrechargeduration_flat_strong_t4
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671822
-    m_Key: affix_name_bubblerechargeduration_flat_strong_t5
+    m_Key: affix_name_mysticshieldrechargeduration_flat_strong_t5
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671823
@@ -5032,123 +5032,123 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449082
-    m_Key: affix_name_maxbubblemitigationpercent_flat_light_t1
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_light_t1
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449083
-    m_Key: affix_name_maxbubblemitigationpercent_flat_light_t2
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_light_t2
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449084
-    m_Key: affix_name_maxbubblemitigationpercent_flat_light_t3
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_light_t3
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449085
-    m_Key: affix_name_maxbubblemitigationpercent_flat_light_t4
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_light_t4
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449086
-    m_Key: affix_name_maxbubblemitigationpercent_flat_light_t5
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_light_t5
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449087
-    m_Key: affix_name_maxbubblemitigationpercent_flat_medium_t1
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_medium_t1
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449088
-    m_Key: affix_name_maxbubblemitigationpercent_flat_medium_t2
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_medium_t2
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449089
-    m_Key: affix_name_maxbubblemitigationpercent_flat_medium_t3
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_medium_t3
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449090
-    m_Key: affix_name_maxbubblemitigationpercent_flat_medium_t4
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_medium_t4
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449091
-    m_Key: affix_name_maxbubblemitigationpercent_flat_medium_t5
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_medium_t5
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449092
-    m_Key: affix_name_maxbubblemitigationpercent_flat_strong_t1
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_strong_t1
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449093
-    m_Key: affix_name_maxbubblemitigationpercent_flat_strong_t2
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_strong_t2
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449094
-    m_Key: affix_name_maxbubblemitigationpercent_flat_strong_t3
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_strong_t3
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449095
-    m_Key: affix_name_maxbubblemitigationpercent_flat_strong_t4
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_strong_t4
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449096
-    m_Key: affix_name_maxbubblemitigationpercent_flat_strong_t5
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_strong_t5
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449097
-    m_Key: affix_name_maxbubbles_flat_light_t1
+    m_Key: affix_name_maxmysticshield_flat_light_t1
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449098
-    m_Key: affix_name_maxbubbles_flat_light_t2
+    m_Key: affix_name_maxmysticshield_flat_light_t2
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449099
-    m_Key: affix_name_maxbubbles_flat_light_t3
+    m_Key: affix_name_maxmysticshield_flat_light_t3
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449100
-    m_Key: affix_name_maxbubbles_flat_light_t4
+    m_Key: affix_name_maxmysticshield_flat_light_t4
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449101
-    m_Key: affix_name_maxbubbles_flat_light_t5
+    m_Key: affix_name_maxmysticshield_flat_light_t5
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449102
-    m_Key: affix_name_maxbubbles_flat_medium_t1
+    m_Key: affix_name_maxmysticshield_flat_medium_t1
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449103
-    m_Key: affix_name_maxbubbles_flat_medium_t2
+    m_Key: affix_name_maxmysticshield_flat_medium_t2
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449104
-    m_Key: affix_name_maxbubbles_flat_medium_t3
+    m_Key: affix_name_maxmysticshield_flat_medium_t3
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449105
-    m_Key: affix_name_maxbubbles_flat_medium_t4
+    m_Key: affix_name_maxmysticshield_flat_medium_t4
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449106
-    m_Key: affix_name_maxbubbles_flat_medium_t5
+    m_Key: affix_name_maxmysticshield_flat_medium_t5
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449107
-    m_Key: affix_name_maxbubbles_flat_strong_t1
+    m_Key: affix_name_maxmysticshield_flat_strong_t1
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449108
-    m_Key: affix_name_maxbubbles_flat_strong_t2
+    m_Key: affix_name_maxmysticshield_flat_strong_t2
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449109
-    m_Key: affix_name_maxbubbles_flat_strong_t3
+    m_Key: affix_name_maxmysticshield_flat_strong_t3
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449110
-    m_Key: affix_name_maxbubbles_flat_strong_t4
+    m_Key: affix_name_maxmysticshield_flat_strong_t4
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449111
-    m_Key: affix_name_maxbubbles_flat_strong_t5
+    m_Key: affix_name_maxmysticshield_flat_strong_t5
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449112

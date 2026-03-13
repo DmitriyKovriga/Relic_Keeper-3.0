@@ -63,22 +63,22 @@ MonoBehaviour:
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 2
-  - StatTypeId: MaxBubbles
+  - StatTypeId: MaxMysticShield
     Category: Defense
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 2
-  - StatTypeId: BubbleRechargeDuration
+  - StatTypeId: MysticShieldRechargeDuration
     Category: Misc
     Format: 2
     ShowInCharacterWindow: 1
     AffixGenType: 2
-  - StatTypeId: BubbleMitigationPercent
+  - StatTypeId: MysticShieldMitigationPercent
     Category: Resistances
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
-  - StatTypeId: MaxBubbleMitigationPercent
+  - StatTypeId: MaxMysticShieldMitigationPercent
     Category: Resistances
     Format: 1
     ShowInCharacterWindow: 1

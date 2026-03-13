@@ -131,7 +131,7 @@ public class AffixLocalizationSync : EditorWindow
             "MoveSpeed" => "Movement Speed",
             "CritChance" => "Critical Strike Chance",
             "CritMultiplier" => "Critical Strike Multiplier",
-            "MaxBubbles" => "Maximum Mystic Shield",
+            "MaxMysticShield" => "Maximum Mystic Shield",
             "BleedDamageMult" => "Damage over Time Multiplier for Bleeding",
             "DamagePhysical" => "Physical Damage",
             "Armor" => "Armour",
@@ -167,10 +167,10 @@ public class AffixLocalizationSync : EditorWindow
             "ManaOnBlock" => "Мана при Блоке",
 
             // Defense
-            "MaxBubbles" => "\u041c\u0430\u043a\u0441. \u041c\u0438\u0441\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0433\u043e \u0429\u0438\u0442\u0430",
-            "BubbleRechargeDuration" => "\u0421\u043a\u043e\u0440. \u041f\u0435\u0440\u0435\u0437\u0430\u0440\u044f\u0434\u043a\u0438 \u041c\u0438\u0441\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0433\u043e \u0429\u0438\u0442\u0430",
-            "BubbleMitigationPercent" => "% \u041f\u043e\u0433\u043b\u043e\u0449\u0435\u043d\u0438\u044f \u041c\u0438\u0441\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0433\u043e \u0429\u0438\u0442\u0430",
-            "MaxBubbleMitigationPercent" => "\u041c\u0430\u043a\u0441. % \u041f\u043e\u0433\u043b\u043e\u0449\u0435\u043d\u0438\u044f \u041c\u0438\u0441\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0433\u043e \u0429\u0438\u0442\u0430",
+            "MaxMysticShield" => "\u041c\u0430\u043a\u0441. \u041c\u0438\u0441\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0433\u043e \u0429\u0438\u0442\u0430",
+            "MysticShieldRechargeDuration" => "\u0421\u043a\u043e\u0440. \u041f\u0435\u0440\u0435\u0437\u0430\u0440\u044f\u0434\u043a\u0438 \u041c\u0438\u0441\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0433\u043e \u0429\u0438\u0442\u0430",
+            "MysticShieldMitigationPercent" => "% \u041f\u043e\u0433\u043b\u043e\u0449\u0435\u043d\u0438\u044f \u041c\u0438\u0441\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0433\u043e \u0429\u0438\u0442\u0430",
+            "MaxMysticShieldMitigationPercent" => "\u041c\u0430\u043a\u0441. % \u041f\u043e\u0433\u043b\u043e\u0449\u0435\u043d\u0438\u044f \u041c\u0438\u0441\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0433\u043e \u0429\u0438\u0442\u0430",
             
             "Armor" => "Броня",
             "Evasion" => "Уклонение",

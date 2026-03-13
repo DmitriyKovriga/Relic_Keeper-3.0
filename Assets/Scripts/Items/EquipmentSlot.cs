@@ -43,7 +43,7 @@ namespace Scripts.Items
         Armour,     // Сила -> Броня
         Evasion,    // Ловкость -> Уклонение
         [InspectorName("Mystic Shield")]
-        Bubbles,    // Legacy enum id; displayed as Mystic Shield
+        MysticShield,    // Интеллект -> Mystic Shield
         Hybrid      // Смешанный (Броня + Баблы и т.д.)
     }
 

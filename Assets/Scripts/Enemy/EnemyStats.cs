@@ -64,7 +64,7 @@ namespace Scripts.Enemies
             return type == StatType.MaxHealth || 
                    type == StatType.Armor || 
                    type == StatType.Evasion ||
-                   type == StatType.MaxBubbles ||
+                   type == StatType.MaxMysticShield ||
                    type == StatType.DamagePhysical ||
                    type == StatType.DamageFire ||
                    type == StatType.DamageCold ||

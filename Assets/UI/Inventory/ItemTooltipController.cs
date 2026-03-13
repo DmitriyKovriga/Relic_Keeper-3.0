@@ -708,7 +708,7 @@ public class ItemTooltipController : MonoBehaviour
         {
             if (armor.BaseArmor > 0) AddSimpleRow(StatType.Armor, item, armor.BaseArmor);
             if (armor.BaseEvasion > 0) AddSimpleRow(StatType.Evasion, item, armor.BaseEvasion);
-            if (armor.BaseMysticShield > 0) AddSimpleRow(StatType.MaxBubbles, item, armor.BaseMysticShield);
+            if (armor.BaseMysticShield > 0) AddSimpleRow(StatType.MaxMysticShield, item, armor.BaseMysticShield);
         }
 
         if (_statsContainer.childCount > 0) AddDivToContainer();

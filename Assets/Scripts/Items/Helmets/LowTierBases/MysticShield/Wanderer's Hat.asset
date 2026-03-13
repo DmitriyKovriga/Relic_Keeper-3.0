@@ -29,4 +29,4 @@ MonoBehaviour:
   DefenseType: 3
   BaseArmor: 0
   BaseEvasion: 0
-  BaseBubbles: 1
+  BaseMysticShield: 1
