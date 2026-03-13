@@ -311,7 +311,7 @@ namespace Scripts.Editor.Affixes
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                 foreach (var pool in inPools)
                 {
-                    EditorGUILayout.LabelField("Pool", pool.name + " (" + pool.Slot + "/" + pool.DefenseType + ")");
+                    EditorGUILayout.LabelField("Pool", pool.name + " (" + pool.Slot + "/" + GetDefenseTypeDisplayName(pool.DefenseType) + ")");
                     foreach (var item in _items.Where(i => FindPoolForItem(i) == pool))
                         EditorGUILayout.LabelField("  →", item.name + " (" + item.Slot + ")");
                 }
@@ -655,7 +655,7 @@ namespace Scripts.Editor.Affixes
             if (s.Contains("Bleed") || s.Contains("Poison") || s.Contains("Ignite") || s.Contains("Freeze") || s.Contains("Shock")) return "Ailments";
             if (s.Contains("Resist") || s.Contains("Penetration") || s.Contains("Mitigation") || s.Contains("ReduceDamage")) return "Resistances";
             if (s.Contains("Health") || s.Contains("Mana")) return "Vitals";
-            if (s.Contains("Armor") || s.Contains("Evasion") || s.Contains("Block") || s.Contains("Bubbles")) return "Defense";
+            if (s.Contains("Armor") || s.Contains("Evasion") || s.Contains("Block") || s.Contains("Bubbles") || s.Contains("MysticShield")) return "Defense";
             if (s.Contains("Crit") || s.Contains("Accuracy")) return "Critical";
             if (s.Contains("Speed")) return "Speed";
             if (s.Contains("Damage") && !s.Contains("Mult") && !s.Contains("Taken")) return "Damage";
@@ -679,6 +679,11 @@ namespace Scripts.Editor.Affixes
             ArmorDefenseType defType = ArmorDefenseType.None;
             if (item is ArmorItemSO armor) defType = armor.DefenseType;
             return _pools.FirstOrDefault(p => p != null && p.Slot == item.Slot && p.DefenseType == defType);
+        }
+
+        private static string GetDefenseTypeDisplayName(ArmorDefenseType type)
+        {
+            return type == ArmorDefenseType.Bubbles ? "Mystic Shield" : type.ToString();
         }
 
         private void DrawTagManagement()

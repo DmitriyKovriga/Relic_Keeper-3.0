@@ -304,7 +304,7 @@ namespace Scripts.Editor.Items
                 }
             }
             else
-                EditorGUILayout.HelpBox($"No pool with Slot={_selectedItem.Slot} and DefenseType={(_selectedItem is ArmorItemSO armor ? armor.DefenseType.ToString() : "None")}.", MessageType.None);
+                EditorGUILayout.HelpBox($"No pool with Slot={_selectedItem.Slot} and DefenseType={(_selectedItem is ArmorItemSO armor ? GetDefenseTypeDisplayName(armor.DefenseType) : "None")}.", MessageType.None);
 
             EditorGUILayout.Space(8);
             if (GUILayout.Button("Open in Inspector")) { Selection.activeObject = _selectedItem; EditorGUIUtility.PingObject(_selectedItem); }
@@ -656,7 +656,7 @@ namespace Scripts.Editor.Items
             _poolSearch = EditorGUILayout.TextField("Search", _poolSearch);
             _poolSlotFilter = EditorGUILayout.Popup("Slot", _poolSlotFilter + 1, slotNamesWithAll()) - 1;
             var defNames = new List<string> { "All" };
-            defNames.AddRange(System.Enum.GetNames(typeof(ArmorDefenseType)));
+            defNames.AddRange(System.Enum.GetValues(typeof(ArmorDefenseType)).Cast<ArmorDefenseType>().Select(GetDefenseTypeDisplayName));
             _poolDefenseFilter = EditorGUILayout.Popup("Defense", _poolDefenseFilter + 1, defNames.ToArray()) - 1;
             if (GUILayout.Button("Refresh")) LoadPools();
 
@@ -676,7 +676,7 @@ namespace Scripts.Editor.Items
                 bool sel = _selectedPool == pool;
                 GUI.backgroundColor = sel ? new Color(0.5f, 0.7f, 1f) : Color.white;
                 int count = pool.Affixes != null ? pool.Affixes.Count : 0;
-                if (GUILayout.Button($"{pool.name}  ({pool.Slot}/{pool.DefenseType}) [{count}]", GUILayout.Height(22)))
+                if (GUILayout.Button($"{pool.name}  ({pool.Slot}/{GetDefenseTypeDisplayName(pool.DefenseType)}) [{count}]", GUILayout.Height(22)))
                 {
                     _selectedPool = pool;
                     SessionState.SetString(SessionKeySelectedPool, AssetDatabase.GetAssetPath(pool));
@@ -866,7 +866,7 @@ namespace Scripts.Editor.Items
             else
                 foreach (var pool in inPools)
                 {
-                    if (GUILayout.Button($"  {pool.name} ({pool.Slot}/{pool.DefenseType})", EditorStyles.linkLabel))
+                    if (GUILayout.Button($"  {pool.name} ({pool.Slot}/{GetDefenseTypeDisplayName(pool.DefenseType)})", EditorStyles.linkLabel))
                     {
                         _selectedPool = pool;
                         _tab = 1;
@@ -967,6 +967,11 @@ namespace Scripts.Editor.Items
                 default:
                     return false;
             }
+        }
+
+        private static string GetDefenseTypeDisplayName(ArmorDefenseType type)
+        {
+            return type == ArmorDefenseType.Bubbles ? "Mystic Shield" : type.ToString();
         }
 
         #endregion

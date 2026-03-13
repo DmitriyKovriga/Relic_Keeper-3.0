@@ -75,7 +75,7 @@ namespace Scripts.Editor.Affixes
             AffixPoolSO pool = _selectedPoolIndex >= 0 && _selectedPoolIndex < _pools.Count ? _pools[_selectedPoolIndex] : null;
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Pool", GUILayout.Width(32));
-            var poolOptions = _pools.Select(p => $"{p.name}  ({p.Slot}, {p.DefenseType})").ToArray();
+            var poolOptions = _pools.Select(p => $"{p.name}  ({p.Slot}, {GetDefenseTypeDisplayName(p.DefenseType)})").ToArray();
             int newPoolIndex = EditorGUILayout.Popup(_selectedPoolIndex, poolOptions);
             if (newPoolIndex != _selectedPoolIndex)
             {
@@ -336,6 +336,11 @@ namespace Scripts.Editor.Affixes
             LoadAll();
             _selectedPoolIndex = _pools.IndexOf(copy);
             if (_selectedPoolIndex < 0) _selectedPoolIndex = _pools.Count - 1;
+        }
+
+        private static string GetDefenseTypeDisplayName(ArmorDefenseType type)
+        {
+            return type == ArmorDefenseType.Bubbles ? "Mystic Shield" : type.ToString();
         }
     }
 }

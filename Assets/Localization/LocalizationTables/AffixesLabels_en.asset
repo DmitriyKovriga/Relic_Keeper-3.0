@@ -295,15 +295,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62002855936
-    m_Localized: Adds {0} to Max Bubbles
+    m_Localized: Adds {0} to Max Mystic Shield
     m_Metadata:
       m_Items: []
   - m_Id: 62002855937
-    m_Localized: '{0}% increased Maximum Bubbles'
+    m_Localized: '{0}% increased Maximum Mystic Shield'
     m_Metadata:
       m_Items: []
   - m_Id: 62011244544
-    m_Localized: '{0}% more Maximum Bubbles'
+    m_Localized: '{0}% more Maximum Mystic Shield'
     m_Metadata:
       m_Items: []
   - m_Id: 62011244545
@@ -315,15 +315,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62019633152
-    m_Localized: Adds {0} to Bubble Recharge
+    m_Localized: Adds {0} to Mystic Shield Recharge
     m_Metadata:
       m_Items: []
   - m_Id: 62019633153
-    m_Localized: '{0}% increased Bubble Recharge Duration'
+    m_Localized: '{0}% increased Mystic Shield Recharge Duration'
     m_Metadata:
       m_Items: []
   - m_Id: 62023827456
-    m_Localized: '{0}% more Bubble Recharge Duration'
+    m_Localized: '{0}% more Mystic Shield Recharge Duration'
     m_Metadata:
       m_Items: []
   - m_Id: 62028021760
@@ -411,7 +411,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62141267968
-    m_Localized: +{0}% to Bubble Absorb
+    m_Localized: +{0}% to Mystic Shield Absorb
     m_Metadata:
       m_Items: []
   - m_Id: 62141267969
@@ -427,7 +427,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62153850880
-    m_Localized: +{0}% to Max Bubble Mitigation
+    m_Localized: +{0}% to Max Mystic Shield Mitigation
     m_Metadata:
       m_Items: []
   - m_Id: 62153850881
@@ -955,83 +955,83 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151494
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151495
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151496
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151497
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151498
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151499
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151500
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151501
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151502
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151503
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151504
-    m_Localized: Bubble Recharge Increase Global
+    m_Localized: Mystic Shield Recharge Increase Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151505
-    m_Localized: Bubble Recharge Increase Global
+    m_Localized: Mystic Shield Recharge Increase Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151506
-    m_Localized: Bubble Recharge Increase Global
+    m_Localized: Mystic Shield Recharge Increase Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151507
-    m_Localized: Bubble Recharge Increase Global
+    m_Localized: Mystic Shield Recharge Increase Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151508
-    m_Localized: Bubble Recharge Increase Global
+    m_Localized: Mystic Shield Recharge Increase Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151509
-    m_Localized: Bubble Recharge More Global
+    m_Localized: Mystic Shield Recharge More Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151510
-    m_Localized: Bubble Recharge More Global
+    m_Localized: Mystic Shield Recharge More Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151511
-    m_Localized: Bubble Recharge More Global
+    m_Localized: Mystic Shield Recharge More Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151512
-    m_Localized: Bubble Recharge More Global
+    m_Localized: Mystic Shield Recharge More Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151513
-    m_Localized: Bubble Recharge More Global
+    m_Localized: Mystic Shield Recharge More Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151514
@@ -2383,83 +2383,83 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734371
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734372
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734373
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734374
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734375
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734376
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734377
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734378
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734379
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734380
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734381
-    m_Localized: Max Bubbles Increase Global
+    m_Localized: Max Mystic Shield Increase Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734382
-    m_Localized: Max Bubbles Increase Global
+    m_Localized: Max Mystic Shield Increase Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734383
-    m_Localized: Max Bubbles Increase Global
+    m_Localized: Max Mystic Shield Increase Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734384
-    m_Localized: Max Bubbles Increase Global
+    m_Localized: Max Mystic Shield Increase Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734385
-    m_Localized: Max Bubbles Increase Global
+    m_Localized: Max Mystic Shield Increase Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734386
-    m_Localized: Max Bubbles More Global
+    m_Localized: Max Mystic Shield More Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734387
-    m_Localized: Max Bubbles More Global
+    m_Localized: Max Mystic Shield More Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734388
-    m_Localized: Max Bubbles More Global
+    m_Localized: Max Mystic Shield More Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734389
-    m_Localized: Max Bubbles More Global
+    m_Localized: Max Mystic Shield More Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734390
-    m_Localized: Max Bubbles More Global
+    m_Localized: Max Mystic Shield More Global
     m_Metadata:
       m_Items: []
   - m_Id: 11469948222734391
@@ -4563,243 +4563,243 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11478865619222528
-    m_Localized: Strong Max Bubbles flat
+    m_Localized: Strong Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478865837326336
-    m_Localized: Strong Max Bubbles flat
+    m_Localized: Strong Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478866063818752
-    m_Localized: Strong Max Bubbles flat
+    m_Localized: Strong Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478866290311168
-    m_Localized: Strong Max Bubbles flat
+    m_Localized: Strong Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478866516803584
-    m_Localized: Strong Max Bubbles flat
+    m_Localized: Strong Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478866739101696
-    m_Localized: Medium Max Bubbles flat
+    m_Localized: Medium Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478866948816896
-    m_Localized: Medium Max Bubbles flat
+    m_Localized: Medium Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478867171115008
-    m_Localized: Medium Max Bubbles flat
+    m_Localized: Medium Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478867368247296
-    m_Localized: Medium Max Bubbles flat
+    m_Localized: Medium Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478867590545408
-    m_Localized: Medium Max Bubbles flat
+    m_Localized: Medium Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478867791872000
-    m_Localized: Light Max Bubbles flat
+    m_Localized: Light Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478867993198592
-    m_Localized: Light Max Bubbles flat
+    m_Localized: Light Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478868215496704
-    m_Localized: Light Max Bubbles flat
+    m_Localized: Light Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478868429406208
-    m_Localized: Light Max Bubbles flat
+    m_Localized: Light Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478868647510016
-    m_Localized: Light Max Bubbles flat
+    m_Localized: Light Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478869050163200
-    m_Localized: Strong Bubble Recharge flat
+    m_Localized: Strong Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478869243101184
-    m_Localized: Strong Bubble Recharge flat
+    m_Localized: Strong Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478869436039168
-    m_Localized: Strong Bubble Recharge flat
+    m_Localized: Strong Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478869620588544
-    m_Localized: Strong Bubble Recharge flat
+    m_Localized: Strong Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478869813526528
-    m_Localized: Strong Bubble Recharge flat
+    m_Localized: Strong Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478869998075904
-    m_Localized: Medium Bubble Recharge flat
+    m_Localized: Medium Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478870174236672
-    m_Localized: Medium Bubble Recharge flat
+    m_Localized: Medium Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478870358786048
-    m_Localized: Medium Bubble Recharge flat
+    m_Localized: Medium Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478870547529728
-    m_Localized: Medium Bubble Recharge flat
+    m_Localized: Medium Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478870736273408
-    m_Localized: Medium Bubble Recharge flat
+    m_Localized: Medium Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478870941794304
-    m_Localized: Light Bubble Recharge flat
+    m_Localized: Light Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478871164092416
-    m_Localized: Light Bubble Recharge flat
+    m_Localized: Light Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478871357030400
-    m_Localized: Light Bubble Recharge flat
+    m_Localized: Light Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478871562551296
-    m_Localized: Light Bubble Recharge flat
+    m_Localized: Light Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478871742906368
-    m_Localized: Light Bubble Recharge flat
+    m_Localized: Light Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478872405606400
-    m_Localized: Strong Bubble Absorb flat
+    m_Localized: Strong Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478872590155776
-    m_Localized: Strong Bubble Absorb flat
+    m_Localized: Strong Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478872770510848
-    m_Localized: Strong Bubble Absorb flat
+    m_Localized: Strong Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478872976031744
-    m_Localized: Strong Bubble Absorb flat
+    m_Localized: Strong Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478873185746944
-    m_Localized: Strong Bubble Absorb flat
+    m_Localized: Strong Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478873387073536
-    m_Localized: Medium Bubble Absorb flat
+    m_Localized: Medium Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478873580011520
-    m_Localized: Medium Bubble Absorb flat
+    m_Localized: Medium Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478873789726720
-    m_Localized: Medium Bubble Absorb flat
+    m_Localized: Medium Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478874007830528
-    m_Localized: Medium Bubble Absorb flat
+    m_Localized: Medium Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478874225934336
-    m_Localized: Medium Bubble Absorb flat
+    m_Localized: Medium Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478874448232448
-    m_Localized: Light Bubble Absorb flat
+    m_Localized: Light Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478874662141952
-    m_Localized: Light Bubble Absorb flat
+    m_Localized: Light Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478874850885632
-    m_Localized: Light Bubble Absorb flat
+    m_Localized: Light Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478875056406528
-    m_Localized: Light Bubble Absorb flat
+    m_Localized: Light Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478875291287552
-    m_Localized: Light Bubble Absorb flat
+    m_Localized: Light Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478875735883776
-    m_Localized: Strong Max Bubble Mitigation flat
+    m_Localized: Strong Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478875933016064
-    m_Localized: Strong Max Bubble Mitigation flat
+    m_Localized: Strong Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478876134342656
-    m_Localized: Strong Max Bubble Mitigation flat
+    m_Localized: Strong Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478876335669248
-    m_Localized: Strong Max Bubble Mitigation flat
+    m_Localized: Strong Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478876528607232
-    m_Localized: Strong Max Bubble Mitigation flat
+    m_Localized: Strong Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478876721545216
-    m_Localized: Medium Max Bubble Mitigation flat
+    m_Localized: Medium Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478876927066112
-    m_Localized: Medium Max Bubble Mitigation flat
+    m_Localized: Medium Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478877145169920
-    m_Localized: Medium Max Bubble Mitigation flat
+    m_Localized: Medium Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478877359079424
-    m_Localized: Medium Max Bubble Mitigation flat
+    m_Localized: Medium Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478877585571840
-    m_Localized: Medium Max Bubble Mitigation flat
+    m_Localized: Medium Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478877795287040
-    m_Localized: Light Max Bubble Mitigation flat
+    m_Localized: Light Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478877988225024
-    m_Localized: Light Max Bubble Mitigation flat
+    m_Localized: Light Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478878168580096
-    m_Localized: Light Max Bubble Mitigation flat
+    m_Localized: Light Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478878348935168
-    m_Localized: Light Max Bubble Mitigation flat
+    m_Localized: Light Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478878529290240
-    m_Localized: Light Max Bubble Mitigation flat
+    m_Localized: Light Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11478878902583296
@@ -11391,123 +11391,123 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033519
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033520
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033521
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033522
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033523
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033524
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033525
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033526
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033527
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033528
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033529
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033530
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033531
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033532
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033533
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033534
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033535
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033536
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033537
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033538
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033539
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033540
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033541
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033542
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033543
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033544
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033545
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033546
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033547
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033548
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033549
@@ -14931,123 +14931,123 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11480060886810831
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060886810832
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060886810833
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060886810834
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060886810835
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004928
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004929
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004930
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004931
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004932
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004933
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004934
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004935
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004936
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004937
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004938
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004939
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004940
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004941
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004942
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004943
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004944
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004945
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004946
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004947
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004948
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004949
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004950
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004951
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004952
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 11480060891004953
@@ -18483,123 +18483,123 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378375
-    m_Localized: Light Bubble Absorb flat
+    m_Localized: Light Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378376
-    m_Localized: Light Bubble Absorb flat
+    m_Localized: Light Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378377
-    m_Localized: Light Bubble Absorb flat
+    m_Localized: Light Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378378
-    m_Localized: Light Bubble Absorb flat
+    m_Localized: Light Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378379
-    m_Localized: Light Bubble Absorb flat
+    m_Localized: Light Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378380
-    m_Localized: Medium Bubble Absorb flat
+    m_Localized: Medium Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378381
-    m_Localized: Medium Bubble Absorb flat
+    m_Localized: Medium Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378382
-    m_Localized: Medium Bubble Absorb flat
+    m_Localized: Medium Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378383
-    m_Localized: Medium Bubble Absorb flat
+    m_Localized: Medium Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378384
-    m_Localized: Medium Bubble Absorb flat
+    m_Localized: Medium Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378385
-    m_Localized: Strong Bubble Absorb flat
+    m_Localized: Strong Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378386
-    m_Localized: Strong Bubble Absorb flat
+    m_Localized: Strong Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378387
-    m_Localized: Strong Bubble Absorb flat
+    m_Localized: Strong Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378388
-    m_Localized: Strong Bubble Absorb flat
+    m_Localized: Strong Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378389
-    m_Localized: Strong Bubble Absorb flat
+    m_Localized: Strong Mystic Shield Absorb flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378390
-    m_Localized: Light Bubble Recharge flat
+    m_Localized: Light Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378391
-    m_Localized: Light Bubble Recharge flat
+    m_Localized: Light Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378392
-    m_Localized: Light Bubble Recharge flat
+    m_Localized: Light Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378393
-    m_Localized: Light Bubble Recharge flat
+    m_Localized: Light Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378394
-    m_Localized: Light Bubble Recharge flat
+    m_Localized: Light Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378395
-    m_Localized: Medium Bubble Recharge flat
+    m_Localized: Medium Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378396
-    m_Localized: Medium Bubble Recharge flat
+    m_Localized: Medium Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378397
-    m_Localized: Medium Bubble Recharge flat
+    m_Localized: Medium Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378398
-    m_Localized: Medium Bubble Recharge flat
+    m_Localized: Medium Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378399
-    m_Localized: Medium Bubble Recharge flat
+    m_Localized: Medium Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378400
-    m_Localized: Strong Bubble Recharge flat
+    m_Localized: Strong Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378401
-    m_Localized: Strong Bubble Recharge flat
+    m_Localized: Strong Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378402
-    m_Localized: Strong Bubble Recharge flat
+    m_Localized: Strong Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378403
-    m_Localized: Strong Bubble Recharge flat
+    m_Localized: Strong Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378404
-    m_Localized: Strong Bubble Recharge flat
+    m_Localized: Strong Mystic Shield Recharge flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378405
@@ -22055,123 +22055,123 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349941
-    m_Localized: Light Max Bubble Mitigation flat
+    m_Localized: Light Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349942
-    m_Localized: Light Max Bubble Mitigation flat
+    m_Localized: Light Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349943
-    m_Localized: Light Max Bubble Mitigation flat
+    m_Localized: Light Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349944
-    m_Localized: Light Max Bubble Mitigation flat
+    m_Localized: Light Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349945
-    m_Localized: Light Max Bubble Mitigation flat
+    m_Localized: Light Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349946
-    m_Localized: Medium Max Bubble Mitigation flat
+    m_Localized: Medium Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349947
-    m_Localized: Medium Max Bubble Mitigation flat
+    m_Localized: Medium Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349948
-    m_Localized: Medium Max Bubble Mitigation flat
+    m_Localized: Medium Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349949
-    m_Localized: Medium Max Bubble Mitigation flat
+    m_Localized: Medium Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349950
-    m_Localized: Medium Max Bubble Mitigation flat
+    m_Localized: Medium Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349951
-    m_Localized: Strong Max Bubble Mitigation flat
+    m_Localized: Strong Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349952
-    m_Localized: Strong Max Bubble Mitigation flat
+    m_Localized: Strong Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349953
-    m_Localized: Strong Max Bubble Mitigation flat
+    m_Localized: Strong Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349954
-    m_Localized: Strong Max Bubble Mitigation flat
+    m_Localized: Strong Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349955
-    m_Localized: Strong Max Bubble Mitigation flat
+    m_Localized: Strong Max Mystic Shield Mitigation flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349956
-    m_Localized: Light Max Bubbles flat
+    m_Localized: Light Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349957
-    m_Localized: Light Max Bubbles flat
+    m_Localized: Light Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349958
-    m_Localized: Light Max Bubbles flat
+    m_Localized: Light Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349959
-    m_Localized: Light Max Bubbles flat
+    m_Localized: Light Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349960
-    m_Localized: Light Max Bubbles flat
+    m_Localized: Light Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349961
-    m_Localized: Medium Max Bubbles flat
+    m_Localized: Medium Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349962
-    m_Localized: Medium Max Bubbles flat
+    m_Localized: Medium Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349963
-    m_Localized: Medium Max Bubbles flat
+    m_Localized: Medium Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349964
-    m_Localized: Medium Max Bubbles flat
+    m_Localized: Medium Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349965
-    m_Localized: Medium Max Bubbles flat
+    m_Localized: Medium Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349966
-    m_Localized: Strong Max Bubbles flat
+    m_Localized: Strong Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349967
-    m_Localized: Strong Max Bubbles flat
+    m_Localized: Strong Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349968
-    m_Localized: Strong Max Bubbles flat
+    m_Localized: Strong Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349969
-    m_Localized: Strong Max Bubbles flat
+    m_Localized: Strong Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349970
-    m_Localized: Strong Max Bubbles flat
+    m_Localized: Strong Max Mystic Shield flat
     m_Metadata:
       m_Items: []
   - m_Id: 11488081654349971
@@ -25599,123 +25599,123 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872884
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872885
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872886
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872887
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872888
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872889
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872890
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872891
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872892
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872893
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872894
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872895
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872896
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872897
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872898
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872899
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872900
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872901
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872902
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872903
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872904
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872905
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872906
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872907
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872908
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872909
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872910
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872911
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872912
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872913
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872914
@@ -29259,123 +29259,123 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650092
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650093
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650094
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650095
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650096
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650097
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650098
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650099
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650100
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650101
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650102
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650103
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650104
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650105
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650106
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650107
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650108
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650109
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650110
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650111
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650112
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650113
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650114
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650115
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650116
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650117
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650118
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650119
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650120
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650121
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17249956333650122
@@ -32847,123 +32847,123 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346930
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346931
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346932
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346933
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346934
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346935
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346936
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346937
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346938
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346939
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346940
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346941
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346942
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346943
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346944
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346945
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346946
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346947
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346948
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346949
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346950
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346951
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346952
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346953
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346954
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346955
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346956
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346957
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346958
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346959
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346960
@@ -36507,123 +36507,123 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318491
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318492
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318493
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318494
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318495
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318496
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318497
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318498
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318499
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318500
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318501
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318502
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318503
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318504
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318505
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318506
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318507
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318508
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318509
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318510
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318511
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318512
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318513
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318514
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318515
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318516
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318517
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318518
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318519
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318520
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17250324610318521
@@ -40095,123 +40095,123 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477587
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477588
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477589
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477590
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477591
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477592
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477593
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477594
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477595
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477596
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477597
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477598
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477599
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477600
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782019477601
-    m_Localized: Bubble Absorb Flat Global
+    m_Localized: Mystic Shield Absorb Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671808
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671809
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671810
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671811
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671812
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671813
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671814
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671815
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671816
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671817
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671818
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671819
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671820
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671821
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671822
-    m_Localized: Bubble Recharge Flat Global
+    m_Localized: Mystic Shield Recharge Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671823
@@ -43755,123 +43755,123 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449082
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449083
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449084
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449085
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449086
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449087
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449088
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449089
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449090
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449091
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449092
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449093
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449094
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449095
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449096
-    m_Localized: Max Bubble Mitigation Flat Global
+    m_Localized: Max Mystic Shield Mitigation Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449097
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449098
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449099
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449100
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449101
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449102
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449103
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449104
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449105
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449106
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449107
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449108
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449109
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449110
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449111
-    m_Localized: Max Bubbles Flat Global
+    m_Localized: Max Mystic Shield Flat Global
     m_Metadata:
       m_Items: []
   - m_Id: 17252782040449112
@@ -46565,3 +46565,4 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
+

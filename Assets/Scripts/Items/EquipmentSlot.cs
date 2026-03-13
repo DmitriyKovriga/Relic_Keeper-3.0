@@ -1,4 +1,4 @@
-using System;
+using UnityEngine;
 
 namespace Scripts.Items
 {
@@ -42,7 +42,8 @@ namespace Scripts.Items
         None,       // Бижутерия / Без защиты
         Armour,     // Сила -> Броня
         Evasion,    // Ловкость -> Уклонение
-        Bubbles,    // Интеллект -> Баблы (вместо Energy Shield)
+        [InspectorName("Mystic Shield")]
+        Bubbles,    // Legacy enum id; displayed as Mystic Shield
         Hybrid      // Смешанный (Броня + Баблы и т.д.)
     }
 

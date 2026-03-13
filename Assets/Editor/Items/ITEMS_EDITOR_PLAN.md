@@ -7,7 +7,7 @@
 | Тип | Файл | Поля |
 |-----|------|------|
 | **EquipmentItemSO** | `Scripts/Items/EquipmentItemSO.cs` | ID, ItemName, Icon, Width, Height, Slot, DropLevel, ImplicitModifiers, **SkillPool**, SkillCount |
-| **ArmorItemSO** | `ArmorItemSO.cs` | + DefenseType, BaseArmor, BaseEvasion, BaseBubbles |
+| **ArmorItemSO** | `ArmorItemSO.cs` | + DefenseType, BaseArmor, BaseEvasion, BaseMysticShield (legacy serialized name: BaseBubbles) |
 | **WeaponItemSO** | `WeaponItemSO.cs` | + IsTwoHanded, InHandSprite, Min/Max damages (Phys/Fire/Cold/Lightning), APS, BaseCritChance, **SecondarySkillPool** |
 
 - **Slot**: Helmet, BodyArmor, MainHand, OffHand, Gloves, Boots.
@@ -18,7 +18,7 @@
 
 | Компонент | Файл | Назначение |
 |-----------|------|------------|
-| **AffixPoolSO** | `Scripts/Items/AffixPoolSO.cs` | **Slot** + **DefenseType** (Armour, Evasion, Bubbles, Hybrid, None), список **Affixes** (List&lt;ItemAffixSO&gt;). |
+| **AffixPoolSO** | `Scripts/Items/AffixPoolSO.cs` | **Slot** + **DefenseType** (Armour, Evasion, Mystic Shield, Hybrid, None; legacy enum id: `Bubbles`), список **Affixes** (List&lt;ItemAffixSO&gt;). |
 
 - **ItemGenerator** (в сцене) хранит список пулов и при генерации предмета выбирает пул по правилу: `pool.Slot == item.Slot && pool.DefenseType == (armor ? armor.DefenseType : None)`.
 - Предметы **не ссылаются** на пул напрямую — связь идёт через пару (Slot, DefenseType).
@@ -75,7 +75,7 @@ ItemDatabaseSO.AllItems (EquipmentItemSO[])
 2. **Вкладка Items:**
    - Источник списка: `AssetDatabase.FindAssets("t:EquipmentItemSO")` (или ItemDatabaseSO.AllItems, если назначена база).
    - Слева: список предметов (отображать ItemName или ID, тип Armor/Weapon, Slot). Фильтры: поиск по имени/ID, тип (All/Armor/Weapon), Slot.
-   - Выбор предмета → справа **панель деталей**: отображение полей через SerializedObject/Editor (ID, ItemName, Icon, Slot, DropLevel, ImplicitModifiers, SkillPool, SkillCount; для Armor — DefenseType, BaseArmor/Evasion/Bubbles; для Weapon — IsTwoHanded, damages, SkillPool, SecondarySkillPool и т.д.). Кнопки: **Open in Inspector**, **Ping**, опционально **Delete**.
+   - Выбор предмета → справа **панель деталей**: отображение полей через SerializedObject/Editor (ID, ItemName, Icon, Slot, DropLevel, ImplicitModifiers, SkillPool, SkillCount; для Armor — DefenseType, BaseArmor/Evasion/MysticShield; для Weapon — IsTwoHanded, damages, SkillPool, SecondarySkillPool и т.д.). Кнопки: **Open in Inspector**, **Ping**, опционально **Delete**.
    - Блок «Used affix pool»: по Slot и (для брони) DefenseType показать подходящий AffixPoolSO (найти по FindAssets и совпадению Slot+DefenseType); кнопка «Open pool» → переключение на вкладку Affix Pools и выбор этого пула.
    - Кнопки **Create Armor Item** / **Create Weapon Item** — создание нового ассета в выбранной папке (например Resources или по умолчанию), добавление в ItemDatabaseSO.AllItems при наличии базы.
 

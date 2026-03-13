@@ -107,15 +107,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13040869085577216
-    m_Localized: Max Bubbles
+    m_Localized: Max Mystic Shield
     m_Metadata:
       m_Items: []
   - m_Id: 13040886231891968
-    m_Localized: Bubble Recharge
+    m_Localized: Mystic Shield Recharge
     m_Metadata:
       m_Items: []
   - m_Id: 13040904019935232
-    m_Localized: Bubble Absorb
+    m_Localized: Mystic Shield Absorb
     m_Metadata:
       m_Items: []
   - m_Id: 13040920193171456
@@ -407,27 +407,27 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13848919400808449
-    m_Localized: +{0}% to Bubble Mitigation Percent
+    m_Localized: +{0}% to Mystic Shield Mitigation Percent
     m_Metadata:
       m_Items: []
   - m_Id: 13848919405002752
-    m_Localized: '{0}% increased Bubble Mitigation Percent'
+    m_Localized: '{0}% increased Mystic Shield Mitigation Percent'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919409197056
-    m_Localized: '{0}% more Bubble Mitigation Percent'
+    m_Localized: '{0}% more Mystic Shield Mitigation Percent'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919409197057
-    m_Localized: Adds {0} to Bubble Recharge Duration
+    m_Localized: Adds {0} to Mystic Shield Recharge Duration
     m_Metadata:
       m_Items: []
   - m_Id: 13848919413391360
-    m_Localized: '{0}% increased Bubble Recharge Duration'
+    m_Localized: '{0}% increased Mystic Shield Recharge Duration'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919417585664
-    m_Localized: '{0}% more Bubble Recharge Duration'
+    m_Localized: '{0}% more Mystic Shield Recharge Duration'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919421779968
@@ -779,19 +779,19 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13848919686021121
-    m_Localized: +{0}% to Max Bubble Mitigation Percent
+    m_Localized: +{0}% to Max Mystic Shield Mitigation Percent
     m_Metadata:
       m_Items: []
   - m_Id: 13848919694409728
-    m_Localized: '{0}% increased Max Bubble Mitigation Percent'
+    m_Localized: '{0}% increased Max Mystic Shield Mitigation Percent'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919694409729
-    m_Localized: '{0}% more Max Bubble Mitigation Percent'
+    m_Localized: '{0}% more Max Mystic Shield Mitigation Percent'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919698604032
-    m_Localized: Adds {0} to Maximum Bubbles
+    m_Localized: Adds {0} to Maximum Mystic Shield
     m_Metadata:
       m_Items: []
   - m_Id: 13848919698604033
@@ -1203,7 +1203,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14172855191764992
-    m_Localized: Max Bubble Mitigation
+    m_Localized: Max Mystic Shield Mitigation
     m_Metadata:
       m_Items: []
   - m_Id: 14172897814282240
@@ -1554,3 +1554,4 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
+
