@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_healthregen_more_light_t5
   TranslationKey: affix_more_healthregen
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:

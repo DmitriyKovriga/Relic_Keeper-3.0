@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_manaonblock_flat_light_t1
   TranslationKey: affix_flat_manaonblock
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:

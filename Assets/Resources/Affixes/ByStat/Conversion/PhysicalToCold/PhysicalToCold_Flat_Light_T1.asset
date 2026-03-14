@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_physicaltocold_flat_light_t1
   TranslationKey: affix_flat_physicaltocold
+  LockAutoLocalization: 0
   TagIds:
   - Conversion
   Stats:

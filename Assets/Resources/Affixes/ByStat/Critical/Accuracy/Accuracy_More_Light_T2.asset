@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_accuracy_more_light_t2
   TranslationKey: affix_more_accuracy
+  LockAutoLocalization: 0
   TagIds:
   - Critical
   Stats:

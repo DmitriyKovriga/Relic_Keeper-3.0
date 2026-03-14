@@ -152,6 +152,7 @@ namespace Scripts.Inventory
         {
             float finalValue = baseValue;
             float sumPercentAdd = 0f;
+            float multiplier = 1f;
             foreach (var affix in Affixes)
             {
                 foreach (var (type, mod, scope) in affix.Modifiers)
@@ -159,12 +160,13 @@ namespace Scripts.Inventory
                     if (scope == StatScope.Local && type == stat)
                     {
                         if (mod.Type == StatModType.Flat) finalValue += mod.Value;
-                        else if (mod.Type == StatModType.PercentAdd) sumPercentAdd += mod.Value;
+                        else if (mod.Type.IsAdditivePercent()) sumPercentAdd += mod.Type.ToSignedPercent(mod.Value);
+                        else if (mod.Type.IsMultiplicativePercent()) multiplier *= mod.Type.ToMultiplierFactor(mod.Value);
                     }
                 }
             }
-            float multiplier = 1f + (sumPercentAdd / 100f);
-            return (float)Math.Round(finalValue * multiplier, 2);
+            float additiveFactor = Mathf.Max(0f, 1f + (sumPercentAdd / 100f));
+            return (float)Math.Round(finalValue * additiveFactor * multiplier, 2);
         }
 
         // Helper для добавления урона оружия

@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_damagecold_increase_medium_t5
   TranslationKey: affix_increase_damagecold
+  LockAutoLocalization: 0
   TagIds:
   - Damage
   Stats:

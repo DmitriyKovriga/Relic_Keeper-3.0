@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 3
   NameKey: affix_name_armor_more_strong_t3
   TranslationKey: affix_more_armor
+  LockAutoLocalization: 0
   TagIds:
   - Defense
   Stats:

@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_damagelightning_increase_light_t4
   TranslationKey: affix_increase_damagelightning
+  LockAutoLocalization: 0
   TagIds:
   - Damage
   Stats:

@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_critchance_increase_light_t1
   TranslationKey: affix_increase_critchance
+  LockAutoLocalization: 0
   TagIds:
   - Critical
   Stats:

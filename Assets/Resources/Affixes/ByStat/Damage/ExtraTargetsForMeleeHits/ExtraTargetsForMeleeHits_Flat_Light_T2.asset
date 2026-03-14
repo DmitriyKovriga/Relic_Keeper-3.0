@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_extratargetsformeleehits_flat_light_t2
   TranslationKey: affix_flat_extratargetsformeleehits
+  LockAutoLocalization: 0
   TagIds:
   - Damage
   Stats:

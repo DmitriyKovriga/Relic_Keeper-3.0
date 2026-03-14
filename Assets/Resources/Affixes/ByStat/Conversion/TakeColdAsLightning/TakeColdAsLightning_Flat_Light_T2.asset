@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_takecoldaslightning_flat_light_t2
   TranslationKey: affix_flat_takecoldaslightning
+  LockAutoLocalization: 0
   TagIds:
   - Conversion
   Stats:

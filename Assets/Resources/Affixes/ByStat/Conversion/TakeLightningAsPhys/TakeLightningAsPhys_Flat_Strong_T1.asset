@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_takelightningasphys_flat_strong_t1
   TranslationKey: affix_flat_takelightningasphys
+  LockAutoLocalization: 0
   TagIds:
   - Conversion
   Stats:

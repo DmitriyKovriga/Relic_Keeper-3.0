@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_maxmysticshield_flat_medium_t1
   TranslationKey: affix_flat_maxmysticshield
+  LockAutoLocalization: 0
   TagIds:
   - Defense
   Stats:

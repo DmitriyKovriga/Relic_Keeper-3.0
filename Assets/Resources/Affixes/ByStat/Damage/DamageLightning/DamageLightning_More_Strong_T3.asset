@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 3
   NameKey: affix_name_damagelightning_more_strong_t3
   TranslationKey: affix_more_damagelightning
+  LockAutoLocalization: 0
   TagIds:
   - Damage
   Stats:

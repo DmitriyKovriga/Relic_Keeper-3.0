@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_poisondamage_increase_medium_t2
   TranslationKey: affix_increase_poisondamage
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:

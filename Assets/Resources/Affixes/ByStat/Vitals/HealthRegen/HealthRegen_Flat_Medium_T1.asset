@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_healthregen_flat_medium_t1
   TranslationKey: affix_flat_healthregen
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:

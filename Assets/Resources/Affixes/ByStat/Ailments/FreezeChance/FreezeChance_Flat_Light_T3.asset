@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 3
   NameKey: affix_name_freezechance_flat_light_t3
   TranslationKey: affix_flat_freezechance
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:

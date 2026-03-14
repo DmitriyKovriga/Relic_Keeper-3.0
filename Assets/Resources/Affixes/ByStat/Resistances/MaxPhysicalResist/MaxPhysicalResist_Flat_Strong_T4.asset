@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_maxphysicalresist_flat_strong_t4
   TranslationKey: affix_flat_maxphysicalresist
+  LockAutoLocalization: 0
   TagIds:
   - Resistances
   Stats:

@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_areaofeffect_flat_medium_t2
   TranslationKey: affix_flat_areaofeffect
+  LockAutoLocalization: 0
   TagIds:
   - Misc
   Stats:

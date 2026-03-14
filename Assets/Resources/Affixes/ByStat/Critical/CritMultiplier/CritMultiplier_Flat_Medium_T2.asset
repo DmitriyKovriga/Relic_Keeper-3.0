@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_critmultiplier_flat_medium_t2
   TranslationKey: affix_flat_critmultiplier
+  LockAutoLocalization: 0
   TagIds:
   - Critical
   Stats:

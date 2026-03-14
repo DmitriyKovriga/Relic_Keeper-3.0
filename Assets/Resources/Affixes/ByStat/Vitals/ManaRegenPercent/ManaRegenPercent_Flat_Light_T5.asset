@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_manaregenpercent_flat_light_t5
   TranslationKey: affix_flat_manaregenpercent
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:

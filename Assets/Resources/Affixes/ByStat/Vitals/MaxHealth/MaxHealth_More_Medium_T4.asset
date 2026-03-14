@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_maxhealth_more_medium_t4
   TranslationKey: affix_more_maxhealth
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:

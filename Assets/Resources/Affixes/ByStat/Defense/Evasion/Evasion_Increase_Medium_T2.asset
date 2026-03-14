@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_evasion_increase_medium_t2
   TranslationKey: affix_increase_evasion
+  LockAutoLocalization: 0
   TagIds:
   - Defense
   Stats:

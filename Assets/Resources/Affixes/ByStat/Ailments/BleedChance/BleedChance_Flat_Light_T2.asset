@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_bleedchance_flat_light_t2
   TranslationKey: affix_flat_bleedchance
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:

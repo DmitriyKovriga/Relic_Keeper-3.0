@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_ignitechance_flat_light_t5
   TranslationKey: affix_flat_ignitechance
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:

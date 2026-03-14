@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_bleedduration_flat_medium_t4
   TranslationKey: affix_flat_bleedduration
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:

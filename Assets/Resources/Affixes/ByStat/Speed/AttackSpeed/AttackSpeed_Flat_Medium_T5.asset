@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_attackspeed_flat_medium_t5
   TranslationKey: affix_flat_attackspeed
+  LockAutoLocalization: 0
   TagIds:
   - Speed
   Stats:

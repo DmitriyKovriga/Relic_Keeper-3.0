@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_blockchance_flat_medium_t5
   TranslationKey: affix_flat_blockchance
+  LockAutoLocalization: 0
   TagIds:
   - Defense
   Stats:

@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 3
   NameKey: affix_name_shockchance_flat_strong_t3
   TranslationKey: affix_flat_shockchance
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:

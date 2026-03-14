@@ -4,9 +4,184 @@ using UnityEngine;
 
 namespace Scripts.Stats
 {
-    /// <summary>
-    /// Display format for a stat value in UI (character window, tooltips).
-    /// </summary>
+    public enum StatValueUnit
+    {
+        None,
+        HP,
+        MP,
+        Percent,
+        Seconds,
+        Stacks,
+        Targets,
+        Points,
+        MysticShield
+    }
+
+    [Flags]
+    public enum StatAffixModifierKindFlags
+    {
+        None = 0,
+        Flat = 1 << 0,
+        Increase = 1 << 1,
+        Decrease = 1 << 2,
+        More = 1 << 3,
+        Less = 1 << 4,
+        Full = Flat | Increase | Decrease | More | Less
+    }
+
+    public enum StatAffixModifierKind
+    {
+        Flat,
+        Increase,
+        Decrease,
+        More,
+        Less
+    }
+
+    public static class StatPresentation
+    {
+        private static readonly StatAffixModifierKind[] OrderedKinds =
+        {
+            StatAffixModifierKind.Flat,
+            StatAffixModifierKind.Increase,
+            StatAffixModifierKind.Decrease,
+            StatAffixModifierKind.More,
+            StatAffixModifierKind.Less
+        };
+
+        public static IEnumerable<StatAffixModifierKind> EnumerateKinds(StatAffixModifierKindFlags flags)
+        {
+            foreach (var kind in OrderedKinds)
+            {
+                if ((flags & ToFlag(kind)) != 0)
+                    yield return kind;
+            }
+        }
+
+        public static StatAffixModifierKindFlags ToFlag(StatAffixModifierKind kind)
+        {
+            switch (kind)
+            {
+                case StatAffixModifierKind.Flat:
+                    return StatAffixModifierKindFlags.Flat;
+                case StatAffixModifierKind.Increase:
+                    return StatAffixModifierKindFlags.Increase;
+                case StatAffixModifierKind.Decrease:
+                    return StatAffixModifierKindFlags.Decrease;
+                case StatAffixModifierKind.More:
+                    return StatAffixModifierKindFlags.More;
+                case StatAffixModifierKind.Less:
+                    return StatAffixModifierKindFlags.Less;
+                default:
+                    return StatAffixModifierKindFlags.None;
+            }
+        }
+
+        public static StatAffixModifierKind FromStatModType(StatModType type)
+        {
+            switch (type)
+            {
+                case StatModType.PercentAdd:
+                    return StatAffixModifierKind.Increase;
+                case StatModType.PercentSub:
+                    return StatAffixModifierKind.Decrease;
+                case StatModType.PercentMult:
+                    return StatAffixModifierKind.More;
+                case StatModType.PercentLess:
+                    return StatAffixModifierKind.Less;
+                default:
+                    return StatAffixModifierKind.Flat;
+            }
+        }
+
+        public static StatModType ToStatModType(StatAffixModifierKind kind)
+        {
+            switch (kind)
+            {
+                case StatAffixModifierKind.Increase:
+                    return StatModType.PercentAdd;
+                case StatAffixModifierKind.Decrease:
+                    return StatModType.PercentSub;
+                case StatAffixModifierKind.More:
+                    return StatModType.PercentMult;
+                case StatAffixModifierKind.Less:
+                    return StatModType.PercentLess;
+                default:
+                    return StatModType.Flat;
+            }
+        }
+
+        public static string GetModifierKindId(StatAffixModifierKind kind)
+        {
+            switch (kind)
+            {
+                case StatAffixModifierKind.Increase:
+                    return "increase";
+                case StatAffixModifierKind.Decrease:
+                    return "decrease";
+                case StatAffixModifierKind.More:
+                    return "more";
+                case StatAffixModifierKind.Less:
+                    return "less";
+                default:
+                    return "flat";
+            }
+        }
+
+        public static string GetModifierKindDisplayName(StatAffixModifierKind kind)
+        {
+            switch (kind)
+            {
+                case StatAffixModifierKind.Increase:
+                    return "Increase";
+                case StatAffixModifierKind.Decrease:
+                    return "Decrease";
+                case StatAffixModifierKind.More:
+                    return "More";
+                case StatAffixModifierKind.Less:
+                    return "Less";
+                default:
+                    return "Flat";
+            }
+        }
+
+        public static string GetValueUnitLocalizationKey(StatValueUnit unit)
+        {
+            return "stats.unit." + unit.ToString().ToLowerInvariant();
+        }
+
+        public static string GetValueUnitFallback(StatValueUnit unit, string localeCode)
+        {
+            bool isRu = string.Equals(localeCode, "ru", StringComparison.OrdinalIgnoreCase);
+            switch (unit)
+            {
+                case StatValueUnit.HP:
+                    return "HP";
+                case StatValueUnit.MP:
+                    return "MP";
+                case StatValueUnit.Percent:
+                    return "%";
+                case StatValueUnit.Seconds:
+                    return isRu ? "с" : "s";
+                case StatValueUnit.Stacks:
+                    return isRu ? "стаков" : "stacks";
+                case StatValueUnit.Targets:
+                    return isRu ? "целей" : "targets";
+                case StatValueUnit.MysticShield:
+                    return isRu ? "МЩ" : "MS";
+                case StatValueUnit.Points:
+                    return isRu ? "ед." : "pts";
+                default:
+                    return string.Empty;
+            }
+        }
+
+        public static bool IsSymbolUnit(StatValueUnit unit)
+        {
+            return unit == StatValueUnit.Percent;
+        }
+    }
+
     public enum StatDisplayFormat
     {
         Number,
@@ -15,19 +190,13 @@ namespace Scripts.Stats
         Damage
     }
 
-    /// <summary>
-    /// Тип стата для генерации аффиксов: полный расчёт (flat+increase+more), только % (только flat с малыми значениями), или без расчёта (константа, только flat).
-    /// </summary>
     public enum StatAffixGenType
     {
-        FullCalcStat,  // flat, increase, more — три набора strong/medium/light по 5 тиров
-        PercentStat,   // только flat, малые значения 1–7 (strong/medium/light × T1–5)
-        NOCalcStat     // как PercentStat — только flat, малые значения
+        FullCalcStat,
+        PercentStat,
+        NOCalcStat
     }
 
-    /// <summary>
-    /// Single metadata entry for one StatType. Used by StatsDatabaseSO and editable in Stats Editor.
-    /// </summary>
     [Serializable]
     public class StatMetadataEntry
     {
@@ -36,39 +205,28 @@ namespace Scripts.Stats
         public StatDisplayFormat Format = StatDisplayFormat.Number;
         public bool ShowInCharacterWindow = true;
         public StatAffixGenType AffixGenType = StatAffixGenType.FullCalcStat;
+        public StatValueUnit ValueUnit = StatValueUnit.None;
+        public StatAffixModifierKindFlags AllowedAffixKinds = StatAffixModifierKindFlags.Full;
     }
 
-    /// <summary>
-    /// Central database of stat metadata: category, display format, visibility in character window.
-    /// Stored in Resources/Databases for runtime access. Editor creates default entries via "Create for all".
-    /// </summary>
     [CreateAssetMenu(menuName = "RPG/Stats Database", fileName = "StatsDatabase")]
     public class StatsDatabaseSO : ScriptableObject
     {
         [SerializeField] private List<StatMetadataEntry> _entries = new List<StatMetadataEntry>();
         private Dictionary<string, StatMetadataEntry> _lookup;
 
-        /// <summary>
-        /// Returns metadata for the given stat, or null if not in database (use hardcoded fallback).
-        /// </summary>
         public StatMetadataEntry GetMetadata(StatType type)
         {
             EnsureLookup();
             return _lookup.TryGetValue(type.ToString(), out var entry) ? entry : null;
         }
 
-        /// <summary>
-        /// Whether this stat should be shown in the character window. Returns true if no metadata (fallback = show).
-        /// </summary>
         public bool ShouldShowInCharacterWindow(StatType type)
         {
             var meta = GetMetadata(type);
             return meta == null || meta.ShowInCharacterWindow;
         }
 
-        /// <summary>
-        /// Display format for the stat. Returns null if no metadata (caller uses hardcoded logic).
-        /// </summary>
         public StatDisplayFormat? GetFormat(StatType type)
         {
             var meta = GetMetadata(type);
@@ -81,72 +239,101 @@ namespace Scripts.Stats
             return meta?.Category ?? "Misc";
         }
 
-        /// <summary> Тип стата для генерации аффиксов (strong/medium/light, flat/increase/more или только flat). </summary>
         public StatAffixGenType GetAffixGenType(StatType type)
         {
             var meta = GetMetadata(type);
             return meta != null ? meta.AffixGenType : StatAffixGenType.FullCalcStat;
         }
 
+        public StatValueUnit GetValueUnit(StatType type)
+        {
+            var meta = GetMetadata(type);
+            return meta != null ? meta.ValueUnit : DefaultValueUnitFor(type);
+        }
+
+        public StatAffixModifierKindFlags GetAllowedAffixKinds(StatType type)
+        {
+            var meta = GetMetadata(type);
+            if (meta != null)
+                return NormalizeAllowedAffixKinds(meta.AllowedAffixKinds, meta.AffixGenType, type);
+            return DefaultAllowedAffixKindsFor(type, DefaultAffixGenTypeFor(type));
+        }
+
         private void EnsureLookup()
         {
-            if (_lookup != null) return;
+            if (_lookup != null)
+                return;
+
             _lookup = new Dictionary<string, StatMetadataEntry>(StringComparer.Ordinal);
-            if (_entries == null) return;
-            foreach (var e in _entries)
+            if (_entries == null)
+                return;
+
+            foreach (var entry in _entries)
             {
-                if (string.IsNullOrEmpty(e.StatTypeId)) continue;
-                _lookup[e.StatTypeId] = e;
+                if (string.IsNullOrEmpty(entry.StatTypeId))
+                    continue;
+
+                entry.AllowedAffixKinds = NormalizeAllowedAffixKinds(entry.AllowedAffixKinds, entry.AffixGenType, ParseStat(entry.StatTypeId));
+                _lookup[entry.StatTypeId] = entry;
             }
         }
 
+        private static StatType ParseStat(string id)
+        {
+            if (Enum.TryParse(id, out StatType parsed))
+                return parsed;
+            return StatType.MaxHealth;
+        }
+
 #if UNITY_EDITOR
-        /// <summary>
-        /// Editor-only: get or create entry for this StatType. Used by Stats Editor.
-        /// </summary>
         public StatMetadataEntry GetOrCreateEntry(StatType type)
         {
             EnsureLookup();
             string id = type.ToString();
             if (_lookup.TryGetValue(id, out var existing))
-                return existing;
-            var entry = new StatMetadataEntry
             {
-                StatTypeId = id,
-                Category = DefaultCategoryFor(type),
-                Format = DefaultFormatFor(type),
-                ShowInCharacterWindow = DefaultShowInCharacterWindow(type),
-                AffixGenType = DefaultAffixGenTypeFor(type)
-            };
+                existing.AllowedAffixKinds = NormalizeAllowedAffixKinds(existing.AllowedAffixKinds, existing.AffixGenType, type);
+                return existing;
+            }
+
+            var entry = CreateDefaultEntry(type);
             _entries.Add(entry);
             _lookup[id] = entry;
             return entry;
         }
 
-        /// <summary>
-        /// Editor-only: ensure metadata exists for every StatType with default values.
-        /// </summary>
         public void CreateDefaultsForAllStatTypes()
         {
             EnsureLookup();
             foreach (StatType type in Enum.GetValues(typeof(StatType)))
             {
                 string id = type.ToString();
-                if (_lookup.ContainsKey(id)) continue;
-                _entries.Add(new StatMetadataEntry
-                {
-                    StatTypeId = id,
-                    Category = DefaultCategoryFor(type),
-                    Format = DefaultFormatFor(type),
-                    ShowInCharacterWindow = DefaultShowInCharacterWindow(type),
-                    AffixGenType = DefaultAffixGenTypeFor(type)
-                });
+                if (_lookup.ContainsKey(id))
+                    continue;
+
+                _entries.Add(CreateDefaultEntry(type));
             }
+
             _lookup = null;
             EnsureLookup();
         }
 
-        private static string DefaultCategoryFor(StatType type)
+        private static StatMetadataEntry CreateDefaultEntry(StatType type)
+        {
+            var genType = DefaultAffixGenTypeFor(type);
+            return new StatMetadataEntry
+            {
+                StatTypeId = type.ToString(),
+                Category = DefaultCategoryFor(type),
+                Format = DefaultFormatFor(type),
+                ShowInCharacterWindow = DefaultShowInCharacterWindow(type),
+                AffixGenType = genType,
+                ValueUnit = DefaultValueUnitFor(type),
+                AllowedAffixKinds = DefaultAllowedAffixKindsFor(type, genType)
+            };
+        }
+
+        public static string DefaultCategoryFor(StatType type)
         {
             string s = type.ToString();
             if (s.Contains("Bleed") || s.Contains("Poison") || s.Contains("Ignite") || s.Contains("Freeze") || s.Contains("Shock")) return "Ailments";
@@ -160,28 +347,32 @@ namespace Scripts.Stats
             return "Misc";
         }
 
-        private static StatDisplayFormat DefaultFormatFor(StatType type)
+        public static StatDisplayFormat DefaultFormatFor(StatType type)
         {
             if (type == StatType.DamagePhysical || type == StatType.DamageFire || type == StatType.DamageCold || type == StatType.DamageLightning)
                 return StatDisplayFormat.Damage;
+
             if (type == StatType.ShockDuration || type == StatType.FreezeDuration || type == StatType.BleedDuration ||
                 type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.MysticShieldRechargeDuration)
                 return StatDisplayFormat.Time;
+
             string s = type.ToString();
-            if (type == StatType.AreaOfEffect || type == StatType.ReduceDamageTaken || type == StatType.ProjectileSpeed || type == StatType.EffectDuration) return StatDisplayFormat.Percent;
-            if (type == StatType.BleedDamageMult || type == StatType.PoisonDamageMult || type == StatType.IgniteDamageMult) return StatDisplayFormat.Percent;
+            if (type == StatType.AreaOfEffect || type == StatType.ReduceDamageTaken || type == StatType.ProjectileSpeed || type == StatType.EffectDuration)
+                return StatDisplayFormat.Percent;
+            if (type == StatType.BleedDamageMult || type == StatType.PoisonDamageMult || type == StatType.IgniteDamageMult)
+                return StatDisplayFormat.Percent;
             if (s.Contains("Percent") || s.Contains("Chance") || s.Contains("Multiplier") || s.Contains("Resist") || s.Contains("Reduction") || type == StatType.MoveSpeed)
                 return StatDisplayFormat.Percent;
+
             return StatDisplayFormat.Number;
         }
 
-        private static bool DefaultShowInCharacterWindow(StatType type)
+        public static bool DefaultShowInCharacterWindow(StatType type)
         {
-            if (type == StatType.HealthRegenPercent || type == StatType.ManaRegenPercent) return false;
-            return true;
+            return type != StatType.HealthRegenPercent && type != StatType.ManaRegenPercent;
         }
 
-        private static StatAffixGenType DefaultAffixGenTypeFor(StatType type)
+        public static StatAffixGenType DefaultAffixGenTypeFor(StatType type)
         {
             string s = type.ToString();
             if (type == StatType.AreaOfEffect || type == StatType.MoveSpeed || type == StatType.ProjectileSpeed || type == StatType.EffectDuration || type == StatType.ReduceDamageTaken)
@@ -189,6 +380,58 @@ namespace Scripts.Stats
             if (s.Contains("Stack") || s.Contains("ExtraTargets") || s.Contains("MaxBleed") || s.Contains("MaxPoison") || s.Contains("MaxIgnite"))
                 return StatAffixGenType.NOCalcStat;
             return StatAffixGenType.FullCalcStat;
+        }
+
+        public static StatValueUnit DefaultValueUnitFor(StatType type)
+        {
+            string s = type.ToString();
+            if (type == StatType.MaxHealth || type == StatType.HealthRegen || type == StatType.HealthOnHit || type == StatType.HealthOnBlock)
+                return StatValueUnit.HP;
+            if (type == StatType.MaxMana || type == StatType.ManaRegen || type == StatType.ManaOnHit || type == StatType.ManaOnBlock)
+                return StatValueUnit.MP;
+            if (type == StatType.MaxMysticShield)
+                return StatValueUnit.MysticShield;
+            if (type == StatType.ShockDuration || type == StatType.FreezeDuration || type == StatType.BleedDuration ||
+                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.MysticShieldRechargeDuration)
+                return StatValueUnit.Seconds;
+            if (type == StatType.MaxBleedStack)
+                return StatValueUnit.Stacks;
+            if (type == StatType.ExtraTargetsForMeleeHits || type == StatType.ProjectileCount || type == StatType.ProjectileFork || type == StatType.ProjectileChain)
+                return StatValueUnit.Targets;
+            if (DefaultFormatFor(type) == StatDisplayFormat.Percent)
+                return StatValueUnit.Percent;
+            if (s.Contains("Percent") || s.Contains("Chance") || s.Contains("Multiplier") || s.Contains("Resist") || s.Contains("Reduction"))
+                return StatValueUnit.Percent;
+            return StatValueUnit.Points;
+        }
+
+        public static StatAffixModifierKindFlags DefaultAllowedAffixKindsFor(StatType type, StatAffixGenType genType)
+        {
+            switch (genType)
+            {
+                case StatAffixGenType.NOCalcStat:
+                    return StatAffixModifierKindFlags.Flat;
+                case StatAffixGenType.PercentStat:
+                    return StatAffixModifierKindFlags.Flat | StatAffixModifierKindFlags.Increase | StatAffixModifierKindFlags.Decrease;
+                default:
+                    return StatAffixModifierKindFlags.Full;
+            }
+        }
+
+        public static StatAffixModifierKindFlags NormalizeAllowedAffixKinds(StatAffixModifierKindFlags flags, StatAffixGenType genType, StatType type)
+        {
+            if (flags == StatAffixModifierKindFlags.None)
+                flags = DefaultAllowedAffixKindsFor(type, genType);
+
+            switch (genType)
+            {
+                case StatAffixGenType.NOCalcStat:
+                    return StatAffixModifierKindFlags.Flat;
+                case StatAffixGenType.PercentStat:
+                    return flags & (StatAffixModifierKindFlags.Flat | StatAffixModifierKindFlags.Increase | StatAffixModifierKindFlags.Decrease);
+                default:
+                    return flags;
+            }
         }
 #endif
     }

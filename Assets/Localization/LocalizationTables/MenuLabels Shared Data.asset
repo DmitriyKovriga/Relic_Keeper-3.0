@@ -603,6 +603,42 @@ MonoBehaviour:
     m_Key: stats.HealthRegenPercent
     m_Metadata:
       m_Items: []
+  - m_Id: 37907537213292544
+    m_Key: stats.unit.hp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537251041280
+    m_Key: stats.unit.mp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537251041281
+    m_Key: stats.unit.percent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537251041282
+    m_Key: stats.unit.seconds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537251041283
+    m_Key: stats.unit.stacks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537251041284
+    m_Key: stats.unit.targets
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537251041285
+    m_Key: stats.unit.points
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537251041286
+    m_Key: stats.unit.mysticshield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907715366354944
+    m_Key: stats.ManaRegenPercent
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

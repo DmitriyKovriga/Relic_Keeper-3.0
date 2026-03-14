@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 3
   NameKey: affix_name_mysticshieldrechargeduration_flat_strong_t3
   TranslationKey: affix_flat_mysticshieldrechargeduration
+  LockAutoLocalization: 0
   TagIds:
   - Misc
   Stats:

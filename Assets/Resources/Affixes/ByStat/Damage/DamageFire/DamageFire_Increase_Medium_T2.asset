@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_damagefire_increase_medium_t2
   TranslationKey: affix_increase_damagefire
+  LockAutoLocalization: 0
   TagIds:
   - Damage
   Stats:

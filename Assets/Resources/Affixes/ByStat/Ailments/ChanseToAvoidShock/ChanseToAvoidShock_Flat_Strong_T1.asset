@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_chansetoavoidshock_flat_strong_t1
   TranslationKey: affix_flat_chansetoavoidshock
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:

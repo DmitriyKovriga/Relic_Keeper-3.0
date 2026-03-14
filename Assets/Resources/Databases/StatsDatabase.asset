@@ -18,438 +18,614 @@ MonoBehaviour:
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 0
+    ValueUnit: 1
+    AllowedAffixKinds: 31
   - StatTypeId: HealthRegen
     Category: Vitals
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 0
+    ValueUnit: 1
+    AllowedAffixKinds: 31
   - StatTypeId: HealthRegenPercent
     Category: Vitals
     Format: 1
     ShowInCharacterWindow: 0
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: HealthOnHit
     Category: Vitals
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 2
+    ValueUnit: 1
+    AllowedAffixKinds: 1
   - StatTypeId: HealthOnBlock
     Category: Vitals
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 2
+    ValueUnit: 1
+    AllowedAffixKinds: 1
   - StatTypeId: MaxMana
     Category: Vitals
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 0
+    ValueUnit: 2
+    AllowedAffixKinds: 31
   - StatTypeId: ManaRegen
     Category: Vitals
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 0
+    ValueUnit: 2
+    AllowedAffixKinds: 31
   - StatTypeId: ManaRegenPercent
     Category: Vitals
     Format: 1
     ShowInCharacterWindow: 0
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: ManaOnHit
     Category: Vitals
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 2
+    ValueUnit: 2
+    AllowedAffixKinds: 1
   - StatTypeId: ManaOnBlock
     Category: Vitals
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 2
+    ValueUnit: 2
+    AllowedAffixKinds: 1
   - StatTypeId: MaxMysticShield
     Category: Defense
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 2
+    ValueUnit: 8
+    AllowedAffixKinds: 1
   - StatTypeId: MysticShieldRechargeDuration
     Category: Misc
     Format: 2
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    AffixGenType: 0
+    ValueUnit: 4
+    AllowedAffixKinds: -1
   - StatTypeId: MysticShieldMitigationPercent
     Category: Resistances
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: MaxMysticShieldMitigationPercent
     Category: Resistances
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: Armor
     Category: Defense
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 0
+    ValueUnit: 7
+    AllowedAffixKinds: 31
   - StatTypeId: Evasion
     Category: Defense
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 0
+    ValueUnit: 7
+    AllowedAffixKinds: 31
   - StatTypeId: BlockChance
     Category: Defense
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: MaxBlockChance
     Category: Defense
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: FireResist
     Category: Resistances
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: MaxFireResist
     Category: Resistances
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: ColdResist
     Category: Resistances
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: MaxColdResist
     Category: Resistances
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: LightningResist
     Category: Resistances
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: MaxLightningResist
     Category: Resistances
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: PhysicalResist
     Category: Resistances
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: MaxPhysicalResist
     Category: Resistances
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: MoveSpeed
     Category: Speed
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: JumpForce
     Category: Misc
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: AttackSpeed
     Category: Speed
     Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 0
+    ValueUnit: 7
+    AllowedAffixKinds: -1
   - StatTypeId: CastSpeed
     Category: Speed
     Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 0
+    ValueUnit: 7
+    AllowedAffixKinds: 7
   - StatTypeId: DamagePhysical
     Category: Damage
     Format: 3
     ShowInCharacterWindow: 1
     AffixGenType: 0
+    ValueUnit: 0
+    AllowedAffixKinds: 31
   - StatTypeId: DamageFire
     Category: Damage
     Format: 3
     ShowInCharacterWindow: 1
     AffixGenType: 0
+    ValueUnit: 0
+    AllowedAffixKinds: 31
   - StatTypeId: DamageCold
     Category: Damage
     Format: 3
     ShowInCharacterWindow: 1
     AffixGenType: 0
+    ValueUnit: 0
+    AllowedAffixKinds: 31
   - StatTypeId: DamageLightning
     Category: Damage
-    Format: 3
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 0
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: PhysicalToFire
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: PhysicalToCold
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: PhysicalToLightning
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: ElementalToPhysical
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: TakePhysAsCold
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: TakePhysAsFire
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: TakePhysAsLightning
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: TakeLightningAsPhys
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: TakeLightningAsFire
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: TakeLightningAsCold
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: TakeColdAsPhys
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: TakeColdAsFire
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: TakeColdAsLightning
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: TakeFireAsLightning
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: TakeFireAsPhys
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: TakeFireAsCold
     Category: Conversion
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: Accuracy
     Category: Critical
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 0
+    ValueUnit: 0
+    AllowedAffixKinds: 31
   - StatTypeId: CritChance
     Category: Critical
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 0
+    ValueUnit: 3
+    AllowedAffixKinds: 31
   - StatTypeId: CritMultiplier
     Category: Critical
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 0
+    ValueUnit: 3
+    AllowedAffixKinds: 7
   - StatTypeId: PenetrationPhysical
     Category: Resistances
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: PenetrationFire
     Category: Resistances
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: PenetrationCold
     Category: Resistances
     Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: PenetrationLightning
     Category: Resistances
     Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: BleedChance
     Category: Ailments
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: BleedDamage
     Category: Ailments
-    Format: 0
+    Format: 3
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 0
+    ValueUnit: 0
+    AllowedAffixKinds: -1
   - StatTypeId: BleedDamageMult
     Category: Ailments
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: BleedDuration
     Category: Ailments
     Format: 2
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    AffixGenType: 0
+    ValueUnit: 4
+    AllowedAffixKinds: 1
   - StatTypeId: ChanseToAvoidBleed
     Category: Ailments
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: PoisonChance
     Category: Ailments
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: PoisonDamage
     Category: Ailments
-    Format: 0
+    Format: 3
     ShowInCharacterWindow: 1
     AffixGenType: 0
+    ValueUnit: 0
+    AllowedAffixKinds: 31
   - StatTypeId: PoisonDamageMult
     Category: Ailments
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: PoisonDuration
     Category: Ailments
     Format: 2
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    AffixGenType: 0
+    ValueUnit: 4
+    AllowedAffixKinds: -1
   - StatTypeId: ChanseToAvoidPoison
     Category: Ailments
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: IgniteChance
     Category: Ailments
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: IgniteDamage
     Category: Ailments
-    Format: 0
+    Format: 3
     ShowInCharacterWindow: 1
     AffixGenType: 0
+    ValueUnit: 0
+    AllowedAffixKinds: 31
   - StatTypeId: IgniteDamageMult
     Category: Ailments
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: IgniteDuration
     Category: Ailments
     Format: 2
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    AffixGenType: 0
+    ValueUnit: 4
+    AllowedAffixKinds: -1
   - StatTypeId: ChanseToAvoidIgnite
     Category: Ailments
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: FreezeChance
     Category: Ailments
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: FreezeDuration
     Category: Ailments
-    Format: 2
+    Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: ChanseToAvoidFreeze
     Category: Ailments
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: ShockChance
     Category: Ailments
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: ShockDuration
     Category: Ailments
     Format: 2
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    AffixGenType: 0
+    ValueUnit: 4
+    AllowedAffixKinds: -1
   - StatTypeId: ChanseToAvoidShock
     Category: Ailments
-    Format: 0
+    Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: ReduceDamageTaken
     Category: Resistances
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: AreaOfEffect
     Category: Misc
     Format: 1
     ShowInCharacterWindow: 1
     AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 6
   - StatTypeId: CooldownReductionPercent
     Category: Misc
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 0
+    ValueUnit: 3
+    AllowedAffixKinds: 30
   - StatTypeId: EffectDuration
     Category: Misc
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 0
+    ValueUnit: 3
+    AllowedAffixKinds: 30
   - StatTypeId: ProjectileSpeed
     Category: Speed
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: ProjectileCount
     Category: Misc
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 2
+    ValueUnit: 0
+    AllowedAffixKinds: 1
   - StatTypeId: ProjectileFork
     Category: Misc
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 2
+    ValueUnit: 0
+    AllowedAffixKinds: 1
   - StatTypeId: ProjectileChain
     Category: Misc
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 2
+    ValueUnit: 0
+    AllowedAffixKinds: 1
   - StatTypeId: MaxBleedStack
     Category: Ailments
     Format: 0
     ShowInCharacterWindow: 1
     AffixGenType: 2
+    ValueUnit: 5
+    AllowedAffixKinds: 1
   - StatTypeId: ExtraTargetsForMeleeHits
     Category: Damage
     Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 0
+    AffixGenType: 2
+    ValueUnit: 6
+    AllowedAffixKinds: 1

@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_takephysasfire_flat_medium_t2
   TranslationKey: affix_flat_takephysasfire
+  LockAutoLocalization: 0
   TagIds:
   - Conversion
   Stats:

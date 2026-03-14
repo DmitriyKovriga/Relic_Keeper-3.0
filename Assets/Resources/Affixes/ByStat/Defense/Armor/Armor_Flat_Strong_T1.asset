@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_armor_flat_strong_t1
   TranslationKey: affix_flat_armor
+  LockAutoLocalization: 0
   TagIds:
   - Defense
   Stats:

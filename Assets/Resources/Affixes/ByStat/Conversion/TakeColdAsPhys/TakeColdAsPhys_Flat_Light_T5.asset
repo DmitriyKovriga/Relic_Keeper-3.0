@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_takecoldasphys_flat_light_t5
   TranslationKey: affix_flat_takecoldasphys
+  LockAutoLocalization: 0
   TagIds:
   - Conversion
   Stats:

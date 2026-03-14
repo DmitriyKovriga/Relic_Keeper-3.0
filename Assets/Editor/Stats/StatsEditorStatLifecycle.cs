@@ -11,6 +11,7 @@ using Scripts.Stats;
 using Scripts.Skills.PassiveTree;
 using Scripts.Items.Affixes;
 using Scripts.Items;
+using Scripts.Editor.Affixes;
 
 namespace Scripts.Editor.Stats
 {
@@ -72,6 +73,8 @@ namespace Scripts.Editor.Stats
                 statsDb.GetOrCreateEntry(stat);
                 EditorUtility.SetDirty(statsDb);
             }
+
+            AffixSetGenerator.EnsureValueUnitLocalizations(menuLabels);
 
             AssetDatabase.SaveAssets();
             Debug.Log($"Stats Editor: Initialized stat {id} (localization + metadata).");

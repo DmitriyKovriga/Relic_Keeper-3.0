@@ -275,7 +275,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13041816645959680
-    m_Localized: Cooldown Red.
+    m_Localized: Cooldown
     m_Metadata:
       m_Items: []
   - m_Id: 13041818386595840
@@ -1553,6 +1553,42 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 37686302508351488
     m_Localized: Health Regen % per second
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537213292544
+    m_Localized: HP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537251041280
+    m_Localized: MP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537251041281
+    m_Localized: '%'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537251041282
+    m_Localized: s
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537251041283
+    m_Localized: stacks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537251041284
+    m_Localized: targets
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537251041285
+    m_Localized: pts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907537251041286
+    m_Localized: MS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37907715366354944
+    m_Localized: Mana Regen %
     m_Metadata:
       m_Items: []
   references:

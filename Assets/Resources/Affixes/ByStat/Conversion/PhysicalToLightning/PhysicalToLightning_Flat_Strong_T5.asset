@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_physicaltolightning_flat_strong_t5
   TranslationKey: affix_flat_physicaltolightning
+  LockAutoLocalization: 0
   TagIds:
   - Conversion
   Stats:

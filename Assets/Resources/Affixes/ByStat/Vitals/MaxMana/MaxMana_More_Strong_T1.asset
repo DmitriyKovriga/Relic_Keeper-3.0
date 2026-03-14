@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_maxmana_more_strong_t1
   TranslationKey: affix_more_maxmana
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:

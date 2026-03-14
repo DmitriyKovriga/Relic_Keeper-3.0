@@ -771,7 +771,7 @@ public class ItemTooltipController : MonoBehaviour
 
     private void AddModRow(StatType type, float val, StatModType mt, Color c)
     {
-        string sign = (mt != StatModType.Flat || val < 0) ? "" : "+";
+        string sign = mt.GetDisplayPrefix(val);
         string end = (mt != StatModType.Flat) ? "%" : "";
         CreateAsyncLabel($"stats.{type}", (n) => $"{n}: {sign}{val}{end}", c);
     }

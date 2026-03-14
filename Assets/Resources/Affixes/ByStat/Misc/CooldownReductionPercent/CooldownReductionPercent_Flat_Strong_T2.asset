@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_cooldownreductionpercent_flat_strong_t2
   TranslationKey: affix_flat_cooldownreductionpercent
+  LockAutoLocalization: 0
   TagIds:
   - Misc
   Stats:

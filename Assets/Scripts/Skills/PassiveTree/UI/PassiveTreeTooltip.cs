@@ -105,7 +105,7 @@ namespace Scripts.Skills.PassiveTree.UI
             {
                 var mod = mods[i];
                 int idx = i;
-                string sign = mod.Type == StatModType.Flat ? "+" : "";
+                string sign = mod.Type.GetDisplayPrefix(mod.Value);
                 string end = mod.Type != StatModType.Flat ? "%" : "";
                 string statKey = $"stats.{mod.Stat}";
                 var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(MenuLabelsTable, statKey);

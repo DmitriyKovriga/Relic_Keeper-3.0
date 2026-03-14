@@ -1,24 +1,26 @@
-using UnityEngine;
 using System.Collections.Generic;
+using Scripts.Items;
 using Scripts.Stats;
-using Scripts.Items; // Для StatScope
+using UnityEngine;
 
 namespace Scripts.Items.Affixes
 {
     [CreateAssetMenu(menuName = "RPG/Affixes/Affix")]
     public class ItemAffixSO : ScriptableObject
     {
-        [HideInInspector] // Скрываем, чтобы случайно не сломать руками, он авто-генерируемый
+        [HideInInspector]
         public string UniqueID;
 
         public string GroupID;
-        public int Tier; // 1 = самый сильный, 5 = самый слабый. Уровень выпадения захардкожен в AffixTierHelper.
-        [Tooltip("Ключ локализации названия аффикса (для детального тултипа)")]
+        public int Tier;
+        [Tooltip("Ключ локализации имени аффикса.")]
         public string NameKey;
-        [Tooltip("Ключ для отображения значения аффикса (affix_type_stat)")]
+        [Tooltip("Ключ локализации значения аффикса.")]
         public string TranslationKey;
+        [Tooltip("Если включено — пакетная регенерация локалей не затрагивает этот аффикс.")]
+        public bool LockAutoLocalization;
 
-        [Tooltip("Теги для крафта/генерации. Часть заполняется автоматически из категорий статов.")]
+        [Tooltip("Теги аффикса для крафта и генерации.")]
         public List<string> TagIds = new List<string>();
 
         public AffixStatData[] Stats;
@@ -28,10 +30,7 @@ namespace Scripts.Items.Affixes
         {
             public StatType Stat;
             public StatModType Type;
-            
-            // Важное поле: Local или Global. По умолчанию Global.
-            public StatScope Scope; 
-            
+            public StatScope Scope;
             public float MinValue;
             public float MaxValue;
         }

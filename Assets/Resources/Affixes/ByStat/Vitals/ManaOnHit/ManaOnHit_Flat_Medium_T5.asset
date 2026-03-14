@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_manaonhit_flat_medium_t5
   TranslationKey: affix_flat_manaonhit
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:

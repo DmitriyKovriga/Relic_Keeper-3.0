@@ -1,7 +1,3 @@
-using UnityEngine;
-using UnityEditor;
-using UnityEditor.Localization;
-using UnityEngine.Localization.Tables;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,56 +5,62 @@ using System.Linq;
 using Scripts.Items;
 using Scripts.Items.Affixes;
 using Scripts.Stats;
+using UnityEditor;
+using UnityEditor.Localization;
+using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Tables;
 
 namespace Scripts.Editor.Affixes
 {
-    /// <summary>
-    /// Генерация наборов аффиксов по StatAffixGenType: FullCalcStat (flat+increase+more × strong/medium/light × T1-5),
-    /// PercentStat/NOCalcStat (только flat × strong/medium/light × T1-5, значения 1-7).
-    /// </summary>
     public static class AffixSetGenerator
     {
         private const string StrengthStrong = "Strong";
         private const string StrengthMedium = "Medium";
         private const string StrengthLight = "Light";
-        private static readonly string[] ModTypeSuffixes = { "Flat", "Increase", "More" };
         private static readonly string[] Strengths = { StrengthStrong, StrengthMedium, StrengthLight };
 
         public static int DeleteAllAffixes(List<AffixPoolSO> pools)
         {
             foreach (var pool in pools)
             {
-                if (pool.Affixes != null && pool.Affixes.Count > 0)
-                {
-                    pool.Affixes.Clear();
-                    EditorUtility.SetDirty(pool);
-                }
+                if (pool.Affixes == null || pool.Affixes.Count == 0)
+                    continue;
+
+                pool.Affixes.Clear();
+                EditorUtility.SetDirty(pool);
             }
+
             string[] guids = AssetDatabase.FindAssets("t:ItemAffixSO");
             int removed = 0;
-            foreach (string g in guids)
+            foreach (string guid in guids)
             {
-                string path = AssetDatabase.GUIDToAssetPath(g);
+                string path = AssetDatabase.GUIDToAssetPath(guid);
                 AssetDatabase.DeleteAsset(path);
                 removed++;
             }
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             return removed;
         }
 
-        /// <summary> Статы, для которых ещё нет ни одного аффикса (по Stats[0].Stat). </summary>
         public static HashSet<StatType> GetStatsWithoutAffixSet(List<ItemAffixSO> allAffixes)
         {
             var withSet = new HashSet<StatType>();
-            foreach (var a in allAffixes)
+            foreach (var affix in allAffixes)
             {
-                if (a?.Stats != null && a.Stats.Length > 0)
-                    withSet.Add(a.Stats[0].Stat);
+                if (affix?.Stats != null && affix.Stats.Length > 0)
+                    withSet.Add(affix.Stats[0].Stat);
             }
+
             var result = new HashSet<StatType>();
-            foreach (StatType t in Enum.GetValues(typeof(StatType)))
-                if (!withSet.Contains(t)) result.Add(t);
+            foreach (StatType type in Enum.GetValues(typeof(StatType)))
+            {
+                if (!withSet.Contains(type))
+                    result.Add(type);
+            }
+
             return result;
         }
 
@@ -70,55 +72,44 @@ namespace Scripts.Editor.Affixes
             StringTableCollection affixesLabels,
             string affixesBaseFolder)
         {
-            if (statsToGenerate == null || statsToGenerate.Count == 0) return 0;
-            if (statsDb == null) return 0;
+            if (statsToGenerate == null || statsToGenerate.Count == 0 || statsDb == null)
+                return 0;
+
             int created = 0;
+            EnsureValueUnitLocalizations(menuLabels);
+
             foreach (StatType stat in statsToGenerate)
             {
                 StatAffixGenType genType = statsDb.GetAffixGenType(stat);
-                string category = GetStatCategory(statsDb, stat);
+                string category = statsDb.GetCategory(stat);
                 string statName = stat.ToString();
                 string folder = $"{affixesBaseFolder}/ByStat/{category}/{statName}";
-                EnsureFolder(affixesBaseFolder + "/ByStat");
-                EnsureFolder(affixesBaseFolder + "/ByStat/" + category);
+
+                EnsureFolder($"{affixesBaseFolder}/ByStat");
+                EnsureFolder($"{affixesBaseFolder}/ByStat/{category}");
                 EnsureFolder(folder);
 
-                if (genType == StatAffixGenType.FullCalcStat)
+                foreach (var kind in StatPresentation.EnumerateKinds(statsDb.GetAllowedAffixKinds(stat)))
                 {
-                    foreach (string modSuffix in ModTypeSuffixes)
-                    {
-                        StatModType modType = modSuffix == "Flat" ? StatModType.Flat : modSuffix == "Increase" ? StatModType.PercentAdd : StatModType.PercentMult;
-                        foreach (string strength in Strengths)
-                        {
-                            for (int tier = 1; tier <= 5; tier++)
-                            {
-                                var affix = CreateAffix(stat, modType, strength, tier, genType);
-                                string fileName = $"{statName}_{modSuffix}_{strength}_T{tier}.asset";
-                                string path = Path.Combine(folder, fileName);
-                                if (AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path) != null) continue;
-                                AssetDatabase.CreateAsset(affix, path);
-                                affix.UniqueID = path.Replace("Assets/", "").Replace(".asset", "").Replace('\\', '/');
-                                WriteLocalization(affix, stat, modSuffix, strength, tier, genType, menuLabels, affixesLabels);
-                                SyncTagFromCategory(affix, statsDb, stat, tagDatabase);
-                                EditorUtility.SetDirty(affix);
-                                created++;
-                            }
-                        }
-                    }
-                }
-                else
-                {
+                    if (!IsKindAllowedForGenType(kind, genType))
+                        continue;
+
+                    StatModType modType = StatPresentation.ToStatModType(kind);
+                    string kindId = StatPresentation.GetModifierKindDisplayName(kind);
+
                     foreach (string strength in Strengths)
                     {
                         for (int tier = 1; tier <= 5; tier++)
                         {
-                            var affix = CreateAffix(stat, StatModType.Flat, strength, tier, genType);
-                            string fileName = $"{statName}_Flat_{strength}_T{tier}.asset";
+                            string fileName = $"{statName}_{kindId}_{strength}_T{tier}.asset";
                             string path = Path.Combine(folder, fileName);
-                            if (AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path) != null) continue;
+                            if (AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path) != null)
+                                continue;
+
+                            var affix = CreateAffix(stat, modType, kind, strength, tier, genType);
                             AssetDatabase.CreateAsset(affix, path);
-                            affix.UniqueID = path.Replace("Assets/", "").Replace(".asset", "").Replace('\\', '/');
-                            WriteLocalization(affix, stat, "Flat", strength, tier, genType, menuLabels, affixesLabels);
+                            affix.UniqueID = path.Replace("Assets/", string.Empty).Replace(".asset", string.Empty).Replace('\\', '/');
+                            WriteLocalization(affix, stat, kind, strength, menuLabels, affixesLabels, statsDb);
                             SyncTagFromCategory(affix, statsDb, stat, tagDatabase);
                             EditorUtility.SetDirty(affix);
                             created++;
@@ -126,9 +117,378 @@ namespace Scripts.Editor.Affixes
                     }
                 }
             }
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             return created;
+        }
+
+        public static void EnsureValueUnitLocalizations(StringTableCollection menuLabels)
+        {
+            if (menuLabels == null)
+                return;
+
+            foreach (StatValueUnit unit in Enum.GetValues(typeof(StatValueUnit)))
+            {
+                if (unit == StatValueUnit.None)
+                    continue;
+
+                string key = StatPresentation.GetValueUnitLocalizationKey(unit);
+                SetOrAddEntry(menuLabels, "en", key, StatPresentation.GetValueUnitFallback(unit, "en"));
+                SetOrAddEntry(menuLabels, "ru", key, StatPresentation.GetValueUnitFallback(unit, "ru"));
+            }
+        }
+
+        public static void FillMissingLocalization(ItemAffixSO affix, StringTableCollection menuLabels, StringTableCollection affixesLabels)
+        {
+            if (affix == null || affixesLabels == null || affix.LockAutoLocalization)
+                return;
+
+            if (affix.Stats == null || affix.Stats.Length == 0)
+                return;
+
+            EnsureValueUnitLocalizations(menuLabels);
+            var stat = affix.Stats[0].Stat;
+            var kind = StatPresentation.FromStatModType(affix.Stats[0].Type);
+            string strength = ParseStrengthFromGroupId(affix.GroupID);
+
+            string nameKey = string.IsNullOrEmpty(affix.NameKey) ? "affix_name_" + SanitizeKey(affix.name) : affix.NameKey;
+            string valueKey = string.IsNullOrEmpty(affix.TranslationKey) ? BuildValueKey(stat, kind) : affix.TranslationKey;
+
+            if (IsMissingLocalizationValue(GetLocalizedString(affixesLabels, "en", nameKey)))
+            {
+                WriteNameLocalization(affix, stat, kind, strength, menuLabels, affixesLabels);
+            }
+
+            if (IsMissingLocalizationValue(GetLocalizedString(affixesLabels, "en", valueKey)))
+            {
+                WriteValueLocalization(affix, stat, kind, menuLabels, affixesLabels, Resources.Load<StatsDatabaseSO>(ProjectPaths.ResourcesStatsDatabase));
+            }
+        }
+
+        public static void RegenerateLocalizationFromStat(ItemAffixSO affix, StringTableCollection menuLabels, StringTableCollection affixesLabels)
+        {
+            if (affix == null || affixesLabels == null || affix.Stats == null || affix.Stats.Length == 0)
+                return;
+
+            EnsureValueUnitLocalizations(menuLabels);
+            var stat = affix.Stats[0].Stat;
+            var kind = StatPresentation.FromStatModType(affix.Stats[0].Type);
+            string strength = ParseStrengthFromGroupId(affix.GroupID);
+
+            WriteNameLocalization(affix, stat, kind, strength, menuLabels, affixesLabels);
+            WriteValueLocalization(affix, stat, kind, menuLabels, affixesLabels, Resources.Load<StatsDatabaseSO>(ProjectPaths.ResourcesStatsDatabase));
+            EditorUtility.SetDirty(affix);
+        }
+
+        public static string GetValueKey(StatType stat, StatAffixModifierKind kind)
+        {
+            return BuildValueKey(stat, kind);
+        }
+
+        public static string GetTypeDisplayName(StatModType type)
+        {
+            return StatPresentation.GetModifierKindDisplayName(StatPresentation.FromStatModType(type));
+        }
+
+        private static bool IsKindAllowedForGenType(StatAffixModifierKind kind, StatAffixGenType genType)
+        {
+            switch (genType)
+            {
+                case StatAffixGenType.NOCalcStat:
+                    return kind == StatAffixModifierKind.Flat;
+                case StatAffixGenType.PercentStat:
+                    return kind == StatAffixModifierKind.Flat || kind == StatAffixModifierKind.Increase || kind == StatAffixModifierKind.Decrease;
+                default:
+                    return true;
+            }
+        }
+
+        private static ItemAffixSO CreateAffix(StatType stat, StatModType modType, StatAffixModifierKind kind, string strength, int tier, StatAffixGenType genType)
+        {
+            var affix = ScriptableObject.CreateInstance<ItemAffixSO>();
+            string kindId = StatPresentation.GetModifierKindDisplayName(kind);
+            affix.GroupID = $"{stat}_{kindId}_{strength}";
+            affix.Tier = tier;
+            affix.TranslationKey = BuildValueKey(stat, kind);
+            affix.NameKey = $"affix_name_{stat.ToString().ToLowerInvariant()}_{StatPresentation.GetModifierKindId(kind)}_{strength.ToLowerInvariant()}_t{tier}";
+            affix.Stats = new ItemAffixSO.AffixStatData[1];
+            affix.Stats[0].Stat = stat;
+            affix.Stats[0].Type = modType;
+            affix.Stats[0].Scope = StatScope.Global;
+
+            if (genType == StatAffixGenType.FullCalcStat)
+                SetValuesFullCalc(ref affix.Stats[0], stat, kind, tier, strength);
+            else
+                SetValuesSmallFlat(ref affix.Stats[0], tier, strength);
+
+            if (affix.TagIds == null)
+                affix.TagIds = new List<string>();
+
+            return affix;
+        }
+
+        private static void SetValuesFullCalc(ref ItemAffixSO.AffixStatData data, StatType stat, StatAffixModifierKind kind, int tier, string strength)
+        {
+            int stepIndex = 5 - tier;
+            float hpManaMultiplier = (stat.ToString().Contains("Health") || stat.ToString().Contains("Mana")) ? 5f : 1f;
+
+            float baseMin;
+            float baseMax;
+            float stepMin;
+            float stepMax;
+
+            if (kind == StatAffixModifierKind.Flat)
+            {
+                if (strength == StrengthStrong) { baseMin = 5f; baseMax = 10f; stepMin = 5f; stepMax = 5f; }
+                else if (strength == StrengthMedium) { baseMin = 4f; baseMax = 8f; stepMin = 4f; stepMax = 4f; }
+                else { baseMin = 3f; baseMax = 7f; stepMin = 3f; stepMax = 3f; }
+
+                data.MinValue = (baseMin + (stepIndex * stepMin)) * hpManaMultiplier;
+                data.MaxValue = (baseMax + (stepIndex * stepMax)) * hpManaMultiplier;
+                return;
+            }
+
+            if (kind == StatAffixModifierKind.Increase || kind == StatAffixModifierKind.Decrease)
+            {
+                if (strength == StrengthStrong) { baseMin = 5f; baseMax = 10f; stepMin = 5f; stepMax = 5f; }
+                else if (strength == StrengthMedium) { baseMin = 4f; baseMax = 8f; stepMin = 4f; stepMax = 4f; }
+                else { baseMin = 3f; baseMax = 7f; stepMin = 3f; stepMax = 3f; }
+
+                data.MinValue = baseMin + (stepIndex * stepMin);
+                data.MaxValue = baseMax + (stepIndex * stepMax);
+                return;
+            }
+
+            if (strength == StrengthStrong) { baseMin = 2f; baseMax = 5f; stepMin = 2f; stepMax = 2f; }
+            else if (strength == StrengthMedium) { baseMin = 1.5f; baseMax = 4f; stepMin = 1.5f; stepMax = 1.5f; }
+            else { baseMin = 1f; baseMax = 3f; stepMin = 1f; stepMax = 1f; }
+
+            data.MinValue = baseMin + (stepIndex * stepMin);
+            data.MaxValue = baseMax + (stepIndex * stepMax);
+        }
+
+        private static void SetValuesSmallFlat(ref ItemAffixSO.AffixStatData data, int tier, string strength)
+        {
+            if (strength == StrengthStrong)
+            {
+                data.MinValue = Mathf.Clamp(6 - tier, 1, 5);
+                data.MaxValue = Mathf.Clamp(8 - tier, 2, 7);
+            }
+            else if (strength == StrengthMedium)
+            {
+                data.MinValue = Mathf.Clamp(4 - tier, 1, 3);
+                data.MaxValue = Mathf.Clamp(6 - tier, 2, 5);
+            }
+            else
+            {
+                data.MinValue = 1f;
+                data.MaxValue = Mathf.Clamp(4 - tier, 1, 3);
+            }
+        }
+
+        private static void WriteLocalization(
+            ItemAffixSO affix,
+            StatType stat,
+            StatAffixModifierKind kind,
+            string strength,
+            StringTableCollection menuLabels,
+            StringTableCollection affixesLabels,
+            StatsDatabaseSO statsDb)
+        {
+            WriteNameLocalization(affix, stat, kind, strength, menuLabels, affixesLabels);
+            WriteValueLocalization(affix, stat, kind, menuLabels, affixesLabels, statsDb);
+        }
+
+        private static void WriteNameLocalization(
+            ItemAffixSO affix,
+            StatType stat,
+            StatAffixModifierKind kind,
+            string strength,
+            StringTableCollection menuLabels,
+            StringTableCollection affixesLabels)
+        {
+            string statNameEn = ResolveStatName(menuLabels, stat, "en");
+            string statNameRu = ResolveStatName(menuLabels, stat, "ru");
+            string strengthRu = strength == StrengthStrong ? "Сильный" : strength == StrengthMedium ? "Средний" : "Лёгкий";
+            string kindEn = StatPresentation.GetModifierKindDisplayName(kind).ToLowerInvariant();
+            string kindRu = GetModifierKindRu(kind);
+            string nameKey = string.IsNullOrEmpty(affix.NameKey) ? "affix_name_" + SanitizeKey(affix.name) : affix.NameKey;
+
+            SetOrAddEntry(affixesLabels, "en", nameKey, $"{strength} {statNameEn} {kindEn}");
+            SetOrAddEntry(affixesLabels, "ru", nameKey, $"{strengthRu} {statNameRu} {kindRu}");
+            affix.NameKey = nameKey;
+        }
+
+        private static void WriteValueLocalization(
+            ItemAffixSO affix,
+            StatType stat,
+            StatAffixModifierKind kind,
+            StringTableCollection menuLabels,
+            StringTableCollection affixesLabels,
+            StatsDatabaseSO statsDb)
+        {
+            string statNameEn = ResolveStatName(menuLabels, stat, "en");
+            string statNameRu = ResolveStatName(menuLabels, stat, "ru");
+            StatValueUnit unit = statsDb != null ? statsDb.GetValueUnit(stat) : StatsDatabaseSO.DefaultValueUnitFor(stat);
+            string unitEn = ResolveUnit(menuLabels, unit, "en");
+            string unitRu = ResolveUnit(menuLabels, unit, "ru");
+            string valueKey = string.IsNullOrEmpty(affix.TranslationKey) ? BuildValueKey(stat, kind) : affix.TranslationKey;
+
+            SetOrAddEntry(affixesLabels, "en", valueKey, GenerateValueTemplateEn(kind, statNameEn, unit, unitEn));
+            SetOrAddEntry(affixesLabels, "ru", valueKey, GenerateValueTemplateRu(kind, statNameRu, unit, unitRu));
+            affix.TranslationKey = valueKey;
+        }
+
+        private static void SyncTagFromCategory(ItemAffixSO affix, StatsDatabaseSO db, StatType stat, AffixTagDatabaseSO tagDb)
+        {
+            if (affix.TagIds == null)
+                affix.TagIds = new List<string>();
+
+            string category = db != null ? db.GetCategory(stat) : "Misc";
+            if (string.IsNullOrEmpty(category))
+                return;
+
+            if (!affix.TagIds.Contains(category))
+                affix.TagIds.Add(category);
+
+            if (tagDb != null && !tagDb.HasTag(category))
+            {
+                tagDb.AddTag(category, "tag_" + category.ToLowerInvariant());
+                EditorUtility.SetDirty(tagDb);
+            }
+        }
+
+        private static string BuildValueKey(StatType stat, StatAffixModifierKind kind)
+        {
+            return $"affix_{StatPresentation.GetModifierKindId(kind)}_{stat.ToString().ToLowerInvariant()}";
+        }
+
+        private static string ResolveStatName(StringTableCollection menuLabels, StatType stat, string locale)
+        {
+            string key = "stats." + stat;
+            string localized = GetLocalizedString(menuLabels, locale, key);
+            return string.IsNullOrWhiteSpace(localized) ? stat.ToString() : localized;
+        }
+
+        private static string ResolveUnit(StringTableCollection menuLabels, StatValueUnit unit, string locale)
+        {
+            if (unit == StatValueUnit.None)
+                return string.Empty;
+
+            string key = StatPresentation.GetValueUnitLocalizationKey(unit);
+            string localized = GetLocalizedString(menuLabels, locale, key);
+            return string.IsNullOrWhiteSpace(localized) ? StatPresentation.GetValueUnitFallback(unit, locale) : localized;
+        }
+
+        private static string GenerateValueTemplateEn(StatAffixModifierKind kind, string statName, StatValueUnit unit, string localizedUnit)
+        {
+            switch (kind)
+            {
+                case StatAffixModifierKind.Increase:
+                    return $"{{0}}% increased {statName}";
+                case StatAffixModifierKind.Decrease:
+                    return $"{{0}}% reduced {statName}";
+                case StatAffixModifierKind.More:
+                    return $"{{0}}% more {statName}";
+                case StatAffixModifierKind.Less:
+                    return $"{{0}}% less {statName}";
+                default:
+                    if (unit == StatValueUnit.Percent)
+                        return $"+{{0}}% to {statName}";
+
+                    if (string.IsNullOrEmpty(localizedUnit))
+                        return $"Adds {{0}} to {statName}";
+
+                    return StatPresentation.IsSymbolUnit(unit)
+                        ? $"+{{0}}{localizedUnit} to {statName}"
+                        : $"Adds {{0}} {localizedUnit} to {statName}";
+            }
+        }
+
+        private static string GenerateValueTemplateRu(StatAffixModifierKind kind, string statName, StatValueUnit unit, string localizedUnit)
+        {
+            switch (kind)
+            {
+                case StatAffixModifierKind.Increase:
+                    return $"{{0}}% увеличение {statName}";
+                case StatAffixModifierKind.Decrease:
+                    return $"{{0}}% уменьшение {statName}";
+                case StatAffixModifierKind.More:
+                    return $"{{0}}% больше {statName}";
+                case StatAffixModifierKind.Less:
+                    return $"{{0}}% меньше {statName}";
+                default:
+                    if (unit == StatValueUnit.Percent)
+                        return $"+{{0}}% к {statName}";
+
+                    if (string.IsNullOrEmpty(localizedUnit))
+                        return $"Добавляет {{0}} к {statName}";
+
+                    return StatPresentation.IsSymbolUnit(unit)
+                        ? $"+{{0}}{localizedUnit} к {statName}"
+                        : $"Добавляет {{0}} {localizedUnit} к {statName}";
+            }
+        }
+
+        private static string GetModifierKindRu(StatAffixModifierKind kind)
+        {
+            switch (kind)
+            {
+                case StatAffixModifierKind.Increase:
+                    return "увеличение";
+                case StatAffixModifierKind.Decrease:
+                    return "уменьшение";
+                case StatAffixModifierKind.More:
+                    return "больше";
+                case StatAffixModifierKind.Less:
+                    return "меньше";
+                default:
+                    return "плоский";
+            }
+        }
+
+        private static string GetLocalizedString(StringTableCollection collection, string locale, string key)
+        {
+            if (collection == null || string.IsNullOrEmpty(key))
+                return string.Empty;
+
+            var table = collection.GetTable(locale) as StringTable;
+            if (table == null)
+                table = collection.GetTable(new LocaleIdentifier(locale)) as StringTable;
+            if (table == null)
+                return string.Empty;
+
+            var entry = table.GetEntry(key);
+            return entry?.Value ?? string.Empty;
+        }
+
+        private static void SetOrAddEntry(StringTableCollection collection, string locale, string key, string value)
+        {
+            if (collection == null || string.IsNullOrEmpty(key))
+                return;
+
+            var table = collection.GetTable(locale) as StringTable;
+            if (table == null)
+                table = collection.GetTable(new LocaleIdentifier(locale)) as StringTable;
+            if (table == null)
+                return;
+
+            var sharedData = collection.SharedData;
+            if (sharedData != null && !sharedData.Contains(key))
+            {
+                sharedData.AddKey(key);
+                EditorUtility.SetDirty(sharedData);
+            }
+
+            var entry = table.GetEntry(key);
+            if (entry != null)
+                entry.Value = value;
+            else
+                table.AddEntry(key, value);
+
+            EditorUtility.SetDirty(table);
+            EditorUtility.SetDirty(collection);
         }
 
         private static void EnsureFolder(string path)
@@ -144,283 +504,40 @@ namespace Scripts.Editor.Affixes
             }
         }
 
-        private static string GetStatCategory(StatsDatabaseSO db, StatType type)
+        private static bool IsMissingLocalizationValue(string value)
         {
-            return db != null ? db.GetCategory(type) : "Misc";
-        }
-
-        private static ItemAffixSO CreateAffix(StatType stat, StatModType modType, string strength, int tier, StatAffixGenType genType)
-        {
-            var affix = ScriptableObject.CreateInstance<ItemAffixSO>();
-            string modSuffix = modType == StatModType.Flat ? "Flat" : modType == StatModType.PercentAdd ? "Increase" : "More";
-            affix.GroupID = $"{stat}_{modSuffix}_{strength}";
-            affix.Tier = tier;
-            affix.TranslationKey = $"affix_{modSuffix.ToLowerInvariant()}_{stat.ToString().ToLowerInvariant()}";
-            affix.NameKey = $"affix_name_{stat.ToString().ToLowerInvariant()}_{modSuffix.ToLowerInvariant()}_{strength.ToLowerInvariant()}_t{tier}";
-            affix.Stats = new ItemAffixSO.AffixStatData[1];
-            affix.Stats[0].Stat = stat;
-            affix.Stats[0].Type = modType;
-            affix.Stats[0].Scope = StatScope.Global;
-
-            if (genType == StatAffixGenType.FullCalcStat)
-                SetValuesFullCalc(ref affix.Stats[0], stat, modType, tier, strength);
-            else
-                SetValuesSmallFlat(ref affix.Stats[0], tier, strength);
-
-            if (affix.TagIds == null) affix.TagIds = new List<string>();
-            return affix;
-        }
-
-        private static void SetValuesFullCalc(ref ItemAffixSO.AffixStatData data, StatType stat, StatModType type, int tier, string strength)
-        {
-            int stepIndex = 5 - tier;
-            float mult = (stat.ToString().Contains("Health") || stat.ToString().Contains("Mana")) ? 5f : 1f;
-
-            float stepMin, stepMax, baseMin, baseMax;
-            if (strength == StrengthStrong) { baseMin = 5f; baseMax = 10f; stepMin = 5f; stepMax = 5f; }
-            else if (strength == StrengthMedium) { baseMin = 4f; baseMax = 8f; stepMin = 4f; stepMax = 4f; }
-            else { baseMin = 3f; baseMax = 7f; stepMin = 3f; stepMax = 3f; }
-
-            if (type == StatModType.Flat)
-            {
-                data.MinValue = (baseMin + stepIndex * stepMin) * mult;
-                data.MaxValue = (baseMax + stepIndex * stepMax) * mult;
-            }
-            else if (type == StatModType.PercentAdd)
-            {
-                if (strength == StrengthStrong) { baseMin = 5f; baseMax = 10f; stepMin = 5f; stepMax = 5f; }
-                else if (strength == StrengthMedium) { baseMin = 4f; baseMax = 8f; stepMin = 4f; stepMax = 4f; }
-                else { baseMin = 3f; baseMax = 7f; stepMin = 3f; stepMax = 3f; }
-                data.MinValue = baseMin + stepIndex * stepMin;
-                data.MaxValue = baseMax + stepIndex * stepMax;
-            }
-            else
-            {
-                if (strength == StrengthStrong) { baseMin = 2f; baseMax = 5f; stepMin = 2f; stepMax = 2f; }
-                else if (strength == StrengthMedium) { baseMin = 1.5f; baseMax = 4f; stepMin = 1.5f; stepMax = 1.5f; }
-                else { baseMin = 1f; baseMax = 3f; stepMin = 1f; stepMax = 1f; }
-                data.MinValue = baseMin + stepIndex * stepMin;
-                data.MaxValue = baseMax + stepIndex * stepMax;
-            }
-        }
-
-        private static void SetValuesSmallFlat(ref ItemAffixSO.AffixStatData data, int tier, string strength)
-        {
-            // T1 = сильнее, T5 = слабее. Значения 1–7, пик Strong = 7.
-            if (strength == StrengthStrong)
-            {
-                data.MinValue = Mathf.Clamp(6 - tier, 1, 5);
-                data.MaxValue = Mathf.Clamp(8 - tier, 2, 7);
-            }
-            else if (strength == StrengthMedium)
-            {
-                data.MinValue = Mathf.Clamp(4 - tier, 1, 3);
-                data.MaxValue = Mathf.Clamp(6 - tier, 2, 5);
-            }
-            else
-            {
-                data.MinValue = 1;
-                data.MaxValue = Mathf.Clamp(4 - tier, 1, 3);
-            }
-        }
-
-        private static void SyncTagFromCategory(ItemAffixSO affix, StatsDatabaseSO db, StatType stat, AffixTagDatabaseSO tagDb)
-        {
-            if (affix.TagIds == null) affix.TagIds = new List<string>();
-            string cat = db != null ? db.GetCategory(stat) : "Misc";
-            if (string.IsNullOrEmpty(cat)) return;
-            if (!affix.TagIds.Contains(cat)) affix.TagIds.Add(cat);
-            if (tagDb != null && !tagDb.HasTag(cat))
-            {
-                tagDb.AddTag(cat, "tag_" + cat.ToLowerInvariant());
-                EditorUtility.SetDirty(tagDb);
-            }
-        }
-
-        private static void WriteLocalization(ItemAffixSO affix, StatType stat, string modSuffix, string strength, int tier,
-            StatAffixGenType genType, StringTableCollection menuLabels, StringTableCollection affixesLabels)
-        {
-            string statKey = "stats." + stat;
-            string statNameEn = GetLocalizedString(menuLabels, "en", statKey);
-            string statNameRu = GetLocalizedString(menuLabels, "ru", statKey);
-            if (string.IsNullOrEmpty(statNameEn)) statNameEn = stat.ToString();
-            if (string.IsNullOrEmpty(statNameRu)) statNameRu = stat.ToString();
-
-            string strengthEn = strength;
-            string strengthRu = strength == StrengthStrong ? "Сильный" : strength == StrengthMedium ? "Средний" : "Лёгкий";
-            string typeEn = modSuffix == "Flat" ? "flat" : modSuffix == "Increase" ? "increase" : "more";
-            string typeRu = modSuffix == "Flat" ? "flat" : modSuffix == "Increase" ? "увеличение" : "больше";
-
-            string nameEn = $"{strengthEn} {statNameEn} {typeEn}";
-            string nameRu = $"{strengthRu} {statNameRu} {typeRu}";
-
-            SetOrAddEntry(affixesLabels, "en", affix.NameKey, nameEn);
-            SetOrAddEntry(affixesLabels, "ru", affix.NameKey, nameRu);
-
-            string rawStat = stat.ToString();
-            string valueEn = GenerateValueTemplateEn(modSuffix, rawStat, statNameEn);
-            string valueRu = GenerateValueTemplateRu(modSuffix, rawStat, statNameRu);
-            SetOrAddEntry(affixesLabels, "en", affix.TranslationKey, valueEn);
-            SetOrAddEntry(affixesLabels, "ru", affix.TranslationKey, valueRu);
-        }
-
-        private static string GetLocalizedString(StringTableCollection col, string locale, string key)
-        {
-            if (col == null || string.IsNullOrEmpty(key)) return "";
-            var table = col.GetTable(locale) as StringTable;
-            if (table == null)
-                table = col.GetTable(new UnityEngine.Localization.LocaleIdentifier(locale)) as StringTable;
-            if (table == null) return "";
-            var entry = table.GetEntry(key);
-            return entry?.Value ?? "";
-        }
-
-        private static void SetOrAddEntry(StringTableCollection col, string locale, string key, string value)
-        {
-            if (col == null || string.IsNullOrEmpty(key)) return;
-            var table = col.GetTable(locale) as StringTable;
-            if (table == null)
-                table = col.GetTable(new UnityEngine.Localization.LocaleIdentifier(locale)) as StringTable;
-            if (table == null) return;
-
-            var sharedData = col.SharedData;
-            if (sharedData != null && !sharedData.Contains(key))
-            {
-                sharedData.AddKey(key);
-                EditorUtility.SetDirty(sharedData);
-            }
-
-            var entry = table.GetEntry(key);
-            if (entry != null) entry.Value = value;
-            else table.AddEntry(key, value);
-            EditorUtility.SetDirty(table);
-            EditorUtility.SetDirty(col);
-        }
-
-        private static bool IsPercentageStat(string raw)
-        {
-            return raw.Contains("Resist") || raw.Contains("Multiplier") || raw.Contains("Chance") || raw.Contains("Mitigation") || raw.Contains("Mult") || raw.Contains("Percent");
-        }
-
-        private static string GenerateValueTemplateEn(string modType, string rawStat, string statName)
-        {
-            if (modType == "Flat" && !IsPercentageStat(rawStat)) return $"Adds {{0}} to {statName}";
-            if (modType == "Flat" && IsPercentageStat(rawStat)) return $"+{{0}}% to {statName}";
-            if (modType == "Increase") return $"{{0}}% increased {statName}";
-            if (modType == "More") return $"{{0}}% more {statName}";
-            return $"+{{0}} {statName}";
-        }
-
-        private static string GenerateValueTemplateRu(string modType, string rawStat, string statName)
-        {
-            if (modType == "Flat" && !IsPercentageStat(rawStat)) return $"Добавляет {{0}} к {statName}";
-            if (modType == "Flat" && IsPercentageStat(rawStat)) return $"+{{0}}% к {statName}";
-            if (modType == "Increase") return $"{{0}}% увеличение {statName}";
-            if (modType == "More") return $"{{0}}% больше {statName}";
-            return $"+{{0}} {statName}";
-        }
-
-        /// <summary> Заполняет имя и value text в таблице, если они пустые. Использует тот же формат, что и при генерации (strength + stat + type). </summary>
-        public static void FillMissingLocalization(ItemAffixSO affix, StringTableCollection menuLabels, StringTableCollection affixesLabels)
-        {
-            if (affix == null || affixesLabels == null) return;
-            if (affix.Stats == null || affix.Stats.Length == 0) return;
-
-            var s = affix.Stats[0];
-            StatType stat = s.Stat;
-            string modSuffix = s.Type == StatModType.PercentAdd ? "Increase" : s.Type == StatModType.PercentMult ? "More" : "Flat";
-            string strength = ParseStrengthFromGroupId(affix.GroupID);
-
-            string statKey = "stats." + stat;
-            string statNameEn = GetLocalizedString(menuLabels, "en", statKey);
-            string statNameRu = GetLocalizedString(menuLabels, "ru", statKey);
-            if (string.IsNullOrEmpty(statNameEn)) statNameEn = stat.ToString();
-            if (string.IsNullOrEmpty(statNameRu)) statNameRu = stat.ToString();
-
-            string nameKey = string.IsNullOrEmpty(affix.NameKey) ? "affix_name_" + SanitizeKey(affix.name) : affix.NameKey;
-            string nameEnExisting = GetLocalizedString(affixesLabels, "en", nameKey);
-            if (string.IsNullOrWhiteSpace(nameEnExisting))
-            {
-                string strengthRu = strength == StrengthStrong ? "Сильный" : strength == StrengthMedium ? "Средний" : "Лёгкий";
-                string typeEn = modSuffix == "Flat" ? "flat" : modSuffix == "Increase" ? "increase" : "more";
-                string typeRu = modSuffix == "Flat" ? "flat" : modSuffix == "Increase" ? "увеличение" : "больше";
-                string nameEn = $"{strength} {statNameEn} {typeEn}";
-                string nameRu = $"{strengthRu} {statNameRu} {typeRu}";
-                SetOrAddEntry(affixesLabels, "en", nameKey, nameEn);
-                SetOrAddEntry(affixesLabels, "ru", nameKey, nameRu);
-                if (string.IsNullOrEmpty(affix.NameKey)) affix.NameKey = nameKey;
-            }
-
-            string valueKey = string.IsNullOrEmpty(affix.TranslationKey) ? "affix_" + modSuffix.ToLowerInvariant() + "_" + stat.ToString().ToLowerInvariant() : affix.TranslationKey;
-            string valueEnExisting = GetLocalizedString(affixesLabels, "en", valueKey);
-            if (string.IsNullOrWhiteSpace(valueEnExisting))
-            {
-                string rawStat = stat.ToString();
-                string valueEn = GenerateValueTemplateEn(modSuffix, rawStat, statNameEn);
-                string valueRu = GenerateValueTemplateRu(modSuffix, rawStat, statNameRu);
-                SetOrAddEntry(affixesLabels, "en", valueKey, valueEn);
-                SetOrAddEntry(affixesLabels, "ru", valueKey, valueRu);
-                if (string.IsNullOrEmpty(affix.TranslationKey)) affix.TranslationKey = valueKey;
-            }
-        }
-
-        /// <summary> Принудительно перегенерирует EN/RU name и value text для аффикса по его первому стату. </summary>
-        public static void RegenerateLocalizationFromStat(ItemAffixSO affix, StringTableCollection menuLabels, StringTableCollection affixesLabels)
-        {
-            if (affix == null || affixesLabels == null) return;
-            if (affix.Stats == null || affix.Stats.Length == 0) return;
-
-            var s = affix.Stats[0];
-            StatType stat = s.Stat;
-            string modSuffix = s.Type == StatModType.PercentAdd ? "Increase" : s.Type == StatModType.PercentMult ? "More" : "Flat";
-            string strength = ParseStrengthFromGroupId(affix.GroupID);
-
-            string statKey = "stats." + stat;
-            string statNameEn = GetLocalizedString(menuLabels, "en", statKey);
-            string statNameRu = GetLocalizedString(menuLabels, "ru", statKey);
-            if (string.IsNullOrEmpty(statNameEn)) statNameEn = stat.ToString();
-            if (string.IsNullOrEmpty(statNameRu)) statNameRu = stat.ToString();
-
-            string nameKey = string.IsNullOrEmpty(affix.NameKey) ? "affix_name_" + SanitizeKey(affix.name) : affix.NameKey;
-            string strengthRu = strength == StrengthStrong ? "Сильный" : strength == StrengthMedium ? "Средний" : "Лёгкий";
-            string typeEn = modSuffix == "Flat" ? "flat" : modSuffix == "Increase" ? "increase" : "more";
-            string typeRu = modSuffix == "Flat" ? "flat" : modSuffix == "Increase" ? "увеличение" : "больше";
-            string nameEn = $"{strength} {statNameEn} {typeEn}";
-            string nameRu = $"{strengthRu} {statNameRu} {typeRu}";
-            SetOrAddEntry(affixesLabels, "en", nameKey, nameEn);
-            SetOrAddEntry(affixesLabels, "ru", nameKey, nameRu);
-            if (string.IsNullOrEmpty(affix.NameKey)) affix.NameKey = nameKey;
-
-            string valueKey = string.IsNullOrEmpty(affix.TranslationKey) ? "affix_" + modSuffix.ToLowerInvariant() + "_" + stat.ToString().ToLowerInvariant() : affix.TranslationKey;
-            string rawStat = stat.ToString();
-            string valueEn = GenerateValueTemplateEn(modSuffix, rawStat, statNameEn);
-            string valueRu = GenerateValueTemplateRu(modSuffix, rawStat, statNameRu);
-            SetOrAddEntry(affixesLabels, "en", valueKey, valueEn);
-            SetOrAddEntry(affixesLabels, "ru", valueKey, valueRu);
-            if (string.IsNullOrEmpty(affix.TranslationKey)) affix.TranslationKey = valueKey;
-
-            EditorUtility.SetDirty(affix);
+            return string.IsNullOrWhiteSpace(value) || value.Trim() == "No translation found";
         }
 
         private static string ParseStrengthFromGroupId(string groupId)
         {
-            if (string.IsNullOrEmpty(groupId)) return StrengthMedium;
+            if (string.IsNullOrEmpty(groupId))
+                return StrengthMedium;
+
             var parts = groupId.Split('_');
             if (parts.Length >= 3)
             {
                 string last = parts[parts.Length - 1];
-                if (last == StrengthStrong || last == StrengthMedium || last == StrengthLight) return last;
+                if (last == StrengthStrong || last == StrengthMedium || last == StrengthLight)
+                    return last;
             }
+
             return StrengthMedium;
         }
 
-        private static string SanitizeKey(string s)
+        private static string SanitizeKey(string value)
         {
-            if (string.IsNullOrEmpty(s)) return s;
-            var arr = s.ToCharArray();
-            for (int i = 0; i < arr.Length; i++)
-                if (!char.IsLetterOrDigit(arr[i])) arr[i] = '_';
-            return new string(arr).ToLowerInvariant();
+            if (string.IsNullOrEmpty(value))
+                return value;
+
+            var chars = value.ToCharArray();
+            for (int i = 0; i < chars.Length; i++)
+            {
+                if (!char.IsLetterOrDigit(chars[i]))
+                    chars[i] = '_';
+            }
+
+            return new string(chars).ToLowerInvariant();
         }
     }
 }

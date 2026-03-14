@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_chansetoavoidignite_flat_medium_t4
   TranslationKey: affix_flat_chansetoavoidignite
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:

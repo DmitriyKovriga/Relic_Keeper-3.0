@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_lightningresist_flat_strong_t4
   TranslationKey: affix_flat_lightningresist
+  LockAutoLocalization: 0
   TagIds:
   - Resistances
   Stats:

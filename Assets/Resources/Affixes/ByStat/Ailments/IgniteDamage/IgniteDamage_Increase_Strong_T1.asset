@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_ignitedamage_increase_strong_t1
   TranslationKey: affix_increase_ignitedamage
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:

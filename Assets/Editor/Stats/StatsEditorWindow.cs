@@ -6,6 +6,7 @@ using System.Linq;
 using Scripts.Stats;
 using Scripts.Skills.PassiveTree;
 using Scripts.Items.Affixes;
+using Scripts.Editor.Affixes;
 using Scripts.Editor.PassiveTree;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
@@ -195,7 +196,7 @@ namespace Scripts.Editor.Stats
 
         private void DrawMetadataSection(StatType type)
         {
-            GUILayout.Label("Metadata (Category, Format, Affix Gen Type, Show in Character Window)", EditorStyles.boldLabel);
+            GUILayout.Label("Metadata (Category, Format, Unit, Affix kinds, Show in Character Window)", EditorStyles.boldLabel);
             var newDb = (StatsDatabaseSO)EditorGUILayout.ObjectField("Stats Database", _statsDatabase, typeof(StatsDatabaseSO), false);
             if (newDb != _statsDatabase)
                 _statsDatabase = newDb;
@@ -225,8 +226,15 @@ namespace Scripts.Editor.Stats
             {
                 _statsDatabase.CreateDefaultsForAllStatTypes();
                 EditorUtility.SetDirty(_statsDatabase);
+                AffixSetGenerator.EnsureValueUnitLocalizations(_menuLabelsCollection);
                 AssetDatabase.SaveAssets();
                 Debug.Log("Stats Editor: Created default metadata for all StatTypes.");
+            }
+
+            if (GUILayout.Button("Create / refresh value unit localizations", GUILayout.Height(22)))
+            {
+                AffixSetGenerator.EnsureValueUnitLocalizations(_menuLabelsCollection);
+                AssetDatabase.SaveAssets();
             }
 
             EditorGUILayout.Space(6);
@@ -246,11 +254,23 @@ namespace Scripts.Editor.Stats
             EditorGUI.BeginChangeCheck();
             meta.Category = EditorGUILayout.TextField("Category", meta.Category);
             meta.Format = (StatDisplayFormat)EditorGUILayout.EnumPopup("Display Format", meta.Format);
+            meta.ValueUnit = (StatValueUnit)EditorGUILayout.EnumPopup("Value Unit", meta.ValueUnit);
             meta.AffixGenType = (StatAffixGenType)EditorGUILayout.EnumPopup("Affix Gen Type", meta.AffixGenType);
+            meta.AllowedAffixKinds = (StatAffixModifierKindFlags)EditorGUILayout.EnumFlagsField("Allowed Affix Kinds", meta.AllowedAffixKinds);
+            meta.AllowedAffixKinds = StatsDatabaseSO.NormalizeAllowedAffixKinds(meta.AllowedAffixKinds, meta.AffixGenType, type);
             meta.ShowInCharacterWindow = EditorGUILayout.Toggle("Show in Character Window", meta.ShowInCharacterWindow);
             if (EditorGUI.EndChangeCheck())
             {
                 EditorUtility.SetDirty(_statsDatabase);
+            }
+
+            if (meta.ValueUnit != StatValueUnit.None)
+            {
+                string unitKey = StatPresentation.GetValueUnitLocalizationKey(meta.ValueUnit);
+                EditorGUILayout.LabelField("Value Unit Key", unitKey);
+                EditorGUILayout.LabelField(
+                    "Value Unit Preview",
+                    $"{GetLocalizedStringFromTable(unitKey, "en")} / {GetLocalizedStringFromTable(unitKey, "ru")}");
             }
         }
 

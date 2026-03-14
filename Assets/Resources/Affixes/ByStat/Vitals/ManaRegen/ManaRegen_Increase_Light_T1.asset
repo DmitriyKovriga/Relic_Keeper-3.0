@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_manaregen_increase_light_t1
   TranslationKey: affix_increase_manaregen
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:

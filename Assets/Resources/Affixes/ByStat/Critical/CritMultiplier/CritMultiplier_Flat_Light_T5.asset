@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_critmultiplier_flat_light_t5
   TranslationKey: affix_flat_critmultiplier
+  LockAutoLocalization: 0
   TagIds:
   - Critical
   Stats:

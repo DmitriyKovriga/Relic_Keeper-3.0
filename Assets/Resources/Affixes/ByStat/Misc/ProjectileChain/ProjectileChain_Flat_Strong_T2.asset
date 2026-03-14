@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_projectilechain_flat_strong_t2
   TranslationKey: affix_flat_projectilechain
+  LockAutoLocalization: 0
   TagIds:
   - Misc
   Stats:

@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_manaregen_flat_light_t2
   TranslationKey: affix_flat_manaregen
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:

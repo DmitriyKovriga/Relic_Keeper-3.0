@@ -17,6 +17,7 @@ MonoBehaviour:
   Tier: 3
   NameKey: affix_name_maxblockchance_flat_light_t3
   TranslationKey: affix_flat_maxblockchance
+  LockAutoLocalization: 0
   TagIds:
   - Defense
   Stats:
