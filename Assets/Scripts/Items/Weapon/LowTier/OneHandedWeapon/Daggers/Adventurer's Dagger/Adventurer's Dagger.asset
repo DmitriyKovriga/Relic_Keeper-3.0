@@ -10,36 +10,32 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c8dfeb579bbf0f148826246799bf1174, type: 3}
-  m_Name: Adventurer's Buckler
+  m_Name: Adventurer's Dagger
   m_EditorClassIdentifier: 
-  ID: 47015611
-  ItemName: Adventurer's Buckler
-  Icon: {fileID: 21300000, guid: 374cb4b24b79b7840bcc366a1e0eb842, type: 3}
-  Width: 2
+  ID: 54e1b823
+  ItemName: Adventurer's Dagger
+  Icon: {fileID: 21300000, guid: dbb8e5d452786cc42925ba05664b52e4, type: 3}
+  Width: 1
   Height: 2
-  Slot: 3
+  Slot: 0
   DropLevel: 1
   ImplicitModifiers:
-  - Stat: 16
-    Value: 35
-    Type: 100
-    Scope: 0
-  - Stat: 26
-    Value: 10
-    Type: 100
-    Scope: 0
+  - Stat: 51
+    Value: 50
+    Type: 200
+    Scope: 1
   SkillPool: {fileID: 0}
   SkillCount: 1
   IsTwoHanded: 0
   InHandSprite: {fileID: 0}
-  MinPhysicalDamage: 0
-  MaxPhysicalDamage: 0
+  MinPhysicalDamage: 5
+  MaxPhysicalDamage: 10
   MinFireDamage: 0
   MaxFireDamage: 0
   MinColdDamage: 0
   MaxColdDamage: 0
   MinLightningDamage: 0
   MaxLightningDamage: 0
-  AttacksPerSecond: 1
-  BaseCritChance: 5
+  AttacksPerSecond: 1.2
+  BaseCritChance: 8
   SecondarySkillPool: {fileID: 0}

@@ -22,7 +22,7 @@ MonoBehaviour:
   ImplicitModifiers:
   - Stat: 11
     Value: 25
-    Type: 200
+    Type: 210
     Scope: 0
   SkillPool: {fileID: 0}
   SkillCount: 1

@@ -4,10 +4,15 @@ namespace Scripts.Stats
 {
     public enum StatModType
     {
+        [UnityEngine.InspectorName("Flat")]
         Flat = 100,
+        [UnityEngine.InspectorName("Increase")]
         PercentAdd = 200,
+        [UnityEngine.InspectorName("Decrease")]
         PercentSub = 210,
+        [UnityEngine.InspectorName("More")]
         PercentMult = 300,
+        [UnityEngine.InspectorName("Less")]
         PercentLess = 310
     }
 

@@ -94,6 +94,18 @@ MonoBehaviour:
     m_Localized: Adventurer's Buckler
     m_Metadata:
       m_Items: []
+  - m_Id: 23394955618189312
+    m_Localized: Adventurer's Tower Shield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23405426429689856
+    m_Localized: Adventurer's Mystic Shield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23411518488477696
+    m_Localized: Adventurer's Dagger
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

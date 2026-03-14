@@ -52,9 +52,8 @@ namespace Scripts.Skills
 
         public void RefreshAllSkills()
         {
-            var keys = new List<int>(_activeSkills.Keys);
-            foreach (var key in keys)
-                UnequipSkill(key);
+            for (int i = 0; i < 5; i++)
+                UnequipSkill(i);
 
             if (InventoryManager.Instance == null)
                 return;

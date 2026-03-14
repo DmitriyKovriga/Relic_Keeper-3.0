@@ -1,6 +1,7 @@
 using UnityEngine;
 using Scripts.Stats;
 using Scripts.Combat;
+using Scripts.Inventory;
 
 public static class DamageCalculator
 {
@@ -21,10 +22,10 @@ public static class DamageCalculator
     {
         var snapshot = new DamageSnapshot(attackerStats);
 
-        float rawPhys = attackerStats.GetValue(StatType.DamagePhysical);
-        float rawFire = attackerStats.GetValue(StatType.DamageFire);
-        float rawCold = attackerStats.GetValue(StatType.DamageCold);
-        float rawLight = attackerStats.GetValue(StatType.DamageLightning);
+        float rawPhys = GetRolledHitDamage(attackerStats, StatType.DamagePhysical);
+        float rawFire = GetRolledHitDamage(attackerStats, StatType.DamageFire);
+        float rawCold = GetRolledHitDamage(attackerStats, StatType.DamageCold);
+        float rawLight = GetRolledHitDamage(attackerStats, StatType.DamageLightning);
 
         snapshot.Physical = rawPhys * skillMultiplier;
         snapshot.Fire = rawFire * skillMultiplier;
@@ -108,5 +109,41 @@ public static class DamageCalculator
             sourceDmg -= amountToConvert;
             targetDmg += amountToConvert;
         }
+    }
+
+    private static float GetRolledHitDamage(IStatsProvider attackerStats, StatType damageType)
+    {
+        float totalStatValue = attackerStats.GetValue(damageType);
+
+        if (attackerStats is not PlayerStats || InventoryManager.Instance == null)
+            return totalStatValue;
+
+        float weaponAverage = 0f;
+        float weaponRolled = 0f;
+        bool hasWeaponRange = false;
+
+        var equipment = InventoryManager.Instance.EquipmentItems;
+        if (equipment == null)
+            return totalStatValue;
+
+        foreach (var item in equipment)
+        {
+            if (item?.Data is not Scripts.Items.WeaponItemSO)
+                continue;
+
+            float averageDamage = item.GetAverageWeaponDamage(damageType);
+            if (averageDamage <= 0f)
+                continue;
+
+            hasWeaponRange = true;
+            weaponAverage += averageDamage;
+            weaponRolled += item.RollWeaponDamage(damageType);
+        }
+
+        if (!hasWeaponRange)
+            return totalStatValue;
+
+        float nonWeaponContribution = totalStatValue - weaponAverage;
+        return nonWeaponContribution + weaponRolled;
     }
 }
