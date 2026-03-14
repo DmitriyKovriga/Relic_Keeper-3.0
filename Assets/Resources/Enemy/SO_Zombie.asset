@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: Zombie
   DisplayName: Zombie
+  Prefab: {fileID: 3239475662571640954, guid: 388cf9e0d0714e8a95fbe17f07e934bf, type: 3}
+  AIType: 0
   BaseStats:
   - Type: 0
     Value: 100
@@ -27,4 +29,74 @@ MonoBehaviour:
     Value: 25
   - Type: 24
     Value: 25
+  Stats:
+  - Type: 0
+    BaseValue: 100
+    ScalingMode: 2
+    ScalingValue: 20
+  - Type: 14
+    BaseValue: 10
+    ScalingMode: 2
+    ScalingValue: 10
+  - Type: 18
+    BaseValue: 25
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 20
+    BaseValue: 25
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 22
+    BaseValue: 25
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 24
+    BaseValue: 25
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 30
+    BaseValue: 12
+    ScalingMode: 2
+    ScalingValue: 10
+  Perception:
+    AggroRange: 7
+    LoseTargetRange: 10
+    RequireLineOfSight: 0
+  Movement:
+    MoveSpeed: 1.8
+    StopDistance: 0.95
+    Acceleration: 20
+    CanJump: 0
+    CanUseJumpLinks: 0
+    CanFallFromPlatform: 0
+    JumpForce: 8
+    GroundCheckDistance: 0.15
+    WallCheckDistance: 0.2
+    LedgeCheckDistance: 0.35
+  Attack:
+    DeliveryType: 0
+    DamageType: 0
+    AttackRange: 1.15
+    AttackCooldown: 1.15
+    Windup: 0.18
+    ActiveTime: 0.08
+    Recovery: 0.28
+    DamageMultiplier: 1
+    HitboxSize: {x: 1.1, y: 0.8}
+    HitboxOffset: {x: 0.7, y: 0}
+  Behaviour:
+    DecisionIntervalMin: 0.08
+    DecisionIntervalMax: 0.16
+    PostActionPauseMin: 0.14
+    PostActionPauseMax: 0.24
+    StopDistanceVariance: 0.12
+    TurnDelayMin: 0.06
+    TurnDelayMax: 0.12
+    MissRecoveryMultiplier: 1.35
+  Animation:
+    Controller: {fileID: 9100000, guid: 86d7e31c6f4f4e947a98a65541a526e2, type: 2}
+    IdleStateName: Zombie_Idle
+    MoveStateName: Zombie_Walk
+    AttackStateName: Zombie_Attacks
   XPReward: 25
+  LegacyGrowthPerLevelPercent: 25

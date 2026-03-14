@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: Dummy
   DisplayName: Dummy
+  Prefab: {fileID: 3239475662571640954, guid: d3dcec50cd6f0304fbba7a9e8d2e8c0e, type: 3}
+  AIType: 2
   BaseStats:
   - Type: 0
     Value: 100
@@ -27,4 +29,37 @@ MonoBehaviour:
     Value: 25
   - Type: 24
     Value: 25
+  Stats: []
+  Perception:
+    AggroRange: 0
+    LoseTargetRange: 0
+    RequireLineOfSight: 0
+  Movement:
+    MoveSpeed: 0
+    StopDistance: 0.85
+    Acceleration: 20
+    CanJump: 0
+    CanUseJumpLinks: 0
+    CanFallFromPlatform: 0
+    JumpForce: 8
+    GroundCheckDistance: 0.15
+    WallCheckDistance: 0.2
+    LedgeCheckDistance: 0.35
+  Attack:
+    DeliveryType: 0
+    DamageType: 0
+    AttackRange: 0
+    AttackCooldown: 1
+    Windup: 0.15
+    ActiveTime: 0.1
+    Recovery: 0.25
+    DamageMultiplier: 1
+    HitboxSize: {x: 1.2, y: 0.8}
+    HitboxOffset: {x: 0.8, y: 0}
+  Animation:
+    Controller: {fileID: 0}
+    IdleStateName: Idle
+    MoveStateName: Walk
+    AttackStateName: Attack
   XPReward: 25
+  LegacyGrowthPerLevelPercent: 25

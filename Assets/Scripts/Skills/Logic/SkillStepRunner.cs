@@ -78,23 +78,25 @@ namespace Scripts.Skills
         private IEnumerator RunRecipe()
         {
             _isCasting = true;
-            var recipe = _data.Recipe;
-            var steps = recipe.Steps;
-            int n = steps.Count;
-            var started = new bool[n];
-            var ended = new bool[n];
-            var executed = new bool[n];
-            _pendingDamageByVfxLife = new List<(int, StepEntry, int, float)>();
-
-            var channelIndices = recipe.IsChanneling && recipe.ChannelLoopStepIndices != null
-                ? new HashSet<int>(recipe.ChannelLoopStepIndices)
-                : new HashSet<int>();
-
-            float elapsed = 0f;
-            while (elapsed < _ctx.TotalDuration && !_cancelled)
+            try
             {
-                elapsed += Time.deltaTime;
-                float T = Mathf.Clamp01(elapsed / _ctx.TotalDuration);
+                var recipe = _data.Recipe;
+                var steps = recipe.Steps;
+                int n = steps.Count;
+                var started = new bool[n];
+                var ended = new bool[n];
+                var executed = new bool[n];
+                _pendingDamageByVfxLife = new List<(int, StepEntry, int, float)>();
+
+                var channelIndices = recipe.IsChanneling && recipe.ChannelLoopStepIndices != null
+                    ? new HashSet<int>(recipe.ChannelLoopStepIndices)
+                    : new HashSet<int>();
+
+                float elapsed = 0f;
+                while (elapsed < _ctx.TotalDuration && !_cancelled)
+                {
+                    elapsed += Time.deltaTime;
+                    float T = Mathf.Clamp01(elapsed / _ctx.TotalDuration);
 
                 for (int i = 0; i < n; i++)
                 {
@@ -171,80 +173,83 @@ namespace Scripts.Skills
                         _pendingDamageByVfxLife.RemoveAt(j);
                     }
                 }
-                yield return null;
-            }
-
-            for (int j = _pendingDamageByVfxLife.Count - 1; j >= 0; j--)
-            {
-                var (stepIndex, step, sourceIdx, pct) = _pendingDamageByVfxLife[j];
-                if (_ctx.TryGetStepResult(sourceIdx, out var res) && res.Duration > 0f && (Time.time - res.SpawnTime) >= pct * res.Duration)
-                {
-                    ExecuteStepLogic(stepIndex, step, 1f, 0f);
-                    _pendingDamageByVfxLife.RemoveAt(j);
+                    yield return null;
                 }
-            }
 
-            for (int i = 0; i < n; i++)
-            {
-                if (recipe.IsChanneling && channelIndices.Contains(i)) continue;
-                var step = steps[i];
-                if (step.StepDefinition == null) continue;
-                if (step.IsParallelGroup && !executed[i] && step.StartPercentPipeline >= 1f - 0.0001f)
+                for (int j = _pendingDamageByVfxLife.Count - 1; j >= 0; j--)
                 {
-                    executed[i] = true;
-                    if (step.SubSteps != null && step.SubSteps.Count > 0)
+                    var (stepIndex, step, sourceIdx, pct) = _pendingDamageByVfxLife[j];
+                    if (_ctx.TryGetStepResult(sourceIdx, out var res) && res.Duration > 0f && (Time.time - res.SpawnTime) >= pct * res.Duration)
                     {
-                        foreach (var sub in step.SubSteps)
-                        {
-                            if (sub.StepDefinition != null)
-                                ExecuteStepLogic(-1, sub, 1f, 0f);
-                        }
+                        ExecuteStepLogic(stepIndex, step, 1f, 0f);
+                        _pendingDamageByVfxLife.RemoveAt(j);
                     }
-                    continue;
                 }
-                if (!step.IsParallelGroup && step.StepDefinition.IsDurationStep && started[i] && !ended[i])
-                {
-                    ended[i] = true;
-                    if (step.StepDefinition.Id == "MovementLock")
-                        _moveCtrl.SetLock(false);
-                }
-                if (!step.IsParallelGroup && !step.StepDefinition.IsDurationStep && !executed[i] && step.StartPercentPipeline >= 1f - 0.0001f)
-                {
-                    executed[i] = true;
-                    ExecuteStepLogic(i, step, 1f, 0f);
-                }
-            }
 
-            if (recipe.IsChanneling && recipe.ChannelLoopStepIndices != null && recipe.ChannelLoopStepIndices.Count > 0 && !_cancelled)
-            {
-                float channelStart = Time.time;
-                float tickDuration = recipe.ChannelTickDuration > 0 ? recipe.ChannelTickDuration : _ctx.TotalDuration;
-                while (Time.time - channelStart < recipe.ChannelMaxDuration && !_cancelled)
+                for (int i = 0; i < n; i++)
                 {
-                    foreach (int idx in recipe.ChannelLoopStepIndices)
+                    if (recipe.IsChanneling && channelIndices.Contains(i)) continue;
+                    var step = steps[i];
+                    if (step.StepDefinition == null) continue;
+                    if (step.IsParallelGroup && !executed[i] && step.StartPercentPipeline >= 1f - 0.0001f)
                     {
-                        if (idx < 0 || idx >= steps.Count) continue;
-                        var chStep = steps[idx];
-                        if (chStep.StepDefinition == null) continue;
-                        float startP = chStep.StartPercentPipeline;
-                        float endP = chStep.EndPercentPipeline;
-                        if (chStep.StepDefinition.IsDurationStep && endP > startP)
+                        executed[i] = true;
+                        if (step.SubSteps != null && step.SubSteps.Count > 0)
                         {
-                            float sd = (endP - startP) * _ctx.TotalDuration;
-                            for (float el = 0f; el < sd && !_cancelled; el += Time.deltaTime)
+                            foreach (var sub in step.SubSteps)
                             {
-                                ExecuteStepLogic(idx, chStep, el / sd, sd);
-                                yield return null;
+                                if (sub.StepDefinition != null)
+                                    ExecuteStepLogic(-1, sub, 1f, 0f);
                             }
                         }
-                        else
-                            ExecuteStepLogic(idx, chStep, 1f, 0f);
+                        continue;
                     }
-                    yield return new WaitForSeconds(Mathf.Max(0.01f, tickDuration));
+                    if (!step.IsParallelGroup && step.StepDefinition.IsDurationStep && started[i] && !ended[i])
+                    {
+                        ended[i] = true;
+                        if (step.StepDefinition.Id == "MovementLock")
+                            _moveCtrl.SetLock(false);
+                    }
+                    if (!step.IsParallelGroup && !step.StepDefinition.IsDurationStep && !executed[i] && step.StartPercentPipeline >= 1f - 0.0001f)
+                    {
+                        executed[i] = true;
+                        ExecuteStepLogic(i, step, 1f, 0f);
+                    }
+                }
+
+                if (recipe.IsChanneling && recipe.ChannelLoopStepIndices != null && recipe.ChannelLoopStepIndices.Count > 0 && !_cancelled)
+                {
+                    float channelStart = Time.time;
+                    float tickDuration = recipe.ChannelTickDuration > 0 ? recipe.ChannelTickDuration : _ctx.TotalDuration;
+                    while (Time.time - channelStart < recipe.ChannelMaxDuration && !_cancelled)
+                    {
+                        foreach (int idx in recipe.ChannelLoopStepIndices)
+                        {
+                            if (idx < 0 || idx >= steps.Count) continue;
+                            var chStep = steps[idx];
+                            if (chStep.StepDefinition == null) continue;
+                            float startP = chStep.StartPercentPipeline;
+                            float endP = chStep.EndPercentPipeline;
+                            if (chStep.StepDefinition.IsDurationStep && endP > startP)
+                            {
+                                float sd = (endP - startP) * _ctx.TotalDuration;
+                                for (float el = 0f; el < sd && !_cancelled; el += Time.deltaTime)
+                                {
+                                    ExecuteStepLogic(idx, chStep, el / sd, sd);
+                                    yield return null;
+                                }
+                            }
+                            else
+                                ExecuteStepLogic(idx, chStep, 1f, 0f);
+                        }
+                        yield return new WaitForSeconds(Mathf.Max(0.01f, tickDuration));
+                    }
                 }
             }
-
-            Cleanup();
+            finally
+            {
+                Cleanup();
+            }
         }
 
         private void ExecuteStepLogic(int stepIndex, StepEntry step, float phaseT, float stepDuration)

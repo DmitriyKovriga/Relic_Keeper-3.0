@@ -24,10 +24,19 @@ namespace Scripts.Enemies
         public event System.Action<EnemyHealth> OnDeath;
         public event System.Action<float, float> OnHealthChanged;
 
+        private void Awake()
+        {
+            _stats = GetComponent<EnemyStats>();
+        }
+
         public void Initialize()
         {
             _stats = GetComponent<EnemyStats>();
+            if (_stats == null)
+                return;
             _maxHealth = _stats.GetValue(StatType.MaxHealth);
+            if (_maxHealth <= 0f)
+                _maxHealth = 1f;
             _currentHealth = _maxHealth;
             _isDead = false;
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
@@ -36,6 +45,8 @@ namespace Scripts.Enemies
         public void TakeDamage(DamageSnapshot damage)
         {
             if (_isDead) return;
+            if (!EnsureReady())
+                return;
 
             float armor = _stats.GetValue(StatType.Armor);
             float physDmg = damage.Physical;
@@ -87,6 +98,20 @@ namespace Scripts.Enemies
         public void Resurrect()
         {
             Initialize();
+        }
+
+        private bool EnsureReady()
+        {
+            if (_stats == null)
+                _stats = GetComponent<EnemyStats>();
+
+            if (_stats == null)
+                return false;
+
+            if (_maxHealth <= 0f)
+                Initialize();
+
+            return _stats != null && _maxHealth > 0f;
         }
 
         private static string ResolveDominantDamageType(float physical, float fire, float cold, float lightning)

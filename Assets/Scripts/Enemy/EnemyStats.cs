@@ -1,79 +1,70 @@
+﻿using System.Collections.Generic;
 using UnityEngine;
-using System.Collections.Generic;
 using Scripts.Stats;
 
 namespace Scripts.Enemies
 {
-    public class EnemyStats : MonoBehaviour
+    public class EnemyStats : MonoBehaviour, IStatsProvider
     {
-        private Dictionary<StatType, CharacterStat> _stats = new Dictionary<StatType, CharacterStat>();
+        private readonly Dictionary<StatType, CharacterStat> _stats = new Dictionary<StatType, CharacterStat>();
 
         public float ExperienceReward { get; private set; }
-        public int Level { get; private set; } // Текущий уровень врага
+        public int Level { get; private set; }
 
         public void Initialize(EnemyDataSO data, int level)
         {
             _stats.Clear();
-            Level = Mathf.Clamp(level, 1, 100); // Ограничим от 1 до 100 на всякий
+            Level = Mathf.Clamp(level, 1, 100);
 
-            // 1. Расчет множителя
-            // Уровень 1 = 0 бонуса. Уровень 2 = +25%.
-            float growthPerLevel = 0.25f; 
+            float growthPerLevel = data != null ? data.LegacyGrowthPerLevelPercent / 100f : 0.25f;
             float levelMultiplier = 1f + ((Level - 1) * growthPerLevel);
+            ExperienceReward = data != null ? data.XPReward * levelMultiplier : 0f;
 
-            // 2. Опыт тоже скалируем
-            ExperienceReward = (data != null) ? data.XPReward * levelMultiplier : 0;
-
-            if (data != null && data.BaseStats != null)
+            if (data != null && data.Stats != null && data.Stats.Count > 0)
+            {
+                foreach (var entry in data.Stats)
+                {
+                    _stats[entry.Type] = new CharacterStat(entry.Evaluate(Level));
+                }
+            }
+            else if (data != null && data.BaseStats != null)
             {
                 foreach (var config in data.BaseStats)
                 {
                     float finalValue = config.Value;
-
-                    // Скалируем только определенные статы (ХП, Армор, Урон)
                     if (IsScalableStat(config.Type))
-                    {
                         finalValue *= levelMultiplier;
-                    }
 
                     _stats[config.Type] = new CharacterStat(finalValue);
                 }
             }
-            
-            // Гарантируем минимумы
-            EnsureStat(StatType.MaxHealth, 100);
-            EnsureStat(StatType.FireResist, 0);
-            EnsureStat(StatType.MaxFireResist, 75);
-            EnsureStat(StatType.ColdResist, 0);
-            EnsureStat(StatType.MaxColdResist, 75);
-            EnsureStat(StatType.LightningResist, 0);
-            EnsureStat(StatType.MaxLightningResist, 75);
-            EnsureStat(StatType.Armor, 100);
+
+            EnsureStat(StatType.MaxHealth, 100f);
+            EnsureStat(StatType.DamagePhysical, 0f);
+            EnsureStat(StatType.DamageFire, 0f);
+            EnsureStat(StatType.DamageCold, 0f);
+            EnsureStat(StatType.DamageLightning, 0f);
+            EnsureStat(StatType.FireResist, 0f);
+            EnsureStat(StatType.MaxFireResist, 75f);
+            EnsureStat(StatType.ColdResist, 0f);
+            EnsureStat(StatType.MaxColdResist, 75f);
+            EnsureStat(StatType.LightningResist, 0f);
+            EnsureStat(StatType.MaxLightningResist, 75f);
+            EnsureStat(StatType.PhysicalResist, 0f);
+            EnsureStat(StatType.MaxPhysicalResist, 90f);
+            EnsureStat(StatType.Armor, 100f);
         }
 
         public float GetValue(StatType type)
         {
-            if (_stats.TryGetValue(type, out var stat))
-                return stat.Value;
-            return 0f;
-        }
-
-        private bool IsScalableStat(StatType type)
-        {
-            // Сюда добавляем все статы, которые должны расти с уровнем
-            return type == StatType.MaxHealth || 
-                   type == StatType.Armor || 
-                   type == StatType.Evasion ||
-                   type == StatType.MaxMysticShield ||
-                   type == StatType.DamagePhysical ||
-                   type == StatType.DamageFire ||
-                   type == StatType.DamageCold ||
-                   type == StatType.DamageLightning;
+            return _stats.TryGetValue(type, out var stat) ? stat.Value : 0f;
         }
 
         public void AddModifier(StatType type, StatModifier modifier)
         {
-            if (!_stats.ContainsKey(type)) _stats[type] = new CharacterStat(0);
+            if (!_stats.ContainsKey(type))
+                _stats[type] = new CharacterStat(0f);
+
             _stats[type].AddModifier(modifier);
         }
 
@@ -81,6 +72,18 @@ namespace Scripts.Enemies
         {
             if (_stats.ContainsKey(type))
                 _stats[type].RemoveModifier(modifier);
+        }
+
+        private static bool IsScalableStat(StatType type)
+        {
+            return type == StatType.MaxHealth ||
+                   type == StatType.Armor ||
+                   type == StatType.Evasion ||
+                   type == StatType.MaxMysticShield ||
+                   type == StatType.DamagePhysical ||
+                   type == StatType.DamageFire ||
+                   type == StatType.DamageCold ||
+                   type == StatType.DamageLightning;
         }
 
         private void EnsureStat(StatType type, float defaultVal)

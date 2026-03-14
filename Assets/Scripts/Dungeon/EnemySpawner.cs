@@ -1,5 +1,5 @@
+﻿using System.Collections.Generic;
 using UnityEngine;
-using System.Collections.Generic;
 using Scripts.Enemies;
 
 namespace Scripts.Dungeon
@@ -15,15 +15,15 @@ namespace Scripts.Dungeon
         [Tooltip("Если true — спавнит только при вызове Spawn(), иначе в Start")]
         [SerializeField] private bool _spawnOnRoomEnter = true;
 
-        [Header("Prefab")]
-        [SerializeField, Tooltip("Префаб с EnemyEntity (EnemyStats, EnemyHealth). Вызывается Setup(data, level)")]
+        [Header("Legacy Fallback Prefab")]
+        [SerializeField, Tooltip("Legacy fallback. Если у EnemyDataSO не назначен Prefab, будет использован этот префаб.")]
         private EnemyEntity _enemyPrefab;
 
         private bool _hasSpawned;
 
         private void Start()
         {
-            if (!_spawnOnRoomEnter && _enemyPrefab != null && _enemyEntries.Count > 0)
+            if (!_spawnOnRoomEnter && _enemyEntries.Count > 0)
             {
                 var room = GetComponentInParent<RoomController>();
                 int level = room != null ? room.RoomLevel : 1;
@@ -36,16 +36,12 @@ namespace Scripts.Dungeon
         /// </summary>
         public void Spawn(int level)
         {
-            if (_enemyPrefab == null)
-            {
-                Debug.LogWarning($"[EnemySpawner] {gameObject.name}: Enemy Prefab не назначен.");
-                return;
-            }
             if (_enemyEntries == null || _enemyEntries.Count == 0)
             {
                 Debug.LogWarning($"[EnemySpawner] {gameObject.name}: Нет Enemy Entries.");
                 return;
             }
+
             if (_hasSpawned && _spawnOnRoomEnter)
                 return;
 
@@ -53,28 +49,36 @@ namespace Scripts.Dungeon
             int validEntries = 0;
             foreach (var e in _enemyEntries)
             {
-                if (e?.EnemyData == null) continue;
+                if (e?.EnemyData == null)
+                    continue;
+
                 validEntries++;
-                // Legacy-safe: старые префабы могут содержать Weight = 0.
                 totalWeight += Mathf.Max(1, e.Weight);
             }
+
             if (validEntries == 0)
             {
                 Debug.LogWarning($"[EnemySpawner] {gameObject.name}: Нет валидных Enemy Entries (EnemyData = null).");
                 return;
             }
+
             if (totalWeight <= 0)
-            {
-                Debug.LogWarning($"[EnemySpawner] {gameObject.name}: totalWeight <= 0, fallback to 1.");
                 totalWeight = validEntries;
-            }
 
             for (int i = 0; i < _spawnCount; i++)
             {
                 var data = PickRandomEnemy(totalWeight);
-                if (data == null) continue;
+                if (data == null)
+                    continue;
 
-                var instance = Instantiate(_enemyPrefab, transform.position, Quaternion.identity, transform.parent);
+                var prefabToSpawn = data.Prefab != null ? data.Prefab : _enemyPrefab;
+                if (prefabToSpawn == null)
+                {
+                    Debug.LogWarning($"[EnemySpawner] {gameObject.name}: У врага '{data.DisplayName}' не назначен Prefab и нет fallback Enemy Prefab на спавнере.");
+                    continue;
+                }
+
+                var instance = Instantiate(prefabToSpawn, transform.position, Quaternion.identity, transform.parent);
                 instance.Setup(data, level);
             }
 
@@ -86,14 +90,20 @@ namespace Scripts.Dungeon
             int r = Random.Range(0, totalWeight);
             foreach (var e in _enemyEntries)
             {
-                if (e?.EnemyData == null) continue;
+                if (e?.EnemyData == null)
+                    continue;
+
                 r -= Mathf.Max(1, e.Weight);
-                if (r < 0) return e.EnemyData;
+                if (r < 0)
+                    return e.EnemyData;
             }
+
             foreach (var e in _enemyEntries)
             {
-                if (e?.EnemyData != null) return e.EnemyData;
+                if (e?.EnemyData != null)
+                    return e.EnemyData;
             }
+
             return null;
         }
     }
