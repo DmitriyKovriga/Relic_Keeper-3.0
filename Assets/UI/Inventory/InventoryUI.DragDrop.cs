@@ -106,7 +106,7 @@ public partial class InventoryUI
 
         if (IsStashVisible && _stashPanel != null && _stashGridContainer != null && _stashPanel.worldBound.Contains(dropCenter))
         {
-            int stashRoot = GetSmartStashTargetIndex(dropCenter, itemW, itemH);
+            int stashRoot = GetSmartStashTargetIndex(dropCenter, itemW, itemH, _draggedFromStash, _grabOffsetRootLocal);
             if (stashRoot >= 0 && StashManager.Instance != null)
             {
                 var stash = StashManager.Instance;
@@ -470,6 +470,8 @@ public partial class InventoryUI
         int stashTab = _draggedStashTab;
         int stashAnchor = _draggedStashAnchorSlot;
         int invSourceAnchor = _draggedSourceAnchor;
+        Vector2 dragGrabOffset = _grabOffsetRootLocal;
+
         _draggedItem = null;
         _isDragging = false;
         _draggedSourceAnchor = -1;
@@ -487,7 +489,7 @@ public partial class InventoryUI
         int stashFoundSlotIndex = -1;
         int stashFoundTab = StashManager.Instance != null ? StashManager.Instance.CurrentTabIndex : -1;
         if (IsStashVisible && _stashPanel != null && _stashPanel.worldBound.Contains(dropCenter))
-            stashFoundSlotIndex = GetSmartStashTargetIndex(dropCenter, itemW, itemH);
+            stashFoundSlotIndex = GetSmartStashTargetIndex(dropCenter, itemW, itemH, fromStash, dragGrabOffset);
 
         int foundIndex = -1;
         if (stashFoundSlotIndex < 0)

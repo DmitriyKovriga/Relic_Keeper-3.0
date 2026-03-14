@@ -183,40 +183,53 @@ public partial class InventoryUI
         CaptureDragPointer(pointerId);
     }
 
-    private int GetSmartStashTargetIndex(Vector2 dropCenterPanel, int itemWidth, int itemHeight)
+    private int GetSmartStashTargetIndex(Vector2 pointerWorldPosition, int itemWidth, int itemHeight)
     {
-        if (_stashItemsLayer == null || itemWidth <= 0 || itemHeight <= 0) return -1;
-        float w = GetStashSpanSize(itemWidth);
-        float h = GetStashSpanSize(itemHeight);
-        Rect ghostWorld = new Rect(dropCenterPanel.x - w * 0.5f, dropCenterPanel.y - h * 0.5f, w, h);
-        Vector2 localMin = _stashItemsLayer.WorldToLocal(new Vector2(ghostWorld.xMin, ghostWorld.yMin));
-        Vector2 localMax = _stashItemsLayer.WorldToLocal(new Vector2(ghostWorld.xMax, ghostWorld.yMax));
-        float gMinX = Mathf.Min(localMin.x, localMax.x);
-        float gMaxX = Mathf.Max(localMin.x, localMax.x);
-        float gMinY = Mathf.Min(localMin.y, localMax.y);
-        float gMaxY = Mathf.Max(localMin.y, localMax.y);
+        return GetSmartStashTargetIndex(pointerWorldPosition, itemWidth, itemHeight, 0.5f, 0.5f);
+    }
 
-        int bestCol = 0;
-        int bestRow = 0;
-        float bestArea = -1f;
-        for (int row = 0; row <= StashManager.STASH_ROWS - itemHeight; row++)
-        {
-            for (int col = 0; col <= StashManager.STASH_COLS - itemWidth; col++)
-            {
-                float iMinX = col * StashSlotSize;
-                float iMinY = row * StashSlotSize;
-                float iMaxX = iMinX + GetStashSpanSize(itemWidth);
-                float iMaxY = iMinY + GetStashSpanSize(itemHeight);
-                float area = OverlapArea(gMinX, gMinY, gMaxX, gMaxY, iMinX, iMinY, iMaxX, iMaxY);
-                if (area > bestArea)
-                {
-                    bestArea = area;
-                    bestCol = col;
-                    bestRow = row;
-                }
-            }
-        }
-        return bestArea > 0 ? bestRow * StashManager.STASH_COLS + bestCol : -1;
+    private int GetSmartStashTargetIndex(
+        Vector2 pointerWorldPosition,
+        int itemWidth,
+        int itemHeight,
+        bool sourceDraggedFromStash,
+        Vector2 sourceGrabOffsetRootLocal)
+    {
+        float sourceSpanW = sourceDraggedFromStash ? GetStashSpanSize(itemWidth) : itemWidth * InventorySlotSize;
+        float sourceSpanH = sourceDraggedFromStash ? GetStashSpanSize(itemHeight) : itemHeight * InventorySlotSize;
+
+        float normalizedGrabX = sourceSpanW > 0f ? Mathf.Clamp01(sourceGrabOffsetRootLocal.x / sourceSpanW) : 0.5f;
+        float normalizedGrabY = sourceSpanH > 0f ? Mathf.Clamp01(sourceGrabOffsetRootLocal.y / sourceSpanH) : 0.5f;
+
+        return GetSmartStashTargetIndex(pointerWorldPosition, itemWidth, itemHeight, normalizedGrabX, normalizedGrabY);
+    }
+
+    private int GetSmartStashTargetIndex(
+        Vector2 pointerWorldPosition,
+        int itemWidth,
+        int itemHeight,
+        float normalizedGrabX,
+        float normalizedGrabY)
+    {
+        if (_stashGridContainer == null || itemWidth <= 0 || itemHeight <= 0)
+            return -1;
+
+        Vector2 localPointer = _stashGridContainer.WorldToLocal(pointerWorldPosition);
+        float spanW = GetStashSpanSize(itemWidth);
+        float spanH = GetStashSpanSize(itemHeight);
+
+        float topLeftX = localPointer.x - spanW * Mathf.Clamp01(normalizedGrabX);
+        float topLeftY = localPointer.y - spanH * Mathf.Clamp01(normalizedGrabY);
+
+        float idealCol = topLeftX / StashSlotSize;
+        float idealRow = topLeftY / StashSlotSize;
+
+        int maxCol = Mathf.Max(0, StashManager.STASH_COLS - itemWidth);
+        int maxRow = Mathf.Max(0, StashManager.STASH_ROWS - itemHeight);
+        int col = Mathf.Clamp(Mathf.RoundToInt(idealCol), 0, maxCol);
+        int row = Mathf.Clamp(Mathf.RoundToInt(idealRow), 0, maxRow);
+
+        return row * StashManager.STASH_COLS + col;
     }
 
 }
