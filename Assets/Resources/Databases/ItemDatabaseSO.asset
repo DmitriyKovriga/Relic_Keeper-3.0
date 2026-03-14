@@ -30,6 +30,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 823e511a47c36544c84cf5ef80054a0d, type: 2}
   - {fileID: 11400000, guid: 46ada33917ccdc446b4de773b2630988, type: 2}
   - {fileID: 11400000, guid: 3401406108836234fa7698c5882a3659, type: 2}
+  - {fileID: 11400000, guid: 9c604883a9bc72e44bc75cb58dff6678, type: 2}
+  - {fileID: 11400000, guid: 211bd93d3f02b224e8d7dc6e548cdc96, type: 2}
   AllAffixes:
   - {fileID: 11400000, guid: bb10ad3c2d53e2f40992a1d9f084c352, type: 2}
   - {fileID: 11400000, guid: 0d85240ff5737e6469a08802b761f27e, type: 2}
