@@ -66,6 +66,7 @@ public partial class InventoryUI
         {
             var oldImg = slot.Q<Image>();
             if (oldImg != null) slot.Remove(oldImg);
+            SetEquipmentSlotLabelVisible(slot, true);
         }
         var inv = InventoryManager.Instance;
         int slotCount = inv.BackpackSlotCount;
@@ -111,7 +112,7 @@ public partial class InventoryUI
 
             if (slot != null && item != null && item.Data != null)
             {
-                var icon = CreateItemIcon(item, null, null, EquipmentIconCellSize);
+                var icon = CreateItemIcon(item, null, null, EquipmentIconCellSize, receivePointerEvents: false, showFrame: false);
                 float iconW = item.Data.Width * EquipmentIconCellSize;
                 float iconH = item.Data.Height * EquipmentIconCellSize;
                 float slotW = i < EquipmentSlotSizes.Length ? EquipmentSlotSizes[i].w : 48f;
@@ -121,6 +122,7 @@ public partial class InventoryUI
                 icon.style.right = StyleKeyword.Null;
                 icon.style.bottom = StyleKeyword.Null;
                 slot.Add(icon);
+                SetEquipmentSlotLabelVisible(slot, false);
             }
         }
     }
@@ -133,7 +135,7 @@ public partial class InventoryUI
         var item = InventoryManager.Instance.CraftingSlotItem;
         if (item != null && item.Data != null)
         {
-            var icon = CreateItemIcon(item, null, null, EquipmentIconCellSize);
+            var icon = CreateItemIcon(item, null, null, EquipmentIconCellSize, receivePointerEvents: false, showFrame: false);
             float iconW = item.Data.Width * EquipmentIconCellSize;
             float iconH = item.Data.Height * EquipmentIconCellSize;
             icon.style.left = (CraftSlotWidth - iconW) * 0.5f;
@@ -160,10 +162,11 @@ public partial class InventoryUI
 
     /// <param name="slotSizePx">Cell size in px for inventory, stash or equipment icon rendering.</param>
     /// <param name="receivePointerEvents">True for backpack/stash icon interactions.</param>
-    private VisualElement CreateItemIcon(InventoryItem item, int? widthSlots, int? heightSlots, float slotSizePx, bool receivePointerEvents = false)
+    private VisualElement CreateItemIcon(InventoryItem item, int? widthSlots, int? heightSlots, float slotSizePx, bool receivePointerEvents = false, bool showFrame = true)
     {
         Image icon = new Image();
-        icon.AddToClassList("item-icon-framed");
+        if (showFrame)
+            icon.AddToClassList("item-icon-framed");
         icon.sprite = item.Data.Icon;
         int w = widthSlots ?? item.Data.Width;
         int h = heightSlots ?? item.Data.Height;
@@ -175,6 +178,14 @@ public partial class InventoryUI
         icon.pickingMode = receivePointerEvents ? PickingMode.Position : PickingMode.Ignore;
         if (item.Data.Icon != null) icon.style.backgroundImage = new StyleBackground(item.Data.Icon);
         return icon;
+    }
+
+    private static void SetEquipmentSlotLabelVisible(VisualElement slot, bool visible)
+    {
+        if (slot == null) return;
+        var label = slot.Q<Label>();
+        if (label == null) return;
+        label.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
     private static void ClearOccupiedSlotClasses(IList<VisualElement> slots)

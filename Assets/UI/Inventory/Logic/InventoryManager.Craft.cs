@@ -19,7 +19,7 @@ namespace Scripts.Inventory
             if (toIndex >= EQUIP_OFFSET)
             {
                 int localEquipIndex = toIndex - EQUIP_OFFSET;
-                if ((int)item.Data.Slot != localEquipIndex) return false;
+                if (!CanEquipItemToLocalSlot(item, localEquipIndex)) return false;
 
                 var currentEquipped = EquipmentItems[localEquipIndex];
                 CraftingSlotItem = null;
@@ -49,6 +49,9 @@ namespace Scripts.Inventory
             if (fromIndex >= EQUIP_OFFSET)
             {
                 int localIndex = fromIndex - EQUIP_OFFSET;
+                if (previousCraft != null && !CanEquipItemToLocalSlot(previousCraft, localIndex))
+                    return false;
+
                 EquipmentItems[localIndex] = previousCraft;
                 if (previousCraft != null) OnItemUnequipped?.Invoke(itemFrom);
                 CraftingSlotItem = itemFrom;

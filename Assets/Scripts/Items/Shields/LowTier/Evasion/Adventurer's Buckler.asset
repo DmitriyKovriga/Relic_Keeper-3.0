@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8dfeb579bbf0f148826246799bf1174, type: 3}
+  m_Name: Adventurer's Buckler
+  m_EditorClassIdentifier: 
+  ID: 47015611
+  ItemName: Adventurer's Buckler
+  Icon: {fileID: 21300000, guid: 374cb4b24b79b7840bcc366a1e0eb842, type: 3}
+  Width: 2
+  Height: 2
+  Slot: 3
+  DropLevel: 1
+  ImplicitModifiers:
+  - Stat: 16
+    Value: 35
+    Type: 100
+    Scope: 0
+  - Stat: 26
+    Value: 10
+    Type: 100
+    Scope: 0
+  SkillPool: {fileID: 0}
+  SkillCount: 1
+  IsTwoHanded: 0
+  InHandSprite: {fileID: 0}
+  MinPhysicalDamage: 0
+  MaxPhysicalDamage: 0
+  MinFireDamage: 0
+  MaxFireDamage: 0
+  MinColdDamage: 0
+  MaxColdDamage: 0
+  MinLightningDamage: 0
+  MaxLightningDamage: 0
+  AttacksPerSecond: 1
+  BaseCritChance: 5
+  SecondarySkillPool: {fileID: 0}

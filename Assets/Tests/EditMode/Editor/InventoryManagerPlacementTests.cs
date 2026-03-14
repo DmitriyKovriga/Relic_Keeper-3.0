@@ -77,6 +77,61 @@ namespace RelicKeeper.Tests.EditMode
             Assert.AreSame(right, _manager.GetItemAt(1, out _));
         }
 
+        [Test]
+        public void PlaceItemAt_OneHandedWeapon_CanEquipIntoOffHand()
+        {
+            var oneHandedWeapon = CreateWeapon("one-handed", EquipmentSlot.MainHand, isTwoHanded: false);
+
+            bool equipped = _manager.PlaceItemAt(oneHandedWeapon, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.OffHand, -1);
+
+            Assert.IsTrue(equipped);
+            Assert.AreSame(oneHandedWeapon, _manager.EquipmentItems[(int)EquipmentSlot.OffHand]);
+        }
+
+        [Test]
+        public void PlaceItemAt_OffHandItem_FailsWhenTwoHandedWeaponIsEquipped()
+        {
+            var twoHandedWeapon = CreateWeapon("two-handed", EquipmentSlot.MainHand, isTwoHanded: true);
+            var shield = CreateArmor("shield", EquipmentSlot.OffHand);
+
+            Assert.IsTrue(_manager.PlaceItemAt(twoHandedWeapon, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.MainHand, -1));
+
+            bool equipped = _manager.PlaceItemAt(shield, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.OffHand, -1);
+
+            Assert.IsFalse(equipped);
+            Assert.IsNull(_manager.EquipmentItems[(int)EquipmentSlot.OffHand]);
+        }
+
+        [Test]
+        public void PlaceItemAt_TwoHandedWeapon_FailsWhenOffHandIsOccupied()
+        {
+            var shield = CreateArmor("shield", EquipmentSlot.OffHand);
+            var twoHandedWeapon = CreateWeapon("two-handed", EquipmentSlot.MainHand, isTwoHanded: true);
+
+            Assert.IsTrue(_manager.PlaceItemAt(shield, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.OffHand, -1));
+
+            bool equipped = _manager.PlaceItemAt(twoHandedWeapon, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.MainHand, -1);
+
+            Assert.IsFalse(equipped);
+            Assert.IsNull(_manager.EquipmentItems[(int)EquipmentSlot.MainHand]);
+            Assert.AreSame(shield, _manager.EquipmentItems[(int)EquipmentSlot.OffHand]);
+        }
+
+        [Test]
+        public void TryMoveOrSwap_OneHandedWeapon_CanMoveBetweenHands()
+        {
+            var oneHandedWeapon = CreateWeapon("one-handed", EquipmentSlot.MainHand, isTwoHanded: false);
+            Assert.IsTrue(_manager.PlaceItemAt(oneHandedWeapon, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.MainHand, -1));
+
+            bool moved = _manager.TryMoveOrSwap(
+                InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.MainHand,
+                InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.OffHand);
+
+            Assert.IsTrue(moved);
+            Assert.IsNull(_manager.EquipmentItems[(int)EquipmentSlot.MainHand]);
+            Assert.AreSame(oneHandedWeapon, _manager.EquipmentItems[(int)EquipmentSlot.OffHand]);
+        }
+
         private InventoryItem CreateTestItem(string id, int width, int height)
         {
             var so = ScriptableObject.CreateInstance<WeaponItemSO>();
@@ -85,6 +140,31 @@ namespace RelicKeeper.Tests.EditMode
             so.Width = Mathf.Max(1, width);
             so.Height = Mathf.Max(1, height);
             so.Slot = EquipmentSlot.MainHand;
+            _createdObjects.Add(so);
+            return new InventoryItem(so);
+        }
+
+        private InventoryItem CreateWeapon(string id, EquipmentSlot slot, bool isTwoHanded)
+        {
+            var so = ScriptableObject.CreateInstance<WeaponItemSO>();
+            so.ID = id;
+            so.ItemName = id;
+            so.Width = 1;
+            so.Height = 1;
+            so.Slot = slot;
+            so.IsTwoHanded = isTwoHanded;
+            _createdObjects.Add(so);
+            return new InventoryItem(so);
+        }
+
+        private InventoryItem CreateArmor(string id, EquipmentSlot slot)
+        {
+            var so = ScriptableObject.CreateInstance<ArmorItemSO>();
+            so.ID = id;
+            so.ItemName = id;
+            so.Width = 1;
+            so.Height = 1;
+            so.Slot = slot;
             _createdObjects.Add(so);
             return new InventoryItem(so);
         }

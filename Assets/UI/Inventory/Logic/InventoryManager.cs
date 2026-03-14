@@ -73,6 +73,79 @@ namespace Scripts.Inventory
         /// <summary>Р’С‹Р·РІР°С‚СЊ СЃРѕР±С‹С‚РёРµ СЃРЅСЏС‚РёСЏ (РґР»СЏ РІРЅРµС€РЅРµРіРѕ РєРѕРґР°).</summary>
         public void NotifyItemUnequipped(InventoryItem item) => OnItemUnequipped?.Invoke(item);
 
+        private bool CanEquipItemToLocalSlot(InventoryItem item, int localEquipIndex)
+        {
+            if (item?.Data == null) return false;
+            if (localEquipIndex < 0 || localEquipIndex >= EquipmentItems.Length) return false;
+
+            bool targetIsMainHand = localEquipIndex == (int)EquipmentSlot.MainHand;
+            bool targetIsOffHand = localEquipIndex == (int)EquipmentSlot.OffHand;
+
+            if (targetIsOffHand)
+            {
+                InventoryItem mainHandItem = EquipmentItems[(int)EquipmentSlot.MainHand];
+                if (mainHandItem != null &&
+                    mainHandItem != item &&
+                    mainHandItem.Data is WeaponItemSO mainWeapon &&
+                    mainWeapon.IsTwoHanded)
+                {
+                    return false;
+                }
+            }
+
+            if (item.Data is WeaponItemSO weapon)
+            {
+                if (weapon.IsTwoHanded)
+                {
+                    if (!targetIsMainHand) return false;
+
+                    InventoryItem offHandItem = EquipmentItems[(int)EquipmentSlot.OffHand];
+                    if (offHandItem != null && offHandItem != item) return false;
+                    return true;
+                }
+
+                return targetIsMainHand || targetIsOffHand;
+            }
+
+            if ((int)item.Data.Slot != localEquipIndex) return false;
+
+            return true;
+        }
+
+        private bool CanEquipItemAtIndex(InventoryItem item, int targetIndex)
+        {
+            if (targetIndex < EQUIP_OFFSET) return false;
+            return CanEquipItemToLocalSlot(item, targetIndex - EQUIP_OFFSET);
+        }
+
+        private bool TryMoveBetweenEquipSlots(int fromIndex, int toIndex, InventoryItem itemFrom)
+        {
+            int fromLocal = fromIndex - EQUIP_OFFSET;
+            int toLocal = toIndex - EQUIP_OFFSET;
+            if (fromLocal < 0 || fromLocal >= EquipmentItems.Length) return false;
+            if (toLocal < 0 || toLocal >= EquipmentItems.Length) return false;
+
+            InventoryItem itemTo = EquipmentItems[toLocal];
+
+            EquipmentItems[fromLocal] = null;
+            EquipmentItems[toLocal] = null;
+
+            bool sourceCanAcceptTarget = itemTo == null || CanEquipItemToLocalSlot(itemTo, fromLocal);
+            bool destinationCanAcceptSource = CanEquipItemToLocalSlot(itemFrom, toLocal);
+
+            if (!sourceCanAcceptTarget || !destinationCanAcceptSource)
+            {
+                EquipmentItems[fromLocal] = itemFrom;
+                EquipmentItems[toLocal] = itemTo;
+                return false;
+            }
+
+            EquipmentItems[toLocal] = itemFrom;
+            EquipmentItems[fromLocal] = itemTo;
+            OnInventoryChanged?.Invoke();
+            return true;
+        }
+
         private void SyncFromBackpack()
         {
             if (_backpack == null || Items == null) return;
@@ -152,4 +225,3 @@ namespace Scripts.Inventory
         }
     }
 }
-

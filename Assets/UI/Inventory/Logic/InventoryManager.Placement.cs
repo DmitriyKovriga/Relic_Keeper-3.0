@@ -40,7 +40,7 @@ namespace Scripts.Inventory
             {
                 int local = toIndex - EQUIP_OFFSET;
                 if (local < 0 || local >= EquipmentItems.Length) return false;
-                if ((int)item.Data.Slot != local) return false;
+                if (!CanEquipItemToLocalSlot(item, local)) return false;
 
                 InventoryItem prevEquip = EquipmentItems[local];
                 if (prevEquip != null && sourceAnchorForSwap >= 0)
@@ -179,7 +179,7 @@ namespace Scripts.Inventory
         {
             if (item == null || item.Data == null) return false;
             if (targetIndex == CRAFT_SLOT_INDEX) return true;
-            if (targetIndex >= EQUIP_OFFSET) return true;
+            if (targetIndex >= EQUIP_OFFSET) return CanEquipItemAtIndex(item, targetIndex);
             return _backpack != null && _backpack.CanPlace(item, targetIndex);
         }
 

@@ -61,7 +61,8 @@ public partial class InventoryUI
         _stashWindowController ??= new StashWindowController(
             getStash: () => StashManager.Instance,
             refreshStash: RefreshStash,
-            createItemIcon: CreateItemIcon,
+            createItemIcon: (item, widthSlots, heightSlots, slotSizePx, receivePointerEvents) =>
+                CreateItemIcon(item, widthSlots, heightSlots, slotSizePx, receivePointerEvents, showFrame: true),
             onPointerOver: OnPointerOverStashIcon,
             onPointerOut: OnPointerOutStashIcon,
             onPointerDown: OnStashIconPointerDown);

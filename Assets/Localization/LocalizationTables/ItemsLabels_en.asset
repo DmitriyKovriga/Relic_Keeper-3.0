@@ -90,6 +90,10 @@ MonoBehaviour:
     m_Localized: Mystic Adventurer's Boots
     m_Metadata:
       m_Items: []
+  - m_Id: 23356923808612352
+    m_Localized: Adventurer's Buckler
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
