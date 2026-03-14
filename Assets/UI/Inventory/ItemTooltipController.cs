@@ -727,10 +727,12 @@ public class ItemTooltipController : MonoBehaviour
             foreach(var aff in item.Affixes)
             {
                 if(aff.Modifiers.Count == 0) continue;
-                string key = aff.Data.TranslationKey;
-                float val = aff.Modifiers[0].Mod.Value;
-                if (string.IsNullOrEmpty(key)) key = $"stats.{aff.Modifiers[0].Type}";
-                AddAffixRow(key, val, _colAffix);
+                string key = aff.Data.GetResolvedTranslationKey();
+                var modifier = aff.Modifiers[0];
+                float minVal = modifier.PrimaryMod.Value;
+                float maxVal = modifier.HasRange ? modifier.SecondaryMod.Value : modifier.PrimaryMod.Value;
+                if (string.IsNullOrEmpty(key)) key = $"stats.{modifier.Type}";
+                AddAffixRow(key, minVal, maxVal, modifier.HasRange, _colAffix);
             }
         }
     }
@@ -757,7 +759,7 @@ public class ItemTooltipController : MonoBehaviour
     private void AddRow(StatType type, InventoryItem item, float min, float max, Color? c = null)
     {
         float fMin = item.GetCalculatedStat(type, min);
-        float fMax = item.GetCalculatedStat(type, max);
+        float fMax = item.GetCalculatedStatUpperBound(type, max);
         if (fMax <= 0) return;
         bool mod = Mathf.Abs(fMax - max) > 0.01f;
         CreateAsyncLabel(type.ToString(), (n) => $"{n}: {Mathf.Round(fMin)}-{Mathf.Round(fMax)}", c ?? (mod ? _colModifiedText : _colNormalText));
@@ -776,12 +778,13 @@ public class ItemTooltipController : MonoBehaviour
         CreateAsyncLabel($"stats.{type}", (n) => $"{n}: {sign}{val}{end}", c);
     }
 
-    private void AddAffixRow(string key, float val, Color c)
+    private void AddAffixRow(string key, float minVal, float maxVal, bool hasRange, Color c)
     {
         var lbl = CreateLabel("...", 8, FontStyle.Normal, TextAnchor.MiddleCenter);
         lbl.style.color = new StyleColor(c);
         _statsContainer.Add(lbl);
-        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_AFFIXES, key, new object[]{ val });
+        object[] args = hasRange ? new object[] { minVal, maxVal } : new object[] { minVal };
+        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_AFFIXES, key, args);
         op.Completed += (h) => { if(lbl!=null) lbl.text = h.Result; };
     }
 

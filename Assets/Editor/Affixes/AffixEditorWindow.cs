@@ -158,7 +158,7 @@ namespace Scripts.Editor.Affixes
             if (GUILayout.Button("Assign suggested tags to all affixes")) AssignSuggestedTagsToAllAffixes();
             if (GUILayout.Button("Generate names (empty only)")) GenerateNamesForAffixesWithoutName();
             if (GUILayout.Button("Sync missing name & value text")) SyncMissingNameAndValueText();
-            if (GUILayout.Button("Regenerate all localizations")) RegenerateAllLocalizationsFromStats();
+            if (GUILayout.Button("Regenerate all localizations (mode-aware)")) RegenerateAllLocalizationsFromStats();
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal();
             GUI.backgroundColor = new Color(1f, 0.85f, 0.7f);
@@ -266,7 +266,7 @@ namespace Scripts.Editor.Affixes
             DrawProperty(_serializedAffix, "LockAutoLocalization");
             EditorGUILayout.LabelField("NameKey (auto)", _selectedAffix != null ? (GetAffixNameKey(_selectedAffix) ?? "(save name to set)") : "");
             EditorGUILayout.LabelField("Value key (auto)", _selectedAffix != null ? (GetAffixValueKey(_selectedAffix) ?? "(save value to set)") : "");
-            DrawProperty(_serializedAffix, "Stats");
+            DrawStatsProperty(_serializedAffix);
             EditorGUILayout.EndVertical();
             _serializedAffix.ApplyModifiedProperties();
 
@@ -527,10 +527,7 @@ namespace Scripts.Editor.Affixes
         private static string GetAffixValueKey(ItemAffixSO affix)
         {
             if (affix == null) return null;
-            if (!string.IsNullOrEmpty(affix.TranslationKey)) return affix.TranslationKey;
-            if (affix.Stats == null || affix.Stats.Length == 0) return null;
-            var s = affix.Stats[0];
-            return AffixSetGenerator.GetValueKey(s.Stat, StatPresentation.FromStatModType(s.Type));
+            return AffixSetGenerator.GetValueKeyForAffix(affix);
         }
 
         private void RefreshTranslationValueFields()
@@ -654,10 +651,94 @@ namespace Scripts.Editor.Affixes
             {
                 ReloadSelectedAffixLocalizationFields(resetInputState: true);
             }
-            if (GUILayout.Button("Auto regenerate by stat"))
+            if (GUILayout.Button("Auto regenerate by stat + mode"))
             {
                 RegenerateSelectedAffixLocalizationFromStat();
             }
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawStatsProperty(SerializedObject so)
+        {
+            var statsProp = so.FindProperty("Stats");
+            if (statsProp == null)
+                return;
+
+            EditorGUILayout.Space(4);
+            GUILayout.Label("Stats", EditorStyles.boldLabel);
+
+            for (int i = 0; i < statsProp.arraySize; i++)
+            {
+                var element = statsProp.GetArrayElementAtIndex(i);
+                if (element == null)
+                    continue;
+
+                var statProp = element.FindPropertyRelative("Stat");
+                var typeProp = element.FindPropertyRelative("Type");
+                var scopeProp = element.FindPropertyRelative("Scope");
+                var valueModeProp = element.FindPropertyRelative("ValueMode");
+                var minValueProp = element.FindPropertyRelative("MinValue");
+                var maxValueProp = element.FindPropertyRelative("MaxValue");
+                var rangeMinValueProp = element.FindPropertyRelative("RangeMinValue");
+                var rangeMaxValueProp = element.FindPropertyRelative("RangeMaxValue");
+
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label($"Stat {i + 1}", EditorStyles.miniBoldLabel);
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Remove", GUILayout.Width(70)))
+                {
+                    statsProp.DeleteArrayElementAtIndex(i);
+                    break;
+                }
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.PropertyField(statProp);
+                EditorGUILayout.PropertyField(typeProp);
+                EditorGUILayout.PropertyField(scopeProp);
+
+                var rawValueMode = (AffixValueMode)valueModeProp.intValue;
+                var shownValueMode = rawValueMode == AffixValueMode.SingleLegacy ? AffixValueMode.Single : rawValueMode;
+                var newValueMode = (AffixValueMode)EditorGUILayout.EnumPopup("Value mode", shownValueMode);
+                if (newValueMode != shownValueMode || rawValueMode == AffixValueMode.SingleLegacy)
+                    valueModeProp.intValue = (int)newValueMode;
+
+                if (newValueMode == AffixValueMode.Range)
+                {
+                    EditorGUILayout.HelpBox("Range uses two independent roll windows: one for the lower rolled value and one for the upper rolled value.", MessageType.None);
+                    DrawMinMaxRow("Lower roll", minValueProp, maxValueProp);
+                    DrawMinMaxRow("Upper roll", rangeMinValueProp, rangeMaxValueProp);
+                }
+                else
+                {
+                    DrawMinMaxRow("Value roll", minValueProp, maxValueProp);
+                }
+
+                EditorGUILayout.EndVertical();
+            }
+
+            if (GUILayout.Button("Add stat"))
+            {
+                int index = statsProp.arraySize;
+                statsProp.InsertArrayElementAtIndex(index);
+                var newElement = statsProp.GetArrayElementAtIndex(index);
+                newElement.FindPropertyRelative("Stat").enumValueIndex = 0;
+                newElement.FindPropertyRelative("Type").intValue = (int)StatModType.Flat;
+                newElement.FindPropertyRelative("Scope").enumValueIndex = 0;
+                newElement.FindPropertyRelative("ValueMode").intValue = (int)AffixValueMode.Single;
+                newElement.FindPropertyRelative("MinValue").floatValue = 0f;
+                newElement.FindPropertyRelative("MaxValue").floatValue = 0f;
+                newElement.FindPropertyRelative("RangeMinValue").floatValue = 0f;
+                newElement.FindPropertyRelative("RangeMaxValue").floatValue = 0f;
+            }
+        }
+
+        private static void DrawMinMaxRow(string label, SerializedProperty minProp, SerializedProperty maxProp)
+        {
+            EditorGUILayout.LabelField(label, EditorStyles.miniBoldLabel);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(minProp, new GUIContent("Min"));
+            EditorGUILayout.PropertyField(maxProp, new GUIContent("Max"));
             EditorGUILayout.EndHorizontal();
         }
 

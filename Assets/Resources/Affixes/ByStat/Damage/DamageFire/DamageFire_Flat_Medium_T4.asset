@@ -16,7 +16,7 @@ MonoBehaviour:
   GroupID: DamageFire_Flat_Medium
   Tier: 4
   NameKey: affix_name_damagefire_flat_medium_t4
-  TranslationKey: affix_flat_damagefire
+  TranslationKey: affix_flat_damagefire_range
   LockAutoLocalization: 0
   TagIds:
   - Damage
@@ -24,5 +24,8 @@ MonoBehaviour:
   - Stat: 31
     Type: 100
     Scope: 1
+    ValueMode: 2
     MinValue: 8
     MaxValue: 12
+    RangeMinValue: 12
+    RangeMaxValue: 16

@@ -10,10 +10,39 @@ using Scripts.Skills;
 namespace Scripts.Inventory
 {
     [Serializable]
+    public class AffixModifierInstance
+    {
+        public StatType Type;
+        public StatScope Scope;
+        public StatModifier PrimaryMod;
+        public StatModifier SecondaryMod;
+
+        public bool HasRange => SecondaryMod != null;
+
+        public AffixModifierInstance(StatType type, StatScope scope, StatModifier primaryMod, StatModifier secondaryMod = null)
+        {
+            Type = type;
+            Scope = scope;
+            PrimaryMod = primaryMod;
+            SecondaryMod = secondaryMod;
+        }
+
+        public StatModifier GetModifier(bool useUpperBound)
+        {
+            return useUpperBound && SecondaryMod != null ? SecondaryMod : PrimaryMod;
+        }
+
+        public float GetValue(bool useUpperBound)
+        {
+            return GetModifier(useUpperBound)?.Value ?? 0f;
+        }
+    }
+
+    [Serializable]
     public class AffixInstance
     {
         public ItemAffixSO Data;
-        public List<(StatType Type, StatModifier Mod, StatScope Scope)> Modifiers = new List<(StatType, StatModifier, StatScope)>();
+        public List<AffixModifierInstance> Modifiers = new List<AffixModifierInstance>();
 
         // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РіРµРЅРµСЂР°С†РёРё (РЎР›РЈР§РђР™РќР«Р™)
         public AffixInstance(ItemAffixSO data, InventoryItem ownerItem)
@@ -23,11 +52,20 @@ namespace Scripts.Inventory
 
             foreach (var statData in data.Stats)
             {
-                float val = UnityEngine.Random.Range(statData.MinValue, statData.MaxValue);
-                val = Mathf.Round(val); // РћРєСЂСѓРіР»РµРЅРёРµ
+                float primaryValue = RollAffixValue(statData.GetPrimaryRollMin(), statData.GetPrimaryRollMax());
+                StatModifier secondaryMod = null;
 
-                var mod = new StatModifier(val, statData.Type, ownerItem);
-                Modifiers.Add((statData.Stat, mod, statData.Scope));
+                if (statData.UsesRangeRoll())
+                {
+                    float secondaryValue = RollAffixValue(statData.GetSecondaryRollMin(), statData.GetSecondaryRollMax());
+                    if (secondaryValue < primaryValue)
+                        (primaryValue, secondaryValue) = (secondaryValue, primaryValue);
+
+                    secondaryMod = new StatModifier(secondaryValue, statData.Type, ownerItem);
+                }
+
+                var primaryMod = new StatModifier(primaryValue, statData.Type, ownerItem);
+                Modifiers.Add(new AffixModifierInstance(statData.Stat, statData.Scope, primaryMod, secondaryMod));
             }
         }
 
@@ -38,16 +76,35 @@ namespace Scripts.Inventory
             if (data.Stats == null || saveData.Values == null) return;
 
             // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј РјРѕРґРёС„РёРєР°С‚РѕСЂС‹ РїРѕ РїРѕСЂСЏРґРєСѓ
+            int valueIndex = 0;
             for (int i = 0; i < data.Stats.Length; i++)
             {
-                if (i >= saveData.Values.Count) break;
+                if (valueIndex >= saveData.Values.Count) break;
 
                 var statData = data.Stats[i];
-                float savedVal = saveData.Values[i]; // Р‘РµСЂРµРј СЃРѕС…СЂР°РЅРµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
+                float primaryValue = saveData.Values[valueIndex++];
+                StatModifier secondaryMod = null;
 
-                var mod = new StatModifier(savedVal, statData.Type, ownerItem);
-                Modifiers.Add((statData.Stat, mod, statData.Scope));
+                if (statData.UsesRangeRoll() && valueIndex < saveData.Values.Count)
+                {
+                    float secondaryValue = saveData.Values[valueIndex++];
+                    secondaryMod = new StatModifier(secondaryValue, statData.Type, ownerItem);
+                }
+
+                var primaryMod = new StatModifier(primaryValue, statData.Type, ownerItem);
+                Modifiers.Add(new AffixModifierInstance(statData.Stat, statData.Scope, primaryMod, secondaryMod));
             }
+        }
+
+        private static float RollAffixValue(float minValue, float maxValue)
+        {
+            if (maxValue < minValue)
+                (minValue, maxValue) = (maxValue, minValue);
+
+            float value = Mathf.Approximately(minValue, maxValue)
+                ? minValue
+                : UnityEngine.Random.Range(minValue, maxValue);
+            return Mathf.Round(value);
         }
     }
 
@@ -88,7 +145,11 @@ namespace Scripts.Inventory
                     Values = new List<float>()
                 };
                 foreach (var mod in affix.Modifiers)
-                    afData.Values.Add(mod.Mod.Value);
+                {
+                    afData.Values.Add(mod.PrimaryMod.Value);
+                    if (mod.HasRange)
+                        afData.Values.Add(mod.SecondaryMod.Value);
+                }
                 saveData.Affixes.Add(afData);
             }
 
@@ -150,6 +211,16 @@ namespace Scripts.Inventory
         // --- Helper Methods (Р±РµР· РёР·РјРµРЅРµРЅРёР№) ---
         public float GetCalculatedStat(StatType stat, float baseValue)
         {
+            return GetCalculatedStat(stat, baseValue, false);
+        }
+
+        public float GetCalculatedStatUpperBound(StatType stat, float baseValue)
+        {
+            return GetCalculatedStat(stat, baseValue, true);
+        }
+
+        private float GetCalculatedStat(StatType stat, float baseValue, bool useUpperBound)
+        {
             float finalValue = baseValue;
             float sumPercentAdd = 0f;
             float multiplier = 1f;
@@ -167,10 +238,11 @@ namespace Scripts.Inventory
             }
             foreach (var affix in Affixes)
             {
-                foreach (var (type, mod, scope) in affix.Modifiers)
+                foreach (var modifier in affix.Modifiers)
                 {
-                    if (scope == StatScope.Local && type == stat)
+                    if (modifier.Scope == StatScope.Local && modifier.Type == stat)
                     {
+                        var mod = modifier.GetModifier(useUpperBound);
                         if (mod.Type == StatModType.Flat) finalValue += mod.Value;
                         else if (mod.Type.IsAdditivePercent()) sumPercentAdd += mod.Type.ToSignedPercent(mod.Value);
                         else if (mod.Type.IsMultiplicativePercent()) multiplier *= mod.Type.ToMultiplierFactor(mod.Value);
@@ -187,11 +259,10 @@ namespace Scripts.Inventory
                 return 0f;
 
             GetWeaponBaseRange(weapon, type, out float min, out float max);
-            if (min <= 0f && max <= 0f)
-                return 0f;
-
             float finalMin = GetCalculatedStat(type, min);
-            float finalMax = GetCalculatedStat(type, max);
+            float finalMax = GetCalculatedStatUpperBound(type, max);
+            if (finalMin <= 0f && finalMax <= 0f)
+                return 0f;
             return (finalMin + finalMax) * 0.5f;
         }
 
@@ -201,11 +272,10 @@ namespace Scripts.Inventory
                 return 0f;
 
             GetWeaponBaseRange(weapon, type, out float min, out float max);
-            if (min <= 0f && max <= 0f)
-                return 0f;
-
             float finalMin = GetCalculatedStat(type, min);
-            float finalMax = GetCalculatedStat(type, max);
+            float finalMax = GetCalculatedStatUpperBound(type, max);
+            if (finalMin <= 0f && finalMax <= 0f)
+                return 0f;
             if (finalMax < finalMin)
                 (finalMin, finalMax) = (finalMax, finalMin);
 
@@ -213,6 +283,61 @@ namespace Scripts.Inventory
                 return finalMin;
 
             return UnityEngine.Random.Range(finalMin, finalMax);
+        }
+
+        public float GetAverageItemDamageContribution(StatType type)
+        {
+            GetItemDamageContributionRange(type, out float min, out float max);
+            return (min + max) * 0.5f;
+        }
+
+        public float RollItemDamageContribution(StatType type)
+        {
+            GetItemDamageContributionRange(type, out float min, out float max);
+            if (max < min)
+                (min, max) = (max, min);
+
+            if (Mathf.Approximately(min, max))
+                return min;
+
+            return UnityEngine.Random.Range(min, max);
+        }
+
+        public void GetItemDamageContributionRange(StatType type, out float min, out float max)
+        {
+            min = 0f;
+            max = 0f;
+
+            if (Data is WeaponItemSO weapon)
+            {
+                GetWeaponBaseRange(weapon, type, out float baseMin, out float baseMax);
+                min += GetCalculatedStat(type, baseMin);
+                max += GetCalculatedStatUpperBound(type, baseMax);
+            }
+
+            if (Data?.ImplicitModifiers != null)
+            {
+                foreach (var imp in Data.ImplicitModifiers)
+                {
+                    if (imp.Scope != StatScope.Global || imp.Stat != type || imp.Type != StatModType.Flat)
+                        continue;
+
+                    min += imp.Value;
+                    max += imp.Value;
+                }
+            }
+
+            foreach (var affix in Affixes)
+            {
+                foreach (var modifier in affix.Modifiers)
+                {
+                    if (modifier.Scope != StatScope.Global || modifier.Type != type || modifier.PrimaryMod.Type != StatModType.Flat)
+                        continue;
+
+                    min += modifier.PrimaryMod.Value;
+                    max += modifier.HasRange ? modifier.SecondaryMod.Value : modifier.PrimaryMod.Value;
+                }
+            }
         }
 
         private static void GetWeaponBaseRange(WeaponItemSO weapon, StatType type, out float min, out float max)
@@ -287,12 +412,31 @@ namespace Scripts.Inventory
 
             foreach (var affix in Affixes)
             {
-                foreach (var (type, mod, scope) in affix.Modifiers)
+                foreach (var modifier in affix.Modifiers)
                 {
-                    if (scope == StatScope.Global) result.Add((type, mod));
+                    if (modifier.Scope != StatScope.Global)
+                        continue;
+
+                    if (modifier.HasRange && IsDamageStat(modifier.Type))
+                    {
+                        float average = (modifier.PrimaryMod.Value + modifier.SecondaryMod.Value) * 0.5f;
+                        result.Add((modifier.Type, new StatModifier(average, modifier.PrimaryMod.Type, this)));
+                    }
+                    else
+                    {
+                        result.Add((modifier.Type, modifier.PrimaryMod));
+                    }
                 }
             }
             return result;
+        }
+
+        private static bool IsDamageStat(StatType type)
+        {
+            return type == StatType.DamagePhysical ||
+                   type == StatType.DamageFire ||
+                   type == StatType.DamageCold ||
+                   type == StatType.DamageLightning;
         }
     }
 }

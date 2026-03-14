@@ -128,16 +128,16 @@ public static class DamageCalculator
 
         foreach (var item in equipment)
         {
-            if (item?.Data is not Scripts.Items.WeaponItemSO)
+            if (item == null)
                 continue;
 
-            float averageDamage = item.GetAverageWeaponDamage(damageType);
+            float averageDamage = item.GetAverageItemDamageContribution(damageType);
             if (averageDamage <= 0f)
                 continue;
 
             hasWeaponRange = true;
             weaponAverage += averageDamage;
-            weaponRolled += item.RollWeaponDamage(damageType);
+            weaponRolled += item.RollItemDamageContribution(damageType);
         }
 
         if (!hasWeaponRange)

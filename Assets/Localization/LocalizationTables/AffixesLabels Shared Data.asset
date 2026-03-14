@@ -13663,6 +13663,22 @@ MonoBehaviour:
     m_Key: affix_name_effectduration_less_light_t5
     m_Metadata:
       m_Items: []
+  - m_Id: 24063749999067136
+    m_Key: affix_flat_damagecold_range
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24064934252412928
+    m_Key: affix_flat_damagefire_range
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24065669195137024
+    m_Key: affix_flat_damagelightning_range
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24069555448479744
+    m_Key: affix_flat_damagephysical_range
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

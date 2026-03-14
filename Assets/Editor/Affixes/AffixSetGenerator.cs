@@ -153,7 +153,7 @@ namespace Scripts.Editor.Affixes
             string strength = ParseStrengthFromGroupId(affix.GroupID);
 
             string nameKey = string.IsNullOrEmpty(affix.NameKey) ? "affix_name_" + SanitizeKey(affix.name) : affix.NameKey;
-            string valueKey = string.IsNullOrEmpty(affix.TranslationKey) ? BuildValueKey(stat, kind) : affix.TranslationKey;
+            string valueKey = ResolveValueKey(affix, stat, kind);
 
             if (IsMissingLocalizationValue(GetLocalizedString(affixesLabels, "en", nameKey)))
             {
@@ -181,9 +181,19 @@ namespace Scripts.Editor.Affixes
             EditorUtility.SetDirty(affix);
         }
 
-        public static string GetValueKey(StatType stat, StatAffixModifierKind kind)
+        public static string GetValueKey(StatType stat, StatAffixModifierKind kind, AffixValueMode valueMode = AffixValueMode.Single)
         {
-            return BuildValueKey(stat, kind);
+            return BuildValueKey(stat, kind, valueMode);
+        }
+
+        public static string GetValueKeyForAffix(ItemAffixSO affix)
+        {
+            if (affix == null || affix.Stats == null || affix.Stats.Length == 0)
+                return null;
+
+            var statData = affix.Stats[0];
+            var kind = StatPresentation.FromStatModType(statData.Type);
+            return ResolveValueKey(affix, statData.Stat, kind);
         }
 
         public static string GetTypeDisplayName(StatModType type)
@@ -210,12 +220,13 @@ namespace Scripts.Editor.Affixes
             string kindId = StatPresentation.GetModifierKindDisplayName(kind);
             affix.GroupID = $"{stat}_{kindId}_{strength}";
             affix.Tier = tier;
-            affix.TranslationKey = BuildValueKey(stat, kind);
+            affix.TranslationKey = BuildValueKey(stat, kind, AffixValueMode.Single);
             affix.NameKey = $"affix_name_{stat.ToString().ToLowerInvariant()}_{StatPresentation.GetModifierKindId(kind)}_{strength.ToLowerInvariant()}_t{tier}";
             affix.Stats = new ItemAffixSO.AffixStatData[1];
             affix.Stats[0].Stat = stat;
             affix.Stats[0].Type = modType;
             affix.Stats[0].Scope = StatScope.Global;
+            affix.Stats[0].ValueMode = AffixValueMode.Single;
 
             if (genType == StatAffixGenType.FullCalcStat)
                 SetValuesFullCalc(ref affix.Stats[0], stat, kind, tier, strength);
@@ -333,10 +344,11 @@ namespace Scripts.Editor.Affixes
             StatValueUnit unit = statsDb != null ? statsDb.GetValueUnit(stat) : StatsDatabaseSO.DefaultValueUnitFor(stat);
             string unitEn = ResolveUnit(menuLabels, unit, "en");
             string unitRu = ResolveUnit(menuLabels, unit, "ru");
-            string valueKey = string.IsNullOrEmpty(affix.TranslationKey) ? BuildValueKey(stat, kind) : affix.TranslationKey;
+            bool isRangeValue = IsRangeValueMode(affix, kind);
+            string valueKey = ResolveValueKey(affix, stat, kind);
 
-            SetOrAddEntry(affixesLabels, "en", valueKey, GenerateValueTemplateEn(kind, statNameEn, unit, unitEn));
-            SetOrAddEntry(affixesLabels, "ru", valueKey, GenerateValueTemplateRu(kind, statNameRu, unit, unitRu));
+            SetOrAddEntry(affixesLabels, "en", valueKey, GenerateValueTemplateEn(kind, statNameEn, unit, unitEn, isRangeValue));
+            SetOrAddEntry(affixesLabels, "ru", valueKey, GenerateValueTemplateRu(kind, statNameRu, unit, unitRu, isRangeValue));
             affix.TranslationKey = valueKey;
         }
 
@@ -359,9 +371,43 @@ namespace Scripts.Editor.Affixes
             }
         }
 
-        private static string BuildValueKey(StatType stat, StatAffixModifierKind kind)
+        private static string BuildValueKey(StatType stat, StatAffixModifierKind kind, AffixValueMode valueMode)
         {
-            return $"affix_{StatPresentation.GetModifierKindId(kind)}_{stat.ToString().ToLowerInvariant()}";
+            string key = $"affix_{StatPresentation.GetModifierKindId(kind)}_{stat.ToString().ToLowerInvariant()}";
+            if (kind == StatAffixModifierKind.Flat && valueMode == AffixValueMode.Range)
+                key += "_range";
+            return key;
+        }
+
+        private static string ResolveValueKey(ItemAffixSO affix, StatType stat, StatAffixModifierKind kind)
+        {
+            string preferredKey = BuildValueKey(stat, kind, GetValueMode(affix));
+            if (affix == null || string.IsNullOrEmpty(affix.TranslationKey))
+                return preferredKey;
+
+            if (IsAutoValueKey(affix.TranslationKey, stat, kind))
+                return preferredKey;
+
+            return affix.TranslationKey;
+        }
+
+        private static bool IsAutoValueKey(string key, StatType stat, StatAffixModifierKind kind)
+        {
+            return key == BuildValueKey(stat, kind, AffixValueMode.Single) ||
+                   key == BuildValueKey(stat, kind, AffixValueMode.Range);
+        }
+
+        private static AffixValueMode GetValueMode(ItemAffixSO affix)
+        {
+            if (affix == null || affix.Stats == null || affix.Stats.Length == 0)
+                return AffixValueMode.Single;
+
+            return affix.Stats[0].GetEffectiveValueMode();
+        }
+
+        private static bool IsRangeValueMode(ItemAffixSO affix, StatAffixModifierKind kind)
+        {
+            return kind == StatAffixModifierKind.Flat && GetValueMode(affix) == AffixValueMode.Range;
         }
 
         private static string ResolveStatName(StringTableCollection menuLabels, StatType stat, string locale)
@@ -381,7 +427,7 @@ namespace Scripts.Editor.Affixes
             return string.IsNullOrWhiteSpace(localized) ? StatPresentation.GetValueUnitFallback(unit, locale) : localized;
         }
 
-        private static string GenerateValueTemplateEn(StatAffixModifierKind kind, string statName, StatValueUnit unit, string localizedUnit)
+        private static string GenerateValueTemplateEn(StatAffixModifierKind kind, string statName, StatValueUnit unit, string localizedUnit, bool isRangeValue)
         {
             switch (kind)
             {
@@ -394,6 +440,19 @@ namespace Scripts.Editor.Affixes
                 case StatAffixModifierKind.Less:
                     return $"{{0}}% less {statName}";
                 default:
+                    if (isRangeValue)
+                    {
+                        if (unit == StatValueUnit.Percent)
+                            return $"+{{0}}-{{1}}% to {statName}";
+
+                        if (string.IsNullOrEmpty(localizedUnit))
+                            return $"Adds {{0}}-{{1}} to {statName}";
+
+                        return StatPresentation.IsSymbolUnit(unit)
+                            ? $"+{{0}}-{{1}}{localizedUnit} to {statName}"
+                            : $"Adds {{0}}-{{1}} {localizedUnit} to {statName}";
+                    }
+
                     if (unit == StatValueUnit.Percent)
                         return $"+{{0}}% to {statName}";
 
@@ -406,7 +465,7 @@ namespace Scripts.Editor.Affixes
             }
         }
 
-        private static string GenerateValueTemplateRu(StatAffixModifierKind kind, string statName, StatValueUnit unit, string localizedUnit)
+        private static string GenerateValueTemplateRu(StatAffixModifierKind kind, string statName, StatValueUnit unit, string localizedUnit, bool isRangeValue)
         {
             switch (kind)
             {
@@ -419,6 +478,19 @@ namespace Scripts.Editor.Affixes
                 case StatAffixModifierKind.Less:
                     return $"{{0}}% меньше {statName}";
                 default:
+                    if (isRangeValue)
+                    {
+                        if (unit == StatValueUnit.Percent)
+                            return $"+{{0}}-{{1}}% к {statName}";
+
+                        if (string.IsNullOrEmpty(localizedUnit))
+                            return $"Добавляет {{0}}-{{1}} к {statName}";
+
+                        return StatPresentation.IsSymbolUnit(unit)
+                            ? $"+{{0}}-{{1}}{localizedUnit} к {statName}"
+                            : $"Добавляет {{0}}-{{1}} {localizedUnit} к {statName}";
+                    }
+
                     if (unit == StatValueUnit.Percent)
                         return $"+{{0}}% к {statName}";
 

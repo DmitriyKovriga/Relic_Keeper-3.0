@@ -46519,7 +46519,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17252827724808193
-    m_Localized: Adds {0} pts to Attack Speed
+    m_Localized: +{0}% to Attack Speed
     m_Metadata:
       m_Items: []
   - m_Id: 17252827724808194
@@ -52384,6 +52384,22 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 24025707007475712
     m_Localized: Light Effect Duration less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24063749999067136
+    m_Localized: Adds {0}-{1} to Cold Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24064934252412928
+    m_Localized: Adds {0}-{1} to Fire Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24065669195137024
+    m_Localized: +{0}-{1}% to Lightning Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24069555448479744
+    m_Localized: Adds {0}-{1} to Phys. Damage
     m_Metadata:
       m_Items: []
   references:

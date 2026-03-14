@@ -16,7 +16,7 @@ MonoBehaviour:
   GroupID: DamagePhysical_Flat_Medium
   Tier: 2
   NameKey: affix_name_damagephysical_flat_medium_t2
-  TranslationKey: affix_flat_damagephysical
+  TranslationKey: affix_flat_damagephysical_range
   LockAutoLocalization: 0
   TagIds:
   - Damage
@@ -24,5 +24,8 @@ MonoBehaviour:
   - Stat: 30
     Type: 100
     Scope: 1
+    ValueMode: 2
     MinValue: 16
     MaxValue: 20
+    RangeMinValue: 20
+    RangeMaxValue: 40

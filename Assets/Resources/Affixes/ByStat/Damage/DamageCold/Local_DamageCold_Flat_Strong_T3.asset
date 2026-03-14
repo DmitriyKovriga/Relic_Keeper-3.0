@@ -16,7 +16,7 @@ MonoBehaviour:
   GroupID: Local_DamageCold_Flat_Strong
   Tier: 3
   NameKey: affix_name_local_damagecold_flat_strong_t3
-  TranslationKey: affix_flat_damagecold
+  TranslationKey: affix_flat_damagecold_range
   LockAutoLocalization: 0
   TagIds:
   - Damage
@@ -24,5 +24,8 @@ MonoBehaviour:
   - Stat: 32
     Type: 100
     Scope: 1
+    ValueMode: 2
     MinValue: 15
     MaxValue: 20
+    RangeMinValue: 20
+    RangeMaxValue: 24

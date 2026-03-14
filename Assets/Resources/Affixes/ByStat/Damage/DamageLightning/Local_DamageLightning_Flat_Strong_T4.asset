@@ -16,7 +16,7 @@ MonoBehaviour:
   GroupID: Local_DamageLightning_Flat_Strong
   Tier: 4
   NameKey: affix_name_local_damagelightning_flat_strong_t4
-  TranslationKey: affix_flat_damagelightning
+  TranslationKey: affix_flat_damagelightning_range
   LockAutoLocalization: 0
   TagIds:
   - Damage
@@ -24,5 +24,8 @@ MonoBehaviour:
   - Stat: 33
     Type: 100
     Scope: 1
+    ValueMode: 2
     MinValue: 10
     MaxValue: 15
+    RangeMinValue: 15
+    RangeMaxValue: 19

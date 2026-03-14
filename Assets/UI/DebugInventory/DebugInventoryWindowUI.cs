@@ -220,21 +220,7 @@ public class DebugInventoryWindowUI : MonoBehaviour
     private void OnClearClicked()
     {
         if (InventoryManager.Instance == null) return;
-
-        for (int i = 0; i < InventoryManager.Instance.EquipmentItems.Length; i++)
-        {
-            var item = InventoryManager.Instance.EquipmentItems[i];
-            if (item != null)
-            {
-                InventoryManager.Instance.TryMoveOrSwap(InventoryManager.EQUIP_OFFSET + i, -1);
-                InventoryManager.Instance.EquipmentItems[i] = null;
-            }
-        }
-
-        for (int i = 0; i < InventoryManager.Instance.Items.Length; i++)
-            InventoryManager.Instance.Items[i] = null;
-
-        InventoryManager.Instance.TriggerUIUpdate();
+        InventoryManager.Instance.ClearAllItemsForDebug();
     }
 
     private void BuildOrbList()

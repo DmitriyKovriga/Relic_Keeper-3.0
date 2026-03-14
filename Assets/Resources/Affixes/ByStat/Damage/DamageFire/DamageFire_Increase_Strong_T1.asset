@@ -24,5 +24,8 @@ MonoBehaviour:
   - Stat: 31
     Type: 200
     Scope: 1
+    ValueMode: 0
     MinValue: 25
     MaxValue: 30
+    RangeMinValue: 0
+    RangeMaxValue: 0

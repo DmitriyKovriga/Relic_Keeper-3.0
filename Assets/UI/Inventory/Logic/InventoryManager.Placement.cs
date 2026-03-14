@@ -284,5 +284,32 @@ namespace Scripts.Inventory
             SyncFromBackpack();
             TriggerUIUpdate();
         }
+
+        /// <summary>Полная очистка инвентаря для дебага: рюкзак, экипировка и крафтовый слот.</summary>
+        public void ClearAllItemsForDebug()
+        {
+            if (_backpack != null)
+            {
+                var seen = new HashSet<InventoryItem>();
+                for (int i = 0; i < _backpack.Length; i++)
+                {
+                    _backpack.GetItemAt(i, out InventoryItem it, out _);
+                    if (it != null && seen.Add(it))
+                        _backpack.Remove(it);
+                }
+            }
+
+            for (int i = 0; i < EquipmentItems.Length; i++)
+            {
+                InventoryItem equipped = EquipmentItems[i];
+                if (equipped == null) continue;
+                EquipmentItems[i] = null;
+                OnItemUnequipped?.Invoke(equipped);
+            }
+
+            CraftingSlotItem = null;
+            SyncFromBackpack();
+            TriggerUIUpdate();
+        }
     }
 }

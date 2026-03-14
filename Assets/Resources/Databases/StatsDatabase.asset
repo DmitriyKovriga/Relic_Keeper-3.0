@@ -213,9 +213,9 @@ MonoBehaviour:
     Category: Speed
     Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 0
-    ValueUnit: 7
-    AllowedAffixKinds: -1
+    AffixGenType: 2
+    ValueUnit: 3
+    AllowedAffixKinds: 1
   - StatTypeId: CastSpeed
     Category: Speed
     Format: 0
