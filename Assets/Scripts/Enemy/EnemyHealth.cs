@@ -86,7 +86,16 @@ namespace Scripts.Enemies
             if (_stats != null)
             {
                 float xp = _stats.ExperienceReward;
-                if (xp > 0) OnEnemyKilled?.Invoke(xp);
+                if (xp > 0f)
+                {
+                    Vector3 soulPosition = transform.position;
+                    var spriteRenderer = GetComponent<SpriteRenderer>();
+                    if (spriteRenderer != null)
+                        soulPosition = spriteRenderer.bounds.center;
+
+                    ExperienceSoulPickup.Spawn(xp, soulPosition, transform.parent);
+                    OnEnemyKilled?.Invoke(xp);
+                }
             }
 
             OnDeath?.Invoke(this);
