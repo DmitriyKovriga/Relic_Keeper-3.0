@@ -93,6 +93,23 @@ MonoBehaviour:
     TurnDelayMin: 0.06
     TurnDelayMax: 0.12
     MissRecoveryMultiplier: 1.35
+  DeathEffect:
+    Enabled: 1
+    ChunkCount: 6
+    ChunkHorizontalForce: 3.4
+    ChunkVerticalForce: 5.2
+    BloodHorizontalSpread: 0.7
+    BloodVerticalSpread: 0.95
+    Lifetime: 30
+    FadeDuration: 5.5
+    GravityScale: 3.15
+    ChunkLinearDamping: 1.35
+    ChunkAngularDamping: 1.1
+    RestCheckDelay: 0.3
+    RestVelocityThreshold: 0.18
+    RestAngularVelocityThreshold: 8
+    BloodColor: {r: 0.48, g: 0.03, b: 0.06, a: 1}
+    GoreColor: {r: 0.23, g: 0.025, b: 0.035, a: 1}
   Animation:
     Controller: {fileID: 9100000, guid: 86d7e31c6f4f4e947a98a65541a526e2, type: 2}
     IdleStateName: Zombie_Idle

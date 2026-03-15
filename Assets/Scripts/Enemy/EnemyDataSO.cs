@@ -116,6 +116,28 @@ namespace Scripts.Enemies
     }
 
     [Serializable]
+    public class EnemyDeathEffectConfig
+    {
+        public bool Enabled = true;
+        [Min(1)] public int ChunkCount = 6;
+        [Min(0f)] public float ChunkHorizontalForce = 3.2f;
+        [Min(0f)] public float ChunkVerticalForce = 4.8f;
+        [Min(0f)] public float BloodHorizontalSpread = 1.4f;
+        [Min(0f)] public float BloodVerticalSpread = 1.8f;
+
+        [HideInInspector] public float Lifetime = 30f;
+        [HideInInspector] public float FadeDuration = 5f;
+        [HideInInspector] public float GravityScale = 2.8f;
+        [HideInInspector] public float ChunkLinearDamping = 1.35f;
+        [HideInInspector] public float ChunkAngularDamping = 1.1f;
+        [HideInInspector] public float RestCheckDelay = 0.3f;
+        [HideInInspector] public float RestVelocityThreshold = 0.18f;
+        [HideInInspector] public float RestAngularVelocityThreshold = 8f;
+        public Color BloodColor = new Color(0.45f, 0.04f, 0.07f, 1f);
+        public Color GoreColor = new Color(0.26f, 0.03f, 0.04f, 1f);
+    }
+
+    [Serializable]
     public class EnemyAnimationConfig
     {
         public RuntimeAnimatorController Controller;
@@ -152,6 +174,9 @@ namespace Scripts.Enemies
         [Header("Behaviour")]
         public EnemyBehaviourConfig Behaviour = new EnemyBehaviourConfig();
 
+        [Header("Death Effect")]
+        public EnemyDeathEffectConfig DeathEffect = new EnemyDeathEffectConfig();
+
         [Header("Animation")]
         public EnemyAnimationConfig Animation = new EnemyAnimationConfig();
 
@@ -180,6 +205,7 @@ namespace Scripts.Enemies
             Movement ??= new EnemyMovementConfig();
             Attack ??= new EnemyAttackConfig();
             Behaviour ??= new EnemyBehaviourConfig();
+            DeathEffect ??= new EnemyDeathEffectConfig();
             Animation ??= new EnemyAnimationConfig();
         }
     }

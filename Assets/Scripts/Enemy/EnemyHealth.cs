@@ -92,7 +92,12 @@ namespace Scripts.Enemies
             OnDeath?.Invoke(this);
 
             if (DestroyOnDeath)
+            {
+                var entity = GetComponent<EnemyEntity>();
+                var spriteRenderer = GetComponent<SpriteRenderer>();
+                EnemyDeathEffectSpawner.Spawn(entity, spriteRenderer);
                 Destroy(gameObject);
+            }
         }
 
         public void Resurrect()

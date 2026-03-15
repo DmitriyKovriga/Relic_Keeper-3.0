@@ -148,6 +148,10 @@ namespace Scripts.Editor.Enemy
             EditorGUILayout.PropertyField(so.FindProperty("Attack"), true);
             EditorGUILayout.Space(4f);
 
+            EditorGUILayout.LabelField("Death Effect", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(so.FindProperty("DeathEffect"), true);
+            EditorGUILayout.Space(4f);
+
             EditorGUILayout.LabelField("Animation", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(so.FindProperty("Animation"), true);
             EditorGUILayout.Space(4f);

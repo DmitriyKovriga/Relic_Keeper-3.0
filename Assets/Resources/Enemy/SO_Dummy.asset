@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -56,6 +56,15 @@ MonoBehaviour:
     DamageMultiplier: 1
     HitboxSize: {x: 1.2, y: 0.8}
     HitboxOffset: {x: 0.8, y: 0}
+  Behaviour:
+    DecisionIntervalMin: 0.03
+    DecisionIntervalMax: 0.08
+    PostActionPauseMin: 0.05
+    PostActionPauseMax: 0.12
+    StopDistanceVariance: 0.1
+    TurnDelayMin: 0.04
+    TurnDelayMax: 0.1
+    MissRecoveryMultiplier: 1.2
   Animation:
     Controller: {fileID: 0}
     IdleStateName: Idle
