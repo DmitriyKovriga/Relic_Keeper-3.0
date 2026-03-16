@@ -11,6 +11,32 @@ namespace Scripts.Skills
         protected float _lastCastTime;
         protected bool _isCasting;
 
+        public float CooldownDuration => _data != null ? Mathf.Max(0f, _data.Cooldown) : 0f;
+
+        public float CooldownRemaining
+        {
+            get
+            {
+                float duration = CooldownDuration;
+                if (duration <= 0f)
+                    return 0f;
+
+                return Mathf.Max(0f, (_lastCastTime + duration) - Time.time);
+            }
+        }
+
+        public float CooldownNormalized
+        {
+            get
+            {
+                float duration = CooldownDuration;
+                if (duration <= 0f)
+                    return 0f;
+
+                return Mathf.Clamp01(CooldownRemaining / duration);
+            }
+        }
+
         /// <summary> Вызвать при додже/прерывании — рантайм скилла должен выйти и сделать Cleanup. </summary>
         public virtual void Cancel() { }
 

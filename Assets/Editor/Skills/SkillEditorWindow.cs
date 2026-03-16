@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,6 +87,22 @@ namespace Scripts.Editor.Skills
             if (recipe == null)
             {
                 EditorGUILayout.HelpBox($"Skill '{skill.SkillName}' has no Recipe. Assign Recipe in the asset or create one.", MessageType.Warning);
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Create Recipe", GUILayout.Width(160), GUILayout.Height(28)))
+                {
+                    recipe = CreateRecipeForSkill(skill);
+                    if (recipe != null)
+                    {
+                        skill.Recipe = recipe;
+                        EditorUtility.SetDirty(skill);
+                        AssetDatabase.SaveAssets();
+                        Refresh();
+                        _selectedSkillIndex = Mathf.Clamp(_skills.IndexOf(skill), 0, Mathf.Max(0, _skills.Count - 1));
+                    }
+                }
+                GUILayout.FlexibleSpace();
+                EditorGUILayout.EndHorizontal();
                 return;
             }
 
@@ -149,7 +165,7 @@ namespace Scripts.Editor.Skills
                 float endPct = step.EndPercentPipeline * 100f;
                 string timeLabel = step.IsInstant
                     ? $"{startPct:F0}%"
-                    : $"{startPct:F0}% – {endPct:F0}%";
+                    : $"{startPct:F0}% вЂ“ {endPct:F0}%";
 
                 string label = step.StepDefinition != null
                     ? step.StepDefinition.GetDisplayName(_displayRu)
@@ -165,11 +181,11 @@ namespace Scripts.Editor.Skills
                     _selectedStepIndex = i;
                 GUI.backgroundColor = Color.white;
 
-                if (GUILayout.Button("↑", GUILayout.Width(20)))
+                if (GUILayout.Button("в†‘", GUILayout.Width(20)))
                 { moveFrom = i; moveDir = -1; }
-                if (GUILayout.Button("↓", GUILayout.Width(20)))
+                if (GUILayout.Button("в†“", GUILayout.Width(20)))
                 { moveFrom = i; moveDir = 1; }
-                if (GUILayout.Button("−", GUILayout.Width(20)))
+                if (GUILayout.Button("в€’", GUILayout.Width(20)))
                     toRemove = i;
                 EditorGUILayout.EndHorizontal();
             }
@@ -293,7 +309,7 @@ namespace Scripts.Editor.Skills
                 if (subSelected) GUI.backgroundColor = new Color(0.5f, 0.6f, 0.8f);
                 if (GUILayout.Button(subLabel, GUILayout.ExpandWidth(true))) _selectedSubStepIndex = i;
                 GUI.backgroundColor = Color.white;
-                if (GUILayout.Button("−", GUILayout.Width(22))) removeSub = i;
+                if (GUILayout.Button("в€’", GUILayout.Width(22))) removeSub = i;
                 EditorGUILayout.EndHorizontal();
             }
             if (removeSub >= 0)
@@ -333,7 +349,7 @@ namespace Scripts.Editor.Skills
 
             if (id == "WeaponWindup" || id == "WeaponRecovery" || id == "Wait")
             {
-                EditorGUILayout.HelpBox("Use Start % and End % in Timing section above. Duration = End − Start.", MessageType.None);
+                EditorGUILayout.HelpBox("Use Start % and End % in Timing section above. Duration = End в€’ Start.", MessageType.None);
                 return;
             }
 
@@ -365,14 +381,26 @@ namespace Scripts.Editor.Skills
 
             if (id == "DealDamageCircle")
             {
-                EditorGUILayout.HelpBox("Source step index = индекс степа Spawn VFX. Центр и масштаб — из того степа. Если задан «Damage at VFX life %» > 0, урон наносится в этот момент жизни VFX, а не по Trigger at % пайплайна.", MessageType.None);
-                float r = step.GetFloat("Radius", 1.5f);
-                float nr = EditorGUILayout.FloatField("Radius", r);
-                if (nr != r) { step.SetOverrideFloat("Radius", nr); EditorUtility.SetDirty(recipe); }
+                EditorGUILayout.HelpBox("Если указан Source step index, круг берёт размер текущего кадра VFX, включая прозрачные пиксели. Size X / Size Y — это мультипликаторы от визуального размера. Если Source step index = -1, используется обычный Radius.", MessageType.None);
                 int src = step.GetInt("SourceStepIndex", -1);
-                int nsrc = EditorGUILayout.IntField("Source step index (Spawn VFX, −1 = от игрока)", src);
+                int nsrc = EditorGUILayout.IntField("Source step index (Spawn VFX, -1 = от игрока)", src);
                 if (nsrc != src) { step.SetOverrideInt("SourceStepIndex", nsrc); EditorUtility.SetDirty(recipe); }
-                EditorGUI.BeginDisabledGroup(src < 0);
+                if (nsrc >= 0)
+                {
+                    float sx = step.GetFloat("SizeX", 1f);
+                    float nsx = EditorGUILayout.FloatField("Size X multiplier", sx);
+                    if (Mathf.Abs(nsx - sx) > 0.001f) { step.SetOverrideFloat("SizeX", nsx); EditorUtility.SetDirty(recipe); }
+                    float sy = step.GetFloat("SizeY", 1f);
+                    float nsy = EditorGUILayout.FloatField("Size Y multiplier", sy);
+                    if (Mathf.Abs(nsy - sy) > 0.001f) { step.SetOverrideFloat("SizeY", nsy); EditorUtility.SetDirty(recipe); }
+                }
+                else
+                {
+                    float r = step.GetFloat("Radius", 1.5f);
+                    float nr = EditorGUILayout.FloatField("Radius", r);
+                    if (nr != r) { step.SetOverrideFloat("Radius", nr); EditorUtility.SetDirty(recipe); }
+                }
+                EditorGUI.BeginDisabledGroup(nsrc < 0);
                 float vfxLife = step.GetFloat("VfxLifetimePercent", 0f);
                 float nvfxLife = EditorGUILayout.Slider("Damage at VFX life %", vfxLife, 0f, 1f);
                 if (Mathf.Abs(nvfxLife - vfxLife) > 0.001f) { step.SetOverrideFloat("VfxLifetimePercent", nvfxLife); EditorUtility.SetDirty(recipe); }
@@ -391,24 +419,30 @@ namespace Scripts.Editor.Skills
 
             if (id == "DealDamageRectangle")
             {
-                EditorGUILayout.HelpBox("Source step index = индекс степа Spawn VFX. «Damage at VFX life %» > 0 = урон в этот момент жизни VFX.", MessageType.None);
-                float sx = step.GetFloat("SizeX", 2f);
-                float nsx = EditorGUILayout.FloatField("Size X", sx);
+                EditorGUILayout.HelpBox("Если указан Source step index, прямоугольник берёт размер текущего кадра VFX, включая прозрачные пиксели. Size X / Size Y — это мультипликаторы от визуального размера VFX.", MessageType.None);
+                int src = step.GetInt("SourceStepIndex", -1);
+                float sx = step.GetFloat("SizeX", src >= 0 ? 1f : 2f);
+                float nsx = EditorGUILayout.FloatField("Size X multiplier", sx);
                 if (nsx != sx) { step.SetOverrideFloat("SizeX", nsx); EditorUtility.SetDirty(recipe); }
                 float sy = step.GetFloat("SizeY", 1f);
-                float nsy = EditorGUILayout.FloatField("Size Y", sy);
+                float nsy = EditorGUILayout.FloatField("Size Y multiplier", sy);
                 if (nsy != sy) { step.SetOverrideFloat("SizeY", nsy); EditorUtility.SetDirty(recipe); }
                 float ang = step.GetFloat("Angle", 0f);
                 float nang = EditorGUILayout.FloatField("Angle (deg)", ang);
                 if (nang != ang) { step.SetOverrideFloat("Angle", nang); EditorUtility.SetDirty(recipe); }
-                int src = step.GetInt("SourceStepIndex", -1);
-                int nsrc = EditorGUILayout.IntField("Source step index (−1 = use offset)", src);
+                int nsrc = EditorGUILayout.IntField("Source step index (-1 = use offset)", src);
                 if (nsrc != src) { step.SetOverrideInt("SourceStepIndex", nsrc); EditorUtility.SetDirty(recipe); }
-                EditorGUI.BeginDisabledGroup(src < 0);
+                EditorGUI.BeginDisabledGroup(nsrc < 0);
                 float vfxLifeR = step.GetFloat("VfxLifetimePercent", 0f);
                 float nvfxLifeR = EditorGUILayout.Slider("Damage at VFX life %", vfxLifeR, 0f, 1f);
                 if (Mathf.Abs(nvfxLifeR - vfxLifeR) > 0.001f) { step.SetOverrideFloat("VfxLifetimePercent", nvfxLifeR); EditorUtility.SetDirty(recipe); }
                 EditorGUI.EndDisabledGroup();
+                float ox = step.GetFloat("OffsetX", 0f);
+                float nox = EditorGUILayout.FloatField("Offset X", ox);
+                if (nox != ox) { step.SetOverrideFloat("OffsetX", nox); EditorUtility.SetDirty(recipe); }
+                float oy = step.GetFloat("OffsetY", 0f);
+                float noy = EditorGUILayout.FloatField("Offset Y", oy);
+                if (noy != oy) { step.SetOverrideFloat("OffsetY", noy); EditorUtility.SetDirty(recipe); }
                 float dm = step.GetFloat("DamageMultiplier", 1f);
                 float ndm = EditorGUILayout.FloatField("Damage multiplier", dm);
                 if (ndm != dm) { step.SetOverrideFloat("DamageMultiplier", ndm); EditorUtility.SetDirty(recipe); }
@@ -435,16 +469,16 @@ namespace Scripts.Editor.Skills
             }
             var defaults = new[]
             {
-                ("MovementLock", "Lock movement", "Блок движения", 0f),
-                ("MovementUnlock", "Unlock movement", "Разблок движения", 0f),
-                ("WeaponWindup", "Weapon windup", "Замах оружия", 35f),
-                ("WeaponStrike", "Weapon strike", "Удар оружия", 0f),
-                ("WeaponRecovery", "Weapon recovery", "Возврат оружия", 65f),
-                ("Wait", "Wait", "Ожидание", 10f),
-                ("SpawnVFX", "Spawn VFX", "Спавн VFX", 0f),
-                ("DealDamageCircle", "Deal damage (circle)", "Урон круг", 0f),
-                ("DealDamageRectangle", "Deal damage (rectangle)", "Урон прямоугольник", 0f),
-                ("ParallelGroup", "Parallel group", "Параллельная группа", 0f),
+                ("MovementLock", "Lock movement", "Р‘Р»РѕРє РґРІРёР¶РµРЅРёСЏ", 0f),
+                ("MovementUnlock", "Unlock movement", "Р Р°Р·Р±Р»РѕРє РґРІРёР¶РµРЅРёСЏ", 0f),
+                ("WeaponWindup", "Weapon windup", "Р—Р°РјР°С… РѕСЂСѓР¶РёСЏ", 35f),
+                ("WeaponStrike", "Weapon strike", "РЈРґР°СЂ РѕСЂСѓР¶РёСЏ", 0f),
+                ("WeaponRecovery", "Weapon recovery", "Р’РѕР·РІСЂР°С‚ РѕСЂСѓР¶РёСЏ", 65f),
+                ("Wait", "Wait", "РћР¶РёРґР°РЅРёРµ", 10f),
+                ("SpawnVFX", "Spawn VFX", "РЎРїР°РІРЅ VFX", 0f),
+                ("DealDamageCircle", "Deal damage (circle)", "РЈСЂРѕРЅ РєСЂСѓРі", 0f),
+                ("DealDamageRectangle", "Deal damage (rectangle)", "РЈСЂРѕРЅ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє", 0f),
+                ("ParallelGroup", "Parallel group", "РџР°СЂР°Р»Р»РµР»СЊРЅР°СЏ РіСЂСѓРїРїР°", 0f),
             };
             foreach (var (id, nameEn, nameRu, durationPercent) in defaults)
             {
@@ -523,7 +557,7 @@ namespace Scripts.Editor.Skills
             SetFloat(3, "OffsetX", 0.2f);
             SetFloat(3, "OffsetY", 0f);
             SetFloat(3, "BaseDuration", 0.4f);
-            AddStep("DealDamageCircle", 0.35f, 0.35f); SetInt(4, "SourceStepIndex", 3); SetFloat(4, "Radius", 1.5f); SetFloat(4, "DamageMultiplier", 1f);
+            AddStep("DealDamageCircle", 0.35f, 0.35f); SetInt(4, "SourceStepIndex", 3); SetFloat(4, "SizeX", 1f); SetFloat(4, "SizeY", 1f); SetFloat(4, "DamageMultiplier", 1f);
             AddStep("WeaponRecovery", 0.35f, 1f);
             AddStep("MovementUnlock", 1f, 1f);
 
@@ -596,6 +630,43 @@ namespace Scripts.Editor.Skills
                     AssetDatabase.CreateFolder(current, part);
                 current = next;
             }
+        }
+
+        private SkillRecipeSO CreateRecipeForSkill(SkillDataSO skill)
+        {
+            if (skill == null)
+                return null;
+
+            string skillPath = AssetDatabase.GetAssetPath(skill);
+            if (string.IsNullOrEmpty(skillPath))
+                return null;
+
+            string directory = System.IO.Path.GetDirectoryName(skillPath)?.Replace("\\", "/");
+            if (string.IsNullOrEmpty(directory))
+                directory = "Assets";
+
+            string skillName = string.IsNullOrWhiteSpace(skill.SkillName) ? skill.name : skill.SkillName;
+            string safeName = SanitizeFileName(skillName);
+            string recipePath = AssetDatabase.GenerateUniqueAssetPath($"{directory}/Recipe_{safeName}.asset");
+
+            var recipe = ScriptableObject.CreateInstance<SkillRecipeSO>();
+            recipe.Steps = new List<StepEntry>();
+            AssetDatabase.CreateAsset(recipe, recipePath);
+            EditorUtility.SetDirty(recipe);
+            return recipe;
+        }
+
+        private static string SanitizeFileName(string rawName)
+        {
+            if (string.IsNullOrWhiteSpace(rawName))
+                return "Skill";
+
+            var invalid = System.IO.Path.GetInvalidFileNameChars();
+            var chars = rawName
+                .Select(ch => invalid.Contains(ch) ? '_' : ch)
+                .ToArray();
+
+            return new string(chars).Replace(' ', '_');
         }
     }
 }

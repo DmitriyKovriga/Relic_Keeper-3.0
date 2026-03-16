@@ -55,6 +55,11 @@ public class HUDController : MonoBehaviour
         if (_skillManager != null) _skillManager.OnSkillSlotUpdated -= UpdateSkillSlotUI;
     }
 
+    private void Update()
+    {
+        UpdateCooldownOverlays();
+    }
+
     private void UpdateSkillSlotUI(int index, SkillDataSO skill)
     {
         if (index < 0 || index >= _skillSlots.Length) return;
@@ -67,6 +72,9 @@ public class HUDController : MonoBehaviour
         {
             _skillSlots[index].Clear();
         }
+
+        if (index == 0)
+            _skillSlots[index].SetCooldownOverlay(0f, false);
     }
 
     public void SetPlayer(PlayerStats stats)
@@ -133,6 +141,29 @@ public class HUDController : MonoBehaviour
         if (index >= 0 && index < _skillSlots.Length && _skillSlots[index] != null)
         {
             _skillSlots[index].Setup(icon);
+        }
+    }
+
+    private void UpdateCooldownOverlays()
+    {
+        if (_skillManager == null || _skillSlots == null)
+            return;
+
+        for (int i = 0; i < _skillSlots.Length; i++)
+        {
+            var slot = _skillSlots[i];
+            if (slot == null)
+                continue;
+
+            if (i == 0)
+            {
+                slot.SetCooldownOverlay(0f, false);
+                continue;
+            }
+
+            bool hasCooldownSkill = _skillManager.SlotHasCooldownSkill(i);
+            float normalized = _skillManager.GetSkillCooldownNormalized(i);
+            slot.SetCooldownOverlay(normalized, hasCooldownSkill);
         }
     }
 

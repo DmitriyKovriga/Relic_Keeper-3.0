@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Stats;
+using Scripts.Skills.Modules;
 
 namespace Scripts.Skills
 {
@@ -73,6 +74,22 @@ namespace Scripts.Skills
                 skillBehaviour.TryCast();
         }
 
+        public float GetSkillCooldownNormalized(int slotIndex)
+        {
+            if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)
+                return skillBehaviour.CooldownNormalized;
+
+            return 0f;
+        }
+
+        public bool SlotHasCooldownSkill(int slotIndex)
+        {
+            if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)
+                return skillBehaviour.CooldownDuration > 0f;
+
+            return false;
+        }
+
         private void HandleEquipmentChanged(InventoryItem _)
         {
             RefreshAllSkills();
@@ -111,18 +128,36 @@ namespace Scripts.Skills
         {
             UnequipSkill(slotIndex);
 
-            if (skillData != null && skillData.SkillPrefab != null)
+            if (skillData != null)
             {
-                GameObject skillObj = Instantiate(skillData.SkillPrefab, _skillContainer);
-                skillObj.name = $"Skill_{skillData.SkillName}_{slotIndex}";
+                GameObject skillObj = null;
+                SkillBehaviour behaviour = null;
 
-                SkillBehaviour behaviour = skillObj.GetComponent<SkillBehaviour>();
+                if (skillData.SkillPrefab != null)
+                {
+                    skillObj = Instantiate(skillData.SkillPrefab, _skillContainer);
+                    skillObj.name = $"Skill_{skillData.SkillName}_{slotIndex}";
+                    behaviour = skillObj.GetComponent<SkillBehaviour>();
+                }
+
+                if (behaviour == null && skillData.Recipe != null)
+                {
+                    if (skillObj != null)
+                    {
+                        Debug.LogWarning($"[PlayerSkillManager] Skill prefab '{skillData.SkillName}' does not contain SkillBehaviour. Falling back to runtime StepRunner because Recipe is assigned.");
+                        Destroy(skillObj);
+                    }
+
+                    skillObj = CreateRuntimeRecipeSkillObject(slotIndex, skillData);
+                    behaviour = skillObj.GetComponent<SkillBehaviour>();
+                }
+
                 if (behaviour != null)
                 {
                     behaviour.Initialize(_playerStats, skillData);
                     _activeSkills[slotIndex] = behaviour;
                 }
-                else
+                else if (skillObj != null)
                 {
                     Debug.LogError($"[PlayerSkillManager] Skill prefab '{skillData.SkillName}' does not contain SkillBehaviour.");
                     Destroy(skillObj);
@@ -130,6 +165,19 @@ namespace Scripts.Skills
             }
 
             OnSkillSlotUpdated?.Invoke(slotIndex, skillData);
+        }
+
+        private GameObject CreateRuntimeRecipeSkillObject(int slotIndex, SkillDataSO skillData)
+        {
+            var skillObj = new GameObject($"Skill_{skillData.SkillName}_{slotIndex}_Runtime");
+            skillObj.transform.SetParent(_skillContainer, false);
+
+            skillObj.AddComponent<SkillVFX>();
+            skillObj.AddComponent<SkillMovementControl>();
+            skillObj.AddComponent<SkillHandAnimation>();
+            skillObj.AddComponent<SkillStepRunner>();
+
+            return skillObj;
         }
 
         private void UnequipSkill(int slotIndex)

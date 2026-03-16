@@ -331,15 +331,23 @@ namespace Scripts.Skills
 
             Vector3 visualCenter = spawnPos;
             float visualRadius = 0f;
-            var sr = vfx.GetComponent<SpriteRenderer>();
-            if (sr != null)
+            var sr = vfx.GetComponentInChildren<SpriteRenderer>();
+            if (TryGetCurrentVfxMetrics(sr, out var currentCenter, out var currentSize))
             {
-                Bounds b = sr.bounds;
-                visualCenter = b.center;
-                visualRadius = Mathf.Max(b.extents.x, b.extents.y);
+                visualCenter = currentCenter;
+                visualRadius = Mathf.Max(currentSize.x, currentSize.y) * 0.5f;
             }
 
-            _ctx.SetStepResult(stepIndex, spawnPos, effectiveScale, lifetime, Time.time, visualCenter, visualRadius);
+            _ctx.SetStepResult(
+                stepIndex,
+                spawnPos,
+                effectiveScale,
+                lifetime,
+                Time.time,
+                visualCenter,
+                visualRadius,
+                vfx.transform,
+                sr);
         }
 
         private void ExecuteDealDamageCircle(int stepIndex, StepEntry step)
@@ -349,18 +357,17 @@ namespace Scripts.Skills
             int sourceIdx = step.GetInt("SourceStepIndex", -1);
             if (sourceIdx >= 0 && _ctx.TryGetStepResult(sourceIdx, out var res))
             {
-                center = res.VisualCenter;
-                float configuredRadius = step.GetFloat("Radius", 1.5f) * res.Scale;
-                radius = configuredRadius;
-
-                // Keep hitbox from exceeding the spawned VFX footprint when VFX bounds are known.
-                if (res.VisualRadius > 0f)
-                {
-                    float vfxRadiusMultiplier = step.GetFloat("VfxRadiusMultiplier", 1f);
-                    float maxByVfx = res.VisualRadius * Mathf.Max(0f, vfxRadiusMultiplier);
-                    if (maxByVfx > 0f)
-                        radius = Mathf.Min(configuredRadius, maxByVfx);
-                }
+                Vector2 visualSize = GetVisualSizeOrFallback(res);
+                center = GetVisualCenterOrFallback(res);
+                Vector2 sizeMultipliers = new Vector2(
+                    Mathf.Max(0.01f, step.GetFloat("SizeX", 1f)),
+                    Mathf.Max(0.01f, step.GetFloat("SizeY", 1f)));
+                Vector2 scaledSize = Vector2.Scale(visualSize, sizeMultipliers);
+                Vector2 offset = new Vector2(
+                    step.GetFloat("OffsetX", 0f) * res.Scale * _ctx.FacingDirection,
+                    step.GetFloat("OffsetY", 0f) * res.Scale);
+                center += offset;
+                radius = Mathf.Max(scaledSize.x, scaledSize.y) * 0.5f;
             }
             else
             {
@@ -382,25 +389,83 @@ namespace Scripts.Skills
         {
             Vector2 center;
             Vector2 size;
-            float scaleMult;
             int sourceIdx = step.GetInt("SourceStepIndex", -1);
             if (sourceIdx >= 0 && _ctx.TryGetStepResult(sourceIdx, out var res))
             {
-                center = res.Position;
-                scaleMult = res.Scale;
-                size = new Vector2(step.GetFloat("SizeX", 2f), step.GetFloat("SizeY", 1f)) * scaleMult;
+                Vector2 visualSize = GetVisualSizeOrFallback(res);
+                center = GetVisualCenterOrFallback(res);
+                Vector2 sizeMultipliers = new Vector2(
+                    Mathf.Max(0.01f, step.GetFloat("SizeX", 1f)),
+                    Mathf.Max(0.01f, step.GetFloat("SizeY", 1f)));
+                size = Vector2.Scale(visualSize, sizeMultipliers);
+                center += new Vector2(
+                    step.GetFloat("OffsetX", 0f) * res.Scale * _ctx.FacingDirection,
+                    step.GetFloat("OffsetY", 0f) * res.Scale);
             }
             else
             {
-                scaleMult = _ctx.AoeScale;
                 center = (Vector2)_ownerStats.transform.position + new Vector2(step.GetFloat("OffsetX", 0f) * _ctx.FacingDirection, step.GetFloat("OffsetY", 0f));
-                size = new Vector2(step.GetFloat("SizeX", 2f), step.GetFloat("SizeY", 1f)) * scaleMult;
+                size = new Vector2(step.GetFloat("SizeX", 2f), step.GetFloat("SizeY", 1f)) * _ctx.AoeScale;
             }
             float angle = step.GetFloat("Angle", 0f);
             var targets = GetTargetsInBox(center, size, angle);
             float mult = step.GetFloat("DamageMultiplier", 1f);
             var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult);
             foreach (var t in targets) t.TakeDamage(snapshot);
+        }
+
+        private Vector2 GetVisualCenterOrFallback(SkillStepContext.StepResult result)
+        {
+            if (TryGetCurrentVfxMetrics(result.VisualSpriteRenderer, out var center, out _))
+                return center;
+
+            if (result.VisualTransform != null)
+                return result.VisualTransform.position;
+
+            return result.VisualCenter;
+        }
+
+        private Vector2 GetVisualSizeOrFallback(SkillStepContext.StepResult result)
+        {
+            if (TryGetCurrentVfxMetrics(result.VisualSpriteRenderer, out _, out var size))
+                return size;
+
+            if (result.VisualRadius > 0f)
+            {
+                float diameter = result.VisualRadius * 2f;
+                return new Vector2(diameter, diameter);
+            }
+
+            float fallback = Mathf.Max(0.1f, result.Scale);
+            return new Vector2(fallback, fallback);
+        }
+
+        private bool TryGetCurrentVfxMetrics(SpriteRenderer spriteRenderer, out Vector2 worldCenter, out Vector2 worldSize)
+        {
+            worldCenter = Vector2.zero;
+            worldSize = Vector2.zero;
+            if (spriteRenderer == null)
+                return false;
+
+            Sprite sprite = spriteRenderer.sprite;
+            if (sprite == null)
+            {
+                Bounds bounds = spriteRenderer.bounds;
+                worldCenter = bounds.center;
+                worldSize = bounds.size;
+                return worldSize.x > 0f && worldSize.y > 0f;
+            }
+
+            float ppu = sprite.pixelsPerUnit <= 0f ? 100f : sprite.pixelsPerUnit;
+            Vector2 localSize = new Vector2(sprite.rect.width / ppu, sprite.rect.height / ppu);
+            Vector2 localCenter = new Vector2(
+                (sprite.rect.width * 0.5f - sprite.pivot.x) / ppu,
+                (sprite.rect.height * 0.5f - sprite.pivot.y) / ppu);
+
+            Vector3 lossyScale = spriteRenderer.transform.lossyScale;
+            worldSize = new Vector2(localSize.x * Mathf.Abs(lossyScale.x), localSize.y * Mathf.Abs(lossyScale.y));
+            worldCenter = spriteRenderer.transform.TransformPoint(localCenter);
+            return worldSize.x > 0f && worldSize.y > 0f;
         }
 
         private List<IDamageable> GetTargetsInCircle(Vector2 center, float radius)

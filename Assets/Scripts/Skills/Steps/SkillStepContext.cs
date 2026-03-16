@@ -29,6 +29,10 @@ namespace Scripts.Skills.Steps
             public Vector3 VisualCenter;
             /// <summary>Visual radius in world-space if known.</summary>
             public float VisualRadius;
+            /// <summary>Spawned VFX transform if the step created a visual.</summary>
+            public Transform VisualTransform;
+            /// <summary>Active sprite renderer of the spawned VFX if available.</summary>
+            public SpriteRenderer VisualSpriteRenderer;
         }
 
         public void SetStepResult(
@@ -38,7 +42,9 @@ namespace Scripts.Skills.Steps
             float duration = 0f,
             float spawnTime = 0f,
             Vector3 visualCenter = default,
-            float visualRadius = 0f)
+            float visualRadius = 0f,
+            Transform visualTransform = null,
+            SpriteRenderer visualSpriteRenderer = null)
         {
             StepResults[stepIndex] = new StepResult
             {
@@ -47,7 +53,9 @@ namespace Scripts.Skills.Steps
                 Duration = duration,
                 SpawnTime = spawnTime,
                 VisualCenter = visualCenter == default ? position : visualCenter,
-                VisualRadius = visualRadius
+                VisualRadius = visualRadius,
+                VisualTransform = visualTransform,
+                VisualSpriteRenderer = visualSpriteRenderer
             };
         }
 

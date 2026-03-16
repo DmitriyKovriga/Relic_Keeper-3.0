@@ -15,9 +15,10 @@ MonoBehaviour:
   ID: SweepRB
   SkillName: Sweep
   Description: Sweep around character and deal 250% damage
-  Icon: {fileID: 21300000, guid: f0bc1ba47de29244a99e3436f04596e3, type: 3}
-  IsActive: 0
+  Icon: {fileID: 21300000, guid: 1d9c798c5b99cf14d951434960e36524, type: 3}
+  IsActive: 1
   Cooldown: 10
   ManaCost: 25
-  SkillPrefab: {fileID: 0}
+  SkillPrefab: {fileID: 5488993807411286246, guid: 1956a8ef2cdbc56468c01f2cf31a29fb, type: 3}
   AnimationTrigger: Attack
+  Recipe: {fileID: 11400000, guid: bb5b2ec0b696d9044899a7f34071a1a6, type: 2}
