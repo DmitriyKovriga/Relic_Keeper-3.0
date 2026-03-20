@@ -100,6 +100,13 @@ namespace Scripts.Enemies
         [Min(0f)] public float DamageMultiplier = 1f;
         public Vector2 HitboxSize = new Vector2(1.2f, 0.8f);
         public Vector2 HitboxOffset = new Vector2(0.8f, 0f);
+        public string ProjectileVisualResourcePath;
+        public Vector2 ProjectileSpawnOffset = new Vector2(0f, 0.15f);
+        [Min(0f)] public float ProjectileSpeed = 6f;
+        [Min(0f)] public float ProjectileLifetime = 8f;
+        [Min(0f)] public float ProjectileHitRadius = 0.22f;
+        [Min(1f)] public float ProjectileAnimationFps = 10f;
+        public bool ProjectileStopsOnGround = true;
     }
 
     [Serializable]
@@ -144,6 +151,19 @@ namespace Scripts.Enemies
         public string IdleStateName = "Idle";
         public string MoveStateName = "Walk";
         public string AttackStateName = "Attack";
+        public string IdleSpritesResourcePath;
+        public string MoveSpritesResourcePath;
+        public string AttackSpritesResourcePath;
+        [Min(1f)] public float IdleFps = 8f;
+        [Min(1f)] public float MoveFps = 8f;
+        [Min(1f)] public float AttackFps = 10f;
+        public int AttackImpactFrame = -1;
+
+        public bool UsesSpriteSheets =>
+            Controller == null &&
+            (!string.IsNullOrWhiteSpace(IdleSpritesResourcePath) ||
+             !string.IsNullOrWhiteSpace(MoveSpritesResourcePath) ||
+             !string.IsNullOrWhiteSpace(AttackSpritesResourcePath));
     }
 
     [CreateAssetMenu(menuName = "RPG/Enemies/Enemy Data")]

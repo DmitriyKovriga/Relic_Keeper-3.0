@@ -21,7 +21,7 @@ namespace Scripts.Enemies
         public void Initialize(EnemyEntity entity, EnemyDataSO data)
         {
             _data = data;
-            _spriteRenderer = GetComponent<SpriteRenderer>();
+            _spriteRenderer = entity != null ? entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>(true);
             EnsurePhysicsComponents();
             _moveInput = 0f;
         }

@@ -12,20 +12,92 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c880423b817041f408a51e5192873482, type: 3}
   m_Name: SO_Mold
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Enemies.EnemyDataSO
-  ID: NewEnemy
-  DisplayName: New Enemy
-  Prefab: {fileID: 0}
-  AIType: 0
-  BaseStats: []
-  Stats: []
+  ID: Mold
+  DisplayName: Mold
+  Prefab: {fileID: 3239475662571640954, guid: 4f1f71e1c7c24d98876a3f7f5c1c3a91, type: 3}
+  AIType: 2
+  BaseStats:
+  - Type: 0
+    Value: 80
+  - Type: 10
+    Value: 0
+  - Type: 14
+    Value: 0
+  - Type: 15
+    Value: 0
+  - Type: 30
+    Value: 0
+  - Type: 31
+    Value: 0
+  - Type: 32
+    Value: 0
+  - Type: 33
+    Value: 14
+  - Type: 18
+    Value: 0
+  - Type: 20
+    Value: 0
+  - Type: 22
+    Value: 0
+  - Type: 24
+    Value: 0
+  Stats:
+  - Type: 0
+    BaseValue: 80
+    ScalingMode: 2
+    ScalingValue: 16
+  - Type: 14
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 15
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 16
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 30
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 31
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 32
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 33
+    BaseValue: 14
+    ScalingMode: 2
+    ScalingValue: 12
+  - Type: 18
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 20
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 22
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 24
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
   Perception:
-    AggroRange: 6
-    LoseTargetRange: 10
+    AggroRange: 11
+    LoseTargetRange: 14
     RequireLineOfSight: 0
   Movement:
-    MoveSpeed: 2
+    MoveSpeed: 0
     StopDistance: 0.85
-    Acceleration: 20
+    Acceleration: 0
     CanJump: 0
     CanUseJumpLinks: 0
     CanFallFromPlatform: 0
@@ -34,46 +106,60 @@ MonoBehaviour:
     WallCheckDistance: 0.2
     LedgeCheckDistance: 0.35
   Attack:
-    DeliveryType: 0
-    DamageType: 0
-    AttackRange: 1.1
-    AttackCooldown: 1
-    Windup: 0.15
-    ActiveTime: 0.1
-    Recovery: 0.25
+    DeliveryType: 1
+    DamageType: 3
+    AttackRange: 8
+    AttackCooldown: 1.8
+    Windup: 0.7
+    ActiveTime: 0.05
+    Recovery: 0.45
     DamageMultiplier: 1
     HitboxSize: {x: 1.2, y: 0.8}
     HitboxOffset: {x: 0.8, y: 0}
+    ProjectileVisualResourcePath: VFX/Projectiles/Lightning_ball/lighting_ball-Sheet
+    ProjectileSpawnOffset: {x: 0, y: 0.15}
+    ProjectileSpeed: 5.5
+    ProjectileLifetime: 8
+    ProjectileHitRadius: 0.22
+    ProjectileAnimationFps: 10
+    ProjectileStopsOnGround: 0
   Behaviour:
-    DecisionIntervalMin: 0.03
-    DecisionIntervalMax: 0.08
-    PostActionPauseMin: 0.05
-    PostActionPauseMax: 0.12
-    StopDistanceVariance: 0.1
-    TurnDelayMin: 0.04
-    TurnDelayMax: 0.1
-    MissRecoveryMultiplier: 1.2
+    DecisionIntervalMin: 0.12
+    DecisionIntervalMax: 0.2
+    PostActionPauseMin: 0.08
+    PostActionPauseMax: 0.14
+    StopDistanceVariance: 0
+    TurnDelayMin: 0.02
+    TurnDelayMax: 0.05
+    MissRecoveryMultiplier: 1
   DeathEffect:
     Enabled: 1
     ChunkCount: 6
-    ChunkHorizontalForce: 3.2
-    ChunkVerticalForce: 4.8
-    BloodHorizontalSpread: 1.4
-    BloodVerticalSpread: 1.8
+    ChunkHorizontalForce: 3.4
+    ChunkVerticalForce: 5.2
+    BloodHorizontalSpread: 0.7
+    BloodVerticalSpread: 0.95
     Lifetime: 30
-    FadeDuration: 5
-    GravityScale: 2.8
+    FadeDuration: 5.5
+    GravityScale: 3.15
     ChunkLinearDamping: 1.35
     ChunkAngularDamping: 1.1
     RestCheckDelay: 0.3
     RestVelocityThreshold: 0.18
     RestAngularVelocityThreshold: 8
-    BloodColor: {r: 0.45, g: 0.04, b: 0.07, a: 1}
-    GoreColor: {r: 0.26, g: 0.03, b: 0.04, a: 1}
+    BloodColor: {r: 0.48, g: 0.03, b: 0.06, a: 1}
+    GoreColor: {r: 0.23, g: 0.025, b: 0.035, a: 1}
   Animation:
     Controller: {fileID: 0}
     IdleStateName: Idle
     MoveStateName: Walk
     AttackStateName: Attack
-  XPReward: 10
+    IdleSpritesResourcePath: Enemy/MoldResources/mold_idle-Sheet
+    MoveSpritesResourcePath: Enemy/MoldResources/mold_walk-Sheet
+    AttackSpritesResourcePath: Enemy/MoldResources/mold_attack-Sheet
+    IdleFps: 6
+    MoveFps: 7
+    AttackFps: 10
+    AttackImpactFrame: -1
+  XPReward: 28
   LegacyGrowthPerLevelPercent: 25

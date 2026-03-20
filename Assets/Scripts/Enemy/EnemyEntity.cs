@@ -21,11 +21,15 @@ namespace Scripts.Enemies
         private EnemyAttackController _attack;
         private EnemyAnimationBridge _animation;
         private EnemyBrain _brain;
+        private Transform _visualRoot;
+        private SpriteRenderer _visualRenderer;
         private bool _isInitialized;
         private static bool s_collisionMatrixConfigured;
 
         public EnemyDataSO Data => _defaultData;
         public int Level => _level;
+        public SpriteRenderer VisualRenderer => EnsureVisualRenderer(_defaultData);
+        public Transform VisualRoot => EnsureVisualRoot(_defaultData);
 
         private void Awake()
         {
@@ -83,6 +87,8 @@ namespace Scripts.Enemies
 
         private void EnsureRuntimeComponents(EnemyDataSO data)
         {
+            EnsureVisualRoot(data);
+
             _sensor = GetComponent<EnemySensor2D>();
             if (_sensor == null)
                 _sensor = gameObject.AddComponent<EnemySensor2D>();
@@ -141,7 +147,7 @@ namespace Scripts.Enemies
 
         private void ConfigureAnimatorIfNeeded(EnemyDataSO data)
         {
-            if (data == null || data.Animation == null || data.Animation.Controller == null)
+            if (data == null || data.Animation == null || data.Animation.Controller == null || data.Animation.UsesSpriteSheets)
                 return;
 
             var animator = GetComponent<Animator>();
@@ -158,7 +164,7 @@ namespace Scripts.Enemies
 
         private void ConfigureRendererDefaults()
         {
-            var sr = GetComponent<SpriteRenderer>();
+            var sr = EnsureVisualRenderer(_defaultData);
             if (sr == null)
                 return;
 
@@ -178,7 +184,7 @@ namespace Scripts.Enemies
 
         private void AutoFitCollider(BoxCollider2D collider)
         {
-            var sr = GetComponent<SpriteRenderer>();
+            var sr = EnsureVisualRenderer(_defaultData);
             if (sr == null || sr.sprite == null)
                 return;
 
@@ -212,6 +218,71 @@ namespace Scripts.Enemies
                 return;
 
             transform.position = new Vector3(transform.position.x, transform.position.y + deltaY, transform.position.z);
+        }
+
+        public Bounds GetVisualBounds()
+        {
+            var sr = EnsureVisualRenderer(_defaultData);
+            return sr != null ? sr.bounds : new Bounds(transform.position, Vector3.zero);
+        }
+
+        private Transform EnsureVisualRoot(EnemyDataSO data)
+        {
+            bool wantsChildVisual = data != null && data.Animation != null && data.Animation.UsesSpriteSheets;
+            if (!wantsChildVisual)
+            {
+                var childVisual = transform.Find("Visual");
+                if (childVisual != null && childVisual.TryGetComponent<SpriteRenderer>(out var existingChildRenderer))
+                    existingChildRenderer.enabled = false;
+
+                _visualRenderer = GetComponent<SpriteRenderer>();
+                _visualRoot = _visualRenderer != null ? _visualRenderer.transform : transform;
+                if (_visualRenderer != null)
+                    _visualRenderer.enabled = true;
+                return _visualRoot;
+            }
+
+            if (_visualRoot == null || _visualRoot.gameObject == null)
+            {
+                _visualRoot = transform.Find("Visual");
+                if (_visualRoot == null)
+                {
+                    var visualGo = new GameObject("Visual");
+                    _visualRoot = visualGo.transform;
+                    _visualRoot.SetParent(transform, false);
+                }
+            }
+
+            var childRenderer = _visualRoot.GetComponent<SpriteRenderer>();
+            if (childRenderer == null)
+                childRenderer = _visualRoot.gameObject.AddComponent<SpriteRenderer>();
+
+            var rootRenderer = GetComponent<SpriteRenderer>();
+            if (rootRenderer != null)
+            {
+                childRenderer.sharedMaterial = rootRenderer.sharedMaterial;
+                childRenderer.color = rootRenderer.color;
+                childRenderer.sortingLayerID = rootRenderer.sortingLayerID;
+                childRenderer.sortingOrder = rootRenderer.sortingOrder;
+                childRenderer.flipX = rootRenderer.flipX;
+                if (childRenderer.sprite == null)
+                    childRenderer.sprite = rootRenderer.sprite;
+                rootRenderer.enabled = false;
+            }
+
+            _visualRenderer = childRenderer;
+            return _visualRoot;
+        }
+
+        private SpriteRenderer EnsureVisualRenderer(EnemyDataSO data)
+        {
+            if (_visualRenderer != null)
+                return _visualRenderer;
+
+            EnsureVisualRoot(data);
+            if (_visualRenderer == null)
+                _visualRenderer = GetComponentInChildren<SpriteRenderer>(true);
+            return _visualRenderer;
         }
     }
 }

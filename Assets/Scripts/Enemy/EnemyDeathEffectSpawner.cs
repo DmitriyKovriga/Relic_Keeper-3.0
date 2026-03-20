@@ -23,19 +23,24 @@ namespace Scripts.Enemies
                 return;
 
             Bounds spriteBounds = sourceRenderer.sprite.bounds;
+            Bounds visualWorldBounds = sourceRenderer.bounds;
+            Collider2D bodyCollider = entity.GetComponent<Collider2D>();
+            Bounds anchorBounds = bodyCollider != null ? bodyCollider.bounds : visualWorldBounds;
             int sortingLayerId = sourceRenderer.sortingLayerID;
             int baseSortingOrder = sourceRenderer.sortingOrder;
-            Vector2 deathBasePosition = new Vector2(sourceRenderer.bounds.center.x, sourceRenderer.bounds.min.y + 0.02f);
-            Vector2 burstCenter = sourceRenderer.bounds.center;
+            Vector2 deathBasePosition = ResolveGroundAnchor(anchorBounds, visualWorldBounds, entity.transform.position);
+            Vector2 burstCenter = new Vector2(anchorBounds.center.x, Mathf.Lerp(anchorBounds.center.y, visualWorldBounds.center.y, 0.35f));
             Vector2 burstBias = new Vector2(Random.Range(-0.28f, 0.28f), Random.Range(0.08f, 0.22f));
-            float bloodRadius = Mathf.Max(sourceRenderer.bounds.size.x * 0.95f, 0.45f);
+            float bloodRadius = Mathf.Max(
+                Mathf.Max(anchorBounds.size.x * 1.1f, visualWorldBounds.size.x * 0.9f),
+                0.7f);
             Transform roomRoot = entity.transform.parent;
 
             SpawnBodyChunks(config, sourceRenderer, spriteBounds, sortingLayerId, baseSortingOrder, roomRoot, burstCenter, burstBias);
             SpawnGroundMeat(config, deathBasePosition, sortingLayerId, baseSortingOrder - 1, roomRoot, burstCenter, burstBias);
-            SpawnGroundBloodLine(config, deathBasePosition, sortingLayerId, baseSortingOrder - 2, roomRoot, bloodRadius);
-            SpawnGroundDrips(config, deathBasePosition, sortingLayerId, baseSortingOrder - 2, roomRoot, bloodRadius);
-            SpawnWallSpatter(config, burstCenter, deathBasePosition, sortingLayerId, baseSortingOrder - 2, roomRoot, bloodRadius);
+            SpawnGroundBloodLine(config, deathBasePosition, sortingLayerId, baseSortingOrder + 1, roomRoot, bloodRadius);
+            SpawnGroundDrips(config, deathBasePosition, sortingLayerId, baseSortingOrder + 1, roomRoot, bloodRadius);
+            SpawnWallSpatter(config, burstCenter, deathBasePosition, sortingLayerId, baseSortingOrder + 1, roomRoot, bloodRadius);
         }
 
         public static void SpawnSurfacePixelMark(Vector2 position, Vector2 surfaceNormal, EnemyDeathEffectConfig config, int sortingLayerId, int sortingOrder, Transform parent = null)
@@ -149,18 +154,26 @@ namespace Scripts.Enemies
 
         private static void SpawnGroundBloodLine(EnemyDeathEffectConfig config, Vector2 basePosition, int sortingLayerId, int sortingOrder, Transform parent, float bloodRadius)
         {
-            int count = Mathf.Clamp(config.ChunkCount / 2 + 2, 4, 6);
-            for (int i = 0; i < count; i++)
+            float clampedRadius = Mathf.Max(0.42f, bloodRadius);
+            float[] offsets =
             {
-                float normalized = count <= 1 ? 0.5f : i / (float)(count - 1);
-                float x = Mathf.Lerp(-bloodRadius, bloodRadius, normalized) + Random.Range(-0.08f, 0.08f);
-                GameObject mark = CreateRoot("EnemyGroundBlood", basePosition + new Vector2(x, Random.Range(0.022f, 0.05f)), parent);
+                0f,
+                -clampedRadius * 0.55f,
+                clampedRadius * 0.55f,
+                -clampedRadius * 1.05f,
+                clampedRadius * 1.05f
+            };
+
+            for (int i = 0; i < offsets.Length; i++)
+            {
+                Vector2 spawnPosition = basePosition + new Vector2(offsets[i], 0.036f + Random.Range(-0.004f, 0.012f));
+                GameObject mark = CreateRoot("EnemyGroundBlood", spawnPosition, parent);
                 mark.transform.localScale = Vector3.one;
-                mark.transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(-3f, 3f));
+                mark.transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(-2f, 2f));
 
                 SpriteRenderer renderer = mark.AddComponent<SpriteRenderer>();
                 renderer.sprite = EnemyDeathVisualFactory.GetRandomGroundPuddleSprite();
-                renderer.color = GetBloodPixelColor(config.BloodColor, Random.Range(0.86f, 0.98f));
+                renderer.color = GetBloodPixelColor(config.BloodColor, i == 0 ? 0.98f : Random.Range(0.88f, 0.96f));
                 renderer.sortingLayerID = sortingLayerId;
                 renderer.sortingOrder = sortingOrder;
 
@@ -171,17 +184,26 @@ namespace Scripts.Enemies
 
         private static void SpawnGroundDrips(EnemyDeathEffectConfig config, Vector2 basePosition, int sortingLayerId, int sortingOrder, Transform parent, float bloodRadius)
         {
-            int count = Mathf.Clamp(config.ChunkCount, 4, 7);
-            for (int i = 0; i < count; i++)
+            float clampedRadius = Mathf.Max(0.42f, bloodRadius);
+            float[] offsets =
             {
-                Vector2 pos = basePosition + new Vector2(Random.Range(-bloodRadius * 0.75f, bloodRadius * 0.75f), Random.Range(-0.028f, 0.004f));
+                -clampedRadius * 0.86f,
+                -clampedRadius * 0.34f,
+                0f,
+                clampedRadius * 0.34f,
+                clampedRadius * 0.86f
+            };
+
+            for (int i = 0; i < offsets.Length; i++)
+            {
+                Vector2 pos = basePosition + new Vector2(offsets[i], Random.Range(-0.018f, 0.002f));
                 GameObject mark = CreateRoot("EnemyGroundDrip", pos, parent);
                 mark.transform.localScale = Vector3.one;
                 mark.transform.rotation = Quaternion.identity;
 
                 SpriteRenderer renderer = mark.AddComponent<SpriteRenderer>();
                 renderer.sprite = EnemyDeathVisualFactory.GetRandomWallDripSprite();
-                renderer.color = GetBloodPixelColor(config.BloodColor, Random.Range(0.84f, 0.98f));
+                renderer.color = GetBloodPixelColor(config.BloodColor, Random.Range(0.86f, 0.98f));
                 renderer.sortingLayerID = sortingLayerId;
                 renderer.sortingOrder = sortingOrder;
 
@@ -199,7 +221,8 @@ namespace Scripts.Enemies
         private static void TrySpawnWallSide(EnemyDeathEffectConfig config, Vector2 burstCenter, Vector2 basePosition, int sortingLayerId, int sortingOrder, Transform parent, float bloodRadius, float direction)
         {
             Vector2 origin = burstCenter + new Vector2(0f, 0.08f);
-            RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.right * direction, bloodRadius * 1.15f, GroundLayerMask);
+            float castDistance = Mathf.Max(bloodRadius * 1.8f, 1.2f);
+            RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.right * direction, castDistance, GroundLayerMask);
             if (hit.collider == null)
                 return;
 
@@ -327,6 +350,18 @@ namespace Scripts.Enemies
                 : Color.Lerp(baseColor, new Color(0.08f, 0.01f, 0.015f, 1f), Random.Range(0.3f, 0.55f));
             tint.a = alpha;
             return tint;
+        }
+
+        private static Vector2 ResolveGroundAnchor(Bounds anchorBounds, Bounds visualWorldBounds, Vector3 fallbackPosition)
+        {
+            float centerX = anchorBounds.center.x;
+            float castOriginY = Mathf.Max(anchorBounds.max.y, visualWorldBounds.max.y) + 0.25f;
+            Vector2 castOrigin = new Vector2(centerX, castOriginY);
+            RaycastHit2D hit = Physics2D.Raycast(castOrigin, Vector2.down, 6f, GroundLayerMask);
+            if (hit.collider != null)
+                return new Vector2(centerX, hit.point.y + 0.02f);
+
+            return new Vector2(centerX, anchorBounds.min.y + 0.02f);
         }
 
         private static Vector3 SnapToPixelGrid(Vector3 worldPosition)

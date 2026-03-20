@@ -193,8 +193,14 @@ namespace Scripts.Editor.Enemy
             if (enemy.Attack.AttackRange <= 0f)
                 EditorGUILayout.HelpBox("AttackRange <= 0: враг не сможет атаковать.", MessageType.Warning);
 
-            if (enemy.AIType == EnemyAIType.GroundChaser && enemy.Animation.Controller == null)
-                EditorGUILayout.HelpBox("Для живого врага без AnimatorController анимации не будут играть.", MessageType.Info);
+            if (enemy.AIType == EnemyAIType.StaticCaster && enemy.Attack.DeliveryType == EnemyAttackDeliveryType.Projectile &&
+                string.IsNullOrWhiteSpace(enemy.Attack.ProjectileVisualResourcePath))
+            {
+                EditorGUILayout.HelpBox("Для projectile-атаки укажи ProjectileVisualResourcePath.", MessageType.Warning);
+            }
+
+            if (enemy.AIType == EnemyAIType.GroundChaser && enemy.Animation.Controller == null && !enemy.Animation.UsesSpriteSheets)
+                EditorGUILayout.HelpBox("Для живого врага нужно либо назначить AnimatorController, либо sprite-sheet paths.", MessageType.Info);
         }
 
         private void DrawPreview(EnemyDataSO enemy)
@@ -300,13 +306,66 @@ namespace Scripts.Editor.Enemy
                 return;
 
             var asset = CreateInstance<EnemyDataSO>();
-            asset.ID = "NewEnemy";
-            asset.DisplayName = "New Enemy";
+            string fileName = System.IO.Path.GetFileNameWithoutExtension(path);
+            asset.ID = fileName;
+            asset.DisplayName = ObjectNames.NicifyVariableName(fileName);
+            asset.BaseStats = CreateDefaultLegacyBaseStats();
+            asset.Stats = CreateDefaultStats();
+            ApplyZombieLikeDeathEffectDefaults(asset.DeathEffect);
             AssetDatabase.CreateAsset(asset, path);
             AssetDatabase.SaveAssets();
             Refresh();
             _selectedIndex = _enemies.IndexOf(asset);
             Selection.activeObject = asset;
+        }
+
+        private static List<CharacterDataSO.StatConfig> CreateDefaultLegacyBaseStats()
+        {
+            return new List<CharacterDataSO.StatConfig>
+            {
+                new() { Type = StatType.MaxHealth, Value = 100f },
+                new() { Type = StatType.DamagePhysical, Value = 10f },
+                new() { Type = StatType.FireResist, Value = 25f },
+                new() { Type = StatType.ColdResist, Value = 25f },
+                new() { Type = StatType.LightningResist, Value = 25f },
+                new() { Type = StatType.PhysicalResist, Value = 25f },
+            };
+        }
+
+        private static List<EnemyStatEntry> CreateDefaultStats()
+        {
+            return new List<EnemyStatEntry>
+            {
+                new() { Type = StatType.MaxHealth, BaseValue = 100f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = 20f },
+                new() { Type = StatType.DamagePhysical, BaseValue = 10f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = 10f },
+                new() { Type = StatType.FireResist, BaseValue = 25f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
+                new() { Type = StatType.ColdResist, BaseValue = 25f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
+                new() { Type = StatType.LightningResist, BaseValue = 25f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
+                new() { Type = StatType.PhysicalResist, BaseValue = 25f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
+            };
+        }
+
+        private static void ApplyZombieLikeDeathEffectDefaults(EnemyDeathEffectConfig config)
+        {
+            if (config == null)
+                return;
+
+            config.Enabled = true;
+            config.ChunkCount = 6;
+            config.ChunkHorizontalForce = 3.4f;
+            config.ChunkVerticalForce = 5.2f;
+            config.BloodHorizontalSpread = 0.7f;
+            config.BloodVerticalSpread = 0.95f;
+            config.Lifetime = 30f;
+            config.FadeDuration = 5.5f;
+            config.GravityScale = 3.15f;
+            config.ChunkLinearDamping = 1.35f;
+            config.ChunkAngularDamping = 1.1f;
+            config.RestCheckDelay = 0.3f;
+            config.RestVelocityThreshold = 0.18f;
+            config.RestAngularVelocityThreshold = 8f;
+            config.BloodColor = new Color(0.48f, 0.03f, 0.06f, 1f);
+            config.GoreColor = new Color(0.23f, 0.025f, 0.035f, 1f);
         }
     }
 }
