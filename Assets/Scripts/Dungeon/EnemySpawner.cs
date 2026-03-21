@@ -21,6 +21,20 @@ namespace Scripts.Dungeon
 
         private bool _hasSpawned;
 
+        public EnemyDataSO GetPreviewEnemyData()
+        {
+            if (_enemyEntries == null)
+                return null;
+
+            foreach (var entry in _enemyEntries)
+            {
+                if (entry?.EnemyData != null)
+                    return entry.EnemyData;
+            }
+
+            return null;
+        }
+
         private void Start()
         {
             if (!_spawnOnRoomEnter && _enemyEntries.Count > 0)
