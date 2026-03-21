@@ -7616,10 +7616,16 @@ MonoBehaviour:
   _groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  _oneWayPlatformLayer:
+    serializedVersion: 2
+    m_Bits: 0
   _groundCheckRadius: 0.2
+  _dropThroughDuration: 0.3
+  _dropThroughInputThreshold: -0.5
   _baseMoveSpeed: 5
   _baseJumpForce: 12
   _stopThreshold: 0.01
+  _maxJumpCount: 2
 --- !u!70 &1563690801
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

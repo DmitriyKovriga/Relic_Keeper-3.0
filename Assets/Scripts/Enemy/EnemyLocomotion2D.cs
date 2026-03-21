@@ -4,13 +4,12 @@ namespace Scripts.Enemies
 {
     public class EnemyLocomotion2D : MonoBehaviour
     {
-        private const int GroundLayerMask = 1 << 6;
-
         private EnemyDataSO _data;
         private Rigidbody2D _rb;
         private SpriteRenderer _spriteRenderer;
         private Collider2D _collider;
         private float _moveInput;
+        private int _groundLayerMask = 1 << 6;
 
         public bool IsGrounded { get; private set; }
         public bool IsNearWall { get; private set; }
@@ -22,6 +21,7 @@ namespace Scripts.Enemies
         {
             _data = data;
             _spriteRenderer = entity != null ? entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>(true);
+            EnsureGroundLayerMask();
             EnsurePhysicsComponents();
             _moveInput = 0f;
         }
@@ -104,13 +104,13 @@ namespace Scripts.Enemies
 
             Vector2 groundOrigin = new Vector2(bounds.center.x, bounds.min.y + 0.02f);
             Vector2 groundSize = new Vector2(Mathf.Max(0.05f, bounds.size.x * 0.8f), 0.05f);
-            IsGrounded = Physics2D.BoxCast(groundOrigin, groundSize, 0f, Vector2.down, groundCheckDistance, GroundLayerMask).collider != null;
+            IsGrounded = Physics2D.BoxCast(groundOrigin, groundSize, 0f, Vector2.down, groundCheckDistance, _groundLayerMask).collider != null;
 
             Vector2 wallOrigin = new Vector2(bounds.center.x + FacingDirection * (bounds.extents.x + 0.02f), bounds.center.y);
-            IsNearWall = Physics2D.Raycast(wallOrigin, Vector2.right * FacingDirection, wallCheckDistance, GroundLayerMask).collider != null;
+            IsNearWall = Physics2D.Raycast(wallOrigin, Vector2.right * FacingDirection, wallCheckDistance, _groundLayerMask).collider != null;
 
             Vector2 ledgeOrigin = new Vector2(bounds.center.x + FacingDirection * (bounds.extents.x + 0.05f), bounds.min.y + 0.05f);
-            IsApproachingLedge = Physics2D.Raycast(ledgeOrigin, Vector2.down, bounds.extents.y + ledgeCheckDistance, GroundLayerMask).collider == null;
+            IsApproachingLedge = Physics2D.Raycast(ledgeOrigin, Vector2.down, bounds.extents.y + ledgeCheckDistance, _groundLayerMask).collider == null;
         }
 
         private void EnsurePhysicsComponents()
@@ -159,7 +159,7 @@ namespace Scripts.Enemies
             Bounds bounds = collider.bounds;
             Vector2 castOrigin = new Vector2(bounds.center.x, bounds.max.y + 0.1f);
             Vector2 castSize = new Vector2(Mathf.Max(0.05f, bounds.size.x * 0.9f), Mathf.Max(0.1f, bounds.size.y * 0.5f));
-            RaycastHit2D hit = Physics2D.BoxCast(castOrigin, castSize, 0f, Vector2.down, 4f, GroundLayerMask);
+            RaycastHit2D hit = Physics2D.BoxCast(castOrigin, castSize, 0f, Vector2.down, 4f, _groundLayerMask);
             if (hit.collider == null)
                 return;
 
@@ -170,6 +170,15 @@ namespace Scripts.Enemies
                 return;
 
             transform.position = new Vector3(transform.position.x, transform.position.y + deltaY, transform.position.z);
+        }
+
+        private void EnsureGroundLayerMask()
+        {
+            _groundLayerMask = 1 << 6;
+
+            int oneWayPlatformLayer = LayerMask.NameToLayer("OneWayPlatform");
+            if (oneWayPlatformLayer >= 0)
+                _groundLayerMask |= 1 << oneWayPlatformLayer;
         }
     }
 }
