@@ -33,6 +33,8 @@ public class ControlsUI : MonoBehaviour
     private void OnEnable()
     {
         LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+        if (InputManager.InputActions != null && InputManager.InputActions.asset != null)
+            actions = InputManager.InputActions.asset;
         if (actions == null) return;
         InputRebindSaver.Load(actions, config);
         root = ui?.rootVisualElement;

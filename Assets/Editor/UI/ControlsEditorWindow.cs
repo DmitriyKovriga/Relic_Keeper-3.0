@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Text.RegularExpressions;
+using System;
 
 namespace RelicKeeper.Editor.UI
 {
@@ -35,6 +36,8 @@ namespace RelicKeeper.Editor.UI
         private string _lastKey = "";
         private List<SubscriberInfo> _subscribers = new List<SubscriberInfo>();
         private bool _subscribersDirty = true;
+        private int _actionPickerIndex;
+        private int _bindingPickerIndex;
 
         private class SubscriberInfo
         {
@@ -152,15 +155,81 @@ namespace RelicKeeper.Editor.UI
             EditorGUILayout.LabelField("Inspector", EditorStyles.boldLabel);
             EditorGUILayout.Space(4);
 
-            EditorGUI.BeginDisabledGroup(true);
-            EditorGUILayout.TextField("Action", entry.actionName);
-            EditorGUI.EndDisabledGroup();
+            string[] availableActions = GetPlayerActionNames();
+            string previousActionName = entry.actionName;
+            entry.actionName = EditorGUILayout.TextField("Action", entry.actionName);
+            if (!string.Equals(previousActionName, entry.actionName, StringComparison.Ordinal))
+                _lastKey = "";
+            var selectedAction = FindPlayerAction(entry.actionName);
+
+            if (availableActions.Length > 0)
+            {
+                int currentIndex = Array.IndexOf(availableActions, entry.actionName);
+                _actionPickerIndex = Mathf.Clamp(currentIndex >= 0 ? currentIndex : _actionPickerIndex, 0, availableActions.Length - 1);
+
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PrefixLabel("Pick from Player map");
+                _actionPickerIndex = EditorGUILayout.Popup(_actionPickerIndex, availableActions);
+                if (GUILayout.Button("Use selected", GUILayout.Width(110)))
+                {
+                    entry.actionName = availableActions[_actionPickerIndex];
+                    _lastKey = "";
+                    selectedAction = FindPlayerAction(entry.actionName);
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+
+            if (selectedAction == null)
+                EditorGUILayout.HelpBox("Action not found in Player action map. Settings UI and default rebinds will not work until the action exists in InputSystem_Actions.", MessageType.Warning);
+            else
+                EditorGUILayout.HelpBox($"Found in Player map. Type: {selectedAction.type}. Bindings: {GetBindablePaths(selectedAction).Length}", MessageType.None);
 
             entry.displayOrder = EditorGUILayout.IntField("Display Order", entry.displayOrder);
             entry.showInSettings = EditorGUILayout.Toggle("Show in Settings", entry.showInSettings);
             entry.defaultBindingPath = EditorGUILayout.TextField("Default Binding (no save)", entry.defaultBindingPath);
+
+            string normalizedBindingPath = NormalizeBindingPath(entry.defaultBindingPath);
+            if (!string.Equals(normalizedBindingPath, entry.defaultBindingPath, StringComparison.Ordinal))
+                entry.defaultBindingPath = normalizedBindingPath;
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Set Left Shift", GUILayout.Width(120)))
+                entry.defaultBindingPath = "<Keyboard>/leftShift";
+            if (GUILayout.Button("Set Space", GUILayout.Width(100)))
+                entry.defaultBindingPath = "<Keyboard>/space";
+            if (GUILayout.Button("Clear", GUILayout.Width(80)))
+                entry.defaultBindingPath = "";
+            EditorGUILayout.EndHorizontal();
+
+            if (selectedAction != null)
+            {
+                string[] bindablePaths = GetBindablePaths(selectedAction);
+                if (bindablePaths.Length > 0)
+                {
+                    string[] bindableLabels = bindablePaths
+                        .Select(path => $"{FormatBindingPath(path)}  [{path}]")
+                        .ToArray();
+
+                    int currentBindingIndex = Array.IndexOf(bindablePaths, entry.defaultBindingPath);
+                    _bindingPickerIndex = Mathf.Clamp(currentBindingIndex >= 0 ? currentBindingIndex : _bindingPickerIndex, 0, bindablePaths.Length - 1);
+
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.PrefixLabel("Binding from action");
+                    _bindingPickerIndex = EditorGUILayout.Popup(_bindingPickerIndex, bindableLabels);
+                    if (GUILayout.Button("Use selected", GUILayout.Width(110)))
+                        entry.defaultBindingPath = bindablePaths[_bindingPickerIndex];
+                    EditorGUILayout.EndHorizontal();
+                }
+
+                string firstBindingPath = GetFirstBindablePath(selectedAction);
+                if (!string.IsNullOrEmpty(firstBindingPath) && GUILayout.Button($"Use first action binding ({FormatBindingPath(firstBindingPath)})"))
+                    entry.defaultBindingPath = firstBindingPath;
+            }
+
             if (string.IsNullOrEmpty(entry.defaultBindingPath))
                 EditorGUILayout.HelpBox("Used when player has no save file. Example: <Keyboard>/space", MessageType.None);
+            else
+                EditorGUILayout.HelpBox($"Default binding path: {entry.defaultBindingPath} ({FormatBindingPath(entry.defaultBindingPath)})", MessageType.None);
 
             EditorGUILayout.Space(8);
             EditorGUILayout.LabelField("Locale (key: " + entry.LocalizationKey + ")", EditorStyles.boldLabel);
@@ -206,6 +275,92 @@ namespace RelicKeeper.Editor.UI
 
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
+        }
+
+        private InputActionMap GetPlayerMap()
+        {
+            if (_config == null || _config.inputActionAsset == null)
+                return null;
+
+            return _config.inputActionAsset.FindActionMap("Player", false);
+        }
+
+        private string[] GetPlayerActionNames()
+        {
+            var map = GetPlayerMap();
+            if (map == null)
+                return Array.Empty<string>();
+
+            return map.actions
+                .Where(action => IsRebindableAction(action.name))
+                .Select(action => action.name)
+                .OrderBy(name => name)
+                .ToArray();
+        }
+
+        private InputAction FindPlayerAction(string actionName)
+        {
+            if (string.IsNullOrWhiteSpace(actionName))
+                return null;
+
+            var map = GetPlayerMap();
+            return map?.FindAction(actionName, false);
+        }
+
+        private static string[] GetBindablePaths(InputAction action)
+        {
+            if (action == null)
+                return Array.Empty<string>();
+
+            return action.bindings
+                .Where(binding =>
+                    !binding.isComposite &&
+                    !binding.isPartOfComposite &&
+                    !string.IsNullOrWhiteSpace(binding.path))
+                .Select(binding => binding.path)
+                .Distinct()
+                .ToArray();
+        }
+
+        private static string GetFirstBindablePath(InputAction action)
+        {
+            string[] paths = GetBindablePaths(action);
+            return paths.Length > 0 ? paths[0] : "";
+        }
+
+        private static string NormalizeBindingPath(string rawPath)
+        {
+            if (string.IsNullOrWhiteSpace(rawPath))
+                return "";
+
+            string trimmed = rawPath.Trim();
+            if (trimmed.StartsWith("<", StringComparison.Ordinal))
+                return trimmed;
+
+            return trimmed.ToLowerInvariant() switch
+            {
+                "left shift" => "<Keyboard>/leftShift",
+                "lshift" => "<Keyboard>/leftShift",
+                "right shift" => "<Keyboard>/rightShift",
+                "rshift" => "<Keyboard>/rightShift",
+                "space" => "<Keyboard>/space",
+                "left ctrl" => "<Keyboard>/leftCtrl",
+                "lctrl" => "<Keyboard>/leftCtrl",
+                "right ctrl" => "<Keyboard>/rightCtrl",
+                "rctrl" => "<Keyboard>/rightCtrl",
+                "left alt" => "<Keyboard>/leftAlt",
+                "right alt" => "<Keyboard>/rightAlt",
+                _ when trimmed.Length == 1 && char.IsLetterOrDigit(trimmed[0]) => $"<Keyboard>/{trimmed.ToLowerInvariant()}",
+                _ => trimmed
+            };
+        }
+
+        private static string FormatBindingPath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return "Unbound";
+
+            return InputControlPath.ToHumanReadableString(path, InputControlPath.HumanReadableStringOptions.OmitDevice);
         }
 
         private void SyncFromInputAsset()

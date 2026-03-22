@@ -7748,6 +7748,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9718853cee682d546bcd49573f688f5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _dodgeTime: 0.3
+  _groundDodgeCooldown: 1
+  _airDodgeCooldown: 4
+  _airLandingRefundThreshold: 1
+  _groundDodgeDistance: 2.2
+  _airDodgeDistance: 2.6
+  _dodgeVfxAlpha: 0.8
+  _keyboardDodgeKey: 51
+  _gamepadDodgeButton: 0
+  _readyFlashDuration: 0.16
+  _readyFlashColor: {r: 0.92, g: 0.92, b: 0.92, a: 1}
+  _afterImageInterval: 0.05
+  _afterImageLifetime: 0.16
+  _afterImageAlpha: 0.45
+  _afterImageColor: {r: 0.1, g: 0.1, b: 0.1, a: 0.45}
+  _stationaryDodgeScaleY: 0.86
 --- !u!114 &1563690807
 MonoBehaviour:
   m_ObjectHideFlags: 0

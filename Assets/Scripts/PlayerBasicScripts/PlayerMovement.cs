@@ -1,7 +1,4 @@
-// ==========================================
-// FILENAME: Assets/Scripts/PlayerBasicScripts/PlayerMovement.cs
-// ==========================================
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Scripts.Stats;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -26,16 +23,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField, Min(0.05f)] private float _dropThroughDuration = DefaultDropThroughDuration;
     [SerializeField, Range(-1f, 0f)] private float _dropThroughInputThreshold = -0.5f;
 
-    [Tooltip("Базовая скорость без предметов (например, 5)")]
+    [Header("Movement")]
     [SerializeField] private float _baseMoveSpeed = 5f;
-
-    [Tooltip("Базовая сила прыжка (например, 12)")]
     [SerializeField] private float _baseJumpForce = 12f;
-
-    [Header("Movement Settings")]
     [SerializeField] private float _stopThreshold = 0.01f;
 
-    [Header("Jump Settings")]
+    [Header("Jump")]
     [SerializeField, Min(1)] private int _maxJumpCount = 2;
 
     private readonly List<Collider2D> _ignoredPlatformColliders = new();
@@ -53,6 +46,16 @@ public class PlayerMovement : MonoBehaviour
     private float _dropThroughEndTime = -1f;
     private int _availableJumpCount;
 
+    private bool _hasMotionOverride;
+    private Vector2 _motionOverrideVelocity;
+    private bool _motionOverrideSuspendsGravity;
+    private float _cachedGravityScale;
+    private bool _hasCachedGravityScale;
+
+    public bool IsGrounded => _isGrounded;
+    public Vector2 CurrentMoveInput => _moveInput;
+    public Vector2 CurrentVelocity => _rb != null ? _rb.linearVelocity : Vector2.zero;
+
     public void SetMovementLock(bool isLocked)
     {
         _isMovementLocked = isLocked;
@@ -60,8 +63,57 @@ public class PlayerMovement : MonoBehaviour
         {
             _moveInput = Vector2.zero;
             _horizontalInput = 0f;
-            _rb.linearVelocity = new Vector2(0f, _rb.linearVelocity.y);
+            if (!_hasMotionOverride && _rb != null)
+                _rb.linearVelocity = new Vector2(0f, _rb.linearVelocity.y);
         }
+    }
+
+    public void BeginMotionOverride(Vector2 velocity, bool suspendGravity)
+    {
+        if (_rb == null)
+            return;
+
+        _hasMotionOverride = true;
+        _motionOverrideVelocity = velocity;
+        _motionOverrideSuspendsGravity = suspendGravity;
+
+        if (suspendGravity && !_hasCachedGravityScale)
+        {
+            _cachedGravityScale = _rb.gravityScale;
+            _hasCachedGravityScale = true;
+            _rb.gravityScale = 0f;
+        }
+    }
+
+    public void UpdateMotionOverride(Vector2 velocity)
+    {
+        _motionOverrideVelocity = velocity;
+    }
+
+    public void EndMotionOverride(Vector2 restoredVelocity)
+    {
+        if (_rb == null)
+            return;
+
+        _hasMotionOverride = false;
+        _motionOverrideVelocity = Vector2.zero;
+
+        if (_motionOverrideSuspendsGravity && _hasCachedGravityScale)
+        {
+            _rb.gravityScale = _cachedGravityScale;
+            _hasCachedGravityScale = false;
+        }
+
+        _motionOverrideSuspendsGravity = false;
+        _rb.linearVelocity = restoredVelocity;
+    }
+
+    public void ForceFaceDirection(float horizontalDirection)
+    {
+        if (horizontalDirection > 0.01f && !_isFacingRight)
+            Flip();
+        else if (horizontalDirection < -0.01f && _isFacingRight)
+            Flip();
     }
 
     private void Awake()
@@ -87,6 +139,9 @@ public class PlayerMovement : MonoBehaviour
             InputManager.InputActions.Player.Jump.performed -= OnJumpPerformed;
 
         ClearIgnoredPlatformCollisions();
+
+        if (_hasMotionOverride)
+            EndMotionOverride(Vector2.zero);
     }
 
     private void Update()
@@ -108,7 +163,11 @@ public class PlayerMovement : MonoBehaviour
         CheckGround();
         RefreshJumpCountIfLanded();
 
-        if (!_isMovementLocked)
+        if (_hasMotionOverride)
+        {
+            ApplyMotionOverride();
+        }
+        else if (!_isMovementLocked)
         {
             ApplyMovement();
             HandleSpriteFlip();
@@ -119,7 +178,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
-        if (_isMovementLocked)
+        if (_isMovementLocked || _hasMotionOverride)
             return;
 
         if (TryStartDropThrough())
@@ -138,8 +197,6 @@ public class PlayerMovement : MonoBehaviour
             InputRebindSaver.Load(InputManager.InputActions.asset);
     }
 
-    #region Physics Logic
-
     private void ApplyMovement()
     {
         float speedBonusPercent = _stats.GetValue(StatType.MoveSpeed);
@@ -151,6 +208,21 @@ public class PlayerMovement : MonoBehaviour
             _rb.linearVelocity = new Vector2(0f, currentVerticalSpeed);
         else
             _rb.linearVelocity = new Vector2(targetSpeed, currentVerticalSpeed);
+    }
+
+    private void ApplyMotionOverride()
+    {
+        if (_rb == null)
+            return;
+
+        if (_motionOverrideSuspendsGravity && !_hasCachedGravityScale)
+        {
+            _cachedGravityScale = _rb.gravityScale;
+            _hasCachedGravityScale = true;
+            _rb.gravityScale = 0f;
+        }
+
+        _rb.linearVelocity = _motionOverrideVelocity;
     }
 
     private void ApplyJumpForce()
@@ -334,14 +406,12 @@ public class PlayerMovement : MonoBehaviour
         _isDroppingThroughPlatform = false;
     }
 
-    #endregion
-
-    #region Visuals
-
     private void HandleSpriteFlip()
     {
-        if (_horizontalInput > 0f && !_isFacingRight) Flip();
-        else if (_horizontalInput < 0f && _isFacingRight) Flip();
+        if (_horizontalInput > 0f && !_isFacingRight)
+            Flip();
+        else if (_horizontalInput < 0f && _isFacingRight)
+            Flip();
     }
 
     private void Flip()
@@ -351,8 +421,6 @@ public class PlayerMovement : MonoBehaviour
         scaler.x *= -1f;
         transform.localScale = scaler;
     }
-
-    #endregion
 
     private void OnDrawGizmosSelected()
     {

@@ -639,6 +639,34 @@ MonoBehaviour:
     m_Key: stats.ManaRegenPercent
     m_Metadata:
       m_Items: []
+  - m_Id: 40798052820746240
+    m_Key: input.Move
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40798052854300672
+    m_Key: input.Look
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40798052854300673
+    m_Key: input.Previous
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40798052854300674
+    m_Key: input.Next
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40798052854300675
+    m_Key: input.ToggleDebugInventory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40798052854300676
+    m_Key: input.NewAction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40804688767516672
+    m_Key: input.Dodge
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

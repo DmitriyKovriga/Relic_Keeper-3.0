@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class InputManager : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class InputManager : MonoBehaviour
             if (_inputActions == null)
             {
                 _inputActions = new GameInput();
+                GameInputRuntimeSetup.EnsureRelicKeeperRuntimeActions(_inputActions);
                 _inputActions.Enable();
             }
             return _inputActions;
@@ -28,5 +30,25 @@ public class InputManager : MonoBehaviour
     {
         // Не забываем чистить за собой при выходе
         _inputActions?.Disable();
+    }
+}
+
+public static class GameInputRuntimeSetup
+{
+    public static void EnsureRelicKeeperRuntimeActions(GameInput input)
+    {
+        if (input == null || input.asset == null)
+            return;
+
+        InputActionMap playerMap = input.asset.FindActionMap("Player", false);
+        if (playerMap == null)
+            return;
+
+        if (playerMap.FindAction("Dodge", false) != null)
+            return;
+
+        InputAction dodgeAction = playerMap.AddAction("Dodge", InputActionType.Button);
+        dodgeAction.AddBinding("<Keyboard>/leftShift");
+        dodgeAction.AddBinding("<Gamepad>/rightShoulder");
     }
 }

@@ -1,5 +1,5 @@
+﻿using System.Collections.Generic;
 using UnityEngine;
-using System.Collections.Generic;
 using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Stats;
@@ -11,11 +11,12 @@ namespace Scripts.Skills
     {
         public event System.Action<int, SkillDataSO> OnSkillSlotUpdated;
 
-        private Dictionary<int, SkillBehaviour> _activeSkills = new Dictionary<int, SkillBehaviour>();
+        private readonly Dictionary<int, SkillBehaviour> _activeSkills = new();
 
         [SerializeField] private Transform _skillContainer;
 
         private PlayerStats _playerStats;
+        private bool _suppressSkillUsage;
 
         private void Awake()
         {
@@ -23,7 +24,7 @@ namespace Scripts.Skills
 
             if (_skillContainer == null)
             {
-                GameObject container = new GameObject("ActiveSkillsContainer");
+                GameObject container = new("ActiveSkillsContainer");
                 container.transform.SetParent(transform);
                 container.transform.localPosition = Vector3.zero;
                 _skillContainer = container.transform;
@@ -51,6 +52,20 @@ namespace Scripts.Skills
             }
         }
 
+        public void SetSkillUsageSuppressed(bool suppressed)
+        {
+            _suppressSkillUsage = suppressed;
+        }
+
+        public void CancelAllSkills()
+        {
+            foreach (var pair in _activeSkills)
+            {
+                if (pair.Value != null)
+                    pair.Value.Cancel();
+            }
+        }
+
         public void RefreshAllSkills()
         {
             for (int i = 0; i < 5; i++)
@@ -70,6 +85,9 @@ namespace Scripts.Skills
 
         public void UseSkill(int slotIndex)
         {
+            if (_suppressSkillUsage)
+                return;
+
             if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)
                 skillBehaviour.TryCast();
         }
@@ -198,7 +216,9 @@ namespace Scripts.Skills
         private int GetSkillSlotByItemSlot(EquipmentSlot itemSlot)
         {
             int i = (int)itemSlot;
-            if (i < 0 || i >= _equipmentSlotToSkillSlot.Length) return -1;
+            if (i < 0 || i >= _equipmentSlotToSkillSlot.Length)
+                return -1;
+
             return _equipmentSlotToSkillSlot[i];
         }
     }
