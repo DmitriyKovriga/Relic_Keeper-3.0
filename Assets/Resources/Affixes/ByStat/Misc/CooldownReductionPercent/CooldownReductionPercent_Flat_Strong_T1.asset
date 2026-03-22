@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_cooldownreductionpercent_flat_strong_t1
   TranslationKey: affix_flat_cooldownreductionpercent
+  LockAutoLocalization: 0
   TagIds:
   - Misc
   Stats:
   - Stat: 80
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 5
     MaxValue: 7
+    RangeMinValue: 0
+    RangeMaxValue: 0

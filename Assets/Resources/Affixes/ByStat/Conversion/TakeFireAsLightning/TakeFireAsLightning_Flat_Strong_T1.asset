@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_takefireaslightning_flat_strong_t1
   TranslationKey: affix_flat_takefireaslightning
+  LockAutoLocalization: 0
   TagIds:
   - Conversion
   Stats:
   - Stat: 47
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 5
     MaxValue: 7
+    RangeMinValue: 0
+    RangeMaxValue: 0

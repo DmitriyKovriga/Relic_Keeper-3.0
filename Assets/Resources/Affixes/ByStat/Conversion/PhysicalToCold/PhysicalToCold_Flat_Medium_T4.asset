@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_physicaltocold_flat_medium_t4
   TranslationKey: affix_flat_physicaltocold
+  LockAutoLocalization: 0
   TagIds:
   - Conversion
   Stats:
   - Stat: 35
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 1
     MaxValue: 2
+    RangeMinValue: 0
+    RangeMaxValue: 0

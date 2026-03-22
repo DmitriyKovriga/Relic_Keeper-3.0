@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_armor_more_medium_t2
   TranslationKey: affix_more_armor
+  LockAutoLocalization: 0
   TagIds:
   - Defense
   Stats:
   - Stat: 14
     Type: 300
     Scope: 0
+    ValueMode: 0
     MinValue: 6
     MaxValue: 8.5
+    RangeMinValue: 0
+    RangeMaxValue: 0

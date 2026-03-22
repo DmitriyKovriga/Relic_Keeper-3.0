@@ -9,13 +9,13 @@ namespace Scripts.Items
         public ArmorDefenseType DefenseType;
 
         [Header("Base Defense Stats")]
-        [Tooltip("Базовая броня (увеличивается локальными аффиксами).")]
+        [Tooltip("Base armor value.")]
         public float BaseArmor;
-        
-        [Tooltip("Базовое уклонение.")]
+
+        [Tooltip("Base evasion value.")]
         public float BaseEvasion;
-        
-        [Tooltip("Базовые баблы (Bubbles).")]
-        public float BaseBubbles; 
+
+        [Tooltip("Base Mystic Shield value.")]
+        public float BaseMysticShield;
     }
 }

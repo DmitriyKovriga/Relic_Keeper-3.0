@@ -5,6 +5,10 @@ using System.Linq;
 using Scripts.Items;
 using Scripts.Items.Affixes;
 using Scripts.Skills;
+using UnityEditor.Localization;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Tables;
+using System.IO;
 
 namespace Scripts.Editor.Items
 {
@@ -26,6 +30,12 @@ namespace Scripts.Editor.Items
         private int _itemSlotFilter; // -1 = all, else EquipmentSlot
         private SerializedObject _serializedItem;
         private ItemDatabaseSO _itemDatabase;
+        private StringTableCollection _itemsLabelsCollection;
+        private string _itemNameLocEn = "";
+        private string _itemNameLocRu = "";
+        private string _lastLoadedItemLocKey = "";
+        private string _newItemName = "NewItem";
+        private string _newItemFolder = "Assets/Resources/Items";
 
         // Pools
         private List<AffixPoolSO> _pools = new List<AffixPoolSO>();
@@ -45,12 +55,41 @@ namespace Scripts.Editor.Items
         private const string SessionKeySelectedItem = "ItemsEditorWindow_SelectedItem";
         private const string SessionKeySelectedPool = "ItemsEditorWindow_SelectedPool";
         private const string SessionKeySelectedAffix = "ItemsEditorWindow_SelectedAffix";
+        private const string SessionKeyNewItemName = "ItemsEditorWindow_NewItemName";
+        private const string SessionKeyNewItemFolder = "ItemsEditorWindow_NewItemFolder";
 
         [MenuItem(MenuPath)]
         public static void OpenWindow()
         {
             var w = GetWindow<ItemsEditorWindow>();
             w.titleContent = new GUIContent("Items Editor");
+        }
+
+        public static void OpenWithItem(EquipmentItemSO item)
+        {
+            if (item == null) return;
+
+            var w = GetWindow<ItemsEditorWindow>();
+            w.titleContent = new GUIContent("Items Editor");
+            w._tab = 0;
+            SessionState.SetInt(SessionKeyTab, 0);
+            w.LoadItems();
+            w._selectedItem = item;
+            w._serializedItem = null;
+            string itemPath = AssetDatabase.GetAssetPath(item);
+            if (!string.IsNullOrEmpty(itemPath))
+                SessionState.SetString(SessionKeySelectedItem, itemPath);
+            w.Focus();
+            w.Repaint();
+        }
+
+        [UnityEditor.Callbacks.OnOpenAsset(1)]
+        public static bool OnOpenAsset(int instanceID, int line)
+        {
+            var item = EditorUtility.InstanceIDToObject(instanceID) as EquipmentItemSO;
+            if (item == null) return false;
+            OpenWithItem(item);
+            return true;
         }
 
         private void OnEnable()
@@ -79,6 +118,11 @@ namespace Scripts.Editor.Items
             }
             if (_itemDatabase == null)
                 _itemDatabase = AssetDatabase.LoadAssetAtPath<ItemDatabaseSO>(EditorPaths.ItemDatabase);
+            if (_itemsLabelsCollection == null)
+                _itemsLabelsCollection = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.ItemsLabelsTable);
+
+            _newItemName = SessionState.GetString(SessionKeyNewItemName, _newItemName);
+            _newItemFolder = SessionState.GetString(SessionKeyNewItemFolder, _newItemFolder);
         }
 
         private void LoadItems()
@@ -177,6 +221,29 @@ namespace Scripts.Editor.Items
             }
             EditorGUILayout.EndScrollView();
 
+            EditorGUILayout.Space(8);
+            GUILayout.Label("Create Item", EditorStyles.boldLabel);
+            _newItemName = EditorGUILayout.TextField("Name", _newItemName);
+            EditorGUILayout.BeginHorizontal();
+            _newItemFolder = EditorGUILayout.TextField("Folder", _newItemFolder);
+            if (GUILayout.Button("...", GUILayout.Width(30)))
+            {
+                string pickedAbsolutePath = EditorUtility.OpenFolderPanel("Select item folder", Application.dataPath, string.Empty);
+                if (!string.IsNullOrEmpty(pickedAbsolutePath))
+                {
+                    if (TryConvertAbsoluteFolderToProjectPath(pickedAbsolutePath, out string projectPath))
+                        _newItemFolder = projectPath;
+                    else
+                        EditorUtility.DisplayDialog("Invalid folder", "Please choose a folder inside this Unity project (under Assets).", "OK");
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+            SessionState.SetString(SessionKeyNewItemName, _newItemName ?? string.Empty);
+            SessionState.SetString(SessionKeyNewItemFolder, _newItemFolder ?? string.Empty);
+
+            if (!string.IsNullOrWhiteSpace(_newItemFolder) && !_newItemFolder.Trim().Replace("\\", "/").StartsWith("Assets"))
+                EditorGUILayout.HelpBox("Folder must be inside project Assets.", MessageType.Warning);
+
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Create Armor")) CreateNewItem(true);
             if (GUILayout.Button("Create Weapon")) CreateNewItem(false);
@@ -210,9 +277,17 @@ namespace Scripts.Editor.Items
             do
             {
                 if (IsInternalUnityProperty(prop.name)) continue;
+                if (prop.name == "ID")
+                {
+                    DrawItemIdFieldWithActions(prop);
+                    continue;
+                }
                 EditorGUILayout.PropertyField(prop, true);
             } while (prop.Next(false));
             _serializedItem.ApplyModifiedProperties();
+
+            DrawItemDatabaseSection();
+            DrawItemLocalizationSection();
 
             EditorGUILayout.Space(8);
             GUILayout.Label("Used affix pool", EditorStyles.boldLabel);
@@ -229,7 +304,7 @@ namespace Scripts.Editor.Items
                 }
             }
             else
-                EditorGUILayout.HelpBox($"No pool with Slot={_selectedItem.Slot} and DefenseType={(_selectedItem is ArmorItemSO armor ? armor.DefenseType.ToString() : "None")}.", MessageType.None);
+                EditorGUILayout.HelpBox($"No pool with Slot={_selectedItem.Slot} and DefenseType={(_selectedItem is ArmorItemSO armor ? GetDefenseTypeDisplayName(armor.DefenseType) : "None")}.", MessageType.None);
 
             EditorGUILayout.Space(8);
             if (GUILayout.Button("Open in Inspector")) { Selection.activeObject = _selectedItem; EditorGUIUtility.PingObject(_selectedItem); }
@@ -251,6 +326,135 @@ namespace Scripts.Editor.Items
             EditorGUILayout.EndScrollView();
         }
 
+        private void DrawItemDatabaseSection()
+        {
+            EditorGUILayout.Space(8);
+            GUILayout.Label("Item database", EditorStyles.boldLabel);
+
+            if (_itemDatabase == null)
+            {
+                EditorGUILayout.HelpBox($"Item database not found at path:\n{EditorPaths.ItemDatabase}", MessageType.Warning);
+                return;
+            }
+
+            if (_itemDatabase.AllItems == null)
+                _itemDatabase.AllItems = new List<EquipmentItemSO>();
+
+            bool existsInDatabase = _itemDatabase.AllItems.Contains(_selectedItem);
+            EditorGUILayout.LabelField("Status", existsInDatabase ? "In database" : "Not in database");
+
+            if (!existsInDatabase)
+            {
+                GUI.backgroundColor = new Color(0.82f, 0.95f, 0.82f);
+                if (GUILayout.Button("Add to Item Database"))
+                {
+                    _itemDatabase.AllItems.Add(_selectedItem);
+                    EditorUtility.SetDirty(_itemDatabase);
+                    AssetDatabase.SaveAssets();
+                }
+                GUI.backgroundColor = Color.white;
+            }
+        }
+
+        private void DrawItemLocalizationSection()
+        {
+            EditorGUILayout.Space(8);
+            GUILayout.Label("Localization (EN / RU)", EditorStyles.boldLabel);
+
+            var newCollection = (StringTableCollection)EditorGUILayout.ObjectField("ItemsLabels table", _itemsLabelsCollection, typeof(StringTableCollection), false);
+            if (newCollection != _itemsLabelsCollection)
+            {
+                _itemsLabelsCollection = newCollection;
+                _lastLoadedItemLocKey = string.Empty;
+            }
+
+            if (_itemsLabelsCollection == null)
+            {
+                EditorGUILayout.HelpBox("Assign ItemsLabels table (EditorPaths.ItemsLabelsTable).", MessageType.Warning);
+                return;
+            }
+
+            string id = _selectedItem != null ? (_selectedItem.ID ?? string.Empty).Trim() : string.Empty;
+            if (string.IsNullOrEmpty(id))
+            {
+                EditorGUILayout.HelpBox("Item ID is empty. Generate or set ID first to edit localization.", MessageType.Warning);
+                return;
+            }
+
+            string key = $"items.{id}";
+            if (_lastLoadedItemLocKey != key)
+            {
+                LoadItemLocalizationValues(key);
+                _lastLoadedItemLocKey = key;
+            }
+
+            EditorGUILayout.LabelField("Key", key);
+            _itemNameLocEn = EditorGUILayout.TextField("Name (EN)", _itemNameLocEn ?? string.Empty);
+            _itemNameLocRu = EditorGUILayout.TextField("Name (RU)", _itemNameLocRu ?? string.Empty);
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Reload", GUILayout.Width(80)))
+            {
+                _lastLoadedItemLocKey = string.Empty;
+            }
+            if (GUILayout.Button("Save", GUILayout.Height(24)))
+            {
+                SaveItemLocalizationValues(key);
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void LoadItemLocalizationValues(string key)
+        {
+            _itemNameLocEn = GetLocalizedString(_itemsLabelsCollection, key, "en");
+            _itemNameLocRu = GetLocalizedString(_itemsLabelsCollection, key, "ru");
+        }
+
+        private void SaveItemLocalizationValues(string key)
+        {
+            if (_itemsLabelsCollection == null || string.IsNullOrEmpty(key)) return;
+
+            var enTable = _itemsLabelsCollection.GetTable("en") as StringTable
+                ?? _itemsLabelsCollection.GetTable(new LocaleIdentifier("en")) as StringTable;
+            var ruTable = _itemsLabelsCollection.GetTable("ru") as StringTable
+                ?? _itemsLabelsCollection.GetTable(new LocaleIdentifier("ru")) as StringTable;
+            if (enTable == null || ruTable == null)
+            {
+                Debug.LogWarning("[ItemsEditor] ItemsLabels: en or ru table not found.");
+                return;
+            }
+
+            var sharedData = _itemsLabelsCollection.SharedData;
+            if (sharedData != null && !sharedData.Contains(key))
+            {
+                sharedData.AddKey(key);
+                EditorUtility.SetDirty(sharedData);
+            }
+
+            SetOrAddEntry(enTable, key, _itemNameLocEn ?? string.Empty);
+            SetOrAddEntry(ruTable, key, _itemNameLocRu ?? string.Empty);
+            EditorUtility.SetDirty(enTable);
+            EditorUtility.SetDirty(ruTable);
+            AssetDatabase.SaveAssets();
+            _lastLoadedItemLocKey = key;
+        }
+
+        private static string GetLocalizedString(StringTableCollection collection, string key, string locale)
+        {
+            if (collection == null || string.IsNullOrEmpty(key)) return string.Empty;
+            var table = collection.GetTable(locale) as StringTable
+                ?? collection.GetTable(new LocaleIdentifier(locale)) as StringTable;
+            if (table == null) return string.Empty;
+            return table.GetEntry(key)?.Value ?? string.Empty;
+        }
+
+        private static void SetOrAddEntry(StringTable table, string key, string value)
+        {
+            var entry = table.GetEntry(key);
+            if (entry != null) entry.Value = value;
+            else table.AddEntry(key, value);
+        }
+
         private AffixPoolSO FindPoolForItem(EquipmentItemSO item)
         {
             ArmorDefenseType defType = ArmorDefenseType.None;
@@ -260,28 +464,183 @@ namespace Scripts.Editor.Items
 
         private void CreateNewItem(bool armor)
         {
-            string defaultName = armor ? "NewArmor" : "NewWeapon";
-            string path = EditorUtility.SaveFilePanelInProject("Create item", defaultName, "asset", "Save item", "Assets/Resources");
-            if (string.IsNullOrEmpty(path)) return;
+            string baseName = string.IsNullOrWhiteSpace(_newItemName) ? (armor ? "NewArmor" : "NewWeapon") : _newItemName.Trim();
+            string rawFolder = string.IsNullOrWhiteSpace(_newItemFolder) ? "Assets/Resources" : _newItemFolder;
+            if (!TryNormalizeItemFolderPath(rawFolder, out string folder, out string error))
+            {
+                EditorUtility.DisplayDialog("Invalid folder", error, "OK");
+                return;
+            }
+
+            _newItemFolder = folder;
+            SessionState.SetString(SessionKeyNewItemFolder, _newItemFolder ?? string.Empty);
+
+            if (!EnsureProjectFolderExists(folder))
+            {
+                EditorUtility.DisplayDialog("Create item", $"Could not create or access folder:\n{folder}", "OK");
+                return;
+            }
+
+            string path = AssetDatabase.GenerateUniqueAssetPath($"{folder}/{baseName}.asset");
             EquipmentItemSO newItem;
             if (armor)
                 newItem = ScriptableObject.CreateInstance<ArmorItemSO>();
             else
                 newItem = ScriptableObject.CreateInstance<WeaponItemSO>();
-            newItem.ID = System.Guid.NewGuid().ToString("N").Substring(0, 8);
-            newItem.ItemName = System.IO.Path.GetFileNameWithoutExtension(path);
+            newItem.ID = GenerateUniqueItemId();
+            newItem.ItemName = baseName;
             AssetDatabase.CreateAsset(newItem, path);
             if (_itemDatabase != null && _itemDatabase.AllItems != null)
             {
                 _itemDatabase.AllItems.Add(newItem);
                 EditorUtility.SetDirty(_itemDatabase);
             }
+            AssetDatabase.SaveAssets();
             LoadItems();
             _selectedItem = newItem;
             _serializedItem = null;
             SessionState.SetString(SessionKeySelectedItem, path);
             Selection.activeObject = newItem;
             EditorGUIUtility.PingObject(newItem);
+        }
+
+        private static bool TryNormalizeItemFolderPath(string inputPath, out string folderPath, out string error)
+        {
+            folderPath = null;
+            error = null;
+
+            string path = (inputPath ?? string.Empty).Trim().Replace("\\", "/");
+            if (string.IsNullOrEmpty(path))
+            {
+                folderPath = "Assets/Resources";
+                return true;
+            }
+
+            if (TryConvertAbsoluteFolderToProjectPath(path, out string projectPath))
+                path = projectPath;
+
+            path = path.TrimEnd('/');
+
+            if (path.EndsWith(".asset", System.StringComparison.OrdinalIgnoreCase))
+            {
+                path = Path.GetDirectoryName(path)?.Replace("\\", "/");
+            }
+            else if (!AssetDatabase.IsValidFolder(path))
+            {
+                // If user pasted an asset path, convert it to its folder.
+                var mainAsset = AssetDatabase.LoadMainAssetAtPath(path);
+                if (mainAsset != null)
+                {
+                    path = Path.GetDirectoryName(path)?.Replace("\\", "/");
+                }
+                else
+                {
+                    // If user pasted file path without extension (e.g. ".../MysticShield"), resolve to parent if ".../MysticShield.asset" exists.
+                    string parent = Path.GetDirectoryName(path)?.Replace("\\", "/");
+                    string leaf = Path.GetFileName(path);
+                    if (!string.IsNullOrEmpty(parent) && !string.IsNullOrEmpty(leaf))
+                    {
+                        string siblingAssetPath = $"{parent}/{leaf}.asset";
+                        if (AssetDatabase.LoadMainAssetAtPath(siblingAssetPath) != null)
+                            path = parent;
+                    }
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                error = "Folder is empty.";
+                return false;
+            }
+            if (!path.StartsWith("Assets"))
+            {
+                error = "Folder must be under Assets.";
+                return false;
+            }
+
+            folderPath = path;
+            return true;
+        }
+
+        private string GenerateUniqueItemId(EquipmentItemSO exclude = null)
+        {
+            var usedIds = new HashSet<string>(_items
+                .Where(i => i != null && i != exclude && !string.IsNullOrEmpty(i.ID))
+                .Select(i => i.ID));
+
+            for (int i = 0; i < 100; i++)
+            {
+                string id = System.Guid.NewGuid().ToString("N").Substring(0, 8);
+                if (!usedIds.Contains(id))
+                    return id;
+            }
+
+            return System.Guid.NewGuid().ToString("N");
+        }
+
+        private static bool TryConvertAbsoluteFolderToProjectPath(string absoluteFolder, out string projectPath)
+        {
+            projectPath = null;
+            if (string.IsNullOrEmpty(absoluteFolder)) return false;
+
+            string normalizedAbsolute = absoluteFolder.Replace("\\", "/");
+            string assetsAbsolute = Application.dataPath.Replace("\\", "/");
+            if (!normalizedAbsolute.StartsWith(assetsAbsolute)) return false;
+
+            projectPath = "Assets" + normalizedAbsolute.Substring(assetsAbsolute.Length);
+            return true;
+        }
+
+        private static bool EnsureProjectFolderExists(string folderPath)
+        {
+            if (string.IsNullOrEmpty(folderPath)) return false;
+            string normalized = folderPath.Replace("\\", "/");
+            if (!normalized.StartsWith("Assets")) return false;
+            if (AssetDatabase.IsValidFolder(normalized)) return true;
+
+            string[] parts = normalized.Split('/');
+            if (parts.Length == 0 || parts[0] != "Assets") return false;
+
+            string current = "Assets";
+            for (int i = 1; i < parts.Length; i++)
+            {
+                if (string.IsNullOrEmpty(parts[i])) continue;
+                string next = $"{current}/{parts[i]}";
+                if (!AssetDatabase.IsValidFolder(next))
+                {
+                    try
+                    {
+                        AssetDatabase.CreateFolder(current, parts[i]);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
+                current = next;
+            }
+
+            return AssetDatabase.IsValidFolder(normalized);
+        }
+
+        private void DrawItemIdFieldWithActions(SerializedProperty idProperty)
+        {
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(idProperty, true);
+
+            string label = string.IsNullOrEmpty(idProperty.stringValue) ? "Generate" : "Regenerate";
+            if (GUILayout.Button(label, GUILayout.Width(90)))
+            {
+                idProperty.stringValue = GenerateUniqueItemId(_selectedItem);
+                EditorUtility.SetDirty(_selectedItem);
+                AssetDatabase.SaveAssets();
+            }
+
+            GUI.enabled = !string.IsNullOrEmpty(idProperty.stringValue);
+            if (GUILayout.Button("Copy", GUILayout.Width(55)))
+                EditorGUIUtility.systemCopyBuffer = idProperty.stringValue;
+            GUI.enabled = true;
+            EditorGUILayout.EndHorizontal();
         }
 
         #endregion
@@ -297,7 +656,7 @@ namespace Scripts.Editor.Items
             _poolSearch = EditorGUILayout.TextField("Search", _poolSearch);
             _poolSlotFilter = EditorGUILayout.Popup("Slot", _poolSlotFilter + 1, slotNamesWithAll()) - 1;
             var defNames = new List<string> { "All" };
-            defNames.AddRange(System.Enum.GetNames(typeof(ArmorDefenseType)));
+            defNames.AddRange(System.Enum.GetValues(typeof(ArmorDefenseType)).Cast<ArmorDefenseType>().Select(GetDefenseTypeDisplayName));
             _poolDefenseFilter = EditorGUILayout.Popup("Defense", _poolDefenseFilter + 1, defNames.ToArray()) - 1;
             if (GUILayout.Button("Refresh")) LoadPools();
 
@@ -317,7 +676,7 @@ namespace Scripts.Editor.Items
                 bool sel = _selectedPool == pool;
                 GUI.backgroundColor = sel ? new Color(0.5f, 0.7f, 1f) : Color.white;
                 int count = pool.Affixes != null ? pool.Affixes.Count : 0;
-                if (GUILayout.Button($"{pool.name}  ({pool.Slot}/{pool.DefenseType}) [{count}]", GUILayout.Height(22)))
+                if (GUILayout.Button($"{pool.name}  ({pool.Slot}/{GetDefenseTypeDisplayName(pool.DefenseType)}) [{count}]", GUILayout.Height(22)))
                 {
                     _selectedPool = pool;
                     SessionState.SetString(SessionKeySelectedPool, AssetDatabase.GetAssetPath(pool));
@@ -507,7 +866,7 @@ namespace Scripts.Editor.Items
             else
                 foreach (var pool in inPools)
                 {
-                    if (GUILayout.Button($"  {pool.name} ({pool.Slot}/{pool.DefenseType})", EditorStyles.linkLabel))
+                    if (GUILayout.Button($"  {pool.name} ({pool.Slot}/{GetDefenseTypeDisplayName(pool.DefenseType)})", EditorStyles.linkLabel))
                     {
                         _selectedPool = pool;
                         _tab = 1;
@@ -608,6 +967,11 @@ namespace Scripts.Editor.Items
                 default:
                     return false;
             }
+        }
+
+        private static string GetDefenseTypeDisplayName(ArmorDefenseType type)
+        {
+            return type == ArmorDefenseType.MysticShield ? "Mystic Shield" : type.ToString();
         }
 
         #endregion

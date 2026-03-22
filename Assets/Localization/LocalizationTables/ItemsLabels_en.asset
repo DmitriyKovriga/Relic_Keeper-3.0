@@ -30,6 +30,90 @@ MonoBehaviour:
     m_Localized: Axe of Settler
     m_Metadata:
       m_Items: []
+  - m_Id: 23066792224653312
+    m_Localized: Chapelle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23101037102006272
+    m_Localized: Wanderer's Hat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23167718616760320
+    m_Localized: Adventure's Plate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23171028778254336
+    m_Localized: Adventure's Form
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23172813660127232
+    m_Localized: Adventure's Robe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23175256124981248
+    m_Localized: Reinforced Adventure's Gloves
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23176346073595904
+    m_Localized: Mystic Adventurer's Gloves
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23178820868145152
+    m_Localized: Leather Adventurer's Gloves
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23181823268388864
+    m_Localized: Stout Adventure's Helmet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23182751568527360
+    m_Localized: Stout Adventurer's Helmet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23183052874743808
+    m_Localized: Soft Adventurer's Helmet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23183332097949696
+    m_Localized: Mystic Adventurer's Helmet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23186027185733632
+    m_Localized: Reinforced Adventurer's Boots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23187531036655616
+    m_Localized: Leather Adventurer's Boots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23189145113886720
+    m_Localized: Mystic Adventurer's Boots
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23356923808612352
+    m_Localized: Adventurer's Buckler
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23394955618189312
+    m_Localized: Adventurer's Tower Shield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23405426429689856
+    m_Localized: Adventurer's Mystic Shield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23411518488477696
+    m_Localized: Adventurer's Dagger
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23444095232409600
+    m_Localized: Small Adventurer's Axe
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23446932200914944
+    m_Localized: Small Adventurer's Sword
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

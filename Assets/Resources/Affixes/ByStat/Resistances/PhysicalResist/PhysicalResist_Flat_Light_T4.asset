@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_physicalresist_flat_light_t4
   TranslationKey: affix_flat_physicalresist
+  LockAutoLocalization: 0
   TagIds:
   - Resistances
   Stats:
   - Stat: 24
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 1
     MaxValue: 1
+    RangeMinValue: 0
+    RangeMaxValue: 0

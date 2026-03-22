@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 3
   NameKey: affix_name_maxhealth_flat_light_t3
   TranslationKey: affix_flat_maxhealth
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:
   - Stat: 0
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 45
     MaxValue: 65
+    RangeMinValue: 0
+    RangeMaxValue: 0

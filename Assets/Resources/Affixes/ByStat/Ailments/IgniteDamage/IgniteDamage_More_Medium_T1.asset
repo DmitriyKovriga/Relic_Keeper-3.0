@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_ignitedamage_more_medium_t1
   TranslationKey: affix_more_ignitedamage
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:
   - Stat: 68
     Type: 300
     Scope: 0
+    ValueMode: 0
     MinValue: 7.5
     MaxValue: 10
+    RangeMinValue: 0
+    RangeMaxValue: 0

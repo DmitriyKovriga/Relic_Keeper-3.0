@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Scripts.Stats;
 using Scripts.Inventory;
 using Scripts.Saving;
-using Scripts.Enemies;
 
 public class PlayerStats : MonoBehaviour, IStatsProvider
 {
@@ -80,24 +79,6 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         NotifyChanged();
     }
     
-     private void OnEnable()
-    {
-        EnemyHealth.OnEnemyKilled += HandleEnemyKilled;
-    }
-
-    private void OnDisable()
-    {
-        EnemyHealth.OnEnemyKilled -= HandleEnemyKilled;
-    }
-    
-    private void HandleEnemyKilled(float xpAmount)
-    {
-        if (Leveling != null)
-        {
-            Leveling.AddXP(xpAmount);
-        }
-    }
-
     private void OnDestroy()
     {
         if (InventoryManager.Instance != null)
@@ -190,6 +171,14 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     public float GetPercentMultiplier(StatType statType)
     {
         return 1f + (GetValue(statType) / 100f);
+    }
+
+    public void AddExperience(float xpAmount)
+    {
+        if (Leveling == null || xpAmount <= 0f)
+            return;
+
+        Leveling.AddXP(xpAmount);
     }
 
     private void HandleLevelUp() { if (_restoreStateOnLevelUp) { Health.RestoreFull(); Mana.RestoreFull(); } NotifyChanged(); }

@@ -26,6 +26,7 @@ namespace Scripts.Editor.Affixes
         private int _tagFilterIndex; // 0 = All, 1+ = tag from list
         private int _statFilterIndex; // 0 = All stats, 1+ = StatType index
         private int _missingLocalizationFilterIndex; // 0 = All, 1 = Missing RU, 2 = Missing EN, 3 = Missing RU/EN, 4 = Missing RU&EN
+        private int _lockFilterIndex; // 0 = All, 1 = Locked, 2 = Unlocked
         private bool _showSystemFields;
         private SerializedObject _serializedAffix;
         private int _detailsTab; // 0 Main, 1 Tags, 2 Pools, 3 Tag DB
@@ -37,6 +38,12 @@ namespace Scripts.Editor.Affixes
             "Missing EN",
             "Missing RU or EN",
             "Missing RU & EN"
+        };
+        private static readonly string[] LockFilterOptions =
+        {
+            "All affixes",
+            "Locked localization",
+            "Unlocked localization"
         };
 
         private StatsDatabaseSO _statsDatabase;
@@ -72,7 +79,11 @@ namespace Scripts.Editor.Affixes
             if (!string.IsNullOrEmpty(path))
             {
                 var affix = _affixes.FirstOrDefault(a => a != null && AssetDatabase.GetAssetPath(a) == path);
-                if (affix != null) { _selectedAffix = affix; RefreshNameFields(); RefreshTranslationValueFields(); }
+                if (affix != null)
+                {
+                    _selectedAffix = affix;
+                    ReloadSelectedAffixLocalizationFields(resetInputState: true);
+                }
             }
         }
 
@@ -141,17 +152,20 @@ namespace Scripts.Editor.Affixes
             _statFilterIndex = EditorGUILayout.Popup("Stat", Mathf.Clamp(_statFilterIndex, 0, statOpts.Count - 1), statOpts.ToArray());
             EditorGUILayout.EndHorizontal();
             _missingLocalizationFilterIndex = EditorGUILayout.Popup("Localization", Mathf.Clamp(_missingLocalizationFilterIndex, 0, MissingLocalizationFilterOptions.Length - 1), MissingLocalizationFilterOptions);
+            _lockFilterIndex = EditorGUILayout.Popup("Lock", Mathf.Clamp(_lockFilterIndex, 0, LockFilterOptions.Length - 1), LockFilterOptions);
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Refresh")) LoadAll();
             if (GUILayout.Button("Assign suggested tags to all affixes")) AssignSuggestedTagsToAllAffixes();
             if (GUILayout.Button("Generate names (empty only)")) GenerateNamesForAffixesWithoutName();
             if (GUILayout.Button("Sync missing name & value text")) SyncMissingNameAndValueText();
+            if (GUILayout.Button("Regenerate all localizations (mode-aware)")) RegenerateAllLocalizationsFromStats();
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.BeginHorizontal();
             GUI.backgroundColor = new Color(1f, 0.85f, 0.7f);
             if (GUILayout.Button("Delete all affixes")) DeleteAllAffixesConfirm();
             GUI.backgroundColor = new Color(0.7f, 1f, 0.85f);
             if (GUILayout.Button("Generate sets for stats without")) GenerateSetsForStatsWithout();
+            if (GUILayout.Button("Generate missing variants by metadata")) GenerateMissingVariantsByMetadata();
             GUI.backgroundColor = Color.white;
             EditorGUILayout.EndHorizontal();
 
@@ -181,6 +195,8 @@ namespace Scripts.Editor.Affixes
                     if (!hasStat) return false;
                 }
                 if (!MatchesMissingLocalizationFilter(a)) return false;
+                if (_lockFilterIndex == 1 && !a.LockAutoLocalization) return false;
+                if (_lockFilterIndex == 2 && a.LockAutoLocalization) return false;
                 if (search.Length > 0 && !(a.name + (a.GroupID ?? "") + (a.TranslationKey ?? "") + (a.NameKey ?? "")).ToLowerInvariant().Contains(search)) return false;
                 return true;
             }).ToList();
@@ -191,11 +207,12 @@ namespace Scripts.Editor.Affixes
                 GUI.backgroundColor = sel ? new Color(0.5f, 0.7f, 1f) : Color.white;
                 if (GUILayout.Button($"{affix.name}  T{affix.Tier}", GUILayout.Height(22)))
                 {
+                    if (_selectedAffix != affix)
+                        ResetLocalizationInputState(clearValues: true);
                     _selectedAffix = affix;
                     SessionState.SetString(SessionKeySelectedAffix, AssetDatabase.GetAssetPath(affix));
                     _serializedAffix = null;
-                    RefreshNameFields();
-                    RefreshTranslationValueFields();
+                    ReloadSelectedAffixLocalizationFields(resetInputState: false);
                 }
                 GUI.backgroundColor = Color.white;
             }
@@ -246,9 +263,10 @@ namespace Scripts.Editor.Affixes
             }
             DrawProperty(_serializedAffix, "GroupID");
             DrawProperty(_serializedAffix, "Tier");
+            DrawProperty(_serializedAffix, "LockAutoLocalization");
             EditorGUILayout.LabelField("NameKey (auto)", _selectedAffix != null ? (GetAffixNameKey(_selectedAffix) ?? "(save name to set)") : "");
             EditorGUILayout.LabelField("Value key (auto)", _selectedAffix != null ? (GetAffixValueKey(_selectedAffix) ?? "(save value to set)") : "");
-            DrawProperty(_serializedAffix, "Stats");
+            DrawStatsProperty(_serializedAffix);
             EditorGUILayout.EndVertical();
             _serializedAffix.ApplyModifiedProperties();
 
@@ -258,6 +276,8 @@ namespace Scripts.Editor.Affixes
             DrawNameLocalization();
             EditorGUILayout.Space(4);
             DrawTranslationValueSection();
+            EditorGUILayout.Space(4);
+            DrawLocalizationActions();
             EditorGUILayout.EndVertical();
         }
 
@@ -304,7 +324,7 @@ namespace Scripts.Editor.Affixes
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                 foreach (var pool in inPools)
                 {
-                    EditorGUILayout.LabelField("Pool", pool.name + " (" + pool.Slot + "/" + pool.DefenseType + ")");
+                    EditorGUILayout.LabelField("Pool", pool.name + " (" + pool.Slot + "/" + GetDefenseTypeDisplayName(pool.DefenseType) + ")");
                     foreach (var item in _items.Where(i => FindPoolForItem(i) == pool))
                         EditorGUILayout.LabelField("  →", item.name + " (" + item.Slot + ")");
                 }
@@ -347,6 +367,7 @@ namespace Scripts.Editor.Affixes
                 {
                     foreach (var p in _pools) { if (p.Affixes != null && p.Affixes.Remove(_selectedAffix)) EditorUtility.SetDirty(p); }
                     AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(_selectedAffix));
+                    ResetLocalizationInputState(clearValues: true);
                     _selectedAffix = null;
                     LoadAll();
                 }
@@ -375,6 +396,7 @@ namespace Scripts.Editor.Affixes
             if (!EditorUtility.DisplayDialog("Delete all affixes", "Remove all affixes from pools and delete every ItemAffixSO asset in the project. This cannot be undone.", "Delete all", "Cancel"))
                 return;
             int n = AffixSetGenerator.DeleteAllAffixes(_pools);
+            ResetLocalizationInputState(clearValues: true);
             _selectedAffix = null;
             LoadAll();
             EditorUtility.DisplayDialog("Done", $"Removed and deleted {n} affixes.", "OK");
@@ -390,7 +412,20 @@ namespace Scripts.Editor.Affixes
             int created = AffixSetGenerator.GenerateSetsForStats(statsWithout, _statsDatabase, _tagDatabase, _menuLabelsCollection, _affixesLabelsCollection, EditorPaths.AffixesBaseFolder);
             LoadAll();
             if (_selectedAffix != null) RefreshNameFields();
-            EditorUtility.DisplayDialog("Generate", $"Generated {created} affixes for {statsWithout.Count} stats (FullCalcStat: flat+increase+more × strong/medium/light × T1-5; Percent/NOCalc: flat only).", "OK");
+            EditorUtility.DisplayDialog("Generate", $"Generated {created} affixes for {statsWithout.Count} stats using current stat metadata (allowed kinds + generation type).", "OK");
+        }
+
+        private void GenerateMissingVariantsByMetadata()
+        {
+            if (_statsDatabase == null) { EditorUtility.DisplayDialog("Generate", "Stats Database not found.", "OK"); return; }
+            if (_affixesLabelsCollection == null) { EditorUtility.DisplayDialog("Generate", "AffixesLabels table not found.", "OK"); return; }
+            if (_menuLabelsCollection == null) { EditorUtility.DisplayDialog("Generate", "MenuLabels table not found.", "OK"); return; }
+
+            var allStats = new HashSet<StatType>(System.Enum.GetValues(typeof(StatType)).Cast<StatType>());
+            int created = AffixSetGenerator.GenerateSetsForStats(allStats, _statsDatabase, _tagDatabase, _menuLabelsCollection, _affixesLabelsCollection, EditorPaths.AffixesBaseFolder);
+            LoadAll();
+            if (_selectedAffix != null) RefreshNameFields();
+            EditorUtility.DisplayDialog("Generate", $"Generated {created} missing affix assets using current stat metadata. Existing assets were not touched.", "OK");
         }
 
         /// <summary> Генерирует EN и RU названия для всех аффиксов без названия. Формат: [локаль стата] + " " + [тип] + " " + [scope]. </summary>
@@ -402,6 +437,7 @@ namespace Scripts.Editor.Affixes
             foreach (var affix in _affixes)
             {
                 if (affix == null) continue;
+                if (affix.LockAutoLocalization) continue;
                 string key = GetAffixNameKey(affix);
                 string existingEn = GetLocalizedString(_affixesLabelsCollection, "en", key);
                 if (!string.IsNullOrWhiteSpace(existingEn)) continue;
@@ -439,6 +475,7 @@ namespace Scripts.Editor.Affixes
             foreach (var affix in _affixes)
             {
                 if (affix == null || affix.Stats == null || affix.Stats.Length == 0) continue;
+                if (affix.LockAutoLocalization) continue;
                 string nameKey = GetAffixNameKey(affix);
                 string valueKey = GetAffixValueKey(affix);
                 string nameEn = GetLocalizedString(_affixesLabelsCollection, "en", nameKey);
@@ -455,9 +492,29 @@ namespace Scripts.Editor.Affixes
             EditorUtility.DisplayDialog("Sync", $"Filled missing name and/or value text for {filled} affixes.", "OK");
         }
 
+        private void RegenerateAllLocalizationsFromStats()
+        {
+            if (_affixesLabelsCollection == null) { EditorUtility.DisplayDialog("Localization", "AffixesLabels table not found.", "OK"); return; }
+            if (_menuLabelsCollection == null) { EditorUtility.DisplayDialog("Localization", "MenuLabels table not found.", "OK"); return; }
+
+            int updated = 0;
+            foreach (var affix in _affixes)
+            {
+                if (affix == null || affix.Stats == null || affix.Stats.Length == 0) continue;
+                if (affix.LockAutoLocalization) continue;
+
+                AffixSetGenerator.RegenerateLocalizationFromStat(affix, _menuLabelsCollection, _affixesLabelsCollection);
+                updated++;
+            }
+
+            AssetDatabase.SaveAssets();
+            if (_selectedAffix != null) { RefreshNameFields(); RefreshTranslationValueFields(); }
+            EditorUtility.DisplayDialog("Localization", $"Regenerated localizations for {updated} affixes. Locked affixes were skipped.", "OK");
+        }
+
         private static string GetTypeDisplayName(StatModType t)
         {
-            return t == StatModType.PercentAdd ? "Increase" : t == StatModType.PercentMult ? "More" : "Flat";
+            return AffixSetGenerator.GetTypeDisplayName(t);
         }
 
         private static void DrawProperty(SerializedObject so, string name)
@@ -470,11 +527,7 @@ namespace Scripts.Editor.Affixes
         private static string GetAffixValueKey(ItemAffixSO affix)
         {
             if (affix == null) return null;
-            if (!string.IsNullOrEmpty(affix.TranslationKey)) return affix.TranslationKey;
-            if (affix.Stats == null || affix.Stats.Length == 0) return null;
-            var s = affix.Stats[0];
-            string typeSuffix = s.Type == StatModType.PercentAdd ? "increase" : s.Type == StatModType.PercentMult ? "more" : "flat";
-            return "affix_" + typeSuffix + "_" + s.Stat.ToString().ToLowerInvariant();
+            return AffixSetGenerator.GetValueKeyForAffix(affix);
         }
 
         private void RefreshTranslationValueFields()
@@ -486,6 +539,44 @@ namespace Scripts.Editor.Affixes
             _translationValueRu = GetLocalizedString(_affixesLabelsCollection, "ru", key);
         }
 
+        private void ReloadSelectedAffixLocalizationFields(bool resetInputState)
+        {
+            if (resetInputState)
+                ResetLocalizationInputState(clearValues: false);
+            RefreshNameFields();
+            RefreshTranslationValueFields();
+        }
+
+        private void RegenerateSelectedAffixLocalizationFromStat()
+        {
+            if (_selectedAffix == null)
+                return;
+            if (_affixesLabelsCollection == null)
+            {
+                EditorUtility.DisplayDialog("Localization", "AffixesLabels table not found.", "OK");
+                return;
+            }
+
+            GUI.FocusControl(null);
+            EditorGUIUtility.editingTextField = false;
+            AffixSetGenerator.RegenerateLocalizationFromStat(_selectedAffix, _menuLabelsCollection, _affixesLabelsCollection);
+            AssetDatabase.SaveAssets();
+            ReloadSelectedAffixLocalizationFields(resetInputState: false);
+        }
+
+        private void ResetLocalizationInputState(bool clearValues)
+        {
+            GUI.FocusControl(null);
+            EditorGUIUtility.editingTextField = false;
+            if (clearValues)
+            {
+                _nameEn = "";
+                _nameRu = "";
+                _translationValueEn = "";
+                _translationValueRu = "";
+            }
+        }
+
         private void DrawTranslationValueSection()
         {
             GUILayout.Label("Value text (shown on item tooltip)", EditorStyles.miniBoldLabel);
@@ -493,6 +584,8 @@ namespace Scripts.Editor.Affixes
             _translationValueRu = EditorGUILayout.TextField("RU", _translationValueRu);
             if (GUILayout.Button("Save value"))
             {
+                GUI.FocusControl(null);
+                EditorGUIUtility.editingTextField = false;
                 string key = GetAffixValueKey(_selectedAffix);
                 if (string.IsNullOrEmpty(key)) { EditorUtility.DisplayDialog("Value", "Add at least one stat to the affix, then save.", "OK"); return; }
                 _selectedAffix.TranslationKey = key;
@@ -500,6 +593,7 @@ namespace Scripts.Editor.Affixes
                 SetOrAddEntry(_affixesLabelsCollection, "en", key, _translationValueEn);
                 SetOrAddEntry(_affixesLabelsCollection, "ru", key, _translationValueRu);
                 AssetDatabase.SaveAssets();
+                ReloadSelectedAffixLocalizationFields(resetInputState: false);
             }
         }
 
@@ -538,13 +632,114 @@ namespace Scripts.Editor.Affixes
             _nameRu = EditorGUILayout.TextField("RU", _nameRu);
             if (GUILayout.Button("Save"))
             {
+                GUI.FocusControl(null);
+                EditorGUIUtility.editingTextField = false;
                 string key = "affix_name_" + SanitizeKey(_selectedAffix.name);
                 SetOrAddEntry(_affixesLabelsCollection, "en", key, _nameEn);
                 SetOrAddEntry(_affixesLabelsCollection, "ru", key, _nameRu);
                 _selectedAffix.NameKey = key;
                 EditorUtility.SetDirty(_selectedAffix);
                 AssetDatabase.SaveAssets();
+                ReloadSelectedAffixLocalizationFields(resetInputState: false);
             }
+        }
+
+        private void DrawLocalizationActions()
+        {
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Reload"))
+            {
+                ReloadSelectedAffixLocalizationFields(resetInputState: true);
+            }
+            if (GUILayout.Button("Auto regenerate by stat + mode"))
+            {
+                RegenerateSelectedAffixLocalizationFromStat();
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawStatsProperty(SerializedObject so)
+        {
+            var statsProp = so.FindProperty("Stats");
+            if (statsProp == null)
+                return;
+
+            EditorGUILayout.Space(4);
+            GUILayout.Label("Stats", EditorStyles.boldLabel);
+
+            for (int i = 0; i < statsProp.arraySize; i++)
+            {
+                var element = statsProp.GetArrayElementAtIndex(i);
+                if (element == null)
+                    continue;
+
+                var statProp = element.FindPropertyRelative("Stat");
+                var typeProp = element.FindPropertyRelative("Type");
+                var scopeProp = element.FindPropertyRelative("Scope");
+                var valueModeProp = element.FindPropertyRelative("ValueMode");
+                var minValueProp = element.FindPropertyRelative("MinValue");
+                var maxValueProp = element.FindPropertyRelative("MaxValue");
+                var rangeMinValueProp = element.FindPropertyRelative("RangeMinValue");
+                var rangeMaxValueProp = element.FindPropertyRelative("RangeMaxValue");
+
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label($"Stat {i + 1}", EditorStyles.miniBoldLabel);
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Remove", GUILayout.Width(70)))
+                {
+                    statsProp.DeleteArrayElementAtIndex(i);
+                    break;
+                }
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.PropertyField(statProp);
+                EditorGUILayout.PropertyField(typeProp);
+                EditorGUILayout.PropertyField(scopeProp);
+
+                var rawValueMode = (AffixValueMode)valueModeProp.intValue;
+                var shownValueMode = rawValueMode == AffixValueMode.SingleLegacy ? AffixValueMode.Single : rawValueMode;
+                var newValueMode = (AffixValueMode)EditorGUILayout.EnumPopup("Value mode", shownValueMode);
+                if (newValueMode != shownValueMode || rawValueMode == AffixValueMode.SingleLegacy)
+                    valueModeProp.intValue = (int)newValueMode;
+
+                if (newValueMode == AffixValueMode.Range)
+                {
+                    EditorGUILayout.HelpBox("Range uses two independent roll windows: one for the lower rolled value and one for the upper rolled value.", MessageType.None);
+                    DrawMinMaxRow("Lower roll", minValueProp, maxValueProp);
+                    DrawMinMaxRow("Upper roll", rangeMinValueProp, rangeMaxValueProp);
+                }
+                else
+                {
+                    DrawMinMaxRow("Value roll", minValueProp, maxValueProp);
+                }
+
+                EditorGUILayout.EndVertical();
+            }
+
+            if (GUILayout.Button("Add stat"))
+            {
+                int index = statsProp.arraySize;
+                statsProp.InsertArrayElementAtIndex(index);
+                var newElement = statsProp.GetArrayElementAtIndex(index);
+                newElement.FindPropertyRelative("Stat").enumValueIndex = 0;
+                newElement.FindPropertyRelative("Type").intValue = (int)StatModType.Flat;
+                newElement.FindPropertyRelative("Scope").enumValueIndex = 0;
+                newElement.FindPropertyRelative("ValueMode").intValue = (int)AffixValueMode.Single;
+                newElement.FindPropertyRelative("MinValue").floatValue = 0f;
+                newElement.FindPropertyRelative("MaxValue").floatValue = 0f;
+                newElement.FindPropertyRelative("RangeMinValue").floatValue = 0f;
+                newElement.FindPropertyRelative("RangeMaxValue").floatValue = 0f;
+            }
+        }
+
+        private static void DrawMinMaxRow(string label, SerializedProperty minProp, SerializedProperty maxProp)
+        {
+            EditorGUILayout.LabelField(label, EditorStyles.miniBoldLabel);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(minProp, new GUIContent("Min"));
+            EditorGUILayout.PropertyField(maxProp, new GUIContent("Max"));
+            EditorGUILayout.EndHorizontal();
         }
 
         private List<string> GetSuggestedTagsFromStats(ItemAffixSO affix)
@@ -588,7 +783,7 @@ namespace Scripts.Editor.Affixes
             if (s.Contains("Bleed") || s.Contains("Poison") || s.Contains("Ignite") || s.Contains("Freeze") || s.Contains("Shock")) return "Ailments";
             if (s.Contains("Resist") || s.Contains("Penetration") || s.Contains("Mitigation") || s.Contains("ReduceDamage")) return "Resistances";
             if (s.Contains("Health") || s.Contains("Mana")) return "Vitals";
-            if (s.Contains("Armor") || s.Contains("Evasion") || s.Contains("Block") || s.Contains("Bubbles")) return "Defense";
+            if (s.Contains("Armor") || s.Contains("Evasion") || s.Contains("Block") || s.Contains("MysticShield")) return "Defense";
             if (s.Contains("Crit") || s.Contains("Accuracy")) return "Critical";
             if (s.Contains("Speed")) return "Speed";
             if (s.Contains("Damage") && !s.Contains("Mult") && !s.Contains("Taken")) return "Damage";
@@ -612,6 +807,11 @@ namespace Scripts.Editor.Affixes
             ArmorDefenseType defType = ArmorDefenseType.None;
             if (item is ArmorItemSO armor) defType = armor.DefenseType;
             return _pools.FirstOrDefault(p => p != null && p.Slot == item.Slot && p.DefenseType == defType);
+        }
+
+        private static string GetDefenseTypeDisplayName(ArmorDefenseType type)
+        {
+            return type == ArmorDefenseType.MysticShield ? "Mystic Shield" : type.ToString();
         }
 
         private void DrawTagManagement()
@@ -657,6 +857,8 @@ namespace Scripts.Editor.Affixes
                 string selectedId = tagIds[_selectedTagIndex];
                 if (selectedId != _lastEditedTagId)
                 {
+                    GUI.FocusControl(null);
+                    EditorGUIUtility.editingTextField = false;
                     _lastEditedTagId = selectedId;
                     string locKey = GetTagLocKey(selectedId);
                     _tagNameEn = GetLocalizedString(_affixTagsCollection, "en", locKey);
@@ -697,6 +899,7 @@ namespace Scripts.Editor.Affixes
             _selectedAffix = affix;
             SessionState.SetString(SessionKeySelectedAffix, path);
             _serializedAffix = null;
+            ReloadSelectedAffixLocalizationFields(resetInputState: true);
             Selection.activeObject = affix;
             EditorGUIUtility.PingObject(affix);
         }

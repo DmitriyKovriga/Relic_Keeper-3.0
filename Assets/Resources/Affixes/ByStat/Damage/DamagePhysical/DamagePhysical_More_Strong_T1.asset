@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_damagephysical_more_strong_t1
   TranslationKey: affix_more_damagephysical
+  LockAutoLocalization: 0
   TagIds:
   - Damage
   Stats:
   - Stat: 30
     Type: 300
     Scope: 1
+    ValueMode: 0
     MinValue: 10
     MaxValue: 13
+    RangeMinValue: 0
+    RangeMaxValue: 0

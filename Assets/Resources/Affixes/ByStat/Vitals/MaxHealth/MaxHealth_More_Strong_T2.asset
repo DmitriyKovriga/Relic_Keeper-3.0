@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_maxhealth_more_strong_t2
   TranslationKey: affix_more_maxhealth
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:
   - Stat: 0
     Type: 300
     Scope: 0
+    ValueMode: 0
     MinValue: 8
     MaxValue: 11
+    RangeMinValue: 0
+    RangeMaxValue: 0

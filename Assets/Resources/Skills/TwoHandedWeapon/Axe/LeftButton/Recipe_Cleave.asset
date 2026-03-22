@@ -15,8 +15,8 @@ MonoBehaviour:
   Steps:
   - StepDefinition: {fileID: 11400000, guid: 4a09dbc08d2314b46873162258f8a044, type: 2}
     Overrides: []
-    StartPercentPipeline: 0.25
-    EndPercentPipeline: 0.5
+    StartPercentPipeline: 0.1
+    EndPercentPipeline: 0.25
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: e6d99185f818c7840be2327fe444fbc3, type: 2}
     Overrides: []
@@ -77,9 +77,16 @@ MonoBehaviour:
       BoolVal: 0
       StringVal: 
       ObjectVal: {fileID: 0}
-    - Key: Radius
+    - Key: SizeX
       Type: 0
-      FloatVal: 1.5
+      FloatVal: 1
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SizeY
+      Type: 0
+      FloatVal: 1
       IntVal: 0
       BoolVal: 0
       StringVal: 
@@ -94,6 +101,13 @@ MonoBehaviour:
     - Key: VfxLifetimePercent
       Type: 0
       FloatVal: 0.5
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: OffsetX
+      Type: 0
+      FloatVal: 0
       IntVal: 0
       BoolVal: 0
       StringVal: 

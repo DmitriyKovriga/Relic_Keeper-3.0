@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_poisondamage_increase_medium_t2
   TranslationKey: affix_increase_poisondamage
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:
   - Stat: 63
     Type: 200
     Scope: 0
+    ValueMode: 0
     MinValue: 16
     MaxValue: 20
+    RangeMinValue: 0
+    RangeMaxValue: 0

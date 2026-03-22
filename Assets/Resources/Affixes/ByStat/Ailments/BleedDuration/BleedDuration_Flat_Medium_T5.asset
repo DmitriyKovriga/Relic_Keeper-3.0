@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_bleedduration_flat_medium_t5
   TranslationKey: affix_flat_bleedduration
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:
   - Stat: 60
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 1
     MaxValue: 2
+    RangeMinValue: 0
+    RangeMaxValue: 0

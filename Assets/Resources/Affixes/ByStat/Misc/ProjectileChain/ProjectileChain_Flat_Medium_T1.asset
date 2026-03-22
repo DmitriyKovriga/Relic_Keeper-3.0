@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_projectilechain_flat_medium_t1
   TranslationKey: affix_flat_projectilechain
+  LockAutoLocalization: 0
   TagIds:
   - Misc
   Stats:
   - Stat: 85
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 3
     MaxValue: 5
+    RangeMinValue: 0
+    RangeMaxValue: 0

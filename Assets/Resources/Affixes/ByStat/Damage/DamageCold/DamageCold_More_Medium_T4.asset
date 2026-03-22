@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_damagecold_more_medium_t4
   TranslationKey: affix_more_damagecold
+  LockAutoLocalization: 0
   TagIds:
   - Damage
   Stats:
   - Stat: 32
     Type: 300
     Scope: 1
+    ValueMode: 0
     MinValue: 3
     MaxValue: 5.5
+    RangeMinValue: 0
+    RangeMaxValue: 0

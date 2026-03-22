@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_penetrationcold_flat_light_t1
   TranslationKey: affix_flat_penetrationcold
+  LockAutoLocalization: 0
   TagIds:
   - Resistances
   Stats:
   - Stat: 55
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 1
     MaxValue: 3
+    RangeMinValue: 0
+    RangeMaxValue: 0

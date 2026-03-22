@@ -15,11 +15,11 @@ namespace Scripts.Stats
         ManaOnHit,
         ManaOnBlock,
 
-        // --- 2. Бабл-Щиты (Bubble Defense - Твоя механика) ---
-        MaxBubbles,              // Максимальное кол-во слоев (Base: 1)
-        BubbleRechargeDuration,  // Время восстановления одного слоя в секундах
-        BubbleMitigationPercent, // % урона, который впитывает слой (0.7 = 70%)
-        MaxBubbleMitigationPercent, // % урона, который впитывает слой (0.7 = 70%)
+        // --- 2. Mystic Shield ---
+        MaxMysticShield,              // Max Mystic Shield layers
+        MysticShieldRechargeDuration,  // Mystic Shield recharge time
+        MysticShieldMitigationPercent, // Mystic Shield absorb percent
+        MaxMysticShieldMitigationPercent, // Mystic Shield absorb cap
 
         // --- 3. Защита (Defenses) ---
         Armor,               // Броня (для формулы снижения физ. урона)

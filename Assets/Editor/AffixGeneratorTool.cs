@@ -51,7 +51,9 @@ public class AffixGeneratorTool
 
                 GenerateTierSet(stat, StatModType.Flat, "Flat", folderPath, ref totalAffixesCreated);
                 GenerateTierSet(stat, StatModType.PercentAdd, "Increase", folderPath, ref totalAffixesCreated);
+                GenerateTierSet(stat, StatModType.PercentSub, "Decrease", folderPath, ref totalAffixesCreated);
                 GenerateTierSet(stat, StatModType.PercentMult, "More", folderPath, ref totalAffixesCreated);
+                GenerateTierSet(stat, StatModType.PercentLess, "Less", folderPath, ref totalAffixesCreated);
             }
         }
         catch (Exception e)
@@ -117,13 +119,13 @@ public class AffixGeneratorTool
             data.MinValue = baseMin + (stepIndex * step);
             data.MaxValue = baseMax + (stepIndex * step);
         }
-        else if (type == StatModType.PercentAdd)
+        else if (type == StatModType.PercentAdd || type == StatModType.PercentSub)
         {
             float baseMin = 5f; float baseMax = 10f; float step = 5f;
             data.MinValue = baseMin + (stepIndex * step);
             data.MaxValue = baseMax + (stepIndex * step);
         }
-        else if (type == StatModType.PercentMult)
+        else if (type == StatModType.PercentMult || type == StatModType.PercentLess)
         {
             float baseMin = 2f; float baseMax = 5f; float step = 2f;
             data.MinValue = baseMin + (stepIndex * step);
@@ -137,7 +139,7 @@ public class AffixGeneratorTool
         if (s.Contains("Bleed") || s.Contains("Poison") || s.Contains("Ignite")) return "Ailments";
         if (s.Contains("Resist") || s.Contains("Penetration") || s.Contains("Mitigation") || s.Contains("ReduceDamage")) return "Resistances";
         if (s.Contains("Health") || s.Contains("Mana")) return "Vitals";
-        if (s.Contains("Armor") || s.Contains("Evasion") || s.Contains("Block") || s.Contains("Bubbles")) return "Defense";
+        if (s.Contains("Armor") || s.Contains("Evasion") || s.Contains("Block") || s.Contains("MysticShield")) return "Defense";
         if (s.Contains("Crit") || s.Contains("Accuracy")) return "Critical";
         if (s.Contains("Speed")) return "Speed";
         if (s.Contains("Damage")) return "Damage";

@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_poisondamage_flat_strong_t4
   TranslationKey: affix_flat_poisondamage
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:
   - Stat: 63
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 10
     MaxValue: 15
+    RangeMinValue: 0
+    RangeMaxValue: 0

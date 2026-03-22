@@ -131,7 +131,7 @@ public class AffixLocalizationSync : EditorWindow
             "MoveSpeed" => "Movement Speed",
             "CritChance" => "Critical Strike Chance",
             "CritMultiplier" => "Critical Strike Multiplier",
-            "MaxBubbles" => "Maximum Bubbles",
+            "MaxMysticShield" => "Maximum MysticShield",
             "BleedDamageMult" => "Damage over Time Multiplier for Bleeding",
             "DamagePhysical" => "Physical Damage",
             "Armor" => "Armour",
@@ -167,10 +167,10 @@ public class AffixLocalizationSync : EditorWindow
             "ManaOnBlock" => "Мана при Блоке",
 
             // Defense
-            "MaxBubbles" => "Макс. Пузырей",
-            "BubbleRechargeDuration" => "Скор. Перезарядки Пузыря",
-            "BubbleMitigationPercent" => "% Поглощения Пузыря",
-            "MaxBubbleMitigationPercent" => "Макс. % Поглощения Пузыря",
+            "MaxMysticShield" => "Макс. Пузырей",
+            "MysticShieldRechargeDuration" => "Скор. Перезарядки Пузыря",
+            "MysticShieldMitigationPercent" => "% Поглощения Пузыря",
+            "MaxMysticShieldMitigationPercent" => "Макс. % Поглощения Пузыря",
             
             "Armor" => "Броня",
             "Evasion" => "Уклонение",

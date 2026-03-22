@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_poisondamage_more_light_t1
   TranslationKey: affix_more_poisondamage
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:
   - Stat: 63
     Type: 300
     Scope: 0
+    ValueMode: 0
     MinValue: 5
     MaxValue: 7
+    RangeMinValue: 0
+    RangeMaxValue: 0

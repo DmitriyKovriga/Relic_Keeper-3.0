@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using UnityEngine;
 
 namespace Scripts.Stats
 {
@@ -38,6 +37,7 @@ namespace Scripts.Stats
                     _value = CalculateFinalValue();
                     _isDirty = false;
                 }
+
                 return _value;
             }
         }
@@ -56,6 +56,7 @@ namespace Scripts.Stats
                 _isDirty = true;
                 return true;
             }
+
             return false;
         }
 
@@ -71,41 +72,45 @@ namespace Scripts.Stats
                     _modifiers.RemoveAt(i);
                 }
             }
+
             return didRemove;
         }
 
         public float GetRawFlatValue()
-{
-    float finalValue = BaseValue;
-    for (int i = 0; i < _modifiers.Count; i++)
-    {
-        if (_modifiers[i].Type == StatModType.Flat)
-            finalValue += _modifiers[i].Value;
-    }
-    return finalValue;
-}
+        {
+            float finalValue = BaseValue;
+            for (int i = 0; i < _modifiers.Count; i++)
+            {
+                if (_modifiers[i].Type == StatModType.Flat)
+                    finalValue += _modifiers[i].Value;
+            }
 
-public float GetTotalPercentAdd()
-{
-    float sum = 0;
-    for (int i = 0; i < _modifiers.Count; i++)
-    {
-        if (_modifiers[i].Type == StatModType.PercentAdd)
-            sum += _modifiers[i].Value;
-    }
-    return sum;
-}
+            return finalValue;
+        }
 
-public float GetTotalMultiplier()
-{
-    float mult = 1;
-    for (int i = 0; i < _modifiers.Count; i++)
-    {
-        if (_modifiers[i].Type == StatModType.PercentMult)
-            mult *= _modifiers[i].Value;
-    }
-    return mult;
-}
+        public float GetTotalPercentAdd()
+        {
+            float sum = 0f;
+            for (int i = 0; i < _modifiers.Count; i++)
+            {
+                if (_modifiers[i].Type.IsAdditivePercent())
+                    sum += _modifiers[i].Type.ToSignedPercent(_modifiers[i].Value);
+            }
+
+            return sum;
+        }
+
+        public float GetTotalMultiplier()
+        {
+            float mult = 1f;
+            for (int i = 0; i < _modifiers.Count; i++)
+            {
+                if (_modifiers[i].Type.IsMultiplicativePercent())
+                    mult *= _modifiers[i].Type.ToMultiplierFactor(_modifiers[i].Value);
+            }
+
+            return mult;
+        }
 
         protected virtual int CompareModifierOrder(StatModifier a, StatModifier b)
         {
@@ -117,8 +122,8 @@ public float GetTotalMultiplier()
         private float CalculateFinalValue()
         {
             float finalValue = BaseValue;
-            float sumPercentAdd = 0;
-            float finalMultiplier = 1;
+            float sumPercentAdd = 0f;
+            float finalMultiplier = 1f;
 
             for (int i = 0; i < _modifiers.Count; i++)
             {
@@ -126,14 +131,14 @@ public float GetTotalMultiplier()
 
                 if (mod.Type == StatModType.Flat)
                     finalValue += mod.Value;
-                else if (mod.Type == StatModType.PercentAdd)
-                    sumPercentAdd += mod.Value;
-                else if (mod.Type == StatModType.PercentMult)
-                    finalMultiplier *= mod.Value;
+                else if (mod.Type.IsAdditivePercent())
+                    sumPercentAdd += mod.Type.ToSignedPercent(mod.Value);
+                else if (mod.Type.IsMultiplicativePercent())
+                    finalMultiplier *= mod.Type.ToMultiplierFactor(mod.Value);
             }
 
-            // Формула: (Base + Flat) * (1 + Sum%) * Mult * Mult...
-            return (float)Math.Round(finalValue * (1 + sumPercentAdd) * finalMultiplier, 4);
+            float additiveFactor = Math.Max(0f, 1f + (sumPercentAdd / 100f));
+            return (float)Math.Round(finalValue * additiveFactor * finalMultiplier, 4);
         }
     }
 }

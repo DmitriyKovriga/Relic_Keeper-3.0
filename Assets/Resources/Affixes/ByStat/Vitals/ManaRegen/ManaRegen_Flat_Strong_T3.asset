@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 3
   NameKey: affix_name_manaregen_flat_strong_t3
   TranslationKey: affix_flat_manaregen
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:
   - Stat: 6
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 75
     MaxValue: 100
+    RangeMinValue: 0
+    RangeMaxValue: 0

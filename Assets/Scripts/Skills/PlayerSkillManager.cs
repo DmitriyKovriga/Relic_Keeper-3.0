@@ -2,28 +2,25 @@ using UnityEngine;
 using System.Collections.Generic;
 using Scripts.Inventory;
 using Scripts.Items;
-using Scripts.Stats; // Нужен для получения PlayerStats
+using Scripts.Stats;
+using Scripts.Skills.Modules;
 
 namespace Scripts.Skills
 {
     public class PlayerSkillManager : MonoBehaviour
     {
-        // Событие для UI (Иконки)
         public event System.Action<int, SkillDataSO> OnSkillSlotUpdated;
 
-        // Словарь АКТИВНЫХ инстансов (скриптов на сцене), а не просто данных
         private Dictionary<int, SkillBehaviour> _activeSkills = new Dictionary<int, SkillBehaviour>();
 
-        // Контейнер, куда будут складываться спавнящиеся скиллы (чтобы не мусорить в иерархии)
         [SerializeField] private Transform _skillContainer;
-        
+
         private PlayerStats _playerStats;
 
         private void Awake()
         {
             _playerStats = GetComponent<PlayerStats>();
-            
-            // Если контейнера нет, создаем его под игроком
+
             if (_skillContainer == null)
             {
                 GameObject container = new GameObject("ActiveSkillsContainer");
@@ -37,10 +34,10 @@ namespace Scripts.Skills
         {
             if (InventoryManager.Instance != null)
             {
-                InventoryManager.Instance.OnItemEquipped += HandleItemEquipped;
-                InventoryManager.Instance.OnItemUnequipped += HandleItemUnequipped;
-                
-                RefreshAllSkills(); 
+                InventoryManager.Instance.OnInventoryChanged += RefreshAllSkills;
+                InventoryManager.Instance.OnItemEquipped += HandleEquipmentChanged;
+                InventoryManager.Instance.OnItemUnequipped += HandleEquipmentChanged;
+                RefreshAllSkills();
             }
         }
 
@@ -48,158 +45,155 @@ namespace Scripts.Skills
         {
             if (InventoryManager.Instance != null)
             {
-                InventoryManager.Instance.OnItemEquipped -= HandleItemEquipped;
-                InventoryManager.Instance.OnItemUnequipped -= HandleItemUnequipped;
+                InventoryManager.Instance.OnInventoryChanged -= RefreshAllSkills;
+                InventoryManager.Instance.OnItemEquipped -= HandleEquipmentChanged;
+                InventoryManager.Instance.OnItemUnequipped -= HandleEquipmentChanged;
             }
         }
 
         public void RefreshAllSkills()
         {
-            // Очищаем всё перед рефрешем (на всякий случай)
-            var keys = new List<int>(_activeSkills.Keys);
-            foreach (var key in keys) UnequipSkill(key);
+            for (int i = 0; i < 5; i++)
+                UnequipSkill(i);
+
+            if (InventoryManager.Instance == null)
+                return;
 
             var equipment = InventoryManager.Instance.EquipmentItems;
             for (int i = 0; i < equipment.Length; i++)
             {
                 var item = equipment[i];
                 if (item != null && item.Data != null)
-                {
-                    HandleItemEquipped(item);
-                }
+                    EquipSkillsForItem(item, i);
             }
         }
 
-        // --- МЕТОД ИСПОЛЬЗОВАНИЯ СКИЛЛА (Вызывается из InputSystem) ---
         public void UseSkill(int slotIndex)
-{
-            if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour))
-            {
-                if (skillBehaviour != null)
-                {
-                    skillBehaviour.TryCast();
-                }
-            }
-}
-
-        // --- ЭКИПИРОВКА ---
-
-        private void HandleItemEquipped(InventoryItem item)
         {
-            if (item == null || item.GrantedSkills.Count == 0) return;
+            if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)
+                skillBehaviour.TryCast();
+        }
 
-            // 1. ОРУЖИЕ
+        public float GetSkillCooldownNormalized(int slotIndex)
+        {
+            if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)
+                return skillBehaviour.CooldownNormalized;
+
+            return 0f;
+        }
+
+        public bool SlotHasCooldownSkill(int slotIndex)
+        {
+            if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)
+                return skillBehaviour.CooldownDuration > 0f;
+
+            return false;
+        }
+
+        private void HandleEquipmentChanged(InventoryItem _)
+        {
+            RefreshAllSkills();
+        }
+
+        private void EquipSkillsForItem(InventoryItem item, int equippedSlotIndex)
+        {
+            if (item == null || item.GrantedSkills.Count == 0)
+                return;
+
             if (item.Data is WeaponItemSO weapon)
             {
-                if (weapon.Slot == EquipmentSlot.OffHand)
+                if (equippedSlotIndex == (int)EquipmentSlot.OffHand)
                 {
-                    if (item.GrantedSkills.Count > 0) 
-                        EquipSkill(1, item.GrantedSkills[0]);
+                    EquipSkill(1, item.GrantedSkills[0]);
                     return;
                 }
 
-                if (weapon.Slot == EquipmentSlot.MainHand)
+                if (equippedSlotIndex == (int)EquipmentSlot.MainHand)
                 {
-                    if (item.GrantedSkills.Count > 0) 
-                        EquipSkill(0, item.GrantedSkills[0]);
+                    EquipSkill(0, item.GrantedSkills[0]);
 
                     if (weapon.IsTwoHanded && item.GrantedSkills.Count > 1)
-                    {
                         EquipSkill(1, item.GrantedSkills[1]);
-                    }
+
                     return;
                 }
             }
 
-            // 2. БРОНЯ
-            int skillSlotIndex = GetSkillSlotByItemSlot(item.Data.Slot);
+            int skillSlotIndex = GetSkillSlotByItemSlot((EquipmentSlot)equippedSlotIndex);
             if (skillSlotIndex != -1)
-            {
-                var skill = item.GrantedSkills[0];
-                EquipSkill(skillSlotIndex, skill);
-            }
+                EquipSkill(skillSlotIndex, item.GrantedSkills[0]);
         }
-
-        private void HandleItemUnequipped(InventoryItem item)
-        {
-            if (item == null || item.Data == null) return;
-
-            if (item.Data is WeaponItemSO weapon)
-            {
-                if (weapon.Slot == EquipmentSlot.OffHand)
-                {
-                    UnequipSkill(1);
-                    return;
-                }
-                if (weapon.Slot == EquipmentSlot.MainHand)
-                {
-                    UnequipSkill(0);
-                    if (weapon.IsTwoHanded) UnequipSkill(1);
-                    return;
-                }
-            }
-
-            int skillSlotIndex = GetSkillSlotByItemSlot(item.Data.Slot);
-            if (skillSlotIndex != -1)
-            {
-                UnequipSkill(skillSlotIndex);
-            }
-        }
-
-        // --- ГЛАВНЫЕ МЕТОДЫ УПРАВЛЕНИЯ ПРЕФАБАМИ ---
 
         private void EquipSkill(int slotIndex, SkillDataSO skillData)
         {
-            // 1. Сначала снимаем старый, если был
             UnequipSkill(slotIndex);
 
-            // 2. Если есть префаб -> Инстанцируем
-            if (skillData != null && skillData.SkillPrefab != null)
+            if (skillData != null)
             {
-                // Спавним префаб (он сразу становится дочерним к Container)
-                GameObject skillObj = Instantiate(skillData.SkillPrefab, _skillContainer);
-                skillObj.name = $"Skill_{skillData.SkillName}_{slotIndex}"; // Для удобства в иерархии
+                GameObject skillObj = null;
+                SkillBehaviour behaviour = null;
 
-                // Получаем компонент логики
-                SkillBehaviour behaviour = skillObj.GetComponent<SkillBehaviour>();
-                
+                if (skillData.SkillPrefab != null)
+                {
+                    skillObj = Instantiate(skillData.SkillPrefab, _skillContainer);
+                    skillObj.name = $"Skill_{skillData.SkillName}_{slotIndex}";
+                    behaviour = skillObj.GetComponent<SkillBehaviour>();
+                }
+
+                if (behaviour == null && skillData.Recipe != null)
+                {
+                    if (skillObj != null)
+                    {
+                        Debug.LogWarning($"[PlayerSkillManager] Skill prefab '{skillData.SkillName}' does not contain SkillBehaviour. Falling back to runtime StepRunner because Recipe is assigned.");
+                        Destroy(skillObj);
+                    }
+
+                    skillObj = CreateRuntimeRecipeSkillObject(slotIndex, skillData);
+                    behaviour = skillObj.GetComponent<SkillBehaviour>();
+                }
+
                 if (behaviour != null)
                 {
-                    // Инициализируем (передаем статы игрока)
                     behaviour.Initialize(_playerStats, skillData);
-                    
-                    // Сохраняем в словарь активных
                     _activeSkills[slotIndex] = behaviour;
                 }
-                else
+                else if (skillObj != null)
                 {
-                    Debug.LogError($"[PlayerSkillManager] В префабе скилла '{skillData.SkillName}' нет компонента SkillBehaviour (или наследника)!");
-                    Destroy(skillObj); // Удаляем мусор
+                    Debug.LogError($"[PlayerSkillManager] Skill prefab '{skillData.SkillName}' does not contain SkillBehaviour.");
+                    Destroy(skillObj);
                 }
             }
 
-            // 3. Обновляем UI (Иконку)
             OnSkillSlotUpdated?.Invoke(slotIndex, skillData);
+        }
+
+        private GameObject CreateRuntimeRecipeSkillObject(int slotIndex, SkillDataSO skillData)
+        {
+            var skillObj = new GameObject($"Skill_{skillData.SkillName}_{slotIndex}_Runtime");
+            skillObj.transform.SetParent(_skillContainer, false);
+
+            skillObj.AddComponent<SkillVFX>();
+            skillObj.AddComponent<SkillMovementControl>();
+            skillObj.AddComponent<SkillHandAnimation>();
+            skillObj.AddComponent<SkillStepRunner>();
+
+            return skillObj;
         }
 
         private void UnequipSkill(int slotIndex)
         {
-            // Если в слоте что-то есть -> Удаляем объект со сцены
             if (_activeSkills.TryGetValue(slotIndex, out var activeSkill))
             {
                 if (activeSkill != null)
-                {
                     Destroy(activeSkill.gameObject);
-                }
+
                 _activeSkills.Remove(slotIndex);
             }
 
-            // Очищаем UI (передаем null)
             OnSkillSlotUpdated?.Invoke(slotIndex, null);
         }
 
-        /// <summary> Маппинг слот экипировки -> индекс слота навыка (0=MainHand, 1=OffHand, 2=Gloves, 3=Boots, 4=Helmet). -1 = слот не даёт навыка (BodyArmor и др.). </summary>
-        private static readonly int[] _equipmentSlotToSkillSlot = { 4, -1, 0, 1, 2, 3 }; // Helmet, BodyArmor, MainHand, OffHand, Gloves, Boots
+        private static readonly int[] _equipmentSlotToSkillSlot = { 4, -1, 0, 1, 2, 3 };
 
         private int GetSkillSlotByItemSlot(EquipmentSlot itemSlot)
         {

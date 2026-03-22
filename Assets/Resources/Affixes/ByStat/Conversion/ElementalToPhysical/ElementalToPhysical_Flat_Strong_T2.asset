@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_elementaltophysical_flat_strong_t2
   TranslationKey: affix_flat_elementaltophysical
+  LockAutoLocalization: 0
   TagIds:
   - Conversion
   Stats:
   - Stat: 37
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 4
     MaxValue: 6
+    RangeMinValue: 0
+    RangeMaxValue: 0

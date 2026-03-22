@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_armor_flat_medium_t1
   TranslationKey: affix_flat_armor
+  LockAutoLocalization: 0
   TagIds:
   - Defense
   Stats:
   - Stat: 14
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 20
     MaxValue: 24
+    RangeMinValue: 0
+    RangeMaxValue: 0

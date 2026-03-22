@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_healthregen_flat_light_t2
   TranslationKey: affix_flat_healthregen
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:
   - Stat: 1
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 60
     MaxValue: 80
+    RangeMinValue: 0
+    RangeMaxValue: 0

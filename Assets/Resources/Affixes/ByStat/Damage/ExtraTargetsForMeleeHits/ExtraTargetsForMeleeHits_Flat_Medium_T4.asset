@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_extratargetsformeleehits_flat_medium_t4
   TranslationKey: affix_flat_extratargetsformeleehits
+  LockAutoLocalization: 0
   TagIds:
   - Damage
   Stats:
   - Stat: 87
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 8
     MaxValue: 12
+    RangeMinValue: 0
+    RangeMaxValue: 0

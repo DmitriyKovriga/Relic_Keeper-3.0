@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_physicaltofire_flat_light_t4
   TranslationKey: affix_flat_physicaltofire
+  LockAutoLocalization: 0
   TagIds:
   - Conversion
   Stats:
   - Stat: 34
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 1
     MaxValue: 1
+    RangeMinValue: 0
+    RangeMaxValue: 0

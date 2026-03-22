@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_critchance_more_light_t5
   TranslationKey: affix_more_critchance
+  LockAutoLocalization: 0
   TagIds:
   - Critical
   Stats:
   - Stat: 51
     Type: 300
     Scope: 0
+    ValueMode: 0
     MinValue: 1
     MaxValue: 3
+    RangeMinValue: 0
+    RangeMaxValue: 0

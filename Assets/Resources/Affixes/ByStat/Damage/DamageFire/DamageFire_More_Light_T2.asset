@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_damagefire_more_light_t2
   TranslationKey: affix_more_damagefire
+  LockAutoLocalization: 0
   TagIds:
   - Damage
   Stats:
   - Stat: 31
     Type: 300
     Scope: 1
+    ValueMode: 0
     MinValue: 4
     MaxValue: 6
+    RangeMinValue: 0
+    RangeMaxValue: 0

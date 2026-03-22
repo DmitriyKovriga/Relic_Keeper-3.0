@@ -40,9 +40,10 @@ namespace Scripts.Inventory
             // 1) Clear current state.
             for (int i = 0; i < EquipmentItems.Length; i++)
             {
-                if (EquipmentItems[i] == null) continue;
-                OnItemUnequipped?.Invoke(EquipmentItems[i]);
+                InventoryItem equipped = EquipmentItems[i];
+                if (equipped == null) continue;
                 EquipmentItems[i] = null;
+                OnItemUnequipped?.Invoke(equipped);
             }
 
             if (_backpack != null)

@@ -160,8 +160,8 @@ public class ItemTooltipController : MonoBehaviour
                 AddCalculatedStatRow(StatType.Armor, item.GetCalculatedStat(StatType.Armor, armor.BaseArmor), armor.BaseArmor);
             if (armor.BaseEvasion > 0)
                 AddCalculatedStatRow(StatType.Evasion, item.GetCalculatedStat(StatType.Evasion, armor.BaseEvasion), armor.BaseEvasion);
-            if (armor.BaseBubbles > 0)
-                AddCalculatedStatRow(StatType.MaxBubbles, item.GetCalculatedStat(StatType.MaxBubbles, armor.BaseBubbles), armor.BaseBubbles);
+            if (armor.BaseMysticShield > 0)
+                AddCalculatedStatRow(StatType.MaxMysticShield, item.GetCalculatedStat(StatType.MaxMysticShield, armor.BaseMysticShield), armor.BaseMysticShield);
 
             hasBase = true;
         }

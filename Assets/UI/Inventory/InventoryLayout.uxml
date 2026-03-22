@@ -130,6 +130,17 @@
                                 <ui:VisualElement name='StashSlot_97' class='slot stash-slot' />
                                 <ui:VisualElement name='StashSlot_98' class='slot stash-slot' />
                             </ui:VisualElement>
+                            <ui:VisualElement class="stash-row">
+                                <ui:VisualElement name='StashSlot_99' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_100' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_101' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_102' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_103' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_104' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_105' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_106' class='slot stash-slot' />
+                                <ui:VisualElement name='StashSlot_107' class='slot stash-slot' />
+                            </ui:VisualElement>
                         </ui:VisualElement>
                         <ui:VisualElement name="StashFrameArt" class="stash-frame-art" />
                         <ui:VisualElement name="StashItemsLayer" class="items-layer stash-items-layer" />

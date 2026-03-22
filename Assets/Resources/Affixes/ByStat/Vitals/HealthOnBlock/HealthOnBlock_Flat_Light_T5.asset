@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_healthonblock_flat_light_t5
   TranslationKey: affix_flat_healthonblock
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:
   - Stat: 4
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 1
     MaxValue: 1
+    RangeMinValue: 0
+    RangeMaxValue: 0

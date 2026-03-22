@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_takelightningasphys_flat_light_t5
   TranslationKey: affix_flat_takelightningasphys
+  LockAutoLocalization: 0
   TagIds:
   - Conversion
   Stats:
   - Stat: 41
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 1
     MaxValue: 1
+    RangeMinValue: 0
+    RangeMaxValue: 0

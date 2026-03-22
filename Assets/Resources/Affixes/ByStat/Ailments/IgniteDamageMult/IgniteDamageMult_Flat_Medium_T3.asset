@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 3
   NameKey: affix_name_ignitedamagemult_flat_medium_t3
   TranslationKey: affix_flat_ignitedamagemult
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:
   - Stat: 69
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 1
     MaxValue: 3
+    RangeMinValue: 0
+    RangeMaxValue: 0

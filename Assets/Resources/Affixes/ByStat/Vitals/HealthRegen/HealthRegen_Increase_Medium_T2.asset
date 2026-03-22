@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_healthregen_increase_medium_t2
   TranslationKey: affix_increase_healthregen
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:
   - Stat: 1
     Type: 200
     Scope: 0
+    ValueMode: 0
     MinValue: 16
     MaxValue: 20
+    RangeMinValue: 0
+    RangeMaxValue: 0

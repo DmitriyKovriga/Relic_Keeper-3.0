@@ -378,6 +378,21 @@
     z-index: 10;
 }
 
+.slot.slot-occupied {
+    background-color: rgba(145, 110, 36, 0.24);
+}
+
+.item-icon-framed {
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-color: rgba(208, 173, 92, 0.68);
+    border-right-color: rgba(208, 173, 92, 0.68);
+    border-top-color: rgba(228, 193, 112, 0.78);
+    border-bottom-color: rgba(168, 133, 62, 0.62);
+}
+
 .slot > .unity-label {
     font-size: 8px;
     color: rgba(255, 255, 255, 0.15);

@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_areaofeffect_flat_light_t5
   TranslationKey: affix_flat_areaofeffect
+  LockAutoLocalization: 0
   TagIds:
   - Misc
   Stats:
   - Stat: 79
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 1
     MaxValue: 1
+    RangeMinValue: 0
+    RangeMaxValue: 0

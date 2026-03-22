@@ -23,6 +23,10 @@ namespace Scripts.Inventory
             {
                 success = HandleMoveFromCraftSlot(toIndex);
             }
+            else if (fromIndex >= EQUIP_OFFSET && toIndex >= EQUIP_OFFSET)
+            {
+                success = TryMoveBetweenEquipSlots(fromIndex, toIndex, itemFrom);
+            }
             else if (toIndex == CRAFT_SLOT_INDEX)
             {
                 success = HandleMoveToCraftSlot(fromIndex);
@@ -54,11 +58,9 @@ namespace Scripts.Inventory
             }
 
             InventoryItem currentEquipped = EquipmentItems[localEquipIndex];
-            int requiredSlotType = localEquipIndex;
-            int itemSlotType = (int)itemToEquip.Data.Slot;
-            if (itemSlotType != requiredSlotType)
+            if (!CanEquipItemToLocalSlot(itemToEquip, localEquipIndex))
             {
-                Debug.LogWarning($"[Inventory] Wrong slot type. Item: {itemSlotType}, Slot: {requiredSlotType}");
+                Debug.LogWarning($"[Inventory] Item '{itemToEquip.Data.ItemName}' cannot be equipped into slot {localEquipIndex}.");
                 return false;
             }
 

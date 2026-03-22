@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using Scripts.Stats;
 using Scripts.Skills.Modules;
@@ -17,14 +17,14 @@ namespace Scripts.Skills
         [Range(0f, 1f)] [SerializeField] private float _impactTime = 0.35f;
         [Range(0f, 1f)] [SerializeField] private float _unlockTime = 0.4f;
 
-        // Модули
+        // РњРѕРґСѓР»Рё
         private SkillHitbox _hitbox;
         private SkillDamageDealer _damage;
         private SkillVFX _vfx;
         private SkillMovementControl _moveCtrl;
         private SkillHandAnimation _animCtrl;
 
-        // Кэшированные данные для текущего каста
+        // РљСЌС€РёСЂРѕРІР°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ РґР»СЏ С‚РµРєСѓС‰РµРіРѕ РєР°СЃС‚Р°
         private float _currentDuration;
         private float _currentAoe;
         private float _currentAps;
@@ -51,30 +51,25 @@ namespace Scripts.Skills
             StartCoroutine(SkillPipeline());
         }
 
-        // --- ГЛАВНЫЙ ОРКЕСТРАТОР (Теперь он чистый) ---
+        // --- Р“Р›РђР’РќР«Р™ РћР РљР•РЎРўР РђРўРћР  (РўРµРїРµСЂСЊ РѕРЅ С‡РёСЃС‚С‹Р№) ---
         private IEnumerator SkillPipeline()
         {
             _isCasting = true;
 
-            // 1. Снапшот статов (запоминаем параметры на начало удара)
-            CalculateSkillStats();
-
-            // 2. Фаза Замаха (от 0 до ImpactTime)
-            // Внутри происходит блокировка движения
-            yield return StartCoroutine(PhaseWindup());
-
-            // 3. Фаза Удара (Моментальное событие)
-            PerformImpact();
-
-            // 4. Фаза Возврата (от ImpactTime до 1.0)
-            // Внутри происходит разблокировка движения
-            yield return StartCoroutine(PhaseRecovery());
-
-            // 5. Завершение
-            Cleanup();
+            try
+            {
+                CalculateSkillStats();
+                yield return StartCoroutine(PhaseWindup());
+                PerformImpact();
+                yield return StartCoroutine(PhaseRecovery());
+            }
+            finally
+            {
+                Cleanup();
+            }
         }
 
-        // --- ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ФАЗ ---
+        // --- Р’РЎРџРћРњРћР“РђРўР•Р›Р¬РќР«Р• РњР•РўРћР”Р« Р¤РђР— ---
 
         private void CalculateSkillStats()
         {
@@ -93,38 +88,38 @@ namespace Scripts.Skills
 
             while (timer < windupDuration)
             {
-                // Нормализованное время ОТНОСИТЕЛЬНО ВСЕГО СКИЛЛА (0.0 -> ImpactTime)
+                // РќРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅРѕРµ РІСЂРµРјСЏ РћРўРќРћРЎРРўР•Р›Р¬РќРћ Р’РЎР•Р“Рћ РЎРљРР›Р›Рђ (0.0 -> ImpactTime)
                 float globalProgress = timer / _currentDuration;
                 
-                // Нормализованное время ОТНОСИТЕЛЬНО ФАЗЫ ЗАМАХА (0.0 -> 1.0)
-                // Нужно для Lerp анимации
+                // РќРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅРѕРµ РІСЂРµРјСЏ РћРўРќРћРЎРРўР•Р›Р¬РќРћ Р¤РђР—Р« Р—РђРњРђРҐРђ (0.0 -> 1.0)
+                // РќСѓР¶РЅРѕ РґР»СЏ Lerp Р°РЅРёРјР°С†РёРё
                 float phaseProgress = timer / windupDuration;
 
-                // Логика блокировки
+                // Р›РѕРіРёРєР° Р±Р»РѕРєРёСЂРѕРІРєРё
                 if (!locked && globalProgress >= _lockTime)
                 {
                     _moveCtrl.SetLock(true);
                     locked = true;
                 }
 
-                // Анимация
+                // РђРЅРёРјР°С†РёСЏ
                 _animCtrl.LerpSlashWindup(phaseProgress);
 
                 timer += Time.deltaTime;
                 yield return null;
             }
             
-            // Гарантируем, что блокировка сработала, даже если лагануло
+            // Р“Р°СЂР°РЅС‚РёСЂСѓРµРј, С‡С‚Рѕ Р±Р»РѕРєРёСЂРѕРІРєР° СЃСЂР°Р±РѕС‚Р°Р»Р°, РґР°Р¶Рµ РµСЃР»Рё Р»Р°РіР°РЅСѓР»Рѕ
             if (!locked) _moveCtrl.SetLock(true);
         }
 
         private void PerformImpact()
         {
-            // Визуал
+            // Р’РёР·СѓР°Р»
             _animCtrl.SetWeaponVisible(false);
             _animCtrl.SnapToSlashImpact();
 
-            // Логика (VFX + Урон)
+            // Р›РѕРіРёРєР° (VFX + РЈСЂРѕРЅ)
             float dir = _ownerStats.transform.localScale.x > 0 ? 1 : -1;
             
             _vfx.Play(_ownerStats.transform, dir, _currentAoe, _currentAps);
@@ -143,22 +138,22 @@ namespace Scripts.Skills
 
             while (timer < recoveryDuration)
             {
-                // Время относительно всего скилла
+                // Р’СЂРµРјСЏ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РІСЃРµРіРѕ СЃРєРёР»Р»Р°
                 float globalProgress = (impactTimeSeconds + timer) / _currentDuration;
                 
-                // Время относительно фазы возврата (0.0 -> 1.0)
+                // Р’СЂРµРјСЏ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ С„Р°Р·С‹ РІРѕР·РІСЂР°С‚Р° (0.0 -> 1.0)
                 float phaseProgress = timer / recoveryDuration;
 
-                // Логика разблокировки
+                // Р›РѕРіРёРєР° СЂР°Р·Р±Р»РѕРєРёСЂРѕРІРєРё
                 if (!unlocked && globalProgress >= _unlockTime)
                 {
                     _moveCtrl.SetLock(false);
-                    // Можно вернуть оружие визуально, если игрок побежал
-                    // _animCtrl.SetWeaponVisible(true); // Опционально
+                    // РњРѕР¶РЅРѕ РІРµСЂРЅСѓС‚СЊ РѕСЂСѓР¶РёРµ РІРёР·СѓР°Р»СЊРЅРѕ, РµСЃР»Рё РёРіСЂРѕРє РїРѕР±РµР¶Р°Р»
+                    // _animCtrl.SetWeaponVisible(true); // РћРїС†РёРѕРЅР°Р»СЊРЅРѕ
                     unlocked = true;
                 }
 
-                // Анимация
+                // РђРЅРёРјР°С†РёСЏ
                 _animCtrl.LerpSlashRecovery(phaseProgress);
 
                 timer += Time.deltaTime;

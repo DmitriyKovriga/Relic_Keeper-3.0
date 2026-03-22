@@ -15,7 +15,7 @@ namespace Scripts.Items
         [Tooltip("Базовое уклонение.")]
         public float BaseEvasion;
         
-        [Tooltip("Базовые баблы (Bubbles).")]
-        public float BaseBubbles; 
+        [Tooltip("Базовые баблы (MysticShield).")]
+        public float BaseMysticShield; 
     }
 }

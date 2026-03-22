@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_manaonblock_flat_medium_t4
   TranslationKey: affix_flat_manaonblock
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:
   - Stat: 9
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 1
     MaxValue: 2
+    RangeMinValue: 0
+    RangeMaxValue: 0

@@ -15,7 +15,7 @@ namespace Scripts.Inventory
         public static StashManager Instance { get; private set; }
 
         public const int STASH_COLS = 9;
-        public const int STASH_ROWS = 11;
+        public const int STASH_ROWS = 12;
         public const int STASH_SLOTS_PER_TAB = STASH_COLS * STASH_ROWS;
 
         public event Action OnStashChanged;
@@ -394,11 +394,7 @@ namespace Scripts.Inventory
             if (toIndex >= InventoryManager.EQUIP_OFFSET)
             {
                 int localEquip = toIndex - InventoryManager.EQUIP_OFFSET;
-                if ((int)item.Data.Slot != localEquip) return false;
-                InventoryManager.Instance.EquipmentItems[localEquip] = item;
-                InventoryManager.Instance.NotifyItemEquipped(item);
-                InventoryManager.Instance.TriggerUIUpdate();
-                return true;
+                return InventoryManager.Instance.PlaceItemAt(item, toIndex, -1);
             }
             bool ok = InventoryManager.Instance.CanPlaceItemAt(item, toIndex);
             if (ok)

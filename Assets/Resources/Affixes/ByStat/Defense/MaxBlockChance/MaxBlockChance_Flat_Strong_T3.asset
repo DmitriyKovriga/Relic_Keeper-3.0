@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 3
   NameKey: affix_name_maxblockchance_flat_strong_t3
   TranslationKey: affix_flat_maxblockchance
+  LockAutoLocalization: 0
   TagIds:
   - Defense
   Stats:
   - Stat: 17
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 3
     MaxValue: 5
+    RangeMinValue: 0
+    RangeMaxValue: 0

@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_manaregen_increase_medium_t1
   TranslationKey: affix_increase_manaregen
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:
   - Stat: 6
     Type: 200
     Scope: 0
+    ValueMode: 0
     MinValue: 20
     MaxValue: 24
+    RangeMinValue: 0
+    RangeMaxValue: 0

@@ -40,7 +40,7 @@ namespace Scripts.Inventory
             {
                 int local = toIndex - EQUIP_OFFSET;
                 if (local < 0 || local >= EquipmentItems.Length) return false;
-                if ((int)item.Data.Slot != local) return false;
+                if (!CanEquipItemToLocalSlot(item, local)) return false;
 
                 InventoryItem prevEquip = EquipmentItems[local];
                 if (prevEquip != null && sourceAnchorForSwap >= 0)
@@ -179,7 +179,7 @@ namespace Scripts.Inventory
         {
             if (item == null || item.Data == null) return false;
             if (targetIndex == CRAFT_SLOT_INDEX) return true;
-            if (targetIndex >= EQUIP_OFFSET) return true;
+            if (targetIndex >= EQUIP_OFFSET) return CanEquipItemAtIndex(item, targetIndex);
             return _backpack != null && _backpack.CanPlace(item, targetIndex);
         }
 
@@ -281,6 +281,33 @@ namespace Scripts.Inventory
                 }
             }
 
+            SyncFromBackpack();
+            TriggerUIUpdate();
+        }
+
+        /// <summary>Полная очистка инвентаря для дебага: рюкзак, экипировка и крафтовый слот.</summary>
+        public void ClearAllItemsForDebug()
+        {
+            if (_backpack != null)
+            {
+                var seen = new HashSet<InventoryItem>();
+                for (int i = 0; i < _backpack.Length; i++)
+                {
+                    _backpack.GetItemAt(i, out InventoryItem it, out _);
+                    if (it != null && seen.Add(it))
+                        _backpack.Remove(it);
+                }
+            }
+
+            for (int i = 0; i < EquipmentItems.Length; i++)
+            {
+                InventoryItem equipped = EquipmentItems[i];
+                if (equipped == null) continue;
+                EquipmentItems[i] = null;
+                OnItemUnequipped?.Invoke(equipped);
+            }
+
+            CraftingSlotItem = null;
             SyncFromBackpack();
             TriggerUIUpdate();
         }

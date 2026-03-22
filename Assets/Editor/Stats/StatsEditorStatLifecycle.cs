@@ -4,12 +4,14 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
 using UnityEditor.Localization;
 using Scripts.Stats;
 using Scripts.Skills.PassiveTree;
 using Scripts.Items.Affixes;
 using Scripts.Items;
+using Scripts.Editor.Affixes;
 
 namespace Scripts.Editor.Stats
 {
@@ -24,7 +26,8 @@ namespace Scripts.Editor.Stats
         {
             if (menuLabels == null) return false;
             string key = "stats." + stat;
-            var enTable = menuLabels.GetTable("en") as StringTable;
+            var enTable = menuLabels.GetTable("en") as StringTable
+                ?? menuLabels.GetTable(new LocaleIdentifier("en")) as StringTable;
             if (enTable == null) return false;
             return enTable.GetEntry(key) != null;
         }
@@ -42,8 +45,17 @@ namespace Scripts.Editor.Stats
 
             string id = stat.ToString();
             string fullKey = "stats." + id;
-            var enTable = menuLabels.GetTable("en") as StringTable;
-            var ruTable = menuLabels.GetTable("ru") as StringTable;
+            var sharedData = menuLabels.SharedData;
+            if (sharedData != null && !sharedData.Contains(fullKey))
+            {
+                sharedData.AddKey(fullKey);
+                EditorUtility.SetDirty(sharedData);
+            }
+
+            var enTable = menuLabels.GetTable("en") as StringTable
+                ?? menuLabels.GetTable(new LocaleIdentifier("en")) as StringTable;
+            var ruTable = menuLabels.GetTable("ru") as StringTable
+                ?? menuLabels.GetTable(new LocaleIdentifier("ru")) as StringTable;
             if (enTable == null || ruTable == null)
             {
                 Debug.LogWarning("Stats Editor: en or ru table not found in MenuLabels.");
@@ -61,6 +73,8 @@ namespace Scripts.Editor.Stats
                 statsDb.GetOrCreateEntry(stat);
                 EditorUtility.SetDirty(statsDb);
             }
+
+            AffixSetGenerator.EnsureValueUnitLocalizations(menuLabels);
 
             AssetDatabase.SaveAssets();
             Debug.Log($"Stats Editor: Initialized stat {id} (localization + metadata).");

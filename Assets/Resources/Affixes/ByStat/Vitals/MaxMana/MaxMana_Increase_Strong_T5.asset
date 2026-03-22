@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_maxmana_increase_strong_t5
   TranslationKey: affix_increase_maxmana
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:
   - Stat: 5
     Type: 200
     Scope: 0
+    ValueMode: 0
     MinValue: 5
     MaxValue: 10
+    RangeMinValue: 0
+    RangeMaxValue: 0

@@ -16,12 +16,16 @@ MonoBehaviour:
   GroupID: DamageCold_Flat_Light
   Tier: 3
   NameKey: affix_name_damagecold_flat_light_t3
-  TranslationKey: affix_flat_damagecold
+  TranslationKey: affix_flat_damagecold_range
+  LockAutoLocalization: 0
   TagIds:
   - Damage
   Stats:
   - Stat: 32
     Type: 100
     Scope: 1
+    ValueMode: 2
     MinValue: 9
-    MaxValue: 13
+    MaxValue: 12
+    RangeMinValue: 12
+    RangeMaxValue: 14

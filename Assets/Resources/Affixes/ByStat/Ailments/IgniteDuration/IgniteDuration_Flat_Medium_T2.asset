@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_igniteduration_flat_medium_t2
   TranslationKey: affix_flat_igniteduration
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:
   - Stat: 70
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 2
     MaxValue: 4
+    RangeMinValue: 0
+    RangeMaxValue: 0

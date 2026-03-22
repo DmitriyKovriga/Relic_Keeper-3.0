@@ -309,7 +309,7 @@ public class CharacterWindowUI : MonoBehaviour
                type == StatType.BleedDuration || 
                type == StatType.PoisonDuration || 
                type == StatType.IgniteDuration ||
-               type == StatType.BubbleRechargeDuration;
+               type == StatType.MysticShieldRechargeDuration;
     }
 
     private bool ShouldShowStat(StatType type)

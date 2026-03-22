@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_maxlightningresist_flat_strong_t2
   TranslationKey: affix_flat_maxlightningresist
+  LockAutoLocalization: 0
   TagIds:
   - Resistances
   Stats:
   - Stat: 23
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 4
     MaxValue: 6
+    RangeMinValue: 0
+    RangeMaxValue: 0

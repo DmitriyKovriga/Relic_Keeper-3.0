@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_takecoldaslightning_flat_medium_t1
   TranslationKey: affix_flat_takecoldaslightning
+  LockAutoLocalization: 0
   TagIds:
   - Conversion
   Stats:
   - Stat: 46
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 3
     MaxValue: 5
+    RangeMinValue: 0
+    RangeMaxValue: 0

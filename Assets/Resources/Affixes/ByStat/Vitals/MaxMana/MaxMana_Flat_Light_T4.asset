@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_maxmana_flat_light_t4
   TranslationKey: affix_flat_maxmana
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:
   - Stat: 5
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 30
     MaxValue: 50
+    RangeMinValue: 0
+    RangeMaxValue: 0

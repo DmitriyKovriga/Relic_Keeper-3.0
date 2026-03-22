@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_accuracy_more_light_t2
   TranslationKey: affix_more_accuracy
+  LockAutoLocalization: 0
   TagIds:
   - Critical
   Stats:
   - Stat: 50
     Type: 300
     Scope: 0
+    ValueMode: 0
     MinValue: 4
     MaxValue: 6
+    RangeMinValue: 0
+    RangeMaxValue: 0

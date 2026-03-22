@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_healthregen_flat_medium_t4
   TranslationKey: affix_flat_healthregen
+  LockAutoLocalization: 0
   TagIds:
   - Vitals
   Stats:
   - Stat: 1
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 40
     MaxValue: 60
+    RangeMinValue: 0
+    RangeMaxValue: 0

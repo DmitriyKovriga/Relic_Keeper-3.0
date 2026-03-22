@@ -78,23 +78,25 @@ namespace Scripts.Skills
         private IEnumerator RunRecipe()
         {
             _isCasting = true;
-            var recipe = _data.Recipe;
-            var steps = recipe.Steps;
-            int n = steps.Count;
-            var started = new bool[n];
-            var ended = new bool[n];
-            var executed = new bool[n];
-            _pendingDamageByVfxLife = new List<(int, StepEntry, int, float)>();
-
-            var channelIndices = recipe.IsChanneling && recipe.ChannelLoopStepIndices != null
-                ? new HashSet<int>(recipe.ChannelLoopStepIndices)
-                : new HashSet<int>();
-
-            float elapsed = 0f;
-            while (elapsed < _ctx.TotalDuration && !_cancelled)
+            try
             {
-                elapsed += Time.deltaTime;
-                float T = Mathf.Clamp01(elapsed / _ctx.TotalDuration);
+                var recipe = _data.Recipe;
+                var steps = recipe.Steps;
+                int n = steps.Count;
+                var started = new bool[n];
+                var ended = new bool[n];
+                var executed = new bool[n];
+                _pendingDamageByVfxLife = new List<(int, StepEntry, int, float)>();
+
+                var channelIndices = recipe.IsChanneling && recipe.ChannelLoopStepIndices != null
+                    ? new HashSet<int>(recipe.ChannelLoopStepIndices)
+                    : new HashSet<int>();
+
+                float elapsed = 0f;
+                while (elapsed < _ctx.TotalDuration && !_cancelled)
+                {
+                    elapsed += Time.deltaTime;
+                    float T = Mathf.Clamp01(elapsed / _ctx.TotalDuration);
 
                 for (int i = 0; i < n; i++)
                 {
@@ -171,80 +173,83 @@ namespace Scripts.Skills
                         _pendingDamageByVfxLife.RemoveAt(j);
                     }
                 }
-                yield return null;
-            }
-
-            for (int j = _pendingDamageByVfxLife.Count - 1; j >= 0; j--)
-            {
-                var (stepIndex, step, sourceIdx, pct) = _pendingDamageByVfxLife[j];
-                if (_ctx.TryGetStepResult(sourceIdx, out var res) && res.Duration > 0f && (Time.time - res.SpawnTime) >= pct * res.Duration)
-                {
-                    ExecuteStepLogic(stepIndex, step, 1f, 0f);
-                    _pendingDamageByVfxLife.RemoveAt(j);
+                    yield return null;
                 }
-            }
 
-            for (int i = 0; i < n; i++)
-            {
-                if (recipe.IsChanneling && channelIndices.Contains(i)) continue;
-                var step = steps[i];
-                if (step.StepDefinition == null) continue;
-                if (step.IsParallelGroup && !executed[i] && step.StartPercentPipeline >= 1f - 0.0001f)
+                for (int j = _pendingDamageByVfxLife.Count - 1; j >= 0; j--)
                 {
-                    executed[i] = true;
-                    if (step.SubSteps != null && step.SubSteps.Count > 0)
+                    var (stepIndex, step, sourceIdx, pct) = _pendingDamageByVfxLife[j];
+                    if (_ctx.TryGetStepResult(sourceIdx, out var res) && res.Duration > 0f && (Time.time - res.SpawnTime) >= pct * res.Duration)
                     {
-                        foreach (var sub in step.SubSteps)
-                        {
-                            if (sub.StepDefinition != null)
-                                ExecuteStepLogic(-1, sub, 1f, 0f);
-                        }
+                        ExecuteStepLogic(stepIndex, step, 1f, 0f);
+                        _pendingDamageByVfxLife.RemoveAt(j);
                     }
-                    continue;
                 }
-                if (!step.IsParallelGroup && step.StepDefinition.IsDurationStep && started[i] && !ended[i])
-                {
-                    ended[i] = true;
-                    if (step.StepDefinition.Id == "MovementLock")
-                        _moveCtrl.SetLock(false);
-                }
-                if (!step.IsParallelGroup && !step.StepDefinition.IsDurationStep && !executed[i] && step.StartPercentPipeline >= 1f - 0.0001f)
-                {
-                    executed[i] = true;
-                    ExecuteStepLogic(i, step, 1f, 0f);
-                }
-            }
 
-            if (recipe.IsChanneling && recipe.ChannelLoopStepIndices != null && recipe.ChannelLoopStepIndices.Count > 0 && !_cancelled)
-            {
-                float channelStart = Time.time;
-                float tickDuration = recipe.ChannelTickDuration > 0 ? recipe.ChannelTickDuration : _ctx.TotalDuration;
-                while (Time.time - channelStart < recipe.ChannelMaxDuration && !_cancelled)
+                for (int i = 0; i < n; i++)
                 {
-                    foreach (int idx in recipe.ChannelLoopStepIndices)
+                    if (recipe.IsChanneling && channelIndices.Contains(i)) continue;
+                    var step = steps[i];
+                    if (step.StepDefinition == null) continue;
+                    if (step.IsParallelGroup && !executed[i] && step.StartPercentPipeline >= 1f - 0.0001f)
                     {
-                        if (idx < 0 || idx >= steps.Count) continue;
-                        var chStep = steps[idx];
-                        if (chStep.StepDefinition == null) continue;
-                        float startP = chStep.StartPercentPipeline;
-                        float endP = chStep.EndPercentPipeline;
-                        if (chStep.StepDefinition.IsDurationStep && endP > startP)
+                        executed[i] = true;
+                        if (step.SubSteps != null && step.SubSteps.Count > 0)
                         {
-                            float sd = (endP - startP) * _ctx.TotalDuration;
-                            for (float el = 0f; el < sd && !_cancelled; el += Time.deltaTime)
+                            foreach (var sub in step.SubSteps)
                             {
-                                ExecuteStepLogic(idx, chStep, el / sd, sd);
-                                yield return null;
+                                if (sub.StepDefinition != null)
+                                    ExecuteStepLogic(-1, sub, 1f, 0f);
                             }
                         }
-                        else
-                            ExecuteStepLogic(idx, chStep, 1f, 0f);
+                        continue;
                     }
-                    yield return new WaitForSeconds(Mathf.Max(0.01f, tickDuration));
+                    if (!step.IsParallelGroup && step.StepDefinition.IsDurationStep && started[i] && !ended[i])
+                    {
+                        ended[i] = true;
+                        if (step.StepDefinition.Id == "MovementLock")
+                            _moveCtrl.SetLock(false);
+                    }
+                    if (!step.IsParallelGroup && !step.StepDefinition.IsDurationStep && !executed[i] && step.StartPercentPipeline >= 1f - 0.0001f)
+                    {
+                        executed[i] = true;
+                        ExecuteStepLogic(i, step, 1f, 0f);
+                    }
+                }
+
+                if (recipe.IsChanneling && recipe.ChannelLoopStepIndices != null && recipe.ChannelLoopStepIndices.Count > 0 && !_cancelled)
+                {
+                    float channelStart = Time.time;
+                    float tickDuration = recipe.ChannelTickDuration > 0 ? recipe.ChannelTickDuration : _ctx.TotalDuration;
+                    while (Time.time - channelStart < recipe.ChannelMaxDuration && !_cancelled)
+                    {
+                        foreach (int idx in recipe.ChannelLoopStepIndices)
+                        {
+                            if (idx < 0 || idx >= steps.Count) continue;
+                            var chStep = steps[idx];
+                            if (chStep.StepDefinition == null) continue;
+                            float startP = chStep.StartPercentPipeline;
+                            float endP = chStep.EndPercentPipeline;
+                            if (chStep.StepDefinition.IsDurationStep && endP > startP)
+                            {
+                                float sd = (endP - startP) * _ctx.TotalDuration;
+                                for (float el = 0f; el < sd && !_cancelled; el += Time.deltaTime)
+                                {
+                                    ExecuteStepLogic(idx, chStep, el / sd, sd);
+                                    yield return null;
+                                }
+                            }
+                            else
+                                ExecuteStepLogic(idx, chStep, 1f, 0f);
+                        }
+                        yield return new WaitForSeconds(Mathf.Max(0.01f, tickDuration));
+                    }
                 }
             }
-
-            Cleanup();
+            finally
+            {
+                Cleanup();
+            }
         }
 
         private void ExecuteStepLogic(int stepIndex, StepEntry step, float phaseT, float stepDuration)
@@ -297,7 +302,7 @@ namespace Scripts.Skills
                     float scaleForVfx = _ctx.AoeScale * scaleMult;
                     vfxModule.Play(_ownerStats.transform, _ctx.FacingDirection, scaleForVfx, _ctx.TotalDuration > 0 ? 1f / _ctx.TotalDuration : 1f);
                     Vector3 pos = _ownerStats.transform.position + new Vector3(step.GetFloat("OffsetX", 0f) * _ctx.FacingDirection, step.GetFloat("OffsetY", 0f), 0f);
-                    _ctx.SetStepResult(stepIndex, pos, scaleForVfx, step.GetFloat("BaseDuration", 0.5f), Time.time);
+                    _ctx.SetStepResult(stepIndex, pos, scaleForVfx, step.GetFloat("BaseDuration", 0.5f), Time.time, pos, 0f);
                 }
                 return;
             }
@@ -323,7 +328,26 @@ namespace Scripts.Skills
             if (autoDestroy != null) autoDestroy.Initialize(lifetime);
             else Destroy(vfx, lifetime);
             if (attachToParent) vfx.transform.SetParent(_ownerStats.transform);
-            _ctx.SetStepResult(stepIndex, spawnPos, effectiveScale, lifetime, Time.time);
+
+            Vector3 visualCenter = spawnPos;
+            float visualRadius = 0f;
+            var sr = vfx.GetComponentInChildren<SpriteRenderer>();
+            if (TryGetCurrentVfxMetrics(sr, out var currentCenter, out var currentSize))
+            {
+                visualCenter = currentCenter;
+                visualRadius = Mathf.Max(currentSize.x, currentSize.y) * 0.5f;
+            }
+
+            _ctx.SetStepResult(
+                stepIndex,
+                spawnPos,
+                effectiveScale,
+                lifetime,
+                Time.time,
+                visualCenter,
+                visualRadius,
+                vfx.transform,
+                sr);
         }
 
         private void ExecuteDealDamageCircle(int stepIndex, StepEntry step)
@@ -333,8 +357,17 @@ namespace Scripts.Skills
             int sourceIdx = step.GetInt("SourceStepIndex", -1);
             if (sourceIdx >= 0 && _ctx.TryGetStepResult(sourceIdx, out var res))
             {
-                center = res.Position;
-                radius = step.GetFloat("Radius", 1.5f) * res.Scale;
+                Vector2 visualSize = GetVisualSizeOrFallback(res);
+                center = GetVisualCenterOrFallback(res);
+                Vector2 sizeMultipliers = new Vector2(
+                    Mathf.Max(0.01f, step.GetFloat("SizeX", 1f)),
+                    Mathf.Max(0.01f, step.GetFloat("SizeY", 1f)));
+                Vector2 scaledSize = Vector2.Scale(visualSize, sizeMultipliers);
+                Vector2 offset = new Vector2(
+                    step.GetFloat("OffsetX", 0f) * res.Scale * _ctx.FacingDirection,
+                    step.GetFloat("OffsetY", 0f) * res.Scale);
+                center += offset;
+                radius = Mathf.Max(scaledSize.x, scaledSize.y) * 0.5f;
             }
             else
             {
@@ -356,25 +389,83 @@ namespace Scripts.Skills
         {
             Vector2 center;
             Vector2 size;
-            float scaleMult;
             int sourceIdx = step.GetInt("SourceStepIndex", -1);
             if (sourceIdx >= 0 && _ctx.TryGetStepResult(sourceIdx, out var res))
             {
-                center = res.Position;
-                scaleMult = res.Scale;
-                size = new Vector2(step.GetFloat("SizeX", 2f), step.GetFloat("SizeY", 1f)) * scaleMult;
+                Vector2 visualSize = GetVisualSizeOrFallback(res);
+                center = GetVisualCenterOrFallback(res);
+                Vector2 sizeMultipliers = new Vector2(
+                    Mathf.Max(0.01f, step.GetFloat("SizeX", 1f)),
+                    Mathf.Max(0.01f, step.GetFloat("SizeY", 1f)));
+                size = Vector2.Scale(visualSize, sizeMultipliers);
+                center += new Vector2(
+                    step.GetFloat("OffsetX", 0f) * res.Scale * _ctx.FacingDirection,
+                    step.GetFloat("OffsetY", 0f) * res.Scale);
             }
             else
             {
-                scaleMult = _ctx.AoeScale;
                 center = (Vector2)_ownerStats.transform.position + new Vector2(step.GetFloat("OffsetX", 0f) * _ctx.FacingDirection, step.GetFloat("OffsetY", 0f));
-                size = new Vector2(step.GetFloat("SizeX", 2f), step.GetFloat("SizeY", 1f)) * scaleMult;
+                size = new Vector2(step.GetFloat("SizeX", 2f), step.GetFloat("SizeY", 1f)) * _ctx.AoeScale;
             }
             float angle = step.GetFloat("Angle", 0f);
             var targets = GetTargetsInBox(center, size, angle);
             float mult = step.GetFloat("DamageMultiplier", 1f);
             var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult);
             foreach (var t in targets) t.TakeDamage(snapshot);
+        }
+
+        private Vector2 GetVisualCenterOrFallback(SkillStepContext.StepResult result)
+        {
+            if (TryGetCurrentVfxMetrics(result.VisualSpriteRenderer, out var center, out _))
+                return center;
+
+            if (result.VisualTransform != null)
+                return result.VisualTransform.position;
+
+            return result.VisualCenter;
+        }
+
+        private Vector2 GetVisualSizeOrFallback(SkillStepContext.StepResult result)
+        {
+            if (TryGetCurrentVfxMetrics(result.VisualSpriteRenderer, out _, out var size))
+                return size;
+
+            if (result.VisualRadius > 0f)
+            {
+                float diameter = result.VisualRadius * 2f;
+                return new Vector2(diameter, diameter);
+            }
+
+            float fallback = Mathf.Max(0.1f, result.Scale);
+            return new Vector2(fallback, fallback);
+        }
+
+        private bool TryGetCurrentVfxMetrics(SpriteRenderer spriteRenderer, out Vector2 worldCenter, out Vector2 worldSize)
+        {
+            worldCenter = Vector2.zero;
+            worldSize = Vector2.zero;
+            if (spriteRenderer == null)
+                return false;
+
+            Sprite sprite = spriteRenderer.sprite;
+            if (sprite == null)
+            {
+                Bounds bounds = spriteRenderer.bounds;
+                worldCenter = bounds.center;
+                worldSize = bounds.size;
+                return worldSize.x > 0f && worldSize.y > 0f;
+            }
+
+            float ppu = sprite.pixelsPerUnit <= 0f ? 100f : sprite.pixelsPerUnit;
+            Vector2 localSize = new Vector2(sprite.rect.width / ppu, sprite.rect.height / ppu);
+            Vector2 localCenter = new Vector2(
+                (sprite.rect.width * 0.5f - sprite.pivot.x) / ppu,
+                (sprite.rect.height * 0.5f - sprite.pivot.y) / ppu);
+
+            Vector3 lossyScale = spriteRenderer.transform.lossyScale;
+            worldSize = new Vector2(localSize.x * Mathf.Abs(lossyScale.x), localSize.y * Mathf.Abs(lossyScale.y));
+            worldCenter = spriteRenderer.transform.TransformPoint(localCenter);
+            return worldSize.x > 0f && worldSize.y > 0f;
         }
 
         private List<IDamageable> GetTargetsInCircle(Vector2 center, float radius)

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 707924c3c674e324ab126931e524eab8, type: 3}
+  m_Name: Adventure's Plate
+  m_EditorClassIdentifier: 
+  ID: 84610b2d
+  ItemName: Adventure's Plate
+  Icon: {fileID: 21300000, guid: 7496cbc66abb0e74289cb897758f78bd, type: 3}
+  Width: 2
+  Height: 3
+  Slot: 1
+  DropLevel: 1
+  ImplicitModifiers:
+  - Stat: 2
+    Value: 2
+    Type: 100
+    Scope: 0
+  SkillPool: {fileID: 0}
+  SkillCount: 1
+  DefenseType: 1
+  BaseArmor: 100
+  BaseEvasion: 0
+  BaseMysticShield: 0

@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 4
   NameKey: affix_name_damagefire_increase_strong_t4
   TranslationKey: affix_increase_damagefire
+  LockAutoLocalization: 0
   TagIds:
   - Damage
   Stats:
   - Stat: 31
     Type: 200
     Scope: 1
+    ValueMode: 0
     MinValue: 10
     MaxValue: 15
+    RangeMinValue: 0
+    RangeMaxValue: 0

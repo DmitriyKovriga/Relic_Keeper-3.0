@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_ignitechance_flat_light_t2
   TranslationKey: affix_flat_ignitechance
+  LockAutoLocalization: 0
   TagIds:
   - Ailments
   Stats:
   - Stat: 67
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 1
     MaxValue: 2
+    RangeMinValue: 0
+    RangeMaxValue: 0

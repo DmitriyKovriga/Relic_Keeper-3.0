@@ -31,6 +31,7 @@ namespace Scripts.Visuals
             {
                 InventoryManager.Instance.OnItemEquipped += UpdateVisuals;
                 InventoryManager.Instance.OnItemUnequipped += UpdateVisuals;
+                InventoryManager.Instance.OnInventoryChanged += RefreshVisuals;
                 CheckCurrentWeapon();
             }
         }
@@ -41,17 +42,25 @@ namespace Scripts.Visuals
             {
                 InventoryManager.Instance.OnItemEquipped -= UpdateVisuals;
                 InventoryManager.Instance.OnItemUnequipped -= UpdateVisuals;
+                InventoryManager.Instance.OnInventoryChanged -= RefreshVisuals;
             }
         }
 
         private void CheckCurrentWeapon()
         {
-            var weaponItem = InventoryManager.Instance.EquipmentItems[2];
-            UpdateVisuals(weaponItem);
+            RefreshVisuals();
         }
 
-        private void UpdateVisuals(InventoryItem item)
+        private void UpdateVisuals(InventoryItem _)
         {
+            RefreshVisuals();
+        }
+
+        private void RefreshVisuals()
+        {
+            if (InventoryManager.Instance == null || _weaponRenderer == null)
+                return;
+
             var mainHandItem = InventoryManager.Instance.EquipmentItems[2];
 
             if (mainHandItem != null && mainHandItem.Data is WeaponItemSO weaponData)

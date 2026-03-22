@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 1
   NameKey: affix_name_damagelightning_increase_strong_t1
   TranslationKey: affix_increase_damagelightning
+  LockAutoLocalization: 0
   TagIds:
   - Damage
   Stats:
   - Stat: 33
     Type: 200
     Scope: 1
+    ValueMode: 0
     MinValue: 25
     MaxValue: 30
+    RangeMinValue: 0
+    RangeMaxValue: 0

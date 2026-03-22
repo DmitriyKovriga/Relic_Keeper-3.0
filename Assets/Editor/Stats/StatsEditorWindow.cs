@@ -6,7 +6,9 @@ using System.Linq;
 using Scripts.Stats;
 using Scripts.Skills.PassiveTree;
 using Scripts.Items.Affixes;
+using Scripts.Editor.Affixes;
 using Scripts.Editor.PassiveTree;
+using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
 using UnityEditor.Localization;
 
@@ -23,6 +25,7 @@ namespace Scripts.Editor.Stats
         private string _searchFilter = "";
         private string _categoryFilter = "";
         private int _sortMode; // 0 = By ID, 1 = By Category
+        private int _missingLocalizationFilterIndex; // 0 = All, 1 = Missing RU, 2 = Missing EN, 3 = Missing RU/EN, 4 = Missing RU&EN
 
         [SerializeField] private StringTableCollection _menuLabelsCollection;
         private string _editValueEn = "";
@@ -37,6 +40,14 @@ namespace Scripts.Editor.Stats
 
         private const string MenuPath = "Tools/Stats Editor";
         private const string SessionKeySelectedStat = "StatsEditorWindow_SelectedStat";
+        private static readonly string[] MissingLocalizationFilterOptions =
+        {
+            "All localization",
+            "Missing RU",
+            "Missing EN",
+            "Missing RU or EN",
+            "Missing RU & EN"
+        };
 
         [SerializeField] private StatsDatabaseSO _statsDatabase;
         [SerializeField] private StringTableCollection _affixesCollection;
@@ -97,6 +108,10 @@ namespace Scripts.Editor.Stats
                 _categoryFilter = categories[newCat];
 
             _sortMode = EditorGUILayout.Popup("Sort", _sortMode, new[] { "By ID", "By Category" });
+            _missingLocalizationFilterIndex = EditorGUILayout.Popup(
+                "Localization",
+                Mathf.Clamp(_missingLocalizationFilterIndex, 0, MissingLocalizationFilterOptions.Length - 1),
+                MissingLocalizationFilterOptions);
 
             _listScroll = EditorGUILayout.BeginScrollView(_listScroll, GUILayout.ExpandHeight(true));
 
@@ -107,6 +122,7 @@ namespace Scripts.Editor.Stats
                 string id = type.ToString();
                 string category = _statsDatabase != null ? _statsDatabase.GetCategory(type) : GetStatCategory(type);
                 if (_categoryFilter != "" && category != _categoryFilter) return false;
+                if (!MatchesMissingLocalizationFilter(type)) return false;
                 if (search.Length > 0 && !id.ToLowerInvariant().Contains(search)) return false;
                 return true;
             }).ToList();
@@ -122,6 +138,8 @@ namespace Scripts.Editor.Stats
                 GUI.backgroundColor = selected ? new Color(0.5f, 0.7f, 1f) : Color.white;
                 if (GUILayout.Button($"{id}  —  {category}", GUILayout.Height(22)))
                 {
+                    if (_selectedStat != type)
+                        ResetLocalizationInputState(clearValues: true);
                     _selectedStat = type;
                     SessionState.SetString(SessionKeySelectedStat, type.ToString());
                     Repaint();
@@ -178,7 +196,7 @@ namespace Scripts.Editor.Stats
 
         private void DrawMetadataSection(StatType type)
         {
-            GUILayout.Label("Metadata (Category, Format, Affix Gen Type, Show in Character Window)", EditorStyles.boldLabel);
+            GUILayout.Label("Metadata (Category, Format, Unit, Affix kinds, Show in Character Window)", EditorStyles.boldLabel);
             var newDb = (StatsDatabaseSO)EditorGUILayout.ObjectField("Stats Database", _statsDatabase, typeof(StatsDatabaseSO), false);
             if (newDb != _statsDatabase)
                 _statsDatabase = newDb;
@@ -208,8 +226,15 @@ namespace Scripts.Editor.Stats
             {
                 _statsDatabase.CreateDefaultsForAllStatTypes();
                 EditorUtility.SetDirty(_statsDatabase);
+                AffixSetGenerator.EnsureValueUnitLocalizations(_menuLabelsCollection);
                 AssetDatabase.SaveAssets();
                 Debug.Log("Stats Editor: Created default metadata for all StatTypes.");
+            }
+
+            if (GUILayout.Button("Create / refresh value unit localizations", GUILayout.Height(22)))
+            {
+                AffixSetGenerator.EnsureValueUnitLocalizations(_menuLabelsCollection);
+                AssetDatabase.SaveAssets();
             }
 
             EditorGUILayout.Space(6);
@@ -229,11 +254,23 @@ namespace Scripts.Editor.Stats
             EditorGUI.BeginChangeCheck();
             meta.Category = EditorGUILayout.TextField("Category", meta.Category);
             meta.Format = (StatDisplayFormat)EditorGUILayout.EnumPopup("Display Format", meta.Format);
+            meta.ValueUnit = (StatValueUnit)EditorGUILayout.EnumPopup("Value Unit", meta.ValueUnit);
             meta.AffixGenType = (StatAffixGenType)EditorGUILayout.EnumPopup("Affix Gen Type", meta.AffixGenType);
+            meta.AllowedAffixKinds = (StatAffixModifierKindFlags)EditorGUILayout.EnumFlagsField("Allowed Affix Kinds", meta.AllowedAffixKinds);
+            meta.AllowedAffixKinds = StatsDatabaseSO.NormalizeAllowedAffixKinds(meta.AllowedAffixKinds, meta.AffixGenType, type);
             meta.ShowInCharacterWindow = EditorGUILayout.Toggle("Show in Character Window", meta.ShowInCharacterWindow);
             if (EditorGUI.EndChangeCheck())
             {
                 EditorUtility.SetDirty(_statsDatabase);
+            }
+
+            if (meta.ValueUnit != StatValueUnit.None)
+            {
+                string unitKey = StatPresentation.GetValueUnitLocalizationKey(meta.ValueUnit);
+                EditorGUILayout.LabelField("Value Unit Key", unitKey);
+                EditorGUILayout.LabelField(
+                    "Value Unit Preview",
+                    $"{GetLocalizedStringFromTable(unitKey, "en")} / {GetLocalizedStringFromTable(unitKey, "ru")}");
             }
         }
 
@@ -244,7 +281,7 @@ namespace Scripts.Editor.Stats
             if (newCollection != _menuLabelsCollection)
             {
                 _menuLabelsCollection = newCollection;
-                _lastLoadedKey = "";
+                ResetLocalizationInputState(clearValues: true);
             }
             if (_menuLabelsCollection == null)
             {
@@ -267,10 +304,18 @@ namespace Scripts.Editor.Stats
             _editValueRu = EditorGUILayout.TextArea(_editValueRu, GUILayout.Height(40));
 
             EditorGUILayout.Space(4);
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Reload", GUILayout.Width(80)))
+            {
+                ResetLocalizationInputState(clearValues: false);
+            }
             if (GUILayout.Button("Save Localization", GUILayout.Height(28)))
             {
+                GUI.FocusControl(null);
+                EditorGUIUtility.editingTextField = false;
                 SaveLocalizationValues(localizationKey);
             }
+            EditorGUILayout.EndHorizontal();
         }
 
         private void LoadLocalizationValues(string key)
@@ -283,19 +328,52 @@ namespace Scripts.Editor.Stats
         private string GetLocalizedStringFromTable(string key, string localeId)
         {
             if (_menuLabelsCollection == null) return "";
-            var table = _menuLabelsCollection.GetTable(localeId) as StringTable;
+            var table = _menuLabelsCollection.GetTable(localeId) as StringTable
+                ?? _menuLabelsCollection.GetTable(new LocaleIdentifier(localeId)) as StringTable;
             if (table == null) return "";
             var entry = table.GetEntry(key);
             if (entry == null) return "";
             return entry.Value ?? "";
         }
 
+        private bool MatchesMissingLocalizationFilter(StatType type)
+        {
+            if (_missingLocalizationFilterIndex == 0) return true;
+
+            string fullKey = "stats." + type;
+            bool missingRu = IsMissingLocalizationValue(GetLocalizedStringFromTable(fullKey, "ru"));
+            bool missingEn = IsMissingLocalizationValue(GetLocalizedStringFromTable(fullKey, "en"));
+
+            switch (_missingLocalizationFilterIndex)
+            {
+                case 1: return missingRu;
+                case 2: return missingEn;
+                case 3: return missingRu || missingEn;
+                case 4: return missingRu && missingEn;
+                default: return true;
+            }
+        }
+
+        private static bool IsMissingLocalizationValue(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return true;
+            return value.Trim() == "No translation found";
+        }
+
         private void SaveLocalizationValues(string key)
         {
             if (_menuLabelsCollection == null) return;
             string fullKey = "stats." + key;
-            var enTable = _menuLabelsCollection.GetTable("en") as StringTable;
-            var ruTable = _menuLabelsCollection.GetTable("ru") as StringTable;
+            var sharedData = _menuLabelsCollection.SharedData;
+            if (sharedData != null && !sharedData.Contains(fullKey))
+            {
+                sharedData.AddKey(fullKey);
+                EditorUtility.SetDirty(sharedData);
+            }
+            var enTable = _menuLabelsCollection.GetTable("en") as StringTable
+                ?? _menuLabelsCollection.GetTable(new LocaleIdentifier("en")) as StringTable;
+            var ruTable = _menuLabelsCollection.GetTable("ru") as StringTable
+                ?? _menuLabelsCollection.GetTable(new LocaleIdentifier("ru")) as StringTable;
             if (enTable == null || ruTable == null)
             {
                 Debug.LogWarning("Stats Editor: en or ru table not found in MenuLabels.");
@@ -308,6 +386,18 @@ namespace Scripts.Editor.Stats
             AssetDatabase.SaveAssets();
             _lastLoadedKey = "";
             Debug.Log($"Stats Editor: Saved localization for stats.{key}");
+        }
+
+        private void ResetLocalizationInputState(bool clearValues)
+        {
+            GUI.FocusControl(null);
+            EditorGUIUtility.editingTextField = false;
+            _lastLoadedKey = "";
+            if (clearValues)
+            {
+                _editValueEn = "";
+                _editValueRu = "";
+            }
         }
 
         private static void SetOrAddEntry(StringTable table, string key, string value)
@@ -537,7 +627,7 @@ namespace Scripts.Editor.Stats
             if (s.Contains("Bleed") || s.Contains("Poison") || s.Contains("Ignite") || s.Contains("Freeze") || s.Contains("Shock")) return "Ailments";
             if (s.Contains("Resist") || s.Contains("Penetration") || s.Contains("Mitigation") || s.Contains("ReduceDamage")) return "Resistances";
             if (s.Contains("Health") || s.Contains("Mana")) return "Vitals";
-            if (s.Contains("Armor") || s.Contains("Evasion") || s.Contains("Block") || s.Contains("Bubbles")) return "Defense";
+            if (s.Contains("Armor") || s.Contains("Evasion") || s.Contains("Block") || s.Contains("MysticShield")) return "Defense";
             if (s.Contains("Crit") || s.Contains("Accuracy")) return "Critical";
             if (s.Contains("Speed")) return "Speed";
             if (s.Contains("Damage")) return "Damage";

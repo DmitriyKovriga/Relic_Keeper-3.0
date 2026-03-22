@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 5
   NameKey: affix_name_jumpforce_flat_strong_t5
   TranslationKey: affix_flat_jumpforce
+  LockAutoLocalization: 0
   TagIds:
   - Misc
   Stats:
   - Stat: 27
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 1
     MaxValue: 3
+    RangeMinValue: 0
+    RangeMaxValue: 0

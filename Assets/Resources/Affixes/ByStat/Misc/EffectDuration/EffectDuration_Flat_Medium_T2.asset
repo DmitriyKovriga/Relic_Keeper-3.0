@@ -17,11 +17,15 @@ MonoBehaviour:
   Tier: 2
   NameKey: affix_name_effectduration_flat_medium_t2
   TranslationKey: affix_flat_effectduration
+  LockAutoLocalization: 0
   TagIds:
   - Misc
   Stats:
   - Stat: 81
     Type: 100
     Scope: 0
+    ValueMode: 0
     MinValue: 2
     MaxValue: 4
+    RangeMinValue: 0
+    RangeMaxValue: 0
