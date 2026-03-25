@@ -17,17 +17,17 @@ namespace Scripts.Skills
         [Range(0f, 1f)] [SerializeField] private float _impactTime = 0.35f;
         [Range(0f, 1f)] [SerializeField] private float _unlockTime = 0.4f;
 
-        // РњРѕРґСѓР»Рё
         private SkillHitbox _hitbox;
         private SkillDamageDealer _damage;
         private SkillVFX _vfx;
         private SkillMovementControl _moveCtrl;
         private SkillHandAnimation _animCtrl;
 
-        // РљСЌС€РёСЂРѕРІР°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ РґР»СЏ С‚РµРєСѓС‰РµРіРѕ РєР°СЃС‚Р°
         private float _currentDuration;
         private float _currentAoe;
         private float _currentAps;
+        private Coroutine _pipelineCoroutine;
+        private bool _cancelRequested;
 
         private void Awake()
         {
@@ -46,12 +46,27 @@ namespace Scripts.Skills
             _animCtrl.Initialize(stats);
         }
 
-        protected override void Execute()
+        public override void Cancel()
         {
-            StartCoroutine(SkillPipeline());
+            _cancelRequested = true;
+            if (_pipelineCoroutine != null)
+            {
+                StopCoroutine(_pipelineCoroutine);
+                _pipelineCoroutine = null;
+            }
+
+            Cleanup();
         }
 
-        // --- Р“Р›РђР’РќР«Р™ РћР РљР•РЎРўР РђРўРћР  (РўРµРїРµСЂСЊ РѕРЅ С‡РёСЃС‚С‹Р№) ---
+        protected override void Execute()
+        {
+            _cancelRequested = false;
+            if (_pipelineCoroutine != null)
+                StopCoroutine(_pipelineCoroutine);
+
+            _pipelineCoroutine = StartCoroutine(SkillPipeline());
+        }
+
         private IEnumerator SkillPipeline()
         {
             _isCasting = true;
@@ -60,7 +75,13 @@ namespace Scripts.Skills
             {
                 CalculateSkillStats();
                 yield return StartCoroutine(PhaseWindup());
+                if (_cancelRequested)
+                    yield break;
+
                 PerformImpact();
+                if (_cancelRequested)
+                    yield break;
+
                 yield return StartCoroutine(PhaseRecovery());
             }
             finally
@@ -69,13 +90,12 @@ namespace Scripts.Skills
             }
         }
 
-        // --- Р’РЎРџРћРњРћР“РђРўР•Р›Р¬РќР«Р• РњР•РўРћР”Р« Р¤РђР— ---
-
         private void CalculateSkillStats()
         {
             _currentAps = _ownerStats.GetValue(StatType.AttackSpeed);
-            if (_currentAps <= 0) _currentAps = 1f;
-            
+            if (_currentAps <= 0f)
+                _currentAps = 1f;
+
             _currentDuration = 1f / _currentAps;
             _currentAoe = 1f + (_ownerStats.GetValue(StatType.AreaOfEffect) / 100f);
         }
@@ -88,42 +108,35 @@ namespace Scripts.Skills
 
             while (timer < windupDuration)
             {
-                // РќРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅРѕРµ РІСЂРµРјСЏ РћРўРќРћРЎРРўР•Р›Р¬РќРћ Р’РЎР•Р“Рћ РЎРљРР›Р›Рђ (0.0 -> ImpactTime)
-                float globalProgress = timer / _currentDuration;
-                
-                // РќРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅРѕРµ РІСЂРµРјСЏ РћРўРќРћРЎРРўР•Р›Р¬РќРћ Р¤РђР—Р« Р—РђРњРђРҐРђ (0.0 -> 1.0)
-                // РќСѓР¶РЅРѕ РґР»СЏ Lerp Р°РЅРёРјР°С†РёРё
-                float phaseProgress = timer / windupDuration;
+                if (_cancelRequested)
+                    yield break;
 
-                // Р›РѕРіРёРєР° Р±Р»РѕРєРёСЂРѕРІРєРё
+                float globalProgress = timer / _currentDuration;
+                float phaseProgress = windupDuration > 0f ? timer / windupDuration : 1f;
+
                 if (!locked && globalProgress >= _lockTime)
                 {
                     _moveCtrl.SetLock(true);
                     locked = true;
                 }
 
-                // РђРЅРёРјР°С†РёСЏ
                 _animCtrl.LerpSlashWindup(phaseProgress);
-
                 timer += Time.deltaTime;
                 yield return null;
             }
-            
-            // Р“Р°СЂР°РЅС‚РёСЂСѓРµРј, С‡С‚Рѕ Р±Р»РѕРєРёСЂРѕРІРєР° СЃСЂР°Р±РѕС‚Р°Р»Р°, РґР°Р¶Рµ РµСЃР»Рё Р»Р°РіР°РЅСѓР»Рѕ
-            if (!locked) _moveCtrl.SetLock(true);
+
+            if (!locked)
+                _moveCtrl.SetLock(true);
         }
 
         private void PerformImpact()
         {
-            // Р’РёР·СѓР°Р»
             _animCtrl.SetWeaponVisible(false);
             _animCtrl.SnapToSlashImpact();
 
-            // Р›РѕРіРёРєР° (VFX + РЈСЂРѕРЅ)
-            float dir = _ownerStats.transform.localScale.x > 0 ? 1 : -1;
-            
+            float dir = _ownerStats.transform.localScale.x > 0f ? 1f : -1f;
             _vfx.Play(_ownerStats.transform, dir, _currentAoe, _currentAps);
-            
+
             var targets = _hitbox.GetTargets(_ownerStats.transform.position, dir, _currentAoe);
             _damage.DealDamage(targets);
         }
@@ -132,30 +145,24 @@ namespace Scripts.Skills
         {
             float impactTimeSeconds = _currentDuration * _impactTime;
             float recoveryDuration = _currentDuration - impactTimeSeconds;
-            
             float timer = 0f;
             bool unlocked = false;
 
             while (timer < recoveryDuration)
             {
-                // Р’СЂРµРјСЏ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РІСЃРµРіРѕ СЃРєРёР»Р»Р°
-                float globalProgress = (impactTimeSeconds + timer) / _currentDuration;
-                
-                // Р’СЂРµРјСЏ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ С„Р°Р·С‹ РІРѕР·РІСЂР°С‚Р° (0.0 -> 1.0)
-                float phaseProgress = timer / recoveryDuration;
+                if (_cancelRequested)
+                    yield break;
 
-                // Р›РѕРіРёРєР° СЂР°Р·Р±Р»РѕРєРёСЂРѕРІРєРё
+                float globalProgress = (impactTimeSeconds + timer) / _currentDuration;
+                float phaseProgress = recoveryDuration > 0f ? timer / recoveryDuration : 1f;
+
                 if (!unlocked && globalProgress >= _unlockTime)
                 {
                     _moveCtrl.SetLock(false);
-                    // РњРѕР¶РЅРѕ РІРµСЂРЅСѓС‚СЊ РѕСЂСѓР¶РёРµ РІРёР·СѓР°Р»СЊРЅРѕ, РµСЃР»Рё РёРіСЂРѕРє РїРѕР±РµР¶Р°Р»
-                    // _animCtrl.SetWeaponVisible(true); // РћРїС†РёРѕРЅР°Р»СЊРЅРѕ
                     unlocked = true;
                 }
 
-                // РђРЅРёРјР°С†РёСЏ
                 _animCtrl.LerpSlashRecovery(phaseProgress);
-
                 timer += Time.deltaTime;
                 yield return null;
             }
@@ -163,6 +170,8 @@ namespace Scripts.Skills
 
         private void Cleanup()
         {
+            _cancelRequested = false;
+            _pipelineCoroutine = null;
             _animCtrl.ForceReset();
             _moveCtrl.SetLock(false);
             _isCasting = false;

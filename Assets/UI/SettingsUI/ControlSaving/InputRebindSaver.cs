@@ -51,7 +51,7 @@ public static class InputRebindSaver
     {
         if (config != null)
         {
-            config.ApplyDefaultBindings();
+            config.ApplyDefaultBindings(actions);
             Debug.Log("[InputSaver] Applied defaults from ControlsEditorConfig.");
         }
         else
@@ -88,6 +88,7 @@ public static class InputRebindSaver
         // --- Скиллы и Действия ---
         BindIfNotExists(map.FindAction("FirstSkill"), "<Keyboard>/z");
         BindIfNotExists(map.FindAction("SecondSkill"), "<Keyboard>/x");
+        BindIfNotExists(map.FindAction("Dodge"), "<Keyboard>/leftShift");
         BindIfNotExists(map.FindAction("Interact"), "<Keyboard>/e");
         BindIfNotExists(map.FindAction("Jump"), "<Keyboard>/space");
         

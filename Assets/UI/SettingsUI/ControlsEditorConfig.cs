@@ -52,10 +52,11 @@ public class ControlsEditorConfig : ScriptableObject
     }
 
     /// <summary> Применить дефолтные бинды из конфига (когда нет сейва). </summary>
-    public void ApplyDefaultBindings()
+    public void ApplyDefaultBindings(InputActionAsset targetAsset = null)
     {
-        if (inputActionAsset == null) return;
-        var map = inputActionAsset.FindActionMap("Player");
+        var assetToApply = targetAsset != null ? targetAsset : inputActionAsset;
+        if (assetToApply == null) return;
+        var map = assetToApply.FindActionMap("Player");
         if (map == null) return;
         foreach (var e in entries)
         {

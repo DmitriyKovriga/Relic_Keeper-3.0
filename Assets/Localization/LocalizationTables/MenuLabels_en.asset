@@ -1591,6 +1591,34 @@ MonoBehaviour:
     m_Localized: Mana Regen %
     m_Metadata:
       m_Items: []
+  - m_Id: 40798052820746240
+    m_Localized: Move
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40798052854300672
+    m_Localized: Look
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40798052854300673
+    m_Localized: Previous
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40798052854300674
+    m_Localized: Next
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40798052854300675
+    m_Localized: ToggleDebugInventory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40798052854300676
+    m_Localized: Dodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 40804688767516672
+    m_Localized: Dodge
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

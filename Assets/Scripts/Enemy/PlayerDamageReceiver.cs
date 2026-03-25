@@ -8,15 +8,22 @@ namespace Scripts.Enemies
     public class PlayerDamageReceiver : MonoBehaviour, IDamageable
     {
         private PlayerStats _stats;
+        private PlayerAttackInput _attackInput;
 
         private void Awake()
         {
             _stats = GetComponent<PlayerStats>();
+            _attackInput = GetComponent<PlayerAttackInput>();
         }
 
         public void TakeDamage(DamageSnapshot damage)
         {
             if (damage == null)
+                return;
+
+            if (_attackInput == null)
+                _attackInput = GetComponent<PlayerAttackInput>();
+            if (_attackInput != null && _attackInput.IsDamageImmune)
                 return;
 
             if (_stats == null)

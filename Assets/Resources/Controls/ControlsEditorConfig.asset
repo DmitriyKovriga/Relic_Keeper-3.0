@@ -70,3 +70,7 @@ MonoBehaviour:
     displayOrder: 13
     showInSettings: 1
     defaultBindingPath: 
+  - actionName: Dodge
+    displayOrder: 14
+    showInSettings: 1
+    defaultBindingPath: <Keyboard>/leftShift

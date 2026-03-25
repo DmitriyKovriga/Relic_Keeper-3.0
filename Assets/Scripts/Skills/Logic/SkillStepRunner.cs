@@ -28,6 +28,14 @@ namespace Scripts.Skills
         public override void Cancel()
         {
             _cancelled = true;
+
+            if (_runCoroutine != null)
+            {
+                StopCoroutine(_runCoroutine);
+                _runCoroutine = null;
+            }
+
+            Cleanup();
         }
 
         private void Awake()
@@ -70,6 +78,7 @@ namespace Scripts.Skills
 
         private void Cleanup()
         {
+            _runCoroutine = null;
             if (_animCtrl != null) _animCtrl.ForceReset();
             if (_moveCtrl != null) _moveCtrl.SetLock(false);
             _isCasting = false;
