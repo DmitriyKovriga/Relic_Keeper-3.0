@@ -7625,7 +7625,21 @@ MonoBehaviour:
   _baseMoveSpeed: 5
   _baseJumpForce: 12
   _stopThreshold: 0.01
+  _groundAcceleration: 90
+  _groundDeceleration: 32
+  _airAcceleration: 38
+  _airDeceleration: 16
   _maxJumpCount: 2
+  _jumpBufferDuration: 0.12
+  _dashJumpHorizontalSpeed: 10.5
+  _dashJumpVerticalMultiplier: 0.92
+  _dashJumpCarryDuration: 0.12
+  _fastFallInputThreshold: -0.6
+  _fastFallPrimeDuration: 0.18
+  _fastFallPrimeUpwardVelocityCap: 0.75
+  _fastFallPrimeDamping: 22
+  _fastFallInitialDownwardSpeed: 4.5
+  _fastFallGravityMultiplier: 1.5
 --- !u!70 &1563690801
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -7754,11 +7768,15 @@ MonoBehaviour:
   _airLandingRefundThreshold: 1
   _groundDodgeDistance: 2.2
   _airDodgeDistance: 2.6
+  _groundDodgeStartupDelay: 0.05
+  _groundDodgeSpeedMultiplier: 0.72
   _dodgeVfxAlpha: 0.8
   _keyboardDodgeKey: 51
   _gamepadDodgeButton: 0
   _readyFlashDuration: 0.16
   _readyFlashColor: {r: 0.92, g: 0.92, b: 0.92, a: 1}
+  _dashJumpWindowMilliseconds: 160
+  _postDashJumpDodgeLockout: 0.2
   _afterImageInterval: 0.05
   _afterImageLifetime: 0.16
   _afterImageAlpha: 0.45
@@ -9240,6 +9258,9 @@ MonoBehaviour:
   _manaValueText: {fileID: 1829139808}
   _xpValueText: {fileID: 935984320}
   _levelText: {fileID: 1593680218}
+  _resourceTextMinFontSize: 10
+  _resourceTextHorizontalPadding: 6
+  _resourceTextVerticalPadding: 2
   _skillSlots:
   - {fileID: 1015107935}
   - {fileID: 857371564}
