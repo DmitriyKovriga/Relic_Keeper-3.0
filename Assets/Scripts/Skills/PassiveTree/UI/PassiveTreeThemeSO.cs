@@ -11,14 +11,20 @@ namespace Scripts.Skills.PassiveTree.UI
         public float NodeSizeKeystone = 80f;
         public float LineThickness = 4f;
 
+        [Header("Node Frames")]
+        public Sprite SmallNodeFrame;
+        public Sprite NotableNodeFrame;
+        public Sprite KeystoneNodeFrame;
+
         [Header("Colors - Allocated (Bought)")]
         public Color AllocatedFill = new Color(0.8f, 0.6f, 0.1f);
         public Color AllocatedBorder = new Color(1f, 0.8f, 0.2f);
+        public Color AllocatedGlow = new Color(1f, 0.75f, 0.25f, 0.30f);
         
         [Header("Colors - Available (Can Buy)")]
         public Color AvailableFill = new Color(0.15f, 0.15f, 0.15f);
         public Color AvailableBorder = new Color(0.5f, 0.5f, 0.5f);
-        public Color AvailableHighlight = new Color(1f, 1f, 1f, 0.3f); 
+        public Color AvailableGlow = new Color(1f, 1f, 1f, 0.24f); 
 
         [Header("Colors - Locked")]
         public Color LockedFill = new Color(0.1f, 0.1f, 0.1f);

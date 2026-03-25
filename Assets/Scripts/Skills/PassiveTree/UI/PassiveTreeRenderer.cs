@@ -80,9 +80,8 @@ namespace Scripts.Skills.PassiveTree.UI
             foreach (var kvp in _nodeVisuals)
             {
                 var circle = kvp.Value.Q("Circle");
-                var highlight = kvp.Value.Q("Highlight");
                 if (circle != null) SetStyle(circle, _theme.LockedFill, _theme.LockedBorder);
-                if (highlight != null) highlight.style.display = DisplayStyle.None;
+                SetGlowState(kvp.Value, false, Color.clear, Color.clear);
             }
             foreach (var conn in _connections)
             {
@@ -101,7 +100,6 @@ namespace Scripts.Skills.PassiveTree.UI
                 string id = kvp.Key;
                 var el = kvp.Value;
                 var circle = el.Q("Circle");
-                var highlight = el.Q("Highlight");
 
                 bool allocated = manager.IsAllocated(id);
                 bool canAllocate = !allocated && manager.CanAllocate(id);
@@ -109,18 +107,18 @@ namespace Scripts.Skills.PassiveTree.UI
                 if (allocated)
                 {
                     SetStyle(circle, _theme.AllocatedFill, _theme.AllocatedBorder);
-                    highlight.style.display = DisplayStyle.None;
+                    SetGlowState(el, true, _theme.AllocatedGlow, WithAlpha(_theme.AllocatedBorder, 0.95f));
                 }
                 else if (canAllocate)
                 {
                     SetStyle(circle, _theme.AvailableFill, _theme.AvailableBorder);
-                    highlight.style.display = DisplayStyle.Flex;
-                    highlight.style.backgroundColor = _theme.AvailableHighlight;
+                    Color availableRing = Color.Lerp(_theme.AvailableBorder, Color.white, 0.7f);
+                    SetGlowState(el, true, _theme.AvailableGlow, WithAlpha(availableRing, 0.90f));
                 }
                 else
                 {
                     SetStyle(circle, _theme.LockedFill, _theme.LockedBorder);
-                    highlight.style.display = DisplayStyle.None;
+                    SetGlowState(el, false, Color.clear, Color.clear);
                 }
             }
 
@@ -170,16 +168,40 @@ namespace Scripts.Skills.PassiveTree.UI
             nodeRoot.style.left = pos.x - (size / 2f);
             nodeRoot.style.top = pos.y - (size / 2f);
 
-            // Highlight
-            var highlight = new VisualElement { name = "Highlight" };
-            float glowSize = size * 1.4f;
-            highlight.style.position = Position.Absolute;
-            highlight.style.width = glowSize; highlight.style.height = glowSize;
-            highlight.style.left = (size - glowSize) / 2f; highlight.style.top = (size - glowSize) / 2f;
-            highlight.style.borderTopLeftRadius = glowSize / 2f; highlight.style.borderTopRightRadius = glowSize / 2f;
-            highlight.style.borderBottomLeftRadius = glowSize / 2f; highlight.style.borderBottomRightRadius = glowSize / 2f;
-            highlight.style.display = DisplayStyle.None;
-            nodeRoot.Add(highlight);
+            // Aura under frame
+            float auraSize = size * 1.34f;
+            var glowAura = new VisualElement { name = "GlowAura" };
+            glowAura.style.position = Position.Absolute;
+            glowAura.style.width = auraSize;
+            glowAura.style.height = auraSize;
+            glowAura.style.left = (size - auraSize) / 2f;
+            glowAura.style.top = (size - auraSize) / 2f;
+            glowAura.style.borderTopLeftRadius = auraSize * 0.5f;
+            glowAura.style.borderTopRightRadius = auraSize * 0.5f;
+            glowAura.style.borderBottomLeftRadius = auraSize * 0.5f;
+            glowAura.style.borderBottomRightRadius = auraSize * 0.5f;
+            glowAura.style.display = DisplayStyle.None;
+            glowAura.pickingMode = PickingMode.Ignore;
+            nodeRoot.Add(glowAura);
+
+            float ringSize = size * 1.18f;
+            var glowRing = new VisualElement { name = "GlowRing" };
+            glowRing.style.position = Position.Absolute;
+            glowRing.style.width = ringSize;
+            glowRing.style.height = ringSize;
+            glowRing.style.left = (size - ringSize) / 2f;
+            glowRing.style.top = (size - ringSize) / 2f;
+            glowRing.style.borderTopLeftRadius = ringSize * 0.5f;
+            glowRing.style.borderTopRightRadius = ringSize * 0.5f;
+            glowRing.style.borderBottomLeftRadius = ringSize * 0.5f;
+            glowRing.style.borderBottomRightRadius = ringSize * 0.5f;
+            glowRing.style.borderTopWidth = 2f;
+            glowRing.style.borderBottomWidth = 2f;
+            glowRing.style.borderLeftWidth = 2f;
+            glowRing.style.borderRightWidth = 2f;
+            glowRing.style.display = DisplayStyle.None;
+            glowRing.pickingMode = PickingMode.Ignore;
+            nodeRoot.Add(glowRing);
 
             // Circle
             var circle = new VisualElement { name = "Circle" };
@@ -193,6 +215,24 @@ namespace Scripts.Skills.PassiveTree.UI
             if (icon != null) circle.style.backgroundImage = new StyleBackground(icon);
 
             nodeRoot.Add(circle);
+
+            Sprite frameSprite = GetFrameSprite(node.NodeType);
+            if (frameSprite != null)
+            {
+                var frameOverlay = new Image
+                {
+                    name = "FrameOverlay",
+                    sprite = frameSprite,
+                    scaleMode = ScaleMode.StretchToFill
+                };
+                frameOverlay.style.position = Position.Absolute;
+                frameOverlay.style.left = 0;
+                frameOverlay.style.top = 0;
+                frameOverlay.style.width = size;
+                frameOverlay.style.height = size;
+                frameOverlay.pickingMode = PickingMode.Ignore;
+                nodeRoot.Add(frameOverlay);
+            }
 
             // Events
             nodeRoot.RegisterCallback<PointerDownEvent>(evt => 
@@ -215,6 +255,54 @@ namespace Scripts.Skills.PassiveTree.UI
 
             _container.Add(nodeRoot);
             _nodeVisuals.Add(node.ID, nodeRoot);
+        }
+
+        private static void SetGlowState(VisualElement nodeRoot, bool visible, Color auraColor, Color ringColor)
+        {
+            if (nodeRoot == null)
+                return;
+
+            var glowAura = nodeRoot.Q("GlowAura");
+            var glowRing = nodeRoot.Q("GlowRing");
+
+            if (glowAura != null)
+            {
+                glowAura.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+                if (visible)
+                    glowAura.style.backgroundColor = auraColor;
+            }
+
+            if (glowRing != null)
+            {
+                glowRing.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+                if (visible)
+                {
+                    glowRing.style.borderTopColor = ringColor;
+                    glowRing.style.borderBottomColor = ringColor;
+                    glowRing.style.borderLeftColor = ringColor;
+                    glowRing.style.borderRightColor = ringColor;
+                }
+            }
+        }
+
+        private static Color WithAlpha(Color color, float alpha)
+        {
+            color.a = alpha;
+            return color;
+        }
+
+        private Sprite GetFrameSprite(PassiveNodeType nodeType)
+        {
+            if (_theme == null)
+                return null;
+
+            return nodeType switch
+            {
+                PassiveNodeType.Keystone => _theme.KeystoneNodeFrame,
+                PassiveNodeType.Notable => _theme.NotableNodeFrame,
+                PassiveNodeType.Start => _theme.NotableNodeFrame,
+                _ => _theme.SmallNodeFrame
+            };
         }
 
         private void CreateLine(PassiveSkillTreeSO treeData, PassiveNodeDefinition nodeA, PassiveNodeDefinition nodeB, string id1, string id2)

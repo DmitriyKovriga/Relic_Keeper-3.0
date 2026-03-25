@@ -13,14 +13,18 @@ MonoBehaviour:
   m_Name: DefaultPassiveTreeTheme
   m_EditorClassIdentifier: 
   NodeSizeSmall: 24
-  NodeSizeNotable: 48
-  NodeSizeKeystone: 72
+  NodeSizeNotable: 32
+  NodeSizeKeystone: 48
   LineThickness: 4
+  SmallNodeFrame: {fileID: 21300000, guid: d2a5e5525b81de243bd06bd9354ba4f6, type: 3}
+  NotableNodeFrame: {fileID: 0}
+  KeystoneNodeFrame: {fileID: 0}
   AllocatedFill: {r: 0.8, g: 0.6, b: 0.1, a: 1}
   AllocatedBorder: {r: 1, g: 0.8, b: 0.2, a: 1}
+  AllocatedGlow: {r: 1, g: 0.75, b: 0.25, a: 0.3}
   AvailableFill: {r: 0.15, g: 0.15, b: 0.15, a: 1}
   AvailableBorder: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  AvailableHighlight: {r: 1, g: 1, b: 1, a: 0.3}
+  AvailableGlow: {r: 1, g: 1, b: 1, a: 0.24}
   LockedFill: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   LockedBorder: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   LineAllocated: {r: 1, g: 0.8, b: 0.2, a: 0.8}
