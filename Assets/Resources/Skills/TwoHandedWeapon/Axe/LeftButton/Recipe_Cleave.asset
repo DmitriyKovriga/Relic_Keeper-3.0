@@ -39,7 +39,7 @@ MonoBehaviour:
       ObjectVal: {fileID: 2364399391761541139, guid: 02c498a819fa0924eb87b339642bc8f5, type: 3}
     - Key: OffsetX
       Type: 0
-      FloatVal: 0.2
+      FloatVal: 1.2
       IntVal: 0
       BoolVal: 0
       StringVal: 
@@ -62,14 +62,35 @@ MonoBehaviour:
       Type: 2
       FloatVal: 0
       IntVal: 0
-      BoolVal: 1
+      BoolVal: 0
       StringVal: 
       ObjectVal: {fileID: 0}
     - Key: FadeOutStartLifePercent
       Type: 0
-      FloatVal: 0.4
+      FloatVal: 0.5
       IntVal: 0
       BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: FadeOutEnabled
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 1
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: FadeStartAlphaMultiplier
+      Type: 0
+      FloatVal: 0.5
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: AttachToParent
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 1
       StringVal: 
       ObjectVal: {fileID: 0}
     StartPercentPipeline: 0.2
@@ -125,7 +146,7 @@ MonoBehaviour:
   - StepDefinition: {fileID: 11400000, guid: 6250a752a1e0b2a418e03bcc5c86278d, type: 2}
     Overrides: []
     StartPercentPipeline: 0.5
-    EndPercentPipeline: 0.6
+    EndPercentPipeline: 0.5
     SubSteps: []
   IsChanneling: 0
   ChannelLoopStepIndices: 

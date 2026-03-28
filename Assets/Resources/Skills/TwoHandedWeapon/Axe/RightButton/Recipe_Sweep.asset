@@ -74,7 +74,14 @@ MonoBehaviour:
       ObjectVal: {fileID: 0}
     - Key: FadeOutStartLifePercent
       Type: 0
-      FloatVal: 0.5
+      FloatVal: 0.75
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: FadeStartAlphaMultiplier
+      Type: 0
+      FloatVal: 0.35
       IntVal: 0
       BoolVal: 0
       StringVal: 
