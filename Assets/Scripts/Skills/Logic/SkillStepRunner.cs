@@ -316,6 +316,7 @@ namespace Scripts.Skills
             GameObject prefab = step.GetObject<GameObject>("VfxPrefab");
             bool fadeOutEnabled = step.GetBool("FadeOutEnabled", true);
             float fadeOutStartLifePercent = Mathf.Clamp01(step.GetFloat("FadeOutStartLifePercent", 0.5f));
+            float fadeStartAlphaMultiplier = Mathf.Clamp01(step.GetFloat("FadeStartAlphaMultiplier", 0.5f));
             float lifetime = ResolveSpawnVfxLifetime(step, requestedLifetime);
             if (prefab == null)
             {
@@ -331,6 +332,7 @@ namespace Scripts.Skills
                         lifetime,
                         fadeOutEnabled,
                         fadeOutStartLifePercent,
+                        fadeStartAlphaMultiplier,
                         out var moduleSpawnPos);
                     if (moduleVfx != null)
                         CacheSpawnVfxStepResult(stepIndex, moduleSpawnPos, scaleForVfx, lifetime, moduleVfx);
@@ -353,9 +355,9 @@ namespace Scripts.Skills
             var anim = vfx.GetComponentInChildren<Animator>();
             if (anim != null)
                 anim.speed = SkillVFX.GetAnimatorPlaybackDurationAtSpeedOne(anim, lifetime) / lifetime;
-            var autoDestroy = vfx.GetComponent<AutoDestroyVFX>();
-            if (autoDestroy != null) autoDestroy.Initialize(lifetime, fadeOutEnabled, fadeOutStartLifePercent);
-            else Destroy(vfx, lifetime);
+            var autoDestroy = AutoDestroyVFX.Ensure(vfx);
+            if (autoDestroy != null)
+                autoDestroy.Initialize(lifetime, fadeOutEnabled, fadeOutStartLifePercent, fadeStartAlphaMultiplier);
             if (attachToParent) vfx.transform.SetParent(_ownerStats.transform);
 
             CacheSpawnVfxStepResult(stepIndex, spawnPos, effectiveScale, lifetime, vfx);

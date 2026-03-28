@@ -30,10 +30,11 @@ namespace Scripts.Skills.Modules
             float scaleMultiplier = 1f,
             float attackSpeed = 1f,
             bool fadeOutEnabled = true,
-            float fadeOutStartLifePercent = 0.5f)
+            float fadeOutStartLifePercent = 0.5f,
+            float fadeStartAlphaMultiplier = 0.5f)
         {
             float lifetime = _baseDuration / Mathf.Max(0.0001f, attackSpeed);
-            PlayForLifetime(ownerTransform, facingDirection, scaleMultiplier, lifetime, fadeOutEnabled, fadeOutStartLifePercent, out _);
+            PlayForLifetime(ownerTransform, facingDirection, scaleMultiplier, lifetime, fadeOutEnabled, fadeOutStartLifePercent, fadeStartAlphaMultiplier, out _);
         }
 
         public GameObject PlayForLifetime(
@@ -43,6 +44,7 @@ namespace Scripts.Skills.Modules
             float lifetime,
             bool fadeOutEnabled,
             float fadeOutStartLifePercent,
+            float fadeStartAlphaMultiplier,
             out Vector3 spawnPos)
         {
             spawnPos = ownerTransform != null
@@ -79,11 +81,9 @@ namespace Scripts.Skills.Modules
             if (_attachToParent && ownerTransform != null)
                 vfx.transform.SetParent(ownerTransform);
 
-            var autoDestroy = vfx.GetComponent<AutoDestroyVFX>();
+            var autoDestroy = AutoDestroyVFX.Ensure(vfx);
             if (autoDestroy != null)
-                autoDestroy.Initialize(lifetime, fadeOutEnabled, fadeOutStartLifePercent);
-            else
-                Destroy(vfx, lifetime);
+                autoDestroy.Initialize(lifetime, fadeOutEnabled, fadeOutStartLifePercent, fadeStartAlphaMultiplier);
 
             return vfx;
         }

@@ -62,6 +62,45 @@ namespace Scripts.Editor.Skills
             _recipes = _recipes.OrderBy(x => x.name).ToList();
             _skills = _skills.OrderBy(x => x.name).ToList();
             _stepDefs = _stepDefs.OrderBy(x => x.GetDisplayName(false)).ToList();
+            _selectedSkillIndex = Mathf.Clamp(_selectedSkillIndex, 0, Mathf.Max(0, _skills.Count - 1));
+            _selectedStepIndex = Mathf.Clamp(_selectedStepIndex, -1, Mathf.Max(-1, _skills.Count > 0 && _selectedSkillIndex >= 0 && _selectedSkillIndex < _skills.Count && _skills[_selectedSkillIndex] != null && _skills[_selectedSkillIndex].Recipe != null && _skills[_selectedSkillIndex].Recipe.Steps != null ? _skills[_selectedSkillIndex].Recipe.Steps.Count - 1 : -1));
+            _selectedSubStepIndex = Mathf.Max(-1, _selectedSubStepIndex);
+        }
+
+        private void ResetInspectorInputState(bool resetSubStepSelection = false)
+        {
+            GUI.FocusControl(null);
+            EditorGUIUtility.editingTextField = false;
+            if (resetSubStepSelection)
+                _selectedSubStepIndex = -1;
+        }
+
+        private void SelectSkill(int newSkillIndex)
+        {
+            if (newSkillIndex == _selectedSkillIndex)
+                return;
+
+            ResetInspectorInputState(resetSubStepSelection: true);
+            _selectedSkillIndex = newSkillIndex;
+            _selectedStepIndex = -1;
+        }
+
+        private void SelectStep(int stepIndex)
+        {
+            if (stepIndex == _selectedStepIndex)
+                return;
+
+            ResetInspectorInputState(resetSubStepSelection: true);
+            _selectedStepIndex = stepIndex;
+        }
+
+        private void SelectSubStep(int subStepIndex)
+        {
+            if (subStepIndex == _selectedSubStepIndex)
+                return;
+
+            ResetInspectorInputState();
+            _selectedSubStepIndex = subStepIndex;
         }
 
         private void OnGUI()
@@ -69,8 +108,10 @@ namespace Scripts.Editor.Skills
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Skill", GUILayout.Width(36));
             var skillNames = _skills.Select(s => s.SkillName ?? s.name).ToArray();
-            _selectedSkillIndex = EditorGUILayout.Popup(_selectedSkillIndex, skillNames);
-            if (GUILayout.Button("Refresh", GUILayout.Width(60))) Refresh();
+            int newSelectedSkillIndex = EditorGUILayout.Popup(_selectedSkillIndex, skillNames);
+            if (newSelectedSkillIndex != _selectedSkillIndex)
+                SelectSkill(newSelectedSkillIndex);
+            if (GUILayout.Button("Refresh", GUILayout.Width(60))) { ResetInspectorInputState(resetSubStepSelection: true); Refresh(); }
             if (GUILayout.Button("Create default step defs", GUILayout.Width(140))) CreateDefaultStepDefinitions();
             if (GUILayout.Button("Rebuild Cleave recipe", GUILayout.Width(160))) MigrateCleaveToRecipe();
             EditorGUILayout.EndHorizontal();
@@ -141,7 +182,7 @@ namespace Scripts.Editor.Skills
                 {
                     recipe.Steps.Add(new StepEntry { StepDefinition = def });
                     EditorUtility.SetDirty(recipe);
-                    _selectedStepIndex = recipe.Steps.Count - 1;
+                    SelectStep(recipe.Steps.Count - 1);
                 }
             }
             EditorGUILayout.EndScrollView();
@@ -178,7 +219,7 @@ namespace Scripts.Editor.Skills
                 if (selected) GUI.backgroundColor = new Color(0.5f, 0.6f, 0.8f);
                 string fullLabel = label + "  [" + timeLabel + "]";
                 if (GUILayout.Button(fullLabel, selected ? EditorStyles.boldLabel : EditorStyles.label, GUILayout.ExpandWidth(true), GUILayout.MinHeight(32)))
-                    _selectedStepIndex = i;
+                    SelectStep(i);
                 GUI.backgroundColor = Color.white;
 
                 if (GUILayout.Button("в†‘", GUILayout.Width(20)))
@@ -195,6 +236,7 @@ namespace Scripts.Editor.Skills
                 int to = moveFrom + moveDir;
                 if (to >= 0 && to < recipe.Steps.Count)
                 {
+                    ResetInspectorInputState(resetSubStepSelection: true);
                     var tmp = recipe.Steps[moveFrom];
                     recipe.Steps[moveFrom] = recipe.Steps[to];
                     recipe.Steps[to] = tmp;
@@ -204,6 +246,7 @@ namespace Scripts.Editor.Skills
             }
             if (toRemove >= 0)
             {
+                ResetInspectorInputState(resetSubStepSelection: true);
                 recipe.Steps.RemoveAt(toRemove);
                 EditorUtility.SetDirty(recipe);
                 if (_selectedStepIndex >= recipe.Steps.Count) _selectedStepIndex = recipe.Steps.Count - 1;
@@ -276,6 +319,7 @@ namespace Scripts.Editor.Skills
             int newPopup = EditorGUILayout.Popup("Step type", Mathf.Max(0, popup), _stepDefs.Select(d => d.GetDisplayName(_displayRu)).ToArray());
             if (newPopup >= 0 && newPopup < _stepDefs.Count && newPopup != popup)
             {
+                ResetInspectorInputState(resetSubStepSelection: true);
                 step.StepDefinition = _stepDefs[newPopup];
                 EditorUtility.SetDirty(recipe);
             }
@@ -308,13 +352,14 @@ namespace Scripts.Editor.Skills
                 EditorGUILayout.BeginHorizontal();
                 bool subSelected = _selectedSubStepIndex == i;
                 if (subSelected) GUI.backgroundColor = new Color(0.5f, 0.6f, 0.8f);
-                if (GUILayout.Button(subLabel, GUILayout.ExpandWidth(true))) _selectedSubStepIndex = i;
+                if (GUILayout.Button(subLabel, GUILayout.ExpandWidth(true))) SelectSubStep(i);
                 GUI.backgroundColor = Color.white;
                 if (GUILayout.Button("в€’", GUILayout.Width(22))) removeSub = i;
                 EditorGUILayout.EndHorizontal();
             }
             if (removeSub >= 0)
             {
+                ResetInspectorInputState();
                 groupStep.SubSteps.RemoveAt(removeSub);
                 EditorUtility.SetDirty(recipe);
                 if (_selectedSubStepIndex >= groupStep.SubSteps.Count) _selectedSubStepIndex = groupStep.SubSteps.Count - 1;
@@ -325,7 +370,7 @@ namespace Scripts.Editor.Skills
                 if (_stepDefs.Count > 0) sub.StepDefinition = _stepDefs[0];
                 groupStep.SubSteps.Add(sub);
                 EditorUtility.SetDirty(recipe);
-                _selectedSubStepIndex = groupStep.SubSteps.Count - 1;
+                SelectSubStep(groupStep.SubSteps.Count - 1);
             }
 
             if (_selectedSubStepIndex >= 0 && _selectedSubStepIndex < groupStep.SubSteps.Count)
@@ -337,6 +382,7 @@ namespace Scripts.Editor.Skills
                 int newPopup = EditorGUILayout.Popup("Sub-step type", Mathf.Max(0, popup), _stepDefs.Select(d => d.GetDisplayName(_displayRu)).ToArray());
                 if (newPopup >= 0 && newPopup < _stepDefs.Count && newPopup != popup)
                 {
+                    ResetInspectorInputState();
                     sub.StepDefinition = _stepDefs[newPopup];
                     EditorUtility.SetDirty(recipe);
                 }
@@ -393,6 +439,9 @@ namespace Scripts.Editor.Skills
                 float fadeStartLifePct = step.GetFloat("FadeOutStartLifePercent", 0.5f) * 100f;
                 float newFadeStartLifePct = EditorGUILayout.Slider("Fade start at life %", fadeStartLifePct, 0f, 100f);
                 if (Mathf.Abs(newFadeStartLifePct - fadeStartLifePct) > 0.001f) { step.SetOverrideFloat("FadeOutStartLifePercent", newFadeStartLifePct / 100f); EditorUtility.SetDirty(recipe); }
+                float fadeStartVisibilityPct = step.GetFloat("FadeStartAlphaMultiplier", 0.5f) * 100f;
+                float newFadeStartVisibilityPct = EditorGUILayout.Slider("Fade start visibility %", fadeStartVisibilityPct, 0f, 100f);
+                if (Mathf.Abs(newFadeStartVisibilityPct - fadeStartVisibilityPct) > 0.001f) { step.SetOverrideFloat("FadeStartAlphaMultiplier", newFadeStartVisibilityPct / 100f); EditorUtility.SetDirty(recipe); }
                 EditorGUI.EndDisabledGroup();
                 bool att = step.GetBool("AttachToParent", false);
                 bool natt = EditorGUILayout.Toggle("Attach to parent", att);
