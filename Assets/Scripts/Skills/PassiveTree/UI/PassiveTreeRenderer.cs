@@ -219,17 +219,20 @@ namespace Scripts.Skills.PassiveTree.UI
             Sprite frameSprite = GetFrameSprite(node.NodeType);
             if (frameSprite != null)
             {
+                float frameWidth = frameSprite.rect.width;
+                float frameHeight = frameSprite.rect.height;
+
                 var frameOverlay = new Image
                 {
                     name = "FrameOverlay",
                     sprite = frameSprite,
-                    scaleMode = ScaleMode.StretchToFill
+                    scaleMode = ScaleMode.ScaleToFit
                 };
                 frameOverlay.style.position = Position.Absolute;
-                frameOverlay.style.left = 0;
-                frameOverlay.style.top = 0;
-                frameOverlay.style.width = size;
-                frameOverlay.style.height = size;
+                frameOverlay.style.width = frameWidth;
+                frameOverlay.style.height = frameHeight;
+                frameOverlay.style.left = (size - frameWidth) * 0.5f;
+                frameOverlay.style.top = (size - frameHeight) * 0.5f;
                 frameOverlay.pickingMode = PickingMode.Ignore;
                 nodeRoot.Add(frameOverlay);
             }

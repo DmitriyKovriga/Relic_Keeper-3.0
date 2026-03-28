@@ -6,75 +6,110 @@ namespace Scripts.Skills.Modules
     {
         [Header("Prefab")]
         [SerializeField] private GameObject _vfxPrefab;
-        
+
         [Header("Timing")]
-        [Tooltip("Базовая длительность анимации при скорости 1.0")]
+        [Tooltip("Legacy fallback duration at playback speed 1.0")]
         [SerializeField] private float _baseDuration = 0.5f;
 
         [Header("Positioning")]
         [SerializeField] private Vector2 _offset;
 
         [Header("Settings")]
-        [SerializeField] private bool _attachToParent = false; 
-        [SerializeField] private bool _invertFacing = false;   
-        
+        [SerializeField] private bool _attachToParent = false;
+        [SerializeField] private bool _invertFacing = false;
+
         [Header("Visual Corrections")]
-        [Tooltip("Отразить по горизонтали (X)")]
-        [SerializeField] private bool _flipSpriteX = false; 
-        [Tooltip("Отразить по вертикали (Y) - Жми сюда, если он вверх ногами")]
+        [Tooltip("Mirror sprite horizontally")]
+        [SerializeField] private bool _flipSpriteX = false;
+        [Tooltip("Mirror sprite vertically")]
         [SerializeField] private bool _flipSpriteY = false;
 
-        public void Play(Transform ownerTransform, float facingDirection, float scaleMultiplier = 1f, float attackSpeed = 1f)
+        public void Play(
+            Transform ownerTransform,
+            float facingDirection,
+            float scaleMultiplier = 1f,
+            float attackSpeed = 1f,
+            bool fadeOutEnabled = true,
+            float fadeOutStartLifePercent = 0.5f)
         {
-            if (_vfxPrefab == null) return;
+            float lifetime = _baseDuration / Mathf.Max(0.0001f, attackSpeed);
+            PlayForLifetime(ownerTransform, facingDirection, scaleMultiplier, lifetime, fadeOutEnabled, fadeOutStartLifePercent, out _);
+        }
 
-            // 1. Позиция
-            Vector3 spawnPos = ownerTransform.position + new Vector3(_offset.x * facingDirection, _offset.y, 0);
-            
-            // 2. Спавн
+        public GameObject PlayForLifetime(
+            Transform ownerTransform,
+            float facingDirection,
+            float scaleMultiplier,
+            float lifetime,
+            bool fadeOutEnabled,
+            float fadeOutStartLifePercent,
+            out Vector3 spawnPos)
+        {
+            spawnPos = ownerTransform != null
+                ? ownerTransform.position + new Vector3(_offset.x * facingDirection, _offset.y, 0f)
+                : Vector3.zero;
+
+            if (_vfxPrefab == null)
+                return null;
+
+            lifetime = Mathf.Max(0.0001f, lifetime);
+
             GameObject vfx = Instantiate(_vfxPrefab, spawnPos, Quaternion.identity);
-            
-            // 3. Скейл
+
             float finalDir = facingDirection * (_invertFacing ? -1f : 1f);
-            
             Vector3 scale = vfx.transform.localScale;
-            scale.x = Mathf.Abs(scale.x) * finalDir * scaleMultiplier; 
+            scale.x = Mathf.Abs(scale.x) * finalDir * scaleMultiplier;
             scale.y = Mathf.Abs(scale.y) * scaleMultiplier;
             vfx.transform.localScale = scale;
 
-            // 4. Флипы (Коррекция спрайта)
-            var sr = vfx.GetComponent<SpriteRenderer>();
-            if (sr != null) 
+            var sr = vfx.GetComponentInChildren<SpriteRenderer>();
+            if (sr != null)
             {
-                // Если нужно отразить, меняем текущее состояние на противоположное
                 if (_flipSpriteX) sr.flipX = !sr.flipX;
-                if (_flipSpriteY) sr.flipY = !sr.flipY; // <--- ВОТ ТВОЙ ФИКС
+                if (_flipSpriteY) sr.flipY = !sr.flipY;
             }
 
-            // 5. Скорость анимации
-            var anim = vfx.GetComponent<Animator>();
-            if (anim != null) 
+            var anim = vfx.GetComponentInChildren<Animator>();
+            if (anim != null)
             {
-                anim.speed = attackSpeed;
+                float clipDuration = GetAnimatorPlaybackDurationAtSpeedOne(anim, lifetime);
+                anim.speed = clipDuration / lifetime;
             }
 
-            // 6. Привязка
-            if (_attachToParent) vfx.transform.SetParent(ownerTransform);
-            
-            // 7. Настройка Жизни и Затухания
-            float lifetime = _baseDuration / attackSpeed;
-            
-            // Пытаемся найти скрипт самоуничтожения и настроить его
+            if (_attachToParent && ownerTransform != null)
+                vfx.transform.SetParent(ownerTransform);
+
             var autoDestroy = vfx.GetComponent<AutoDestroyVFX>();
             if (autoDestroy != null)
-            {
-                autoDestroy.Initialize(lifetime);
-            }
+                autoDestroy.Initialize(lifetime, fadeOutEnabled, fadeOutStartLifePercent);
             else
+                Destroy(vfx, lifetime);
+
+            return vfx;
+        }
+
+        public static float GetAnimatorPlaybackDurationAtSpeedOne(Animator animator, float fallbackDuration)
+        {
+            fallbackDuration = Mathf.Max(0.0001f, fallbackDuration);
+
+            if (animator == null || animator.runtimeAnimatorController == null)
+                return fallbackDuration;
+
+            float maxClipLength = 0f;
+            var clips = animator.runtimeAnimatorController.animationClips;
+            if (clips != null)
             {
-                // Фолбек, если скрипта нет
-                Destroy(vfx, lifetime); 
+                for (int i = 0; i < clips.Length; i++)
+                {
+                    AnimationClip clip = clips[i];
+                    if (clip == null)
+                        continue;
+
+                    maxClipLength = Mathf.Max(maxClipLength, clip.length);
+                }
             }
+
+            return maxClipLength > 0f ? maxClipLength : fallbackDuration;
         }
     }
 }

@@ -247,7 +247,8 @@ namespace Scripts.Editor.Skills
         {
             EditorGUILayout.Space(2);
             GUILayout.Label("Timing (% of pipeline)", EditorStyles.miniBoldLabel);
-            bool isDuration = step.StepDefinition != null && step.StepDefinition.IsDurationStep;
+            string stepId = step.StepDefinition != null ? step.StepDefinition.Id : "";
+            bool isDuration = step.StepDefinition != null && (step.StepDefinition.IsDurationStep || stepId == "SpawnVFX");
             if (isDuration)
             {
                 float startP = step.StartPercentPipeline * 100f;
@@ -281,7 +282,7 @@ namespace Scripts.Editor.Skills
 
             EditorGUILayout.Space(6);
             GUILayout.Label("Step settings", EditorStyles.miniBoldLabel);
-            DrawStepTypeFields(recipe, step);
+            DrawStepTypeFields(recipe, step, false);
         }
 
         private void DrawParallelGroupContent(SkillRecipeSO recipe, StepEntry groupStep)
@@ -339,11 +340,11 @@ namespace Scripts.Editor.Skills
                     sub.StepDefinition = _stepDefs[newPopup];
                     EditorUtility.SetDirty(recipe);
                 }
-                DrawStepTypeFields(recipe, sub);
+                DrawStepTypeFields(recipe, sub, true);
             }
         }
 
-        private void DrawStepTypeFields(SkillRecipeSO recipe, StepEntry step)
+        private void DrawStepTypeFields(SkillRecipeSO recipe, StepEntry step, bool isSubStep)
         {
             string id = step.StepDefinition != null ? step.StepDefinition.Id : "";
 
@@ -367,9 +368,32 @@ namespace Scripts.Editor.Skills
                 float oy = step.GetFloat("OffsetY", 0f);
                 float noy = EditorGUILayout.FloatField("Offset Y", oy);
                 if (noy != oy) { step.SetOverrideFloat("OffsetY", noy); EditorUtility.SetDirty(recipe); }
-                float bd = step.GetFloat("BaseDuration", 0.5f);
-                float nbd = EditorGUILayout.FloatField("Base duration (sec)", bd);
-                if (nbd != bd) { step.SetOverrideFloat("BaseDuration", nbd); EditorUtility.SetDirty(recipe); }
+                if (isSubStep)
+                {
+                    EditorGUILayout.HelpBox("ParallelGroup sub-steps still use legacy duration in seconds. For regular Spawn VFX steps, lifetime now comes from Start % / End % in Timing.", MessageType.None);
+                    float bd = step.GetFloat("BaseDuration", 0.5f);
+                    float nbd = EditorGUILayout.FloatField("Base duration (sec)", bd);
+                    if (nbd != bd) { step.SetOverrideFloat("BaseDuration", nbd); EditorUtility.SetDirty(recipe); }
+                }
+                else if (step.EndPercentPipeline <= step.StartPercentPipeline + 0.0001f)
+                {
+                    EditorGUILayout.HelpBox("Legacy mode: when End % equals Start %, Spawn VFX still falls back to Base duration. Set End % above Start % to make VFX fit a % window of the whole skill.", MessageType.None);
+                    float bd = step.GetFloat("BaseDuration", 0.5f);
+                    float nbd = EditorGUILayout.FloatField("Legacy base duration (sec)", bd);
+                    if (nbd != bd) { step.SetOverrideFloat("BaseDuration", nbd); EditorUtility.SetDirty(recipe); }
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("VFX lifetime is driven by Start % / End % in Timing. Animator speed is adjusted to fit that window.", MessageType.None);
+                }
+                bool fadeOutEnabled = step.GetBool("FadeOutEnabled", true);
+                bool newFadeOutEnabled = EditorGUILayout.Toggle("Fade out over lifetime", fadeOutEnabled);
+                if (newFadeOutEnabled != fadeOutEnabled) { step.SetOverrideBool("FadeOutEnabled", newFadeOutEnabled); EditorUtility.SetDirty(recipe); }
+                EditorGUI.BeginDisabledGroup(!newFadeOutEnabled);
+                float fadeStartLifePct = step.GetFloat("FadeOutStartLifePercent", 0.5f) * 100f;
+                float newFadeStartLifePct = EditorGUILayout.Slider("Fade start at life %", fadeStartLifePct, 0f, 100f);
+                if (Mathf.Abs(newFadeStartLifePct - fadeStartLifePct) > 0.001f) { step.SetOverrideFloat("FadeOutStartLifePercent", newFadeStartLifePct / 100f); EditorUtility.SetDirty(recipe); }
+                EditorGUI.EndDisabledGroup();
                 bool att = step.GetBool("AttachToParent", false);
                 bool natt = EditorGUILayout.Toggle("Attach to parent", att);
                 if (natt != att) { step.SetOverrideBool("AttachToParent", natt); EditorUtility.SetDirty(recipe); }
@@ -551,12 +575,11 @@ namespace Scripts.Editor.Skills
             AddStep("MovementLock", 0f, 1f);
             AddStep("WeaponWindup", 0f, 0.35f);
             AddStep("WeaponStrike", 0.35f, 0.35f);
-            AddStep("SpawnVFX", 0.35f, 0.35f);
+            AddStep("SpawnVFX", 0.35f, 0.75f);
             var vfxPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/VFX/VFX_Cleave.prefab");
             if (vfxPrefab != null) SetObj(3, "VfxPrefab", vfxPrefab);
             SetFloat(3, "OffsetX", 0.2f);
             SetFloat(3, "OffsetY", 0f);
-            SetFloat(3, "BaseDuration", 0.4f);
             AddStep("DealDamageCircle", 0.35f, 0.35f); SetInt(4, "SourceStepIndex", 3); SetFloat(4, "SizeX", 1f); SetFloat(4, "SizeY", 1f); SetFloat(4, "DamageMultiplier", 1f);
             AddStep("WeaponRecovery", 0.35f, 1f);
             AddStep("MovementUnlock", 1f, 1f);

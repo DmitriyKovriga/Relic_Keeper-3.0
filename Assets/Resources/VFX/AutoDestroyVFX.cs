@@ -1,61 +1,67 @@
 using UnityEngine;
 
-[RequireComponent(typeof(SpriteRenderer))]
 public class AutoDestroyVFX : MonoBehaviour
 {
     private float _duration;
     private float _timer;
-    private SpriteRenderer _sr;
-    private Color _startColor;
-    private bool _initialized = false;
+    private bool _fadeOutEnabled;
+    private float _fadeOutStartLifePercent;
+    private SpriteRenderer[] _renderers;
+    private Color[] _startColors;
+    private bool _initialized;
 
-    // Вот этот метод, которого не хватало
-    public void Initialize(float duration)
+    public void Initialize(float duration, bool fadeOutEnabled = true, float fadeOutStartLifePercent = 0.5f)
     {
-        _duration = duration;
-        _timer = 0;
-        _sr = GetComponent<SpriteRenderer>();
-        
-        if (_sr != null)
+        _duration = Mathf.Max(0.0001f, duration);
+        _timer = 0f;
+        _fadeOutEnabled = fadeOutEnabled;
+        _fadeOutStartLifePercent = Mathf.Clamp01(fadeOutStartLifePercent);
+        _renderers = GetComponentsInChildren<SpriteRenderer>(true);
+        _startColors = new Color[_renderers.Length];
+
+        for (int i = 0; i < _renderers.Length; i++)
         {
-            _startColor = _sr.color;
+            _startColors[i] = _renderers[i] != null ? _renderers[i].color : Color.white;
         }
 
+        ApplyAlphaMultiplier(1f);
         _initialized = true;
     }
 
     private void Update()
     {
-        // Если Initialize не вызвали (например, старый код), удаляем по старинке через Destroy в Start не сработает,
-        // поэтому тут защита: если не инициализирован, ничего не делаем или удаляем сразу.
-        // Но так как мы теперь управляем через SkillVFX, ждем инициализации.
-        if (!_initialized) return;
+        if (!_initialized)
+            return;
 
         _timer += Time.deltaTime;
 
-        // Логика затухания (Fade Out)
-        if (_sr != null)
+        if (_fadeOutEnabled && _fadeOutStartLifePercent < 1f)
         {
-            // Нормализованное время от 0.0 до 1.0
-            float progress = _timer / _duration;
-
-            // Начинаем затухать после 50% времени жизни
-            if (progress > 0.5f)
-            {
-                // Переводим диапазон [0.5 ... 1.0] в [0.0 ... 1.0]
-                float fadeProgress = (progress - 0.5f) * 2f;
-                
-                // Lerp от текущей Альфы до 0
-                float newAlpha = Mathf.Lerp(_startColor.a, 0f, fadeProgress);
-                
-                _sr.color = new Color(_startColor.r, _startColor.g, _startColor.b, newAlpha);
-            }
+            float lifeProgress = Mathf.Clamp01(_timer / _duration);
+            float fadeProgress = Mathf.InverseLerp(_fadeOutStartLifePercent, 1f, lifeProgress);
+            float alphaMultiplier = 1f - Mathf.SmoothStep(0f, 1f, fadeProgress);
+            ApplyAlphaMultiplier(alphaMultiplier);
         }
 
-        // Смерть по таймеру
         if (_timer >= _duration)
-        {
             Destroy(gameObject);
+    }
+
+    private void ApplyAlphaMultiplier(float alphaMultiplier)
+    {
+        if (_renderers == null || _startColors == null)
+            return;
+
+        alphaMultiplier = Mathf.Clamp01(alphaMultiplier);
+
+        for (int i = 0; i < _renderers.Length; i++)
+        {
+            SpriteRenderer renderer = _renderers[i];
+            if (renderer == null)
+                continue;
+
+            Color startColor = i < _startColors.Length ? _startColors[i] : renderer.color;
+            renderer.color = new Color(startColor.r, startColor.g, startColor.b, startColor.a * alphaMultiplier);
         }
     }
 }

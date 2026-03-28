@@ -130,9 +130,10 @@ namespace Scripts.Skills
                         continue;
                     }
 
-                    bool isDuration = step.StepDefinition.IsDurationStep;
                     float startP = step.StartPercentPipeline;
                     float endP = step.EndPercentPipeline;
+                    bool isSpawnVfxWindow = step.StepDefinition.Id == "SpawnVFX" && endP > startP + 0.0001f;
+                    bool isDuration = step.StepDefinition.IsDurationStep || isSpawnVfxWindow;
 
                     if (isDuration && endP <= startP) endP = Mathf.Min(1f, startP + 0.001f);
 
@@ -143,8 +144,10 @@ namespace Scripts.Skills
                             started[i] = true;
                             if (step.StepDefinition.Id == "MovementLock")
                                 _moveCtrl.SetLock(true);
+                            else if (step.StepDefinition.Id == "SpawnVFX")
+                                ExecuteStepLogic(i, step, 0f, (endP - startP) * _ctx.TotalDuration);
                         }
-                        if (started[i] && T < endP + 0.0001f && step.StepDefinition.Id != "MovementLock")
+                        if (started[i] && T < endP + 0.0001f && step.StepDefinition.Id != "MovementLock" && step.StepDefinition.Id != "SpawnVFX")
                         {
                             float stepDuration = (endP - startP) * _ctx.TotalDuration;
                             float phaseT = stepDuration > 0 ? Mathf.Clamp01((T - startP) / (endP - startP)) : 1f;
@@ -239,13 +242,22 @@ namespace Scripts.Skills
                             if (chStep.StepDefinition == null) continue;
                             float startP = chStep.StartPercentPipeline;
                             float endP = chStep.EndPercentPipeline;
-                            if (chStep.StepDefinition.IsDurationStep && endP > startP)
+                            bool isSpawnVfxWindow = chStep.StepDefinition.Id == "SpawnVFX" && endP > startP + 0.0001f;
+                            if ((chStep.StepDefinition.IsDurationStep || isSpawnVfxWindow) && endP > startP)
                             {
                                 float sd = (endP - startP) * _ctx.TotalDuration;
-                                for (float el = 0f; el < sd && !_cancelled; el += Time.deltaTime)
+                                if (chStep.StepDefinition.Id == "SpawnVFX")
                                 {
-                                    ExecuteStepLogic(idx, chStep, el / sd, sd);
-                                    yield return null;
+                                    ExecuteStepLogic(idx, chStep, 0f, sd);
+                                    yield return new WaitForSeconds(sd);
+                                }
+                                else
+                                {
+                                    for (float el = 0f; el < sd && !_cancelled; el += Time.deltaTime)
+                                    {
+                                        ExecuteStepLogic(idx, chStep, el / sd, sd);
+                                        yield return null;
+                                    }
                                 }
                             }
                             else
@@ -285,7 +297,7 @@ namespace Scripts.Skills
                 case "Wait":
                     break;
                 case "SpawnVFX":
-                    ExecuteSpawnVFX(stepIndex, step);
+                    ExecuteSpawnVFX(stepIndex, step, stepDuration);
                     break;
                 case "DealDamageCircle":
                     ExecuteDealDamageCircle(stepIndex, step);
@@ -299,9 +311,12 @@ namespace Scripts.Skills
             }
         }
 
-        private void ExecuteSpawnVFX(int stepIndex, StepEntry step)
+        private void ExecuteSpawnVFX(int stepIndex, StepEntry step, float requestedLifetime)
         {
             GameObject prefab = step.GetObject<GameObject>("VfxPrefab");
+            bool fadeOutEnabled = step.GetBool("FadeOutEnabled", true);
+            float fadeOutStartLifePercent = Mathf.Clamp01(step.GetFloat("FadeOutStartLifePercent", 0.5f));
+            float lifetime = ResolveSpawnVfxLifetime(step, requestedLifetime);
             if (prefab == null)
             {
                 var vfxModule = GetComponent<SkillVFX>();
@@ -309,15 +324,21 @@ namespace Scripts.Skills
                 {
                     float scaleMult = step.GetFloat("ScaleMultiplier", 1f);
                     float scaleForVfx = _ctx.AoeScale * scaleMult;
-                    vfxModule.Play(_ownerStats.transform, _ctx.FacingDirection, scaleForVfx, _ctx.TotalDuration > 0 ? 1f / _ctx.TotalDuration : 1f);
-                    Vector3 pos = _ownerStats.transform.position + new Vector3(step.GetFloat("OffsetX", 0f) * _ctx.FacingDirection, step.GetFloat("OffsetY", 0f), 0f);
-                    _ctx.SetStepResult(stepIndex, pos, scaleForVfx, step.GetFloat("BaseDuration", 0.5f), Time.time, pos, 0f);
+                    GameObject moduleVfx = vfxModule.PlayForLifetime(
+                        _ownerStats.transform,
+                        _ctx.FacingDirection,
+                        scaleForVfx,
+                        lifetime,
+                        fadeOutEnabled,
+                        fadeOutStartLifePercent,
+                        out var moduleSpawnPos);
+                    if (moduleVfx != null)
+                        CacheSpawnVfxStepResult(stepIndex, moduleSpawnPos, scaleForVfx, lifetime, moduleVfx);
                 }
                 return;
             }
             float offsetX = step.GetFloat("OffsetX", 0f);
             float offsetY = step.GetFloat("OffsetY", 0f);
-            float baseDuration = step.GetFloat("BaseDuration", 0.5f);
             float scaleMultiplier = step.GetFloat("ScaleMultiplier", 1f);
             bool attachToParent = step.GetBool("AttachToParent", false);
             bool invertFacing = step.GetBool("InvertFacing", false);
@@ -329,18 +350,33 @@ namespace Scripts.Skills
             scale.x = Mathf.Abs(scale.x) * finalDir * effectiveScale;
             scale.y = Mathf.Abs(scale.y) * effectiveScale;
             vfx.transform.localScale = scale;
-            float aps = _ctx.TotalDuration > 0 ? 1f / _ctx.TotalDuration : 1f;
-            var anim = vfx.GetComponent<Animator>();
-            if (anim != null) anim.speed = aps;
-            float lifetime = baseDuration / aps;
+            var anim = vfx.GetComponentInChildren<Animator>();
+            if (anim != null)
+                anim.speed = SkillVFX.GetAnimatorPlaybackDurationAtSpeedOne(anim, lifetime) / lifetime;
             var autoDestroy = vfx.GetComponent<AutoDestroyVFX>();
-            if (autoDestroy != null) autoDestroy.Initialize(lifetime);
+            if (autoDestroy != null) autoDestroy.Initialize(lifetime, fadeOutEnabled, fadeOutStartLifePercent);
             else Destroy(vfx, lifetime);
             if (attachToParent) vfx.transform.SetParent(_ownerStats.transform);
 
+            CacheSpawnVfxStepResult(stepIndex, spawnPos, effectiveScale, lifetime, vfx);
+        }
+
+        private float ResolveSpawnVfxLifetime(StepEntry step, float requestedLifetime)
+        {
+            if (requestedLifetime > 0.0001f)
+                return requestedLifetime;
+
+            float legacyBaseDuration = Mathf.Max(0.0001f, step.GetFloat("BaseDuration", 0.5f));
+            float attackSpeed = _ctx.TotalDuration > 0f ? 1f / _ctx.TotalDuration : 1f;
+            return legacyBaseDuration / Mathf.Max(0.0001f, attackSpeed);
+        }
+
+        private void CacheSpawnVfxStepResult(int stepIndex, Vector3 spawnPos, float scale, float lifetime, GameObject vfx)
+        {
             Vector3 visualCenter = spawnPos;
             float visualRadius = 0f;
-            var sr = vfx.GetComponentInChildren<SpriteRenderer>();
+            Transform visualTransform = vfx != null ? vfx.transform : null;
+            var sr = vfx != null ? vfx.GetComponentInChildren<SpriteRenderer>() : null;
             if (TryGetCurrentVfxMetrics(sr, out var currentCenter, out var currentSize))
             {
                 visualCenter = currentCenter;
@@ -350,12 +386,12 @@ namespace Scripts.Skills
             _ctx.SetStepResult(
                 stepIndex,
                 spawnPos,
-                effectiveScale,
+                scale,
                 lifetime,
                 Time.time,
                 visualCenter,
                 visualRadius,
-                vfx.transform,
+                visualTransform,
                 sr);
         }
 

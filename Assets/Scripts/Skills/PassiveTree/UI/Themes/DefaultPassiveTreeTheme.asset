@@ -16,14 +16,14 @@ MonoBehaviour:
   NodeSizeNotable: 32
   NodeSizeKeystone: 48
   LineThickness: 4
-  SmallNodeFrame: {fileID: 21300000, guid: d2a5e5525b81de243bd06bd9354ba4f6, type: 3}
-  NotableNodeFrame: {fileID: 0}
-  KeystoneNodeFrame: {fileID: 0}
+  SmallNodeFrame: {fileID: 21300000, guid: 12bbf1a032cf2344a922331e20253b21, type: 3}
+  NotableNodeFrame: {fileID: 21300000, guid: 393566ac5db174146827e8fce25a9aa9, type: 3}
+  KeystoneNodeFrame: {fileID: 21300000, guid: 3fb6fdfb0aa19a64997a401f89ba97d6, type: 3}
   AllocatedFill: {r: 0.8, g: 0.6, b: 0.1, a: 1}
   AllocatedBorder: {r: 1, g: 0.8, b: 0.2, a: 1}
   AllocatedGlow: {r: 1, g: 0.75, b: 0.25, a: 0.3}
   AvailableFill: {r: 0.15, g: 0.15, b: 0.15, a: 1}
-  AvailableBorder: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  AvailableBorder: {r: 0.5, g: 0.5, b: 0.5, a: 0.19607843}
   AvailableGlow: {r: 1, g: 1, b: 1, a: 0.24}
   LockedFill: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   LockedBorder: {r: 0.2, g: 0.2, b: 0.2, a: 1}
