@@ -1507,6 +1507,31 @@ MonoBehaviour:
     m_Localized: x
     m_Metadata:
       m_Items: []
+  - m_Id: 28263538823299090
+    m_Localized: X
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299091
+    m_Localized: Delete Hero
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299092
+    m_Localized: You are about to remove this hero from the hostel. All items in
+      this hero's inventory will also be deleted.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299093
+    m_Localized: Delete Hero
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299094
+    m_Localized: Confirm Delete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299095
+    m_Localized: Cancel
+    m_Metadata:
+      m_Items: []
   - m_Id: 28263538823299080
     m_Localized: +5 to maximum life
     m_Metadata:
@@ -1617,6 +1642,54 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 40804688767516672
     m_Localized: Dodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43348985866346496
+    m_Localized: +3 to Mana regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43348985899900928
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43349067210678272
+    m_Localized: +1 to Mana regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43349067210678273
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43349438855372800
+    m_Localized: Medium Mana Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43349438855372801
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43349483667316736
+    m_Localized: Small Mana Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43349483667316737
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43376266055286784
+    m_Localized: Small Life Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43376266084646912
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43376621526745088
+    m_Localized: Medium Life Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43376621526745089
+    m_Localized: 
     m_Metadata:
       m_Items: []
   references:

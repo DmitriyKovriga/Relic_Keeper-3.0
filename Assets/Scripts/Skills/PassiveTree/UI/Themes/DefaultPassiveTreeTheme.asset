@@ -16,9 +16,9 @@ MonoBehaviour:
   NodeSizeNotable: 32
   NodeSizeKeystone: 48
   LineThickness: 4
-  SmallNodeFrame: {fileID: 6167586765963247096, guid: e053f6e8ae20e1d41bbf93245aece2cc, type: 3}
-  NotableNodeFrame: {fileID: 2592238800793654527, guid: b4e3aa2e8ccddbf409c9208e3f31e744, type: 3}
-  KeystoneNodeFrame: {fileID: -1702523601367239503, guid: 41def8c2fe4ee7c4c8636b5cb708b1ae, type: 3}
+  SmallNodeFrame: {fileID: 21300000, guid: 5e75d8560f7ed8c4bb444c91cacac542, type: 3}
+  NotableNodeFrame: {fileID: 21300000, guid: f478871ed56b0e04a9bbfb7a8869252c, type: 3}
+  KeystoneNodeFrame: {fileID: 21300000, guid: 7349b1d144852d54aa7f25e419b34558, type: 3}
   AllocatedFill: {r: 0.8, g: 0.6, b: 0.1, a: 1}
   AllocatedBorder: {r: 1, g: 0.8, b: 0.2, a: 1}
   AllocatedGlow: {r: 1, g: 0.75, b: 0.25, a: 0.3}
@@ -27,6 +27,22 @@ MonoBehaviour:
   AvailableGlow: {r: 1, g: 1, b: 1, a: 0.24}
   LockedFill: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   LockedBorder: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+  AllocatedHighlightColor: {r: 1, g: 0.78, b: 0.25, a: 0.34}
+  AllocatedHighlightScale: 2
+  AvailableHighlightColor: {r: 0.95, g: 0.95, b: 0.95, a: 0.24}
+  AvailableHighlightScale: 2
   LineAllocated: {r: 1, g: 0.8, b: 0.2, a: 0.8}
   LinePath: {r: 0.7, g: 0.7, b: 0.7, a: 0.5}
   LineLocked: {r: 0.15, g: 0.15, b: 0.15, a: 0.5}
+  LineLockedInnerThicknessScale: 0.46
+  LinePathInnerThicknessScale: 0.28
+  LineAllocatedInnerThicknessScale: 0.3
+  LineAllocatedOuter: {r: 0.87, g: 0.67, b: 0.24, a: 0.98}
+  LineAllocatedInner: {r: 1, g: 0.96, b: 0.76, a: 0.82}
+  LinePathOuter: {r: 0.68, g: 0.68, b: 0.68, a: 0.95}
+  LinePathInner: {r: 0.93, g: 0.93, b: 0.93, a: 0.72}
+  LineLockedOuter: {r: 0.42, g: 0.34, b: 0.17, a: 0.75}
+  LineLockedInner: {r: 0.12, g: 0.1, b: 0.07, a: 0.88}
+  LinePathPulseSpeed: 0.9
+  LinePathPulseMinAlpha: 0.05
+  LinePathPulseMaxAlpha: 0.55

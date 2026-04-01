@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UIElements;
 
 public partial class TavernUI
@@ -96,13 +97,23 @@ public partial class TavernUI
         _hostelContent.style.flexDirection = FlexDirection.Column;
         _hostelContent.style.flexGrow = 1;
         _hostelContent.style.minHeight = 0;
+        _hostelScrollView = new ScrollView(ScrollViewMode.Vertical);
+        _hostelScrollView.style.flexGrow = 1;
+        _hostelScrollView.style.minHeight = 0;
+        _hostelScrollView.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+        _hostelScrollView.verticalScrollerVisibility = ScrollerVisibility.Auto;
+        _hostelScrollView.style.marginTop = 1;
+        _hostelScrollView.contentContainer.style.flexDirection = FlexDirection.Row;
+        _hostelScrollView.contentContainer.style.flexWrap = Wrap.Wrap;
+        _hostelScrollView.contentContainer.style.alignItems = Align.Stretch;
+        _hostelScrollView.contentContainer.style.paddingRight = 2;
         _hostelListContainer = new VisualElement();
         _hostelListContainer.style.flexDirection = FlexDirection.Row;
         _hostelListContainer.style.flexWrap = Wrap.Wrap;
-        _hostelListContainer.style.flexGrow = 1;
-        _hostelListContainer.style.minHeight = 0;
         _hostelListContainer.style.alignItems = Align.Stretch;
-        _hostelContent.Add(_hostelListContainer);
+        _hostelListContainer.style.minHeight = 0;
+        _hostelScrollView.Add(_hostelListContainer);
+        _hostelContent.Add(_hostelScrollView);
         panel.Add(_hostelContent);
 
         _recruitContent = new VisualElement();
@@ -136,8 +147,78 @@ public partial class TavernUI
         _recruitContent.Add(_hireChoicesContainer);
         panel.Add(_recruitContent);
 
+        BuildDeleteDialog();
+
         _activeTabIndex = 1;
         ShowTab(1);
+    }
+
+    private void BuildDeleteDialog()
+    {
+        _deleteDialogOverlay = new VisualElement { name = "DeleteDialogOverlay" };
+        _deleteDialogOverlay.style.position = Position.Absolute;
+        _deleteDialogOverlay.style.left = 0;
+        _deleteDialogOverlay.style.right = 0;
+        _deleteDialogOverlay.style.top = 0;
+        _deleteDialogOverlay.style.bottom = 0;
+        _deleteDialogOverlay.style.justifyContent = Justify.Center;
+        _deleteDialogOverlay.style.alignItems = Align.Center;
+        _deleteDialogOverlay.style.backgroundColor = new Color(0f, 0f, 0f, 0.55f);
+        _deleteDialogOverlay.style.display = DisplayStyle.None;
+        _deleteDialogOverlay.RegisterCallback<ClickEvent>(evt =>
+        {
+            if (evt.target == _deleteDialogOverlay)
+                HideDeleteDialog();
+        });
+        _windowRoot.Add(_deleteDialogOverlay);
+
+        var dialog = new VisualElement();
+        dialog.style.width = 244;
+        dialog.style.minHeight = 94;
+        dialog.style.paddingLeft = 10;
+        dialog.style.paddingRight = 10;
+        dialog.style.paddingTop = 8;
+        dialog.style.paddingBottom = 8;
+        dialog.style.backgroundColor = new Color(0.12f, 0.09f, 0.08f, 0.98f);
+        dialog.style.borderLeftWidth = dialog.style.borderRightWidth = dialog.style.borderTopWidth = dialog.style.borderBottomWidth = 2;
+        dialog.style.borderLeftColor = dialog.style.borderRightColor = dialog.style.borderTopColor = dialog.style.borderBottomColor = new Color(0.46f, 0.36f, 0.24f);
+        _deleteDialogOverlay.Add(dialog);
+
+        _deleteDialogTitle = new Label("Delete Hero");
+        _deleteDialogTitle.style.fontSize = 10;
+        _deleteDialogTitle.style.unityFontStyleAndWeight = FontStyle.Bold;
+        _deleteDialogTitle.style.color = new Color(0.92f, 0.82f, 0.64f);
+        _deleteDialogTitle.style.marginBottom = 6;
+        dialog.Add(_deleteDialogTitle);
+        SetLocalizedLabel(_deleteDialogTitle, TavernLocKeys.DeleteTitle, "Delete Hero");
+
+        _deleteDialogMessage = new Label();
+        _deleteDialogMessage.style.fontSize = 8;
+        _deleteDialogMessage.style.color = new Color(0.86f, 0.80f, 0.74f);
+        _deleteDialogMessage.style.whiteSpace = WhiteSpace.Normal;
+        _deleteDialogMessage.style.marginBottom = 8;
+        dialog.Add(_deleteDialogMessage);
+
+        var buttonsRow = new VisualElement();
+        buttonsRow.style.flexDirection = FlexDirection.Row;
+        buttonsRow.style.justifyContent = Justify.FlexEnd;
+        buttonsRow.style.alignItems = Align.Center;
+        dialog.Add(buttonsRow);
+
+        _deleteDialogCancelButton = new Button(HideDeleteDialog) { text = "Cancel" };
+        SetLocalizedButton(_deleteDialogCancelButton, TavernLocKeys.Cancel, "Cancel");
+        _deleteDialogCancelButton.style.width = 58;
+        _deleteDialogCancelButton.style.height = 16;
+        _deleteDialogCancelButton.style.fontSize = 8;
+        _deleteDialogCancelButton.style.marginRight = 4;
+        buttonsRow.Add(_deleteDialogCancelButton);
+
+        _deleteDialogConfirmButton = new Button(OnDeleteDialogConfirmClicked) { text = "Delete" };
+        _deleteDialogConfirmButton.style.width = 92;
+        _deleteDialogConfirmButton.style.height = 16;
+        _deleteDialogConfirmButton.style.fontSize = 8;
+        _deleteDialogConfirmButton.style.backgroundColor = new Color(0.48f, 0.16f, 0.16f);
+        buttonsRow.Add(_deleteDialogConfirmButton);
     }
 
     private void ShowTab(int index)
@@ -196,14 +277,81 @@ public partial class TavernUI
     private void RefreshHostelList()
     {
         _hostelListContainer.Clear();
+        if (_hostelScrollView != null)
+            _hostelScrollView.scrollOffset = Vector2.zero;
         var hostel = CharacterPartyManager.Instance?.HostelCharacterIDs ?? new List<string>();
-        foreach (var id in hostel)
+        foreach (var instanceId in hostel)
         {
-            var ch = _characterDB?.GetCharacterByID(id);
+            var saveData = CharacterPartyManager.Instance?.GetCharacterData(instanceId);
+            var ch = _characterDB?.GetCharacterByID(saveData?.CharacterClassID);
             if (ch == null) continue;
 
-            var card = CreateHeroCard(ch, isHire: false, isHostel: true);
+            var card = CreateHeroCard(ch, isHire: false, isHostel: true, characterInstanceId: instanceId);
             _hostelListContainer.Add(card);
+        }
+    }
+
+    private void ShowDeleteDialog(CharacterDataSO ch, string characterInstanceId)
+    {
+        _pendingDeleteCharacter = ch;
+        _pendingDeleteCharacterInstanceId = characterInstanceId;
+        _deleteNeedsFinalConfirmation = false;
+        UpdateDeleteDialogText();
+        if (_deleteDialogOverlay != null)
+            _deleteDialogOverlay.style.display = DisplayStyle.Flex;
+    }
+
+    private void HideDeleteDialog()
+    {
+        _pendingDeleteCharacter = null;
+        _pendingDeleteCharacterInstanceId = null;
+        _deleteNeedsFinalConfirmation = false;
+        if (_deleteDialogOverlay != null)
+            _deleteDialogOverlay.style.display = DisplayStyle.None;
+    }
+
+    private void OnDeleteDialogConfirmClicked()
+    {
+        if (_pendingDeleteCharacter == null)
+        {
+            HideDeleteDialog();
+            return;
+        }
+
+        if (!_deleteNeedsFinalConfirmation)
+        {
+            _deleteNeedsFinalConfirmation = true;
+            UpdateDeleteDialogText();
+            return;
+        }
+
+        OnDeleteHostelCharacterConfirmed(_pendingDeleteCharacter, _pendingDeleteCharacterInstanceId);
+        HideDeleteDialog();
+    }
+
+    private void UpdateDeleteDialogText()
+    {
+        if (_deleteDialogMessage == null)
+            return;
+
+        string heroName = _pendingDeleteCharacter != null ? GetLocalizedName(_pendingDeleteCharacter) : "Hero";
+        bool isRu = LocalizationSettings.SelectedLocale != null &&
+                    LocalizationSettings.SelectedLocale.Identifier.Code.StartsWith("ru");
+        if (_deleteNeedsFinalConfirmation)
+        {
+            _deleteDialogMessage.text = isRu
+                ? $"Удалить {heroName} навсегда? Инвентарь, уровень и прогресс этого героя будут удалены."
+                : $"Delete {heroName} permanently? Inventory items and progress for this hero will be removed.";
+            SetLocalizedButton(_deleteDialogConfirmButton, TavernLocKeys.DeleteFinalConfirm, "Confirm Delete");
+            _deleteDialogConfirmButton.style.backgroundColor = new Color(0.60f, 0.12f, 0.12f);
+        }
+        else
+        {
+            _deleteDialogMessage.text = isRu
+                ? $"Вы собираетесь удалить {heroName} из хостела. Все вещи в инвентаре этого героя тоже будут удалены."
+                : $"You are about to remove {heroName} from the hostel. This also deletes all items in this hero's inventory.";
+            SetLocalizedButton(_deleteDialogConfirmButton, TavernLocKeys.DeleteConfirm, "Delete Hero");
+            _deleteDialogConfirmButton.style.backgroundColor = new Color(0.48f, 0.16f, 0.16f);
         }
     }
 }

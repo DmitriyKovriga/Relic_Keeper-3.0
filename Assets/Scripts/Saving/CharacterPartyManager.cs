@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -6,17 +6,13 @@ using Scripts.Inventory;
 using Scripts.Saving;
 using Scripts.Skills.PassiveTree;
 
-/// <summary>
-/// Управляет партией персонажей: активный, хостел. Связывает персонажа с инвентарём и деревом.
-/// Склад общий для всех.
-/// </summary>
 public class CharacterPartyManager : MonoBehaviour
 {
     public static CharacterPartyManager Instance { get; private set; }
 
     public event Action<string> OnActiveCharacterChanged;
 
-    private Dictionary<string, CharacterSaveData> _partyCharacters = new Dictionary<string, CharacterSaveData>();
+    private readonly Dictionary<string, CharacterSaveData> _partyCharacters = new Dictionary<string, CharacterSaveData>();
     private string _activeCharacterID;
 
     private PlayerStats _playerStats;
@@ -24,9 +20,7 @@ public class CharacterPartyManager : MonoBehaviour
 
     public string ActiveCharacterID => _activeCharacterID;
     public IReadOnlyList<string> PartyCharacterIDs => _partyCharacters.Keys.ToList();
-
-    public IReadOnlyList<string> HostelCharacterIDs =>
-        _partyCharacters.Keys.Where(id => id != _activeCharacterID).ToList();
+    public IReadOnlyList<string> HostelCharacterIDs => _partyCharacters.Keys.Where(id => id != _activeCharacterID).ToList();
 
     private void Awake()
     {
@@ -35,6 +29,7 @@ public class CharacterPartyManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         Instance = this;
     }
 
@@ -45,14 +40,11 @@ public class CharacterPartyManager : MonoBehaviour
             _passiveTreeManager = _playerStats.GetComponent<PassiveTreeManager>();
     }
 
-    /// <summary>Есть ли персонаж в партии (активный или хостел).</summary>
-    public bool HasCharacter(string characterId) => _partyCharacters.ContainsKey(characterId);
+    public bool HasCharacter(string characterInstanceId) => _partyCharacters.ContainsKey(characterInstanceId);
 
-    /// <summary>Получить данные персонажа из партии.</summary>
-    public CharacterSaveData GetCharacterData(string characterId) =>
-        _partyCharacters.TryGetValue(characterId, out var d) ? d : null;
+    public CharacterSaveData GetCharacterData(string characterInstanceId) =>
+        _partyCharacters.TryGetValue(characterInstanceId, out var data) ? data : null;
 
-    /// <summary>Загрузить состояние партии из сейва.</summary>
     public void LoadFromSave(GameSaveData data, CharacterDatabaseSO characterDB, ItemDatabaseSO itemDB)
     {
         _partyCharacters.Clear();
@@ -62,36 +54,39 @@ public class CharacterPartyManager : MonoBehaviour
         {
             foreach (var ch in data.Characters)
             {
-                if (string.IsNullOrEmpty(ch.CharacterClassID)) continue;
-                _partyCharacters[ch.CharacterClassID] = ch;
+                if (string.IsNullOrEmpty(ch.CharacterClassID))
+                    continue;
+
+                if (string.IsNullOrEmpty(ch.CharacterInstanceID))
+                    ch.CharacterInstanceID = Guid.NewGuid().ToString("N");
+
+                _partyCharacters[ch.CharacterInstanceID] = ch;
             }
+
             _activeCharacterID = !string.IsNullOrEmpty(data.ActiveCharacterID) && _partyCharacters.ContainsKey(data.ActiveCharacterID)
                 ? data.ActiveCharacterID
-                : data.Characters[0].CharacterClassID;
+                : data.Characters.FirstOrDefault(c => !string.IsNullOrEmpty(c.CharacterInstanceID))?.CharacterInstanceID;
         }
         else if (!string.IsNullOrEmpty(data.CharacterClassID))
         {
-            var legacy = new CharacterSaveData
-            {
-                CharacterClassID = data.CharacterClassID,
-                CurrentHealth = data.CurrentHealth,
-                CurrentMana = data.CurrentMana,
-                CurrentLevel = data.CurrentLevel,
-                CurrentXP = data.CurrentXP,
-                RequiredXP = data.RequiredXP,
-                SkillPoints = data.SkillPoints,
-                Inventory = data.Inventory ?? new InventorySaveData(),
-                AllocatedPassiveNodes = data.AllocatedPassiveNodes ?? new List<string>()
-            };
-            _partyCharacters[legacy.CharacterClassID] = legacy;
-            _activeCharacterID = legacy.CharacterClassID;
+            var legacy = new CharacterSaveData(data.CharacterClassID);
+            legacy.CurrentHealth = data.CurrentHealth;
+            legacy.CurrentMana = data.CurrentMana;
+            legacy.CurrentLevel = data.CurrentLevel;
+            legacy.CurrentXP = data.CurrentXP;
+            legacy.RequiredXP = data.RequiredXP;
+            legacy.SkillPoints = data.SkillPoints;
+            legacy.Inventory = data.Inventory ?? new InventorySaveData();
+            legacy.AllocatedPassiveNodes = data.AllocatedPassiveNodes ?? new List<string>();
+
+            _partyCharacters[legacy.CharacterInstanceID] = legacy;
+            _activeCharacterID = legacy.CharacterInstanceID;
         }
 
         if (string.IsNullOrEmpty(_activeCharacterID) && _partyCharacters.Count > 0)
             _activeCharacterID = _partyCharacters.Keys.First();
     }
 
-    /// <summary>Собрать текущее состояние в сейв.</summary>
     public void WriteToSave(GameSaveData data)
     {
         data.ActiveCharacterID = _activeCharacterID;
@@ -100,10 +95,10 @@ public class CharacterPartyManager : MonoBehaviour
             data.Characters.Add(kv.Value);
     }
 
-    /// <summary>Сохранить текущего активного персонажа в партию (из PlayerStats, Inventory, Tree).</summary>
     public void SaveCurrentToParty()
     {
-        if (string.IsNullOrEmpty(_activeCharacterID) || _playerStats == null) return;
+        if (string.IsNullOrEmpty(_activeCharacterID) || _playerStats == null)
+            return;
 
         var ch = GetOrCreateCharacterData(_activeCharacterID);
         ch.CurrentHealth = _playerStats.Health.Current;
@@ -116,82 +111,99 @@ public class CharacterPartyManager : MonoBehaviour
         ch.AllocatedPassiveNodes = _passiveTreeManager != null ? _passiveTreeManager.GetSaveData() : new List<string>();
     }
 
-    /// <summary>Загрузить персонажа из партии в PlayerStats, Inventory, Tree.</summary>
     public void LoadCharacterIntoGame(CharacterSaveData chData, CharacterDataSO characterData, ItemDatabaseSO itemDB)
     {
         if (chData == null || characterData == null || _playerStats == null)
         {
-            if (_playerStats == null) Debug.LogWarning("[CharacterPartyManager] LoadCharacterIntoGame: PlayerStats не найден.");
+            if (_playerStats == null)
+                Debug.LogWarning("[CharacterPartyManager] LoadCharacterIntoGame: PlayerStats was not found.");
             return;
         }
 
         _playerStats.Initialize(characterData);
         _playerStats.ApplyLoadedState(chData);
-        // При свапе персонаж появляется с полным HP/маной (отдых в хостеле)
         _playerStats.Health.RestoreFull();
         _playerStats.Mana.RestoreFull();
 
         if (InventoryManager.Instance != null && itemDB != null)
             InventoryManager.Instance.LoadState(chData.Inventory ?? new InventorySaveData(), itemDB);
 
-        if (_passiveTreeManager != null)
+        if (_passiveTreeManager != null && characterData.PassiveTree != null)
         {
-            if (characterData.PassiveTree != null)
-            {
-                _passiveTreeManager.SetTreeData(characterData.PassiveTree);
-                if (chData.AllocatedPassiveNodes != null)
-                    _passiveTreeManager.LoadState(chData.AllocatedPassiveNodes);
-            }
+            _passiveTreeManager.SetTreeData(characterData.PassiveTree);
+            if (chData.AllocatedPassiveNodes != null)
+                _passiveTreeManager.LoadState(chData.AllocatedPassiveNodes);
         }
     }
 
-    /// <summary>Добавить нового персонажа в партию (при найме).</summary>
-    public void AddCharacterToParty(string characterId)
+    public string AddCharacterToParty(string characterClassId)
     {
-        if (string.IsNullOrEmpty(characterId) || _partyCharacters.ContainsKey(characterId)) return;
-        _partyCharacters[characterId] = new CharacterSaveData(characterId);
+        if (string.IsNullOrEmpty(characterClassId))
+            return null;
+
+        var character = new CharacterSaveData(characterClassId);
+        _partyCharacters[character.CharacterInstanceID] = character;
+        return character.CharacterInstanceID;
     }
 
-    /// <summary>Сменить активного персонажа. Текущий уходит в хостел, новый становится активным.</summary>
-    public bool SwapToCharacter(string newCharacterId, CharacterDatabaseSO characterDB, ItemDatabaseSO itemDB)
+    public bool RemoveCharacterFromParty(string characterInstanceId)
     {
-        if (string.IsNullOrEmpty(newCharacterId) || !_partyCharacters.ContainsKey(newCharacterId))
+        if (string.IsNullOrEmpty(characterInstanceId) || !_partyCharacters.ContainsKey(characterInstanceId))
+            return false;
+
+        if (characterInstanceId == _activeCharacterID)
         {
-            Debug.LogWarning($"[CharacterPartyManager] SwapToCharacter: персонаж '{newCharacterId}' не в партии.");
+            Debug.LogWarning($"[CharacterPartyManager] RemoveCharacterFromParty: cannot remove active character '{characterInstanceId}'.");
             return false;
         }
-        var characterData = characterDB?.GetCharacterByID(newCharacterId);
+
+        return _partyCharacters.Remove(characterInstanceId);
+    }
+
+    public bool SwapToCharacter(string characterInstanceId, CharacterDatabaseSO characterDB, ItemDatabaseSO itemDB)
+    {
+        if (string.IsNullOrEmpty(characterInstanceId) || !_partyCharacters.ContainsKey(characterInstanceId))
+        {
+            Debug.LogWarning($"[CharacterPartyManager] SwapToCharacter: character instance '{characterInstanceId}' is not in party.");
+            return false;
+        }
+
+        var chData = _partyCharacters[characterInstanceId];
+        var characterData = characterDB?.GetCharacterByID(chData.CharacterClassID);
         if (characterData == null)
         {
-            Debug.LogWarning($"[CharacterPartyManager] SwapToCharacter: персонаж '{newCharacterId}' не найден в Character Database.");
+            Debug.LogWarning($"[CharacterPartyManager] SwapToCharacter: character class '{chData.CharacterClassID}' was not found in Character Database.");
             return false;
         }
+
         if (_playerStats == null)
         {
-            Debug.LogWarning("[CharacterPartyManager] SwapToCharacter: PlayerStats не найден. Добавьте PlayerStats в сцену.");
+            Debug.LogWarning("[CharacterPartyManager] SwapToCharacter: PlayerStats was not found in scene.");
             return false;
         }
 
         SaveCurrentToParty();
-        _activeCharacterID = newCharacterId;
-        var chData = _partyCharacters[newCharacterId];
+        _activeCharacterID = characterInstanceId;
         LoadCharacterIntoGame(chData, characterData, itemDB);
-        OnActiveCharacterChanged?.Invoke(newCharacterId);
+        OnActiveCharacterChanged?.Invoke(characterInstanceId);
         return true;
     }
 
-    private CharacterSaveData GetOrCreateCharacterData(string id)
+    private CharacterSaveData GetOrCreateCharacterData(string instanceId)
     {
-        if (!_partyCharacters.TryGetValue(id, out var d))
+        if (!_partyCharacters.TryGetValue(instanceId, out var data))
         {
-            d = new CharacterSaveData(id);
-            _partyCharacters[id] = d;
+            var classId = _playerStats != null ? _playerStats.CurrentClassID : "Unknown";
+            data = new CharacterSaveData(classId, instanceId);
+            _partyCharacters[instanceId] = data;
         }
-        return d;
+
+        return data;
     }
 
     private void OnDestroy()
     {
-        if (Instance == this) Instance = null;
+        if (Instance == this)
+            Instance = null;
     }
 }

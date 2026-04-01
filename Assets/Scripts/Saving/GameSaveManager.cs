@@ -7,7 +7,7 @@ using Scripts.Skills.PassiveTree;
 
 public class GameSaveManager : MonoBehaviour
 {
-    public const int CurrentSaveVersion = 2;
+    public const int CurrentSaveVersion = 3;
 
     [Header("Core Dependencies")]
     [SerializeField] private PlayerStats _playerStats;
@@ -79,6 +79,7 @@ public class GameSaveManager : MonoBehaviour
             data.ActiveCharacterID = _playerStats.CurrentClassID;
             data.Characters.Add(new CharacterSaveData
             {
+                CharacterInstanceID = _playerStats.CurrentClassID,
                 CharacterClassID = _playerStats.CurrentClassID,
                 CurrentHealth = _playerStats.Health.Current,
                 CurrentMana = _playerStats.Mana.Current,
@@ -109,21 +110,32 @@ public class GameSaveManager : MonoBehaviour
                 MigrateSaveData(data);
 
             string activeId = !string.IsNullOrEmpty(data.ActiveCharacterID) ? data.ActiveCharacterID : data.CharacterClassID;
-            CharacterDataSO characterData = _characterDB?.GetCharacterByID(activeId);
+            CharacterDataSO characterData = null;
+            CharacterSaveData activeCharacterSave = null;
 
             if (_partyManager != null)
             {
                 _partyManager.LoadFromSave(data, _characterDB, _itemDatabase);
                 activeId = _partyManager.ActiveCharacterID;
+                activeCharacterSave = _partyManager.GetCharacterData(activeId);
+                characterData = _characterDB?.GetCharacterByID(activeCharacterSave?.CharacterClassID);
+            }
+            else
+            {
                 characterData = _characterDB?.GetCharacterByID(activeId);
+                if (characterData == null && data.Characters != null && data.Characters.Count > 0)
+                {
+                    activeCharacterSave = data.Characters.Find(ch => ch.CharacterInstanceID == activeId)
+                        ?? data.Characters[0];
+                    characterData = _characterDB?.GetCharacterByID(activeCharacterSave?.CharacterClassID);
+                }
             }
 
             if (characterData != null)
             {
                 if (_partyManager != null)
                 {
-                    var chData = _partyManager.GetCharacterData(activeId);
-                    _partyManager.LoadCharacterIntoGame(chData, characterData, _itemDatabase);
+                    _partyManager.LoadCharacterIntoGame(activeCharacterSave, characterData, _itemDatabase);
                 }
                 else
                 {
@@ -192,6 +204,30 @@ public class GameSaveManager : MonoBehaviour
             data.SaveVersion = 2;
             Debug.Log("[System] Save migrated: 1 -> 2 (per-character save).");
         }
+        if (data.SaveVersion == 2)
+        {
+            string oldActiveClassId = data.ActiveCharacterID;
+            if (data.Characters != null)
+            {
+                string migratedActiveInstanceId = null;
+                foreach (var ch in data.Characters)
+                {
+                    if (string.IsNullOrEmpty(ch.CharacterInstanceID))
+                        ch.CharacterInstanceID = System.Guid.NewGuid().ToString("N");
+
+                    if (migratedActiveInstanceId == null && !string.IsNullOrEmpty(oldActiveClassId) && ch.CharacterClassID == oldActiveClassId)
+                        migratedActiveInstanceId = ch.CharacterInstanceID;
+                }
+
+                if (!string.IsNullOrEmpty(migratedActiveInstanceId))
+                    data.ActiveCharacterID = migratedActiveInstanceId;
+                else if (data.Characters.Count > 0)
+                    data.ActiveCharacterID = data.Characters[0].CharacterInstanceID;
+            }
+
+            data.SaveVersion = 3;
+            Debug.Log("[System] Save migrated: 2 -> 3 (character instances support).");
+        }
     }
 
     private void StartNewGame()
@@ -200,8 +236,8 @@ public class GameSaveManager : MonoBehaviour
         {
             if (_partyManager != null)
             {
-                _partyManager.AddCharacterToParty(_defaultCharacter.ID);
-                _partyManager.SwapToCharacter(_defaultCharacter.ID, _characterDB, _itemDatabase);
+                string instanceId = _partyManager.AddCharacterToParty(_defaultCharacter.ID);
+                _partyManager.SwapToCharacter(instanceId, _characterDB, _itemDatabase);
             }
             else
             {

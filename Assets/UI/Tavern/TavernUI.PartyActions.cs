@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public partial class TavernUI
 {
@@ -6,28 +6,29 @@ public partial class TavernUI
     {
         if (ch == null || string.IsNullOrEmpty(ch.ID))
         {
-            Debug.LogWarning("[Tavern] Hire: персонаж без ID, пропуск.");
+            Debug.LogWarning("[Tavern] Hire: character without ID was skipped.");
             return;
         }
 
         if (CharacterPartyManager.Instance == null)
         {
-            Debug.LogWarning("[Tavern] Hire: CharacterPartyManager не найден.");
+            Debug.LogWarning("[Tavern] Hire: CharacterPartyManager was not found.");
             var saveMgr = FindObjectOfType<GameSaveManager>();
-            if (saveMgr != null) saveMgr.SaveGame();
+            if (saveMgr != null)
+                saveMgr.SaveGame();
             return;
         }
 
         if (_characterDB == null || _itemDatabase == null)
         {
-            Debug.LogWarning("[Tavern] Hire: Character DB или Item DB не назначены.");
+            Debug.LogWarning("[Tavern] Hire: Character DB or Item DB is missing.");
             return;
         }
 
-        CharacterPartyManager.Instance.AddCharacterToParty(ch.ID);
-        if (!CharacterPartyManager.Instance.SwapToCharacter(ch.ID, _characterDB, _itemDatabase))
+        string instanceId = CharacterPartyManager.Instance.AddCharacterToParty(ch.ID);
+        if (!CharacterPartyManager.Instance.SwapToCharacter(instanceId, _characterDB, _itemDatabase))
         {
-            Debug.LogWarning($"[Tavern] Hire: SwapToCharacter не удался для {ch.ID}. Проверьте, что персонаж есть в Character Database.");
+            Debug.LogWarning($"[Tavern] Hire: failed to swap to new instance of '{ch.ID}'.");
             return;
         }
 
@@ -35,10 +36,36 @@ public partial class TavernUI
         Close();
     }
 
-    private void OnSwapToHostelClicked(CharacterDataSO ch)
+    private void OnSwapToHostelClicked(CharacterDataSO ch, string characterInstanceId)
     {
-        if (CharacterPartyManager.Instance == null) return;
-        CharacterPartyManager.Instance.SwapToCharacter(ch.ID, _characterDB, _itemDatabase);
+        if (CharacterPartyManager.Instance == null || string.IsNullOrEmpty(characterInstanceId))
+            return;
+
+        CharacterPartyManager.Instance.SwapToCharacter(characterInstanceId, _characterDB, _itemDatabase);
         Close();
+    }
+
+    private void OnDeleteHostelCharacterConfirmed(CharacterDataSO ch, string characterInstanceId)
+    {
+        if (ch == null || string.IsNullOrEmpty(characterInstanceId))
+            return;
+
+        if (CharacterPartyManager.Instance == null)
+        {
+            Debug.LogWarning("[Tavern] Delete: CharacterPartyManager not found.");
+            return;
+        }
+
+        if (!CharacterPartyManager.Instance.RemoveCharacterFromParty(characterInstanceId))
+        {
+            Debug.LogWarning($"[Tavern] Delete: failed to remove hostel hero instance '{characterInstanceId}'.");
+            return;
+        }
+
+        var saveMgr = FindObjectOfType<GameSaveManager>();
+        if (saveMgr != null)
+            saveMgr.SaveGame();
+
+        RefreshHostelList();
     }
 }

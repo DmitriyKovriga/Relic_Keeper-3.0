@@ -33,7 +33,13 @@ public partial class TavernUI : MonoBehaviour
     private VisualElement _hireChoicesContainer;
     private VisualElement _hostelListContainer;
     private VisualElement _hostelContent;
+    private ScrollView _hostelScrollView;
     private VisualElement _recruitContent;
+    private VisualElement _deleteDialogOverlay;
+    private Label _deleteDialogTitle;
+    private Label _deleteDialogMessage;
+    private Button _deleteDialogConfirmButton;
+    private Button _deleteDialogCancelButton;
     private Button _tabHostel;
     private Button _tabRecruit;
     private Button _rerollButton;
@@ -41,6 +47,9 @@ public partial class TavernUI : MonoBehaviour
     private readonly List<CharacterDataSO> _currentHireChoices = new List<CharacterDataSO>();
     private bool _isNewGameMode;
     private int _activeTabIndex; // 0 = Hostel, 1 = Recruitment
+    private CharacterDataSO _pendingDeleteCharacter;
+    private string _pendingDeleteCharacterInstanceId;
+    private bool _deleteNeedsFinalConfirmation;
 
     public event System.Action OnClosed;
     public bool IsOpen => _windowRoot != null && _windowRoot.style.display == DisplayStyle.Flex;
@@ -82,6 +91,8 @@ public partial class TavernUI : MonoBehaviour
 
     public void Close()
     {
+        HideDeleteDialog();
+
         if (_windowView != null)
             _windowView.Close();
         else

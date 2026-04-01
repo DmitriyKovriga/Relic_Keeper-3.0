@@ -6,12 +6,22 @@ using Scripts.Stats;
 
 public partial class TavernUI
 {
+    private static bool IsMissingLocalization(string value)
+    {
+        return string.IsNullOrEmpty(value) ||
+               value.IndexOf("translation found", System.StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
     private void SetLocalizedLabel(Label label, string key, string fallback)
     {
         if (label == null) return;
         label.text = fallback;
         var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(MenuLabelsTable, key);
-        op.Completed += _ => { if (label != null && label.panel != null) label.text = !string.IsNullOrEmpty(op.Result) ? op.Result : fallback; };
+        op.Completed += _ =>
+        {
+            if (label != null && label.panel != null)
+                label.text = !IsMissingLocalization(op.Result) ? op.Result : fallback;
+        };
     }
 
     private void SetLocalizedButton(Button btn, string key, string fallback)
@@ -19,7 +29,11 @@ public partial class TavernUI
         if (btn == null) return;
         btn.text = fallback;
         var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(MenuLabelsTable, key);
-        op.Completed += _ => { if (btn != null && btn.panel != null) btn.text = !string.IsNullOrEmpty(op.Result) ? op.Result : fallback; };
+        op.Completed += _ =>
+        {
+            if (btn != null && btn.panel != null)
+                btn.text = !IsMissingLocalization(op.Result) ? op.Result : fallback;
+        };
     }
 
     private static string FormatStatName(StatType type)

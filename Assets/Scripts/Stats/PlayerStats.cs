@@ -16,8 +16,11 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     [SerializeField] private CharacterDataSO _defaultCharacterData; 
     [Header("Base Stat Defaults")]
     [SerializeField] private GlobalBaseStatsSO _globalBaseStats;
+    [Header("Passive Regen")]
+    [SerializeField] private float _resourceRegenTickSeconds = 1f;
 
     private Dictionary<StatType, CharacterStat> _stats = new Dictionary<StatType, CharacterStat>();
+    private float _resourceRegenTimer;
 
     public StatResource Health { get; private set; }
     public StatResource Mana { get; private set; }
@@ -78,6 +81,11 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         }
         NotifyChanged();
     }
+
+    private void Update()
+    {
+        TickPassiveResourceRegen();
+    }
     
     private void OnDestroy()
     {
@@ -126,6 +134,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         
         // --- ИЗМЕНЕНО: Используем единый метод создания ---
         CreateLevelingSystem(1, 0, 100, 0);
+        ResetResourceRegenTimer();
 
         NotifyChanged();
     }
@@ -135,6 +144,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         CreateLevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP, data.SkillPoints);
         Health.SetCurrent(data.CurrentHealth);
         Mana.SetCurrent(data.CurrentMana);
+        ResetResourceRegenTimer();
         NotifyChanged();
     }
 
@@ -144,6 +154,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         CreateLevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP, data.SkillPoints);
         Health.SetCurrent(data.CurrentHealth);
         Mana.SetCurrent(data.CurrentMana);
+        ResetResourceRegenTimer();
         NotifyChanged();
     }
 
@@ -187,4 +198,52 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
 { 
     OnAnyStatChanged?.Invoke(); 
 }
+
+    private void TickPassiveResourceRegen()
+    {
+        if (_resourceRegenTickSeconds <= 0f)
+            return;
+
+        _resourceRegenTimer += Time.deltaTime;
+        while (_resourceRegenTimer >= _resourceRegenTickSeconds)
+        {
+            _resourceRegenTimer -= _resourceRegenTickSeconds;
+            ApplyPassiveRegenTick();
+        }
+    }
+
+    private void ApplyPassiveRegenTick()
+    {
+        ApplyResourceRegen(Health, StatType.HealthRegen, StatType.HealthRegenPercent);
+        ApplyResourceRegen(Mana, StatType.ManaRegen, StatType.ManaRegenPercent);
+    }
+
+    private void ApplyResourceRegen(StatResource resource, StatType flatRegenStatType, StatType percentRegenStatType)
+    {
+        if (resource == null || resource.Current >= resource.Max)
+            return;
+
+        float flatRegenPerSecond = GetValue(flatRegenStatType);
+        float percentRegenPerSecond = GetValue(percentRegenStatType);
+        if (flatRegenPerSecond <= 0f && percentRegenPerSecond <= 0f)
+            return;
+
+        float totalRegenPerSecond = flatRegenPerSecond;
+        if (percentRegenPerSecond > 0f && resource.Max > 0f)
+            totalRegenPerSecond += resource.Max * (percentRegenPerSecond / 100f);
+
+        if (totalRegenPerSecond <= 0f)
+            return;
+
+        int regenAmount = Mathf.CeilToInt(totalRegenPerSecond);
+        if (regenAmount <= 0)
+            return;
+
+        resource.Increase(regenAmount);
+    }
+
+    private void ResetResourceRegenTimer()
+    {
+        _resourceRegenTimer = 0f;
+    }
 }

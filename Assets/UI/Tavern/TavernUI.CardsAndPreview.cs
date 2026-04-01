@@ -10,9 +10,11 @@ public partial class TavernUI
     private PassiveSkillTreeSO _savedTreeForRestore;
     private List<string> _savedAllocationsForRestore;
 
-    private VisualElement CreateHeroCard(CharacterDataSO ch, bool isHire, bool isHostel = false)
+    private VisualElement CreateHeroCard(CharacterDataSO ch, bool isHire, bool isHostel = false, string characterInstanceId = null)
     {
+        Button deleteBtn = null;
         var card = new VisualElement();
+        card.style.position = Position.Relative;
         card.style.width = CardWidth;
         card.style.minWidth = CardWidth;
         card.style.flexGrow = 1;
@@ -25,6 +27,24 @@ public partial class TavernUI
         card.style.backgroundColor = new Color(0.2f, 0.18f, 0.15f, 1f);
         card.style.borderLeftWidth = card.style.borderRightWidth = card.style.borderTopWidth = card.style.borderBottomWidth = 1;
         card.style.borderLeftColor = card.style.borderRightColor = card.style.borderTopColor = card.style.borderBottomColor = new Color(0.45f, 0.4f, 0.3f);
+
+        if (isHostel)
+        {
+            deleteBtn = new Button(() => ShowDeleteDialog(ch, characterInstanceId)) { text = "X" };
+            deleteBtn.style.position = Position.Absolute;
+            deleteBtn.style.top = 2;
+            deleteBtn.style.right = 2;
+            deleteBtn.style.width = 16;
+            deleteBtn.style.height = 16;
+            deleteBtn.style.paddingLeft = 0;
+            deleteBtn.style.paddingRight = 0;
+            deleteBtn.style.paddingTop = 0;
+            deleteBtn.style.paddingBottom = 0;
+            deleteBtn.style.fontSize = 8;
+            deleteBtn.style.unityFontStyleAndWeight = FontStyle.Bold;
+            deleteBtn.style.backgroundColor = new Color(0.45f, 0.16f, 0.16f);
+            deleteBtn.style.color = new Color(0.95f, 0.88f, 0.84f);
+        }
 
         var row = new VisualElement();
         row.style.flexDirection = FlexDirection.Row;
@@ -115,7 +135,7 @@ public partial class TavernUI
 
         if (ch.PassiveTree != null)
         {
-            var treeBtn = new Button(() => ShowTreePreview(ch)) { text = "Tree" };
+            var treeBtn = new Button(() => ShowTreePreview(ch, characterInstanceId)) { text = "Tree" };
             SetLocalizedButton(treeBtn, TavernLocKeys.Tree, "Tree");
             treeBtn.style.fontSize = 8;
             treeBtn.style.width = 36;
@@ -136,7 +156,7 @@ public partial class TavernUI
         }
         else if (isHostel)
         {
-            var swapBtn = new Button(() => OnSwapToHostelClicked(ch)) { text = "Swap" };
+            var swapBtn = new Button(() => OnSwapToHostelClicked(ch, characterInstanceId)) { text = "Swap" };
             SetLocalizedButton(swapBtn, TavernLocKeys.Swap, "Swap");
             swapBtn.style.fontSize = 9;
             swapBtn.style.width = 44;
@@ -146,10 +166,15 @@ public partial class TavernUI
         }
 
         card.Add(btnRow);
+
+        if (deleteBtn != null)
+        {
+            card.Add(deleteBtn);
+        }
         return card;
     }
 
-    private void ShowTreePreview(CharacterDataSO ch)
+    private void ShowTreePreview(CharacterDataSO ch, string characterInstanceId = null)
     {
         if (ch.PassiveTree == null) return;
 
@@ -169,7 +194,9 @@ public partial class TavernUI
         treeMgr.IsPreviewMode = true;
         treeMgr.SetTreeData(ch.PassiveTree);
 
-        var chData = CharacterPartyManager.Instance?.GetCharacterData(ch.ID);
+        var chData = !string.IsNullOrEmpty(characterInstanceId)
+            ? CharacterPartyManager.Instance?.GetCharacterData(characterInstanceId)
+            : null;
         if (chData?.AllocatedPassiveNodes != null && chData.AllocatedPassiveNodes.Count > 0)
             treeMgr.LoadState(chData.AllocatedPassiveNodes);
 

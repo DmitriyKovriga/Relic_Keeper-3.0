@@ -11,5 +11,11 @@ public static class TavernLocKeys
     public const string Tree = "tavern.ui.tree";
     public const string Hire = "tavern.ui.hire";
     public const string Swap = "tavern.ui.swap";
+    public const string Delete = "tavern.ui.delete";
+    public const string DeleteTitle = "tavern.ui.deleteTitle";
+    public const string DeleteWarning = "tavern.ui.deleteWarning";
+    public const string DeleteConfirm = "tavern.ui.deleteConfirm";
+    public const string DeleteFinalConfirm = "tavern.ui.deleteFinalConfirm";
+    public const string Cancel = "tavern.ui.cancel";
     public const string Close = "tavern.ui.close";
 }

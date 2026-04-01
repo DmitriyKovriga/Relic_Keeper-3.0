@@ -6,6 +6,7 @@ namespace Scripts.Saving
     [Serializable]
     public class CharacterSaveData
     {
+        public string CharacterInstanceID;
         public string CharacterClassID;
         public float CurrentHealth;
         public float CurrentMana;
@@ -18,8 +19,9 @@ namespace Scripts.Saving
 
         public CharacterSaveData() { }
 
-        public CharacterSaveData(string characterId)
+        public CharacterSaveData(string characterId, string instanceId = null)
         {
+            CharacterInstanceID = string.IsNullOrEmpty(instanceId) ? Guid.NewGuid().ToString("N") : instanceId;
             CharacterClassID = characterId;
             CurrentHealth = 0;
             CurrentMana = 0;
