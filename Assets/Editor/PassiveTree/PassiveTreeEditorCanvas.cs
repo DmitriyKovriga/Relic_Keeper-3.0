@@ -30,6 +30,9 @@ namespace Scripts.Editor.PassiveTree
         private PassiveTreeSelectionService _selection;
         private PassiveTreeEditorCommands _commands;
         private PassiveTreeContextMenuBuilder _contextMenuBuilder;
+        private VisualElement _nodeHoverTooltip;
+        private Label _nodeHoverTooltipTitle;
+        private Label _nodeHoverTooltipBody;
 
         private readonly Dictionary<string, PassiveTreeEditorNode> _nodeViews = new Dictionary<string, PassiveTreeEditorNode>();
         private readonly Dictionary<string, PassiveTreeClusterView> _clusterViews = new Dictionary<string, PassiveTreeClusterView>();
@@ -86,6 +89,7 @@ namespace Scripts.Editor.PassiveTree
             _content.Add(_clusterMarkersContainer);
             _content.Add(_nodesContainer);
             _viewport.Add(_content);
+            CreateHoverTooltip();
             Add(_viewport);
 
             _viewportController = new PassiveTreeViewportController(_viewport, _content);
@@ -149,6 +153,42 @@ namespace Scripts.Editor.PassiveTree
         private void OnTreeModified()
         {
             PopulateView(_tree);
+        }
+
+        private void CreateHoverTooltip()
+        {
+            _nodeHoverTooltip = new VisualElement { name = "EditorNodeTooltip" };
+            _nodeHoverTooltip.style.position = Position.Absolute;
+            _nodeHoverTooltip.style.display = DisplayStyle.None;
+            _nodeHoverTooltip.style.paddingLeft = 8f;
+            _nodeHoverTooltip.style.paddingRight = 8f;
+            _nodeHoverTooltip.style.paddingTop = 6f;
+            _nodeHoverTooltip.style.paddingBottom = 6f;
+            _nodeHoverTooltip.style.backgroundColor = new Color(0.08f, 0.08f, 0.09f, 0.95f);
+            _nodeHoverTooltip.style.borderTopWidth = 1f;
+            _nodeHoverTooltip.style.borderBottomWidth = 1f;
+            _nodeHoverTooltip.style.borderLeftWidth = 1f;
+            _nodeHoverTooltip.style.borderRightWidth = 1f;
+            _nodeHoverTooltip.style.borderTopColor = new Color(0.64f, 0.57f, 0.35f, 0.95f);
+            _nodeHoverTooltip.style.borderBottomColor = new Color(0.34f, 0.28f, 0.17f, 0.95f);
+            _nodeHoverTooltip.style.borderLeftColor = new Color(0.20f, 0.18f, 0.12f, 0.95f);
+            _nodeHoverTooltip.style.borderRightColor = new Color(0.20f, 0.18f, 0.12f, 0.95f);
+            _nodeHoverTooltip.style.maxWidth = 260f;
+            _nodeHoverTooltip.pickingMode = PickingMode.Ignore;
+
+            _nodeHoverTooltipTitle = new Label();
+            _nodeHoverTooltipTitle.style.unityFontStyleAndWeight = FontStyle.Bold;
+            _nodeHoverTooltipTitle.style.color = new Color(0.96f, 0.90f, 0.72f, 1f);
+            _nodeHoverTooltipTitle.style.marginBottom = 4f;
+
+            _nodeHoverTooltipBody = new Label();
+            _nodeHoverTooltipBody.style.whiteSpace = WhiteSpace.Normal;
+            _nodeHoverTooltipBody.style.fontSize = 11f;
+            _nodeHoverTooltipBody.style.color = new Color(0.82f, 0.84f, 0.86f, 0.96f);
+
+            _nodeHoverTooltip.Add(_nodeHoverTooltipTitle);
+            _nodeHoverTooltip.Add(_nodeHoverTooltipBody);
+            _viewport.Add(_nodeHoverTooltip);
         }
 
         private void RegisterViewportEvents()
@@ -255,6 +295,9 @@ namespace Scripts.Editor.PassiveTree
             nodeView.OnPointerMove += OnNodePointerMove;
             nodeView.OnPointerUp += OnNodePointerUp;
             nodeView.OnContextMenu += evt => _contextMenuBuilder.BuildNodeMenu(evt.menu, nodeView);
+            nodeView.OnHoverStarted += OnNodeHoverStarted;
+            nodeView.OnHoverMoved += OnNodeHoverMoved;
+            nodeView.OnHoverEnded += HideNodeHoverTooltip;
             _nodesContainer.Add(nodeView);
             _nodeViews[nodeData.ID] = nodeView;
         }
@@ -304,6 +347,7 @@ namespace Scripts.Editor.PassiveTree
             _viewportController.CancelPan();
             _draggedNode = null;
             _draggedCluster = null;
+            HideNodeHoverTooltip();
         }
 
         private void OnNodePointerDown(PassiveTreeEditorNode nodeView, PointerDownEvent evt)
@@ -399,6 +443,7 @@ namespace Scripts.Editor.PassiveTree
         public PassiveNodeDefinition GetSingleSelectedNodeData() => _selection.GetSingleSelectedNodeData();
         public int GetSelectedNodeCount() => _selection.SelectedNodeCount;
         public PassiveClusterDefinition GetSelectedClusterData() => _selection.SelectedClusterData;
+        public PassiveSkillTreeSO CurrentTree => _tree;
 
         /// <summary>
         /// Обновить визуал ноды (например после правки в инспекторе).
@@ -407,6 +452,52 @@ namespace Scripts.Editor.PassiveTree
         {
             if (data != null && _nodeViews.TryGetValue(data.ID, out var view))
                 view.RefreshVisuals();
+        }
+
+        public void SelectNodeById(string nodeId)
+        {
+            if (string.IsNullOrWhiteSpace(nodeId))
+                return;
+
+            if (_nodeViews.TryGetValue(nodeId, out var view))
+                _selection.SelectNode(view);
+        }
+
+        private void OnNodeHoverStarted(PassiveNodeDefinition node, Vector2 mousePosition)
+        {
+            if (node == null || _nodeHoverTooltip == null)
+                return;
+
+            _nodeHoverTooltipTitle.text = node.GetDisplayName();
+            _nodeHoverTooltipBody.text = PassiveNodeTemplateLibrary.GetNodeSummary(node, 4);
+            _nodeHoverTooltip.style.display = DisplayStyle.Flex;
+            UpdateNodeHoverTooltipPosition(mousePosition);
+        }
+
+        private void OnNodeHoverMoved(Vector2 mousePosition)
+        {
+            if (_nodeHoverTooltip == null || _nodeHoverTooltip.style.display == DisplayStyle.None)
+                return;
+
+            UpdateNodeHoverTooltipPosition(mousePosition);
+        }
+
+        private void HideNodeHoverTooltip()
+        {
+            if (_nodeHoverTooltip != null)
+                _nodeHoverTooltip.style.display = DisplayStyle.None;
+        }
+
+        private void UpdateNodeHoverTooltipPosition(Vector2 panelMousePosition)
+        {
+            if (_nodeHoverTooltip == null)
+                return;
+
+            Vector2 local = _viewport.WorldToLocal(panelMousePosition);
+            float x = Mathf.Round(local.x + 18f);
+            float y = Mathf.Round(local.y + 16f);
+            _nodeHoverTooltip.style.left = x;
+            _nodeHoverTooltip.style.top = y;
         }
 
         /// <summary>

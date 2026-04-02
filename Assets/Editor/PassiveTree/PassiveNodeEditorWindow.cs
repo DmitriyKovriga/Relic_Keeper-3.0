@@ -44,6 +44,13 @@ namespace Scripts.Editor.PassiveTree
             GetWindow<PassiveNodeEditorWindow>().SelectTemplate(template);
         }
 
+        public static PassiveNodeTemplateSO CreateTemplateAndOpen(string preferredName = null, string category = "Utility")
+        {
+            var template = PassiveNodeTemplateLibrary.CreateNewTemplate(preferredName, category);
+            OpenWithTemplate(template);
+            return template;
+        }
+
         private void OnEnable()
         {
             LoadTemplates();
@@ -53,14 +60,7 @@ namespace Scripts.Editor.PassiveTree
 
         private void LoadTemplates()
         {
-            _templates.Clear();
-            foreach (var g in AssetDatabase.FindAssets("t:PassiveNodeTemplateSO"))
-            {
-                var path = AssetDatabase.GUIDToAssetPath(g);
-                var t = AssetDatabase.LoadAssetAtPath<PassiveNodeTemplateSO>(path);
-                if (t != null) _templates.Add(t);
-            }
-            _templates = _templates.OrderBy(x => x.name).ToList();
+            _templates = PassiveNodeTemplateLibrary.LoadAllTemplates().ToList();
         }
 
         private void SelectTemplate(PassiveNodeTemplateSO t)
@@ -357,26 +357,7 @@ namespace Scripts.Editor.PassiveTree
 
         private void CreateNewNode()
         {
-            string baseName = "NewPassiveNode";
-            string folder = EditorPaths.PassiveTemplatesFolder;
-            if (!AssetDatabase.IsValidFolder("Assets/Resources")) AssetDatabase.CreateFolder("Assets", "Resources");
-            if (!AssetDatabase.IsValidFolder("Assets/Resources/PassiveTrees"))
-                AssetDatabase.CreateFolder("Assets/Resources", "PassiveTrees");
-            string subFolder = $"{folder}/Templates";
-            if (!AssetDatabase.IsValidFolder("Assets/Resources/PassiveTrees/Templates"))
-                AssetDatabase.CreateFolder("Assets/Resources/PassiveTrees", "Templates");
-
-            string name = baseName;
-            int i = 0;
-            while (AssetDatabase.LoadAssetAtPath<PassiveNodeTemplateSO>($"{subFolder}/{name}.asset") != null)
-                name = $"{baseName}{++i}";
-
-            string path = $"{subFolder}/{name}.asset";
-            var template = ScriptableObject.CreateInstance<PassiveNodeTemplateSO>();
-            template.Name = name;
-            template.Modifiers = new List<SerializableStatModifier>();
-            AssetDatabase.CreateAsset(template, path);
-            AssetDatabase.SaveAssets();
+            var template = PassiveNodeTemplateLibrary.CreateNewTemplate("NewPassiveNode", "Utility");
             LoadTemplates();
             SelectTemplate(template);
         }

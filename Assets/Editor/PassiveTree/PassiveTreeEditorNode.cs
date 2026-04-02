@@ -18,10 +18,12 @@ namespace Scripts.Editor.PassiveTree
         public event Action<PointerMoveEvent> OnPointerMove;
         public event Action<PointerUpEvent> OnPointerUp;
         public event Action<ContextualMenuPopulateEvent> OnContextMenu;
+        public event Action<PassiveNodeDefinition, Vector2> OnHoverStarted;
+        public event Action<Vector2> OnHoverMoved;
+        public event Action OnHoverEnded;
 
         private float _nodeSize;
         private VisualElement _circle;
-
         public PassiveTreeEditorNode(PassiveNodeDefinition data, PassiveSkillTreeSO tree)
         {
             Data = data;
@@ -39,6 +41,7 @@ namespace Scripts.Editor.PassiveTree
                 _circle.style.borderBottomLeftRadius = _circle.style.borderBottomRightRadius = _nodeSize / 2f;
             _circle.style.borderTopWidth = _circle.style.borderBottomWidth =
                 _circle.style.borderLeftWidth = _circle.style.borderRightWidth = 2;
+            _circle.style.overflow = Overflow.Hidden;
 
             Add(_circle);
 
@@ -47,9 +50,12 @@ namespace Scripts.Editor.PassiveTree
             RegisterCallback<PointerMoveEvent>(e => OnPointerMove?.Invoke(e));
             RegisterCallback<PointerUpEvent>(e => OnPointerUp?.Invoke(e));
             RegisterCallback<ContextualMenuPopulateEvent>(e => OnContextMenu?.Invoke(e));
+            RegisterCallback<MouseEnterEvent>(OnMouseEnter);
+            RegisterCallback<MouseMoveEvent>(OnMouseMove);
+            RegisterCallback<MouseLeaveEvent>(_ => OnHoverEnded?.Invoke());
 
             UpdatePosition(tree);
-            SetStyleByType(data.NodeType);
+            RefreshVisuals();
         }
 
         private static float GetSizeByType(PassiveNodeType type)
@@ -67,14 +73,25 @@ namespace Scripts.Editor.PassiveTree
         {
             Color bg = type switch
             {
-                PassiveNodeType.Start => Color.green,
-                PassiveNodeType.Keystone => new Color(1f, 0.5f, 0f),
-                PassiveNodeType.Notable => Color.cyan,
-                _ => Color.gray
+                PassiveNodeType.Start => new Color(0.16f, 0.36f, 0.18f),
+                PassiveNodeType.Keystone => new Color(0.45f, 0.25f, 0.05f),
+                PassiveNodeType.Notable => new Color(0.15f, 0.30f, 0.34f),
+                _ => new Color(0.20f, 0.20f, 0.22f)
             };
             _circle.style.backgroundColor = bg;
             _circle.style.borderTopColor = _circle.style.borderBottomColor =
                 _circle.style.borderLeftColor = _circle.style.borderRightColor = Color.white;
+
+            var icon = Data.GetIcon();
+            if (icon != null)
+            {
+                _circle.style.backgroundImage = new StyleBackground(icon);
+                _circle.style.unityBackgroundScaleMode = ScaleMode.StretchToFill;
+            }
+            else
+            {
+                _circle.style.backgroundImage = StyleKeyword.None;
+            }
         }
 
         public void SetSelected(bool selected)
@@ -99,6 +116,17 @@ namespace Scripts.Editor.PassiveTree
         {
             SetStyleByType(Data.NodeType);
             UpdatePosition(_tree);
+            tooltip = null;
+        }
+
+        private void OnMouseEnter(MouseEnterEvent evt)
+        {
+            OnHoverStarted?.Invoke(Data, evt.mousePosition);
+        }
+
+        private void OnMouseMove(MouseMoveEvent evt)
+        {
+            OnHoverMoved?.Invoke(evt.mousePosition);
         }
     }
 }
