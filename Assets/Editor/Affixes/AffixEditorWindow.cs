@@ -7,6 +7,7 @@ using System.Linq;
 using Scripts.Items;
 using Scripts.Items.Affixes;
 using Scripts.Stats;
+using Scripts.Editor.Stats;
 
 namespace Scripts.Editor.Affixes
 {
@@ -693,7 +694,7 @@ namespace Scripts.Editor.Affixes
                 }
                 EditorGUILayout.EndHorizontal();
 
-                EditorGUILayout.PropertyField(statProp);
+                StatPickerUtility.DrawStatPickerLayout(statProp, "Stat");
                 EditorGUILayout.PropertyField(typeProp);
                 EditorGUILayout.PropertyField(scopeProp);
 

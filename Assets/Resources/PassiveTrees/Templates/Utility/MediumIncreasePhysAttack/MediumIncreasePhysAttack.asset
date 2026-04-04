@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
-  m_Name: ExtraTargetsForMeleeHits_Small
-  m_EditorClassIdentifier: 
-  Name: ExtraTargetsForMeleeHits_Small
-  Description: +{0} to ExtraTargetsForMeleeHits
-  Icon: {fileID: 0}
+  m_Name: MediumIncreasePhysAttack
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
+  Name: MediumIncreasePhysAttack
+  Description: 
+  Icon: {fileID: -4880276684921390032, guid: 18878ef83b11e5f4082c5452ebcf0598, type: 3}
   Modifiers:
-  - Stat: 87
-    Value: 1
-    Type: 100
+  - Stat: 30
+    Value: 75
+    Type: 200

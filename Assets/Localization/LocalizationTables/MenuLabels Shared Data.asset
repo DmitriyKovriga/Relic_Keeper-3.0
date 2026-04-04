@@ -739,6 +739,46 @@ MonoBehaviour:
     m_Key: passive.node.MediumLifeRegen.description
     m_Metadata:
       m_Items: []
+  - m_Id: 44901563737079808
+    m_Key: passive.node.Unknown_Node.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44901563766439936
+    m_Key: passive.node.Unknown_Node.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44901676475777024
+    m_Key: passive.node.SmallIncreasedAreaOfEffect.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44901676475777025
+    m_Key: passive.node.SmallIncreasedAreaOfEffect.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45461264119922688
+    m_Key: passive.node.MediumIncreasedAreaOfEffect.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45461264153477120
+    m_Key: passive.node.MediumIncreasedAreaOfEffect.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45467560298708992
+    m_Key: passive.node.SmallIncreasePhysAttack.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45467560323874816
+    m_Key: passive.node.SmallIncreasePhysAttack.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45468343333322752
+    m_Key: passive.node.MediumIncreasePhysAttack.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45468343333322753
+    m_Key: passive.node.MediumIncreasePhysAttack.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

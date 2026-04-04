@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
-  m_Name: MaxBleedStack_Sample
-  m_EditorClassIdentifier: 
-  Name: MaxBleedStack
-  Description: +{0} to MaxBleedStack
-  Icon: {fileID: 0}
+  m_Name: MediumIncreasedAreaOfEffect
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
+  Name: MediumIncreasedAreaOfEffect
+  Description: 
+  Icon: {fileID: 21300000, guid: aa2f2972ecd442747afb4208a641cccb, type: 3}
   Modifiers:
-  - Stat: 86
-    Value: 1
-    Type: 100
+  - Stat: 79
+    Value: 75
+    Type: 200
