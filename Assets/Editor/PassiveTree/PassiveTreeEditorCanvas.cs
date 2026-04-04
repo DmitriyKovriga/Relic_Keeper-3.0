@@ -14,7 +14,9 @@ namespace Scripts.Editor.PassiveTree
     public class PassiveTreeEditorCanvas : VisualElement
     {
         public Action<PassiveNodeDefinition> OnNodeSelected;
+        public Action<PassiveClusterDefinition> OnClusterSelected;
         public Action OnSelectionCleared;
+        public Action OnTreeGeometryChanged;
 
         private PassiveSkillTreeSO _tree;
         private VisualElement _viewport;
@@ -43,6 +45,8 @@ namespace Scripts.Editor.PassiveTree
 
         private PassiveTreeEditorNode _draggedNode;
         private PassiveTreeClusterView _draggedCluster;
+        private PassiveTreeClusterView _resizingCluster;
+        private int _resizingOrbitIndex = -1;
         private Vector2 _nodeDragStartPos;
         private Vector2 _clusterDragStartPos;
         private Vector2 _pointerDragStartPos;
@@ -97,6 +101,7 @@ namespace Scripts.Editor.PassiveTree
 
             _selection = new PassiveTreeSelectionService();
             _selection.OnNodeSelected += data => OnNodeSelected?.Invoke(data);
+            _selection.OnClusterSelected += data => OnClusterSelected?.Invoke(data);
             _selection.OnSelectionCleared += () => OnSelectionCleared?.Invoke();
 
             _commands = new PassiveTreeEditorCommands();
@@ -266,6 +271,7 @@ namespace Scripts.Editor.PassiveTree
                         outerRadius = cluster.Orbits[i].Radius;
                 }
                 var hitArea = CreateOrbitHitArea(cluster.Center, outerRadius);
+                hitArea.RegisterCallback<PointerDownEvent>(evt => OnOrbitHitAreaPointerDown(clusterView, evt));
                 _orbitHitAreasContainer.Add(hitArea);
                 _orbitHitToCluster[hitArea] = clusterView;
                 _clusterToOrbitHit[clusterView] = hitArea;
@@ -322,6 +328,7 @@ namespace Scripts.Editor.PassiveTree
             _lastMousePosInViewport = evt.localPosition;
 
             if (_draggedNode != null) { OnNodePointerMove(evt); return; }
+            if (_resizingCluster != null) { OnOrbitResizePointerMove(evt); return; }
             if (_draggedCluster != null) { OnClusterPointerMove(evt); return; }
             if (_viewportController.IsPanning)
                 _viewportController.UpdatePan((Vector2)evt.position);
@@ -339,6 +346,14 @@ namespace Scripts.Editor.PassiveTree
                 _draggedCluster = null;
                 _viewport.ReleasePointer(evt.pointerId);
             }
+            if (_resizingCluster != null)
+            {
+                _resizingCluster = null;
+                _resizingOrbitIndex = -1;
+                _viewport.ReleasePointer(evt.pointerId);
+                PassiveTreeAssetPersistence.SetDirty(_tree);
+                OnTreeGeometryChanged?.Invoke();
+            }
             _viewportController.EndPan(evt.pointerId);
         }
 
@@ -347,6 +362,8 @@ namespace Scripts.Editor.PassiveTree
             _viewportController.CancelPan();
             _draggedNode = null;
             _draggedCluster = null;
+            _resizingCluster = null;
+            _resizingOrbitIndex = -1;
             HideNodeHoverTooltip();
         }
 
@@ -406,6 +423,8 @@ namespace Scripts.Editor.PassiveTree
             _draggedCluster = clusterView;
             _clusterDragStartPos = clusterView.Data.Center;
             _pointerDragStartPos = (Vector2)evt.position;
+            if (_tree != null)
+                Undo.RecordObject(_tree, "Move Cluster");
             _viewport.CapturePointer(evt.pointerId);
             evt.StopPropagation();
             _selection.SelectCluster(clusterView);
@@ -423,21 +442,66 @@ namespace Scripts.Editor.PassiveTree
             }
             _draggedCluster.Data.Center = newCenter;
             _draggedCluster.UpdatePosition();
-            if (_clusterToOrbitHit.TryGetValue(_draggedCluster, out var orbitHit) && _draggedCluster.Data.Orbits != null && _draggedCluster.Data.Orbits.Count > 0)
-            {
-                float r = 0f;
-                foreach (var o in _draggedCluster.Data.Orbits)
-                    if (o.Radius > r) r = o.Radius;
-                orbitHit.style.left = newCenter.x - r;
-                orbitHit.style.top = newCenter.y - r;
-            }
-            foreach (var node in _tree.Nodes)
-            {
-                if (node.PlacementMode == NodePlacementMode.OnOrbit && node.ClusterID == _draggedCluster.Data.ID
-                    && _nodeViews.TryGetValue(node.ID, out var nodeView))
-                    nodeView.UpdatePosition(_tree);
-            }
+            UpdateClusterOrbitHitArea(_draggedCluster);
+            UpdateNodesForCluster(_draggedCluster.Data);
             PassiveTreeConnectionLines.Refresh(_tree, _linesContainer);
+            PassiveTreeAssetPersistence.SetDirty(_tree);
+            OnTreeGeometryChanged?.Invoke();
+        }
+
+        private void OnOrbitHitAreaPointerDown(PassiveTreeClusterView clusterView, PointerDownEvent evt)
+        {
+            if (evt.button != 0 || clusterView == null)
+                return;
+
+            Focus();
+            _selection.SelectCluster(clusterView);
+
+            if (evt.clickCount >= 2)
+            {
+                StartOrbitResize(clusterView, evt);
+            }
+
+            evt.StopPropagation();
+        }
+
+        private void StartOrbitResize(PassiveTreeClusterView clusterView, PointerDownEvent evt)
+        {
+            if (_tree == null || clusterView?.Data?.Orbits == null || clusterView.Data.Orbits.Count == 0)
+                return;
+
+            int orbitIndex = GetClosestOrbitIndex(clusterView.Data, GetContentPointerPosition((Vector2)evt.position));
+            if (orbitIndex < 0)
+                return;
+
+            _resizingCluster = clusterView;
+            _resizingOrbitIndex = orbitIndex;
+            _viewport.CapturePointer(evt.pointerId);
+            Undo.RecordObject(_tree, "Resize Orbit");
+        }
+
+        private void OnOrbitResizePointerMove(PointerMoveEvent evt)
+        {
+            if (_resizingCluster == null || _resizingOrbitIndex < 0 || _tree == null)
+                return;
+
+            var cluster = _resizingCluster.Data;
+            if (cluster == null || cluster.Orbits == null || _resizingOrbitIndex >= cluster.Orbits.Count)
+                return;
+
+            Vector2 contentPos = GetContentPointerPosition((Vector2)evt.position);
+            float newRadius = Vector2.Distance(contentPos, cluster.Center);
+            newRadius = ClampOrbitRadius(cluster, _resizingOrbitIndex, newRadius);
+            if (evt.shiftKey)
+                newRadius = Mathf.Round(newRadius / 10f) * 10f;
+
+            cluster.Orbits[_resizingOrbitIndex].Radius = newRadius;
+            _resizingCluster.UpdatePosition();
+            UpdateClusterOrbitHitArea(_resizingCluster);
+            UpdateNodesForCluster(cluster);
+            PassiveTreeConnectionLines.Refresh(_tree, _linesContainer);
+            PassiveTreeAssetPersistence.SetDirty(_tree);
+            OnTreeGeometryChanged?.Invoke();
         }
 
         public PassiveNodeDefinition GetSingleSelectedNodeData() => _selection.GetSingleSelectedNodeData();
@@ -463,6 +527,15 @@ namespace Scripts.Editor.PassiveTree
                 _selection.SelectNode(view);
         }
 
+        public void SelectClusterById(string clusterId)
+        {
+            if (string.IsNullOrWhiteSpace(clusterId))
+                return;
+
+            if (_clusterViews.TryGetValue(clusterId, out var view))
+                _selection.SelectCluster(view);
+        }
+
         private void OnNodeHoverStarted(PassiveNodeDefinition node, Vector2 mousePosition)
         {
             if (node == null || _nodeHoverTooltip == null)
@@ -486,6 +559,87 @@ namespace Scripts.Editor.PassiveTree
         {
             if (_nodeHoverTooltip != null)
                 _nodeHoverTooltip.style.display = DisplayStyle.None;
+        }
+
+        private Vector2 GetContentPointerPosition(Vector2 panelPosition)
+        {
+            Vector2 viewportPosition = _viewport.WorldToLocal(panelPosition);
+            return _viewportController.ViewportToContentPosition(viewportPosition);
+        }
+
+        private static int GetClosestOrbitIndex(PassiveClusterDefinition cluster, Vector2 contentPosition)
+        {
+            if (cluster == null || cluster.Orbits == null || cluster.Orbits.Count == 0)
+                return -1;
+
+            float distance = Vector2.Distance(contentPosition, cluster.Center);
+            int bestIndex = -1;
+            float bestDelta = float.MaxValue;
+
+            for (int i = 0; i < cluster.Orbits.Count; i++)
+            {
+                float delta = Mathf.Abs(distance - cluster.Orbits[i].Radius);
+                if (delta < bestDelta)
+                {
+                    bestDelta = delta;
+                    bestIndex = i;
+                }
+            }
+
+            return bestIndex;
+        }
+
+        private static float ClampOrbitRadius(PassiveClusterDefinition cluster, int orbitIndex, float radius)
+        {
+            float minRadius = 20f;
+            float maxRadius = 1000f;
+
+            if (orbitIndex > 0)
+                minRadius = Mathf.Max(minRadius, cluster.Orbits[orbitIndex - 1].Radius + 20f);
+
+            if (orbitIndex < cluster.Orbits.Count - 1)
+                maxRadius = Mathf.Max(minRadius, cluster.Orbits[orbitIndex + 1].Radius - 20f);
+
+            return Mathf.Clamp(radius, minRadius, maxRadius);
+        }
+
+        private void UpdateClusterOrbitHitArea(PassiveTreeClusterView clusterView)
+        {
+            if (clusterView == null || !_clusterToOrbitHit.TryGetValue(clusterView, out var orbitHit))
+                return;
+
+            float radius = 0f;
+            if (clusterView.Data?.Orbits != null)
+            {
+                foreach (var orbit in clusterView.Data.Orbits)
+                    if (orbit.Radius > radius)
+                        radius = orbit.Radius;
+            }
+
+            orbitHit.style.left = clusterView.Data.Center.x - radius;
+            orbitHit.style.top = clusterView.Data.Center.y - radius;
+            orbitHit.style.width = radius * 2f;
+            orbitHit.style.height = radius * 2f;
+            orbitHit.style.borderTopLeftRadius = radius;
+            orbitHit.style.borderTopRightRadius = radius;
+            orbitHit.style.borderBottomLeftRadius = radius;
+            orbitHit.style.borderBottomRightRadius = radius;
+        }
+
+        private void UpdateNodesForCluster(PassiveClusterDefinition cluster)
+        {
+            if (_tree == null || cluster == null)
+                return;
+
+            foreach (var node in _tree.Nodes)
+            {
+                if (node.PlacementMode == NodePlacementMode.OnOrbit &&
+                    node.ClusterID == cluster.ID &&
+                    _nodeViews.TryGetValue(node.ID, out var nodeView))
+                {
+                    nodeView.UpdatePosition(_tree);
+                }
+            }
         }
 
         private void UpdateNodeHoverTooltipPosition(Vector2 panelMousePosition)

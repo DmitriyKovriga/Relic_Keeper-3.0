@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -11,10 +12,12 @@ namespace Scripts.Editor.PassiveTree
     public class PassiveTreeEditorWindow : EditorWindow
     {
         private const string LastTreePathPrefKey = "RK.PassiveTreeEditor.LastTreePath";
+        private const string DefaultClusterTemplateFolder = "Assets/Resources/PassiveTrees/ClusterTemplates";
 
         private PassiveTreeEditorCanvas _canvas;
         private PassiveSkillTreeSO _currentTree;
         private PassiveNodeDefinition _selectedNode;
+        private PassiveClusterDefinition _selectedCluster;
         private ScrollView _inspectorContainer;
         private IMGUIContainer _inspectorGui;
         private ToolbarToggle _snapToggle;
@@ -70,7 +73,9 @@ namespace Scripts.Editor.PassiveTree
 
             _canvas = new PassiveTreeEditorCanvas { style = { flexGrow = 1f } };
             _canvas.OnNodeSelected = HandleNodeSelectionChanged;
-            _canvas.OnSelectionCleared = () => HandleNodeSelectionChanged(null);
+            _canvas.OnClusterSelected = HandleClusterSelectionChanged;
+            _canvas.OnSelectionCleared = HandleSelectionCleared;
+            _canvas.OnTreeGeometryChanged = RefreshInspector;
             splitView.Add(_canvas);
 
             root.RegisterCallback<KeyDownEvent>(OnKeyDown);
@@ -207,6 +212,7 @@ namespace Scripts.Editor.PassiveTree
         {
             _currentTree = tree;
             _selectedNode = null;
+            _selectedCluster = null;
 
             if (_canvas != null)
                 _canvas.PopulateView(_currentTree);
@@ -249,6 +255,7 @@ namespace Scripts.Editor.PassiveTree
                 evt.StopPropagation();
                 evt.PreventDefault();
                 _selectedNode = null;
+                _selectedCluster = null;
                 RefreshInspector();
             }
         }
@@ -256,6 +263,21 @@ namespace Scripts.Editor.PassiveTree
         private void HandleNodeSelectionChanged(PassiveNodeDefinition nodeData)
         {
             _selectedNode = nodeData;
+            _selectedCluster = null;
+            RefreshInspector();
+        }
+
+        private void HandleClusterSelectionChanged(PassiveClusterDefinition clusterData)
+        {
+            _selectedCluster = clusterData;
+            _selectedNode = null;
+            RefreshInspector();
+        }
+
+        private void HandleSelectionCleared()
+        {
+            _selectedNode = null;
+            _selectedCluster = null;
             RefreshInspector();
         }
 
@@ -266,7 +288,7 @@ namespace Scripts.Editor.PassiveTree
 
         private void DrawInspectorGUI()
         {
-            GUILayout.Label("Node Settings", EditorStyles.boldLabel);
+            GUILayout.Label("Selection Settings", EditorStyles.boldLabel);
             EditorGUILayout.Space(4f);
 
             if (_currentTree == null)
@@ -276,6 +298,12 @@ namespace Scripts.Editor.PassiveTree
             }
 
             DrawTreeSummary();
+
+            if (_selectedCluster != null)
+            {
+                DrawSelectedClusterInspector();
+                return;
+            }
 
             if (_selectedNode == null)
             {
@@ -304,6 +332,9 @@ namespace Scripts.Editor.PassiveTree
                 if (GUILayout.Button("Open Node Editor"))
                     PassiveNodeEditorWindow.OpenWindow();
 
+                if (GUILayout.Button("Open Cluster Template Folder"))
+                    EnsureFolderAndReveal(DefaultClusterTemplateFolder);
+
                 EditorGUILayout.EndHorizontal();
             }
 
@@ -313,7 +344,7 @@ namespace Scripts.Editor.PassiveTree
         private void DrawNoSelectionHelp()
         {
             EditorGUILayout.HelpBox(
-                "Select a node on the canvas to edit its data. Use the toolbar to switch between passive trees. You can create or edit node templates without leaving this window.",
+                "Select a node or cluster on the canvas to edit its data. Use the toolbar to switch between passive trees. You can create or edit node templates without leaving this window.",
                 MessageType.Info);
 
             EditorGUILayout.BeginHorizontal();
@@ -379,6 +410,139 @@ namespace Scripts.Editor.PassiveTree
                 PassiveTreeAssetPersistence.SetDirty(_currentTree);
                 RefreshCanvasKeepingSelection();
             }
+        }
+
+        private void DrawSelectedClusterInspector()
+        {
+            SerializedObject serializedTree = new SerializedObject(_currentTree);
+            serializedTree.Update();
+            SerializedProperty clustersProp = serializedTree.FindProperty("Clusters");
+            int index = _currentTree.Clusters.IndexOf(_selectedCluster);
+            if (index < 0)
+            {
+                EditorGUILayout.HelpBox("Selected cluster was not found in the current tree.", MessageType.Warning);
+                return;
+            }
+
+            SerializedProperty clusterProp = clustersProp.GetArrayElementAtIndex(index);
+            SerializedProperty orbitProp = clusterProp.FindPropertyRelative("Orbits");
+
+            DrawClusterHeader(clusterProp, orbitProp.arraySize);
+            DrawClusterTemplateSection();
+            EditorGUI.BeginChangeCheck();
+
+            EditorGUILayout.PropertyField(clusterProp.FindPropertyRelative("Name"));
+            EditorGUILayout.PropertyField(clusterProp.FindPropertyRelative("Center"));
+            EditorGUILayout.PropertyField(clusterProp.FindPropertyRelative("EditorColor"));
+
+            EditorGUILayout.Space(6f);
+            EditorGUILayout.LabelField("Road Connections", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(clusterProp.FindPropertyRelative("RoadConnections"), true);
+
+            EditorGUILayout.Space(6f);
+            DrawClusterOrbitsInspector(orbitProp);
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                serializedTree.ApplyModifiedProperties();
+                ClampClusterNodeOrbitIndices(_selectedCluster);
+                PassiveTreeAssetPersistence.SetDirty(_currentTree);
+                RefreshCanvasKeepingSelection();
+            }
+        }
+
+        private void DrawClusterHeader(SerializedProperty clusterProp, int orbitCount)
+        {
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField(_selectedCluster.Name, EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("ID", _selectedCluster.ID);
+                EditorGUILayout.LabelField("Nodes In Cluster", CountNodesInCluster(_selectedCluster.ID).ToString());
+                EditorGUILayout.LabelField("Orbits", orbitCount.ToString());
+            }
+
+            EditorGUILayout.Space(8f);
+        }
+
+        private void DrawClusterTemplateSection()
+        {
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField("Cluster Template", EditorStyles.boldLabel);
+                EditorGUILayout.HelpBox(
+                    "Cluster templates capture orbit layout and editor color. They are the safest way to reuse cluster structures without rebuilding each orbit by hand.",
+                    MessageType.None);
+
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Save As Template"))
+                    SaveSelectedClusterAsTemplate();
+
+                if (GUILayout.Button("Apply Template"))
+                    ShowClusterTemplateMenu();
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Open Template Folder"))
+                    EnsureFolderAndReveal(DefaultClusterTemplateFolder);
+
+                if (GUILayout.Button("Create Empty Template"))
+                    CreateEmptyClusterTemplate();
+                EditorGUILayout.EndHorizontal();
+            }
+
+            EditorGUILayout.Space(8f);
+        }
+
+        private void DrawClusterOrbitsInspector(SerializedProperty orbitsProp)
+        {
+            EditorGUILayout.LabelField("Orbits", EditorStyles.boldLabel);
+
+            for (int i = 0; i < orbitsProp.arraySize; i++)
+            {
+                SerializedProperty orbitProp = orbitsProp.GetArrayElementAtIndex(i);
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField($"Orbit {i + 1}", EditorStyles.boldLabel);
+                    GUILayout.FlexibleSpace();
+                    using (new EditorGUI.DisabledScope(orbitsProp.arraySize <= 1))
+                    {
+                        if (GUILayout.Button("Remove", GUILayout.Width(72f)))
+                        {
+                            orbitsProp.DeleteArrayElementAtIndex(i);
+                            break;
+                        }
+                    }
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.PropertyField(orbitProp.FindPropertyRelative("Radius"));
+                    EditorGUILayout.PropertyField(orbitProp.FindPropertyRelative("IsPartialArc"));
+                    if (orbitProp.FindPropertyRelative("IsPartialArc").boolValue)
+                    {
+                        EditorGUILayout.PropertyField(orbitProp.FindPropertyRelative("ArcStartAngle"));
+                        EditorGUILayout.PropertyField(orbitProp.FindPropertyRelative("ArcEndAngle"));
+                    }
+                }
+            }
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Add Orbit"))
+            {
+                int insertIndex = orbitsProp.arraySize;
+                orbitsProp.InsertArrayElementAtIndex(insertIndex);
+                SerializedProperty newOrbit = orbitsProp.GetArrayElementAtIndex(insertIndex);
+                float previousRadius = insertIndex > 0
+                    ? orbitsProp.GetArrayElementAtIndex(insertIndex - 1).FindPropertyRelative("Radius").floatValue
+                    : 40f;
+                newOrbit.FindPropertyRelative("Radius").floatValue = previousRadius + 40f;
+                newOrbit.FindPropertyRelative("IsPartialArc").boolValue = false;
+                newOrbit.FindPropertyRelative("ArcStartAngle").floatValue = 0f;
+                newOrbit.FindPropertyRelative("ArcEndAngle").floatValue = 360f;
+            }
+
+            if (GUILayout.Button("Normalize Spacing"))
+                NormalizeOrbitSpacing(orbitsProp);
+            EditorGUILayout.EndHorizontal();
         }
 
         private void DrawNodeHeader(PassiveNodeTemplateSO currentTemplate)
@@ -490,14 +654,148 @@ namespace Scripts.Editor.PassiveTree
                 return;
 
             string selectedNodeId = _selectedNode != null ? _selectedNode.ID : null;
+            string selectedClusterId = _selectedCluster != null ? _selectedCluster.ID : null;
             _canvas.PopulateView(_currentTree);
             if (!string.IsNullOrWhiteSpace(selectedNodeId))
             {
                 _selectedNode = _currentTree.GetNode(selectedNodeId);
                 _canvas.SelectNodeById(selectedNodeId);
             }
+            else if (!string.IsNullOrWhiteSpace(selectedClusterId))
+            {
+                _selectedCluster = _currentTree.GetCluster(selectedClusterId);
+                _canvas.SelectClusterById(selectedClusterId);
+            }
 
             RefreshInspector();
+        }
+
+        private int CountNodesInCluster(string clusterId)
+        {
+            if (_currentTree?.Nodes == null || string.IsNullOrWhiteSpace(clusterId))
+                return 0;
+
+            return _currentTree.Nodes.Count(node => node.ClusterID == clusterId);
+        }
+
+        private void SaveSelectedClusterAsTemplate()
+        {
+            if (_selectedCluster == null)
+                return;
+
+            EnsureFolder(DefaultClusterTemplateFolder);
+            string baseName = string.IsNullOrWhiteSpace(_selectedCluster.Name) ? "ClusterTemplate" : PassiveNodeTemplateLibrary.SanitizeAssetName(_selectedCluster.Name);
+            string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{DefaultClusterTemplateFolder}/{baseName}_ClusterTemplate.asset");
+            var template = CreateInstance<PassiveClusterTemplateSO>();
+            template.CaptureFrom(_selectedCluster);
+            AssetDatabase.CreateAsset(template, assetPath);
+            AssetDatabase.SaveAssets();
+            EditorGUIUtility.PingObject(template);
+            Selection.activeObject = template;
+        }
+
+        private void CreateEmptyClusterTemplate()
+        {
+            EnsureFolder(DefaultClusterTemplateFolder);
+            string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{DefaultClusterTemplateFolder}/NewClusterTemplate.asset");
+            var template = CreateInstance<PassiveClusterTemplateSO>();
+            AssetDatabase.CreateAsset(template, assetPath);
+            AssetDatabase.SaveAssets();
+            EditorGUIUtility.PingObject(template);
+            Selection.activeObject = template;
+        }
+
+        private void ShowClusterTemplateMenu()
+        {
+            var guids = AssetDatabase.FindAssets("t:PassiveClusterTemplateSO");
+            var menu = new GenericMenu();
+            bool hasItems = false;
+
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var template = AssetDatabase.LoadAssetAtPath<PassiveClusterTemplateSO>(path);
+                if (template == null)
+                    continue;
+
+                hasItems = true;
+                string category = Path.GetFileName(Path.GetDirectoryName(path)?.Replace('\\', '/')) ?? "Templates";
+                string label = $"{category}/{template.name}";
+                menu.AddItem(new GUIContent(label), false, () => ApplyClusterTemplate(template));
+            }
+
+            if (!hasItems)
+                menu.AddDisabledItem(new GUIContent("No Cluster Templates Found"));
+
+            menu.ShowAsContext();
+        }
+
+        private void ApplyClusterTemplate(PassiveClusterTemplateSO template)
+        {
+            if (_selectedCluster == null || template == null || _currentTree == null)
+                return;
+
+            Undo.RecordObject(_currentTree, "Apply Cluster Template");
+            template.ApplyTo(_selectedCluster);
+            ClampClusterNodeOrbitIndices(_selectedCluster);
+            PassiveTreeAssetPersistence.SetDirty(_currentTree);
+            RefreshCanvasKeepingSelection();
+        }
+
+        private void ClampClusterNodeOrbitIndices(PassiveClusterDefinition cluster)
+        {
+            if (_currentTree?.Nodes == null || cluster?.Orbits == null || cluster.Orbits.Count == 0)
+                return;
+
+            int maxOrbitIndex = cluster.Orbits.Count - 1;
+            foreach (var node in _currentTree.Nodes)
+            {
+                if (node == null || node.PlacementMode != NodePlacementMode.OnOrbit || node.ClusterID != cluster.ID)
+                    continue;
+
+                node.OrbitIndex = Mathf.Clamp(node.OrbitIndex, 0, maxOrbitIndex);
+            }
+        }
+
+        private static void NormalizeOrbitSpacing(SerializedProperty orbitsProp)
+        {
+            if (orbitsProp == null || orbitsProp.arraySize == 0)
+                return;
+
+            float radius = 80f;
+            for (int i = 0; i < orbitsProp.arraySize; i++)
+            {
+                SerializedProperty orbit = orbitsProp.GetArrayElementAtIndex(i);
+                orbit.FindPropertyRelative("Radius").floatValue = radius;
+                radius += 40f;
+            }
+        }
+
+        private static void EnsureFolderAndReveal(string folderPath)
+        {
+            EnsureFolder(folderPath);
+            var folder = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(folderPath);
+            if (folder != null)
+            {
+                EditorGUIUtility.PingObject(folder);
+                Selection.activeObject = folder;
+            }
+        }
+
+        private static void EnsureFolder(string folderPath)
+        {
+            if (AssetDatabase.IsValidFolder(folderPath))
+                return;
+
+            string[] segments = folderPath.Split('/');
+            string current = segments[0];
+            for (int i = 1; i < segments.Length; i++)
+            {
+                string next = $"{current}/{segments[i]}";
+                if (!AssetDatabase.IsValidFolder(next))
+                    AssetDatabase.CreateFolder(current, segments[i]);
+                current = next;
+            }
         }
     }
 }

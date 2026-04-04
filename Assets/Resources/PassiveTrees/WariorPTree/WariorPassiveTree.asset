@@ -139,7 +139,7 @@ MonoBehaviour:
   - ID: 12d76a33-9ead-4ac2-a0e5-077c5dbc27c5
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 720, y: 500}
+    Position: {x: 660, y: 500}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -147,8 +147,6 @@ MonoBehaviour:
     UniqueModifiers: []
     ConnectionIDs:
     - 42d0d8fc-b1c8-4c8c-ae82-9a8c94e8069f
-    - 2c416aa7-1320-4b56-ab0e-84f30b8e6e03
-    - 985a88b0-7e51-49b6-b277-d9f22068ad65
   - ID: 2c416aa7-1320-4b56-ab0e-84f30b8e6e03
     NodeType: 0
     PlacementMode: 1
@@ -159,7 +157,6 @@ MonoBehaviour:
     Template: {fileID: 11400000, guid: 3fa4588704430534b84b7a171ce1eb12, type: 2}
     UniqueModifiers: []
     ConnectionIDs:
-    - 12d76a33-9ead-4ac2-a0e5-077c5dbc27c5
     - 4eb71171-1931-4a5d-a729-f01fe81026e5
   - ID: 4eb71171-1931-4a5d-a729-f01fe81026e5
     NodeType: 0
@@ -194,7 +191,6 @@ MonoBehaviour:
     Template: {fileID: 11400000, guid: 70df5b04e76069c40afaa4120e3d0ad2, type: 2}
     UniqueModifiers: []
     ConnectionIDs:
-    - 12d76a33-9ead-4ac2-a0e5-077c5dbc27c5
     - e6604b4c-b268-4d70-91d2-adc55e2223bc
   - ID: e6604b4c-b268-4d70-91d2-adc55e2223bc
     NodeType: 0
@@ -222,13 +218,9 @@ MonoBehaviour:
   Clusters:
   - ID: fda72fef-07b3-4f73-beef-5555036c2ac1
     Name: Cluster 1
-    Center: {x: 480, y: 380}
+    Center: {x: 500, y: 400}
     Orbits:
-    - Radius: 80
-      IsPartialArc: 0
-      ArcStartAngle: 0
-      ArcEndAngle: 360
-    - Radius: 120
+    - Radius: 60
       IsPartialArc: 0
       ArcStartAngle: 0
       ArcEndAngle: 360
@@ -236,13 +228,9 @@ MonoBehaviour:
     RoadConnections: []
   - ID: f6a344c0-13db-427b-b4da-025eb3fe7f16
     Name: Cluster 2
-    Center: {x: 640, y: 620}
+    Center: {x: 620, y: 600}
     Orbits:
-    - Radius: 80
-      IsPartialArc: 0
-      ArcStartAngle: 0
-      ArcEndAngle: 360
-    - Radius: 120
+    - Radius: 60
       IsPartialArc: 0
       ArcStartAngle: 0
       ArcEndAngle: 360
@@ -250,13 +238,9 @@ MonoBehaviour:
     RoadConnections: []
   - ID: 72edf9b6-2826-445e-a3a8-0dd6c7b91ce3
     Name: Cluster 3
-    Center: {x: 720, y: 380}
+    Center: {x: 660, y: 380}
     Orbits:
-    - Radius: 80
-      IsPartialArc: 0
-      ArcStartAngle: 0
-      ArcEndAngle: 360
-    - Radius: 120
+    - Radius: 60
       IsPartialArc: 0
       ArcStartAngle: 0
       ArcEndAngle: 360

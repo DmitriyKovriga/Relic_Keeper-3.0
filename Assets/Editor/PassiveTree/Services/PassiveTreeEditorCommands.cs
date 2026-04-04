@@ -67,8 +67,7 @@ namespace Scripts.Editor.PassiveTree
                 Center = contentPos,
                 Orbits = new List<PassiveOrbitDefinition>
                 {
-                    new PassiveOrbitDefinition { Radius = 80f },
-                    new PassiveOrbitDefinition { Radius = 120f }
+                    new PassiveOrbitDefinition { Radius = 80f }
                 },
                 EditorColor = new Color(
                     UnityEngine.Random.Range(0.3f, 0.8f),

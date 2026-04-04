@@ -15,6 +15,7 @@ namespace Scripts.Editor.PassiveTree
         private PassiveTreeClusterView _selectedCluster;
 
         public event Action<PassiveNodeDefinition> OnNodeSelected;
+        public event Action<PassiveClusterDefinition> OnClusterSelected;
         public event Action OnSelectionCleared;
 
         public int SelectedNodeCount => _selectedNodes.Count;
@@ -50,7 +51,7 @@ namespace Scripts.Editor.PassiveTree
             _selectedCluster = clusterView;
             if (_selectedCluster != null)
                 _selectedCluster.SetSelected(true);
-            OnSelectionCleared?.Invoke();
+            OnClusterSelected?.Invoke(_selectedCluster?.Data);
         }
 
         public bool IsNodeSelected(PassiveTreeEditorNode nodeView) => _selectedNodes.Contains(nodeView);
