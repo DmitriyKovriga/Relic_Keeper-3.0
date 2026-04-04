@@ -779,6 +779,142 @@ MonoBehaviour:
     m_Key: passive.node.MediumIncreasePhysAttack.description
     m_Metadata:
       m_Items: []
+  - m_Id: 45622344225947648
+    m_Key: passive.node.SmallIncreasedAttackSpeed.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45622344251113472
+    m_Key: passive.node.SmallIncreasedAttackSpeed.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45628057937543168
+    m_Key: passive.node.MediumIncreaseAttackSpeed.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45628057937543169
+    m_Key: passive.node.MediumIncreaseAttackSpeed.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45632710414729216
+    m_Key: passive.node.SmallBleedingChance.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45632710444089344
+    m_Key: passive.node.SmallBleedingChance.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45634516628832256
+    m_Key: passive.node.MediumBleedingChance.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45634516628832257
+    m_Key: passive.node.MediumBleedingChance.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45637768497889280
+    m_Key: passive.node.SmallBleedMult.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45637768497889281
+    m_Key: passive.node.SmallBleedMult.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45638402685042688
+    m_Key: passive.node.MediumBleedMult.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45638402685042689
+    m_Key: passive.node.MediumBleedMult.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45641118157144064
+    m_Key: passive.node.SmallMaximumLife.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45641118161338368
+    m_Key: passive.node.SmallMaximumLife.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45643139211886592
+    m_Key: passive.node.MediumMaximumLife.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45643139211886593
+    m_Key: passive.node.MediumMaximumLife.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45644382625890304
+    m_Key: passive.node.SmallLifeOnHit.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45644382625890305
+    m_Key: passive.node.SmallLifeOnHit.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45645655018340352
+    m_Key: passive.node.MediumVampirism.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45645655018340353
+    m_Key: passive.node.MediumVampirism.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45654313332670464
+    m_Key: passive.node.SmallArmor.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45654313332670465
+    m_Key: passive.node.SmallArmor.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45656252162277376
+    m_Key: passive.node.MediumArmor.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45656252162277377
+    m_Key: passive.node.MediumArmor.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45659178230382592
+    m_Key: passive.node.SmallCritChance.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45659178230382593
+    m_Key: passive.node.SmallCritChance.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45662144253427712
+    m_Key: passive.node.MediumCritChance.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45662144253427713
+    m_Key: passive.node.MediumCritChance.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45666555553939456
+    m_Key: passive.node.SmallFireRes.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45666555553939457
+    m_Key: passive.node.SmallFireRes.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45667597553270784
+    m_Key: passive.node.SmallColdRes.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45667597553270785
+    m_Key: passive.node.SmallColdRes.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45669489192763392
+    m_Key: passive.node.SmallLightningRes.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45669489192763393
+    m_Key: passive.node.SmallLightningRes.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

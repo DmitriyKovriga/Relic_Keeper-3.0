@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
-  m_Name: SmallLifeNPS
-  m_EditorClassIdentifier: 
-  Name: Transport HP Node
+  m_Name: MediumIncreaseAttackSpeed
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
+  Name: MediumIncreaseAttackSpeed
   Description: 
-  Icon: {fileID: 21300000, guid: 52e87571e47177c4599838f9ebd15a52, type: 3}
+  Icon: {fileID: 21300000, guid: b3520a40521860645a3bbe427133ac6f, type: 3}
   Modifiers:
-  - Stat: 0
-    Value: 5
-    Type: 100
+  - Stat: 28
+    Value: 25
+    Type: 200

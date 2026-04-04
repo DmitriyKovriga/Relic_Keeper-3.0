@@ -1533,7 +1533,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 28263538823299080
-    m_Localized: +5 to maximum life
+    m_Localized: Transport HP Node
     m_Metadata:
       m_Items: []
   - m_Id: 28263538823299081
@@ -1645,7 +1645,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43348985866346496
-    m_Localized: Medium Phys Damage
+    m_Localized: Medium Armor
     m_Metadata:
       m_Items: []
   - m_Id: 43348985899900928
@@ -1729,6 +1729,142 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 45468343333322753
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45622344225947648
+    m_Localized: Small Attack Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45622344251113472
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45628057937543168
+    m_Localized: Medium Attack Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45628057937543169
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45632710414729216
+    m_Localized: Snall Bleed Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45632710444089344
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45634516628832256
+    m_Localized: Blood Strike
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45634516628832257
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45637768497889280
+    m_Localized: Small Bleed Multiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45637768497889281
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45638402685042688
+    m_Localized: Medium Bleed Multi
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45638402685042689
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45641118157144064
+    m_Localized: Small Max Life
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45641118161338368
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45643139211886592
+    m_Localized: Medium Attack Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45643139211886593
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45644382625890304
+    m_Localized: Small Life On Hit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45644382625890305
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45645655018340352
+    m_Localized: Medium Vampirism
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45645655018340353
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45654313332670464
+    m_Localized: Small Armor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45654313332670465
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45656252162277376
+    m_Localized: Medium Armor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45656252162277377
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45659178230382592
+    m_Localized: Small Critical Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45659178230382593
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45662144253427712
+    m_Localized: Medium Crit Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45662144253427713
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45666555553939456
+    m_Localized: Small Fire Res
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45666555553939457
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45667597553270784
+    m_Localized: Small Cold Res
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45667597553270785
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45669489192763392
+    m_Localized: Small Lightning Res
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45669489192763393
     m_Localized: 
     m_Metadata:
       m_Items: []

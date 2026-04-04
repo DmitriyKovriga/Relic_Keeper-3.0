@@ -10,12 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
-  m_Name: SmallLifeNPS
-  m_EditorClassIdentifier: 
-  Name: Transport HP Node
+  m_Name: MediumArmor
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
+  Name: MediumArmor
   Description: 
-  Icon: {fileID: 21300000, guid: 52e87571e47177c4599838f9ebd15a52, type: 3}
+  Icon: {fileID: 21300000, guid: 2ed49f49de52a63408a87b5fa7c75fb3, type: 3}
   Modifiers:
-  - Stat: 0
-    Value: 5
+  - Stat: 14
+    Value: 100
     Type: 100
+  - Stat: 14
+    Value: 50
+    Type: 200

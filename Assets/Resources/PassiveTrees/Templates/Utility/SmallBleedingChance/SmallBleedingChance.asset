@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
-  m_Name: SmallLifeNPS
-  m_EditorClassIdentifier: 
-  Name: Transport HP Node
+  m_Name: SmallBleedingChance
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
+  Name: SmallBleedingChance
   Description: 
-  Icon: {fileID: 21300000, guid: 52e87571e47177c4599838f9ebd15a52, type: 3}
+  Icon: {fileID: -1607612333438479917, guid: 5cbe4d01c91b60b459437e7f238c0cb1, type: 3}
   Modifiers:
-  - Stat: 0
-    Value: 5
+  - Stat: 57
+    Value: 15
     Type: 100

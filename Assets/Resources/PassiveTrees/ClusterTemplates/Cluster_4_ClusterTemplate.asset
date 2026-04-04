@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59d1157b86cb69f48850e8aace8f84c0, type: 3}
+  m_Name: Cluster_4_ClusterTemplate
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveClusterTemplateSO
+  NameEN: Half-Circle
+  NameRU: "\u041F\u043E\u043B\u0443-\u043A\u0440\u0443\u0433"
+  Cluster:
+    ID: 
+    Name: Cluster 4
+    Center: {x: 0, y: 0}
+    Orbits:
+    - Radius: 60
+      IsPartialArc: 0
+      ArcStartAngle: 0
+      ArcEndAngle: 360
+    EditorColor: {r: 0.7004966, g: 0.43543437, b: 0.95221686, a: 0.4}
+    RoadConnections: []
+  Nodes:
+  - ID: f1ea4e7a-a586-4952-9624-3a7e37f72d16
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 150
+    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - bb37a2e0-16e8-433e-97b2-b11bd00f9a6d
+  - ID: bb37a2e0-16e8-433e-97b2-b11bd00f9a6d
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 90
+    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - f1ea4e7a-a586-4952-9624-3a7e37f72d16
+    - cb33aff3-6200-47d2-b5a3-366c49a74ffe
+  - ID: 4a05559d-637b-4919-bf4f-188902f27e43
+    NodeType: 1
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 330
+    Template: {fileID: 11400000, guid: 14d433e7c8d6086459d92fe12d6f2ee0, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - cb33aff3-6200-47d2-b5a3-366c49a74ffe
+  - ID: cb33aff3-6200-47d2-b5a3-366c49a74ffe
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 30
+    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - bb37a2e0-16e8-433e-97b2-b11bd00f9a6d
+    - 4a05559d-637b-4919-bf4f-188902f27e43
