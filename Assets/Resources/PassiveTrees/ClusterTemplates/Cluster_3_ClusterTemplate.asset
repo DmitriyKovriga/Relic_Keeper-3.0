@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59d1157b86cb69f48850e8aace8f84c0, type: 3}
+  m_Name: Cluster_3_ClusterTemplate
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveClusterTemplateSO
+  NameEN: DoubleBridge
+  NameRU: "\u0414\u0432\u043E\u0439\u043D\u043E\u0439 \u043C\u043E\u0441\u0442"
+  Cluster:
+    ID: 
+    Name: Cluster 3
+    Center: {x: 0, y: 0}
+    Orbits:
+    - Radius: 60
+      IsPartialArc: 0
+      ArcStartAngle: 0
+      ArcEndAngle: 360
+    EditorColor: {r: 0.7832595, g: 0.3197282, b: 0.69593406, a: 0.4}
+    RoadConnections: []
+  Nodes:
+  - ID: 2c416aa7-1320-4b56-ab0e-84f30b8e6e03
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 45
+    Template: {fileID: 11400000, guid: 3fa4588704430534b84b7a171ce1eb12, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 4eb71171-1931-4a5d-a729-f01fe81026e5
+  - ID: 4eb71171-1931-4a5d-a729-f01fe81026e5
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 3fa4588704430534b84b7a171ce1eb12, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 2c416aa7-1320-4b56-ab0e-84f30b8e6e03
+    - 7efa59c8-5218-47a5-8ba5-f09e567f25be
+  - ID: 7efa59c8-5218-47a5-8ba5-f09e567f25be
+    NodeType: 1
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 315
+    Template: {fileID: 11400000, guid: 9594fc6da9c6c1947b7237f43a4c19e9, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 4eb71171-1931-4a5d-a729-f01fe81026e5
+  - ID: 985a88b0-7e51-49b6-b277-d9f22068ad65
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 135.2521
+    Template: {fileID: 11400000, guid: 70df5b04e76069c40afaa4120e3d0ad2, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - e6604b4c-b268-4d70-91d2-adc55e2223bc
+  - ID: e6604b4c-b268-4d70-91d2-adc55e2223bc
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 180
+    Template: {fileID: 11400000, guid: 70df5b04e76069c40afaa4120e3d0ad2, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 985a88b0-7e51-49b6-b277-d9f22068ad65
+    - 1044176c-7d40-4df2-8a41-9877fb8229d5
+  - ID: 1044176c-7d40-4df2-8a41-9877fb8229d5
+    NodeType: 1
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 225
+    Template: {fileID: 11400000, guid: 401f5c25b36c62c44816f9c5be48caf5, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - e6604b4c-b268-4d70-91d2-adc55e2223bc

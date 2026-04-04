@@ -76,7 +76,7 @@ namespace Scripts.Editor.PassiveTree
             }
             else
             {
-                var selectedCluster = _selection.GetSelectedClusterView();
+                var selectedCluster = _selection.GetSingleSelectedClusterView();
                 if (selectedCluster != null)
                     menu.AppendAction($"Place on {selectedCluster.Data.Name} Orbit", _ => Execute(() => _commands.PlaceNodeOnClusterOrbit(nodeView.Data, selectedCluster.Data)));
             }

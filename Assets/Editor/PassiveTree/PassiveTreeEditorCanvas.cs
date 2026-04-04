@@ -17,6 +17,7 @@ namespace Scripts.Editor.PassiveTree
         public Action<PassiveClusterDefinition> OnClusterSelected;
         public Action OnSelectionCleared;
         public Action OnTreeGeometryChanged;
+        public Action<Vector2> OnBackgroundClicked;
 
         private PassiveSkillTreeSO _tree;
         private VisualElement _viewport;
@@ -35,6 +36,7 @@ namespace Scripts.Editor.PassiveTree
         private VisualElement _nodeHoverTooltip;
         private Label _nodeHoverTooltipTitle;
         private Label _nodeHoverTooltipBody;
+        private VisualElement _marqueeSelectionBox;
 
         private readonly Dictionary<string, PassiveTreeEditorNode> _nodeViews = new Dictionary<string, PassiveTreeEditorNode>();
         private readonly Dictionary<string, PassiveTreeClusterView> _clusterViews = new Dictionary<string, PassiveTreeClusterView>();
@@ -51,6 +53,13 @@ namespace Scripts.Editor.PassiveTree
         private Vector2 _clusterDragStartPos;
         private Vector2 _pointerDragStartPos;
         private Vector2 _lastMousePosInViewport;
+        private readonly Dictionary<PassiveTreeEditorNode, Vector2> _selectedNodeDragStartPositions = new Dictionary<PassiveTreeEditorNode, Vector2>();
+        private readonly Dictionary<PassiveTreeClusterView, Vector2> _selectedClusterDragStartPositions = new Dictionary<PassiveTreeClusterView, Vector2>();
+        private bool _pendingBackgroundClick;
+        private bool _isMarqueeSelecting;
+        private bool _marqueeAdditiveSelection;
+        private int _marqueePointerId = -1;
+        private Vector2 _marqueeStartViewportPos;
 
         public PassiveTreeEditorCanvas()
         {
@@ -94,6 +103,7 @@ namespace Scripts.Editor.PassiveTree
             _content.Add(_nodesContainer);
             _viewport.Add(_content);
             CreateHoverTooltip();
+            CreateMarqueeSelectionBox();
             Add(_viewport);
 
             _viewportController = new PassiveTreeViewportController(_viewport, _content);
@@ -196,6 +206,24 @@ namespace Scripts.Editor.PassiveTree
             _viewport.Add(_nodeHoverTooltip);
         }
 
+        private void CreateMarqueeSelectionBox()
+        {
+            _marqueeSelectionBox = new VisualElement { name = "MarqueeSelectionBox" };
+            _marqueeSelectionBox.style.position = Position.Absolute;
+            _marqueeSelectionBox.style.display = DisplayStyle.None;
+            _marqueeSelectionBox.style.backgroundColor = new Color(0.82f, 0.72f, 0.30f, 0.12f);
+            _marqueeSelectionBox.style.borderTopWidth = 1f;
+            _marqueeSelectionBox.style.borderBottomWidth = 1f;
+            _marqueeSelectionBox.style.borderLeftWidth = 1f;
+            _marqueeSelectionBox.style.borderRightWidth = 1f;
+            _marqueeSelectionBox.style.borderTopColor = new Color(0.98f, 0.90f, 0.55f, 0.85f);
+            _marqueeSelectionBox.style.borderBottomColor = new Color(0.98f, 0.90f, 0.55f, 0.85f);
+            _marqueeSelectionBox.style.borderLeftColor = new Color(0.98f, 0.90f, 0.55f, 0.85f);
+            _marqueeSelectionBox.style.borderRightColor = new Color(0.98f, 0.90f, 0.55f, 0.85f);
+            _marqueeSelectionBox.pickingMode = PickingMode.Ignore;
+            _viewport.Add(_marqueeSelectionBox);
+        }
+
         private void RegisterViewportEvents()
         {
             _viewport.RegisterCallback<PointerDownEvent>(OnViewportPointerDown);
@@ -214,12 +242,23 @@ namespace Scripts.Editor.PassiveTree
                 evt.StopPropagation();
                 return;
             }
-            // Клик по пустому месту (viewport, content, контейнеры) — начинаем pan.
-            if (evt.button == 0 && IsBackgroundTarget(evt.target))
+
+            if (!IsBackgroundTarget(evt.target))
+                return;
+
+            if (IsPanTrigger(evt))
             {
                 Focus();
                 _viewportController.StartPan(evt.pointerId, (Vector2)evt.position);
                 _viewport.CapturePointer(evt.pointerId);
+                evt.StopPropagation();
+                return;
+            }
+
+            if (evt.button == 0)
+            {
+                BeginBackgroundInteraction(evt);
+                evt.StopPropagation();
             }
         }
 
@@ -238,6 +277,9 @@ namespace Scripts.Editor.PassiveTree
             _markerToCluster.Clear();
             _orbitHitToCluster.Clear();
             _clusterToOrbitHit.Clear();
+            CancelBackgroundInteraction();
+            _selectedNodeDragStartPositions.Clear();
+            _selectedClusterDragStartPositions.Clear();
             _selection.ClearSelection();
 
             if (_tree == null) return;
@@ -310,10 +352,12 @@ namespace Scripts.Editor.PassiveTree
 
         private void OnViewportPointerDown(PointerDownEvent evt)
         {
-            if (IsBackgroundTarget(evt.target) && evt.button == 0)
-            {
-                _viewportController.StartPan(evt.pointerId, (Vector2)evt.position);
-            }
+            _lastMousePosInViewport = evt.localPosition;
+        }
+
+        private static bool IsPanTrigger(PointerDownEvent evt)
+        {
+            return evt.button == 2 || (evt.button == 0 && evt.altKey);
         }
 
         private bool IsBackgroundTarget(IEventHandler target)
@@ -330,16 +374,26 @@ namespace Scripts.Editor.PassiveTree
             if (_draggedNode != null) { OnNodePointerMove(evt); return; }
             if (_resizingCluster != null) { OnOrbitResizePointerMove(evt); return; }
             if (_draggedCluster != null) { OnClusterPointerMove(evt); return; }
+            if (_pendingBackgroundClick || _isMarqueeSelecting) { OnBackgroundPointerMove(evt); return; }
             if (_viewportController.IsPanning)
                 _viewportController.UpdatePan((Vector2)evt.position);
         }
 
         private void OnViewportPointerUp(PointerUpEvent evt)
         {
+            if ((_pendingBackgroundClick || _isMarqueeSelecting) && _marqueePointerId == evt.pointerId)
+            {
+                FinishBackgroundInteraction(evt);
+                return;
+            }
+
             if (_draggedNode != null)
             {
                 _draggedNode = null;
+                _selectedNodeDragStartPositions.Clear();
                 _viewport.ReleasePointer(evt.pointerId);
+                PassiveTreeAssetPersistence.SetDirty(_tree);
+                OnTreeGeometryChanged?.Invoke();
             }
             if (_draggedCluster != null)
             {
@@ -361,9 +415,11 @@ namespace Scripts.Editor.PassiveTree
         {
             _viewportController.CancelPan();
             _draggedNode = null;
+            _selectedNodeDragStartPositions.Clear();
             _draggedCluster = null;
             _resizingCluster = null;
             _resizingOrbitIndex = -1;
+            CancelBackgroundInteraction();
             HideNodeHoverTooltip();
         }
 
@@ -371,46 +427,82 @@ namespace Scripts.Editor.PassiveTree
         {
             if (evt.button != 0) return;
             Focus();
+            bool addToSelection = evt.ctrlKey || evt.commandKey;
+            _selection.SelectNode(nodeView, addToSelection);
+
             _draggedNode = nodeView;
             _nodeDragStartPos = nodeView.Data.GetWorldPosition(_tree);
             _pointerDragStartPos = (Vector2)evt.position;
+            CacheSelectedDragStartPositions();
+            if (_tree != null)
+                Undo.RecordObject(_tree, "Move Passive Tree Nodes");
             _viewport.CapturePointer(evt.pointerId);
             evt.StopPropagation();
-
-            bool addToSelection = evt.ctrlKey || evt.commandKey;
-            _selection.SelectNode(nodeView, addToSelection);
         }
 
         private void OnNodePointerMove(PointerMoveEvent evt)
         {
             if (_draggedNode == null) return;
             Vector2 deltaContent = _viewportController.ViewportDeltaToContentDelta((Vector2)evt.position - _pointerDragStartPos);
-            var data = _draggedNode.Data;
-            Vector2 newPos = _nodeDragStartPos + deltaContent;
 
-            if (data.PlacementMode == NodePlacementMode.OnOrbit && _tree != null)
+            foreach (var entry in _selectedClusterDragStartPositions)
             {
-                var cluster = _tree.GetCluster(data.ClusterID);
-                if (cluster != null && data.OrbitIndex >= 0 && data.OrbitIndex < cluster.Orbits.Count)
-                {
-                    Vector2 toNode = newPos - cluster.Center;
-                    float newAngle = Mathf.Atan2(toNode.y, toNode.x) * Mathf.Rad2Deg;
-                    if (newAngle < 0) newAngle += 360f;
-                    if (evt.shiftKey)
-                        newAngle = Mathf.Round(newAngle / 15f) * 15f;
-                    data.OrbitAngle = newAngle;
-                }
-            }
-            else
-            {
-                data.Position = newPos;
+                var clusterView = entry.Key;
+                Vector2 newCenter = entry.Value + deltaContent;
                 if (_tree != null && _tree.SnapToGrid && _tree.GridSize > 0)
                 {
-                    data.Position.x = Mathf.Round(data.Position.x / _tree.GridSize) * _tree.GridSize;
-                    data.Position.y = Mathf.Round(data.Position.y / _tree.GridSize) * _tree.GridSize;
+                    newCenter.x = Mathf.Round(newCenter.x / _tree.GridSize) * _tree.GridSize;
+                    newCenter.y = Mathf.Round(newCenter.y / _tree.GridSize) * _tree.GridSize;
+                }
+
+                clusterView.Data.Center = newCenter;
+                clusterView.UpdatePosition();
+                UpdateClusterOrbitHitArea(clusterView);
+                UpdateNodesForCluster(clusterView.Data);
+            }
+
+            foreach (var entry in _selectedNodeDragStartPositions)
+            {
+                var data = entry.Key.Data;
+
+                if (data.PlacementMode == NodePlacementMode.OnOrbit &&
+                    !string.IsNullOrWhiteSpace(data.ClusterID) &&
+                    _tree != null &&
+                    _clusterViews.TryGetValue(data.ClusterID, out var parentClusterView) &&
+                    _selection.IsClusterSelected(parentClusterView))
+                {
+                    continue;
+                }
+
+                Vector2 newPos = entry.Value + deltaContent;
+
+                if (data.PlacementMode == NodePlacementMode.OnOrbit && _tree != null)
+                {
+                    var cluster = _tree.GetCluster(data.ClusterID);
+                    if (cluster != null && data.OrbitIndex >= 0 && data.OrbitIndex < cluster.Orbits.Count)
+                    {
+                        Vector2 toNode = newPos - cluster.Center;
+                        float newAngle = Mathf.Atan2(toNode.y, toNode.x) * Mathf.Rad2Deg;
+                        if (newAngle < 0) newAngle += 360f;
+                        if (evt.shiftKey)
+                            newAngle = Mathf.Round(newAngle / 15f) * 15f;
+                        data.OrbitAngle = newAngle;
+                    }
+                }
+                else
+                {
+                    data.Position = newPos;
+                    if (_tree != null && _tree.SnapToGrid && _tree.GridSize > 0)
+                    {
+                        data.Position.x = Mathf.Round(data.Position.x / _tree.GridSize) * _tree.GridSize;
+                        data.Position.y = Mathf.Round(data.Position.y / _tree.GridSize) * _tree.GridSize;
+                    }
                 }
             }
-            _draggedNode.UpdatePosition(_tree);
+
+            foreach (var entry in _selectedNodeDragStartPositions)
+                entry.Key.UpdatePosition(_tree);
+
             PassiveTreeConnectionLines.Refresh(_tree, _linesContainer);
         }
 
@@ -420,30 +512,63 @@ namespace Scripts.Editor.PassiveTree
         {
             if (evt.button != 0) return;
             Focus();
+            bool addToSelection = evt.ctrlKey || evt.commandKey;
+            _selection.SelectCluster(clusterView, addToSelection);
+
             _draggedCluster = clusterView;
             _clusterDragStartPos = clusterView.Data.Center;
             _pointerDragStartPos = (Vector2)evt.position;
+            CacheSelectedDragStartPositions();
             if (_tree != null)
                 Undo.RecordObject(_tree, "Move Cluster");
             _viewport.CapturePointer(evt.pointerId);
             evt.StopPropagation();
-            _selection.SelectCluster(clusterView);
         }
 
         private void OnClusterPointerMove(PointerMoveEvent evt)
         {
             if (_draggedCluster == null) return;
             Vector2 deltaContent = _viewportController.ViewportDeltaToContentDelta((Vector2)evt.position - _pointerDragStartPos);
-            Vector2 newCenter = _clusterDragStartPos + deltaContent;
-            if (_tree != null && _tree.SnapToGrid && _tree.GridSize > 0)
+
+            foreach (var entry in _selectedClusterDragStartPositions)
             {
-                newCenter.x = Mathf.Round(newCenter.x / _tree.GridSize) * _tree.GridSize;
-                newCenter.y = Mathf.Round(newCenter.y / _tree.GridSize) * _tree.GridSize;
+                var clusterView = entry.Key;
+                Vector2 newCenter = entry.Value + deltaContent;
+                if (_tree != null && _tree.SnapToGrid && _tree.GridSize > 0)
+                {
+                    newCenter.x = Mathf.Round(newCenter.x / _tree.GridSize) * _tree.GridSize;
+                    newCenter.y = Mathf.Round(newCenter.y / _tree.GridSize) * _tree.GridSize;
+                }
+
+                clusterView.Data.Center = newCenter;
+                clusterView.UpdatePosition();
+                UpdateClusterOrbitHitArea(clusterView);
+                UpdateNodesForCluster(clusterView.Data);
             }
-            _draggedCluster.Data.Center = newCenter;
-            _draggedCluster.UpdatePosition();
-            UpdateClusterOrbitHitArea(_draggedCluster);
-            UpdateNodesForCluster(_draggedCluster.Data);
+
+            foreach (var entry in _selectedNodeDragStartPositions)
+            {
+                var data = entry.Key.Data;
+
+                if (data.PlacementMode == NodePlacementMode.OnOrbit &&
+                    !string.IsNullOrWhiteSpace(data.ClusterID) &&
+                    _tree != null &&
+                    _clusterViews.TryGetValue(data.ClusterID, out var parentClusterView) &&
+                    _selection.IsClusterSelected(parentClusterView))
+                {
+                    continue;
+                }
+
+                Vector2 newPos = entry.Value + deltaContent;
+                data.Position = newPos;
+                if (_tree != null && _tree.SnapToGrid && _tree.GridSize > 0)
+                {
+                    data.Position.x = Mathf.Round(data.Position.x / _tree.GridSize) * _tree.GridSize;
+                    data.Position.y = Mathf.Round(data.Position.y / _tree.GridSize) * _tree.GridSize;
+                }
+                entry.Key.UpdatePosition(_tree);
+            }
+
             PassiveTreeConnectionLines.Refresh(_tree, _linesContainer);
             PassiveTreeAssetPersistence.SetDirty(_tree);
             OnTreeGeometryChanged?.Invoke();
@@ -455,7 +580,8 @@ namespace Scripts.Editor.PassiveTree
                 return;
 
             Focus();
-            _selection.SelectCluster(clusterView);
+            bool addToSelection = evt.ctrlKey || evt.commandKey;
+            _selection.SelectCluster(clusterView, addToSelection);
 
             if (evt.clickCount >= 2)
             {
@@ -504,10 +630,175 @@ namespace Scripts.Editor.PassiveTree
             OnTreeGeometryChanged?.Invoke();
         }
 
+        private void BeginBackgroundInteraction(PointerDownEvent evt)
+        {
+            Focus();
+            _pendingBackgroundClick = true;
+            _isMarqueeSelecting = false;
+            _marqueePointerId = evt.pointerId;
+            _marqueeAdditiveSelection = evt.ctrlKey || evt.commandKey;
+            _marqueeStartViewportPos = _viewport.WorldToLocal((Vector2)evt.position);
+            _pointerDragStartPos = (Vector2)evt.position;
+            _lastMousePosInViewport = _marqueeStartViewportPos;
+            _viewport.CapturePointer(evt.pointerId);
+        }
+
+        private void OnBackgroundPointerMove(PointerMoveEvent evt)
+        {
+            if (_marqueePointerId != evt.pointerId)
+                return;
+
+            Vector2 currentViewportPos = _viewport.WorldToLocal((Vector2)evt.position);
+            if (_pendingBackgroundClick && !_isMarqueeSelecting)
+            {
+                if (Vector2.Distance(currentViewportPos, _marqueeStartViewportPos) < 6f)
+                    return;
+
+                _pendingBackgroundClick = false;
+                _isMarqueeSelecting = true;
+                if (!_marqueeAdditiveSelection)
+                    _selection.ClearSelection();
+                _marqueeSelectionBox.style.display = DisplayStyle.Flex;
+            }
+
+            if (!_isMarqueeSelecting)
+                return;
+
+            UpdateMarqueeSelectionBox(_marqueeStartViewportPos, currentViewportPos);
+            UpdateMarqueeSelection(currentViewportPos);
+        }
+
+        private void FinishBackgroundInteraction(PointerUpEvent evt)
+        {
+            if (_marqueePointerId != evt.pointerId)
+                return;
+
+            if (_isMarqueeSelecting)
+            {
+                _marqueeSelectionBox.style.display = DisplayStyle.None;
+            }
+            else if (_pendingBackgroundClick)
+            {
+                _selection.ClearSelection();
+                OnBackgroundClicked?.Invoke(GetContentPointerPosition((Vector2)evt.position));
+            }
+
+            CancelBackgroundInteraction();
+            _viewport.ReleasePointer(evt.pointerId);
+        }
+
+        private void CancelBackgroundInteraction()
+        {
+            _pendingBackgroundClick = false;
+            _isMarqueeSelecting = false;
+            _marqueeAdditiveSelection = false;
+            _marqueePointerId = -1;
+            if (_marqueeSelectionBox != null)
+                _marqueeSelectionBox.style.display = DisplayStyle.None;
+        }
+
+        private void UpdateMarqueeSelectionBox(Vector2 start, Vector2 current)
+        {
+            float minX = Mathf.Min(start.x, current.x);
+            float minY = Mathf.Min(start.y, current.y);
+            float maxX = Mathf.Max(start.x, current.x);
+            float maxY = Mathf.Max(start.y, current.y);
+
+            _marqueeSelectionBox.style.left = minX;
+            _marqueeSelectionBox.style.top = minY;
+            _marqueeSelectionBox.style.width = maxX - minX;
+            _marqueeSelectionBox.style.height = maxY - minY;
+        }
+
+        private void UpdateMarqueeSelection(Vector2 currentViewportPos)
+        {
+            if (_tree == null)
+                return;
+
+            Rect contentRect = GetContentRectFromViewportRect(_marqueeStartViewportPos, currentViewportPos);
+            var selectedViews = new List<PassiveTreeEditorNode>();
+            var selectedClusterViews = new List<PassiveTreeClusterView>();
+            foreach (var nodeView in _nodeViews.Values)
+            {
+                Rect nodeRect = GetNodeContentRect(nodeView);
+                if (contentRect.Overlaps(nodeRect, true))
+                    selectedViews.Add(nodeView);
+            }
+
+            foreach (var clusterView in _clusterViews.Values)
+            {
+                Rect clusterRect = GetClusterContentRect(clusterView);
+                if (contentRect.Overlaps(clusterRect, true))
+                    selectedClusterViews.Add(clusterView);
+            }
+
+            _selection.SelectMixed(selectedViews, selectedClusterViews, _marqueeAdditiveSelection);
+        }
+
+        private Rect GetContentRectFromViewportRect(Vector2 viewportStart, Vector2 viewportEnd)
+        {
+            float minX = Mathf.Min(viewportStart.x, viewportEnd.x);
+            float minY = Mathf.Min(viewportStart.y, viewportEnd.y);
+            float maxX = Mathf.Max(viewportStart.x, viewportEnd.x);
+            float maxY = Mathf.Max(viewportStart.y, viewportEnd.y);
+
+            Vector2 contentMin = _viewportController.ViewportToContentPosition(new Vector2(minX, minY));
+            Vector2 contentMax = _viewportController.ViewportToContentPosition(new Vector2(maxX, maxY));
+            return Rect.MinMaxRect(contentMin.x, contentMin.y, contentMax.x, contentMax.y);
+        }
+
+        private Rect GetNodeContentRect(PassiveTreeEditorNode nodeView)
+        {
+            float width = Mathf.Max(nodeView.layout.width, nodeView.resolvedStyle.width);
+            float height = Mathf.Max(nodeView.layout.height, nodeView.resolvedStyle.height);
+            if (width <= 0f) width = 30f;
+            if (height <= 0f) height = 30f;
+            Vector2 center = nodeView.Data.GetWorldPosition(_tree);
+            return new Rect(center.x - width * 0.5f, center.y - height * 0.5f, width, height);
+        }
+
+        private Rect GetClusterContentRect(PassiveTreeClusterView clusterView)
+        {
+            float radius = 12f;
+            if (clusterView?.Data?.Orbits != null)
+            {
+                foreach (var orbit in clusterView.Data.Orbits)
+                    radius = Mathf.Max(radius, orbit.Radius);
+            }
+
+            Vector2 center = clusterView.Data.Center;
+            return new Rect(center.x - radius, center.y - radius, radius * 2f, radius * 2f);
+        }
+
+        private void CacheSelectedDragStartPositions()
+        {
+            _selectedNodeDragStartPositions.Clear();
+            foreach (var nodeView in _selection.GetSelectedNodeViews())
+                _selectedNodeDragStartPositions[nodeView] = nodeView.Data.GetWorldPosition(_tree);
+
+            _selectedClusterDragStartPositions.Clear();
+            foreach (var clusterView in _selection.GetSelectedClusterViews())
+                _selectedClusterDragStartPositions[clusterView] = clusterView.Data.Center;
+
+            if (_selectedNodeDragStartPositions.Count == 0 && _draggedNode != null)
+                _selectedNodeDragStartPositions[_draggedNode] = _draggedNode.Data.GetWorldPosition(_tree);
+
+            if (_selectedClusterDragStartPositions.Count == 0 && _draggedCluster != null)
+                _selectedClusterDragStartPositions[_draggedCluster] = _draggedCluster.Data.Center;
+        }
+
         public PassiveNodeDefinition GetSingleSelectedNodeData() => _selection.GetSingleSelectedNodeData();
         public int GetSelectedNodeCount() => _selection.SelectedNodeCount;
+        public int GetSelectedClusterCount() => _selection.SelectedClusterCount;
+        public int GetTotalSelectionCount() => _selection.TotalSelectionCount;
         public PassiveClusterDefinition GetSelectedClusterData() => _selection.SelectedClusterData;
         public PassiveSkillTreeSO CurrentTree => _tree;
+
+        public void ClearSelection()
+        {
+            _selection.ClearSelection();
+            CancelBackgroundInteraction();
+        }
 
         /// <summary>
         /// Обновить визуал ноды (например после правки в инспекторе).
@@ -708,16 +999,11 @@ namespace Scripts.Editor.PassiveTree
         private Rect? ComputeSelectionBounds()
         {
             float margin = 60f;
-            var cluster = _selection.SelectedClusterData;
-            if (cluster != null)
-            {
-                float r = 0f;
-                if (cluster.Orbits != null) foreach (var o in cluster.Orbits) r = Mathf.Max(r, o.Radius);
-                r += margin;
-                return new Rect(cluster.Center.x - r, cluster.Center.y - r, r * 2f, r * 2f);
-            }
             var nodes = _selection.GetSelectedNodeViews();
-            if (nodes == null || nodes.Count == 0) return null;
+            var clusters = _selection.GetSelectedClusterViews();
+            if ((nodes == null || nodes.Count == 0) && (clusters == null || clusters.Count == 0))
+                return null;
+
             float minX = float.MaxValue, minY = float.MaxValue, maxX = float.MinValue, maxY = float.MinValue;
             foreach (var nv in nodes)
             {
@@ -725,25 +1011,42 @@ namespace Scripts.Editor.PassiveTree
                 minX = Mathf.Min(minX, p.x); maxX = Mathf.Max(maxX, p.x);
                 minY = Mathf.Min(minY, p.y); maxY = Mathf.Max(maxY, p.y);
             }
+
+            foreach (var clusterView in clusters)
+            {
+                Rect rect = GetClusterContentRect(clusterView);
+                minX = Mathf.Min(minX, rect.xMin);
+                maxX = Mathf.Max(maxX, rect.xMax);
+                minY = Mathf.Min(minY, rect.yMin);
+                maxY = Mathf.Max(maxY, rect.yMax);
+            }
+
             return new Rect(minX - margin, minY - margin, maxX - minX + margin * 2f, maxY - minY + margin * 2f);
         }
 
         public bool TryHandleDeleteKey()
         {
             if (_tree == null) return false;
-            if (_selection.SelectedClusterData != null)
-            {
-                _commands.DeleteCluster(_selection.SelectedClusterData);
-                OnTreeModified();
-                return true;
-            }
-            var nodes = _selection.GetSelectedNodeViews();
-            if (nodes == null || nodes.Count == 0) return false;
-            var toDelete = new List<PassiveNodeDefinition>();
-            foreach (var nodeView in nodes)
-                toDelete.Add(nodeView.Data);
-            foreach (var data in toDelete)
+            var selectedNodeViews = _selection.GetSelectedNodeViews();
+            var selectedClusterViews = _selection.GetSelectedClusterViews();
+            if ((selectedNodeViews == null || selectedNodeViews.Count == 0) &&
+                (selectedClusterViews == null || selectedClusterViews.Count == 0))
+                return false;
+
+            var nodeDataToDelete = new List<PassiveNodeDefinition>();
+            foreach (var nodeView in selectedNodeViews)
+                nodeDataToDelete.Add(nodeView.Data);
+
+            var clustersToDelete = new List<PassiveClusterDefinition>();
+            foreach (var clusterView in selectedClusterViews)
+                clustersToDelete.Add(clusterView.Data);
+
+            foreach (var data in nodeDataToDelete)
                 _commands.DeleteNode(data);
+
+            foreach (var cluster in clustersToDelete)
+                _commands.DeleteCluster(cluster);
+
             OnTreeModified();
             return true;
         }

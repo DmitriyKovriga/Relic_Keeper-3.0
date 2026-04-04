@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Scripts.Skills.PassiveTree;
@@ -79,6 +80,81 @@ namespace Scripts.Editor.PassiveTree
             };
             _tree.Clusters.Add(cluster);
             PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public PassiveClusterDefinition CreateClusterFromTemplateAtPosition(PassiveClusterTemplateSO template, Vector2 contentPos)
+        {
+            if (_tree == null || template == null)
+                return null;
+
+            RecordTree("Create Cluster From Template");
+            contentPos = SnapPosition(contentPos);
+            PassiveClusterDefinition cluster = template.ApplyToTree(_tree, contentPos);
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+            return cluster;
+        }
+
+        public int GenerateBackboneFromStart()
+        {
+            if (_tree == null)
+                return 0;
+
+            PassiveNodeDefinition startNode = FindStartNode();
+            if (startNode == null)
+                return 0;
+
+            if (_tree.Nodes == null)
+                _tree.Nodes = new List<PassiveNodeDefinition>();
+
+            RecordTree("Generate Passive Backbone");
+            DisconnectNodeFromAll(startNode);
+
+            Vector2 startPosition = startNode.GetWorldPosition(_tree);
+            const int innerRingCount = 8;
+            const int outerRingCount = 16;
+            const int pathCount = 4;
+            const float spokeInnerRadius = 180f;
+            const float spokeOuterRadius = 320f;
+            const float innerRingRadius = 500f;
+            const float bridgeInnerRadius = 630f;
+            const float bridgeOuterRadius = 770f;
+            const float outerRingRadius = 900f;
+            const float ringStartAngle = 0f;
+            const float spokeStartAngle = 45f;
+            const float bridgeStartAngle = 0f;
+
+            List<PassiveNodeDefinition> spokeInnerNodes = CreateFreeNodes(BuildRingPoints(startPosition, spokeInnerRadius, pathCount, spokeStartAngle));
+            List<PassiveNodeDefinition> spokeOuterNodes = CreateFreeNodes(BuildRingPoints(startPosition, spokeOuterRadius, pathCount, spokeStartAngle));
+            List<PassiveNodeDefinition> innerRing = CreateFreeNodes(BuildRingPoints(startPosition, innerRingRadius, innerRingCount, ringStartAngle));
+            List<PassiveNodeDefinition> bridgeInnerNodes = CreateFreeNodes(BuildRingPoints(startPosition, bridgeInnerRadius, pathCount, bridgeStartAngle));
+            List<PassiveNodeDefinition> bridgeOuterNodes = CreateFreeNodes(BuildRingPoints(startPosition, bridgeOuterRadius, pathCount, bridgeStartAngle));
+            List<PassiveNodeDefinition> outerRing = CreateFreeNodes(BuildRingPoints(startPosition, outerRingRadius, outerRingCount, ringStartAngle));
+
+            ConnectSequentially(innerRing, true);
+            ConnectSequentially(outerRing, true);
+
+            int[] innerSpokeIndices = { 1, 3, 5, 7 };
+            for (int i = 0; i < pathCount; i++)
+            {
+                AddConnectionBidirectional(startNode, spokeInnerNodes[i]);
+                AddConnectionBidirectional(spokeInnerNodes[i], spokeOuterNodes[i]);
+                AddConnectionBidirectional(spokeOuterNodes[i], innerRing[innerSpokeIndices[i]]);
+            }
+
+            int[] innerBridgeIndices = { 0, 2, 4, 6 };
+            int[] outerBridgeIndices = { 0, 4, 8, 12 };
+            for (int i = 0; i < pathCount; i++)
+            {
+                AddConnectionBidirectional(innerRing[innerBridgeIndices[i]], bridgeInnerNodes[i]);
+                AddConnectionBidirectional(bridgeInnerNodes[i], bridgeOuterNodes[i]);
+                AddConnectionBidirectional(bridgeOuterNodes[i], outerRing[outerBridgeIndices[i]]);
+            }
+
+            int createdNodes = spokeInnerNodes.Count + spokeOuterNodes.Count + innerRing.Count + bridgeInnerNodes.Count + bridgeOuterNodes.Count + outerRing.Count;
+
+            _tree.InitLookup();
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+            return createdNodes;
         }
 
         public void AddOrbitToCluster(PassiveClusterDefinition cluster)
@@ -190,5 +266,121 @@ namespace Scripts.Editor.PassiveTree
             node.OrbitAngle = angle;
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
+
+        private PassiveNodeDefinition FindStartNode()
+        {
+            if (_tree?.Nodes == null)
+                return null;
+
+            return _tree.Nodes.FirstOrDefault(node => node != null && node.NodeType == PassiveNodeType.Start);
+        }
+
+        private void DisconnectNodeFromAll(PassiveNodeDefinition node)
+        {
+            if (_tree == null || node == null || node.ConnectionIDs == null)
+                return;
+
+            foreach (string connectionId in new List<string>(node.ConnectionIDs))
+            {
+                var neighbour = _tree.GetNode(connectionId);
+                neighbour?.ConnectionIDs?.Remove(node.ID);
+            }
+
+            node.ConnectionIDs.Clear();
+        }
+
+        private List<PassiveNodeDefinition> CreateFreeNodes(IEnumerable<Vector2> positions)
+        {
+            var created = new List<PassiveNodeDefinition>();
+            foreach (Vector2 position in positions)
+            {
+                var node = new PassiveNodeDefinition
+                {
+                    ID = Guid.NewGuid().ToString(),
+                    NodeType = PassiveNodeType.Small,
+                    PlacementMode = NodePlacementMode.Free,
+                    Position = SnapPosition(position),
+                    ConnectionIDs = new List<string>()
+                };
+                _tree.Nodes.Add(node);
+                created.Add(node);
+            }
+
+            return created;
+        }
+
+        private int CreateBridgeChain(PassiveNodeDefinition from, PassiveNodeDefinition to, int internalNodeCount)
+        {
+            List<PassiveNodeDefinition> chain = CreateFreeNodes(BuildConnectorPoints(from.GetWorldPosition(_tree), to.GetWorldPosition(_tree), internalNodeCount));
+            ConnectSequentially(chain, false, from, to);
+            return chain.Count;
+        }
+
+        private int CreateApproachChain(PassiveNodeDefinition startNode, PassiveNodeDefinition targetNode, int internalNodeCount)
+        {
+            List<PassiveNodeDefinition> chain = CreateFreeNodes(BuildConnectorPoints(startNode.GetWorldPosition(_tree), targetNode.GetWorldPosition(_tree), internalNodeCount));
+            ConnectSequentially(chain, false, startNode, targetNode);
+            return chain.Count;
+        }
+
+        private static void ConnectSequentially(IReadOnlyList<PassiveNodeDefinition> nodes, bool closeLoop, PassiveNodeDefinition startAnchor = null, PassiveNodeDefinition endAnchor = null)
+        {
+            if (nodes == null || nodes.Count == 0)
+            {
+                if (startAnchor != null && endAnchor != null)
+                    AddConnectionBidirectional(startAnchor, endAnchor);
+                return;
+            }
+
+            if (startAnchor != null)
+                AddConnectionBidirectional(startAnchor, nodes[0]);
+
+            for (int i = 0; i < nodes.Count - 1; i++)
+                AddConnectionBidirectional(nodes[i], nodes[i + 1]);
+
+            if (endAnchor != null)
+                AddConnectionBidirectional(nodes[nodes.Count - 1], endAnchor);
+
+            if (closeLoop && nodes.Count > 2)
+                AddConnectionBidirectional(nodes[nodes.Count - 1], nodes[0]);
+        }
+
+        private static void AddConnectionBidirectional(PassiveNodeDefinition a, PassiveNodeDefinition b)
+        {
+            if (a == null || b == null || a == b)
+                return;
+
+            a.ConnectionIDs ??= new List<string>();
+            b.ConnectionIDs ??= new List<string>();
+
+            if (!a.ConnectionIDs.Contains(b.ID))
+                a.ConnectionIDs.Add(b.ID);
+            if (!b.ConnectionIDs.Contains(a.ID))
+                b.ConnectionIDs.Add(a.ID);
+        }
+
+        private static List<Vector2> BuildRingPoints(Vector2 center, float radius, int count, float startAngleDegrees)
+        {
+            var points = new List<Vector2>(count);
+            float step = 360f / count;
+            for (int i = 0; i < count; i++)
+            {
+                float angle = (startAngleDegrees + step * i) * Mathf.Deg2Rad;
+                points.Add(center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius);
+            }
+            return points;
+        }
+
+        private static List<Vector2> BuildConnectorPoints(Vector2 from, Vector2 to, int internalNodeCount)
+        {
+            var points = new List<Vector2>(internalNodeCount);
+            for (int i = 1; i <= internalNodeCount; i++)
+            {
+                float t = i / (float)(internalNodeCount + 1);
+                points.Add(Vector2.Lerp(from, to, t));
+            }
+            return points;
+        }
+
     }
 }

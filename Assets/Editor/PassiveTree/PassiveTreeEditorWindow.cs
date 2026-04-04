@@ -13,17 +13,23 @@ namespace Scripts.Editor.PassiveTree
     {
         private const string LastTreePathPrefKey = "RK.PassiveTreeEditor.LastTreePath";
         private const string DefaultClusterTemplateFolder = "Assets/Resources/PassiveTrees/ClusterTemplates";
+        private const float DefaultInspectorWidthRatio = 0.30f;
+        private const int MinInspectorWidth = 320;
+        private const int MaxInspectorWidth = 620;
 
         private PassiveTreeEditorCanvas _canvas;
         private PassiveSkillTreeSO _currentTree;
         private PassiveNodeDefinition _selectedNode;
         private PassiveClusterDefinition _selectedCluster;
+        private PassiveClusterTemplateSO _selectedClusterTemplate;
+        private Vector2 _lastCanvasClickContentPosition;
         private ScrollView _inspectorContainer;
         private IMGUIContainer _inspectorGui;
         private ToolbarToggle _snapToggle;
         private PopupField<PassiveSkillTreeSO> _treePopup;
         private ObjectField _treeObjectField;
         private List<PassiveSkillTreeSO> _availableTrees = new List<PassiveSkillTreeSO>();
+        private List<PassiveClusterTemplateSO> _availableClusterTemplates = new List<PassiveClusterTemplateSO>();
 
         [MenuItem("Tools/Passive Tree Editor")]
         public static void OpenWindow()
@@ -52,6 +58,7 @@ namespace Scripts.Editor.PassiveTree
         private void OnEnable()
         {
             RefreshAvailableTrees();
+            RefreshAvailableClusterTemplates();
             RestoreLastTreeIfNeeded();
         }
 
@@ -67,7 +74,12 @@ namespace Scripts.Editor.PassiveTree
 
             BuildToolbar(root);
 
-            var splitView = new TwoPaneSplitView(0, 260, TwoPaneSplitViewOrientation.Horizontal);
+            int inspectorWidth = Mathf.RoundToInt(position.width * DefaultInspectorWidthRatio);
+            if (inspectorWidth <= 0)
+                inspectorWidth = 420;
+            inspectorWidth = Mathf.Clamp(inspectorWidth, MinInspectorWidth, MaxInspectorWidth);
+
+            var splitView = new TwoPaneSplitView(1, inspectorWidth, TwoPaneSplitViewOrientation.Horizontal);
             splitView.style.flexGrow = 1f;
             root.Add(splitView);
 
@@ -76,11 +88,13 @@ namespace Scripts.Editor.PassiveTree
             _canvas.OnClusterSelected = HandleClusterSelectionChanged;
             _canvas.OnSelectionCleared = HandleSelectionCleared;
             _canvas.OnTreeGeometryChanged = RefreshInspector;
+            _canvas.OnBackgroundClicked = HandleCanvasBackgroundClicked;
             splitView.Add(_canvas);
 
             root.RegisterCallback<KeyDownEvent>(OnKeyDown);
 
             _inspectorContainer = new ScrollView(ScrollViewMode.Vertical);
+            _inspectorContainer.style.minWidth = MinInspectorWidth;
             _inspectorContainer.style.paddingLeft = 10;
             _inspectorContainer.style.paddingRight = 10;
             _inspectorContainer.style.paddingTop = 10;
@@ -115,6 +129,9 @@ namespace Scripts.Editor.PassiveTree
                 UpdateTreeControls();
             })
             { text = "Refresh Trees" });
+
+            toolbar.Add(new ToolbarButton(GenerateBackbone)
+            { text = "Generate Backbone" });
 
             toolbar.Add(new ToolbarSpacer());
 
@@ -175,6 +192,13 @@ namespace Scripts.Editor.PassiveTree
                 .ToList();
         }
 
+        private void RefreshAvailableClusterTemplates()
+        {
+            _availableClusterTemplates = PassiveClusterTemplateLibrary.LoadAllTemplates().ToList();
+            if (_selectedClusterTemplate == null || !_availableClusterTemplates.Contains(_selectedClusterTemplate))
+                _selectedClusterTemplate = _availableClusterTemplates.FirstOrDefault();
+        }
+
         private void RestoreLastTreeIfNeeded()
         {
             if (_currentTree != null)
@@ -222,6 +246,19 @@ namespace Scripts.Editor.PassiveTree
 
             UpdateTreeControls();
             RefreshInspector();
+            ScheduleFrameAll();
+        }
+
+        private void ScheduleFrameAll()
+        {
+            if (_canvas == null || _currentTree == null)
+                return;
+
+            rootVisualElement.schedule.Execute(() =>
+            {
+                if (_canvas != null && _currentTree != null)
+                    _canvas.FrameAll();
+            }).ExecuteLater(0);
         }
 
         private void UpdateTreeControls()
@@ -247,6 +284,17 @@ namespace Scripts.Editor.PassiveTree
 
         private void OnKeyDown(KeyDownEvent evt)
         {
+            if (evt.keyCode == KeyCode.Escape)
+            {
+                _canvas?.ClearSelection();
+                _selectedNode = null;
+                _selectedCluster = null;
+                evt.StopPropagation();
+                evt.PreventDefault();
+                RefreshInspector();
+                return;
+            }
+
             if (evt.keyCode != KeyCode.Delete && evt.keyCode != KeyCode.Backspace)
                 return;
 
@@ -281,6 +329,14 @@ namespace Scripts.Editor.PassiveTree
             RefreshInspector();
         }
 
+        private void HandleCanvasBackgroundClicked(Vector2 contentPosition)
+        {
+            _lastCanvasClickContentPosition = contentPosition;
+            _selectedNode = null;
+            _selectedCluster = null;
+            RefreshInspector();
+        }
+
         private void RefreshInspector()
         {
             _inspectorGui?.MarkDirtyRepaint();
@@ -302,6 +358,12 @@ namespace Scripts.Editor.PassiveTree
             if (_selectedCluster != null)
             {
                 DrawSelectedClusterInspector();
+                return;
+            }
+
+            if (_canvas != null && _canvas.GetTotalSelectionCount() > 1)
+            {
+                DrawMultiSelectionInspector();
                 return;
             }
 
@@ -344,9 +406,12 @@ namespace Scripts.Editor.PassiveTree
         private void DrawNoSelectionHelp()
         {
             EditorGUILayout.HelpBox(
-                "Select a node or cluster on the canvas to edit its data. Use the toolbar to switch between passive trees. You can create or edit node templates without leaving this window.",
+                "Click empty space to browse cluster templates and place ready-made cluster chunks into the tree. Select a node or cluster to edit it.",
                 MessageType.Info);
 
+            DrawClusterTemplateBrowser();
+
+            EditorGUILayout.Space(8f);
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Create New Template"))
             {
@@ -356,8 +421,42 @@ namespace Scripts.Editor.PassiveTree
             }
 
             if (GUILayout.Button("Refresh Templates"))
+            {
+                RefreshAvailableClusterTemplates();
                 Repaint();
+            }
             EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawMultiSelectionInspector()
+        {
+            int selectedNodeCount = _canvas != null ? _canvas.GetSelectedNodeCount() : 0;
+            int selectedClusterCount = _canvas != null ? _canvas.GetSelectedClusterCount() : 0;
+            int totalSelectionCount = _canvas != null ? _canvas.GetTotalSelectionCount() : 0;
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField("Multi Selection", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("Selected Objects", totalSelectionCount.ToString());
+                EditorGUILayout.LabelField("Selected Nodes", selectedNodeCount.ToString());
+                EditorGUILayout.LabelField("Selected Clusters", selectedClusterCount.ToString());
+                EditorGUILayout.HelpBox(
+                    "Drag a selected node or cluster to move the whole mixed selection. Delete or Backspace removes the whole selection. Escape clears selection.",
+                    MessageType.Info);
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("Frame Selection"))
+                        _canvas?.FrameSelection();
+
+                    if (GUILayout.Button("Clear Selection"))
+                    {
+                        _canvas?.ClearSelection();
+                        _selectedNode = null;
+                        _selectedCluster = null;
+                        RefreshInspector();
+                    }
+                }
+            }
         }
 
         private void DrawSelectedNodeInspector()
@@ -470,14 +569,17 @@ namespace Scripts.Editor.PassiveTree
             {
                 EditorGUILayout.LabelField("Cluster Template", EditorStyles.boldLabel);
                 EditorGUILayout.HelpBox(
-                    "Cluster templates capture orbit layout and editor color. They are the safest way to reuse cluster structures without rebuilding each orbit by hand.",
+                    "Saving a cluster template stores the full editor chunk: the cluster, its orbit layout, nodes on those orbits, and the internal links between those nodes. Applying from this panel only reuses the orbit layout on the currently selected cluster.",
                     MessageType.None);
 
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button("Save As Template"))
+                {
                     SaveSelectedClusterAsTemplate();
+                    RefreshAvailableClusterTemplates();
+                }
 
-                if (GUILayout.Button("Apply Template"))
+                if (GUILayout.Button("Apply Layout"))
                     ShowClusterTemplateMenu();
                 EditorGUILayout.EndHorizontal();
 
@@ -486,7 +588,10 @@ namespace Scripts.Editor.PassiveTree
                     EnsureFolderAndReveal(DefaultClusterTemplateFolder);
 
                 if (GUILayout.Button("Create Empty Template"))
+                {
                     CreateEmptyClusterTemplate();
+                    RefreshAvailableClusterTemplates();
+                }
                 EditorGUILayout.EndHorizontal();
             }
 
@@ -687,11 +792,12 @@ namespace Scripts.Editor.PassiveTree
             string baseName = string.IsNullOrWhiteSpace(_selectedCluster.Name) ? "ClusterTemplate" : PassiveNodeTemplateLibrary.SanitizeAssetName(_selectedCluster.Name);
             string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{DefaultClusterTemplateFolder}/{baseName}_ClusterTemplate.asset");
             var template = CreateInstance<PassiveClusterTemplateSO>();
-            template.CaptureFrom(_selectedCluster);
+            template.CaptureFrom(_selectedCluster, _currentTree?.Nodes);
             AssetDatabase.CreateAsset(template, assetPath);
             AssetDatabase.SaveAssets();
             EditorGUIUtility.PingObject(template);
             Selection.activeObject = template;
+            _selectedClusterTemplate = template;
         }
 
         private void CreateEmptyClusterTemplate()
@@ -703,6 +809,7 @@ namespace Scripts.Editor.PassiveTree
             AssetDatabase.SaveAssets();
             EditorGUIUtility.PingObject(template);
             Selection.activeObject = template;
+            _selectedClusterTemplate = template;
         }
 
         private void ShowClusterTemplateMenu()
@@ -736,10 +843,256 @@ namespace Scripts.Editor.PassiveTree
                 return;
 
             Undo.RecordObject(_currentTree, "Apply Cluster Template");
-            template.ApplyTo(_selectedCluster);
+            template.ApplyStructureTo(_selectedCluster);
             ClampClusterNodeOrbitIndices(_selectedCluster);
             PassiveTreeAssetPersistence.SetDirty(_currentTree);
             RefreshCanvasKeepingSelection();
+        }
+
+        private void DrawClusterTemplateBrowser()
+        {
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField("Cluster Templates", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("Placement Point", $"{_lastCanvasClickContentPosition.x:0}, {_lastCanvasClickContentPosition.y:0}");
+
+                if (_availableClusterTemplates.Count == 0)
+                {
+                    EditorGUILayout.HelpBox("No cluster templates found yet. Select a cluster and save it as a template first.", MessageType.Info);
+                    return;
+                }
+
+                foreach (var template in _availableClusterTemplates)
+                {
+                    DrawClusterTemplateListItem(template);
+                }
+
+                if (_selectedClusterTemplate != null)
+                {
+                    EditorGUILayout.Space(6f);
+                    DrawClusterTemplateDetails(_selectedClusterTemplate);
+                }
+            }
+        }
+
+        private void DrawClusterTemplateListItem(PassiveClusterTemplateSO template)
+        {
+            bool selected = template == _selectedClusterTemplate;
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                Rect rowRect = GUILayoutUtility.GetRect(1f, 76f, GUILayout.ExpandWidth(true));
+                if (selected)
+                    EditorGUI.DrawRect(rowRect, new Color(0.28f, 0.22f, 0.10f, 0.30f));
+
+                Rect previewRect = new Rect(rowRect.x + 8f, rowRect.y + 8f, 80f, rowRect.height - 16f);
+                DrawClusterTemplatePreview(previewRect, template);
+
+                Rect contentRect = new Rect(previewRect.xMax + 10f, rowRect.y + 8f, rowRect.width - previewRect.width - 26f, rowRect.height - 16f);
+                GUILayout.BeginArea(contentRect);
+                GUILayout.Label(PassiveClusterTemplateLibrary.GetDisplayName(template), EditorStyles.boldLabel);
+                string localized = PassiveClusterTemplateLibrary.GetLocalizedNameLine(template);
+                if (!string.IsNullOrWhiteSpace(localized))
+                    EditorGUILayout.LabelField(localized, EditorStyles.miniLabel);
+                EditorGUILayout.LabelField(PassiveClusterTemplateLibrary.GetSummary(template, 3), EditorStyles.wordWrappedMiniLabel);
+                GUILayout.EndArea();
+
+                Rect selectRect = new Rect(rowRect.x, rowRect.y, rowRect.width, rowRect.height);
+                if (Event.current.type == EventType.MouseDown && selectRect.Contains(Event.current.mousePosition))
+                {
+                    _selectedClusterTemplate = template;
+                    Repaint();
+                }
+
+                Rect placeRect = new Rect(rowRect.xMax - 82f, rowRect.y + rowRect.height - 30f, 74f, 22f);
+                if (GUI.Button(placeRect, "Place"))
+                {
+                    PlaceClusterTemplate(template);
+                }
+            }
+        }
+
+        private void DrawClusterTemplateDetails(PassiveClusterTemplateSO template)
+        {
+            SerializedObject serializedTemplate = new SerializedObject(template);
+            serializedTemplate.Update();
+
+            EditorGUILayout.LabelField("Selected Template", EditorStyles.boldLabel);
+            Rect previewRect = GUILayoutUtility.GetRect(1f, 140f, GUILayout.ExpandWidth(true));
+            DrawClusterTemplatePreview(previewRect, template);
+
+            EditorGUILayout.PropertyField(serializedTemplate.FindProperty("NameEN"));
+            EditorGUILayout.PropertyField(serializedTemplate.FindProperty("NameRU"));
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("Ping Asset"))
+                {
+                    EditorGUIUtility.PingObject(template);
+                    Selection.activeObject = template;
+                }
+
+                if (GUILayout.Button("Place At Last Click"))
+                    PlaceClusterTemplate(template);
+            }
+
+            serializedTemplate.ApplyModifiedProperties();
+        }
+
+        private void PlaceClusterTemplate(PassiveClusterTemplateSO template)
+        {
+            if (_currentTree == null || template == null)
+                return;
+
+            var commands = new PassiveTreeEditorCommands();
+            commands.SetTree(_currentTree);
+            PassiveClusterDefinition createdCluster = commands.CreateClusterFromTemplateAtPosition(template, _lastCanvasClickContentPosition);
+            RefreshAvailableClusterTemplates();
+            _selectedCluster = createdCluster;
+            _selectedNode = null;
+            RefreshCanvasKeepingSelection();
+        }
+
+        private void GenerateBackbone()
+        {
+            if (_currentTree == null)
+                return;
+
+            var commands = new PassiveTreeEditorCommands();
+            commands.SetTree(_currentTree);
+            int createdNodes = commands.GenerateBackboneFromStart();
+            if (createdNodes <= 0)
+            {
+                EditorUtility.DisplayDialog(
+                    "Generate Backbone",
+                    "Не удалось найти стартовый нод. Для генерации каркаса нужен один нод типа Start в дереве.",
+                    "OK");
+                return;
+            }
+
+            _selectedNode = null;
+            _selectedCluster = null;
+            RefreshCanvasKeepingSelection();
+            _canvas?.FrameAll();
+            ShowNotification(new GUIContent($"Backbone generated: {createdNodes} nodes"));
+        }
+
+        private void DrawClusterTemplatePreview(Rect rect, PassiveClusterTemplateSO template)
+        {
+            EditorGUI.DrawRect(rect, new Color(0.10f, 0.10f, 0.11f, 1f));
+            if (template?.Cluster == null)
+                return;
+
+            Handles.BeginGUI();
+            Color previousColor = Handles.color;
+
+            float maxRadius = 1f;
+            if (template.Cluster.Orbits != null)
+            {
+                foreach (var orbit in template.Cluster.Orbits)
+                    maxRadius = Mathf.Max(maxRadius, orbit.Radius);
+            }
+
+            Vector2 center = rect.center;
+            float scale = Mathf.Min(rect.width, rect.height) / (maxRadius * 2f + 24f);
+
+            if (template.Cluster.Orbits != null)
+            {
+                Handles.color = new Color(template.Cluster.EditorColor.r, template.Cluster.EditorColor.g, template.Cluster.EditorColor.b, 0.7f);
+                foreach (var orbit in template.Cluster.Orbits)
+                    DrawCirclePolyline(center, orbit.Radius * scale, 48);
+            }
+
+            if (template.Nodes != null)
+            {
+                var nodePositions = new Dictionary<string, Vector2>();
+                foreach (var node in template.Nodes)
+                {
+                    if (node == null || string.IsNullOrWhiteSpace(node.ID))
+                        continue;
+                    nodePositions[node.ID] = GetTemplateNodePreviewPosition(template, node, center, scale);
+                }
+
+                Handles.color = new Color(0.75f, 0.68f, 0.44f, 0.65f);
+                foreach (var node in template.Nodes)
+                {
+                    if (node?.ConnectionIDs == null || !nodePositions.TryGetValue(node.ID, out Vector2 from))
+                        continue;
+
+                    foreach (string connectionId in node.ConnectionIDs)
+                    {
+                        if (!nodePositions.TryGetValue(connectionId, out Vector2 to))
+                            continue;
+                        if (string.CompareOrdinal(node.ID, connectionId) > 0)
+                            continue;
+
+                        Handles.DrawAAPolyLine(2f, from, to);
+                    }
+                }
+
+                foreach (var node in template.Nodes)
+                {
+                    if (node == null)
+                        continue;
+
+                    float radius = GetPreviewNodeRadius(node.NodeType);
+                    Vector2 nodePos = GetTemplateNodePreviewPosition(template, node, center, scale);
+                    Rect nodeRect = new Rect(nodePos.x - radius, nodePos.y - radius, radius * 2f, radius * 2f);
+
+                    Handles.color = Color.white;
+                    Handles.DrawSolidDisc(nodePos, Vector3.forward, radius);
+
+                    var icon = node.GetIcon();
+                    if (icon != null)
+                    {
+                        Texture texture = AssetPreview.GetAssetPreview(icon) ?? AssetPreview.GetMiniThumbnail(icon);
+                        if (texture != null)
+                            GUI.DrawTexture(nodeRect, texture, ScaleMode.ScaleAndCrop, true);
+                    }
+
+                    Handles.color = new Color(0.18f, 0.18f, 0.20f, 1f);
+                    Handles.DrawWireDisc(nodePos, Vector3.forward, radius);
+                }
+            }
+
+            Handles.color = previousColor;
+            Handles.EndGUI();
+        }
+
+        private static Vector2 GetTemplateNodePreviewPosition(PassiveClusterTemplateSO template, PassiveNodeDefinition node, Vector2 center, float scale)
+        {
+            if (node.PlacementMode == NodePlacementMode.OnOrbit &&
+                template.Cluster?.Orbits != null &&
+                node.OrbitIndex >= 0 &&
+                node.OrbitIndex < template.Cluster.Orbits.Count)
+            {
+                float radius = template.Cluster.Orbits[node.OrbitIndex].Radius * scale;
+                float angle = node.OrbitAngle * Mathf.Deg2Rad;
+                return center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+            }
+
+            return center + node.Position * scale;
+        }
+
+        private static float GetPreviewNodeRadius(PassiveNodeType nodeType)
+        {
+            return nodeType switch
+            {
+                PassiveNodeType.Keystone => 12f,
+                PassiveNodeType.Notable => 10f,
+                PassiveNodeType.Start => 10f,
+                _ => 8f
+            };
+        }
+
+        private static void DrawCirclePolyline(Vector2 center, float radius, int segments)
+        {
+            var points = new Vector3[segments + 1];
+            for (int i = 0; i <= segments; i++)
+            {
+                float t = (float)i / segments * Mathf.PI * 2f;
+                points[i] = center + new Vector2(Mathf.Cos(t), Mathf.Sin(t)) * radius;
+            }
+            Handles.DrawAAPolyLine(2f, points);
         }
 
         private void ClampClusterNodeOrbitIndices(PassiveClusterDefinition cluster)
