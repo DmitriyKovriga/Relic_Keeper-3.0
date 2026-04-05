@@ -128,6 +128,7 @@ namespace Scripts.Stats
         ProjectileFork, 
         ProjectileChain,
         MaxBleedStack,
-        ExtraTargetsForMeleeHits
+        ExtraTargetsForMeleeHits,
+        MeleeDamage
     }
 }

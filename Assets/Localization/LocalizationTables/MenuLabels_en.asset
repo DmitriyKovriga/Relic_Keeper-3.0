@@ -1315,7 +1315,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14174021153751040
-    m_Localized: Reduce Damage Taken
+    m_Localized: Damage Taken
     m_Metadata:
       m_Items: []
   - m_Id: 14174041500319744
@@ -1865,6 +1865,34 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 45669489192763393
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45871641072795648
+    m_Localized: Melee Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45872038244024320
+    m_Localized: Small Melee Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45872038244024321
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45874059672059904
+    m_Localized: Medium Melee Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45874059672059905
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45879034603143168
+    m_Localized: Magma Skin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45879034603143169
     m_Localized: 
     m_Metadata:
       m_Items: []

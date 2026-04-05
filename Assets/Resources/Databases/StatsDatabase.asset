@@ -629,3 +629,10 @@ MonoBehaviour:
     AffixGenType: 2
     ValueUnit: 6
     AllowedAffixKinds: 1
+  - StatTypeId: MeleeDamage
+    Category: Damage
+    Format: 1
+    ShowInCharacterWindow: 1
+    AffixGenType: 1
+    ValueUnit: 3
+    AllowedAffixKinds: 7

@@ -915,6 +915,34 @@ MonoBehaviour:
     m_Key: passive.node.SmallLightningRes.description
     m_Metadata:
       m_Items: []
+  - m_Id: 45871641072795648
+    m_Key: stats.MeleeDamage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45872038244024320
+    m_Key: passive.node.SmallMeleeDamage.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45872038244024321
+    m_Key: passive.node.SmallMeleeDamage.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45874059672059904
+    m_Key: passive.node.MediumMeleeDamage.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45874059672059905
+    m_Key: passive.node.MediumMeleeDamage.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45879034603143168
+    m_Key: passive.node.MagmaSkin.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45879034603143169
+    m_Key: passive.node.MagmaSkin.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
