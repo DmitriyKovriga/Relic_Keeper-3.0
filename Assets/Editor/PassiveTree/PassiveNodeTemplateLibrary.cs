@@ -12,6 +12,7 @@ namespace Scripts.Editor.PassiveTree
     internal static class PassiveNodeTemplateLibrary
     {
         private const string BaseTemplateFolder = "Assets/Resources/PassiveTrees/Templates";
+        private static StatsDatabaseSO _cachedStatsDatabase;
 
         internal static IReadOnlyList<PassiveNodeTemplateSO> LoadAllTemplates()
         {
@@ -203,17 +204,25 @@ namespace Scripts.Editor.PassiveTree
         private static string FormatModifier(SerializableStatModifier modifier)
         {
             string statName = ObjectNames.NicifyVariableName(modifier.Stat.ToString());
-            string prefix = modifier.Type.GetDisplayPrefix(modifier.Value);
-            float magnitude = Mathf.Abs(modifier.Value);
+            return StatPresentation.FormatModifierLine(
+                GetStatsDatabase(),
+                modifier.Stat,
+                statName,
+                modifier.Value,
+                modifier.Type,
+                StatPresentation.ModifierLineStyle.ValueThenStat);
+        }
 
-            if (modifier.Type == StatModType.Flat)
-                return $"{prefix}{magnitude:0.##} {statName}";
+        private static StatsDatabaseSO GetStatsDatabase()
+        {
+            if (_cachedStatsDatabase != null)
+                return _cachedStatsDatabase;
 
-            if (modifier.Type == StatModType.PercentAdd || modifier.Type == StatModType.PercentSub)
-                return $"{prefix}{magnitude:0.##}% {statName}";
+            _cachedStatsDatabase = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase);
+            if (_cachedStatsDatabase == null)
+                _cachedStatsDatabase = Resources.Load<StatsDatabaseSO>(EditorPaths.StatsDatabaseResources);
 
-            string suffix = modifier.Type == StatModType.PercentMult ? "more" : "less";
-            return $"{magnitude:0.##}% {suffix} {statName}";
+            return _cachedStatsDatabase;
         }
 
         private static void EnsureTemplateFolders(string category)

@@ -60,6 +60,11 @@ namespace Scripts.Enemies
             return _stats.TryGetValue(type, out var stat) ? stat.Value : 0f;
         }
 
+        public bool TryGetStat(StatType type, out CharacterStat stat)
+        {
+            return _stats.TryGetValue(type, out stat);
+        }
+
         public void AddModifier(StatType type, StatModifier modifier)
         {
             if (!_stats.ContainsKey(type))

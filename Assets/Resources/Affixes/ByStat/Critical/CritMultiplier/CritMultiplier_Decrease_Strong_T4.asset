@@ -15,17 +15,17 @@ MonoBehaviour:
   UniqueID: Resources/Affixes/ByStat/Critical/CritMultiplier/CritMultiplier_Decrease_Strong_T4
   GroupID: CritMultiplier_Decrease_Strong
   Tier: 4
-  NameKey: affix_name_critmultiplier_decrease_strong_t4
-  TranslationKey: affix_decrease_critmultiplier
+  NameKey: affix_name_critmultiplier_flatnegative_strong_t4
+  TranslationKey: affix_flat_critmultiplier
   LockAutoLocalization: 0
   TagIds:
   - Critical
   Stats:
   - Stat: 52
-    Type: 210
+    Type: 100
     Scope: 0
     ValueMode: 0
-    MinValue: 10
-    MaxValue: 15
+    MinValue: -15
+    MaxValue: -10
     RangeMinValue: 0
     RangeMaxValue: 0

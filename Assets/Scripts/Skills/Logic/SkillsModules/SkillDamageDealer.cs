@@ -29,7 +29,10 @@ namespace Scripts.Skills.Modules
 
             // 1. Создаем снапшот урона (один раз на весь удар)
             // Это важно! Крит роллится 1 раз на взмах, а не для каждого врага отдельно (как в PoE).
-            DamageSnapshot damage = DamageCalculator.CreateDamageSnapshot(_ownerStats, _damageMultiplier);
+            DamageSnapshot damage = DamageCalculator.CreateDamageSnapshot(
+                _ownerStats,
+                _damageMultiplier,
+                new DamageContext(StatContextTagFlags.Attack | StatContextTagFlags.Melee));
 
             // 2. Раздаем урон
             foreach (var target in targets)

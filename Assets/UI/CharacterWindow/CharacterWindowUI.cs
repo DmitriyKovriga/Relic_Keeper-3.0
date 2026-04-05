@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
 using Scripts.Stats;
 using System;
@@ -263,53 +263,31 @@ public class CharacterWindowUI : MonoBehaviour
 
             var format = _statsDb?.GetFormat(type);
 
-            // 1. Урон (Average Damage) — from metadata or fallback
+            // 1. ???? (Average Damage) ? from metadata or fallback
             if (format == StatDisplayFormat.Damage || (format == null && IsDamageStat(type)))
             {
                 float avgDmg = DamageCalculator.CalculateAverageDamage(_playerStats, type);
                 label.text = $"{Mathf.Round(avgDmg)}";
             }
-            // 2. DOT уроны
+            // 2. DOT ?????
             else if (type == StatType.BleedDamage || type == StatType.PoisonDamage || type == StatType.IgniteDamage)
             {
-                float dps = 0;
+                float dps = 0f;
                 if (type == StatType.BleedDamage) dps = DamageCalculator.CalculateBleedDPS(_playerStats);
                 else if (type == StatType.PoisonDamage) dps = DamageCalculator.CalculatePoisonDPS(_playerStats);
                 else dps = DamageCalculator.CalculateIgniteDPS(_playerStats);
                 label.text = $"{dps:F1}/s";
             }
-            // 3. Attack Speed (число, APS)
+            // 3. Attack Speed (?????, APS)
             else if (type == StatType.AttackSpeed)
             {
                 label.text = $"{rawVal:F2}";
             }
-            // 4. Секунды — from metadata or fallback
-            else if (format == StatDisplayFormat.Time || (format == null && IsTimeStat(type)))
-            {
-                label.text = $"{rawVal:F2}s";
-            }
-            // 5. Проценты — from metadata or fallback
-            else if (format == StatDisplayFormat.Percent || (format == null && IsPercentageStat(type)))
-            {
-                label.text = $"{Mathf.Round(rawVal)}%";
-            }
-            // 6. Обычные числа
             else
             {
-                label.text = $"{Mathf.Round(rawVal)}";
+                label.text = StatPresentation.FormatScalarValue(_statsDb, type, rawVal);
             }
         }
-    }
-
-    private bool IsTimeStat(StatType type)
-    {
-        // Длительности шока, заморозки и т.д. в секундах
-        return type == StatType.ShockDuration || 
-               type == StatType.FreezeDuration || 
-               type == StatType.BleedDuration || 
-               type == StatType.PoisonDuration || 
-               type == StatType.IgniteDuration ||
-               type == StatType.MysticShieldRechargeDuration;
     }
 
     private bool ShouldShowStat(StatType type)
@@ -322,30 +300,7 @@ public class CharacterWindowUI : MonoBehaviour
 
     private bool IsDamageStat(StatType type)
     {
-        return type == StatType.DamagePhysical || type == StatType.DamageFire || 
+        return type == StatType.DamagePhysical || type == StatType.DamageFire ||
                type == StatType.DamageCold || type == StatType.DamageLightning;
-    }
-
-    private bool IsPercentageStat(StatType type)
-    {
-        string s = type.ToString();
-        
-        // AttackSpeed убрали отсюда
-        if (type == StatType.AttackSpeed) return false;
-
-        // Явные списки того, что должно быть в %
-        if (type == StatType.AreaOfEffect) return true;
-        if (type == StatType.ReduceDamageTaken) return true;
-        if (type == StatType.ProjectileSpeed) return true;
-        if (type == StatType.EffectDuration) return true; // Обычно "Inc Effect Duration" это %
-        
-        // Множители DoT
-        if (type == StatType.BleedDamageMult) return true;
-        if (type == StatType.PoisonDamageMult) return true;
-        if (type == StatType.IgniteDamageMult) return true;
-
-        // Все шансы, резисты, множители и %
-        return s.Contains("Percent") || s.Contains("Chance") || s.Contains("Multiplier") || 
-               s.Contains("Resist") || s.Contains("Reduction") || type == StatType.MoveSpeed;
     }
 }

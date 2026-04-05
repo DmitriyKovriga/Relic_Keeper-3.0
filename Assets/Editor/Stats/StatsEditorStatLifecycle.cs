@@ -22,6 +22,60 @@ namespace Scripts.Editor.Stats
     {
         private const string StatTypeScriptPath = "Assets/Scripts/Stats/StatType.cs";
 
+        [Serializable]
+        public sealed class StatsSystemUpgradeReport
+        {
+            public int MissingMetadataEntries;
+            public int MetadataEntriesNormalized;
+            public int LegacyCritMultiplierAffixes;
+            public int MigratedCritMultiplierAffixes;
+            public int RegeneratedAffixLocalizations;
+            public int MigratedPassiveTemplates;
+            public int MigratedPassiveTrees;
+            public int InvalidContextModifierMetadata;
+            public readonly List<string> Warnings = new List<string>();
+
+            public string ToSummaryString()
+            {
+                var lines = new List<string>
+                {
+                    $"Missing metadata entries: {MissingMetadataEntries}",
+                    $"Metadata entries normalized: {MetadataEntriesNormalized}",
+                    $"Legacy CritMultiplier affixes: {LegacyCritMultiplierAffixes}",
+                    $"Migrated CritMultiplier affixes: {MigratedCritMultiplierAffixes}",
+                    $"Regenerated affix localizations: {RegeneratedAffixLocalizations}",
+                    $"Migrated passive templates: {MigratedPassiveTemplates}",
+                    $"Migrated passive trees: {MigratedPassiveTrees}",
+                    $"Invalid context modifier metadata: {InvalidContextModifierMetadata}"
+                };
+
+                if (Warnings.Count > 0)
+                {
+                    lines.Add("Warnings:");
+                    lines.AddRange(Warnings.Select(w => "• " + w));
+                }
+
+                return string.Join("\n", lines);
+            }
+        }
+
+        public static AffixSetGenerator.AffixRebuildReport RebuildGeneratedAffixesForStat(
+            StatType stat,
+            StatsDatabaseSO statsDb,
+            StringTableCollection menuLabels,
+            StringTableCollection affixesLabels)
+        {
+            var tagDatabase = AssetDatabase.LoadAssetAtPath<AffixTagDatabaseSO>(EditorPaths.AffixTagDatabase);
+            return AffixSetGenerator.RebuildGeneratedAffixesForStat(
+                stat,
+                statsDb,
+                tagDatabase,
+                menuLabels,
+                affixesLabels,
+                EditorPaths.AffixesBaseFolder,
+                removeObsolete: true);
+        }
+
         public static bool HasLocalizationKey(StringTableCollection menuLabels, StatType stat)
         {
             if (menuLabels == null) return false;
@@ -79,6 +133,243 @@ namespace Scripts.Editor.Stats
             AssetDatabase.SaveAssets();
             Debug.Log($"Stats Editor: Initialized stat {id} (localization + metadata).");
             return true;
+        }
+
+        public static StatsSystemUpgradeReport AnalyzeProductionUpgrade(StatsDatabaseSO statsDb)
+        {
+            var report = new StatsSystemUpgradeReport();
+
+            foreach (StatType stat in Enum.GetValues(typeof(StatType)))
+            {
+                var meta = statsDb != null ? statsDb.GetMetadata(stat) : null;
+                if (meta == null)
+                {
+                    report.MissingMetadataEntries++;
+                    continue;
+                }
+
+                if (NeedsMetadataNormalization(meta, stat))
+                    report.MetadataEntriesNormalized++;
+
+                if (meta.SemanticKind == StatSemanticKind.ContextModifier && meta.ContextTags == StatContextTagFlags.None)
+                    report.InvalidContextModifierMetadata++;
+            }
+
+            foreach (string guid in AssetDatabase.FindAssets("t:ItemAffixSO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var affix = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path);
+                if (affix?.Stats == null)
+                    continue;
+
+                if (affix.Stats.Any(stat => stat.Stat == StatType.CritMultiplier &&
+                                            (stat.Type == StatModType.PercentAdd || stat.Type == StatModType.PercentSub)))
+                {
+                    report.LegacyCritMultiplierAffixes++;
+                }
+            }
+
+            foreach (string guid in AssetDatabase.FindAssets("t:PassiveNodeTemplateSO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var template = AssetDatabase.LoadAssetAtPath<PassiveNodeTemplateSO>(path);
+                if (template?.Modifiers == null)
+                    continue;
+
+                if (template.Modifiers.Any(IsLegacyCritMultiplierModifier))
+                    report.MigratedPassiveTemplates++;
+            }
+
+            foreach (string guid in AssetDatabase.FindAssets("t:PassiveSkillTreeSO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var tree = AssetDatabase.LoadAssetAtPath<PassiveSkillTreeSO>(path);
+                if (tree?.Nodes == null)
+                    continue;
+
+                bool hasLegacyCrit = tree.Nodes.Any(node => node.UniqueModifiers != null && node.UniqueModifiers.Any(IsLegacyCritMultiplierModifier));
+                if (hasLegacyCrit)
+                    report.MigratedPassiveTrees++;
+            }
+
+            return report;
+        }
+
+        public static StatsSystemUpgradeReport ApplyProductionUpgrade(
+            StatsDatabaseSO statsDb,
+            StringTableCollection menuLabels,
+            StringTableCollection affixesLabels)
+        {
+            var report = new StatsSystemUpgradeReport();
+
+            if (statsDb == null)
+            {
+                report.Warnings.Add("StatsDatabase is not assigned.");
+                return report;
+            }
+
+            if (menuLabels == null)
+                report.Warnings.Add("MenuLabels table is not assigned. Value-unit localization was not refreshed.");
+
+            if (affixesLabels == null)
+                report.Warnings.Add("AffixesLabels table is not assigned. Affix localization regeneration was skipped.");
+
+            statsDb.CreateDefaultsForAllStatTypes();
+
+            foreach (StatType stat in Enum.GetValues(typeof(StatType)))
+            {
+                var entry = statsDb.GetOrCreateEntry(stat);
+                if (entry == null)
+                {
+                    report.MissingMetadataEntries++;
+                    continue;
+                }
+
+                if (ApplyMetadataNormalization(entry, stat))
+                    report.MetadataEntriesNormalized++;
+
+                if (entry.SemanticKind == StatSemanticKind.ContextModifier && entry.ContextTags == StatContextTagFlags.None)
+                    report.InvalidContextModifierMetadata++;
+            }
+
+            if (menuLabels != null)
+                AffixSetGenerator.EnsureValueUnitLocalizations(menuLabels);
+
+            foreach (string guid in AssetDatabase.FindAssets("t:ItemAffixSO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var affix = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path);
+                if (affix == null || affix.Stats == null || affix.Stats.Length == 0)
+                    continue;
+
+                bool changed = false;
+                bool migratedCritMultiplier = false;
+                var stats = affix.Stats;
+                for (int i = 0; i < stats.Length; i++)
+                {
+                    var statData = stats[i];
+                    if (statData.Stat != StatType.CritMultiplier)
+                        continue;
+
+                    if (statData.Type == StatModType.PercentAdd)
+                    {
+                        statData.Type = StatModType.Flat;
+                        stats[i] = statData;
+                        changed = true;
+                        migratedCritMultiplier = true;
+                    }
+                    else if (statData.Type == StatModType.PercentSub)
+                    {
+                        statData.Type = StatModType.Flat;
+                        ConvertAffixStatRangeToNegative(ref statData);
+                        stats[i] = statData;
+                        changed = true;
+                        migratedCritMultiplier = true;
+                    }
+                }
+
+                if (changed)
+                {
+                    affix.Stats = stats;
+                    if (migratedCritMultiplier)
+                    {
+                        report.MigratedCritMultiplierAffixes++;
+                        NormalizeAffixLocalizationKeys(affix);
+                    }
+
+                    EditorUtility.SetDirty(affix);
+                }
+
+                if (affixesLabels != null && !affix.LockAutoLocalization)
+                {
+                    AffixSetGenerator.RegenerateLocalizationFromStat(affix, menuLabels, affixesLabels);
+                    report.RegeneratedAffixLocalizations++;
+                }
+            }
+
+            foreach (string guid in AssetDatabase.FindAssets("t:PassiveNodeTemplateSO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var template = AssetDatabase.LoadAssetAtPath<PassiveNodeTemplateSO>(path);
+                if (template?.Modifiers == null)
+                    continue;
+
+                if (!ConvertLegacyCritMultiplierModifiers(template.Modifiers))
+                    continue;
+
+                report.MigratedPassiveTemplates++;
+                EditorUtility.SetDirty(template);
+            }
+
+            foreach (string guid in AssetDatabase.FindAssets("t:PassiveSkillTreeSO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var tree = AssetDatabase.LoadAssetAtPath<PassiveSkillTreeSO>(path);
+                if (tree?.Nodes == null)
+                    continue;
+
+                bool changed = false;
+                foreach (var node in tree.Nodes)
+                {
+                    if (node.UniqueModifiers == null)
+                        continue;
+
+                    if (ConvertLegacyCritMultiplierModifiers(node.UniqueModifiers))
+                        changed = true;
+                }
+
+                if (!changed)
+                    continue;
+
+                report.MigratedPassiveTrees++;
+                EditorUtility.SetDirty(tree);
+            }
+
+            EditorUtility.SetDirty(statsDb);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            return report;
+        }
+
+        [MenuItem("Tools/RPG/Stats/Analyze Production Upgrade")]
+        public static void RunProductionUpgradeAnalysisMenu()
+        {
+            var statsDb = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase)
+                         ?? Resources.Load<StatsDatabaseSO>(ProjectPaths.ResourcesStatsDatabase);
+            var report = AnalyzeProductionUpgrade(statsDb);
+            Debug.Log("[Stats System Upgrade Analysis]\n" + report.ToSummaryString());
+        }
+
+        [MenuItem("Tools/RPG/Stats/Apply Production Upgrade")]
+        public static void RunProductionUpgradeMenu()
+        {
+            var statsDb = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase)
+                         ?? Resources.Load<StatsDatabaseSO>(ProjectPaths.ResourcesStatsDatabase);
+            var menuLabels = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.MenuLabels);
+            var affixesLabels = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.AffixesLabelsTable);
+
+            if (!EditorUtility.DisplayDialog(
+                    "Apply Production Upgrade",
+                    "This will normalize stat metadata, migrate legacy Crit Multiplier modifiers, and regenerate auto-managed affix localization. Continue?",
+                    "Apply",
+                    "Cancel"))
+            {
+                return;
+            }
+
+            var report = ApplyProductionUpgrade(statsDb, menuLabels, affixesLabels);
+            Debug.Log("[Stats System Upgrade]\n" + report.ToSummaryString());
+        }
+
+        public static void ExecuteProductionUpgrade()
+        {
+            var statsDb = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase)
+                         ?? Resources.Load<StatsDatabaseSO>(ProjectPaths.ResourcesStatsDatabase);
+            var menuLabels = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.MenuLabels);
+            var affixesLabels = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.AffixesLabelsTable);
+
+            var report = ApplyProductionUpgrade(statsDb, menuLabels, affixesLabels);
+            Debug.Log("[Stats System Upgrade]\n" + report.ToSummaryString());
         }
 
         private static void SetOrAddEntry(StringTable table, string key, string value)
@@ -457,6 +748,136 @@ namespace Scripts.Editor.Stats
                     AssetDatabase.CreateFolder(current, parts[i]);
                 current = next;
             }
+        }
+
+        private static bool NeedsMetadataNormalization(StatMetadataEntry entry, StatType stat)
+        {
+            if (entry == null)
+                return true;
+
+            var defaultGenType = StatsDatabaseSO.DefaultAffixGenTypeFor(stat);
+            var defaultAllowedKinds = StatsDatabaseSO.DefaultAllowedAffixKindsFor(stat, defaultGenType);
+
+            return entry.SemanticKind != StatsDatabaseSO.DefaultSemanticKindFor(stat) ||
+                   entry.Format != StatsDatabaseSO.DefaultFormatFor(stat) ||
+                   entry.ValueUnit != StatsDatabaseSO.DefaultValueUnitFor(stat) ||
+                   entry.AffixGenType != defaultGenType ||
+                   entry.ShowInPrimaryStatsEditor != StatsDatabaseSO.DefaultShowInPrimaryStatsEditor(stat) ||
+                   entry.DisplayAsPercentWhenFlat != StatsDatabaseSO.DefaultDisplayAsPercentWhenFlat(stat) ||
+                   entry.AllowNegativeFlatGeneration != StatsDatabaseSO.DefaultAllowNegativeFlatGeneration(stat) ||
+                   entry.ContextTags != StatsDatabaseSO.DefaultContextTagsFor(stat) ||
+                   entry.DamageChannels != StatsDatabaseSO.DefaultDamageChannelsFor(stat) ||
+                   entry.AllowedAffixKinds != defaultAllowedKinds;
+        }
+
+        private static bool ApplyMetadataNormalization(StatMetadataEntry entry, StatType stat)
+        {
+            bool changed = false;
+            changed |= SetIfDifferent(ref entry.SemanticKind, StatsDatabaseSO.DefaultSemanticKindFor(stat));
+            changed |= SetIfDifferent(ref entry.Format, StatsDatabaseSO.DefaultFormatFor(stat));
+            changed |= SetIfDifferent(ref entry.ValueUnit, StatsDatabaseSO.DefaultValueUnitFor(stat));
+            changed |= SetIfDifferent(ref entry.AffixGenType, StatsDatabaseSO.DefaultAffixGenTypeFor(stat));
+            changed |= SetIfDifferent(ref entry.ShowInPrimaryStatsEditor, StatsDatabaseSO.DefaultShowInPrimaryStatsEditor(stat));
+            changed |= SetIfDifferent(ref entry.DisplayAsPercentWhenFlat, StatsDatabaseSO.DefaultDisplayAsPercentWhenFlat(stat));
+            changed |= SetIfDifferent(ref entry.AllowNegativeFlatGeneration, StatsDatabaseSO.DefaultAllowNegativeFlatGeneration(stat));
+            changed |= SetIfDifferent(ref entry.ContextTags, StatsDatabaseSO.DefaultContextTagsFor(stat));
+            changed |= SetIfDifferent(ref entry.DamageChannels, StatsDatabaseSO.DefaultDamageChannelsFor(stat));
+
+            var normalizedKinds = StatsDatabaseSO.DefaultAllowedAffixKindsFor(stat, entry.AffixGenType);
+            if (entry.AllowedAffixKinds != normalizedKinds)
+            {
+                entry.AllowedAffixKinds = normalizedKinds;
+                changed = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(entry.Category))
+            {
+                entry.Category = StatsDatabaseSO.DefaultCategoryFor(stat);
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static bool ConvertLegacyCritMultiplierModifiers(List<SerializableStatModifier> modifiers)
+        {
+            if (modifiers == null || modifiers.Count == 0)
+                return false;
+
+            bool changed = false;
+            for (int i = 0; i < modifiers.Count; i++)
+            {
+                var modifier = modifiers[i];
+                if (!IsLegacyCritMultiplierModifier(modifier))
+                    continue;
+
+                modifier.Value = modifier.Type == StatModType.PercentSub ? -Mathf.Abs(modifier.Value) : Mathf.Abs(modifier.Value);
+                modifier.Type = StatModType.Flat;
+                modifiers[i] = modifier;
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static bool IsLegacyCritMultiplierModifier(SerializableStatModifier modifier)
+        {
+            return modifier.Stat == StatType.CritMultiplier &&
+                   (modifier.Type == StatModType.PercentAdd || modifier.Type == StatModType.PercentSub);
+        }
+
+        private static void ConvertAffixStatRangeToNegative(ref ItemAffixSO.AffixStatData statData)
+        {
+            float originalMin = statData.MinValue;
+            float originalMax = statData.MaxValue;
+            statData.MinValue = -Mathf.Abs(Mathf.Max(originalMin, originalMax));
+            statData.MaxValue = -Mathf.Abs(Mathf.Min(originalMin, originalMax));
+
+            float originalSecondaryMin = statData.RangeMinValue;
+            float originalSecondaryMax = statData.RangeMaxValue;
+            if (!Mathf.Approximately(originalSecondaryMin, 0f) || !Mathf.Approximately(originalSecondaryMax, 0f))
+            {
+                statData.RangeMinValue = -Mathf.Abs(Mathf.Max(originalSecondaryMin, originalSecondaryMax));
+                statData.RangeMaxValue = -Mathf.Abs(Mathf.Min(originalSecondaryMin, originalSecondaryMax));
+            }
+        }
+
+        private static void NormalizeAffixLocalizationKeys(ItemAffixSO affix)
+        {
+            if (affix?.Stats == null || affix.Stats.Length == 0)
+                return;
+
+            var statData = affix.Stats[0];
+            string strength = ParseStrengthFromGroupId(affix.GroupID);
+            bool isNegativeFlat = statData.Type == StatModType.Flat && statData.MaxValue < 0f;
+            string kindId = isNegativeFlat ? "flatnegative" : "flat";
+            affix.NameKey = $"affix_name_{statData.Stat.ToString().ToLowerInvariant()}_{kindId}_{strength.ToLowerInvariant()}_t{affix.Tier}";
+            affix.TranslationKey = AffixSetGenerator.GetValueKey(statData.Stat, StatAffixModifierKind.Flat, statData.GetEffectiveValueMode());
+        }
+
+        private static string ParseStrengthFromGroupId(string groupId)
+        {
+            if (string.IsNullOrEmpty(groupId))
+                return "Medium";
+
+            var parts = groupId.Split('_');
+            if (parts.Length > 0)
+            {
+                string last = parts[parts.Length - 1];
+                if (last == "Strong" || last == "Medium" || last == "Light")
+                    return last;
+            }
+
+            return "Medium";
+        }
+
+        private static bool SetIfDifferent<T>(ref T field, T value)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value))
+                return false;
+
+            field = value;
+            return true;
         }
     }
 }

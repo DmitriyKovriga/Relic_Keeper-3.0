@@ -15,6 +15,65 @@ namespace Scripts.Editor.Affixes
 {
     public static class AffixSetGenerator
     {
+        public sealed class AffixRebuildReport
+        {
+            public StatType Stat;
+            public int Created;
+            public int Updated;
+            public int DeletedObsolete;
+            public int PoolReferencesReplaced;
+            public int PoolReferencesRemoved;
+            public int LocalizationsRegenerated;
+
+            public string ToSummaryString()
+            {
+                return string.Join(
+                    "\n",
+                    new[]
+                    {
+                        $"Stat: {Stat}",
+                        $"Created: {Created}",
+                        $"Updated: {Updated}",
+                        $"Deleted obsolete: {DeletedObsolete}",
+                        $"Pool references replaced: {PoolReferencesReplaced}",
+                        $"Pool references removed: {PoolReferencesRemoved}",
+                        $"Localizations regenerated: {LocalizationsRegenerated}"
+                    });
+            }
+        }
+
+        private readonly struct GeneratedAffixDefinition
+        {
+            public readonly StatType Stat;
+            public readonly StatModType ModType;
+            public readonly StatAffixModifierKind Kind;
+            public readonly string Strength;
+            public readonly int Tier;
+            public readonly StatAffixGenType GenType;
+            public readonly bool NegativeFlat;
+            public readonly string AssetPath;
+
+            public GeneratedAffixDefinition(
+                StatType stat,
+                StatModType modType,
+                StatAffixModifierKind kind,
+                string strength,
+                int tier,
+                StatAffixGenType genType,
+                bool negativeFlat,
+                string assetPath)
+            {
+                Stat = stat;
+                ModType = modType;
+                Kind = kind;
+                Strength = strength;
+                Tier = tier;
+                GenType = genType;
+                NegativeFlat = negativeFlat;
+                AssetPath = assetPath;
+            }
+        }
+
         private const string StrengthStrong = "Strong";
         private const string StrengthMedium = "Medium";
         private const string StrengthLight = "Light";
@@ -94,25 +153,32 @@ namespace Scripts.Editor.Affixes
                     if (!IsKindAllowedForGenType(kind, genType))
                         continue;
 
-                    StatModType modType = StatPresentation.ToStatModType(kind);
-                    string kindId = StatPresentation.GetModifierKindDisplayName(kind);
+                    bool generateNegativeFlatVariant = kind == StatAffixModifierKind.Flat && statsDb.AllowNegativeFlatGeneration(stat);
+                    int variantCount = generateNegativeFlatVariant ? 2 : 1;
 
-                    foreach (string strength in Strengths)
+                    for (int variantIndex = 0; variantIndex < variantCount; variantIndex++)
                     {
-                        for (int tier = 1; tier <= 5; tier++)
-                        {
-                            string fileName = $"{statName}_{kindId}_{strength}_T{tier}.asset";
-                            string path = Path.Combine(folder, fileName);
-                            if (AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path) != null)
-                                continue;
+                        bool negativeFlat = generateNegativeFlatVariant && variantIndex == 1;
+                        StatModType modType = StatPresentation.ToStatModType(kind);
+                        string kindDisplayName = GetGeneratedKindDisplayName(kind, negativeFlat);
 
-                            var affix = CreateAffix(stat, modType, kind, strength, tier, genType);
-                            AssetDatabase.CreateAsset(affix, path);
-                            affix.UniqueID = path.Replace("Assets/", string.Empty).Replace(".asset", string.Empty).Replace('\\', '/');
-                            WriteLocalization(affix, stat, kind, strength, menuLabels, affixesLabels, statsDb);
-                            SyncTagFromCategory(affix, statsDb, stat, tagDatabase);
-                            EditorUtility.SetDirty(affix);
-                            created++;
+                        foreach (string strength in Strengths)
+                        {
+                            for (int tier = 1; tier <= 5; tier++)
+                            {
+                                string fileName = $"{statName}_{kindDisplayName}_{strength}_T{tier}.asset";
+                                string path = Path.Combine(folder, fileName);
+                                if (AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path) != null)
+                                    continue;
+
+                                var affix = CreateAffix(stat, modType, kind, strength, tier, genType, negativeFlat);
+                                AssetDatabase.CreateAsset(affix, path);
+                                affix.UniqueID = path.Replace("Assets/", string.Empty).Replace(".asset", string.Empty).Replace('\\', '/');
+                                WriteLocalization(affix, stat, kind, strength, menuLabels, affixesLabels, statsDb);
+                                SyncTagFromCategory(affix, statsDb, stat, tagDatabase);
+                                EditorUtility.SetDirty(affix);
+                                created++;
+                            }
                         }
                     }
                 }
@@ -121,6 +187,132 @@ namespace Scripts.Editor.Affixes
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             return created;
+        }
+
+        public static AffixRebuildReport RebuildGeneratedAffixesForStat(
+            StatType stat,
+            StatsDatabaseSO statsDb,
+            AffixTagDatabaseSO tagDatabase,
+            StringTableCollection menuLabels,
+            StringTableCollection affixesLabels,
+            string affixesBaseFolder,
+            bool removeObsolete = true)
+        {
+            var report = new AffixRebuildReport { Stat = stat };
+            if (statsDb == null)
+                return report;
+
+            EnsureValueUnitLocalizations(menuLabels);
+
+            string folder = GetGeneratedFolderPath(statsDb, stat, affixesBaseFolder);
+            EnsureFolder($"{affixesBaseFolder}/ByStat");
+            EnsureFolder($"{affixesBaseFolder}/ByStat/{statsDb.GetCategory(stat)}");
+            EnsureFolder(folder);
+
+            List<GeneratedAffixDefinition> desiredDefinitions = BuildDefinitionsForStat(stat, statsDb, folder);
+            var desiredByPath = desiredDefinitions.ToDictionary(definition => definition.AssetPath, definition => definition, StringComparer.OrdinalIgnoreCase);
+            var createdOrUpdatedAssets = new Dictionary<string, ItemAffixSO>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var definition in desiredDefinitions)
+            {
+                var blueprint = CreateAffix(
+                    definition.Stat,
+                    definition.ModType,
+                    definition.Kind,
+                    definition.Strength,
+                    definition.Tier,
+                    definition.GenType,
+                    definition.NegativeFlat);
+
+                var existing = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(definition.AssetPath);
+                if (existing == null)
+                {
+                    AssetDatabase.CreateAsset(blueprint, definition.AssetPath);
+                    blueprint.UniqueID = definition.AssetPath.Replace("Assets/", string.Empty).Replace(".asset", string.Empty).Replace('\\', '/');
+                    WriteLocalization(blueprint, definition.Stat, definition.Kind, definition.Strength, menuLabels, affixesLabels, statsDb);
+                    SyncTagFromCategory(blueprint, statsDb, definition.Stat, tagDatabase);
+                    EditorUtility.SetDirty(blueprint);
+                    createdOrUpdatedAssets[definition.AssetPath] = blueprint;
+                    report.Created++;
+                    report.LocalizationsRegenerated++;
+                    continue;
+                }
+
+                CopyGeneratedAffixData(blueprint, existing);
+                existing.UniqueID = definition.AssetPath.Replace("Assets/", string.Empty).Replace(".asset", string.Empty).Replace('\\', '/');
+                SyncTagFromCategory(existing, statsDb, definition.Stat, tagDatabase);
+
+                if (!existing.LockAutoLocalization)
+                {
+                    RegenerateLocalizationFromStat(existing, menuLabels, affixesLabels);
+                    report.LocalizationsRegenerated++;
+                }
+
+                EditorUtility.SetDirty(existing);
+                createdOrUpdatedAssets[definition.AssetPath] = existing;
+                report.Updated++;
+            }
+
+            if (removeObsolete)
+            {
+                var pools = LoadAllPools();
+                string[] existingGuids = AssetDatabase.FindAssets("t:ItemAffixSO", new[] { folder });
+                foreach (string guid in existingGuids)
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    if (desiredByPath.ContainsKey(path))
+                        continue;
+
+                    var obsolete = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path);
+                    if (obsolete == null || !LooksLikeManagedGeneratedAffix(stat, obsolete))
+                        continue;
+
+                    ItemAffixSO replacement = ResolveReplacementAssetForObsolete(stat, obsolete, desiredByPath, createdOrUpdatedAssets);
+                    foreach (var pool in pools)
+                    {
+                        if (pool?.Affixes == null)
+                            continue;
+
+                        bool poolChanged = false;
+                        for (int index = pool.Affixes.Count - 1; index >= 0; index--)
+                        {
+                            if (pool.Affixes[index] != obsolete)
+                                continue;
+
+                            if (replacement != null)
+                            {
+                                if (!pool.Affixes.Contains(replacement))
+                                {
+                                    pool.Affixes[index] = replacement;
+                                    report.PoolReferencesReplaced++;
+                                }
+                                else
+                                {
+                                    pool.Affixes.RemoveAt(index);
+                                    report.PoolReferencesRemoved++;
+                                }
+                            }
+                            else
+                            {
+                                pool.Affixes.RemoveAt(index);
+                                report.PoolReferencesRemoved++;
+                            }
+
+                            poolChanged = true;
+                        }
+
+                        if (poolChanged)
+                            EditorUtility.SetDirty(pool);
+                    }
+
+                    AssetDatabase.DeleteAsset(path);
+                    report.DeletedObsolete++;
+                }
+            }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            return report;
         }
 
         public static void EnsureValueUnitLocalizations(StringTableCollection menuLabels)
@@ -201,6 +393,13 @@ namespace Scripts.Editor.Affixes
             return StatPresentation.GetModifierKindDisplayName(StatPresentation.FromStatModType(type));
         }
 
+        public static string GetGeneratedFolderPath(StatsDatabaseSO statsDb, StatType stat, string affixesBaseFolder)
+        {
+            string category = statsDb != null ? statsDb.GetCategory(stat) : StatsDatabaseSO.DefaultCategoryFor(stat);
+            string statName = stat.ToString();
+            return $"{affixesBaseFolder}/ByStat/{category}/{statName}";
+        }
+
         private static bool IsKindAllowedForGenType(StatAffixModifierKind kind, StatAffixGenType genType)
         {
             switch (genType)
@@ -209,19 +408,56 @@ namespace Scripts.Editor.Affixes
                     return kind == StatAffixModifierKind.Flat;
                 case StatAffixGenType.PercentStat:
                     return kind == StatAffixModifierKind.Flat || kind == StatAffixModifierKind.Increase || kind == StatAffixModifierKind.Decrease;
+                case StatAffixGenType.ContextModifierStat:
+                    return kind != StatAffixModifierKind.Flat;
                 default:
                     return true;
             }
         }
 
-        private static ItemAffixSO CreateAffix(StatType stat, StatModType modType, StatAffixModifierKind kind, string strength, int tier, StatAffixGenType genType)
+        private static List<GeneratedAffixDefinition> BuildDefinitionsForStat(StatType stat, StatsDatabaseSO statsDb, string folder)
+        {
+            var definitions = new List<GeneratedAffixDefinition>();
+            StatAffixGenType genType = statsDb.GetAffixGenType(stat);
+
+            foreach (var kind in StatPresentation.EnumerateKinds(statsDb.GetAllowedAffixKinds(stat)))
+            {
+                if (!IsKindAllowedForGenType(kind, genType))
+                    continue;
+
+                bool generateNegativeFlatVariant = kind == StatAffixModifierKind.Flat && statsDb.AllowNegativeFlatGeneration(stat);
+                int variantCount = generateNegativeFlatVariant ? 2 : 1;
+
+                for (int variantIndex = 0; variantIndex < variantCount; variantIndex++)
+                {
+                    bool negativeFlat = generateNegativeFlatVariant && variantIndex == 1;
+                    StatModType modType = StatPresentation.ToStatModType(kind);
+                    string kindDisplayName = GetGeneratedKindDisplayName(kind, negativeFlat);
+
+                    foreach (string strength in Strengths)
+                    {
+                        for (int tier = 1; tier <= 5; tier++)
+                        {
+                            string fileName = $"{stat}_{kindDisplayName}_{strength}_T{tier}.asset";
+                            string assetPath = Path.Combine(folder, fileName).Replace('\\', '/');
+                            definitions.Add(new GeneratedAffixDefinition(stat, modType, kind, strength, tier, genType, negativeFlat, assetPath));
+                        }
+                    }
+                }
+            }
+
+            return definitions;
+        }
+
+        private static ItemAffixSO CreateAffix(StatType stat, StatModType modType, StatAffixModifierKind kind, string strength, int tier, StatAffixGenType genType, bool negativeFlat = false)
         {
             var affix = ScriptableObject.CreateInstance<ItemAffixSO>();
-            string kindId = StatPresentation.GetModifierKindDisplayName(kind);
-            affix.GroupID = $"{stat}_{kindId}_{strength}";
+            string groupKindId = GetGeneratedKindDisplayName(kind, negativeFlat);
+            string nameKeyKindId = GetGeneratedKindLocalizationId(kind, negativeFlat);
+            affix.GroupID = $"{stat}_{groupKindId}_{strength}";
             affix.Tier = tier;
             affix.TranslationKey = BuildValueKey(stat, kind, AffixValueMode.Single);
-            affix.NameKey = $"affix_name_{stat.ToString().ToLowerInvariant()}_{StatPresentation.GetModifierKindId(kind)}_{strength.ToLowerInvariant()}_t{tier}";
+            affix.NameKey = $"affix_name_{stat.ToString().ToLowerInvariant()}_{nameKeyKindId}_{strength.ToLowerInvariant()}_t{tier}";
             affix.Stats = new ItemAffixSO.AffixStatData[1];
             affix.Stats[0].Stat = stat;
             affix.Stats[0].Type = modType;
@@ -232,6 +468,9 @@ namespace Scripts.Editor.Affixes
                 SetValuesFullCalc(ref affix.Stats[0], stat, kind, tier, strength);
             else
                 SetValuesSmallFlat(ref affix.Stats[0], tier, strength);
+
+            if (negativeFlat)
+                ConvertStatDataToNegativeFlat(ref affix.Stats[0]);
 
             if (affix.TagIds == null)
                 affix.TagIds = new List<string>();
@@ -311,6 +550,17 @@ namespace Scripts.Editor.Affixes
             WriteValueLocalization(affix, stat, kind, menuLabels, affixesLabels, statsDb);
         }
 
+        private static void CopyGeneratedAffixData(ItemAffixSO source, ItemAffixSO target)
+        {
+            target.GroupID = source.GroupID;
+            target.Tier = source.Tier;
+            target.NameKey = source.NameKey;
+            target.TranslationKey = source.TranslationKey;
+            target.Stats = source.Stats;
+            if (target.TagIds == null)
+                target.TagIds = new List<string>();
+        }
+
         private static void WriteNameLocalization(
             ItemAffixSO affix,
             StatType stat,
@@ -322,12 +572,21 @@ namespace Scripts.Editor.Affixes
             string statNameEn = ResolveStatName(menuLabels, stat, "en");
             string statNameRu = ResolveStatName(menuLabels, stat, "ru");
             string strengthRu = strength == StrengthStrong ? "Сильный" : strength == StrengthMedium ? "Средний" : "Лёгкий";
-            string kindEn = StatPresentation.GetModifierKindDisplayName(kind).ToLowerInvariant();
-            string kindRu = GetModifierKindRu(kind);
             string nameKey = string.IsNullOrEmpty(affix.NameKey) ? "affix_name_" + SanitizeKey(affix.name) : affix.NameKey;
 
-            SetOrAddEntry(affixesLabels, "en", nameKey, $"{strength} {statNameEn} {kindEn}");
-            SetOrAddEntry(affixesLabels, "ru", nameKey, $"{strengthRu} {statNameRu} {kindRu}");
+            if (kind == StatAffixModifierKind.Flat)
+            {
+                SetOrAddEntry(affixesLabels, "en", nameKey, $"{strength} {statNameEn}");
+                SetOrAddEntry(affixesLabels, "ru", nameKey, $"{strengthRu} {statNameRu}");
+            }
+            else
+            {
+                string kindEn = StatPresentation.GetModifierKindDisplayName(kind).ToLowerInvariant();
+                string kindRu = GetModifierKindRu(kind);
+                SetOrAddEntry(affixesLabels, "en", nameKey, $"{strength} {statNameEn} {kindEn}");
+                SetOrAddEntry(affixesLabels, "ru", nameKey, $"{strengthRu} {statNameRu} {kindRu}");
+            }
+
             affix.NameKey = nameKey;
         }
 
@@ -429,6 +688,10 @@ namespace Scripts.Editor.Affixes
 
         private static string GenerateValueTemplateEn(StatAffixModifierKind kind, string statName, StatValueUnit unit, string localizedUnit, bool isRangeValue)
         {
+            const string SignedValue = "{0:+0.##;-0.##;0}";
+            const string SignedRangeMin = "{0:+0.##;-0.##;0}";
+            const string SignedRangeMax = "{1:+0.##;-0.##;0}";
+
             switch (kind)
             {
                 case StatAffixModifierKind.Increase:
@@ -443,64 +706,100 @@ namespace Scripts.Editor.Affixes
                     if (isRangeValue)
                     {
                         if (unit == StatValueUnit.Percent)
-                            return $"+{{0}}-{{1}}% to {statName}";
+                            return $"{SignedRangeMin}-{SignedRangeMax}% to {statName}";
 
                         if (string.IsNullOrEmpty(localizedUnit))
-                            return $"Adds {{0}}-{{1}} to {statName}";
+                            return $"{SignedRangeMin}-{SignedRangeMax} to {statName}";
 
                         return StatPresentation.IsSymbolUnit(unit)
-                            ? $"+{{0}}-{{1}}{localizedUnit} to {statName}"
-                            : $"Adds {{0}}-{{1}} {localizedUnit} to {statName}";
+                            ? $"{SignedRangeMin}-{SignedRangeMax}{localizedUnit} to {statName}"
+                            : $"{SignedRangeMin}-{SignedRangeMax} {localizedUnit} to {statName}";
                     }
 
                     if (unit == StatValueUnit.Percent)
-                        return $"+{{0}}% to {statName}";
+                        return $"{SignedValue}% to {statName}";
 
                     if (string.IsNullOrEmpty(localizedUnit))
-                        return $"Adds {{0}} to {statName}";
+                        return $"{SignedValue} to {statName}";
 
                     return StatPresentation.IsSymbolUnit(unit)
-                        ? $"+{{0}}{localizedUnit} to {statName}"
-                        : $"Adds {{0}} {localizedUnit} to {statName}";
+                        ? $"{SignedValue}{localizedUnit} to {statName}"
+                        : $"{SignedValue} {localizedUnit} to {statName}";
             }
         }
 
         private static string GenerateValueTemplateRu(StatAffixModifierKind kind, string statName, StatValueUnit unit, string localizedUnit, bool isRangeValue)
         {
+            const string SignedValue = "{0:+0.##;-0.##;0}";
+            const string SignedRangeMin = "{0:+0.##;-0.##;0}";
+            const string SignedRangeMax = "{1:+0.##;-0.##;0}";
+
             switch (kind)
             {
                 case StatAffixModifierKind.Increase:
-                    return $"{{0}}% увеличение {statName}";
+                    return $"{{0}}% \u0443\u0432\u0435\u043b\u0438\u0447\u0435\u043d\u0438\u0435 {statName}";
                 case StatAffixModifierKind.Decrease:
-                    return $"{{0}}% уменьшение {statName}";
+                    return $"{{0}}% \u0443\u043c\u0435\u043d\u044c\u0448\u0435\u043d\u0438\u0435 {statName}";
                 case StatAffixModifierKind.More:
-                    return $"{{0}}% больше {statName}";
+                    return $"{{0}}% \u0431\u043e\u043b\u044c\u0448\u0435 {statName}";
                 case StatAffixModifierKind.Less:
-                    return $"{{0}}% меньше {statName}";
+                    return $"{{0}}% \u043c\u0435\u043d\u044c\u0448\u0435 {statName}";
                 default:
                     if (isRangeValue)
                     {
                         if (unit == StatValueUnit.Percent)
-                            return $"+{{0}}-{{1}}% к {statName}";
+                            return $"{SignedRangeMin}-{SignedRangeMax}% \u043a {statName}";
 
                         if (string.IsNullOrEmpty(localizedUnit))
-                            return $"Добавляет {{0}}-{{1}} к {statName}";
+                            return $"{SignedRangeMin}-{SignedRangeMax} \u043a {statName}";
 
                         return StatPresentation.IsSymbolUnit(unit)
-                            ? $"+{{0}}-{{1}}{localizedUnit} к {statName}"
-                            : $"Добавляет {{0}}-{{1}} {localizedUnit} к {statName}";
+                            ? $"{SignedRangeMin}-{SignedRangeMax}{localizedUnit} \u043a {statName}"
+                            : $"{SignedRangeMin}-{SignedRangeMax} {localizedUnit} \u043a {statName}";
                     }
 
                     if (unit == StatValueUnit.Percent)
-                        return $"+{{0}}% к {statName}";
+                        return $"{SignedValue}% \u043a {statName}";
 
                     if (string.IsNullOrEmpty(localizedUnit))
-                        return $"Добавляет {{0}} к {statName}";
+                        return $"{SignedValue} \u043a {statName}";
 
                     return StatPresentation.IsSymbolUnit(unit)
-                        ? $"+{{0}}{localizedUnit} к {statName}"
-                        : $"Добавляет {{0}} {localizedUnit} к {statName}";
+                        ? $"{SignedValue}{localizedUnit} \u043a {statName}"
+                        : $"{SignedValue} {localizedUnit} \u043a {statName}";
             }
+        }
+
+        private static void ConvertStatDataToNegativeFlat(ref ItemAffixSO.AffixStatData data)
+        {
+            float originalMin = data.MinValue;
+            float originalMax = data.MaxValue;
+            data.MinValue = -Mathf.Abs(Mathf.Max(originalMin, originalMax));
+            data.MaxValue = -Mathf.Abs(Mathf.Min(originalMin, originalMax));
+
+            float originalSecondaryMin = data.RangeMinValue;
+            float originalSecondaryMax = data.RangeMaxValue;
+            if (!Mathf.Approximately(originalSecondaryMin, 0f) || !Mathf.Approximately(originalSecondaryMax, 0f))
+            {
+                data.RangeMinValue = -Mathf.Abs(Mathf.Max(originalSecondaryMin, originalSecondaryMax));
+                data.RangeMaxValue = -Mathf.Abs(Mathf.Min(originalSecondaryMin, originalSecondaryMax));
+            }
+        }
+
+        private static string GetGeneratedKindDisplayName(StatAffixModifierKind kind, bool negativeFlat)
+        {
+            if (negativeFlat && kind == StatAffixModifierKind.Flat)
+                return "FlatNegative";
+
+            return StatPresentation.GetModifierKindDisplayName(kind);
+        }
+
+        private static string GetGeneratedKindLocalizationId(StatAffixModifierKind kind, bool negativeFlat)
+        {
+            if (negativeFlat && kind == StatAffixModifierKind.Flat)
+                return "flatnegative";
+
+            return StatPresentation.GetModifierKindId(kind);
         }
 
         private static string GetModifierKindRu(StatAffixModifierKind kind)
@@ -508,15 +807,15 @@ namespace Scripts.Editor.Affixes
             switch (kind)
             {
                 case StatAffixModifierKind.Increase:
-                    return "увеличение";
+                    return "\u0443\u0432\u0435\u043b\u0438\u0447\u0435\u043d\u0438\u0435";
                 case StatAffixModifierKind.Decrease:
-                    return "уменьшение";
+                    return "\u0443\u043c\u0435\u043d\u044c\u0448\u0435\u043d\u0438\u0435";
                 case StatAffixModifierKind.More:
-                    return "больше";
+                    return "\u0431\u043e\u043b\u044c\u0448\u0435";
                 case StatAffixModifierKind.Less:
-                    return "меньше";
+                    return "\u043c\u0435\u043d\u044c\u0448\u0435";
                 default:
-                    return "плоский";
+                    return string.Empty;
             }
         }
 
@@ -574,6 +873,74 @@ namespace Scripts.Editor.Affixes
                     AssetDatabase.CreateFolder(current, parts[i]);
                 current = next;
             }
+        }
+
+        private static List<AffixPoolSO> LoadAllPools()
+        {
+            var pools = new List<AffixPoolSO>();
+            foreach (string guid in AssetDatabase.FindAssets("t:AffixPoolSO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var pool = AssetDatabase.LoadAssetAtPath<AffixPoolSO>(path);
+                if (pool != null)
+                    pools.Add(pool);
+            }
+
+            return pools;
+        }
+
+        private static ItemAffixSO ResolveReplacementAssetForObsolete(
+            StatType stat,
+            ItemAffixSO obsolete,
+            IReadOnlyDictionary<string, GeneratedAffixDefinition> desiredByPath,
+            IReadOnlyDictionary<string, ItemAffixSO> createdOrUpdatedAssets)
+        {
+            if (obsolete?.Stats == null || obsolete.Stats.Length == 0)
+                return null;
+
+            var statData = obsolete.Stats[0];
+            if (statData.Stat != stat)
+                return null;
+
+            string folder = Path.GetDirectoryName(AssetDatabase.GetAssetPath(obsolete))?.Replace('\\', '/');
+            if (string.IsNullOrEmpty(folder))
+                return null;
+
+            string strength = ParseStrengthFromGroupId(obsolete.GroupID);
+            int tier = Mathf.Clamp(obsolete.Tier, 1, 5);
+            bool negativeFlat = statData.Type == StatModType.PercentSub || (statData.Type == StatModType.Flat && statData.MaxValue < 0f);
+
+            StatAffixModifierKind replacementKind = statData.Type switch
+            {
+                StatModType.PercentAdd => StatAffixModifierKind.Flat,
+                StatModType.PercentSub => StatAffixModifierKind.Flat,
+                StatModType.PercentMult => StatAffixModifierKind.More,
+                StatModType.PercentLess => StatAffixModifierKind.Less,
+                _ => StatPresentation.FromStatModType(statData.Type)
+            };
+
+            string kindDisplayName = GetGeneratedKindDisplayName(replacementKind, negativeFlat);
+            string replacementPath = $"{folder}/{stat}_{kindDisplayName}_{strength}_T{tier}.asset";
+
+            if (!desiredByPath.ContainsKey(replacementPath))
+                return null;
+
+            if (createdOrUpdatedAssets.TryGetValue(replacementPath, out var replacement))
+                return replacement;
+
+            return AssetDatabase.LoadAssetAtPath<ItemAffixSO>(replacementPath);
+        }
+
+        private static bool LooksLikeManagedGeneratedAffix(StatType stat, ItemAffixSO affix)
+        {
+            if (affix == null)
+                return false;
+
+            string statPrefix = stat + "_";
+            string assetName = affix.name ?? string.Empty;
+            string groupId = affix.GroupID ?? string.Empty;
+            return assetName.StartsWith(statPrefix, StringComparison.OrdinalIgnoreCase) ||
+                   groupId.StartsWith(statPrefix, StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool IsMissingLocalizationValue(string value)

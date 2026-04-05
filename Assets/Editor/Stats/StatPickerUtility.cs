@@ -150,7 +150,8 @@ namespace Scripts.Editor.Stats
 
             string unit = db.GetValueUnit(stat).ToString();
             string format = db.GetFormat(stat)?.ToString() ?? StatDisplayFormat.Number.ToString();
-            return $"{db.GetCategory(stat)} · {format} · {unit}";
+            string semantic = db.GetSemanticKind(stat).ToString();
+            return $"{db.GetCategory(stat)} · {semantic} · {format} · {unit}";
         }
 
         private static string GetLocalizedName(StatType stat)

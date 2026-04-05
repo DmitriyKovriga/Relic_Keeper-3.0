@@ -54,6 +54,7 @@ public class ItemTooltipController : MonoBehaviour
     private VisualElement _orbTooltipBox;
     private Label _orbTitleLabel;
     private Label _orbDescLabel;
+    private StatsDatabaseSO _statsDb;
 
     // --- Colors ---
     private readonly Color _colBg = new Color(0.05f, 0.05f, 0.05f, 0.98f); 
@@ -87,6 +88,7 @@ public class ItemTooltipController : MonoBehaviour
     private void OnEnable()
     {
         if (_uiDoc == null) _uiDoc = GetComponent<UIDocument>();
+        _statsDb = Resources.Load<StatsDatabaseSO>(ProjectPaths.ResourcesStatsDatabase);
         // Тултип должен жить в том же UIDocument, что и инвентарь — иначе WorldToLocal даёт неверные координаты (другая панель).
         var inv = UnityEngine.Object.FindObjectOfType<InventoryUI>(true);
         if (inv != null && inv.RootVisualElement != null)
@@ -773,9 +775,16 @@ public class ItemTooltipController : MonoBehaviour
 
     private void AddModRow(StatType type, float val, StatModType mt, Color c)
     {
-        string sign = mt.GetDisplayPrefix(val);
-        string end = (mt != StatModType.Flat) ? "%" : "";
-        CreateAsyncLabel($"stats.{type}", (n) => $"{n}: {sign}{val}{end}", c);
+        CreateAsyncLabel(
+            $"stats.{type}",
+            n => StatPresentation.FormatModifierLine(
+                _statsDb,
+                type,
+                n,
+                val,
+                mt,
+                StatPresentation.ModifierLineStyle.StatThenValue),
+            c);
     }
 
     private void AddAffixRow(string key, float minVal, float maxVal, bool hasRange, Color c)

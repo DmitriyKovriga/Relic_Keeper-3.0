@@ -15,14 +15,14 @@ MonoBehaviour:
   UniqueID: Resources/Affixes/ByStat/Critical/CritMultiplier/CritMultiplier_Increase_Medium_T3
   GroupID: CritMultiplier_Increase_Medium
   Tier: 3
-  NameKey: affix_name_critmultiplier_increase_medium_t3
-  TranslationKey: affix_increase_critmultiplier
+  NameKey: affix_name_critmultiplier_flat_medium_t3
+  TranslationKey: affix_flat_critmultiplier
   LockAutoLocalization: 0
   TagIds:
   - Critical
   Stats:
   - Stat: 52
-    Type: 200
+    Type: 100
     Scope: 0
     ValueMode: 0
     MinValue: 12

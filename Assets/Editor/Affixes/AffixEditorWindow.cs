@@ -361,6 +361,10 @@ namespace Scripts.Editor.Affixes
             GUILayout.Label("Actions", EditorStyles.boldLabel);
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Open in Inspector")) { Selection.activeObject = _selectedAffix; EditorGUIUtility.PingObject(_selectedAffix); }
+            if (GUILayout.Button("Rebuild this stat family"))
+            {
+                RebuildSelectedStatFamily();
+            }
             GUI.backgroundColor = new Color(1f, 0.8f, 0.8f);
             if (GUILayout.Button("Delete affix"))
             {
@@ -375,6 +379,43 @@ namespace Scripts.Editor.Affixes
             }
             GUI.backgroundColor = Color.white;
             EditorGUILayout.EndHorizontal();
+        }
+
+        private void RebuildSelectedStatFamily()
+        {
+            if (_selectedAffix == null || _selectedAffix.Stats == null || _selectedAffix.Stats.Length == 0)
+                return;
+
+            if (_statsDatabase == null) { EditorUtility.DisplayDialog("Rebuild", "Stats Database not found.", "OK"); return; }
+            if (_menuLabelsCollection == null) { EditorUtility.DisplayDialog("Rebuild", "MenuLabels table not found.", "OK"); return; }
+            if (_affixesLabelsCollection == null) { EditorUtility.DisplayDialog("Rebuild", "AffixesLabels table not found.", "OK"); return; }
+
+            StatType stat = _selectedAffix.Stats[0].Stat;
+            bool confirmed = EditorUtility.DisplayDialog(
+                "Rebuild generated affix family",
+                $"Rebuild generated affixes for {stat}? Obsolete generated variants in its stat folder will be removed, and pool references will be replaced when a safe successor exists.",
+                "Rebuild",
+                "Cancel");
+
+            if (!confirmed)
+                return;
+
+            var tagDatabase = AssetDatabase.LoadAssetAtPath<AffixTagDatabaseSO>(EditorPaths.AffixTagDatabase);
+            var report = AffixSetGenerator.RebuildGeneratedAffixesForStat(
+                stat,
+                _statsDatabase,
+                tagDatabase,
+                _menuLabelsCollection,
+                _affixesLabelsCollection,
+                EditorPaths.AffixesBaseFolder,
+                removeObsolete: true);
+
+            LoadAll();
+            _selectedAffix = _affixes.FirstOrDefault(a => a != null && a.Stats != null && a.Stats.Length > 0 && a.Stats[0].Stat == stat);
+            if (_selectedAffix != null)
+                ReloadSelectedAffixLocalizationFields(resetInputState: true);
+
+            EditorUtility.DisplayDialog("Rebuild", report.ToSummaryString(), "OK");
         }
 
         private void AssignSuggestedTagsToAllAffixes()

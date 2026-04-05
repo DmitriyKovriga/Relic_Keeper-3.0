@@ -428,7 +428,7 @@ namespace Scripts.Skills
             }
             var targets = GetTargetsInCircle(center, radius);
             float mult = step.GetFloat("DamageMultiplier", 1f);
-            var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult);
+            var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult, ResolveDamageContext());
             foreach (var t in targets) t.TakeDamage(snapshot);
         }
 
@@ -457,7 +457,7 @@ namespace Scripts.Skills
             float angle = step.GetFloat("Angle", 0f);
             var targets = GetTargetsInBox(center, size, angle);
             float mult = step.GetFloat("DamageMultiplier", 1f);
-            var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult);
+            var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult, ResolveDamageContext());
             foreach (var t in targets) t.TakeDamage(snapshot);
         }
 

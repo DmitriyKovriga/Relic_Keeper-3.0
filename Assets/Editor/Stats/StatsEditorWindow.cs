@@ -26,6 +26,15 @@ namespace Scripts.Editor.Stats
         private string _categoryFilter = "";
         private int _sortMode; // 0 = By ID, 1 = By Category
         private int _missingLocalizationFilterIndex; // 0 = All, 1 = Missing RU, 2 = Missing EN, 3 = Missing RU/EN, 4 = Missing RU&EN
+        private int _semanticFilterIndex = 1;
+        private bool _showAdvancedMetadata;
+        private bool _showLocalizationSection = true;
+        private bool _showUsageSection = true;
+        private bool _showTechnicalTools;
+        private bool _showGeneratedAffixTools = true;
+        private bool _showGlobalUpgradeTools;
+        private bool _showDangerousLifecycleTools;
+        private int _guideTopicIndex;
 
         [SerializeField] private StringTableCollection _menuLabelsCollection;
         private string _editValueEn = "";
@@ -42,16 +51,38 @@ namespace Scripts.Editor.Stats
         private const string SessionKeySelectedStat = "StatsEditorWindow_SelectedStat";
         private static readonly string[] MissingLocalizationFilterOptions =
         {
-            "All localization",
-            "Missing RU",
-            "Missing EN",
-            "Missing RU or EN",
-            "Missing RU & EN"
+            "Вся локализация",
+            "Нет RU",
+            "Нет EN",
+            "Нет RU или EN",
+            "Нет RU и EN"
+        };
+
+        private static readonly string[] SemanticFilterOptions =
+        {
+            "Все семантики",
+            "Final Scalars",
+            "Combat Scalars",
+            "Context Modifiers",
+            "Utility",
+            "Derived"
+        };
+
+        private static readonly string[] GuideOptions =
+        {
+            "Авто-подсказка по выбранному стату",
+            "Как выбрать семантику",
+            "Final Scalar",
+            "Combat Scalar",
+            "Context Modifier",
+            "Utility / Derived"
         };
 
         [SerializeField] private StatsDatabaseSO _statsDatabase;
         [SerializeField] private StringTableCollection _affixesCollection;
         private string _newStatName = "";
+        private string _systemUpgradeReport = "";
+        private string _generatedAffixRebuildReport = "";
 
         [MenuItem(MenuPath)]
         public static void OpenWindow()
@@ -64,6 +95,8 @@ namespace Scripts.Editor.Stats
         {
             if (_menuLabelsCollection == null)
                 _menuLabelsCollection = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.MenuLabels);
+            if (_affixesCollection == null)
+                _affixesCollection = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.AffixesLabelsTable);
             if (_statsDatabase == null)
             {
                 _statsDatabase = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase);
@@ -98,18 +131,22 @@ namespace Scripts.Editor.Stats
         {
             EditorGUILayout.BeginVertical(GUILayout.Width(320));
 
-            GUILayout.Label("Stats", EditorStyles.boldLabel);
-            _searchFilter = EditorGUILayout.TextField("Search", _searchFilter);
+            GUILayout.Label("Статы", EditorStyles.boldLabel);
+            _searchFilter = EditorGUILayout.TextField("Поиск", _searchFilter);
 
             var categories = GetCategories();
             int catIndex = Mathf.Max(0, Array.IndexOf(categories, _categoryFilter));
-            int newCat = EditorGUILayout.Popup("Category", catIndex, categories);
+            int newCat = EditorGUILayout.Popup("Категория", catIndex, categories);
             if (newCat != catIndex)
                 _categoryFilter = categories[newCat];
 
-            _sortMode = EditorGUILayout.Popup("Sort", _sortMode, new[] { "By ID", "By Category" });
+            _sortMode = EditorGUILayout.Popup("Сортировка", _sortMode, new[] { "По ID", "По категории" });
+            _semanticFilterIndex = EditorGUILayout.Popup(
+                "Семантика",
+                Mathf.Clamp(_semanticFilterIndex, 0, SemanticFilterOptions.Length - 1),
+                SemanticFilterOptions);
             _missingLocalizationFilterIndex = EditorGUILayout.Popup(
-                "Localization",
+                "Локализация",
                 Mathf.Clamp(_missingLocalizationFilterIndex, 0, MissingLocalizationFilterOptions.Length - 1),
                 MissingLocalizationFilterOptions);
 
@@ -121,7 +158,9 @@ namespace Scripts.Editor.Stats
             {
                 string id = type.ToString();
                 string category = _statsDatabase != null ? _statsDatabase.GetCategory(type) : GetStatCategory(type);
+                var semanticKind = _statsDatabase != null ? _statsDatabase.GetSemanticKind(type) : StatsDatabaseSO.DefaultSemanticKindFor(type);
                 if (_categoryFilter != "" && category != _categoryFilter) return false;
+                if (!MatchesSemanticFilter(semanticKind)) return false;
                 if (!MatchesMissingLocalizationFilter(type)) return false;
                 if (search.Length > 0 && !id.ToLowerInvariant().Contains(search)) return false;
                 return true;
@@ -157,7 +196,7 @@ namespace Scripts.Editor.Stats
 
             if (!_selectedStat.HasValue)
             {
-                EditorGUILayout.HelpBox("Select a stat from the list.", MessageType.Info);
+                EditorGUILayout.HelpBox("Выбери стат слева, и мы покажем его рабочие настройки.", MessageType.Info);
                 EditorGUILayout.EndVertical();
                 return;
             }
@@ -167,28 +206,52 @@ namespace Scripts.Editor.Stats
             StatType type = _selectedStat.Value;
             string id = type.ToString();
             string category = _statsDatabase != null ? _statsDatabase.GetCategory(type) : GetStatCategory(type);
+            string semantic = (_statsDatabase != null ? _statsDatabase.GetSemanticKind(type) : StatsDatabaseSO.DefaultSemanticKindFor(type)).ToString();
 
-            GUILayout.Label("Details", EditorStyles.boldLabel);
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("Настройка стата", EditorStyles.boldLabel);
+            GUILayout.FlexibleSpace();
+            _guideTopicIndex = EditorGUILayout.Popup(_guideTopicIndex, GuideOptions, GUILayout.Width(280));
+            EditorGUILayout.EndHorizontal();
+
             EditorGUILayout.Space(4);
-            EditorGUILayout.LabelField("ID", id);
-            EditorGUILayout.LabelField("Category", category);
-            EditorGUILayout.LabelField("Localization key", $"stats.{id}");
-            EditorGUILayout.Space(8);
+            EditorGUILayout.HelpBox(GetGuideText(type), MessageType.None);
 
+            EditorGUILayout.Space(6);
+            DrawSummarySection(type, id, category, semantic);
+
+            EditorGUILayout.Space(8);
             DrawMetadataSection(type);
 
-            DrawLocalizationSection(id);
+            EditorGUILayout.Space(10);
+            _showLocalizationSection = EditorGUILayout.Foldout(_showLocalizationSection, "Локализация", true);
+            if (_showLocalizationSection)
+                DrawLocalizationSection(id);
 
-            EditorGUILayout.Space(12);
-            DrawStatLifecycleSection(type, id);
+            EditorGUILayout.Space(10);
+            _showUsageSection = EditorGUILayout.Foldout(_showUsageSection, "Где используется", true);
+            if (_showUsageSection)
+                DrawUsageSection(type);
 
-            EditorGUILayout.Space(12);
-            DrawUsageSection(type);
+            EditorGUILayout.Space(10);
+            _showTechnicalTools = EditorGUILayout.Foldout(_showTechnicalTools, "Технические инструменты и обслуживание", true);
+            if (_showTechnicalTools)
+            {
+                EditorGUILayout.Space(10);
+                _showGeneratedAffixTools = EditorGUILayout.Foldout(_showGeneratedAffixTools, "Generated affixes для выбранного стата", true);
+                if (_showGeneratedAffixTools)
+                    DrawGeneratedAffixSection(type, id);
 
-            EditorGUILayout.Space(12);
-            EditorGUILayout.HelpBox(
-                "Stats are defined in enum StatType. Metadata (category, format, visibility) is stored in Stats Database; create one and use \"Create metadata for all stats\" for defaults. Localization: MenuLabels, key stats.{StatType}. Usage is scanned from Affixes, Passive Trees, and Character Data.",
-                MessageType.None);
+                EditorGUILayout.Space(8);
+                _showGlobalUpgradeTools = EditorGUILayout.Foldout(_showGlobalUpgradeTools, "Глобальный repair / upgrade системы", true);
+                if (_showGlobalUpgradeTools)
+                    DrawSystemUpgradeSection();
+
+                EditorGUILayout.Space(8);
+                _showDangerousLifecycleTools = EditorGUILayout.Foldout(_showDangerousLifecycleTools, "Редкие и опасные операции со stat id", true);
+                if (_showDangerousLifecycleTools)
+                    DrawStatLifecycleSection(type, id);
+            }
 
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
@@ -196,15 +259,15 @@ namespace Scripts.Editor.Stats
 
         private void DrawMetadataSection(StatType type)
         {
-            GUILayout.Label("Metadata (Category, Format, Unit, Affix kinds, Show in Character Window)", EditorStyles.boldLabel);
-            var newDb = (StatsDatabaseSO)EditorGUILayout.ObjectField("Stats Database", _statsDatabase, typeof(StatsDatabaseSO), false);
+            GUILayout.Label("Основные настройки", EditorStyles.boldLabel);
+            var newDb = (StatsDatabaseSO)EditorGUILayout.ObjectField("База статов", _statsDatabase, typeof(StatsDatabaseSO), false);
             if (newDb != _statsDatabase)
                 _statsDatabase = newDb;
 
             if (_statsDatabase == null)
             {
-                EditorGUILayout.HelpBox("Assign or create a Stats Database (e.g. in Assets/Resources/Databases/StatsDatabase.asset) to edit metadata.", MessageType.Info);
-                if (GUILayout.Button("Create new Stats Database in Resources/Databases"))
+                EditorGUILayout.HelpBox("Не назначена база статов. Без неё редактор не сможет показать семантику и рекомендуемые настройки.", MessageType.Info);
+                if (GUILayout.Button("Создать новую StatsDatabase в Resources/Databases"))
                 {
                     if (AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase) != null)
                     {
@@ -217,32 +280,34 @@ namespace Scripts.Editor.Stats
                     AssetDatabase.CreateAsset(db, EditorPaths.StatsDatabase);
                     AssetDatabase.SaveAssets();
                     _statsDatabase = db;
-                    Debug.Log("Stats Editor: Created StatsDatabase.asset at " + EditorPaths.StatsDatabase);
+                    Debug.Log("Stats Editor: created StatsDatabase.asset at " + EditorPaths.StatsDatabase);
                 }
                 return;
             }
 
-            if (GUILayout.Button("Create metadata for all stats", GUILayout.Height(24)))
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Создать metadata для всех статов", GUILayout.Height(22)))
             {
                 _statsDatabase.CreateDefaultsForAllStatTypes();
                 EditorUtility.SetDirty(_statsDatabase);
                 AffixSetGenerator.EnsureValueUnitLocalizations(_menuLabelsCollection);
                 AssetDatabase.SaveAssets();
-                Debug.Log("Stats Editor: Created default metadata for all StatTypes.");
+                Debug.Log("Stats Editor: created default metadata for all StatTypes.");
             }
 
-            if (GUILayout.Button("Create / refresh value unit localizations", GUILayout.Height(22)))
+            if (GUILayout.Button("Применить рекомендуемые значения для этого стата", GUILayout.Height(22)))
             {
-                AffixSetGenerator.EnsureValueUnitLocalizations(_menuLabelsCollection);
+                ApplyRecommendedMetadata(type);
                 AssetDatabase.SaveAssets();
             }
+            EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(6);
             var meta = _statsDatabase.GetMetadata(type);
             if (meta == null)
             {
-                EditorGUILayout.HelpBox("No metadata for this stat. Create it to override category, format, and visibility.", MessageType.None);
-                if (GUILayout.Button("Create metadata for this stat"))
+                EditorGUILayout.HelpBox("У этого стата ещё нет metadata. Создай её, чтобы настроить семантику и отображение.", MessageType.None);
+                if (GUILayout.Button("Создать metadata для этого стата"))
                 {
                     _statsDatabase.GetOrCreateEntry(type);
                     EditorUtility.SetDirty(_statsDatabase);
@@ -252,32 +317,100 @@ namespace Scripts.Editor.Stats
             }
 
             EditorGUI.BeginChangeCheck();
-            meta.Category = EditorGUILayout.TextField("Category", meta.Category);
-            meta.Format = (StatDisplayFormat)EditorGUILayout.EnumPopup("Display Format", meta.Format);
-            meta.ValueUnit = (StatValueUnit)EditorGUILayout.EnumPopup("Value Unit", meta.ValueUnit);
-            meta.AffixGenType = (StatAffixGenType)EditorGUILayout.EnumPopup("Affix Gen Type", meta.AffixGenType);
-            meta.AllowedAffixKinds = (StatAffixModifierKindFlags)EditorGUILayout.EnumFlagsField("Allowed Affix Kinds", meta.AllowedAffixKinds);
-            meta.AllowedAffixKinds = StatsDatabaseSO.NormalizeAllowedAffixKinds(meta.AllowedAffixKinds, meta.AffixGenType, type);
-            meta.ShowInCharacterWindow = EditorGUILayout.Toggle("Show in Character Window", meta.ShowInCharacterWindow);
+            meta.Category = EditorGUILayout.TextField(new GUIContent("Категория", "Группа для фильтрации и генерации контента."), meta.Category);
+            meta.SemanticKind = (StatSemanticKind)EditorGUILayout.EnumPopup(new GUIContent("Семантика", "Определяет смысл стата: итоговый параметр, боевой канал, контекстный модификатор и т.п."), meta.SemanticKind);
+            bool isFinalScalar = meta.SemanticKind == StatSemanticKind.FinalScalar;
+            bool isCombatScalar = meta.SemanticKind == StatSemanticKind.CombatScalar;
+            bool isContextModifier = meta.SemanticKind == StatSemanticKind.ContextModifier;
+
+            EditorGUILayout.Space(4);
+            EditorGUILayout.LabelField("Авто-конфигурация", EditorStyles.miniBoldLabel);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField("Отображение", GetDisplayFormatLabel(meta.Format));
+            EditorGUILayout.LabelField("Единица", GetValueUnitLabel(meta.ValueUnit));
+            EditorGUILayout.LabelField("Генерация аффиксов", GetAffixGenTypeLabel(meta.AffixGenType));
+            if (meta.DisplayAsPercentWhenFlat)
+                EditorGUILayout.LabelField("Плоские значения", "Показывать как проценты");
+            EditorGUILayout.EndVertical();
+
+            if (isFinalScalar || isCombatScalar)
+                meta.ShowInCharacterWindow = EditorGUILayout.Toggle(new GUIContent("Показывать в окне персонажа", "Включай только если это осмысленный итоговый параметр для игрока."), meta.ShowInCharacterWindow);
+
+            if (isFinalScalar)
+                meta.ShowInPrimaryStatsEditor = EditorGUILayout.Toggle(new GUIContent("Показывать в главной вкладке статов", "Главная вкладка должна содержать только самые понятные итоговые статы."), meta.ShowInPrimaryStatsEditor);
+
+            if (isContextModifier)
+            {
+                EditorGUILayout.Space(4);
+                EditorGUILayout.HelpBox(
+                    "Context Modifier не является отдельным итоговым уроном. Его Increase/Decrease идут в общий additive pool расчёта удара, если контекст совпал. More/Less идут в multiplicative pool того же расчёта. То есть для melee-удара этот стат усиливает канал урона до финального результата, а не поверх уже посчитанного урона.",
+                    MessageType.Info);
+
+                EditorGUILayout.HelpBox(BuildContextModifierPreview(meta), MessageType.None);
+
+                meta.ContextTags = (StatContextTagFlags)EditorGUILayout.EnumFlagsField(
+                    new GUIContent("Теги контекста", "Для каких типов удара этот модификатор работает: melee, projectile, spell, area и т.д."),
+                    meta.ContextTags);
+                meta.DamageChannels = (StatDamageChannelFlags)EditorGUILayout.EnumFlagsField(
+                    new GUIContent("Каналы урона", "Какие каналы урона он усиливает: физика, огонь, холод, молния или все."),
+                    meta.DamageChannels);
+                meta.AllowedAffixKinds = (StatAffixModifierKindFlags)EditorGUILayout.EnumFlagsField(
+                    new GUIContent("Разрешённые типы модификаторов", "Для context modifiers обычно нужны Increase/Decrease и More/Less. Flat здесь чаще всего не нужен."),
+                    meta.AllowedAffixKinds);
+            }
+            else if (isCombatScalar)
+            {
+                meta.DamageChannels = (StatDamageChannelFlags)EditorGUILayout.EnumFlagsField(
+                    new GUIContent("Каналы урона", "К какому каналу относится этот боевой scalar."),
+                    meta.DamageChannels);
+            }
+
+            _showAdvancedMetadata = EditorGUILayout.Foldout(_showAdvancedMetadata, "Расширенные технические поля", true);
+            if (_showAdvancedMetadata)
+            {
+                EditorGUILayout.Space(2);
+                EditorGUILayout.HelpBox("Этот блок нужен только если ты осознанно отходишь от рекомендуемой схемы. В обычной работе достаточно семантики и контекстных полей выше.", MessageType.None);
+                meta.Format = (StatDisplayFormat)EditorGUILayout.EnumPopup(new GUIContent("Формат отображения", "Как stat должен выглядеть в UI: число, процент, время, урон."), meta.Format);
+                meta.ValueUnit = (StatValueUnit)EditorGUILayout.EnumPopup(new GUIContent("Единица значения", "Суффикс/единица для UI и автогенерации локалей."), meta.ValueUnit);
+                meta.AffixGenType = (StatAffixGenType)EditorGUILayout.EnumPopup(new GUIContent("Тип автогенерации аффиксов", "Какой набор семейств может создавать автогенератор аффиксов для этого стата."), meta.AffixGenType);
+                meta.AllowedAffixKinds = (StatAffixModifierKindFlags)EditorGUILayout.EnumFlagsField(new GUIContent("Разрешённые типы модификаторов", "Точный список разрешённых kinds. Обычно трогать только если сознательно отходишь от рекомендуемой схемы."), meta.AllowedAffixKinds);
+                meta.DisplayAsPercentWhenFlat = EditorGUILayout.Toggle(new GUIContent("Flat показывать как %", "Например Crit Multiplier +25 должен отображаться как +25%."), meta.DisplayAsPercentWhenFlat);
+                meta.AllowNegativeFlatGeneration = EditorGUILayout.Toggle(new GUIContent("Разрешить отрицательный Flat в генерации", "Нужно только для редких случаев вроде отрицательного Crit Multiplier."), meta.AllowNegativeFlatGeneration);
+
+                if (!isContextModifier)
+                {
+                    meta.ContextTags = (StatContextTagFlags)EditorGUILayout.EnumFlagsField(new GUIContent("Context Tags", "Обычно для не-context статов это поле лучше не трогать."), meta.ContextTags);
+                }
+
+                if (!isContextModifier && !isCombatScalar)
+                {
+                    meta.DamageChannels = (StatDamageChannelFlags)EditorGUILayout.EnumFlagsField(new GUIContent("Damage Channels", "Обычно для этого типа статов поле не нужно."), meta.DamageChannels);
+                }
+            }
+
             if (EditorGUI.EndChangeCheck())
             {
+                meta.AffixGenType = NormalizeAffixGenType(meta.SemanticKind, meta.AffixGenType);
                 EditorUtility.SetDirty(_statsDatabase);
+                ApplyMetadataConsistency(type, meta);
             }
+
+            DrawRelatedContextModifiers(type);
 
             if (meta.ValueUnit != StatValueUnit.None)
             {
                 string unitKey = StatPresentation.GetValueUnitLocalizationKey(meta.ValueUnit);
-                EditorGUILayout.LabelField("Value Unit Key", unitKey);
+                EditorGUILayout.LabelField("Ключ единицы", unitKey);
                 EditorGUILayout.LabelField(
-                    "Value Unit Preview",
+                    "Превью единицы",
                     $"{GetLocalizedStringFromTable(unitKey, "en")} / {GetLocalizedStringFromTable(unitKey, "ru")}");
             }
         }
 
         private void DrawLocalizationSection(string localizationKey)
         {
-            GUILayout.Label("Localization (EN / RU)", EditorStyles.boldLabel);
-            var newCollection = (StringTableCollection)EditorGUILayout.ObjectField("MenuLabels Table", _menuLabelsCollection, typeof(StringTableCollection), false);
+            GUILayout.Label("Локализация (EN / RU)", EditorStyles.boldLabel);
+            var newCollection = (StringTableCollection)EditorGUILayout.ObjectField("Таблица MenuLabels", _menuLabelsCollection, typeof(StringTableCollection), false);
             if (newCollection != _menuLabelsCollection)
             {
                 _menuLabelsCollection = newCollection;
@@ -285,7 +418,7 @@ namespace Scripts.Editor.Stats
             }
             if (_menuLabelsCollection == null)
             {
-                EditorGUILayout.HelpBox("Assign MenuLabels collection (e.g. Assets/Localization/LocalizationTables/MenuLabels.asset).", MessageType.Warning);
+                EditorGUILayout.HelpBox("Назначь MenuLabels, чтобы редактировать имя стата на EN и RU.", MessageType.Warning);
                 return;
             }
 
@@ -295,7 +428,7 @@ namespace Scripts.Editor.Stats
                 LoadLocalizationValues(localizationKey);
             }
 
-            EditorGUILayout.LabelField("Key", $"stats.{localizationKey}");
+            EditorGUILayout.LabelField("Ключ", $"stats.{localizationKey}");
             EditorGUILayout.Space(4);
 
             EditorGUILayout.LabelField("English", EditorStyles.miniLabel);
@@ -305,11 +438,11 @@ namespace Scripts.Editor.Stats
 
             EditorGUILayout.Space(4);
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Reload", GUILayout.Width(80)))
+            if (GUILayout.Button("Перезагрузить", GUILayout.Width(120)))
             {
                 ResetLocalizationInputState(clearValues: false);
             }
-            if (GUILayout.Button("Save Localization", GUILayout.Height(28)))
+            if (GUILayout.Button("Сохранить локализацию", GUILayout.Height(28)))
             {
                 GUI.FocusControl(null);
                 EditorGUIUtility.editingTextField = false;
@@ -409,16 +542,62 @@ namespace Scripts.Editor.Stats
                 table.AddEntry(key, value);
         }
 
+        private void DrawGeneratedAffixSection(StatType type, string id)
+        {
+            GUILayout.Label("Сгенерированное семейство аффиксов", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "Пересобирает generated affixes для выбранного стата по текущей metadata. Устаревшие варианты удаляются, а ссылки в пуллах по возможности перенаправляются на безопасные замены.",
+                MessageType.None);
+            EditorGUILayout.BeginHorizontal();
+            GUI.backgroundColor = new Color(0.78f, 0.92f, 0.78f);
+            if (GUILayout.Button("Пересобрать generated affixes для этого стата", GUILayout.Height(24)))
+            {
+                if (_affixesCollection == null)
+                    _affixesCollection = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.AffixesLabelsTable);
+
+                bool confirmed = EditorUtility.DisplayDialog(
+                    "Пересборка generated affixes",
+                    $"Будет пересобрано generated-семейство для {id}, удалены obsolete варианты и обновлены ссылки в affix pools, где это безопасно. Продолжить?",
+                    "Пересобрать",
+                    "Отмена");
+
+                if (confirmed)
+                {
+                    var report = StatsEditorStatLifecycle.RebuildGeneratedAffixesForStat(type, _statsDatabase, _menuLabelsCollection, _affixesCollection);
+                    _generatedAffixRebuildReport = report.ToSummaryString();
+                    LoadUsageCachesAfterAssetMutation();
+                }
+            }
+            GUI.backgroundColor = Color.white;
+            if (GUILayout.Button("Показать папку generated affixes", GUILayout.Height(24)))
+            {
+                string folder = AffixSetGenerator.GetGeneratedFolderPath(_statsDatabase, type, EditorPaths.AffixesBaseFolder);
+                var folderAsset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(folder);
+                if (folderAsset != null)
+                {
+                    Selection.activeObject = folderAsset;
+                    EditorGUIUtility.PingObject(folderAsset);
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+
+            if (!string.IsNullOrWhiteSpace(_generatedAffixRebuildReport))
+            {
+                EditorGUILayout.Space(4);
+                EditorGUILayout.TextArea(_generatedAffixRebuildReport, GUILayout.MinHeight(96));
+            }
+        }
+
         private void DrawStatLifecycleSection(StatType type, string id)
         {
-            GUILayout.Label("Stat lifecycle", EditorStyles.boldLabel);
+            GUILayout.Label("Изменение структуры системы", EditorStyles.boldLabel);
             EditorGUILayout.Space(4);
 
             // Add new stat to enum (no need to edit code)
-            EditorGUILayout.LabelField("Add new stat to enum", EditorStyles.miniBoldLabel);
+            EditorGUILayout.LabelField("Добавление нового стата в enum", EditorStyles.miniBoldLabel);
             EditorGUILayout.BeginHorizontal();
-            _newStatName = EditorGUILayout.TextField("New stat name", _newStatName);
-            if (GUILayout.Button("Add to enum", GUILayout.Width(100)))
+            _newStatName = EditorGUILayout.TextField("Имя нового стата", _newStatName);
+            if (GUILayout.Button("Добавить в enum", GUILayout.Width(140)))
             {
                 if (StatsEditorStatLifecycle.AddToEnum(_newStatName))
                 {
@@ -429,15 +608,15 @@ namespace Scripts.Editor.Stats
                 }
             }
             EditorGUILayout.EndHorizontal();
-            EditorGUILayout.HelpBox("Use PascalCase (e.g. MyNewStat). After recompile the stat appears in the list — then use \"Initialize stat\" for localization.", MessageType.None);
+            EditorGUILayout.HelpBox("Используй PascalCase, например MyNewStat. После перекомпиляции стат появится в списке.", MessageType.None);
             EditorGUILayout.Space(8);
 
-            _affixesCollection = (StringTableCollection)EditorGUILayout.ObjectField("Affixes table (for new affixes)", _affixesCollection, typeof(StringTableCollection), false);
+            _affixesCollection = (StringTableCollection)EditorGUILayout.ObjectField("Таблица AffixesLabels", _affixesCollection, typeof(StringTableCollection), false);
             EditorGUILayout.Space(4);
 
             bool hasLoc = _menuLabelsCollection != null && StatsEditorStatLifecycle.HasLocalizationKey(_menuLabelsCollection, type);
 
-            if (!hasLoc && _menuLabelsCollection != null && GUILayout.Button("Initialize stat (localization + metadata)", GUILayout.Height(24)))
+            if (!hasLoc && _menuLabelsCollection != null && GUILayout.Button("Инициализировать стат (локализация + metadata)", GUILayout.Height(24)))
             {
                 if (StatsEditorStatLifecycle.InitializeStat(type, _menuLabelsCollection, _statsDatabase))
                 {
@@ -446,26 +625,14 @@ namespace Scripts.Editor.Stats
                 }
             }
             if (hasLoc && _menuLabelsCollection != null)
-                EditorGUILayout.HelpBox("Localization key exists. Use fields above to edit.", MessageType.None);
-
-            EditorGUILayout.Space(4);
-            if (GUILayout.Button("Create sample affix for this stat", GUILayout.Height(22)))
-            {
-                var affix = StatsEditorStatLifecycle.CreateSampleAffix(type, _affixesCollection);
-                if (affix != null) { Selection.activeObject = affix; EditorGUIUtility.PingObject(affix); }
-            }
-            if (GUILayout.Button("Create sample passive node for this stat", GUILayout.Height(22)))
-            {
-                var template = StatsEditorStatLifecycle.CreateSamplePassiveNode(type);
-                if (template != null) { Selection.activeObject = template; EditorGUIUtility.PingObject(template); }
-            }
+                EditorGUILayout.HelpBox("Ключ локализации уже существует. Редактируй его в блоке локализации выше.", MessageType.None);
 
             EditorGUILayout.Space(8);
             GUI.backgroundColor = new Color(1f, 0.85f, 0.7f);
-            if (GUILayout.Button("Prepare stat for removal (cleanup all references)", GUILayout.Height(26)))
+            if (GUILayout.Button("Подготовить стат к удалению (почистить ссылки)", GUILayout.Height(26)))
             {
                 int affixes = _affixesUsingStat?.Count ?? 0, templates = _passiveTemplatesUsingStat?.Count ?? 0, trees = _passiveTreesUsingStat?.Count ?? 0, chars = _characterDataUsingStat?.Count ?? 0;
-                bool ok = EditorUtility.DisplayDialog("Prepare stat for removal", $"This will remove \"{id}\" from:\n• MenuLabels (en/ru)\n• Stats Database\n• Affixes ({affixes})\n• Passive templates ({templates})\n• Passive trees ({trees})\n• Character data ({chars})\n\nProceed?", "Proceed", "Cancel");
+                bool ok = EditorUtility.DisplayDialog("Подготовка к удалению", $"Стат \"{id}\" будет убран из:\n• MenuLabels (en/ru)\n• Stats Database\n• Affixes ({affixes})\n• Passive templates ({templates})\n• Passive trees ({trees})\n• Character data ({chars})\n\nПродолжить?", "Продолжить", "Отмена");
                 if (ok)
                 {
                     string report = StatsEditorStatLifecycle.PrepareStatForRemoval(type, _menuLabelsCollection, _statsDatabase, out _, out _, out _, out _);
@@ -479,9 +646,9 @@ namespace Scripts.Editor.Stats
 
             EditorGUILayout.Space(4);
             GUI.backgroundColor = new Color(1f, 0.7f, 0.7f);
-            if (GUILayout.Button("Remove from enum (edit StatType.cs)", GUILayout.Height(24)))
+            if (GUILayout.Button("Удалить из enum (редактирует StatType.cs)", GUILayout.Height(24)))
             {
-                if (EditorUtility.DisplayDialog("Remove from enum", $"Remove \"{id}\" from StatType.cs? Unity will recompile. Use \"Prepare stat for removal\" first to clean references.", "Remove", "Cancel"))
+                if (EditorUtility.DisplayDialog("Удаление из enum", $"Удалить \"{id}\" из StatType.cs? Unity перекомпилируется. Сначала лучше сделать очистку ссылок кнопкой выше.", "Удалить", "Отмена"))
                 {
                     if (StatsEditorStatLifecycle.RemoveFromEnum(type))
                     {
@@ -497,8 +664,8 @@ namespace Scripts.Editor.Stats
         private void DrawUsageSection(StatType stat)
         {
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("Usage", EditorStyles.boldLabel);
-            if (GUILayout.Button("Refresh", GUILayout.Width(60)))
+            GUILayout.Label("Использование", EditorStyles.boldLabel);
+            if (GUILayout.Button("Обновить", GUILayout.Width(90)))
             {
                 _cachedUsageStat = null;
                 Repaint();
@@ -510,10 +677,10 @@ namespace Scripts.Editor.Stats
                 RefreshUsageCache(stat);
             }
 
-            DrawUsageList("Affixes", _affixesUsingStat, "ItemAffixSO", isTree: false);
-            DrawUsageList("Passive node templates", _passiveTemplatesUsingStat, "PassiveNodeTemplateSO", isTree: false);
-            DrawUsageList("Passive trees (nodes with this stat)", _passiveTreesUsingStat, "PassiveSkillTreeSO", isTree: true);
-            DrawUsageList("Character data (starting stats)", _characterDataUsingStat, "CharacterDataSO", isTree: false);
+            DrawUsageList("Аффиксы", _affixesUsingStat, "ItemAffixSO", isTree: false);
+            DrawUsageList("Шаблоны пассивных нодов", _passiveTemplatesUsingStat, "PassiveNodeTemplateSO", isTree: false);
+            DrawUsageList("Пассивные деревья", _passiveTreesUsingStat, "PassiveSkillTreeSO", isTree: true);
+            DrawUsageList("Стартовые статы персонажей", _characterDataUsingStat, "CharacterDataSO", isTree: false);
         }
 
         private void DrawUsageList(string title, List<UnityEngine.Object> list, string typeLabel, bool isTree)
@@ -521,7 +688,7 @@ namespace Scripts.Editor.Stats
             EditorGUILayout.LabelField(title, EditorStyles.miniLabel);
             if (list == null || list.Count == 0)
             {
-                EditorGUILayout.LabelField($"  — none ({typeLabel})", EditorStyles.miniLabel);
+                EditorGUILayout.LabelField($"  — не найдено ({typeLabel})", EditorStyles.miniLabel);
                 return;
             }
             foreach (var obj in list)
@@ -534,7 +701,7 @@ namespace Scripts.Editor.Stats
                     Selection.activeObject = obj;
                     EditorGUIUtility.PingObject(obj);
                 }
-                if (GUILayout.Button("Open", GUILayout.Width(40)))
+                if (GUILayout.Button("Открыть", GUILayout.Width(70)))
                 {
                     Selection.activeObject = obj;
                     EditorGUIUtility.PingObject(obj);
@@ -601,6 +768,151 @@ namespace Scripts.Editor.Stats
             }
         }
 
+        private void DrawSummarySection(StatType type, string id, string category, string semantic)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField("ID", id);
+            EditorGUILayout.LabelField("Категория", category);
+            EditorGUILayout.LabelField("Семантика", semantic);
+            EditorGUILayout.LabelField("Ключ локализации", $"stats.{id}");
+            EditorGUILayout.EndVertical();
+        }
+
+        private string GetGuideText(StatType type)
+        {
+            if (_statsDatabase == null)
+                return "Сначала назначь StatsDatabase. Тогда редактор сможет показывать рекомендуемую семантику и рабочие подсказки.";
+
+            var semanticKind = _statsDatabase.GetSemanticKind(type);
+            int topic = _guideTopicIndex == 0 ? SemanticKindToGuideIndex(semanticKind) : _guideTopicIndex;
+            return topic switch
+            {
+                1 => "Как выбирать семантику:\n\nFinal Scalar — итоговый стат, который игрок может читать как готовое свойство персонажа.\nCombat Scalar — боевой канал или числовой участник формулы урона/эффекта.\nContext Modifier — модификатор, который усиливает расчёт только при совпадении контекста удара.\nUtility / Derived — служебные счётчики, длительности, derived-параметры.",
+                2 => "Final Scalar: итоговый параметр персонажа. Примеры: MaxHealth, CritChance, CritMultiplier, MoveSpeed. Его обычно можно показывать в Character Window и, при необходимости, в главной вкладке статов.",
+                3 => "Combat Scalar: сам канал или числовой участник боевой формулы. Примеры: DamagePhysical, DamageFire, BleedDamageMult. Такой стат важен для расчёта, но не всегда должен торчать в главном UI.",
+                4 => "Context Modifier: не является отдельным уроном. Он добавляет свои модификаторы в расчёт удара, если совпали теги контекста.\n\nIncrease/Decrease -> идут в общий additive pool.\nMore/Less -> идут в multiplicative pool.\n\nПример: MeleeDamage усиливает любой melee-hit по указанным каналам урона.",
+                5 => "Utility / Derived: это служебные параметры, счётчики, длительности и derived-величины. Их обычно не нужно показывать в главной вкладке статов, а часть из них вообще не требует ручной настройки UI.",
+                _ => string.Empty
+            };
+        }
+
+        private static string GetDisplayFormatLabel(StatDisplayFormat format)
+        {
+            return format switch
+            {
+                StatDisplayFormat.Percent => "Проценты",
+                StatDisplayFormat.Time => "Время",
+                StatDisplayFormat.Damage => "Урон",
+                _ => "Число"
+            };
+        }
+
+        private static string GetValueUnitLabel(StatValueUnit unit)
+        {
+            return unit switch
+            {
+                StatValueUnit.HP => "HP",
+                StatValueUnit.MP => "MP",
+                StatValueUnit.Percent => "%",
+                StatValueUnit.Seconds => "Секунды",
+                StatValueUnit.Stacks => "Стаки",
+                StatValueUnit.Targets => "Цели",
+                StatValueUnit.Points => "Очки/пункты",
+                StatValueUnit.MysticShield => "Mystic Shield",
+                _ => "Без единицы"
+            };
+        }
+
+        private static string GetAffixGenTypeLabel(StatAffixGenType genType)
+        {
+            return genType switch
+            {
+                StatAffixGenType.PercentStat => "Процентный scalar",
+                StatAffixGenType.ContextModifierStat => "Контекстный модификатор",
+                StatAffixGenType.NOCalcStat => "Без calc-формулы",
+                _ => "Полный calc-стат"
+            };
+        }
+
+        private static string BuildContextModifierPreview(StatMetadataEntry meta)
+        {
+            string context = meta.ContextTags == StatContextTagFlags.None ? "любой контекст" : meta.ContextTags.ToString();
+            string channels = meta.DamageChannels == StatDamageChannelFlags.None || meta.DamageChannels == StatDamageChannelFlags.All
+                ? "все каналы урона"
+                : meta.DamageChannels.ToString();
+
+            return $"Сейчас этот стат настроен так: если удар имеет контекст [{context}], то его модификаторы будут добавлены в расчёт [{channels}]. Increase/Decrease входят в общий additive pool, More/Less входят в multiplicative pool того же расчёта.";
+        }
+
+        private static int SemanticKindToGuideIndex(StatSemanticKind kind)
+        {
+            return kind switch
+            {
+                StatSemanticKind.FinalScalar => 2,
+                StatSemanticKind.CombatScalar => 3,
+                StatSemanticKind.ContextModifier => 4,
+                _ => 5
+            };
+        }
+
+        private void ApplyRecommendedMetadata(StatType type)
+        {
+            if (_statsDatabase == null)
+                return;
+
+            var meta = _statsDatabase.GetOrCreateEntry(type);
+            meta.Category = StatsDatabaseSO.DefaultCategoryFor(type);
+            meta.SemanticKind = StatsDatabaseSO.DefaultSemanticKindFor(type);
+            meta.Format = StatsDatabaseSO.DefaultFormatFor(type);
+            meta.ValueUnit = StatsDatabaseSO.DefaultValueUnitFor(type);
+            meta.ShowInCharacterWindow = StatsDatabaseSO.DefaultShowInCharacterWindow(type);
+            meta.ShowInPrimaryStatsEditor = StatsDatabaseSO.DefaultShowInPrimaryStatsEditor(type);
+            meta.AffixGenType = StatsDatabaseSO.DefaultAffixGenTypeFor(type);
+            meta.DisplayAsPercentWhenFlat = StatsDatabaseSO.DefaultDisplayAsPercentWhenFlat(type);
+            meta.AllowNegativeFlatGeneration = StatsDatabaseSO.DefaultAllowNegativeFlatGeneration(type);
+            meta.ContextTags = StatsDatabaseSO.DefaultContextTagsFor(type);
+            meta.DamageChannels = StatsDatabaseSO.DefaultDamageChannelsFor(type);
+            meta.AllowedAffixKinds = StatsDatabaseSO.DefaultAllowedAffixKindsFor(type, meta.AffixGenType);
+            EditorUtility.SetDirty(_statsDatabase);
+        }
+
+        private static StatAffixGenType NormalizeAffixGenType(StatSemanticKind semanticKind, StatAffixGenType current)
+        {
+            if (semanticKind == StatSemanticKind.ContextModifier)
+                return StatAffixGenType.ContextModifierStat;
+
+            return current;
+        }
+
+        private static void ApplyMetadataConsistency(StatType type, StatMetadataEntry meta)
+        {
+            meta.AllowedAffixKinds = StatsDatabaseSO.NormalizeAllowedAffixKinds(meta.AllowedAffixKinds, meta.AffixGenType, type);
+
+            if (meta.SemanticKind == StatSemanticKind.ContextModifier)
+            {
+                meta.ShowInCharacterWindow = false;
+                meta.ShowInPrimaryStatsEditor = false;
+                if (meta.ContextTags == StatContextTagFlags.None)
+                    meta.ContextTags = StatsDatabaseSO.DefaultContextTagsFor(type);
+                if (meta.DamageChannels == StatDamageChannelFlags.None)
+                    meta.DamageChannels = StatsDatabaseSO.DefaultDamageChannelsFor(type);
+                if (meta.AffixGenType != StatAffixGenType.ContextModifierStat)
+                    meta.AffixGenType = StatAffixGenType.ContextModifierStat;
+            }
+            else if (meta.SemanticKind != StatSemanticKind.CombatScalar)
+            {
+                meta.ContextTags = StatsDatabaseSO.DefaultContextTagsFor(type);
+                meta.DamageChannels = StatsDatabaseSO.DefaultDamageChannelsFor(type);
+            }
+        }
+
+        private void LoadUsageCachesAfterAssetMutation()
+        {
+            _cachedUsageStat = null;
+            _lastLoadedKey = "";
+            Repaint();
+        }
+
         private static string[] GetCategories()
         {
             return new[]
@@ -616,6 +928,81 @@ namespace Scripts.Editor.Stats
                 "Conversion",
                 "Misc"
             };
+        }
+
+        private bool MatchesSemanticFilter(StatSemanticKind semanticKind)
+        {
+            return _semanticFilterIndex switch
+            {
+                1 => semanticKind == StatSemanticKind.FinalScalar,
+                2 => semanticKind == StatSemanticKind.CombatScalar,
+                3 => semanticKind == StatSemanticKind.ContextModifier,
+                4 => semanticKind == StatSemanticKind.Utility,
+                5 => semanticKind == StatSemanticKind.Derived,
+                _ => true
+            };
+        }
+
+        private void DrawRelatedContextModifiers(StatType type)
+        {
+            if (_statsDatabase == null)
+                return;
+
+            var related = _statsDatabase.GetRelatedContextModifiers(type).ToList();
+            if (related.Count == 0)
+                return;
+
+            EditorGUILayout.Space(6);
+            EditorGUILayout.LabelField("Связанные context modifiers", EditorStyles.miniBoldLabel);
+            foreach (var relatedStat in related)
+            {
+                EditorGUILayout.LabelField($"• {StatPickerUtility.GetButtonLabel(relatedStat)}", EditorStyles.miniLabel);
+            }
+        }
+
+        private void DrawSystemUpgradeSection()
+        {
+            GUILayout.Label("Системный апгрейд и ремонт", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "Этот блок нужен для массового ремонта контента. Он нормализует metadata, мигрирует legacy Crit Multiplier к flat percent points, обновляет локализации аффиксов и приводит старый контент к новой модели.",
+                MessageType.None);
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Проверить апгрейд", GUILayout.Height(24)))
+            {
+                var report = StatsEditorStatLifecycle.AnalyzeProductionUpgrade(_statsDatabase);
+                _systemUpgradeReport = report.ToSummaryString();
+            }
+
+            GUI.backgroundColor = new Color(0.78f, 0.92f, 0.78f);
+            if (GUILayout.Button("Применить production upgrade", GUILayout.Height(24)))
+            {
+                bool confirmed = EditorUtility.DisplayDialog(
+                    "Применить production upgrade",
+                    "Будут нормализованы metadata, мигрированы legacy Crit Multiplier modifiers и пересобраны auto-managed локализации аффиксов. Количество затронутых ассетов может быть большим. Продолжить?",
+                    "Применить",
+                    "Отмена");
+
+                if (confirmed)
+                {
+                    if (_affixesCollection == null)
+                        _affixesCollection = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.AffixesLabelsTable);
+
+                    var report = StatsEditorStatLifecycle.ApplyProductionUpgrade(_statsDatabase, _menuLabelsCollection, _affixesCollection);
+                    _systemUpgradeReport = report.ToSummaryString();
+                    _cachedUsageStat = null;
+                    _lastLoadedKey = "";
+                    Repaint();
+                }
+            }
+            GUI.backgroundColor = Color.white;
+            EditorGUILayout.EndHorizontal();
+
+            if (!string.IsNullOrWhiteSpace(_systemUpgradeReport))
+            {
+                EditorGUILayout.Space(4);
+                EditorGUILayout.TextArea(_systemUpgradeReport, GUILayout.MinHeight(120));
+            }
         }
 
         /// <summary>

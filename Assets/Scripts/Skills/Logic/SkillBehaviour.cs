@@ -46,6 +46,15 @@ namespace Scripts.Skills
             _data = data;
         }
 
+        protected DamageContext ResolveDamageContext()
+        {
+            StatContextTagFlags tags = _data != null ? _data.DamageContextTags : StatContextTagFlags.None;
+            if (tags == StatContextTagFlags.None)
+                tags = StatContextTagFlags.Attack | StatContextTagFlags.Melee;
+
+            return new DamageContext(tags);
+        }
+
         public void TryCast()
         {
             if (_isCasting)

@@ -15,17 +15,17 @@ MonoBehaviour:
   UniqueID: Resources/Affixes/ByStat/Critical/CritMultiplier/CritMultiplier_Decrease_Medium_T1
   GroupID: CritMultiplier_Decrease_Medium
   Tier: 1
-  NameKey: affix_name_critmultiplier_decrease_medium_t1
-  TranslationKey: affix_decrease_critmultiplier
+  NameKey: affix_name_critmultiplier_flatnegative_medium_t1
+  TranslationKey: affix_flat_critmultiplier
   LockAutoLocalization: 0
   TagIds:
   - Critical
   Stats:
   - Stat: 52
-    Type: 210
+    Type: 100
     Scope: 0
     ValueMode: 0
-    MinValue: 20
-    MaxValue: 24
+    MinValue: -24
+    MaxValue: -20
     RangeMinValue: 0
     RangeMaxValue: 0

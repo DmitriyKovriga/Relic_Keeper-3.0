@@ -28,10 +28,12 @@ namespace Scripts.Skills.PassiveTree.UI
 
         private PassiveNodeDefinition _currentNode;
         private Vector2 _lastWorldPosition;
+        private readonly StatsDatabaseSO _statsDatabase;
 
         public PassiveTreeTooltip(VisualElement rootContainer)
         {
             _rootContainer = rootContainer;
+            _statsDatabase = Resources.Load<StatsDatabaseSO>(ProjectPaths.ResourcesStatsDatabase);
             CreateElements();
         }
 
@@ -134,8 +136,6 @@ namespace Scripts.Skills.PassiveTree.UI
             {
                 var mod = mods[i];
                 int idx = i;
-                string sign = mod.Type.GetDisplayPrefix(mod.Value);
-                string end = mod.Type != StatModType.Flat ? "%" : "";
                 string statKey = $"stats.{mod.Stat}";
                 var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(MenuLabelsTable, statKey);
                 op.Completed += handle =>
@@ -143,7 +143,13 @@ namespace Scripts.Skills.PassiveTree.UI
                     string statName = (handle.Status == AsyncOperationStatus.Succeeded && !IsMissingTranslation(handle.Result))
                         ? handle.Result
                         : mod.Stat.ToString();
-                    results[idx] = $"{statName}: {sign}{mod.Value}{end}";
+                    results[idx] = StatPresentation.FormatModifierLine(
+                        _statsDatabase,
+                        mod.Stat,
+                        statName,
+                        mod.Value,
+                        mod.Type,
+                        StatPresentation.ModifierLineStyle.StatThenValue);
                     if (--pending == 0 && _stats != null)
                     {
                         _stats.text = string.Join("\n", results);

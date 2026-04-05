@@ -108,6 +108,15 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
 
     public float GetValue(StatType type) => GetStat(type).Value;
 
+    public bool TryGetStat(StatType type, out CharacterStat stat)
+    {
+        if (_stats.TryGetValue(type, out stat))
+            return true;
+
+        stat = null;
+        return false;
+    }
+
 
     public void Initialize(CharacterDataSO data)
     {

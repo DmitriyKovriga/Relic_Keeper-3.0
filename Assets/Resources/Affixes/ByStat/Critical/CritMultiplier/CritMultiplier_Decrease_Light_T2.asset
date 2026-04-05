@@ -15,17 +15,17 @@ MonoBehaviour:
   UniqueID: Resources/Affixes/ByStat/Critical/CritMultiplier/CritMultiplier_Decrease_Light_T2
   GroupID: CritMultiplier_Decrease_Light
   Tier: 2
-  NameKey: affix_name_critmultiplier_decrease_light_t2
-  TranslationKey: affix_decrease_critmultiplier
+  NameKey: affix_name_critmultiplier_flatnegative_light_t2
+  TranslationKey: affix_flat_critmultiplier
   LockAutoLocalization: 0
   TagIds:
   - Critical
   Stats:
   - Stat: 52
-    Type: 210
+    Type: 100
     Scope: 0
     ValueMode: 0
-    MinValue: 12
-    MaxValue: 16
+    MinValue: -16
+    MaxValue: -12
     RangeMinValue: 0
     RangeMaxValue: 0

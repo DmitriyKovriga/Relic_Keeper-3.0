@@ -15,624 +15,1158 @@ MonoBehaviour:
   _entries:
   - StatTypeId: MaxHealth
     Category: Vitals
+    SemanticKind: 0
     Format: 0
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
     AffixGenType: 0
     ValueUnit: 1
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
     AllowedAffixKinds: 31
   - StatTypeId: HealthRegen
     Category: Vitals
+    SemanticKind: 0
     Format: 0
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
     AffixGenType: 0
     ValueUnit: 1
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
     AllowedAffixKinds: 31
   - StatTypeId: HealthRegenPercent
     Category: Vitals
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 0
-    AffixGenType: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: HealthOnHit
     Category: Vitals
+    SemanticKind: 0
     Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 1
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: HealthOnBlock
     Category: Vitals
+    SemanticKind: 0
     Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 1
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: MaxMana
     Category: Vitals
+    SemanticKind: 0
     Format: 0
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
     AffixGenType: 0
     ValueUnit: 2
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
     AllowedAffixKinds: 31
   - StatTypeId: ManaRegen
     Category: Vitals
+    SemanticKind: 0
     Format: 0
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
     AffixGenType: 0
     ValueUnit: 2
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
     AllowedAffixKinds: 31
   - StatTypeId: ManaRegenPercent
     Category: Vitals
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 0
-    AffixGenType: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: ManaOnHit
     Category: Vitals
+    SemanticKind: 0
     Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 2
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: ManaOnBlock
     Category: Vitals
+    SemanticKind: 0
     Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 2
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: MaxMysticShield
     Category: Defense
+    SemanticKind: 0
     Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 8
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: MysticShieldRechargeDuration
     Category: Misc
+    SemanticKind: 0
     Format: 2
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
     AffixGenType: 0
     ValueUnit: 4
-    AllowedAffixKinds: -1
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: MysticShieldMitigationPercent
     Category: Resistances
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: MaxMysticShieldMitigationPercent
     Category: Resistances
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: Armor
     Category: Defense
+    SemanticKind: 0
     Format: 0
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
     AffixGenType: 0
     ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
     AllowedAffixKinds: 31
   - StatTypeId: Evasion
     Category: Defense
+    SemanticKind: 0
     Format: 0
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
     AffixGenType: 0
     ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
     AllowedAffixKinds: 31
   - StatTypeId: BlockChance
     Category: Defense
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: MaxBlockChance
     Category: Defense
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: FireResist
     Category: Resistances
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 2
+    AllowedAffixKinds: 31
   - StatTypeId: MaxFireResist
     Category: Resistances
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 2
+    AllowedAffixKinds: 31
   - StatTypeId: ColdResist
     Category: Resistances
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 4
+    AllowedAffixKinds: 31
   - StatTypeId: MaxColdResist
     Category: Resistances
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 4
+    AllowedAffixKinds: 31
   - StatTypeId: LightningResist
     Category: Resistances
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 8
+    AllowedAffixKinds: 31
   - StatTypeId: MaxLightningResist
     Category: Resistances
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 8
+    AllowedAffixKinds: 31
   - StatTypeId: PhysicalResist
     Category: Resistances
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 1
+    AllowedAffixKinds: 31
   - StatTypeId: MaxPhysicalResist
     Category: Resistances
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 1
+    AllowedAffixKinds: 31
   - StatTypeId: MoveSpeed
     Category: Speed
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
     AffixGenType: 1
     ValueUnit: 3
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 7
   - StatTypeId: JumpForce
     Category: Misc
+    SemanticKind: 0
     Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 1
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: AttackSpeed
-    Category: Speed
-    Format: 0
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: CastSpeed
-    Category: Speed
-    Format: 0
-    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
     AffixGenType: 0
     ValueUnit: 7
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
+  - StatTypeId: AttackSpeed
+    Category: Speed
+    SemanticKind: 0
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
+  - StatTypeId: CastSpeed
+    Category: Speed
+    SemanticKind: 0
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: DamagePhysical
     Category: Damage
+    SemanticKind: 1
     Format: 3
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 0
-    ValueUnit: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 1
     AllowedAffixKinds: 31
   - StatTypeId: DamageFire
     Category: Damage
+    SemanticKind: 1
     Format: 3
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 0
-    ValueUnit: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 2
     AllowedAffixKinds: 31
   - StatTypeId: DamageCold
     Category: Damage
+    SemanticKind: 1
     Format: 3
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 0
-    ValueUnit: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 4
     AllowedAffixKinds: 31
   - StatTypeId: DamageLightning
     Category: Damage
-    Format: 1
+    SemanticKind: 1
+    Format: 3
     ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 8
+    AllowedAffixKinds: 31
   - StatTypeId: PhysicalToFire
     Category: Conversion
+    SemanticKind: 1
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 1
     ValueUnit: 3
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 1
+    ContextTags: 0
+    DamageChannels: 3
     AllowedAffixKinds: 1
   - StatTypeId: PhysicalToCold
     Category: Conversion
+    SemanticKind: 1
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 1
     ValueUnit: 3
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 1
+    ContextTags: 0
+    DamageChannels: 5
     AllowedAffixKinds: 1
   - StatTypeId: PhysicalToLightning
     Category: Conversion
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: ElementalToPhysical
-    Category: Conversion
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: TakePhysAsCold
-    Category: Conversion
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: TakePhysAsFire
-    Category: Conversion
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: TakePhysAsLightning
-    Category: Conversion
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: TakeLightningAsPhys
-    Category: Conversion
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: TakeLightningAsFire
-    Category: Conversion
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: TakeLightningAsCold
-    Category: Conversion
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: TakeColdAsPhys
-    Category: Conversion
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: TakeColdAsFire
-    Category: Conversion
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: TakeColdAsLightning
-    Category: Conversion
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: TakeFireAsLightning
-    Category: Conversion
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: TakeFireAsPhys
-    Category: Conversion
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: TakeFireAsCold
-    Category: Conversion
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: Accuracy
-    Category: Critical
+    SemanticKind: 1
     Format: 0
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 0
-    ValueUnit: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 9
+    AllowedAffixKinds: 31
+  - StatTypeId: ElementalToPhysical
+    Category: Conversion
+    SemanticKind: 1
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 15
+    AllowedAffixKinds: 31
+  - StatTypeId: TakePhysAsCold
+    Category: Conversion
+    SemanticKind: 1
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 5
+    AllowedAffixKinds: 31
+  - StatTypeId: TakePhysAsFire
+    Category: Conversion
+    SemanticKind: 1
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 3
+    AllowedAffixKinds: 31
+  - StatTypeId: TakePhysAsLightning
+    Category: Conversion
+    SemanticKind: 1
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 9
+    AllowedAffixKinds: 31
+  - StatTypeId: TakeLightningAsPhys
+    Category: Conversion
+    SemanticKind: 1
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 9
+    AllowedAffixKinds: 31
+  - StatTypeId: TakeLightningAsFire
+    Category: Conversion
+    SemanticKind: 1
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 10
+    AllowedAffixKinds: 31
+  - StatTypeId: TakeLightningAsCold
+    Category: Conversion
+    SemanticKind: 1
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 12
+    AllowedAffixKinds: 31
+  - StatTypeId: TakeColdAsPhys
+    Category: Conversion
+    SemanticKind: 1
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 5
+    AllowedAffixKinds: 31
+  - StatTypeId: TakeColdAsFire
+    Category: Conversion
+    SemanticKind: 1
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 6
+    AllowedAffixKinds: 31
+  - StatTypeId: TakeColdAsLightning
+    Category: Conversion
+    SemanticKind: 1
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 12
+    AllowedAffixKinds: 31
+  - StatTypeId: TakeFireAsLightning
+    Category: Conversion
+    SemanticKind: 1
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 10
+    AllowedAffixKinds: 31
+  - StatTypeId: TakeFireAsPhys
+    Category: Conversion
+    SemanticKind: 1
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 3
+    AllowedAffixKinds: 31
+  - StatTypeId: TakeFireAsCold
+    Category: Conversion
+    SemanticKind: 1
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 6
+    AllowedAffixKinds: 31
+  - StatTypeId: Accuracy
+    Category: Critical
+    SemanticKind: 0
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
     AllowedAffixKinds: 31
   - StatTypeId: CritChance
     Category: Critical
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
     AffixGenType: 0
     ValueUnit: 3
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
     AllowedAffixKinds: 31
   - StatTypeId: CritMultiplier
     Category: Critical
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 0
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 1
     ValueUnit: 3
-    AllowedAffixKinds: 7
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 1
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 1
   - StatTypeId: PenetrationPhysical
     Category: Resistances
+    SemanticKind: 1
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 1
     ValueUnit: 3
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 1
+    ContextTags: 0
+    DamageChannels: 1
     AllowedAffixKinds: 1
   - StatTypeId: PenetrationFire
     Category: Resistances
-    Format: 1
+    SemanticKind: 1
+    Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 2
+    AllowedAffixKinds: 31
   - StatTypeId: PenetrationCold
     Category: Resistances
+    SemanticKind: 1
     Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 4
+    AllowedAffixKinds: 31
   - StatTypeId: PenetrationLightning
     Category: Resistances
+    SemanticKind: 1
     Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 8
+    AllowedAffixKinds: 31
   - StatTypeId: BleedChance
     Category: Ailments
+    SemanticKind: 1
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 1
+    AllowedAffixKinds: 31
   - StatTypeId: BleedDamage
     Category: Ailments
-    Format: 3
+    SemanticKind: 1
+    Format: 0
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 0
-    ValueUnit: 0
-    AllowedAffixKinds: -1
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 1
+    AllowedAffixKinds: 31
   - StatTypeId: BleedDamageMult
     Category: Ailments
+    SemanticKind: 1
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 1
+    AllowedAffixKinds: 31
   - StatTypeId: BleedDuration
     Category: Ailments
+    SemanticKind: 1
     Format: 2
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 0
     ValueUnit: 4
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 1
+    AllowedAffixKinds: 31
   - StatTypeId: ChanseToAvoidBleed
     Category: Ailments
-    Format: 1
+    SemanticKind: 1
+    Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 1
+    AllowedAffixKinds: 31
   - StatTypeId: PoisonChance
     Category: Ailments
+    SemanticKind: 1
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: PoisonDamage
     Category: Ailments
-    Format: 3
+    SemanticKind: 1
+    Format: 0
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 0
-    ValueUnit: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 0
     AllowedAffixKinds: 31
   - StatTypeId: PoisonDamageMult
     Category: Ailments
+    SemanticKind: 1
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: PoisonDuration
     Category: Ailments
+    SemanticKind: 1
     Format: 2
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 0
     ValueUnit: 4
-    AllowedAffixKinds: -1
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: ChanseToAvoidPoison
     Category: Ailments
-    Format: 1
+    SemanticKind: 1
+    Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: IgniteChance
     Category: Ailments
+    SemanticKind: 1
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 2
+    AllowedAffixKinds: 31
   - StatTypeId: IgniteDamage
     Category: Ailments
-    Format: 3
+    SemanticKind: 1
+    Format: 0
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 0
-    ValueUnit: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 2
     AllowedAffixKinds: 31
   - StatTypeId: IgniteDamageMult
     Category: Ailments
+    SemanticKind: 1
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 2
+    AllowedAffixKinds: 31
   - StatTypeId: IgniteDuration
     Category: Ailments
+    SemanticKind: 1
     Format: 2
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 0
     ValueUnit: 4
-    AllowedAffixKinds: -1
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 2
+    AllowedAffixKinds: 31
   - StatTypeId: ChanseToAvoidIgnite
     Category: Ailments
-    Format: 1
+    SemanticKind: 1
+    Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 2
+    AllowedAffixKinds: 31
   - StatTypeId: FreezeChance
     Category: Ailments
+    SemanticKind: 1
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 4
+    AllowedAffixKinds: 31
   - StatTypeId: FreezeDuration
     Category: Ailments
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: ChanseToAvoidFreeze
-    Category: Ailments
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: ShockChance
-    Category: Ailments
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: ShockDuration
-    Category: Ailments
+    SemanticKind: 1
     Format: 2
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 0
     ValueUnit: 4
-    AllowedAffixKinds: -1
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 4
+    AllowedAffixKinds: 31
+  - StatTypeId: ChanseToAvoidFreeze
+    Category: Ailments
+    SemanticKind: 1
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 4
+    AllowedAffixKinds: 31
+  - StatTypeId: ShockChance
+    Category: Ailments
+    SemanticKind: 1
+    Format: 1
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 3
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 8
+    AllowedAffixKinds: 31
+  - StatTypeId: ShockDuration
+    Category: Ailments
+    SemanticKind: 1
+    Format: 2
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 4
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 64
+    DamageChannels: 8
+    AllowedAffixKinds: 31
   - StatTypeId: ChanseToAvoidShock
     Category: Ailments
-    Format: 1
+    SemanticKind: 1
+    Format: 0
     ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 8
+    AllowedAffixKinds: 31
   - StatTypeId: ReduceDamageTaken
     Category: Resistances
+    SemanticKind: 0
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 2
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 1
     ValueUnit: 3
-    AllowedAffixKinds: 1
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 7
   - StatTypeId: AreaOfEffect
     Category: Misc
+    SemanticKind: 3
     Format: 1
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 1
     ValueUnit: 3
-    AllowedAffixKinds: 6
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 16
+    DamageChannels: 0
+    AllowedAffixKinds: 7
   - StatTypeId: CooldownReductionPercent
     Category: Misc
+    SemanticKind: 3
     Format: 1
     ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 0
     ValueUnit: 3
-    AllowedAffixKinds: 30
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
   - StatTypeId: EffectDuration
     Category: Misc
+    SemanticKind: 3
     Format: 1
     ShowInCharacterWindow: 1
-    AffixGenType: 0
-    ValueUnit: 3
-    AllowedAffixKinds: 30
-  - StatTypeId: ProjectileSpeed
-    Category: Speed
-    Format: 1
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 3
-    AllowedAffixKinds: 1
-  - StatTypeId: ProjectileCount
-    Category: Misc
-    Format: 0
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 0
-    AllowedAffixKinds: 1
-  - StatTypeId: ProjectileFork
-    Category: Misc
-    Format: 0
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 0
-    AllowedAffixKinds: 1
-  - StatTypeId: ProjectileChain
-    Category: Misc
-    Format: 0
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 0
-    AllowedAffixKinds: 1
-  - StatTypeId: MaxBleedStack
-    Category: Ailments
-    Format: 0
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 5
-    AllowedAffixKinds: 1
-  - StatTypeId: ExtraTargetsForMeleeHits
-    Category: Damage
-    Format: 0
-    ShowInCharacterWindow: 1
-    AffixGenType: 2
-    ValueUnit: 6
-    AllowedAffixKinds: 1
-  - StatTypeId: MeleeDamage
-    Category: Damage
-    Format: 1
-    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 1
     ValueUnit: 3
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
     AllowedAffixKinds: 7
+  - StatTypeId: ProjectileSpeed
+    Category: Speed
+    SemanticKind: 3
+    Format: 1
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 1
+    ValueUnit: 3
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 8
+    DamageChannels: 0
+    AllowedAffixKinds: 7
+  - StatTypeId: ProjectileCount
+    Category: Misc
+    SemanticKind: 3
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 6
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 8
+    DamageChannels: 0
+    AllowedAffixKinds: 31
+  - StatTypeId: ProjectileFork
+    Category: Misc
+    SemanticKind: 3
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 6
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 8
+    DamageChannels: 0
+    AllowedAffixKinds: 31
+  - StatTypeId: ProjectileChain
+    Category: Misc
+    SemanticKind: 3
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 0
+    ValueUnit: 6
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 8
+    DamageChannels: 0
+    AllowedAffixKinds: 31
+  - StatTypeId: MaxBleedStack
+    Category: Ailments
+    SemanticKind: 3
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 2
+    ValueUnit: 5
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 30
+  - StatTypeId: ExtraTargetsForMeleeHits
+    Category: Damage
+    SemanticKind: 3
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 2
+    ValueUnit: 6
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 30
+  - StatTypeId: MeleeDamage
+    Category: Damage
+    SemanticKind: 2
+    Format: 0
+    ShowInCharacterWindow: 0
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 2
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 4
+    DamageChannels: 15
+    AllowedAffixKinds: 30

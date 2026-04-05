@@ -13679,6 +13679,66 @@ MonoBehaviour:
     m_Key: affix_flat_damagephysical_range
     m_Metadata:
       m_Items: []
+  - m_Id: 32119732046430208
+    m_Key: affix_name_critmultiplier_flatnegative_light_t1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32119732079984640
+    m_Key: affix_name_critmultiplier_flatnegative_light_t2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32119732079984641
+    m_Key: affix_name_critmultiplier_flatnegative_light_t3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32119732079984642
+    m_Key: affix_name_critmultiplier_flatnegative_light_t4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32119732079984643
+    m_Key: affix_name_critmultiplier_flatnegative_light_t5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32119732079984644
+    m_Key: affix_name_critmultiplier_flatnegative_medium_t1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32119732079984645
+    m_Key: affix_name_critmultiplier_flatnegative_medium_t2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32119732079984646
+    m_Key: affix_name_critmultiplier_flatnegative_medium_t3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32119732079984647
+    m_Key: affix_name_critmultiplier_flatnegative_medium_t4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32119732079984648
+    m_Key: affix_name_critmultiplier_flatnegative_medium_t5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32119732079984649
+    m_Key: affix_name_critmultiplier_flatnegative_strong_t1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32119732079984650
+    m_Key: affix_name_critmultiplier_flatnegative_strong_t2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32119732079984651
+    m_Key: affix_name_critmultiplier_flatnegative_strong_t3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32119732079984652
+    m_Key: affix_name_critmultiplier_flatnegative_strong_t4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 32119732079984653
+    m_Key: affix_name_critmultiplier_flatnegative_strong_t5
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

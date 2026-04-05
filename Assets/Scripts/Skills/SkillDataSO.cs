@@ -1,5 +1,6 @@
 using UnityEngine;
 using Scripts.Skills.Steps;
+using Scripts.Stats;
 
 namespace Scripts.Skills
 {
@@ -16,6 +17,8 @@ namespace Scripts.Skills
         public bool IsActive; // Active or Passive
         public float Cooldown;
         public float ManaCost;
+        [Tooltip("Контекст урона для расчета Context Modifier статов. Если оставить None у старых melee-скиллов, рантайм подставит безопасный legacy fallback Attack|Melee.")]
+        public StatContextTagFlags DamageContextTags;
 
         [Header("Visuals & Logic")]
         [Tooltip("Префаб, который спавнится при атаке (снаряд, эффект удара). Если задан Recipe — используется StepRunner на префабе.")]
