@@ -10,6 +10,9 @@ namespace Scripts.Enemies
         private Collider2D _collider;
         private float _moveInput;
         private int _groundLayerMask = 1 << 6;
+        private bool _hasForcedHorizontalVelocity;
+        private float _forcedHorizontalVelocity;
+        private bool _ignoreLedgeForForcedMotion;
 
         public bool IsGrounded { get; private set; }
         public bool IsNearWall { get; private set; }
@@ -57,10 +60,63 @@ namespace Scripts.Enemies
             return true;
         }
 
+        public void ForceStopMotion()
+        {
+            _moveInput = 0f;
+            _hasForcedHorizontalVelocity = false;
+            _forcedHorizontalVelocity = 0f;
+            if (_rb != null)
+                _rb.linearVelocity = Vector2.zero;
+        }
+
+        public void SetForcedHorizontalVelocity(float velocityX, bool ignoreLedge = false)
+        {
+            _hasForcedHorizontalVelocity = true;
+            _forcedHorizontalVelocity = velocityX;
+            _ignoreLedgeForForcedMotion = ignoreLedge;
+
+            if (Mathf.Abs(velocityX) > 0.01f)
+                FaceDirection(velocityX > 0f ? 1 : -1);
+        }
+
+        public void ClearForcedHorizontalVelocity()
+        {
+            _hasForcedHorizontalVelocity = false;
+            _forcedHorizontalVelocity = 0f;
+            _ignoreLedgeForForcedMotion = false;
+        }
+
+        public void SnapToGroundNow()
+        {
+            if (_collider is BoxCollider2D boxCollider)
+            {
+                SnapToGround(boxCollider);
+                RefreshEnvironmentState();
+            }
+        }
+
         private void ApplyMovement()
         {
             if (_rb == null || _data == null)
                 return;
+
+            if (_hasForcedHorizontalVelocity)
+            {
+                float forcedVelocity = _forcedHorizontalVelocity;
+                if (Mathf.Abs(forcedVelocity) > 0.01f)
+                {
+                    int forcedDirection = forcedVelocity > 0f ? 1 : -1;
+                    if (IsNearWall)
+                        forcedVelocity = 0f;
+                    else if (IsApproachingLedge && !_ignoreLedgeForForcedMotion && !_data.Movement.CanFallFromPlatform)
+                        forcedVelocity = 0f;
+                    else
+                        FaceDirection(forcedDirection);
+                }
+
+                _rb.linearVelocity = new Vector2(forcedVelocity, _rb.linearVelocity.y);
+                return;
+            }
 
             float desiredInput = _moveInput;
             if (Mathf.Abs(desiredInput) > 0.01f)
@@ -84,7 +140,10 @@ namespace Scripts.Enemies
         {
             FacingDirection = direction >= 0 ? 1 : -1;
             if (_spriteRenderer != null)
-                _spriteRenderer.flipX = FacingDirection < 0;
+            {
+                bool invertFacing = _data != null && _data.Animation != null && _data.Animation.InvertFacingX;
+                _spriteRenderer.flipX = invertFacing ? FacingDirection > 0 : FacingDirection < 0;
+            }
         }
 
         private void RefreshEnvironmentState()

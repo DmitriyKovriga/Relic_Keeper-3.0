@@ -1,31 +1,58 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Scripts.Enemies
 {
     public class EnemyBrain : MonoBehaviour
     {
+        private enum SpecialActionState
+        {
+            None,
+            BurrowIn,
+            Hidden,
+            BurrowOut
+        }
+
         private EnemyDataSO _data;
+        private EnemyEntity _entity;
         private EnemySensor2D _sensor;
         private EnemyLocomotion2D _locomotion;
         private EnemyAttackController _attack;
+        private EnemyAnimationBridge _animation;
         private EnemyJumpLink _activeJumpLink;
+        private Collider2D _bodyCollider;
+        private int _groundLayerMask = 1 << 6;
         private float _nextDecisionAt;
         private float _postActionPauseUntil;
         private float _turnLockedUntil;
         private float _currentStopDistanceOffset;
         private bool _wasBusyLastFrame;
         private int _committedMoveDirection;
+        private float _nextBurrowAllowedAt;
+        private SpecialActionState _specialAction;
+        private float _specialActionTimer;
+        private Vector3 _burrowDestination;
+
+        public bool IsInSpecialAction => _specialAction != SpecialActionState.None;
 
         public void Initialize(EnemyEntity entity, EnemyDataSO data)
         {
+            _entity = entity;
             _data = data;
             _sensor = GetComponent<EnemySensor2D>();
             _locomotion = GetComponent<EnemyLocomotion2D>();
             _attack = GetComponent<EnemyAttackController>();
+            _animation = GetComponent<EnemyAnimationBridge>();
+            _bodyCollider = GetComponent<Collider2D>();
+            int oneWayPlatformLayer = LayerMask.NameToLayer("OneWayPlatform");
+            if (oneWayPlatformLayer >= 0)
+                _groundLayerMask |= 1 << oneWayPlatformLayer;
             _activeJumpLink = null;
             _wasBusyLastFrame = false;
             _postActionPauseUntil = 0f;
             _turnLockedUntil = 0f;
+            _specialAction = SpecialActionState.None;
+            _specialActionTimer = 0f;
+            _nextBurrowAllowedAt = 0f;
             _committedMoveDirection = _locomotion != null ? _locomotion.FacingDirection : 1;
             RollStopDistanceOffset();
             ScheduleNextDecision(immediate: true);
@@ -37,6 +64,12 @@ namespace Scripts.Enemies
                 return;
 
             _sensor.Tick();
+
+            if (IsInSpecialAction)
+            {
+                UpdateSpecialAction();
+                return;
+            }
 
             if (_attack.IsBusy)
             {
@@ -123,6 +156,9 @@ namespace Scripts.Enemies
                 return;
             }
 
+            if (TryStartChargeAttack())
+                return;
+
             if (_sensor.HorizontalDistance <= GetEffectiveStopDistance())
             {
                 _locomotion.Stop();
@@ -131,6 +167,22 @@ namespace Scripts.Enemies
 
             float dir = Mathf.Sign(_sensor.TargetTransform.position.x - transform.position.x);
             ApplyMoveIntent(dir);
+        }
+
+        private bool TryStartChargeAttack()
+        {
+            if (_data?.ChargeAttack == null || !_data.ChargeAttack.Enabled || _sensor.TargetTransform == null)
+                return false;
+
+            float horizontalDistance = _sensor.HorizontalDistance;
+            if (horizontalDistance < _data.ChargeAttack.TriggerMinDistance || horizontalDistance > _data.ChargeAttack.TriggerMaxDistance)
+                return false;
+
+            if (_sensor.VerticalDistance > 1.35f)
+                return false;
+
+            _locomotion.Stop();
+            return _attack.TryStartChargeAttack(_sensor.TargetTransform);
         }
 
         private void UpdateAgileJumper()
@@ -149,6 +201,9 @@ namespace Scripts.Enemies
                 _attack.TryStartAttack(_sensor.TargetTransform);
                 return;
             }
+
+            if (TryStartBurrow())
+                return;
 
             if (TryUseJumpLink())
                 return;
@@ -197,6 +252,140 @@ namespace Scripts.Enemies
             }
 
             ApplyMoveIntent(dirToTarget);
+        }
+
+        private bool TryStartBurrow()
+        {
+            if (_data?.Burrow == null || !_data.Burrow.Enabled || _sensor.TargetTransform == null)
+                return false;
+
+            float triggerDistance = Mathf.Max(_data.Attack.AttackRange, _data.Burrow.TriggerMinDistance);
+            if (_sensor.DistanceToTarget <= triggerDistance || Time.time < _nextBurrowAllowedAt)
+                return false;
+
+            _locomotion.ForceStopMotion();
+            _activeJumpLink = null;
+            _burrowDestination = ResolveBurrowDestination(_sensor.TargetTransform.position);
+            _nextBurrowAllowedAt = Time.time + Mathf.Max(0.01f, _data.Burrow.Cooldown);
+            _specialAction = SpecialActionState.BurrowIn;
+            _specialActionTimer = Mathf.Max(0.05f, _animation != null ? _animation.PlayDigIn() : 0f);
+            if (_specialActionTimer <= 0.05f)
+                _specialActionTimer = 0.5f;
+            return true;
+        }
+
+        private void UpdateSpecialAction()
+        {
+            _locomotion.ForceStopMotion();
+
+            if (_specialAction == SpecialActionState.BurrowIn && _animation != null && _animation.ConsumeDigInCompletedSignal())
+            {
+                EnterHiddenBurrowState();
+                return;
+            }
+
+            _specialActionTimer -= Time.deltaTime;
+
+            if (_specialActionTimer > 0f)
+                return;
+
+            switch (_specialAction)
+            {
+                case SpecialActionState.BurrowIn:
+                    EnterHiddenBurrowState();
+                    break;
+
+                case SpecialActionState.Hidden:
+                    ExitHiddenBurrowState();
+                    break;
+
+                case SpecialActionState.BurrowOut:
+                    CompleteSpecialAction();
+                    break;
+            }
+        }
+
+        private void EnterHiddenBurrowState()
+        {
+            _animation?.ReleaseTransientHold();
+
+            if (_animation != null)
+                _animation.SetVisualHidden(true);
+
+            transform.position = _burrowDestination;
+            _locomotion.SnapToGroundNow();
+
+            if (_bodyCollider != null)
+                _bodyCollider.enabled = false;
+
+            _specialAction = SpecialActionState.Hidden;
+            _specialActionTimer = Mathf.Max(0.01f, _data.Burrow.HiddenDelay);
+        }
+
+        private void ExitHiddenBurrowState()
+        {
+            if (_bodyCollider != null)
+                _bodyCollider.enabled = true;
+
+            _locomotion.SnapToGroundNow();
+
+            _specialAction = SpecialActionState.BurrowOut;
+            _specialActionTimer = Mathf.Max(0.05f, _animation != null ? _animation.PlayDigOut() : 0f);
+            if (_specialActionTimer <= 0.05f)
+                _specialActionTimer = 0.45f;
+
+            if (_animation != null)
+                _animation.SetVisualHidden(false);
+        }
+
+        private void CompleteSpecialAction()
+        {
+            _specialAction = SpecialActionState.None;
+            _specialActionTimer = 0f;
+            _postActionPauseUntil = Time.time + Mathf.Max(0f, _data.Burrow.PostExitPause);
+            RollStopDistanceOffset();
+            ScheduleNextDecision(immediate: true);
+        }
+
+        private Vector3 ResolveBurrowDestination(Vector3 targetPosition)
+        {
+            float radius = Mathf.Max(0f, _data.Burrow.ExitOffsetRadius);
+            float[] candidateOffsets =
+            {
+                0f,
+                radius,
+                -radius,
+                radius * 0.5f,
+                -radius * 0.5f,
+                radius * 1.4f,
+                -radius * 1.4f
+            };
+
+            Vector3 fallback = transform.position;
+            float searchHeight = Mathf.Max(0.5f, _data.Burrow.DestinationSearchHeight);
+            float searchDepth = Mathf.Max(0.5f, _data.Burrow.DestinationSearchDepth);
+
+            foreach (float offset in candidateOffsets)
+            {
+                float candidateX = targetPosition.x + offset;
+                Vector2 rayOrigin = new Vector2(candidateX, targetPosition.y + searchHeight);
+                RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, searchHeight + searchDepth, _groundLayerMask);
+                if (hit.collider == null)
+                    continue;
+
+                float destinationY = hit.point.y;
+                if (_bodyCollider != null)
+                {
+                    Bounds bounds = _bodyCollider.bounds;
+                    float halfHeight = Mathf.Max(0.05f, bounds.extents.y);
+                    float offsetFromPivotToFeet = transform.position.y - bounds.min.y;
+                    destinationY += Mathf.Max(halfHeight, offsetFromPivotToFeet) + 0.01f;
+                }
+
+                return new Vector3(candidateX, destinationY, transform.position.z);
+            }
+
+            return fallback;
         }
 
         private bool TryUseJumpLink(bool retreating = false)

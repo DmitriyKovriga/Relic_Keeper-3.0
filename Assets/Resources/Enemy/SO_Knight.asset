@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c880423b817041f408a51e5192873482, type: 3}
-  m_Name: SO_SkeletonScorp
+  m_Name: SO_Knight
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Enemies.EnemyDataSO
-  ID: Skeleton Scorpion
-  DisplayName: Skeleton Scorpion
-  Prefab: {fileID: 3239475662571640954, guid: bb181fe8ba7b4aee96428cec455996ff, type: 3}
-  AIType: 1
+  ID: SO_Knight
+  DisplayName: Knight
+  Prefab: {fileID: 3239475662571640954, guid: 8deacf633519442e9e2de9a1e3aff41a, type: 3}
+  AIType: 0
   BaseStats:
   - Type: 0
     Value: 100
@@ -31,9 +31,9 @@ MonoBehaviour:
     Value: 25
   Stats:
   - Type: 0
-    BaseValue: 100
+    BaseValue: 200
     ScalingMode: 2
-    ScalingValue: 20
+    ScalingValue: 25
   - Type: 30
     BaseValue: 10
     ScalingMode: 2
@@ -55,12 +55,12 @@ MonoBehaviour:
     ScalingMode: 0
     ScalingValue: 0
   Perception:
-    AggroRange: 9
-    LoseTargetRange: 12
+    AggroRange: 6
+    LoseTargetRange: 10
     RequireLineOfSight: 0
   Movement:
-    MoveSpeed: 1.75
-    StopDistance: 1
+    MoveSpeed: 1.95
+    StopDistance: 0.9
     Acceleration: 20
     CanJump: 0
     CanUseJumpLinks: 0
@@ -72,14 +72,14 @@ MonoBehaviour:
   Attack:
     DeliveryType: 0
     DamageType: 0
-    AttackRange: 1.25
+    AttackRange: 1.15
     AttackCooldown: 1.15
-    Windup: 0.45
-    ActiveTime: 0.08
-    Recovery: 0.32
-    DamageMultiplier: 1.15
-    HitboxSize: {x: 1.45, y: 0.9}
-    HitboxOffset: {x: 0.7, y: 0}
+    Windup: 0.22
+    ActiveTime: 0.1
+    Recovery: 0.28
+    DamageMultiplier: 1.1
+    HitboxSize: {x: 1.3, y: 0.85}
+    HitboxOffset: {x: 0.82, y: 0}
     ProjectileVisualResourcePath: 
     ProjectileSpawnOffset: {x: 0, y: 0.15}
     ProjectileSpeed: 6
@@ -87,22 +87,39 @@ MonoBehaviour:
     ProjectileHitRadius: 0.22
     ProjectileAnimationFps: 10
     ProjectileStopsOnGround: 1
-  Behaviour:
-    DecisionIntervalMin: 0.06
-    DecisionIntervalMax: 0.12
-    PostActionPauseMin: 0.04
-    PostActionPauseMax: 0.08
-    StopDistanceVariance: 0.08
-    TurnDelayMin: 0.02
-    TurnDelayMax: 0.05
-    MissRecoveryMultiplier: 1.1
-  Burrow:
+  ChargeAttack:
     Enabled: 1
+    TriggerMinDistance: 2.5
+    TriggerMaxDistance: 4.4
+    AttackCooldown: 3.5
+    DeliveryType: 0
+    DamageType: 0
+    Windup: 0.62
+    ActiveTime: 0.1
+    Recovery: 0.52
+    DamageMultiplier: 1.55
+    HitboxSize: {x: 1.8, y: 0.9}
+    HitboxOffset: {x: 1.05, y: 0}
+    DashSpeed: 8.5
+    DashDuration: 0.26
+    DashOvershootDistance: 1.1
+    IgnoreLedgesDuringDash: 0
+  Behaviour:
+    DecisionIntervalMin: 0.03
+    DecisionIntervalMax: 0.08
+    PostActionPauseMin: 0.05
+    PostActionPauseMax: 0.12
+    StopDistanceVariance: 0.1
+    TurnDelayMin: 0.04
+    TurnDelayMax: 0.1
+    MissRecoveryMultiplier: 1.2
+  Burrow:
+    Enabled: 0
     TriggerMinDistance: 1.6
-    Cooldown: 10
-    ExitOffsetRadius: 0.28
+    Cooldown: 2.2
+    ExitOffsetRadius: 0.35
     HiddenDelay: 0.04
-    PostExitPause: 0.1
+    PostExitPause: 0.12
     DestinationSearchHeight: 3.5
     DestinationSearchDepth: 6
   DeathEffect:
@@ -127,22 +144,27 @@ MonoBehaviour:
     IdleStateName: Idle
     MoveStateName: Walk
     AttackStateName: Attack
+    ChargeStateName: Charge
     HitStateName: Hit
     DigInStateName: DigIn
     DigOutStateName: DigOut
-    IdleSpritesResourcePath: Enemy/SkeletonScrorpResources/bonescorp idle-Sheet
-    MoveSpritesResourcePath: Enemy/SkeletonScrorpResources/bonescorp walk-Sheet
-    AttackSpritesResourcePath: Enemy/SkeletonScrorpResources/bonescorp attack-Sheet
-    HitSpritesResourcePath: Enemy/SkeletonScrorpResources/bonescorp take-damage-Sheet
-    DigInSpritesResourcePath: Enemy/SkeletonScrorpResources/bonescorp digin-Sheet
-    DigOutSpritesResourcePath: Enemy/SkeletonScrorpResources/bonescorp digout-Sheet
+    IdleSpritesResourcePath: Enemy/KnightResources/knight idle-Sheet
+    MoveSpritesResourcePath: Enemy/KnightResources/knight walk-Sheet
+    AttackSpritesResourcePath: Enemy/KnightResources/knight attack-Sheet
+    ChargeSpritesResourcePath: Enemy/KnightResources/knight attack2-2-Sheet
+    HitSpritesResourcePath: 
+    DigInSpritesResourcePath: 
+    DigOutSpritesResourcePath: 
+    VisualLocalOffset: {x: 0, y: 0.43}
     InvertFacingX: 1
     IdleFps: 8
-    MoveFps: 8
-    AttackFps: 12
-    HitFps: 14
-    DigInFps: 18
-    DigOutFps: 15
-    AttackImpactFrame: 5
-  XPReward: 22
+    MoveFps: 10
+    AttackFps: 13
+    ChargeFps: 13
+    HitFps: 10
+    DigInFps: 10
+    DigOutFps: 10
+    AttackImpactFrame: 8
+    ChargeImpactFrame: 8
+  XPReward: 50
   LegacyGrowthPerLevelPercent: 25

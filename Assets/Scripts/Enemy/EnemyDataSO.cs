@@ -110,6 +110,27 @@ namespace Scripts.Enemies
     }
 
     [Serializable]
+    public class EnemyChargeAttackConfig
+    {
+        public bool Enabled;
+        [Min(0f)] public float TriggerMinDistance = 2.2f;
+        [Min(0f)] public float TriggerMaxDistance = 4.8f;
+        [Min(0f)] public float AttackCooldown = 3f;
+        public EnemyAttackDeliveryType DeliveryType = EnemyAttackDeliveryType.Melee;
+        public EnemyAttackDamageType DamageType = EnemyAttackDamageType.Physical;
+        [Min(0f)] public float Windup = 0.3f;
+        [Min(0f)] public float ActiveTime = 0.1f;
+        [Min(0f)] public float Recovery = 0.35f;
+        [Min(0f)] public float DamageMultiplier = 1.35f;
+        public Vector2 HitboxSize = new Vector2(1.6f, 0.9f);
+        public Vector2 HitboxOffset = new Vector2(0.95f, 0f);
+        [Min(0f)] public float DashSpeed = 5.25f;
+        [Min(0f)] public float DashDuration = 0.22f;
+        [Min(0f)] public float DashOvershootDistance = 0.95f;
+        public bool IgnoreLedgesDuringDash;
+    }
+
+    [Serializable]
     public class EnemyBehaviourConfig
     {
         [Min(0f)] public float DecisionIntervalMin = 0.03f;
@@ -120,6 +141,19 @@ namespace Scripts.Enemies
         [Min(0f)] public float TurnDelayMin = 0.04f;
         [Min(0f)] public float TurnDelayMax = 0.1f;
         [Min(0f)] public float MissRecoveryMultiplier = 1.2f;
+    }
+
+    [Serializable]
+    public class EnemyBurrowConfig
+    {
+        public bool Enabled;
+        [Min(0f)] public float TriggerMinDistance = 1.6f;
+        [Min(0f)] public float Cooldown = 2.2f;
+        [Min(0f)] public float ExitOffsetRadius = 0.35f;
+        [Min(0f)] public float HiddenDelay = 0.04f;
+        [Min(0f)] public float PostExitPause = 0.12f;
+        [Min(0f)] public float DestinationSearchHeight = 3.5f;
+        [Min(0f)] public float DestinationSearchDepth = 6f;
     }
 
     [Serializable]
@@ -151,19 +185,38 @@ namespace Scripts.Enemies
         public string IdleStateName = "Idle";
         public string MoveStateName = "Walk";
         public string AttackStateName = "Attack";
+        public string ChargeStateName = "Charge";
+        public string HitStateName = "Hit";
+        public string DigInStateName = "DigIn";
+        public string DigOutStateName = "DigOut";
         public string IdleSpritesResourcePath;
         public string MoveSpritesResourcePath;
         public string AttackSpritesResourcePath;
+        public string ChargeSpritesResourcePath;
+        public string HitSpritesResourcePath;
+        public string DigInSpritesResourcePath;
+        public string DigOutSpritesResourcePath;
+        public Vector2 VisualLocalOffset = Vector2.zero;
+        public bool InvertFacingX;
         [Min(1f)] public float IdleFps = 8f;
         [Min(1f)] public float MoveFps = 8f;
         [Min(1f)] public float AttackFps = 10f;
+        [Min(1f)] public float ChargeFps = 10f;
+        [Min(1f)] public float HitFps = 10f;
+        [Min(1f)] public float DigInFps = 10f;
+        [Min(1f)] public float DigOutFps = 10f;
         public int AttackImpactFrame = -1;
+        public int ChargeImpactFrame = -1;
 
         public bool UsesSpriteSheets =>
             Controller == null &&
             (!string.IsNullOrWhiteSpace(IdleSpritesResourcePath) ||
              !string.IsNullOrWhiteSpace(MoveSpritesResourcePath) ||
-             !string.IsNullOrWhiteSpace(AttackSpritesResourcePath));
+             !string.IsNullOrWhiteSpace(AttackSpritesResourcePath) ||
+             !string.IsNullOrWhiteSpace(ChargeSpritesResourcePath) ||
+             !string.IsNullOrWhiteSpace(HitSpritesResourcePath) ||
+             !string.IsNullOrWhiteSpace(DigInSpritesResourcePath) ||
+             !string.IsNullOrWhiteSpace(DigOutSpritesResourcePath));
     }
 
     [CreateAssetMenu(menuName = "RPG/Enemies/Enemy Data")]
@@ -191,8 +244,14 @@ namespace Scripts.Enemies
         [Header("Attack")]
         public EnemyAttackConfig Attack = new EnemyAttackConfig();
 
+        [Header("Charge Attack")]
+        public EnemyChargeAttackConfig ChargeAttack = new EnemyChargeAttackConfig();
+
         [Header("Behaviour")]
         public EnemyBehaviourConfig Behaviour = new EnemyBehaviourConfig();
+
+        [Header("Burrow")]
+        public EnemyBurrowConfig Burrow = new EnemyBurrowConfig();
 
         [Header("Death Effect")]
         public EnemyDeathEffectConfig DeathEffect = new EnemyDeathEffectConfig();
@@ -208,7 +267,17 @@ namespace Scripts.Enemies
 
         public StatType GetAttackDamageStatType()
         {
-            return Attack.DamageType switch
+            return GetDamageStatType(Attack.DamageType);
+        }
+
+        public StatType GetChargeDamageStatType()
+        {
+            return GetDamageStatType(ChargeAttack.DamageType);
+        }
+
+        private static StatType GetDamageStatType(EnemyAttackDamageType damageType)
+        {
+            return damageType switch
             {
                 EnemyAttackDamageType.Fire => StatType.DamageFire,
                 EnemyAttackDamageType.Cold => StatType.DamageCold,
@@ -224,7 +293,9 @@ namespace Scripts.Enemies
             Perception ??= new EnemyPerceptionConfig();
             Movement ??= new EnemyMovementConfig();
             Attack ??= new EnemyAttackConfig();
+            ChargeAttack ??= new EnemyChargeAttackConfig();
             Behaviour ??= new EnemyBehaviourConfig();
+            Burrow ??= new EnemyBurrowConfig();
             DeathEffect ??= new EnemyDeathEffectConfig();
             Animation ??= new EnemyAnimationConfig();
         }

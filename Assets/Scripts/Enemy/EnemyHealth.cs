@@ -13,6 +13,9 @@ namespace Scripts.Enemies
         public bool DestroyOnDeath = true;
 
         private EnemyStats _stats;
+        private EnemyAttackController _attack;
+        private EnemyAnimationBridge _animation;
+        private EnemyBrain _brain;
         private float _currentHealth;
         private float _maxHealth;
         private bool _isDead;
@@ -27,6 +30,9 @@ namespace Scripts.Enemies
         private void Awake()
         {
             _stats = GetComponent<EnemyStats>();
+            _attack = GetComponent<EnemyAttackController>();
+            _animation = GetComponent<EnemyAnimationBridge>();
+            _brain = GetComponent<EnemyBrain>();
         }
 
         public void Initialize()
@@ -66,6 +72,7 @@ namespace Scripts.Enemies
                 finalDamage = 0;
 
             _currentHealth -= finalDamage;
+            TryPlayHitReaction(finalDamage);
 
             if (FloatingTextManager.Instance != null && finalDamage > 0f)
             {
@@ -120,6 +127,15 @@ namespace Scripts.Enemies
             if (_stats == null)
                 _stats = GetComponent<EnemyStats>();
 
+            if (_attack == null)
+                _attack = GetComponent<EnemyAttackController>();
+
+            if (_animation == null)
+                _animation = GetComponent<EnemyAnimationBridge>();
+
+            if (_brain == null)
+                _brain = GetComponent<EnemyBrain>();
+
             if (_stats == null)
                 return false;
 
@@ -127,6 +143,20 @@ namespace Scripts.Enemies
                 Initialize();
 
             return _stats != null && _maxHealth > 0f;
+        }
+
+        private void TryPlayHitReaction(float finalDamage)
+        {
+            if (finalDamage <= 0f || _animation == null)
+                return;
+
+            if (_attack != null && _attack.IsBusy)
+                return;
+
+            if (_brain != null && _brain.IsInSpecialAction)
+                return;
+
+            _animation.TryPlayHitReaction();
         }
 
         private static string ResolveDominantDamageType(float physical, float fire, float cold, float lightning)

@@ -7600,6 +7600,7 @@ MonoBehaviour:
   _restoreStateOnLevelUp: 0
   _defaultCharacterData: {fileID: 11400000, guid: 7a280e056672c5b4285aac0bd852f35d, type: 2}
   _globalBaseStats: {fileID: 11400000, guid: 19e67b471123e944eb9bdaa976eb72b0, type: 2}
+  _resourceRegenTickSeconds: 1
 --- !u!114 &1563690800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9254,6 +9255,11 @@ MonoBehaviour:
   _healthFill: {fileID: 96443682}
   _manaFill: {fileID: 17368890}
   _xpFill: {fileID: 352212999}
+  _resourceBarFxDuration: 0.24
+  _healthDamageFxColor: {r: 0.9, g: 0.2, b: 0.2, a: 0.85}
+  _healthRegenFxColor: {r: 0.25, g: 0.95, b: 0.35, a: 0.8}
+  _manaSpendFxColor: {r: 0.3, g: 0.55, b: 1, a: 0.8}
+  _manaRegenFxColor: {r: 0.2, g: 1, b: 0.95, a: 0.75}
   _healthValueText: {fileID: 1288406802}
   _manaValueText: {fileID: 1829139808}
   _xpValueText: {fileID: 935984320}
