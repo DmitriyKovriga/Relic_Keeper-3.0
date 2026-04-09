@@ -69,6 +69,7 @@ public class PlayerMovement : MonoBehaviour
     private bool _hasMotionOverride;
     private Vector2 _motionOverrideVelocity;
     private bool _motionOverrideSuspendsGravity;
+    private bool _motionOverridePreservesVerticalVelocity;
     private float _cachedGravityScale;
     private bool _hasCachedGravityScale;
     private bool _isFastFallPriming;
@@ -99,7 +100,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void BeginMotionOverride(Vector2 velocity, bool suspendGravity)
+    public void BeginMotionOverride(Vector2 velocity, bool suspendGravity, bool preserveVerticalVelocity = false)
     {
         if (_rb == null)
             return;
@@ -107,6 +108,7 @@ public class PlayerMovement : MonoBehaviour
         _hasMotionOverride = true;
         _motionOverrideVelocity = velocity;
         _motionOverrideSuspendsGravity = suspendGravity;
+        _motionOverridePreservesVerticalVelocity = preserveVerticalVelocity;
 
         if (suspendGravity && !_hasCachedGravityScale)
         {
@@ -136,6 +138,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         _motionOverrideSuspendsGravity = false;
+        _motionOverridePreservesVerticalVelocity = false;
         _rb.linearVelocity = restoredVelocity;
     }
 
@@ -304,7 +307,8 @@ public class PlayerMovement : MonoBehaviour
         {
             _isFastFallPriming = false;
             _isFastFalling = false;
-            RestoreBaseGravity();
+            if (!_motionOverrideSuspendsGravity)
+                RestoreBaseGravity();
             return;
         }
 
@@ -392,7 +396,8 @@ public class PlayerMovement : MonoBehaviour
             _rb.gravityScale = 0f;
         }
 
-        _rb.linearVelocity = _motionOverrideVelocity;
+        float verticalVelocity = _motionOverridePreservesVerticalVelocity ? _rb.linearVelocity.y : _motionOverrideVelocity.y;
+        _rb.linearVelocity = new Vector2(_motionOverrideVelocity.x, verticalVelocity);
     }
 
     private void ApplyJumpForce(float verticalMultiplier = 1f, float? horizontalOverride = null)

@@ -7769,8 +7769,6 @@ MonoBehaviour:
   _airLandingRefundThreshold: 1
   _groundDodgeDistance: 2.2
   _airDodgeDistance: 2.6
-  _groundDodgeStartupDelay: 0.05
-  _groundDodgeSpeedMultiplier: 0.72
   _dodgeVfxAlpha: 0.8
   _keyboardDodgeKey: 51
   _gamepadDodgeButton: 0

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Scripts.Skills;
@@ -33,10 +33,8 @@ public class PlayerAttackInput : MonoBehaviour
     [SerializeField] private float _groundDodgeCooldown = 1f;
     [SerializeField] private float _airDodgeCooldown = 4f;
     [SerializeField] private float _airLandingRefundThreshold = 1f;
-    [SerializeField] private float _groundDodgeDistance = 2.2f;
+    [SerializeField] private float _groundDodgeDistance = 2.6f;
     [SerializeField] private float _airDodgeDistance = 2.6f;
-    [SerializeField, Min(0f)] private float _groundDodgeStartupDelay = 0.065f;
-    [SerializeField, Range(0.1f, 1f)] private float _groundDodgeSpeedMultiplier = 0.58f;
     [SerializeField, Range(0f, 1f)] private float _dodgeVfxAlpha = 0.8f;
     [SerializeField] private Key _keyboardDodgeKey = Key.LeftShift;
     [SerializeField] private DodgeGamepadButton _gamepadDodgeButton = DodgeGamepadButton.RightShoulder;
@@ -78,7 +76,6 @@ public class PlayerAttackInput : MonoBehaviour
     private Vector2 _savedVelocityBeforeDodge;
     private Coroutine _flashCoroutine;
     private Coroutine _afterImageCoroutine;
-    private Coroutine _groundDodgeStartupCoroutine;
     private bool _isStationaryDodge;
     private bool _currentDodgeCanDashJump;
     private Vector3 _visualRootInitialLocalPosition;
@@ -159,12 +156,6 @@ public class PlayerAttackInput : MonoBehaviour
             _afterImageCoroutine = null;
         }
 
-        if (_groundDodgeStartupCoroutine != null)
-        {
-            StopCoroutine(_groundDodgeStartupCoroutine);
-            _groundDodgeStartupCoroutine = null;
-        }
-
         RestoreVisualPose();
     }
 
@@ -233,8 +224,6 @@ public class PlayerAttackInput : MonoBehaviour
         _savedVelocityBeforeDodge = _playerMovement != null ? _playerMovement.CurrentVelocity : Vector2.zero;
         bool stationaryDodge = dodgeDirection.sqrMagnitude <= 0.001f;
         Vector2 dodgeVelocity = BuildDodgeVelocity(dodgeDirection, dodgeDistance, effectiveDodgeTime, _savedVelocityBeforeDodge);
-        if (startedGrounded && !stationaryDodge)
-            dodgeVelocity *= Mathf.Clamp(_groundDodgeSpeedMultiplier, 0.1f, 1f);
         _isDodging = true;
         _isStationaryDodge = stationaryDodge;
         _currentDodgeCanDashJump = startedGrounded && !_isStationaryDodge;
@@ -252,14 +241,11 @@ public class PlayerAttackInput : MonoBehaviour
         if (_playerMovement != null)
         {
             _playerMovement.SetMovementLock(true);
-            bool useGroundStartupDelay = startedGrounded && !_isStationaryDodge && _groundDodgeStartupDelay > 0.001f;
-            _playerMovement.BeginMotionOverride(useGroundStartupDelay ? Vector2.zero : dodgeVelocity, true);
-            if (useGroundStartupDelay)
-            {
-                if (_groundDodgeStartupCoroutine != null)
-                    StopCoroutine(_groundDodgeStartupCoroutine);
-                _groundDodgeStartupCoroutine = StartCoroutine(ApplyGroundDodgeVelocityAfterDelay(dodgeVelocity));
-            }
+            bool useGroundDirectionalOverride = startedGrounded && !_isStationaryDodge;
+            _playerMovement.BeginMotionOverride(
+                dodgeVelocity,
+                suspendGravity: !useGroundDirectionalOverride,
+                preserveVerticalVelocity: useGroundDirectionalOverride);
 
             if (Mathf.Abs(dodgeDirection.x) > 0.01f)
                 _playerMovement.ForceFaceDirection(dodgeDirection.x);
@@ -288,7 +274,7 @@ public class PlayerAttackInput : MonoBehaviour
         {
             Vector2 restoredVelocity = _savedVelocityBeforeDodge;
             if (_playerMovement.IsGrounded)
-                restoredVelocity = new Vector2(restoredVelocity.x, 0f);
+                restoredVelocity = new Vector2(restoredVelocity.x, Mathf.Min(0f, _playerMovement.CurrentVelocity.y));
 
             _playerMovement.EndMotionOverride(restoredVelocity);
             _playerMovement.SetMovementLock(false);
@@ -298,12 +284,6 @@ public class PlayerAttackInput : MonoBehaviour
         {
             StopCoroutine(_afterImageCoroutine);
             _afterImageCoroutine = null;
-        }
-
-        if (_groundDodgeStartupCoroutine != null)
-        {
-            StopCoroutine(_groundDodgeStartupCoroutine);
-            _groundDodgeStartupCoroutine = null;
         }
 
         RestoreVisualPose();
@@ -409,14 +389,8 @@ public class PlayerAttackInput : MonoBehaviour
                 _afterImageCoroutine = null;
             }
 
-            if (_groundDodgeStartupCoroutine != null)
-            {
-                StopCoroutine(_groundDodgeStartupCoroutine);
-                _groundDodgeStartupCoroutine = null;
-            }
-
-            RestoreVisualPose();
-            _playerMovement.EndMotionOverride(carryVelocity);
+        RestoreVisualPose();
+        _playerMovement.EndMotionOverride(carryVelocity);
         }
 
         _playerMovement.SetMovementLock(false);
@@ -658,17 +632,6 @@ public class PlayerAttackInput : MonoBehaviour
         return 0f;
     }
 
-    private IEnumerator ApplyGroundDodgeVelocityAfterDelay(Vector2 dodgeVelocity)
-    {
-        yield return new WaitForSeconds(Mathf.Max(0.001f, _groundDodgeStartupDelay));
-
-        _groundDodgeStartupCoroutine = null;
-        if (!_isDodging || _playerMovement == null)
-            yield break;
-
-        _playerMovement.UpdateMotionOverride(dodgeVelocity);
-    }
-
     private float GetDashJumpWindowSeconds()
     {
         return Mathf.Max(0.01f, _dashJumpWindowMilliseconds / 1000f);
@@ -874,3 +837,4 @@ public sealed class TransientSpriteFlashOverlay : MonoBehaviour
         transform.localScale = _source.transform.lossyScale;
     }
 }
+

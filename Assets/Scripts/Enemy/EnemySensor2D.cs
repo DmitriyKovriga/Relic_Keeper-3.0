@@ -11,6 +11,8 @@ namespace Scripts.Enemies
         private EnemyDataSO _data;
         private PlayerStats _playerStats;
         private PlayerDamageReceiver _playerDamageable;
+        private bool _isAlerted;
+        private float _targetMemoryUntil;
 
         public Transform TargetTransform => _playerStats != null ? _playerStats.transform : null;
         public IDamageable TargetDamageable => _playerDamageable;
@@ -52,19 +54,34 @@ namespace Scripts.Enemies
             VerticalDistance = Mathf.Abs(delta.y);
             DirectionToTarget = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.zero;
 
-            if (DistanceToTarget > _data.Perception.AggroRange)
+            float acquireRange = Mathf.Max(0f, _data.Perception.AggroRange);
+            float loseRange = Mathf.Max(acquireRange, _data.Perception.LoseTargetRange);
+            if (_isAlerted)
+                loseRange *= Mathf.Max(1f, _data.Perception.AlertLoseTargetRangeMultiplier);
+
+            bool withinAcquireRange = DistanceToTarget <= acquireRange;
+            bool withinLoseRange = DistanceToTarget <= loseRange;
+            bool lineBlocked = _data.Perception.RequireLineOfSight && IsLineBlocked(from, to);
+            bool ignoreLineOfSight = _isAlerted && _data.Perception.IgnoreLineOfSightWhileAlerted;
+
+            if (withinAcquireRange && (!lineBlocked || ignoreLineOfSight))
             {
-                ClearTarget();
+                AcquireTarget();
                 return;
             }
 
-            if (_data.Perception.RequireLineOfSight && IsLineBlocked(from, to))
+            if (_isAlerted && withinLoseRange)
             {
-                ClearTarget();
-                return;
+                if (!lineBlocked || ignoreLineOfSight || Time.time <= _targetMemoryUntil)
+                {
+                    HasTarget = true;
+                    if (!lineBlocked || ignoreLineOfSight)
+                        RefreshTargetMemory();
+                    return;
+                }
             }
 
-            HasTarget = true;
+            ClearTarget();
         }
 
         public bool IsTargetWithin(float distance)
@@ -94,6 +111,19 @@ namespace Scripts.Enemies
 
             var hit = Physics2D.Raycast(from, dir.normalized, dist, GroundLayerMask);
             return hit.collider != null;
+        }
+
+        private void AcquireTarget()
+        {
+            HasTarget = true;
+            _isAlerted = true;
+            RefreshTargetMemory();
+        }
+
+        private void RefreshTargetMemory()
+        {
+            float memoryDuration = Mathf.Max(0f, _data != null && _data.Perception != null ? _data.Perception.AggroMemoryDuration : 0f);
+            _targetMemoryUntil = Time.time + memoryDuration;
         }
 
         private void ClearTarget()

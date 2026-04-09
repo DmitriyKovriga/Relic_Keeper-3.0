@@ -241,6 +241,29 @@ namespace Scripts.Enemies
             return 0f;
         }
 
+        public float GetCurrentStateRemainingDuration()
+        {
+            if (_data == null || _data.Animation == null || string.IsNullOrWhiteSpace(_currentState))
+                return 0f;
+
+            if (_mode == AnimationMode.SpriteSheets)
+            {
+                Sprite[] frames = GetFramesForState(_currentState);
+                if (frames == null || frames.Length == 0)
+                    return 0f;
+
+                float totalDuration = frames.Length / Mathf.Max(1f, GetFpsForState(_currentState));
+                return Mathf.Max(0f, totalDuration - _stateTime);
+            }
+
+            if (_animator == null)
+                return 0f;
+
+            AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
+            float normalizedTime = Mathf.Clamp01(stateInfo.normalizedTime);
+            return Mathf.Max(0f, stateInfo.length * (1f - normalizedTime));
+        }
+
         public bool ConsumeAttackImpactSignal()
         {
             bool queued = _attackImpactQueued;

@@ -58,6 +58,9 @@ MonoBehaviour:
     AggroRange: 9
     LoseTargetRange: 12
     RequireLineOfSight: 0
+    AggroMemoryDuration: 3.5
+    AlertLoseTargetRangeMultiplier: 1.5
+    IgnoreLineOfSightWhileAlerted: 1
   Movement:
     MoveSpeed: 1.75
     StopDistance: 1
@@ -88,10 +91,12 @@ MonoBehaviour:
     ProjectileAnimationFps: 10
     ProjectileStopsOnGround: 1
   Behaviour:
-    DecisionIntervalMin: 0.06
-    DecisionIntervalMax: 0.12
-    PostActionPauseMin: 0.04
-    PostActionPauseMax: 0.08
+    DecisionIntervalMin: 0.08
+    DecisionIntervalMax: 0.16
+    ActionHesitationMin: 0.08
+    ActionHesitationMax: 0.16
+    PostActionPauseMin: 1
+    PostActionPauseMax: 3
     StopDistanceVariance: 0.08
     TurnDelayMin: 0.02
     TurnDelayMax: 0.05

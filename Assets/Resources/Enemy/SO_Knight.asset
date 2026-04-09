@@ -58,6 +58,9 @@ MonoBehaviour:
     AggroRange: 6
     LoseTargetRange: 10
     RequireLineOfSight: 0
+    AggroMemoryDuration: 4
+    AlertLoseTargetRangeMultiplier: 1.6
+    IgnoreLineOfSightWhileAlerted: 1
   Movement:
     MoveSpeed: 1.95
     StopDistance: 0.9
@@ -105,10 +108,12 @@ MonoBehaviour:
     DashOvershootDistance: 1.1
     IgnoreLedgesDuringDash: 0
   Behaviour:
-    DecisionIntervalMin: 0.03
-    DecisionIntervalMax: 0.08
-    PostActionPauseMin: 0.05
-    PostActionPauseMax: 0.12
+    DecisionIntervalMin: 0.08
+    DecisionIntervalMax: 0.16
+    ActionHesitationMin: 0.1
+    ActionHesitationMax: 0.2
+    PostActionPauseMin: 1
+    PostActionPauseMax: 3
     StopDistanceVariance: 0.1
     TurnDelayMin: 0.04
     TurnDelayMax: 0.1

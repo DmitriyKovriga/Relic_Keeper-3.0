@@ -70,6 +70,9 @@ namespace Scripts.Enemies
         [Min(0f)] public float AggroRange = 6f;
         [Min(0f)] public float LoseTargetRange = 10f;
         public bool RequireLineOfSight;
+        [Min(0f)] public float AggroMemoryDuration = 2.5f;
+        [Min(1f)] public float AlertLoseTargetRangeMultiplier = 1.35f;
+        public bool IgnoreLineOfSightWhileAlerted = true;
     }
 
     [Serializable]
@@ -135,8 +138,10 @@ namespace Scripts.Enemies
     {
         [Min(0f)] public float DecisionIntervalMin = 0.03f;
         [Min(0f)] public float DecisionIntervalMax = 0.08f;
-        [Min(0f)] public float PostActionPauseMin = 0.05f;
-        [Min(0f)] public float PostActionPauseMax = 0.12f;
+        [Min(0f)] public float ActionHesitationMin = 0.08f;
+        [Min(0f)] public float ActionHesitationMax = 0.18f;
+        [Min(0f)] public float PostActionPauseMin = 1f;
+        [Min(0f)] public float PostActionPauseMax = 3f;
         [Min(0f)] public float StopDistanceVariance = 0.1f;
         [Min(0f)] public float TurnDelayMin = 0.04f;
         [Min(0f)] public float TurnDelayMax = 0.1f;

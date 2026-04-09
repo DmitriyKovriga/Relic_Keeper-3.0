@@ -339,11 +339,14 @@ namespace Scripts.Enemies
         {
             AttackRuntimeConfig config = GetCurrentAttackConfig();
             float baseRecovery = Mathf.Max(0.01f, config.Recovery);
-            if (_lastAttackConnected)
-                return baseRecovery;
+            if (!_lastAttackConnected)
+            {
+                float multiplier = _data?.Behaviour?.MissRecoveryMultiplier ?? 1f;
+                baseRecovery = Mathf.Max(0.01f, baseRecovery * Mathf.Max(1f, multiplier));
+            }
 
-            float multiplier = _data?.Behaviour?.MissRecoveryMultiplier ?? 1f;
-            return Mathf.Max(0.01f, baseRecovery * Mathf.Max(1f, multiplier));
+            float animationRemaining = _animation != null ? _animation.GetCurrentStateRemainingDuration() : 0f;
+            return Mathf.Max(baseRecovery, animationRemaining, 0.01f);
         }
 
         private DamageSnapshot CreateDamageSnapshot(AttackRuntimeConfig config)
