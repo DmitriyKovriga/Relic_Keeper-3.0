@@ -53,6 +53,10 @@ public class PlayerAttackInput : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float _afterImageAlpha = 0.45f;
     [SerializeField] private Color _afterImageColor = new(0.1f, 0.1f, 0.1f, 0.45f);
 
+    [Header("Directional Dodge Motion")]
+    [SerializeField, Min(0f)] private float _directionalDodgeHorizontalCarryDuration = 0.35f;
+    [SerializeField, Min(0.1f)] private float _directionalDodgeReleaseMomentumMultiplier = 1f;
+
     [Header("Stationary Dodge Pose")]
     [SerializeField, Range(0.7f, 1f)] private float _stationaryDodgeScaleY = 0.86f;
 
@@ -85,6 +89,11 @@ public class PlayerAttackInput : MonoBehaviour
     private float _dashJumpCancelWindowEndTime;
     private float _currentDodgeDirectionX;
     private float _dodgeLockedUntilTime;
+    private bool _isDirectionalPhysicsDodge;
+    private Vector2 _currentDodgeDirection;
+    private float _currentDodgeDistance;
+    private float _currentDodgeDuration;
+    private Vector2 _currentDirectionalDodgeVelocity;
 
     private Action<InputAction.CallbackContext> _firstSkillStartedHandler;
     private Action<InputAction.CallbackContext> _firstSkillCanceledHandler;
@@ -194,6 +203,9 @@ public class PlayerAttackInput : MonoBehaviour
         if (_isDodging && Time.time >= _dodgeEndTime)
             FinishDodge();
 
+        if (_isDodging)
+            UpdateDirectionalDodgeMotion();
+
         if (!_readyFlashTriggered && !_isDodging && Time.time >= _dodgeCooldownReadyTime)
             TriggerDodgeReadyFlash();
 
@@ -223,9 +235,13 @@ public class PlayerAttackInput : MonoBehaviour
 
         _savedVelocityBeforeDodge = _playerMovement != null ? _playerMovement.CurrentVelocity : Vector2.zero;
         bool stationaryDodge = dodgeDirection.sqrMagnitude <= 0.001f;
-        Vector2 dodgeVelocity = BuildDodgeVelocity(dodgeDirection, dodgeDistance, effectiveDodgeTime, _savedVelocityBeforeDodge);
         _isDodging = true;
         _isStationaryDodge = stationaryDodge;
+        _isDirectionalPhysicsDodge = !stationaryDodge;
+        _currentDodgeDirection = dodgeDirection;
+        _currentDodgeDistance = dodgeDistance;
+        _currentDodgeDuration = effectiveDodgeTime;
+        _currentDirectionalDodgeVelocity = BuildDirectionalDodgeVelocity(dodgeDirection, dodgeDistance, effectiveDodgeTime);
         _currentDodgeCanDashJump = startedGrounded && !_isStationaryDodge;
         _dashJumpCancelWindowEndTime = _currentDodgeCanDashJump ? Time.time + GetDashJumpWindowSeconds() : -1f;
         _currentDodgeDirectionX = Mathf.Abs(dodgeDirection.x) > 0.01f ? Mathf.Sign(dodgeDirection.x) : 0f;
@@ -241,11 +257,20 @@ public class PlayerAttackInput : MonoBehaviour
         if (_playerMovement != null)
         {
             _playerMovement.SetMovementLock(true);
-            bool useGroundDirectionalOverride = startedGrounded && !_isStationaryDodge;
-            _playerMovement.BeginMotionOverride(
-                dodgeVelocity,
-                suspendGravity: !useGroundDirectionalOverride,
-                preserveVerticalVelocity: useGroundDirectionalOverride);
+            if (_isDirectionalPhysicsDodge)
+            {
+                _playerMovement.BeginMotionOverride(
+                    _currentDirectionalDodgeVelocity,
+                    suspendGravity: true,
+                    preserveVerticalVelocity: false);
+            }
+            else
+            {
+                _playerMovement.BeginMotionOverride(
+                    Vector2.zero,
+                    suspendGravity: true,
+                    preserveVerticalVelocity: false);
+            }
 
             if (Mathf.Abs(dodgeDirection.x) > 0.01f)
                 _playerMovement.ForceFaceDirection(dodgeDirection.x);
@@ -272,13 +297,29 @@ public class PlayerAttackInput : MonoBehaviour
 
         if (_playerMovement != null)
         {
-            Vector2 restoredVelocity = _savedVelocityBeforeDodge;
-            if (_playerMovement.IsGrounded)
-                restoredVelocity = new Vector2(restoredVelocity.x, Mathf.Min(0f, _playerMovement.CurrentVelocity.y));
+            if (_isDirectionalPhysicsDodge)
+            {
+                Vector2 releaseVelocity = _currentDirectionalDodgeVelocity * Mathf.Max(0.1f, _directionalDodgeReleaseMomentumMultiplier);
+                _playerMovement.EndMotionOverride(releaseVelocity);
+                if (Mathf.Abs(releaseVelocity.x) > 0.01f && _directionalDodgeHorizontalCarryDuration > 0f)
+                    _playerMovement.ApplyHorizontalMomentumCarry(releaseVelocity.x, _directionalDodgeHorizontalCarryDuration);
+            }
+            else
+            {
+                Vector2 restoredVelocity = _savedVelocityBeforeDodge;
+                if (_playerMovement.IsGrounded)
+                    restoredVelocity = new Vector2(restoredVelocity.x, Mathf.Min(0f, _playerMovement.CurrentVelocity.y));
 
-            _playerMovement.EndMotionOverride(restoredVelocity);
+                _playerMovement.EndMotionOverride(restoredVelocity);
+            }
+
             _playerMovement.SetMovementLock(false);
         }
+
+        _currentDodgeDirection = Vector2.zero;
+        _currentDodgeDistance = 0f;
+        _currentDodgeDuration = 0f;
+        _currentDirectionalDodgeVelocity = Vector2.zero;
 
         if (_afterImageCoroutine != null)
         {
@@ -289,6 +330,7 @@ public class PlayerAttackInput : MonoBehaviour
         RestoreVisualPose();
 
         _skillManager.SetSkillUsageSuppressed(false);
+        _isDirectionalPhysicsDodge = false;
 
         if (_playerMovement != null && _playerMovement.IsGrounded)
             HandleLandingDuringCooldown();
@@ -382,6 +424,10 @@ public class PlayerAttackInput : MonoBehaviour
             _currentDodgeCanDashJump = false;
             _dashJumpCancelWindowEndTime = -1f;
             _currentDodgeDirectionX = 0f;
+            _currentDodgeDirection = Vector2.zero;
+            _currentDodgeDistance = 0f;
+            _currentDodgeDuration = 0f;
+            _currentDirectionalDodgeVelocity = Vector2.zero;
 
             if (_afterImageCoroutine != null)
             {
@@ -389,12 +435,16 @@ public class PlayerAttackInput : MonoBehaviour
                 _afterImageCoroutine = null;
             }
 
-        RestoreVisualPose();
-        _playerMovement.EndMotionOverride(carryVelocity);
+            RestoreVisualPose();
+            if (_isDirectionalPhysicsDodge)
+                _playerMovement.EndMotionOverride(carryVelocity);
+            else
+                _playerMovement.EndMotionOverride(carryVelocity);
         }
 
         _playerMovement.SetMovementLock(false);
         _skillManager.SetSkillUsageSuppressed(false);
+        _isDirectionalPhysicsDodge = false;
 
         if (!_playerMovement.TryPerformDashJump(direction))
             return false;
@@ -611,16 +661,21 @@ public class PlayerAttackInput : MonoBehaviour
         return moveInput.normalized;
     }
 
-    private static Vector2 BuildDodgeVelocity(Vector2 dodgeDirection, float dodgeDistance, float dodgeTime, Vector2 currentVelocity)
+    private void UpdateDirectionalDodgeMotion()
     {
-        if (dodgeDirection.sqrMagnitude < 0.0001f)
+        if (!_isDodging || !_isDirectionalPhysicsDodge || _playerMovement == null)
+            return;
+
+        _playerMovement.UpdateMotionOverride(_currentDirectionalDodgeVelocity);
+    }
+
+    private static Vector2 BuildDirectionalDodgeVelocity(Vector2 dodgeDirection, float dodgeDistance, float dodgeTime)
+    {
+        if (dodgeDirection.sqrMagnitude < 0.0001f || dodgeDistance <= 0.0001f)
             return Vector2.zero;
 
-        float burstSpeed = dodgeDistance / Mathf.Max(0.01f, dodgeTime);
-        float speedAlongDirection = Vector2.Dot(currentVelocity, dodgeDirection);
-        float forwardSpeed = Mathf.Max(0f, speedAlongDirection);
-        float finalSpeed = forwardSpeed + burstSpeed;
-        return dodgeDirection * finalSpeed;
+        float speed = dodgeDistance / Mathf.Max(0.01f, dodgeTime);
+        return dodgeDirection.normalized * speed;
     }
 
     private static float ResolveDashJumpDirection(Vector2 moveInput, float fallbackDirection)

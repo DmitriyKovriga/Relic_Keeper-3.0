@@ -7629,7 +7629,7 @@ MonoBehaviour:
   _groundAcceleration: 90
   _groundDeceleration: 32
   _airAcceleration: 38
-  _airDeceleration: 16
+  _airDeceleration: 6
   _maxJumpCount: 2
   _jumpBufferDuration: 0.12
   _dashJumpHorizontalSpeed: 10.5
@@ -7693,7 +7693,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 3
+  m_GravityScale: 2.5
   m_Material: {fileID: 6200000, guid: e18b8f8d153cf6f45b20fd6da2fbcc0b, type: 2}
   m_IncludeLayers:
     serializedVersion: 2

@@ -9,6 +9,7 @@ namespace Scripts.Enemies
     {
         private const int PlayerLayer = 0;
         private const int EnemyLayer = 7;
+        private const int MinEnemySortingOrder = 19000;
 
         [Header("Config")]
         [SerializeField] private EnemyDataSO _defaultData;
@@ -168,8 +169,11 @@ namespace Scripts.Enemies
             if (sr == null)
                 return;
 
-            if (sr.sortingLayerID == 0)
-                sr.sortingOrder = Mathf.Max(sr.sortingOrder, 10);
+            sr.sortingOrder = Mathf.Max(sr.sortingOrder, MinEnemySortingOrder);
+
+            var rootRenderer = GetComponent<SpriteRenderer>();
+            if (rootRenderer != null)
+                rootRenderer.sortingOrder = Mathf.Max(rootRenderer.sortingOrder, MinEnemySortingOrder);
         }
 
         private static void EnsureCharacterCollisionRules()

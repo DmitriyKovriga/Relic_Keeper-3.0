@@ -87,7 +87,6 @@ public class PlayerMovement : MonoBehaviour
     public float DashJumpHorizontalSpeed => _dashJumpHorizontalSpeed;
     public float DashJumpVerticalMultiplier => _dashJumpVerticalMultiplier;
     public float DashJumpCarryDuration => _dashJumpCarryDuration;
-
     public void SetMovementLock(bool isLocked)
     {
         _isMovementLocked = isLocked;
@@ -121,6 +120,11 @@ public class PlayerMovement : MonoBehaviour
     public void UpdateMotionOverride(Vector2 velocity)
     {
         _motionOverrideVelocity = velocity;
+    }
+
+    public void ApplyHorizontalMomentumCarry(float speed, float duration)
+    {
+        BeginHorizontalLaunch(speed, duration);
     }
 
     public void EndMotionOverride(Vector2 restoredVelocity)
