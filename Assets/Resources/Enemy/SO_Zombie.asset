@@ -120,5 +120,7 @@ MonoBehaviour:
     IdleStateName: Zombie_Idle
     MoveStateName: Zombie_Walk
     AttackStateName: Zombie_Attacks
+    HitStateName: Zombie_Hit
+    InvertFacingX: 1
   XPReward: 25
   LegacyGrowthPerLevelPercent: 25

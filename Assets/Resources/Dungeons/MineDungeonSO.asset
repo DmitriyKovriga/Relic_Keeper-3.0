@@ -18,6 +18,5 @@ MonoBehaviour:
   MaxLevel: 10
   RoomCount: 2
   _normalRoomPrefabPaths:
-  - Assets/Resources/Prefabs/Dungeon/MineDungeon/MineRoom_001
-  _bossRoomPrefabPath: Assets/Resources/Prefabs/Dungeon/MineDungeon/MineRoom_001.prefab
-  _debugLogs: 1
+  - Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_001.prefab
+  _bossRoomPrefabPath: Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_001.prefab
