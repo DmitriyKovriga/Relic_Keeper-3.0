@@ -20,3 +20,4 @@ MonoBehaviour:
   _normalRoomPrefabPaths:
   - Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_001.prefab
   _bossRoomPrefabPath: Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_001.prefab
+  _backgroundSpriteResourcePath: Assets/Resources/Sprites/WallAndGrounds/MortfallDungeon/MortFallAssets/Mortfall-background.png

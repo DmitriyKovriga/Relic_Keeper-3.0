@@ -1,11 +1,9 @@
-using UnityEngine;
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Scripts.Dungeon
 {
-    /// <summary>
-    /// Управляет входом в данж, сменой комнат и возвратом в Hub.
-    /// </summary>
     public class DungeonController : MonoBehaviour
     {
         public static DungeonController Instance { get; private set; }
@@ -15,13 +13,17 @@ namespace Scripts.Dungeon
         [SerializeField] private GameObject _hubWorld;
         [SerializeField] private Transform _hubSpawnPoint;
         [SerializeField] private Transform _playerTransform;
+        [SerializeField] private SpriteRenderer _sharedBackgroundRenderer;
+
         [Header("Runtime Placement")]
         [SerializeField] private float _roomWorldZ = 0f;
 
         private DungeonDataSO _currentDungeon;
-        private List<string> _roomSequence = new List<string>();
+        private readonly List<string> _roomSequence = new List<string>();
         private int _currentRoomIndex;
         private GameObject _currentRoomInstance;
+        private Sprite _defaultHubBackgroundSprite;
+        private bool _backgroundPrepared;
 
         private void Awake()
         {
@@ -30,26 +32,25 @@ namespace Scripts.Dungeon
                 Destroy(gameObject);
                 return;
             }
+
             Instance = this;
+            PrepareSharedBackground();
         }
 
         private void OnDestroy()
         {
-            if (Instance == this) Instance = null;
+            if (Instance == this)
+                Instance = null;
         }
 
-        /// <summary>
-        /// Вызывается DungeonPortal при нажатии Interact.
-        /// </summary>
         public static void OnPortalUsed(DungeonPortal portal)
         {
-            if (Instance == null) return;
+            if (Instance == null)
+                return;
+
             Instance.HandlePortalUsed(portal);
         }
 
-        /// <summary>
-        /// Войти в данж. Скрывает Hub, загружает первую комнату.
-        /// </summary>
         public void EnterDungeon(DungeonDataSO dungeon)
         {
             if (dungeon == null)
@@ -61,16 +62,17 @@ namespace Scripts.Dungeon
             _currentDungeon = dungeon;
             BuildRoomSequence();
             _currentRoomIndex = 0;
+            ApplyDungeonBackground(dungeon);
 
-            if (_hubWorld != null) _hubWorld.SetActive(false);
-            if (_dungeonContainer != null) _dungeonContainer.gameObject.SetActive(true);
+            if (_hubWorld != null)
+                _hubWorld.SetActive(false);
+
+            if (_dungeonContainer != null)
+                _dungeonContainer.gameObject.SetActive(true);
 
             LoadCurrentRoom();
         }
 
-        /// <summary>
-        /// Вернуться в Hub.
-        /// </summary>
         public void ReturnToHub()
         {
             if (_currentRoomInstance != null)
@@ -79,17 +81,21 @@ namespace Scripts.Dungeon
                 _currentRoomInstance = null;
             }
 
-            if (_hubWorld != null) _hubWorld.SetActive(true);
-            if (_dungeonContainer != null) _dungeonContainer.gameObject.SetActive(false);
+            if (_hubWorld != null)
+                _hubWorld.SetActive(true);
+
+            if (_dungeonContainer != null)
+                _dungeonContainer.gameObject.SetActive(false);
 
             if (_playerTransform != null && _hubSpawnPoint != null)
             {
-                var p = _hubSpawnPoint.position;
-                _playerTransform.position = new Vector3(p.x, p.y, _playerTransform.position.z);
+                Vector3 spawnPosition = _hubSpawnPoint.position;
+                _playerTransform.position = new Vector3(spawnPosition.x, spawnPosition.y, _playerTransform.position.z);
             }
 
             _currentDungeon = null;
             _roomSequence.Clear();
+            RestoreHubBackground();
         }
 
         private void BuildRoomSequence()
@@ -99,26 +105,23 @@ namespace Scripts.Dungeon
             if (normal == null || normal.Count == 0)
             {
                 if (!string.IsNullOrEmpty(_currentDungeon.BossRoomPrefabPath))
-                {
                     _roomSequence.Add(_currentDungeon.BossRoomPrefabPath);
-                }
+
                 return;
             }
 
             var indices = new List<int>();
-            for (int i = 0; i < normal.Count; i++) indices.Add(i);
+            for (int i = 0; i < normal.Count; i++)
+                indices.Add(i);
+
             Shuffle(indices);
 
             int count = Mathf.Min(_currentDungeon.RoomCount - 1, indices.Count);
             for (int i = 0; i < count; i++)
-            {
                 _roomSequence.Add(normal[indices[i]]);
-            }
 
             if (!string.IsNullOrEmpty(_currentDungeon.BossRoomPrefabPath))
-            {
                 _roomSequence.Add(_currentDungeon.BossRoomPrefabPath);
-            }
         }
 
         private void LoadCurrentRoom()
@@ -129,7 +132,7 @@ namespace Scripts.Dungeon
                 _currentRoomInstance = null;
             }
 
-            var path = _currentRoomIndex < _roomSequence.Count ? _roomSequence[_currentRoomIndex] : null;
+            string path = _currentRoomIndex < _roomSequence.Count ? _roomSequence[_currentRoomIndex] : null;
             if (string.IsNullOrEmpty(path))
             {
                 ReturnToHub();
@@ -139,25 +142,19 @@ namespace Scripts.Dungeon
             var prefab = _currentDungeon.LoadRoomPrefab(path);
             if (prefab == null)
             {
-                Debug.LogWarning($"[DungeonController] Не найден префаб по пути: {path}");
+                Debug.LogWarning($"[DungeonController] Missing room prefab at path: {path}");
                 ReturnToHub();
                 return;
             }
 
-            // Instantiate in world space first so parent transform offset does not push
-            // the whole room behind camera near-clip plane.
             _currentRoomInstance = Instantiate(prefab);
             if (_dungeonContainer != null)
-            {
                 _currentRoomInstance.transform.SetParent(_dungeonContainer, true);
-            }
             else
-            {
                 _currentRoomInstance.transform.SetParent(transform, true);
-            }
 
-            var roomPos = _currentRoomInstance.transform.position;
-            _currentRoomInstance.transform.position = new Vector3(roomPos.x, roomPos.y, _roomWorldZ);
+            Vector3 roomPosition = _currentRoomInstance.transform.position;
+            _currentRoomInstance.transform.position = new Vector3(roomPosition.x, roomPosition.y, _roomWorldZ);
 
             var room = _currentRoomInstance.GetComponent<RoomController>();
             if (room != null && _playerTransform != null)
@@ -172,7 +169,8 @@ namespace Scripts.Dungeon
 
         private void HandlePortalUsed(DungeonPortal portal)
         {
-            if (portal == null || !portal.CanInteract()) return;
+            if (portal == null || !portal.CanInteract())
+                return;
 
             if (portal.Type == PortalType.ReturnToHub)
             {
@@ -187,6 +185,7 @@ namespace Scripts.Dungeon
                     Debug.LogWarning($"[DungeonController] EnterDungeon portal '{portal.name}' has no TargetDungeon assigned.");
                     return;
                 }
+
                 EnterDungeon(portal.TargetDungeon);
                 return;
             }
@@ -201,11 +200,69 @@ namespace Scripts.Dungeon
             LoadCurrentRoom();
         }
 
+        private void PrepareSharedBackground()
+        {
+            if (_backgroundPrepared)
+                return;
+
+            if (_sharedBackgroundRenderer == null)
+                _sharedBackgroundRenderer = FindSharedBackgroundRenderer();
+
+            if (_sharedBackgroundRenderer == null)
+                return;
+
+            _defaultHubBackgroundSprite = _sharedBackgroundRenderer.sprite;
+
+            Transform backgroundTransform = _sharedBackgroundRenderer.transform;
+            if (_hubWorld != null && backgroundTransform.IsChildOf(_hubWorld.transform))
+                backgroundTransform.SetParent(transform, true);
+
+            _backgroundPrepared = true;
+        }
+
+        private SpriteRenderer FindSharedBackgroundRenderer()
+        {
+            if (_hubWorld == null)
+                return null;
+
+            foreach (var spriteRenderer in _hubWorld.GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                if (spriteRenderer == null)
+                    continue;
+
+                if (string.Equals(spriteRenderer.gameObject.name, "NightSky", StringComparison.OrdinalIgnoreCase))
+                    return spriteRenderer;
+            }
+
+            return null;
+        }
+
+        private void ApplyDungeonBackground(DungeonDataSO dungeon)
+        {
+            PrepareSharedBackground();
+            if (_sharedBackgroundRenderer == null || dungeon == null)
+                return;
+
+            Sprite dungeonBackground = dungeon.LoadBackgroundSprite();
+            _sharedBackgroundRenderer.sprite = dungeonBackground != null ? dungeonBackground : _defaultHubBackgroundSprite;
+            _sharedBackgroundRenderer.enabled = _sharedBackgroundRenderer.sprite != null;
+        }
+
+        private void RestoreHubBackground()
+        {
+            PrepareSharedBackground();
+            if (_sharedBackgroundRenderer == null)
+                return;
+
+            _sharedBackgroundRenderer.sprite = _defaultHubBackgroundSprite;
+            _sharedBackgroundRenderer.enabled = _defaultHubBackgroundSprite != null;
+        }
+
         private static void Shuffle<T>(IList<T> list)
         {
             for (int i = list.Count - 1; i > 0; i--)
             {
-                int j = Random.Range(0, i + 1);
+                int j = UnityEngine.Random.Range(0, i + 1);
                 (list[i], list[j]) = (list[j], list[i]);
             }
         }
