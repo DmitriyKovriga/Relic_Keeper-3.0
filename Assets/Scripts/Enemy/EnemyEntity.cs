@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Rendering;
+using Scripts.Visuals;
+using Scripts.StatusEffects;
 
 namespace Scripts.Enemies
 {
@@ -55,7 +57,7 @@ namespace Scripts.Enemies
 
             EnsureCoreComponents();
             EnsureRuntimeComponents(data);
-
+            GetComponent<StatusEffectController>()?.ResetAll();
             _stats.Initialize(data, _level);
             _health.Initialize();
             _sensor.Initialize(this, data);
@@ -89,6 +91,12 @@ namespace Scripts.Enemies
         private void EnsureRuntimeComponents(EnemyDataSO data)
         {
             EnsureVisualRoot(data);
+
+            if (GetComponent<GroundingVisualController>() == null)
+                gameObject.AddComponent<GroundingVisualController>();
+
+            if (GetComponent<StatusEffectController>() == null)
+                gameObject.AddComponent<StatusEffectController>();
 
             _sensor = GetComponent<EnemySensor2D>();
             if (_sensor == null)
@@ -290,3 +298,4 @@ namespace Scripts.Enemies
         }
     }
 }
+

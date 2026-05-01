@@ -1896,6 +1896,18 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 49278527889506304
+    m_Localized: Third Skill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50009768142077952
+    m_Localized: Fourth Skill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50009922148532224
+    m_Localized: Fifth Skill
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

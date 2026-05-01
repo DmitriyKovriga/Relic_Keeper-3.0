@@ -10,6 +10,8 @@ using UnityEngine.InputSystem.Controls;
 [RequireComponent(typeof(PlayerMovement))]
 public class PlayerAttackInput : MonoBehaviour
 {
+    private static readonly string[] SkillActionNames = { "FirstSkill", "SecondSkill", "ThirdSkill", "FourthSkill", "FifthSkill" };
+
     private enum DodgeGamepadButton
     {
         RightShoulder,
@@ -67,8 +69,7 @@ public class PlayerAttackInput : MonoBehaviour
     private Sprite[] _moveDodgeFrames = Array.Empty<Sprite>();
     private Sprite[] _standDodgeFrames = Array.Empty<Sprite>();
 
-    private bool _isMainHandPressed;
-    private bool _isOffHandPressed;
+    private readonly bool[] _pressedSkillInputs = new bool[5];
     private bool _isDodging;
     private bool _lastDodgeStartedInAir;
     private bool _landingRefundConsumed = true;
@@ -95,10 +96,9 @@ public class PlayerAttackInput : MonoBehaviour
     private float _currentDodgeDuration;
     private Vector2 _currentDirectionalDodgeVelocity;
 
-    private Action<InputAction.CallbackContext> _firstSkillStartedHandler;
-    private Action<InputAction.CallbackContext> _firstSkillCanceledHandler;
-    private Action<InputAction.CallbackContext> _secondSkillStartedHandler;
-    private Action<InputAction.CallbackContext> _secondSkillCanceledHandler;
+    private readonly InputAction[] _skillInputActions = new InputAction[5];
+    private readonly Action<InputAction.CallbackContext>[] _skillStartedHandlers = new Action<InputAction.CallbackContext>[5];
+    private readonly Action<InputAction.CallbackContext>[] _skillCanceledHandlers = new Action<InputAction.CallbackContext>[5];
 
     public bool IsDamageImmune => _isDodging;
 
@@ -117,10 +117,12 @@ public class PlayerAttackInput : MonoBehaviour
         _moveDodgeFrames = LoadOrderedSprites("VFX/Dodge/move_dodge");
         _standDodgeFrames = LoadOrderedSprites("VFX/Dodge/stand_dodge-Sheet");
 
-        _firstSkillStartedHandler = _ => _isMainHandPressed = true;
-        _firstSkillCanceledHandler = _ => _isMainHandPressed = false;
-        _secondSkillStartedHandler = _ => _isOffHandPressed = true;
-        _secondSkillCanceledHandler = _ => _isOffHandPressed = false;
+        for (int i = 0; i < SkillActionNames.Length; i++)
+        {
+            int capturedIndex = i;
+            _skillStartedHandlers[i] = _ => _pressedSkillInputs[capturedIndex] = true;
+            _skillCanceledHandlers[i] = _ => _pressedSkillInputs[capturedIndex] = false;
+        }
 
         _dodgeCooldownReadyTime = 0f;
         _wasGroundedLastFrame = _playerMovement != null && _playerMovement.IsGrounded;
@@ -128,26 +130,35 @@ public class PlayerAttackInput : MonoBehaviour
 
     private void OnEnable()
     {
-        var playerActions = InputManager.InputActions.Player;
         _dodgeAction = InputManager.InputActions.asset?.FindAction("Dodge", false);
-        playerActions.FirstSkill.started += _firstSkillStartedHandler;
-        playerActions.FirstSkill.canceled += _firstSkillCanceledHandler;
-        playerActions.SecondSkill.started += _secondSkillStartedHandler;
-        playerActions.SecondSkill.canceled += _secondSkillCanceledHandler;
+        for (int i = 0; i < SkillActionNames.Length; i++)
+        {
+            InputAction action = InputManager.InputActions.asset?.FindAction(SkillActionNames[i], false);
+            _skillInputActions[i] = action;
+            if (action == null)
+                continue;
+
+            action.started += _skillStartedHandlers[i];
+            action.canceled += _skillCanceledHandlers[i];
+        }
     }
 
     private void OnDisable()
     {
-        _isMainHandPressed = false;
-        _isOffHandPressed = false;
+        ClearPressedSkillInputs();
 
         if (InputManager.InputActions != null)
         {
-            var playerActions = InputManager.InputActions.Player;
-            playerActions.FirstSkill.started -= _firstSkillStartedHandler;
-            playerActions.FirstSkill.canceled -= _firstSkillCanceledHandler;
-            playerActions.SecondSkill.started -= _secondSkillStartedHandler;
-            playerActions.SecondSkill.canceled -= _secondSkillCanceledHandler;
+            for (int i = 0; i < _skillInputActions.Length; i++)
+            {
+                InputAction action = _skillInputActions[i];
+                if (action == null)
+                    continue;
+
+                action.started -= _skillStartedHandlers[i];
+                action.canceled -= _skillCanceledHandlers[i];
+                _skillInputActions[i] = null;
+            }
         }
 
         if (_isDodging)
@@ -187,11 +198,11 @@ public class PlayerAttackInput : MonoBehaviour
         if (_isDodging)
             return;
 
-        if (_isMainHandPressed)
-            _skillManager.UseSkill(0);
-
-        if (_isOffHandPressed)
-            _skillManager.UseSkill(1);
+        for (int i = 0; i < _pressedSkillInputs.Length; i++)
+        {
+            if (_pressedSkillInputs[i])
+                _skillManager.UseSkill(i);
+        }
     }
 
     private void UpdateDodgeState()
@@ -212,6 +223,12 @@ public class PlayerAttackInput : MonoBehaviour
         _wasGroundedLastFrame = groundedNow;
     }
 
+    private void ClearPressedSkillInputs()
+    {
+        for (int i = 0; i < _pressedSkillInputs.Length; i++)
+            _pressedSkillInputs[i] = false;
+    }
+
     private void TryStartDodge()
     {
         if (_isDodging)
@@ -224,8 +241,7 @@ public class PlayerAttackInput : MonoBehaviour
             return;
 
         _skillManager.CancelAllSkills();
-        _isMainHandPressed = false;
-        _isOffHandPressed = false;
+        ClearPressedSkillInputs();
 
         bool startedGrounded = _playerMovement != null && _playerMovement.IsGrounded;
         Vector2 moveInput = _playerMovement != null ? _playerMovement.CurrentMoveInput : Vector2.zero;
@@ -386,8 +402,7 @@ public class PlayerAttackInput : MonoBehaviour
 
         _playerMovement.ConsumeBufferedJump();
         _skillManager.CancelAllSkills();
-        _isMainHandPressed = false;
-        _isOffHandPressed = false;
+        ClearPressedSkillInputs();
         return ExecuteDashJump(direction);
     }
 

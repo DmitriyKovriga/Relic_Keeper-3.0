@@ -202,6 +202,8 @@ namespace Scripts.Enemies
         public string DigInSpritesResourcePath;
         public string DigOutSpritesResourcePath;
         public Vector2 VisualLocalOffset = Vector2.zero;
+        public Vector2 GroundShadowOffset = Vector2.zero;
+        [Min(0.1f)] public float GroundShadowWidthScale = 1f;
         public bool InvertFacingX;
         [Min(1f)] public float IdleFps = 8f;
         [Min(1f)] public float MoveFps = 8f;

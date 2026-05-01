@@ -37,6 +37,13 @@ MonoBehaviour:
       BoolVal: 0
       StringVal: 
       ObjectVal: {fileID: 2364399391761541139, guid: 02c498a819fa0924eb87b339642bc8f5, type: 3}
+    - Key: GrowthMode
+      Type: 1
+      FloatVal: 0
+      IntVal: 1
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
     - Key: OffsetX
       Type: 0
       FloatVal: 1.2

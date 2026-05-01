@@ -74,3 +74,15 @@ MonoBehaviour:
     displayOrder: 14
     showInSettings: 1
     defaultBindingPath: <Keyboard>/leftShift
+  - actionName: ThirdSkill
+    displayOrder: 15
+    showInSettings: 1
+    defaultBindingPath: <Keyboard>/q
+  - actionName: FourthSkill
+    displayOrder: 16
+    showInSettings: 1
+    defaultBindingPath: <Keyboard>/e
+  - actionName: FifthSkill
+    displayOrder: 17
+    showInSettings: 1
+    defaultBindingPath: <Keyboard>/r

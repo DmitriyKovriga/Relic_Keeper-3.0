@@ -5,6 +5,7 @@ using System.Linq;
 using Scripts.Skills;
 using Scripts.Skills.Steps;
 using Scripts.Skills.Modules;
+using Scripts.StatusEffects;
 
 namespace Scripts.Editor.Skills
 {
@@ -33,6 +34,7 @@ namespace Scripts.Editor.Skills
 
         private void OnEnable()
         {
+            EnsureBuiltInStepDefinitions();
             Refresh();
         }
 
@@ -405,6 +407,14 @@ namespace Scripts.Editor.Skills
                 var prefab = step.GetObject<GameObject>("VfxPrefab");
                 var newPrefab = (GameObject)EditorGUILayout.ObjectField("VFX Prefab", prefab, typeof(GameObject), false);
                 if (newPrefab != prefab) { step.SetOverrideObject("VfxPrefab", newPrefab); EditorUtility.SetDirty(recipe); }
+                int growthMode = step.GetInt("GrowthMode", 0);
+                int newGrowthMode = EditorGUILayout.Popup(
+                    new GUIContent(
+                        "Growth mode",
+                        "Centered = VFX grows in all directions from its center. Locked away from caster = if VFX is offset in front/behind/above/below, AOE scaling expands it only away from the character."),
+                    growthMode,
+                    new[] { "Centered", "Locked away from caster" });
+                if (newGrowthMode != growthMode) { step.SetOverrideInt("GrowthMode", newGrowthMode); EditorUtility.SetDirty(recipe); }
                 float sm = step.GetFloat("ScaleMultiplier", 1f);
                 float nsm = EditorGUILayout.FloatField("Scale multiplier", sm);
                 if (Mathf.Abs(nsm - sm) > 0.001f) { step.SetOverrideFloat("ScaleMultiplier", nsm); EditorUtility.SetDirty(recipe); }
@@ -414,6 +424,8 @@ namespace Scripts.Editor.Skills
                 float oy = step.GetFloat("OffsetY", 0f);
                 float noy = EditorGUILayout.FloatField("Offset Y", oy);
                 if (noy != oy) { step.SetOverrideFloat("OffsetY", noy); EditorUtility.SetDirty(recipe); }
+                if (newGrowthMode == 1)
+                    EditorGUILayout.HelpBox("Locked away from caster: with positive Offset X the VFX grows to the right/front, with negative Offset X to the left/back. The same rule works for Offset Y above/below the character.", MessageType.None);
                 if (isSubStep)
                 {
                     EditorGUILayout.HelpBox("ParallelGroup sub-steps still use legacy duration in seconds. For regular Spawn VFX steps, lifetime now comes from Start % / End % in Timing.", MessageType.None);
@@ -522,6 +534,87 @@ namespace Scripts.Editor.Skills
                 return;
             }
 
+            if (id == "ApplyStatusSelf")
+            {
+                DrawStatusEffectAssetField(recipe, step);
+                int src = step.GetInt("SourceStepIndex", -1);
+                int nsrc = EditorGUILayout.IntField("Source step index (-1 = instant)", src);
+                if (nsrc != src) { step.SetOverrideInt("SourceStepIndex", nsrc); EditorUtility.SetDirty(recipe); }
+                EditorGUI.BeginDisabledGroup(nsrc < 0);
+                float vfxLife = step.GetFloat("VfxLifetimePercent", 0f);
+                float nvfxLife = EditorGUILayout.Slider("Apply at VFX life %", vfxLife, 0f, 1f);
+                if (Mathf.Abs(nvfxLife - vfxLife) > 0.001f) { step.SetOverrideFloat("VfxLifetimePercent", nvfxLife); EditorUtility.SetDirty(recipe); }
+                EditorGUI.EndDisabledGroup();
+                EditorGUILayout.HelpBox("Применяет выбранный buff/debuff на самого владельца скилла. Если указан Source step index, применение можно сдвинуть на процент жизни VFX.", MessageType.None);
+                return;
+            }
+
+            if (id == "ApplyStatusCircle")
+            {
+                DrawStatusEffectAssetField(recipe, step);
+                EditorGUILayout.HelpBox("Круговая зона наложения статуса. Если указан Source step index, круг берёт размер текущего кадра VFX; иначе используется обычный Radius.", MessageType.None);
+                int src = step.GetInt("SourceStepIndex", -1);
+                int nsrc = EditorGUILayout.IntField("Source step index (Spawn VFX, -1 = от игрока)", src);
+                if (nsrc != src) { step.SetOverrideInt("SourceStepIndex", nsrc); EditorUtility.SetDirty(recipe); }
+                if (nsrc >= 0)
+                {
+                    float sx = step.GetFloat("SizeX", 1f);
+                    float nsx = EditorGUILayout.FloatField("Size X multiplier", sx);
+                    if (Mathf.Abs(nsx - sx) > 0.001f) { step.SetOverrideFloat("SizeX", nsx); EditorUtility.SetDirty(recipe); }
+                    float sy = step.GetFloat("SizeY", 1f);
+                    float nsy = EditorGUILayout.FloatField("Size Y multiplier", sy);
+                    if (Mathf.Abs(nsy - sy) > 0.001f) { step.SetOverrideFloat("SizeY", nsy); EditorUtility.SetDirty(recipe); }
+                }
+                else
+                {
+                    float r = step.GetFloat("Radius", 1.5f);
+                    float nr = EditorGUILayout.FloatField("Radius", r);
+                    if (Mathf.Abs(nr - r) > 0.001f) { step.SetOverrideFloat("Radius", nr); EditorUtility.SetDirty(recipe); }
+                }
+                EditorGUI.BeginDisabledGroup(nsrc < 0);
+                float vfxLife = step.GetFloat("VfxLifetimePercent", 0f);
+                float nvfxLife = EditorGUILayout.Slider("Apply at VFX life %", vfxLife, 0f, 1f);
+                if (Mathf.Abs(nvfxLife - vfxLife) > 0.001f) { step.SetOverrideFloat("VfxLifetimePercent", nvfxLife); EditorUtility.SetDirty(recipe); }
+                EditorGUI.EndDisabledGroup();
+                float ox = step.GetFloat("OffsetX", 0f);
+                float nox = EditorGUILayout.FloatField("Offset X", ox);
+                if (Mathf.Abs(nox - ox) > 0.001f) { step.SetOverrideFloat("OffsetX", nox); EditorUtility.SetDirty(recipe); }
+                float oy = step.GetFloat("OffsetY", 0f);
+                float noy = EditorGUILayout.FloatField("Offset Y", oy);
+                if (Mathf.Abs(noy - oy) > 0.001f) { step.SetOverrideFloat("OffsetY", noy); EditorUtility.SetDirty(recipe); }
+                return;
+            }
+
+            if (id == "ApplyStatusRectangle")
+            {
+                DrawStatusEffectAssetField(recipe, step);
+                EditorGUILayout.HelpBox("Прямоугольная зона наложения статуса. Если указан Source step index, прямоугольник берёт размер текущего кадра VFX.", MessageType.None);
+                int src = step.GetInt("SourceStepIndex", -1);
+                int nsrc = EditorGUILayout.IntField("Source step index (-1 = use offset)", src);
+                if (nsrc != src) { step.SetOverrideInt("SourceStepIndex", nsrc); EditorUtility.SetDirty(recipe); }
+                float sx = step.GetFloat("SizeX", nsrc >= 0 ? 1f : 2f);
+                float nsx = EditorGUILayout.FloatField("Size X multiplier", sx);
+                if (Mathf.Abs(nsx - sx) > 0.001f) { step.SetOverrideFloat("SizeX", nsx); EditorUtility.SetDirty(recipe); }
+                float sy = step.GetFloat("SizeY", 1f);
+                float nsy = EditorGUILayout.FloatField("Size Y multiplier", sy);
+                if (Mathf.Abs(nsy - sy) > 0.001f) { step.SetOverrideFloat("SizeY", nsy); EditorUtility.SetDirty(recipe); }
+                float ang = step.GetFloat("Angle", 0f);
+                float nang = EditorGUILayout.FloatField("Angle (deg)", ang);
+                if (Mathf.Abs(nang - ang) > 0.001f) { step.SetOverrideFloat("Angle", nang); EditorUtility.SetDirty(recipe); }
+                EditorGUI.BeginDisabledGroup(nsrc < 0);
+                float vfxLife = step.GetFloat("VfxLifetimePercent", 0f);
+                float nvfxLife = EditorGUILayout.Slider("Apply at VFX life %", vfxLife, 0f, 1f);
+                if (Mathf.Abs(nvfxLife - vfxLife) > 0.001f) { step.SetOverrideFloat("VfxLifetimePercent", nvfxLife); EditorUtility.SetDirty(recipe); }
+                EditorGUI.EndDisabledGroup();
+                float ox = step.GetFloat("OffsetX", 0f);
+                float nox = EditorGUILayout.FloatField("Offset X", ox);
+                if (Mathf.Abs(nox - ox) > 0.001f) { step.SetOverrideFloat("OffsetX", nox); EditorUtility.SetDirty(recipe); }
+                float oy = step.GetFloat("OffsetY", 0f);
+                float noy = EditorGUILayout.FloatField("Offset Y", oy);
+                if (Mathf.Abs(noy - oy) > 0.001f) { step.SetOverrideFloat("OffsetY", noy); EditorUtility.SetDirty(recipe); }
+                return;
+            }
+
             if (id == "MovementLock" || id == "MovementUnlock" || id == "WeaponStrike")
             {
                 EditorGUILayout.HelpBox("No extra settings for this step type.", MessageType.None);
@@ -529,6 +622,12 @@ namespace Scripts.Editor.Skills
         }
 
         private void CreateDefaultStepDefinitions()
+        {
+            EnsureBuiltInStepDefinitions();
+            Refresh();
+        }
+
+        private void EnsureBuiltInStepDefinitions()
         {
             string folder = EditorPaths.StepDefinitionsFolder;
             string[] parts = folder.Split('/');
@@ -551,6 +650,9 @@ namespace Scripts.Editor.Skills
                 ("SpawnVFX", "Spawn VFX", "РЎРїР°РІРЅ VFX", 0f),
                 ("DealDamageCircle", "Deal damage (circle)", "РЈСЂРѕРЅ РєСЂСѓРі", 0f),
                 ("DealDamageRectangle", "Deal damage (rectangle)", "РЈСЂРѕРЅ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє", 0f),
+                ("ApplyStatusSelf", "Apply status (self)", "Наложить статус (на себя)", 0f),
+                ("ApplyStatusCircle", "Apply status (circle)", "Наложить статус (круг)", 0f),
+                ("ApplyStatusRectangle", "Apply status (rectangle)", "Наложить статус (прямоугольник)", 0f),
                 ("ParallelGroup", "Parallel group", "РџР°СЂР°Р»Р»РµР»СЊРЅР°СЏ РіСЂСѓРїРїР°", 0f),
             };
             foreach (var (id, nameEn, nameRu, durationPercent) in defaults)
@@ -568,7 +670,17 @@ namespace Scripts.Editor.Skills
                 AssetDatabase.CreateAsset(def, path);
             }
             AssetDatabase.SaveAssets();
-            Refresh();
+        }
+
+        private void DrawStatusEffectAssetField(SkillRecipeSO recipe, StepEntry step)
+        {
+            StatusEffectSO effect = step.GetObject<StatusEffectSO>("StatusEffect");
+            StatusEffectSO newEffect = (StatusEffectSO)EditorGUILayout.ObjectField("Status effect", effect, typeof(StatusEffectSO), false);
+            if (newEffect != effect)
+            {
+                step.SetOverrideObject("StatusEffect", newEffect);
+                EditorUtility.SetDirty(recipe);
+            }
         }
 
         private void MigrateCleaveToRecipe()

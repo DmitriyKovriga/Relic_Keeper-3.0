@@ -162,6 +162,8 @@ MonoBehaviour:
     IdleSpritesResourcePath: Enemy/MoldResources/mold_idle-Sheet
     MoveSpritesResourcePath: Enemy/MoldResources/mold_walk-Sheet
     AttackSpritesResourcePath: Enemy/MoldResources/mold_attack-Sheet
+    GroundShadowOffset: {x: 0, y: 0}
+    GroundShadowWidthScale: 1.2
     IdleFps: 6
     MoveFps: 7
     AttackFps: 10

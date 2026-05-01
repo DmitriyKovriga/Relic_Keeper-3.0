@@ -19,5 +19,7 @@ MonoBehaviour:
   IsActive: 1
   Cooldown: 20
   ManaCost: 10
+  DamageContextTags: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
+  Recipe: {fileID: 11400000, guid: b1864e1ed9ae0bf48904814a9a78bd6a, type: 2}

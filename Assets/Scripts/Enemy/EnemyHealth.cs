@@ -122,6 +122,23 @@ namespace Scripts.Enemies
             Initialize();
         }
 
+        public void SyncMaxHealthFromStats()
+        {
+            if (_stats == null)
+                _stats = GetComponent<EnemyStats>();
+
+            if (_stats == null)
+                return;
+
+            float newMaxHealth = Mathf.Max(1f, _stats.GetValue(StatType.MaxHealth));
+            bool changed = Mathf.Abs(newMaxHealth - _maxHealth) > 0.001f;
+            _maxHealth = newMaxHealth;
+            _currentHealth = Mathf.Clamp(_currentHealth, 0f, _maxHealth);
+
+            if (changed)
+                OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+        }
+
         private bool EnsureReady()
         {
             if (_stats == null)

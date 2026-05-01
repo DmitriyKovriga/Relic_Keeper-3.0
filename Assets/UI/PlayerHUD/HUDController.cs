@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 using Scripts.Stats; // Не забудь подключить namespace со статами
 using Scripts.Skills;
+using Scripts.StatusEffects;
 
 public class HUDController : MonoBehaviour
 {
@@ -36,6 +38,15 @@ public class HUDController : MonoBehaviour
     [Header("Skill Slots")]
     [SerializeField] private UISkillSlot[] _skillSlots;
 
+    [Header("Status Effects HUD")]
+    [SerializeField, Min(1f)] private float _statusEffectSlotSize = 5f;
+    [SerializeField, Min(0f)] private float _statusEffectSpacing = 0f;
+    [SerializeField, Min(1)] private int _statusEffectColumns = 10;
+    [SerializeField, Min(0f)] private float _statusEffectsOffsetX = 8f;
+    [SerializeField] private float _statusEffectsOffsetY = -1f;
+    [SerializeField] private Color _buffFrameColor = new Color(0.95f, 0.72f, 0.18f, 0.95f);
+    [SerializeField] private Color _debuffFrameColor = new Color(0.88f, 0.28f, 0.28f, 0.95f);
+
     private float _healthTextBaseFontSize;
     private float _manaTextBaseFontSize;
     private Vector2 _lastHealthTextRectSize = Vector2.negativeInfinity;
@@ -44,12 +55,28 @@ public class HUDController : MonoBehaviour
     private ResourceBarEffect _manaBarEffect;
     private float _previousHealthNormalized = -1f;
     private float _previousManaNormalized = -1f;
+    private StatusEffectController _statusEffectController;
+    private StatusEffectsHudSettingsSO _statusEffectsHudSettings;
+    private RectTransform _statusEffectsRoot;
+    private GridLayoutGroup _statusEffectsLayout;
+    private readonly List<UIStatusEffectSlot> _statusEffectSlots = new List<UIStatusEffectSlot>();
 
     private void Awake()
     {
+        LoadStatusEffectHudSettings();
+        ApplyStatusEffectHudSettings();
+        SnapStatusEffectLayoutToPixels();
         ApplyConfiguredFont();
         CacheAdaptiveTextSettings();
         InitializeResourceBarEffects();
+        EnsureStatusEffectsPanel();
+    }
+
+    private void OnValidate()
+    {
+        LoadStatusEffectHudSettings();
+        ApplyStatusEffectHudSettings();
+        SnapStatusEffectLayoutToPixels();
     }
 
     private void Start()
@@ -60,6 +87,7 @@ public class HUDController : MonoBehaviour
             SetupEvents();
             UpdateUI();
         }
+        BindStatusEffectController();
         if (_skillManager != null)
         {
             _skillManager.OnSkillSlotUpdated += UpdateSkillSlotUI;
@@ -76,6 +104,7 @@ public class HUDController : MonoBehaviour
     {
         if (_playerStats != null) _playerStats.OnAnyStatChanged -= UpdateUI;
         if (_skillManager != null) _skillManager.OnSkillSlotUpdated -= UpdateSkillSlotUI;
+        if (_statusEffectController != null) _statusEffectController.OnActiveEffectsChanged -= RefreshStatusEffectSlots;
     }
 
     private void Update()
@@ -83,6 +112,9 @@ public class HUDController : MonoBehaviour
         UpdateCooldownOverlays();
         RefreshAdaptiveResourceTextIfNeeded();
         TickResourceBarEffects();
+        if (ApplyStatusEffectHudSettings())
+            RefreshStatusEffectSlots();
+        UpdateStatusEffectSlotsRuntime();
     }
 
     private void UpdateSkillSlotUI(int index, SkillDataSO skill)
@@ -114,11 +146,207 @@ public class HUDController : MonoBehaviour
             SetupEvents();
             UpdateUI();
         }
+
+        BindStatusEffectController();
     }
 
     private void SetupEvents()
     {
         _playerStats.OnAnyStatChanged += UpdateUI;
+    }
+
+    private void BindStatusEffectController()
+    {
+        if (_statusEffectController != null)
+            _statusEffectController.OnActiveEffectsChanged -= RefreshStatusEffectSlots;
+
+        _statusEffectController = _playerStats != null ? _playerStats.GetComponent<StatusEffectController>() : null;
+        if (_statusEffectController != null)
+            _statusEffectController.OnActiveEffectsChanged += RefreshStatusEffectSlots;
+
+        RefreshStatusEffectSlots();
+    }
+
+    private void EnsureStatusEffectsPanel()
+    {
+        if (_statusEffectsRoot != null)
+            return;
+
+        RectTransform anchor = ResolveStatusEffectsAnchor();
+        if (anchor == null)
+            return;
+
+        var rootGo = new GameObject("StatusEffectsRoot", typeof(RectTransform), typeof(GridLayoutGroup));
+        _statusEffectsRoot = rootGo.GetComponent<RectTransform>();
+        _statusEffectsRoot.SetParent(anchor, false);
+        _statusEffectsRoot.anchorMin = new Vector2(1f, 1f);
+        _statusEffectsRoot.anchorMax = new Vector2(1f, 1f);
+        _statusEffectsRoot.pivot = new Vector2(0f, 1f);
+        _statusEffectsRoot.anchoredPosition = new Vector2(_statusEffectsOffsetX, _statusEffectsOffsetY);
+        _statusEffectsRoot.sizeDelta = Vector2.zero;
+
+        _statusEffectsLayout = rootGo.GetComponent<GridLayoutGroup>();
+        _statusEffectsLayout.cellSize = new Vector2(_statusEffectSlotSize, _statusEffectSlotSize);
+        _statusEffectsLayout.spacing = new Vector2(_statusEffectSpacing, _statusEffectSpacing);
+        _statusEffectsLayout.startCorner = GridLayoutGroup.Corner.UpperLeft;
+        _statusEffectsLayout.startAxis = GridLayoutGroup.Axis.Horizontal;
+        _statusEffectsLayout.childAlignment = TextAnchor.UpperLeft;
+        _statusEffectsLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        _statusEffectsLayout.constraintCount = Mathf.Max(1, _statusEffectColumns);
+    }
+
+    private void LoadStatusEffectHudSettings()
+    {
+        if (_statusEffectsHudSettings != null)
+            return;
+
+        _statusEffectsHudSettings = Resources.Load<StatusEffectsHudSettingsSO>(ProjectPaths.ResourcesStatusEffectsHudSettings);
+    }
+
+    private bool ApplyStatusEffectHudSettings()
+    {
+        LoadStatusEffectHudSettings();
+        if (_statusEffectsHudSettings == null)
+        {
+            float fallbackSize = 5f;
+            float fallbackSpacing = 0f;
+            bool fallbackChanged = !Mathf.Approximately(_statusEffectSlotSize, fallbackSize) ||
+                                   !Mathf.Approximately(_statusEffectSpacing, fallbackSpacing);
+
+            _statusEffectSlotSize = fallbackSize;
+            _statusEffectSpacing = fallbackSpacing;
+            return fallbackChanged;
+        }
+
+        float targetSize = Mathf.Max(1f, Mathf.Round(_statusEffectsHudSettings.IconSizePixels));
+        float targetSpacing = Mathf.Max(0f, Mathf.Round(_statusEffectsHudSettings.IconSpacingPixels));
+        bool changed = !Mathf.Approximately(_statusEffectSlotSize, targetSize) ||
+                       !Mathf.Approximately(_statusEffectSpacing, targetSpacing);
+
+        _statusEffectSlotSize = targetSize;
+        _statusEffectSpacing = targetSpacing;
+        return changed;
+    }
+
+    private void SnapStatusEffectLayoutToPixels()
+    {
+        _statusEffectSlotSize = Mathf.Max(1f, Mathf.Round(_statusEffectSlotSize));
+        _statusEffectSpacing = Mathf.Max(0f, Mathf.Round(_statusEffectSpacing));
+        _statusEffectsOffsetX = Mathf.Round(_statusEffectsOffsetX);
+        _statusEffectsOffsetY = Mathf.Round(_statusEffectsOffsetY);
+    }
+
+    private RectTransform ResolveStatusEffectsAnchor()
+    {
+        if (_healthFill == null || _healthFill.rectTransform == null)
+            return null;
+
+        Transform statsPanel = _healthFill.rectTransform.parent;
+        if (statsPanel is not RectTransform statsPanelRect)
+            return _healthFill.rectTransform;
+
+        Transform mainFrame = statsPanel.Find("Main_Frame");
+        if (mainFrame is RectTransform mainFrameRect)
+            return mainFrameRect;
+
+        return statsPanelRect;
+    }
+
+    private void RefreshStatusEffectSlots()
+    {
+        EnsureStatusEffectsPanel();
+        if (_statusEffectsRoot == null || _statusEffectsLayout == null)
+            return;
+
+        _statusEffectsLayout.cellSize = new Vector2(_statusEffectSlotSize, _statusEffectSlotSize);
+        _statusEffectsLayout.spacing = new Vector2(_statusEffectSpacing, _statusEffectSpacing);
+        _statusEffectsLayout.constraintCount = Mathf.Max(1, _statusEffectColumns);
+        _statusEffectsRoot.anchoredPosition = new Vector2(_statusEffectsOffsetX, _statusEffectsOffsetY);
+
+        List<StatusEffectController.ActiveEffectInstance> effects = GetDisplayableStatusEffects();
+        EnsureStatusEffectSlotCount(effects.Count);
+
+        for (int i = 0; i < _statusEffectSlots.Count; i++)
+        {
+            if (i < effects.Count)
+            {
+                StatusEffectController.ActiveEffectInstance effect = effects[i];
+                Color frameColor = effect.Effect != null && effect.Effect.Kind == StatusEffectKind.Debuff
+                    ? _debuffFrameColor
+                    : _buffFrameColor;
+                _statusEffectSlots[i].Bind(effect, frameColor);
+            }
+            else
+            {
+                _statusEffectSlots[i].Clear();
+            }
+        }
+
+        int columns = Mathf.Max(1, _statusEffectColumns);
+        int rows = Mathf.Max(1, Mathf.CeilToInt(effects.Count / (float)columns));
+        float width = (columns * _statusEffectSlotSize) + ((columns - 1) * _statusEffectSpacing);
+        float height = (rows * _statusEffectSlotSize) + ((rows - 1) * _statusEffectSpacing);
+        _statusEffectsRoot.sizeDelta = effects.Count > 0 ? new Vector2(width, height) : Vector2.zero;
+        _statusEffectsRoot.gameObject.SetActive(effects.Count > 0);
+    }
+
+    private void UpdateStatusEffectSlotsRuntime()
+    {
+        for (int i = 0; i < _statusEffectSlots.Count; i++)
+        {
+            if (_statusEffectSlots[i] != null && _statusEffectSlots[i].gameObject.activeSelf)
+                _statusEffectSlots[i].UpdateRuntime();
+        }
+    }
+
+    private void EnsureStatusEffectSlotCount(int count)
+    {
+        if (_statusEffectsRoot == null)
+            return;
+
+        while (_statusEffectSlots.Count < count)
+        {
+            var slotGo = new GameObject($"StatusEffectSlot_{_statusEffectSlots.Count}", typeof(RectTransform), typeof(UIStatusEffectSlot));
+            var rect = slotGo.GetComponent<RectTransform>();
+            rect.SetParent(_statusEffectsRoot, false);
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.sizeDelta = new Vector2(_statusEffectSlotSize, _statusEffectSlotSize);
+
+            UIStatusEffectSlot slot = slotGo.GetComponent<UIStatusEffectSlot>();
+            _statusEffectSlots.Add(slot);
+        }
+
+        for (int i = 0; i < _statusEffectSlots.Count; i++)
+        {
+            if (_statusEffectSlots[i] == null)
+                continue;
+
+            RectTransform rect = _statusEffectSlots[i].GetComponent<RectTransform>();
+            if (rect != null)
+                rect.sizeDelta = new Vector2(_statusEffectSlotSize, _statusEffectSlotSize);
+        }
+    }
+
+    private List<StatusEffectController.ActiveEffectInstance> GetDisplayableStatusEffects()
+    {
+        var results = new List<StatusEffectController.ActiveEffectInstance>();
+        if (_statusEffectController == null || _statusEffectController.ActiveEffects == null)
+            return results;
+
+        for (int i = 0; i < _statusEffectController.ActiveEffects.Count; i++)
+        {
+            StatusEffectController.ActiveEffectInstance effect = _statusEffectController.ActiveEffects[i];
+            if (effect == null || effect.Effect == null)
+                continue;
+
+            if (!effect.Effect.ShowInHud || effect.Effect.Icon == null)
+                continue;
+
+            results.Add(effect);
+        }
+
+        return results;
     }
 
     private void UpdateUI()
@@ -524,3 +752,4 @@ public class HUDController : MonoBehaviour
         }
     }
 }
+

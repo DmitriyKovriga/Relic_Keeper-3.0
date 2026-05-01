@@ -943,6 +943,18 @@ MonoBehaviour:
     m_Key: passive.node.MagmaSkin.description
     m_Metadata:
       m_Items: []
+  - m_Id: 49278527889506304
+    m_Key: input.ThirdSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50009768142077952
+    m_Key: input.FourthSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50009922148532224
+    m_Key: input.FifthSkill
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

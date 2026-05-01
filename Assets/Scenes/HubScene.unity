@@ -7781,6 +7781,8 @@ MonoBehaviour:
   _afterImageLifetime: 0.16
   _afterImageAlpha: 0.45
   _afterImageColor: {r: 0.1, g: 0.1, b: 0.1, a: 0.45}
+  _directionalDodgeHorizontalCarryDuration: 0.35
+  _directionalDodgeReleaseMomentumMultiplier: 1
   _stationaryDodgeScaleY: 0.86
 --- !u!114 &1563690807
 MonoBehaviour:
@@ -9289,6 +9291,13 @@ MonoBehaviour:
   - {fileID: 498515642}
   - {fileID: 563462195}
   - {fileID: 61900418}
+  _statusEffectSlotSize: 5
+  _statusEffectSpacing: 0
+  _statusEffectColumns: 10
+  _statusEffectsOffsetX: 8
+  _statusEffectsOffsetY: -1
+  _buffFrameColor: {r: 0.95, g: 0.72, b: 0.18, a: 0.95}
+  _debuffFrameColor: {r: 0.88, g: 0.28, b: 0.28, a: 0.95}
 --- !u!1 &2088075919
 GameObject:
   m_ObjectHideFlags: 0

@@ -38,6 +38,7 @@ namespace RelicKeeper.Editor.UI
         private bool _subscribersDirty = true;
         private int _actionPickerIndex;
         private int _bindingPickerIndex;
+        private string _newEntryName = "NewAction";
 
         private class SubscriberInfo
         {
@@ -108,8 +109,16 @@ namespace RelicKeeper.Editor.UI
             EditorGUILayout.LabelField("Bindings", EditorStyles.boldLabel);
             if (GUILayout.Button("Sync from Input Asset"))
                 SyncFromInputAsset();
-            if (GUILayout.Button("Add entry"))
-                _config.entries.Add(new ControlEntry { actionName = "NewAction", displayOrder = _config.entries.Count, showInSettings = true });
+
+            EditorGUILayout.Space(4f);
+            _newEntryName = EditorGUILayout.TextField("New", _newEntryName);
+            if (GUILayout.Button("Add entry (config only)"))
+            {
+                string actionName = string.IsNullOrWhiteSpace(_newEntryName) ? "NewAction" : _newEntryName.Trim();
+                _config.entries.Add(new ControlEntry { actionName = actionName, displayOrder = _config.entries.Count, showInSettings = true });
+                _selectedIndex = _config.entries.Count - 1;
+                _lastKey = "";
+            }
 
             _scrollList = EditorGUILayout.BeginScrollView(_scrollList, GUILayout.ExpandHeight(true));
 
@@ -167,8 +176,9 @@ namespace RelicKeeper.Editor.UI
                 int currentIndex = Array.IndexOf(availableActions, entry.actionName);
                 _actionPickerIndex = Mathf.Clamp(currentIndex >= 0 ? currentIndex : _actionPickerIndex, 0, availableActions.Length - 1);
 
+                EditorGUILayout.HelpBox("This picker shows actions that already exist inside InputSystem_Actions > Player. It does not create a new action.", MessageType.None);
                 EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel("Pick from Player map");
+                EditorGUILayout.PrefixLabel("Existing action from Player map");
                 _actionPickerIndex = EditorGUILayout.Popup(_actionPickerIndex, availableActions);
                 if (GUILayout.Button("Use selected", GUILayout.Width(110)))
                 {
@@ -180,13 +190,23 @@ namespace RelicKeeper.Editor.UI
             }
 
             if (selectedAction == null)
-                EditorGUILayout.HelpBox("Action not found in Player action map. Settings UI and default rebinds will not work until the action exists in InputSystem_Actions.", MessageType.Warning);
+            {
+                EditorGUILayout.HelpBox("Action not found in Player action map. Create it directly from this editor and it will no longer require manual setup in InputSystem_Actions.", MessageType.Warning);
+
+                EditorGUI.BeginDisabledGroup(string.IsNullOrWhiteSpace(entry.actionName));
+                if (GUILayout.Button("Create action in Player map"))
+                {
+                    CreateActionInPlayerMap(entry);
+                    selectedAction = FindPlayerAction(entry.actionName);
+                }
+                EditorGUI.EndDisabledGroup();
+            }
             else
                 EditorGUILayout.HelpBox($"Found in Player map. Type: {selectedAction.type}. Bindings: {GetBindablePaths(selectedAction).Length}", MessageType.None);
 
             entry.displayOrder = EditorGUILayout.IntField("Display Order", entry.displayOrder);
             entry.showInSettings = EditorGUILayout.Toggle("Show in Settings", entry.showInSettings);
-            entry.defaultBindingPath = EditorGUILayout.TextField("Default Binding (no save)", entry.defaultBindingPath);
+            entry.defaultBindingPath = EditorGUILayout.TextField("Default binding from config", entry.defaultBindingPath);
 
             string normalizedBindingPath = NormalizeBindingPath(entry.defaultBindingPath);
             if (!string.Equals(normalizedBindingPath, entry.defaultBindingPath, StringComparison.Ordinal))
@@ -203,6 +223,21 @@ namespace RelicKeeper.Editor.UI
 
             if (selectedAction != null)
             {
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Read first binding from action"))
+                {
+                    string firstActionBindingPath = GetFirstBindablePath(selectedAction);
+                    if (!string.IsNullOrEmpty(firstActionBindingPath))
+                        entry.defaultBindingPath = firstActionBindingPath;
+                }
+
+                if (GUILayout.Button("Write config binding to action"))
+                {
+                    WriteDefaultBindingToAction(entry, selectedAction);
+                    selectedAction = FindPlayerAction(entry.actionName);
+                }
+                EditorGUILayout.EndHorizontal();
+
                 string[] bindablePaths = GetBindablePaths(selectedAction);
                 if (bindablePaths.Length > 0)
                 {
@@ -227,7 +262,7 @@ namespace RelicKeeper.Editor.UI
             }
 
             if (string.IsNullOrEmpty(entry.defaultBindingPath))
-                EditorGUILayout.HelpBox("Used when player has no save file. Example: <Keyboard>/space", MessageType.None);
+                EditorGUILayout.HelpBox("Used on first launch or after reset when there is no saved rebind file yet. Example: <Keyboard>/space", MessageType.None);
             else
                 EditorGUILayout.HelpBox($"Default binding path: {entry.defaultBindingPath} ({FormatBindingPath(entry.defaultBindingPath)})", MessageType.None);
 
@@ -363,6 +398,76 @@ namespace RelicKeeper.Editor.UI
             return InputControlPath.ToHumanReadableString(path, InputControlPath.HumanReadableStringOptions.OmitDevice);
         }
 
+        private void CreateActionInPlayerMap(ControlEntry entry)
+        {
+            if (_config == null || _config.inputActionAsset == null || entry == null || string.IsNullOrWhiteSpace(entry.actionName))
+                return;
+
+            InputActionMap map = GetPlayerMap();
+            if (map == null)
+            {
+                Debug.LogWarning("Controls Editor: Player map not found.");
+                return;
+            }
+
+            if (map.FindAction(entry.actionName, false) != null)
+            {
+                Debug.Log($"Controls Editor: Action '{entry.actionName}' already exists in Player map.");
+                return;
+            }
+
+            Undo.RecordObject(_config.inputActionAsset, "Create input action");
+            InputAction action = map.AddAction(entry.actionName.Trim(), InputActionType.Button);
+            if (!string.IsNullOrWhiteSpace(entry.defaultBindingPath))
+                action.AddBinding(entry.defaultBindingPath);
+
+            SaveInputAssetChanges();
+            EditorUtility.SetDirty(_config);
+            Debug.Log($"Controls Editor: Created action '{entry.actionName}' in Player map.");
+        }
+
+        private void WriteDefaultBindingToAction(ControlEntry entry, InputAction action)
+        {
+            if (_config == null || _config.inputActionAsset == null || entry == null || action == null)
+                return;
+
+            if (string.IsNullOrWhiteSpace(entry.defaultBindingPath))
+            {
+                Debug.LogWarning($"Controls Editor: Default binding is empty for '{entry.actionName}'.");
+                return;
+            }
+
+            Undo.RecordObject(_config.inputActionAsset, "Write action binding");
+            int bindingIndex = ControlEntry.GetFirstBindableBindingIndex(action);
+            if (bindingIndex >= 0)
+                action.ChangeBinding(bindingIndex).WithPath(entry.defaultBindingPath);
+            else
+                action.AddBinding(entry.defaultBindingPath);
+
+            SaveInputAssetChanges();
+            Debug.Log($"Controls Editor: Wrote binding '{entry.defaultBindingPath}' to action '{entry.actionName}'.");
+        }
+
+        private void SaveInputAssetChanges()
+        {
+            if (_config == null || _config.inputActionAsset == null)
+                return;
+
+            string assetPath = AssetDatabase.GetAssetPath(_config.inputActionAsset);
+            if (string.IsNullOrEmpty(assetPath))
+                return;
+
+            string json = _config.inputActionAsset.ToJson();
+            AssetDatabase.MakeEditable(assetPath);
+            File.WriteAllText(FileUtil.GetPhysicalPath(assetPath), json);
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
+            _config.inputActionAsset = AssetDatabase.LoadAssetAtPath<InputActionAsset>(assetPath);
+
+            EditorUtility.SetDirty(_config);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
+
         private void SyncFromInputAsset()
         {
             if (_config == null || _config.inputActionAsset == null) return;
@@ -375,7 +480,7 @@ namespace RelicKeeper.Editor.UI
             {
                 if (!IsRebindableAction(action.name)) continue;
                 if (existing.Contains(action.name)) continue;
-                string defaultPath = action.bindings.Count > 0 ? action.bindings[0].path : "";
+                string defaultPath = GetFirstBindablePath(action);
                 _config.entries.Add(new ControlEntry
                 {
                     actionName = action.name,

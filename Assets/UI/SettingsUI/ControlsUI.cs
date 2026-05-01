@@ -23,7 +23,7 @@ public class ControlsUI : MonoBehaviour
 
     private const string MenuLabelsTable = "MenuLabels";
     private const string ChangeButtonKey = "settings.change";
-    private static readonly string[] FallbackActionNames = { "MoveLeft", "MoveRight", "Jump", "FirstSkill", "SecondSkill", "Interact", "OpenInventory", "OpenSkillTree" };
+    private static readonly string[] FallbackActionNames = { "MoveLeft", "MoveRight", "Jump", "FirstSkill", "SecondSkill", "ThirdSkill", "FourthSkill", "FifthSkill", "Interact", "OpenInventory", "OpenSkillTree" };
 
     private VisualElement root;
     private VisualElement bindingRowsContainer;

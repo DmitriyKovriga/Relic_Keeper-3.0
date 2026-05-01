@@ -5,6 +5,7 @@ using Scripts.Stats;
 using Scripts.Skills.Steps;
 using Scripts.Skills.Modules;
 using Scripts.Combat;
+using Scripts.StatusEffects;
 
 namespace Scripts.Skills
 {
@@ -15,6 +16,12 @@ namespace Scripts.Skills
     [RequireComponent(typeof(SkillHandAnimation))]
     public class SkillStepRunner : SkillBehaviour
     {
+        private enum SpawnVfxGrowthMode
+        {
+            Centered = 0,
+            LockedAwayFromCaster = 1
+        }
+
         [Header("Damage/Hitbox (for DealDamage steps)")]
         [SerializeField] private LayerMask _targetLayer = ~0;
 
@@ -167,7 +174,12 @@ namespace Scripts.Skills
                             executed[i] = true;
                             int srcIdx = step.GetInt("SourceStepIndex", -1);
                             float vfxLifePct = step.GetFloat("VfxLifetimePercent", 0f);
-                            bool deferByVfxLife = (step.StepDefinition.Id == "DealDamageCircle" || step.StepDefinition.Id == "DealDamageRectangle")
+                            bool deferByVfxLife = (
+                                step.StepDefinition.Id == "DealDamageCircle" ||
+                                step.StepDefinition.Id == "DealDamageRectangle" ||
+                                step.StepDefinition.Id == "ApplyStatusSelf" ||
+                                step.StepDefinition.Id == "ApplyStatusCircle" ||
+                                step.StepDefinition.Id == "ApplyStatusRectangle")
                                 && srcIdx >= 0 && vfxLifePct > 0f;
                             if (deferByVfxLife)
                                 _pendingDamageByVfxLife.Add((i, step, srcIdx, vfxLifePct));
@@ -305,6 +317,15 @@ namespace Scripts.Skills
                 case "DealDamageRectangle":
                     ExecuteDealDamageRectangle(stepIndex, step);
                     break;
+                case "ApplyStatusSelf":
+                    ExecuteApplyStatusSelf(stepIndex, step);
+                    break;
+                case "ApplyStatusCircle":
+                    ExecuteApplyStatusCircle(stepIndex, step);
+                    break;
+                case "ApplyStatusRectangle":
+                    ExecuteApplyStatusRectangle(stepIndex, step);
+                    break;
                 default:
                     if (!string.IsNullOrEmpty(id)) Debug.Log($"[SkillStepRunner] Step '{id}' not implemented yet.");
                     break;
@@ -318,36 +339,39 @@ namespace Scripts.Skills
             float fadeOutStartLifePercent = Mathf.Clamp01(step.GetFloat("FadeOutStartLifePercent", 0.5f));
             float fadeStartAlphaMultiplier = Mathf.Clamp01(step.GetFloat("FadeStartAlphaMultiplier", 0.5f));
             float lifetime = ResolveSpawnVfxLifetime(step, requestedLifetime);
+            float offsetX = step.GetFloat("OffsetX", 0f);
+            float offsetY = step.GetFloat("OffsetY", 0f);
+            float scaleMultiplier = step.GetFloat("ScaleMultiplier", 1f);
+            float effectiveScale = _ctx.AoeScale * scaleMultiplier;
+            SpawnVfxGrowthMode growthMode = ResolveSpawnVfxGrowthMode(step);
+            Vector2 baseOffset = new Vector2(offsetX * _ctx.FacingDirection, offsetY);
             if (prefab == null)
             {
                 var vfxModule = GetComponent<SkillVFX>();
                 if (vfxModule != null)
                 {
-                    float scaleMult = step.GetFloat("ScaleMultiplier", 1f);
-                    float scaleForVfx = _ctx.AoeScale * scaleMult;
                     GameObject moduleVfx = vfxModule.PlayForLifetime(
                         _ownerStats.transform,
                         _ctx.FacingDirection,
-                        scaleForVfx,
+                        effectiveScale,
                         lifetime,
                         fadeOutEnabled,
                         fadeOutStartLifePercent,
                         fadeStartAlphaMultiplier,
                         out var moduleSpawnPos);
                     if (moduleVfx != null)
-                        CacheSpawnVfxStepResult(stepIndex, moduleSpawnPos, scaleForVfx, lifetime, moduleVfx);
+                    {
+                        moduleSpawnPos = ApplySpawnVfxGrowthAnchor(moduleVfx, moduleSpawnPos, effectiveScale, baseOffset, growthMode);
+                        CacheSpawnVfxStepResult(stepIndex, moduleSpawnPos, effectiveScale, lifetime, moduleVfx);
+                    }
                 }
                 return;
             }
-            float offsetX = step.GetFloat("OffsetX", 0f);
-            float offsetY = step.GetFloat("OffsetY", 0f);
-            float scaleMultiplier = step.GetFloat("ScaleMultiplier", 1f);
             bool attachToParent = step.GetBool("AttachToParent", false);
             bool invertFacing = step.GetBool("InvertFacing", false);
-            Vector3 spawnPos = _ownerStats.transform.position + new Vector3(offsetX * _ctx.FacingDirection, offsetY, 0f);
+            Vector3 spawnPos = _ownerStats.transform.position + new Vector3(baseOffset.x, baseOffset.y, 0f);
             GameObject vfx = Instantiate(prefab, spawnPos, Quaternion.identity);
             float finalDir = _ctx.FacingDirection * (invertFacing ? -1f : 1f);
-            float effectiveScale = _ctx.AoeScale * scaleMultiplier;
             Vector3 scale = vfx.transform.localScale;
             scale.x = Mathf.Abs(scale.x) * finalDir * effectiveScale;
             scale.y = Mathf.Abs(scale.y) * effectiveScale;
@@ -355,6 +379,7 @@ namespace Scripts.Skills
             var anim = vfx.GetComponentInChildren<Animator>();
             if (anim != null)
                 anim.speed = SkillVFX.GetAnimatorPlaybackDurationAtSpeedOne(anim, lifetime) / lifetime;
+            spawnPos = ApplySpawnVfxGrowthAnchor(vfx, spawnPos, effectiveScale, baseOffset, growthMode);
             var autoDestroy = AutoDestroyVFX.Ensure(vfx);
             if (autoDestroy != null)
                 autoDestroy.Initialize(lifetime, fadeOutEnabled, fadeOutStartLifePercent, fadeStartAlphaMultiplier);
@@ -399,33 +424,7 @@ namespace Scripts.Skills
 
         private void ExecuteDealDamageCircle(int stepIndex, StepEntry step)
         {
-            Vector2 center;
-            float radius;
-            int sourceIdx = step.GetInt("SourceStepIndex", -1);
-            if (sourceIdx >= 0 && _ctx.TryGetStepResult(sourceIdx, out var res))
-            {
-                Vector2 visualSize = GetVisualSizeOrFallback(res);
-                center = GetVisualCenterOrFallback(res);
-                Vector2 sizeMultipliers = new Vector2(
-                    Mathf.Max(0.01f, step.GetFloat("SizeX", 1f)),
-                    Mathf.Max(0.01f, step.GetFloat("SizeY", 1f)));
-                Vector2 scaledSize = Vector2.Scale(visualSize, sizeMultipliers);
-                Vector2 offset = new Vector2(
-                    step.GetFloat("OffsetX", 0f) * res.Scale * _ctx.FacingDirection,
-                    step.GetFloat("OffsetY", 0f) * res.Scale);
-                center += offset;
-                radius = Mathf.Max(scaledSize.x, scaledSize.y) * 0.5f;
-            }
-            else
-            {
-                float offsetX = step.GetFloat("OffsetX", 0f);
-                float offsetY = step.GetFloat("OffsetY", 0f);
-                float r = step.GetFloat("Radius", 1.5f);
-                radius = r * _ctx.AoeScale;
-                float shiftForward = radius - r;
-                float finalOffsetX = offsetX + shiftForward;
-                center = (Vector2)_ownerStats.transform.position + new Vector2(finalOffsetX * _ctx.FacingDirection, offsetY);
-            }
+            ResolveCircleArea(step, out Vector2 center, out float radius);
             var targets = GetTargetsInCircle(center, radius);
             float mult = step.GetFloat("DamageMultiplier", 1f);
             var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult, ResolveDamageContext());
@@ -434,31 +433,45 @@ namespace Scripts.Skills
 
         private void ExecuteDealDamageRectangle(int stepIndex, StepEntry step)
         {
-            Vector2 center;
-            Vector2 size;
-            int sourceIdx = step.GetInt("SourceStepIndex", -1);
-            if (sourceIdx >= 0 && _ctx.TryGetStepResult(sourceIdx, out var res))
-            {
-                Vector2 visualSize = GetVisualSizeOrFallback(res);
-                center = GetVisualCenterOrFallback(res);
-                Vector2 sizeMultipliers = new Vector2(
-                    Mathf.Max(0.01f, step.GetFloat("SizeX", 1f)),
-                    Mathf.Max(0.01f, step.GetFloat("SizeY", 1f)));
-                size = Vector2.Scale(visualSize, sizeMultipliers);
-                center += new Vector2(
-                    step.GetFloat("OffsetX", 0f) * res.Scale * _ctx.FacingDirection,
-                    step.GetFloat("OffsetY", 0f) * res.Scale);
-            }
-            else
-            {
-                center = (Vector2)_ownerStats.transform.position + new Vector2(step.GetFloat("OffsetX", 0f) * _ctx.FacingDirection, step.GetFloat("OffsetY", 0f));
-                size = new Vector2(step.GetFloat("SizeX", 2f), step.GetFloat("SizeY", 1f)) * _ctx.AoeScale;
-            }
-            float angle = step.GetFloat("Angle", 0f);
+            ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
             var targets = GetTargetsInBox(center, size, angle);
             float mult = step.GetFloat("DamageMultiplier", 1f);
             var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult, ResolveDamageContext());
             foreach (var t in targets) t.TakeDamage(snapshot);
+        }
+
+        private void ExecuteApplyStatusSelf(int stepIndex, StepEntry step)
+        {
+            StatusEffectSO effect = step.GetObject<StatusEffectSO>("StatusEffect");
+            if (effect == null)
+                return;
+
+            if (StatusEffectController.TryResolve(transform, out StatusEffectController controller))
+                controller.ApplyStatusEffect(effect, this);
+        }
+
+        private void ExecuteApplyStatusCircle(int stepIndex, StepEntry step)
+        {
+            StatusEffectSO effect = step.GetObject<StatusEffectSO>("StatusEffect");
+            if (effect == null)
+                return;
+
+            ResolveCircleArea(step, out Vector2 center, out float radius);
+            var targets = GetStatusTargetsInCircle(center, radius);
+            for (int i = 0; i < targets.Count; i++)
+                targets[i].ApplyStatusEffect(effect, this);
+        }
+
+        private void ExecuteApplyStatusRectangle(int stepIndex, StepEntry step)
+        {
+            StatusEffectSO effect = step.GetObject<StatusEffectSO>("StatusEffect");
+            if (effect == null)
+                return;
+
+            ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
+            var targets = GetStatusTargetsInBox(center, size, angle);
+            for (int i = 0; i < targets.Count; i++)
+                targets[i].ApplyStatusEffect(effect, this);
         }
 
         private Vector2 GetVisualCenterOrFallback(SkillStepContext.StepResult result)
@@ -515,6 +528,45 @@ namespace Scripts.Skills
             return worldSize.x > 0f && worldSize.y > 0f;
         }
 
+        private SpawnVfxGrowthMode ResolveSpawnVfxGrowthMode(StepEntry step)
+        {
+            int rawMode = step.GetInt("GrowthMode", 0);
+            return rawMode == (int)SpawnVfxGrowthMode.LockedAwayFromCaster
+                ? SpawnVfxGrowthMode.LockedAwayFromCaster
+                : SpawnVfxGrowthMode.Centered;
+        }
+
+        private Vector3 ApplySpawnVfxGrowthAnchor(GameObject vfx, Vector3 spawnPos, float effectiveScale, Vector2 baseOffset, SpawnVfxGrowthMode growthMode)
+        {
+            if (vfx == null || growthMode == SpawnVfxGrowthMode.Centered || effectiveScale <= 1.0001f)
+                return spawnPos;
+
+            var spriteRenderer = vfx.GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer == null)
+                return spawnPos;
+
+            Vector2 finalSize = spriteRenderer.bounds.size;
+            if (finalSize.x <= 0f || finalSize.y <= 0f)
+                return spawnPos;
+
+            float baseWidth = finalSize.x / effectiveScale;
+            float baseHeight = finalSize.y / effectiveScale;
+            float extraWidth = Mathf.Max(0f, finalSize.x - baseWidth);
+            float extraHeight = Mathf.Max(0f, finalSize.y - baseHeight);
+
+            Vector3 shift = Vector3.zero;
+            if (Mathf.Abs(baseOffset.x) > 0.0001f)
+                shift.x = Mathf.Sign(baseOffset.x) * extraWidth * 0.5f;
+            if (Mathf.Abs(baseOffset.y) > 0.0001f)
+                shift.y = Mathf.Sign(baseOffset.y) * extraHeight * 0.5f;
+
+            if (shift.sqrMagnitude <= 0.0000001f)
+                return spawnPos;
+
+            vfx.transform.position += shift;
+            return spawnPos + shift;
+        }
+
         private List<IDamageable> GetTargetsInCircle(Vector2 center, float radius)
         {
             var list = new List<IDamageable>();
@@ -535,6 +587,92 @@ namespace Scripts.Skills
                 if (h.TryGetComponent(out IDamageable target)) list.Add(target);
             }
             return list;
+        }
+
+        private List<StatusEffectController> GetStatusTargetsInCircle(Vector2 center, float radius)
+        {
+            var uniqueTargets = new HashSet<StatusEffectController>();
+            var hits = Physics2D.OverlapCircleAll(center, radius, _targetLayer);
+            foreach (var hit in hits)
+            {
+                if (hit == null)
+                    continue;
+
+                if (StatusEffectController.TryResolve(hit.transform, out StatusEffectController controller))
+                    uniqueTargets.Add(controller);
+            }
+
+            return new List<StatusEffectController>(uniqueTargets);
+        }
+
+        private List<StatusEffectController> GetStatusTargetsInBox(Vector2 center, Vector2 size, float angleDeg)
+        {
+            var uniqueTargets = new HashSet<StatusEffectController>();
+            var hits = Physics2D.OverlapBoxAll(center, size, angleDeg, _targetLayer);
+            foreach (var hit in hits)
+            {
+                if (hit == null)
+                    continue;
+
+                if (StatusEffectController.TryResolve(hit.transform, out StatusEffectController controller))
+                    uniqueTargets.Add(controller);
+            }
+
+            return new List<StatusEffectController>(uniqueTargets);
+        }
+
+        private void ResolveCircleArea(StepEntry step, out Vector2 center, out float radius)
+        {
+            int sourceIdx = step.GetInt("SourceStepIndex", -1);
+            if (sourceIdx >= 0 && _ctx.TryGetStepResult(sourceIdx, out var res))
+            {
+                Vector2 visualSize = GetVisualSizeOrFallback(res);
+                center = GetVisualCenterOrFallback(res);
+                Vector2 sizeMultipliers = new Vector2(
+                    Mathf.Max(0.01f, step.GetFloat("SizeX", 1f)),
+                    Mathf.Max(0.01f, step.GetFloat("SizeY", 1f)));
+                Vector2 scaledSize = Vector2.Scale(visualSize, sizeMultipliers);
+                Vector2 offset = new Vector2(
+                    step.GetFloat("OffsetX", 0f) * res.Scale * _ctx.FacingDirection,
+                    step.GetFloat("OffsetY", 0f) * res.Scale);
+                center += offset;
+                radius = Mathf.Max(scaledSize.x, scaledSize.y) * 0.5f;
+                return;
+            }
+
+            float offsetX = step.GetFloat("OffsetX", 0f);
+            float offsetY = step.GetFloat("OffsetY", 0f);
+            float baseRadius = step.GetFloat("Radius", 1.5f);
+            radius = baseRadius * _ctx.AoeScale;
+            float shiftForward = radius - baseRadius;
+            float finalOffsetX = offsetX + shiftForward;
+            center = (Vector2)_ownerStats.transform.position + new Vector2(finalOffsetX * _ctx.FacingDirection, offsetY);
+        }
+
+        private void ResolveRectangleArea(StepEntry step, out Vector2 center, out Vector2 size, out float angle)
+        {
+            int sourceIdx = step.GetInt("SourceStepIndex", -1);
+            if (sourceIdx >= 0 && _ctx.TryGetStepResult(sourceIdx, out var res))
+            {
+                Vector2 visualSize = GetVisualSizeOrFallback(res);
+                center = GetVisualCenterOrFallback(res);
+                Vector2 sizeMultipliers = new Vector2(
+                    Mathf.Max(0.01f, step.GetFloat("SizeX", 1f)),
+                    Mathf.Max(0.01f, step.GetFloat("SizeY", 1f)));
+                size = Vector2.Scale(visualSize, sizeMultipliers);
+                center += new Vector2(
+                    step.GetFloat("OffsetX", 0f) * res.Scale * _ctx.FacingDirection,
+                    step.GetFloat("OffsetY", 0f) * res.Scale);
+            }
+            else
+            {
+                center = (Vector2)_ownerStats.transform.position + new Vector2(
+                    step.GetFloat("OffsetX", 0f) * _ctx.FacingDirection,
+                    step.GetFloat("OffsetY", 0f));
+                size = new Vector2(step.GetFloat("SizeX", 2f), step.GetFloat("SizeY", 1f)) * _ctx.AoeScale;
+            }
+
+            angle = step.GetFloat("Angle", 0f);
         }
     }
 }

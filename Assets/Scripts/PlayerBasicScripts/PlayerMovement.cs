@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Scripts.Stats;
+using Scripts.Visuals;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -196,6 +197,8 @@ public class PlayerMovement : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _mainCollider = GetComponent<Collider2D>();
         _stats = GetComponent<PlayerStats>();
+        if (GetComponent<GroundingVisualController>() == null)
+            gameObject.AddComponent<GroundingVisualController>();
         _baseGravityScale = _rb != null ? _rb.gravityScale : 1f;
         EnsureOneWayPlatformMask();
         _availableJumpCount = Mathf.Max(1, _maxJumpCount);

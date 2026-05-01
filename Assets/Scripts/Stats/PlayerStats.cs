@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Scripts.Stats;
 using Scripts.Inventory;
 using Scripts.Saving;
+using Scripts.StatusEffects;
 
 public class PlayerStats : MonoBehaviour, IStatsProvider
 {
@@ -46,6 +47,9 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         Health.OnValueChanged += NotifyChanged;
         Mana.OnValueChanged += NotifyChanged;
         Health.OnDepleted += HandleDeath;
+
+        if (GetComponent<StatusEffectController>() == null)
+            gameObject.AddComponent<StatusEffectController>();
     }
 
     // --- ВЫНЕСЛИ СОЗДАНИЕ В ОТДЕЛЬНЫЙ МЕТОД ДЛЯ УДОБСТВА ---
@@ -120,6 +124,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
 
     public void Initialize(CharacterDataSO data)
     {
+        GetComponent<StatusEffectController>()?.ResetAll();
         _activeCharacterID = data != null ? data.ID : "Unknown";
         foreach (var stat in _stats.Values) stat.BaseValue = 0;
 
@@ -150,6 +155,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
 
     public void ApplyLoadedState(GameSaveData data)
     {
+        GetComponent<StatusEffectController>()?.ResetAll();
         CreateLevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP, data.SkillPoints);
         Health.SetCurrent(data.CurrentHealth);
         Mana.SetCurrent(data.CurrentMana);
@@ -160,6 +166,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     public void ApplyLoadedState(CharacterSaveData data)
     {
         if (data == null) return;
+        GetComponent<StatusEffectController>()?.ResetAll();
         CreateLevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP, data.SkillPoints);
         Health.SetCurrent(data.CurrentHealth);
         Mana.SetCurrent(data.CurrentMana);
@@ -207,6 +214,13 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
 { 
     OnAnyStatChanged?.Invoke(); 
 }
+
+    public void RefreshDerivedResourcesAfterExternalStatChange()
+    {
+        Health?.ReevaluateMax();
+        Mana?.ReevaluateMax();
+        NotifyChanged();
+    }
 
     private void TickPassiveResourceRegen()
     {
