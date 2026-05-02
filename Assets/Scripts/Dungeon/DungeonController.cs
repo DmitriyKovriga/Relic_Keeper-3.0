@@ -27,6 +27,7 @@ namespace Scripts.Dungeon
         private Sprite _defaultHubBackgroundSprite;
         private bool _backgroundPrepared;
         private Collider2D _hubCameraBounds;
+        private GameObject _hubCameraBoundsObject;
 
         private void Awake()
         {
@@ -107,6 +108,8 @@ namespace Scripts.Dungeon
         {
             _roomSequence.Clear();
             var normal = _currentDungeon.NormalRoomPrefabPaths;
+            int normalRoomCount = Mathf.Max(0, _currentDungeon.RoomCount - 1);
+
             if (normal == null || normal.Count == 0)
             {
                 if (!string.IsNullOrEmpty(_currentDungeon.BossRoomPrefabPath))
@@ -115,18 +118,61 @@ namespace Scripts.Dungeon
                 return;
             }
 
-            var indices = new List<int>();
-            for (int i = 0; i < normal.Count; i++)
-                indices.Add(i);
-
-            Shuffle(indices);
-
-            int count = Mathf.Min(_currentDungeon.RoomCount - 1, indices.Count);
-            for (int i = 0; i < count; i++)
-                _roomSequence.Add(normal[indices[i]]);
+            AddNormalRoomsWithoutRepeats(normal, normalRoomCount);
 
             if (!string.IsNullOrEmpty(_currentDungeon.BossRoomPrefabPath))
                 _roomSequence.Add(_currentDungeon.BossRoomPrefabPath);
+        }
+
+        private void AddNormalRoomsWithoutRepeats(IReadOnlyList<string> normalRooms, int count)
+        {
+            if (normalRooms == null || normalRooms.Count == 0 || count <= 0)
+                return;
+
+            var validRoomIndices = new List<int>(normalRooms.Count);
+            for (int i = 0; i < normalRooms.Count; i++)
+            {
+                if (!string.IsNullOrEmpty(normalRooms[i]))
+                    validRoomIndices.Add(i);
+            }
+
+            if (validRoomIndices.Count == 0)
+                return;
+
+            var bag = new List<int>(validRoomIndices.Count);
+            int lastRoomIndex = -1;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (bag.Count == 0)
+                {
+                    FillRoomBag(bag, validRoomIndices);
+                    Shuffle(bag);
+                    MoveIndexAwayFromFront(bag, lastRoomIndex);
+                }
+
+                int roomIndex = bag[0];
+                bag.RemoveAt(0);
+
+                _roomSequence.Add(normalRooms[roomIndex]);
+                lastRoomIndex = roomIndex;
+            }
+        }
+
+        private static void FillRoomBag(List<int> bag, IReadOnlyList<int> sourceIndices)
+        {
+            bag.Clear();
+            for (int i = 0; i < sourceIndices.Count; i++)
+                bag.Add(sourceIndices[i]);
+        }
+
+        private static void MoveIndexAwayFromFront(List<int> bag, int indexToAvoid)
+        {
+            if (bag == null || bag.Count <= 1 || indexToAvoid < 0 || bag[0] != indexToAvoid)
+                return;
+
+            int swapIndex = UnityEngine.Random.Range(1, bag.Count);
+            (bag[0], bag[swapIndex]) = (bag[swapIndex], bag[0]);
         }
 
         private void LoadCurrentRoom()
@@ -270,7 +316,10 @@ namespace Scripts.Dungeon
                 _cameraConfiner = FindFirstObjectByType<CinemachineConfiner2D>();
 
             if (_cameraConfiner != null && _hubCameraBounds == null)
+            {
                 _hubCameraBounds = _cameraConfiner.BoundingShape2D;
+                _hubCameraBoundsObject = _hubCameraBounds != null ? _hubCameraBounds.gameObject : null;
+            }
         }
 
         private void ApplyRoomCameraBounds(RoomController room)
@@ -281,6 +330,7 @@ namespace Scripts.Dungeon
 
             _cameraConfiner.BoundingShape2D = room.CameraBounds;
             _cameraConfiner.InvalidateBoundingShapeCache();
+            SetHubCameraBoundsActive(false);
         }
 
         private void RestoreHubCameraBounds()
@@ -289,8 +339,17 @@ namespace Scripts.Dungeon
             if (_cameraConfiner == null)
                 return;
 
+            SetHubCameraBoundsActive(true);
             _cameraConfiner.BoundingShape2D = _hubCameraBounds;
             _cameraConfiner.InvalidateBoundingShapeCache();
+        }
+
+        private void SetHubCameraBoundsActive(bool active)
+        {
+            if (_hubCameraBoundsObject == null)
+                return;
+
+            _hubCameraBoundsObject.SetActive(active);
         }
 
         private static void Shuffle<T>(IList<T> list)
