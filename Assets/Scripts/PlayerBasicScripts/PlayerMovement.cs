@@ -9,7 +9,7 @@ using UnityEngine.InputSystem;
 [DisallowMultipleComponent]
 public class PlayerMovement : MonoBehaviour
 {
-    private const float DefaultDropThroughDuration = 0.3f;
+    private const float DefaultDropThroughDuration = 0.42f;
     private const float DefaultDropThroughDownwardVelocity = -3f;
     private const float OneWayGroundRaycastLift = 0.08f;
     private const float OneWayGroundProbeDistance = 0.18f;
@@ -51,6 +51,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField, Min(1f)] private float _fastFallGravityMultiplier = 2.05f;
 
     private readonly List<Collider2D> _ignoredPlatformColliders = new();
+    private readonly Dictionary<Collider2D, float> _ignoredPlatformSurfaceY = new();
 
     private Rigidbody2D _rb;
     private Collider2D _mainCollider;
@@ -460,29 +461,20 @@ public class PlayerMovement : MonoBehaviour
         if (_moveInput.y > _dropThroughInputThreshold)
             return false;
 
-        Collider2D[] platforms = Physics2D.OverlapCircleAll(_groundCheckPoint.position, _groundCheckRadius + 0.05f, _oneWayPlatformLayer);
-        bool ignoredAny = false;
-        for (int i = 0; i < platforms.Length; i++)
-        {
-            Collider2D platform = platforms[i];
-            if (platform == null || platform.isTrigger)
-                continue;
-            if (_ignoredPlatformColliders.Contains(platform))
-                continue;
-
-            Physics2D.IgnoreCollision(_mainCollider, platform, true);
-            _ignoredPlatformColliders.Add(platform);
-            ignoredAny = true;
-        }
-
-        if (!ignoredAny)
+        if (!TryGetCurrentOneWayPlatform(out Collider2D platform, out float surfaceY))
+            return false;
+        if (_ignoredPlatformColliders.Contains(platform))
             return false;
 
+        Physics2D.IgnoreCollision(_mainCollider, platform, true);
+        _ignoredPlatformColliders.Add(platform);
+        _ignoredPlatformSurfaceY[platform] = surfaceY;
+
         _isDroppingThroughPlatform = true;
-        _dropThroughEndTime = Time.time + _dropThroughDuration;
+        _dropThroughEndTime = Time.time + Mathf.Max(_dropThroughDuration, DefaultDropThroughDuration);
         _isGrounded = false;
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, Mathf.Min(_rb.linearVelocity.y, DefaultDropThroughDownwardVelocity));
-        transform.position += Vector3.down * 0.05f;
+        transform.position += Vector3.down * 0.1f;
         return true;
     }
 
@@ -501,18 +493,58 @@ public class PlayerMovement : MonoBehaviour
                 continue;
             }
 
-            if (!canAttemptRestore)
-                continue;
-
-            if (!CanRestoreCollisionWithPlatform(platform))
+            bool playerIsBelowDroppedSurface = IsBelowDroppedPlatformSurface(platform);
+            if (!canAttemptRestore || (!playerIsBelowDroppedSurface && !CanRestoreCollisionWithPlatform(platform)))
                 continue;
 
             Physics2D.IgnoreCollision(_mainCollider, platform, false);
             _ignoredPlatformColliders.RemoveAt(i);
+            _ignoredPlatformSurfaceY.Remove(platform);
         }
 
-        if (canAttemptRestore && _ignoredPlatformColliders.Count == 0)
+        if (_ignoredPlatformColliders.Count == 0)
             _isDroppingThroughPlatform = false;
+    }
+
+    private bool TryGetCurrentOneWayPlatform(out Collider2D platform, out float surfaceY)
+    {
+        platform = null;
+        surfaceY = 0f;
+
+        if (_groundCheckPoint == null)
+            return false;
+
+        Vector2 origin = (Vector2)_groundCheckPoint.position + Vector2.up * OneWayGroundRaycastLift;
+        float distance = _groundCheckRadius + OneWayGroundProbeDistance;
+        RaycastHit2D[] hits = Physics2D.RaycastAll(origin, Vector2.down, distance, _oneWayPlatformLayer);
+
+        float bestDistance = float.MaxValue;
+        for (int i = 0; i < hits.Length; i++)
+        {
+            RaycastHit2D hit = hits[i];
+            if (!hit.collider || hit.collider.isTrigger)
+                continue;
+            if (hit.normal.y < OneWayGroundNormalThreshold)
+                continue;
+            if (hit.distance >= bestDistance)
+                continue;
+
+            platform = hit.collider;
+            surfaceY = hit.point.y;
+            bestDistance = hit.distance;
+        }
+
+        return platform != null;
+    }
+
+    private bool IsBelowDroppedPlatformSurface(Collider2D platform)
+    {
+        if (_mainCollider == null || platform == null)
+            return true;
+        if (!_ignoredPlatformSurfaceY.TryGetValue(platform, out float surfaceY))
+            return false;
+
+        return _mainCollider.bounds.max.y < surfaceY - 0.02f;
     }
 
     private bool CanRestoreCollisionWithPlatform(Collider2D platform)
@@ -589,6 +621,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         _ignoredPlatformColliders.Clear();
+        _ignoredPlatformSurfaceY.Clear();
         _isDroppingThroughPlatform = false;
     }
 

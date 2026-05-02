@@ -333,7 +333,9 @@ namespace Scripts.Enemies
 
             _locomotion.ForceStopMotion();
             _activeJumpLink = null;
-            _burrowDestination = ResolveBurrowDestination(_sensor.TargetTransform.position);
+            if (!TryResolveBurrowDestination(_sensor.TargetTransform.position, out _burrowDestination))
+                return false;
+
             _nextBurrowAllowedAt = Time.time + Mathf.Max(0.01f, _data.Burrow.Cooldown);
             _specialAction = SpecialActionState.BurrowIn;
             _specialActionTimer = Mathf.Max(0.05f, _animation != null ? _animation.PlayDigIn() : 0f);
@@ -381,7 +383,6 @@ namespace Scripts.Enemies
                 _animation.SetVisualHidden(true);
 
             transform.position = _burrowDestination;
-            _locomotion.SnapToGroundNow();
 
             if (_bodyCollider != null)
                 _bodyCollider.enabled = false;
@@ -394,8 +395,6 @@ namespace Scripts.Enemies
         {
             if (_bodyCollider != null)
                 _bodyCollider.enabled = true;
-
-            _locomotion.SnapToGroundNow();
 
             _specialAction = SpecialActionState.BurrowOut;
             _specialActionTimer = Mathf.Max(0.05f, _animation != null ? _animation.PlayDigOut() : 0f);
@@ -415,8 +414,9 @@ namespace Scripts.Enemies
             ScheduleNextDecision(immediate: true);
         }
 
-        private Vector3 ResolveBurrowDestination(Vector3 targetPosition)
+        private bool TryResolveBurrowDestination(Vector3 targetPosition, out Vector3 destination)
         {
+            destination = transform.position;
             float radius = Mathf.Max(0f, _data.Burrow.ExitOffsetRadius);
             float[] candidateOffsets =
             {
@@ -429,31 +429,63 @@ namespace Scripts.Enemies
                 -radius * 1.4f
             };
 
-            Vector3 fallback = transform.position;
-            float searchHeight = Mathf.Max(0.5f, _data.Burrow.DestinationSearchHeight);
             float searchDepth = Mathf.Max(0.5f, _data.Burrow.DestinationSearchDepth);
 
             foreach (float offset in candidateOffsets)
             {
                 float candidateX = targetPosition.x + offset;
-                Vector2 rayOrigin = new Vector2(candidateX, targetPosition.y + searchHeight);
-                RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, searchHeight + searchDepth, _groundLayerMask);
+                Vector2 rayOrigin = new Vector2(candidateX, targetPosition.y + 0.08f);
+                RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, searchDepth, _groundLayerMask);
                 if (hit.collider == null)
                     continue;
+                if (hit.normal.y < 0.55f)
+                    continue;
 
-                float destinationY = hit.point.y;
-                if (_bodyCollider != null)
-                {
-                    Bounds bounds = _bodyCollider.bounds;
-                    float halfHeight = Mathf.Max(0.05f, bounds.extents.y);
-                    float offsetFromPivotToFeet = transform.position.y - bounds.min.y;
-                    destinationY += Mathf.Max(halfHeight, offsetFromPivotToFeet) + 0.01f;
-                }
+                Vector3 candidate = BuildBurrowDestination(candidateX, hit.point.y);
+                if (!CanFitBodyAt(candidate))
+                    continue;
 
-                return new Vector3(candidateX, destinationY, transform.position.z);
+                destination = candidate;
+                return true;
             }
 
-            return fallback;
+            return false;
+        }
+
+        private Vector3 BuildBurrowDestination(float x, float groundY)
+        {
+            float destinationY = groundY + 0.01f;
+            if (_bodyCollider != null)
+            {
+                Bounds bounds = _bodyCollider.bounds;
+                float offsetFromPivotToFeet = transform.position.y - bounds.min.y;
+                destinationY += Mathf.Max(0.05f, offsetFromPivotToFeet);
+            }
+
+            return new Vector3(x, destinationY, transform.position.z);
+        }
+
+        private bool CanFitBodyAt(Vector3 candidatePosition)
+        {
+            if (_bodyCollider == null)
+                return true;
+
+            Bounds bounds = _bodyCollider.bounds;
+            Vector2 size = new Vector2(Mathf.Max(0.05f, bounds.size.x * 0.88f), Mathf.Max(0.05f, bounds.size.y * 0.88f));
+            Vector2 centerOffset = bounds.center - transform.position;
+            Vector2 center = (Vector2)candidatePosition + centerOffset;
+            Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, 0f, _groundLayerMask);
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                Collider2D hit = hits[i];
+                if (hit == null || hit == _bodyCollider || hit.isTrigger)
+                    continue;
+
+                return false;
+            }
+
+            return true;
         }
 
         private bool TryUseJumpLink(bool retreating = false)
