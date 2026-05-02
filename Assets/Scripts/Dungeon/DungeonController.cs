@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Cinemachine;
 using UnityEngine;
 
 namespace Scripts.Dungeon
@@ -14,6 +15,7 @@ namespace Scripts.Dungeon
         [SerializeField] private Transform _hubSpawnPoint;
         [SerializeField] private Transform _playerTransform;
         [SerializeField] private SpriteRenderer _sharedBackgroundRenderer;
+        [SerializeField] private CinemachineConfiner2D _cameraConfiner;
 
         [Header("Runtime Placement")]
         [SerializeField] private float _roomWorldZ = 0f;
@@ -24,6 +26,7 @@ namespace Scripts.Dungeon
         private GameObject _currentRoomInstance;
         private Sprite _defaultHubBackgroundSprite;
         private bool _backgroundPrepared;
+        private Collider2D _hubCameraBounds;
 
         private void Awake()
         {
@@ -35,6 +38,7 @@ namespace Scripts.Dungeon
 
             Instance = this;
             PrepareSharedBackground();
+            PrepareCameraConfiner();
         }
 
         private void OnDestroy()
@@ -96,6 +100,7 @@ namespace Scripts.Dungeon
             _currentDungeon = null;
             _roomSequence.Clear();
             RestoreHubBackground();
+            RestoreHubCameraBounds();
         }
 
         private void BuildRoomSequence()
@@ -159,6 +164,7 @@ namespace Scripts.Dungeon
             var room = _currentRoomInstance.GetComponent<RoomController>();
             if (room != null && _playerTransform != null)
             {
+                ApplyRoomCameraBounds(room);
                 room.OnRoomEntered(_playerTransform);
             }
             else
@@ -256,6 +262,35 @@ namespace Scripts.Dungeon
 
             _sharedBackgroundRenderer.sprite = _defaultHubBackgroundSprite;
             _sharedBackgroundRenderer.enabled = _defaultHubBackgroundSprite != null;
+        }
+
+        private void PrepareCameraConfiner()
+        {
+            if (_cameraConfiner == null)
+                _cameraConfiner = FindFirstObjectByType<CinemachineConfiner2D>();
+
+            if (_cameraConfiner != null && _hubCameraBounds == null)
+                _hubCameraBounds = _cameraConfiner.BoundingShape2D;
+        }
+
+        private void ApplyRoomCameraBounds(RoomController room)
+        {
+            PrepareCameraConfiner();
+            if (_cameraConfiner == null || room == null || room.CameraBounds == null)
+                return;
+
+            _cameraConfiner.BoundingShape2D = room.CameraBounds;
+            _cameraConfiner.InvalidateBoundingShapeCache();
+        }
+
+        private void RestoreHubCameraBounds()
+        {
+            PrepareCameraConfiner();
+            if (_cameraConfiner == null)
+                return;
+
+            _cameraConfiner.BoundingShape2D = _hubCameraBounds;
+            _cameraConfiner.InvalidateBoundingShapeCache();
         }
 
         private static void Shuffle<T>(IList<T> list)

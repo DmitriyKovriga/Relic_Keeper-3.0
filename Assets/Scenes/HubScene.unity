@@ -7865,6 +7865,8 @@ MonoBehaviour:
   _hubWorld: {fileID: 2010537611}
   _hubSpawnPoint: {fileID: 1321133210}
   _playerTransform: {fileID: 1563690798}
+  _sharedBackgroundRenderer: {fileID: 0}
+  _cameraConfiner: {fileID: 0}
   _roomWorldZ: 0
 --- !u!4 &1575109991
 Transform:

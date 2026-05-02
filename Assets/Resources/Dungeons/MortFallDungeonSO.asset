@@ -10,14 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2911acce5dbe94049b0bb20821a472d9, type: 3}
-  m_Name: MineDungeonSO
+  m_Name: MortFallDungeonSO
   m_EditorClassIdentifier: 
-  ID: MineDungeon
-  DisplayName: Mine
+  ID: Mortfall
+  DisplayName: Mortfall
   MinLevel: 1
   MaxLevel: 10
-  RoomCount: 2
+  RoomCount: 3
   _normalRoomPrefabPaths:
   - Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_001.prefab
+  - Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_002.prefab
   _bossRoomPrefabPath: Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_001.prefab
   _backgroundSpriteResourcePath: Assets/Resources/Sprites/WallAndGrounds/MortfallDungeon/MortFallAssets/Mortfall-background.png
