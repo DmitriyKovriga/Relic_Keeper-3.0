@@ -216,15 +216,18 @@ namespace Scripts.Enemies
                 return;
 
             Bounds bounds = collider.bounds;
-            Vector2 castOrigin = new Vector2(bounds.center.x, bounds.max.y + 0.1f);
-            Vector2 castSize = new Vector2(Mathf.Max(0.05f, bounds.size.x * 0.9f), Mathf.Max(0.1f, bounds.size.y * 0.5f));
-            RaycastHit2D hit = Physics2D.BoxCast(castOrigin, castSize, 0f, Vector2.down, 4f, _groundLayerMask);
+            Vector2 rayOrigin = new Vector2(transform.position.x, transform.position.y);
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, 6f, _groundLayerMask);
             if (hit.collider == null)
+                return;
+            if (hit.normal.y < 0.55f)
                 return;
 
             float desiredBottomY = hit.point.y + 0.01f;
             float currentBottomY = bounds.min.y;
             float deltaY = desiredBottomY - currentBottomY;
+            if (deltaY > 0.001f)
+                return;
             if (Mathf.Abs(deltaY) < 0.001f)
                 return;
 

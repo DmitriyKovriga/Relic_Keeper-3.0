@@ -215,17 +215,24 @@ namespace Scripts.Enemies
             if (collider == null)
                 return;
 
-            const int groundLayerMask = 1 << 6;
+            int groundLayerMask = 1 << 6;
+            int oneWayPlatformLayer = LayerMask.NameToLayer("OneWayPlatform");
+            if (oneWayPlatformLayer >= 0)
+                groundLayerMask |= 1 << oneWayPlatformLayer;
+
             Bounds bounds = collider.bounds;
-            Vector2 castOrigin = new Vector2(bounds.center.x, bounds.center.y + 0.05f);
-            Vector2 castSize = new Vector2(Mathf.Max(0.05f, bounds.size.x * 0.9f), Mathf.Max(0.05f, bounds.size.y));
-            RaycastHit2D hit = Physics2D.BoxCast(castOrigin, castSize, 0f, Vector2.down, 2f, groundLayerMask);
+            Vector2 rayOrigin = new Vector2(transform.position.x, transform.position.y);
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, 6f, groundLayerMask);
             if (hit.collider == null)
+                return;
+            if (hit.normal.y < 0.55f)
                 return;
 
             float desiredBottomY = hit.point.y + 0.01f;
             float currentBottomY = bounds.min.y;
             float deltaY = desiredBottomY - currentBottomY;
+            if (deltaY > 0.001f)
+                return;
             if (Mathf.Abs(deltaY) < 0.001f)
                 return;
 
