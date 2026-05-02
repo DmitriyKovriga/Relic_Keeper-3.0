@@ -146,6 +146,13 @@ namespace Scripts.Enemies
         [Min(0f)] public float TurnDelayMin = 0.04f;
         [Min(0f)] public float TurnDelayMax = 0.1f;
         [Min(0f)] public float MissRecoveryMultiplier = 1.2f;
+        public bool IdleWanderEnabled = true;
+        [Range(0f, 1f)] public float IdleWanderMoveChance = 0.65f;
+        [Range(0.05f, 1f)] public float IdleWanderSpeedMultiplier = 0.45f;
+        [Min(0f)] public float IdleWanderStandMin = 1.2f;
+        [Min(0f)] public float IdleWanderStandMax = 3f;
+        [Min(0f)] public float IdleWanderMoveMin = 0.35f;
+        [Min(0f)] public float IdleWanderMoveMax = 1.1f;
     }
 
     [Serializable]

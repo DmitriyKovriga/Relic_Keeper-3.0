@@ -31,6 +31,9 @@ namespace Scripts.Enemies
         private SpecialActionState _specialAction;
         private float _specialActionTimer;
         private Vector3 _burrowDestination;
+        private float _idleWanderUntil;
+        private int _idleWanderDirection;
+        private bool _idleWanderMoving;
 
         public bool IsInSpecialAction => _specialAction != SpecialActionState.None;
 
@@ -53,6 +56,9 @@ namespace Scripts.Enemies
             _specialAction = SpecialActionState.None;
             _specialActionTimer = 0f;
             _nextBurrowAllowedAt = 0f;
+            _idleWanderUntil = 0f;
+            _idleWanderDirection = 0;
+            _idleWanderMoving = false;
             _committedMoveDirection = _locomotion != null ? _locomotion.FacingDirection : 1;
             RollStopDistanceOffset();
             ScheduleNextDecision(immediate: true);
@@ -89,6 +95,12 @@ namespace Scripts.Enemies
             if (Time.time < _postActionPauseUntil)
             {
                 _locomotion.Stop();
+                return;
+            }
+
+            if (!_sensor.HasTarget || _sensor.TargetTransform == null)
+            {
+                UpdateIdleWander();
                 return;
             }
 
@@ -143,12 +155,6 @@ namespace Scripts.Enemies
 
         private void UpdateGroundChaser()
         {
-            if (!_sensor.HasTarget || _sensor.TargetTransform == null)
-            {
-                _locomotion.Stop();
-                return;
-            }
-
             if (_sensor.IsTargetWithin(_data.Attack.AttackRange))
             {
                 _locomotion.Stop();
@@ -187,13 +193,6 @@ namespace Scripts.Enemies
 
         private void UpdateAgileJumper()
         {
-            if (!_sensor.HasTarget || _sensor.TargetTransform == null)
-            {
-                _activeJumpLink = null;
-                _locomotion.Stop();
-                return;
-            }
-
             if (_sensor.IsTargetWithin(_data.Attack.AttackRange))
             {
                 _activeJumpLink = null;
@@ -225,13 +224,6 @@ namespace Scripts.Enemies
 
         private void UpdateKitingRanged()
         {
-            if (!_sensor.HasTarget || _sensor.TargetTransform == null)
-            {
-                _activeJumpLink = null;
-                _locomotion.Stop();
-                return;
-            }
-
             float dirToTarget = Mathf.Sign(_sensor.TargetTransform.position.x - transform.position.x);
             if (_sensor.DistanceToTarget < GetEffectiveStopDistance())
             {
@@ -252,6 +244,82 @@ namespace Scripts.Enemies
             }
 
             ApplyMoveIntent(dirToTarget);
+        }
+
+        private void UpdateIdleWander()
+        {
+            _activeJumpLink = null;
+
+            if (!CanIdleWander())
+            {
+                StopIdleWander();
+                return;
+            }
+
+            if (Time.time >= _idleWanderUntil)
+                RollIdleWanderState();
+
+            if (!_idleWanderMoving || _idleWanderDirection == 0)
+            {
+                _locomotion.Stop();
+                return;
+            }
+
+            if (IsIdleWanderBlocked())
+            {
+                StopIdleWander();
+                _idleWanderUntil = Time.time + GetRandomPause(_data.Behaviour.IdleWanderStandMin, _data.Behaviour.IdleWanderStandMax);
+                return;
+            }
+
+            float speedMultiplier = Mathf.Clamp(_data.Behaviour.IdleWanderSpeedMultiplier, 0.05f, 1f);
+            _locomotion.SetMoveInput(_idleWanderDirection * speedMultiplier);
+        }
+
+        private bool CanIdleWander()
+        {
+            if (_data?.Behaviour == null || !_data.Behaviour.IdleWanderEnabled)
+                return false;
+
+            if (_data.AIType == EnemyAIType.StaticCaster)
+                return false;
+
+            return _data.Movement.MoveSpeed > 0f;
+        }
+
+        private void RollIdleWanderState()
+        {
+            bool shouldMove = Random.value <= Mathf.Clamp01(_data.Behaviour.IdleWanderMoveChance);
+            if (!shouldMove)
+            {
+                _idleWanderMoving = false;
+                _idleWanderDirection = 0;
+                _idleWanderUntil = Time.time + GetRandomPause(_data.Behaviour.IdleWanderStandMin, _data.Behaviour.IdleWanderStandMax);
+                _locomotion.Stop();
+                return;
+            }
+
+            _idleWanderMoving = true;
+            _idleWanderDirection = Random.value < 0.5f ? -1 : 1;
+            _idleWanderUntil = Time.time + GetRandomPause(_data.Behaviour.IdleWanderMoveMin, _data.Behaviour.IdleWanderMoveMax);
+        }
+
+        private bool IsIdleWanderBlocked()
+        {
+            if (_locomotion == null)
+                return true;
+
+            if (!_data.Movement.CanFallFromPlatform && _locomotion.IsApproachingLedge)
+                return true;
+
+            return _locomotion.IsNearWall;
+        }
+
+        private void StopIdleWander()
+        {
+            _idleWanderMoving = false;
+            _idleWanderDirection = 0;
+            _locomotion.Stop();
         }
 
         private bool TryStartBurrow()
