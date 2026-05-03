@@ -18,6 +18,21 @@ MonoBehaviour:
   _displayNameFallback: Mage
   _descriptionFallback: 
   _portrait: {fileID: 21300000, guid: 8dd7b916e54323f4aa18032215b32221, type: 3}
+  _runAnimation:
+    Frames: []
+    SpriteSheetResourcesPath: Heroes/MageResources/MageWalk-Sheet
+    FrameDuration: 0.08
+    Loop: 1
+  _jumpAnimation:
+    Frames: []
+    SpriteSheetResourcesPath: Heroes/MageResources/MageJump-Sheet
+    FrameDuration: 0.08
+    Loop: 0
+  _fallAnimation:
+    Frames: []
+    SpriteSheetResourcesPath: Heroes/MageResources/MageFall-Sheet
+    FrameDuration: 0.08
+    Loop: 0
   _startingStats:
   - Type: 6
     Value: 5

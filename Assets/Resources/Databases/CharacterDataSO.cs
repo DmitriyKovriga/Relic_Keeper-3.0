@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Scripts.Stats;
 using Scripts.Skills.PassiveTree;
+using System;
 
 [CreateAssetMenu(menuName = "RPG/Character Data")]
 public class CharacterDataSO : ScriptableObject
@@ -22,6 +23,14 @@ public class CharacterDataSO : ScriptableObject
     [Tooltip("Портрет/спрайт персонажа для UI найма и хостела")]
     [SerializeField] private Sprite _portrait;
 
+    [Header("Movement Animations")]
+    [Tooltip("Looped movement animation. Frames can be assigned directly, or loaded from Resources path.")]
+    [SerializeField] private CharacterSpriteAnimation _runAnimation = new CharacterSpriteAnimation();
+    [Tooltip("Played once when jump starts.")]
+    [SerializeField] private CharacterSpriteAnimation _jumpAnimation = new CharacterSpriteAnimation { Loop = false };
+    [Tooltip("Played when vertical velocity changes from upward to downward, then held/looped while falling.")]
+    [SerializeField] private CharacterSpriteAnimation _fallAnimation = new CharacterSpriteAnimation { Loop = false };
+
     [Header("Starting Stats Configuration")]
     [Tooltip("Добавь сюда только те статы, которые отличаются от стандартных.")]
     [SerializeField] private List<StatConfig> _startingStats;
@@ -39,6 +48,9 @@ public class CharacterDataSO : ScriptableObject
     /// <summary>Описание для отображения (fallback, когда локализация не загружена).</summary>
     public string DescriptionFallback => _descriptionFallback ?? "";
     public Sprite Portrait => _portrait;
+    public CharacterSpriteAnimation RunAnimation => _runAnimation;
+    public CharacterSpriteAnimation JumpAnimation => _jumpAnimation;
+    public CharacterSpriteAnimation FallAnimation => _fallAnimation;
     public PassiveSkillTreeSO PassiveTree => _passiveTree;
 
     public List<StatConfig> StartingStats => _startingStats ??= new List<StatConfig>();
@@ -50,6 +62,20 @@ public class CharacterDataSO : ScriptableObject
         public float Value;
     }
 
+    [Serializable]
+    public class CharacterSpriteAnimation
+    {
+        [Tooltip("Optional direct frames. If empty, Sprite Sheet Resources Path is used.")]
+        public Sprite[] Frames;
+        [Tooltip("Path inside Resources without extension. Example: Heroes/WarriorResources/WarriorWalk-Sheet")]
+        public string SpriteSheetResourcesPath;
+        [Min(0.01f)] public float FrameDuration = 0.08f;
+        public bool Loop = true;
+
+        public bool HasAnySource =>
+            (Frames != null && Frames.Length > 0) || !string.IsNullOrWhiteSpace(SpriteSheetResourcesPath);
+    }
+
 #if UNITY_EDITOR
     public void SetNameKey(string value) => _nameKey = value;
     public void SetDescriptionKey(string value) => _descriptionKey = value;
@@ -57,5 +83,18 @@ public class CharacterDataSO : ScriptableObject
     public void SetDescriptionFallback(string value) => _descriptionFallback = value;
     public void SetPortrait(Sprite value) => _portrait = value;
     public void SetPassiveTree(PassiveSkillTreeSO value) => _passiveTree = value;
+    public void SetMovementAnimationResourcePaths(string runPath, string jumpPath, string fallPath)
+    {
+        _runAnimation ??= new CharacterSpriteAnimation();
+        _jumpAnimation ??= new CharacterSpriteAnimation { Loop = false };
+        _fallAnimation ??= new CharacterSpriteAnimation();
+
+        _runAnimation.SpriteSheetResourcesPath = runPath;
+        _runAnimation.Loop = true;
+        _jumpAnimation.SpriteSheetResourcesPath = jumpPath;
+        _jumpAnimation.Loop = false;
+        _fallAnimation.SpriteSheetResourcesPath = fallPath;
+        _fallAnimation.Loop = false;
+    }
 #endif
 }

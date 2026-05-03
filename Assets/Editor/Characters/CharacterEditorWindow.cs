@@ -326,6 +326,9 @@ namespace Scripts.Editor.Characters
             _serializedCharacter.Update();
             var idProp = _serializedCharacter.FindProperty("ID");
             var portraitProp = _serializedCharacter.FindProperty("_portrait");
+            var runAnimationProp = _serializedCharacter.FindProperty("_runAnimation");
+            var jumpAnimationProp = _serializedCharacter.FindProperty("_jumpAnimation");
+            var fallAnimationProp = _serializedCharacter.FindProperty("_fallAnimation");
             var statsProp = _serializedCharacter.FindProperty("_startingStats");
             var treeProp = _serializedCharacter.FindProperty("_passiveTree");
 
@@ -339,10 +342,111 @@ namespace Scripts.Editor.Characters
             GUI.backgroundColor = Color.white;
             EditorGUILayout.EndHorizontal();
             if (portraitProp != null) EditorGUILayout.PropertyField(portraitProp);
+            DrawMovementAnimationSection(runAnimationProp, jumpAnimationProp, fallAnimationProp);
             if (statsProp != null) EditorGUILayout.PropertyField(statsProp, true);
             if (treeProp != null) EditorGUILayout.PropertyField(treeProp);
 
             _serializedCharacter.ApplyModifiedProperties();
+        }
+
+        private void DrawMovementAnimationSection(SerializedProperty runProp, SerializedProperty jumpProp, SerializedProperty fallProp)
+        {
+            EditorGUILayout.Space(6);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            GUILayout.Label("Movement Animations", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("Для нового героя достаточно положить sheets в его Resources-папку и нажать Auto-fill. Runtime загрузит кадры сам, без отдельного Animator Controller.", MessageType.Info);
+
+            if (runProp != null) EditorGUILayout.PropertyField(runProp, new GUIContent("Run / Walk"), true);
+            if (jumpProp != null) EditorGUILayout.PropertyField(jumpProp, new GUIContent("Jump"), true);
+            if (fallProp != null) EditorGUILayout.PropertyField(fallProp, new GUIContent("Fall"), true);
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Auto-fill from character folder"))
+                AutoFillMovementAnimationsFromFolder();
+            if (GUILayout.Button("Ping resource folder"))
+                PingSelectedCharacterFolder();
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndVertical();
+        }
+
+        private void AutoFillMovementAnimationsFromFolder()
+        {
+            if (_selectedCharacter == null)
+                return;
+
+            string assetPath = AssetDatabase.GetAssetPath(_selectedCharacter);
+            string folder = string.IsNullOrEmpty(assetPath) ? null : System.IO.Path.GetDirectoryName(assetPath)?.Replace('\\', '/');
+            if (string.IsNullOrEmpty(folder))
+                return;
+
+            string runPath = FindAnimationSheetResourcePath(folder, "run", "walk");
+            string jumpPath = FindAnimationSheetResourcePath(folder, "jump");
+            string fallPath = FindAnimationSheetResourcePath(folder, "fall");
+
+            Undo.RecordObject(_selectedCharacter, "Auto-fill movement animations");
+            _selectedCharacter.SetMovementAnimationResourcePaths(runPath, jumpPath, fallPath);
+            EditorUtility.SetDirty(_selectedCharacter);
+            AssetDatabase.SaveAssets();
+
+            _serializedCharacter = new SerializedObject(_selectedCharacter);
+            Repaint();
+        }
+
+        private static string FindAnimationSheetResourcePath(string folder, params string[] nameParts)
+        {
+            string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { folder });
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                string fileName = System.IO.Path.GetFileNameWithoutExtension(path).ToLowerInvariant();
+                if (!fileName.Contains("sheet"))
+                    continue;
+
+                bool matches = nameParts.Any(part => fileName.Contains(part.ToLowerInvariant()));
+                if (!matches)
+                    continue;
+
+                return ToResourcesPath(path);
+            }
+
+            return "";
+        }
+
+        private static string ToResourcesPath(string assetPath)
+        {
+            if (string.IsNullOrWhiteSpace(assetPath))
+                return "";
+
+            string normalized = assetPath.Replace('\\', '/');
+            const string marker = "/Resources/";
+            int markerIndex = normalized.IndexOf(marker, System.StringComparison.OrdinalIgnoreCase);
+            if (markerIndex < 0)
+                return "";
+
+            string resourcePath = normalized.Substring(markerIndex + marker.Length);
+            string extension = System.IO.Path.GetExtension(resourcePath);
+            if (!string.IsNullOrEmpty(extension))
+                resourcePath = resourcePath.Substring(0, resourcePath.Length - extension.Length);
+
+            return resourcePath;
+        }
+
+        private void PingSelectedCharacterFolder()
+        {
+            if (_selectedCharacter == null)
+                return;
+
+            string assetPath = AssetDatabase.GetAssetPath(_selectedCharacter);
+            string folder = string.IsNullOrEmpty(assetPath) ? null : System.IO.Path.GetDirectoryName(assetPath)?.Replace('\\', '/');
+            if (string.IsNullOrEmpty(folder))
+                return;
+
+            var folderAsset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(folder);
+            if (folderAsset != null)
+            {
+                EditorGUIUtility.PingObject(folderAsset);
+                Selection.activeObject = folderAsset;
+            }
         }
 
         private void DrawRenameSection()

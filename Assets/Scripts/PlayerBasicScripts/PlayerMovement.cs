@@ -16,6 +16,8 @@ public class PlayerMovement : MonoBehaviour
     private const float OneWayGroundNormalThreshold = 0.6f;
     private const float GroundedVerticalVelocityThreshold = 0.5f;
 
+    public event System.Action OnJumpStarted;
+
     [Header("Environment Detection")]
     [SerializeField] private Transform _groundCheckPoint;
     [SerializeField] private LayerMask _groundLayer;
@@ -200,6 +202,8 @@ public class PlayerMovement : MonoBehaviour
         _stats = GetComponent<PlayerStats>();
         if (GetComponent<GroundingVisualController>() == null)
             gameObject.AddComponent<GroundingVisualController>();
+        if (GetComponent<PlayerCharacterAnimationController>() == null)
+            gameObject.AddComponent<PlayerCharacterAnimationController>();
         _baseGravityScale = _rb != null ? _rb.gravityScale : 1f;
         EnsureOneWayPlatformMask();
         _availableJumpCount = Mathf.Max(1, _maxJumpCount);
@@ -419,6 +423,7 @@ public class PlayerMovement : MonoBehaviour
         float finalJump = _baseJumpForce * (1f + (jumpBonusPercent / 100f)) * Mathf.Max(0f, verticalMultiplier);
         _rb.AddForce(Vector2.up * finalJump, ForceMode2D.Impulse);
         _isGrounded = false;
+        OnJumpStarted?.Invoke();
     }
 
     private void CheckGround()

@@ -9,6 +9,7 @@ using Scripts.StatusEffects;
 public class PlayerStats : MonoBehaviour, IStatsProvider
 {
     public event Action OnAnyStatChanged;
+    public event Action<CharacterDataSO> OnCharacterDataChanged;
     // --- НОВОЕ СОБЫТИЕ: Сообщает, что объект LevelingSystem был пересоздан ---
     public event Action OnLevelingInitialized; 
 
@@ -28,7 +29,9 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     public LevelingSystem Leveling { get; private set; }
 
     public string CurrentClassID => _activeCharacterID;
+    public CharacterDataSO CurrentCharacterData => _activeCharacterData;
     private string _activeCharacterID;
+    private CharacterDataSO _activeCharacterData;
 
     private void Awake()
     {
@@ -125,6 +128,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     public void Initialize(CharacterDataSO data)
     {
         GetComponent<StatusEffectController>()?.ResetAll();
+        _activeCharacterData = data;
         _activeCharacterID = data != null ? data.ID : "Unknown";
         foreach (var stat in _stats.Values) stat.BaseValue = 0;
 
@@ -151,6 +155,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         ResetResourceRegenTimer();
 
         NotifyChanged();
+        OnCharacterDataChanged?.Invoke(_activeCharacterData);
     }
 
     public void ApplyLoadedState(GameSaveData data)
