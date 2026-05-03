@@ -1,25 +1,13 @@
 fileFormatVersion: 2
-guid: acf099c9f5f2cfd4bb84ba866f7b2a48
+guid: c6784ac311b072b40b323febc43fc5e2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -9062837415071662908
-    second: jump-Sheet_0
+      213: -7025827163670199938
+    second: MageFall-Sheet_0
   - first:
-      213: 8245629656952527113
-    second: jump-Sheet_1
-  - first:
-      213: -8619526791323513395
-    second: jump-Sheet_2
-  - first:
-      213: -6587305451783925153
-    second: jump-Sheet_3
-  - first:
-      213: 8202548120668862019
-    second: jump-Sheet_4
-  - first:
-      213: 1782783474860865478
-    second: jump-Sheet_5
+      213: -8792361822916094603
+    second: MageFall-Sheet_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -167,133 +155,45 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: jump-Sheet_0
+      name: MageFall-Sheet_0
       rect:
         serializedVersion: 2
-        x: 3
+        x: 0
         y: 0
-        width: 20
-        height: 26
+        width: 28
+        height: 28
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4ccb88153655a3280800000000000000
-      internalID: -9062837415071662908
+      spriteID: e71c5284b6f3f7e90800000000000000
+      internalID: -7025827163670199938
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: jump-Sheet_1
+      name: MageFall-Sheet_1
       rect:
         serializedVersion: 2
         x: 28
         y: 0
-        width: 19
-        height: 26
+        width: 28
+        height: 28
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 909d41c5c7c5e6270800000000000000
-      internalID: 8245629656952527113
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: jump-Sheet_2
-      rect:
-        serializedVersion: 2
-        x: 52
-        y: 0
-        width: 19
-        height: 26
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: dcd033f2d0a416880800000000000000
-      internalID: -8619526791323513395
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: jump-Sheet_3
-      rect:
-        serializedVersion: 2
-        x: 76
-        y: 0
-        width: 19
-        height: 26
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f52dc67b7903594a0800000000000000
-      internalID: -6587305451783925153
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: jump-Sheet_4
-      rect:
-        serializedVersion: 2
-        x: 98
-        y: 0
-        width: 21
-        height: 26
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 346f3898e0e45d170800000000000000
-      internalID: 8202548120668862019
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: jump-Sheet_5
-      rect:
-        serializedVersion: 2
-        x: 123
-        y: 0
-        width: 20
-        height: 26
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6c7b482ff18bdb810800000000000000
-      internalID: 1782783474860865478
+      spriteID: 575516881814bf580800000000000000
+      internalID: -8792361822916094603
       vertices: []
       indices: 
       edges: []
@@ -302,7 +202,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 622b652141c43ce4d9d190ecce3746e8
     internalID: 0
     vertices: []
     indices: 
@@ -310,14 +210,12 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":28.0,"y":28.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      jump-Sheet_0: -9062837415071662908
-      jump-Sheet_1: 8245629656952527113
-      jump-Sheet_2: -8619526791323513395
-      jump-Sheet_3: -6587305451783925153
-      jump-Sheet_4: 8202548120668862019
-      jump-Sheet_5: 1782783474860865478
+      MageFall-Sheet_0: -7025827163670199938
+      MageFall-Sheet_1: -8792361822916094603
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

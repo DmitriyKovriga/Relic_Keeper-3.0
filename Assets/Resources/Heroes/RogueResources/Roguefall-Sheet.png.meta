@@ -1,28 +1,13 @@
 fileFormatVersion: 2
-guid: 960d4c59f9d0f2c40bf39c5cc09c4231
+guid: 27346199cae6b7644b861b8127ce10c8
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1760075824156950922
-    second: WarriorWalk-Sheet_0
+      213: 254327718283808568
+    second: Roguefall-Sheet_0
   - first:
-      213: -5442206431308234649
-    second: WarriorWalk-Sheet_1
-  - first:
-      213: 7578576130692038154
-    second: WarriorWalk-Sheet_2
-  - first:
-      213: 6607973099291580414
-    second: WarriorWalk-Sheet_3
-  - first:
-      213: 3878504216464385634
-    second: WarriorWalk-Sheet_4
-  - first:
-      213: -2954254521124986799
-    second: WarriorWalk-Sheet_5
-  - first:
-      213: -6991921226831713483
-    second: WarriorWalk-Sheet_6
+      213: 6820640078199438827
+    second: Roguefall-Sheet_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -170,7 +155,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: WarriorWalk-Sheet_0
+      name: Roguefall-Sheet_0
       rect:
         serializedVersion: 2
         x: 0
@@ -185,14 +170,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a81c0a403ab0d6810800000000000000
-      internalID: 1760075824156950922
+      spriteID: 83f87d856bd878300800000000000000
+      internalID: 254327718283808568
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: WarriorWalk-Sheet_1
+      name: Roguefall-Sheet_1
       rect:
         serializedVersion: 2
         x: 28
@@ -207,118 +192,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 760c683b5166974b0800000000000000
-      internalID: -5442206431308234649
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: WarriorWalk-Sheet_2
-      rect:
-        serializedVersion: 2
-        x: 56
-        y: 0
-        width: 28
-        height: 28
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a0e372d76d28c2960800000000000000
-      internalID: 7578576130692038154
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: WarriorWalk-Sheet_3
-      rect:
-        serializedVersion: 2
-        x: 84
-        y: 0
-        width: 28
-        height: 28
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: ef79c94f58c34bb50800000000000000
-      internalID: 6607973099291580414
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: WarriorWalk-Sheet_4
-      rect:
-        serializedVersion: 2
-        x: 112
-        y: 0
-        width: 28
-        height: 28
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 266e632290733d530800000000000000
-      internalID: 3878504216464385634
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: WarriorWalk-Sheet_5
-      rect:
-        serializedVersion: 2
-        x: 140
-        y: 0
-        width: 28
-        height: 28
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 150e0445a216007d0800000000000000
-      internalID: -2954254521124986799
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: WarriorWalk-Sheet_6
-      rect:
-        serializedVersion: 2
-        x: 168
-        y: 0
-        width: 28
-        height: 28
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 53bae2160b4b7fe90800000000000000
-      internalID: -6991921226831713483
+      spriteID: bedbed98308c7ae50800000000000000
+      internalID: 6820640078199438827
       vertices: []
       indices: 
       edges: []
@@ -327,7 +202,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: a892fffddf5b9ff44a00e31b906c106f
+    spriteID: f457460685feff143b5d3442b1ee138a
     internalID: 0
     vertices: []
     indices: 
@@ -339,13 +214,8 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":28.0,"y":28.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      WarriorWalk-Sheet_0: 1760075824156950922
-      WarriorWalk-Sheet_1: -5442206431308234649
-      WarriorWalk-Sheet_2: 7578576130692038154
-      WarriorWalk-Sheet_3: 6607973099291580414
-      WarriorWalk-Sheet_4: 3878504216464385634
-      WarriorWalk-Sheet_5: -2954254521124986799
-      WarriorWalk-Sheet_6: -6991921226831713483
+      Roguefall-Sheet_0: 254327718283808568
+      Roguefall-Sheet_1: 6820640078199438827
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

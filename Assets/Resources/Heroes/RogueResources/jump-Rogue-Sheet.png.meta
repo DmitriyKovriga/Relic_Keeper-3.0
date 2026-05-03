@@ -1,25 +1,19 @@
 fileFormatVersion: 2
-guid: a8e5aa48e7f15d6469c74e17b3d8740b
+guid: f449132b1983b3f49a813c118a0cb236
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4535955628412438531
-    second: MageJumo-Sheet_0
+      213: 8191020357313002174
+    second: jump-Rogue-Sheet_0
   - first:
-      213: 8240885950279053136
-    second: MageJumo-Sheet_1
+      213: -9131203394495654474
+    second: jump-Rogue-Sheet_1
   - first:
-      213: 7340205435859981789
-    second: MageJumo-Sheet_2
+      213: -6615392301289067046
+    second: jump-Rogue-Sheet_2
   - first:
-      213: 8332534371489312080
-    second: MageJumo-Sheet_3
-  - first:
-      213: -6767623736401514226
-    second: MageJumo-Sheet_4
-  - first:
-      213: 4944235015227963387
-    second: MageJumo-Sheet_5
+      213: 1349142812764579955
+    second: jump-Rogue-Sheet_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -167,133 +161,89 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: MageJumo-Sheet_0
+      name: jump-Rogue-Sheet_0
       rect:
         serializedVersion: 2
-        x: 2
+        x: 0
         y: 0
-        width: 25
-        height: 27
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 308057c8c93f2fe30800000000000000
-      internalID: 4535955628412438531
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: MageJumo-Sheet_1
-      rect:
-        serializedVersion: 2
-        x: 32
-        y: 0
-        width: 24
+        width: 28
         height: 28
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 05fe3e41c128d5270800000000000000
-      internalID: 8240885950279053136
+      spriteID: eba72a9fd995ca170800000000000000
+      internalID: 8191020357313002174
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: MageJumo-Sheet_2
+      name: jump-Rogue-Sheet_1
       rect:
         serializedVersion: 2
-        x: 61
+        x: 28
         y: 0
-        width: 24
-        height: 29
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: dd553de24f5add560800000000000000
-      internalID: 7340205435859981789
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: MageJumo-Sheet_3
-      rect:
-        serializedVersion: 2
-        x: 89
-        y: 0
-        width: 25
+        width: 28
         height: 28
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 05d6a5bfcdb13a370800000000000000
-      internalID: 8332534371489312080
+      spriteID: 6b5de3354e2774180800000000000000
+      internalID: -9131203394495654474
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: MageJumo-Sheet_4
+      name: jump-Rogue-Sheet_2
       rect:
         serializedVersion: 2
-        x: 118
+        x: 56
         y: 0
-        width: 25
+        width: 28
         height: 28
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e01394271129412a0800000000000000
-      internalID: -6767623736401514226
+      spriteID: addafc770c76134a0800000000000000
+      internalID: -6615392301289067046
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: MageJumo-Sheet_5
+      name: jump-Rogue-Sheet_3
       rect:
         serializedVersion: 2
-        x: 147
+        x: 84
         y: 0
-        width: 25
+        width: 28
         height: 28
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: bf7f5b8fc837d9440800000000000000
-      internalID: 4944235015227963387
+      spriteID: 378aa1a7d3e19b210800000000000000
+      internalID: 1349142812764579955
       vertices: []
       indices: 
       edges: []
@@ -302,7 +252,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 3298051919cfcd0429ca2b501b78d729
     internalID: 0
     vertices: []
     indices: 
@@ -310,14 +260,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":28.0,"y":28.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      MageJumo-Sheet_0: 4535955628412438531
-      MageJumo-Sheet_1: 8240885950279053136
-      MageJumo-Sheet_2: 7340205435859981789
-      MageJumo-Sheet_3: 8332534371489312080
-      MageJumo-Sheet_4: -6767623736401514226
-      MageJumo-Sheet_5: 4944235015227963387
+      jump-Rogue-Sheet_0: 8191020357313002174
+      jump-Rogue-Sheet_1: -9131203394495654474
+      jump-Rogue-Sheet_2: -6615392301289067046
+      jump-Rogue-Sheet_3: 1349142812764579955
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
