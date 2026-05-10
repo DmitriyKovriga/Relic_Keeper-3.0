@@ -955,6 +955,10 @@ MonoBehaviour:
     m_Key: input.FifthSkill
     m_Metadata:
       m_Items: []
+  - m_Id: 58596768352862208
+    m_Key: stats.SpellDamage
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

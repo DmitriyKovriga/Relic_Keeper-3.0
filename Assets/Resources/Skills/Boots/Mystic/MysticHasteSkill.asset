@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 037112ba607a5b2409ab1b0826944402, type: 3}
+  m_Name: MysticHasteSkill
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
+  ID: MysticHasteSkill
+  SkillName: Mystic Haste
+  Description: Consume 1 Mystic Shield to grant 30% More Movement Speed and 50% More
+    Manna Regeneration for 29 sec
+  Icon: {fileID: 0}
+  NameKey: skills.MysticHasteSkill
+  DescriptionKey: skills.MysticHasteSkill.description
+  IsActive: 1
+  Cooldown: 20
+  ManaCost: 10
+  DamageContextTags: 0
+  SkillPrefab: {fileID: 0}
+  AnimationTrigger: Attack
+  Recipe: {fileID: 11400000, guid: 3ca8dc80cee37cb48973884b9776f04f, type: 2}

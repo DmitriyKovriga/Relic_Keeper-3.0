@@ -63,6 +63,46 @@ MonoBehaviour:
     m_Key: skills.WarriorStepSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 44078985015492608
+    m_Key: skills.EndlessBatterySkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44078985053241344
+    m_Key: skills.EndlessBatterySkill.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44087408490741760
+    m_Key: skills.MysticConsumeSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44087408511713280
+    m_Key: skills.MysticConsumeSkill.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44089621963374592
+    m_Key: skills.MysticHasteSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44089621984346112
+    m_Key: skills.MysticHasteSkill.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44091253375664128
+    m_Key: skills.EvasionarySkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44091253375664129
+    m_Key: skills.EvasionarySkill.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44092771675963392
+    m_Key: skills.RushSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44092771675963393
+    m_Key: skills.RushSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

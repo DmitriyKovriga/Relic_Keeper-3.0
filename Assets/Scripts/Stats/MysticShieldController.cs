@@ -115,6 +115,47 @@ namespace Scripts.Stats
             return true;
         }
 
+        public bool TryConsumeAllCharges(out int consumed)
+        {
+            consumed = 0;
+            int maxCharges = MaxCharges;
+            if (maxCharges <= 0 || _currentCharges <= 0)
+                return false;
+
+            consumed = _currentCharges;
+            _currentCharges = 0;
+            OnChargesConsumed?.Invoke(consumed);
+            OnShieldChanged?.Invoke();
+            return true;
+        }
+
+        public int AddCharges(int requestedAmount)
+        {
+            int maxCharges = MaxCharges;
+            if (maxCharges <= 0 || requestedAmount <= 0)
+                return 0;
+
+            int previous = _currentCharges;
+            _currentCharges = Mathf.Clamp(_currentCharges + requestedAmount, 0, maxCharges);
+            if (_currentCharges >= maxCharges)
+                _rechargeElapsed = 0f;
+
+            int added = _currentCharges - previous;
+            if (added > 0)
+                OnShieldChanged?.Invoke();
+
+            return added;
+        }
+
+        public int FillCharges()
+        {
+            int maxCharges = MaxCharges;
+            if (maxCharges <= 0)
+                return 0;
+
+            return AddCharges(maxCharges - _currentCharges);
+        }
+
         public static bool TryResolve(Transform candidate, out MysticShieldController controller)
         {
             controller = null;

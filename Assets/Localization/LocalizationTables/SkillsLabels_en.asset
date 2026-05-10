@@ -66,6 +66,47 @@ MonoBehaviour:
     m_Localized: Increase movespeed and armore
     m_Metadata:
       m_Items: []
+  - m_Id: 44078985015492608
+    m_Localized: Endless Battery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44078985053241344
+    m_Localized: Charge current Mystic Shields to MAX
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44087408490741760
+    m_Localized: Mystic Consume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44087408511713280
+    m_Localized: Consume 1 Mystic Shield to gain More Spell Damage for 5 sec
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44089621963374592
+    m_Localized: Mystic Haste
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44089621984346112
+    m_Localized: Consume 1 Mystic Shield to grant 30% More Movement Speed and 50%
+      More Manna Regeneration for 29 sec
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44091253375664128
+    m_Localized: Evasionary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44091253375664129
+    m_Localized: 'Grant 100% Increase Evasion for 8 sec '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44092771675963392
+    m_Localized: Rush
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44092771675963393
+    m_Localized: "Grant 20% More Movement Speed and Attack Speed \u043D\u0430 8 \u0441\u0435\u043A"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

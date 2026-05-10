@@ -13739,6 +13739,134 @@ MonoBehaviour:
     m_Key: affix_name_critmultiplier_flatnegative_strong_t5
     m_Metadata:
       m_Items: []
+  - m_Id: 44717789820780544
+    m_Key: affix_name_spelldamage_increase_strong_t1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717790005329920
+    m_Key: affix_increase_spelldamage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717790236016640
+    m_Key: affix_name_spelldamage_increase_strong_t2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717790462509056
+    m_Key: affix_name_spelldamage_increase_strong_t3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717790684807168
+    m_Key: affix_name_spelldamage_increase_strong_t4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717790907105280
+    m_Key: affix_name_spelldamage_increase_strong_t5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717791112626176
+    m_Key: affix_name_spelldamage_increase_medium_t1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717791322341376
+    m_Key: affix_name_spelldamage_increase_medium_t2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717791544639488
+    m_Key: affix_name_spelldamage_increase_medium_t3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717791762743296
+    m_Key: affix_name_spelldamage_increase_medium_t4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717791980847104
+    m_Key: affix_name_spelldamage_increase_medium_t5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717792190562304
+    m_Key: affix_name_spelldamage_increase_light_t1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717792408666112
+    m_Key: affix_name_spelldamage_increase_light_t2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717792618381312
+    m_Key: affix_name_spelldamage_increase_light_t3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717792832290816
+    m_Key: affix_name_spelldamage_increase_light_t4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717793046200320
+    m_Key: affix_name_spelldamage_increase_light_t5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717831201783808
+    m_Key: affix_name_spelldamage_more_strong_t1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717831201783809
+    m_Key: affix_more_spelldamage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717831470219264
+    m_Key: affix_name_spelldamage_more_strong_t2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717831742849024
+    m_Key: affix_name_spelldamage_more_strong_t3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717832002895872
+    m_Key: affix_name_spelldamage_more_strong_t4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717832300691456
+    m_Key: affix_name_spelldamage_more_strong_t5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717832548155392
+    m_Key: affix_name_spelldamage_more_medium_t1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717832778842112
+    m_Key: affix_name_spelldamage_more_medium_t2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717833005334528
+    m_Key: affix_name_spelldamage_more_medium_t3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717833227632640
+    m_Key: affix_name_spelldamage_more_medium_t4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717833449930752
+    m_Key: affix_name_spelldamage_more_medium_t5
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717833684811776
+    m_Key: affix_name_spelldamage_more_light_t1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717833898721280
+    m_Key: affix_name_spelldamage_more_light_t2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717834121019392
+    m_Key: affix_name_spelldamage_more_light_t3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717834334928896
+    m_Key: affix_name_spelldamage_more_light_t4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44717834561421312
+    m_Key: affix_name_spelldamage_more_light_t5
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

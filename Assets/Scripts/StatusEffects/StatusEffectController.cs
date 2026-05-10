@@ -14,10 +14,34 @@ namespace Scripts.StatusEffects
             private readonly List<(StatType type, StatModifier modifier)> _appliedModifiers = new List<(StatType, StatModifier)>();
 
             public StatusEffectSO Effect { get; internal set; }
+            public string RuntimeId { get; internal set; }
+            public StatusEffectKind RuntimeKind { get; internal set; }
             public float DurationSeconds { get; internal set; }
             public float RemainingSeconds { get; internal set; }
             public float RemainingNormalized => DurationSeconds > 0.0001f ? Mathf.Clamp01(RemainingSeconds / DurationSeconds) : 0f;
             internal List<(StatType type, StatModifier modifier)> AppliedModifiers => _appliedModifiers;
+        }
+
+        public sealed class RuntimeStatusHandle : IDisposable
+        {
+            private StatusEffectController _owner;
+            private ActiveEffectInstance _instance;
+
+            internal RuntimeStatusHandle(StatusEffectController owner, ActiveEffectInstance instance)
+            {
+                _owner = owner;
+                _instance = instance;
+            }
+
+            public void Dispose()
+            {
+                if (_owner == null || _instance == null)
+                    return;
+
+                _owner.RemoveRuntimeInstance(_instance);
+                _owner = null;
+                _instance = null;
+            }
         }
 
         private readonly List<ActiveEffectInstance> _activeEffects = new List<ActiveEffectInstance>();
@@ -69,11 +93,18 @@ namespace Scripts.StatusEffects
 
         public bool ApplyStatusEffect(StatusEffectSO effect, object source = null)
         {
+            return ApplyStatusEffectScaled(effect, 1, source);
+        }
+
+        public bool ApplyStatusEffectScaled(StatusEffectSO effect, int stackCount, object source = null)
+        {
             if (effect == null)
                 return false;
 
             if (!CacheOwner())
                 return false;
+
+            int effectiveStacks = Mathf.Max(1, stackCount);
 
             ActiveEffectInstance instance = FindInstance(effect);
             bool created = false;
@@ -89,10 +120,44 @@ namespace Scripts.StatusEffects
             instance.RemainingSeconds = effect.DurationSeconds;
 
             RemoveInstanceModifiers(instance);
-            ApplyInstanceModifiers(instance, source ?? this);
+            ApplyInstanceModifiers(instance, source ?? this, effectiveStacks);
             NotifyCarrierStatChanges();
             OnActiveEffectsChanged?.Invoke();
             return created || instance.AppliedModifiers.Count > 0 || effect.ShowInHud;
+        }
+
+        public RuntimeStatusHandle ApplyRuntimeStatusEffect(
+            IReadOnlyList<SerializableStatModifier> modifiers,
+            float durationSeconds,
+            StatusEffectKind kind,
+            object source = null,
+            string runtimeId = null)
+        {
+            if (modifiers == null || modifiers.Count == 0)
+                return null;
+
+            if (!CacheOwner())
+                return null;
+
+            var instance = new ActiveEffectInstance
+            {
+                Effect = null,
+                RuntimeId = string.IsNullOrWhiteSpace(runtimeId) ? "RuntimeStatus" : runtimeId,
+                RuntimeKind = kind,
+                DurationSeconds = durationSeconds,
+                RemainingSeconds = durationSeconds
+            };
+
+            ApplyRuntimeModifiers(instance, modifiers, source ?? this);
+            if (instance.AppliedModifiers.Count == 0)
+                return null;
+
+            if (durationSeconds > 0f)
+                _activeEffects.Add(instance);
+
+            NotifyCarrierStatChanges();
+            OnActiveEffectsChanged?.Invoke();
+            return new RuntimeStatusHandle(this, instance);
         }
 
         public void ResetAll()
@@ -168,15 +233,49 @@ namespace Scripts.StatusEffects
             OnActiveEffectsChanged?.Invoke();
         }
 
-        private void ApplyInstanceModifiers(ActiveEffectInstance instance, object source)
+        private void RemoveRuntimeInstance(ActiveEffectInstance instance)
+        {
+            if (instance == null)
+                return;
+
+            int activeIndex = _activeEffects.IndexOf(instance);
+            RemoveInstanceModifiers(instance);
+            if (activeIndex >= 0)
+                _activeEffects.RemoveAt(activeIndex);
+
+            NotifyCarrierStatChanges();
+            OnActiveEffectsChanged?.Invoke();
+        }
+
+        private void ApplyInstanceModifiers(ActiveEffectInstance instance, object source, int stackCount = 1)
         {
             instance.AppliedModifiers.Clear();
             if (instance.Effect == null || instance.Effect.Modifiers == null)
                 return;
 
+            int effectiveStacks = Mathf.Max(1, stackCount);
             for (int i = 0; i < instance.Effect.Modifiers.Count; i++)
             {
                 SerializableStatModifier modifierData = instance.Effect.Modifiers[i];
+                modifierData.Value *= effectiveStacks;
+                StatModifier runtimeModifier = modifierData.ToStatModifier(source ?? instance);
+                if (!TryAddModifier(modifierData.Stat, runtimeModifier))
+                    continue;
+
+                instance.AppliedModifiers.Add((modifierData.Stat, runtimeModifier));
+                _changedStatsBuffer.Add(modifierData.Stat);
+            }
+        }
+
+        private void ApplyRuntimeModifiers(
+            ActiveEffectInstance instance,
+            IReadOnlyList<SerializableStatModifier> modifiers,
+            object source)
+        {
+            instance.AppliedModifiers.Clear();
+            for (int i = 0; i < modifiers.Count; i++)
+            {
+                SerializableStatModifier modifierData = modifiers[i];
                 StatModifier runtimeModifier = modifierData.ToStatModifier(source ?? instance);
                 if (!TryAddModifier(modifierData.Stat, runtimeModifier))
                     continue;

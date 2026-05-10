@@ -85,6 +85,8 @@ namespace Scripts.Skills
 
         private void Cleanup()
         {
+            if (_ctx != null)
+                _ctx.Cleanup();
             _runCoroutine = null;
             if (_animCtrl != null) _animCtrl.ForceReset();
             if (_moveCtrl != null) _moveCtrl.SetLock(false);
@@ -179,7 +181,10 @@ namespace Scripts.Skills
                                 step.StepDefinition.Id == "DealDamageRectangle" ||
                                 step.StepDefinition.Id == "ApplyStatusSelf" ||
                                 step.StepDefinition.Id == "ApplyStatusCircle" ||
-                                step.StepDefinition.Id == "ApplyStatusRectangle")
+                                step.StepDefinition.Id == "ApplyStatusRectangle" ||
+                                step.StepDefinition.Id == "ApplyQuickStatusSelf" ||
+                                step.StepDefinition.Id == "ApplyQuickStatusCircle" ||
+                                step.StepDefinition.Id == "ApplyQuickStatusRectangle")
                                 && srcIdx >= 0 && vfxLifePct > 0f;
                             if (deferByVfxLife)
                                 _pendingDamageByVfxLife.Add((i, step, srcIdx, vfxLifePct));
@@ -317,6 +322,9 @@ namespace Scripts.Skills
                 case "DealDamageRectangle":
                     ExecuteDealDamageRectangle(stepIndex, step);
                     break;
+                case "GenerateMysticShield":
+                    ExecuteGenerateMysticShield(step);
+                    break;
                 case "ConsumeMysticShield":
                     ExecuteConsumeMysticShield(step);
                     break;
@@ -326,6 +334,9 @@ namespace Scripts.Skills
                 case "ApplyStatusSelfIfMysticShieldConsumed":
                     ExecuteApplyStatusSelfIfMysticShieldConsumed(step);
                     break;
+                case "ApplyStatusSelfPerConsumedMysticShield":
+                    ExecuteApplyStatusSelfPerConsumedMysticShield(step);
+                    break;
                 case "ApplyStatusSelf":
                     ExecuteApplyStatusSelf(stepIndex, step);
                     break;
@@ -334,6 +345,18 @@ namespace Scripts.Skills
                     break;
                 case "ApplyStatusRectangle":
                     ExecuteApplyStatusRectangle(stepIndex, step);
+                    break;
+                case "ApplyQuickStatusSelf":
+                    ExecuteApplyQuickStatusSelf(stepIndex, step);
+                    break;
+                case "ApplyQuickStatusSelfPerConsumedMysticShield":
+                    ExecuteApplyQuickStatusSelfPerConsumedMysticShield(step);
+                    break;
+                case "ApplyQuickStatusCircle":
+                    ExecuteApplyQuickStatusCircle(stepIndex, step);
+                    break;
+                case "ApplyQuickStatusRectangle":
+                    ExecuteApplyQuickStatusRectangle(stepIndex, step);
                     break;
                 default:
                     if (!string.IsNullOrEmpty(id)) Debug.Log($"[SkillStepRunner] Step '{id}' not implemented yet.");
@@ -462,15 +485,39 @@ namespace Scripts.Skills
                 return;
 
             int amount = Mathf.Max(1, step.GetInt("Amount", 1));
+            bool consumeAll = step.GetBool("ConsumeAll", false);
             bool requireFullAmount = step.GetBool("RequireFullAmount", false);
             if (!MysticShieldController.TryResolve(_ownerStats.transform, out MysticShieldController shield) || shield == null)
                 return;
+
+            if (consumeAll)
+            {
+                if (shield.TryConsumeAllCharges(out int allConsumed))
+                    _ctx.RegisterMysticShieldConsumption(allConsumed);
+                return;
+            }
 
             if (requireFullAmount && shield.CurrentCharges < amount)
                 return;
 
             if (shield.TryConsumeCharges(amount, out int consumed))
                 _ctx.RegisterMysticShieldConsumption(consumed);
+        }
+
+        private void ExecuteGenerateMysticShield(StepEntry step)
+        {
+            if (_ctx == null || _ownerStats == null)
+                return;
+
+            if (!MysticShieldController.TryResolve(_ownerStats.transform, out MysticShieldController shield) || shield == null)
+                return;
+
+            bool fillToMax = step.GetBool("FillToMax", false);
+            int generated = fillToMax
+                ? shield.FillCharges()
+                : shield.AddCharges(Mathf.Max(1, step.GetInt("Amount", 1)));
+
+            _ctx.RegisterMysticShieldGeneration(generated);
         }
 
         private void ExecuteMysticShieldDamageBoost(StepEntry step)
@@ -502,6 +549,23 @@ namespace Scripts.Skills
 
             if (StatusEffectController.TryResolve(transform, out StatusEffectController controller))
                 controller.ApplyStatusEffect(effect, this);
+        }
+
+        private void ExecuteApplyStatusSelfPerConsumedMysticShield(StepEntry step)
+        {
+            if (_ctx == null || _ctx.MysticShieldsConsumed <= 0)
+                return;
+
+            int minConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1));
+            if (_ctx.MysticShieldsConsumed < minConsumed)
+                return;
+
+            StatusEffectSO effect = step.GetObject<StatusEffectSO>("StatusEffect");
+            if (effect == null)
+                return;
+
+            if (StatusEffectController.TryResolve(transform, out StatusEffectController controller))
+                controller.ApplyStatusEffectScaled(effect, _ctx.MysticShieldsConsumed, this);
         }
 
         private void ExecuteApplyStatusSelf(int stepIndex, StepEntry step)
@@ -536,6 +600,72 @@ namespace Scripts.Skills
             var targets = GetStatusTargetsInBox(center, size, angle);
             for (int i = 0; i < targets.Count; i++)
                 targets[i].ApplyStatusEffect(effect, this);
+        }
+
+        private void ExecuteApplyQuickStatusSelf(int stepIndex, StepEntry step)
+        {
+            if (StatusEffectController.TryResolve(transform, out StatusEffectController controller))
+                ApplyQuickStatusToController(controller, step, 1, "SkillQuickSelf");
+        }
+
+        private void ExecuteApplyQuickStatusSelfPerConsumedMysticShield(StepEntry step)
+        {
+            if (_ctx == null || _ctx.MysticShieldsConsumed <= 0)
+                return;
+
+            int minConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1));
+            if (_ctx.MysticShieldsConsumed < minConsumed)
+                return;
+
+            if (StatusEffectController.TryResolve(transform, out StatusEffectController controller))
+                ApplyQuickStatusToController(controller, step, _ctx.MysticShieldsConsumed, "SkillQuickSelfPerShield");
+        }
+
+        private void ExecuteApplyQuickStatusCircle(int stepIndex, StepEntry step)
+        {
+            ResolveCircleArea(step, out Vector2 center, out float radius);
+            var targets = GetStatusTargetsInCircle(center, radius);
+            for (int i = 0; i < targets.Count; i++)
+                ApplyQuickStatusToController(targets[i], step, 1, "SkillQuickCircle");
+        }
+
+        private void ExecuteApplyQuickStatusRectangle(int stepIndex, StepEntry step)
+        {
+            ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
+            var targets = GetStatusTargetsInBox(center, size, angle);
+            for (int i = 0; i < targets.Count; i++)
+                ApplyQuickStatusToController(targets[i], step, 1, "SkillQuickRectangle");
+        }
+
+        private void ApplyQuickStatusToController(StatusEffectController controller, StepEntry step, int stackCount, string runtimeId)
+        {
+            if (controller == null || step == null)
+                return;
+
+            var modifiers = new List<SerializableStatModifier>
+            {
+                new SerializableStatModifier
+                {
+                    Stat = (StatType)Mathf.Clamp(step.GetInt("QuickStatusStat", (int)StatType.MoveSpeed), 0, System.Enum.GetValues(typeof(StatType)).Length - 1),
+                    Value = step.GetFloat("QuickStatusValue", 0f) * Mathf.Max(1, stackCount),
+                    Type = (StatModType)step.GetInt("QuickStatusModType", (int)StatModType.PercentAdd)
+                }
+            };
+
+            float duration = Mathf.Max(0f, step.GetFloat("QuickStatusDuration", 0f));
+            StatusEffectKind kind = step.GetInt("QuickStatusKind", 0) == (int)StatusEffectKind.Debuff
+                ? StatusEffectKind.Debuff
+                : StatusEffectKind.Buff;
+
+            StatusEffectController.RuntimeStatusHandle handle = controller.ApplyRuntimeStatusEffect(
+                modifiers,
+                duration,
+                kind,
+                this,
+                runtimeId);
+
+            if (duration <= 0f && handle != null)
+                _ctx?.RegisterCleanup(handle.Dispose);
         }
 
         private Vector2 GetVisualCenterOrFallback(SkillStepContext.StepResult result)

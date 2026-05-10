@@ -42,6 +42,33 @@ namespace Scripts.Editor.Affixes
             }
         }
 
+        public sealed class AffixKindGenerationReport
+        {
+            public StatType Stat;
+            public StatAffixModifierKind Kind;
+            public bool NegativeFlat;
+            public int Created;
+            public int Existing;
+            public int Skipped;
+            public int LocalizationsRegenerated;
+
+            public string ToSummaryString()
+            {
+                string kindName = GetGeneratedKindDisplayName(Kind, NegativeFlat);
+                return string.Join(
+                    "\n",
+                    new[]
+                    {
+                        $"Stat: {Stat}",
+                        $"Kind: {kindName}",
+                        $"Created: {Created}",
+                        $"Already existed: {Existing}",
+                        $"Skipped: {Skipped}",
+                        $"Localizations regenerated: {LocalizationsRegenerated}"
+                    });
+            }
+        }
+
         private readonly struct GeneratedAffixDefinition
         {
             public readonly StatType Stat;
@@ -315,6 +342,80 @@ namespace Scripts.Editor.Affixes
             return report;
         }
 
+        public static AffixKindGenerationReport GenerateKindForStat(
+            StatType stat,
+            StatAffixModifierKind kind,
+            bool negativeFlat,
+            StatsDatabaseSO statsDb,
+            AffixTagDatabaseSO tagDatabase,
+            StringTableCollection menuLabels,
+            StringTableCollection affixesLabels,
+            string affixesBaseFolder)
+        {
+            var report = new AffixKindGenerationReport
+            {
+                Stat = stat,
+                Kind = kind,
+                NegativeFlat = negativeFlat
+            };
+
+            if (statsDb == null)
+                return report;
+
+            StatAffixGenType genType = statsDb.GetAffixGenType(stat);
+            StatAffixModifierKindFlags allowedKinds = statsDb.GetAllowedAffixKinds(stat);
+            if ((allowedKinds & StatPresentation.ToFlag(kind)) == 0 || !IsKindAllowedForGenType(kind, genType))
+            {
+                report.Skipped++;
+                return report;
+            }
+
+            if (negativeFlat && (kind != StatAffixModifierKind.Flat || !statsDb.AllowNegativeFlatGeneration(stat)))
+            {
+                report.Skipped++;
+                return report;
+            }
+
+            EnsureValueUnitLocalizations(menuLabels);
+
+            string category = statsDb.GetCategory(stat);
+            string statName = stat.ToString();
+            string folder = $"{affixesBaseFolder}/ByStat/{category}/{statName}";
+            EnsureFolder($"{affixesBaseFolder}/ByStat");
+            EnsureFolder($"{affixesBaseFolder}/ByStat/{category}");
+            EnsureFolder(folder);
+
+            StatModType modType = StatPresentation.ToStatModType(kind);
+            string kindDisplayName = GetGeneratedKindDisplayName(kind, negativeFlat);
+
+            foreach (string strength in Strengths)
+            {
+                for (int tier = 1; tier <= 5; tier++)
+                {
+                    string fileName = $"{statName}_{kindDisplayName}_{strength}_T{tier}.asset";
+                    string path = Path.Combine(folder, fileName).Replace('\\', '/');
+                    if (AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path) != null)
+                    {
+                        report.Existing++;
+                        continue;
+                    }
+
+                    var affix = CreateAffix(stat, modType, kind, strength, tier, genType, negativeFlat);
+                    AssetDatabase.CreateAsset(affix, path);
+                    affix.UniqueID = path.Replace("Assets/", string.Empty).Replace(".asset", string.Empty).Replace('\\', '/');
+                    WriteLocalization(affix, stat, kind, strength, menuLabels, affixesLabels, statsDb);
+                    SyncTagFromCategory(affix, statsDb, stat, tagDatabase);
+                    EditorUtility.SetDirty(affix);
+                    report.Created++;
+                    report.LocalizationsRegenerated++;
+                }
+            }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            return report;
+        }
+
         public static void EnsureValueUnitLocalizations(StringTableCollection menuLabels)
         {
             if (menuLabels == null)
@@ -400,7 +501,7 @@ namespace Scripts.Editor.Affixes
             return $"{affixesBaseFolder}/ByStat/{category}/{statName}";
         }
 
-        private static bool IsKindAllowedForGenType(StatAffixModifierKind kind, StatAffixGenType genType)
+        public static bool IsKindAllowedForGenType(StatAffixModifierKind kind, StatAffixGenType genType)
         {
             switch (genType)
             {

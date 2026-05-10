@@ -1170,3 +1170,16 @@ MonoBehaviour:
     ContextTags: 4
     DamageChannels: 15
     AllowedAffixKinds: 30
+  - StatTypeId: SpellDamage
+    Category: Damage
+    SemanticKind: 2
+    Format: 0
+    ShowInCharacterWindow: 0
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 2
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 2
+    DamageChannels: 14
+    AllowedAffixKinds: 30

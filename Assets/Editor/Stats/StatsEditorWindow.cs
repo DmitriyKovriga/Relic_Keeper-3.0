@@ -32,6 +32,7 @@ namespace Scripts.Editor.Stats
         private bool _showUsageSection = true;
         private bool _showTechnicalTools;
         private bool _showGeneratedAffixTools = true;
+        private bool _showAffixKindGenerator = true;
         private bool _showGlobalUpgradeTools;
         private bool _showDangerousLifecycleTools;
         private int _guideTopicIndex;
@@ -83,6 +84,7 @@ namespace Scripts.Editor.Stats
         private string _newStatName = "";
         private string _systemUpgradeReport = "";
         private string _generatedAffixRebuildReport = "";
+        private string _specificAffixGenerationReport = "";
 
         [MenuItem(MenuPath)]
         public static void OpenWindow()
@@ -254,7 +256,46 @@ namespace Scripts.Editor.Stats
             }
 
             EditorGUILayout.EndScrollView();
+            DrawQuickCreateStatSection();
             EditorGUILayout.EndVertical();
+        }
+
+        private void DrawQuickCreateStatSection()
+        {
+            EditorGUILayout.Space(4);
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField("Создать новый стат", EditorStyles.miniBoldLabel);
+            _newStatName = EditorGUILayout.TextField("ID", _newStatName);
+
+            EditorGUILayout.BeginHorizontal();
+            using (new EditorGUI.DisabledScope(string.IsNullOrWhiteSpace(_newStatName)))
+            {
+                if (GUILayout.Button("Добавить стат", GUILayout.Height(24)))
+                    AddNewStatFromEditorInput();
+            }
+
+            if (GUILayout.Button("Очистить", GUILayout.Width(70), GUILayout.Height(24)))
+            {
+                _newStatName = "";
+                GUI.FocusControl(null);
+            }
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.LabelField("PascalCase, например: ColdDamageTaken", EditorStyles.miniLabel);
+            EditorGUILayout.EndVertical();
+        }
+
+        private void AddNewStatFromEditorInput()
+        {
+            GUI.FocusControl(null);
+            EditorGUIUtility.editingTextField = false;
+
+            if (StatsEditorStatLifecycle.AddToEnum(_newStatName))
+            {
+                _newStatName = "";
+                _selectedStat = null;
+                SessionState.SetString(SessionKeySelectedStat, "");
+                Repaint();
+            }
         }
 
         private void DrawMetadataSection(StatType type)
@@ -545,6 +586,9 @@ namespace Scripts.Editor.Stats
         private void DrawGeneratedAffixSection(StatType type, string id)
         {
             GUILayout.Label("Сгенерированное семейство аффиксов", EditorStyles.boldLabel);
+            DrawSpecificAffixKindGenerator(type);
+            EditorGUILayout.Space(8);
+
             EditorGUILayout.HelpBox(
                 "Пересобирает generated affixes для выбранного стата по текущей metadata. Устаревшие варианты удаляются, а ссылки в пуллах по возможности перенаправляются на безопасные замены.",
                 MessageType.None);
@@ -586,6 +630,97 @@ namespace Scripts.Editor.Stats
                 EditorGUILayout.Space(4);
                 EditorGUILayout.TextArea(_generatedAffixRebuildReport, GUILayout.MinHeight(96));
             }
+        }
+
+        private void DrawSpecificAffixKindGenerator(StatType type)
+        {
+            _showAffixKindGenerator = EditorGUILayout.Foldout(_showAffixKindGenerator, "Сгенерировать конкретный вид аффикса", true);
+            if (!_showAffixKindGenerator)
+                return;
+
+            if (_statsDatabase == null)
+            {
+                EditorGUILayout.HelpBox("Stats Database не назначена. Без metadata нельзя понять, какие виды аффиксов разрешены для стата.", MessageType.Warning);
+                return;
+            }
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.HelpBox(
+                "Каждая кнопка создаёт только отсутствующие generated-аффиксы выбранного вида: 3 силы x 5 тиров. Уже существующие ассеты не перезаписываются и не дублируются. Общая генерация в Affix Editor использует те же пути, поэтому распознаёт эти ассеты как своё семейство.",
+                MessageType.None);
+
+            StatAffixGenType genType = _statsDatabase.GetAffixGenType(type);
+            StatAffixModifierKindFlags allowedKinds = _statsDatabase.GetAllowedAffixKinds(type);
+            bool any = false;
+
+            foreach (StatAffixModifierKind kind in StatPresentation.EnumerateKinds(allowedKinds))
+            {
+                if (!AffixSetGenerator.IsKindAllowedForGenType(kind, genType))
+                    continue;
+
+                any = true;
+                DrawSpecificAffixKindRow(type, kind, negativeFlat: false);
+
+                if (kind == StatAffixModifierKind.Flat && _statsDatabase.AllowNegativeFlatGeneration(type))
+                    DrawSpecificAffixKindRow(type, kind, negativeFlat: true);
+            }
+
+            if (!any)
+                EditorGUILayout.HelpBox("Для текущей metadata нет разрешённых видов аффиксов.", MessageType.Info);
+
+            if (!string.IsNullOrWhiteSpace(_specificAffixGenerationReport))
+            {
+                EditorGUILayout.Space(4);
+                EditorGUILayout.TextArea(_specificAffixGenerationReport, GUILayout.MinHeight(72));
+            }
+
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawSpecificAffixKindRow(StatType type, StatAffixModifierKind kind, bool negativeFlat)
+        {
+            string kindName = negativeFlat
+                ? "Flat Negative"
+                : StatPresentation.GetModifierKindDisplayName(kind);
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(kindName, GUILayout.Width(140));
+            EditorGUILayout.LabelField("создаёт недостающие Light / Medium / Strong, T1-T5", EditorStyles.miniLabel);
+
+            if (GUILayout.Button("Generate", GUILayout.Width(96)))
+                GenerateSpecificAffixKind(type, kind, negativeFlat);
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void GenerateSpecificAffixKind(StatType type, StatAffixModifierKind kind, bool negativeFlat)
+        {
+            if (_statsDatabase == null)
+            {
+                EditorUtility.DisplayDialog("Generate affix kind", "Stats Database не назначена.", "OK");
+                return;
+            }
+
+            if (_menuLabelsCollection == null)
+                _menuLabelsCollection = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.MenuLabels);
+            if (_affixesCollection == null)
+                _affixesCollection = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.AffixesLabelsTable);
+
+            var tagDatabase = AssetDatabase.LoadAssetAtPath<AffixTagDatabaseSO>(EditorPaths.AffixTagDatabase);
+            var report = AffixSetGenerator.GenerateKindForStat(
+                type,
+                kind,
+                negativeFlat,
+                _statsDatabase,
+                tagDatabase,
+                _menuLabelsCollection,
+                _affixesCollection,
+                EditorPaths.AffixesBaseFolder);
+
+            _specificAffixGenerationReport = report.ToSummaryString();
+            _cachedUsageStat = null;
+            LoadUsageCachesAfterAssetMutation();
+            Repaint();
         }
 
         private void DrawStatLifecycleSection(StatType type, string id)

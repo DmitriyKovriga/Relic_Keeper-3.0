@@ -1285,6 +1285,11 @@ namespace Scripts.Editor.Skills
             if (id == "ConsumeMysticShield")
             {
                 EditorGUILayout.HelpBox("Пытается поглотить заряды Mystic Shield владельца скилла. Если зарядов нет, скилл продолжает работать, но зависимые Mystic Shield степы не сработают.", MessageType.None);
+                bool consumeAll = step.GetBool("ConsumeAll", false);
+                bool newConsumeAll = EditorGUILayout.Toggle("Consume all available", consumeAll);
+                if (newConsumeAll != consumeAll) { step.SetOverrideBool("ConsumeAll", newConsumeAll); EditorUtility.SetDirty(recipe); }
+
+                EditorGUI.BeginDisabledGroup(newConsumeAll);
                 int amount = Mathf.Max(1, step.GetInt("Amount", 1));
                 int newAmount = Mathf.Max(1, EditorGUILayout.IntField("Charges to consume", amount));
                 if (newAmount != amount) { step.SetOverrideInt("Amount", newAmount); EditorUtility.SetDirty(recipe); }
@@ -1292,6 +1297,24 @@ namespace Scripts.Editor.Skills
                 bool requireFull = step.GetBool("RequireFullAmount", false);
                 bool newRequireFull = EditorGUILayout.Toggle("Require full amount", requireFull);
                 if (newRequireFull != requireFull) { step.SetOverrideBool("RequireFullAmount", newRequireFull); EditorUtility.SetDirty(recipe); }
+                EditorGUI.EndDisabledGroup();
+                if (newConsumeAll)
+                    EditorGUILayout.HelpBox("Consume all ignores Amount and records the real consumed count for later Mystic Shield steps.", MessageType.None);
+                return;
+            }
+
+            if (id == "GenerateMysticShield")
+            {
+                EditorGUILayout.HelpBox("Добавляет заряды Mystic Shield владельцу скилла. Значение всегда ограничено MaxMysticShield.", MessageType.None);
+                bool fillToMax = step.GetBool("FillToMax", false);
+                bool newFillToMax = EditorGUILayout.Toggle("Fill to max", fillToMax);
+                if (newFillToMax != fillToMax) { step.SetOverrideBool("FillToMax", newFillToMax); EditorUtility.SetDirty(recipe); }
+
+                EditorGUI.BeginDisabledGroup(newFillToMax);
+                int amount = Mathf.Max(1, step.GetInt("Amount", 1));
+                int newAmount = Mathf.Max(1, EditorGUILayout.IntField("Charges to generate", amount));
+                if (newAmount != amount) { step.SetOverrideInt("Amount", newAmount); EditorUtility.SetDirty(recipe); }
+                EditorGUI.EndDisabledGroup();
                 return;
             }
 
@@ -1318,10 +1341,147 @@ namespace Scripts.Editor.Skills
                 return;
             }
 
+            if (id == "ApplyStatusSelfPerConsumedMysticShield")
+            {
+                DrawStatusEffectAssetField(recipe, step);
+                int minConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1));
+                int newMinConsumed = Mathf.Max(1, EditorGUILayout.IntField("Min consumed charges", minConsumed));
+                if (newMinConsumed != minConsumed) { step.SetOverrideInt("MinConsumed", newMinConsumed); EditorUtility.SetDirty(recipe); }
+                EditorGUILayout.HelpBox("Накладывает выбранный статус с силой, умноженной на число Mystic Shield зарядов, поглощённых этим скиллом. Один статус в HUD, но модификатор масштабируется.", MessageType.None);
+                return;
+            }
+
+            if (id == "ApplyQuickStatusSelf")
+            {
+                DrawQuickStatusFields(recipe, step, "Buff/Debuff на владельца без отдельного StatusEffect asset. Duration = 0 значит модификатор живёт только до конца текущего каста.");
+                int src = step.GetInt("SourceStepIndex", -1);
+                int nsrc = EditorGUILayout.IntField("Source step index (-1 = instant)", src);
+                if (nsrc != src) { step.SetOverrideInt("SourceStepIndex", nsrc); EditorUtility.SetDirty(recipe); }
+                DrawApplyAtVfxLifetimeField(recipe, step, nsrc);
+                return;
+            }
+
+            if (id == "ApplyQuickStatusSelfPerConsumedMysticShield")
+            {
+                DrawQuickStatusFields(recipe, step, "Быстрый статус на владельца. Значение модификатора умножается на число Mystic Shield зарядов, поглощённых этим скиллом. Duration = 0 работает только в рамках текущего каста.");
+                int minConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1));
+                int newMinConsumed = Mathf.Max(1, EditorGUILayout.IntField("Min consumed charges", minConsumed));
+                if (newMinConsumed != minConsumed) { step.SetOverrideInt("MinConsumed", newMinConsumed); EditorUtility.SetDirty(recipe); }
+                return;
+            }
+
+            if (id == "ApplyQuickStatusCircle")
+            {
+                DrawQuickStatusFields(recipe, step, "Круговая зона быстрого статуса без отдельного StatusEffect asset. Хорошо подходит для временных slow/weaken эффектов от удара.");
+                DrawCircleAreaFields(recipe, step, "Apply at VFX life %");
+                return;
+            }
+
+            if (id == "ApplyQuickStatusRectangle")
+            {
+                DrawQuickStatusFields(recipe, step, "Прямоугольная зона быстрого статуса без отдельного StatusEffect asset. Хорошо подходит для hitbox-дебаффов.");
+                DrawRectangleAreaFields(recipe, step, "Apply at VFX life %");
+                return;
+            }
+
             if (id == "MovementLock" || id == "MovementUnlock" || id == "WeaponStrike")
             {
                 EditorGUILayout.HelpBox("No extra settings for this step type.", MessageType.None);
             }
+        }
+
+        private void DrawQuickStatusFields(SkillRecipeSO recipe, StepEntry step, string help)
+        {
+            EditorGUILayout.HelpBox(help, MessageType.None);
+
+            int rawKind = step.GetInt("QuickStatusKind", 0);
+            int newKind = EditorGUILayout.Popup("Kind", rawKind, new[] { "Buff", "Debuff" });
+            if (newKind != rawKind) { step.SetOverrideInt("QuickStatusKind", newKind); EditorUtility.SetDirty(recipe); }
+
+            StatType currentStat = (StatType)Mathf.Clamp(step.GetInt("QuickStatusStat", (int)StatType.MoveSpeed), 0, System.Enum.GetValues(typeof(StatType)).Length - 1);
+            Scripts.Editor.Stats.StatPickerUtility.DrawStatPickerValueLayout("Stat", currentStat, selected =>
+            {
+                step.SetOverrideInt("QuickStatusStat", (int)selected);
+                EditorUtility.SetDirty(recipe);
+                Repaint();
+            });
+
+            float value = step.GetFloat("QuickStatusValue", 0f);
+            float newValue = EditorGUILayout.FloatField("Value", value);
+            if (Mathf.Abs(newValue - value) > 0.001f) { step.SetOverrideFloat("QuickStatusValue", newValue); EditorUtility.SetDirty(recipe); }
+
+            StatModType currentType = (StatModType)step.GetInt("QuickStatusModType", (int)StatModType.PercentAdd);
+            StatModType newType = (StatModType)EditorGUILayout.EnumPopup("Modifier type", currentType);
+            if (newType != currentType) { step.SetOverrideInt("QuickStatusModType", (int)newType); EditorUtility.SetDirty(recipe); }
+
+            float duration = Mathf.Max(0f, step.GetFloat("QuickStatusDuration", 0f));
+            float newDuration = Mathf.Max(0f, EditorGUILayout.FloatField("Duration seconds (0 = skill only)", duration));
+            if (Mathf.Abs(newDuration - duration) > 0.001f) { step.SetOverrideFloat("QuickStatusDuration", newDuration); EditorUtility.SetDirty(recipe); }
+        }
+
+        private void DrawCircleAreaFields(SkillRecipeSO recipe, StepEntry step, string vfxLifeLabel)
+        {
+            int src = step.GetInt("SourceStepIndex", -1);
+            int nsrc = EditorGUILayout.IntField("Source step index (Spawn VFX, -1 = от игрока)", src);
+            if (nsrc != src) { step.SetOverrideInt("SourceStepIndex", nsrc); EditorUtility.SetDirty(recipe); }
+            if (nsrc >= 0)
+            {
+                float sx = step.GetFloat("SizeX", 1f);
+                float nsx = EditorGUILayout.FloatField("Size X multiplier", sx);
+                if (Mathf.Abs(nsx - sx) > 0.001f) { step.SetOverrideFloat("SizeX", nsx); EditorUtility.SetDirty(recipe); }
+                float sy = step.GetFloat("SizeY", 1f);
+                float nsy = EditorGUILayout.FloatField("Size Y multiplier", sy);
+                if (Mathf.Abs(nsy - sy) > 0.001f) { step.SetOverrideFloat("SizeY", nsy); EditorUtility.SetDirty(recipe); }
+            }
+            else
+            {
+                float r = step.GetFloat("Radius", 1.5f);
+                float nr = EditorGUILayout.FloatField("Radius", r);
+                if (Mathf.Abs(nr - r) > 0.001f) { step.SetOverrideFloat("Radius", nr); EditorUtility.SetDirty(recipe); }
+            }
+
+            DrawApplyAtVfxLifetimeField(recipe, step, nsrc, vfxLifeLabel);
+
+            float ox = step.GetFloat("OffsetX", 0f);
+            float nox = EditorGUILayout.FloatField("Offset X", ox);
+            if (Mathf.Abs(nox - ox) > 0.001f) { step.SetOverrideFloat("OffsetX", nox); EditorUtility.SetDirty(recipe); }
+            float oy = step.GetFloat("OffsetY", 0f);
+            float noy = EditorGUILayout.FloatField("Offset Y", oy);
+            if (Mathf.Abs(noy - oy) > 0.001f) { step.SetOverrideFloat("OffsetY", noy); EditorUtility.SetDirty(recipe); }
+        }
+
+        private void DrawRectangleAreaFields(SkillRecipeSO recipe, StepEntry step, string vfxLifeLabel)
+        {
+            int src = step.GetInt("SourceStepIndex", -1);
+            int nsrc = EditorGUILayout.IntField("Source step index (-1 = use offset)", src);
+            if (nsrc != src) { step.SetOverrideInt("SourceStepIndex", nsrc); EditorUtility.SetDirty(recipe); }
+            float sx = step.GetFloat("SizeX", nsrc >= 0 ? 1f : 2f);
+            float nsx = EditorGUILayout.FloatField("Size X multiplier", sx);
+            if (Mathf.Abs(nsx - sx) > 0.001f) { step.SetOverrideFloat("SizeX", nsx); EditorUtility.SetDirty(recipe); }
+            float sy = step.GetFloat("SizeY", 1f);
+            float nsy = EditorGUILayout.FloatField("Size Y multiplier", sy);
+            if (Mathf.Abs(nsy - sy) > 0.001f) { step.SetOverrideFloat("SizeY", nsy); EditorUtility.SetDirty(recipe); }
+            float ang = step.GetFloat("Angle", 0f);
+            float nang = EditorGUILayout.FloatField("Angle (deg)", ang);
+            if (Mathf.Abs(nang - ang) > 0.001f) { step.SetOverrideFloat("Angle", nang); EditorUtility.SetDirty(recipe); }
+
+            DrawApplyAtVfxLifetimeField(recipe, step, nsrc, vfxLifeLabel);
+
+            float ox = step.GetFloat("OffsetX", 0f);
+            float nox = EditorGUILayout.FloatField("Offset X", ox);
+            if (Mathf.Abs(nox - ox) > 0.001f) { step.SetOverrideFloat("OffsetX", nox); EditorUtility.SetDirty(recipe); }
+            float oy = step.GetFloat("OffsetY", 0f);
+            float noy = EditorGUILayout.FloatField("Offset Y", oy);
+            if (Mathf.Abs(noy - oy) > 0.001f) { step.SetOverrideFloat("OffsetY", noy); EditorUtility.SetDirty(recipe); }
+        }
+
+        private void DrawApplyAtVfxLifetimeField(SkillRecipeSO recipe, StepEntry step, int sourceStepIndex, string label = "Apply at VFX life %")
+        {
+            EditorGUI.BeginDisabledGroup(sourceStepIndex < 0);
+            float vfxLife = step.GetFloat("VfxLifetimePercent", 0f);
+            float nvfxLife = EditorGUILayout.Slider(label, vfxLife, 0f, 1f);
+            if (Mathf.Abs(nvfxLife - vfxLife) > 0.001f) { step.SetOverrideFloat("VfxLifetimePercent", nvfxLife); EditorUtility.SetDirty(recipe); }
+            EditorGUI.EndDisabledGroup();
         }
 
         private void CreateNewSkillPool()
@@ -1450,12 +1610,18 @@ namespace Scripts.Editor.Skills
                 ("SpawnVFX", "Spawn VFX", "РЎРїР°РІРЅ VFX", 0f),
                 ("DealDamageCircle", "Deal damage (circle)", "РЈСЂРѕРЅ РєСЂСѓРі", 0f),
                 ("DealDamageRectangle", "Deal damage (rectangle)", "РЈСЂРѕРЅ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє", 0f),
+                ("GenerateMysticShield", "Generate Mystic Shield", "Сгенерировать Mystic Shield", 0f),
                 ("ConsumeMysticShield", "Consume Mystic Shield", "Поглотить Mystic Shield", 0f),
                 ("MysticShieldDamageBoost", "Mystic Shield damage boost", "Усилить урон от Mystic Shield", 0f),
                 ("ApplyStatusSelfIfMysticShieldConsumed", "Apply status if Mystic Shield consumed", "Статус, если поглощён Mystic Shield", 0f),
+                ("ApplyStatusSelfPerConsumedMysticShield", "Apply status per consumed Mystic Shield", "Статус за каждый Mystic Shield", 0f),
                 ("ApplyStatusSelf", "Apply status (self)", "Наложить статус (на себя)", 0f),
                 ("ApplyStatusCircle", "Apply status (circle)", "Наложить статус (круг)", 0f),
                 ("ApplyStatusRectangle", "Apply status (rectangle)", "Наложить статус (прямоугольник)", 0f),
+                ("ApplyQuickStatusSelf", "Apply quick status (self)", "Быстрый статус (на себя)", 0f),
+                ("ApplyQuickStatusSelfPerConsumedMysticShield", "Quick status per consumed Mystic Shield", "Быстрый статус за Mystic Shield", 0f),
+                ("ApplyQuickStatusCircle", "Apply quick status (circle)", "Быстрый статус (круг)", 0f),
+                ("ApplyQuickStatusRectangle", "Apply quick status (rectangle)", "Быстрый статус (прямоугольник)", 0f),
                 ("ParallelGroup", "Parallel group", "РџР°СЂР°Р»Р»РµР»СЊРЅР°СЏ РіСЂСѓРїРїР°", 0f),
             };
             foreach (var (id, nameEn, nameRu, durationPercent) in defaults)

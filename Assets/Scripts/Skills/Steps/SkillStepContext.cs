@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 using Scripts.Stats;
 
 namespace Scripts.Skills.Steps
@@ -15,7 +16,10 @@ namespace Scripts.Skills.Steps
         public float AoeScale = 1f;
         public bool Cancelled;
         public int MysticShieldsConsumed;
+        public int MysticShieldsGenerated;
         public float MysticShieldDamageMultiplier = 1f;
+        private readonly List<Action> _cleanupActions = new List<Action>();
+        private bool _cleanupRan;
 
         public bool HasConsumedMysticShield => MysticShieldsConsumed > 0;
 
@@ -27,9 +31,46 @@ namespace Scripts.Skills.Steps
             MysticShieldsConsumed += consumed;
         }
 
+        public void RegisterMysticShieldGeneration(int generated)
+        {
+            if (generated <= 0)
+                return;
+
+            MysticShieldsGenerated += generated;
+        }
+
         public void MultiplyDamageFromMysticShield(float multiplier)
         {
             MysticShieldDamageMultiplier *= Mathf.Max(0f, multiplier);
+        }
+
+        public void RegisterCleanup(Action cleanup)
+        {
+            if (cleanup == null || _cleanupRan)
+                return;
+
+            _cleanupActions.Add(cleanup);
+        }
+
+        public void Cleanup()
+        {
+            if (_cleanupRan)
+                return;
+
+            _cleanupRan = true;
+            for (int i = _cleanupActions.Count - 1; i >= 0; i--)
+            {
+                try
+                {
+                    _cleanupActions[i]?.Invoke();
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            }
+
+            _cleanupActions.Clear();
         }
 
         /// <summary>Per-step cached results used by dependent steps.</summary>

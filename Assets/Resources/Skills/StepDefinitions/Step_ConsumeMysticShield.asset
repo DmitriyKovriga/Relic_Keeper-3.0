@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9903bd69883a3ec4a9892d3b227bbdc6, type: 3}
+  m_Name: Step_ConsumeMysticShield
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.Steps.StepDefinitionSO
+  Id: ConsumeMysticShield
+  NameEn: Consume Mystic Shield
+  NameRu: "\u041F\u043E\u0433\u043B\u043E\u0442\u0438\u0442\u044C Mystic Shield"
+  DescriptionEn: 
+  DescriptionRu: 
+  Icon: {fileID: 0}
+  DefaultParams: []

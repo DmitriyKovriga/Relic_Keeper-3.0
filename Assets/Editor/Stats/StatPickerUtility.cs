@@ -51,6 +51,22 @@ namespace Scripts.Editor.Stats
             DrawStatPicker(rect, statProperty, new GUIContent(label));
         }
 
+        public static void DrawStatPickerValueLayout(string label, StatType current, Action<StatType> onSelected)
+        {
+            Rect rect = EditorGUILayout.GetControlRect();
+            DrawStatPickerValue(rect, new GUIContent(label), current, onSelected);
+        }
+
+        public static void DrawStatPickerValue(Rect rect, GUIContent label, StatType current, Action<StatType> onSelected)
+        {
+            rect = EditorGUI.PrefixLabel(rect, label);
+
+            string buttonLabel = GetButtonLabel(current);
+            string tooltip = GetTooltip(current);
+            if (EditorGUI.DropdownButton(rect, new GUIContent(buttonLabel, tooltip), FocusType.Keyboard))
+                ShowPopup(rect, current, onSelected);
+        }
+
         public static void DrawStatPicker(Rect rect, SerializedProperty statProperty, GUIContent label)
         {
             if (statProperty == null)
