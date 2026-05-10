@@ -63,7 +63,6 @@ public class HUDController : MonoBehaviour
     private RectTransform _statusEffectsRoot;
     private GridLayoutGroup _statusEffectsLayout;
     private readonly List<UIStatusEffectSlot> _statusEffectSlots = new List<UIStatusEffectSlot>();
-
     private void Awake()
     {
         LoadStatusEffectHudSettings();
@@ -907,5 +906,6 @@ public class HUDController : MonoBehaviour
             SetSegment(_increaseImage, 0f, 0f, _increaseBaseColor, 0f);
         }
     }
+
 }
 

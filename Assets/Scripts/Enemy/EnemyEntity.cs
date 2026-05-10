@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using Scripts.Visuals;
 using Scripts.StatusEffects;
+using Scripts.Stats;
 
 namespace Scripts.Enemies
 {
@@ -97,6 +98,9 @@ namespace Scripts.Enemies
 
             if (GetComponent<StatusEffectController>() == null)
                 gameObject.AddComponent<StatusEffectController>();
+
+            if (GetComponent<MysticShieldController>() == null)
+                gameObject.AddComponent<MysticShieldController>();
 
             _sensor = GetComponent<EnemySensor2D>();
             if (_sensor == null)

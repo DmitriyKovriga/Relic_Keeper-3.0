@@ -14,6 +14,23 @@ namespace Scripts.Skills.Steps
         public float FacingDirection => OwnerStats != null && OwnerStats.transform != null && OwnerStats.transform.localScale.x > 0 ? 1f : -1f;
         public float AoeScale = 1f;
         public bool Cancelled;
+        public int MysticShieldsConsumed;
+        public float MysticShieldDamageMultiplier = 1f;
+
+        public bool HasConsumedMysticShield => MysticShieldsConsumed > 0;
+
+        public void RegisterMysticShieldConsumption(int consumed)
+        {
+            if (consumed <= 0)
+                return;
+
+            MysticShieldsConsumed += consumed;
+        }
+
+        public void MultiplyDamageFromMysticShield(float multiplier)
+        {
+            MysticShieldDamageMultiplier *= Mathf.Max(0f, multiplier);
+        }
 
         /// <summary>Per-step cached results used by dependent steps.</summary>
         public Dictionary<int, StepResult> StepResults = new Dictionary<int, StepResult>();

@@ -9,11 +9,13 @@ namespace Scripts.Enemies
     {
         private PlayerStats _stats;
         private PlayerAttackInput _attackInput;
+        private MysticShieldController _mysticShield;
 
         private void Awake()
         {
             _stats = GetComponent<PlayerStats>();
             _attackInput = GetComponent<PlayerAttackInput>();
+            _mysticShield = GetComponent<MysticShieldController>();
         }
 
         public void TakeDamage(DamageSnapshot damage)
@@ -47,6 +49,10 @@ namespace Scripts.Enemies
             float cold = damage.Cold * (1f - coldRes / 100f);
             float light = damage.Lightning * (1f - lightRes / 100f);
             float total = Mathf.Max(0f, physical + fire + cold + light);
+            if (_mysticShield == null)
+                MysticShieldController.TryResolve(transform, out _mysticShield);
+            if (_mysticShield != null)
+                total = _mysticShield.ApplyMitigation(total);
             if (total <= 0f)
                 return;
 

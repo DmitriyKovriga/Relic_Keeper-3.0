@@ -1282,6 +1282,42 @@ namespace Scripts.Editor.Skills
                 return;
             }
 
+            if (id == "ConsumeMysticShield")
+            {
+                EditorGUILayout.HelpBox("Пытается поглотить заряды Mystic Shield владельца скилла. Если зарядов нет, скилл продолжает работать, но зависимые Mystic Shield степы не сработают.", MessageType.None);
+                int amount = Mathf.Max(1, step.GetInt("Amount", 1));
+                int newAmount = Mathf.Max(1, EditorGUILayout.IntField("Charges to consume", amount));
+                if (newAmount != amount) { step.SetOverrideInt("Amount", newAmount); EditorUtility.SetDirty(recipe); }
+
+                bool requireFull = step.GetBool("RequireFullAmount", false);
+                bool newRequireFull = EditorGUILayout.Toggle("Require full amount", requireFull);
+                if (newRequireFull != requireFull) { step.SetOverrideBool("RequireFullAmount", newRequireFull); EditorUtility.SetDirty(recipe); }
+                return;
+            }
+
+            if (id == "MysticShieldDamageBoost")
+            {
+                EditorGUILayout.HelpBox("Если ранее в этом касте был поглощён Mystic Shield, умножает весь последующий урон скилла. Пример: 50% за заряд = 1 заряд даст x1.5 урона.", MessageType.None);
+                int minConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1));
+                int newMinConsumed = Mathf.Max(1, EditorGUILayout.IntField("Min consumed charges", minConsumed));
+                if (newMinConsumed != minConsumed) { step.SetOverrideInt("MinConsumed", newMinConsumed); EditorUtility.SetDirty(recipe); }
+
+                float bonus = step.GetFloat("BonusPercentPerConsumedShield", 50f);
+                float newBonus = Mathf.Max(0f, EditorGUILayout.FloatField("Bonus % per consumed charge", bonus));
+                if (Mathf.Abs(newBonus - bonus) > 0.001f) { step.SetOverrideFloat("BonusPercentPerConsumedShield", newBonus); EditorUtility.SetDirty(recipe); }
+                return;
+            }
+
+            if (id == "ApplyStatusSelfIfMysticShieldConsumed")
+            {
+                DrawStatusEffectAssetField(recipe, step);
+                int minConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1));
+                int newMinConsumed = Mathf.Max(1, EditorGUILayout.IntField("Min consumed charges", minConsumed));
+                if (newMinConsumed != minConsumed) { step.SetOverrideInt("MinConsumed", newMinConsumed); EditorUtility.SetDirty(recipe); }
+                EditorGUILayout.HelpBox("Накладывает выбранный buff/debuff на владельца скилла только если ранее в этом касте был поглощён Mystic Shield.", MessageType.None);
+                return;
+            }
+
             if (id == "MovementLock" || id == "MovementUnlock" || id == "WeaponStrike")
             {
                 EditorGUILayout.HelpBox("No extra settings for this step type.", MessageType.None);
@@ -1414,6 +1450,9 @@ namespace Scripts.Editor.Skills
                 ("SpawnVFX", "Spawn VFX", "РЎРїР°РІРЅ VFX", 0f),
                 ("DealDamageCircle", "Deal damage (circle)", "РЈСЂРѕРЅ РєСЂСѓРі", 0f),
                 ("DealDamageRectangle", "Deal damage (rectangle)", "РЈСЂРѕРЅ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє", 0f),
+                ("ConsumeMysticShield", "Consume Mystic Shield", "Поглотить Mystic Shield", 0f),
+                ("MysticShieldDamageBoost", "Mystic Shield damage boost", "Усилить урон от Mystic Shield", 0f),
+                ("ApplyStatusSelfIfMysticShieldConsumed", "Apply status if Mystic Shield consumed", "Статус, если поглощён Mystic Shield", 0f),
                 ("ApplyStatusSelf", "Apply status (self)", "Наложить статус (на себя)", 0f),
                 ("ApplyStatusCircle", "Apply status (circle)", "Наложить статус (круг)", 0f),
                 ("ApplyStatusRectangle", "Apply status (rectangle)", "Наложить статус (прямоугольник)", 0f),

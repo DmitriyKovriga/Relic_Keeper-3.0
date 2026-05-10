@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Scripts.Enemies;
+using Scripts.Stats;
 using UnityEngine;
 using UnityEngine.UI;
 using UObject = UnityEngine.Object;
@@ -153,10 +154,12 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
                 continue;
 
             var view = CreatePlayerView(player.name);
+            MysticShieldController.TryResolve(player.transform, out var mysticShield);
             var tracked = new TrackedPlayer
             {
                 Stats = player,
                 Transform = player.transform,
+                MysticShield = mysticShield,
                 AutoHeight = ComputeAutoHeight(player.transform),
                 View = view
             };
@@ -223,6 +226,12 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             tracked.CachedManaNormalized = Mathf.Clamp01(mp.Percent);
             tracked.View.SetHealth(tracked.CachedHealthNormalized);
             tracked.View.SetMana(tracked.CachedManaNormalized);
+            if (tracked.MysticShield == null)
+                MysticShieldController.TryResolve(tracked.Transform, out tracked.MysticShield);
+            if (tracked.MysticShield != null)
+                tracked.View.SetMysticShield(tracked.MysticShield.CurrentCharges, tracked.MysticShield.MaxCharges, tracked.MysticShield.RechargeProgressNormalized);
+            else
+                tracked.View.SetMysticShield(0, 0, 0f);
             tracked.View.Tick(Time.unscaledDeltaTime);
 
             var worldPos = tracked.Transform.position + Vector3.up * (Mathf.Max(MinAutoHeight, tracked.AutoHeight) + PlayerExtraYOffset);
@@ -297,17 +306,21 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
 
     private StatusBarView CreatePlayerView(string debugName)
     {
-        var root = CreateRoot($"PlayerBars_{debugName}", new Vector2(22f, 7f));
+        var root = CreateRoot($"PlayerBars_{debugName}", new Vector2(22f, 9f));
+        var mysticShield = CreateMysticShieldRow(root, "MysticShield", new Vector2(0f, 4.1f), 20f, 1.2f, 3f, 0.5f,
+            new Color(0.08f, 0.22f, 0.34f, 1f),
+            new Color(0.5f, 0.95f, 1f, 1f),
+            new Color(0.22f, 0.62f, 1f, 0.95f));
         var hp = CreateBarRow(root, "HP", new Vector2(0f, 1.5f), 20f, 2f, new Color(0.1f, 0.05f, 0.05f, 0.9f), new Color(0.8f, 0.15f, 0.15f, 0.95f));
         var mp = CreateBarRow(root, "MP", new Vector2(0f, -1.5f), 20f, 2f, new Color(0.05f, 0.07f, 0.1f, 0.9f), new Color(0.15f, 0.45f, 0.9f, 0.95f));
-        return new StatusBarView(root, hp, mp);
+        return new StatusBarView(root, hp, mp, mysticShield);
     }
 
     private StatusBarView CreateEnemyView(string debugName)
     {
         var root = CreateRoot($"EnemyBar_{debugName}", new Vector2(18f, 4f));
         var hp = CreateBarRow(root, "HP", Vector2.zero, 16f, 2f, new Color(0.12f, 0.05f, 0.05f, 0.9f), new Color(0.85f, 0.18f, 0.18f, 0.95f));
-        return new StatusBarView(root, hp, null);
+        return new StatusBarView(root, hp, null, null);
     }
 
     private RectTransform CreateRoot(string name, Vector2 size)
@@ -363,6 +376,31 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         fill.color = fillColor;
         fill.raycastTarget = false;
         return new BarRow(fill, fillRect, trail, trailRect, width);
+    }
+
+    private static MysticShieldRow CreateMysticShieldRow(
+        RectTransform parent,
+        string name,
+        Vector2 pos,
+        float maxWidth,
+        float height,
+        float preferredSlotWidth,
+        float spacing,
+        Color emptyColor,
+        Color fullColor,
+        Color rechargeColor)
+    {
+        var rowGo = new GameObject(name + "_Root");
+        var rowRect = rowGo.AddComponent<RectTransform>();
+        rowRect.SetParent(parent, false);
+        rowRect.anchorMin = new Vector2(0.5f, 0.5f);
+        rowRect.anchorMax = new Vector2(0.5f, 0.5f);
+        rowRect.pivot = new Vector2(0.5f, 0.5f);
+        rowRect.anchoredPosition = pos;
+        rowRect.sizeDelta = new Vector2(maxWidth, height);
+        rowRect.gameObject.SetActive(false);
+
+        return new MysticShieldRow(rowRect, maxWidth, height, preferredSlotWidth, spacing, emptyColor, fullColor, rechargeColor);
     }
 
     private static float ComputeAutoHeight(Transform target)
@@ -454,6 +492,7 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
     {
         public PlayerStats Stats;
         public Transform Transform;
+        public MysticShieldController MysticShield;
         public float AutoHeight;
         public StatusBarView View;
         public float CachedHealthNormalized;
@@ -494,17 +533,174 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         }
     }
 
+    private sealed class MysticShieldRow
+    {
+        private readonly RectTransform _root;
+        private readonly float _maxWidth;
+        private readonly float _height;
+        private readonly float _preferredSlotWidth;
+        private readonly float _spacing;
+        private readonly Color _emptyColor;
+        private readonly Color _fullColor;
+        private readonly Color _rechargeColor;
+        private readonly List<MysticShieldSlot> _slots = new List<MysticShieldSlot>();
+
+        public MysticShieldRow(
+            RectTransform root,
+            float maxWidth,
+            float height,
+            float preferredSlotWidth,
+            float spacing,
+            Color emptyColor,
+            Color fullColor,
+            Color rechargeColor)
+        {
+            _root = root;
+            _maxWidth = Mathf.Max(1f, maxWidth);
+            _height = Mathf.Max(1f, height);
+            _preferredSlotWidth = Mathf.Max(1f, preferredSlotWidth);
+            _spacing = Mathf.Max(0f, spacing);
+            _emptyColor = emptyColor;
+            _fullColor = fullColor;
+            _rechargeColor = rechargeColor;
+        }
+
+        public void Set(int currentCharges, int maxCharges, float rechargeProgress)
+        {
+            if (_root == null)
+                return;
+
+            if (maxCharges <= 0)
+            {
+                _root.gameObject.SetActive(false);
+                return;
+            }
+
+            EnsureSlotCount(maxCharges);
+
+            int current = Mathf.Clamp(currentCharges, 0, maxCharges);
+            float progress = Mathf.Clamp01(rechargeProgress);
+            float slotWidth = ResolveSlotWidth(maxCharges);
+            _root.sizeDelta = new Vector2(_maxWidth, _height);
+            _root.gameObject.SetActive(true);
+
+            float x = -_maxWidth * 0.5f;
+            for (int i = 0; i < _slots.Count; i++)
+            {
+                MysticShieldSlot slot = _slots[i];
+                if (slot == null)
+                    continue;
+
+                bool active = i < maxCharges;
+                slot.SetActive(active);
+                if (!active)
+                    continue;
+
+                slot.SetLayout(new Vector2(x + i * (slotWidth + _spacing), 0f), new Vector2(slotWidth, _height));
+                float fill = i < current ? 1f : (i == current ? progress : 0f);
+                Color fillColor = i < current ? _fullColor : _rechargeColor;
+                slot.SetFill(fill, _emptyColor, fillColor);
+            }
+        }
+
+        private void EnsureSlotCount(int count)
+        {
+            while (_slots.Count < count)
+            {
+                int index = _slots.Count;
+                var slotGo = new GameObject($"MysticShieldSlot_{index}", typeof(RectTransform), typeof(Image));
+                var rect = slotGo.GetComponent<RectTransform>();
+                rect.SetParent(_root, false);
+                rect.anchorMin = new Vector2(0.5f, 0.5f);
+                rect.anchorMax = new Vector2(0.5f, 0.5f);
+                rect.pivot = new Vector2(0f, 0.5f);
+
+                Image background = slotGo.GetComponent<Image>();
+                background.raycastTarget = false;
+
+                var fillGo = new GameObject("Fill", typeof(RectTransform), typeof(Image));
+                var fillRect = fillGo.GetComponent<RectTransform>();
+                fillRect.SetParent(rect, false);
+                fillRect.anchorMin = new Vector2(0f, 0f);
+                fillRect.anchorMax = new Vector2(0f, 1f);
+                fillRect.pivot = new Vector2(0f, 0.5f);
+                fillRect.anchoredPosition = Vector2.zero;
+                fillRect.sizeDelta = Vector2.zero;
+
+                Image fill = fillGo.GetComponent<Image>();
+                fill.raycastTarget = false;
+                _slots.Add(new MysticShieldSlot(rect, background, fill));
+            }
+        }
+
+        private float ResolveSlotWidth(int maxCharges)
+        {
+            float needed = maxCharges * _preferredSlotWidth + Mathf.Max(0, maxCharges - 1) * _spacing;
+            if (needed <= _maxWidth)
+                return _preferredSlotWidth;
+
+            float available = _maxWidth - Mathf.Max(0, maxCharges - 1) * _spacing;
+            return Mathf.Max(1f, available / Mathf.Max(1, maxCharges));
+        }
+
+    }
+
+    private sealed class MysticShieldSlot
+    {
+        private readonly RectTransform _rect;
+        private readonly Image _background;
+        private readonly Image _fill;
+
+        public MysticShieldSlot(RectTransform rect, Image background, Image fill)
+        {
+            _rect = rect;
+            _background = background;
+            _fill = fill;
+        }
+
+        public void SetActive(bool active)
+        {
+            if (_rect != null && _rect.gameObject.activeSelf != active)
+                _rect.gameObject.SetActive(active);
+        }
+
+        public void SetLayout(Vector2 position, Vector2 size)
+        {
+            if (_rect == null)
+                return;
+
+            _rect.anchoredPosition = new Vector2(Mathf.Round(position.x), Mathf.Round(position.y));
+            _rect.sizeDelta = new Vector2(Mathf.Round(size.x), Mathf.Round(size.y));
+        }
+
+        public void SetFill(float normalized, Color emptyColor, Color fillColor)
+        {
+            if (_background != null)
+                _background.color = emptyColor;
+
+            if (_fill == null || _fill.rectTransform == null || _rect == null)
+                return;
+
+            float width = Mathf.Round(_rect.rect.width * Mathf.Clamp01(normalized));
+            _fill.rectTransform.sizeDelta = new Vector2(width, 0f);
+            _fill.color = fillColor;
+            _fill.enabled = width > 0.01f;
+        }
+    }
+
     private sealed class StatusBarView
     {
         public RectTransform Root { get; }
         private readonly BarRow _healthRow;
         private readonly BarRow _manaRow;
+        private readonly MysticShieldRow _mysticShieldRow;
 
-        public StatusBarView(RectTransform root, BarRow healthRow, BarRow manaRow)
+        public StatusBarView(RectTransform root, BarRow healthRow, BarRow manaRow, MysticShieldRow mysticShieldRow)
         {
             Root = root;
             _healthRow = healthRow;
             _manaRow = manaRow;
+            _mysticShieldRow = mysticShieldRow;
         }
 
         public void SetHealth(float normalized)
@@ -515,6 +711,11 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         public void SetMana(float normalized)
         {
             SetRowNormalized(_manaRow, normalized, useDamageTrail: false);
+        }
+
+        public void SetMysticShield(int currentCharges, int maxCharges, float rechargeProgress)
+        {
+            _mysticShieldRow?.Set(currentCharges, maxCharges, rechargeProgress);
         }
 
         public void Tick(float dt)

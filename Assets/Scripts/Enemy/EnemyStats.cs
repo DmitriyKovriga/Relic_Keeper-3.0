@@ -53,6 +53,10 @@ namespace Scripts.Enemies
             EnsureStat(StatType.PhysicalResist, 0f);
             EnsureStat(StatType.MaxPhysicalResist, 90f);
             EnsureStat(StatType.Armor, 100f);
+            EnsureStat(StatType.MaxMysticShield, 0f);
+            EnsureStat(StatType.MysticShieldRechargeDuration, 5f);
+            EnsureStat(StatType.MysticShieldMitigationPercent, 50f);
+            EnsureStat(StatType.MaxMysticShieldMitigationPercent, 90f);
         }
 
         public float GetValue(StatType type)

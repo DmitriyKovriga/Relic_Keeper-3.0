@@ -317,6 +317,15 @@ namespace Scripts.Skills
                 case "DealDamageRectangle":
                     ExecuteDealDamageRectangle(stepIndex, step);
                     break;
+                case "ConsumeMysticShield":
+                    ExecuteConsumeMysticShield(step);
+                    break;
+                case "MysticShieldDamageBoost":
+                    ExecuteMysticShieldDamageBoost(step);
+                    break;
+                case "ApplyStatusSelfIfMysticShieldConsumed":
+                    ExecuteApplyStatusSelfIfMysticShieldConsumed(step);
+                    break;
                 case "ApplyStatusSelf":
                     ExecuteApplyStatusSelf(stepIndex, step);
                     break;
@@ -426,7 +435,7 @@ namespace Scripts.Skills
         {
             ResolveCircleArea(step, out Vector2 center, out float radius);
             var targets = GetTargetsInCircle(center, radius);
-            float mult = step.GetFloat("DamageMultiplier", 1f);
+            float mult = ResolveDamageMultiplier(step);
             var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult, ResolveDamageContext());
             foreach (var t in targets) t.TakeDamage(snapshot);
         }
@@ -435,9 +444,64 @@ namespace Scripts.Skills
         {
             ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
             var targets = GetTargetsInBox(center, size, angle);
-            float mult = step.GetFloat("DamageMultiplier", 1f);
+            float mult = ResolveDamageMultiplier(step);
             var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult, ResolveDamageContext());
             foreach (var t in targets) t.TakeDamage(snapshot);
+        }
+
+        private float ResolveDamageMultiplier(StepEntry step)
+        {
+            float baseMultiplier = step.GetFloat("DamageMultiplier", 1f);
+            float shieldMultiplier = _ctx != null ? _ctx.MysticShieldDamageMultiplier : 1f;
+            return Mathf.Max(0f, baseMultiplier * Mathf.Max(0f, shieldMultiplier));
+        }
+
+        private void ExecuteConsumeMysticShield(StepEntry step)
+        {
+            if (_ctx == null || _ownerStats == null)
+                return;
+
+            int amount = Mathf.Max(1, step.GetInt("Amount", 1));
+            bool requireFullAmount = step.GetBool("RequireFullAmount", false);
+            if (!MysticShieldController.TryResolve(_ownerStats.transform, out MysticShieldController shield) || shield == null)
+                return;
+
+            if (requireFullAmount && shield.CurrentCharges < amount)
+                return;
+
+            if (shield.TryConsumeCharges(amount, out int consumed))
+                _ctx.RegisterMysticShieldConsumption(consumed);
+        }
+
+        private void ExecuteMysticShieldDamageBoost(StepEntry step)
+        {
+            if (_ctx == null)
+                return;
+
+            int minConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1));
+            if (_ctx.MysticShieldsConsumed < minConsumed)
+                return;
+
+            float bonusPercentPerShield = step.GetFloat("BonusPercentPerConsumedShield", 50f);
+            float multiplier = 1f + Mathf.Max(0f, bonusPercentPerShield) * _ctx.MysticShieldsConsumed / 100f;
+            _ctx.MultiplyDamageFromMysticShield(multiplier);
+        }
+
+        private void ExecuteApplyStatusSelfIfMysticShieldConsumed(StepEntry step)
+        {
+            if (_ctx == null)
+                return;
+
+            int minConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1));
+            if (_ctx.MysticShieldsConsumed < minConsumed)
+                return;
+
+            StatusEffectSO effect = step.GetObject<StatusEffectSO>("StatusEffect");
+            if (effect == null)
+                return;
+
+            if (StatusEffectController.TryResolve(transform, out StatusEffectController controller))
+                controller.ApplyStatusEffect(effect, this);
         }
 
         private void ExecuteApplyStatusSelf(int stepIndex, StepEntry step)

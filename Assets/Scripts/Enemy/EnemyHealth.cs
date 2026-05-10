@@ -16,6 +16,7 @@ namespace Scripts.Enemies
         private EnemyAttackController _attack;
         private EnemyAnimationBridge _animation;
         private EnemyBrain _brain;
+        private MysticShieldController _mysticShield;
         private float _currentHealth;
         private float _maxHealth;
         private bool _isDead;
@@ -33,6 +34,7 @@ namespace Scripts.Enemies
             _attack = GetComponent<EnemyAttackController>();
             _animation = GetComponent<EnemyAnimationBridge>();
             _brain = GetComponent<EnemyBrain>();
+            _mysticShield = GetComponent<MysticShieldController>();
         }
 
         public void Initialize()
@@ -70,6 +72,10 @@ namespace Scripts.Enemies
             float finalDamage = physDmg + fireDmg + coldDmg + lightDmg;
             if (finalDamage < 0)
                 finalDamage = 0;
+            if (_mysticShield == null)
+                MysticShieldController.TryResolve(transform, out _mysticShield);
+            if (_mysticShield != null)
+                finalDamage = _mysticShield.ApplyMitigation(finalDamage);
 
             _currentHealth -= finalDamage;
             TryPlayHitReaction(finalDamage);
@@ -152,6 +158,9 @@ namespace Scripts.Enemies
 
             if (_brain == null)
                 _brain = GetComponent<EnemyBrain>();
+
+            if (_mysticShield == null)
+                MysticShieldController.TryResolve(transform, out _mysticShield);
 
             if (_stats == null)
                 return false;

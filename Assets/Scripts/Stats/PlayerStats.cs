@@ -53,6 +53,8 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
 
         if (GetComponent<StatusEffectController>() == null)
             gameObject.AddComponent<StatusEffectController>();
+        if (GetComponent<MysticShieldController>() == null)
+            gameObject.AddComponent<MysticShieldController>();
     }
 
     // --- ВЫНЕСЛИ СОЗДАНИЕ В ОТДЕЛЬНЫЙ МЕТОД ДЛЯ УДОБСТВА ---
@@ -145,6 +147,9 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         EnsureMinStat(StatType.MaxHealth, 10);
         EnsureMinStat(StatType.MaxMana, 10);
         EnsureMinStat(StatType.MoveSpeed, 5f);
+        EnsureMinStat(StatType.MysticShieldRechargeDuration, 5f);
+        EnsureMinStat(StatType.MysticShieldMitigationPercent, 50f);
+        EnsureMinStat(StatType.MaxMysticShieldMitigationPercent, 90f);
         EnsureMinStat(StatType.AttackSpeed, 0f);
         EnsureMinStat(StatType.CritMultiplier, 150f);
 
