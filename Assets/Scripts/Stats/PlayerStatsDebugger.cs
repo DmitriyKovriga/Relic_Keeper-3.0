@@ -65,15 +65,25 @@ public class PlayerStatsDebugger : MonoBehaviour
             _damageReceiver = GetComponent<PlayerDamageReceiver>() ?? gameObject.AddComponent<PlayerDamageReceiver>();
 
         float rawPhysicalDamage = Mathf.Max(0f, _healthChange);
-        float healthBefore = _stats.Health.Current;
         var damage = new DamageSnapshot(this)
         {
             Physical = rawPhysicalDamage
         };
 
-        _damageReceiver.TakeDamage(damage);
+        PlayerDamageReceiver.DamageResolution result = _damageReceiver.TakeDamageDetailed(damage);
 
-        float finalDamage = Mathf.Max(0f, healthBefore - _stats.Health.Current);
-        Debug.Log($"[Debug Damage] Физический урон = {rawPhysicalDamage:0.##}, финальный урон = {finalDamage:0.##} | HP: {_stats.Health.Current:0.##}/{_stats.Health.Max:0.##}");
+        Debug.Log(
+            "[Debug Damage]\n" +
+            $"Raw: Physical={result.RawPhysical:0.##}, Fire={result.RawFire:0.##}, Cold={result.RawCold:0.##}, Lightning={result.RawLightning:0.##}\n" +
+            $"Armor: Armor={result.Armor:0.##}, ArmorPhysicalRes={result.ArmorPhysicalResist:0.##}%, StatPhysicalRes={result.StatPhysicalResist:0.##}%, MaxPhysicalRes={result.MaxPhysicalResist:0.##}%\n" +
+            $"Resists: PhysicalRes={result.PhysicalResist:0.##}%, PhysicalAfterResist={result.PhysicalAfterResist:0.##}; " +
+            $"FireRes={result.FireResist:0.##}%, FireAfterResist={result.FireAfterResist:0.##}; " +
+            $"ColdRes={result.ColdResist:0.##}%, ColdAfterResist={result.ColdAfterResist:0.##}; " +
+            $"LightningRes={result.LightningResist:0.##}%, LightningAfterResist={result.LightningAfterResist:0.##}\n" +
+            $"Before Mystic Shield: {result.TotalBeforeMysticShield:0.##}\n" +
+            $"Mystic Shield: {result.MysticShieldChargesBefore}/{result.MysticShieldMaxCharges} -> {result.MysticShieldChargesAfter}/{result.MysticShieldMaxCharges}, " +
+            $"Consumed={result.MysticShieldConsumed}, Mitigation={result.MysticShieldMitigationPercent:0.##}%\n" +
+            $"Final damage={result.FinalDamage:0.##}, HP delta={result.FinalHealthDelta:0.##}, HP: {result.HealthBefore:0.##} -> {result.HealthAfter:0.##}, Immune={result.WasImmune}");
     }
 }
+

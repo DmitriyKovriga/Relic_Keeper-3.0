@@ -56,10 +56,9 @@ namespace Scripts.Enemies
             if (!EnsureReady())
                 return;
 
-            float armor = _stats.GetValue(StatType.Armor);
             float physDmg = damage.Physical;
-            if (armor > 0 && physDmg > 0)
-                physDmg = Mathf.Max(0, physDmg - (armor * 0.1f));
+            float physicalRes = ArmorMitigation.ResolveTotalPhysicalResist(_stats, out _, out _, out _, out _);
+            physDmg = Mathf.Max(0f, physDmg * (1f - physicalRes / 100f));
 
             float fireRes = Mathf.Clamp(_stats.GetValue(StatType.FireResist), -200, 75);
             float coldRes = Mathf.Clamp(_stats.GetValue(StatType.ColdResist), -200, 75);

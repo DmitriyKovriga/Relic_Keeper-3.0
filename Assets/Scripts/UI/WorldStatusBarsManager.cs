@@ -307,7 +307,7 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
     private StatusBarView CreatePlayerView(string debugName)
     {
         var root = CreateRoot($"PlayerBars_{debugName}", new Vector2(22f, 9f));
-        var mysticShield = CreateMysticShieldRow(root, "MysticShield", new Vector2(0f, 4.1f), 20f, 1.2f, 3f, 0.5f,
+        var mysticShield = CreateMysticShieldRow(root, "MysticShield", new Vector2(0f, 4.1f), 20f, 1.2f, 3f, 1f,
             new Color(0.08f, 0.22f, 0.34f, 1f),
             new Color(0.5f, 0.95f, 1f, 1f),
             new Color(0.22f, 0.62f, 1f, 0.95f));
