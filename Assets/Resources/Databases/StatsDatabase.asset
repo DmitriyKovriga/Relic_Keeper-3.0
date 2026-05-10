@@ -354,16 +354,16 @@ MonoBehaviour:
   - StatTypeId: MoveSpeed
     Category: Speed
     SemanticKind: 0
-    Format: 1
+    Format: 0
     ShowInCharacterWindow: 1
     ShowInPrimaryStatsEditor: 1
-    AffixGenType: 1
-    ValueUnit: 3
-    DisplayAsPercentWhenFlat: 1
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
     AllowNegativeFlatGeneration: 0
     ContextTags: 0
     DamageChannels: 0
-    AllowedAffixKinds: 7
+    AllowedAffixKinds: 31
   - StatTypeId: JumpForce
     Category: Misc
     SemanticKind: 0

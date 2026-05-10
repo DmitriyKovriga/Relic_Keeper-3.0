@@ -144,6 +144,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
 
         EnsureMinStat(StatType.MaxHealth, 10);
         EnsureMinStat(StatType.MaxMana, 10);
+        EnsureMinStat(StatType.MoveSpeed, 5f);
         EnsureMinStat(StatType.AttackSpeed, 0f);
         EnsureMinStat(StatType.CritMultiplier, 150f);
 

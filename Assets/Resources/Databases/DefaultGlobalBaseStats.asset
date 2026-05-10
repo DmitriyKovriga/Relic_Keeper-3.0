@@ -38,9 +38,11 @@ MonoBehaviour:
   - Type: 25
     Value: 75
   - Type: 26
-    Value: 0
+    Value: 5
   - Type: 27
     Value: 0
+  - Type: 28
+    Value: 5
   - Type: 52
     Value: 150
   - Type: 59

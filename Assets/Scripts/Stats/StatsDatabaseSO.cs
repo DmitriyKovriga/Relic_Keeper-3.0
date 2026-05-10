@@ -606,7 +606,7 @@ namespace Scripts.Stats
                 return StatDisplayFormat.Percent;
             if (type == StatType.BleedDamageMult || type == StatType.PoisonDamageMult || type == StatType.IgniteDamageMult)
                 return StatDisplayFormat.Percent;
-            if (s.Contains("Percent") || s.Contains("Chance") || s.Contains("Multiplier") || s.Contains("Resist") || s.Contains("Reduction") || type == StatType.MoveSpeed)
+            if (s.Contains("Percent") || s.Contains("Chance") || s.Contains("Multiplier") || s.Contains("Resist") || s.Contains("Reduction"))
                 return StatDisplayFormat.Percent;
 
             return StatDisplayFormat.Number;
@@ -629,7 +629,7 @@ namespace Scripts.Stats
                 return StatAffixGenType.PercentStat;
             if (type == StatType.MeleeDamage)
                 return StatAffixGenType.ContextModifierStat;
-            if (type == StatType.AreaOfEffect || type == StatType.MoveSpeed || type == StatType.ProjectileSpeed || type == StatType.EffectDuration || type == StatType.ReduceDamageTaken)
+            if (type == StatType.AreaOfEffect || type == StatType.ProjectileSpeed || type == StatType.EffectDuration || type == StatType.ReduceDamageTaken)
                 return StatAffixGenType.PercentStat;
             if (s.Contains("Stack") || s.Contains("ExtraTargets") || s.Contains("MaxBleed") || s.Contains("MaxPoison") || s.Contains("MaxIgnite"))
                 return StatAffixGenType.NOCalcStat;

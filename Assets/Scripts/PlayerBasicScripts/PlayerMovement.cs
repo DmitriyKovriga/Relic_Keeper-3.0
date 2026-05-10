@@ -27,6 +27,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField, Range(-1f, 0f)] private float _dropThroughInputThreshold = -0.5f;
 
     [Header("Movement")]
+    [Tooltip("Fallback only. Real movement speed is StatType.MoveSpeed after flat/increased/more stat calculation.")]
     [SerializeField] private float _baseMoveSpeed = 5f;
     [SerializeField] private float _baseJumpForce = 12f;
     [SerializeField] private float _stopThreshold = 0.01f;
@@ -276,8 +277,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void ApplyMovement()
     {
-        float speedBonusPercent = _stats.GetValue(StatType.MoveSpeed);
-        float finalSpeed = _baseMoveSpeed * (1f + (speedBonusPercent / 100f));
+        float finalSpeed = ResolveMoveSpeed();
         float targetSpeed = _horizontalInput * finalSpeed;
         float currentHorizontalSpeed = _rb.linearVelocity.x;
 
@@ -308,6 +308,18 @@ public class PlayerMovement : MonoBehaviour
             _rb.linearVelocity = new Vector2(0f, currentVerticalSpeed);
         else
             _rb.linearVelocity = new Vector2(nextHorizontalSpeed, currentVerticalSpeed);
+    }
+
+    private float ResolveMoveSpeed()
+    {
+        if (_stats == null)
+            return Mathf.Max(0f, _baseMoveSpeed);
+
+        CharacterStat moveSpeed = _stats.GetStat(StatType.MoveSpeed);
+        if (moveSpeed.BaseValue <= 0f && moveSpeed.Modifiers.Count == 0)
+            moveSpeed.BaseValue = Mathf.Max(0f, _baseMoveSpeed);
+
+        return Mathf.Max(0f, moveSpeed.Value);
     }
 
     private void UpdateFastFallState()
