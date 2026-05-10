@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa469c8d85911614bbc9afc2a526821c, type: 3}
-  m_Name: Recipe_Hand_of_Iron_Will
+  m_Name: Recipe_Warrior_Step_Skill
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.Steps.SkillRecipeSO
   Steps:
   - StepDefinition: {fileID: 11400000, guid: de239b7610de55e4395878918ee74ad1, type: 2}
@@ -21,7 +21,7 @@ MonoBehaviour:
       IntVal: 0
       BoolVal: 0
       StringVal: 
-      ObjectVal: {fileID: 11400000, guid: 4b9a8fb8a1e8e1b48924935fc2856aac, type: 2}
+      ObjectVal: {fileID: 11400000, guid: d56c54e2d05700048ac5cc4bf29bc7f6, type: 2}
     StartPercentPipeline: 0
     EndPercentPipeline: 0
     SubSteps: []

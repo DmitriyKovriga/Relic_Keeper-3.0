@@ -13,6 +13,12 @@ namespace Scripts.Skills
         [TextArea] public string Description;
         public Sprite Icon;
 
+        [Header("Localization")]
+        [Tooltip("Stable key in SkillsLabels for the skill name. If empty, runtime falls back to skills.{ID}.")]
+        public string NameKey;
+        [Tooltip("Stable key in SkillsLabels for the skill description. If empty, runtime falls back to skills.{ID}.description.")]
+        public string DescriptionKey;
+
         [Header("Mechanics")]
         public bool IsActive; // Active or Passive
         public float Cooldown;

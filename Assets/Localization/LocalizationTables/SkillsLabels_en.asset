@@ -50,6 +50,22 @@ MonoBehaviour:
     m_Localized: Sweep
     m_Metadata:
       m_Items: []
+  - m_Id: 43884134558892032
+    m_Localized: Haste
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43884134588252160
+    m_Localized: Increase attack speed by 30% and movement speed by 10%
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43884353245708288
+    m_Localized: Warrior Step
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43884353245708289
+    m_Localized: Increase movespeed and armore
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

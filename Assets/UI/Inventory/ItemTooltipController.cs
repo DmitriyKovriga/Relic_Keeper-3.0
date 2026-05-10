@@ -617,7 +617,7 @@ public class ItemTooltipController : MonoBehaviour
                 nameLabel.style.color = new StyleColor(Color.cyan);
                 nameLabel.style.marginTop = 2;
                 _skillTooltipBox.Add(nameLabel);
-                LocalizeLabel(nameLabel, TABLE_SKILLS, $"skills.{skill.ID}", skill.SkillName);
+                LocalizeLabel(nameLabel, TABLE_SKILLS, GetSkillNameKey(skill), skill.SkillName);
 
                 // 3. Иконка
                 if (skill.Icon != null)
@@ -644,7 +644,7 @@ public class ItemTooltipController : MonoBehaviour
     {
         label.text = skill.Description; 
 
-        var opDesc = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, $"skills.{skill.ID}.description");
+        var opDesc = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, GetSkillDescriptionKey(skill));
         opDesc.Completed += (hDesc) =>
         {
             if (label == null) return;
@@ -678,6 +678,26 @@ public class ItemTooltipController : MonoBehaviour
                 };
             };
         };
+    }
+
+    private static string GetSkillNameKey(SkillDataSO skill)
+    {
+        if (skill == null)
+            return string.Empty;
+
+        return !string.IsNullOrWhiteSpace(skill.NameKey)
+            ? skill.NameKey
+            : $"skills.{skill.ID}";
+    }
+
+    private static string GetSkillDescriptionKey(SkillDataSO skill)
+    {
+        if (skill == null)
+            return string.Empty;
+
+        return !string.IsNullOrWhiteSpace(skill.DescriptionKey)
+            ? skill.DescriptionKey
+            : $"skills.{skill.ID}.description";
     }
 
     // --- Fill Data Logic (ITEMS) ---

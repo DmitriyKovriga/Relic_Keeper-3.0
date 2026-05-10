@@ -47,6 +47,22 @@ MonoBehaviour:
     m_Key: skills.SweepRB.description
     m_Metadata:
       m_Items: []
+  - m_Id: 43884134558892032
+    m_Key: skills.Haste
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43884134588252160
+    m_Key: skills.Haste.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43884353245708288
+    m_Key: skills.WarriorStepSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43884353245708289
+    m_Key: skills.WarriorStepSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

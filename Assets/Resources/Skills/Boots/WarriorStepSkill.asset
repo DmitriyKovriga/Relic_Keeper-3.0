@@ -10,16 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 037112ba607a5b2409ab1b0826944402, type: 3}
-  m_Name: Hand of Iron Will Skill
-  m_EditorClassIdentifier: 
-  ID: HandofIronWill
-  SkillName: Hand of Iron Will
-  Description: Gain 30% of all damage reduction for 5 second
-  Icon: {fileID: 21300000, guid: 8e1cbaf60a2a9f04391f33debb58cbd1, type: 3}
+  m_Name: WarriorStepSkill
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
+  ID: WarriorStepSkill
+  SkillName: Warrior Step
+  Description: Increase movespeed and armore
+  Icon: {fileID: 21300000, guid: 10885698cb1174d4591cf3f38b6cdc75, type: 3}
+  NameKey: skills.WarriorStepSkill
+  DescriptionKey: skills.WarriorStepSkill.description
   IsActive: 1
-  Cooldown: 20
+  Cooldown: 15
   ManaCost: 10
   DamageContextTags: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
-  Recipe: {fileID: 11400000, guid: b1864e1ed9ae0bf48904814a9a78bd6a, type: 2}
+  Recipe: {fileID: 11400000, guid: b09a892e192acb546864d984b90c3900, type: 2}
