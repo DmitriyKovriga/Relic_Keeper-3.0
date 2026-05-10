@@ -135,6 +135,14 @@ MonoBehaviour:
     m_Key: skills.MightOfDestructionSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 44181893308514304
+    m_Key: skills.MysticImpulseSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44181893333680128
+    m_Key: skills.MysticImpulseSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

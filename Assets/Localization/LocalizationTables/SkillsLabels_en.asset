@@ -145,6 +145,18 @@ MonoBehaviour:
     m_Localized: Increase 50% Skill Area Effect by 8 sec
     m_Metadata:
       m_Items: []
+  - m_Id: 44181893308514304
+    m_Localized: Mystic Impulse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44181893333680128
+    m_Localized: 'Convert all weapon damage from weapon to lightning and deal 200%
+      damage
+
+      Consume Mystic Shield and gain 50% More spell damage for this
+      cast'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
