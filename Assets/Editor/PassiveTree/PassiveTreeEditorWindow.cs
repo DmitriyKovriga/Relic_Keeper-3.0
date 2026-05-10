@@ -945,7 +945,8 @@ namespace Scripts.Editor.PassiveTree
 
             var commands = new PassiveTreeEditorCommands();
             commands.SetTree(_currentTree);
-            PassiveClusterDefinition createdCluster = commands.CreateClusterFromTemplateAtPosition(template, _lastCanvasClickContentPosition);
+            Vector2 placementPosition = _canvas != null ? _canvas.GetLastMouseContentPosition() : _lastCanvasClickContentPosition;
+            PassiveClusterDefinition createdCluster = commands.CreateClusterFromTemplateAtPosition(template, placementPosition);
             RefreshAvailableClusterTemplates();
             _selectedCluster = createdCluster;
             _selectedNode = null;

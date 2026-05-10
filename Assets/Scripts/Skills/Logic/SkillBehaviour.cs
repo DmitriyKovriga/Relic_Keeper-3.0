@@ -11,6 +11,7 @@ namespace Scripts.Skills
         protected bool _isCasting;
 
         public bool IsCasting => _isCasting;
+        public SkillDataSO Data => _data;
 
         public float CooldownDuration => _data != null ? Mathf.Max(0f, _data.Cooldown) : 0f;
 

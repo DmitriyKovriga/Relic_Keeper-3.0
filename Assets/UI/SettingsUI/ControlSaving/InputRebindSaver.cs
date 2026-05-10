@@ -88,6 +88,9 @@ public static class InputRebindSaver
         // --- Скиллы и Действия ---
         BindIfNotExists(map.FindAction("FirstSkill"), "<Keyboard>/z");
         BindIfNotExists(map.FindAction("SecondSkill"), "<Keyboard>/x");
+        BindIfNotExists(map.FindAction("ThirdSkill"), "<Keyboard>/c");
+        BindIfNotExists(map.FindAction("FourthSkill"), "<Keyboard>/v");
+        BindIfNotExists(map.FindAction("FifthSkill"), "<Keyboard>/b");
         BindIfNotExists(map.FindAction("Dodge"), "<Keyboard>/leftShift");
         BindIfNotExists(map.FindAction("Interact"), "<Keyboard>/e");
         BindIfNotExists(map.FindAction("Jump"), "<Keyboard>/space");

@@ -352,7 +352,7 @@ namespace Scripts.Editor.PassiveTree
 
         private void OnViewportPointerDown(PointerDownEvent evt)
         {
-            _lastMousePosInViewport = evt.localPosition;
+            _lastMousePosInViewport = PanelToViewportPosition((Vector2)evt.position);
         }
 
         private static bool IsPanTrigger(PointerDownEvent evt)
@@ -369,7 +369,7 @@ namespace Scripts.Editor.PassiveTree
 
         private void OnViewportPointerMove(PointerMoveEvent evt)
         {
-            _lastMousePosInViewport = evt.localPosition;
+            _lastMousePosInViewport = PanelToViewportPosition((Vector2)evt.position);
 
             if (_draggedNode != null) { OnNodePointerMove(evt); return; }
             if (_resizingCluster != null) { OnOrbitResizePointerMove(evt); return; }
@@ -637,7 +637,7 @@ namespace Scripts.Editor.PassiveTree
             _isMarqueeSelecting = false;
             _marqueePointerId = evt.pointerId;
             _marqueeAdditiveSelection = evt.ctrlKey || evt.commandKey;
-            _marqueeStartViewportPos = _viewport.WorldToLocal((Vector2)evt.position);
+            _marqueeStartViewportPos = PanelToViewportPosition((Vector2)evt.position);
             _pointerDragStartPos = (Vector2)evt.position;
             _lastMousePosInViewport = _marqueeStartViewportPos;
             _viewport.CapturePointer(evt.pointerId);
@@ -648,7 +648,7 @@ namespace Scripts.Editor.PassiveTree
             if (_marqueePointerId != evt.pointerId)
                 return;
 
-            Vector2 currentViewportPos = _viewport.WorldToLocal((Vector2)evt.position);
+            Vector2 currentViewportPos = PanelToViewportPosition((Vector2)evt.position);
             if (_pendingBackgroundClick && !_isMarqueeSelecting)
             {
                 if (Vector2.Distance(currentViewportPos, _marqueeStartViewportPos) < 6f)
@@ -794,6 +794,13 @@ namespace Scripts.Editor.PassiveTree
         public PassiveClusterDefinition GetSelectedClusterData() => _selection.SelectedClusterData;
         public PassiveSkillTreeSO CurrentTree => _tree;
 
+        public Vector2 GetLastMouseContentPosition()
+        {
+            return _viewportController != null
+                ? _viewportController.ViewportToContentPosition(_lastMousePosInViewport)
+                : _lastMousePosInViewport;
+        }
+
         public void ClearSelection()
         {
             _selection.ClearSelection();
@@ -854,8 +861,13 @@ namespace Scripts.Editor.PassiveTree
 
         private Vector2 GetContentPointerPosition(Vector2 panelPosition)
         {
-            Vector2 viewportPosition = _viewport.WorldToLocal(panelPosition);
+            Vector2 viewportPosition = PanelToViewportPosition(panelPosition);
             return _viewportController.ViewportToContentPosition(viewportPosition);
+        }
+
+        private Vector2 PanelToViewportPosition(Vector2 panelPosition)
+        {
+            return _viewport != null ? _viewport.WorldToLocal(panelPosition) : panelPosition;
         }
 
         private static int GetClosestOrbitIndex(PassiveClusterDefinition cluster, Vector2 contentPosition)

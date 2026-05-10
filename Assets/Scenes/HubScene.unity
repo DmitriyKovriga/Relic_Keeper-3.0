@@ -307,6 +307,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _iconImage: {fileID: 1182645802}
   _cooldownOverlayImage: {fileID: 0}
+  _inputText: {fileID: 0}
+  _inputBackgroundImage: {fileID: 0}
+  _manaCostText: {fileID: 0}
+  _cooldownText: {fileID: 0}
+  _inputFontSize: 8
+  _manaFontSize: 8
+  _cooldownFontSize: 12
+  _inputBackgroundColor: {r: 0, g: 0, b: 0, a: 0.72}
+  _inputTextColor: {r: 0.95, g: 0.95, b: 0.95, a: 1}
+  _manaTextColor: {r: 0.35, g: 0.68, b: 1, a: 1}
+  _cooldownTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &77833671
 GameObject:
   m_ObjectHideFlags: 0
@@ -5380,6 +5391,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _iconImage: {fileID: 281106725}
   _cooldownOverlayImage: {fileID: 0}
+  _inputText: {fileID: 0}
+  _inputBackgroundImage: {fileID: 0}
+  _manaCostText: {fileID: 0}
+  _cooldownText: {fileID: 0}
+  _inputFontSize: 8
+  _manaFontSize: 8
+  _cooldownFontSize: 12
+  _inputBackgroundColor: {r: 0, g: 0, b: 0, a: 0.72}
+  _inputTextColor: {r: 0.95, g: 0.95, b: 0.95, a: 1}
+  _manaTextColor: {r: 0.35, g: 0.68, b: 1, a: 1}
+  _cooldownTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -5848,6 +5870,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _iconImage: {fileID: 930046169}
   _cooldownOverlayImage: {fileID: 0}
+  _inputText: {fileID: 0}
+  _inputBackgroundImage: {fileID: 0}
+  _manaCostText: {fileID: 0}
+  _cooldownText: {fileID: 0}
+  _inputFontSize: 8
+  _manaFontSize: 8
+  _cooldownFontSize: 12
+  _inputBackgroundColor: {r: 0, g: 0, b: 0, a: 0.72}
+  _inputTextColor: {r: 0.95, g: 0.95, b: 0.95, a: 1}
+  _manaTextColor: {r: 0.35, g: 0.68, b: 1, a: 1}
+  _cooldownTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -6452,6 +6485,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _iconImage: {fileID: 1606236558}
   _cooldownOverlayImage: {fileID: 0}
+  _inputText: {fileID: 0}
+  _inputBackgroundImage: {fileID: 0}
+  _manaCostText: {fileID: 0}
+  _cooldownText: {fileID: 0}
+  _inputFontSize: 8
+  _manaFontSize: 8
+  _cooldownFontSize: 12
+  _inputBackgroundColor: {r: 0, g: 0, b: 0, a: 0.72}
+  _inputTextColor: {r: 0.95, g: 0.95, b: 0.95, a: 1}
+  _manaTextColor: {r: 0.35, g: 0.68, b: 1, a: 1}
+  _cooldownTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &930046167
 GameObject:
   m_ObjectHideFlags: 0
@@ -6776,6 +6820,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _iconImage: {fileID: 328762230}
   _cooldownOverlayImage: {fileID: 0}
+  _inputText: {fileID: 0}
+  _inputBackgroundImage: {fileID: 0}
+  _manaCostText: {fileID: 0}
+  _cooldownText: {fileID: 0}
+  _inputFontSize: 8
+  _manaFontSize: 8
+  _cooldownFontSize: 12
+  _inputBackgroundColor: {r: 0, g: 0, b: 0, a: 0.72}
+  _inputTextColor: {r: 0.95, g: 0.95, b: 0.95, a: 1}
+  _manaTextColor: {r: 0.35, g: 0.68, b: 1, a: 1}
+  _cooldownTextColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1033851703
 GameObject:
   m_ObjectHideFlags: 0

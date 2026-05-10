@@ -17,7 +17,7 @@ MonoBehaviour:
   _descriptionKey: character.0.description
   _displayNameFallback: Warrior
   _descriptionFallback: 
-  _portrait: {fileID: 21300000, guid: 8dd7b916e54323f4aa18032215b32221, type: 3}
+  _portrait: {fileID: 1760075824156950922, guid: 960d4c59f9d0f2c40bf39c5cc09c4231, type: 3}
   _runAnimation:
     Frames: []
     SpriteSheetResourcesPath: Heroes/WarriorResources/WarriorWalk-Sheet

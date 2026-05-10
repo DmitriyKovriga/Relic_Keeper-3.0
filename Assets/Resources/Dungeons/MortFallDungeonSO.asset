@@ -16,7 +16,7 @@ MonoBehaviour:
   DisplayName: Mortfall
   MinLevel: 1
   MaxLevel: 10
-  RoomCount: 9
+  RoomCount: 10
   _normalRoomPrefabPaths:
   - Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_001.prefab
   - Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_002.prefab
@@ -27,5 +27,6 @@ MonoBehaviour:
   - Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_007.prefab
   - Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_008.prefab
   - Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_009.prefab
+  - Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_010.prefab
   _bossRoomPrefabPath: Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_003.prefab
   _backgroundSpriteResourcePath: Assets/Resources/Sprites/WallAndGrounds/MortfallDungeon/MortFallAssets/Mortfall-background.png

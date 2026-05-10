@@ -100,6 +100,22 @@ namespace Scripts.Skills
             return 0f;
         }
 
+        public float GetSkillCooldownRemaining(int slotIndex)
+        {
+            if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)
+                return skillBehaviour.CooldownRemaining;
+
+            return 0f;
+        }
+
+        public SkillDataSO GetSkillData(int slotIndex)
+        {
+            if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)
+                return skillBehaviour.Data;
+
+            return null;
+        }
+
         public bool SlotHasCooldownSkill(int slotIndex)
         {
             if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)

@@ -17,7 +17,7 @@ MonoBehaviour:
   _descriptionKey: character.Mage.description
   _displayNameFallback: Mage
   _descriptionFallback: 
-  _portrait: {fileID: 21300000, guid: 8dd7b916e54323f4aa18032215b32221, type: 3}
+  _portrait: {fileID: 7553771788744308013, guid: 5b1ab7e28818ff14984e29d4b223b661, type: 3}
   _runAnimation:
     Frames: []
     SpriteSheetResourcesPath: Heroes/MageResources/MageWalk-Sheet

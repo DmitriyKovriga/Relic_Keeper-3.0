@@ -5,9 +5,12 @@ using System.Collections.Generic;
 using Scripts.Stats; // Не забудь подключить namespace со статами
 using Scripts.Skills;
 using Scripts.StatusEffects;
+using UnityEngine.InputSystem;
 
 public class HUDController : MonoBehaviour
 {
+    private static readonly string[] SkillActionNames = { "FirstSkill", "SecondSkill", "ThirdSkill", "FourthSkill", "FifthSkill" };
+
     [Header("Player Reference")]
     [SerializeField] private PlayerStats _playerStats;
     [SerializeField] private PlayerSkillManager _skillManager;
@@ -98,12 +101,16 @@ public class HUDController : MonoBehaviour
             _skillManager = FindFirstObjectByType<PlayerSkillManager>();
             if (_skillManager != null) _skillManager.OnSkillSlotUpdated += UpdateSkillSlotUI;
         }
+
+        InputRebindSaver.RebindsChanged += RefreshAllSkillSlotBindings;
+        RefreshAllSkillSlotBindings();
     }
 
     private void OnDestroy()
     {
         if (_playerStats != null) _playerStats.OnAnyStatChanged -= UpdateUI;
         if (_skillManager != null) _skillManager.OnSkillSlotUpdated -= UpdateSkillSlotUI;
+        InputRebindSaver.RebindsChanged -= RefreshAllSkillSlotBindings;
         if (_statusEffectController != null) _statusEffectController.OnActiveEffectsChanged -= RefreshStatusEffectSlots;
     }
 
@@ -121,13 +128,15 @@ public class HUDController : MonoBehaviour
     {
         if (index < 0 || index >= _skillSlots.Length) return;
 
+        string inputLabel = GetSkillInputLabel(index);
         if (skill != null)
         {
-            _skillSlots[index].Setup(skill.Icon);
+            _skillSlots[index].Setup(skill, inputLabel);
         }
         else
         {
             _skillSlots[index].Clear();
+            _skillSlots[index].SetInputLabel(inputLabel);
         }
 
         if (index == 0)
@@ -425,13 +434,160 @@ public class HUDController : MonoBehaviour
             if (i == 0)
             {
                 slot.SetCooldownOverlay(0f, false);
+                slot.SetCooldownText(0f, false);
                 continue;
             }
 
             bool hasCooldownSkill = _skillManager.SlotHasCooldownSkill(i);
             float normalized = _skillManager.GetSkillCooldownNormalized(i);
+            float remaining = _skillManager.GetSkillCooldownRemaining(i);
             slot.SetCooldownOverlay(normalized, hasCooldownSkill);
+            slot.SetCooldownText(remaining, hasCooldownSkill);
         }
+    }
+
+    private void RefreshAllSkillSlotBindings()
+    {
+        if (_skillSlots == null)
+            return;
+
+        for (int i = 0; i < _skillSlots.Length; i++)
+        {
+            UISkillSlot slot = _skillSlots[i];
+            if (slot == null)
+                continue;
+
+            SkillDataSO skill = _skillManager != null ? _skillManager.GetSkillData(i) : null;
+            if (skill != null)
+                slot.Setup(skill, GetSkillInputLabel(i));
+            else
+                slot.SetInputLabel(GetSkillInputLabel(i));
+        }
+    }
+
+    private static string GetSkillInputLabel(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= SkillActionNames.Length)
+            return "";
+
+        InputActionAsset asset = InputManager.InputActions?.asset;
+        InputAction action = asset != null ? asset.FindAction(SkillActionNames[slotIndex], false) : null;
+        if (action == null)
+            return "";
+
+        for (int i = 0; i < action.bindings.Count; i++)
+        {
+            InputBinding binding = action.bindings[i];
+            if (binding.isComposite || binding.isPartOfComposite)
+                continue;
+
+            string label = GetEnglishBindingLabel(action, i);
+            if (!string.IsNullOrWhiteSpace(label))
+                return label;
+        }
+
+        return "";
+    }
+
+    private static string GetEnglishBindingLabel(InputAction action, int bindingIndex)
+    {
+        if (action == null || bindingIndex < 0 || bindingIndex >= action.bindings.Count)
+            return "";
+
+        InputBinding binding = action.bindings[bindingIndex];
+        string path = !string.IsNullOrWhiteSpace(binding.effectivePath) ? binding.effectivePath : binding.path;
+        string pathLabel = FormatBindingPathLabel(path);
+        if (!string.IsNullOrWhiteSpace(pathLabel))
+            return pathLabel;
+
+        string display = action.GetBindingDisplayString(bindingIndex, InputBinding.DisplayStringOptions.DontIncludeInteractions);
+        return NormalizeBindingLabel(display);
+    }
+
+    private static string FormatBindingPathLabel(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return "";
+
+        string trimmedPath = path.Trim();
+        int slashIndex = trimmedPath.LastIndexOf('/');
+        string token = slashIndex >= 0 && slashIndex < trimmedPath.Length - 1
+            ? trimmedPath.Substring(slashIndex + 1)
+            : trimmedPath;
+
+        token = token.Trim();
+        if (string.IsNullOrWhiteSpace(token))
+            return "";
+
+        return token switch
+        {
+            "space" => "Spc",
+            "enter" => "Enter",
+            "escape" => "Esc",
+            "tab" => "Tab",
+            "backspace" => "Back",
+            "leftShift" => "LShift",
+            "rightShift" => "RShift",
+            "leftCtrl" => "LCtrl",
+            "rightCtrl" => "RCtrl",
+            "leftControl" => "LCtrl",
+            "rightControl" => "RCtrl",
+            "leftAlt" => "LAlt",
+            "rightAlt" => "RAlt",
+            "leftArrow" => "Left",
+            "rightArrow" => "Right",
+            "upArrow" => "Up",
+            "downArrow" => "Down",
+            "leftButton" => "Mouse1",
+            "rightButton" => "Mouse2",
+            "middleButton" => "Mouse3",
+            _ => FormatGenericBindingToken(token)
+        };
+    }
+
+    private static string FormatGenericBindingToken(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            return "";
+
+        if (token.Length == 1)
+            return token.ToUpperInvariant();
+
+        if (token.StartsWith("digit"))
+        {
+            string digit = token.Substring("digit".Length);
+            if (!string.IsNullOrWhiteSpace(digit))
+                return digit;
+        }
+
+        if (token.StartsWith("numpad"))
+        {
+            string suffix = token.Substring("numpad".Length);
+            return string.IsNullOrWhiteSpace(suffix)
+                ? "Num"
+                : "Num" + char.ToUpperInvariant(suffix[0]) + suffix.Substring(1);
+        }
+
+        return char.ToUpperInvariant(token[0]) + token.Substring(1);
+    }
+
+    private static string NormalizeBindingLabel(string display)
+    {
+        if (string.IsNullOrWhiteSpace(display))
+            return "";
+
+        string label = display.Trim();
+        return label switch
+        {
+            "Left Shift" => "LShift",
+            "Right Shift" => "RShift",
+            "Left Ctrl" => "LCtrl",
+            "Right Ctrl" => "RCtrl",
+            "Left Alt" => "LAlt",
+            "Right Alt" => "RAlt",
+            "Space" => "Spc",
+            _ => label
+        };
     }
 
     private void ApplyConfiguredFont()
