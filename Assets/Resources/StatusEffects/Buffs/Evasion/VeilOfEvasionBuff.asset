@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 181988e42923409f918df44e9818b7db, type: 3}
+  m_Name: VeilOfEvasionBuff
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.StatusEffects.StatusEffectSO
+  Id: VeilOfEvasionBuff
+  Kind: 0
+  NameEn: Veil Of Evasion
+  NameRu: Veil Of Evasion
+  DescriptionEn: Every Evesion during effect grant +5% regeneration of maximum life
+    and mana for 10 sec
+  DescriptionRu: "\u041A\u0430\u0436\u0434\u043E\u0435 \u0423\u043A\u043B\u043E\u043D\u0435\u043D\u0438\u0435
+    \u0432\u043E \u0432\u0440\u0435\u043C\u044F \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u044F
+    \u044D\u0444\u0444\u0435\u043A\u0442\u0430 \u0434\u0430\u0435\u0442 +5% \u0440\u0435\u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438
+    \u043E\u0442 \u043C\u0430\u043A\u0441\u0438\u043C\u0443\u043C\u0430 \u0437\u0434\u043E\u0440\u043E\u0432\u044C\u044F
+    \u0438 \u043C\u0430\u043D\u044B \u043D\u0430 10 \u0441\u0435\u043A"
+  Icon: {fileID: 0}
+  ShowInHud: 1
+  BaseDurationSeconds: 12
+  Modifiers: []
+  DerivedModifiers: []
+  EventReactions:
+  - EventType: 1
+    Subject: 0
+    Action: 1
+    StatusEffectToApply: {fileID: 0}
+    QuickEffectKind: 0
+    QuickEffectDurationSeconds: 10
+    QuickModifiers:
+    - Stat: 2
+      Value: 5
+      Type: 100
+    - Stat: 7
+      Value: 5
+      Type: 100
+    QuickDerivedModifiers: []
+    ExtendSeconds: 1

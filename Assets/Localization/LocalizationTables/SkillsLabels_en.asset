@@ -107,6 +107,44 @@ MonoBehaviour:
     m_Localized: "Grant 20% More Movement Speed and Attack Speed \u043D\u0430 8 \u0441\u0435\u043A"
     m_Metadata:
       m_Items: []
+  - m_Id: 44122424381833216
+    m_Localized: Archer Focus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44122424427970560
+    m_Localized: 'Grant Archer Focus Buff for 12 sec
+
+      Archer Focus - Increase
+      Prjijectile Damage by 50% but end effect when take damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44125566913773568
+    m_Localized: Vail Of Evasion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44125566913773569
+    m_Localized: 'Grant Vail Of Evasion Buff
+
+      Vail Of Evasion - grant +5% regeneration
+      life and mana per second for every Evade'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44131521147731968
+    m_Localized: Vitality Force
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44131521147731969
+    m_Localized: Instant resoring life in 25% of current Armore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44132878743273472
+    m_Localized: Might Of Destruction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44132878743273473
+    m_Localized: Increase 50% Skill Area Effect by 8 sec
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -1,5 +1,6 @@
 using System;
 using Scripts.Enemies;
+using Scripts.GameplayEvents;
 using UnityEngine;
 
 namespace Scripts.Stats
@@ -111,6 +112,7 @@ namespace Scripts.Stats
 
             _currentCharges -= consumed;
             OnChargesConsumed?.Invoke(consumed);
+            GameplayEventBus.Raise(GameplayEventType.MysticShieldConsumed, source: gameObject, target: gameObject, count: consumed);
             OnShieldChanged?.Invoke();
             return true;
         }
@@ -125,6 +127,7 @@ namespace Scripts.Stats
             consumed = _currentCharges;
             _currentCharges = 0;
             OnChargesConsumed?.Invoke(consumed);
+            GameplayEventBus.Raise(GameplayEventType.MysticShieldConsumed, source: gameObject, target: gameObject, count: consumed);
             OnShieldChanged?.Invoke();
             return true;
         }

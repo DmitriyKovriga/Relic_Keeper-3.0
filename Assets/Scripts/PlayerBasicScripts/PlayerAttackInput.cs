@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Scripts.GameplayEvents;
 using Scripts.Skills;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -267,6 +268,7 @@ public class PlayerAttackInput : MonoBehaviour
         _dodgeEndTime = Time.time + effectiveDodgeTime;
         _dodgeCooldownStartTime = Time.time;
         _dodgeCooldownReadyTime = Time.time + (startedGrounded ? _groundDodgeCooldown : _airDodgeCooldown);
+        GameplayEventBus.Raise(GameplayEventType.Dodged, source: gameObject, target: gameObject);
 
         _skillManager.SetSkillUsageSuppressed(true);
 

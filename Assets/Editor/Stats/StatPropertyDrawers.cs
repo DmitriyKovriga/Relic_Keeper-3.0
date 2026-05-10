@@ -3,6 +3,7 @@ using UnityEngine;
 using Scripts.Enemies;
 using Scripts.Items;
 using Scripts.Stats;
+using Scripts.StatusEffects;
 
 namespace Scripts.Editor.Stats
 {
@@ -36,6 +37,44 @@ namespace Scripts.Editor.Stats
 
             EditorGUI.PropertyField(valueRect, valueProp);
             EditorGUI.PropertyField(typeRect, typeProp);
+
+            EditorGUI.EndProperty();
+        }
+    }
+
+    [CustomPropertyDrawer(typeof(DerivedStatModifier))]
+    public class DerivedStatModifierDrawer : PropertyDrawer
+    {
+        private const float VerticalSpacing = 2f;
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return EditorGUIUtility.singleLineHeight * 3f + VerticalSpacing * 4f;
+        }
+
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            EditorGUI.BeginProperty(position, label, property);
+            position = EditorGUI.IndentedRect(position);
+
+            SerializedProperty sourceStatProp = property.FindPropertyRelative("SourceStat");
+            SerializedProperty sourcePercentProp = property.FindPropertyRelative("SourcePercent");
+            SerializedProperty targetStatProp = property.FindPropertyRelative("TargetStat");
+            SerializedProperty targetModifierTypeProp = property.FindPropertyRelative("TargetModifierType");
+
+            float lineHeight = EditorGUIUtility.singleLineHeight;
+            Rect sourceRect = new Rect(position.x, position.y + VerticalSpacing, position.width, lineHeight);
+            Rect middleRect = new Rect(position.x, sourceRect.yMax + VerticalSpacing, position.width, lineHeight);
+            Rect targetRect = new Rect(position.x, middleRect.yMax + VerticalSpacing, position.width, lineHeight);
+
+            StatPickerUtility.DrawStatPicker(sourceRect, sourceStatProp, new GUIContent("Source stat"));
+            EditorGUI.PropertyField(middleRect, sourcePercentProp, new GUIContent("Percent of source"));
+
+            float targetWidth = targetRect.width * 0.58f;
+            Rect targetStatRect = new Rect(targetRect.x, targetRect.y, targetWidth, targetRect.height);
+            Rect typeRect = new Rect(targetStatRect.xMax + 6f, targetRect.y, targetRect.width - targetWidth - 6f, targetRect.height);
+            StatPickerUtility.DrawStatPicker(targetStatRect, targetStatProp, new GUIContent("Target stat"));
+            EditorGUI.PropertyField(typeRect, targetModifierTypeProp, GUIContent.none);
 
             EditorGUI.EndProperty();
         }

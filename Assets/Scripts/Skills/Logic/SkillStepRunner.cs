@@ -358,6 +358,9 @@ namespace Scripts.Skills
                 case "ApplyQuickStatusRectangle":
                     ExecuteApplyQuickStatusRectangle(stepIndex, step);
                     break;
+                case "ApplyStatBasedEffectSelf":
+                    ExecuteApplyStatBasedEffectSelf(step);
+                    break;
                 default:
                     if (!string.IsNullOrEmpty(id)) Debug.Log($"[SkillStepRunner] Step '{id}' not implemented yet.");
                     break;
@@ -666,6 +669,73 @@ namespace Scripts.Skills
 
             if (duration <= 0f && handle != null)
                 _ctx?.RegisterCleanup(handle.Dispose);
+        }
+
+        private void ExecuteApplyStatBasedEffectSelf(StepEntry step)
+        {
+            if (_ownerStats == null)
+                return;
+
+            StatType sourceStat = ResolveStatType(step.GetInt("SourceStat", (int)StatType.Armor), StatType.Armor);
+            float sourcePercent = step.GetFloat("SourcePercent", 25f);
+            float value = _ownerStats.GetValue(sourceStat) * (sourcePercent / 100f);
+            if (Mathf.Approximately(value, 0f))
+                return;
+
+            var operation = (DerivedStatEffectOperation)step.GetInt("Operation", (int)DerivedStatEffectOperation.AddStatModifier);
+            switch (operation)
+            {
+                case DerivedStatEffectOperation.RestoreHealth:
+                    _ownerStats.Health?.Increase(value);
+                    break;
+                case DerivedStatEffectOperation.RestoreMana:
+                    _ownerStats.Mana?.Increase(value);
+                    break;
+                default:
+                    ApplyStatBasedModifier(step, value);
+                    break;
+            }
+        }
+
+        private void ApplyStatBasedModifier(StepEntry step, float value)
+        {
+            if (!StatusEffectController.TryResolve(transform, out StatusEffectController controller))
+                return;
+
+            StatType targetStat = ResolveStatType(step.GetInt("TargetStat", (int)StatType.HealthRegen), StatType.HealthRegen);
+            StatModType modifierType = (StatModType)step.GetInt("TargetModifierType", (int)StatModType.Flat);
+            float duration = Mathf.Max(0f, step.GetFloat("Duration", 0f));
+            StatusEffectKind kind = step.GetInt("StatusKind", 0) == (int)StatusEffectKind.Debuff
+                ? StatusEffectKind.Debuff
+                : StatusEffectKind.Buff;
+
+            var modifiers = new List<SerializableStatModifier>
+            {
+                new SerializableStatModifier
+                {
+                    Stat = targetStat,
+                    Value = value,
+                    Type = modifierType
+                }
+            };
+
+            StatusEffectController.RuntimeStatusHandle handle = controller.ApplyRuntimeStatusEffect(
+                modifiers,
+                duration,
+                kind,
+                this,
+                "SkillStatBasedEffect");
+
+            if (duration <= 0f && handle != null)
+                _ctx?.RegisterCleanup(handle.Dispose);
+        }
+
+        private static StatType ResolveStatType(int rawValue, StatType fallback)
+        {
+            if (System.Enum.IsDefined(typeof(StatType), rawValue))
+                return (StatType)rawValue;
+
+            return fallback;
         }
 
         private Vector2 GetVisualCenterOrFallback(SkillStepContext.StepResult result)

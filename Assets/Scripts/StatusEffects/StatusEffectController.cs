@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Scripts.Enemies;
+using Scripts.GameplayEvents;
 using Scripts.Stats;
 using UnityEngine;
 
@@ -64,6 +65,7 @@ namespace Scripts.StatusEffects
         private void OnEnable()
         {
             CacheOwner();
+            GameplayEventBus.EventRaised += HandleGameplayEvent;
         }
 
         private void Update()
@@ -88,6 +90,7 @@ namespace Scripts.StatusEffects
 
         private void OnDisable()
         {
+            GameplayEventBus.EventRaised -= HandleGameplayEvent;
             ResetAll();
         }
 
@@ -250,20 +253,27 @@ namespace Scripts.StatusEffects
         private void ApplyInstanceModifiers(ActiveEffectInstance instance, object source, int stackCount = 1)
         {
             instance.AppliedModifiers.Clear();
-            if (instance.Effect == null || instance.Effect.Modifiers == null)
+            if (instance.Effect == null)
                 return;
 
             int effectiveStacks = Mathf.Max(1, stackCount);
-            for (int i = 0; i < instance.Effect.Modifiers.Count; i++)
+            if (instance.Effect.Modifiers != null)
             {
-                SerializableStatModifier modifierData = instance.Effect.Modifiers[i];
-                modifierData.Value *= effectiveStacks;
-                StatModifier runtimeModifier = modifierData.ToStatModifier(source ?? instance);
-                if (!TryAddModifier(modifierData.Stat, runtimeModifier))
-                    continue;
+                for (int i = 0; i < instance.Effect.Modifiers.Count; i++)
+                {
+                    SerializableStatModifier modifierData = instance.Effect.Modifiers[i];
+                    modifierData.Value *= effectiveStacks;
+                    ApplySingleModifier(instance, modifierData, source ?? instance);
+                }
+            }
 
-                instance.AppliedModifiers.Add((modifierData.Stat, runtimeModifier));
-                _changedStatsBuffer.Add(modifierData.Stat);
+            if (instance.Effect.DerivedModifiers != null)
+            {
+                for (int i = 0; i < instance.Effect.DerivedModifiers.Count; i++)
+                {
+                    if (TryBuildDerivedModifier(instance.Effect.DerivedModifiers[i], effectiveStacks, out SerializableStatModifier modifierData))
+                        ApplySingleModifier(instance, modifierData, source ?? instance);
+                }
             }
         }
 
@@ -276,13 +286,38 @@ namespace Scripts.StatusEffects
             for (int i = 0; i < modifiers.Count; i++)
             {
                 SerializableStatModifier modifierData = modifiers[i];
-                StatModifier runtimeModifier = modifierData.ToStatModifier(source ?? instance);
-                if (!TryAddModifier(modifierData.Stat, runtimeModifier))
-                    continue;
-
-                instance.AppliedModifiers.Add((modifierData.Stat, runtimeModifier));
-                _changedStatsBuffer.Add(modifierData.Stat);
+                ApplySingleModifier(instance, modifierData, source ?? instance);
             }
+        }
+
+        private void ApplySingleModifier(ActiveEffectInstance instance, SerializableStatModifier modifierData, object source)
+        {
+            StatModifier runtimeModifier = modifierData.ToStatModifier(source ?? instance);
+            if (!TryAddModifier(modifierData.Stat, runtimeModifier))
+                return;
+
+            instance.AppliedModifiers.Add((modifierData.Stat, runtimeModifier));
+            _changedStatsBuffer.Add(modifierData.Stat);
+        }
+
+        private bool TryBuildDerivedModifier(DerivedStatModifier derived, int stackCount, out SerializableStatModifier modifierData)
+        {
+            modifierData = default;
+            if (_statsProvider == null)
+                return false;
+
+            float sourceValue = _statsProvider.GetValue(derived.SourceStat);
+            float value = sourceValue * (derived.SourcePercent / 100f) * Mathf.Max(1, stackCount);
+            if (Mathf.Approximately(value, 0f))
+                return false;
+
+            modifierData = new SerializableStatModifier
+            {
+                Stat = derived.TargetStat,
+                Value = value,
+                Type = derived.TargetModifierType
+            };
+            return true;
         }
 
         private void RemoveInstanceModifiers(ActiveEffectInstance instance)
@@ -298,6 +333,105 @@ namespace Scripts.StatusEffects
             }
 
             instance.AppliedModifiers.Clear();
+        }
+
+        private void HandleGameplayEvent(GameplayEventContext context)
+        {
+            if (context == null || _activeEffects.Count == 0 || gameObject == null)
+                return;
+
+            for (int i = _activeEffects.Count - 1; i >= 0; i--)
+            {
+                if (i >= _activeEffects.Count)
+                    continue;
+
+                ActiveEffectInstance instance = _activeEffects[i];
+                StatusEffectSO effect = instance.Effect;
+                if (effect == null || effect.EventReactions == null || effect.EventReactions.Count == 0)
+                    continue;
+
+                for (int r = 0; r < effect.EventReactions.Count; r++)
+                {
+                    StatusEventReaction reaction = effect.EventReactions[r];
+                    if (reaction == null || reaction.EventType != context.Type)
+                        continue;
+                    if (!MatchesSubject(reaction.Subject, context))
+                        continue;
+
+                    ExecuteReaction(instance, reaction);
+                    if (!_activeEffects.Contains(instance))
+                        break;
+                }
+            }
+        }
+
+        private bool MatchesSubject(StatusEventSubject subject, GameplayEventContext context)
+        {
+            return subject switch
+            {
+                StatusEventSubject.CarrierAsTarget => context.Target == gameObject,
+                StatusEventSubject.CarrierAsSource => context.Source == gameObject,
+                StatusEventSubject.CarrierAsSourceOrTarget => context.HasParticipant(gameObject),
+                StatusEventSubject.Any => true,
+                _ => false
+            };
+        }
+
+        private void ExecuteReaction(ActiveEffectInstance instance, StatusEventReaction reaction)
+        {
+            switch (reaction.Action)
+            {
+                case StatusEventReactionAction.ApplyStatusEffect:
+                    if (reaction.StatusEffectToApply != null)
+                        ApplyStatusEffect(reaction.StatusEffectToApply, instance.Effect != null ? instance.Effect : this);
+                    break;
+                case StatusEventReactionAction.ApplyQuickEffect:
+                    ApplyQuickReactionEffect(reaction, instance);
+                    break;
+                case StatusEventReactionAction.EndCurrentEffect:
+                    RemoveRuntimeInstance(instance);
+                    break;
+                case StatusEventReactionAction.ExtendCurrentEffect:
+                    ExtendInstance(instance, reaction.ExtendSeconds);
+                    break;
+            }
+        }
+
+        private void ApplyQuickReactionEffect(StatusEventReaction reaction, ActiveEffectInstance sourceInstance)
+        {
+            var modifiers = new List<SerializableStatModifier>();
+            if (reaction.QuickModifiers != null)
+                modifiers.AddRange(reaction.QuickModifiers);
+
+            if (reaction.QuickDerivedModifiers != null)
+            {
+                for (int i = 0; i < reaction.QuickDerivedModifiers.Count; i++)
+                {
+                    if (TryBuildDerivedModifier(reaction.QuickDerivedModifiers[i], 1, out SerializableStatModifier modifierData))
+                        modifiers.Add(modifierData);
+                }
+            }
+
+            if (modifiers.Count == 0)
+                return;
+
+            float duration = Mathf.Max(0.01f, reaction.QuickEffectDurationSeconds);
+            ApplyRuntimeStatusEffect(
+                modifiers,
+                duration,
+                reaction.QuickEffectKind,
+                sourceInstance.Effect != null ? sourceInstance.Effect : this,
+                "EventQuickEffect");
+        }
+
+        private void ExtendInstance(ActiveEffectInstance instance, float seconds)
+        {
+            if (instance == null || seconds <= 0f)
+                return;
+
+            instance.RemainingSeconds += seconds;
+            instance.DurationSeconds = Mathf.Max(instance.DurationSeconds, instance.RemainingSeconds);
+            OnActiveEffectsChanged?.Invoke();
         }
 
         private bool TryAddModifier(StatType type, StatModifier modifier)

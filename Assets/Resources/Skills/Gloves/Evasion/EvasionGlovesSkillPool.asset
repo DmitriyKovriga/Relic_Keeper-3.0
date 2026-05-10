@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7ab3c1233e08acf4fb693bfdd7c93c19, type: 3}
-  m_Name: EvasionBootsSkillPool
+  m_Name: EvasionGlovesSkillPool
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillPoolSO
   PossibleSkills:
-  - Skill: {fileID: 11400000, guid: c44df3dfcbf49bf4098f41c7ecb8c7b5, type: 2}
+  - Skill: {fileID: 11400000, guid: 670918a2be308214688e92ae297c5552, type: 2}
     Weight: 1

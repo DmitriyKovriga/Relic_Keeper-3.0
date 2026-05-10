@@ -1384,10 +1384,63 @@ namespace Scripts.Editor.Skills
                 return;
             }
 
+            if (id == "ApplyStatBasedEffectSelf")
+            {
+                DrawStatBasedEffectFields(recipe, step);
+                return;
+            }
+
             if (id == "MovementLock" || id == "MovementUnlock" || id == "WeaponStrike")
             {
                 EditorGUILayout.HelpBox("No extra settings for this step type.", MessageType.None);
             }
+        }
+
+        private void DrawStatBasedEffectFields(SkillRecipeSO recipe, StepEntry step)
+        {
+            EditorGUILayout.HelpBox("Берёт текущее значение Source Stat и создаёт эффект на его основе. Пример: Source=Armor, Percent=25, Operation=Restore Health восстановит HP на 25% от текущей брони.", MessageType.None);
+
+            var operation = (DerivedStatEffectOperation)step.GetInt("Operation", (int)DerivedStatEffectOperation.AddStatModifier);
+            var newOperation = (DerivedStatEffectOperation)EditorGUILayout.EnumPopup("Operation", operation);
+            if (newOperation != operation) { step.SetOverrideInt("Operation", (int)newOperation); EditorUtility.SetDirty(recipe); }
+
+            StatType sourceStat = (StatType)Mathf.Clamp(step.GetInt("SourceStat", (int)StatType.Armor), 0, System.Enum.GetValues(typeof(StatType)).Length - 1);
+            Scripts.Editor.Stats.StatPickerUtility.DrawStatPickerValueLayout("Source stat", sourceStat, selected =>
+            {
+                step.SetOverrideInt("SourceStat", (int)selected);
+                EditorUtility.SetDirty(recipe);
+                Repaint();
+            });
+
+            float sourcePercent = step.GetFloat("SourcePercent", 25f);
+            float newSourcePercent = Mathf.Max(0f, EditorGUILayout.FloatField("Source percent", sourcePercent));
+            if (Mathf.Abs(newSourcePercent - sourcePercent) > 0.001f) { step.SetOverrideFloat("SourcePercent", newSourcePercent); EditorUtility.SetDirty(recipe); }
+
+            if (newOperation != DerivedStatEffectOperation.AddStatModifier)
+            {
+                EditorGUILayout.HelpBox("Restore Health/Mana is instant. Duration and target stat are ignored.", MessageType.None);
+                return;
+            }
+
+            StatType targetStat = (StatType)Mathf.Clamp(step.GetInt("TargetStat", (int)StatType.HealthRegen), 0, System.Enum.GetValues(typeof(StatType)).Length - 1);
+            Scripts.Editor.Stats.StatPickerUtility.DrawStatPickerValueLayout("Target stat", targetStat, selected =>
+            {
+                step.SetOverrideInt("TargetStat", (int)selected);
+                EditorUtility.SetDirty(recipe);
+                Repaint();
+            });
+
+            StatModType modifierType = (StatModType)step.GetInt("TargetModifierType", (int)StatModType.Flat);
+            StatModType newModifierType = (StatModType)EditorGUILayout.EnumPopup("Target modifier type", modifierType);
+            if (newModifierType != modifierType) { step.SetOverrideInt("TargetModifierType", (int)newModifierType); EditorUtility.SetDirty(recipe); }
+
+            int rawKind = step.GetInt("StatusKind", 0);
+            int newKind = EditorGUILayout.Popup("Runtime effect kind", rawKind, new[] { "Buff", "Debuff" });
+            if (newKind != rawKind) { step.SetOverrideInt("StatusKind", newKind); EditorUtility.SetDirty(recipe); }
+
+            float duration = Mathf.Max(0f, step.GetFloat("Duration", 0f));
+            float newDuration = Mathf.Max(0f, EditorGUILayout.FloatField("Duration seconds (0 = skill only)", duration));
+            if (Mathf.Abs(newDuration - duration) > 0.001f) { step.SetOverrideFloat("Duration", newDuration); EditorUtility.SetDirty(recipe); }
         }
 
         private void DrawQuickStatusFields(SkillRecipeSO recipe, StepEntry step, string help)
@@ -1622,6 +1675,7 @@ namespace Scripts.Editor.Skills
                 ("ApplyQuickStatusSelfPerConsumedMysticShield", "Quick status per consumed Mystic Shield", "Быстрый статус за Mystic Shield", 0f),
                 ("ApplyQuickStatusCircle", "Apply quick status (circle)", "Быстрый статус (круг)", 0f),
                 ("ApplyQuickStatusRectangle", "Apply quick status (rectangle)", "Быстрый статус (прямоугольник)", 0f),
+                ("ApplyStatBasedEffectSelf", "Stat-based effect (self)", "Эффект от значения стата", 0f),
                 ("ParallelGroup", "Parallel group", "РџР°СЂР°Р»Р»РµР»СЊРЅР°СЏ РіСЂСѓРїРїР°", 0f),
             };
             foreach (var (id, nameEn, nameRu, durationPercent) in defaults)

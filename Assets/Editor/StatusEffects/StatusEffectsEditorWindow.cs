@@ -150,7 +150,9 @@ namespace Scripts.Editor.StatusEffects
 
             EditorGUILayout.LabelField("Runtime", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(so.FindProperty("BaseDurationSeconds"));
-            EditorGUILayout.PropertyField(so.FindProperty("Modifiers"), true);
+            EditorGUILayout.PropertyField(so.FindProperty("Modifiers"), new GUIContent("Direct stat modifiers"), true);
+            EditorGUILayout.PropertyField(so.FindProperty("DerivedModifiers"), new GUIContent("Derived stat modifiers"), true);
+            DrawEventReactions(so);
             EditorGUILayout.Space(8f);
 
             DrawValidation(effect);
@@ -220,7 +222,12 @@ namespace Scripts.Editor.StatusEffects
                 EditorGUILayout.HelpBox("Duration must be greater than 0 seconds.", MessageType.Warning);
 
             if (effect.Modifiers == null || effect.Modifiers.Count == 0)
-                EditorGUILayout.HelpBox("This effect currently does not modify any stats. That is okay only for purely visual/system statuses.", MessageType.Info);
+            {
+                bool hasDerived = effect.DerivedModifiers != null && effect.DerivedModifiers.Count > 0;
+                bool hasReactions = effect.EventReactions != null && effect.EventReactions.Count > 0;
+                if (!hasDerived && !hasReactions)
+                    EditorGUILayout.HelpBox("This effect currently does not modify stats and has no event reactions. That is okay only for purely visual/system statuses.", MessageType.Info);
+            }
 
             if (effect.ShowInHud && effect.Icon == null)
                 EditorGUILayout.HelpBox("Show In HUD is enabled, but no icon is assigned.", MessageType.Warning);
@@ -242,6 +249,73 @@ namespace Scripts.Editor.StatusEffects
                 AssetDatabase.SaveAssets();
             }
             EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawEventReactions(SerializedObject so)
+        {
+            SerializedProperty reactions = so.FindProperty("EventReactions");
+            if (reactions == null)
+                return;
+
+            EditorGUILayout.Space(6f);
+            EditorGUILayout.LabelField("Event reactions", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("Reactions are evaluated while this status is active. Example: DamageTaken + CarrierAsTarget + EndCurrentEffect = buff works until the carrier takes damage.", MessageType.None);
+
+            for (int i = 0; i < reactions.arraySize; i++)
+            {
+                SerializedProperty reaction = reactions.GetArrayElementAtIndex(i);
+                SerializedProperty action = reaction.FindPropertyRelative("Action");
+
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField($"Reaction #{i + 1}", EditorStyles.boldLabel);
+                if (GUILayout.Button("Remove", GUILayout.Width(80f)))
+                {
+                    reactions.DeleteArrayElementAtIndex(i);
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.EndVertical();
+                    break;
+                }
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.PropertyField(reaction.FindPropertyRelative("EventType"), new GUIContent("Event"));
+                EditorGUILayout.PropertyField(reaction.FindPropertyRelative("Subject"), new GUIContent("Who must be involved"));
+                EditorGUILayout.PropertyField(action, new GUIContent("Action"));
+
+                var actionValue = (StatusEventReactionAction)action.enumValueIndex;
+                switch (actionValue)
+                {
+                    case StatusEventReactionAction.ApplyStatusEffect:
+                        EditorGUILayout.PropertyField(reaction.FindPropertyRelative("StatusEffectToApply"), new GUIContent("Status to apply"));
+                        break;
+                    case StatusEventReactionAction.ApplyQuickEffect:
+                        EditorGUILayout.PropertyField(reaction.FindPropertyRelative("QuickEffectKind"), new GUIContent("Quick effect kind"));
+                        EditorGUILayout.PropertyField(reaction.FindPropertyRelative("QuickEffectDurationSeconds"), new GUIContent("Duration seconds"));
+                        EditorGUILayout.PropertyField(reaction.FindPropertyRelative("QuickModifiers"), new GUIContent("Direct quick modifiers"), true);
+                        EditorGUILayout.PropertyField(reaction.FindPropertyRelative("QuickDerivedModifiers"), new GUIContent("Derived quick modifiers"), true);
+                        break;
+                    case StatusEventReactionAction.ExtendCurrentEffect:
+                        EditorGUILayout.PropertyField(reaction.FindPropertyRelative("ExtendSeconds"), new GUIContent("Extend by seconds"));
+                        break;
+                    case StatusEventReactionAction.EndCurrentEffect:
+                        EditorGUILayout.HelpBox("Ends this status immediately when the selected event happens.", MessageType.None);
+                        break;
+                }
+
+                EditorGUILayout.EndVertical();
+            }
+
+            if (GUILayout.Button("Add event reaction"))
+            {
+                int index = reactions.arraySize;
+                reactions.InsertArrayElementAtIndex(index);
+                SerializedProperty reaction = reactions.GetArrayElementAtIndex(index);
+                reaction.FindPropertyRelative("EventType").enumValueIndex = 0;
+                reaction.FindPropertyRelative("Subject").enumValueIndex = (int)StatusEventSubject.CarrierAsTarget;
+                reaction.FindPropertyRelative("Action").enumValueIndex = (int)StatusEventReactionAction.EndCurrentEffect;
+                reaction.FindPropertyRelative("QuickEffectDurationSeconds").floatValue = 3f;
+                reaction.FindPropertyRelative("ExtendSeconds").floatValue = 1f;
+            }
         }
 
         private List<StatusEffectSO> GetFilteredEffects()

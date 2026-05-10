@@ -1,5 +1,6 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Scripts.Combat;
+using Scripts.GameplayEvents;
 using Scripts.Stats;
 
 namespace Scripts.Enemies
@@ -17,6 +18,7 @@ namespace Scripts.Enemies
         private EnemyAnimationBridge _animation;
         private EnemyBrain _brain;
         private MysticShieldController _mysticShield;
+        private GameObject _lastDamageSource;
         private float _currentHealth;
         private float _maxHealth;
         private bool _isDead;
@@ -77,6 +79,26 @@ namespace Scripts.Enemies
                 finalDamage = _mysticShield.ApplyMitigation(finalDamage);
 
             _currentHealth -= finalDamage;
+            if (finalDamage > 0f)
+            {
+                GameObject sourceObject = GameplayEventContext.ResolveGameObject(damage.Source);
+                _lastDamageSource = sourceObject;
+                GameplayEventBus.Raise(
+                    GameplayEventType.DamageTaken,
+                    source: sourceObject,
+                    target: gameObject,
+                    amount: finalDamage,
+                    damage: damage);
+                if (sourceObject != null)
+                {
+                    GameplayEventBus.Raise(
+                        GameplayEventType.DamageDealt,
+                        source: sourceObject,
+                        target: gameObject,
+                        amount: finalDamage,
+                        damage: damage);
+                }
+            }
             TryPlayHitReaction(finalDamage);
 
             if (FloatingTextManager.Instance != null && finalDamage > 0f)
@@ -112,6 +134,7 @@ namespace Scripts.Enemies
             }
 
             OnDeath?.Invoke(this);
+            GameplayEventBus.Raise(GameplayEventType.EnemyKilled, source: _lastDamageSource, target: gameObject, position: transform.position);
 
             if (DestroyOnDeath)
             {

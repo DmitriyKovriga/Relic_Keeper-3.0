@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Scripts.Stats;
 using Scripts.Combat;
+using Scripts.GameplayEvents;
 
 namespace Scripts.Enemies
 {
@@ -39,6 +40,11 @@ namespace Scripts.Enemies
             if (_attackInput != null && _attackInput.IsDamageImmune)
             {
                 result.WasImmune = true;
+                GameplayEventBus.Raise(
+                    GameplayEventType.Evaded,
+                    source: GameplayEventContext.ResolveGameObject(damage.Source),
+                    target: gameObject,
+                    damage: damage);
                 return result;
             }
 
@@ -87,7 +93,15 @@ namespace Scripts.Enemies
 
             result.FinalDamage = Mathf.Max(0f, total);
             if (result.FinalDamage > 0f)
+            {
                 _stats.Health.Decrease(result.FinalDamage);
+                GameplayEventBus.Raise(
+                    GameplayEventType.DamageTaken,
+                    source: GameplayEventContext.ResolveGameObject(damage.Source),
+                    target: gameObject,
+                    amount: result.FinalDamage,
+                    damage: damage);
+            }
 
             result.HealthAfter = _stats.Health.Current;
             result.FinalHealthDelta = Mathf.Max(0f, result.HealthBefore - result.HealthAfter);

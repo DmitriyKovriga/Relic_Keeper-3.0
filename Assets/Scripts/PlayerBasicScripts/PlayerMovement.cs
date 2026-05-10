@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using Scripts.GameplayEvents;
 using Scripts.Stats;
 using Scripts.Visuals;
 using UnityEngine;
@@ -17,6 +18,7 @@ public class PlayerMovement : MonoBehaviour
     private const float GroundedVerticalVelocityThreshold = 0.5f;
 
     public event System.Action OnJumpStarted;
+    public event System.Action OnLanded;
 
     [Header("Environment Detection")]
     [SerializeField] private Transform _groundCheckPoint;
@@ -435,6 +437,7 @@ public class PlayerMovement : MonoBehaviour
         float finalJump = _baseJumpForce * (1f + (jumpBonusPercent / 100f)) * Mathf.Max(0f, verticalMultiplier);
         _rb.AddForce(Vector2.up * finalJump, ForceMode2D.Impulse);
         _isGrounded = false;
+        GameplayEventBus.Raise(GameplayEventType.Jumped, source: gameObject, target: gameObject);
         OnJumpStarted?.Invoke();
     }
 
@@ -606,7 +609,11 @@ public class PlayerMovement : MonoBehaviour
     private void RefreshJumpCountIfLanded()
     {
         if (_isGrounded && !_wasGroundedLastFixedUpdate)
+        {
             _availableJumpCount = Mathf.Max(1, _maxJumpCount);
+            GameplayEventBus.Raise(GameplayEventType.Landed, source: gameObject, target: gameObject);
+            OnLanded?.Invoke();
+        }
     }
 
     private bool CanPerformJump()

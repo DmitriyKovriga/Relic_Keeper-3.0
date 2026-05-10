@@ -24,7 +24,7 @@ MonoBehaviour:
     Value: 10
     Type: 100
     Scope: 0
-  SkillPool: {fileID: 0}
+  SkillPool: {fileID: 11400000, guid: 573777b9a66b0e742b32995bce8c13fb, type: 2}
   SkillCount: 1
   DefenseType: 2
   BaseArmor: 0

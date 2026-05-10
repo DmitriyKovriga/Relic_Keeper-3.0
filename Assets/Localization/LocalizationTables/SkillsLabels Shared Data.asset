@@ -103,6 +103,38 @@ MonoBehaviour:
     m_Key: skills.RushSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 44122424381833216
+    m_Key: skills.ArcherFocusSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44122424427970560
+    m_Key: skills.ArcherFocusSkill.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44125566913773568
+    m_Key: skills.VailOfEvasionSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44125566913773569
+    m_Key: skills.VailOfEvasionSkill.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44131521147731968
+    m_Key: skills.VitalityForceSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44131521147731969
+    m_Key: skills.VitalityForceSkill.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44132878743273472
+    m_Key: skills.MightOfDestructionSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44132878743273473
+    m_Key: skills.MightOfDestructionSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
