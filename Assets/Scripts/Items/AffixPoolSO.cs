@@ -1,6 +1,7 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
-using Scripts.Items; // Для Enum EquipmentSlot
+using Scripts.Items; // Р”Р»СЏ Enum EquipmentSlot
+using Scripts.Stats;
 
 namespace Scripts.Items.Affixes
 {
@@ -8,50 +9,64 @@ namespace Scripts.Items.Affixes
     public class AffixPoolSO : ScriptableObject
     {
         [Header("Config")]
-        public EquipmentSlot Slot; // На что это падает (Gloves)
-        public ArmorDefenseType DefenseType; // Тип защиты (Armor)
+        public EquipmentSlot Slot; // РќР° С‡С‚Рѕ СЌС‚Рѕ РїР°РґР°РµС‚ (Gloves)
+        public ArmorDefenseType DefenseType; // РўРёРї Р·Р°С‰РёС‚С‹ (Armor)
 
         [Header("All Possible Affixes")]
         public List<ItemAffixSO> Affixes;
 
-        // Главный метод: Дай мне N случайных уникальных аффиксов
+        // Р“Р»Р°РІРЅС‹Р№ РјРµС‚РѕРґ: Р”Р°Р№ РјРЅРµ N СЃР»СѓС‡Р°Р№РЅС‹С… СѓРЅРёРєР°Р»СЊРЅС‹С… Р°С„С„РёРєСЃРѕРІ
         public List<ItemAffixSO> GetRandomAffixes(int count, int itemLevel)
         {
             List<ItemAffixSO> result = new List<ItemAffixSO>();
             List<string> usedGroups = new List<string>();
             
-            // Кандидаты: аффиксы, чей тир допускает данный уровень предмета (захардкожено в AffixTierHelper)
+            // РљР°РЅРґРёРґР°С‚С‹: Р°С„С„РёРєСЃС‹, С‡РµР№ С‚РёСЂ РґРѕРїСѓСЃРєР°РµС‚ РґР°РЅРЅС‹Р№ СѓСЂРѕРІРµРЅСЊ РїСЂРµРґРјРµС‚Р° (Р·Р°С…Р°СЂРґРєРѕР¶РµРЅРѕ РІ AffixTierHelper)
             var candidates = new List<ItemAffixSO>();
             foreach (var a in Affixes)
             {
-                if (a != null && AffixTierHelper.IsTierAllowedForLevel(itemLevel, a.Tier))
+                if (a != null && AffixTierHelper.IsTierAllowedForLevel(itemLevel, a.Tier) && IsRuntimeAllowed(a))
                     candidates.Add(a);
             }
 
-            // Пытаемся набрать нужное количество
+            // РџС‹С‚Р°РµРјСЃСЏ РЅР°Р±СЂР°С‚СЊ РЅСѓР¶РЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ
             for (int i = 0; i < count; i++)
             {
                 if (candidates.Count == 0) break;
 
-                // Берем случайный
+                // Р‘РµСЂРµРј СЃР»СѓС‡Р°Р№РЅС‹Р№
                 int index = Random.Range(0, candidates.Count);
                 ItemAffixSO picked = candidates[index];
 
-                // Проверяем группу (чтобы не было 2 раза Life)
+                // РџСЂРѕРІРµСЂСЏРµРј РіСЂСѓРїРїСѓ (С‡С‚РѕР±С‹ РЅРµ Р±С‹Р»Рѕ 2 СЂР°Р·Р° Life)
                 if (!usedGroups.Contains(picked.GroupID))
                 {
                     result.Add(picked);
                     usedGroups.Add(picked.GroupID);
                 }
 
-                // Удаляем из кандидатов (чтобы не вытащить этот же объект снова)
+                // РЈРґР°Р»СЏРµРј РёР· РєР°РЅРґРёРґР°С‚РѕРІ (С‡С‚РѕР±С‹ РЅРµ РІС‹С‚Р°С‰РёС‚СЊ СЌС‚РѕС‚ Р¶Рµ РѕР±СЉРµРєС‚ СЃРЅРѕРІР°)
                 candidates.RemoveAt(index);
                 
-                // Оптимизация: можно сразу удалить из кандидатов все аффиксы этой же группы,
-                // но для простоты пока оставим так.
+                // РћРїС‚РёРјРёР·Р°С†РёСЏ: РјРѕР¶РЅРѕ СЃСЂР°Р·Сѓ СѓРґР°Р»РёС‚СЊ РёР· РєР°РЅРґРёРґР°С‚РѕРІ РІСЃРµ Р°С„С„РёРєСЃС‹ СЌС‚РѕР№ Р¶Рµ РіСЂСѓРїРїС‹,
+                // РЅРѕ РґР»СЏ РїСЂРѕСЃС‚РѕС‚С‹ РїРѕРєР° РѕСЃС‚Р°РІРёРј С‚Р°Рє.
             }
 
             return result;
+        }
+
+        private static bool IsRuntimeAllowed(ItemAffixSO affix)
+        {
+            if (affix == null || affix.Stats == null)
+                return true;
+
+            foreach (var stat in affix.Stats)
+            {
+                if (stat.Stat == StatType.AttackSpeed && stat.Type == StatModType.Flat)
+                    return false;
+            }
+
+            return true;
         }
     }
 }

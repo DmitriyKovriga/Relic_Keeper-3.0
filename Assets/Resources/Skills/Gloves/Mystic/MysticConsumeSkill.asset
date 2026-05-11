@@ -15,7 +15,7 @@ MonoBehaviour:
   ID: MysticConsumeSkill
   SkillName: Mystic Consume
   Description: Consume 1 Mystic Shield to gain More Spell Damage for 5 sec
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 2856f5adc766e3c48b3cdd275a017d52, type: 3}
   NameKey: skills.MysticConsumeSkill
   DescriptionKey: skills.MysticConsumeSkill.description
   IsActive: 1

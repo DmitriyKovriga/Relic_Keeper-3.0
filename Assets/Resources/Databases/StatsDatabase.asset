@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -389,7 +389,7 @@ MonoBehaviour:
     AllowNegativeFlatGeneration: 0
     ContextTags: 0
     DamageChannels: 0
-    AllowedAffixKinds: 31
+    AllowedAffixKinds: 30
   - StatTypeId: CastSpeed
     Category: Speed
     SemanticKind: 0
@@ -1183,3 +1183,4 @@ MonoBehaviour:
     ContextTags: 2
     DamageChannels: 14
     AllowedAffixKinds: 30
+

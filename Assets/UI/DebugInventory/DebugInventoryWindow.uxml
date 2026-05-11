@@ -2,6 +2,8 @@
     <ui:VisualElement name="DebugRoot" class="debug-root">
         <ui:VisualElement class="debug-panel">
             <ui:Label text="Debug — Items" class="debug-title" />
+            <ui:DropdownField name="ItemTypeDropdown" label="Type" class="debug-field" />
+            <ui:TextField name="ItemSearchField" label="Search" class="debug-field" />
             <ui:VisualElement name="ItemSelectorRow" class="debug-field debug-item-row">
                 <ui:Label text="Item" class="debug-field-label" />
                 <ui:Button name="ItemSelectorButton" text="(select item)" class="debug-item-trigger" />

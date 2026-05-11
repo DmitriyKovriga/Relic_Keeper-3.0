@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Scripts.Combat;
 
 namespace Scripts.Skills.Steps
 {
@@ -13,6 +14,8 @@ namespace Scripts.Skills.Steps
         public StepDefinitionSO StepDefinition;
         [Tooltip("Переопределения параметров для этого скилла")]
         public List<StepParamValue> Overrides = new List<StepParamValue>();
+        [Tooltip("Outgoing damage conversion rules applied by this step before character stat conversions.")]
+        public List<DamageConversionRule> DamageConversions = new List<DamageConversionRule>();
 
         [Header("Timing (percent of pipeline 0..1)")]
         [Range(0f, 1f)] [Tooltip("Момент начала степа (0 = старт пайплайна, 0.35 = 35%)")]

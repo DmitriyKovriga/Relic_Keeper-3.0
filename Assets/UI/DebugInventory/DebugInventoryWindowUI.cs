@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using System;
 using System.Collections.Generic;
 using Scripts.Items;
 using Scripts.Inventory;
@@ -19,6 +20,8 @@ public class DebugInventoryWindowUI : MonoBehaviour
     private Button _itemSelectorButton;
     private ScrollView _itemListPopup;
     private VisualElement _itemSelectorRow;
+    private DropdownField _itemTypeDropdown;
+    private TextField _itemSearchField;
     private DropdownField _rarityDropdown;
     private IntegerField _levelField;
     private Button _createButton;
@@ -33,6 +36,7 @@ public class DebugInventoryWindowUI : MonoBehaviour
 
     private ItemDatabaseSO _itemDb;
     private List<EquipmentItemSO> _itemList = new List<EquipmentItemSO>();
+    private List<EquipmentItemSO> _filteredItemList = new List<EquipmentItemSO>();
     private int _selectedItemIndex = 0;
     private List<string> _itemChoiceNames = new List<string>();
     private float _sortOrderWhenHidden;
@@ -58,6 +62,8 @@ public class DebugInventoryWindowUI : MonoBehaviour
         _itemSelectorRow = _root.Q<VisualElement>("ItemSelectorRow");
         _itemSelectorButton = _root.Q<Button>("ItemSelectorButton");
         _itemListPopup = _root.Q<ScrollView>("ItemListPopup");
+        _itemTypeDropdown = _root.Q<DropdownField>("ItemTypeDropdown");
+        _itemSearchField = _root.Q<TextField>("ItemSearchField");
         _rarityDropdown = _root.Q<DropdownField>("RarityDropdown");
         _levelField = _root.Q<IntegerField>("LevelField");
         _createButton = _root.Q<Button>("CreateButton");
@@ -74,8 +80,11 @@ public class DebugInventoryWindowUI : MonoBehaviour
 
         LoadItemDatabase();
         BuildItemList();
+        BuildItemTypeDropdown();
         BuildRarityDropdown();
         _itemSelectorButton.clicked += OnItemSelectorClick;
+        if (_itemTypeDropdown != null) _itemTypeDropdown.RegisterValueChangedCallback(OnItemFilterChanged);
+        if (_itemSearchField != null) _itemSearchField.RegisterValueChangedCallback(OnItemFilterChanged);
         if (_levelField != null) _levelField.value = Mathf.Clamp(_levelField.value, 1, 99);
 
         _createButton.clicked += OnCreateClicked;
@@ -102,13 +111,15 @@ public class DebugInventoryWindowUI : MonoBehaviour
     private VisualElement GetInventoryRoot()
     {
         var inv = GetComponentInParent<InventoryUI>();
-        if (inv == null) inv = Object.FindObjectOfType<InventoryUI>(true);
+        if (inv == null) inv = UnityEngine.Object.FindObjectOfType<InventoryUI>(true);
         return inv != null ? inv.RootVisualElement : null;
     }
 
     private void OnDisable()
     {
         if (_itemSelectorButton != null) _itemSelectorButton.clicked -= OnItemSelectorClick;
+        if (_itemTypeDropdown != null) _itemTypeDropdown.UnregisterValueChangedCallback(OnItemFilterChanged);
+        if (_itemSearchField != null) _itemSearchField.UnregisterValueChangedCallback(OnItemFilterChanged);
         if (_createButton != null) _createButton.clicked -= OnCreateClicked;
         if (_clearButton != null) _clearButton.clicked -= OnClearClicked;
         if (_orbSelectorButton != null) _orbSelectorButton.clicked -= OnOrbSelectorClick;
@@ -139,13 +150,135 @@ public class DebugInventoryWindowUI : MonoBehaviour
             {
                 if (item == null) continue;
                 _itemList.Add(item);
-                _itemChoiceNames.Add(string.IsNullOrEmpty(item.ItemName) ? item.name : item.ItemName);
             }
         }
 
+        _itemList.Sort(CompareItemsForDebugList);
+        RefreshFilteredItemList(null);
+    }
+
+    private void BuildItemTypeDropdown()
+    {
+        if (_itemTypeDropdown == null) return;
+
+        _itemTypeDropdown.choices = new List<string>
+        {
+            "All",
+            "Weapons",
+            "Armor",
+            "Helmet",
+            "Body Armor",
+            "Main Hand",
+            "Off Hand",
+            "Gloves",
+            "Boots"
+        };
+        _itemTypeDropdown.value = "All";
+    }
+
+    private void OnItemFilterChanged(ChangeEvent<string> _)
+    {
+        EquipmentItemSO preserve = GetSelectedItem();
+        RefreshFilteredItemList(preserve);
+    }
+
+    private void RefreshFilteredItemList(EquipmentItemSO preserve)
+    {
+        _filteredItemList.Clear();
+        _itemChoiceNames.Clear();
+        _itemChoiceNames.Add("(select item)");
+
+        string typeFilter = _itemTypeDropdown != null ? _itemTypeDropdown.value : "All";
+        string search = _itemSearchField != null ? _itemSearchField.value : string.Empty;
+        search = string.IsNullOrWhiteSpace(search) ? string.Empty : search.Trim();
+
+        foreach (var item in _itemList)
+        {
+            if (item == null) continue;
+            if (!MatchesTypeFilter(item, typeFilter)) continue;
+            if (!MatchesSearch(item, search)) continue;
+
+            _filteredItemList.Add(item);
+            _itemChoiceNames.Add(GetItemChoiceLabel(item));
+        }
+
         _selectedItemIndex = 0;
+        if (preserve != null)
+        {
+            int filteredIndex = _filteredItemList.IndexOf(preserve);
+            if (filteredIndex >= 0)
+                _selectedItemIndex = filteredIndex + 1;
+        }
+
         _itemSelectorButton.text = _itemChoiceNames[0];
+        if (_selectedItemIndex > 0 && _selectedItemIndex < _itemChoiceNames.Count)
+            _itemSelectorButton.text = _itemChoiceNames[_selectedItemIndex];
+
         FillItemListPopup();
+    }
+
+    private EquipmentItemSO GetSelectedItem()
+    {
+        int index = _selectedItemIndex - 1;
+        return index >= 0 && index < _filteredItemList.Count ? _filteredItemList[index] : null;
+    }
+
+    private static bool MatchesTypeFilter(EquipmentItemSO item, string filter)
+    {
+        if (item == null || string.IsNullOrEmpty(filter) || filter == "All") return true;
+        if (filter == "Weapons") return item is WeaponItemSO;
+        if (filter == "Armor") return item is ArmorItemSO;
+        if (filter == "Body Armor") return item.Slot == EquipmentSlot.BodyArmor;
+        if (filter == "Main Hand") return item.Slot == EquipmentSlot.MainHand;
+        if (filter == "Off Hand") return item.Slot == EquipmentSlot.OffHand;
+
+        return Enum.TryParse(filter, out EquipmentSlot slot) && item.Slot == slot;
+    }
+
+    private static bool MatchesSearch(EquipmentItemSO item, string search)
+    {
+        if (string.IsNullOrEmpty(search)) return true;
+
+        return ContainsIgnoreCase(item.ItemName, search)
+               || ContainsIgnoreCase(item.name, search)
+               || ContainsIgnoreCase(item.ID, search)
+               || ContainsIgnoreCase(item.Slot.ToString(), search)
+               || ContainsIgnoreCase(item.GetType().Name, search);
+    }
+
+    private static bool ContainsIgnoreCase(string source, string search)
+    {
+        return !string.IsNullOrEmpty(source)
+               && source.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private static string GetItemChoiceLabel(EquipmentItemSO item)
+    {
+        string name = string.IsNullOrEmpty(item.ItemName) ? item.name : item.ItemName;
+        return $"[{GetSlotLabel(item.Slot)}] {name}";
+    }
+
+    private static string GetSlotLabel(EquipmentSlot slot)
+    {
+        switch (slot)
+        {
+            case EquipmentSlot.BodyArmor: return "Body";
+            case EquipmentSlot.MainHand: return "Main";
+            case EquipmentSlot.OffHand: return "Off";
+            default: return slot.ToString();
+        }
+    }
+
+    private static int CompareItemsForDebugList(EquipmentItemSO a, EquipmentItemSO b)
+    {
+        if (a == b) return 0;
+        if (a == null) return 1;
+        if (b == null) return -1;
+
+        int slotCompare = a.Slot.CompareTo(b.Slot);
+        if (slotCompare != 0) return slotCompare;
+
+        return string.Compare(GetItemChoiceLabel(a), GetItemChoiceLabel(b), StringComparison.OrdinalIgnoreCase);
     }
 
     private void FillItemListPopup()
@@ -202,13 +335,13 @@ public class DebugInventoryWindowUI : MonoBehaviour
         }
 
         int index = _selectedItemIndex - 1;
-        if (index < 0 || index >= _itemList.Count)
+        if (index < 0 || index >= _filteredItemList.Count)
         {
             Debug.LogWarning("[DebugInventoryWindow] Select an item.");
             return;
         }
 
-        EquipmentItemSO baseItem = _itemList[index];
+        EquipmentItemSO baseItem = _filteredItemList[index];
         int rarity = _rarityDropdown.index;
         int level = _levelField != null ? Mathf.Clamp(_levelField.value, 1, 99) : 10;
 

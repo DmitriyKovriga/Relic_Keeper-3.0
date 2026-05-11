@@ -16,6 +16,10 @@ namespace Scripts.Skills
     [RequireComponent(typeof(SkillHandAnimation))]
     public class SkillStepRunner : SkillBehaviour
     {
+        private const float DefaultActionSpeed = 1f;
+        private const float MinActionSpeed = 0.05f;
+        private const float MaxActionSpeed = 12f;
+
         private enum SpawnVfxGrowthMode
         {
             Centered = 0,
@@ -71,11 +75,20 @@ namespace Scripts.Skills
             _ctx = new SkillStepContext
             {
                 OwnerStats = _ownerStats,
-                TotalDuration = 1f / Mathf.Max(0.01f, _ownerStats.GetValue(StatType.AttackSpeed)),
+                TotalDuration = 1f / ResolveActionSpeed(),
                 AoeScale = 1f + _ownerStats.GetValue(StatType.AreaOfEffect) / 100f,
                 Cancelled = false
             };
             _runCoroutine = StartCoroutine(RunRecipe());
+        }
+
+        private float ResolveActionSpeed()
+        {
+            float speed = _ownerStats != null ? _ownerStats.GetValue(StatType.AttackSpeed) : 0f;
+            if (speed <= 0f)
+                speed = DefaultActionSpeed;
+
+            return Mathf.Clamp(speed, MinActionSpeed, MaxActionSpeed);
         }
 
         private void OnDisable()
@@ -462,7 +475,7 @@ namespace Scripts.Skills
             ResolveCircleArea(step, out Vector2 center, out float radius);
             var targets = GetTargetsInCircle(center, radius);
             float mult = ResolveDamageMultiplier(step);
-            var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult, ResolveDamageContext());
+            var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult, ResolveDamageContext(), step.DamageConversions);
             foreach (var t in targets) t.TakeDamage(snapshot);
         }
 
@@ -471,7 +484,7 @@ namespace Scripts.Skills
             ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
             var targets = GetTargetsInBox(center, size, angle);
             float mult = ResolveDamageMultiplier(step);
-            var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult, ResolveDamageContext());
+            var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult, ResolveDamageContext(), step.DamageConversions);
             foreach (var t in targets) t.TakeDamage(snapshot);
         }
 
@@ -834,10 +847,12 @@ namespace Scripts.Skills
         private List<IDamageable> GetTargetsInCircle(Vector2 center, float radius)
         {
             var list = new List<IDamageable>();
+            var uniqueTargets = new HashSet<IDamageable>();
             var hits = Physics2D.OverlapCircleAll(center, radius, _targetLayer);
             foreach (var h in hits)
             {
-                if (h.TryGetComponent(out IDamageable target)) list.Add(target);
+                if (TryResolveValidDamageTarget(h, out IDamageable target) && uniqueTargets.Add(target))
+                    list.Add(target);
             }
             return list;
         }
@@ -845,12 +860,46 @@ namespace Scripts.Skills
         private List<IDamageable> GetTargetsInBox(Vector2 center, Vector2 size, float angleDeg)
         {
             var list = new List<IDamageable>();
+            var uniqueTargets = new HashSet<IDamageable>();
             var hits = Physics2D.OverlapBoxAll(center, size, angleDeg, _targetLayer);
             foreach (var h in hits)
             {
-                if (h.TryGetComponent(out IDamageable target)) list.Add(target);
+                if (TryResolveValidDamageTarget(h, out IDamageable target) && uniqueTargets.Add(target))
+                    list.Add(target);
             }
             return list;
+        }
+
+        private bool TryResolveValidDamageTarget(Collider2D hit, out IDamageable target)
+        {
+            target = null;
+            if (hit == null)
+                return false;
+
+            if (!hit.TryGetComponent(out target))
+                return false;
+
+            if (IsOwnerCollider(hit))
+                return false;
+
+            if (target is Component component && IsOwnerTransform(component.transform))
+                return false;
+
+            return true;
+        }
+
+        private bool IsOwnerCollider(Collider2D hit)
+        {
+            return _ownerStats != null && hit.transform != null && IsOwnerTransform(hit.transform);
+        }
+
+        private bool IsOwnerTransform(Transform target)
+        {
+            if (_ownerStats == null || target == null)
+                return false;
+
+            Transform owner = _ownerStats.transform;
+            return target == owner || target.IsChildOf(owner) || owner.IsChildOf(target);
         }
 
         private List<StatusEffectController> GetStatusTargetsInCircle(Vector2 center, float radius)

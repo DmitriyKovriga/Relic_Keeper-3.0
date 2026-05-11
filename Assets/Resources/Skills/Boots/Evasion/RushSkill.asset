@@ -20,7 +20,7 @@ MonoBehaviour:
   DescriptionKey: skills.RushSkill.description
   IsActive: 1
   Cooldown: 15
-  ManaCost: 0
+  ManaCost: 10
   DamageContextTags: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack

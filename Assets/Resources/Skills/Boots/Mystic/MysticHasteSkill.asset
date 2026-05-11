@@ -16,7 +16,7 @@ MonoBehaviour:
   SkillName: Mystic Haste
   Description: Consume 1 Mystic Shield to grant 30% More Movement Speed and 50% More
     Manna Regeneration for 29 sec
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 82917950c1fb09b47a20e0c9ab345ddc, type: 3}
   NameKey: skills.MysticHasteSkill
   DescriptionKey: skills.MysticHasteSkill.description
   IsActive: 1

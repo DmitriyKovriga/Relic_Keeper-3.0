@@ -18,13 +18,13 @@ MonoBehaviour:
     damage
 
     Consume Mystic Shield and gain 50% More spell damage for this cast'
-  Icon: {fileID: 0}
+  Icon: {fileID: 8285942943799083408, guid: ff0333778fc63e04696e2c3a007bed45, type: 3}
   NameKey: skills.MysticImpulseSkill
   DescriptionKey: skills.MysticImpulseSkill.description
   IsActive: 1
   Cooldown: 10
   ManaCost: 10
   DamageContextTags: 18
-  SkillPrefab: {fileID: 0}
+  SkillPrefab: {fileID: 3781618429183576840, guid: 65055df6a47832244a8bce41a7273fe4, type: 3}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: 7132f458c22d8144fba1faa1c35ce146, type: 2}

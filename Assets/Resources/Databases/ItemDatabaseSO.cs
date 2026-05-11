@@ -70,11 +70,12 @@ public class ItemDatabaseSO : ScriptableObject
             {
                 foreach(var skill in AllSkills)
                 {
-                    if (skill != null && !string.IsNullOrEmpty(skill.ID) && !_skillLookup.ContainsKey(skill.ID))
-                        _skillLookup.Add(skill.ID, skill);
+                    RegisterSkillLookupKeys(skill);
                 }
             }
-            Debug.Log($"[ItemDatabase] Initialized. Items: {_itemLookup.Count}, Affixes: {_affixLookup.Count}");
+            RegisterSkillsFromResources();
+
+            Debug.Log($"[ItemDatabase] Initialized. Items: {_itemLookup.Count}, Affixes: {_affixLookup.Count}, Skills: {_skillLookup.Count}");
         }
 
     public EquipmentItemSO GetItem(string id)
@@ -119,7 +120,42 @@ public class ItemDatabaseSO : ScriptableObject
             if (string.IsNullOrEmpty(id)) return null;
             if (_skillLookup.TryGetValue(id, out var skill))
                 return skill;
+
+            RegisterSkillsFromResources();
+            if (_skillLookup.TryGetValue(id, out skill))
+                return skill;
             Debug.LogWarning($"[ItemDatabase] Скилл с ID '{id}' не найден в базе!");
             return null;
+        }
+
+        private void RegisterSkillsFromResources()
+        {
+            var skillsFromResources = Resources.LoadAll<SkillDataSO>("Skills");
+            if (skillsFromResources == null)
+                return;
+
+            foreach (var skill in skillsFromResources)
+                RegisterSkillLookupKeys(skill);
+        }
+
+        private void RegisterSkillLookupKeys(SkillDataSO skill)
+        {
+            if (skill == null)
+                return;
+
+            RegisterSkillLookupKey(skill.ID, skill);
+            RegisterSkillLookupKey(skill.name, skill);
+            RegisterSkillLookupKey(skill.SkillName, skill);
+            RegisterSkillLookupKey(skill.NameKey, skill);
+        }
+
+        private void RegisterSkillLookupKey(string key, SkillDataSO skill)
+        {
+            if (string.IsNullOrWhiteSpace(key) || skill == null)
+                return;
+
+            string normalizedKey = key.Trim();
+            if (!_skillLookup.ContainsKey(normalizedKey))
+                _skillLookup.Add(normalizedKey, skill);
         }
 }

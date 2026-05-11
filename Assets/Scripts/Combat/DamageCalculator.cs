@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using Scripts.Inventory;
 using Scripts.Stats;
@@ -43,6 +44,60 @@ public static class DamageCalculator
         }
     }
 
+    private struct DamagePool
+    {
+        public float Physical;
+        public float Fire;
+        public float Cold;
+        public float Lightning;
+
+        public float Get(DamageChannel channel)
+        {
+            return channel switch
+            {
+                DamageChannel.Fire => Fire,
+                DamageChannel.Cold => Cold,
+                DamageChannel.Lightning => Lightning,
+                _ => Physical
+            };
+        }
+
+        public void Add(DamageChannel channel, float amount)
+        {
+            switch (channel)
+            {
+                case DamageChannel.Fire:
+                    Fire += amount;
+                    break;
+                case DamageChannel.Cold:
+                    Cold += amount;
+                    break;
+                case DamageChannel.Lightning:
+                    Lightning += amount;
+                    break;
+                default:
+                    Physical += amount;
+                    break;
+            }
+        }
+
+        public void ClampNonNegative()
+        {
+            Physical = Mathf.Max(0f, Physical);
+            Fire = Mathf.Max(0f, Fire);
+            Cold = Mathf.Max(0f, Cold);
+            Lightning = Mathf.Max(0f, Lightning);
+        }
+
+        public void Multiply(float factor)
+        {
+            Physical *= factor;
+            Fire *= factor;
+            Cold *= factor;
+            Lightning *= factor;
+        }
+    }
+
     /// <summary>
     /// Расчет среднего урона за удар (Hit Damage).
     /// </summary>
@@ -54,23 +109,19 @@ public static class DamageCalculator
     /// <summary>
     /// Создает снапшот урона для нанесения врагу.
     /// </summary>
-    public static DamageSnapshot CreateDamageSnapshot(IStatsProvider attackerStats, float skillMultiplier = 1.0f, DamageContext damageContext = default)
+    public static DamageSnapshot CreateDamageSnapshot(
+        IStatsProvider attackerStats,
+        float skillMultiplier = 1.0f,
+        DamageContext damageContext = default,
+        IReadOnlyList<DamageConversionRule> skillConversions = null)
     {
         var snapshot = new DamageSnapshot(attackerStats);
 
-        float rawPhys = GetRolledHitDamage(attackerStats, StatType.DamagePhysical, damageContext);
-        float rawFire = GetRolledHitDamage(attackerStats, StatType.DamageFire, damageContext);
-        float rawCold = GetRolledHitDamage(attackerStats, StatType.DamageCold, damageContext);
-        float rawLight = GetRolledHitDamage(attackerStats, StatType.DamageLightning, damageContext);
-
-        snapshot.Physical = rawPhys * skillMultiplier;
-        snapshot.Fire = rawFire * skillMultiplier;
-        snapshot.Cold = rawCold * skillMultiplier;
-        snapshot.Lightning = rawLight * skillMultiplier;
-
-        ApplyConversion(attackerStats, ref snapshot.Physical, ref snapshot.Fire, StatType.PhysicalToFire);
-        ApplyConversion(attackerStats, ref snapshot.Physical, ref snapshot.Cold, StatType.PhysicalToCold);
-        ApplyConversion(attackerStats, ref snapshot.Physical, ref snapshot.Lightning, StatType.PhysicalToLightning);
+        DamagePool pool = BuildFlatDamagePool(attackerStats);
+        ApplyConversionRules(ref pool, skillConversions);
+        ApplyConversionRules(ref pool, BuildStatConversionRules(attackerStats));
+        ApplyDamageModifiers(attackerStats, ref pool, damageContext);
+        pool.Multiply(Mathf.Max(0f, skillMultiplier));
 
         float critChance = attackerStats.GetValue(StatType.CritChance);
         bool isCrit = Random.value < (critChance / 100f);
@@ -83,11 +134,13 @@ public static class DamageCalculator
 
             float multiplierFactor = critMult / 100f;
 
-            snapshot.Physical *= multiplierFactor;
-            snapshot.Fire *= multiplierFactor;
-            snapshot.Cold *= multiplierFactor;
-            snapshot.Lightning *= multiplierFactor;
+            pool.Multiply(multiplierFactor);
         }
+
+        snapshot.Physical = pool.Physical;
+        snapshot.Fire = pool.Fire;
+        snapshot.Cold = pool.Cold;
+        snapshot.Lightning = pool.Lightning;
 
         return snapshot;
     }
@@ -128,26 +181,40 @@ public static class DamageCalculator
         return baseIgnite * (1f + igniteInc / 100f);
     }
 
-    private static void ApplyConversion(IStatsProvider stats, ref float sourceDmg, ref float targetDmg, StatType conversionStat)
+    private static DamagePool BuildFlatDamagePool(IStatsProvider attackerStats)
     {
-        float percent = stats.GetValue(conversionStat);
-        if (percent > 0 && sourceDmg > 0)
+        return new DamagePool
         {
-            float amountToConvert = sourceDmg * (percent / 100f);
-            sourceDmg -= amountToConvert;
-            targetDmg += amountToConvert;
-        }
+            Physical = GetRolledFlatDamage(attackerStats, StatType.DamagePhysical),
+            Fire = GetRolledFlatDamage(attackerStats, StatType.DamageFire),
+            Cold = GetRolledFlatDamage(attackerStats, StatType.DamageCold),
+            Lightning = GetRolledFlatDamage(attackerStats, StatType.DamageLightning)
+        };
     }
 
-    private static float GetRolledHitDamage(IStatsProvider attackerStats, StatType damageType, DamageContext damageContext)
+    private static void ApplyDamageModifiers(IStatsProvider attackerStats, ref DamagePool pool, DamageContext damageContext)
+    {
+        ApplyDamageModifierForChannel(attackerStats, StatType.DamagePhysical, damageContext, ref pool.Physical);
+        ApplyDamageModifierForChannel(attackerStats, StatType.DamageFire, damageContext, ref pool.Fire);
+        ApplyDamageModifierForChannel(attackerStats, StatType.DamageCold, damageContext, ref pool.Cold);
+        ApplyDamageModifierForChannel(attackerStats, StatType.DamageLightning, damageContext, ref pool.Lightning);
+        pool.ClampNonNegative();
+    }
+
+    private static void ApplyDamageModifierForChannel(IStatsProvider attackerStats, StatType damageType, DamageContext damageContext, ref float channelDamage)
     {
         DamageModifierLayers channelLayers = GetDamageChannelLayers(attackerStats, damageType);
         DamageModifierLayers contextLayers = GetContextModifierLayers(attackerStats, damageType, damageContext);
         float additivePercent = channelLayers.AdditivePercent + contextLayers.AdditivePercent;
         float multiplicativeFactor = channelLayers.MultiplicativeFactor * contextLayers.MultiplicativeFactor;
+        channelDamage = EvaluateDamageFromLayers(channelDamage + contextLayers.Flat, additivePercent, multiplicativeFactor);
+    }
 
+    private static float GetRolledFlatDamage(IStatsProvider attackerStats, StatType damageType)
+    {
+        DamageModifierLayers channelLayers = GetDamageChannelLayers(attackerStats, damageType);
         if (attackerStats is not PlayerStats || InventoryManager.Instance == null)
-            return EvaluateDamageFromLayers(channelLayers.Flat, additivePercent, multiplicativeFactor);
+            return Mathf.Max(0f, channelLayers.Flat);
 
         float weaponAverage = 0f;
         float weaponRolled = 0f;
@@ -155,7 +222,7 @@ public static class DamageCalculator
 
         var equipment = InventoryManager.Instance.EquipmentItems;
         if (equipment == null)
-            return EvaluateDamageFromLayers(channelLayers.Flat, additivePercent, multiplicativeFactor);
+            return Mathf.Max(0f, channelLayers.Flat);
 
         foreach (var item in equipment)
         {
@@ -172,11 +239,108 @@ public static class DamageCalculator
         }
 
         if (!hasWeaponRange)
-            return EvaluateDamageFromLayers(channelLayers.Flat, additivePercent, multiplicativeFactor);
+            return Mathf.Max(0f, channelLayers.Flat);
 
         float nonWeaponFlat = channelLayers.Flat - weaponAverage;
-        float rolledBase = nonWeaponFlat + weaponRolled;
-        return EvaluateDamageFromLayers(rolledBase, additivePercent, multiplicativeFactor);
+        return Mathf.Max(0f, nonWeaponFlat + weaponRolled);
+    }
+
+    private static void ApplyConversionRules(ref DamagePool pool, IReadOnlyList<DamageConversionRule> rules)
+    {
+        if (rules == null || rules.Count == 0)
+            return;
+
+        DamagePool additions = default;
+        DamagePool removals = default;
+        DamageChannel[] channels = { DamageChannel.Physical, DamageChannel.Fire, DamageChannel.Cold, DamageChannel.Lightning };
+
+        for (int c = 0; c < channels.Length; c++)
+        {
+            DamageChannel source = channels[c];
+            float sourceAmount = pool.Get(source);
+            if (sourceAmount <= 0f)
+                continue;
+
+            float totalPercent = 0f;
+            for (int i = 0; i < rules.Count; i++)
+            {
+                DamageConversionRule rule = rules[i];
+                if (rule.Source == source && rule.IsValid)
+                    totalPercent += Mathf.Clamp(rule.Percent, 0f, 100f);
+            }
+
+            if (totalPercent <= 0f)
+                continue;
+
+            float normalization = totalPercent > 100f ? 100f / totalPercent : 1f;
+            for (int i = 0; i < rules.Count; i++)
+            {
+                DamageConversionRule rule = rules[i];
+                if (rule.Source != source || !rule.IsValid)
+                    continue;
+
+                float effectivePercent = Mathf.Clamp(rule.Percent, 0f, 100f) * normalization;
+                float amount = sourceAmount * (effectivePercent / 100f);
+                if (amount <= 0f)
+                    continue;
+
+                removals.Add(source, amount);
+                additions.Add(rule.Target, amount);
+            }
+        }
+
+        pool.Physical += additions.Physical - removals.Physical;
+        pool.Fire += additions.Fire - removals.Fire;
+        pool.Cold += additions.Cold - removals.Cold;
+        pool.Lightning += additions.Lightning - removals.Lightning;
+        pool.ClampNonNegative();
+    }
+
+    private static List<DamageConversionRule> BuildStatConversionRules(IStatsProvider stats)
+    {
+        var rules = new List<DamageConversionRule>(16);
+        if (stats == null)
+            return rules;
+
+        AddStatConversionRule(rules, stats, StatType.PhysicalToFire, DamageChannel.Physical, DamageChannel.Fire);
+        AddStatConversionRule(rules, stats, StatType.PhysicalToCold, DamageChannel.Physical, DamageChannel.Cold);
+        AddStatConversionRule(rules, stats, StatType.PhysicalToLightning, DamageChannel.Physical, DamageChannel.Lightning);
+
+        AddStatConversionRule(rules, stats, StatType.FireToPhysical, DamageChannel.Fire, DamageChannel.Physical);
+        AddStatConversionRule(rules, stats, StatType.FireToCold, DamageChannel.Fire, DamageChannel.Cold);
+        AddStatConversionRule(rules, stats, StatType.FireToLightning, DamageChannel.Fire, DamageChannel.Lightning);
+
+        AddStatConversionRule(rules, stats, StatType.ColdToPhysical, DamageChannel.Cold, DamageChannel.Physical);
+        AddStatConversionRule(rules, stats, StatType.ColdToFire, DamageChannel.Cold, DamageChannel.Fire);
+        AddStatConversionRule(rules, stats, StatType.ColdToLightning, DamageChannel.Cold, DamageChannel.Lightning);
+
+        AddStatConversionRule(rules, stats, StatType.LightningToPhysical, DamageChannel.Lightning, DamageChannel.Physical);
+        AddStatConversionRule(rules, stats, StatType.LightningToFire, DamageChannel.Lightning, DamageChannel.Fire);
+        AddStatConversionRule(rules, stats, StatType.LightningToCold, DamageChannel.Lightning, DamageChannel.Cold);
+
+        float elementalToPhysical = Mathf.Clamp(stats.GetValue(StatType.ElementalToPhysical), 0f, 100f);
+        if (elementalToPhysical > 0f)
+        {
+            rules.Add(new DamageConversionRule { Source = DamageChannel.Fire, Target = DamageChannel.Physical, Percent = elementalToPhysical });
+            rules.Add(new DamageConversionRule { Source = DamageChannel.Cold, Target = DamageChannel.Physical, Percent = elementalToPhysical });
+            rules.Add(new DamageConversionRule { Source = DamageChannel.Lightning, Target = DamageChannel.Physical, Percent = elementalToPhysical });
+        }
+
+        return rules;
+    }
+
+    private static void AddStatConversionRule(List<DamageConversionRule> rules, IStatsProvider stats, StatType stat, DamageChannel source, DamageChannel target)
+    {
+        float percent = Mathf.Clamp(stats.GetValue(stat), 0f, 100f);
+        if (percent <= 0f)
+            return;
+
+        rules.Add(new DamageConversionRule
+        {
+            Source = source,
+            Target = target,
+            Percent = percent
+        });
     }
 
     private static DamageModifierLayers GetDamageChannelLayers(IStatsProvider statsProvider, StatType damageType)

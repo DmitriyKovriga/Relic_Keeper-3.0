@@ -580,11 +580,12 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
 
             int current = Mathf.Clamp(currentCharges, 0, maxCharges);
             float progress = Mathf.Clamp01(rechargeProgress);
-            float slotWidth = ResolveSlotWidth(maxCharges);
-            _root.sizeDelta = new Vector2(_maxWidth, _height);
+            int slotsPerRow = ResolveSlotsPerRow();
+            int rowCount = Mathf.CeilToInt(maxCharges / (float)slotsPerRow);
+            float rowStep = _height + _spacing;
+            _root.sizeDelta = new Vector2(_maxWidth, _height + Mathf.Max(0, rowCount - 1) * rowStep);
             _root.gameObject.SetActive(true);
 
-            float x = -_maxWidth * 0.5f;
             for (int i = 0; i < _slots.Count; i++)
             {
                 MysticShieldSlot slot = _slots[i];
@@ -596,7 +597,12 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
                 if (!active)
                     continue;
 
-                slot.SetLayout(new Vector2(x + i * (slotWidth + _spacing), 0f), new Vector2(slotWidth, _height));
+                int row = i / slotsPerRow;
+                int column = i % slotsPerRow;
+                float x = -_maxWidth * 0.5f + column * (_preferredSlotWidth + _spacing);
+                float y = row * rowStep;
+
+                slot.SetLayout(new Vector2(x, y), new Vector2(_preferredSlotWidth, _height));
                 float fill = i < current ? 1f : (i == current ? progress : 0f);
                 Color fillColor = i < current ? _fullColor : _rechargeColor;
                 slot.SetFill(fill, _emptyColor, fillColor);
@@ -633,14 +639,10 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             }
         }
 
-        private float ResolveSlotWidth(int maxCharges)
+        private int ResolveSlotsPerRow()
         {
-            float needed = maxCharges * _preferredSlotWidth + Mathf.Max(0, maxCharges - 1) * _spacing;
-            if (needed <= _maxWidth)
-                return _preferredSlotWidth;
-
-            float available = _maxWidth - Mathf.Max(0, maxCharges - 1) * _spacing;
-            return Mathf.Max(1f, available / Mathf.Max(1, maxCharges));
+            float slotStep = _preferredSlotWidth + _spacing;
+            return Mathf.Max(1, Mathf.FloorToInt((_maxWidth + _spacing) / Mathf.Max(1f, slotStep)));
         }
 
     }

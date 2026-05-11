@@ -5,6 +5,7 @@ using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
 using System.Collections.Generic;
 using System.Linq;
+using Scripts.Combat;
 using Scripts.Skills;
 using Scripts.Skills.Steps;
 using Scripts.Skills.Modules;
@@ -1166,6 +1167,7 @@ namespace Scripts.Editor.Skills
                 float dm = step.GetFloat("DamageMultiplier", 1f);
                 float ndm = EditorGUILayout.FloatField("Damage multiplier", dm);
                 if (ndm != dm) { step.SetOverrideFloat("DamageMultiplier", ndm); EditorUtility.SetDirty(recipe); }
+                DrawDamageConversionRules(recipe, step);
                 return;
             }
 
@@ -1198,6 +1200,7 @@ namespace Scripts.Editor.Skills
                 float dm = step.GetFloat("DamageMultiplier", 1f);
                 float ndm = EditorGUILayout.FloatField("Damage multiplier", dm);
                 if (ndm != dm) { step.SetOverrideFloat("DamageMultiplier", ndm); EditorUtility.SetDirty(recipe); }
+                DrawDamageConversionRules(recipe, step);
                 return;
             }
 
@@ -1441,6 +1444,61 @@ namespace Scripts.Editor.Skills
             float duration = Mathf.Max(0f, step.GetFloat("Duration", 0f));
             float newDuration = Mathf.Max(0f, EditorGUILayout.FloatField("Duration seconds (0 = skill only)", duration));
             if (Mathf.Abs(newDuration - duration) > 0.001f) { step.SetOverrideFloat("Duration", newDuration); EditorUtility.SetDirty(recipe); }
+        }
+
+        private void DrawDamageConversionRules(SkillRecipeSO recipe, StepEntry step)
+        {
+            if (step.DamageConversions == null)
+                step.DamageConversions = new List<DamageConversionRule>();
+
+            EditorGUILayout.Space(6f);
+            EditorGUILayout.LabelField("Damage Conversion", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("Step conversion is applied before character stat conversion. If multiple rows convert from the same source and their sum is above 100%, they are normalized proportionally.", MessageType.None);
+
+            for (int i = 0; i < step.DamageConversions.Count; i++)
+            {
+                DamageConversionRule rule = step.DamageConversions[i];
+                EditorGUILayout.BeginHorizontal();
+
+                DamageChannel newSource = (DamageChannel)EditorGUILayout.EnumPopup(rule.Source, GUILayout.MinWidth(110f));
+                GUILayout.Label("to", GUILayout.Width(18f));
+                DamageChannel newTarget = (DamageChannel)EditorGUILayout.EnumPopup(rule.Target, GUILayout.MinWidth(110f));
+                float newPercent = Mathf.Clamp(EditorGUILayout.FloatField(rule.Percent, GUILayout.Width(70f)), 0f, 100f);
+                GUILayout.Label("%", GUILayout.Width(14f));
+
+                if (GUILayout.Button("X", GUILayout.Width(24f)))
+                {
+                    step.DamageConversions.RemoveAt(i);
+                    EditorUtility.SetDirty(recipe);
+                    EditorGUILayout.EndHorizontal();
+                    break;
+                }
+
+                EditorGUILayout.EndHorizontal();
+
+                if (newSource != rule.Source || newTarget != rule.Target || Mathf.Abs(newPercent - rule.Percent) > 0.001f)
+                {
+                    rule.Source = newSource;
+                    rule.Target = newTarget;
+                    rule.Percent = newPercent;
+                    step.DamageConversions[i] = rule;
+                    EditorUtility.SetDirty(recipe);
+                }
+
+                if (rule.Source == rule.Target && rule.Percent > 0f)
+                    EditorGUILayout.HelpBox("Source and target are the same. This row will be ignored.", MessageType.Warning);
+            }
+
+            if (GUILayout.Button("+ Add conversion"))
+            {
+                step.DamageConversions.Add(new DamageConversionRule
+                {
+                    Source = DamageChannel.Physical,
+                    Target = DamageChannel.Lightning,
+                    Percent = 100f
+                });
+                EditorUtility.SetDirty(recipe);
+            }
         }
 
         private void DrawQuickStatusFields(SkillRecipeSO recipe, StepEntry step, string help)

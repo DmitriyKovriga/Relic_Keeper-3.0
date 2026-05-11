@@ -61,10 +61,10 @@ namespace Scripts.Inventory
                     if (secondaryValue < primaryValue)
                         (primaryValue, secondaryValue) = (secondaryValue, primaryValue);
 
-                    secondaryMod = new StatModifier(secondaryValue, statData.Type, ownerItem);
+                    secondaryMod = new StatModifier(secondaryValue, NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
                 }
 
-                var primaryMod = new StatModifier(primaryValue, statData.Type, ownerItem);
+                var primaryMod = new StatModifier(primaryValue, NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
                 Modifiers.Add(new AffixModifierInstance(statData.Stat, statData.Scope, primaryMod, secondaryMod));
             }
         }
@@ -88,12 +88,22 @@ namespace Scripts.Inventory
                 if (statData.UsesRangeRoll() && valueIndex < saveData.Values.Count)
                 {
                     float secondaryValue = saveData.Values[valueIndex++];
-                    secondaryMod = new StatModifier(secondaryValue, statData.Type, ownerItem);
+                    secondaryMod = new StatModifier(secondaryValue, NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
                 }
 
-                var primaryMod = new StatModifier(primaryValue, statData.Type, ownerItem);
+                var primaryMod = new StatModifier(primaryValue, NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
                 Modifiers.Add(new AffixModifierInstance(statData.Stat, statData.Scope, primaryMod, secondaryMod));
             }
+        }
+
+        private static StatModType NormalizeAffixModifierType(StatType stat, StatModType type)
+        {
+            // Weapon APS is the only intended flat source for AttackSpeed.
+            // Legacy/generated flat attack-speed affixes are repaired into percent increases.
+            if (stat == StatType.AttackSpeed && type == StatModType.Flat)
+                return StatModType.PercentAdd;
+
+            return type;
         }
 
         private static float RollAffixValue(float minValue, float maxValue)
@@ -155,7 +165,9 @@ namespace Scripts.Inventory
 
             foreach (var skill in GrantedSkills)
             {
-                if (skill != null) saveData.RolledSkillIDs.Add(skill.ID);
+                string skillKey = GetStableSkillKey(skill);
+                if (!string.IsNullOrEmpty(skillKey))
+                    saveData.RolledSkillIDs.Add(skillKey);
             }
 
             return saveData;
@@ -205,7 +217,56 @@ namespace Scripts.Inventory
                 }
             }
 
+            RepairMissingGrantedSkillsFromPools(baseItem, newItem);
+
             return newItem;
+        }
+
+        private static string GetStableSkillKey(SkillDataSO skill)
+        {
+            if (skill == null)
+                return null;
+
+            if (!string.IsNullOrWhiteSpace(skill.ID))
+                return skill.ID.Trim();
+
+            if (!string.IsNullOrWhiteSpace(skill.name))
+                return skill.name.Trim();
+
+            return !string.IsNullOrWhiteSpace(skill.SkillName) ? skill.SkillName.Trim() : null;
+        }
+
+        private static void RepairMissingGrantedSkillsFromPools(EquipmentItemSO baseItem, InventoryItem item)
+        {
+            if (baseItem == null || item == null || item.GrantedSkills.Count > 0)
+                return;
+
+            TryAddOnlySkillFromPool(item, baseItem.SkillPool);
+
+            if (baseItem is WeaponItemSO weapon)
+                TryAddOnlySkillFromPool(item, weapon.SecondarySkillPool);
+        }
+
+        private static void TryAddOnlySkillFromPool(InventoryItem item, SkillPoolSO pool)
+        {
+            if (item == null || pool?.PossibleSkills == null)
+                return;
+
+            SkillDataSO onlySkill = null;
+            for (int i = 0; i < pool.PossibleSkills.Count; i++)
+            {
+                SkillDataSO skill = pool.PossibleSkills[i].Skill;
+                if (skill == null)
+                    continue;
+
+                if (onlySkill != null && onlySkill != skill)
+                    return;
+
+                onlySkill = skill;
+            }
+
+            if (onlySkill != null && !item.GrantedSkills.Contains(onlySkill))
+                item.GrantedSkills.Add(onlySkill);
         }
 
         // --- Helper Methods (Р±РµР· РёР·РјРµРЅРµРЅРёР№) ---

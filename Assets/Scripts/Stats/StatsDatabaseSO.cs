@@ -520,6 +520,15 @@ namespace Scripts.Stats
                 case StatType.PhysicalToCold:
                 case StatType.PhysicalToLightning:
                 case StatType.ElementalToPhysical:
+                case StatType.FireToPhysical:
+                case StatType.FireToCold:
+                case StatType.FireToLightning:
+                case StatType.ColdToPhysical:
+                case StatType.ColdToFire:
+                case StatType.ColdToLightning:
+                case StatType.LightningToPhysical:
+                case StatType.LightningToFire:
+                case StatType.LightningToCold:
                 case StatType.TakePhysAsCold:
                 case StatType.TakePhysAsFire:
                 case StatType.TakePhysAsLightning:
@@ -604,6 +613,8 @@ namespace Scripts.Stats
             string s = type.ToString();
             if (type == StatType.AreaOfEffect || type == StatType.ReduceDamageTaken || type == StatType.ProjectileSpeed || type == StatType.EffectDuration)
                 return StatDisplayFormat.Percent;
+            if (IsOutgoingDamageConversionStat(type))
+                return StatDisplayFormat.Percent;
             if (type == StatType.BleedDamageMult || type == StatType.PoisonDamageMult || type == StatType.IgniteDamageMult)
                 return StatDisplayFormat.Percent;
             if (s.Contains("Percent") || s.Contains("Chance") || s.Contains("Multiplier") || s.Contains("Resist") || s.Contains("Reduction"))
@@ -629,6 +640,8 @@ namespace Scripts.Stats
                 return StatAffixGenType.PercentStat;
             if (type == StatType.MeleeDamage)
                 return StatAffixGenType.ContextModifierStat;
+            if (IsOutgoingDamageConversionStat(type))
+                return StatAffixGenType.PercentStat;
             if (type == StatType.AreaOfEffect || type == StatType.ProjectileSpeed || type == StatType.EffectDuration || type == StatType.ReduceDamageTaken)
                 return StatAffixGenType.PercentStat;
             if (s.Contains("Stack") || s.Contains("ExtraTargets") || s.Contains("MaxBleed") || s.Contains("MaxPoison") || s.Contains("MaxIgnite"))
@@ -667,6 +680,29 @@ namespace Scripts.Stats
         public static bool DefaultAllowNegativeFlatGeneration(StatType type)
         {
             return type == StatType.CritMultiplier;
+        }
+
+        private static bool IsOutgoingDamageConversionStat(StatType type)
+        {
+            switch (type)
+            {
+                case StatType.PhysicalToFire:
+                case StatType.PhysicalToCold:
+                case StatType.PhysicalToLightning:
+                case StatType.ElementalToPhysical:
+                case StatType.FireToPhysical:
+                case StatType.FireToCold:
+                case StatType.FireToLightning:
+                case StatType.ColdToPhysical:
+                case StatType.ColdToFire:
+                case StatType.ColdToLightning:
+                case StatType.LightningToPhysical:
+                case StatType.LightningToFire:
+                case StatType.LightningToCold:
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         public static StatContextTagFlags DefaultContextTagsFor(StatType type)
@@ -763,6 +799,27 @@ namespace Scripts.Stats
                 case StatType.TakeLightningAsPhys:
                     return StatDamageChannelFlags.Physical | StatDamageChannelFlags.Lightning;
 
+                case StatType.FireToPhysical:
+                    return StatDamageChannelFlags.Fire | StatDamageChannelFlags.Physical;
+                case StatType.FireToCold:
+                    return StatDamageChannelFlags.Fire | StatDamageChannelFlags.Cold;
+                case StatType.FireToLightning:
+                    return StatDamageChannelFlags.Fire | StatDamageChannelFlags.Lightning;
+
+                case StatType.ColdToPhysical:
+                    return StatDamageChannelFlags.Cold | StatDamageChannelFlags.Physical;
+                case StatType.ColdToFire:
+                    return StatDamageChannelFlags.Cold | StatDamageChannelFlags.Fire;
+                case StatType.ColdToLightning:
+                    return StatDamageChannelFlags.Cold | StatDamageChannelFlags.Lightning;
+
+                case StatType.LightningToPhysical:
+                    return StatDamageChannelFlags.Lightning | StatDamageChannelFlags.Physical;
+                case StatType.LightningToFire:
+                    return StatDamageChannelFlags.Lightning | StatDamageChannelFlags.Fire;
+                case StatType.LightningToCold:
+                    return StatDamageChannelFlags.Lightning | StatDamageChannelFlags.Cold;
+
                 case StatType.TakeLightningAsFire:
                 case StatType.TakeFireAsLightning:
                     return StatDamageChannelFlags.Lightning | StatDamageChannelFlags.Fire;
@@ -790,6 +847,8 @@ namespace Scripts.Stats
         {
             if (type == StatType.CritMultiplier)
                 return StatAffixModifierKindFlags.Flat;
+            if (type == StatType.AttackSpeed)
+                return StatAffixModifierKindFlags.Increase | StatAffixModifierKindFlags.Decrease | StatAffixModifierKindFlags.More | StatAffixModifierKindFlags.Less;
 
             switch (genType)
             {
@@ -808,6 +867,9 @@ namespace Scripts.Stats
         {
             if (flags == StatAffixModifierKindFlags.None)
                 flags = DefaultAllowedAffixKindsFor(type, genType);
+
+            if (type == StatType.AttackSpeed)
+                return flags & (StatAffixModifierKindFlags.Increase | StatAffixModifierKindFlags.Decrease | StatAffixModifierKindFlags.More | StatAffixModifierKindFlags.Less);
 
             switch (genType)
             {

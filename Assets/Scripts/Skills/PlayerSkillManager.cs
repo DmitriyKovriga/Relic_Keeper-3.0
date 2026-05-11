@@ -9,6 +9,11 @@ namespace Scripts.Skills
 {
     public class PlayerSkillManager : MonoBehaviour
     {
+        private const int SkillSlotCount = 5;
+        private const int MainHandSkillSlot = 0;
+        private const int OffHandSkillSlot = 1;
+        private const int FirstUtilitySkillSlot = 2;
+
         public event System.Action<int, SkillDataSO> OnSkillSlotUpdated;
 
         private readonly Dictionary<int, SkillBehaviour> _activeSkills = new();
@@ -68,19 +73,15 @@ namespace Scripts.Skills
 
         public void RefreshAllSkills()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < SkillSlotCount; i++)
                 UnequipSkill(i);
 
             if (InventoryManager.Instance == null)
                 return;
 
             var equipment = InventoryManager.Instance.EquipmentItems;
-            for (int i = 0; i < equipment.Length; i++)
-            {
-                var item = equipment[i];
-                if (item != null && item.Data != null)
-                    EquipSkillsForItem(item, i);
-            }
+            EquipHandSkills(equipment);
+            EquipUtilitySkills(equipment);
         }
 
         public void UseSkill(int slotIndex)
@@ -129,33 +130,65 @@ namespace Scripts.Skills
             RefreshAllSkills();
         }
 
-        private void EquipSkillsForItem(InventoryItem item, int equippedSlotIndex)
+        private void EquipHandSkills(InventoryItem[] equipment)
         {
-            if (item == null || item.GrantedSkills.Count == 0)
+            if (equipment == null)
                 return;
 
-            if (item.Data is WeaponItemSO weapon)
+            InventoryItem mainHandItem = GetEquipmentItem(equipment, EquipmentSlot.MainHand);
+            InventoryItem offHandItem = GetEquipmentItem(equipment, EquipmentSlot.OffHand);
+
+            if (mainHandItem != null && mainHandItem.GrantedSkills.Count > 0)
             {
-                if (equippedSlotIndex == (int)EquipmentSlot.OffHand)
-                {
-                    EquipSkill(1, item.GrantedSkills[0]);
-                    return;
-                }
+                EquipSkill(MainHandSkillSlot, mainHandItem.GrantedSkills[0]);
 
-                if (equippedSlotIndex == (int)EquipmentSlot.MainHand)
-                {
-                    EquipSkill(0, item.GrantedSkills[0]);
-
-                    if (weapon.IsTwoHanded && item.GrantedSkills.Count > 1)
-                        EquipSkill(1, item.GrantedSkills[1]);
-
-                    return;
-                }
+                if (mainHandItem.Data is WeaponItemSO { IsTwoHanded: true } && mainHandItem.GrantedSkills.Count > 1)
+                    EquipSkill(OffHandSkillSlot, mainHandItem.GrantedSkills[1]);
             }
 
-            int skillSlotIndex = GetSkillSlotByItemSlot((EquipmentSlot)equippedSlotIndex);
-            if (skillSlotIndex != -1)
-                EquipSkill(skillSlotIndex, item.GrantedSkills[0]);
+            if (offHandItem != null && offHandItem.GrantedSkills.Count > 0)
+                EquipSkill(OffHandSkillSlot, offHandItem.GrantedSkills[0]);
+        }
+
+        private void EquipUtilitySkills(InventoryItem[] equipment)
+        {
+            if (equipment == null)
+                return;
+
+            int nextSlot = FirstUtilitySkillSlot;
+            EquipmentSlot[] priority =
+            {
+                EquipmentSlot.BodyArmor,
+                EquipmentSlot.Gloves,
+                EquipmentSlot.Boots,
+                EquipmentSlot.Helmet
+            };
+
+            for (int i = 0; i < priority.Length; i++)
+            {
+                InventoryItem item = GetEquipmentItem(equipment, priority[i]);
+                if (item == null || item.GrantedSkills.Count == 0)
+                    continue;
+
+                if (nextSlot >= SkillSlotCount)
+                {
+                    Debug.LogWarning($"[PlayerSkillManager] No free HUD skill slot for '{item.Data?.ItemName ?? item.Data?.name ?? "Unknown item"}' skill '{item.GrantedSkills[0]?.SkillName ?? "Unknown skill"}'. Add more skill slots or remove another equipment skill.");
+                    continue;
+                }
+
+                EquipSkill(nextSlot, item.GrantedSkills[0]);
+                nextSlot++;
+            }
+        }
+
+        private static InventoryItem GetEquipmentItem(InventoryItem[] equipment, EquipmentSlot slot)
+        {
+            int index = (int)slot;
+            if (equipment == null || index < 0 || index >= equipment.Length)
+                return null;
+
+            InventoryItem item = equipment[index];
+            return item != null && item.Data != null ? item : null;
         }
 
         private void EquipSkill(int slotIndex, SkillDataSO skillData)
@@ -225,17 +258,6 @@ namespace Scripts.Skills
             }
 
             OnSkillSlotUpdated?.Invoke(slotIndex, null);
-        }
-
-        private static readonly int[] _equipmentSlotToSkillSlot = { 4, -1, 0, 1, 2, 3 };
-
-        private int GetSkillSlotByItemSlot(EquipmentSlot itemSlot)
-        {
-            int i = (int)itemSlot;
-            if (i < 0 || i >= _equipmentSlotToSkillSlot.Length)
-                return -1;
-
-            return _equipmentSlotToSkillSlot[i];
         }
     }
 }

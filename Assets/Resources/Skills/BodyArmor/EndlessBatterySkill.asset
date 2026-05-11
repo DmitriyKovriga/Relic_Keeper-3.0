@@ -15,7 +15,7 @@ MonoBehaviour:
   ID: EndlessBattery
   SkillName: Endless Battery
   Description: Charge current Mystic Shields to MAX
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 131a0d9a1c1f3c0468741d939afd8b30, type: 3}
   NameKey: skills.EndlessBatterySkill
   DescriptionKey: skills.EndlessBatterySkill.description
   IsActive: 1
