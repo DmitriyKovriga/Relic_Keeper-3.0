@@ -29,6 +29,14 @@ namespace Scripts.Skills
             LockedAwayFromCaster = 1
         }
 
+        private enum CooldownStepTarget
+        {
+            CurrentSkill = 0,
+            SpecificSlot = 1,
+            OtherSlots = 2,
+            AllSlots = 3
+        }
+
         [Header("Damage/Hitbox (for DealDamage steps)")]
         [SerializeField] private LayerMask _targetLayer = ~0;
 
@@ -336,6 +344,12 @@ namespace Scripts.Skills
                 case "SpawnProjectile":
                     ExecuteSpawnProjectile(step);
                     break;
+                case "SpawnGroundProjectile":
+                    ExecuteSpawnProjectile(step);
+                    break;
+                case "ModifyCooldown":
+                    ExecuteModifyCooldown(step);
+                    break;
                 case "DealDamageCircle":
                     ExecuteDealDamageCircle(stepIndex, step);
                     break;
@@ -482,6 +496,10 @@ namespace Scripts.Skills
             if (_ownerStats == null || step == null)
                 return;
 
+            bool groundMotion = step.StepDefinition != null && step.StepDefinition.Id == "SpawnGroundProjectile";
+            if (groundMotion && !step.GetBool("AllowInAir", false) && !IsOwnerGrounded())
+                return;
+
             int baseCount = Mathf.Max(1, step.GetInt("BaseProjectileCount", 1));
             int additionalCount = Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileCount)));
             int totalCount = Mathf.Max(1, baseCount + additionalCount);
@@ -525,11 +543,29 @@ namespace Scripts.Skills
                 IgnoreChain = step.GetBool("IgnoreChain", false),
                 ForkAngle = Mathf.Max(0f, step.GetFloat("ForkAngle", 18f)),
                 ChainSearchRadius = Mathf.Max(0.1f, step.GetFloat("ChainSearchRadius", 12f)),
+                GroundMotion = groundMotion || step.GetBool("GroundMotion", false),
+                GroundLayer = step.GetInt("GroundLayerMask", 1 << 6),
+                GroundSnapUp = Mathf.Max(0.01f, step.GetFloat("GroundSnapUp", 0.7f)),
+                GroundSnapDown = Mathf.Max(0.01f, step.GetFloat("GroundSnapDown", 2.5f)),
+                GroundYOffset = step.GetFloat("GroundYOffset", 0.06f),
+                Homing = step.GetBool("Homing", false),
+                HomingSearchRadius = Mathf.Max(0.1f, step.GetFloat("HomingSearchRadius", 14f)),
+                HomingTurnSpeedDegreesPerSecond = Mathf.Max(0f, step.GetFloat("HomingTurnSpeedDegreesPerSecond", 0f)),
+                RemainingReversals = Mathf.Max(0, step.GetInt("ReversalCount", 0)),
+                ReverseInterval = Mathf.Max(0.01f, step.GetFloat("ReverseInterval", 1f)),
+                FirstReverseAtSeconds = Mathf.Max(0.01f, step.GetFloat("FirstReverseAtSeconds", 1f)),
+                ReturnToOwnerOnReverse = step.GetBool("ReturnToOwnerOnReverse", true),
+                ClearHitHistoryOnReverse = step.GetBool("ClearHitHistoryOnReverse", true),
                 SortingLayerId = sortingSource != null ? sortingSource.sortingLayerID : 0,
                 SortingOrder = sortingSource != null ? sortingSource.sortingOrder + 20 : 20050
             };
 
             Vector2 origin = (Vector2)_ownerStats.transform.position + new Vector2(offsetX * _ctx.FacingDirection, offsetY);
+            if (data.GroundMotion && TryProjectToGround(origin, data.GroundLayer, data.GroundSnapUp, data.GroundSnapDown, data.GroundYOffset, out Vector2 groundedOrigin))
+                origin = groundedOrigin;
+            else if (data.GroundMotion && !step.GetBool("AllowWithoutGround", false))
+                return;
+
             Vector2 forward = new Vector2(_ctx.FacingDirection, 0f);
             var spreadMode = (SkillProjectileSpreadMode)step.GetInt("SpreadMode", (int)SkillProjectileSpreadMode.Cone);
             for (int i = 0; i < totalCount; i++)
@@ -612,27 +648,49 @@ namespace Scripts.Skills
             return new Vector2(direction.x * cos - direction.y * sin, direction.x * sin + direction.y * cos).normalized;
         }
 
+        private bool IsOwnerGrounded()
+        {
+            if (_ownerStats == null)
+                return false;
+
+            PlayerMovement movement = _ownerStats.GetComponent<PlayerMovement>();
+            return movement != null && movement.IsGrounded;
+        }
+
+        private static bool TryProjectToGround(Vector2 origin, LayerMask groundLayer, float upDistance, float downDistance, float yOffset, out Vector2 groundedPosition)
+        {
+            groundedPosition = origin;
+            Vector2 rayOrigin = origin + Vector2.up * Mathf.Max(0.01f, upDistance);
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, upDistance + downDistance, groundLayer);
+            if (hit.collider == null)
+                return false;
+
+            groundedPosition = new Vector2(origin.x, hit.point.y + yOffset);
+            return true;
+        }
+
         private void ExecuteDealDamageCircle(int stepIndex, StepEntry step)
         {
             ResolveCircleArea(step, out Vector2 center, out float radius);
             var targets = GetTargetsInCircle(center, radius);
-            DealDamageToTargets(step, targets);
+            DealDamageToTargets(stepIndex, step, targets);
         }
 
         private void ExecuteDealDamageRectangle(int stepIndex, StepEntry step)
         {
             ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
             var targets = GetTargetsInBox(center, size, angle);
-            DealDamageToTargets(step, targets);
+            DealDamageToTargets(stepIndex, step, targets);
         }
 
-        private void DealDamageToTargets(StepEntry step, List<IDamageable> targets)
+        private void DealDamageToTargets(int stepIndex, StepEntry step, List<IDamageable> targets)
         {
             if (targets == null || targets.Count == 0)
                 return;
 
             float mult = ResolveDamageMultiplier(step);
             DamageContext damageContext = ResolveDamageContext();
+            var hitResults = stepIndex >= 0 ? new List<SkillStepContext.HitResult>(targets.Count) : null;
             for (int i = 0; i < targets.Count; i++)
             {
                 IDamageable target = targets[i];
@@ -644,7 +702,22 @@ namespace Scripts.Skills
                 snapshot.Source = _ownerStats;
                 target.TakeDamage(snapshot);
                 TryApplyAilmentsFromHit(scopedStats, target, snapshot);
+                Transform targetTransform = ResolveDamageableTransform(target);
+                if (hitResults != null)
+                {
+                    hitResults.Add(new SkillStepContext.HitResult
+                    {
+                        Target = target,
+                        TargetTransform = targetTransform,
+                        Position = targetTransform != null ? targetTransform.position : _ownerStats.transform.position,
+                        Snapshot = snapshot
+                    });
+                }
+                ExecuteOnHitEffects(step, target, targetTransform, snapshot);
             }
+
+            if (hitResults != null)
+                _ctx?.RegisterHitResults(stepIndex, hitResults);
         }
 
         private IStatsProvider BuildScopedStatsProvider(StepEntry step, IDamageable target)
@@ -695,6 +768,88 @@ namespace Scripts.Skills
         {
             Transform targetTransform = ResolveDamageableTransform(target);
             AilmentController.TryApplyHitAilments(scopedStats, _ownerStats, targetTransform, hitSnapshot);
+        }
+
+        private void ExecuteOnHitEffects(StepEntry step, IDamageable primaryTarget, Transform primaryTransform, DamageSnapshot sourceSnapshot)
+        {
+            if (step?.OnHitEffects == null || step.OnHitEffects.Count == 0 || sourceSnapshot == null)
+                return;
+
+            Vector3 origin = primaryTransform != null ? primaryTransform.position : _ownerStats.transform.position;
+            for (int i = 0; i < step.OnHitEffects.Count; i++)
+            {
+                SkillOnHitEffectRule rule = step.OnHitEffects[i];
+                if (rule == null)
+                    continue;
+
+                switch (rule.Type)
+                {
+                    case SkillOnHitEffectType.SpawnVfxDamageCircle:
+                        StartCoroutine(RunOnHitVfxDamageCircle(rule, primaryTarget, origin, sourceSnapshot));
+                        break;
+                }
+            }
+        }
+
+        private IEnumerator RunOnHitVfxDamageCircle(
+            SkillOnHitEffectRule rule,
+            IDamageable primaryTarget,
+            Vector3 origin,
+            DamageSnapshot sourceSnapshot)
+        {
+            float lifetime = Mathf.Max(0.01f, rule.Lifetime);
+            float scale = Mathf.Max(0.01f, rule.ScaleMultiplier) * (_ctx != null ? _ctx.AoeScale : 1f);
+            GameObject vfx = null;
+            if (rule.VfxPrefab != null)
+            {
+                vfx = Instantiate(rule.VfxPrefab, origin, Quaternion.identity);
+                vfx.transform.localScale = new Vector3(
+                    Mathf.Abs(vfx.transform.localScale.x) * scale,
+                    Mathf.Abs(vfx.transform.localScale.y) * scale,
+                    vfx.transform.localScale.z);
+
+                var anim = vfx.GetComponentInChildren<Animator>();
+                if (anim != null)
+                    anim.speed = SkillVFX.GetAnimatorPlaybackDurationAtSpeedOne(anim, lifetime) / lifetime;
+
+                var autoDestroy = AutoDestroyVFX.Ensure(vfx);
+                if (autoDestroy != null)
+                    autoDestroy.Initialize(lifetime, rule.FadeOutEnabled, rule.FadeOutStartLifePercent, rule.FadeStartAlphaMultiplier);
+            }
+
+            float delay = lifetime * Mathf.Clamp01(rule.HitAtLifePercent);
+            if (delay > 0f)
+                yield return new WaitForSeconds(delay);
+
+            Vector2 hitCenter = vfx != null ? (Vector2)vfx.transform.position : (Vector2)origin;
+            float radius = Mathf.Max(0.01f, rule.Radius) * scale;
+            var targets = GetTargetsInCircle(hitCenter, radius);
+            var snapshot = CloneScaledSnapshot(sourceSnapshot, Mathf.Max(0f, rule.DamageMultiplier));
+            for (int i = 0; i < targets.Count; i++)
+            {
+                IDamageable target = targets[i];
+                if (target == null)
+                    continue;
+
+                if (rule.ExcludePrimaryTarget && ReferenceEquals(target, primaryTarget))
+                    continue;
+
+                target.TakeDamage(CloneScaledSnapshot(snapshot, 1f));
+            }
+        }
+
+        private static DamageSnapshot CloneScaledSnapshot(DamageSnapshot source, float multiplier)
+        {
+            multiplier = Mathf.Max(0f, multiplier);
+            return new DamageSnapshot(source.Source)
+            {
+                Physical = source.Physical * multiplier,
+                Fire = source.Fire * multiplier,
+                Cold = source.Cold * multiplier,
+                Lightning = source.Lightning * multiplier,
+                IsCrit = source.IsCrit,
+                CritMultiplier = source.CritMultiplier
+            };
         }
 
         private static Transform ResolveDamageableTransform(IDamageable target)
@@ -955,6 +1110,59 @@ namespace Scripts.Skills
 
             if (duration <= 0f && handle != null)
                 _ctx?.RegisterCleanup(handle.Dispose);
+        }
+
+        private void ExecuteModifyCooldown(StepEntry step)
+        {
+            if (step == null)
+                return;
+
+            int sourceStepIndex = step.GetInt("SourceStepIndex", -1);
+            int hitCount = _ctx != null ? _ctx.GetHitCount(sourceStepIndex) : 0;
+            int minHitCount = Mathf.Max(0, step.GetInt("MinHitCount", 0));
+            if (hitCount < minHitCount)
+                return;
+
+            bool scaleByHits = step.GetBool("ScaleByHitCount", false);
+            int units = scaleByHits ? hitCount : 1;
+            if (units <= 0)
+                return;
+
+            float seconds = Mathf.Max(0f, step.GetFloat("Seconds", 1f)) * units;
+            if (seconds <= 0f)
+                return;
+
+            bool addCooldown = step.GetBool("AddInsteadOfReduce", false);
+            CooldownStepTarget targetMode = (CooldownStepTarget)step.GetInt("TargetMode", (int)CooldownStepTarget.CurrentSkill);
+            int slot = step.GetInt("TargetSlot", _slotIndex);
+
+            switch (targetMode)
+            {
+                case CooldownStepTarget.SpecificSlot:
+                    if (addCooldown)
+                        _skillManager?.AddSkillCooldown(slot, seconds);
+                    else
+                        _skillManager?.ReduceSkillCooldown(slot, seconds);
+                    break;
+                case CooldownStepTarget.OtherSlots:
+                    if (addCooldown)
+                        _skillManager?.AddCooldownsExcept(_slotIndex, seconds);
+                    else
+                        _skillManager?.ReduceCooldownsExcept(_slotIndex, seconds);
+                    break;
+                case CooldownStepTarget.AllSlots:
+                    if (addCooldown)
+                        _skillManager?.AddAllCooldowns(seconds);
+                    else
+                        _skillManager?.ReduceAllCooldowns(seconds);
+                    break;
+                default:
+                    if (addCooldown)
+                        AddCooldownRemaining(seconds);
+                    else
+                        ReduceCooldownRemaining(seconds);
+                    break;
+            }
         }
 
         private static StatType ResolveStatType(int rawValue, StatType fallback)

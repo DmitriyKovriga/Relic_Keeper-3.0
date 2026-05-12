@@ -186,6 +186,76 @@ namespace Scripts.Skills
             }
         }
 
+        public void ReduceSkillCooldown(int slotIndex, float seconds)
+        {
+            if (seconds <= 0f)
+                return;
+
+            if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)
+                skillBehaviour.ReduceCooldownRemaining(seconds);
+        }
+
+        public void AddSkillCooldown(int slotIndex, float seconds)
+        {
+            if (seconds <= 0f)
+                return;
+
+            if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)
+                skillBehaviour.AddCooldownRemaining(seconds);
+        }
+
+        public void ReduceCooldownsExcept(int excludedSlotIndex, float seconds)
+        {
+            if (seconds <= 0f)
+                return;
+
+            foreach (var pair in _activeSkills)
+            {
+                if (pair.Key == excludedSlotIndex || pair.Value == null)
+                    continue;
+
+                pair.Value.ReduceCooldownRemaining(seconds);
+            }
+        }
+
+        public void AddCooldownsExcept(int excludedSlotIndex, float seconds)
+        {
+            if (seconds <= 0f)
+                return;
+
+            foreach (var pair in _activeSkills)
+            {
+                if (pair.Key == excludedSlotIndex || pair.Value == null)
+                    continue;
+
+                pair.Value.AddCooldownRemaining(seconds);
+            }
+        }
+
+        public void ReduceAllCooldowns(float seconds)
+        {
+            if (seconds <= 0f)
+                return;
+
+            foreach (var pair in _activeSkills)
+            {
+                if (pair.Value != null)
+                    pair.Value.ReduceCooldownRemaining(seconds);
+            }
+        }
+
+        public void AddAllCooldowns(float seconds)
+        {
+            if (seconds <= 0f)
+                return;
+
+            foreach (var pair in _activeSkills)
+            {
+                if (pair.Value != null)
+                    pair.Value.AddCooldownRemaining(seconds);
+            }
+        }
+
         private static InventoryItem GetEquipmentItem(InventoryItem[] equipment, EquipmentSlot slot)
         {
             int index = (int)slot;
@@ -227,6 +297,7 @@ namespace Scripts.Skills
                 if (behaviour != null)
                 {
                     behaviour.Initialize(_playerStats, skillData);
+                    behaviour.SetRuntimeSlot(this, slotIndex);
                     _activeSkills[slotIndex] = behaviour;
                 }
                 else if (skillObj != null)

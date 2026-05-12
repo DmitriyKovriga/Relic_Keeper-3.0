@@ -9,9 +9,12 @@ namespace Scripts.Skills
         protected SkillDataSO _data;
         protected float _lastCastTime;
         protected bool _isCasting;
+        protected PlayerSkillManager _skillManager;
+        protected int _slotIndex = -1;
 
         public bool IsCasting => _isCasting;
         public SkillDataSO Data => _data;
+        public int SlotIndex => _slotIndex;
 
         public float CooldownDuration => _data != null ? Mathf.Max(0f, _data.Cooldown) : 0f;
 
@@ -45,6 +48,34 @@ namespace Scripts.Skills
         {
             _ownerStats = stats;
             _data = data;
+        }
+
+        public void SetRuntimeSlot(PlayerSkillManager skillManager, int slotIndex)
+        {
+            _skillManager = skillManager;
+            _slotIndex = slotIndex;
+        }
+
+        public void ReduceCooldownRemaining(float seconds)
+        {
+            if (seconds <= 0f || CooldownDuration <= 0f)
+                return;
+
+            float remaining = CooldownRemaining;
+            if (remaining <= 0f)
+                return;
+
+            float newRemaining = Mathf.Max(0f, remaining - seconds);
+            _lastCastTime = Time.time + newRemaining - CooldownDuration;
+        }
+
+        public void AddCooldownRemaining(float seconds)
+        {
+            if (seconds <= 0f || CooldownDuration <= 0f)
+                return;
+
+            float remaining = Mathf.Min(CooldownDuration, CooldownRemaining + seconds);
+            _lastCastTime = Time.time + remaining - CooldownDuration;
         }
 
         protected DamageContext ResolveDamageContext()

@@ -639,6 +639,7 @@ namespace Scripts.Editor.Skills
                 case "Wait":
                 case "SpawnVFX":
                 case "SpawnProjectile":
+                case "SpawnGroundProjectile":
                 case "DealDamageCircle":
                 case "DealDamageRectangle":
                 case "ParallelGroup":
@@ -657,6 +658,7 @@ namespace Scripts.Editor.Skills
                 case "GenerateMysticShield":
                 case "ConsumeMysticShield":
                 case "MysticShieldDamageBoost":
+                case "ModifyCooldown":
                     return StepEditorCategory.Special;
                 default:
                     return StepEditorCategory.Other;
@@ -1197,7 +1199,7 @@ namespace Scripts.Editor.Skills
                 return;
             }
 
-            if (id == "SpawnProjectile")
+            if (id == "SpawnProjectile" || id == "SpawnGroundProjectile")
             {
                 DrawProjectileFields(recipe, step);
                 return;
@@ -1240,6 +1242,7 @@ namespace Scripts.Editor.Skills
                 if (ndm != dm) { step.SetOverrideFloat("DamageMultiplier", ndm); EditorUtility.SetDirty(recipe); }
                 DrawDamageConversionRules(recipe, step);
                 DrawSkillScopedModifierFields(recipe, step);
+                DrawOnHitEffectRules(recipe, step);
                 return;
             }
 
@@ -1274,6 +1277,7 @@ namespace Scripts.Editor.Skills
                 if (ndm != dm) { step.SetOverrideFloat("DamageMultiplier", ndm); EditorUtility.SetDirty(recipe); }
                 DrawDamageConversionRules(recipe, step);
                 DrawSkillScopedModifierFields(recipe, step);
+                DrawOnHitEffectRules(recipe, step);
                 return;
             }
 
@@ -1466,6 +1470,12 @@ namespace Scripts.Editor.Skills
                 return;
             }
 
+            if (id == "ModifyCooldown")
+            {
+                DrawModifyCooldownFields(recipe, step);
+                return;
+            }
+
             if (id == "MovementLock" || id == "MovementUnlock" || id == "WeaponStrike")
             {
                 EditorGUILayout.HelpBox("No extra settings for this step type.", MessageType.None);
@@ -1474,7 +1484,10 @@ namespace Scripts.Editor.Skills
 
         private void DrawProjectileFields(SkillRecipeSO recipe, StepEntry step)
         {
-            EditorGUILayout.HelpBox("Спавнит один или несколько снарядов. Урон считается при попадании по цели, поэтому ролл оружия и target-aware модификаторы работают отдельно для каждой цели.", MessageType.None);
+            bool isGroundProjectile = step.StepDefinition != null && step.StepDefinition.Id == "SpawnGroundProjectile";
+            EditorGUILayout.HelpBox(isGroundProjectile
+                ? "Спавнит ground-wave projectile: снаряд двигается по X и каждый кадр снапается к земле. По умолчанию не кастуется в воздухе."
+                : "Спавнит один или несколько снарядов. Урон считается при попадании по цели, поэтому ролл оружия и target-aware модификаторы работают отдельно для каждой цели.", MessageType.None);
 
             GameObject prefab = step.GetObject<GameObject>("ProjectilePrefab");
             GameObject newPrefab = (GameObject)EditorGUILayout.ObjectField(new GUIContent("Projectile prefab", "Обычный VFX/Prefab для снаряда. Если пусто, будет создан runtime projectile со SpriteRenderer."), prefab, typeof(GameObject), false);
@@ -1529,6 +1542,31 @@ namespace Scripts.Editor.Skills
             float newRotation = EditorGUILayout.FloatField("Rotation deg/sec", rotation);
             if (Mathf.Abs(newRotation - rotation) > 0.001f) { step.SetOverrideFloat("RotationDegreesPerSecond", newRotation); EditorUtility.SetDirty(recipe); }
 
+            if (isGroundProjectile)
+            {
+                EditorGUILayout.Space(4f);
+                EditorGUILayout.LabelField("Ground movement", EditorStyles.boldLabel);
+                bool allowInAir = step.GetBool("AllowInAir", false);
+                bool newAllowInAir = EditorGUILayout.Toggle(new GUIContent("Allow cast in air", "Если выключено, wave не создаётся пока владелец не стоит на земле."), allowInAir);
+                if (newAllowInAir != allowInAir) { step.SetOverrideBool("AllowInAir", newAllowInAir); EditorUtility.SetDirty(recipe); }
+
+                int groundMask = step.GetInt("GroundLayerMask", 1 << 6);
+                int newGroundMask = EditorGUILayout.MaskField("Ground layer mask", groundMask, UnityEditorInternal.InternalEditorUtility.layers);
+                if (newGroundMask != groundMask) { step.SetOverrideInt("GroundLayerMask", newGroundMask); EditorUtility.SetDirty(recipe); }
+
+                float snapUp = step.GetFloat("GroundSnapUp", 0.7f);
+                float newSnapUp = Mathf.Max(0.01f, EditorGUILayout.FloatField("Ground snap up", snapUp));
+                if (Mathf.Abs(newSnapUp - snapUp) > 0.001f) { step.SetOverrideFloat("GroundSnapUp", newSnapUp); EditorUtility.SetDirty(recipe); }
+
+                float snapDown = step.GetFloat("GroundSnapDown", 2.5f);
+                float newSnapDown = Mathf.Max(0.01f, EditorGUILayout.FloatField("Ground snap down", snapDown));
+                if (Mathf.Abs(newSnapDown - snapDown) > 0.001f) { step.SetOverrideFloat("GroundSnapDown", newSnapDown); EditorUtility.SetDirty(recipe); }
+
+                float groundYOffset = step.GetFloat("GroundYOffset", 0.06f);
+                float newGroundYOffset = EditorGUILayout.FloatField("Ground Y offset", groundYOffset);
+                if (Mathf.Abs(newGroundYOffset - groundYOffset) > 0.001f) { step.SetOverrideFloat("GroundYOffset", newGroundYOffset); EditorUtility.SetDirty(recipe); }
+            }
+
             bool stopOnWorld = step.GetBool("StopOnWorld", true);
             bool newStopOnWorld = EditorGUILayout.Toggle("Stop on world", stopOnWorld);
             if (newStopOnWorld != stopOnWorld) { step.SetOverrideBool("StopOnWorld", newStopOnWorld); EditorUtility.SetDirty(recipe); }
@@ -1563,12 +1601,47 @@ namespace Scripts.Editor.Skills
             float newChainRadius = Mathf.Max(0.1f, EditorGUILayout.FloatField(new GUIContent("Chain search radius", "ProjectileChain берется из статов. После попадания ищет ближайшую новую цель в этом радиусе."), chainRadius));
             if (Mathf.Abs(newChainRadius - chainRadius) > 0.001f) { step.SetOverrideFloat("ChainSearchRadius", newChainRadius); EditorUtility.SetDirty(recipe); }
 
+            EditorGUILayout.Space(4f);
+            EditorGUILayout.LabelField("Homing", EditorStyles.boldLabel);
+            bool homing = step.GetBool("Homing", false);
+            bool newHoming = EditorGUILayout.Toggle(new GUIContent("Homing", "На создании и после fork/chain/pierce ищет ближайшую новую цель на экране, исключая уже задетые."), homing);
+            if (newHoming != homing) { step.SetOverrideBool("Homing", newHoming); EditorUtility.SetDirty(recipe); }
+            EditorGUI.BeginDisabledGroup(!newHoming);
+            float homingRadius = step.GetFloat("HomingSearchRadius", 14f);
+            float newHomingRadius = Mathf.Max(0.1f, EditorGUILayout.FloatField("Homing search radius", homingRadius));
+            if (Mathf.Abs(newHomingRadius - homingRadius) > 0.001f) { step.SetOverrideFloat("HomingSearchRadius", newHomingRadius); EditorUtility.SetDirty(recipe); }
+            float turnSpeed = step.GetFloat("HomingTurnSpeedDegreesPerSecond", 0f);
+            float newTurnSpeed = Mathf.Max(0f, EditorGUILayout.FloatField(new GUIContent("Turn speed deg/sec", "0 = мгновенно поворачивает на цель."), turnSpeed));
+            if (Mathf.Abs(newTurnSpeed - turnSpeed) > 0.001f) { step.SetOverrideFloat("HomingTurnSpeedDegreesPerSecond", newTurnSpeed); EditorUtility.SetDirty(recipe); }
+            EditorGUI.EndDisabledGroup();
+
+            EditorGUILayout.Space(4f);
+            EditorGUILayout.LabelField("Reversal / return", EditorStyles.boldLabel);
+            int reversalCount = Mathf.Max(0, step.GetInt("ReversalCount", 0));
+            int newReversalCount = Mathf.Max(0, EditorGUILayout.IntField(new GUIContent("Reversal count", "Сколько раз снаряд разворачивается в течение lifetime."), reversalCount));
+            if (newReversalCount != reversalCount) { step.SetOverrideInt("ReversalCount", newReversalCount); EditorUtility.SetDirty(recipe); }
+            EditorGUI.BeginDisabledGroup(newReversalCount <= 0);
+            float firstReverse = step.GetFloat("FirstReverseAtSeconds", 1f);
+            float newFirstReverse = Mathf.Max(0.01f, EditorGUILayout.FloatField("First reverse at sec", firstReverse));
+            if (Mathf.Abs(newFirstReverse - firstReverse) > 0.001f) { step.SetOverrideFloat("FirstReverseAtSeconds", newFirstReverse); EditorUtility.SetDirty(recipe); }
+            float reverseInterval = step.GetFloat("ReverseInterval", 1f);
+            float newReverseInterval = Mathf.Max(0.01f, EditorGUILayout.FloatField("Reverse interval sec", reverseInterval));
+            if (Mathf.Abs(newReverseInterval - reverseInterval) > 0.001f) { step.SetOverrideFloat("ReverseInterval", newReverseInterval); EditorUtility.SetDirty(recipe); }
+            bool returnToOwner = step.GetBool("ReturnToOwnerOnReverse", true);
+            bool newReturnToOwner = EditorGUILayout.Toggle("Return to owner on reverse", returnToOwner);
+            if (newReturnToOwner != returnToOwner) { step.SetOverrideBool("ReturnToOwnerOnReverse", newReturnToOwner); EditorUtility.SetDirty(recipe); }
+            bool clearHistory = step.GetBool("ClearHitHistoryOnReverse", true);
+            bool newClearHistory = EditorGUILayout.Toggle(new GUIContent("Can hit same targets again", "Очищает историю попаданий при развороте, чтобы диск мог ударить ту же цель на возврате."), clearHistory);
+            if (newClearHistory != clearHistory) { step.SetOverrideBool("ClearHitHistoryOnReverse", newClearHistory); EditorUtility.SetDirty(recipe); }
+            EditorGUI.EndDisabledGroup();
+
             float damageMultiplier = step.GetFloat("DamageMultiplier", 1f);
             float newDamageMultiplier = Mathf.Max(0f, EditorGUILayout.FloatField("Damage multiplier", damageMultiplier));
             if (Mathf.Abs(newDamageMultiplier - damageMultiplier) > 0.001f) { step.SetOverrideFloat("DamageMultiplier", newDamageMultiplier); EditorUtility.SetDirty(recipe); }
 
             DrawDamageConversionRules(recipe, step);
             DrawSkillScopedModifierFields(recipe, step);
+            DrawOnHitEffectRules(recipe, step);
         }
 
         private void DrawStatBasedEffectFields(SkillRecipeSO recipe, StepEntry step)
@@ -1616,6 +1689,117 @@ namespace Scripts.Editor.Skills
             float duration = Mathf.Max(0f, step.GetFloat("Duration", 0f));
             float newDuration = Mathf.Max(0f, EditorGUILayout.FloatField("Duration seconds (0 = skill only)", duration));
             if (Mathf.Abs(newDuration - duration) > 0.001f) { step.SetOverrideFloat("Duration", newDuration); EditorUtility.SetDirty(recipe); }
+        }
+
+        private void DrawModifyCooldownFields(SkillRecipeSO recipe, StepEntry step)
+        {
+            EditorGUILayout.HelpBox("Меняет оставшийся откат скилла. Может масштабироваться от числа целей, задетых damage-step-ом. Для Sweep: SourceStepIndex = индекс урона, ScaleByHitCount = true, Seconds = 1.", MessageType.None);
+
+            int targetMode = step.GetInt("TargetMode", 0);
+            int newTargetMode = EditorGUILayout.Popup("Target", targetMode, new[] { "Current skill", "Specific slot", "Other slots", "All slots" });
+            if (newTargetMode != targetMode) { step.SetOverrideInt("TargetMode", newTargetMode); EditorUtility.SetDirty(recipe); }
+
+            if (newTargetMode == 1)
+            {
+                int slot = Mathf.Max(0, step.GetInt("TargetSlot", 0));
+                int newSlot = Mathf.Max(0, EditorGUILayout.IntField("Target slot index", slot));
+                if (newSlot != slot) { step.SetOverrideInt("TargetSlot", newSlot); EditorUtility.SetDirty(recipe); }
+            }
+
+            bool addInstead = step.GetBool("AddInsteadOfReduce", false);
+            bool newAddInstead = EditorGUILayout.Toggle(new GUIContent("Add cooldown instead of reduce", "Обычно выключено: степ сокращает откат. Если включить, степ добавляет откат."), addInstead);
+            if (newAddInstead != addInstead) { step.SetOverrideBool("AddInsteadOfReduce", newAddInstead); EditorUtility.SetDirty(recipe); }
+
+            float seconds = Mathf.Max(0f, step.GetFloat("Seconds", 1f));
+            float newSeconds = Mathf.Max(0f, EditorGUILayout.FloatField("Seconds", seconds));
+            if (Mathf.Abs(newSeconds - seconds) > 0.001f) { step.SetOverrideFloat("Seconds", newSeconds); EditorUtility.SetDirty(recipe); }
+
+            bool scaleByHits = step.GetBool("ScaleByHitCount", false);
+            bool newScaleByHits = EditorGUILayout.Toggle("Scale by hit count", scaleByHits);
+            if (newScaleByHits != scaleByHits) { step.SetOverrideBool("ScaleByHitCount", newScaleByHits); EditorUtility.SetDirty(recipe); }
+
+            EditorGUI.BeginDisabledGroup(!newScaleByHits);
+            int src = step.GetInt("SourceStepIndex", -1);
+            int newSrc = EditorGUILayout.IntField("Source damage step (-1 = last hit step)", src);
+            if (newSrc != src) { step.SetOverrideInt("SourceStepIndex", newSrc); EditorUtility.SetDirty(recipe); }
+            int minHits = Mathf.Max(0, step.GetInt("MinHitCount", 0));
+            int newMinHits = Mathf.Max(0, EditorGUILayout.IntField("Min hit count", minHits));
+            if (newMinHits != minHits) { step.SetOverrideInt("MinHitCount", newMinHits); EditorUtility.SetDirty(recipe); }
+            EditorGUI.EndDisabledGroup();
+        }
+
+        private void DrawOnHitEffectRules(SkillRecipeSO recipe, StepEntry step)
+        {
+            EditorGUILayout.Space(6f);
+            EditorGUILayout.LabelField("On Hit effects", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("Срабатывает один раз на каждую цель, которую задел этот damage/projectile step. Сейчас поддержан вариант: VFX на цели + круговой урон на % жизни VFX.", MessageType.None);
+
+            if (step.OnHitEffects == null)
+                step.OnHitEffects = new List<SkillOnHitEffectRule>();
+
+            for (int i = 0; i < step.OnHitEffects.Count; i++)
+            {
+                SkillOnHitEffectRule rule = step.OnHitEffects[i];
+                if (rule == null)
+                {
+                    step.OnHitEffects[i] = new SkillOnHitEffectRule();
+                    rule = step.OnHitEffects[i];
+                }
+
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label($"On Hit effect #{i + 1}", EditorStyles.boldLabel);
+                if (GUILayout.Button("X", GUILayout.Width(24f)))
+                {
+                    step.OnHitEffects.RemoveAt(i);
+                    EditorUtility.SetDirty(recipe);
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.EndVertical();
+                    break;
+                }
+                EditorGUILayout.EndHorizontal();
+
+                SkillOnHitEffectType newType = (SkillOnHitEffectType)EditorGUILayout.EnumPopup("Type", rule.Type);
+                if (newType != rule.Type) { rule.Type = newType; EditorUtility.SetDirty(recipe); }
+
+                GameObject newVfx = (GameObject)EditorGUILayout.ObjectField("VFX prefab", rule.VfxPrefab, typeof(GameObject), false);
+                if (newVfx != rule.VfxPrefab) { rule.VfxPrefab = newVfx; EditorUtility.SetDirty(recipe); }
+
+                float lifetime = Mathf.Max(0.01f, EditorGUILayout.FloatField("VFX lifetime", rule.Lifetime));
+                if (Mathf.Abs(lifetime - rule.Lifetime) > 0.001f) { rule.Lifetime = lifetime; EditorUtility.SetDirty(recipe); }
+
+                float scale = Mathf.Max(0.01f, EditorGUILayout.FloatField("Scale multiplier", rule.ScaleMultiplier));
+                if (Mathf.Abs(scale - rule.ScaleMultiplier) > 0.001f) { rule.ScaleMultiplier = scale; EditorUtility.SetDirty(recipe); }
+
+                float hitAt = EditorGUILayout.Slider("Damage at VFX life %", rule.HitAtLifePercent, 0f, 1f);
+                if (Mathf.Abs(hitAt - rule.HitAtLifePercent) > 0.001f) { rule.HitAtLifePercent = hitAt; EditorUtility.SetDirty(recipe); }
+
+                float radius = Mathf.Max(0.01f, EditorGUILayout.FloatField("Damage radius", rule.Radius));
+                if (Mathf.Abs(radius - rule.Radius) > 0.001f) { rule.Radius = radius; EditorUtility.SetDirty(recipe); }
+
+                float damageMultiplier = Mathf.Max(0f, EditorGUILayout.FloatField("Damage multiplier", rule.DamageMultiplier));
+                if (Mathf.Abs(damageMultiplier - rule.DamageMultiplier) > 0.001f) { rule.DamageMultiplier = damageMultiplier; EditorUtility.SetDirty(recipe); }
+
+                bool excludePrimary = EditorGUILayout.Toggle("Exclude primary target", rule.ExcludePrimaryTarget);
+                if (excludePrimary != rule.ExcludePrimaryTarget) { rule.ExcludePrimaryTarget = excludePrimary; EditorUtility.SetDirty(recipe); }
+
+                bool fadeOut = EditorGUILayout.Toggle("Fade out", rule.FadeOutEnabled);
+                if (fadeOut != rule.FadeOutEnabled) { rule.FadeOutEnabled = fadeOut; EditorUtility.SetDirty(recipe); }
+                EditorGUI.BeginDisabledGroup(!fadeOut);
+                float fadeStart = EditorGUILayout.Slider("Fade start life %", rule.FadeOutStartLifePercent, 0f, 1f);
+                if (Mathf.Abs(fadeStart - rule.FadeOutStartLifePercent) > 0.001f) { rule.FadeOutStartLifePercent = fadeStart; EditorUtility.SetDirty(recipe); }
+                float fadeAlpha = EditorGUILayout.Slider("Fade start alpha", rule.FadeStartAlphaMultiplier, 0f, 1f);
+                if (Mathf.Abs(fadeAlpha - rule.FadeStartAlphaMultiplier) > 0.001f) { rule.FadeStartAlphaMultiplier = fadeAlpha; EditorUtility.SetDirty(recipe); }
+                EditorGUI.EndDisabledGroup();
+
+                EditorGUILayout.EndVertical();
+            }
+
+            if (GUILayout.Button("+ Add On Hit VFX damage circle"))
+            {
+                step.OnHitEffects.Add(new SkillOnHitEffectRule());
+                EditorUtility.SetDirty(recipe);
+            }
         }
 
         private void DrawDamageConversionRules(SkillRecipeSO recipe, StepEntry step)
@@ -2014,8 +2198,10 @@ namespace Scripts.Editor.Skills
                 ("Wait", "Wait", "РћР¶РёРґР°РЅРёРµ", 10f),
                 ("SpawnVFX", "Spawn VFX", "РЎРїР°РІРЅ VFX", 0f),
                 ("SpawnProjectile", "Spawn projectile", "Спавн снаряда", 0f),
+                ("SpawnGroundProjectile", "Spawn ground projectile", "Спавн волны по земле", 0f),
                 ("DealDamageCircle", "Deal damage (circle)", "РЈСЂРѕРЅ РєСЂСѓРі", 0f),
                 ("DealDamageRectangle", "Deal damage (rectangle)", "РЈСЂРѕРЅ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє", 0f),
+                ("ModifyCooldown", "Modify cooldown", "Изменить откат", 0f),
                 ("GenerateMysticShield", "Generate Mystic Shield", "Сгенерировать Mystic Shield", 0f),
                 ("ConsumeMysticShield", "Consume Mystic Shield", "Поглотить Mystic Shield", 0f),
                 ("MysticShieldDamageBoost", "Mystic Shield damage boost", "Усилить урон от Mystic Shield", 0f),

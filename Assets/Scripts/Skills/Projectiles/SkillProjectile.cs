@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Collections;
 using Scripts.Combat;
 using Scripts.Enemies;
+using Scripts.Skills.Modules;
 using Scripts.Skills.Steps;
 using Scripts.Stats;
 using Scripts.StatusEffects;
@@ -38,6 +40,19 @@ namespace Scripts.Skills.Projectiles
         public bool IgnoreChain;
         public float ForkAngle = 18f;
         public float ChainSearchRadius = 12f;
+        public bool GroundMotion;
+        public LayerMask GroundLayer;
+        public float GroundSnapUp = 0.7f;
+        public float GroundSnapDown = 2.5f;
+        public float GroundYOffset = 0.06f;
+        public bool Homing;
+        public float HomingSearchRadius = 14f;
+        public float HomingTurnSpeedDegreesPerSecond;
+        public int RemainingReversals;
+        public float FirstReverseAtSeconds = 1f;
+        public float ReverseInterval = 1f;
+        public bool ReturnToOwnerOnReverse = true;
+        public bool ClearHitHistoryOnReverse = true;
         public int SortingLayerId;
         public int SortingOrder = 20050;
         public HashSet<IDamageable> HitHistory;
@@ -68,6 +83,8 @@ namespace Scripts.Skills.Projectiles
         private Rigidbody2D _rigidbody;
         private GameObject _template;
         private HashSet<IDamageable> _hitHistory = new HashSet<IDamageable>();
+        private Transform _homingTarget;
+        private float _nextReverseAt;
 
         public static void Spawn(SkillProjectileLaunchData data, Vector2 origin, Vector2 direction, Transform parent = null)
         {
@@ -189,6 +206,7 @@ namespace Scripts.Skills.Projectiles
             _age = 0f;
             _despawning = false;
             _direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
+            _nextReverseAt = Mathf.Max(0.01f, _data.FirstReverseAtSeconds);
             RegisterActive();
 
             _hitHistory.Clear();
@@ -208,6 +226,10 @@ namespace Scripts.Skills.Projectiles
             _rigidbody.simulated = true;
 
             ApplyVisual();
+            if (_data.GroundMotion)
+                SnapToGroundOrDespawn();
+            if (_data.Homing)
+                AcquireHomingTarget();
             ApplyFacingRotation();
         }
 
@@ -227,7 +249,11 @@ namespace Scripts.Skills.Projectiles
                 return;
             }
 
+            UpdateReversal();
+            UpdateHoming(dt);
             transform.position += (Vector3)(_direction * Mathf.Max(0.01f, _data.Speed) * dt);
+            if (_data.GroundMotion && !SnapToGroundOrDespawn())
+                return;
 
             float spin = _data.RotationDegreesPerSecond;
             if (!Mathf.Approximately(spin, 0f))
@@ -274,7 +300,8 @@ namespace Scripts.Skills.Projectiles
                     return false;
 
                 _hitHistory.Add(target);
-                DealDamage(target);
+                DamageSnapshot snapshot = DealDamage(target);
+                ExecuteOnHitEffects(target, targetTransform, snapshot);
 
                 if (TryFork())
                     return true;
@@ -314,10 +341,10 @@ namespace Scripts.Skills.Projectiles
             return targetTransform != null && IsInLayerMask(targetTransform.gameObject.layer, _data.TargetLayer);
         }
 
-        private void DealDamage(IDamageable target)
+        private DamageSnapshot DealDamage(IDamageable target)
         {
             if (_data == null || target == null || _data.OwnerStats == null || _data.Step == null)
-                return;
+                return null;
 
             IStatsProvider scopedStats = BuildScopedStatsProvider(target);
             DamageSnapshot snapshot = DamageCalculator.CreateDamageSnapshot(
@@ -328,6 +355,85 @@ namespace Scripts.Skills.Projectiles
             snapshot.Source = _data.OwnerStats;
             target.TakeDamage(snapshot);
             TryApplyAilmentsFromHit(scopedStats, target, snapshot);
+            return snapshot;
+        }
+
+        private void ExecuteOnHitEffects(IDamageable primaryTarget, Transform primaryTransform, DamageSnapshot sourceSnapshot)
+        {
+            if (_data?.Step?.OnHitEffects == null || _data.Step.OnHitEffects.Count == 0 || sourceSnapshot == null)
+                return;
+
+            Vector3 origin = primaryTransform != null ? primaryTransform.position : transform.position;
+            for (int i = 0; i < _data.Step.OnHitEffects.Count; i++)
+            {
+                SkillOnHitEffectRule rule = _data.Step.OnHitEffects[i];
+                if (rule == null)
+                    continue;
+
+                switch (rule.Type)
+                {
+                    case SkillOnHitEffectType.SpawnVfxDamageCircle:
+                        StartCoroutine(RunOnHitVfxDamageCircle(rule, primaryTarget, origin, sourceSnapshot));
+                        break;
+                }
+            }
+        }
+
+        private IEnumerator RunOnHitVfxDamageCircle(
+            SkillOnHitEffectRule rule,
+            IDamageable primaryTarget,
+            Vector3 origin,
+            DamageSnapshot sourceSnapshot)
+        {
+            float lifetime = Mathf.Max(0.01f, rule.Lifetime);
+            float scale = Mathf.Max(0.01f, rule.ScaleMultiplier);
+            GameObject vfx = null;
+            if (rule.VfxPrefab != null)
+            {
+                vfx = Instantiate(rule.VfxPrefab, origin, Quaternion.identity);
+                vfx.transform.localScale = new Vector3(
+                    Mathf.Abs(vfx.transform.localScale.x) * scale,
+                    Mathf.Abs(vfx.transform.localScale.y) * scale,
+                    vfx.transform.localScale.z);
+
+                Animator anim = vfx.GetComponentInChildren<Animator>();
+                if (anim != null)
+                    anim.speed = SkillVFX.GetAnimatorPlaybackDurationAtSpeedOne(anim, lifetime) / lifetime;
+
+                AutoDestroyVFX autoDestroy = AutoDestroyVFX.Ensure(vfx);
+                if (autoDestroy != null)
+                    autoDestroy.Initialize(lifetime, rule.FadeOutEnabled, rule.FadeOutStartLifePercent, rule.FadeStartAlphaMultiplier);
+            }
+
+            float delay = lifetime * Mathf.Clamp01(rule.HitAtLifePercent);
+            if (delay > 0f)
+                yield return new WaitForSeconds(delay);
+
+            if (_data == null)
+                yield break;
+
+            Vector2 center = vfx != null ? (Vector2)vfx.transform.position : (Vector2)origin;
+            float radius = Mathf.Max(0.01f, rule.Radius) * scale;
+            Collider2D[] hits = Physics2D.OverlapCircleAll(center, radius, _data.TargetLayer);
+            DamageSnapshot scaledSnapshot = CloneScaledSnapshot(sourceSnapshot, Mathf.Max(0f, rule.DamageMultiplier));
+            var uniqueTargets = new HashSet<IDamageable>();
+            for (int i = 0; i < hits.Length; i++)
+            {
+                Collider2D hit = hits[i];
+                if (hit == null || IsOwner(hit.transform))
+                    continue;
+
+                if (!TryResolveDamageable(hit.transform, out IDamageable target, out _))
+                    continue;
+
+                if (target == null || !uniqueTargets.Add(target))
+                    continue;
+
+                if (rule.ExcludePrimaryTarget && ReferenceEquals(target, primaryTarget))
+                    continue;
+
+                target.TakeDamage(CloneScaledSnapshot(scaledSnapshot, 1f));
+            }
         }
 
         private IStatsProvider BuildScopedStatsProvider(IDamageable target)
@@ -394,6 +500,8 @@ namespace Scripts.Skills.Projectiles
             if (toTarget.sqrMagnitude > 0.0001f)
                 _direction = toTarget.normalized;
             ApplyFacingRotation();
+            if (_data.Homing)
+                AcquireHomingTarget();
             return true;
         }
 
@@ -417,13 +525,148 @@ namespace Scripts.Skills.Projectiles
         private bool TryPierce()
         {
             if (_data.InfinitePierce)
+            {
+                if (_data.Homing)
+                    AcquireHomingTarget();
                 return true;
+            }
 
             if (_data.RemainingPierces <= 0)
                 return false;
 
             _data.RemainingPierces--;
+            if (_data.Homing)
+                AcquireHomingTarget();
             return true;
+        }
+
+        private void UpdateReversal()
+        {
+            if (_data == null || _data.RemainingReversals <= 0 || _age < _nextReverseAt)
+                return;
+
+            _data.RemainingReversals--;
+            if (_data.ReturnToOwnerOnReverse && _data.OwnerTransform != null)
+            {
+                Vector2 toOwner = (Vector2)_data.OwnerTransform.position - (Vector2)transform.position;
+                if (toOwner.sqrMagnitude > 0.0001f)
+                    _direction = toOwner.normalized;
+                else
+                    _direction = -_direction;
+            }
+            else
+            {
+                _direction = -_direction;
+            }
+
+            if (_data.ClearHitHistoryOnReverse)
+                _hitHistory.Clear();
+
+            _homingTarget = null;
+            if (_data.Homing)
+                AcquireHomingTarget();
+
+            _nextReverseAt += Mathf.Max(0.01f, _data.ReverseInterval);
+            ApplyFacingRotation();
+        }
+
+        private void UpdateHoming(float dt)
+        {
+            if (_data == null || !_data.Homing)
+                return;
+
+            if (_homingTarget == null || !IsValidHomingTarget(_homingTarget))
+                AcquireHomingTarget();
+
+            if (_homingTarget == null)
+                return;
+
+            Vector2 desired = (Vector2)_homingTarget.position - (Vector2)transform.position;
+            if (desired.sqrMagnitude <= 0.0001f)
+                return;
+
+            desired.Normalize();
+            float turnSpeed = _data.HomingTurnSpeedDegreesPerSecond;
+            if (turnSpeed <= 0f)
+            {
+                _direction = desired;
+            }
+            else
+            {
+                float maxRadians = turnSpeed * Mathf.Deg2Rad * dt;
+                _direction = Vector3.RotateTowards(_direction, desired, maxRadians, 0f).normalized;
+            }
+
+            ApplyFacingRotation();
+        }
+
+        private bool SnapToGroundOrDespawn()
+        {
+            if (_data == null || !_data.GroundMotion)
+                return true;
+
+            Vector2 rayOrigin = (Vector2)transform.position + Vector2.up * Mathf.Max(0.01f, _data.GroundSnapUp);
+            float distance = Mathf.Max(0.01f, _data.GroundSnapUp + _data.GroundSnapDown);
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, distance, _data.GroundLayer);
+            if (hit.collider == null)
+            {
+                Despawn();
+                return false;
+            }
+
+            transform.position = new Vector3(transform.position.x, hit.point.y + _data.GroundYOffset, transform.position.z);
+            return true;
+        }
+
+        private void AcquireHomingTarget()
+        {
+            _homingTarget = null;
+            if (_data == null)
+                return;
+
+            Vector2 origin = transform.position;
+            float bestDistance = float.MaxValue;
+            Collider2D[] hits = Physics2D.OverlapCircleAll(origin, Mathf.Max(0.1f, _data.HomingSearchRadius), _data.TargetLayer);
+            for (int i = 0; i < hits.Length; i++)
+            {
+                Collider2D hit = hits[i];
+                if (hit == null || IsOwner(hit.transform))
+                    continue;
+
+                if (!TryResolveDamageable(hit.transform, out IDamageable damageable, out Transform targetTransform))
+                    continue;
+
+                if (damageable == null || _hitHistory.Contains(damageable) || targetTransform == null || !IsTargetOnScreen(targetTransform))
+                    continue;
+
+                float sqrDistance = ((Vector2)targetTransform.position - origin).sqrMagnitude;
+                if (sqrDistance >= bestDistance)
+                    continue;
+
+                bestDistance = sqrDistance;
+                _homingTarget = targetTransform;
+            }
+        }
+
+        private bool IsValidHomingTarget(Transform target)
+        {
+            if (target == null || IsOwner(target))
+                return false;
+
+            if (!TryResolveDamageable(target, out IDamageable damageable, out _))
+                return false;
+
+            return damageable != null && !_hitHistory.Contains(damageable) && IsTargetOnScreen(target);
+        }
+
+        private static bool IsTargetOnScreen(Transform target)
+        {
+            Camera cam = Camera.main;
+            if (cam == null || target == null)
+                return true;
+
+            Vector3 viewport = cam.WorldToViewportPoint(target.position);
+            return viewport.z >= 0f && viewport.x >= 0f && viewport.x <= 1f && viewport.y >= 0f && viewport.y <= 1f;
         }
 
         private bool TryFindChainTarget(Vector2 origin, out Transform target)
@@ -493,6 +736,20 @@ namespace Scripts.Skills.Projectiles
         private static Transform ResolveDamageableTransform(IDamageable target)
         {
             return target is Component component ? component.transform : null;
+        }
+
+        private static DamageSnapshot CloneScaledSnapshot(DamageSnapshot source, float multiplier)
+        {
+            multiplier = Mathf.Max(0f, multiplier);
+            return new DamageSnapshot(source.Source)
+            {
+                Physical = source.Physical * multiplier,
+                Fire = source.Fire * multiplier,
+                Cold = source.Cold * multiplier,
+                Lightning = source.Lightning * multiplier,
+                IsCrit = source.IsCrit,
+                CritMultiplier = source.CritMultiplier
+            };
         }
 
         private bool IsOwner(Transform candidate)

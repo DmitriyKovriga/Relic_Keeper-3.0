@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using Scripts.Stats;
+using Scripts.Combat;
 
 namespace Scripts.Skills.Steps
 {
@@ -75,6 +76,8 @@ namespace Scripts.Skills.Steps
 
         /// <summary>Per-step cached results used by dependent steps.</summary>
         public Dictionary<int, StepResult> StepResults = new Dictionary<int, StepResult>();
+        private readonly Dictionary<int, List<HitResult>> _hitResultsByStep = new Dictionary<int, List<HitResult>>();
+        private int _lastHitStepIndex = -1;
 
         public struct StepResult
         {
@@ -120,6 +123,42 @@ namespace Scripts.Skills.Steps
         public bool TryGetStepResult(int stepIndex, out StepResult result)
         {
             return StepResults.TryGetValue(stepIndex, out result);
+        }
+
+        public void RegisterHitResults(int stepIndex, List<HitResult> hitResults)
+        {
+            if (stepIndex < 0 || hitResults == null)
+                return;
+
+            _hitResultsByStep[stepIndex] = hitResults;
+            _lastHitStepIndex = stepIndex;
+        }
+
+        public int GetHitCount(int stepIndex)
+        {
+            if (stepIndex < 0)
+                stepIndex = _lastHitStepIndex;
+
+            return stepIndex >= 0 && _hitResultsByStep.TryGetValue(stepIndex, out var hits) && hits != null
+                ? hits.Count
+                : 0;
+        }
+
+        public bool TryGetHitResults(int stepIndex, out List<HitResult> hitResults)
+        {
+            hitResults = null;
+            if (stepIndex < 0)
+                stepIndex = _lastHitStepIndex;
+
+            return stepIndex >= 0 && _hitResultsByStep.TryGetValue(stepIndex, out hitResults) && hitResults != null;
+        }
+
+        public struct HitResult
+        {
+            public IDamageable Target;
+            public Transform TargetTransform;
+            public Vector3 Position;
+            public DamageSnapshot Snapshot;
         }
     }
 }
