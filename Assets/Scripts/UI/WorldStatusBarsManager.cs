@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Scripts.Enemies;
+using Scripts.StatusEffects;
 using Scripts.Stats;
 using UnityEngine;
 using UnityEngine.UI;
@@ -155,11 +156,13 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
 
             var view = CreatePlayerView(player.name);
             MysticShieldController.TryResolve(player.transform, out var mysticShield);
+            AilmentController.TryResolve(player.transform, out var ailments);
             var tracked = new TrackedPlayer
             {
                 Stats = player,
                 Transform = player.transform,
                 MysticShield = mysticShield,
+                Ailments = ailments,
                 AutoHeight = ComputeAutoHeight(player.transform),
                 View = view
             };
@@ -183,10 +186,12 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
                 continue;
 
             var view = CreateEnemyView(enemy.name);
+            AilmentController.TryResolve(enemy.transform, out var ailments);
             var tracked = new TrackedEnemy
             {
                 Health = enemy,
                 Transform = enemy.transform,
+                Ailments = ailments,
                 AutoHeight = ComputeAutoHeight(enemy.transform),
                 View = view
             };
@@ -232,6 +237,9 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
                 tracked.View.SetMysticShield(tracked.MysticShield.CurrentCharges, tracked.MysticShield.MaxCharges, tracked.MysticShield.RechargeProgressNormalized);
             else
                 tracked.View.SetMysticShield(0, 0, 0f);
+            if (tracked.Ailments == null)
+                AilmentController.TryResolve(tracked.Transform, out tracked.Ailments);
+            tracked.View.SetAilmentStacks(tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Poison) : 0);
             tracked.View.Tick(Time.unscaledDeltaTime);
 
             var worldPos = tracked.Transform.position + Vector3.up * (Mathf.Max(MinAutoHeight, tracked.AutoHeight) + PlayerExtraYOffset);
@@ -266,6 +274,9 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             // Poll as fallback, events are still the main update path.
             tracked.CachedHealthNormalized = Mathf.Clamp01(cur / max);
             tracked.View.SetHealth(tracked.CachedHealthNormalized);
+            if (tracked.Ailments == null)
+                AilmentController.TryResolve(tracked.Transform, out tracked.Ailments);
+            tracked.View.SetAilmentStacks(tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Poison) : 0);
             tracked.View.Tick(Time.unscaledDeltaTime);
             var worldPos = tracked.Transform.position + Vector3.up * (Mathf.Max(MinAutoHeight, tracked.AutoHeight) + EnemyExtraYOffset);
             tracked.View.SetVisible(SetUiPosition(tracked.View.Root, worldPos));
@@ -311,16 +322,18 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             new Color(0.08f, 0.22f, 0.34f, 1f),
             new Color(0.5f, 0.95f, 1f, 1f),
             new Color(0.22f, 0.62f, 1f, 0.95f));
+        var ailments = CreateAilmentStackRow(root, "Ailments", new Vector2(0f, 6.6f));
         var hp = CreateBarRow(root, "HP", new Vector2(0f, 1.5f), 20f, 2f, new Color(0.1f, 0.05f, 0.05f, 0.9f), new Color(0.8f, 0.15f, 0.15f, 0.95f));
         var mp = CreateBarRow(root, "MP", new Vector2(0f, -1.5f), 20f, 2f, new Color(0.05f, 0.07f, 0.1f, 0.9f), new Color(0.15f, 0.45f, 0.9f, 0.95f));
-        return new StatusBarView(root, hp, mp, mysticShield);
+        return new StatusBarView(root, hp, mp, mysticShield, ailments, true);
     }
 
     private StatusBarView CreateEnemyView(string debugName)
     {
         var root = CreateRoot($"EnemyBar_{debugName}", new Vector2(18f, 4f));
+        var ailments = CreateAilmentStackRow(root, "Ailments", new Vector2(0f, 3f));
         var hp = CreateBarRow(root, "HP", Vector2.zero, 16f, 2f, new Color(0.12f, 0.05f, 0.05f, 0.9f), new Color(0.85f, 0.18f, 0.18f, 0.95f));
-        return new StatusBarView(root, hp, null, null);
+        return new StatusBarView(root, hp, null, null, ailments, false);
     }
 
     private RectTransform CreateRoot(string name, Vector2 size)
@@ -401,6 +414,51 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         rowRect.gameObject.SetActive(false);
 
         return new MysticShieldRow(rowRect, maxWidth, height, preferredSlotWidth, spacing, emptyColor, fullColor, rechargeColor);
+    }
+
+    private static AilmentStackRow CreateAilmentStackRow(RectTransform parent, string name, Vector2 pos)
+    {
+        var rowGo = new GameObject(name + "_Root");
+        var rowRect = rowGo.AddComponent<RectTransform>();
+        rowRect.SetParent(parent, false);
+        rowRect.anchorMin = new Vector2(0.5f, 0.5f);
+        rowRect.anchorMax = new Vector2(0.5f, 0.5f);
+        rowRect.pivot = new Vector2(0.5f, 0.5f);
+        rowRect.anchoredPosition = pos;
+        rowRect.sizeDelta = new Vector2(12f, 5f);
+        rowRect.gameObject.SetActive(false);
+
+        var iconGo = new GameObject("PoisonIcon", typeof(RectTransform), typeof(Image));
+        var iconRect = iconGo.GetComponent<RectTransform>();
+        iconRect.SetParent(rowRect, false);
+        iconRect.anchorMin = new Vector2(0.5f, 0.5f);
+        iconRect.anchorMax = new Vector2(0.5f, 0.5f);
+        iconRect.pivot = new Vector2(0.5f, 0.5f);
+        iconRect.anchoredPosition = new Vector2(-3f, 0f);
+        iconRect.sizeDelta = new Vector2(3f, 3f);
+        var icon = iconGo.GetComponent<Image>();
+        icon.color = new Color(0.02f, 0.23f, 0.08f, 0.95f);
+        icon.raycastTarget = false;
+
+        var textGo = new GameObject("PoisonCount", typeof(RectTransform), typeof(Text));
+        var textRect = textGo.GetComponent<RectTransform>();
+        textRect.SetParent(rowRect, false);
+        textRect.anchorMin = new Vector2(0.5f, 0.5f);
+        textRect.anchorMax = new Vector2(0.5f, 0.5f);
+        textRect.pivot = new Vector2(0f, 0.5f);
+        textRect.anchoredPosition = new Vector2(0f, 0f);
+        textRect.sizeDelta = new Vector2(9f, 6f);
+
+        var text = textGo.GetComponent<Text>();
+        text.raycastTarget = false;
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.fontSize = 5;
+        text.alignment = TextAnchor.MiddleLeft;
+        text.color = new Color(0.62f, 1f, 0.48f, 1f);
+        text.horizontalOverflow = HorizontalWrapMode.Overflow;
+        text.verticalOverflow = VerticalWrapMode.Overflow;
+
+        return new AilmentStackRow(rowRect, text, pos);
     }
 
     private static float ComputeAutoHeight(Transform target)
@@ -493,6 +551,7 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         public PlayerStats Stats;
         public Transform Transform;
         public MysticShieldController MysticShield;
+        public AilmentController Ailments;
         public float AutoHeight;
         public StatusBarView View;
         public float CachedHealthNormalized;
@@ -504,6 +563,7 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
     {
         public EnemyHealth Health;
         public Transform Transform;
+        public AilmentController Ailments;
         public float AutoHeight;
         public StatusBarView View;
         public float CachedHealthNormalized;
@@ -544,6 +604,7 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         private readonly Color _fullColor;
         private readonly Color _rechargeColor;
         private readonly List<MysticShieldSlot> _slots = new List<MysticShieldSlot>();
+        public float CurrentHeight { get; private set; }
 
         public MysticShieldRow(
             RectTransform root,
@@ -573,6 +634,7 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             if (maxCharges <= 0)
             {
                 _root.gameObject.SetActive(false);
+                CurrentHeight = 0f;
                 return;
             }
 
@@ -583,7 +645,8 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             int slotsPerRow = ResolveSlotsPerRow();
             int rowCount = Mathf.CeilToInt(maxCharges / (float)slotsPerRow);
             float rowStep = _height + _spacing;
-            _root.sizeDelta = new Vector2(_maxWidth, _height + Mathf.Max(0, rowCount - 1) * rowStep);
+            CurrentHeight = _height + Mathf.Max(0, rowCount - 1) * rowStep;
+            _root.sizeDelta = new Vector2(_maxWidth, CurrentHeight);
             _root.gameObject.SetActive(true);
 
             for (int i = 0; i < _slots.Count; i++)
@@ -690,19 +753,58 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         }
     }
 
+    private sealed class AilmentStackRow
+    {
+        private readonly RectTransform _root;
+        private readonly Text _countText;
+        private readonly Vector2 _basePosition;
+
+        public AilmentStackRow(RectTransform root, Text countText, Vector2 basePosition)
+        {
+            _root = root;
+            _countText = countText;
+            _basePosition = basePosition;
+        }
+
+        public void SetPoisonCount(int count)
+        {
+            if (_root == null)
+                return;
+
+            bool visible = count > 0;
+            if (_root.gameObject.activeSelf != visible)
+                _root.gameObject.SetActive(visible);
+
+            if (_countText != null)
+                _countText.text = count.ToString();
+        }
+
+        public void SetYOffset(float y)
+        {
+            if (_root == null)
+                return;
+
+            _root.anchoredPosition = new Vector2(_basePosition.x, Mathf.Round(y));
+        }
+    }
+
     private sealed class StatusBarView
     {
         public RectTransform Root { get; }
         private readonly BarRow _healthRow;
         private readonly BarRow _manaRow;
         private readonly MysticShieldRow _mysticShieldRow;
+        private readonly AilmentStackRow _ailmentStackRow;
+        private readonly bool _isPlayer;
 
-        public StatusBarView(RectTransform root, BarRow healthRow, BarRow manaRow, MysticShieldRow mysticShieldRow)
+        public StatusBarView(RectTransform root, BarRow healthRow, BarRow manaRow, MysticShieldRow mysticShieldRow, AilmentStackRow ailmentStackRow, bool isPlayer)
         {
             Root = root;
             _healthRow = healthRow;
             _manaRow = manaRow;
             _mysticShieldRow = mysticShieldRow;
+            _ailmentStackRow = ailmentStackRow;
+            _isPlayer = isPlayer;
         }
 
         public void SetHealth(float normalized)
@@ -718,6 +820,13 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         public void SetMysticShield(int currentCharges, int maxCharges, float rechargeProgress)
         {
             _mysticShieldRow?.Set(currentCharges, maxCharges, rechargeProgress);
+            if (_isPlayer && _ailmentStackRow != null)
+                _ailmentStackRow.SetYOffset(4.1f + (_mysticShieldRow?.CurrentHeight ?? 0f) + 1.4f);
+        }
+
+        public void SetAilmentStacks(int poisonCount)
+        {
+            _ailmentStackRow?.SetPoisonCount(poisonCount);
         }
 
         public void Tick(float dt)

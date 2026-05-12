@@ -108,6 +108,34 @@ namespace Scripts.Enemies
             return result;
         }
 
+        public void ApplyPureDamage(float amount, object source, string damageType = "Pure")
+        {
+            if (_stats == null)
+                _stats = GetComponent<PlayerStats>();
+            if (_stats == null || _stats.Health == null)
+                return;
+
+            float finalDamage = Mathf.Max(0f, amount);
+            if (finalDamage <= 0f)
+                return;
+
+            var damage = new DamageSnapshot(source)
+            {
+                Physical = finalDamage
+            };
+
+            _stats.Health.Decrease(finalDamage);
+            GameplayEventBus.Raise(
+                GameplayEventType.DamageTaken,
+                source: GameplayEventContext.ResolveGameObject(source),
+                target: gameObject,
+                amount: finalDamage,
+                damage: damage);
+
+            if (FloatingTextManager.Instance != null)
+                FloatingTextManager.Instance.Show(finalDamage, false, damageType, transform.position);
+        }
+
         public struct DamageResolution
         {
             public bool WasImmune;

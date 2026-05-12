@@ -113,6 +113,50 @@ namespace Scripts.Enemies
                 Die();
         }
 
+        public void ApplyPureDamage(float amount, object source, string damageType = "Pure")
+        {
+            if (_isDead) return;
+            if (!EnsureReady())
+                return;
+
+            float finalDamage = Mathf.Max(0f, amount);
+            if (finalDamage <= 0f)
+                return;
+
+            var damage = new DamageSnapshot(source)
+            {
+                Physical = finalDamage
+            };
+
+            _currentHealth -= finalDamage;
+
+            GameObject sourceObject = GameplayEventContext.ResolveGameObject(source);
+            _lastDamageSource = sourceObject;
+            GameplayEventBus.Raise(
+                GameplayEventType.DamageTaken,
+                source: sourceObject,
+                target: gameObject,
+                amount: finalDamage,
+                damage: damage);
+            if (sourceObject != null)
+            {
+                GameplayEventBus.Raise(
+                    GameplayEventType.DamageDealt,
+                    source: sourceObject,
+                    target: gameObject,
+                    amount: finalDamage,
+                    damage: damage);
+            }
+
+            if (FloatingTextManager.Instance != null)
+                FloatingTextManager.Instance.Show(finalDamage, false, damageType, transform.position);
+
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+
+            if (_currentHealth <= 0)
+                Die();
+        }
+
         private void Die()
         {
             _isDead = true;

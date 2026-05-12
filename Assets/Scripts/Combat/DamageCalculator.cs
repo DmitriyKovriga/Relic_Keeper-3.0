@@ -213,7 +213,8 @@ public static class DamageCalculator
     private static float GetRolledFlatDamage(IStatsProvider attackerStats, StatType damageType)
     {
         DamageModifierLayers channelLayers = GetDamageChannelLayers(attackerStats, damageType);
-        if (attackerStats is not PlayerStats || InventoryManager.Instance == null)
+        IStatsProvider rollSource = ResolveWeaponRollSource(attackerStats);
+        if (rollSource is not PlayerStats || InventoryManager.Instance == null)
             return Mathf.Max(0f, channelLayers.Flat);
 
         float weaponAverage = 0f;
@@ -243,6 +244,14 @@ public static class DamageCalculator
 
         float nonWeaponFlat = channelLayers.Flat - weaponAverage;
         return Mathf.Max(0f, nonWeaponFlat + weaponRolled);
+    }
+
+    private static IStatsProvider ResolveWeaponRollSource(IStatsProvider statsProvider)
+    {
+        while (statsProvider is ScopedStatsProvider scopedProvider && scopedProvider.BaseProvider != null)
+            statsProvider = scopedProvider.BaseProvider;
+
+        return statsProvider;
     }
 
     private static void ApplyConversionRules(ref DamagePool pool, IReadOnlyList<DamageConversionRule> rules)

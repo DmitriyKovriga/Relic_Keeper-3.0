@@ -587,9 +587,34 @@ namespace Scripts.Editor.Skills
             EditorGUILayout.BeginVertical(GUILayout.Width(width), GUILayout.ExpandHeight(true));
             GUILayout.Label("Step types (click to add)", EditorStyles.boldLabel);
             _typesScroll = EditorGUILayout.BeginScrollView(_typesScroll, GUILayout.ExpandHeight(true));
+            DrawStepDefinitionCategory(recipe, "Базовые", StepEditorCategory.Basic);
+            DrawStepDefinitionCategory(recipe, "Изменение статов", StepEditorCategory.StatChanges);
+            DrawStepDefinitionCategory(recipe, "Особые эффекты", StepEditorCategory.Special);
+            DrawStepDefinitionCategory(recipe, "Прочее", StepEditorCategory.Other);
+            EditorGUILayout.EndScrollView();
+            EditorGUILayout.EndVertical();
+        }
+
+        private enum StepEditorCategory
+        {
+            Basic,
+            StatChanges,
+            Special,
+            Other
+        }
+
+        private void DrawStepDefinitionCategory(SkillRecipeSO recipe, string title, StepEditorCategory category)
+        {
+            bool hasAny = _stepDefs.Any(def => def != null && GetStepEditorCategory(def) == category);
+            if (!hasAny)
+                return;
+
+            EditorGUILayout.Space(4f);
+            EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
             foreach (var def in _stepDefs)
             {
                 if (def == null) continue;
+                if (GetStepEditorCategory(def) != category) continue;
                 if (GUILayout.Button(def.GetDisplayName(_displayRu), EditorStyles.miniButton))
                 {
                     recipe.Steps.Add(new StepEntry { StepDefinition = def });
@@ -597,8 +622,42 @@ namespace Scripts.Editor.Skills
                     SelectStep(recipe.Steps.Count - 1);
                 }
             }
-            EditorGUILayout.EndScrollView();
-            EditorGUILayout.EndVertical();
+        }
+
+        private static StepEditorCategory GetStepEditorCategory(StepDefinitionSO def)
+        {
+            string id = def != null ? def.Id : string.Empty;
+            switch (id)
+            {
+                case "MovementLock":
+                case "MovementUnlock":
+                case "WeaponWindup":
+                case "WeaponStrike":
+                case "WeaponRecovery":
+                case "Wait":
+                case "SpawnVFX":
+                case "DealDamageCircle":
+                case "DealDamageRectangle":
+                case "ParallelGroup":
+                    return StepEditorCategory.Basic;
+                case "ApplyStatusSelf":
+                case "ApplyStatusCircle":
+                case "ApplyStatusRectangle":
+                case "ApplyQuickStatusSelf":
+                case "ApplyQuickStatusSelfPerConsumedMysticShield":
+                case "ApplyQuickStatusCircle":
+                case "ApplyQuickStatusRectangle":
+                case "ApplyStatBasedEffectSelf":
+                case "ApplyStatusSelfIfMysticShieldConsumed":
+                case "ApplyStatusSelfPerConsumedMysticShield":
+                    return StepEditorCategory.StatChanges;
+                case "GenerateMysticShield":
+                case "ConsumeMysticShield":
+                case "MysticShieldDamageBoost":
+                    return StepEditorCategory.Special;
+                default:
+                    return StepEditorCategory.Other;
+            }
         }
 
         private void DrawCenterColumn(SkillRecipeSO recipe, float width)
@@ -1168,6 +1227,7 @@ namespace Scripts.Editor.Skills
                 float ndm = EditorGUILayout.FloatField("Damage multiplier", dm);
                 if (ndm != dm) { step.SetOverrideFloat("DamageMultiplier", ndm); EditorUtility.SetDirty(recipe); }
                 DrawDamageConversionRules(recipe, step);
+                DrawSkillScopedModifierFields(recipe, step);
                 return;
             }
 
@@ -1201,6 +1261,7 @@ namespace Scripts.Editor.Skills
                 float ndm = EditorGUILayout.FloatField("Damage multiplier", dm);
                 if (ndm != dm) { step.SetOverrideFloat("DamageMultiplier", ndm); EditorUtility.SetDirty(recipe); }
                 DrawDamageConversionRules(recipe, step);
+                DrawSkillScopedModifierFields(recipe, step);
                 return;
             }
 
@@ -1496,6 +1557,128 @@ namespace Scripts.Editor.Skills
                     Source = DamageChannel.Physical,
                     Target = DamageChannel.Lightning,
                     Percent = 100f
+                });
+                EditorUtility.SetDirty(recipe);
+            }
+        }
+
+        private void DrawSkillScopedModifierFields(SkillRecipeSO recipe, StepEntry step)
+        {
+            EditorGUILayout.Space(6f);
+            EditorGUILayout.LabelField("Skill-private stat modifiers", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("These modifiers exist only while this damage step builds its hit snapshot and ailment rolls. They do not change real character stats.", MessageType.None);
+
+            if (step.ScopedStatModifiers == null)
+                step.ScopedStatModifiers = new List<SerializableStatModifier>();
+
+            for (int i = 0; i < step.ScopedStatModifiers.Count; i++)
+            {
+                SerializableStatModifier modifier = step.ScopedStatModifiers[i];
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label($"Private modifier #{i + 1}", EditorStyles.boldLabel);
+                if (GUILayout.Button("X", GUILayout.Width(24f)))
+                {
+                    step.ScopedStatModifiers.RemoveAt(i);
+                    EditorUtility.SetDirty(recipe);
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.EndVertical();
+                    break;
+                }
+                EditorGUILayout.EndHorizontal();
+
+                StatType stat = modifier.Stat;
+                Scripts.Editor.Stats.StatPickerUtility.DrawStatPickerValueLayout("Stat", stat, selected =>
+                {
+                    modifier.Stat = selected;
+                    step.ScopedStatModifiers[i] = modifier;
+                    EditorUtility.SetDirty(recipe);
+                    Repaint();
+                });
+
+                StatModType newType = (StatModType)EditorGUILayout.EnumPopup("Modifier type", modifier.Type);
+                float newValue = EditorGUILayout.FloatField("Value", modifier.Value);
+                if (newType != modifier.Type || Mathf.Abs(newValue - modifier.Value) > 0.001f)
+                {
+                    modifier.Type = newType;
+                    modifier.Value = newValue;
+                    step.ScopedStatModifiers[i] = modifier;
+                    EditorUtility.SetDirty(recipe);
+                }
+                EditorGUILayout.EndVertical();
+            }
+
+            if (GUILayout.Button("+ Add private stat modifier"))
+            {
+                step.ScopedStatModifiers.Add(new SerializableStatModifier
+                {
+                    Stat = StatType.PoisonChance,
+                    Type = StatModType.Flat,
+                    Value = 50f
+                });
+                EditorUtility.SetDirty(recipe);
+            }
+
+            EditorGUILayout.Space(6f);
+            EditorGUILayout.LabelField("Target ailment stack modifiers", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("For each target, reads its ailment stacks and adds private stat modifiers before this hit is calculated.", MessageType.None);
+
+            if (step.TargetAilmentStackModifiers == null)
+                step.TargetAilmentStackModifiers = new List<TargetAilmentStackStatModifierRule>();
+
+            for (int i = 0; i < step.TargetAilmentStackModifiers.Count; i++)
+            {
+                TargetAilmentStackStatModifierRule rule = step.TargetAilmentStackModifiers[i];
+                if (rule == null)
+                {
+                    step.TargetAilmentStackModifiers[i] = new TargetAilmentStackStatModifierRule();
+                    rule = step.TargetAilmentStackModifiers[i];
+                }
+
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label($"Target stack modifier #{i + 1}", EditorStyles.boldLabel);
+                if (GUILayout.Button("X", GUILayout.Width(24f)))
+                {
+                    step.TargetAilmentStackModifiers.RemoveAt(i);
+                    EditorUtility.SetDirty(recipe);
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.EndVertical();
+                    break;
+                }
+                EditorGUILayout.EndHorizontal();
+
+                AilmentType newAilment = (AilmentType)EditorGUILayout.EnumPopup("Read target ailment", rule.Ailment);
+                if (newAilment != rule.Ailment) { rule.Ailment = newAilment; EditorUtility.SetDirty(recipe); }
+
+                Scripts.Editor.Stats.StatPickerUtility.DrawStatPickerValueLayout("Stat", rule.Stat, selected =>
+                {
+                    rule.Stat = selected;
+                    EditorUtility.SetDirty(recipe);
+                    Repaint();
+                });
+
+                StatModType newType = (StatModType)EditorGUILayout.EnumPopup("Modifier type", rule.Type);
+                if (newType != rule.Type) { rule.Type = newType; EditorUtility.SetDirty(recipe); }
+
+                float newValue = EditorGUILayout.FloatField("Value per stack", rule.ValuePerStack);
+                if (Mathf.Abs(newValue - rule.ValuePerStack) > 0.001f) { rule.ValuePerStack = newValue; EditorUtility.SetDirty(recipe); }
+
+                int newMaxStacks = Mathf.Max(0, EditorGUILayout.IntField("Max stacks counted (0 = no cap)", rule.MaxStacksCounted));
+                if (newMaxStacks != rule.MaxStacksCounted) { rule.MaxStacksCounted = newMaxStacks; EditorUtility.SetDirty(recipe); }
+
+                EditorGUILayout.EndVertical();
+            }
+
+            if (GUILayout.Button("+ Add target ailment stack modifier"))
+            {
+                step.TargetAilmentStackModifiers.Add(new TargetAilmentStackStatModifierRule
+                {
+                    Ailment = AilmentType.Poison,
+                    Stat = StatType.DamagePhysical,
+                    Type = StatModType.Flat,
+                    ValuePerStack = 10f,
+                    MaxStacksCounted = 0
                 });
                 EditorUtility.SetDirty(recipe);
             }

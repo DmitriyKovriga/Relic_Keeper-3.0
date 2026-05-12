@@ -88,6 +88,16 @@ MonoBehaviour:
       StringVal: 
       ObjectVal: {fileID: 0}
     DamageConversions: []
+    ScopedStatModifiers:
+    - Stat: 62
+      Value: 50
+      Type: 100
+    TargetAilmentStackModifiers:
+    - Ailment: 0
+      Stat: 30
+      Type: 100
+      ValuePerStack: 10
+      MaxStacksCounted: 0
     StartPercentPipeline: 0.05
     EndPercentPipeline: 0.05
     SubSteps: []

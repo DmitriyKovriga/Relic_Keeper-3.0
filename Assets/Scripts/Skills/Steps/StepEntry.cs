@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Scripts.Combat;
+using Scripts.Stats;
+using Scripts.StatusEffects;
 
 namespace Scripts.Skills.Steps
 {
@@ -16,6 +18,10 @@ namespace Scripts.Skills.Steps
         public List<StepParamValue> Overrides = new List<StepParamValue>();
         [Tooltip("Outgoing damage conversion rules applied by this step before character stat conversions.")]
         public List<DamageConversionRule> DamageConversions = new List<DamageConversionRule>();
+        [Tooltip("Private stat modifiers that exist only while this step builds its hit snapshot.")]
+        public List<SerializableStatModifier> ScopedStatModifiers = new List<SerializableStatModifier>();
+        [Tooltip("Private stat modifiers scaled by ailment stacks on each individual target.")]
+        public List<TargetAilmentStackStatModifierRule> TargetAilmentStackModifiers = new List<TargetAilmentStackStatModifierRule>();
 
         [Header("Timing (percent of pipeline 0..1)")]
         [Range(0f, 1f)] [Tooltip("Момент начала степа (0 = старт пайплайна, 0.35 = 35%)")]
@@ -92,5 +98,15 @@ namespace Scripts.Skills.Steps
             if (o != null) { o.Type = StepParamValue.ParamKind.Object; o.ObjectVal = value; }
             else Overrides.Add(new StepParamValue { Key = key, Type = StepParamValue.ParamKind.Object, ObjectVal = value });
         }
+    }
+
+    [System.Serializable]
+    public class TargetAilmentStackStatModifierRule
+    {
+        public AilmentType Ailment = AilmentType.Poison;
+        public StatType Stat = StatType.DamagePhysical;
+        public StatModType Type = StatModType.Flat;
+        public float ValuePerStack = 10f;
+        public int MaxStacksCounted;
     }
 }

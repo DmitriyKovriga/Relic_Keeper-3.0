@@ -474,18 +474,99 @@ namespace Scripts.Skills
         {
             ResolveCircleArea(step, out Vector2 center, out float radius);
             var targets = GetTargetsInCircle(center, radius);
-            float mult = ResolveDamageMultiplier(step);
-            var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult, ResolveDamageContext(), step.DamageConversions);
-            foreach (var t in targets) t.TakeDamage(snapshot);
+            DealDamageToTargets(step, targets);
         }
 
         private void ExecuteDealDamageRectangle(int stepIndex, StepEntry step)
         {
             ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
             var targets = GetTargetsInBox(center, size, angle);
+            DealDamageToTargets(step, targets);
+        }
+
+        private void DealDamageToTargets(StepEntry step, List<IDamageable> targets)
+        {
+            if (targets == null || targets.Count == 0)
+                return;
+
             float mult = ResolveDamageMultiplier(step);
-            var snapshot = DamageCalculator.CreateDamageSnapshot(_ownerStats, mult, ResolveDamageContext(), step.DamageConversions);
-            foreach (var t in targets) t.TakeDamage(snapshot);
+            DamageContext damageContext = ResolveDamageContext();
+            for (int i = 0; i < targets.Count; i++)
+            {
+                IDamageable target = targets[i];
+                if (target == null)
+                    continue;
+
+                IStatsProvider scopedStats = BuildScopedStatsProvider(step, target);
+                var snapshot = DamageCalculator.CreateDamageSnapshot(scopedStats, mult, damageContext, step.DamageConversions);
+                snapshot.Source = _ownerStats;
+                target.TakeDamage(snapshot);
+                TryApplyAilmentsFromHit(scopedStats, target, snapshot);
+            }
+        }
+
+        private IStatsProvider BuildScopedStatsProvider(StepEntry step, IDamageable target)
+        {
+            if ((step.ScopedStatModifiers == null || step.ScopedStatModifiers.Count == 0) &&
+                (step.TargetAilmentStackModifiers == null || step.TargetAilmentStackModifiers.Count == 0))
+                return _ownerStats;
+
+            var modifiers = new List<SerializableStatModifier>();
+            if (step.ScopedStatModifiers != null)
+                modifiers.AddRange(step.ScopedStatModifiers);
+
+            AppendTargetAilmentStackModifiers(step, target, modifiers);
+            return modifiers.Count > 0 ? new ScopedStatsProvider(_ownerStats, modifiers) : _ownerStats;
+        }
+
+        private void AppendTargetAilmentStackModifiers(StepEntry step, IDamageable target, List<SerializableStatModifier> modifiers)
+        {
+            if (step.TargetAilmentStackModifiers == null || step.TargetAilmentStackModifiers.Count == 0 || modifiers == null)
+                return;
+
+            Transform targetTransform = ResolveDamageableTransform(target);
+            if (!AilmentController.TryResolve(targetTransform, out AilmentController ailments) || ailments == null)
+                return;
+
+            for (int i = 0; i < step.TargetAilmentStackModifiers.Count; i++)
+            {
+                TargetAilmentStackStatModifierRule rule = step.TargetAilmentStackModifiers[i];
+                if (rule == null || Mathf.Approximately(rule.ValuePerStack, 0f))
+                    continue;
+
+                int stackCount = ailments.GetStackCount(rule.Ailment);
+                if (rule.MaxStacksCounted > 0)
+                    stackCount = Mathf.Min(stackCount, rule.MaxStacksCounted);
+                if (stackCount <= 0)
+                    continue;
+
+                modifiers.Add(new SerializableStatModifier
+                {
+                    Stat = rule.Stat,
+                    Type = rule.Type,
+                    Value = rule.ValuePerStack * stackCount
+                });
+            }
+        }
+
+        private void TryApplyAilmentsFromHit(IStatsProvider scopedStats, IDamageable target, DamageSnapshot hitSnapshot)
+        {
+            if (scopedStats == null || hitSnapshot == null || hitSnapshot.Physical <= 0f)
+                return;
+
+            if (scopedStats.GetValue(StatType.PoisonChance) <= 0f)
+                return;
+
+            Transform targetTransform = ResolveDamageableTransform(target);
+            if (!AilmentController.TryResolve(targetTransform, out AilmentController controller) || controller == null)
+                return;
+
+            controller.TryApplyPoison(scopedStats, _ownerStats, hitSnapshot);
+        }
+
+        private static Transform ResolveDamageableTransform(IDamageable target)
+        {
+            return target is Component component ? component.transform : null;
         }
 
         private float ResolveDamageMultiplier(StepEntry step)
