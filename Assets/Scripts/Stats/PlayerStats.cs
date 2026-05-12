@@ -134,9 +134,10 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         _activeCharacterID = data != null ? data.ID : "Unknown";
         foreach (var stat in _stats.Values) stat.BaseValue = 0;
 
-        if (_globalBaseStats != null && _globalBaseStats.BaseStats != null)
+        var globalBaseStats = ResolveGlobalBaseStats();
+        if (globalBaseStats != null && globalBaseStats.BaseStats != null)
         {
-            foreach (var config in _globalBaseStats.BaseStats) GetStat(config.Type).BaseValue = config.Value;
+            foreach (var config in globalBaseStats.BaseStats) GetStat(config.Type).BaseValue = config.Value;
         }
 
         if (data != null && data.StartingStats != null)
@@ -189,6 +190,14 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     {
         var stat = GetStat(type);
         if (stat.BaseValue <= 0) stat.BaseValue = minVal;
+    }
+
+    private GlobalBaseStatsSO ResolveGlobalBaseStats()
+    {
+        if (_globalBaseStats == null)
+            _globalBaseStats = Resources.Load<GlobalBaseStatsSO>(GlobalBaseStatsSO.DefaultResourcesPath);
+
+        return _globalBaseStats;
     }
 
     private void HandleItemEquipped(InventoryItem item)

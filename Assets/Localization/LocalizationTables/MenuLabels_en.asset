@@ -1912,6 +1912,10 @@ MonoBehaviour:
     m_Localized: Spell Damage
     m_Metadata:
       m_Items: []
+  - m_Id: 59374563437871104
+    m_Localized: Projectile Pierce Targets
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

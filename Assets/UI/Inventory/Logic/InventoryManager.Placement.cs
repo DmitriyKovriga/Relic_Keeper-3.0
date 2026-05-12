@@ -43,20 +43,23 @@ namespace Scripts.Inventory
                 if (!CanEquipItemToLocalSlot(item, local)) return false;
 
                 InventoryItem prevEquip = EquipmentItems[local];
-                if (prevEquip != null && sourceAnchorForSwap >= 0)
+                int displacedDestination = -1;
+                if (prevEquip != null)
                 {
-                    int dest = FindSlotForDisplacedItem(prevEquip, -1, -1, 0, 0, sourceAnchorForSwap);
-                    if (dest < 0) return false;
-                    EquipmentItems[local] = item;
-                    OnItemEquipped?.Invoke(item);
-                    PlaceItemAtSlotInternal(prevEquip, dest);
-                }
-                else
-                {
-                    EquipmentItems[local] = item;
-                    OnItemEquipped?.Invoke(item);
+                    if (sourceAnchorForSwap < 0)
+                        return false;
+
+                    displacedDestination = FindSlotForDisplacedItem(prevEquip, -1, -1, 0, 0, sourceAnchorForSwap);
+                    if (displacedDestination < 0)
+                        return false;
+
+                    EquipmentItems[local] = null;
+                    OnItemUnequipped?.Invoke(prevEquip);
+                    PlaceItemAtSlotInternal(prevEquip, displacedDestination);
                 }
 
+                EquipmentItems[local] = item;
+                OnItemEquipped?.Invoke(item);
                 TriggerUIUpdate();
                 return true;
             }

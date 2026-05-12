@@ -141,6 +141,7 @@ namespace Scripts.Stats
         ColdToLightning,
         LightningToPhysical,
         LightningToFire,
-        LightningToCold
+        LightningToCold,
+        ProjectilePierce
     }
 }

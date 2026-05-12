@@ -85,6 +85,7 @@ namespace Scripts.Enemies
             for (int i = 0; i < rects.Count; i++)
             {
                 Rect rect = rects[i];
+                int chunkSortingOrder = baseSortingOrder + i * 4;
                 Vector2 localSize = new Vector2(rect.width * spriteBounds.size.x, rect.height * spriteBounds.size.y);
                 Vector2 localCenter = new Vector2(
                     spriteBounds.min.x + (rect.x + rect.width * 0.5f) * spriteBounds.size.x,
@@ -105,18 +106,18 @@ namespace Scripts.Enemies
                 BoxCollider2D collider = fragment.AddComponent<BoxCollider2D>();
                 collider.size = new Vector2(Mathf.Max(0.05f, localSize.x * 0.76f), Mathf.Max(0.05f, localSize.y * 0.76f));
 
-                CreateMask(fragment.transform, localSize * ChunkMaskOverlap, sortingLayerId, baseSortingOrder);
-                CreateMaskedSprite(fragment.transform, sourceRenderer, -localCenter, sortingLayerId, baseSortingOrder, SpriteMaskInteraction.VisibleInsideMask);
+                CreateMask(fragment.transform, localSize * ChunkMaskOverlap, sortingLayerId, chunkSortingOrder);
+                CreateMaskedSprite(fragment.transform, sourceRenderer, -localCenter, sortingLayerId, chunkSortingOrder, SpriteMaskInteraction.VisibleInsideMask);
 
                 if (Random.value <= 0.58f)
                 {
                     Color overlayColor = Color.Lerp(config.GoreColor, config.BloodColor, Random.Range(0.18f, 0.34f));
                     overlayColor.a = Random.Range(0.22f, 0.38f);
-                    CreateMaskedSprite(fragment.transform, sourceRenderer, -localCenter, sortingLayerId, baseSortingOrder + 1, SpriteMaskInteraction.VisibleInsideMask, overlayColor);
+                    CreateMaskedSprite(fragment.transform, sourceRenderer, -localCenter, sortingLayerId, chunkSortingOrder + 1, SpriteMaskInteraction.VisibleInsideMask, overlayColor);
                 }
 
                 EnemyDeathFragment deathFragment = fragment.AddComponent<EnemyDeathFragment>();
-                deathFragment.Initialize(config, sortingLayerId, baseSortingOrder - 2, 1f, 1f, false);
+                deathFragment.Initialize(config, sortingLayerId, chunkSortingOrder - 2, 1f, 1f, false);
 
                 Vector2 launch = BuildBurstVector(worldPosition, burstCenter, burstBias, config.ChunkHorizontalForce, config.ChunkVerticalForce, BurstForceMultiplier, 0.42f);
                 rb.AddForce(launch, ForceMode2D.Impulse);
@@ -281,8 +282,8 @@ namespace Scripts.Enemies
             mask.isCustomRangeActive = true;
             mask.frontSortingLayerID = sortingLayerId;
             mask.backSortingLayerID = sortingLayerId;
-            mask.frontSortingOrder = sortingOrder + 4;
-            mask.backSortingOrder = sortingOrder - 4;
+            mask.frontSortingOrder = sortingOrder + 2;
+            mask.backSortingOrder = sortingOrder - 1;
             maskObject.transform.localPosition = new Vector3(Random.Range(-0.03f, 0.03f), Random.Range(-0.03f, 0.03f), 0f);
             maskObject.transform.localRotation = Quaternion.Euler(0f, 0f, Random.Range(-28f, 28f));
             return mask;

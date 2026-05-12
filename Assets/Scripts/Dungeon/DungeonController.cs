@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
+using Scripts.Skills.Projectiles;
 
 namespace Scripts.Dungeon
 {
@@ -65,6 +66,7 @@ namespace Scripts.Dungeon
             }
 
             _currentDungeon = dungeon;
+            SkillProjectile.DespawnAll();
             BuildRoomSequence();
             _currentRoomIndex = 0;
             ApplyDungeonBackground(dungeon);
@@ -80,6 +82,8 @@ namespace Scripts.Dungeon
 
         public void ReturnToHub()
         {
+            SkillProjectile.DespawnAll();
+
             if (_currentRoomInstance != null)
             {
                 Destroy(_currentRoomInstance);
@@ -177,6 +181,8 @@ namespace Scripts.Dungeon
 
         private void LoadCurrentRoom()
         {
+            SkillProjectile.DespawnAll();
+
             if (_currentRoomInstance != null)
             {
                 Destroy(_currentRoomInstance);

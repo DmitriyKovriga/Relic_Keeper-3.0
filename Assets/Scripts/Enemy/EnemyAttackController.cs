@@ -1,6 +1,7 @@
 using UnityEngine;
 using Scripts.Combat;
 using Scripts.Stats;
+using Scripts.StatusEffects;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -293,7 +294,9 @@ namespace Scripts.Enemies
 
                 if (TryResolveDamageable(hit.transform, out var damageable))
                 {
-                    damageable.TakeDamage(CreateDamageSnapshot(config));
+                    DamageSnapshot snapshot = CreateDamageSnapshot(config);
+                    damageable.TakeDamage(snapshot);
+                    AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, hit.transform, snapshot);
                     _lastAttackConnected = true;
                     return;
                 }
@@ -303,7 +306,9 @@ namespace Scripts.Enemies
             {
                 if (TryResolveDamageable(_currentTarget, out var fallbackDamageable))
                 {
-                    fallbackDamageable.TakeDamage(CreateDamageSnapshot(config));
+                    DamageSnapshot snapshot = CreateDamageSnapshot(config);
+                    fallbackDamageable.TakeDamage(snapshot);
+                    AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, _currentTarget, snapshot);
                     _lastAttackConnected = true;
                 }
             }
@@ -330,7 +335,9 @@ namespace Scripts.Enemies
 
             if (TryResolveDamageable(_currentTarget, out var damageable))
             {
-                damageable.TakeDamage(CreateDamageSnapshot(config));
+                DamageSnapshot snapshot = CreateDamageSnapshot(config);
+                damageable.TakeDamage(snapshot);
+                AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, _currentTarget, snapshot);
                 _lastAttackConnected = true;
             }
         }
@@ -449,7 +456,9 @@ namespace Scripts.Enemies
                 if (!TryResolveDamageable(hit.transform, out var damageable))
                     continue;
 
-                damageable.TakeDamage(CreateDamageSnapshot(config));
+                DamageSnapshot snapshot = CreateDamageSnapshot(config);
+                damageable.TakeDamage(snapshot);
+                AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, hit.transform, snapshot);
                 _hasAppliedHit = true;
                 _lastAttackConnected = true;
                 return;
@@ -654,7 +663,7 @@ namespace Scripts.Enemies
 
         private void Update()
         {
-            if (_data == null)
+            if (_data == null || _data.Attack == null)
             {
                 Despawn();
                 return;
@@ -679,7 +688,7 @@ namespace Scripts.Enemies
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (other == null)
+            if (_data == null || _data.Attack == null || other == null)
                 return;
 
             if (_owner != null && (other.gameObject == _owner || other.transform.IsChildOf(_owner.transform)))
@@ -694,6 +703,7 @@ namespace Scripts.Enemies
             if (EnemyAttackController.TryResolveDamageable(other.transform, out var damageable))
             {
                 damageable.TakeDamage(_damageSnapshot);
+                AilmentController.TryApplyHitAilmentsFromSource(_damageSnapshot?.Source, other.transform, _damageSnapshot);
                 Despawn();
             }
         }

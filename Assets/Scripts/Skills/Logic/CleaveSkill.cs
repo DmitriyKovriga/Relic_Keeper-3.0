@@ -108,6 +108,7 @@ namespace Scripts.Skills
             if (speed <= 0f)
                 speed = DefaultActionSpeed;
 
+            speed *= ResolveSkillSpeedMultiplier();
             return Mathf.Clamp(speed, MinActionSpeed, MaxActionSpeed);
         }
 

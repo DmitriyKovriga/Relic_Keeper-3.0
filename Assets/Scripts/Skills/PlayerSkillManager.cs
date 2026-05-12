@@ -4,6 +4,7 @@ using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Stats;
 using Scripts.Skills.Modules;
+using Scripts.Skills.Projectiles;
 
 namespace Scripts.Skills
 {
@@ -49,6 +50,8 @@ namespace Scripts.Skills
 
         private void OnDestroy()
         {
+            SkillProjectile.DespawnAllForOwner(_playerStats);
+
             if (InventoryManager.Instance != null)
             {
                 InventoryManager.Instance.OnInventoryChanged -= RefreshAllSkills;
@@ -73,6 +76,8 @@ namespace Scripts.Skills
 
         public void RefreshAllSkills()
         {
+            SkillProjectile.DespawnAllForOwner(_playerStats);
+
             for (int i = 0; i < SkillSlotCount; i++)
                 UnequipSkill(i);
 

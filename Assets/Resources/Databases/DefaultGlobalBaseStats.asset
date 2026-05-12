@@ -23,10 +23,10 @@ MonoBehaviour:
     Value: 1
   - Type: 11
     Value: 5
-  - Type: 13
-    Value: 90
   - Type: 12
     Value: 50
+  - Type: 13
+    Value: 90
   - Type: 17
     Value: 75
   - Type: 19
@@ -45,10 +45,12 @@ MonoBehaviour:
     Value: 5
   - Type: 52
     Value: 150
+  - Type: 57
+    Value: 0
   - Type: 59
-    Value: 20
+    Value: 40
   - Type: 60
-    Value: 5
+    Value: 8
   - Type: 64
     Value: 10
   - Type: 65
@@ -61,5 +63,5 @@ MonoBehaviour:
     Value: 2
   - Type: 76
     Value: 2
-  - Type: 76
-    Value: 2
+  - Type: 86
+    Value: 0

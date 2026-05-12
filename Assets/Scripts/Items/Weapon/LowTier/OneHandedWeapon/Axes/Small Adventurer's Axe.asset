@@ -24,10 +24,10 @@ MonoBehaviour:
     Value: 50
     Type: 100
     Scope: 0
-  SkillPool: {fileID: 0}
+  SkillPool: {fileID: 11400000, guid: a9a5912ebe0936b498d9bdb8a4f7c307, type: 2}
   SkillCount: 1
   IsTwoHanded: 0
-  InHandSprite: {fileID: 0}
+  InHandSprite: {fileID: 21300000, guid: 93cf8821dd9561b4abee6ff558df5282, type: 3}
   MinPhysicalDamage: 5
   MaxPhysicalDamage: 10
   MinFireDamage: 0

@@ -239,7 +239,9 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
                 tracked.View.SetMysticShield(0, 0, 0f);
             if (tracked.Ailments == null)
                 AilmentController.TryResolve(tracked.Transform, out tracked.Ailments);
-            tracked.View.SetAilmentStacks(tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Poison) : 0);
+            tracked.View.SetAilmentStacks(
+                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Poison) : 0,
+                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Bleed) : 0);
             tracked.View.Tick(Time.unscaledDeltaTime);
 
             var worldPos = tracked.Transform.position + Vector3.up * (Mathf.Max(MinAutoHeight, tracked.AutoHeight) + PlayerExtraYOffset);
@@ -276,7 +278,9 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             tracked.View.SetHealth(tracked.CachedHealthNormalized);
             if (tracked.Ailments == null)
                 AilmentController.TryResolve(tracked.Transform, out tracked.Ailments);
-            tracked.View.SetAilmentStacks(tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Poison) : 0);
+            tracked.View.SetAilmentStacks(
+                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Poison) : 0,
+                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Bleed) : 0);
             tracked.View.Tick(Time.unscaledDeltaTime);
             var worldPos = tracked.Transform.position + Vector3.up * (Mathf.Max(MinAutoHeight, tracked.AutoHeight) + EnemyExtraYOffset);
             tracked.View.SetVisible(SetUiPosition(tracked.View.Root, worldPos));
@@ -425,40 +429,63 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         rowRect.anchorMax = new Vector2(0.5f, 0.5f);
         rowRect.pivot = new Vector2(0.5f, 0.5f);
         rowRect.anchoredPosition = pos;
-        rowRect.sizeDelta = new Vector2(12f, 5f);
+        rowRect.sizeDelta = new Vector2(22f, 5f);
         rowRect.gameObject.SetActive(false);
 
-        var iconGo = new GameObject("PoisonIcon", typeof(RectTransform), typeof(Image));
+        CreateAilmentCounter(rowRect, "Poison", new Vector2(-8f, 0f), new Color(0.02f, 0.23f, 0.08f, 0.95f), new Color(0.62f, 1f, 0.48f, 1f), out RectTransform poisonRoot, out Text poisonText);
+        CreateAilmentCounter(rowRect, "Bleed", new Vector2(4f, 0f), new Color(0.45f, 0.03f, 0.03f, 0.95f), new Color(1f, 0.42f, 0.35f, 1f), out RectTransform bleedRoot, out Text bleedText);
+
+        return new AilmentStackRow(rowRect, poisonRoot, poisonText, bleedRoot, bleedText, pos);
+    }
+
+    private static void CreateAilmentCounter(
+        RectTransform parent,
+        string name,
+        Vector2 pos,
+        Color iconColor,
+        Color textColor,
+        out RectTransform counterRoot,
+        out Text countText)
+    {
+        var counterGo = new GameObject(name + "_Counter", typeof(RectTransform));
+        counterRoot = counterGo.GetComponent<RectTransform>();
+        counterRoot.SetParent(parent, false);
+        counterRoot.anchorMin = new Vector2(0.5f, 0.5f);
+        counterRoot.anchorMax = new Vector2(0.5f, 0.5f);
+        counterRoot.pivot = new Vector2(0.5f, 0.5f);
+        counterRoot.anchoredPosition = pos;
+        counterRoot.sizeDelta = new Vector2(10f, 5f);
+        counterRoot.gameObject.SetActive(false);
+
+        var iconGo = new GameObject(name + "Icon", typeof(RectTransform), typeof(Image));
         var iconRect = iconGo.GetComponent<RectTransform>();
-        iconRect.SetParent(rowRect, false);
+        iconRect.SetParent(counterRoot, false);
         iconRect.anchorMin = new Vector2(0.5f, 0.5f);
         iconRect.anchorMax = new Vector2(0.5f, 0.5f);
         iconRect.pivot = new Vector2(0.5f, 0.5f);
         iconRect.anchoredPosition = new Vector2(-3f, 0f);
         iconRect.sizeDelta = new Vector2(3f, 3f);
         var icon = iconGo.GetComponent<Image>();
-        icon.color = new Color(0.02f, 0.23f, 0.08f, 0.95f);
+        icon.color = iconColor;
         icon.raycastTarget = false;
 
-        var textGo = new GameObject("PoisonCount", typeof(RectTransform), typeof(Text));
+        var textGo = new GameObject(name + "Count", typeof(RectTransform), typeof(Text));
         var textRect = textGo.GetComponent<RectTransform>();
-        textRect.SetParent(rowRect, false);
+        textRect.SetParent(counterRoot, false);
         textRect.anchorMin = new Vector2(0.5f, 0.5f);
         textRect.anchorMax = new Vector2(0.5f, 0.5f);
         textRect.pivot = new Vector2(0f, 0.5f);
         textRect.anchoredPosition = new Vector2(0f, 0f);
         textRect.sizeDelta = new Vector2(9f, 6f);
 
-        var text = textGo.GetComponent<Text>();
-        text.raycastTarget = false;
-        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        text.fontSize = 5;
-        text.alignment = TextAnchor.MiddleLeft;
-        text.color = new Color(0.62f, 1f, 0.48f, 1f);
-        text.horizontalOverflow = HorizontalWrapMode.Overflow;
-        text.verticalOverflow = VerticalWrapMode.Overflow;
-
-        return new AilmentStackRow(rowRect, text, pos);
+        countText = textGo.GetComponent<Text>();
+        countText.raycastTarget = false;
+        countText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        countText.fontSize = 5;
+        countText.alignment = TextAnchor.MiddleLeft;
+        countText.color = textColor;
+        countText.horizontalOverflow = HorizontalWrapMode.Overflow;
+        countText.verticalOverflow = VerticalWrapMode.Overflow;
     }
 
     private static float ComputeAutoHeight(Transform target)
@@ -756,27 +783,33 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
     private sealed class AilmentStackRow
     {
         private readonly RectTransform _root;
-        private readonly Text _countText;
+        private readonly RectTransform _poisonRoot;
+        private readonly Text _poisonCountText;
+        private readonly RectTransform _bleedRoot;
+        private readonly Text _bleedCountText;
         private readonly Vector2 _basePosition;
 
-        public AilmentStackRow(RectTransform root, Text countText, Vector2 basePosition)
+        public AilmentStackRow(RectTransform root, RectTransform poisonRoot, Text poisonCountText, RectTransform bleedRoot, Text bleedCountText, Vector2 basePosition)
         {
             _root = root;
-            _countText = countText;
+            _poisonRoot = poisonRoot;
+            _poisonCountText = poisonCountText;
+            _bleedRoot = bleedRoot;
+            _bleedCountText = bleedCountText;
             _basePosition = basePosition;
         }
 
-        public void SetPoisonCount(int count)
+        public void SetCounts(int poisonCount, int bleedCount)
         {
             if (_root == null)
                 return;
 
-            bool visible = count > 0;
+            bool visible = poisonCount > 0 || bleedCount > 0;
             if (_root.gameObject.activeSelf != visible)
                 _root.gameObject.SetActive(visible);
 
-            if (_countText != null)
-                _countText.text = count.ToString();
+            SetCounter(_poisonRoot, _poisonCountText, poisonCount);
+            SetCounter(_bleedRoot, _bleedCountText, bleedCount);
         }
 
         public void SetYOffset(float y)
@@ -785,6 +818,16 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
                 return;
 
             _root.anchoredPosition = new Vector2(_basePosition.x, Mathf.Round(y));
+        }
+
+        private static void SetCounter(RectTransform root, Text text, int count)
+        {
+            bool visible = count > 0;
+            if (root != null && root.gameObject.activeSelf != visible)
+                root.gameObject.SetActive(visible);
+
+            if (text != null)
+                text.text = count.ToString();
         }
     }
 
@@ -824,9 +867,9 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
                 _ailmentStackRow.SetYOffset(4.1f + (_mysticShieldRow?.CurrentHeight ?? 0f) + 1.4f);
         }
 
-        public void SetAilmentStacks(int poisonCount)
+        public void SetAilmentStacks(int poisonCount, int bleedCount)
         {
-            _ailmentStackRow?.SetPoisonCount(poisonCount);
+            _ailmentStackRow?.SetCounts(poisonCount, bleedCount);
         }
 
         public void Tick(float dt)

@@ -168,6 +168,14 @@ MonoBehaviour:
       for every Posion stack on enemy.'
     m_Metadata:
       m_Items: []
+  - m_Id: 44859357152182272
+    m_Localized: Weapon Throw
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44859357181542400
+    m_Localized: Weapon Throw with 100% weapon damage +50% attack speed and pierce
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

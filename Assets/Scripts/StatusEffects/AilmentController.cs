@@ -12,10 +12,14 @@ namespace Scripts.StatusEffects
     {
         private const float DefaultPoisonDuration = 4f;
         private const float DefaultPoisonDamageMult = 20f;
+        private const float DefaultBleedDuration = 4f;
+        private const float DefaultBleedDamageMult = 70f;
         private const float TickInterval = 1f;
 
         private readonly List<PoisonStack> _poisonStacks = new List<PoisonStack>();
+        private readonly List<BleedStack> _bleedStacks = new List<BleedStack>();
         private float _poisonTickTimer = TickInterval;
+        private float _bleedTickTimer = TickInterval;
 
         private IStatsProvider _statsProvider;
         private EnemyHealth _enemyHealth;
@@ -35,13 +39,18 @@ namespace Scripts.StatusEffects
 
         private void Update()
         {
+            UpdatePoison(Time.deltaTime);
+            UpdateBleed(Time.deltaTime);
+        }
+
+        private void UpdatePoison(float dt)
+        {
             if (_poisonStacks.Count == 0)
             {
                 _poisonTickTimer = TickInterval;
                 return;
             }
 
-            float dt = Time.deltaTime;
             if (dt <= 0f)
                 return;
 
@@ -75,7 +84,32 @@ namespace Scripts.StatusEffects
 
         public int GetStackCount(AilmentType ailmentType)
         {
-            return ailmentType == AilmentType.Poison ? _poisonStacks.Count : 0;
+            return ailmentType switch
+            {
+                AilmentType.Poison => _poisonStacks.Count,
+                AilmentType.Bleed => _bleedStacks.Count,
+                _ => 0
+            };
+        }
+
+        public static void TryApplyHitAilments(IStatsProvider sourceStats, object source, Transform target, DamageSnapshot hitSnapshot)
+        {
+            if (sourceStats == null || target == null || hitSnapshot == null || hitSnapshot.Physical <= 0f)
+                return;
+
+            if (!TryResolve(target, out AilmentController controller) || controller == null)
+                return;
+
+            controller.TryApplyPoison(sourceStats, source, hitSnapshot);
+            controller.TryApplyBleed(sourceStats, source, hitSnapshot);
+        }
+
+        public static void TryApplyHitAilmentsFromSource(object source, Transform target, DamageSnapshot hitSnapshot)
+        {
+            if (!TryResolveStatsProvider(source, out IStatsProvider sourceStats))
+                return;
+
+            TryApplyHitAilments(sourceStats, source, target, hitSnapshot);
         }
 
         public bool TryApplyPoison(IStatsProvider sourceStats, object source, DamageSnapshot hitSnapshot)
@@ -108,6 +142,57 @@ namespace Scripts.StatusEffects
                 duration = DefaultPoisonDuration;
 
             _poisonStacks.Add(new PoisonStack
+            {
+                Source = source,
+                TickDamage = tickDamage,
+                RemainingSeconds = duration
+            });
+
+            OnAilmentsChanged?.Invoke();
+            return true;
+        }
+
+        public bool TryApplyBleed(IStatsProvider sourceStats, object source, DamageSnapshot hitSnapshot)
+        {
+            if (sourceStats == null || hitSnapshot == null || hitSnapshot.Physical <= 0f)
+                return false;
+
+            CacheOwner();
+
+            float chance = Mathf.Max(0f, sourceStats.GetValue(StatType.BleedChance));
+            if (chance <= 0f)
+                return false;
+
+            float avoid = _statsProvider != null ? Mathf.Clamp(_statsProvider.GetValue(StatType.ChanseToAvoidBleed), 0f, 100f) : 0f;
+            float finalChance = Mathf.Clamp(chance * (1f - avoid / 100f), 0f, 100f);
+            if (UnityEngine.Random.value > finalChance / 100f)
+                return false;
+
+            float damageMult = sourceStats.GetValue(StatType.BleedDamageMult);
+            if (damageMult <= 0f)
+                damageMult = DefaultBleedDamageMult;
+
+            float bleedDamagePercent = sourceStats.GetValue(StatType.BleedDamage);
+            float tickDamage = hitSnapshot.Physical * (damageMult / 100f) * Mathf.Max(0f, 1f + bleedDamagePercent / 100f);
+            if (tickDamage <= 0f)
+                return false;
+
+            float duration = sourceStats.GetValue(StatType.BleedDuration);
+            if (duration <= 0f)
+                duration = DefaultBleedDuration;
+
+            int maxStacks = 1 + Mathf.Max(0, Mathf.FloorToInt(sourceStats.GetValue(StatType.MaxBleedStack)));
+
+            if (_bleedStacks.Count >= maxStacks)
+            {
+                int weakestIndex = FindWeakestBleedStackIndex();
+                if (weakestIndex < 0 || _bleedStacks[weakestIndex].TickDamage > tickDamage)
+                    return false;
+
+                _bleedStacks.RemoveAt(weakestIndex);
+            }
+
+            _bleedStacks.Add(new BleedStack
             {
                 Source = source,
                 TickDamage = tickDamage,
@@ -160,6 +245,45 @@ namespace Scripts.StatusEffects
             _playerDamageReceiver = GetComponent<PlayerDamageReceiver>() ?? GetComponentInParent<PlayerDamageReceiver>();
         }
 
+        private void UpdateBleed(float dt)
+        {
+            if (_bleedStacks.Count == 0)
+            {
+                _bleedTickTimer = TickInterval;
+                return;
+            }
+
+            if (dt <= 0f)
+                return;
+
+            _bleedTickTimer -= dt;
+            bool changed = false;
+            for (int i = _bleedStacks.Count - 1; i >= 0; i--)
+            {
+                BleedStack stack = _bleedStacks[i];
+                stack.RemainingSeconds -= dt;
+
+                if (stack.RemainingSeconds <= 0f)
+                {
+                    _bleedStacks.RemoveAt(i);
+                    changed = true;
+                }
+                else
+                {
+                    _bleedStacks[i] = stack;
+                }
+            }
+
+            while (_bleedTickTimer <= 0f && _bleedStacks.Count > 0)
+            {
+                _bleedTickTimer += TickInterval;
+                ApplyCombinedBleedTick();
+            }
+
+            if (changed)
+                OnAilmentsChanged?.Invoke();
+        }
+
         private void ApplyCombinedPoisonTick()
         {
             float totalDamage = 0f;
@@ -186,6 +310,32 @@ namespace Scripts.StatusEffects
             ApplyPurePoisonTick(totalDamage, source);
         }
 
+        private void ApplyCombinedBleedTick()
+        {
+            float totalDamage = 0f;
+            object source = null;
+            float sourceDamage = float.MinValue;
+
+            for (int i = 0; i < _bleedStacks.Count; i++)
+            {
+                BleedStack stack = _bleedStacks[i];
+                if (stack.RemainingSeconds <= 0f || stack.TickDamage <= 0f)
+                    continue;
+
+                totalDamage += stack.TickDamage;
+                if (stack.TickDamage > sourceDamage)
+                {
+                    sourceDamage = stack.TickDamage;
+                    source = stack.Source;
+                }
+            }
+
+            if (totalDamage <= 0f)
+                return;
+
+            ApplyPureBleedTick(totalDamage, source);
+        }
+
         private void ApplyPurePoisonTick(float damage, object source)
         {
             if (_enemyHealth != null)
@@ -198,7 +348,62 @@ namespace Scripts.StatusEffects
                 _playerDamageReceiver.ApplyPureDamage(damage, source, "Poison");
         }
 
+        private void ApplyPureBleedTick(float damage, object source)
+        {
+            if (_enemyHealth != null)
+            {
+                _enemyHealth.ApplyPureDamage(damage, source, "Bleed");
+                return;
+            }
+
+            if (_playerDamageReceiver != null)
+                _playerDamageReceiver.ApplyPureDamage(damage, source, "Bleed");
+        }
+
+        private int FindWeakestBleedStackIndex()
+        {
+            int weakestIndex = -1;
+            float weakestDamage = float.MaxValue;
+            for (int i = 0; i < _bleedStacks.Count; i++)
+            {
+                if (_bleedStacks[i].TickDamage >= weakestDamage)
+                    continue;
+
+                weakestDamage = _bleedStacks[i].TickDamage;
+                weakestIndex = i;
+            }
+
+            return weakestIndex;
+        }
+
+        private static bool TryResolveStatsProvider(object source, out IStatsProvider statsProvider)
+        {
+            statsProvider = null;
+            if (source == null)
+                return false;
+
+            if (source is IStatsProvider directStats)
+            {
+                statsProvider = directStats;
+                return true;
+            }
+
+            GameObject sourceObject = Scripts.GameplayEvents.GameplayEventContext.ResolveGameObject(source);
+            if (sourceObject == null)
+                return false;
+
+            statsProvider = sourceObject.GetComponent<IStatsProvider>() ?? sourceObject.GetComponentInParent<IStatsProvider>();
+            return statsProvider != null;
+        }
+
         private struct PoisonStack
+        {
+            public object Source;
+            public float TickDamage;
+            public float RemainingSeconds;
+        }
+
+        private struct BleedStack
         {
             public object Source;
             public float TickDamage;

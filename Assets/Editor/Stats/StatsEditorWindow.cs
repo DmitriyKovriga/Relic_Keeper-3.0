@@ -30,6 +30,7 @@ namespace Scripts.Editor.Stats
         private bool _showAdvancedMetadata;
         private bool _showLocalizationSection = true;
         private bool _showUsageSection = true;
+        private bool _showGlobalHeroDefaults = true;
         private bool _showTechnicalTools;
         private bool _showGeneratedAffixTools = true;
         private bool _showAffixKindGenerator = true;
@@ -50,6 +51,7 @@ namespace Scripts.Editor.Stats
 
         private const string MenuPath = "Tools/Stats Editor";
         private const string SessionKeySelectedStat = "StatsEditorWindow_SelectedStat";
+        private const string GlobalBaseStatsAssetPath = "Assets/Resources/Databases/DefaultGlobalBaseStats.asset";
         private static readonly string[] MissingLocalizationFilterOptions =
         {
             "Вся локализация",
@@ -80,8 +82,10 @@ namespace Scripts.Editor.Stats
         };
 
         [SerializeField] private StatsDatabaseSO _statsDatabase;
+        [SerializeField] private GlobalBaseStatsSO _globalBaseStats;
         [SerializeField] private StringTableCollection _affixesCollection;
         private string _newStatName = "";
+        private Vector2 _globalDefaultsScroll;
         private string _systemUpgradeReport = "";
         private string _generatedAffixRebuildReport = "";
         private string _specificAffixGenerationReport = "";
@@ -105,6 +109,8 @@ namespace Scripts.Editor.Stats
                 if (_statsDatabase == null)
                     _statsDatabase = Resources.Load<StatsDatabaseSO>(ProjectPaths.ResourcesStatsDatabase);
             }
+            if (_globalBaseStats == null)
+                _globalBaseStats = LoadGlobalBaseStatsAsset();
             string saved = SessionState.GetString(SessionKeySelectedStat, null);
             if (!string.IsNullOrEmpty(saved) && Enum.TryParse<StatType>(saved, out var parsed))
                 _selectedStat = parsed;
@@ -223,6 +229,11 @@ namespace Scripts.Editor.Stats
             DrawSummarySection(type, id, category, semantic);
 
             EditorGUILayout.Space(8);
+            _showGlobalHeroDefaults = EditorGUILayout.Foldout(_showGlobalHeroDefaults, "Базовые статы всех героев", true);
+            if (_showGlobalHeroDefaults)
+                DrawGlobalHeroDefaultsSection(type);
+
+            EditorGUILayout.Space(8);
             DrawMetadataSection(type);
 
             EditorGUILayout.Space(10);
@@ -296,6 +307,182 @@ namespace Scripts.Editor.Stats
                 SessionState.SetString(SessionKeySelectedStat, "");
                 Repaint();
             }
+        }
+
+        private void DrawGlobalHeroDefaultsSection(StatType selectedType)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.HelpBox(
+                "Эта база применяется ко всем героям перед их персональными Starting Stats. Если у героя в CharacterDataSO указан тот же стат, значение героя перекрывает глобальный дефолт.",
+                MessageType.None);
+
+            EditorGUILayout.BeginHorizontal();
+            _globalBaseStats = (GlobalBaseStatsSO)EditorGUILayout.ObjectField("Default asset", _globalBaseStats, typeof(GlobalBaseStatsSO), false);
+            if (GUILayout.Button("Ping", GUILayout.Width(56)))
+                PingGlobalBaseStatsAsset();
+            EditorGUILayout.EndHorizontal();
+
+            if (_globalBaseStats == null)
+            {
+                EditorGUILayout.HelpBox("DefaultGlobalBaseStats asset не найден. Создай его, чтобы балансить общие стартовые значения героев из этого окна.", MessageType.Warning);
+                if (GUILayout.Button("Создать DefaultGlobalBaseStats.asset", GUILayout.Height(24)))
+                    _globalBaseStats = CreateGlobalBaseStatsAsset();
+
+                EditorGUILayout.EndVertical();
+                return;
+            }
+
+            DrawSelectedGlobalDefaultRow(selectedType);
+
+            EditorGUILayout.Space(6);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Все глобальные дефолты", EditorStyles.miniBoldLabel);
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Убрать дубликаты", GUILayout.Width(120)))
+            {
+                Undo.RecordObject(_globalBaseStats, "Normalize Global Base Stats");
+                if (_globalBaseStats.Normalize())
+                    SaveGlobalBaseStats();
+            }
+            EditorGUILayout.EndHorizontal();
+
+            var list = _globalBaseStats.BaseStats;
+            if (list.Count == 0)
+            {
+                EditorGUILayout.LabelField("Список пуст. Добавь выбранный стат выше.", EditorStyles.miniLabel);
+            }
+            else
+            {
+                _globalDefaultsScroll = EditorGUILayout.BeginScrollView(_globalDefaultsScroll, GUILayout.MinHeight(120), GUILayout.MaxHeight(220));
+                var sortedIndices = Enumerable.Range(0, list.Count)
+                    .OrderBy(i => _statsDatabase != null ? _statsDatabase.GetCategory(list[i].Type) : GetStatCategory(list[i].Type))
+                    .ThenBy(i => Convert.ToInt32(list[i].Type))
+                    .ToList();
+
+                string lastCategory = null;
+                foreach (int index in sortedIndices)
+                {
+                    if (index < 0 || index >= list.Count)
+                        continue;
+
+                    var config = list[index];
+                    string category = _statsDatabase != null ? _statsDatabase.GetCategory(config.Type) : GetStatCategory(config.Type);
+                    if (lastCategory != category)
+                    {
+                        EditorGUILayout.Space(3);
+                        EditorGUILayout.LabelField(category, EditorStyles.miniBoldLabel);
+                        lastCategory = category;
+                    }
+
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField(StatPickerUtility.GetButtonLabel(config.Type), GUILayout.MinWidth(260));
+                    float newValue = EditorGUILayout.FloatField(config.Value, GUILayout.Width(120));
+                    if (!Mathf.Approximately(newValue, config.Value))
+                    {
+                        Undo.RecordObject(_globalBaseStats, "Edit Global Base Stat");
+                        config.Value = newValue;
+                        list[index] = config;
+                        SaveGlobalBaseStats();
+                    }
+
+                    if (GUILayout.Button("X", GUILayout.Width(24)))
+                    {
+                        Undo.RecordObject(_globalBaseStats, "Remove Global Base Stat");
+                        _globalBaseStats.RemoveValue(config.Type);
+                        SaveGlobalBaseStats();
+                        GUIUtility.ExitGUI();
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
+                EditorGUILayout.EndScrollView();
+            }
+
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawSelectedGlobalDefaultRow(StatType selectedType)
+        {
+            EditorGUILayout.Space(4);
+            EditorGUILayout.LabelField("Быстрое редактирование выбранного стата", EditorStyles.miniBoldLabel);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(StatPickerUtility.GetButtonLabel(selectedType), GUILayout.MinWidth(260));
+
+            if (_globalBaseStats.TryGetValue(selectedType, out float value))
+            {
+                float newValue = EditorGUILayout.FloatField(value, GUILayout.Width(120));
+                if (!Mathf.Approximately(newValue, value))
+                {
+                    Undo.RecordObject(_globalBaseStats, "Edit Global Base Stat");
+                    _globalBaseStats.SetValue(selectedType, newValue);
+                    SaveGlobalBaseStats();
+                }
+
+                if (GUILayout.Button("Удалить из default", GUILayout.Width(140)))
+                {
+                    Undo.RecordObject(_globalBaseStats, "Remove Global Base Stat");
+                    _globalBaseStats.RemoveValue(selectedType);
+                    SaveGlobalBaseStats();
+                    GUIUtility.ExitGUI();
+                }
+            }
+            else
+            {
+                EditorGUILayout.LabelField("не задан", GUILayout.Width(120));
+                if (GUILayout.Button("Добавить со значением 0", GUILayout.Width(170)))
+                {
+                    Undo.RecordObject(_globalBaseStats, "Add Global Base Stat");
+                    _globalBaseStats.SetValue(selectedType, 0f);
+                    SaveGlobalBaseStats();
+                    GUIUtility.ExitGUI();
+                }
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private static GlobalBaseStatsSO LoadGlobalBaseStatsAsset()
+        {
+            return AssetDatabase.LoadAssetAtPath<GlobalBaseStatsSO>(GlobalBaseStatsAssetPath)
+                ?? Resources.Load<GlobalBaseStatsSO>(GlobalBaseStatsSO.DefaultResourcesPath);
+        }
+
+        private static GlobalBaseStatsSO CreateGlobalBaseStatsAsset()
+        {
+            if (!AssetDatabase.IsValidFolder("Assets/Resources"))
+                AssetDatabase.CreateFolder("Assets", "Resources");
+            if (!AssetDatabase.IsValidFolder("Assets/Resources/Databases"))
+                AssetDatabase.CreateFolder("Assets/Resources", "Databases");
+
+            var existing = AssetDatabase.LoadAssetAtPath<GlobalBaseStatsSO>(GlobalBaseStatsAssetPath);
+            if (existing != null)
+                return existing;
+
+            var asset = CreateInstance<GlobalBaseStatsSO>();
+            AssetDatabase.CreateAsset(asset, GlobalBaseStatsAssetPath);
+            AssetDatabase.SaveAssets();
+            return asset;
+        }
+
+        private void SaveGlobalBaseStats()
+        {
+            if (_globalBaseStats == null)
+                return;
+
+            EditorUtility.SetDirty(_globalBaseStats);
+            AssetDatabase.SaveAssets();
+            Repaint();
+        }
+
+        private void PingGlobalBaseStatsAsset()
+        {
+            if (_globalBaseStats == null)
+                _globalBaseStats = LoadGlobalBaseStatsAsset();
+
+            if (_globalBaseStats == null)
+                return;
+
+            Selection.activeObject = _globalBaseStats;
+            EditorGUIUtility.PingObject(_globalBaseStats);
         }
 
         private void DrawMetadataSection(StatType type)

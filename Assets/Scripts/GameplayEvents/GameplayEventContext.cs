@@ -21,10 +21,18 @@ namespace Scripts.GameplayEvents
         public static GameObject ResolveGameObject(object source)
         {
             if (source is GameObject go)
+            {
+                if (go == null)
+                    return null;
                 return go;
+            }
 
             if (source is Component component)
+            {
+                if (component == null)
+                    return null;
                 return component.gameObject;
+            }
 
             return null;
         }

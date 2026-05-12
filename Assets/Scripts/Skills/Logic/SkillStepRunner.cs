@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using Scripts.Stats;
 using Scripts.Skills.Steps;
 using Scripts.Skills.Modules;
+using Scripts.Skills.Projectiles;
 using Scripts.Combat;
 using Scripts.StatusEffects;
+using Scripts.Inventory;
+using Scripts.Items;
 
 namespace Scripts.Skills
 {
@@ -88,6 +91,7 @@ namespace Scripts.Skills
             if (speed <= 0f)
                 speed = DefaultActionSpeed;
 
+            speed *= ResolveSkillSpeedMultiplier();
             return Mathf.Clamp(speed, MinActionSpeed, MaxActionSpeed);
         }
 
@@ -329,6 +333,9 @@ namespace Scripts.Skills
                 case "SpawnVFX":
                     ExecuteSpawnVFX(stepIndex, step, stepDuration);
                     break;
+                case "SpawnProjectile":
+                    ExecuteSpawnProjectile(step);
+                    break;
                 case "DealDamageCircle":
                     ExecuteDealDamageCircle(stepIndex, step);
                     break;
@@ -470,6 +477,141 @@ namespace Scripts.Skills
                 sr);
         }
 
+        private void ExecuteSpawnProjectile(StepEntry step)
+        {
+            if (_ownerStats == null || step == null)
+                return;
+
+            int baseCount = Mathf.Max(1, step.GetInt("BaseProjectileCount", 1));
+            int additionalCount = Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileCount)));
+            int totalCount = Mathf.Max(1, baseCount + additionalCount);
+            float baseSpeed = Mathf.Max(0.01f, step.GetFloat("BaseSpeed", 8f));
+            float speedMultiplier = Mathf.Max(0f, 1f + _ownerStats.GetValue(StatType.ProjectileSpeed) / 100f);
+            float offsetX = step.GetFloat("OffsetX", 0.45f);
+            float offsetY = step.GetFloat("OffsetY", 0.35f);
+            float damageMultiplier = ResolveDamageMultiplier(step);
+            bool useWeaponSprite = step.GetBool("UseCurrentWeaponSprite", false);
+            Sprite projectileSprite = useWeaponSprite ? ResolveCurrentWeaponSprite() : null;
+            GameObject projectilePrefab = step.GetObject<GameObject>("ProjectilePrefab");
+
+            if (projectilePrefab == null && projectileSprite == null)
+            {
+                Debug.LogWarning("[SkillStepRunner] SpawnProjectile needs Projectile Prefab or Use Current Weapon Sprite with equipped weapon sprite.");
+                return;
+            }
+
+            SpriteRenderer sortingSource = ResolveProjectileSortingSource();
+            var data = new SkillProjectileLaunchData
+            {
+                OwnerStats = _ownerStats,
+                OwnerTransform = _ownerStats.transform,
+                Step = step,
+                DamageContext = ResolveProjectileDamageContext(),
+                DamageMultiplier = damageMultiplier,
+                TargetLayer = _targetLayer.value == 0 ? ~0 : _targetLayer,
+                WorldLayer = step.GetInt("WorldLayerMask", 1 << 6),
+                StopOnWorld = step.GetBool("StopOnWorld", true),
+                ProjectilePrefab = projectilePrefab,
+                OverrideSprite = projectileSprite,
+                Speed = baseSpeed * speedMultiplier,
+                Lifetime = Mathf.Max(0.05f, step.GetFloat("Lifetime", 4f)),
+                HitRadius = Mathf.Max(0.02f, step.GetFloat("HitRadius", 0.18f)),
+                RotationDegreesPerSecond = step.GetFloat("RotationDegreesPerSecond", useWeaponSprite ? 720f : 0f),
+                RemainingForks = Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileFork))),
+                RemainingChains = Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileChain))),
+                RemainingPierces = Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectilePierce))),
+                InfinitePierce = step.GetBool("InfinitePierce", false),
+                IgnoreFork = step.GetBool("IgnoreFork", false),
+                IgnoreChain = step.GetBool("IgnoreChain", false),
+                ForkAngle = Mathf.Max(0f, step.GetFloat("ForkAngle", 18f)),
+                ChainSearchRadius = Mathf.Max(0.1f, step.GetFloat("ChainSearchRadius", 12f)),
+                SortingLayerId = sortingSource != null ? sortingSource.sortingLayerID : 0,
+                SortingOrder = sortingSource != null ? sortingSource.sortingOrder + 20 : 20050
+            };
+
+            Vector2 origin = (Vector2)_ownerStats.transform.position + new Vector2(offsetX * _ctx.FacingDirection, offsetY);
+            Vector2 forward = new Vector2(_ctx.FacingDirection, 0f);
+            var spreadMode = (SkillProjectileSpreadMode)step.GetInt("SpreadMode", (int)SkillProjectileSpreadMode.Cone);
+            for (int i = 0; i < totalCount; i++)
+            {
+                Vector2 spawnPos = origin;
+                Vector2 direction = forward;
+                if (spreadMode == SkillProjectileSpreadMode.ParallelRows)
+                {
+                    spawnPos += Vector2.up * ResolveParallelProjectileOffset(i, step.GetFloat("ParallelSpacingY", 0.25f));
+                }
+                else
+                {
+                    float angleStep = step.GetFloat("ConeAnglePerProjectile", 8f);
+                    float centeredIndex = i - (totalCount - 1) * 0.5f;
+                    direction = RotateVector(forward, centeredIndex * angleStep);
+                }
+
+                SkillProjectile.Spawn(data, spawnPos, direction, null);
+            }
+        }
+
+        private DamageContext ResolveProjectileDamageContext()
+        {
+            StatContextTagFlags tags = _data != null ? _data.DamageContextTags : StatContextTagFlags.None;
+            if (tags == StatContextTagFlags.None)
+                tags = StatContextTagFlags.Attack | StatContextTagFlags.Projectile;
+            else
+                tags |= StatContextTagFlags.Projectile;
+
+            return new DamageContext(tags);
+        }
+
+        private Sprite ResolveCurrentWeaponSprite()
+        {
+            Transform handPivot = _ownerStats != null ? _ownerStats.transform.Find("Visuals/HandPivot") : null;
+            if (handPivot != null)
+            {
+                SpriteRenderer weaponRenderer = handPivot.GetComponentInChildren<SpriteRenderer>(true);
+                if (weaponRenderer != null && weaponRenderer.sprite != null)
+                    return weaponRenderer.sprite;
+            }
+
+            InventoryItem mainHandItem = InventoryManager.Instance != null
+                ? InventoryManager.Instance.EquipmentItems[(int)EquipmentSlot.MainHand]
+                : null;
+            if (mainHandItem?.Data is WeaponItemSO weaponData)
+                return weaponData.InHandSprite;
+
+            return null;
+        }
+
+        private SpriteRenderer ResolveProjectileSortingSource()
+        {
+            Transform handPivot = _ownerStats != null ? _ownerStats.transform.Find("Visuals/HandPivot") : null;
+            if (handPivot != null)
+            {
+                SpriteRenderer weaponRenderer = handPivot.GetComponentInChildren<SpriteRenderer>(true);
+                if (weaponRenderer != null)
+                    return weaponRenderer;
+            }
+
+            return _ownerStats != null ? _ownerStats.GetComponentInChildren<SpriteRenderer>(true) : null;
+        }
+
+        private static float ResolveParallelProjectileOffset(int index, float spacing)
+        {
+            if (index <= 0)
+                return 0f;
+
+            int lane = (index + 1) / 2;
+            int sign = index % 2 == 1 ? 1 : -1;
+            return sign * lane * Mathf.Max(0f, spacing);
+        }
+
+        private static Vector2 RotateVector(Vector2 direction, float degrees)
+        {
+            float radians = degrees * Mathf.Deg2Rad;
+            float sin = Mathf.Sin(radians);
+            float cos = Mathf.Cos(radians);
+            return new Vector2(direction.x * cos - direction.y * sin, direction.x * sin + direction.y * cos).normalized;
+        }
+
         private void ExecuteDealDamageCircle(int stepIndex, StepEntry step)
         {
             ResolveCircleArea(step, out Vector2 center, out float radius);
@@ -551,17 +693,8 @@ namespace Scripts.Skills
 
         private void TryApplyAilmentsFromHit(IStatsProvider scopedStats, IDamageable target, DamageSnapshot hitSnapshot)
         {
-            if (scopedStats == null || hitSnapshot == null || hitSnapshot.Physical <= 0f)
-                return;
-
-            if (scopedStats.GetValue(StatType.PoisonChance) <= 0f)
-                return;
-
             Transform targetTransform = ResolveDamageableTransform(target);
-            if (!AilmentController.TryResolve(targetTransform, out AilmentController controller) || controller == null)
-                return;
-
-            controller.TryApplyPoison(scopedStats, _ownerStats, hitSnapshot);
+            AilmentController.TryApplyHitAilments(scopedStats, _ownerStats, targetTransform, hitSnapshot);
         }
 
         private static Transform ResolveDamageableTransform(IDamageable target)

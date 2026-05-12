@@ -514,6 +514,8 @@ namespace Scripts.Editor.Skills
                 $"{title} · {active}",
                 $"Mana: {skill.ManaCost:0.#} · Cooldown: {skill.Cooldown:0.##}s"
             };
+            if (!Mathf.Approximately(skill.SkillSpeedMultiplier, 1f))
+                parts.Add($"Skill Speed x{Mathf.Max(0.05f, skill.SkillSpeedMultiplier):0.##}");
 
             if (!string.IsNullOrWhiteSpace(skill.Description))
                 parts.Add(skill.Description);
@@ -636,6 +638,7 @@ namespace Scripts.Editor.Skills
                 case "WeaponRecovery":
                 case "Wait":
                 case "SpawnVFX":
+                case "SpawnProjectile":
                 case "DealDamageCircle":
                 case "DealDamageRectangle":
                 case "ParallelGroup":
@@ -797,6 +800,9 @@ namespace Scripts.Editor.Skills
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("IsActive"), new GUIContent("Is Active"));
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("Cooldown"));
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("ManaCost"), new GUIContent("Mana Cost"));
+            EditorGUILayout.PropertyField(
+                serializedSkill.FindProperty("SkillSpeedMultiplier"),
+                new GUIContent("Skill Speed Multiplier", "Applied after normal AttackSpeed/CastSpeed. 1 = normal, 1.5 = 50% faster."));
 
             EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField("Runtime Links", EditorStyles.boldLabel);
@@ -1191,6 +1197,12 @@ namespace Scripts.Editor.Skills
                 return;
             }
 
+            if (id == "SpawnProjectile")
+            {
+                DrawProjectileFields(recipe, step);
+                return;
+            }
+
             if (id == "DealDamageCircle")
             {
                 EditorGUILayout.HelpBox("Если указан Source step index, круг берёт размер текущего кадра VFX, включая прозрачные пиксели. Size X / Size Y — это мультипликаторы от визуального размера. Если Source step index = -1, используется обычный Radius.", MessageType.None);
@@ -1458,6 +1470,105 @@ namespace Scripts.Editor.Skills
             {
                 EditorGUILayout.HelpBox("No extra settings for this step type.", MessageType.None);
             }
+        }
+
+        private void DrawProjectileFields(SkillRecipeSO recipe, StepEntry step)
+        {
+            EditorGUILayout.HelpBox("Спавнит один или несколько снарядов. Урон считается при попадании по цели, поэтому ролл оружия и target-aware модификаторы работают отдельно для каждой цели.", MessageType.None);
+
+            GameObject prefab = step.GetObject<GameObject>("ProjectilePrefab");
+            GameObject newPrefab = (GameObject)EditorGUILayout.ObjectField(new GUIContent("Projectile prefab", "Обычный VFX/Prefab для снаряда. Если пусто, будет создан runtime projectile со SpriteRenderer."), prefab, typeof(GameObject), false);
+            if (newPrefab != prefab) { step.SetOverrideObject("ProjectilePrefab", newPrefab); EditorUtility.SetDirty(recipe); }
+
+            bool useWeaponSprite = step.GetBool("UseCurrentWeaponSprite", false);
+            bool newUseWeaponSprite = EditorGUILayout.Toggle(new GUIContent("Use current weapon sprite", "Берёт SpriteRenderer оружия из руки игрока, либо InHandSprite из MainHand weapon."), useWeaponSprite);
+            if (newUseWeaponSprite != useWeaponSprite) { step.SetOverrideBool("UseCurrentWeaponSprite", newUseWeaponSprite); EditorUtility.SetDirty(recipe); }
+
+            float baseSpeed = step.GetFloat("BaseSpeed", 8f);
+            float newBaseSpeed = Mathf.Max(0.01f, EditorGUILayout.FloatField(new GUIContent("Base speed", "Базовая скорость снаряда. ProjectileSpeed применяется сверху как % модификатор."), baseSpeed));
+            if (Mathf.Abs(newBaseSpeed - baseSpeed) > 0.001f) { step.SetOverrideFloat("BaseSpeed", newBaseSpeed); EditorUtility.SetDirty(recipe); }
+
+            int baseCount = Mathf.Max(1, step.GetInt("BaseProjectileCount", 1));
+            int newBaseCount = Mathf.Max(1, EditorGUILayout.IntField(new GUIContent("Base projectile count", "Базовое количество снарядов в самом скилле. Stat ProjectileCount добавляет дополнительные."), baseCount));
+            if (newBaseCount != baseCount) { step.SetOverrideInt("BaseProjectileCount", newBaseCount); EditorUtility.SetDirty(recipe); }
+
+            int spreadMode = step.GetInt("SpreadMode", 0);
+            int newSpreadMode = EditorGUILayout.Popup(new GUIContent("Extra projectile layout", "Как раскладываются базовые и дополнительные снаряды."), spreadMode, new[] { "Cone", "Parallel rows" });
+            if (newSpreadMode != spreadMode) { step.SetOverrideInt("SpreadMode", newSpreadMode); EditorUtility.SetDirty(recipe); }
+
+            if (newSpreadMode == 0)
+            {
+                float coneAngle = step.GetFloat("ConeAnglePerProjectile", 8f);
+                float newConeAngle = Mathf.Max(0f, EditorGUILayout.FloatField(new GUIContent("Cone angle per projectile", "На сколько градусов каждый следующий снаряд расширяет конус."), coneAngle));
+                if (Mathf.Abs(newConeAngle - coneAngle) > 0.001f) { step.SetOverrideFloat("ConeAnglePerProjectile", newConeAngle); EditorUtility.SetDirty(recipe); }
+            }
+            else
+            {
+                float spacing = step.GetFloat("ParallelSpacingY", 0.25f);
+                float newSpacing = Mathf.Max(0f, EditorGUILayout.FloatField(new GUIContent("Parallel vertical spacing", "Дополнительные снаряды идут поочерёдно выше/ниже, но летят вперед."), spacing));
+                if (Mathf.Abs(newSpacing - spacing) > 0.001f) { step.SetOverrideFloat("ParallelSpacingY", newSpacing); EditorUtility.SetDirty(recipe); }
+            }
+
+            float lifetime = step.GetFloat("Lifetime", 4f);
+            float newLifetime = Mathf.Max(0.05f, EditorGUILayout.FloatField("Lifetime", lifetime));
+            if (Mathf.Abs(newLifetime - lifetime) > 0.001f) { step.SetOverrideFloat("Lifetime", newLifetime); EditorUtility.SetDirty(recipe); }
+
+            float hitRadius = step.GetFloat("HitRadius", 0.18f);
+            float newHitRadius = Mathf.Max(0.02f, EditorGUILayout.FloatField("Hit radius", hitRadius));
+            if (Mathf.Abs(newHitRadius - hitRadius) > 0.001f) { step.SetOverrideFloat("HitRadius", newHitRadius); EditorUtility.SetDirty(recipe); }
+
+            float offsetX = step.GetFloat("OffsetX", 0.45f);
+            float newOffsetX = EditorGUILayout.FloatField("Offset X", offsetX);
+            if (Mathf.Abs(newOffsetX - offsetX) > 0.001f) { step.SetOverrideFloat("OffsetX", newOffsetX); EditorUtility.SetDirty(recipe); }
+
+            float offsetY = step.GetFloat("OffsetY", 0.35f);
+            float newOffsetY = EditorGUILayout.FloatField("Offset Y", offsetY);
+            if (Mathf.Abs(newOffsetY - offsetY) > 0.001f) { step.SetOverrideFloat("OffsetY", newOffsetY); EditorUtility.SetDirty(recipe); }
+
+            float rotation = step.GetFloat("RotationDegreesPerSecond", newUseWeaponSprite ? 720f : 0f);
+            float newRotation = EditorGUILayout.FloatField("Rotation deg/sec", rotation);
+            if (Mathf.Abs(newRotation - rotation) > 0.001f) { step.SetOverrideFloat("RotationDegreesPerSecond", newRotation); EditorUtility.SetDirty(recipe); }
+
+            bool stopOnWorld = step.GetBool("StopOnWorld", true);
+            bool newStopOnWorld = EditorGUILayout.Toggle("Stop on world", stopOnWorld);
+            if (newStopOnWorld != stopOnWorld) { step.SetOverrideBool("StopOnWorld", newStopOnWorld); EditorUtility.SetDirty(recipe); }
+
+            EditorGUI.BeginDisabledGroup(!newStopOnWorld);
+            int worldMask = step.GetInt("WorldLayerMask", 1 << 6);
+            int newWorldMask = EditorGUILayout.MaskField("World layer mask", worldMask, UnityEditorInternal.InternalEditorUtility.layers);
+            if (newWorldMask != worldMask) { step.SetOverrideInt("WorldLayerMask", newWorldMask); EditorUtility.SetDirty(recipe); }
+            EditorGUI.EndDisabledGroup();
+
+            EditorGUILayout.Space(4f);
+            EditorGUILayout.LabelField("Projectile behavior", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("При попадании срабатывает только одна механика в порядке: Fork -> Chain -> Pierce. Fork и Chain имеют встроенный проход через цель и не тратят Pierce.", MessageType.None);
+
+            bool ignoreFork = step.GetBool("IgnoreFork", false);
+            bool newIgnoreFork = EditorGUILayout.Toggle(new GUIContent("Ignore fork", "Запрещает ProjectileFork для этого снаряда, даже если у персонажа есть стат."), ignoreFork);
+            if (newIgnoreFork != ignoreFork) { step.SetOverrideBool("IgnoreFork", newIgnoreFork); EditorUtility.SetDirty(recipe); }
+
+            bool ignoreChain = step.GetBool("IgnoreChain", false);
+            bool newIgnoreChain = EditorGUILayout.Toggle(new GUIContent("Ignore chain", "Запрещает ProjectileChain для этого снаряда, даже если у персонажа есть стат."), ignoreChain);
+            if (newIgnoreChain != ignoreChain) { step.SetOverrideBool("IgnoreChain", newIgnoreChain); EditorUtility.SetDirty(recipe); }
+
+            bool infinitePierce = step.GetBool("InfinitePierce", false);
+            bool newInfinitePierce = EditorGUILayout.Toggle(new GUIContent("Infinite pierce", "Снаряд игнорирует лимит ProjectilePierce и исчезает только по lifetime или от стен."), infinitePierce);
+            if (newInfinitePierce != infinitePierce) { step.SetOverrideBool("InfinitePierce", newInfinitePierce); EditorUtility.SetDirty(recipe); }
+
+            float forkAngle = step.GetFloat("ForkAngle", 18f);
+            float newForkAngle = Mathf.Max(0f, EditorGUILayout.FloatField(new GUIContent("Fork angle", "ProjectileFork берется из статов. При форке снаряд делится на два с этим углом."), forkAngle));
+            if (Mathf.Abs(newForkAngle - forkAngle) > 0.001f) { step.SetOverrideFloat("ForkAngle", newForkAngle); EditorUtility.SetDirty(recipe); }
+
+            float chainRadius = step.GetFloat("ChainSearchRadius", 12f);
+            float newChainRadius = Mathf.Max(0.1f, EditorGUILayout.FloatField(new GUIContent("Chain search radius", "ProjectileChain берется из статов. После попадания ищет ближайшую новую цель в этом радиусе."), chainRadius));
+            if (Mathf.Abs(newChainRadius - chainRadius) > 0.001f) { step.SetOverrideFloat("ChainSearchRadius", newChainRadius); EditorUtility.SetDirty(recipe); }
+
+            float damageMultiplier = step.GetFloat("DamageMultiplier", 1f);
+            float newDamageMultiplier = Mathf.Max(0f, EditorGUILayout.FloatField("Damage multiplier", damageMultiplier));
+            if (Mathf.Abs(newDamageMultiplier - damageMultiplier) > 0.001f) { step.SetOverrideFloat("DamageMultiplier", newDamageMultiplier); EditorUtility.SetDirty(recipe); }
+
+            DrawDamageConversionRules(recipe, step);
+            DrawSkillScopedModifierFields(recipe, step);
         }
 
         private void DrawStatBasedEffectFields(SkillRecipeSO recipe, StepEntry step)
@@ -1902,6 +2013,7 @@ namespace Scripts.Editor.Skills
                 ("WeaponRecovery", "Weapon recovery", "Р’РѕР·РІСЂР°С‚ РѕСЂСѓР¶РёСЏ", 65f),
                 ("Wait", "Wait", "РћР¶РёРґР°РЅРёРµ", 10f),
                 ("SpawnVFX", "Spawn VFX", "РЎРїР°РІРЅ VFX", 0f),
+                ("SpawnProjectile", "Spawn projectile", "Спавн снаряда", 0f),
                 ("DealDamageCircle", "Deal damage (circle)", "РЈСЂРѕРЅ РєСЂСѓРі", 0f),
                 ("DealDamageRectangle", "Deal damage (rectangle)", "РЈСЂРѕРЅ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє", 0f),
                 ("GenerateMysticShield", "Generate Mystic Shield", "Сгенерировать Mystic Shield", 0f),

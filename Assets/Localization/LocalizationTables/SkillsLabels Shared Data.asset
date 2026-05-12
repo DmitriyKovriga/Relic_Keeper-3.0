@@ -151,6 +151,14 @@ MonoBehaviour:
     m_Key: skills.VenomStrikeSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 44859357152182272
+    m_Key: skills.WeaponThrowSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44859357181542400
+    m_Key: skills.WeaponThrowSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -23,6 +23,8 @@ namespace Scripts.Skills
         public bool IsActive; // Active or Passive
         public float Cooldown;
         public float ManaCost;
+        [Tooltip("Multiplier applied after normal AttackSpeed/CastSpeed calculation. 1 = normal, 1.5 = 50% faster, 0.75 = 25% slower.")]
+        public float SkillSpeedMultiplier = 1f;
         [Tooltip("Контекст урона для расчета Context Modifier статов. Если оставить None у старых melee-скиллов, рантайм подставит безопасный legacy fallback Attack|Melee.")]
         public StatContextTagFlags DamageContextTags;
 

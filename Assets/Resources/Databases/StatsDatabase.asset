@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -1183,4 +1183,16 @@ MonoBehaviour:
     ContextTags: 2
     DamageChannels: 14
     AllowedAffixKinds: 30
-
+  - StatTypeId: ProjectilePierce
+    Category: Misc
+    SemanticKind: 3
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 6
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 8
+    DamageChannels: 0
+    AllowedAffixKinds: 31

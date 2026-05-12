@@ -959,6 +959,10 @@ MonoBehaviour:
     m_Key: stats.SpellDamage
     m_Metadata:
       m_Items: []
+  - m_Id: 59374563437871104
+    m_Key: stats.ProjectilePierce
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -56,6 +56,14 @@ namespace Scripts.Skills
             return new DamageContext(tags);
         }
 
+        protected float ResolveSkillSpeedMultiplier()
+        {
+            if (_data == null)
+                return 1f;
+
+            return Mathf.Max(0.05f, _data.SkillSpeedMultiplier <= 0f ? 1f : _data.SkillSpeedMultiplier);
+        }
+
         public void TryCast()
         {
             if (_isCasting)

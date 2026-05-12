@@ -578,6 +578,7 @@ namespace Scripts.Stats
                 case StatType.ProjectileCount:
                 case StatType.ProjectileFork:
                 case StatType.ProjectileChain:
+                case StatType.ProjectilePierce:
                 case StatType.MaxBleedStack:
                 case StatType.ExtraTargetsForMeleeHits:
                     return StatSemanticKind.Utility;
@@ -663,7 +664,7 @@ namespace Scripts.Stats
                 return StatValueUnit.Seconds;
             if (type == StatType.MaxBleedStack)
                 return StatValueUnit.Stacks;
-            if (type == StatType.ExtraTargetsForMeleeHits || type == StatType.ProjectileCount || type == StatType.ProjectileFork || type == StatType.ProjectileChain)
+            if (type == StatType.ExtraTargetsForMeleeHits || type == StatType.ProjectileCount || type == StatType.ProjectileFork || type == StatType.ProjectileChain || type == StatType.ProjectilePierce)
                 return StatValueUnit.Targets;
             if (DefaultFormatFor(type) == StatDisplayFormat.Percent)
                 return StatValueUnit.Percent;
@@ -715,6 +716,7 @@ namespace Scripts.Stats
                 case StatType.ProjectileCount:
                 case StatType.ProjectileFork:
                 case StatType.ProjectileChain:
+                case StatType.ProjectilePierce:
                     return StatContextTagFlags.Projectile;
                 case StatType.AreaOfEffect:
                     return StatContextTagFlags.Area;
