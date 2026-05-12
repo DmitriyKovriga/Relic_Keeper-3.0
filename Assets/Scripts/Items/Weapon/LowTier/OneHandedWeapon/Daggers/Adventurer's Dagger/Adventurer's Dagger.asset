@@ -24,7 +24,7 @@ MonoBehaviour:
     Value: 50
     Type: 200
     Scope: 1
-  SkillPool: {fileID: 0}
+  SkillPool: {fileID: 11400000, guid: f7ee0a84d4564084397cd7341f3542bf, type: 2}
   SkillCount: 1
   IsTwoHanded: 0
   InHandSprite: {fileID: 0}

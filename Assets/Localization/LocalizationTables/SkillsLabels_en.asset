@@ -157,6 +157,17 @@ MonoBehaviour:
       cast'
     m_Metadata:
       m_Items: []
+  - m_Id: 44617556415774720
+    m_Localized: Venom Strike
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44617556449329152
+    m_Localized: 'Have 50% chanse to apply Poison
+
+      Deal +10 flat physical damage
+      for every Posion stack on enemy.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

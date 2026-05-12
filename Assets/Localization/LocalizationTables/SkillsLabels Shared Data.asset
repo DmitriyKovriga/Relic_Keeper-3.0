@@ -143,6 +143,14 @@ MonoBehaviour:
     m_Key: skills.MysticImpulseSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 44617556415774720
+    m_Key: skills.VenomStrikeSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44617556449329152
+    m_Key: skills.VenomStrikeSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

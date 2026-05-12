@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa469c8d85911614bbc9afc2a526821c, type: 3}
+  m_Name: Recipe_Venom_Strike_Skill
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.Steps.SkillRecipeSO
+  Steps:
+  - StepDefinition: {fileID: 11400000, guid: 4a09dbc08d2314b46873162258f8a044, type: 2}
+    Overrides: []
+    DamageConversions: []
+    StartPercentPipeline: 0
+    EndPercentPipeline: 0.35
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: e6d99185f818c7840be2327fe444fbc3, type: 2}
+    Overrides: []
+    DamageConversions: []
+    StartPercentPipeline: 0
+    EndPercentPipeline: 0.05
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: f52618a1da9473f489fc1d7569c9977b, type: 2}
+    Overrides: []
+    DamageConversions: []
+    StartPercentPipeline: 0.05
+    EndPercentPipeline: 0.05
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: 42eb5f18fe84bc0428a2a5c38ca3570d, type: 2}
+    Overrides:
+    - Key: GrowthMode
+      Type: 1
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: VfxPrefab
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 676491238417898282, guid: e1c63f63211992d4ba5a9acd651c7ee4, type: 3}
+    - Key: AttachToParent
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 1
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: FadeOutStartLifePercent
+      Type: 0
+      FloatVal: 0.75
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    DamageConversions: []
+    StartPercentPipeline: 0.05
+    EndPercentPipeline: 0.35
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: 6250a752a1e0b2a418e03bcc5c86278d, type: 2}
+    Overrides: []
+    DamageConversions: []
+    StartPercentPipeline: 0.35
+    EndPercentPipeline: 0.45
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: be86aa20acfead645a1a781755a28a0f, type: 2}
+    Overrides:
+    - Key: SourceStepIndex
+      Type: 1
+      FloatVal: 0
+      IntVal: 3
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: VfxLifetimePercent
+      Type: 0
+      FloatVal: 0.8
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    DamageConversions: []
+    StartPercentPipeline: 0.05
+    EndPercentPipeline: 0.05
+    SubSteps: []
+  IsChanneling: 0
+  ChannelLoopStepIndices: 
+  ChannelMaxDuration: 5
+  ChannelTickDuration: 0
