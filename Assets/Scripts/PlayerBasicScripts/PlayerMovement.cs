@@ -88,6 +88,7 @@ public class PlayerMovement : MonoBehaviour
     private float _horizontalLaunchSpeed;
 
     public bool IsGrounded => _isGrounded;
+    public int FacingDirection => _isFacingRight ? 1 : -1;
     public Vector2 CurrentMoveInput => _moveInput;
     public Vector2 CurrentVelocity => _rb != null ? _rb.linearVelocity : Vector2.zero;
     public bool HasBufferedJump => _hasQueuedJump && Time.time <= _jumpQueuedUntilTime;
@@ -166,6 +167,31 @@ public class PlayerMovement : MonoBehaviour
             Flip();
         else if (horizontalDirection < -0.01f && _isFacingRight)
             Flip();
+    }
+
+    public void ApplySkillImpulse(float angleDegrees, float force, bool relativeToFacing, bool clearCurrentVelocity)
+    {
+        if (_rb == null || force <= 0f)
+            return;
+
+        float radians = angleDegrees * Mathf.Deg2Rad;
+        float facingMultiplier = relativeToFacing ? FacingDirection : 1f;
+        var direction = new Vector2(Mathf.Cos(radians) * facingMultiplier, Mathf.Sin(radians));
+        if (direction.sqrMagnitude <= 0.0001f)
+            return;
+
+        direction.Normalize();
+        _isFastFallPriming = false;
+        _isFastFalling = false;
+        RestoreBaseGravity();
+
+        if (clearCurrentVelocity)
+            _rb.linearVelocity = Vector2.zero;
+
+        _rb.AddForce(direction * force, ForceMode2D.Impulse);
+
+        if (Mathf.Abs(direction.x) > 0.01f)
+            ForceFaceDirection(direction.x);
     }
 
     public bool TryPerformDashJump(float horizontalDirection)

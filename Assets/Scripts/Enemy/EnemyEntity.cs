@@ -108,6 +108,9 @@ namespace Scripts.Enemies
             if (_stun == null)
                 _stun = gameObject.AddComponent<EnemyStunController>();
 
+            if (GetComponent<EnemyStunVfxOverlay>() == null)
+                gameObject.AddComponent<EnemyStunVfxOverlay>();
+
             _sensor = GetComponent<EnemySensor2D>();
             if (_sensor == null)
                 _sensor = gameObject.AddComponent<EnemySensor2D>();

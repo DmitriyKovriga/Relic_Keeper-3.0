@@ -131,7 +131,8 @@ namespace Scripts.Enemies
             SetStunned(false);
             _attack?.SetStunned(false);
             _locomotion?.SetStunned(false);
-            _lastBuildUpTime = Time.time - RegenDelaySeconds;
+            _currentMeter = _maxMeter;
+            _lastBuildUpTime = float.NegativeInfinity;
             OnStunMeterChanged?.Invoke(_currentMeter, _maxMeter);
         }
 

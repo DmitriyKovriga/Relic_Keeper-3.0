@@ -633,6 +633,7 @@ namespace Scripts.Editor.Skills
             {
                 case "MovementLock":
                 case "MovementUnlock":
+                case "PlayerImpulse":
                 case "WeaponWindup":
                 case "WeaponStrike":
                 case "WeaponRecovery":
@@ -1134,6 +1135,27 @@ namespace Scripts.Editor.Skills
             if (id == "WeaponWindup" || id == "WeaponRecovery" || id == "Wait")
             {
                 EditorGUILayout.HelpBox("Use Start % and End % in Timing section above. Duration = End в€’ Start.", MessageType.None);
+                return;
+            }
+
+            if (id == "PlayerImpulse")
+            {
+                EditorGUILayout.HelpBox("Толкает персонажа в момент срабатывания step. 0° = вперед по текущему направлению персонажа, 90° = вверх, 180° = назад.", MessageType.None);
+                float angle = step.GetFloat("AngleDegrees", 0f);
+                float newAngle = EditorGUILayout.FloatField("Angle degrees", angle);
+                if (Mathf.Abs(newAngle - angle) > 0.001f) { step.SetOverrideFloat("AngleDegrees", newAngle); EditorUtility.SetDirty(recipe); }
+
+                float force = step.GetFloat("Force", 4f);
+                float newForce = EditorGUILayout.FloatField("Force", force);
+                if (Mathf.Abs(newForce - force) > 0.001f) { step.SetOverrideFloat("Force", newForce); EditorUtility.SetDirty(recipe); }
+
+                bool relative = step.GetBool("RelativeToFacing", true);
+                bool newRelative = EditorGUILayout.Toggle("Relative to facing", relative);
+                if (newRelative != relative) { step.SetOverrideBool("RelativeToFacing", newRelative); EditorUtility.SetDirty(recipe); }
+
+                bool clearVelocity = step.GetBool("ClearCurrentVelocity", false);
+                bool newClearVelocity = EditorGUILayout.Toggle("Clear current velocity", clearVelocity);
+                if (newClearVelocity != clearVelocity) { step.SetOverrideBool("ClearCurrentVelocity", newClearVelocity); EditorUtility.SetDirty(recipe); }
                 return;
             }
 
@@ -2192,6 +2214,7 @@ namespace Scripts.Editor.Skills
             {
                 ("MovementLock", "Lock movement", "Р‘Р»РѕРє РґРІРёР¶РµРЅРёСЏ", 0f),
                 ("MovementUnlock", "Unlock movement", "Р Р°Р·Р±Р»РѕРє РґРІРёР¶РµРЅРёСЏ", 0f),
+                ("PlayerImpulse", "Player impulse", "Толчок персонажа", 0f),
                 ("WeaponWindup", "Weapon windup", "Р—Р°РјР°С… РѕСЂСѓР¶РёСЏ", 35f),
                 ("WeaponStrike", "Weapon strike", "РЈРґР°СЂ РѕСЂСѓР¶РёСЏ", 0f),
                 ("WeaponRecovery", "Weapon recovery", "Р’РѕР·РІСЂР°С‚ РѕСЂСѓР¶РёСЏ", 65f),

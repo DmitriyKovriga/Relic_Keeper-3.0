@@ -117,6 +117,15 @@ MonoBehaviour:
     StartPercentPipeline: 0.05
     EndPercentPipeline: 0.05
     SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: a223844279124d9981f99c826852b6c3, type: 2}
+    Overrides: []
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.1
+    EndPercentPipeline: 0.1
+    SubSteps: []
   IsChanneling: 0
   ChannelLoopStepIndices: 
   ChannelMaxDuration: 5

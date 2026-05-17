@@ -326,6 +326,9 @@ namespace Scripts.Skills
                 case "MovementUnlock":
                     _moveCtrl.SetLock(false);
                     break;
+                case "PlayerImpulse":
+                    ExecutePlayerImpulse(step);
+                    break;
                 case "WeaponWindup":
                     _animCtrl.LerpSlashWindup(phaseT);
                     break;
@@ -399,6 +402,15 @@ namespace Scripts.Skills
                     if (!string.IsNullOrEmpty(id)) Debug.Log($"[SkillStepRunner] Step '{id}' not implemented yet.");
                     break;
             }
+        }
+
+        private void ExecutePlayerImpulse(StepEntry step)
+        {
+            float angleDegrees = step.GetFloat("AngleDegrees", 0f);
+            float force = Mathf.Max(0f, step.GetFloat("Force", 4f));
+            bool relativeToFacing = step.GetBool("RelativeToFacing", true);
+            bool clearCurrentVelocity = step.GetBool("ClearCurrentVelocity", false);
+            _moveCtrl.ApplyImpulse(angleDegrees, force, relativeToFacing, clearCurrentVelocity);
         }
 
         private void ExecuteSpawnVFX(int stepIndex, StepEntry step, float requestedLifetime)
