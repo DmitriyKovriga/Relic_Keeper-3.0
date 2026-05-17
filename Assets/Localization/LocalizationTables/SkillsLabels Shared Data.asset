@@ -159,6 +159,14 @@ MonoBehaviour:
     m_Key: skills.WeaponThrowSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 46458832145080320
+    m_Key: skills.DexterousLungeSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46458832174440448
+    m_Key: skills.DexterousLungeSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

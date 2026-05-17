@@ -176,6 +176,15 @@ MonoBehaviour:
     m_Localized: Weapon Throw with 100% weapon damage +50% attack speed and pierce
     m_Metadata:
       m_Items: []
+  - m_Id: 46458832145080320
+    m_Localized: Dexterous Lunge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46458832174440448
+    m_Localized: Deal 100% damage with 50% More Attack Speed and 100% Increase Crit
+      Chanse, move forward
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

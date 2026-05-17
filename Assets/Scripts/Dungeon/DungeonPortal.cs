@@ -26,6 +26,7 @@ namespace Scripts.Dungeon
         [SerializeField] private int _minOrderInLayer = 10;
         [SerializeField] private bool _forceWorldZ = true;
         [SerializeField] private float _targetWorldZ = 0f;
+        [SerializeField, Min(0f)] private float _portalAnimationSpeed = 1f;
         [Header("Enter Dungeon")]
         [SerializeField] private DungeonDataSO _targetDungeon;
 
@@ -42,6 +43,8 @@ namespace Scripts.Dungeon
 
         private void Awake()
         {
+            ApplyAnimationSpeed();
+
             if (_forceWorldZ)
             {
                 var pos = transform.position;
@@ -77,6 +80,18 @@ namespace Scripts.Dungeon
                     sr.color = c;
                 }
             }
+        }
+
+        private void OnValidate()
+        {
+            ApplyAnimationSpeed();
+        }
+
+        private void ApplyAnimationSpeed()
+        {
+            var animator = GetComponent<Animator>();
+            if (animator != null)
+                animator.speed = Mathf.Max(0f, _portalAnimationSpeed);
         }
 
         public void Interact()
