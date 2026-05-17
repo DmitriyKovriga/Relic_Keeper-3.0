@@ -133,6 +133,7 @@ namespace Scripts.Editor.Enemy
             EditorGUILayout.LabelField("Stats", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(so.FindProperty("Stats"), true);
             EditorGUILayout.PropertyField(so.FindProperty("BaseStats"), true);
+            EditorGUILayout.PropertyField(so.FindProperty("StunThresholdMultiplier"));
             EditorGUILayout.PropertyField(so.FindProperty("LegacyGrowthPerLevelPercent"));
             EditorGUILayout.Space(4f);
 
@@ -215,12 +216,16 @@ namespace Scripts.Editor.Enemy
                 float fire = EvaluateStat(enemy, StatType.DamageFire, level);
                 float cold = EvaluateStat(enemy, StatType.DamageCold, level);
                 float light = EvaluateStat(enemy, StatType.DamageLightning, level);
+                float stunThreshold = EvaluateStat(enemy, StatType.StunThreshold, level);
+                if (stunThreshold <= 0f)
+                    stunThreshold = hp * 0.7f;
+                stunThreshold *= Mathf.Max(0.01f, enemy.StunThresholdMultiplier);
                 float physRes = EvaluateStat(enemy, StatType.PhysicalResist, level);
                 float fireRes = EvaluateStat(enemy, StatType.FireResist, level);
                 float coldRes = EvaluateStat(enemy, StatType.ColdResist, level);
                 float lightRes = EvaluateStat(enemy, StatType.LightningResist, level);
                 EditorGUILayout.LabelField($"Lvl {level}: HP {hp:0.#} | Armor {armor:0.#} | Phys {phys:0.#} | Fire {fire:0.#} | Cold {cold:0.#} | Light {light:0.#}");
-                EditorGUILayout.LabelField($"          Resists: Phys {physRes:0.#}% | Fire {fireRes:0.#}% | Cold {coldRes:0.#}% | Light {lightRes:0.#}%");
+                EditorGUILayout.LabelField($"          Stun {stunThreshold:0.#} | Resists: Phys {physRes:0.#}% | Fire {fireRes:0.#}% | Cold {coldRes:0.#}% | Light {lightRes:0.#}%");
             }
         }
 
@@ -324,6 +329,7 @@ namespace Scripts.Editor.Enemy
             return new List<CharacterDataSO.StatConfig>
             {
                 new() { Type = StatType.MaxHealth, Value = 100f },
+                new() { Type = StatType.StunThreshold, Value = 70f },
                 new() { Type = StatType.DamagePhysical, Value = 10f },
                 new() { Type = StatType.FireResist, Value = 25f },
                 new() { Type = StatType.ColdResist, Value = 25f },
@@ -337,6 +343,7 @@ namespace Scripts.Editor.Enemy
             return new List<EnemyStatEntry>
             {
                 new() { Type = StatType.MaxHealth, BaseValue = 100f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = 20f },
+                new() { Type = StatType.StunThreshold, BaseValue = 70f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = 20f },
                 new() { Type = StatType.DamagePhysical, BaseValue = 10f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = 10f },
                 new() { Type = StatType.FireResist, BaseValue = 25f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
                 new() { Type = StatType.ColdResist, BaseValue = 25f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },

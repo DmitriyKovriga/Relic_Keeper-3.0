@@ -963,6 +963,18 @@ MonoBehaviour:
     m_Key: stats.ProjectilePierce
     m_Metadata:
       m_Items: []
+  - m_Id: 61160435758391296
+    m_Key: stats.StunDuration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 61161156872495104
+    m_Key: stats.StunBuildUp
+    m_Metadata:
+      m_Items: []
+  - m_Id: 61163688596332544
+    m_Key: stats.StunThreshold
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

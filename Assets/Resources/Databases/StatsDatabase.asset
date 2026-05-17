@@ -1196,3 +1196,42 @@ MonoBehaviour:
     ContextTags: 8
     DamageChannels: 0
     AllowedAffixKinds: 31
+  - StatTypeId: StunDuration
+    Category: Misc
+    SemanticKind: 3
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 4
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
+  - StatTypeId: StunBuildUp
+    Category: Misc
+    SemanticKind: 3
+    Format: 1
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 30
+  - StatTypeId: StunThreshold
+    Category: Misc
+    SemanticKind: 3
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31

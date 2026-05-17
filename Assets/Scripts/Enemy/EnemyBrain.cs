@@ -18,6 +18,7 @@ namespace Scripts.Enemies
         private EnemyLocomotion2D _locomotion;
         private EnemyAttackController _attack;
         private EnemyAnimationBridge _animation;
+        private EnemyStunController _stun;
         private EnemyJumpLink _activeJumpLink;
         private Collider2D _bodyCollider;
         private int _groundLayerMask = 1 << 6;
@@ -45,6 +46,7 @@ namespace Scripts.Enemies
             _locomotion = GetComponent<EnemyLocomotion2D>();
             _attack = GetComponent<EnemyAttackController>();
             _animation = GetComponent<EnemyAnimationBridge>();
+            _stun = GetComponent<EnemyStunController>();
             _bodyCollider = GetComponent<Collider2D>();
             int oneWayPlatformLayer = LayerMask.NameToLayer("OneWayPlatform");
             if (oneWayPlatformLayer >= 0)
@@ -70,6 +72,12 @@ namespace Scripts.Enemies
                 return;
 
             _sensor.Tick();
+
+            if (_stun != null && _stun.IsStunned)
+            {
+                _locomotion.Stop();
+                return;
+            }
 
             if (IsInSpecialAction)
             {

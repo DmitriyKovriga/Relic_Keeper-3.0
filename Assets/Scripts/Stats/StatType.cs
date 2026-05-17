@@ -142,6 +142,9 @@ namespace Scripts.Stats
         LightningToPhysical,
         LightningToFire,
         LightningToCold,
-        ProjectilePierce
+        ProjectilePierce,
+        StunDuration,
+        StunBuildUp,
+        StunThreshold
     }
 }

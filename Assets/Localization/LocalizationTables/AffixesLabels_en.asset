@@ -52590,6 +52590,262 @@ MonoBehaviour:
     m_Localized: Light Spell Damage more
     m_Metadata:
       m_Items: []
+  - m_Id: 47278051170443264
+    m_Localized: Strong Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278051338215424
+    m_Localized: '{0:+0.##;-0.##;0} s to Stun Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278051547930624
+    m_Localized: Strong Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278051753451520
+    m_Localized: Strong Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278051958972416
+    m_Localized: Strong Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278052160299008
+    m_Localized: Strong Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278052361625600
+    m_Localized: Medium Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278052562952192
+    m_Localized: Medium Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278052768473088
+    m_Localized: Medium Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278052969799680
+    m_Localized: Medium Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278053179514880
+    m_Localized: Medium Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278053393424384
+    m_Localized: Light Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278053603139584
+    m_Localized: Light Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278053846409216
+    m_Localized: Light Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278054056124416
+    m_Localized: Light Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278054261645312
+    m_Localized: Light Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278091733557248
+    m_Localized: Strong Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278091918106624
+    m_Localized: '{0}% increased Stun Duration'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278092127821824
+    m_Localized: Strong Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278092337537024
+    m_Localized: Strong Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278092551446528
+    m_Localized: Strong Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278092756967424
+    m_Localized: Strong Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278092958294016
+    m_Localized: Medium Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278093163814912
+    m_Localized: Medium Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278093373530112
+    m_Localized: Medium Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278093566468096
+    m_Localized: Medium Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278093751017472
+    m_Localized: Medium Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278093948149760
+    m_Localized: Light Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278094132699136
+    m_Localized: Light Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278094334025728
+    m_Localized: Light Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278094539546624
+    m_Localized: Light Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47278094736678912
+    m_Localized: Light Stun Duration increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279055236489216
+    m_Localized: Strong Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279055408455680
+    m_Localized: '{0}% increased Stun Build-Up'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279055618170880
+    m_Localized: Strong Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279055819497472
+    m_Localized: Strong Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279056025018368
+    m_Localized: Strong Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279056222150656
+    m_Localized: Strong Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279056419282944
+    m_Localized: Medium Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279056624803840
+    m_Localized: Medium Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279056821936128
+    m_Localized: Medium Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279057019068416
+    m_Localized: Medium Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279057216200704
+    m_Localized: Medium Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279057425915904
+    m_Localized: Light Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279057635631104
+    m_Localized: Light Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279057836957696
+    m_Localized: Light Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279058042478592
+    m_Localized: Light Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279058247999488
+    m_Localized: Light Stun Build-Up increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279073473323008
+    m_Localized: Strong Stun Build-Up more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279073473323009
+    m_Localized: '{0}% more Stun Build-Up'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279073695621120
+    m_Localized: Strong Stun Build-Up more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279073905336320
+    m_Localized: Strong Stun Build-Up more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279074123440128
+    m_Localized: Strong Stun Build-Up more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279074341543936
+    m_Localized: Strong Stun Build-Up more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279074559647744
+    m_Localized: Medium Stun Build-Up more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279074794528768
+    m_Localized: Medium Stun Build-Up more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279075004243968
+    m_Localized: Medium Stun Build-Up more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279075222347776
+    m_Localized: Medium Stun Build-Up more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279075436257280
+    m_Localized: Medium Stun Build-Up more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279075662749696
+    m_Localized: Light Stun Build-Up more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279075906019328
+    m_Localized: Light Stun Build-Up more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279076124123136
+    m_Localized: Light Stun Build-Up more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279076333838336
+    m_Localized: Light Stun Build-Up more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47279076551942144
+    m_Localized: Light Stun Build-Up more
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

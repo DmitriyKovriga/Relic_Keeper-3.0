@@ -13,6 +13,7 @@ namespace Scripts.Enemies
         private bool _hasForcedHorizontalVelocity;
         private float _forcedHorizontalVelocity;
         private bool _ignoreLedgeForForcedMotion;
+        private bool _isStunned;
 
         public bool IsGrounded { get; private set; }
         public bool IsNearWall { get; private set; }
@@ -27,6 +28,7 @@ namespace Scripts.Enemies
             EnsureGroundLayerMask();
             EnsurePhysicsComponents();
             _moveInput = 0f;
+            _isStunned = false;
         }
 
         private void FixedUpdate()
@@ -40,6 +42,12 @@ namespace Scripts.Enemies
 
         public void SetMoveInput(float input)
         {
+            if (_isStunned)
+            {
+                Stop();
+                return;
+            }
+
             _moveInput = Mathf.Clamp(input, -1f, 1f);
             if (Mathf.Abs(_moveInput) > 0.01f)
                 FaceDirection(_moveInput > 0f ? 1 : -1);
@@ -52,7 +60,7 @@ namespace Scripts.Enemies
 
         public bool TryJump()
         {
-            if (_data == null || !_data.Movement.CanJump || !IsGrounded || _rb == null)
+            if (_isStunned || _data == null || !_data.Movement.CanJump || !IsGrounded || _rb == null)
                 return false;
 
             _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, 0f);
@@ -71,6 +79,9 @@ namespace Scripts.Enemies
 
         public void SetForcedHorizontalVelocity(float velocityX, bool ignoreLedge = false)
         {
+            if (_isStunned)
+                return;
+
             _hasForcedHorizontalVelocity = true;
             _forcedHorizontalVelocity = velocityX;
             _ignoreLedgeForForcedMotion = ignoreLedge;
@@ -95,10 +106,30 @@ namespace Scripts.Enemies
             }
         }
 
+        public void SetStunned(bool stunned)
+        {
+            _isStunned = stunned;
+            if (!_isStunned)
+                return;
+
+            _moveInput = 0f;
+            _hasForcedHorizontalVelocity = false;
+            _forcedHorizontalVelocity = 0f;
+            _ignoreLedgeForForcedMotion = false;
+            if (_rb != null)
+                _rb.linearVelocity = new Vector2(0f, _rb.linearVelocity.y);
+        }
+
         private void ApplyMovement()
         {
             if (_rb == null || _data == null)
                 return;
+
+            if (_isStunned)
+            {
+                _rb.linearVelocity = new Vector2(0f, _rb.linearVelocity.y);
+                return;
+            }
 
             if (_hasForcedHorizontalVelocity)
             {

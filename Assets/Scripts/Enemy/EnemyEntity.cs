@@ -25,6 +25,7 @@ namespace Scripts.Enemies
         private EnemyAttackController _attack;
         private EnemyAnimationBridge _animation;
         private EnemyBrain _brain;
+        private EnemyStunController _stun;
         private Transform _visualRoot;
         private SpriteRenderer _visualRenderer;
         private bool _isInitialized;
@@ -66,6 +67,7 @@ namespace Scripts.Enemies
             _attack.Initialize(this, data);
             _animation.Initialize(this, data);
             _brain.Initialize(this, data);
+            _stun.Initialize(data);
 
             name = $"[{_level}] {data.DisplayName}";
             _isInitialized = true;
@@ -101,6 +103,10 @@ namespace Scripts.Enemies
 
             if (GetComponent<MysticShieldController>() == null)
                 gameObject.AddComponent<MysticShieldController>();
+
+            _stun = GetComponent<EnemyStunController>();
+            if (_stun == null)
+                _stun = gameObject.AddComponent<EnemyStunController>();
 
             _sensor = GetComponent<EnemySensor2D>();
             if (_sensor == null)

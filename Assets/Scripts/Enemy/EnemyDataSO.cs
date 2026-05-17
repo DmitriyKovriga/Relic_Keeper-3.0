@@ -249,6 +249,10 @@ namespace Scripts.Enemies
         [Header("Stats")]
         public List<EnemyStatEntry> Stats = new List<EnemyStatEntry>();
 
+        [Header("Stun")]
+        [Tooltip("Множитель стан-метра врага. 1 = стандартные 70% от Max Health через StatType.StunThreshold, 1.5 = на 50% тяжелее застанить.")]
+        [Min(0.01f)] public float StunThresholdMultiplier = 1f;
+
         [Header("AI / Perception")]
         public EnemyPerceptionConfig Perception = new EnemyPerceptionConfig();
 
@@ -312,6 +316,47 @@ namespace Scripts.Enemies
             Burrow ??= new EnemyBurrowConfig();
             DeathEffect ??= new EnemyDeathEffectConfig();
             Animation ??= new EnemyAnimationConfig();
+            EnsureDefaultStunStats();
+        }
+
+        private void EnsureDefaultStunStats()
+        {
+            if (StunThresholdMultiplier <= 0f)
+                StunThresholdMultiplier = 1f;
+
+            if (Stats != null && Stats.Count > 0 && !Stats.Exists(entry => entry.Type == StatType.StunThreshold))
+            {
+                EnemyStatEntry maxHealth = Stats.Find(entry => entry.Type == StatType.MaxHealth);
+                float baseValue = maxHealth != null ? Mathf.Max(1f, maxHealth.BaseValue * 0.7f) : 70f;
+                Stats.Add(new EnemyStatEntry
+                {
+                    Type = StatType.StunThreshold,
+                    BaseValue = baseValue,
+                    ScalingMode = maxHealth != null ? maxHealth.ScalingMode : EnemyStatScalingMode.PercentPerLevel,
+                    ScalingValue = maxHealth != null ? maxHealth.ScalingValue : 20f
+                });
+            }
+
+            if (BaseStats != null && BaseStats.Count > 0 && !BaseStats.Exists(entry => entry.Type == StatType.StunThreshold))
+            {
+                bool hasMaxHealth = false;
+                CharacterDataSO.StatConfig maxHealth = default;
+                for (int i = 0; i < BaseStats.Count; i++)
+                {
+                    if (BaseStats[i].Type != StatType.MaxHealth)
+                        continue;
+
+                    maxHealth = BaseStats[i];
+                    hasMaxHealth = true;
+                    break;
+                }
+
+                BaseStats.Add(new CharacterDataSO.StatConfig
+                {
+                    Type = StatType.StunThreshold,
+                    Value = hasMaxHealth ? Mathf.Max(1f, maxHealth.Value * 0.7f) : 70f
+                });
+            }
         }
     }
 }

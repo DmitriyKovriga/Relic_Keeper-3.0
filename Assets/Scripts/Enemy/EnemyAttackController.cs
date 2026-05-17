@@ -126,6 +126,7 @@ namespace Scripts.Enemies
         private float _chargeDashTimeRemaining;
         private int _chargeDashDirection;
         private float _chargeDashDistanceRemaining;
+        private bool _isStunned;
 
         public bool IsBusy => _phase != AttackPhase.Idle;
         public bool IsChargeAttackActive => IsBusy && _currentAttackVariant == AttackVariant.Charge;
@@ -150,10 +151,14 @@ namespace Scripts.Enemies
             _chargeDashTimeRemaining = 0f;
             _chargeDashDirection = 1;
             _chargeDashDistanceRemaining = 0f;
+            _isStunned = false;
         }
 
         private void Update()
         {
+            if (_isStunned)
+                return;
+
             if (_phase == AttackPhase.Idle)
                 return;
 
@@ -203,7 +208,7 @@ namespace Scripts.Enemies
 
         private bool TryStartAttackInternal(Transform target, AttackVariant variant)
         {
-            if (_data == null || target == null || IsBusy)
+            if (_isStunned || _data == null || target == null || IsBusy)
                 return false;
 
             if (variant == AttackVariant.Charge && (_data.ChargeAttack == null || !_data.ChargeAttack.Enabled))
@@ -237,6 +242,21 @@ namespace Scripts.Enemies
             }
 
             return true;
+        }
+
+        public void SetStunned(bool stunned)
+        {
+            _isStunned = stunned;
+            if (!_isStunned)
+                return;
+
+            ClearChargeMotion();
+            _phase = AttackPhase.Idle;
+            _phaseTimer = 0f;
+            _currentTarget = null;
+            _hasAppliedHit = false;
+            _lastAttackConnected = false;
+            _currentAttackVariant = AttackVariant.Primary;
         }
 
         private void EnterActivePhase()

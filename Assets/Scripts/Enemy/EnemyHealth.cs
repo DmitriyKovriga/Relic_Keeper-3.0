@@ -18,6 +18,7 @@ namespace Scripts.Enemies
         private EnemyAnimationBridge _animation;
         private EnemyBrain _brain;
         private MysticShieldController _mysticShield;
+        private EnemyStunController _stun;
         private GameObject _lastDamageSource;
         private float _currentHealth;
         private float _maxHealth;
@@ -37,6 +38,7 @@ namespace Scripts.Enemies
             _animation = GetComponent<EnemyAnimationBridge>();
             _brain = GetComponent<EnemyBrain>();
             _mysticShield = GetComponent<MysticShieldController>();
+            _stun = GetComponent<EnemyStunController>();
         }
 
         public void Initialize()
@@ -61,6 +63,9 @@ namespace Scripts.Enemies
             float physDmg = damage.Physical;
             float physicalRes = ArmorMitigation.ResolveTotalPhysicalResist(_stats, out _, out _, out _, out _);
             physDmg = Mathf.Max(0f, physDmg * (1f - physicalRes / 100f));
+            if (_stun == null)
+                _stun = GetComponent<EnemyStunController>();
+            _stun?.ApplyPhysicalHit(damage, physDmg);
 
             float fireRes = Mathf.Clamp(_stats.GetValue(StatType.FireResist), -200, 75);
             float coldRes = Mathf.Clamp(_stats.GetValue(StatType.ColdResist), -200, 75);
@@ -208,7 +213,12 @@ namespace Scripts.Enemies
             _currentHealth = Mathf.Clamp(_currentHealth, 0f, _maxHealth);
 
             if (changed)
+            {
                 OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+                if (_stun == null)
+                    _stun = GetComponent<EnemyStunController>();
+                _stun?.RecalculateMaxMeter(resetCurrent: false);
+            }
         }
 
         private bool EnsureReady()
@@ -227,6 +237,9 @@ namespace Scripts.Enemies
 
             if (_mysticShield == null)
                 MysticShieldController.TryResolve(transform, out _mysticShield);
+
+            if (_stun == null)
+                _stun = GetComponent<EnemyStunController>();
 
             if (_stats == null)
                 return false;
