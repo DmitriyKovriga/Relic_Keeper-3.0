@@ -643,6 +643,8 @@ namespace Scripts.Editor.Skills
                 case "SpawnGroundProjectile":
                 case "DealDamageCircle":
                 case "DealDamageRectangle":
+                case "PersistentDamageCircle":
+                case "PersistentDamageRectangle":
                 case "ParallelGroup":
                     return StepEditorCategory.Basic;
                 case "ApplyStatusSelf":
@@ -1227,9 +1229,13 @@ namespace Scripts.Editor.Skills
                 return;
             }
 
-            if (id == "DealDamageCircle")
+            if (id == "DealDamageCircle" || id == "PersistentDamageCircle")
             {
-                EditorGUILayout.HelpBox("Если указан Source step index, круг берёт размер текущего кадра VFX, включая прозрачные пиксели. Size X / Size Y — это мультипликаторы от визуального размера. Если Source step index = -1, используется обычный Radius.", MessageType.None);
+                bool persistent = id == "PersistentDamageCircle";
+                EditorGUILayout.HelpBox(persistent
+                    ? "Активный хитбокс: живет между Start % и End %, проверяет попадания каждый кадр и наносит урон каждому противнику только один раз за время жизни step-а. Если указан Source step index, круг следует за текущим VFX."
+                    : "Если указан Source step index, круг берёт размер текущего кадра VFX, включая прозрачные пиксели. Size X / Size Y — это мультипликаторы от визуального размера. Если Source step index = -1, используется обычный Radius.",
+                    MessageType.None);
                 int src = step.GetInt("SourceStepIndex", -1);
                 int nsrc = EditorGUILayout.IntField("Source step index (Spawn VFX, -1 = от игрока)", src);
                 if (nsrc != src) { step.SetOverrideInt("SourceStepIndex", nsrc); EditorUtility.SetDirty(recipe); }
@@ -1248,11 +1254,14 @@ namespace Scripts.Editor.Skills
                     float nr = EditorGUILayout.FloatField("Radius", r);
                     if (nr != r) { step.SetOverrideFloat("Radius", nr); EditorUtility.SetDirty(recipe); }
                 }
-                EditorGUI.BeginDisabledGroup(nsrc < 0);
-                float vfxLife = step.GetFloat("VfxLifetimePercent", 0f);
-                float nvfxLife = EditorGUILayout.Slider("Damage at VFX life %", vfxLife, 0f, 1f);
-                if (Mathf.Abs(nvfxLife - vfxLife) > 0.001f) { step.SetOverrideFloat("VfxLifetimePercent", nvfxLife); EditorUtility.SetDirty(recipe); }
-                EditorGUI.EndDisabledGroup();
+                if (!persistent)
+                {
+                    EditorGUI.BeginDisabledGroup(nsrc < 0);
+                    float vfxLife = step.GetFloat("VfxLifetimePercent", 0f);
+                    float nvfxLife = EditorGUILayout.Slider("Damage at VFX life %", vfxLife, 0f, 1f);
+                    if (Mathf.Abs(nvfxLife - vfxLife) > 0.001f) { step.SetOverrideFloat("VfxLifetimePercent", nvfxLife); EditorUtility.SetDirty(recipe); }
+                    EditorGUI.EndDisabledGroup();
+                }
                 float ox = step.GetFloat("OffsetX", 0f);
                 float nox = EditorGUILayout.FloatField("Offset X", ox);
                 if (nox != ox) { step.SetOverrideFloat("OffsetX", nox); EditorUtility.SetDirty(recipe); }
@@ -1268,9 +1277,13 @@ namespace Scripts.Editor.Skills
                 return;
             }
 
-            if (id == "DealDamageRectangle")
+            if (id == "DealDamageRectangle" || id == "PersistentDamageRectangle")
             {
-                EditorGUILayout.HelpBox("Если указан Source step index, прямоугольник берёт размер текущего кадра VFX, включая прозрачные пиксели. Size X / Size Y — это мультипликаторы от визуального размера VFX.", MessageType.None);
+                bool persistent = id == "PersistentDamageRectangle";
+                EditorGUILayout.HelpBox(persistent
+                    ? "Активный хитбокс: живет между Start % и End %, проверяет попадания каждый кадр и наносит урон каждому противнику только один раз за время жизни step-а. Если указан Source step index, прямоугольник следует за текущим VFX."
+                    : "Если указан Source step index, прямоугольник берёт размер текущего кадра VFX, включая прозрачные пиксели. Size X / Size Y — это мультипликаторы от визуального размера VFX.",
+                    MessageType.None);
                 int src = step.GetInt("SourceStepIndex", -1);
                 float sx = step.GetFloat("SizeX", src >= 0 ? 1f : 2f);
                 float nsx = EditorGUILayout.FloatField("Size X multiplier", sx);
@@ -1283,11 +1296,14 @@ namespace Scripts.Editor.Skills
                 if (nang != ang) { step.SetOverrideFloat("Angle", nang); EditorUtility.SetDirty(recipe); }
                 int nsrc = EditorGUILayout.IntField("Source step index (-1 = use offset)", src);
                 if (nsrc != src) { step.SetOverrideInt("SourceStepIndex", nsrc); EditorUtility.SetDirty(recipe); }
-                EditorGUI.BeginDisabledGroup(nsrc < 0);
-                float vfxLifeR = step.GetFloat("VfxLifetimePercent", 0f);
-                float nvfxLifeR = EditorGUILayout.Slider("Damage at VFX life %", vfxLifeR, 0f, 1f);
-                if (Mathf.Abs(nvfxLifeR - vfxLifeR) > 0.001f) { step.SetOverrideFloat("VfxLifetimePercent", nvfxLifeR); EditorUtility.SetDirty(recipe); }
-                EditorGUI.EndDisabledGroup();
+                if (!persistent)
+                {
+                    EditorGUI.BeginDisabledGroup(nsrc < 0);
+                    float vfxLifeR = step.GetFloat("VfxLifetimePercent", 0f);
+                    float nvfxLifeR = EditorGUILayout.Slider("Damage at VFX life %", vfxLifeR, 0f, 1f);
+                    if (Mathf.Abs(nvfxLifeR - vfxLifeR) > 0.001f) { step.SetOverrideFloat("VfxLifetimePercent", nvfxLifeR); EditorUtility.SetDirty(recipe); }
+                    EditorGUI.EndDisabledGroup();
+                }
                 float ox = step.GetFloat("OffsetX", 0f);
                 float nox = EditorGUILayout.FloatField("Offset X", ox);
                 if (nox != ox) { step.SetOverrideFloat("OffsetX", nox); EditorUtility.SetDirty(recipe); }
@@ -2224,6 +2240,8 @@ namespace Scripts.Editor.Skills
                 ("SpawnGroundProjectile", "Spawn ground projectile", "Спавн волны по земле", 0f),
                 ("DealDamageCircle", "Deal damage (circle)", "РЈСЂРѕРЅ РєСЂСѓРі", 0f),
                 ("DealDamageRectangle", "Deal damage (rectangle)", "РЈСЂРѕРЅ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє", 0f),
+                ("PersistentDamageCircle", "Active hitbox damage (circle)", "Активный хитбокс (круг)", 0f),
+                ("PersistentDamageRectangle", "Active hitbox damage (rectangle)", "Активный хитбокс (прямоугольник)", 0f),
                 ("ModifyCooldown", "Modify cooldown", "Изменить откат", 0f),
                 ("GenerateMysticShield", "Generate Mystic Shield", "Сгенерировать Mystic Shield", 0f),
                 ("ConsumeMysticShield", "Consume Mystic Shield", "Поглотить Mystic Shield", 0f),

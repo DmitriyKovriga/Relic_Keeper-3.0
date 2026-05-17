@@ -46,6 +46,7 @@ namespace Scripts.Skills
         private Coroutine _runCoroutine;
         private bool _cancelled;
         private List<(int stepIndex, StepEntry step, int sourceIdx, float pct)> _pendingDamageByVfxLife;
+        private readonly Dictionary<int, HashSet<int>> _persistentHitTargetsByStep = new Dictionary<int, HashSet<int>>();
 
         public override void Cancel()
         {
@@ -115,6 +116,7 @@ namespace Scripts.Skills
             _runCoroutine = null;
             if (_animCtrl != null) _animCtrl.ForceReset();
             if (_moveCtrl != null) _moveCtrl.SetLock(false);
+            _persistentHitTargetsByStep.Clear();
             _isCasting = false;
         }
 
@@ -358,6 +360,12 @@ namespace Scripts.Skills
                     break;
                 case "DealDamageRectangle":
                     ExecuteDealDamageRectangle(stepIndex, step);
+                    break;
+                case "PersistentDamageCircle":
+                    ExecutePersistentDamageCircle(stepIndex, step);
+                    break;
+                case "PersistentDamageRectangle":
+                    ExecutePersistentDamageRectangle(stepIndex, step);
                     break;
                 case "GenerateMysticShield":
                     ExecuteGenerateMysticShield(step);
@@ -695,7 +703,26 @@ namespace Scripts.Skills
             DealDamageToTargets(stepIndex, step, targets);
         }
 
-        private void DealDamageToTargets(int stepIndex, StepEntry step, List<IDamageable> targets)
+        private void ExecutePersistentDamageCircle(int stepIndex, StepEntry step)
+        {
+            ResolveCircleArea(step, out Vector2 center, out float radius);
+            var targets = GetTargetsInCircle(center, radius);
+            DealDamageToTargets(stepIndex, step, targets, GetPersistentHitSet(stepIndex), appendHitResults: true);
+        }
+
+        private void ExecutePersistentDamageRectangle(int stepIndex, StepEntry step)
+        {
+            ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
+            var targets = GetTargetsInBox(center, size, angle);
+            DealDamageToTargets(stepIndex, step, targets, GetPersistentHitSet(stepIndex), appendHitResults: true);
+        }
+
+        private void DealDamageToTargets(
+            int stepIndex,
+            StepEntry step,
+            List<IDamageable> targets,
+            HashSet<int> hitOnceTargets = null,
+            bool appendHitResults = false)
         {
             if (targets == null || targets.Count == 0)
                 return;
@@ -707,6 +734,9 @@ namespace Scripts.Skills
             {
                 IDamageable target = targets[i];
                 if (target == null)
+                    continue;
+
+                if (hitOnceTargets != null && !hitOnceTargets.Add(GetDamageTargetKey(target)))
                     continue;
 
                 IStatsProvider scopedStats = BuildScopedStatsProvider(step, target);
@@ -728,8 +758,40 @@ namespace Scripts.Skills
                 ExecuteOnHitEffects(step, target, targetTransform, snapshot);
             }
 
-            if (hitResults != null)
+            if (hitResults != null && hitResults.Count > 0)
+            {
+                if (appendHitResults && _ctx != null && _ctx.TryGetHitResults(stepIndex, out var existingHits) && existingHits != null && existingHits.Count > 0)
+                {
+                    var mergedHits = new List<SkillStepContext.HitResult>(existingHits.Count + hitResults.Count);
+                    mergedHits.AddRange(existingHits);
+                    mergedHits.AddRange(hitResults);
+                    hitResults = mergedHits;
+                }
+
                 _ctx?.RegisterHitResults(stepIndex, hitResults);
+            }
+        }
+
+        private HashSet<int> GetPersistentHitSet(int stepIndex)
+        {
+            if (stepIndex < 0)
+                stepIndex = int.MinValue;
+
+            if (!_persistentHitTargetsByStep.TryGetValue(stepIndex, out var hitSet))
+            {
+                hitSet = new HashSet<int>();
+                _persistentHitTargetsByStep[stepIndex] = hitSet;
+            }
+
+            return hitSet;
+        }
+
+        private static int GetDamageTargetKey(IDamageable target)
+        {
+            if (target is Component component)
+                return component.GetInstanceID();
+
+            return System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(target);
         }
 
         private IStatsProvider BuildScopedStatsProvider(StepEntry step, IDamageable target)

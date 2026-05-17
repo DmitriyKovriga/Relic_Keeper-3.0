@@ -91,19 +91,12 @@ MonoBehaviour:
     StartPercentPipeline: 0.05
     EndPercentPipeline: 0.65
     SubSteps: []
-  - StepDefinition: {fileID: 11400000, guid: be86aa20acfead645a1a781755a28a0f, type: 2}
+  - StepDefinition: {fileID: 11400000, guid: 0cdf189ef76d47aa8a3f0fd7afbf4092, type: 2}
     Overrides:
     - Key: SourceStepIndex
       Type: 1
       FloatVal: 0
       IntVal: 3
-      BoolVal: 0
-      StringVal: 
-      ObjectVal: {fileID: 0}
-    - Key: VfxLifetimePercent
-      Type: 0
-      FloatVal: 0.85
-      IntVal: 0
       BoolVal: 0
       StringVal: 
       ObjectVal: {fileID: 0}
@@ -114,8 +107,8 @@ MonoBehaviour:
       Type: 200
     TargetAilmentStackModifiers: []
     OnHitEffects: []
-    StartPercentPipeline: 0.05
-    EndPercentPipeline: 0.05
+    StartPercentPipeline: 0.2
+    EndPercentPipeline: 0.65
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: a223844279124d9981f99c826852b6c3, type: 2}
     Overrides:
