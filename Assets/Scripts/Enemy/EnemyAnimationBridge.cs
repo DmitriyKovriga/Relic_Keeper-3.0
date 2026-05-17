@@ -124,7 +124,7 @@ namespace Scripts.Enemies
                 _isTransientState = false;
             }
 
-            if (_attack != null && _attack.IsBusy)
+            if (_attack != null && _attack.IsPlayingAttackAnimation)
             {
                 PlayState(string.IsNullOrWhiteSpace(_attack.CurrentAttackAnimationStateName) ? _data.Animation.AttackStateName : _attack.CurrentAttackAnimationStateName, false);
                 return;
@@ -328,7 +328,7 @@ namespace Scripts.Enemies
 
             bool pauseChargeAtImpactFrame = ShouldPauseChargeAtImpactFrame();
 
-            if (_attack != null && _attack.IsBusy)
+            if (_attack != null && _attack.IsPlayingAttackAnimation)
             {
                 string desiredAttackState = string.IsNullOrWhiteSpace(_attack.CurrentAttackAnimationStateName)
                     ? _data.Animation.AttackStateName

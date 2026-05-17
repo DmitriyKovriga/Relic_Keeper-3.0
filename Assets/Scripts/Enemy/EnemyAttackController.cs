@@ -97,6 +97,7 @@ namespace Scripts.Enemies
         private enum AttackPhase
         {
             Idle,
+            Telegraph,
             Windup,
             Active,
             Recovery
@@ -109,6 +110,9 @@ namespace Scripts.Enemies
         }
 
         private const int DefaultTargetMask = ~((1 << 6) | (1 << 7));
+        private const string AttackAttentionResourcesPath = "VFX/AttackAttentionVFX/AttackAttentionVFXPrefab";
+        private const float AttackAttentionDuration = 0.5f;
+        private const int AttackAttentionSortingOrder = 30010;
 
         private EnemyEntity _entity;
         private EnemyDataSO _data;
@@ -127,8 +131,11 @@ namespace Scripts.Enemies
         private int _chargeDashDirection;
         private float _chargeDashDistanceRemaining;
         private bool _isStunned;
+        private GameObject _attackAttentionPrefab;
+        private GameObject _activeAttackAttentionVfx;
 
         public bool IsBusy => _phase != AttackPhase.Idle;
+        public bool IsPlayingAttackAnimation => IsBusy && _phase != AttackPhase.Telegraph;
         public bool IsChargeAttackActive => IsBusy && _currentAttackVariant == AttackVariant.Charge;
         public string CurrentAttackAnimationStateName =>
             _data == null || _data.Animation == null
@@ -152,6 +159,12 @@ namespace Scripts.Enemies
             _chargeDashDirection = 1;
             _chargeDashDistanceRemaining = 0f;
             _isStunned = false;
+            DestroyAttackAttentionVfx();
+        }
+
+        private void OnDisable()
+        {
+            DestroyAttackAttentionVfx();
         }
 
         private void Update()
@@ -161,6 +174,9 @@ namespace Scripts.Enemies
 
             if (_phase == AttackPhase.Idle)
                 return;
+
+            if (_phase == AttackPhase.Telegraph)
+                UpdateAttackAttentionVfxPosition();
 
             UpdateTransientChargeMotion(Time.deltaTime);
 
@@ -176,6 +192,10 @@ namespace Scripts.Enemies
 
             switch (_phase)
             {
+                case AttackPhase.Telegraph:
+                    EnterWindupPhase();
+                    break;
+
                 case AttackPhase.Windup:
                     EnterActivePhase();
                     break;
@@ -218,28 +238,17 @@ namespace Scripts.Enemies
             if (Time.time < nextAllowedAt)
                 return false;
 
-            AttackRuntimeConfig config = GetAttackConfig(variant);
             _currentTarget = target;
             _currentAttackVariant = variant;
-            _phase = AttackPhase.Windup;
-            _phaseTimer = Mathf.Max(0.01f, config.Windup);
+            _phase = AttackPhase.Telegraph;
+            _phaseTimer = AttackAttentionDuration;
             _hasAppliedHit = false;
             _lastAttackConnected = false;
             _chargeDashDirection = ResolveAttackDirection(target);
             _chargeDashTimeRemaining = 0f;
             _chargeDashDistanceRemaining = 0f;
             _locomotion?.Stop();
-
-            if (variant == AttackVariant.Charge)
-            {
-                _nextChargeAllowedAt = Time.time + Mathf.Max(0.01f, config.AttackCooldown);
-                _animation?.PlayChargeAttack();
-            }
-            else
-            {
-                _nextAttackAllowedAt = Time.time + Mathf.Max(0.01f, config.AttackCooldown);
-                _animation?.PlayAttack();
-            }
+            SpawnAttackAttentionVfx();
 
             return true;
         }
@@ -257,6 +266,27 @@ namespace Scripts.Enemies
             _hasAppliedHit = false;
             _lastAttackConnected = false;
             _currentAttackVariant = AttackVariant.Primary;
+            DestroyAttackAttentionVfx();
+        }
+
+        private void EnterWindupPhase()
+        {
+            DestroyAttackAttentionVfx();
+
+            AttackRuntimeConfig config = GetCurrentAttackConfig();
+            _phase = AttackPhase.Windup;
+            _phaseTimer = Mathf.Max(0.01f, config.Windup);
+
+            if (_currentAttackVariant == AttackVariant.Charge)
+            {
+                _nextChargeAllowedAt = Time.time + Mathf.Max(0.01f, config.AttackCooldown);
+                _animation?.PlayChargeAttack();
+            }
+            else
+            {
+                _nextAttackAllowedAt = Time.time + Mathf.Max(0.01f, config.AttackCooldown);
+                _animation?.PlayAttack();
+            }
         }
 
         private void EnterActivePhase()
@@ -495,6 +525,76 @@ namespace Scripts.Enemies
                 return _locomotion != null ? _locomotion.FacingDirection : 1;
 
             return deltaX > 0f ? 1 : -1;
+        }
+
+        private void SpawnAttackAttentionVfx()
+        {
+            GameObject prefab = ResolveAttackAttentionPrefab();
+            if (prefab == null)
+                return;
+
+            DestroyAttackAttentionVfx();
+            _activeAttackAttentionVfx = Instantiate(prefab, ResolveAttackAttentionPosition(), Quaternion.identity, transform.parent);
+            ConfigureAttackAttentionSorting(_activeAttackAttentionVfx);
+
+            var autoDestroy = AutoDestroyVFX.Ensure(_activeAttackAttentionVfx);
+            if (autoDestroy != null)
+                autoDestroy.Initialize(AttackAttentionDuration, fadeOutEnabled: false);
+        }
+
+        private GameObject ResolveAttackAttentionPrefab()
+        {
+            if (_attackAttentionPrefab != null)
+                return _attackAttentionPrefab;
+
+            _attackAttentionPrefab = Resources.Load<GameObject>(AttackAttentionResourcesPath);
+            return _attackAttentionPrefab;
+        }
+
+        private Vector3 ResolveAttackAttentionPosition()
+        {
+            Bounds bounds = _entity != null
+                ? _entity.GetVisualBounds()
+                : new Bounds(transform.position, Vector3.one);
+
+            if (bounds.size.sqrMagnitude <= 0.0001f)
+                bounds = new Bounds(transform.position + Vector3.up, Vector3.one);
+
+            return new Vector3(bounds.center.x, bounds.max.y + 0.55f, transform.position.z);
+        }
+
+        private void UpdateAttackAttentionVfxPosition()
+        {
+            if (_activeAttackAttentionVfx != null)
+                _activeAttackAttentionVfx.transform.position = ResolveAttackAttentionPosition();
+        }
+
+        private void ConfigureAttackAttentionSorting(GameObject vfx)
+        {
+            if (vfx == null)
+                return;
+
+            SpriteRenderer ownerRenderer = _entity != null ? _entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>();
+            var renderers = vfx.GetComponentsInChildren<SpriteRenderer>(true);
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                SpriteRenderer renderer = renderers[i];
+                if (renderer == null)
+                    continue;
+
+                if (ownerRenderer != null)
+                    renderer.sortingLayerID = ownerRenderer.sortingLayerID;
+                renderer.sortingOrder = Mathf.Max(renderer.sortingOrder, AttackAttentionSortingOrder);
+            }
+        }
+
+        private void DestroyAttackAttentionVfx()
+        {
+            if (_activeAttackAttentionVfx == null)
+                return;
+
+            Destroy(_activeAttackAttentionVfx);
+            _activeAttackAttentionVfx = null;
         }
 
         private AttackRuntimeConfig GetCurrentAttackConfig()

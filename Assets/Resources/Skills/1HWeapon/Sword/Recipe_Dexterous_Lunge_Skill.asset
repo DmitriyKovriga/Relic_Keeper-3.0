@@ -118,7 +118,14 @@ MonoBehaviour:
     EndPercentPipeline: 0.05
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: a223844279124d9981f99c826852b6c3, type: 2}
-    Overrides: []
+    Overrides:
+    - Key: Force
+      Type: 0
+      FloatVal: 8
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
     DamageConversions: []
     ScopedStatModifiers: []
     TargetAilmentStackModifiers: []
