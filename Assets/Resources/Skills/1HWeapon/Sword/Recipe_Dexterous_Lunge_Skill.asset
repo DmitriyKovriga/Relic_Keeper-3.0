@@ -107,8 +107,8 @@ MonoBehaviour:
       Type: 200
     TargetAilmentStackModifiers: []
     OnHitEffects: []
-    StartPercentPipeline: 0.2
-    EndPercentPipeline: 0.65
+    StartPercentPipeline: 0.1
+    EndPercentPipeline: 0.6
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: a223844279124d9981f99c826852b6c3, type: 2}
     Overrides:

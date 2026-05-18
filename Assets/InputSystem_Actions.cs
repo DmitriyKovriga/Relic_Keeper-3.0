@@ -253,6 +253,15 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SixthSkill"",
+                    ""type"": ""Button"",
+                    ""id"": ""5d135d2b-7454-4d8a-a7bb-8bdb843df3a1"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -660,6 +669,17 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""FifthSkill"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c5cf744f-2d35-4ad5-bcce-f073625708af"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SixthSkill"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1285,6 +1305,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Player_ThirdSkill = m_Player.FindAction("ThirdSkill", throwIfNotFound: true);
         m_Player_FourthSkill = m_Player.FindAction("FourthSkill", throwIfNotFound: true);
         m_Player_FifthSkill = m_Player.FindAction("FifthSkill", throwIfNotFound: true);
+        m_Player_SixthSkill = m_Player.FindAction("SixthSkill", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1397,6 +1418,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_ThirdSkill;
     private readonly InputAction m_Player_FourthSkill;
     private readonly InputAction m_Player_FifthSkill;
+    private readonly InputAction m_Player_SixthSkill;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1481,6 +1503,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @FifthSkill => m_Wrapper.m_Player_FifthSkill;
         /// <summary>
+        /// Provides access to the underlying input action "Player/SixthSkill".
+        /// </summary>
+        public InputAction @SixthSkill => m_Wrapper.m_Player_SixthSkill;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -1560,6 +1586,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @FifthSkill.started += instance.OnFifthSkill;
             @FifthSkill.performed += instance.OnFifthSkill;
             @FifthSkill.canceled += instance.OnFifthSkill;
+            @SixthSkill.started += instance.OnSixthSkill;
+            @SixthSkill.performed += instance.OnSixthSkill;
+            @SixthSkill.canceled += instance.OnSixthSkill;
         }
 
         /// <summary>
@@ -1625,6 +1654,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @FifthSkill.started -= instance.OnFifthSkill;
             @FifthSkill.performed -= instance.OnFifthSkill;
             @FifthSkill.canceled -= instance.OnFifthSkill;
+            @SixthSkill.started -= instance.OnSixthSkill;
+            @SixthSkill.performed -= instance.OnSixthSkill;
+            @SixthSkill.canceled -= instance.OnSixthSkill;
         }
 
         /// <summary>
@@ -2062,6 +2094,13 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnFifthSkill(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SixthSkill" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSixthSkill(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

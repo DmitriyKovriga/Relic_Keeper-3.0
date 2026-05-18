@@ -9,7 +9,18 @@ using UnityEngine.InputSystem;
 
 public class HUDController : MonoBehaviour
 {
-    private static readonly string[] SkillActionNames = { "FirstSkill", "SecondSkill", "ThirdSkill", "FourthSkill", "FifthSkill" };
+    private const int SkillSlotCount = 6;
+    private const float SkillSlotLayoutSpacing = 6f;
+    private static readonly string[] SkillActionNames = { "FirstSkill", "SecondSkill", "ThirdSkill", "FourthSkill", "FifthSkill", "SixthSkill" };
+    private static readonly string[] SkillSlotObjectNames =
+    {
+        "SkillSlot_MainAttack",
+        "SkillSlot_SpecialAttack",
+        "SkillSlot_HelmetSkill",
+        "SkillSlot_BodyArmorSkill",
+        "SkillSlot_GlovesSkill",
+        "SkillSlot_BootsSkill"
+    };
 
     [Header("Player Reference")]
     [SerializeField] private PlayerStats _playerStats;
@@ -65,6 +76,7 @@ public class HUDController : MonoBehaviour
     private readonly List<UIStatusEffectSlot> _statusEffectSlots = new List<UIStatusEffectSlot>();
     private void Awake()
     {
+        EnsureSkillSlots();
         LoadStatusEffectHudSettings();
         ApplyStatusEffectHudSettings();
         SnapStatusEffectLayoutToPixels();
@@ -72,6 +84,73 @@ public class HUDController : MonoBehaviour
         CacheAdaptiveTextSettings();
         InitializeResourceBarEffects();
         EnsureStatusEffectsPanel();
+    }
+
+    private void EnsureSkillSlots()
+    {
+        UISkillSlot[] discoveredSlots = GetComponentsInChildren<UISkillSlot>(true);
+        var slotsByName = new Dictionary<string, UISkillSlot>();
+        var candidates = new List<UISkillSlot>();
+
+        if (_skillSlots != null)
+        {
+            for (int i = 0; i < _skillSlots.Length; i++)
+            {
+                if (_skillSlots[i] != null && !candidates.Contains(_skillSlots[i]))
+                    candidates.Add(_skillSlots[i]);
+            }
+        }
+
+        for (int i = 0; i < discoveredSlots.Length; i++)
+        {
+            if (discoveredSlots[i] != null && !candidates.Contains(discoveredSlots[i]))
+                candidates.Add(discoveredSlots[i]);
+        }
+
+        Transform parent = candidates.Count > 0 ? candidates[0].transform.parent : null;
+        if (parent == null)
+            return;
+
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            UISkillSlot slot = candidates[i];
+            if (slot == null)
+                continue;
+
+            string slotName = slot.gameObject.name;
+            if (!slotsByName.ContainsKey(slotName))
+                slotsByName.Add(slotName, slot);
+        }
+
+        UISkillSlot template = slotsByName.TryGetValue("SkillSlot_BootsSkill", out var bootsSlot)
+            ? bootsSlot
+            : candidates.Count > 0 ? candidates[candidates.Count - 1] : null;
+
+        if (template == null)
+            return;
+
+        var orderedSlots = new UISkillSlot[SkillSlotCount];
+        for (int i = 0; i < SkillSlotObjectNames.Length; i++)
+        {
+            string expectedName = SkillSlotObjectNames[i];
+            if (!slotsByName.TryGetValue(expectedName, out var slot) || slot == null)
+            {
+                GameObject clone = Instantiate(template.gameObject, parent);
+                clone.name = expectedName;
+                slot = clone.GetComponent<UISkillSlot>();
+                if (slot != null)
+                    slot.Clear();
+            }
+
+            orderedSlots[i] = slot;
+            if (slot != null)
+                slot.transform.SetSiblingIndex(i);
+        }
+
+        _skillSlots = orderedSlots;
+
+        if (parent.TryGetComponent(out HorizontalLayoutGroup layoutGroup))
+            layoutGroup.spacing = SkillSlotLayoutSpacing;
     }
 
     private void OnValidate()

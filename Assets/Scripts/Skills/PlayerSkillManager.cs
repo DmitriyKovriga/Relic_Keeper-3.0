@@ -10,10 +10,13 @@ namespace Scripts.Skills
 {
     public class PlayerSkillManager : MonoBehaviour
     {
-        private const int SkillSlotCount = 5;
+        private const int SkillSlotCount = 6;
         private const int MainHandSkillSlot = 0;
         private const int OffHandSkillSlot = 1;
-        private const int FirstUtilitySkillSlot = 2;
+        private const int HelmetSkillSlot = 2;
+        private const int BodyArmorSkillSlot = 3;
+        private const int GlovesSkillSlot = 4;
+        private const int BootsSkillSlot = 5;
 
         public event System.Action<int, SkillDataSO> OnSkillSlotUpdated;
 
@@ -160,30 +163,19 @@ namespace Scripts.Skills
             if (equipment == null)
                 return;
 
-            int nextSlot = FirstUtilitySkillSlot;
-            EquipmentSlot[] priority =
-            {
-                EquipmentSlot.BodyArmor,
-                EquipmentSlot.Gloves,
-                EquipmentSlot.Boots,
-                EquipmentSlot.Helmet
-            };
+            EquipEquipmentSkill(equipment, EquipmentSlot.Helmet, HelmetSkillSlot);
+            EquipEquipmentSkill(equipment, EquipmentSlot.BodyArmor, BodyArmorSkillSlot);
+            EquipEquipmentSkill(equipment, EquipmentSlot.Gloves, GlovesSkillSlot);
+            EquipEquipmentSkill(equipment, EquipmentSlot.Boots, BootsSkillSlot);
+        }
 
-            for (int i = 0; i < priority.Length; i++)
-            {
-                InventoryItem item = GetEquipmentItem(equipment, priority[i]);
-                if (item == null || item.GrantedSkills.Count == 0)
-                    continue;
+        private void EquipEquipmentSkill(InventoryItem[] equipment, EquipmentSlot equipmentSlot, int skillSlot)
+        {
+            InventoryItem item = GetEquipmentItem(equipment, equipmentSlot);
+            if (item == null || item.GrantedSkills.Count == 0)
+                return;
 
-                if (nextSlot >= SkillSlotCount)
-                {
-                    Debug.LogWarning($"[PlayerSkillManager] No free HUD skill slot for '{item.Data?.ItemName ?? item.Data?.name ?? "Unknown item"}' skill '{item.GrantedSkills[0]?.SkillName ?? "Unknown skill"}'. Add more skill slots or remove another equipment skill.");
-                    continue;
-                }
-
-                EquipSkill(nextSlot, item.GrantedSkills[0]);
-                nextSlot++;
-            }
+            EquipSkill(skillSlot, item.GrantedSkills[0]);
         }
 
         public void ReduceSkillCooldown(int slotIndex, float seconds)

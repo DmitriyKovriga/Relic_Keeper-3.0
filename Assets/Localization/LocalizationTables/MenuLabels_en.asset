@@ -1908,6 +1908,10 @@ MonoBehaviour:
     m_Localized: Fifth Skill
     m_Metadata:
       m_Items: []
+  - m_Id: 50010000000000000
+    m_Localized: Sixth Skill
+    m_Metadata:
+      m_Items: []
   - m_Id: 58596768352862208
     m_Localized: Spell Damage
     m_Metadata:

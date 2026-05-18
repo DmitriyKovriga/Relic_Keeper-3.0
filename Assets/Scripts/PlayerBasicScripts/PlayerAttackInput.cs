@@ -11,7 +11,7 @@ using UnityEngine.InputSystem.Controls;
 [RequireComponent(typeof(PlayerMovement))]
 public class PlayerAttackInput : MonoBehaviour
 {
-    private static readonly string[] SkillActionNames = { "FirstSkill", "SecondSkill", "ThirdSkill", "FourthSkill", "FifthSkill" };
+    private static readonly string[] SkillActionNames = { "FirstSkill", "SecondSkill", "ThirdSkill", "FourthSkill", "FifthSkill", "SixthSkill" };
 
     private enum DodgeGamepadButton
     {
@@ -70,7 +70,7 @@ public class PlayerAttackInput : MonoBehaviour
     private Sprite[] _moveDodgeFrames = Array.Empty<Sprite>();
     private Sprite[] _standDodgeFrames = Array.Empty<Sprite>();
 
-    private readonly bool[] _pressedSkillInputs = new bool[5];
+    private readonly bool[] _pressedSkillInputs = new bool[SkillActionNames.Length];
     private bool _isDodging;
     private bool _lastDodgeStartedInAir;
     private bool _landingRefundConsumed = true;
@@ -97,9 +97,9 @@ public class PlayerAttackInput : MonoBehaviour
     private float _currentDodgeDuration;
     private Vector2 _currentDirectionalDodgeVelocity;
 
-    private readonly InputAction[] _skillInputActions = new InputAction[5];
-    private readonly Action<InputAction.CallbackContext>[] _skillStartedHandlers = new Action<InputAction.CallbackContext>[5];
-    private readonly Action<InputAction.CallbackContext>[] _skillCanceledHandlers = new Action<InputAction.CallbackContext>[5];
+    private readonly InputAction[] _skillInputActions = new InputAction[SkillActionNames.Length];
+    private readonly Action<InputAction.CallbackContext>[] _skillStartedHandlers = new Action<InputAction.CallbackContext>[SkillActionNames.Length];
+    private readonly Action<InputAction.CallbackContext>[] _skillCanceledHandlers = new Action<InputAction.CallbackContext>[SkillActionNames.Length];
 
     public bool IsDamageImmune => _isDodging;
 

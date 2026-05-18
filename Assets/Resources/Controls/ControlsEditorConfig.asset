@@ -86,3 +86,7 @@ MonoBehaviour:
     displayOrder: 17
     showInSettings: 1
     defaultBindingPath: <Keyboard>/r
+  - actionName: SixthSkill
+    displayOrder: 18
+    showInSettings: 1
+    defaultBindingPath: <Keyboard>/f
