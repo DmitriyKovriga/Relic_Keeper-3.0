@@ -979,6 +979,10 @@ MonoBehaviour:
     m_Key: stats.StunThreshold
     m_Metadata:
       m_Items: []
+  - m_Id: 61888136995659776
+    m_Key: stats.MaxIgniteStacks
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

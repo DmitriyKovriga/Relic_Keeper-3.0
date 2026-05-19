@@ -167,6 +167,14 @@ MonoBehaviour:
     m_Key: skills.DexterousLungeSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 47456163879444480
+    m_Key: skills.FireBallSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47456163908804608
+    m_Key: skills.FireBallSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

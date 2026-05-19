@@ -14,6 +14,7 @@ public class DamagePopup : MonoBehaviour
     private Color _colCold = new Color(0.2f, 0.8f, 1f);
     private readonly Color _colPoison = new Color(0.25f, 0.9f, 0.25f);
     private readonly Color _colBleed = new Color(0.95f, 0.12f, 0.08f);
+    private readonly Color _colIgnite = new Color(1f, 0.36f, 0.05f);
     private readonly Color _colLight = new Color(1f, 1f, 0.6f);
     private readonly Color _colCrit = new Color(1f, 0.9f, 0.2f);
 
@@ -61,6 +62,7 @@ public class DamagePopup : MonoBehaviour
                 case "Lightning": _textColor = _colLight; break;
                 case "Poison": _textColor = _colPoison; break;
                 case "Bleed": _textColor = _colBleed; break;
+                case "Ignite": _textColor = _colIgnite; break;
                 default: _textColor = _colPhys; break;
             }
         }

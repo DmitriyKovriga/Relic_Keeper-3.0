@@ -19,10 +19,6 @@ namespace Scripts.Skills
     [RequireComponent(typeof(SkillHandAnimation))]
     public class SkillStepRunner : SkillBehaviour
     {
-        private const float DefaultActionSpeed = 1f;
-        private const float MinActionSpeed = 0.05f;
-        private const float MaxActionSpeed = 12f;
-
         private enum SpawnVfxGrowthMode
         {
             Centered = 0,
@@ -92,16 +88,6 @@ namespace Scripts.Skills
                 Cancelled = false
             };
             _runCoroutine = StartCoroutine(RunRecipe());
-        }
-
-        private float ResolveActionSpeed()
-        {
-            float speed = _ownerStats != null ? _ownerStats.GetValue(StatType.AttackSpeed) : 0f;
-            if (speed <= 0f)
-                speed = DefaultActionSpeed;
-
-            speed *= ResolveSkillSpeedMultiplier();
-            return Mathf.Clamp(speed, MinActionSpeed, MaxActionSpeed);
         }
 
         private void OnDisable()

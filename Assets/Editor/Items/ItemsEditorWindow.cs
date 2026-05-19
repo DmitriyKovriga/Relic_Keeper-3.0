@@ -290,7 +290,7 @@ namespace Scripts.Editor.Items
             DrawItemLocalizationSection();
 
             EditorGUILayout.Space(8);
-            GUILayout.Label("Used affix pool", EditorStyles.boldLabel);
+            GUILayout.Label("Assigned affix pool", EditorStyles.boldLabel);
             AffixPoolSO usedPool = FindPoolForItem(_selectedItem);
             if (usedPool != null)
             {
@@ -304,7 +304,7 @@ namespace Scripts.Editor.Items
                 }
             }
             else
-                EditorGUILayout.HelpBox($"No pool with Slot={_selectedItem.Slot} and DefenseType={(_selectedItem is ArmorItemSO armor ? GetDefenseTypeDisplayName(armor.DefenseType) : "None")}.", MessageType.None);
+                EditorGUILayout.HelpBox("No affix pool assigned. Generated items based on this asset will not roll random affixes until you assign one in the Affix Configuration field above.", MessageType.None);
 
             EditorGUILayout.Space(8);
             if (GUILayout.Button("Open in Inspector")) { Selection.activeObject = _selectedItem; EditorGUIUtility.PingObject(_selectedItem); }
@@ -457,9 +457,7 @@ namespace Scripts.Editor.Items
 
         private AffixPoolSO FindPoolForItem(EquipmentItemSO item)
         {
-            ArmorDefenseType defType = ArmorDefenseType.None;
-            if (item is ArmorItemSO armor) defType = armor.DefenseType;
-            return _pools.FirstOrDefault(p => p != null && p.Slot == item.Slot && p.DefenseType == defType);
+            return item != null ? item.AffixPool : null;
         }
 
         private void CreateNewItem(bool armor)

@@ -10,20 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c8dfeb579bbf0f148826246799bf1174, type: 3}
-  m_Name: FireStaffOfAdventurer
+  m_Name: Fire Staff Of Adventurer
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Items.WeaponItemSO
   ID: 4406314c
   ItemName: FireStaffOfAdventurer
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 2a03de01595639a4f862a80c270de404, type: 3}
   Width: 2
   Height: 4
-  Slot: 0
+  Slot: 2
   DropLevel: 1
   ImplicitModifiers: []
+  AffixPool: {fileID: 0}
   SkillPool: {fileID: 0}
   SkillCount: 1
   IsTwoHanded: 1
-  InHandSprite: {fileID: 0}
+  InHandSprite: {fileID: 21300000, guid: c725d749977b3264c9eb1a8f23bc8abd, type: 3}
   MinPhysicalDamage: 0
   MaxPhysicalDamage: 0
   MinFireDamage: 6

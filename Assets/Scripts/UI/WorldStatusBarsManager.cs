@@ -245,7 +245,8 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
                 AilmentController.TryResolve(tracked.Transform, out tracked.Ailments);
             tracked.View.SetAilmentStacks(
                 tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Poison) : 0,
-                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Bleed) : 0);
+                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Bleed) : 0,
+                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Ignite) : 0);
             tracked.View.Tick(Time.unscaledDeltaTime);
 
             var worldPos = tracked.Transform.position + Vector3.up * (Mathf.Max(MinAutoHeight, tracked.AutoHeight) + PlayerExtraYOffset);
@@ -286,7 +287,8 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
                 AilmentController.TryResolve(tracked.Transform, out tracked.Ailments);
             tracked.View.SetAilmentStacks(
                 tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Poison) : 0,
-                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Bleed) : 0);
+                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Bleed) : 0,
+                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Ignite) : 0);
             if (tracked.Stun == null)
                 tracked.Stun = tracked.Transform.GetComponent<EnemyStunController>();
             float stunNormalized = tracked.Stun != null && tracked.Stun.HasMeter ? tracked.Stun.Normalized : 1f;
@@ -441,13 +443,14 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         rowRect.anchorMax = new Vector2(0.5f, 0.5f);
         rowRect.pivot = new Vector2(0.5f, 0.5f);
         rowRect.anchoredPosition = pos;
-        rowRect.sizeDelta = new Vector2(22f, 5f);
+        rowRect.sizeDelta = new Vector2(24f, 5f);
         rowRect.gameObject.SetActive(false);
 
         CreateAilmentCounter(rowRect, "Poison", new Vector2(-8f, 0f), new Color(0.02f, 0.23f, 0.08f, 0.95f), new Color(0.62f, 1f, 0.48f, 1f), out RectTransform poisonRoot, out Text poisonText);
-        CreateAilmentCounter(rowRect, "Bleed", new Vector2(4f, 0f), new Color(0.45f, 0.03f, 0.03f, 0.95f), new Color(1f, 0.42f, 0.35f, 1f), out RectTransform bleedRoot, out Text bleedText);
+        CreateAilmentCounter(rowRect, "Bleed", Vector2.zero, new Color(0.45f, 0.03f, 0.03f, 0.95f), new Color(1f, 0.78f, 0.68f, 1f), out RectTransform bleedRoot, out Text bleedText);
+        CreateAilmentCounter(rowRect, "Ignite", new Vector2(8f, 0f), new Color(0.68f, 0.08f, 0.02f, 0.95f), new Color(1f, 0.92f, 0.58f, 1f), out RectTransform igniteRoot, out Text igniteText);
 
-        return new AilmentStackRow(rowRect, poisonRoot, poisonText, bleedRoot, bleedText, pos);
+        return new AilmentStackRow(rowRect, poisonRoot, poisonText, bleedRoot, bleedText, igniteRoot, igniteText, pos);
     }
 
     private static void CreateAilmentCounter(
@@ -466,7 +469,7 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         counterRoot.anchorMax = new Vector2(0.5f, 0.5f);
         counterRoot.pivot = new Vector2(0.5f, 0.5f);
         counterRoot.anchoredPosition = pos;
-        counterRoot.sizeDelta = new Vector2(10f, 5f);
+        counterRoot.sizeDelta = new Vector2(6f, 5f);
         counterRoot.gameObject.SetActive(false);
 
         var iconGo = new GameObject(name + "Icon", typeof(RectTransform), typeof(Image));
@@ -475,8 +478,8 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         iconRect.anchorMin = new Vector2(0.5f, 0.5f);
         iconRect.anchorMax = new Vector2(0.5f, 0.5f);
         iconRect.pivot = new Vector2(0.5f, 0.5f);
-        iconRect.anchoredPosition = new Vector2(-3f, 0f);
-        iconRect.sizeDelta = new Vector2(3f, 3f);
+        iconRect.anchoredPosition = Vector2.zero;
+        iconRect.sizeDelta = new Vector2(5f, 5f);
         var icon = iconGo.GetComponent<Image>();
         icon.color = iconColor;
         icon.raycastTarget = false;
@@ -486,15 +489,15 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         textRect.SetParent(counterRoot, false);
         textRect.anchorMin = new Vector2(0.5f, 0.5f);
         textRect.anchorMax = new Vector2(0.5f, 0.5f);
-        textRect.pivot = new Vector2(0f, 0.5f);
-        textRect.anchoredPosition = new Vector2(0f, 0f);
-        textRect.sizeDelta = new Vector2(9f, 6f);
+        textRect.pivot = new Vector2(0.5f, 0.5f);
+        textRect.anchoredPosition = Vector2.zero;
+        textRect.sizeDelta = new Vector2(8f, 6f);
 
         countText = textGo.GetComponent<Text>();
         countText.raycastTarget = false;
         countText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         countText.fontSize = 5;
-        countText.alignment = TextAnchor.MiddleLeft;
+        countText.alignment = TextAnchor.MiddleCenter;
         countText.color = textColor;
         countText.horizontalOverflow = HorizontalWrapMode.Overflow;
         countText.verticalOverflow = VerticalWrapMode.Overflow;
@@ -803,29 +806,42 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         private readonly Text _poisonCountText;
         private readonly RectTransform _bleedRoot;
         private readonly Text _bleedCountText;
+        private readonly RectTransform _igniteRoot;
+        private readonly Text _igniteCountText;
         private readonly Vector2 _basePosition;
 
-        public AilmentStackRow(RectTransform root, RectTransform poisonRoot, Text poisonCountText, RectTransform bleedRoot, Text bleedCountText, Vector2 basePosition)
+        public AilmentStackRow(
+            RectTransform root,
+            RectTransform poisonRoot,
+            Text poisonCountText,
+            RectTransform bleedRoot,
+            Text bleedCountText,
+            RectTransform igniteRoot,
+            Text igniteCountText,
+            Vector2 basePosition)
         {
             _root = root;
             _poisonRoot = poisonRoot;
             _poisonCountText = poisonCountText;
             _bleedRoot = bleedRoot;
             _bleedCountText = bleedCountText;
+            _igniteRoot = igniteRoot;
+            _igniteCountText = igniteCountText;
             _basePosition = basePosition;
         }
 
-        public void SetCounts(int poisonCount, int bleedCount)
+        public void SetCounts(int poisonCount, int bleedCount, int igniteCount)
         {
             if (_root == null)
                 return;
 
-            bool visible = poisonCount > 0 || bleedCount > 0;
+            bool visible = poisonCount > 0 || bleedCount > 0 || igniteCount > 0;
             if (_root.gameObject.activeSelf != visible)
                 _root.gameObject.SetActive(visible);
 
             SetCounter(_poisonRoot, _poisonCountText, poisonCount);
             SetCounter(_bleedRoot, _bleedCountText, bleedCount);
+            SetCounter(_igniteRoot, _igniteCountText, igniteCount);
         }
 
         public void SetYOffset(float y)
@@ -891,9 +907,9 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
                 _ailmentStackRow.SetYOffset(4.1f + (_mysticShieldRow?.CurrentHeight ?? 0f) + 1.4f);
         }
 
-        public void SetAilmentStacks(int poisonCount, int bleedCount)
+        public void SetAilmentStacks(int poisonCount, int bleedCount, int igniteCount)
         {
-            _ailmentStackRow?.SetCounts(poisonCount, bleedCount);
+            _ailmentStackRow?.SetCounts(poisonCount, bleedCount, igniteCount);
         }
 
         public void Tick(float dt)

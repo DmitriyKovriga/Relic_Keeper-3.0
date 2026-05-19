@@ -1235,3 +1235,16 @@ MonoBehaviour:
     ContextTags: 0
     DamageChannels: 0
     AllowedAffixKinds: 31
+  - StatTypeId: MaxIgniteStacks
+    Category: Ailments
+    SemanticKind: 3
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 3
+    ValueUnit: 5
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 1

@@ -846,9 +846,7 @@ namespace Scripts.Editor.Affixes
 
         private AffixPoolSO FindPoolForItem(EquipmentItemSO item)
         {
-            ArmorDefenseType defType = ArmorDefenseType.None;
-            if (item is ArmorItemSO armor) defType = armor.DefenseType;
-            return _pools.FirstOrDefault(p => p != null && p.Slot == item.Slot && p.DefenseType == defType);
+            return item != null ? item.AffixPool : null;
         }
 
         private static string GetDefenseTypeDisplayName(ArmorDefenseType type)

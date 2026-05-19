@@ -5,6 +5,10 @@ namespace Scripts.Skills
 {
     public abstract class SkillBehaviour : MonoBehaviour
     {
+        private const float DefaultActionSpeed = 1f;
+        private const float MinActionSpeed = 0.05f;
+        private const float MaxActionSpeed = 12f;
+
         protected PlayerStats _ownerStats;
         protected SkillDataSO _data;
         protected float _lastCastTime;
@@ -93,6 +97,66 @@ namespace Scripts.Skills
                 return 1f;
 
             return Mathf.Max(0.05f, _data.SkillSpeedMultiplier <= 0f ? 1f : _data.SkillSpeedMultiplier);
+        }
+
+        protected float ResolveActionSpeed()
+        {
+            float attackSpeed = ResolveAttackActionSpeed();
+            float spellSpeed = ResolveSpellActionSpeed();
+
+            float speed = _data != null
+                ? _data.ActionSpeedMode switch
+                {
+                    SkillActionSpeedMode.Spell => spellSpeed,
+                    SkillActionSpeedMode.Universal => Mathf.Max(attackSpeed, spellSpeed),
+                    _ => attackSpeed
+                }
+                : attackSpeed;
+
+            speed *= ResolveSkillSpeedMultiplier();
+            return Mathf.Clamp(speed <= 0f ? DefaultActionSpeed : speed, MinActionSpeed, MaxActionSpeed);
+        }
+
+        private float ResolveAttackActionSpeed()
+        {
+            float speed = _ownerStats != null ? _ownerStats.GetValue(StatType.AttackSpeed) : 0f;
+            return speed > 0f ? speed : DefaultActionSpeed;
+        }
+
+        private float ResolveSpellActionSpeed()
+        {
+            float baseSpeed = ResolveAttackSpeedFlatBase();
+            float castFlatBonus = 0f;
+            float castPercentAdd = 0f;
+            float castMultiplier = 1f;
+
+            if (_ownerStats != null && _ownerStats.TryGetStat(StatType.CastSpeed, out CharacterStat castStat) && castStat != null)
+            {
+                foreach (StatModifier modifier in castStat.Modifiers)
+                {
+                    if (modifier.Type == StatModType.Flat)
+                        castFlatBonus += modifier.Value;
+                }
+
+                castPercentAdd = castStat.GetTotalPercentAdd();
+                castMultiplier = castStat.GetTotalMultiplier();
+            }
+
+            float flatSpeed = Mathf.Max(MinActionSpeed, baseSpeed + castFlatBonus);
+            float additiveFactor = Mathf.Max(0f, 1f + castPercentAdd / 100f);
+            return flatSpeed * additiveFactor * castMultiplier;
+        }
+
+        private float ResolveAttackSpeedFlatBase()
+        {
+            if (_ownerStats != null && _ownerStats.TryGetStat(StatType.AttackSpeed, out CharacterStat attackStat) && attackStat != null)
+            {
+                float rawFlat = attackStat.GetRawFlatValue();
+                if (rawFlat > 0f)
+                    return rawFlat;
+            }
+
+            return DefaultActionSpeed;
         }
 
         public void TryCast()

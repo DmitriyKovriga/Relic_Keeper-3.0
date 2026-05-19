@@ -55,10 +55,12 @@ MonoBehaviour:
     Value: 10
   - Type: 65
     Value: 3
+  - Type: 67
+    Value: 25
   - Type: 69
     Value: 20
   - Type: 70
-    Value: 5
+    Value: 8
   - Type: 73
     Value: 2
   - Type: 76
@@ -69,3 +71,5 @@ MonoBehaviour:
     Value: 2
   - Type: 101
     Value: 100
+  - Type: 103
+    Value: 1

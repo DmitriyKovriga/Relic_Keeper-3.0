@@ -185,6 +185,14 @@ MonoBehaviour:
       Chanse, move forward
     m_Metadata:
       m_Items: []
+  - m_Id: 47456163879444480
+    m_Localized: Fire Ball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47456163908804608
+    m_Localized: Fire Ball is projectile that deal 100% damage
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

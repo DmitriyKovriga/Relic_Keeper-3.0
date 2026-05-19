@@ -1932,6 +1932,10 @@ MonoBehaviour:
     m_Localized: Stun Threshold
     m_Metadata:
       m_Items: []
+  - m_Id: 61888136995659776
+    m_Localized: Maximum Ignite Stacks
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

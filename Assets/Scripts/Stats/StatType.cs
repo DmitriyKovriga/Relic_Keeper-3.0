@@ -145,6 +145,7 @@ namespace Scripts.Stats
         ProjectilePierce,
         StunDuration,
         StunBuildUp,
-        StunThreshold
+        StunThreshold,
+        MaxIgniteStacks
     }
 }

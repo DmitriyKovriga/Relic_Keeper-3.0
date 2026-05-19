@@ -12,10 +12,6 @@ namespace Scripts.Skills
     [RequireComponent(typeof(SkillHandAnimation))]
     public class CleaveSkill : SkillBehaviour
     {
-        private const float DefaultActionSpeed = 1f;
-        private const float MinActionSpeed = 0.05f;
-        private const float MaxActionSpeed = 12f;
-
         [Header("Timeline Config (0.0 - 1.0)")]
         [Range(0f, 1f)] [SerializeField] private float _lockTime = 0.1f;
         [Range(0f, 1f)] [SerializeField] private float _impactTime = 0.35f;
@@ -100,16 +96,6 @@ namespace Scripts.Skills
 
             _currentDuration = 1f / _currentAps;
             _currentAoe = 1f + (_ownerStats.GetValue(StatType.AreaOfEffect) / 100f);
-        }
-
-        private float ResolveActionSpeed()
-        {
-            float speed = _ownerStats != null ? _ownerStats.GetValue(StatType.AttackSpeed) : 0f;
-            if (speed <= 0f)
-                speed = DefaultActionSpeed;
-
-            speed *= ResolveSkillSpeedMultiplier();
-            return Mathf.Clamp(speed, MinActionSpeed, MaxActionSpeed);
         }
 
         private IEnumerator PhaseWindup()

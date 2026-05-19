@@ -516,6 +516,8 @@ namespace Scripts.Editor.Skills
             };
             if (!Mathf.Approximately(skill.SkillSpeedMultiplier, 1f))
                 parts.Add($"Skill Speed x{Mathf.Max(0.05f, skill.SkillSpeedMultiplier):0.##}");
+            if (skill.ActionSpeedMode != SkillActionSpeedMode.Attack)
+                parts.Add($"Speed mode: {skill.ActionSpeedMode}");
 
             if (!string.IsNullOrWhiteSpace(skill.Description))
                 parts.Add(skill.Description);
@@ -805,6 +807,9 @@ namespace Scripts.Editor.Skills
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("IsActive"), new GUIContent("Is Active"));
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("Cooldown"));
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("ManaCost"), new GUIContent("Mana Cost"));
+            EditorGUILayout.PropertyField(
+                serializedSkill.FindProperty("ActionSpeedMode"),
+                new GUIContent("Action Speed Mode", "Attack = AttackSpeed. Spell = weapon base speed with CastSpeed modifiers. Universal = faster of both."));
             EditorGUILayout.PropertyField(
                 serializedSkill.FindProperty("SkillSpeedMultiplier"),
                 new GUIContent("Skill Speed Multiplier", "Applied after normal AttackSpeed/CastSpeed. 1 = normal, 1.5 = 50% faster."));

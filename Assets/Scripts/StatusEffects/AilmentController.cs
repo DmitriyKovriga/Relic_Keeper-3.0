@@ -14,12 +14,18 @@ namespace Scripts.StatusEffects
         private const float DefaultPoisonDamageMult = 20f;
         private const float DefaultBleedDuration = 4f;
         private const float DefaultBleedDamageMult = 70f;
+        private const float DefaultIgniteChance = 25f;
+        private const float DefaultIgniteDuration = 4f;
+        private const float DefaultIgniteDamageMult = 20f;
+        private const float IgniteFireDamageShareThreshold = 0.3f;
         private const float TickInterval = 1f;
 
         private readonly List<PoisonStack> _poisonStacks = new List<PoisonStack>();
         private readonly List<BleedStack> _bleedStacks = new List<BleedStack>();
+        private readonly List<IgniteStack> _igniteStacks = new List<IgniteStack>();
         private float _poisonTickTimer = TickInterval;
         private float _bleedTickTimer = TickInterval;
+        private float _igniteTickTimer = TickInterval;
 
         private IStatsProvider _statsProvider;
         private EnemyHealth _enemyHealth;
@@ -41,45 +47,7 @@ namespace Scripts.StatusEffects
         {
             UpdatePoison(Time.deltaTime);
             UpdateBleed(Time.deltaTime);
-        }
-
-        private void UpdatePoison(float dt)
-        {
-            if (_poisonStacks.Count == 0)
-            {
-                _poisonTickTimer = TickInterval;
-                return;
-            }
-
-            if (dt <= 0f)
-                return;
-
-            _poisonTickTimer -= dt;
-            bool changed = false;
-            for (int i = _poisonStacks.Count - 1; i >= 0; i--)
-            {
-                PoisonStack stack = _poisonStacks[i];
-                stack.RemainingSeconds -= dt;
-
-                if (stack.RemainingSeconds <= 0f)
-                {
-                    _poisonStacks.RemoveAt(i);
-                    changed = true;
-                }
-                else
-                {
-                    _poisonStacks[i] = stack;
-                }
-            }
-
-            while (_poisonTickTimer <= 0f && _poisonStacks.Count > 0)
-            {
-                _poisonTickTimer += TickInterval;
-                ApplyCombinedPoisonTick();
-            }
-
-            if (changed)
-                OnAilmentsChanged?.Invoke();
+            UpdateIgnite(Time.deltaTime);
         }
 
         public int GetStackCount(AilmentType ailmentType)
@@ -88,13 +56,14 @@ namespace Scripts.StatusEffects
             {
                 AilmentType.Poison => _poisonStacks.Count,
                 AilmentType.Bleed => _bleedStacks.Count,
+                AilmentType.Ignite => _igniteStacks.Count,
                 _ => 0
             };
         }
 
         public static void TryApplyHitAilments(IStatsProvider sourceStats, object source, Transform target, DamageSnapshot hitSnapshot)
         {
-            if (sourceStats == null || target == null || hitSnapshot == null || hitSnapshot.Physical <= 0f)
+            if (sourceStats == null || target == null || hitSnapshot == null || hitSnapshot.TotalDamage <= 0f)
                 return;
 
             if (!TryResolve(target, out AilmentController controller) || controller == null)
@@ -102,6 +71,7 @@ namespace Scripts.StatusEffects
 
             controller.TryApplyPoison(sourceStats, source, hitSnapshot);
             controller.TryApplyBleed(sourceStats, source, hitSnapshot);
+            controller.TryApplyIgnite(sourceStats, source, hitSnapshot);
         }
 
         public static void TryApplyHitAilmentsFromSource(object source, Transform target, DamageSnapshot hitSnapshot)
@@ -203,6 +173,61 @@ namespace Scripts.StatusEffects
             return true;
         }
 
+        public bool TryApplyIgnite(IStatsProvider sourceStats, object source, DamageSnapshot hitSnapshot)
+        {
+            if (sourceStats == null || hitSnapshot == null || hitSnapshot.Fire <= 0f || hitSnapshot.TotalDamage <= 0f)
+                return false;
+
+            float fireShare = hitSnapshot.Fire / hitSnapshot.TotalDamage;
+            if (fireShare < IgniteFireDamageShareThreshold)
+                return false;
+
+            CacheOwner();
+
+            float configuredChance = Mathf.Max(0f, sourceStats.GetValue(StatType.IgniteChance));
+            float chance = Mathf.Max(DefaultIgniteChance, configuredChance);
+            if (chance <= 0f)
+                return false;
+
+            float avoid = _statsProvider != null ? Mathf.Clamp(_statsProvider.GetValue(StatType.ChanseToAvoidIgnite), 0f, 100f) : 0f;
+            float finalChance = Mathf.Clamp(chance * (1f - avoid / 100f), 0f, 100f);
+            if (UnityEngine.Random.value > finalChance / 100f)
+                return false;
+
+            float damageMult = sourceStats.GetValue(StatType.IgniteDamageMult);
+            if (damageMult <= 0f)
+                damageMult = DefaultIgniteDamageMult;
+
+            float igniteDamagePercent = sourceStats.GetValue(StatType.IgniteDamage);
+            float tickDamage = hitSnapshot.Fire * (damageMult / 100f) * Mathf.Max(0f, 1f + igniteDamagePercent / 100f);
+            if (tickDamage <= 0f)
+                return false;
+
+            float duration = sourceStats.GetValue(StatType.IgniteDuration);
+            if (duration <= 0f)
+                duration = DefaultIgniteDuration;
+
+            int maxStacks = Mathf.Max(1, Mathf.FloorToInt(sourceStats.GetValue(StatType.MaxIgniteStacks)));
+            if (_igniteStacks.Count >= maxStacks)
+            {
+                int weakestIndex = FindWeakestIgniteStackIndex();
+                if (weakestIndex < 0 || _igniteStacks[weakestIndex].TickDamage > tickDamage)
+                    return false;
+
+                _igniteStacks.RemoveAt(weakestIndex);
+            }
+
+            _igniteStacks.Add(new IgniteStack
+            {
+                Source = source,
+                TickDamage = tickDamage,
+                RemainingSeconds = duration
+            });
+
+            OnAilmentsChanged?.Invoke();
+            return true;
+        }
+
         public static bool TryResolve(Transform candidate, out AilmentController controller)
         {
             controller = null;
@@ -245,6 +270,45 @@ namespace Scripts.StatusEffects
             _playerDamageReceiver = GetComponent<PlayerDamageReceiver>() ?? GetComponentInParent<PlayerDamageReceiver>();
         }
 
+        private void UpdatePoison(float dt)
+        {
+            if (_poisonStacks.Count == 0)
+            {
+                _poisonTickTimer = TickInterval;
+                return;
+            }
+
+            if (dt <= 0f)
+                return;
+
+            _poisonTickTimer -= dt;
+            bool changed = false;
+            for (int i = _poisonStacks.Count - 1; i >= 0; i--)
+            {
+                PoisonStack stack = _poisonStacks[i];
+                stack.RemainingSeconds -= dt;
+
+                if (stack.RemainingSeconds <= 0f)
+                {
+                    _poisonStacks.RemoveAt(i);
+                    changed = true;
+                }
+                else
+                {
+                    _poisonStacks[i] = stack;
+                }
+            }
+
+            while (_poisonTickTimer <= 0f && _poisonStacks.Count > 0)
+            {
+                _poisonTickTimer += TickInterval;
+                ApplyCombinedPoisonTick();
+            }
+
+            if (changed)
+                OnAilmentsChanged?.Invoke();
+        }
+
         private void UpdateBleed(float dt)
         {
             if (_bleedStacks.Count == 0)
@@ -278,6 +342,45 @@ namespace Scripts.StatusEffects
             {
                 _bleedTickTimer += TickInterval;
                 ApplyCombinedBleedTick();
+            }
+
+            if (changed)
+                OnAilmentsChanged?.Invoke();
+        }
+
+        private void UpdateIgnite(float dt)
+        {
+            if (_igniteStacks.Count == 0)
+            {
+                _igniteTickTimer = TickInterval;
+                return;
+            }
+
+            if (dt <= 0f)
+                return;
+
+            _igniteTickTimer -= dt;
+            bool changed = false;
+            for (int i = _igniteStacks.Count - 1; i >= 0; i--)
+            {
+                IgniteStack stack = _igniteStacks[i];
+                stack.RemainingSeconds -= dt;
+
+                if (stack.RemainingSeconds <= 0f)
+                {
+                    _igniteStacks.RemoveAt(i);
+                    changed = true;
+                }
+                else
+                {
+                    _igniteStacks[i] = stack;
+                }
+            }
+
+            while (_igniteTickTimer <= 0f && _igniteStacks.Count > 0)
+            {
+                _igniteTickTimer += TickInterval;
+                ApplyCombinedIgniteTick();
             }
 
             if (changed)
@@ -336,6 +439,32 @@ namespace Scripts.StatusEffects
             ApplyPureBleedTick(totalDamage, source);
         }
 
+        private void ApplyCombinedIgniteTick()
+        {
+            float totalDamage = 0f;
+            object source = null;
+            float sourceDamage = float.MinValue;
+
+            for (int i = 0; i < _igniteStacks.Count; i++)
+            {
+                IgniteStack stack = _igniteStacks[i];
+                if (stack.RemainingSeconds <= 0f || stack.TickDamage <= 0f)
+                    continue;
+
+                totalDamage += stack.TickDamage;
+                if (stack.TickDamage > sourceDamage)
+                {
+                    sourceDamage = stack.TickDamage;
+                    source = stack.Source;
+                }
+            }
+
+            if (totalDamage <= 0f)
+                return;
+
+            ApplyPureIgniteTick(totalDamage, source);
+        }
+
         private void ApplyPurePoisonTick(float damage, object source)
         {
             if (_enemyHealth != null)
@@ -360,6 +489,18 @@ namespace Scripts.StatusEffects
                 _playerDamageReceiver.ApplyPureDamage(damage, source, "Bleed");
         }
 
+        private void ApplyPureIgniteTick(float damage, object source)
+        {
+            if (_enemyHealth != null)
+            {
+                _enemyHealth.ApplyPureDamage(damage, source, "Ignite");
+                return;
+            }
+
+            if (_playerDamageReceiver != null)
+                _playerDamageReceiver.ApplyPureDamage(damage, source, "Ignite");
+        }
+
         private int FindWeakestBleedStackIndex()
         {
             int weakestIndex = -1;
@@ -370,6 +511,22 @@ namespace Scripts.StatusEffects
                     continue;
 
                 weakestDamage = _bleedStacks[i].TickDamage;
+                weakestIndex = i;
+            }
+
+            return weakestIndex;
+        }
+
+        private int FindWeakestIgniteStackIndex()
+        {
+            int weakestIndex = -1;
+            float weakestDamage = float.MaxValue;
+            for (int i = 0; i < _igniteStacks.Count; i++)
+            {
+                if (_igniteStacks[i].TickDamage >= weakestDamage)
+                    continue;
+
+                weakestDamage = _igniteStacks[i].TickDamage;
                 weakestIndex = i;
             }
 
@@ -404,6 +561,13 @@ namespace Scripts.StatusEffects
         }
 
         private struct BleedStack
+        {
+            public object Source;
+            public float TickDamage;
+            public float RemainingSeconds;
+        }
+
+        private struct IgniteStack
         {
             public object Source;
             public float TickDamage;
