@@ -231,6 +231,7 @@ namespace Scripts.Skills.Projectiles
             if (_data.Homing)
                 AcquireHomingTarget();
             ApplyFacingRotation();
+            ResetProjectileVisualEffects();
         }
 
         private void Update()
@@ -782,6 +783,13 @@ namespace Scripts.Skills.Projectiles
         {
             float angle = Mathf.Atan2(_direction.y, _direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        }
+
+        private void ResetProjectileVisualEffects()
+        {
+            var visualEffects = GetComponent<ProjectileVisualEffects>() ?? GetComponentInChildren<ProjectileVisualEffects>(true);
+            if (visualEffects != null)
+                visualEffects.ResetVisualState();
         }
 
         private void EnsureComponents()

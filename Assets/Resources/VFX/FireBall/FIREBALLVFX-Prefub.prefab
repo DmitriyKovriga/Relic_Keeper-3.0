@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6157575142810327098}
   - component: {fileID: 6777529663481658051}
   - component: {fileID: 1959414770229889998}
+  - component: {fileID: 4921371658213490041}
   m_Layer: 0
   m_Name: FIREBALLVFX-Prefub
   m_TagString: Untagged
@@ -127,3 +128,201 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 730ac4f26fffe064a95db1f7edcf0950, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AutoDestroyVFX
+--- !u!114 &4921371658213490041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 693867811846907501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b825e24e2434a24a8a23e6e2e4f0f42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.Projectiles.ProjectileVisualEffects
+  _trail:
+    Enabled: 1
+    Intensity: 1
+    Time: 0.18
+    StartWidth: 0.16
+    EndWidth: 0.02
+    MinVertexDistance: 0.01
+    Color:
+      serializedVersion: 2
+      key0: {r: 1, g: 0.55, b: 0.12, a: 0.75}
+      key1: {r: 0.35, g: 0.08, b: 0.02, a: 0}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    Material: {fileID: 0}
+    SortingOrderOffset: -1
+  _particles:
+    Enabled: 1
+    Preset: 0
+    Intensity: 1
+    Rate: 18
+    Lifetime: 0.4
+    Speed: 0.8
+    Size: 0.035
+    ConeAngle: 55
+    SpawnRadiusMultiplier: 0.75
+    SpawnRadiusJitter: 0.15
+    DirectionRandomness: 0.35
+    StartColor: {r: 1, g: 0.72, b: 0.2, a: 0.9}
+    EndColor: {r: 0.25, g: 0.08, b: 0.03, a: 0}
+    Material: {fileID: 0}
+    SortingOrderOffset: 1
+  _ribbon:
+    Enabled: 0
+    Intensity: 1
+    MaxPoints: 14
+    SampleDistance: 0.035
+    Width: 0.07
+    Color:
+      serializedVersion: 2
+      key0: {r: 1, g: 0.9, b: 0.45, a: 0.75}
+      key1: {r: 1, g: 0.2, b: 0.05, a: 0}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: -1
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+    Material: {fileID: 0}
+    SortingOrderOffset: -2
+  _dynamicGlow:
+    Enabled: 0
+    Intensity: 1
+    Color: {r: 1, g: 0.42, b: 0.08, a: 1}
+    Radius: 1.6
+    PulseAmount: 0.2
+    PulseSpeed: 7
+    AdditiveSpriteMaterial: 1
+  _colorOverLifetime:
+    Enabled: 0
+    Lifetime: 1
+    Loop: 0
+    Intensity: 1
+    Color:
+      serializedVersion: 2
+      key0: {r: 1, g: 0.22, b: 0.02, a: 1}
+      key1: {r: 0.12, g: 0.1, b: 0.1, a: 0.7764706}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_ColorSpace: 0
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
+  _colorFlicker:
+    Enabled: 0
+    Intensity: 1
+    ColorA: {r: 1, g: 0.72, b: 0.18, a: 1}
+    ColorB: {r: 1, g: 0.25, b: 0.05, a: 1}
+    Frequency: 24
+  _ripple:
+    Enabled: 1
+    Intensity: 0.5
+    Interval: 0.12
+    Lifetime: 0.28
+    StartRadius: 0.06
+    EndRadius: 0.45
+    Segments: 18
+    Width: 0.02
+    Color: {r: 1, g: 0.55, b: 0.16, a: 0.45}
+    Material: {fileID: 0}
+    SortingOrderOffset: -3
+  _airSparks:
+    Enabled: 0
+    Intensity: 1
+    MinSpeed: 2.5
+    RateAtMinSpeed: 8
+    RateAtHighSpeed: 40
+    HighSpeedReference: 10
+    Lifetime: 0.22
+    Size: 0.025
+    Color: {r: 1, g: 0.8, b: 0.25, a: 0.9}
+    Material: {fileID: 0}
+    SortingOrderOffset: 2
+  _distortion:
+    Enabled: 0
+    Intensity: 1
+    Axis: 0
+    Amplitude: 0.025
+    Frequency: 18
+    Alpha: 0.2
+    Scale: 1.25
+    SortingOrderOffset: -1
+  _halo:
+    Enabled: 1
+    Intensity: 1
+    Layers: 2
+    Color: {r: 1, g: 0.38, b: 0.08, a: 0.28}
+    BaseScale: 1.35
+    ScaleStep: 0.28
+    PulseAmount: 0.08
+    PulseSpeed: 6
+    Material: {fileID: 0}
+    SortingOrderOffset: -1
