@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8dfeb579bbf0f148826246799bf1174, type: 3}
+  m_Name: FireStaffOfAdventurer
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Items.WeaponItemSO
+  ID: 4406314c
+  ItemName: FireStaffOfAdventurer
+  Icon: {fileID: 0}
+  Width: 2
+  Height: 4
+  Slot: 0
+  DropLevel: 1
+  ImplicitModifiers: []
+  SkillPool: {fileID: 0}
+  SkillCount: 1
+  IsTwoHanded: 1
+  InHandSprite: {fileID: 0}
+  MinPhysicalDamage: 0
+  MaxPhysicalDamage: 0
+  MinFireDamage: 6
+  MaxFireDamage: 12
+  MinColdDamage: 0
+  MaxColdDamage: 0
+  MinLightningDamage: 0
+  MaxLightningDamage: 0
+  AttacksPerSecond: 1
+  BaseCritChance: 5
+  SecondarySkillPool: {fileID: 0}

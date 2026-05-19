@@ -22,8 +22,9 @@ MonoBehaviour:
   NameKey: skills.MysticImpulseSkill
   DescriptionKey: skills.MysticImpulseSkill.description
   IsActive: 1
-  Cooldown: 10
+  Cooldown: 5
   ManaCost: 10
+  SkillSpeedMultiplier: 1
   DamageContextTags: 18
   SkillPrefab: {fileID: 3781618429183576840, guid: 65055df6a47832244a8bce41a7273fe4, type: 3}
   AnimationTrigger: Attack

@@ -114,6 +114,10 @@ MonoBehaviour:
     m_Localized: Small Adventurer's Sword
     m_Metadata:
       m_Items: []
+  - m_Id: 47367846504685568
+    m_Localized: Fire Staff Of Adventurer
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
