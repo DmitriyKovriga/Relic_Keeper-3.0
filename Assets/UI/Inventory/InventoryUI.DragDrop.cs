@@ -1,4 +1,5 @@
 using Scripts.Inventory;
+using Scripts.Items.World;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -40,6 +41,8 @@ public partial class InventoryUI
             _ghostIcon.style.display = DisplayStyle.None;
         if (_ghostHighlight != null)
             _ghostHighlight.style.display = DisplayStyle.None;
+        if (_worldDropCross != null)
+            _worldDropCross.style.display = DisplayStyle.None;
 
         ReleaseDragPointer();
 
@@ -82,6 +85,17 @@ public partial class InventoryUI
         _ghostHighlight.style.borderTopWidth = _ghostHighlight.style.borderBottomWidth = 1f;
         _ghostHighlight.style.borderLeftWidth = _ghostHighlight.style.borderRightWidth = 1f;
         _root.Add(_ghostHighlight);
+
+        _worldDropCross = new Label("x") { name = "WorldDropCross" };
+        _worldDropCross.style.position = Position.Absolute;
+        _worldDropCross.style.display = DisplayStyle.None;
+        _worldDropCross.pickingMode = PickingMode.Ignore;
+        _worldDropCross.style.color = Color.white;
+        _worldDropCross.style.unityTextAlign = TextAnchor.MiddleCenter;
+        _worldDropCross.style.fontSize = 16f;
+        _worldDropCross.style.width = 18f;
+        _worldDropCross.style.height = 18f;
+        _root.Add(_worldDropCross);
     }
 
     private Vector2 GetPointerRootLocalFromScreen()
@@ -97,7 +111,7 @@ public partial class InventoryUI
     {
         if (!_isDragging || _draggedItem?.Data == null)
         {
-            _ghostHighlight.style.display = DisplayStyle.None;
+            HideWorldDropHint();
             return;
         }
         int itemW = Mathf.Max(1, _draggedItem.Data.Width);
@@ -161,7 +175,13 @@ public partial class InventoryUI
             }
         }
 
-        _ghostHighlight.style.display = DisplayStyle.None;
+        if (CanDropDraggedItemToWorld(dropCenter))
+        {
+            ShowWorldDropHint(rootLocalPos);
+            return;
+        }
+
+        HideWorldDropHint();
     }
 
     private void ShowHighlightAtBackpackRoot(int rootIndex, int itemW, int itemH, int state)
@@ -209,6 +229,68 @@ public partial class InventoryUI
         Color c = state == 0 ? new Color(0.2f, 0.8f, 0.2f) : (state == 1 ? new Color(0.9f, 0.8f, 0.2f) : new Color(0.9f, 0.2f, 0.2f));
         _ghostHighlight.style.backgroundColor = c;
         _ghostHighlight.style.borderTopColor = _ghostHighlight.style.borderBottomColor = _ghostHighlight.style.borderLeftColor = _ghostHighlight.style.borderRightColor = c;
+        if (_worldDropCross != null)
+            _worldDropCross.style.display = DisplayStyle.None;
+    }
+
+    private void ShowWorldDropHint(Vector2 rootLocalPos)
+    {
+        if (_ghostHighlight == null)
+            return;
+
+        const float size = 18f;
+        Color fill = new Color(1f, 0.05f, 0.05f, 0.45f);
+        _ghostHighlight.style.left = rootLocalPos.x - size * 0.5f;
+        _ghostHighlight.style.top = rootLocalPos.y - size * 0.5f;
+        _ghostHighlight.style.width = size;
+        _ghostHighlight.style.height = size;
+        _ghostHighlight.style.backgroundColor = fill;
+        _ghostHighlight.style.borderTopColor = _ghostHighlight.style.borderBottomColor = _ghostHighlight.style.borderLeftColor = _ghostHighlight.style.borderRightColor = Color.red;
+        _ghostHighlight.style.display = DisplayStyle.Flex;
+
+        if (_worldDropCross != null)
+        {
+            _worldDropCross.style.left = rootLocalPos.x - size * 0.5f;
+            _worldDropCross.style.top = rootLocalPos.y - size * 0.5f - 1f;
+            _worldDropCross.style.display = DisplayStyle.Flex;
+        }
+    }
+
+    private void HideWorldDropHint()
+    {
+        if (_ghostHighlight != null)
+            _ghostHighlight.style.display = DisplayStyle.None;
+        if (_worldDropCross != null)
+            _worldDropCross.style.display = DisplayStyle.None;
+    }
+
+    private bool CanDropDraggedItemToWorld(Vector2 pointerPanelPosition)
+    {
+        return CanDropItemToWorld(_draggedItem, pointerPanelPosition);
+    }
+
+    private bool CanDropItemToWorld(InventoryItem item, Vector2 pointerPanelPosition)
+    {
+        if (item?.Data == null)
+            return false;
+
+        if (_inventoryContainer != null && _inventoryContainer.worldBound.Contains(pointerPanelPosition))
+            return false;
+
+        if (IsStashVisible && _stashPanel != null && _stashPanel.worldBound.Contains(pointerPanelPosition))
+            return false;
+
+        if (_craftSlot != null && _craftSlot.worldBound.Contains(pointerPanelPosition))
+            return false;
+
+        for (int i = 0; i < _equipmentSlots.Count; i++)
+        {
+            VisualElement slot = _equipmentSlots[i];
+            if (slot != null && slot.worldBound.Contains(pointerPanelPosition))
+                return false;
+        }
+
+        return true;
     }
 
     private void OnPointerOverSlot(PointerOverEvent evt)
@@ -325,7 +407,7 @@ public partial class InventoryUI
         }
         else
         {
-            _ghostHighlight.style.display = DisplayStyle.None;
+            HideWorldDropHint();
             if (_applyOrbMode)
                 UpdateGhostPosition(GetPointerRootLocalFromScreen());
         }
@@ -479,7 +561,7 @@ public partial class InventoryUI
         _draggedStashTab = -1;
         _draggedStashAnchorSlot = -1;
         _ghostIcon.style.display = DisplayStyle.None;
-        if (_ghostHighlight != null) _ghostHighlight.style.display = DisplayStyle.None;
+        HideWorldDropHint();
         ReleaseDragPointer();
 
         int itemW = itemToPlace.Data != null ? itemToPlace.Data.Width : 1;
@@ -540,6 +622,9 @@ public partial class InventoryUI
                     : ItemTransferEndpointIds.InventoryBackpack);
             placed = ItemDragDropService.TryDrop(sourceEndpointId, itemToPlace, dropCenter);
         }
+
+        if (!placed && CanDropItemToWorld(itemToPlace, dropCenter))
+            placed = WorldItemDropService.TryDropFromScreen(itemToPlace, Input.mousePosition);
 
         if (!placed)
         {

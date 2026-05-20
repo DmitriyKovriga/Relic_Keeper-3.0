@@ -22,13 +22,13 @@ MonoBehaviour:
   - Type: 14
     Value: 10
   - Type: 18
-    Value: 25
+    Value: 0
   - Type: 20
-    Value: 25
+    Value: 0
   - Type: 22
-    Value: 25
+    Value: 0
   - Type: 24
-    Value: 25
+    Value: 0
   Stats: []
   Perception:
     AggroRange: 0

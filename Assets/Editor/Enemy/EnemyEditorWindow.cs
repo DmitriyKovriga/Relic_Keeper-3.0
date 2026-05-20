@@ -331,10 +331,10 @@ namespace Scripts.Editor.Enemy
                 new() { Type = StatType.MaxHealth, Value = 100f },
                 new() { Type = StatType.StunThreshold, Value = 70f },
                 new() { Type = StatType.DamagePhysical, Value = 10f },
-                new() { Type = StatType.FireResist, Value = 25f },
-                new() { Type = StatType.ColdResist, Value = 25f },
-                new() { Type = StatType.LightningResist, Value = 25f },
-                new() { Type = StatType.PhysicalResist, Value = 25f },
+                new() { Type = StatType.FireResist, Value = 0f },
+                new() { Type = StatType.ColdResist, Value = 0f },
+                new() { Type = StatType.LightningResist, Value = 0f },
+                new() { Type = StatType.PhysicalResist, Value = 0f },
             };
         }
 
@@ -345,10 +345,10 @@ namespace Scripts.Editor.Enemy
                 new() { Type = StatType.MaxHealth, BaseValue = 100f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = 20f },
                 new() { Type = StatType.StunThreshold, BaseValue = 70f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = 20f },
                 new() { Type = StatType.DamagePhysical, BaseValue = 10f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = 10f },
-                new() { Type = StatType.FireResist, BaseValue = 25f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
-                new() { Type = StatType.ColdResist, BaseValue = 25f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
-                new() { Type = StatType.LightningResist, BaseValue = 25f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
-                new() { Type = StatType.PhysicalResist, BaseValue = 25f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
+                new() { Type = StatType.FireResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
+                new() { Type = StatType.ColdResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
+                new() { Type = StatType.LightningResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
+                new() { Type = StatType.PhysicalResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
             };
         }
 

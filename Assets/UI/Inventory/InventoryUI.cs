@@ -54,6 +54,7 @@ public partial class InventoryUI : MonoBehaviour
     private VisualElement _ghostIcon;
     /// <summary>Подсветка зона дропа: зелёный — можно, жёлтый — своп, красный — нельзя.</summary>
     private VisualElement _ghostHighlight;
+    private Label _worldDropCross;
 
     private VisualElement _stashPanel;
     private VisualElement _stashTabsRow;
