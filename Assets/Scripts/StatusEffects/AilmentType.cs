@@ -4,6 +4,7 @@ namespace Scripts.StatusEffects
     {
         Poison = 0,
         Bleed = 1,
-        Ignite = 2
+        Ignite = 2,
+        Freeze = 3
     }
 }

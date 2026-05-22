@@ -26,6 +26,7 @@ namespace Scripts.Enemies
         private EnemyAnimationBridge _animation;
         private EnemyBrain _brain;
         private EnemyStunController _stun;
+        private EnemyFreezeController _freeze;
         private Transform _visualRoot;
         private SpriteRenderer _visualRenderer;
         private bool _isInitialized;
@@ -110,6 +111,10 @@ namespace Scripts.Enemies
 
             if (GetComponent<EnemyStunVfxOverlay>() == null)
                 gameObject.AddComponent<EnemyStunVfxOverlay>();
+
+            _freeze = GetComponent<EnemyFreezeController>();
+            if (_freeze == null)
+                _freeze = gameObject.AddComponent<EnemyFreezeController>();
 
             _sensor = GetComponent<EnemySensor2D>();
             if (_sensor == null)

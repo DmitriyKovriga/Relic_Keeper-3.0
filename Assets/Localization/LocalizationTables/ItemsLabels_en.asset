@@ -118,6 +118,10 @@ MonoBehaviour:
     m_Localized: Fire Staff Of Adventurer
     m_Metadata:
       m_Items: []
+  - m_Id: 48247247077367808
+    m_Localized: Cold Staff Of Adventurer
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -131,6 +131,7 @@ namespace Scripts.Enemies
         private int _chargeDashDirection;
         private float _chargeDashDistanceRemaining;
         private bool _isStunned;
+        private bool _isFrozen;
         private GameObject _attackAttentionPrefab;
         private GameObject _activeAttackAttentionVfx;
 
@@ -159,6 +160,7 @@ namespace Scripts.Enemies
             _chargeDashDirection = 1;
             _chargeDashDistanceRemaining = 0f;
             _isStunned = false;
+            _isFrozen = false;
             DestroyAttackAttentionVfx();
         }
 
@@ -169,7 +171,7 @@ namespace Scripts.Enemies
 
         private void Update()
         {
-            if (_isStunned)
+            if (IsControlLocked)
                 return;
 
             if (_phase == AttackPhase.Idle)
@@ -228,7 +230,7 @@ namespace Scripts.Enemies
 
         private bool TryStartAttackInternal(Transform target, AttackVariant variant)
         {
-            if (_isStunned || _data == null || target == null || IsBusy)
+            if (IsControlLocked || _data == null || target == null || IsBusy)
                 return false;
 
             if (variant == AttackVariant.Charge && (_data.ChargeAttack == null || !_data.ChargeAttack.Enabled))
@@ -256,9 +258,21 @@ namespace Scripts.Enemies
         public void SetStunned(bool stunned)
         {
             _isStunned = stunned;
-            if (!_isStunned)
-                return;
+            if (IsControlLocked)
+                CancelCurrentAttack();
+        }
 
+        public void SetFrozen(bool frozen)
+        {
+            _isFrozen = frozen;
+            if (IsControlLocked)
+                CancelCurrentAttack();
+        }
+
+        private bool IsControlLocked => _isStunned || _isFrozen;
+
+        private void CancelCurrentAttack()
+        {
             ClearChargeMotion();
             _phase = AttackPhase.Idle;
             _phaseTimer = 0f;

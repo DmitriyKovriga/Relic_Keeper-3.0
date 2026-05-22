@@ -14,6 +14,8 @@ namespace Scripts.Enemies
         private float _forcedHorizontalVelocity;
         private bool _ignoreLedgeForForcedMotion;
         private bool _isStunned;
+        private bool _isFrozen;
+        private float _cachedGravityScale = float.NaN;
 
         public bool IsGrounded { get; private set; }
         public bool IsNearWall { get; private set; }
@@ -29,6 +31,8 @@ namespace Scripts.Enemies
             EnsurePhysicsComponents();
             _moveInput = 0f;
             _isStunned = false;
+            _isFrozen = false;
+            _cachedGravityScale = float.NaN;
         }
 
         private void FixedUpdate()
@@ -42,7 +46,7 @@ namespace Scripts.Enemies
 
         public void SetMoveInput(float input)
         {
-            if (_isStunned)
+            if (IsControlLocked)
             {
                 Stop();
                 return;
@@ -60,7 +64,7 @@ namespace Scripts.Enemies
 
         public bool TryJump()
         {
-            if (_isStunned || _data == null || !_data.Movement.CanJump || !IsGrounded || _rb == null)
+            if (IsControlLocked || _data == null || !_data.Movement.CanJump || !IsGrounded || _rb == null)
                 return false;
 
             _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, 0f);
@@ -79,7 +83,7 @@ namespace Scripts.Enemies
 
         public void SetForcedHorizontalVelocity(float velocityX, bool ignoreLedge = false)
         {
-            if (_isStunned)
+            if (IsControlLocked)
                 return;
 
             _hasForcedHorizontalVelocity = true;
@@ -109,15 +113,44 @@ namespace Scripts.Enemies
         public void SetStunned(bool stunned)
         {
             _isStunned = stunned;
-            if (!_isStunned)
+            ApplyControlLockState();
+        }
+
+        public void SetFrozen(bool frozen)
+        {
+            _isFrozen = frozen;
+            ApplyControlLockState();
+        }
+
+        private bool IsControlLocked => _isStunned || _isFrozen;
+
+        private void ApplyControlLockState()
+        {
+            if (!IsControlLocked)
+            {
+                RestoreGravityIfNeeded();
                 return;
+            }
 
             _moveInput = 0f;
             _hasForcedHorizontalVelocity = false;
             _forcedHorizontalVelocity = 0f;
             _ignoreLedgeForForcedMotion = false;
             if (_rb != null)
-                _rb.linearVelocity = new Vector2(0f, _rb.linearVelocity.y);
+            {
+                if (_isFrozen)
+                {
+                    if (float.IsNaN(_cachedGravityScale))
+                        _cachedGravityScale = _rb.gravityScale;
+
+                    _rb.gravityScale = 0f;
+                    _rb.linearVelocity = Vector2.zero;
+                }
+                else
+                {
+                    _rb.linearVelocity = new Vector2(0f, _rb.linearVelocity.y);
+                }
+            }
         }
 
         private void ApplyMovement()
@@ -125,9 +158,9 @@ namespace Scripts.Enemies
             if (_rb == null || _data == null)
                 return;
 
-            if (_isStunned)
+            if (IsControlLocked)
             {
-                _rb.linearVelocity = new Vector2(0f, _rb.linearVelocity.y);
+                _rb.linearVelocity = _isFrozen ? Vector2.zero : new Vector2(0f, _rb.linearVelocity.y);
                 return;
             }
 
@@ -224,6 +257,15 @@ namespace Scripts.Enemies
                 AutoFitCollider(boxCollider);
                 SnapToGround(boxCollider);
             }
+        }
+
+        private void RestoreGravityIfNeeded()
+        {
+            if (_rb == null || float.IsNaN(_cachedGravityScale))
+                return;
+
+            _rb.gravityScale = _cachedGravityScale;
+            _cachedGravityScale = float.NaN;
         }
 
         private void AutoFitCollider(BoxCollider2D collider)

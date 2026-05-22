@@ -40,6 +40,9 @@ namespace Scripts.Enemies
         private bool _holdTransientLastFrame;
         private bool _digInCompleted;
         private bool _holdChargeImpactFrame;
+        private bool _isFrozen;
+        private bool _hasCachedAnimatorSpeed;
+        private float _cachedAnimatorSpeed = 1f;
         private static readonly Regex TrailingNumberRegex = new Regex(@"_(\d+)$", RegexOptions.Compiled);
 
         public bool IsTransientStateActive => _isTransientState;
@@ -87,6 +90,11 @@ namespace Scripts.Enemies
             _holdTransientLastFrame = false;
             _digInCompleted = false;
             _holdChargeImpactFrame = false;
+            _isFrozen = false;
+            _hasCachedAnimatorSpeed = false;
+            _cachedAnimatorSpeed = 1f;
+            if (_animator != null)
+                _animator.speed = 1f;
 
             if (_mode == AnimationMode.SpriteSheets)
             {
@@ -106,6 +114,9 @@ namespace Scripts.Enemies
 
         private void Update()
         {
+            if (_isFrozen)
+                return;
+
             if (_mode == AnimationMode.SpriteSheets)
             {
                 UpdateSpriteSheetAnimation();
@@ -213,6 +224,42 @@ namespace Scripts.Enemies
             _isVisualHidden = hidden;
             if (_spriteRenderer != null)
                 _spriteRenderer.enabled = !hidden;
+        }
+
+        public void SetFrozen(bool frozen)
+        {
+            if (_isFrozen == frozen)
+                return;
+
+            _isFrozen = frozen;
+            if (_mode == AnimationMode.AnimatorController && _animator != null)
+            {
+                if (frozen)
+                {
+                    if (!_hasCachedAnimatorSpeed)
+                    {
+                        _cachedAnimatorSpeed = _animator.speed;
+                        _hasCachedAnimatorSpeed = true;
+                    }
+
+                    _animator.speed = 0f;
+                }
+                else
+                {
+                    _animator.speed = _hasCachedAnimatorSpeed ? _cachedAnimatorSpeed : 1f;
+                    _hasCachedAnimatorSpeed = false;
+                }
+            }
+
+            if (frozen || _data == null || _data.Animation == null)
+                return;
+
+            _isTransientState = false;
+            _holdTransientLastFrame = false;
+            _holdChargeImpactFrame = false;
+            _attackImpactSent = false;
+            _attackImpactQueued = false;
+            PlayState(_data.Animation.IdleStateName, true);
         }
 
         public float GetTransientDuration(string stateName)

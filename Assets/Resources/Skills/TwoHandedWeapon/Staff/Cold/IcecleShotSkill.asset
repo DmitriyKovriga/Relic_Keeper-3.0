@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 037112ba607a5b2409ab1b0826944402, type: 3}
+  m_Name: IcecleShotSkill
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
+  ID: IcecleShotSkill
+  SkillName: Icecle Shot
+  Description: Deal 100% of damage and grant additional 25% to freeze enemy
+  Icon: {fileID: 0}
+  NameKey: skills.IcecleShotSkill
+  DescriptionKey: skills.IcecleShotSkill.description
+  IsActive: 1
+  Cooldown: 0
+  ManaCost: 0
+  ActionSpeedMode: 1
+  SkillSpeedMultiplier: 1
+  DamageContextTags: 2
+  SkillPrefab: {fileID: 0}
+  AnimationTrigger: Attack
+  Recipe: {fileID: 11400000, guid: 5c512311bfe87564eaaa0481bfb37748, type: 2}

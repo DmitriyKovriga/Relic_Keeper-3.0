@@ -18,6 +18,8 @@ namespace Scripts.StatusEffects
         private const float DefaultIgniteDuration = 4f;
         private const float DefaultIgniteDamageMult = 20f;
         private const float IgniteFireDamageShareThreshold = 0.3f;
+        private const float DefaultFreezeDuration = 1f;
+        private const float FreezeColdDamageShareThreshold = 0.3f;
         private const float TickInterval = 1f;
 
         private readonly List<PoisonStack> _poisonStacks = new List<PoisonStack>();
@@ -29,6 +31,7 @@ namespace Scripts.StatusEffects
 
         private IStatsProvider _statsProvider;
         private EnemyHealth _enemyHealth;
+        private EnemyFreezeController _enemyFreeze;
         private PlayerDamageReceiver _playerDamageReceiver;
 
         public event Action OnAilmentsChanged;
@@ -57,6 +60,7 @@ namespace Scripts.StatusEffects
                 AilmentType.Poison => _poisonStacks.Count,
                 AilmentType.Bleed => _bleedStacks.Count,
                 AilmentType.Ignite => _igniteStacks.Count,
+                AilmentType.Freeze => _enemyFreeze != null && _enemyFreeze.IsFrozen ? 1 : 0,
                 _ => 0
             };
         }
@@ -72,6 +76,7 @@ namespace Scripts.StatusEffects
             controller.TryApplyPoison(sourceStats, source, hitSnapshot);
             controller.TryApplyBleed(sourceStats, source, hitSnapshot);
             controller.TryApplyIgnite(sourceStats, source, hitSnapshot);
+            controller.TryApplyFreeze(sourceStats, source, hitSnapshot);
         }
 
         public static void TryApplyHitAilmentsFromSource(object source, Transform target, DamageSnapshot hitSnapshot)
@@ -228,6 +233,39 @@ namespace Scripts.StatusEffects
             return true;
         }
 
+        public bool TryApplyFreeze(IStatsProvider sourceStats, object source, DamageSnapshot hitSnapshot)
+        {
+            if (sourceStats == null || hitSnapshot == null || hitSnapshot.Cold <= 0f || hitSnapshot.TotalDamage <= 0f)
+                return false;
+
+            float coldShare = hitSnapshot.Cold / hitSnapshot.TotalDamage;
+            if (coldShare < FreezeColdDamageShareThreshold)
+                return false;
+
+            CacheOwner();
+            if (_enemyHealth == null || _enemyHealth.IsDead || _enemyFreeze == null)
+                return false;
+
+            float chance = Mathf.Max(0f, sourceStats.GetValue(StatType.FreezeChance));
+            if (chance <= 0f)
+                return false;
+
+            float avoid = _statsProvider != null ? Mathf.Clamp(_statsProvider.GetValue(StatType.ChanseToAvoidFreeze), 0f, 100f) : 0f;
+            float finalChance = Mathf.Clamp(chance * (1f - avoid / 100f), 0f, 100f);
+            if (UnityEngine.Random.value > finalChance / 100f)
+                return false;
+
+            float duration = sourceStats.GetValue(StatType.FreezeDuration);
+            if (duration <= 0f)
+                duration = DefaultFreezeDuration;
+
+            bool applied = _enemyFreeze.TryApplyFreeze(duration);
+            if (applied)
+                OnAilmentsChanged?.Invoke();
+
+            return applied;
+        }
+
         public static bool TryResolve(Transform candidate, out AilmentController controller)
         {
             controller = null;
@@ -267,6 +305,7 @@ namespace Scripts.StatusEffects
         {
             _statsProvider = GetComponent<IStatsProvider>() ?? GetComponentInParent<IStatsProvider>();
             _enemyHealth = GetComponent<EnemyHealth>() ?? GetComponentInParent<EnemyHealth>();
+            _enemyFreeze = GetComponent<EnemyFreezeController>() ?? GetComponentInParent<EnemyFreezeController>();
             _playerDamageReceiver = GetComponent<PlayerDamageReceiver>() ?? GetComponentInParent<PlayerDamageReceiver>();
         }
 

@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &3781618429183576840
+--- !u!1 &2476198552848307018
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,25 +8,24 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3972983297139738510}
-  - component: {fileID: 2308969544569344531}
-  - component: {fileID: 2033729507642476872}
-  - component: {fileID: 3489661076436600982}
-  - component: {fileID: 3950811331980719161}
+  - component: {fileID: 7917031352506298859}
+  - component: {fileID: 7681375339039208054}
+  - component: {fileID: 5743370051335694165}
+  - component: {fileID: 5549803635007642025}
   m_Layer: 0
-  m_Name: MysticImplulsePrefabVFX
+  m_Name: IcicleVFXPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3972983297139738510
+--- !u!4 &7917031352506298859
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3781618429183576840}
+  m_GameObject: {fileID: 2476198552848307018}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -35,14 +34,14 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &2308969544569344531
+--- !u!212 &7681375339039208054
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3781618429183576840}
+  m_GameObject: {fileID: 2476198552848307018}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -84,57 +83,35 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 618970123898751095, guid: 27e2ca25eacee89429d19a4872fe4a5e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e03079fc898690d4f8c093a5bdbfb40f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 4, y: 4}
+  m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!95 &2033729507642476872
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3781618429183576840}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 89508f9b9daac37489aa19d1a664a5b6, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
---- !u!114 &3489661076436600982
+--- !u!114 &5743370051335694165
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3781618429183576840}
+  m_GameObject: {fileID: 2476198552848307018}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 730ac4f26fffe064a95db1f7edcf0950, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AutoDestroyVFX
---- !u!114 &3950811331980719161
+--- !u!114 &5549803635007642025
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3781618429183576840}
+  m_GameObject: {fileID: 2476198552848307018}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b825e24e2434a24a8a23e6e2e4f0f42, type: 3}
@@ -143,13 +120,13 @@ MonoBehaviour:
   _trail:
     Enabled: 1
     Intensity: 1
-    Time: 0.18
+    Time: 0.3
     StartWidth: 0.16
     EndWidth: 0.02
     MinVertexDistance: 0.01
     Color:
       serializedVersion: 2
-      key0: {r: 0.12156862, g: 1, b: 0.98822457, a: 0.75}
+      key0: {r: 0.12156863, g: 1, b: 0.9882353, a: 0.75}
       key1: {r: 0.35, g: 0.08, b: 0.02, a: 0}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
@@ -192,7 +169,7 @@ MonoBehaviour:
     SpawnRadiusJitter: 0.15
     DirectionRandomness: 0.35
     StartColor: {r: 0.12156863, g: 1, b: 0.9882353, a: 0.9}
-    EndColor: {r: 0.144585, g: 0.56700003, b: 0.56134266, a: 0}
+    EndColor: {r: 0.09652549, g: 0.794, b: 0.7846588, a: 0}
     Material: {fileID: 0}
     SortingOrderOffset: 1
   _ribbon:
@@ -280,7 +257,7 @@ MonoBehaviour:
     Enabled: 1
     Intensity: 1
     ColorA: {r: 0.12156863, g: 1, b: 0.9882353, a: 1}
-    ColorB: {r: 0.09397254, g: 0.773, b: 0.7639058, a: 1}
+    ColorB: {r: 0.695, g: 1, b: 0.9959152, a: 1}
     Frequency: 24
   _ripple:
     Enabled: 0
@@ -317,12 +294,12 @@ MonoBehaviour:
     SortingOrderOffset: -1
   _halo:
     Enabled: 1
-    Intensity: 0.5
+    Intensity: 0.58
     Layers: 2
     Color: {r: 0.12156863, g: 1, b: 0.9882353, a: 0.28}
     BaseScale: 2
     ScaleStep: 0.28
     PulseAmount: 0.08
-    PulseSpeed: 3
+    PulseSpeed: 6
     Material: {fileID: 0}
     SortingOrderOffset: -1
