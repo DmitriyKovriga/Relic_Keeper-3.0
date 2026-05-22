@@ -183,6 +183,14 @@ MonoBehaviour:
     m_Key: skills.IcecleShotSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 48305267404693504
+    m_Key: skills.LightningArcSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48305267421470720
+    m_Key: skills.LightningArcSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

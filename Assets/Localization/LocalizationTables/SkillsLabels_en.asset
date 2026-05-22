@@ -201,6 +201,14 @@ MonoBehaviour:
     m_Localized: Deal 100% of damage and grant additional 25% to freeze enemy
     m_Metadata:
       m_Items: []
+  - m_Id: 48305267404693504
+    m_Localized: Lightning Arc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48305267421470720
+    m_Localized: Deal 100% damage that chain 3 times
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

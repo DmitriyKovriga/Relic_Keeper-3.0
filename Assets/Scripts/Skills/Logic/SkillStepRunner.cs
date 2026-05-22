@@ -9,6 +9,7 @@ using Scripts.Combat;
 using Scripts.StatusEffects;
 using Scripts.Inventory;
 using Scripts.Items;
+using Scripts.Skills.Visuals;
 
 namespace Scripts.Skills
 {
@@ -338,6 +339,15 @@ namespace Scripts.Skills
                 case "SpawnGroundProjectile":
                     ExecuteSpawnProjectile(step);
                     break;
+                case "BuildChainTargets":
+                    ExecuteBuildChainTargets(stepIndex, step);
+                    break;
+                case "SpawnChainVFX":
+                    ExecuteSpawnChainVFX(step);
+                    break;
+                case "ChainDamage":
+                    ExecuteChainDamage(stepIndex, step);
+                    break;
                 case "ModifyCooldown":
                     ExecuteModifyCooldown(step);
                     break;
@@ -591,6 +601,270 @@ namespace Scripts.Skills
 
                 SkillProjectile.Spawn(data, spawnPos, direction, null);
             }
+        }
+
+        private void ExecuteBuildChainTargets(int stepIndex, StepEntry step)
+        {
+            if (_ctx == null || _ownerStats == null || stepIndex < 0)
+                return;
+
+            float offsetX = step.GetFloat("OffsetX", 0.65f);
+            float offsetY = step.GetFloat("OffsetY", 0.35f);
+            float firstBoxLength = Mathf.Max(0.1f, step.GetFloat("FirstBoxLength", 6f));
+            float firstBoxHeight = Mathf.Max(0.1f, step.GetFloat("FirstBoxHeight", 2f));
+            float chainRadius = Mathf.Max(0.1f, step.GetFloat("ChainSearchRadius", 7f));
+            int baseExtraChains = Mathf.Max(0, step.GetInt("BaseExtraChains", 3));
+            bool useProjectileChain = step.GetBool("UseProjectileChainStat", true);
+            int statExtraChains = useProjectileChain ? Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileChain))) : 0;
+            int maxTargets = 1 + baseExtraChains + statExtraChains;
+            bool allowRepeatTargets = step.GetBool("AllowRepeatTargets", true);
+            bool preventImmediateBacktracking = step.GetBool("PreventImmediateBacktracking", false);
+            bool requireLineOfSight = step.GetBool("RequireLineOfSight", true);
+            bool limitToScreen = step.GetBool("LimitToScreen", true);
+            int worldLayerMask = step.GetInt("WorldLayerMask", 1 << 6);
+            float fizzleLength = Mathf.Max(0.1f, step.GetFloat("FizzleLength", 0.9f));
+
+            Vector3 ownerPosition = _ownerStats.transform.position;
+            Vector3 start = ownerPosition + new Vector3(offsetX * _ctx.FacingDirection, offsetY, 0f);
+            var result = new SkillStepContext.ChainResult
+            {
+                StartPosition = start,
+                FizzleEndPosition = start + new Vector3(fizzleLength * _ctx.FacingDirection, 0f, 0f),
+                IsFizzle = true
+            };
+
+            if (!TryFindFirstChainTarget(start, firstBoxLength, firstBoxHeight, requireLineOfSight, worldLayerMask, out var firstTarget))
+            {
+                _ctx.RegisterChainResult(stepIndex, result);
+                return;
+            }
+
+            result.IsFizzle = false;
+            result.Targets.Add(firstTarget);
+
+            SkillStepContext.ChainTarget previousTarget = default;
+            SkillStepContext.ChainTarget currentTarget = firstTarget;
+            var usedTargets = new HashSet<IDamageable> { firstTarget.Target };
+
+            while (result.Targets.Count < maxTargets &&
+                   TryFindNextChainTarget(
+                       currentTarget,
+                       previousTarget,
+                       chainRadius,
+                       allowRepeatTargets,
+                       preventImmediateBacktracking,
+                       limitToScreen,
+                       usedTargets,
+                       out var nextTarget))
+            {
+                result.Targets.Add(nextTarget);
+                if (!allowRepeatTargets)
+                    usedTargets.Add(nextTarget.Target);
+
+                previousTarget = currentTarget;
+                currentTarget = nextTarget;
+            }
+
+            _ctx.RegisterChainResult(stepIndex, result);
+        }
+
+        private bool TryFindFirstChainTarget(
+            Vector3 start,
+            float length,
+            float height,
+            bool requireLineOfSight,
+            LayerMask worldLayer,
+            out SkillStepContext.ChainTarget target)
+        {
+            target = default;
+            Vector2 center = (Vector2)start + new Vector2(_ctx.FacingDirection * length * 0.5f, 0f);
+            Collider2D[] hits = Physics2D.OverlapBoxAll(center, new Vector2(length, height), 0f, _targetLayer);
+            float bestDistance = float.MaxValue;
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                Collider2D hit = hits[i];
+                if (!TryResolveValidDamageTarget(hit, out IDamageable damageable))
+                    continue;
+
+                Transform targetTransform = ResolveDamageableTransform(damageable);
+                if (targetTransform == null)
+                    continue;
+
+                Vector3 targetPosition = ResolveChainTargetPoint(targetTransform);
+                if (!IsStrictlyInFront(start, targetPosition))
+                    continue;
+
+                if (requireLineOfSight && IsLineBlocked(start, targetPosition, worldLayer))
+                    continue;
+
+                float distance = Mathf.Abs(targetPosition.x - start.x);
+                if (distance >= bestDistance)
+                    continue;
+
+                bestDistance = distance;
+                target = new SkillStepContext.ChainTarget
+                {
+                    Target = damageable,
+                    TargetTransform = targetTransform,
+                    Position = targetPosition
+                };
+            }
+
+            return target.Target != null;
+        }
+
+        private bool TryFindNextChainTarget(
+            SkillStepContext.ChainTarget current,
+            SkillStepContext.ChainTarget previous,
+            float radius,
+            bool allowRepeatTargets,
+            bool preventImmediateBacktracking,
+            bool limitToScreen,
+            HashSet<IDamageable> usedTargets,
+            out SkillStepContext.ChainTarget target)
+        {
+            target = default;
+            Collider2D[] hits = Physics2D.OverlapCircleAll(current.Position, radius, _targetLayer);
+            float bestDistanceSqr = float.MaxValue;
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                Collider2D hit = hits[i];
+                if (!TryResolveValidDamageTarget(hit, out IDamageable damageable))
+                    continue;
+
+                if (ReferenceEquals(damageable, current.Target))
+                    continue;
+                if (!allowRepeatTargets && usedTargets != null && usedTargets.Contains(damageable))
+                    continue;
+                if (preventImmediateBacktracking && previous.Target != null && ReferenceEquals(damageable, previous.Target))
+                    continue;
+
+                Transform targetTransform = ResolveDamageableTransform(damageable);
+                if (targetTransform == null)
+                    continue;
+
+                Vector3 targetPosition = ResolveChainTargetPoint(targetTransform);
+                if (limitToScreen && !IsPointVisibleOnScreen(targetPosition))
+                    continue;
+
+                float distanceSqr = ((Vector2)targetPosition - (Vector2)current.Position).sqrMagnitude;
+                if (distanceSqr >= bestDistanceSqr)
+                    continue;
+
+                bestDistanceSqr = distanceSqr;
+                target = new SkillStepContext.ChainTarget
+                {
+                    Target = damageable,
+                    TargetTransform = targetTransform,
+                    Position = targetPosition
+                };
+            }
+
+            return target.Target != null;
+        }
+
+        private void ExecuteSpawnChainVFX(StepEntry step)
+        {
+            if (_ctx == null || step == null)
+                return;
+
+            int sourceStepIndex = step.GetInt("SourceChainStepIndex", -1);
+            if (!_ctx.TryGetChainResult(sourceStepIndex, out var chainResult))
+                return;
+
+            List<Vector3> points = chainResult.BuildVisualPoints();
+            if (points == null || points.Count < 2)
+                return;
+
+            GameObject prefab = step.GetObject<GameObject>("VfxPrefab");
+            GameObject instance = prefab != null
+                ? Instantiate(prefab, points[0], Quaternion.identity)
+                : new GameObject("RuntimeChainVFX");
+
+            var visual = instance.GetComponent<SkillChainVisualEffects>();
+            if (visual == null)
+                visual = instance.AddComponent<SkillChainVisualEffects>();
+
+            float segmentDelay = Mathf.Max(0f, step.GetFloat("SegmentDelay", 0.06f));
+            float segmentLifetime = Mathf.Max(0.01f, step.GetFloat("SegmentLifetime", 0.18f));
+            visual.Play(points, segmentDelay, segmentLifetime);
+
+            float destroyAfter = segmentLifetime + segmentDelay * Mathf.Max(1, points.Count - 1) + 0.5f;
+            Destroy(instance, destroyAfter);
+        }
+
+        private void ExecuteChainDamage(int stepIndex, StepEntry step)
+        {
+            if (_ctx == null || step == null)
+                return;
+
+            int sourceStepIndex = step.GetInt("SourceChainStepIndex", -1);
+            if (!_ctx.TryGetChainResult(sourceStepIndex, out var chainResult) || chainResult.IsFizzle || chainResult.Targets.Count == 0)
+                return;
+
+            float delayPerSegment = Mathf.Max(0f, step.GetFloat("DamageDelayPerSegment", 0f));
+            if (delayPerSegment > 0f)
+            {
+                StartCoroutine(ExecuteChainDamageDelayed(stepIndex, step, chainResult, delayPerSegment));
+                return;
+            }
+
+            var hitResults = new List<SkillStepContext.HitResult>(chainResult.Targets.Count);
+            for (int i = 0; i < chainResult.Targets.Count; i++)
+                DealDamageToChainTarget(step, chainResult.Targets[i], hitResults);
+
+            if (hitResults.Count > 0)
+                _ctx.RegisterHitResults(stepIndex, hitResults);
+        }
+
+        private IEnumerator ExecuteChainDamageDelayed(int stepIndex, StepEntry step, SkillStepContext.ChainResult chainResult, float delayPerSegment)
+        {
+            var hitResults = new List<SkillStepContext.HitResult>(chainResult.Targets.Count);
+            for (int i = 0; i < chainResult.Targets.Count; i++)
+            {
+                if (i > 0)
+                    yield return new WaitForSeconds(delayPerSegment);
+
+                DealDamageToChainTarget(step, chainResult.Targets[i], hitResults);
+                if (hitResults.Count > 0)
+                    _ctx?.RegisterHitResults(stepIndex, hitResults);
+            }
+        }
+
+        private void DealDamageToChainTarget(StepEntry step, SkillStepContext.ChainTarget chainTarget, List<SkillStepContext.HitResult> hitResults)
+        {
+            IDamageable target = chainTarget.Target;
+            if (target == null)
+                return;
+
+            if (target is Object unityObject && unityObject == null)
+                return;
+
+            Transform targetTransform = chainTarget.TargetTransform != null
+                ? chainTarget.TargetTransform
+                : ResolveDamageableTransform(target);
+            if (targetTransform == null)
+                return;
+
+            float mult = ResolveDamageMultiplier(step);
+            DamageContext damageContext = ResolveDamageContext();
+            IStatsProvider scopedStats = BuildScopedStatsProvider(step, target);
+            DamageSnapshot snapshot = DamageCalculator.CreateDamageSnapshot(scopedStats, mult, damageContext, step.DamageConversions);
+            snapshot.Source = _ownerStats;
+
+            target.TakeDamage(snapshot);
+            TryApplyAilmentsFromHit(scopedStats, target, snapshot);
+            ExecuteOnHitEffects(step, target, chainTarget.TargetTransform, snapshot);
+
+            hitResults?.Add(new SkillStepContext.HitResult
+            {
+                Target = target,
+                TargetTransform = targetTransform,
+                Position = targetTransform.position,
+                Snapshot = snapshot
+            });
         }
 
         private DamageContext ResolveProjectileDamageContext()
@@ -1368,6 +1642,51 @@ namespace Scripts.Skills
                 return false;
 
             return true;
+        }
+
+        private bool IsStrictlyInFront(Vector3 start, Vector3 targetPosition)
+        {
+            float dx = targetPosition.x - start.x;
+            return Mathf.Sign(dx == 0f ? _ctx.FacingDirection : dx) == Mathf.Sign(_ctx.FacingDirection);
+        }
+
+        private bool IsLineBlocked(Vector3 start, Vector3 end, LayerMask worldLayer)
+        {
+            Vector2 delta = end - start;
+            float distance = delta.magnitude;
+            if (distance <= 0.01f)
+                return false;
+
+            RaycastHit2D hit = Physics2D.Raycast(start, delta / distance, distance, worldLayer);
+            return hit.collider != null;
+        }
+
+        private static Vector3 ResolveChainTargetPoint(Transform targetTransform)
+        {
+            if (targetTransform == null)
+                return Vector3.zero;
+
+            var collider = targetTransform.GetComponent<Collider2D>() ?? targetTransform.GetComponentInParent<Collider2D>();
+            if (collider != null)
+                return collider.bounds.center;
+
+            var renderer = targetTransform.GetComponentInChildren<SpriteRenderer>(true);
+            if (renderer != null)
+                return renderer.bounds.center;
+
+            return targetTransform.position;
+        }
+
+        private static bool IsPointVisibleOnScreen(Vector3 point)
+        {
+            Camera camera = Camera.main;
+            if (camera == null)
+                return true;
+
+            Vector3 viewport = camera.WorldToViewportPoint(point);
+            return viewport.z >= 0f &&
+                   viewport.x >= 0f && viewport.x <= 1f &&
+                   viewport.y >= 0f && viewport.y <= 1f;
         }
 
         private bool IsOwnerCollider(Collider2D hit)

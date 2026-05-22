@@ -122,6 +122,10 @@ MonoBehaviour:
     m_Localized: Cold Staff Of Adventurer
     m_Metadata:
       m_Items: []
+  - m_Id: 48301489716715520
+    m_Localized: Lightning Staff Of Adventurer
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

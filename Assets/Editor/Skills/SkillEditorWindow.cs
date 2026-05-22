@@ -643,6 +643,9 @@ namespace Scripts.Editor.Skills
                 case "SpawnVFX":
                 case "SpawnProjectile":
                 case "SpawnGroundProjectile":
+                case "BuildChainTargets":
+                case "SpawnChainVFX":
+                case "ChainDamage":
                 case "DealDamageCircle":
                 case "DealDamageRectangle":
                 case "PersistentDamageCircle":
@@ -1234,6 +1237,24 @@ namespace Scripts.Editor.Skills
                 return;
             }
 
+            if (id == "BuildChainTargets")
+            {
+                DrawBuildChainTargetsFields(recipe, step);
+                return;
+            }
+
+            if (id == "SpawnChainVFX")
+            {
+                DrawSpawnChainVfxFields(recipe, step);
+                return;
+            }
+
+            if (id == "ChainDamage")
+            {
+                DrawChainDamageFields(recipe, step);
+                return;
+            }
+
             if (id == "DealDamageCircle" || id == "PersistentDamageCircle")
             {
                 bool persistent = id == "PersistentDamageCircle";
@@ -1771,6 +1792,105 @@ namespace Scripts.Editor.Skills
             EditorGUI.EndDisabledGroup();
         }
 
+        private void DrawBuildChainTargetsFields(SkillRecipeSO recipe, StepEntry step)
+        {
+            EditorGUILayout.HelpBox("Строит маршрут цепи и сохраняет его для следующих step-ов. Первая цель ищется строго перед персонажем, последующие прыжки идут от цели к цели.", MessageType.None);
+
+            float offsetX = step.GetFloat("OffsetX", 0.65f);
+            float newOffsetX = EditorGUILayout.FloatField(new GUIContent("Start offset X", "Отступ точки старта вперед от персонажа."), offsetX);
+            if (Mathf.Abs(newOffsetX - offsetX) > 0.001f) { step.SetOverrideFloat("OffsetX", newOffsetX); EditorUtility.SetDirty(recipe); }
+
+            float offsetY = step.GetFloat("OffsetY", 0.35f);
+            float newOffsetY = EditorGUILayout.FloatField(new GUIContent("Start offset Y", "Высота точки старта над персонажем."), offsetY);
+            if (Mathf.Abs(newOffsetY - offsetY) > 0.001f) { step.SetOverrideFloat("OffsetY", newOffsetY); EditorUtility.SetDirty(recipe); }
+
+            float firstLength = Mathf.Max(0.1f, step.GetFloat("FirstBoxLength", 6f));
+            float newFirstLength = Mathf.Max(0.1f, EditorGUILayout.FloatField(new GUIContent("First target box length", "Длина зоны поиска первой цели перед игроком."), firstLength));
+            if (Mathf.Abs(newFirstLength - firstLength) > 0.001f) { step.SetOverrideFloat("FirstBoxLength", newFirstLength); EditorUtility.SetDirty(recipe); }
+
+            float firstHeight = Mathf.Max(0.1f, step.GetFloat("FirstBoxHeight", 2f));
+            float newFirstHeight = Mathf.Max(0.1f, EditorGUILayout.FloatField(new GUIContent("First target box height", "Высота зоны поиска первой цели."), firstHeight));
+            if (Mathf.Abs(newFirstHeight - firstHeight) > 0.001f) { step.SetOverrideFloat("FirstBoxHeight", newFirstHeight); EditorUtility.SetDirty(recipe); }
+
+            float chainRadius = Mathf.Max(0.1f, step.GetFloat("ChainSearchRadius", 7f));
+            float newChainRadius = Mathf.Max(0.1f, EditorGUILayout.FloatField(new GUIContent("Chain search radius", "Радиус поиска следующей цели от текущей цели."), chainRadius));
+            if (Mathf.Abs(newChainRadius - chainRadius) > 0.001f) { step.SetOverrideFloat("ChainSearchRadius", newChainRadius); EditorUtility.SetDirty(recipe); }
+
+            int extraChains = Mathf.Max(0, step.GetInt("BaseExtraChains", 3));
+            int newExtraChains = Mathf.Max(0, EditorGUILayout.IntField(new GUIContent("Base extra chains", "Сколько прыжков после первой цели дает сам скилл."), extraChains));
+            if (newExtraChains != extraChains) { step.SetOverrideInt("BaseExtraChains", newExtraChains); EditorUtility.SetDirty(recipe); }
+
+            bool useProjectileChain = step.GetBool("UseProjectileChainStat", true);
+            bool newUseProjectileChain = EditorGUILayout.Toggle(new GUIContent("Add ProjectileChain stat", "Добавить к базовым прыжкам значение стата ProjectileChain."), useProjectileChain);
+            if (newUseProjectileChain != useProjectileChain) { step.SetOverrideBool("UseProjectileChainStat", newUseProjectileChain); EditorUtility.SetDirty(recipe); }
+
+            bool allowRepeat = step.GetBool("AllowRepeatTargets", true);
+            bool newAllowRepeat = EditorGUILayout.Toggle(new GUIContent("Allow repeat targets", "Цепь может повторно выбрать цель, если других целей рядом нет."), allowRepeat);
+            if (newAllowRepeat != allowRepeat) { step.SetOverrideBool("AllowRepeatTargets", newAllowRepeat); EditorUtility.SetDirty(recipe); }
+
+            bool preventBacktrack = step.GetBool("PreventImmediateBacktracking", false);
+            bool newPreventBacktrack = EditorGUILayout.Toggle(new GUIContent("Prevent immediate backtrack", "Запрещает мгновенный прыжок A -> B -> A."), preventBacktrack);
+            if (newPreventBacktrack != preventBacktrack) { step.SetOverrideBool("PreventImmediateBacktracking", newPreventBacktrack); EditorUtility.SetDirty(recipe); }
+
+            bool requireLineOfSight = step.GetBool("RequireLineOfSight", true);
+            bool newRequireLineOfSight = EditorGUILayout.Toggle(new GUIContent("First target needs line of sight", "Если включено, стена между кастером и первой целью прерывает каст."), requireLineOfSight);
+            if (newRequireLineOfSight != requireLineOfSight) { step.SetOverrideBool("RequireLineOfSight", newRequireLineOfSight); EditorUtility.SetDirty(recipe); }
+
+            bool limitToScreen = step.GetBool("LimitToScreen", true);
+            bool newLimitToScreen = EditorGUILayout.Toggle(new GUIContent("Limit jumps to screen", "Следующие цели ищутся только в пределах экрана камеры."), limitToScreen);
+            if (newLimitToScreen != limitToScreen) { step.SetOverrideBool("LimitToScreen", newLimitToScreen); EditorUtility.SetDirty(recipe); }
+
+            int worldMask = step.GetInt("WorldLayerMask", 1 << 6);
+            int newWorldMask = EditorGUILayout.IntField(new GUIContent("World LOS layer mask", "Bitmask слоев, которые блокируют первую молнию. По умолчанию 64 = layer 6."), worldMask);
+            if (newWorldMask != worldMask) { step.SetOverrideInt("WorldLayerMask", newWorldMask); EditorUtility.SetDirty(recipe); }
+
+            float fizzleLength = Mathf.Max(0.1f, step.GetFloat("FizzleLength", 0.9f));
+            float newFizzleLength = Mathf.Max(0.1f, EditorGUILayout.FloatField(new GUIContent("Fizzle length", "Длина короткого визуала перед игроком, если цель не найдена."), fizzleLength));
+            if (Mathf.Abs(newFizzleLength - fizzleLength) > 0.001f) { step.SetOverrideFloat("FizzleLength", newFizzleLength); EditorUtility.SetDirty(recipe); }
+        }
+
+        private void DrawSpawnChainVfxFields(SkillRecipeSO recipe, StepEntry step)
+        {
+            EditorGUILayout.HelpBox("Рисует VFX по маршруту, который сохранил Build Chain Targets. Если цель не найдена, проигрывает короткий fizzle перед игроком.", MessageType.None);
+
+            int source = step.GetInt("SourceChainStepIndex", -1);
+            int newSource = EditorGUILayout.IntField(new GUIContent("Source chain step index", "Индекс BuildChainTargets step-а."), source);
+            if (newSource != source) { step.SetOverrideInt("SourceChainStepIndex", newSource); EditorUtility.SetDirty(recipe); }
+
+            GameObject prefab = step.GetObject<GameObject>("VfxPrefab");
+            GameObject newPrefab = (GameObject)EditorGUILayout.ObjectField("Chain VFX prefab", prefab, typeof(GameObject), false);
+            if (newPrefab != prefab) { step.SetOverrideObject("VfxPrefab", newPrefab); EditorUtility.SetDirty(recipe); }
+
+            float segmentDelay = Mathf.Max(0f, step.GetFloat("SegmentDelay", 0.06f));
+            float newSegmentDelay = Mathf.Max(0f, EditorGUILayout.FloatField(new GUIContent("Segment delay", "Задержка между прыжками визуала."), segmentDelay));
+            if (Mathf.Abs(newSegmentDelay - segmentDelay) > 0.001f) { step.SetOverrideFloat("SegmentDelay", newSegmentDelay); EditorUtility.SetDirty(recipe); }
+
+            float segmentLifetime = Mathf.Max(0.01f, step.GetFloat("SegmentLifetime", 0.18f));
+            float newSegmentLifetime = Mathf.Max(0.01f, EditorGUILayout.FloatField("Segment lifetime", segmentLifetime));
+            if (Mathf.Abs(newSegmentLifetime - segmentLifetime) > 0.001f) { step.SetOverrideFloat("SegmentLifetime", newSegmentLifetime); EditorUtility.SetDirty(recipe); }
+        }
+
+        private void DrawChainDamageFields(SkillRecipeSO recipe, StepEntry step)
+        {
+            EditorGUILayout.HelpBox("Наносит урон только целям из Build Chain Targets. Если delay совпадает с Segment delay у VFX, урон приходит синхронно с прыжками молнии.", MessageType.None);
+
+            int source = step.GetInt("SourceChainStepIndex", -1);
+            int newSource = EditorGUILayout.IntField(new GUIContent("Source chain step index", "Индекс BuildChainTargets step-а."), source);
+            if (newSource != source) { step.SetOverrideInt("SourceChainStepIndex", newSource); EditorUtility.SetDirty(recipe); }
+
+            float damageMultiplier = Mathf.Max(0f, step.GetFloat("DamageMultiplier", 1f));
+            float newDamageMultiplier = Mathf.Max(0f, EditorGUILayout.FloatField("Damage multiplier", damageMultiplier));
+            if (Mathf.Abs(newDamageMultiplier - damageMultiplier) > 0.001f) { step.SetOverrideFloat("DamageMultiplier", newDamageMultiplier); EditorUtility.SetDirty(recipe); }
+
+            float delay = Mathf.Max(0f, step.GetFloat("DamageDelayPerSegment", 0.06f));
+            float newDelay = Mathf.Max(0f, EditorGUILayout.FloatField("Damage delay per segment", delay));
+            if (Mathf.Abs(newDelay - delay) > 0.001f) { step.SetOverrideFloat("DamageDelayPerSegment", newDelay); EditorUtility.SetDirty(recipe); }
+
+            DrawDamageConversionRules(recipe, step);
+            DrawSkillScopedModifierFields(recipe, step);
+            DrawOnHitEffectRules(recipe, step);
+        }
+
         private void DrawOnHitEffectRules(SkillRecipeSO recipe, StepEntry step)
         {
             EditorGUILayout.Space(6f);
@@ -2243,6 +2363,9 @@ namespace Scripts.Editor.Skills
                 ("SpawnVFX", "Spawn VFX", "РЎРїР°РІРЅ VFX", 0f),
                 ("SpawnProjectile", "Spawn projectile", "Спавн снаряда", 0f),
                 ("SpawnGroundProjectile", "Spawn ground projectile", "Спавн волны по земле", 0f),
+                ("BuildChainTargets", "Build chain targets", "Построить цепь целей", 0f),
+                ("SpawnChainVFX", "Spawn chain VFX", "Спавн VFX цепи", 0f),
+                ("ChainDamage", "Chain damage", "Урон по цепи", 0f),
                 ("DealDamageCircle", "Deal damage (circle)", "РЈСЂРѕРЅ РєСЂСѓРі", 0f),
                 ("DealDamageRectangle", "Deal damage (rectangle)", "РЈСЂРѕРЅ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє", 0f),
                 ("PersistentDamageCircle", "Active hitbox damage (circle)", "Активный хитбокс (круг)", 0f),
