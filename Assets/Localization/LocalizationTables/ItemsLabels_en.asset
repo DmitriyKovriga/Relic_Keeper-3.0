@@ -126,6 +126,10 @@ MonoBehaviour:
     m_Localized: Lightning Staff Of Adventurer
     m_Metadata:
       m_Items: []
+  - m_Id: 48608531119595520
+    m_Localized: Small Adventurer's Hammer
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

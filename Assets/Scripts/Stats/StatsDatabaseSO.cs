@@ -592,7 +592,7 @@ namespace Scripts.Stats
         {
             string s = type.ToString();
             if (s.Contains("Bleed") || s.Contains("Poison") || s.Contains("Ignite") || s.Contains("Freeze") || s.Contains("Shock")) return "Ailments";
-            if (s.Contains("Resist") || s.Contains("Penetration") || s.Contains("Mitigation") || s.Contains("ReduceDamage")) return "Resistances";
+            if (s.Contains("Resist") || s.Contains("Penetration") || s.Contains("Mitigation") || s.Contains("DamageTaken")) return "Resistances";
             if (s.Contains("Health") || s.Contains("Mana")) return "Vitals";
             if (s.Contains("Armor") || s.Contains("Evasion") || s.Contains("Block") || s.Contains("MysticShield")) return "Defense";
             if (s.Contains("Crit") || s.Contains("Accuracy")) return "Critical";
@@ -612,7 +612,7 @@ namespace Scripts.Stats
                 return StatDisplayFormat.Time;
 
             string s = type.ToString();
-            if (type == StatType.AreaOfEffect || type == StatType.ReduceDamageTaken || type == StatType.ProjectileSpeed || type == StatType.EffectDuration)
+            if (type == StatType.AreaOfEffect || type == StatType.DamageTaken || type == StatType.ProjectileSpeed || type == StatType.EffectDuration)
                 return StatDisplayFormat.Percent;
             if (IsOutgoingDamageConversionStat(type))
                 return StatDisplayFormat.Percent;
@@ -643,7 +643,7 @@ namespace Scripts.Stats
                 return StatAffixGenType.ContextModifierStat;
             if (IsOutgoingDamageConversionStat(type))
                 return StatAffixGenType.PercentStat;
-            if (type == StatType.AreaOfEffect || type == StatType.ProjectileSpeed || type == StatType.EffectDuration || type == StatType.ReduceDamageTaken)
+            if (type == StatType.AreaOfEffect || type == StatType.ProjectileSpeed || type == StatType.EffectDuration || type == StatType.DamageTaken)
                 return StatAffixGenType.PercentStat;
             if (s.Contains("Stack") || s.Contains("ExtraTargets") || s.Contains("MaxBleed") || s.Contains("MaxPoison") || s.Contains("MaxIgnite"))
                 return StatAffixGenType.NOCalcStat;
@@ -680,7 +680,7 @@ namespace Scripts.Stats
 
         public static bool DefaultAllowNegativeFlatGeneration(StatType type)
         {
-            return type == StatType.CritMultiplier;
+            return type == StatType.CritMultiplier || type == StatType.DamageTaken;
         }
 
         private static bool IsOutgoingDamageConversionStat(StatType type)

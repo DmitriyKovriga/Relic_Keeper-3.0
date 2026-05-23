@@ -65,6 +65,8 @@ MonoBehaviour:
     Value: 25
   - Type: 73
     Value: 3
+  - Type: 75
+    Value: 25
   - Type: 76
     Value: 2
   - Type: 86

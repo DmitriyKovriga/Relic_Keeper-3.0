@@ -123,6 +123,10 @@ MonoBehaviour:
     m_Key: items.5a36dc35
     m_Metadata:
       m_Items: []
+  - m_Id: 48608531119595520
+    m_Key: items.d7a8f11b
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

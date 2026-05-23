@@ -246,7 +246,8 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             tracked.View.SetAilmentStacks(
                 tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Poison) : 0,
                 tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Bleed) : 0,
-                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Ignite) : 0);
+                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Ignite) : 0,
+                tracked.Ailments != null && tracked.Ailments.GetStackCount(AilmentType.Shock) > 0);
             tracked.View.Tick(Time.unscaledDeltaTime);
 
             var worldPos = tracked.Transform.position + Vector3.up * (Mathf.Max(MinAutoHeight, tracked.AutoHeight) + PlayerExtraYOffset);
@@ -288,7 +289,8 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             tracked.View.SetAilmentStacks(
                 tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Poison) : 0,
                 tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Bleed) : 0,
-                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Ignite) : 0);
+                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Ignite) : 0,
+                tracked.Ailments != null && tracked.Ailments.GetStackCount(AilmentType.Shock) > 0);
             if (tracked.Stun == null)
                 tracked.Stun = tracked.Transform.GetComponent<EnemyStunController>();
             float stunNormalized = tracked.Stun != null && tracked.Stun.HasMeter ? tracked.Stun.Normalized : 1f;
@@ -340,18 +342,20 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             new Color(0.5f, 0.95f, 1f, 1f),
             new Color(0.22f, 0.62f, 1f, 0.95f));
         var ailments = CreateAilmentStackRow(root, "Ailments", new Vector2(0f, 6.6f));
+        var debuffs = CreateDebuffMarkerRow(root, "Debuffs", new Vector2(13f, 1.5f));
         var hp = CreateBarRow(root, "HP", new Vector2(0f, 1.5f), 20f, 2f, new Color(0.1f, 0.05f, 0.05f, 0.9f), new Color(0.8f, 0.15f, 0.15f, 0.95f));
         var mp = CreateBarRow(root, "MP", new Vector2(0f, -1.5f), 20f, 2f, new Color(0.05f, 0.07f, 0.1f, 0.9f), new Color(0.15f, 0.45f, 0.9f, 0.95f));
-        return new StatusBarView(root, hp, mp, null, mysticShield, ailments, true);
+        return new StatusBarView(root, hp, mp, null, mysticShield, ailments, debuffs, true);
     }
 
     private StatusBarView CreateEnemyView(string debugName)
     {
         var root = CreateRoot($"EnemyBar_{debugName}", new Vector2(18f, 5f));
         var ailments = CreateAilmentStackRow(root, "Ailments", new Vector2(0f, 3f));
+        var debuffs = CreateDebuffMarkerRow(root, "Debuffs", new Vector2(11f, 0f));
         var hp = CreateBarRow(root, "HP", Vector2.zero, 16f, 2f, new Color(0.12f, 0.05f, 0.05f, 0.9f), new Color(0.85f, 0.18f, 0.18f, 0.95f));
         var stun = CreateBarRow(root, "Stun", new Vector2(0f, -1.65f), 16f, 1f, new Color(0.14f, 0.11f, 0.03f, 0.55f), new Color(1f, 0.82f, 0.12f, 0.85f));
-        return new StatusBarView(root, hp, null, stun, null, ailments, false);
+        return new StatusBarView(root, hp, null, stun, null, ailments, debuffs, false);
     }
 
     private RectTransform CreateRoot(string name, Vector2 size)
@@ -451,6 +455,23 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         CreateAilmentCounter(rowRect, "Ignite", new Vector2(8f, 0f), new Color(0.68f, 0.08f, 0.02f, 0.95f), new Color(1f, 0.92f, 0.58f, 1f), out RectTransform igniteRoot, out Text igniteText);
 
         return new AilmentStackRow(rowRect, poisonRoot, poisonText, bleedRoot, bleedText, igniteRoot, igniteText, pos);
+    }
+
+    private static DebuffMarkerRow CreateDebuffMarkerRow(RectTransform parent, string name, Vector2 pos)
+    {
+        var rowGo = new GameObject(name + "_Root");
+        var rowRect = rowGo.AddComponent<RectTransform>();
+        rowRect.SetParent(parent, false);
+        rowRect.anchorMin = new Vector2(0.5f, 0.5f);
+        rowRect.anchorMax = new Vector2(0.5f, 0.5f);
+        rowRect.pivot = new Vector2(0.5f, 0.5f);
+        rowRect.anchoredPosition = pos;
+        rowRect.sizeDelta = new Vector2(6f, 6f);
+        rowRect.gameObject.SetActive(false);
+
+        CreateAilmentCounter(rowRect, "Shock", Vector2.zero, new Color(1f, 0.82f, 0.08f, 0.95f), new Color(0.06f, 0.04f, 0.01f, 1f), out RectTransform shockRoot, out Text shockText);
+        shockText.text = "!";
+        return new DebuffMarkerRow(rowRect, shockRoot);
     }
 
     private static void CreateAilmentCounter(
@@ -863,6 +884,30 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         }
     }
 
+    private sealed class DebuffMarkerRow
+    {
+        private readonly RectTransform _root;
+        private readonly RectTransform _shockRoot;
+
+        public DebuffMarkerRow(RectTransform root, RectTransform shockRoot)
+        {
+            _root = root;
+            _shockRoot = shockRoot;
+        }
+
+        public void SetShock(bool isShocked)
+        {
+            if (_root == null)
+                return;
+
+            if (_root.gameObject.activeSelf != isShocked)
+                _root.gameObject.SetActive(isShocked);
+
+            if (_shockRoot != null && _shockRoot.gameObject.activeSelf != isShocked)
+                _shockRoot.gameObject.SetActive(isShocked);
+        }
+    }
+
     private sealed class StatusBarView
     {
         public RectTransform Root { get; }
@@ -871,9 +916,10 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         private readonly BarRow _stunRow;
         private readonly MysticShieldRow _mysticShieldRow;
         private readonly AilmentStackRow _ailmentStackRow;
+        private readonly DebuffMarkerRow _debuffMarkerRow;
         private readonly bool _isPlayer;
 
-        public StatusBarView(RectTransform root, BarRow healthRow, BarRow manaRow, BarRow stunRow, MysticShieldRow mysticShieldRow, AilmentStackRow ailmentStackRow, bool isPlayer)
+        public StatusBarView(RectTransform root, BarRow healthRow, BarRow manaRow, BarRow stunRow, MysticShieldRow mysticShieldRow, AilmentStackRow ailmentStackRow, DebuffMarkerRow debuffMarkerRow, bool isPlayer)
         {
             Root = root;
             _healthRow = healthRow;
@@ -881,6 +927,7 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             _stunRow = stunRow;
             _mysticShieldRow = mysticShieldRow;
             _ailmentStackRow = ailmentStackRow;
+            _debuffMarkerRow = debuffMarkerRow;
             _isPlayer = isPlayer;
         }
 
@@ -907,9 +954,10 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
                 _ailmentStackRow.SetYOffset(4.1f + (_mysticShieldRow?.CurrentHeight ?? 0f) + 1.4f);
         }
 
-        public void SetAilmentStacks(int poisonCount, int bleedCount, int igniteCount)
+        public void SetAilmentStacks(int poisonCount, int bleedCount, int igniteCount, bool isShocked)
         {
             _ailmentStackRow?.SetCounts(poisonCount, bleedCount, igniteCount);
+            _debuffMarkerRow?.SetShock(isShocked);
         }
 
         public void Tick(float dt)

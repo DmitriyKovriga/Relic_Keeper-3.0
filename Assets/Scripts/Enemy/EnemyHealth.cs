@@ -82,6 +82,13 @@ namespace Scripts.Enemies
                 MysticShieldController.TryResolve(transform, out _mysticShield);
             if (_mysticShield != null)
                 finalDamage = _mysticShield.ApplyMitigation(finalDamage);
+            finalDamage = DamageTakenCalculator.Apply(
+                finalDamage,
+                _stats,
+                transform,
+                out _,
+                out _,
+                out _);
 
             _currentHealth -= finalDamage;
             if (finalDamage > 0f)
@@ -124,7 +131,13 @@ namespace Scripts.Enemies
             if (!EnsureReady())
                 return;
 
-            float finalDamage = Mathf.Max(0f, amount);
+            float finalDamage = DamageTakenCalculator.Apply(
+                Mathf.Max(0f, amount),
+                _stats,
+                transform,
+                out _,
+                out _,
+                out _);
             if (finalDamage <= 0f)
                 return;
 

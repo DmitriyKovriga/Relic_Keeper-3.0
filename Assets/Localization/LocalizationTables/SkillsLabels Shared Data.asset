@@ -191,6 +191,14 @@ MonoBehaviour:
     m_Key: skills.LightningArcSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 48604781587980288
+    m_Key: skills.StunningBlowSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48604781617340416
+    m_Key: skills.StunningBlowSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -20,6 +20,9 @@ namespace Scripts.StatusEffects
         private const float IgniteFireDamageShareThreshold = 0.3f;
         private const float DefaultFreezeDuration = 1f;
         private const float FreezeColdDamageShareThreshold = 0.3f;
+        private const float DefaultShockDuration = 2f;
+        private const float ShockLightningDamageShareThreshold = 0.3f;
+        private const float ShockDamageTakenMoreMultiplier = 1.5f;
         private const float TickInterval = 1f;
 
         private readonly List<PoisonStack> _poisonStacks = new List<PoisonStack>();
@@ -28,13 +31,17 @@ namespace Scripts.StatusEffects
         private float _poisonTickTimer = TickInterval;
         private float _bleedTickTimer = TickInterval;
         private float _igniteTickTimer = TickInterval;
+        private float _shockRemainingSeconds;
 
         private IStatsProvider _statsProvider;
         private EnemyHealth _enemyHealth;
         private EnemyFreezeController _enemyFreeze;
+        private ShockVisualController _shockVisual;
         private PlayerDamageReceiver _playerDamageReceiver;
 
         public event Action OnAilmentsChanged;
+        public bool IsShocked => _shockRemainingSeconds > 0f;
+        public float DamageTakenMoreMultiplier => IsShocked ? ShockDamageTakenMoreMultiplier : 1f;
 
         private void Awake()
         {
@@ -51,6 +58,7 @@ namespace Scripts.StatusEffects
             UpdatePoison(Time.deltaTime);
             UpdateBleed(Time.deltaTime);
             UpdateIgnite(Time.deltaTime);
+            UpdateShock(Time.deltaTime);
         }
 
         public int GetStackCount(AilmentType ailmentType)
@@ -61,6 +69,7 @@ namespace Scripts.StatusEffects
                 AilmentType.Bleed => _bleedStacks.Count,
                 AilmentType.Ignite => _igniteStacks.Count,
                 AilmentType.Freeze => _enemyFreeze != null && _enemyFreeze.IsFrozen ? 1 : 0,
+                AilmentType.Shock => IsShocked ? 1 : 0,
                 _ => 0
             };
         }
@@ -77,6 +86,7 @@ namespace Scripts.StatusEffects
             controller.TryApplyBleed(sourceStats, source, hitSnapshot);
             controller.TryApplyIgnite(sourceStats, source, hitSnapshot);
             controller.TryApplyFreeze(sourceStats, source, hitSnapshot);
+            controller.TryApplyShock(sourceStats, source, hitSnapshot);
         }
 
         public static void TryApplyHitAilmentsFromSource(object source, Transform target, DamageSnapshot hitSnapshot)
@@ -266,6 +276,51 @@ namespace Scripts.StatusEffects
             return applied;
         }
 
+        public bool TryApplyShock(IStatsProvider sourceStats, object source, DamageSnapshot hitSnapshot)
+        {
+            if (sourceStats == null || hitSnapshot == null || hitSnapshot.Lightning <= 0f || hitSnapshot.TotalDamage <= 0f)
+                return false;
+
+            float lightningShare = hitSnapshot.Lightning / hitSnapshot.TotalDamage;
+            if (lightningShare < ShockLightningDamageShareThreshold)
+                return false;
+
+            CacheOwner();
+
+            float chance = Mathf.Max(0f, sourceStats.GetValue(StatType.ShockChance));
+            if (chance <= 0f)
+                return false;
+
+            float avoid = _statsProvider != null ? Mathf.Clamp(_statsProvider.GetValue(StatType.ChanseToAvoidShock), 0f, 100f) : 0f;
+            float finalChance = Mathf.Clamp(chance * (1f - avoid / 100f), 0f, 100f);
+            if (UnityEngine.Random.value > finalChance / 100f)
+                return false;
+
+            float duration = sourceStats.GetValue(StatType.ShockDuration);
+            if (duration <= 0f)
+                duration = DefaultShockDuration;
+
+            bool wasShocked = IsShocked;
+            _shockRemainingSeconds = Mathf.Max(_shockRemainingSeconds, duration);
+            EnsureShockVisual();
+            _shockVisual?.Play(duration);
+
+            if (!wasShocked)
+                OnAilmentsChanged?.Invoke();
+
+            return true;
+        }
+
+        public static float ResolveDamageTakenMoreMultiplier(Transform target)
+        {
+            if (target == null)
+                return 1f;
+
+            return TryResolve(target, out AilmentController controller) && controller != null
+                ? controller.DamageTakenMoreMultiplier
+                : 1f;
+        }
+
         public static bool TryResolve(Transform candidate, out AilmentController controller)
         {
             controller = null;
@@ -306,7 +361,18 @@ namespace Scripts.StatusEffects
             _statsProvider = GetComponent<IStatsProvider>() ?? GetComponentInParent<IStatsProvider>();
             _enemyHealth = GetComponent<EnemyHealth>() ?? GetComponentInParent<EnemyHealth>();
             _enemyFreeze = GetComponent<EnemyFreezeController>() ?? GetComponentInParent<EnemyFreezeController>();
+            _shockVisual = GetComponent<ShockVisualController>() ?? GetComponentInParent<ShockVisualController>();
             _playerDamageReceiver = GetComponent<PlayerDamageReceiver>() ?? GetComponentInParent<PlayerDamageReceiver>();
+        }
+
+        private void EnsureShockVisual()
+        {
+            if (_shockVisual != null)
+                return;
+
+            _shockVisual = GetComponent<ShockVisualController>();
+            if (_shockVisual == null)
+                _shockVisual = gameObject.AddComponent<ShockVisualController>();
         }
 
         private void UpdatePoison(float dt)
@@ -424,6 +490,23 @@ namespace Scripts.StatusEffects
 
             if (changed)
                 OnAilmentsChanged?.Invoke();
+        }
+
+        private void UpdateShock(float dt)
+        {
+            if (_shockRemainingSeconds <= 0f)
+                return;
+
+            if (dt <= 0f)
+                return;
+
+            _shockRemainingSeconds -= dt;
+            if (_shockRemainingSeconds > 0f)
+                return;
+
+            _shockRemainingSeconds = 0f;
+            _shockVisual?.Stop();
+            OnAilmentsChanged?.Invoke();
         }
 
         private void ApplyCombinedPoisonTick()

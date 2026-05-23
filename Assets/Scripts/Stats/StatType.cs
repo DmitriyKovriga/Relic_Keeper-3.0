@@ -116,7 +116,7 @@ namespace Scripts.Stats
         ShockDuration, 
         ChanseToAvoidShock, 
 
-        ReduceDamageTaken, 
+        DamageTaken, 
 
         // --- 11. Утилиты ---
         AreaOfEffect,             // Множитель радиуса (Base: 1.0)

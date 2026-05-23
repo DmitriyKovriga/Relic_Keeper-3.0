@@ -209,6 +209,14 @@ MonoBehaviour:
     m_Localized: Deal 100% damage that chain 3 times
     m_Metadata:
       m_Items: []
+  - m_Id: 48604781587980288
+    m_Localized: Stunning Blow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48604781617340416
+    m_Localized: Deal 100% damage with +25% attack speed and cast Shock Wave on hit
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

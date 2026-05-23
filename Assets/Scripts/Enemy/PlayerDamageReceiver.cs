@@ -91,6 +91,16 @@ namespace Scripts.Enemies
                 result.MysticShieldConsumed = result.MysticShieldChargesAfter < result.MysticShieldChargesBefore;
             }
 
+            result.TotalBeforeDamageTaken = total;
+            total = DamageTakenCalculator.Apply(
+                total,
+                _stats,
+                transform,
+                out result.DamageTakenStatMultiplier,
+                out result.DamageTakenShockMultiplier,
+                out result.DamageTakenTotalMultiplier);
+            result.TotalAfterDamageTaken = total;
+
             result.FinalDamage = Mathf.Max(0f, total);
             if (result.FinalDamage > 0f)
             {
@@ -115,7 +125,13 @@ namespace Scripts.Enemies
             if (_stats == null || _stats.Health == null)
                 return;
 
-            float finalDamage = Mathf.Max(0f, amount);
+            float finalDamage = DamageTakenCalculator.Apply(
+                Mathf.Max(0f, amount),
+                _stats,
+                transform,
+                out _,
+                out _,
+                out _);
             if (finalDamage <= 0f)
                 return;
 
@@ -161,6 +177,11 @@ namespace Scripts.Enemies
             public int MysticShieldChargesAfter;
             public float MysticShieldMitigationPercent;
             public bool MysticShieldConsumed;
+            public float TotalBeforeDamageTaken;
+            public float DamageTakenStatMultiplier;
+            public float DamageTakenShockMultiplier;
+            public float DamageTakenTotalMultiplier;
+            public float TotalAfterDamageTaken;
             public float FinalDamage;
             public float FinalHealthDelta;
             public float HealthBefore;
