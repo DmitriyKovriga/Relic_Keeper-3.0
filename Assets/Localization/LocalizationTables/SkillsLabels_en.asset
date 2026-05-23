@@ -217,6 +217,14 @@ MonoBehaviour:
     m_Localized: Deal 100% damage with +25% attack speed and cast Shock Wave on hit
     m_Metadata:
       m_Items: []
+  - m_Id: 48649166614683648
+    m_Localized: Ground Shake
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48649166644043776
+    m_Localized: Cast Wave of Shaking in front with 100% damage and pierce all target
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

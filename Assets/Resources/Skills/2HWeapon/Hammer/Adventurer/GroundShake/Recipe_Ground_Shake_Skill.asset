@@ -1,0 +1,109 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa469c8d85911614bbc9afc2a526821c, type: 3}
+  m_Name: Recipe_Ground_Shake_Skill
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.Steps.SkillRecipeSO
+  Steps:
+  - StepDefinition: {fileID: 11400000, guid: e6d99185f818c7840be2327fe444fbc3, type: 2}
+    Overrides: []
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0
+    EndPercentPipeline: 0.1
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: f52618a1da9473f489fc1d7569c9977b, type: 2}
+    Overrides: []
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.1
+    EndPercentPipeline: 0.1
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: 4a09dbc08d2314b46873162258f8a044, type: 2}
+    Overrides: []
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0
+    EndPercentPipeline: 0.1
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: 45708c21f3cd474a853e804767ef8120, type: 2}
+    Overrides:
+    - Key: ProjectilePrefab
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 8854887019251679659, guid: 9d6ab820e0989a740a824511576b2c6f, type: 3}
+    - Key: BaseSpeed
+      Type: 0
+      FloatVal: 20
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: HitRadius
+      Type: 0
+      FloatVal: 1
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: IgnoreFork
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 1
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: IgnoreChain
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 1
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: InfinitePierce
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    DamageConversions: []
+    ScopedStatModifiers:
+    - Stat: 99
+      Value: 1000
+      Type: 100
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.1
+    EndPercentPipeline: 0.1
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: 6250a752a1e0b2a418e03bcc5c86278d, type: 2}
+    Overrides: []
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.1
+    EndPercentPipeline: 0.25
+    SubSteps: []
+  IsChanneling: 0
+  ChannelLoopStepIndices: 
+  ChannelMaxDuration: 5
+  ChannelTickDuration: 0
