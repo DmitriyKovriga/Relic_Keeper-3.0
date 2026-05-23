@@ -516,8 +516,9 @@ namespace Scripts.Skills
             if (groundMotion && !step.GetBool("AllowInAir", false) && !IsOwnerGrounded())
                 return;
 
-            int baseCount = Mathf.Max(1, step.GetInt("BaseProjectileCount", 1));
-            int additionalCount = Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileCount)));
+            bool useProjectileCountStat = !groundMotion && step.GetBool("UseProjectileCountStat", true);
+            int baseCount = groundMotion ? 1 : Mathf.Max(1, step.GetInt("BaseProjectileCount", 1));
+            int additionalCount = useProjectileCountStat ? Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileCount))) : 0;
             int totalCount = Mathf.Max(1, baseCount + additionalCount);
             float baseSpeed = Mathf.Max(0.01f, step.GetFloat("BaseSpeed", 8f));
             float speedMultiplier = Mathf.Max(0f, 1f + _ownerStats.GetValue(StatType.ProjectileSpeed) / 100f);
@@ -534,6 +535,7 @@ namespace Scripts.Skills
                 return;
             }
 
+            LayerMask groundSurfaceLayer = groundMotion ? ResolveGroundProjectileSurfaceLayer(step) : step.GetInt("GroundLayerMask", 1 << 6);
             SpriteRenderer sortingSource = ResolveProjectileSortingSource();
             var data = new SkillProjectileLaunchData
             {
@@ -549,18 +551,19 @@ namespace Scripts.Skills
                 OverrideSprite = projectileSprite,
                 Speed = baseSpeed * speedMultiplier,
                 Lifetime = Mathf.Max(0.05f, step.GetFloat("Lifetime", 4f)),
-                HitRadius = Mathf.Max(0.02f, step.GetFloat("HitRadius", 0.18f)),
+                HitRadius = Mathf.Max(0.02f, step.GetFloat("HitRadius", 1f)),
                 RotationDegreesPerSecond = step.GetFloat("RotationDegreesPerSecond", useWeaponSprite ? 720f : 0f),
-                RemainingForks = Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileFork))),
-                RemainingChains = Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileChain))),
+                RemainingForks = groundMotion ? 0 : Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileFork))),
+                RemainingChains = groundMotion ? 0 : Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileChain))),
                 RemainingPierces = Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectilePierce))),
                 InfinitePierce = step.GetBool("InfinitePierce", false),
-                IgnoreFork = step.GetBool("IgnoreFork", false),
-                IgnoreChain = step.GetBool("IgnoreChain", false),
+                IgnoreFork = groundMotion || step.GetBool("IgnoreFork", false),
+                IgnoreChain = groundMotion || step.GetBool("IgnoreChain", false),
                 ForkAngle = Mathf.Max(0f, step.GetFloat("ForkAngle", 18f)),
                 ChainSearchRadius = Mathf.Max(0.1f, step.GetFloat("ChainSearchRadius", 12f)),
                 GroundMotion = groundMotion || step.GetBool("GroundMotion", false),
-                GroundLayer = step.GetInt("GroundLayerMask", 1 << 6),
+                GroundLayer = groundSurfaceLayer,
+                BreakOnGroundObstacles = groundMotion && step.GetBool("BreakOnGroundObstacles", true),
                 GroundSnapUp = Mathf.Max(0.01f, step.GetFloat("GroundSnapUp", 0.7f)),
                 GroundSnapDown = Mathf.Max(0.01f, step.GetFloat("GroundSnapDown", 2.5f)),
                 GroundYOffset = step.GetFloat("GroundYOffset", 0.06f),
@@ -947,6 +950,16 @@ namespace Scripts.Skills
 
             groundedPosition = new Vector2(origin.x, hit.point.y + yOffset);
             return true;
+        }
+
+        private static LayerMask ResolveGroundProjectileSurfaceLayer(StepEntry step)
+        {
+            int mask = step != null ? step.GetInt("GroundLayerMask", 1 << 6) : 1 << 6;
+            int platformLayer = LayerMask.NameToLayer("OneWayPlatform");
+            if (platformLayer >= 0)
+                mask |= 1 << platformLayer;
+
+            return mask;
         }
 
         private void ExecuteDealDamageCircle(int stepIndex, StepEntry step)

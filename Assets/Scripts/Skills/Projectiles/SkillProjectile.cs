@@ -30,7 +30,7 @@ namespace Scripts.Skills.Projectiles
         public Sprite OverrideSprite;
         public float Speed = 8f;
         public float Lifetime = 4f;
-        public float HitRadius = 0.18f;
+        public float HitRadius = 1f;
         public float RotationDegreesPerSecond = 720f;
         public int RemainingForks;
         public int RemainingChains;
@@ -42,6 +42,7 @@ namespace Scripts.Skills.Projectiles
         public float ChainSearchRadius = 12f;
         public bool GroundMotion;
         public LayerMask GroundLayer;
+        public bool BreakOnGroundObstacles = true;
         public float GroundSnapUp = 0.7f;
         public float GroundSnapDown = 2.5f;
         public float GroundYOffset = 0.06f;
@@ -68,6 +69,10 @@ namespace Scripts.Skills.Projectiles
     [RequireComponent(typeof(Rigidbody2D))]
     public sealed class SkillProjectile : MonoBehaviour
     {
+        private const string OneWayPlatformLayerName = "OneWayPlatform";
+        private const float GroundSurfaceNormalThreshold = 0.55f;
+        private const float SameLevelSurfaceTolerance = 3f / 24f;
+
         private static GameObject _defaultTemplate;
         private static readonly HashSet<SkillProjectile> ActiveProjectiles = new HashSet<SkillProjectile>();
 
@@ -79,6 +84,8 @@ namespace Scripts.Skills.Projectiles
         private bool _usePool;
         private SpriteRenderer _spriteRenderer;
         private Sprite _defaultSprite;
+        private bool _defaultFlipX;
+        private bool _defaultVisualStateCaptured;
         private CircleCollider2D _collider;
         private Rigidbody2D _rigidbody;
         private GameObject _template;
@@ -192,13 +199,13 @@ namespace Scripts.Skills.Projectiles
         private void Awake()
         {
             EnsureComponents();
-            CaptureDefaultSprite();
+            CaptureDefaultVisualState();
         }
 
         private void Initialize(SkillProjectileLaunchData data, Vector2 direction, bool usePool, GameObject template)
         {
             EnsureComponents();
-            CaptureDefaultSprite();
+            CaptureDefaultVisualState();
 
             _data = data.Clone();
             _template = template;
@@ -219,13 +226,13 @@ namespace Scripts.Skills.Projectiles
                 }
             }
 
-            _collider.isTrigger = true;
-            _collider.radius = Mathf.Max(0.02f, _data.HitRadius);
             _rigidbody.bodyType = RigidbodyType2D.Kinematic;
             _rigidbody.gravityScale = 0f;
             _rigidbody.simulated = true;
 
             ApplyVisual();
+            _collider.isTrigger = true;
+            _collider.radius = ResolveColliderRadius();
             if (_data.GroundMotion)
                 SnapToGroundOrDespawn();
             if (_data.Homing)
@@ -252,7 +259,11 @@ namespace Scripts.Skills.Projectiles
 
             UpdateReversal();
             UpdateHoming(dt);
-            transform.position += (Vector3)(_direction * Mathf.Max(0.01f, _data.Speed) * dt);
+            float travelDistance = Mathf.Max(0.01f, _data.Speed) * dt;
+            if (_data.GroundMotion && TryBreakOnGroundObstacle(travelDistance))
+                return;
+
+            transform.position += (Vector3)(_direction * travelDistance);
             if (_data.GroundMotion && !SnapToGroundOrDespawn())
                 return;
 
@@ -319,6 +330,9 @@ namespace Scripts.Skills.Projectiles
 
             if (_data.StopOnWorld && IsInLayerMask(other.gameObject.layer, _data.WorldLayer))
             {
+                if (_data.GroundMotion && IsInLayerMask(other.gameObject.layer, _data.GroundLayer))
+                    return false;
+
                 Despawn();
                 return true;
             }
@@ -606,17 +620,108 @@ namespace Scripts.Skills.Projectiles
             if (_data == null || !_data.GroundMotion)
                 return true;
 
-            Vector2 rayOrigin = (Vector2)transform.position + Vector2.up * Mathf.Max(0.01f, _data.GroundSnapUp);
-            float distance = Mathf.Max(0.01f, _data.GroundSnapUp + _data.GroundSnapDown);
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, distance, _data.GroundLayer);
-            if (hit.collider == null)
+            if (!TryFindBestGroundSurface(out RaycastHit2D hit))
             {
                 Despawn();
                 return false;
             }
 
-            transform.position = new Vector3(transform.position.x, hit.point.y + _data.GroundYOffset, transform.position.z);
+            SnapVisualBottomToGround(hit.point.y + _data.GroundYOffset);
             return true;
+        }
+
+        private bool TryBreakOnGroundObstacle(float travelDistance)
+        {
+            if (_data == null || !_data.GroundMotion || !_data.BreakOnGroundObstacles)
+                return false;
+
+            Vector2 direction = _direction.sqrMagnitude > 0.0001f ? _direction.normalized : Vector2.right;
+            float probeDistance = Mathf.Max(0.01f, travelDistance) + Mathf.Max(0.02f, _collider != null ? _collider.radius : 0.02f);
+            Vector2 origin = TryGetVisualBounds(out Bounds bounds) ? (Vector2)bounds.center : (Vector2)transform.position;
+            RaycastHit2D[] hits = Physics2D.RaycastAll(origin, direction, probeDistance, _data.GroundLayer);
+            for (int i = 0; i < hits.Length; i++)
+            {
+                RaycastHit2D hit = hits[i];
+                if (hit.collider == null || IsOwner(hit.transform) || hit.normal.y > 0.5f || IsOneWayPlatformLayer(hit.collider.gameObject.layer))
+                    continue;
+
+                Despawn();
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool TryFindBestGroundSurface(out RaycastHit2D bestHit)
+        {
+            bestHit = default;
+            float currentBottomY = TryGetVisualBounds(out Bounds bounds)
+                ? bounds.min.y
+                : transform.position.y;
+
+            float upDistance = Mathf.Max(0.01f, _data.GroundSnapUp);
+            float downDistance = Mathf.Max(0.01f, _data.GroundSnapDown);
+            float castDistance = upDistance + downDistance;
+            Vector2 direction = _direction.sqrMagnitude > 0.0001f ? _direction.normalized : Vector2.right;
+
+            float centerX = TryGetVisualBounds(out bounds) ? bounds.center.x : transform.position.x;
+            float forwardProbe = TryGetVisualBounds(out bounds)
+                ? bounds.extents.x + Mathf.Max(0.01f, _collider != null ? _collider.radius * 0.25f : 0.01f)
+                : Mathf.Max(0.02f, _collider != null ? _collider.radius : 0.02f);
+
+            bool found = false;
+            float bestScore = float.MaxValue;
+            ProbeGroundSurfaceAtX(centerX, currentBottomY, upDistance, castDistance, ref found, ref bestHit, ref bestScore);
+            ProbeGroundSurfaceAtX(centerX + direction.x * forwardProbe, currentBottomY, upDistance, castDistance, ref found, ref bestHit, ref bestScore);
+
+            return found;
+        }
+
+        private void ProbeGroundSurfaceAtX(
+            float x,
+            float currentBottomY,
+            float upDistance,
+            float castDistance,
+            ref bool found,
+            ref RaycastHit2D bestHit,
+            ref float bestScore)
+        {
+            Vector2 rayOrigin = new Vector2(x, currentBottomY + upDistance);
+            RaycastHit2D[] hits = Physics2D.RaycastAll(rayOrigin, Vector2.down, castDistance, _data.GroundLayer);
+            for (int i = 0; i < hits.Length; i++)
+            {
+                RaycastHit2D hit = hits[i];
+                if (hit.collider == null || hit.collider.isTrigger || IsOwner(hit.transform))
+                    continue;
+                if (hit.normal.y < GroundSurfaceNormalThreshold)
+                    continue;
+
+                float surfaceY = hit.point.y + _data.GroundYOffset;
+                float levelDelta = Mathf.Abs(surfaceY - currentBottomY);
+                bool sameLevel = levelDelta <= SameLevelSurfaceTolerance;
+                float verticalPenalty = surfaceY > currentBottomY + SameLevelSurfaceTolerance
+                    ? (surfaceY - currentBottomY) * 100f
+                    : Mathf.Max(0f, currentBottomY - surfaceY);
+                float score = sameLevel ? levelDelta : 10f + verticalPenalty + hit.distance * 0.01f;
+                if (found && score >= bestScore)
+                    continue;
+
+                found = true;
+                bestHit = hit;
+                bestScore = score;
+            }
+        }
+
+        private void SnapVisualBottomToGround(float groundY)
+        {
+            if (!TryGetVisualBounds(out Bounds bounds))
+            {
+                transform.position = new Vector3(transform.position.x, groundY, transform.position.z);
+                return;
+            }
+
+            float deltaY = groundY - bounds.min.y;
+            transform.position = new Vector3(transform.position.x, transform.position.y + deltaY, transform.position.z);
         }
 
         private void AcquireHomingTarget()
@@ -767,6 +872,12 @@ namespace Scripts.Skills.Projectiles
             return (mask.value & (1 << layer)) != 0;
         }
 
+        private static bool IsOneWayPlatformLayer(int layer)
+        {
+            int platformLayer = LayerMask.NameToLayer(OneWayPlatformLayerName);
+            return platformLayer >= 0 && layer == platformLayer;
+        }
+
         private void ApplyVisual()
         {
             if (_spriteRenderer == null)
@@ -774,13 +885,42 @@ namespace Scripts.Skills.Projectiles
 
             _spriteRenderer.sprite = _data.OverrideSprite != null ? _data.OverrideSprite : _defaultSprite;
             _spriteRenderer.enabled = _spriteRenderer.sprite != null;
+            _spriteRenderer.flipX = _defaultFlipX;
 
             _spriteRenderer.sortingLayerID = _data.SortingLayerId;
             _spriteRenderer.sortingOrder = _data.SortingOrder;
         }
 
+        private float ResolveColliderRadius()
+        {
+            float scale = _data != null ? Mathf.Max(0.02f, _data.HitRadius) : 1f;
+            if (_spriteRenderer == null || _spriteRenderer.sprite == null)
+                return 0.18f * scale;
+
+            Bounds bounds = _spriteRenderer.bounds;
+            float worldDiameter = Mathf.Max(bounds.size.x, bounds.size.y);
+            if (worldDiameter <= 0.0001f)
+                return 0.18f * scale;
+
+            float worldRadius = worldDiameter * 0.5f * scale;
+            Vector3 lossyScale = transform.lossyScale;
+            float rootScale = Mathf.Max(Mathf.Abs(lossyScale.x), Mathf.Abs(lossyScale.y), 0.0001f);
+            return Mathf.Max(0.02f, worldRadius / rootScale);
+        }
+
         private void ApplyFacingRotation()
         {
+            if (_data != null && _data.GroundMotion)
+            {
+                transform.rotation = Quaternion.identity;
+                if (_spriteRenderer != null)
+                    _spriteRenderer.flipX = _defaultFlipX ^ (_direction.x < -0.0001f);
+                return;
+            }
+
+            if (_spriteRenderer != null)
+                _spriteRenderer.flipX = _defaultFlipX;
+
             float angle = Mathf.Atan2(_direction.y, _direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
         }
@@ -802,10 +942,29 @@ namespace Scripts.Skills.Projectiles
                 _rigidbody = GetComponent<Rigidbody2D>();
         }
 
-        private void CaptureDefaultSprite()
+        private void CaptureDefaultVisualState()
         {
-            if (_spriteRenderer != null && _defaultSprite == null)
+            if (_spriteRenderer == null)
+                return;
+
+            if (_defaultSprite == null)
                 _defaultSprite = _spriteRenderer.sprite;
+
+            if (_defaultVisualStateCaptured)
+                return;
+
+            _defaultFlipX = _spriteRenderer.flipX;
+            _defaultVisualStateCaptured = true;
+        }
+
+        private bool TryGetVisualBounds(out Bounds bounds)
+        {
+            bounds = default;
+            if (_spriteRenderer == null || !_spriteRenderer.enabled || _spriteRenderer.sprite == null)
+                return false;
+
+            bounds = _spriteRenderer.bounds;
+            return bounds.size.x > 0.0001f && bounds.size.y > 0.0001f;
         }
 
         private void RegisterActive()

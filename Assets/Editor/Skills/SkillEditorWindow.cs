@@ -1550,7 +1550,7 @@ namespace Scripts.Editor.Skills
         {
             bool isGroundProjectile = step.StepDefinition != null && step.StepDefinition.Id == "SpawnGroundProjectile";
             EditorGUILayout.HelpBox(isGroundProjectile
-                ? "Спавнит ground-wave projectile: снаряд двигается по X и каждый кадр снапается к земле. По умолчанию не кастуется в воздухе."
+                ? "Спавнит ground-wave projectile: снаряд двигается по X, каждый кадр снапается к земле и ломается о препятствия на Ground layer. Всегда один снаряд, без ProjectileCount, fork и chain."
                 : "Спавнит один или несколько снарядов. Урон считается при попадании по цели, поэтому ролл оружия и target-aware модификаторы работают отдельно для каждой цели.", MessageType.None);
 
             GameObject prefab = step.GetObject<GameObject>("ProjectilePrefab");
@@ -1565,33 +1565,39 @@ namespace Scripts.Editor.Skills
             float newBaseSpeed = Mathf.Max(0.01f, EditorGUILayout.FloatField(new GUIContent("Base speed", "Базовая скорость снаряда. ProjectileSpeed применяется сверху как % модификатор."), baseSpeed));
             if (Mathf.Abs(newBaseSpeed - baseSpeed) > 0.001f) { step.SetOverrideFloat("BaseSpeed", newBaseSpeed); EditorUtility.SetDirty(recipe); }
 
+            EditorGUI.BeginDisabledGroup(isGroundProjectile);
             int baseCount = Mathf.Max(1, step.GetInt("BaseProjectileCount", 1));
-            int newBaseCount = Mathf.Max(1, EditorGUILayout.IntField(new GUIContent("Base projectile count", "Базовое количество снарядов в самом скилле. Stat ProjectileCount добавляет дополнительные."), baseCount));
-            if (newBaseCount != baseCount) { step.SetOverrideInt("BaseProjectileCount", newBaseCount); EditorUtility.SetDirty(recipe); }
+            int newBaseCount = Mathf.Max(1, EditorGUILayout.IntField(new GUIContent("Base projectile count", isGroundProjectile ? "Ground wave всегда создаёт ровно один снаряд." : "Базовое количество снарядов в самом скилле."), isGroundProjectile ? 1 : baseCount));
+            if (!isGroundProjectile && newBaseCount != baseCount) { step.SetOverrideInt("BaseProjectileCount", newBaseCount); EditorUtility.SetDirty(recipe); }
+
+            bool useProjectileCountStat = step.GetBool("UseProjectileCountStat", true);
+            bool newUseProjectileCountStat = EditorGUILayout.Toggle(new GUIContent("Add ProjectileCount stat", "Если включено, Stat ProjectileCount добавляет дополнительные снаряды к Base projectile count."), useProjectileCountStat);
+            if (!isGroundProjectile && newUseProjectileCountStat != useProjectileCountStat) { step.SetOverrideBool("UseProjectileCountStat", newUseProjectileCountStat); EditorUtility.SetDirty(recipe); }
 
             int spreadMode = step.GetInt("SpreadMode", 0);
             int newSpreadMode = EditorGUILayout.Popup(new GUIContent("Extra projectile layout", "Как раскладываются базовые и дополнительные снаряды."), spreadMode, new[] { "Cone", "Parallel rows" });
-            if (newSpreadMode != spreadMode) { step.SetOverrideInt("SpreadMode", newSpreadMode); EditorUtility.SetDirty(recipe); }
+            if (!isGroundProjectile && newSpreadMode != spreadMode) { step.SetOverrideInt("SpreadMode", newSpreadMode); EditorUtility.SetDirty(recipe); }
 
             if (newSpreadMode == 0)
             {
                 float coneAngle = step.GetFloat("ConeAnglePerProjectile", 8f);
                 float newConeAngle = Mathf.Max(0f, EditorGUILayout.FloatField(new GUIContent("Cone angle per projectile", "На сколько градусов каждый следующий снаряд расширяет конус."), coneAngle));
-                if (Mathf.Abs(newConeAngle - coneAngle) > 0.001f) { step.SetOverrideFloat("ConeAnglePerProjectile", newConeAngle); EditorUtility.SetDirty(recipe); }
+                if (!isGroundProjectile && Mathf.Abs(newConeAngle - coneAngle) > 0.001f) { step.SetOverrideFloat("ConeAnglePerProjectile", newConeAngle); EditorUtility.SetDirty(recipe); }
             }
             else
             {
                 float spacing = step.GetFloat("ParallelSpacingY", 0.25f);
                 float newSpacing = Mathf.Max(0f, EditorGUILayout.FloatField(new GUIContent("Parallel vertical spacing", "Дополнительные снаряды идут поочерёдно выше/ниже, но летят вперед."), spacing));
-                if (Mathf.Abs(newSpacing - spacing) > 0.001f) { step.SetOverrideFloat("ParallelSpacingY", newSpacing); EditorUtility.SetDirty(recipe); }
+                if (!isGroundProjectile && Mathf.Abs(newSpacing - spacing) > 0.001f) { step.SetOverrideFloat("ParallelSpacingY", newSpacing); EditorUtility.SetDirty(recipe); }
             }
+            EditorGUI.EndDisabledGroup();
 
             float lifetime = step.GetFloat("Lifetime", 4f);
             float newLifetime = Mathf.Max(0.05f, EditorGUILayout.FloatField("Lifetime", lifetime));
             if (Mathf.Abs(newLifetime - lifetime) > 0.001f) { step.SetOverrideFloat("Lifetime", newLifetime); EditorUtility.SetDirty(recipe); }
 
-            float hitRadius = step.GetFloat("HitRadius", 0.18f);
-            float newHitRadius = Mathf.Max(0.02f, EditorGUILayout.FloatField("Hit radius", hitRadius));
+            float hitRadius = step.GetFloat("HitRadius", 1f);
+            float newHitRadius = Mathf.Max(0.02f, EditorGUILayout.FloatField(new GUIContent("Hit radius scale", "Множитель от размера спрайта снаряда. 1 = диаметр кругового hitbox равен наибольшей стороне спрайта."), hitRadius));
             if (Mathf.Abs(newHitRadius - hitRadius) > 0.001f) { step.SetOverrideFloat("HitRadius", newHitRadius); EditorUtility.SetDirty(recipe); }
 
             float offsetX = step.GetFloat("OffsetX", 0.45f);
@@ -1617,6 +1623,11 @@ namespace Scripts.Editor.Skills
                 int groundMask = step.GetInt("GroundLayerMask", 1 << 6);
                 int newGroundMask = EditorGUILayout.MaskField("Ground layer mask", groundMask, UnityEditorInternal.InternalEditorUtility.layers);
                 if (newGroundMask != groundMask) { step.SetOverrideInt("GroundLayerMask", newGroundMask); EditorUtility.SetDirty(recipe); }
+                EditorGUILayout.HelpBox("OneWayPlatform layer is included automatically for ground-wave movement, so waves can ride platforms even when this mask only contains Ground.", MessageType.None);
+
+                bool breakOnObstacles = step.GetBool("BreakOnGroundObstacles", true);
+                bool newBreakOnObstacles = EditorGUILayout.Toggle(new GUIContent("Break on Ground obstacle", "Проверяет препятствие лучом вперёд по Ground layer. Пол под снарядом не считается препятствием."), breakOnObstacles);
+                if (newBreakOnObstacles != breakOnObstacles) { step.SetOverrideBool("BreakOnGroundObstacles", newBreakOnObstacles); EditorUtility.SetDirty(recipe); }
 
                 float snapUp = step.GetFloat("GroundSnapUp", 0.7f);
                 float newSnapUp = Mathf.Max(0.01f, EditorGUILayout.FloatField("Ground snap up", snapUp));
@@ -1643,27 +1654,33 @@ namespace Scripts.Editor.Skills
 
             EditorGUILayout.Space(4f);
             EditorGUILayout.LabelField("Projectile behavior", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox("При попадании срабатывает только одна механика в порядке: Fork -> Chain -> Pierce. Fork и Chain имеют встроенный проход через цель и не тратят Pierce.", MessageType.None);
+            EditorGUILayout.HelpBox(isGroundProjectile
+                ? "Ground wave не может fork или chain. Pierce всё ещё можно настраивать отдельно."
+                : "При попадании срабатывает только одна механика в порядке: Fork -> Chain -> Pierce. Fork и Chain имеют встроенный проход через цель и не тратят Pierce.", MessageType.None);
 
+            EditorGUI.BeginDisabledGroup(isGroundProjectile);
             bool ignoreFork = step.GetBool("IgnoreFork", false);
-            bool newIgnoreFork = EditorGUILayout.Toggle(new GUIContent("Ignore fork", "Запрещает ProjectileFork для этого снаряда, даже если у персонажа есть стат."), ignoreFork);
-            if (newIgnoreFork != ignoreFork) { step.SetOverrideBool("IgnoreFork", newIgnoreFork); EditorUtility.SetDirty(recipe); }
+            bool newIgnoreFork = EditorGUILayout.Toggle(new GUIContent("Ignore fork", "Запрещает ProjectileFork для этого снаряда, даже если у персонажа есть стат."), isGroundProjectile || ignoreFork);
+            if (!isGroundProjectile && newIgnoreFork != ignoreFork) { step.SetOverrideBool("IgnoreFork", newIgnoreFork); EditorUtility.SetDirty(recipe); }
 
             bool ignoreChain = step.GetBool("IgnoreChain", false);
-            bool newIgnoreChain = EditorGUILayout.Toggle(new GUIContent("Ignore chain", "Запрещает ProjectileChain для этого снаряда, даже если у персонажа есть стат."), ignoreChain);
-            if (newIgnoreChain != ignoreChain) { step.SetOverrideBool("IgnoreChain", newIgnoreChain); EditorUtility.SetDirty(recipe); }
+            bool newIgnoreChain = EditorGUILayout.Toggle(new GUIContent("Ignore chain", "Запрещает ProjectileChain для этого снаряда, даже если у персонажа есть стат."), isGroundProjectile || ignoreChain);
+            if (!isGroundProjectile && newIgnoreChain != ignoreChain) { step.SetOverrideBool("IgnoreChain", newIgnoreChain); EditorUtility.SetDirty(recipe); }
+            EditorGUI.EndDisabledGroup();
 
             bool infinitePierce = step.GetBool("InfinitePierce", false);
             bool newInfinitePierce = EditorGUILayout.Toggle(new GUIContent("Infinite pierce", "Снаряд игнорирует лимит ProjectilePierce и исчезает только по lifetime или от стен."), infinitePierce);
             if (newInfinitePierce != infinitePierce) { step.SetOverrideBool("InfinitePierce", newInfinitePierce); EditorUtility.SetDirty(recipe); }
 
+            EditorGUI.BeginDisabledGroup(isGroundProjectile);
             float forkAngle = step.GetFloat("ForkAngle", 18f);
             float newForkAngle = Mathf.Max(0f, EditorGUILayout.FloatField(new GUIContent("Fork angle", "ProjectileFork берется из статов. При форке снаряд делится на два с этим углом."), forkAngle));
-            if (Mathf.Abs(newForkAngle - forkAngle) > 0.001f) { step.SetOverrideFloat("ForkAngle", newForkAngle); EditorUtility.SetDirty(recipe); }
+            if (!isGroundProjectile && Mathf.Abs(newForkAngle - forkAngle) > 0.001f) { step.SetOverrideFloat("ForkAngle", newForkAngle); EditorUtility.SetDirty(recipe); }
 
             float chainRadius = step.GetFloat("ChainSearchRadius", 12f);
             float newChainRadius = Mathf.Max(0.1f, EditorGUILayout.FloatField(new GUIContent("Chain search radius", "ProjectileChain берется из статов. После попадания ищет ближайшую новую цель в этом радиусе."), chainRadius));
-            if (Mathf.Abs(newChainRadius - chainRadius) > 0.001f) { step.SetOverrideFloat("ChainSearchRadius", newChainRadius); EditorUtility.SetDirty(recipe); }
+            if (!isGroundProjectile && Mathf.Abs(newChainRadius - chainRadius) > 0.001f) { step.SetOverrideFloat("ChainSearchRadius", newChainRadius); EditorUtility.SetDirty(recipe); }
+            EditorGUI.EndDisabledGroup();
 
             EditorGUILayout.Space(4f);
             EditorGUILayout.LabelField("Homing", EditorStyles.boldLabel);

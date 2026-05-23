@@ -20,7 +20,7 @@ MonoBehaviour:
     TargetAilmentStackModifiers: []
     OnHitEffects: []
     StartPercentPipeline: 0
-    EndPercentPipeline: 0.1
+    EndPercentPipeline: 0.25
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: f52618a1da9473f489fc1d7569c9977b, type: 2}
     Overrides: []
@@ -28,8 +28,8 @@ MonoBehaviour:
     ScopedStatModifiers: []
     TargetAilmentStackModifiers: []
     OnHitEffects: []
-    StartPercentPipeline: 0.1
-    EndPercentPipeline: 0.1
+    StartPercentPipeline: 0.25
+    EndPercentPipeline: 0.25
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: 4a09dbc08d2314b46873162258f8a044, type: 2}
     Overrides: []
@@ -38,7 +38,7 @@ MonoBehaviour:
     TargetAilmentStackModifiers: []
     OnHitEffects: []
     StartPercentPipeline: 0
-    EndPercentPipeline: 0.1
+    EndPercentPipeline: 0.25
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: 45708c21f3cd474a853e804767ef8120, type: 2}
     Overrides:
@@ -81,18 +81,15 @@ MonoBehaviour:
       Type: 2
       FloatVal: 0
       IntVal: 0
-      BoolVal: 0
+      BoolVal: 1
       StringVal: 
       ObjectVal: {fileID: 0}
     DamageConversions: []
-    ScopedStatModifiers:
-    - Stat: 99
-      Value: 1000
-      Type: 100
+    ScopedStatModifiers: []
     TargetAilmentStackModifiers: []
     OnHitEffects: []
-    StartPercentPipeline: 0.1
-    EndPercentPipeline: 0.1
+    StartPercentPipeline: 0.25
+    EndPercentPipeline: 0.25
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: 6250a752a1e0b2a418e03bcc5c86278d, type: 2}
     Overrides: []
@@ -100,8 +97,8 @@ MonoBehaviour:
     ScopedStatModifiers: []
     TargetAilmentStackModifiers: []
     OnHitEffects: []
-    StartPercentPipeline: 0.1
-    EndPercentPipeline: 0.25
+    StartPercentPipeline: 0.25
+    EndPercentPipeline: 0.45
     SubSteps: []
   IsChanneling: 0
   ChannelLoopStepIndices: 
