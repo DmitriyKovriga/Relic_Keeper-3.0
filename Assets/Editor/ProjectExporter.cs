@@ -7,7 +7,7 @@ public class ProjectExporter : Editor
     [MenuItem("Tools/Export All Scripts for AI", false, 10)]
     public static void ExportScripts()
     {
-        // 1. Определяем пути
+        // Локальный экспорт для AI (не в git — см. .gitignore /_AI_Source_Dump/)
         string projectPath = Directory.GetParent(Application.dataPath).FullName;
         string exportPath = Path.Combine(projectPath, "_AI_Source_Dump");
         

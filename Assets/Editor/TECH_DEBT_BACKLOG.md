@@ -17,7 +17,6 @@
 
 ## Content Pipeline
 - Inventory art exists but is not yet fully wired as first-class visual layout assets.
-- `_AI_Source_Dump` can create confusion/noise and duplicate source-of-truth risk.
 
 ## Current Refactor Track (started)
 1. Decompose `InventoryManager`, `InventoryUI`, `TavernUI` into partial/modules by responsibility.

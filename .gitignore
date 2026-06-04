@@ -100,3 +100,6 @@ ShaderCache/
 
 # --- Unity 6 Cache ---
 /Artifacts/
+
+# --- AI script export (Tools/Export Scripts in Unity) ---
+/_AI_Source_Dump/

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class SmartProjectExporter : Editor
 {
-    // Экспорт в папку _AI_Source_Dump рядом с папкой Assets
+    // Локальный экспорт для AI (не в git — см. .gitignore /_AI_Source_Dump/)
     private static string ExportRoot => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "_AI_Source_Dump");
 
     [MenuItem("Tools/Export Scripts (Smart Grouping)", false, 0)]
