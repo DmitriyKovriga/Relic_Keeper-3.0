@@ -12,7 +12,6 @@ namespace Scripts.Enemies
     {
         private const int PlayerLayer = 0;
         private const int EnemyLayer = 7;
-        private const int MinEnemySortingOrder = 19000;
 
         [Header("Config")]
         [SerializeField] private EnemyDataSO _defaultData;
@@ -191,15 +190,11 @@ namespace Scripts.Enemies
 
         private void ConfigureRendererDefaults()
         {
-            var sr = EnsureVisualRenderer(_defaultData);
-            if (sr == null)
-                return;
+            var sorter = GetComponent<WorldDepthSort>();
+            if (sorter == null)
+                sorter = gameObject.AddComponent<WorldDepthSort>();
 
-            sr.sortingOrder = Mathf.Max(sr.sortingOrder, MinEnemySortingOrder);
-
-            var rootRenderer = GetComponent<SpriteRenderer>();
-            if (rootRenderer != null)
-                rootRenderer.sortingOrder = Mathf.Max(rootRenderer.sortingOrder, MinEnemySortingOrder);
+            sorter.Configure(RenderDepthCategory.Enemy, localOffset: 0, staticAnchor: false, anchorY: transform.position.y);
         }
 
         private static void EnsureCharacterCollisionRules()

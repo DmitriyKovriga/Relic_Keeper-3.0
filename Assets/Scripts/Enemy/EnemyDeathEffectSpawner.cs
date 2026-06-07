@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Scripts.Visuals;
 
 namespace Scripts.Enemies
 {
@@ -26,8 +27,6 @@ namespace Scripts.Enemies
             Bounds visualWorldBounds = sourceRenderer.bounds;
             Collider2D bodyCollider = entity.GetComponent<Collider2D>();
             Bounds anchorBounds = bodyCollider != null ? bodyCollider.bounds : visualWorldBounds;
-            int sortingLayerId = sourceRenderer.sortingLayerID;
-            int baseSortingOrder = sourceRenderer.sortingOrder;
             Vector2 deathBasePosition = ResolveGroundAnchor(anchorBounds, visualWorldBounds, entity.transform.position);
             Vector2 burstCenter = new Vector2(anchorBounds.center.x, Mathf.Lerp(anchorBounds.center.y, visualWorldBounds.center.y, 0.35f));
             Vector2 burstBias = new Vector2(Random.Range(-0.28f, 0.28f), Random.Range(0.08f, 0.22f));
@@ -35,15 +34,16 @@ namespace Scripts.Enemies
                 Mathf.Max(anchorBounds.size.x * 1.1f, visualWorldBounds.size.x * 0.9f),
                 0.7f);
             Transform roomRoot = entity.transform.parent;
+            float remainsAnchorY = deathBasePosition.y;
 
-            SpawnBodyChunks(config, sourceRenderer, spriteBounds, sortingLayerId, baseSortingOrder, roomRoot, burstCenter, burstBias);
-            SpawnGroundMeat(config, deathBasePosition, sortingLayerId, baseSortingOrder - 1, roomRoot, burstCenter, burstBias);
-            SpawnGroundBloodLine(config, deathBasePosition, sortingLayerId, baseSortingOrder + 1, roomRoot, bloodRadius);
-            SpawnGroundDrips(config, deathBasePosition, sortingLayerId, baseSortingOrder + 1, roomRoot, bloodRadius);
-            SpawnWallSpatter(config, burstCenter, deathBasePosition, sortingLayerId, baseSortingOrder + 1, roomRoot, bloodRadius);
+            SpawnBodyChunks(config, sourceRenderer, spriteBounds, remainsAnchorY, roomRoot, burstCenter, burstBias);
+            SpawnGroundMeat(config, deathBasePosition, remainsAnchorY, roomRoot, burstCenter, burstBias);
+            SpawnGroundBloodLine(config, deathBasePosition, remainsAnchorY, roomRoot, bloodRadius);
+            SpawnGroundDrips(config, deathBasePosition, remainsAnchorY, roomRoot, bloodRadius);
+            SpawnWallSpatter(config, burstCenter, deathBasePosition, remainsAnchorY, roomRoot, bloodRadius);
         }
 
-        public static void SpawnSurfacePixelMark(Vector2 position, Vector2 surfaceNormal, EnemyDeathEffectConfig config, int sortingLayerId, int sortingOrder, Transform parent = null)
+        public static void SpawnSurfacePixelMark(Vector2 position, Vector2 surfaceNormal, EnemyDeathEffectConfig config, float anchorY, Transform parent = null, int localOffset = 0)
         {
             if (config == null || Random.value > ImpactMarkChance)
                 return;
@@ -69,14 +69,13 @@ namespace Scripts.Enemies
             SpriteRenderer renderer = mark.AddComponent<SpriteRenderer>();
             renderer.sprite = isWall ? EnemyDeathVisualFactory.GetRandomWallDripSprite() : EnemyDeathVisualFactory.GetRandomGroundPuddleSprite();
             renderer.color = GetBloodPixelColor(config.BloodColor, 1f);
-            renderer.sortingLayerID = sortingLayerId;
-            renderer.sortingOrder = sortingOrder;
+            ConfigureRemainsSorter(mark, anchorY, localOffset + (isWall ? 2 : 0));
 
             EnemyDeathDecal decal = mark.AddComponent<EnemyDeathDecal>();
             decal.Initialize(config.Lifetime, Mathf.Min(config.FadeDuration + 1.5f, config.Lifetime));
         }
 
-        private static void SpawnBodyChunks(EnemyDeathEffectConfig config, SpriteRenderer sourceRenderer, Bounds spriteBounds, int sortingLayerId, int baseSortingOrder, Transform parent, Vector2 burstCenter, Vector2 burstBias)
+        private static void SpawnBodyChunks(EnemyDeathEffectConfig config, SpriteRenderer sourceRenderer, Bounds spriteBounds, float remainsAnchorY, Transform parent, Vector2 burstCenter, Vector2 burstBias)
         {
             int pieceCount = Mathf.Max(1, config.ChunkCount);
             List<Rect> rects = GenerateChunkLayout(pieceCount);
@@ -85,7 +84,7 @@ namespace Scripts.Enemies
             for (int i = 0; i < rects.Count; i++)
             {
                 Rect rect = rects[i];
-                int chunkSortingOrder = baseSortingOrder + i * 4;
+                int localOffset = i * 4;
                 Vector2 localSize = new Vector2(rect.width * spriteBounds.size.x, rect.height * spriteBounds.size.y);
                 Vector2 localCenter = new Vector2(
                     spriteBounds.min.x + (rect.x + rect.width * 0.5f) * spriteBounds.size.x,
@@ -106,25 +105,25 @@ namespace Scripts.Enemies
                 BoxCollider2D collider = fragment.AddComponent<BoxCollider2D>();
                 collider.size = new Vector2(Mathf.Max(0.05f, localSize.x * 0.76f), Mathf.Max(0.05f, localSize.y * 0.76f));
 
-                CreateMask(fragment.transform, localSize * ChunkMaskOverlap, sortingLayerId, chunkSortingOrder);
-                CreateMaskedSprite(fragment.transform, sourceRenderer, -localCenter, sortingLayerId, chunkSortingOrder, SpriteMaskInteraction.VisibleInsideMask);
+                CreateMask(fragment.transform, localSize * ChunkMaskOverlap, remainsAnchorY, localOffset);
+                CreateMaskedSprite(fragment.transform, sourceRenderer, -localCenter, remainsAnchorY, localOffset, SpriteMaskInteraction.VisibleInsideMask);
 
                 if (Random.value <= 0.58f)
                 {
                     Color overlayColor = Color.Lerp(config.GoreColor, config.BloodColor, Random.Range(0.18f, 0.34f));
                     overlayColor.a = Random.Range(0.22f, 0.38f);
-                    CreateMaskedSprite(fragment.transform, sourceRenderer, -localCenter, sortingLayerId, chunkSortingOrder + 1, SpriteMaskInteraction.VisibleInsideMask, overlayColor);
+                    CreateMaskedSprite(fragment.transform, sourceRenderer, -localCenter, remainsAnchorY, localOffset + 1, SpriteMaskInteraction.VisibleInsideMask, overlayColor);
                 }
 
                 EnemyDeathFragment deathFragment = fragment.AddComponent<EnemyDeathFragment>();
-                deathFragment.Initialize(config, sortingLayerId, chunkSortingOrder - 2, 1f, 1f, false);
+                deathFragment.Initialize(config, remainsAnchorY, localOffset, 1f, 1f, false);
 
                 Vector2 launch = BuildBurstVector(worldPosition, burstCenter, burstBias, config.ChunkHorizontalForce, config.ChunkVerticalForce, BurstForceMultiplier, 0.42f);
                 rb.AddForce(launch, ForceMode2D.Impulse);
             }
         }
 
-        private static void SpawnGroundMeat(EnemyDeathEffectConfig config, Vector2 basePosition, int sortingLayerId, int sortingOrder, Transform parent, Vector2 burstCenter, Vector2 burstBias)
+        private static void SpawnGroundMeat(EnemyDeathEffectConfig config, Vector2 basePosition, float remainsAnchorY, Transform parent, Vector2 burstCenter, Vector2 burstBias)
         {
             int chunkCount = Mathf.Clamp(Mathf.RoundToInt(config.ChunkCount * 0.45f), 2, 4);
             for (int i = 0; i < chunkCount; i++)
@@ -136,8 +135,7 @@ namespace Scripts.Enemies
                 SpriteRenderer renderer = fragment.AddComponent<SpriteRenderer>();
                 renderer.sprite = EnemyDeathVisualFactory.GetRandomGoreSprite();
                 renderer.color = Color.Lerp(config.GoreColor, config.BloodColor, Random.Range(0.25f, 0.52f));
-                renderer.sortingLayerID = sortingLayerId;
-                renderer.sortingOrder = sortingOrder;
+                ConfigureRemainsSorter(fragment, remainsAnchorY, 10 + i);
 
                 Rigidbody2D rb = fragment.AddComponent<Rigidbody2D>();
                 ConfigurePhysics(rb, config);
@@ -146,14 +144,14 @@ namespace Scripts.Enemies
                 collider.radius = 0.18f;
 
                 EnemyDeathFragment deathFragment = fragment.AddComponent<EnemyDeathFragment>();
-                deathFragment.Initialize(config, sortingLayerId, sortingOrder - 1, 0.75f, 1.35f, false);
+                deathFragment.Initialize(config, remainsAnchorY, 10 + i, 0.75f, 1.35f, false);
 
                 Vector2 force = BuildBurstVector(fragment.transform.position, burstCenter, burstBias, config.ChunkHorizontalForce * 0.68f, config.ChunkVerticalForce * 0.54f, 1.12f, 0.34f);
                 rb.AddForce(force, ForceMode2D.Impulse);
             }
         }
 
-        private static void SpawnGroundBloodLine(EnemyDeathEffectConfig config, Vector2 basePosition, int sortingLayerId, int sortingOrder, Transform parent, float bloodRadius)
+        private static void SpawnGroundBloodLine(EnemyDeathEffectConfig config, Vector2 basePosition, float remainsAnchorY, Transform parent, float bloodRadius)
         {
             float clampedRadius = Mathf.Max(0.42f, bloodRadius);
             float[] offsets =
@@ -175,15 +173,14 @@ namespace Scripts.Enemies
                 SpriteRenderer renderer = mark.AddComponent<SpriteRenderer>();
                 renderer.sprite = EnemyDeathVisualFactory.GetRandomGroundPuddleSprite();
                 renderer.color = GetBloodPixelColor(config.BloodColor, i == 0 ? 0.98f : Random.Range(0.88f, 0.96f));
-                renderer.sortingLayerID = sortingLayerId;
-                renderer.sortingOrder = sortingOrder;
+                ConfigureRemainsSorter(mark, remainsAnchorY, 20 + i);
 
                 EnemyDeathDecal decal = mark.AddComponent<EnemyDeathDecal>();
                 decal.Initialize(config.Lifetime, Mathf.Min(config.FadeDuration + 1.5f, config.Lifetime));
             }
         }
 
-        private static void SpawnGroundDrips(EnemyDeathEffectConfig config, Vector2 basePosition, int sortingLayerId, int sortingOrder, Transform parent, float bloodRadius)
+        private static void SpawnGroundDrips(EnemyDeathEffectConfig config, Vector2 basePosition, float remainsAnchorY, Transform parent, float bloodRadius)
         {
             float clampedRadius = Mathf.Max(0.42f, bloodRadius);
             float[] offsets =
@@ -205,21 +202,20 @@ namespace Scripts.Enemies
                 SpriteRenderer renderer = mark.AddComponent<SpriteRenderer>();
                 renderer.sprite = EnemyDeathVisualFactory.GetRandomWallDripSprite();
                 renderer.color = GetBloodPixelColor(config.BloodColor, Random.Range(0.86f, 0.98f));
-                renderer.sortingLayerID = sortingLayerId;
-                renderer.sortingOrder = sortingOrder;
+                ConfigureRemainsSorter(mark, remainsAnchorY, 30 + i);
 
                 EnemyDeathDecal decal = mark.AddComponent<EnemyDeathDecal>();
                 decal.Initialize(config.Lifetime, Mathf.Min(config.FadeDuration + 1.5f, config.Lifetime));
             }
         }
 
-        private static void SpawnWallSpatter(EnemyDeathEffectConfig config, Vector2 burstCenter, Vector2 basePosition, int sortingLayerId, int sortingOrder, Transform parent, float bloodRadius)
+        private static void SpawnWallSpatter(EnemyDeathEffectConfig config, Vector2 burstCenter, Vector2 basePosition, float remainsAnchorY, Transform parent, float bloodRadius)
         {
-            TrySpawnWallSide(config, burstCenter, basePosition, sortingLayerId, sortingOrder, parent, bloodRadius, -1f);
-            TrySpawnWallSide(config, burstCenter, basePosition, sortingLayerId, sortingOrder, parent, bloodRadius, 1f);
+            TrySpawnWallSide(config, burstCenter, basePosition, remainsAnchorY, parent, bloodRadius, -1f);
+            TrySpawnWallSide(config, burstCenter, basePosition, remainsAnchorY, parent, bloodRadius, 1f);
         }
 
-        private static void TrySpawnWallSide(EnemyDeathEffectConfig config, Vector2 burstCenter, Vector2 basePosition, int sortingLayerId, int sortingOrder, Transform parent, float bloodRadius, float direction)
+        private static void TrySpawnWallSide(EnemyDeathEffectConfig config, Vector2 burstCenter, Vector2 basePosition, float remainsAnchorY, Transform parent, float bloodRadius, float direction)
         {
             Vector2 origin = burstCenter + new Vector2(0f, 0.08f);
             float castDistance = Mathf.Max(bloodRadius * 1.8f, 1.2f);
@@ -242,8 +238,7 @@ namespace Scripts.Enemies
                 SpriteRenderer renderer = mark.AddComponent<SpriteRenderer>();
                 renderer.sprite = EnemyDeathVisualFactory.GetRandomWallDripSprite();
                 renderer.color = GetBloodPixelColor(config.BloodColor, Random.Range(0.88f, 1f));
-                renderer.sortingLayerID = sortingLayerId;
-                renderer.sortingOrder = sortingOrder;
+                ConfigureRemainsSorter(mark, remainsAnchorY, 40 + i);
 
                 EnemyDeathDecal decal = mark.AddComponent<EnemyDeathDecal>();
                 decal.Initialize(config.Lifetime, Mathf.Min(config.FadeDuration + 1.5f, config.Lifetime));
@@ -271,8 +266,10 @@ namespace Scripts.Enemies
             rb.angularVelocity = Random.Range(-240f, 240f);
         }
 
-        private static SpriteMask CreateMask(Transform parent, Vector2 localSize, int sortingLayerId, int sortingOrder)
+        private static SpriteMask CreateMask(Transform parent, Vector2 localSize, float anchorY, int localOffset)
         {
+            int sortingLayerId = RemainsLayerId;
+            int sortingOrder = ResolveRemainsOrder(anchorY, localOffset);
             GameObject maskObject = new GameObject("Mask");
             maskObject.transform.SetParent(parent, false);
             maskObject.transform.localScale = new Vector3(Mathf.Max(0.06f, localSize.x), Mathf.Max(0.06f, localSize.y), 1f);
@@ -289,19 +286,25 @@ namespace Scripts.Enemies
             return mask;
         }
 
-        private static void CreateMaskedSprite(Transform parent, SpriteRenderer sourceRenderer, Vector2 localOffset, int sortingLayerId, int sortingOrder, SpriteMaskInteraction maskInteraction, Color? tintOverride = null)
+        private static void CreateMaskedSprite(
+            Transform parent,
+            SpriteRenderer sourceRenderer,
+            Vector2 visualLocalOffset,
+            float anchorY,
+            int sortingOffset,
+            SpriteMaskInteraction maskInteraction,
+            Color? tintOverride = null)
         {
             GameObject visualObject = new GameObject("Visual");
             visualObject.transform.SetParent(parent, false);
-            visualObject.transform.localPosition = new Vector3(localOffset.x, localOffset.y, 0f);
+            visualObject.transform.localPosition = new Vector3(visualLocalOffset.x, visualLocalOffset.y, 0f);
 
             SpriteRenderer renderer = visualObject.AddComponent<SpriteRenderer>();
             renderer.sprite = sourceRenderer.sprite;
             renderer.flipX = sourceRenderer.flipX;
             renderer.flipY = sourceRenderer.flipY;
             renderer.sharedMaterial = sourceRenderer.sharedMaterial;
-            renderer.sortingLayerID = sortingLayerId;
-            renderer.sortingOrder = sortingOrder;
+            ApplyRemainsRenderer(renderer, anchorY, sortingOffset);
             renderer.maskInteraction = maskInteraction;
             renderer.color = tintOverride ?? sourceRenderer.color;
         }
@@ -363,6 +366,27 @@ namespace Scripts.Enemies
                 return new Vector2(centerX, hit.point.y + 0.02f);
 
             return new Vector2(centerX, anchorBounds.min.y + 0.02f);
+        }
+
+        private static int RemainsLayerId => SortingLayer.NameToID(WorldRenderSorting.LayerWorld);
+
+        private static int ResolveRemainsOrder(float anchorY, int localOffset = 0)
+        {
+            return WorldRenderSorting.ResolveOrder(RenderDepthCategory.EnemyRemains, anchorY, localOffset);
+        }
+
+        private static void ConfigureRemainsSorter(GameObject root, float anchorY, int localOffset)
+        {
+            WorldRenderSorting.ConfigureSorter(root, RenderDepthCategory.EnemyRemains, anchorY, localOffset, staticAnchor: true);
+        }
+
+        private static void ApplyRemainsRenderer(SpriteRenderer renderer, float anchorY, int localOffset)
+        {
+            if (renderer == null)
+                return;
+
+            renderer.sortingLayerName = WorldRenderSorting.LayerWorld;
+            renderer.sortingOrder = ResolveRemainsOrder(anchorY, localOffset);
         }
 
         private static Vector3 SnapToPixelGrid(Vector3 worldPosition)

@@ -2,6 +2,7 @@ using UnityEngine;
 using Scripts.Combat;
 using Scripts.Stats;
 using Scripts.StatusEffects;
+using Scripts.Visuals;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -112,7 +113,6 @@ namespace Scripts.Enemies
         private const int DefaultTargetMask = ~((1 << 6) | (1 << 7));
         private const string AttackAttentionResourcesPath = "VFX/AttackAttentionVFX/AttackAttentionVFXPrefab";
         private const float AttackAttentionDuration = 0.5f;
-        private const int AttackAttentionSortingOrder = 30010;
 
         private EnemyEntity _entity;
         private EnemyDataSO _data;
@@ -588,18 +588,12 @@ namespace Scripts.Enemies
             if (vfx == null)
                 return;
 
-            SpriteRenderer ownerRenderer = _entity != null ? _entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>();
-            var renderers = vfx.GetComponentsInChildren<SpriteRenderer>(true);
-            for (int i = 0; i < renderers.Length; i++)
-            {
-                SpriteRenderer renderer = renderers[i];
-                if (renderer == null)
-                    continue;
-
-                if (ownerRenderer != null)
-                    renderer.sortingLayerID = ownerRenderer.sortingLayerID;
-                renderer.sortingOrder = Mathf.Max(renderer.sortingOrder, AttackAttentionSortingOrder);
-            }
+            WorldRenderSorting.ConfigureSorter(
+                vfx,
+                RenderDepthCategory.GameplayVfx,
+                ResolveAttackAttentionPosition().y,
+                localOffset: 0,
+                staticAnchor: false);
         }
 
         private void DestroyAttackAttentionVfx()
@@ -757,7 +751,6 @@ namespace Scripts.Enemies
             template.layer = 0;
 
             var renderer = template.AddComponent<SpriteRenderer>();
-            renderer.sortingOrder = 120;
 
             var collider = template.AddComponent<CircleCollider2D>();
             collider.isTrigger = true;
@@ -793,6 +786,7 @@ namespace Scripts.Enemies
             _currentFrameIndex = -1;
             ApplyFrame(force: true);
             _spriteRenderer.flipX = _direction.x < 0f;
+            WorldRenderSorting.ConfigureSorter(gameObject, RenderDepthCategory.GameplayVfx, transform.position.y, 0, staticAnchor: false);
         }
 
         private void Update()

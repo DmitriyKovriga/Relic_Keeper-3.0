@@ -233,6 +233,7 @@ public class PlayerMovement : MonoBehaviour
             gameObject.AddComponent<GroundingVisualController>();
         if (GetComponent<PlayerCharacterAnimationController>() == null)
             gameObject.AddComponent<PlayerCharacterAnimationController>();
+        EnsureRenderDepthSort();
         _baseGravityScale = _rb != null ? _rb.gravityScale : 1f;
         EnsureOneWayPlatformMask();
         _availableJumpCount = Mathf.Max(1, _maxJumpCount);
@@ -689,6 +690,15 @@ public class PlayerMovement : MonoBehaviour
         Vector3 scaler = transform.localScale;
         scaler.x *= -1f;
         transform.localScale = scaler;
+    }
+
+    private void EnsureRenderDepthSort()
+    {
+        WorldDepthSort sorter = GetComponent<WorldDepthSort>();
+        if (sorter == null)
+            sorter = gameObject.AddComponent<WorldDepthSort>();
+
+        sorter.Configure(RenderDepthCategory.Player, localOffset: 0, staticAnchor: false, anchorY: transform.position.y);
     }
 
     private void OnDrawGizmosSelected()

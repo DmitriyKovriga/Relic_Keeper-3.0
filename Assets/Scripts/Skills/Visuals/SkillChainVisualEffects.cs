@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Scripts.Visuals;
 
 namespace Scripts.Skills.Visuals
 {
@@ -32,8 +33,7 @@ namespace Scripts.Skills.Visuals
         [SerializeField] private Color _impactColor = new Color(0.7f, 0.95f, 1f, 0.85f);
 
         [Header("Sorting")]
-        [SerializeField] private string _sortingLayerName = "Default";
-        [SerializeField] private int _sortingOrder = 20100;
+        [SerializeField] private int _sortingOrderOffset;
 
         private static Material _lineMaterial;
         private readonly List<LineRenderer> _activeLines = new List<LineRenderer>();
@@ -79,6 +79,8 @@ namespace Scripts.Skills.Visuals
             Vector3[] points = BuildJaggedPoints(start, end);
             LineRenderer glow = CreateLine("Glow", _glowColor, _glowWidth);
             LineRenderer core = CreateLine("Core", _coreColor, _coreWidth);
+            ApplyLineSorting(glow, start, end);
+            ApplyLineSorting(core, start, end);
             ApplyLinePoints(glow, points);
             ApplyLinePoints(core, points);
             StartCoroutine(FadeAndDestroyLine(glow, lifetime));
@@ -102,6 +104,7 @@ namespace Scripts.Skills.Visuals
             Vector2 normal = new Vector2(-tangent.y, tangent.x) * (Random.value < 0.5f ? -1f : 1f);
             Vector3 end = origin + (Vector3)(normal * Random.Range(_branchLength * 0.35f, _branchLength));
             LineRenderer branch = CreateLine("Branch", _glowColor, Mathf.Max(0.005f, _coreWidth * 0.7f));
+            ApplyLineSorting(branch, origin, end);
             ApplyLinePoints(branch, new[] { origin, end });
             StartCoroutine(FadeAndDestroyLine(branch, lifetime * 0.75f));
         }
@@ -147,10 +150,18 @@ namespace Scripts.Skills.Visuals
                 line.material = material;
             line.startColor = color;
             line.endColor = color;
-            line.sortingLayerName = _sortingLayerName;
-            line.sortingOrder = _sortingOrder;
             _activeLines.Add(line);
             return line;
+        }
+
+        private void ApplyLineSorting(LineRenderer line, Vector3 start, Vector3 end)
+        {
+            if (line == null)
+                return;
+
+            float anchorY = (start.y + end.y) * 0.5f;
+            line.sortingLayerName = WorldRenderSorting.GetSortingLayer(RenderDepthCategory.HeroAttackVfx);
+            line.sortingOrder = WorldRenderSorting.ResolveOrder(RenderDepthCategory.HeroAttackVfx, anchorY, _sortingOrderOffset);
         }
 
         private static void ApplyLinePoints(LineRenderer line, IReadOnlyList<Vector3> points)
@@ -201,6 +212,7 @@ namespace Scripts.Skills.Visuals
 
             _activeObjects.Add(impact);
             impact.transform.localScale = Vector3.one * _impactScale;
+            WorldRenderSorting.ConfigureSorter(impact, RenderDepthCategory.HeroAttackVfx, position.y, _sortingOrderOffset, staticAnchor: true);
             StartCoroutine(DestroyAfter(impact, _impactLifetime));
         }
 
@@ -219,8 +231,7 @@ namespace Scripts.Skills.Visuals
                 line.material = material;
             line.startColor = _impactColor;
             line.endColor = _impactColor;
-            line.sortingLayerName = _sortingLayerName;
-            line.sortingOrder = _sortingOrder + 1;
+            ApplyLineSorting(line, position, position);
 
             float radius = 0.12f;
             for (int i = 0; i < 5; i++)

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Scripts.Visuals;
 
 namespace Scripts.Enemies
 {
@@ -12,7 +13,6 @@ namespace Scripts.Enemies
         [SerializeField] private string _fallbackResourcesPath = DefaultResourcesPath;
         [SerializeField, Min(0.01f)] private float _vfxLifetime = 0.85f;
         [SerializeField] private Vector2 _worldOffset = new(0f, 0.65f);
-        [SerializeField, Min(0)] private int _sortingOrder = 30000;
 
         private EnemyStunController _stun;
         private EnemyHealth _health;
@@ -102,18 +102,12 @@ namespace Scripts.Enemies
             if (vfx == null)
                 return;
 
-            SpriteRenderer ownerRenderer = _entity != null ? _entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>();
-            var renderers = vfx.GetComponentsInChildren<SpriteRenderer>(true);
-            for (int i = 0; i < renderers.Length; i++)
-            {
-                SpriteRenderer renderer = renderers[i];
-                if (renderer == null)
-                    continue;
-
-                if (ownerRenderer != null)
-                    renderer.sortingLayerID = ownerRenderer.sortingLayerID;
-                renderer.sortingOrder = Mathf.Max(renderer.sortingOrder, _sortingOrder);
-            }
+            WorldRenderSorting.ConfigureSorter(
+                vfx,
+                RenderDepthCategory.GameplayVfx,
+                ResolveWorldPosition().y,
+                localOffset: 5,
+                staticAnchor: false);
         }
 
         private void DestroyActiveVfx()

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Scripts.Visuals;
 
 namespace Scripts.Skills.Modules
 {
@@ -80,6 +81,13 @@ namespace Scripts.Skills.Modules
 
             if (_attachToParent && ownerTransform != null)
                 vfx.transform.SetParent(ownerTransform);
+
+            WorldRenderSorting.ConfigureSorter(
+                vfx,
+                RenderDepthCategory.HeroAttackVfx,
+                spawnPos.y,
+                localOffset: 0,
+                staticAnchor: !_attachToParent);
 
             var autoDestroy = AutoDestroyVFX.Ensure(vfx);
             if (autoDestroy != null)

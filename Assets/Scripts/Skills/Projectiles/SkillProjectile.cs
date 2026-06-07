@@ -6,6 +6,7 @@ using Scripts.Skills.Modules;
 using Scripts.Skills.Steps;
 using Scripts.Stats;
 using Scripts.StatusEffects;
+using Scripts.Visuals;
 using UnityEngine;
 
 namespace Scripts.Skills.Projectiles
@@ -54,8 +55,6 @@ namespace Scripts.Skills.Projectiles
         public float ReverseInterval = 1f;
         public bool ReturnToOwnerOnReverse = true;
         public bool ClearHitHistoryOnReverse = true;
-        public int SortingLayerId;
-        public int SortingOrder = 20050;
         public HashSet<IDamageable> HitHistory;
 
         public SkillProjectileLaunchData Clone()
@@ -181,7 +180,6 @@ namespace Scripts.Skills.Projectiles
             _defaultTemplate.SetActive(false);
 
             var renderer = _defaultTemplate.AddComponent<SpriteRenderer>();
-            renderer.sortingOrder = 20050;
 
             var collider = _defaultTemplate.AddComponent<CircleCollider2D>();
             collider.isTrigger = true;
@@ -231,6 +229,7 @@ namespace Scripts.Skills.Projectiles
             _rigidbody.simulated = true;
 
             ApplyVisual();
+            WorldRenderSorting.ConfigureSorter(gameObject, RenderDepthCategory.HeroAttackVfx, transform.position.y, 0, staticAnchor: false);
             _collider.isTrigger = true;
             _collider.radius = ResolveColliderRadius();
             if (_data.GroundMotion)
@@ -886,9 +885,6 @@ namespace Scripts.Skills.Projectiles
             _spriteRenderer.sprite = _data.OverrideSprite != null ? _data.OverrideSprite : _defaultSprite;
             _spriteRenderer.enabled = _spriteRenderer.sprite != null;
             _spriteRenderer.flipX = _defaultFlipX;
-
-            _spriteRenderer.sortingLayerID = _data.SortingLayerId;
-            _spriteRenderer.sortingOrder = _data.SortingOrder;
         }
 
         private float ResolveColliderRadius()

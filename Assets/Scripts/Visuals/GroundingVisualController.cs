@@ -225,8 +225,8 @@ namespace Scripts.Visuals
 
             _shadowRenderer.enabled = true;
             _shadowRenderer.sprite = shadowSprite;
-            _shadowRenderer.sortingLayerID = _primaryRenderer.sortingLayerID;
-            _shadowRenderer.sortingOrder = _primaryRenderer.sortingOrder + _shadowOrderOffset;
+            _shadowRenderer.sortingLayerName = WorldRenderSorting.LayerBackground;
+            _shadowRenderer.sortingOrder = WorldRenderSorting.ResolveOrder(RenderDepthCategory.Environment, groundAnchor.y, _shadowOrderOffset);
             _shadowRenderer.color = Color.white;
 
             _shadowObject.transform.rotation = Quaternion.identity;
@@ -340,7 +340,7 @@ namespace Scripts.Visuals
                 ResolveEffectWidth(isHeavy ? _runDustHeavyWidthRelativeToBody : _runDustSmallWidthRelativeToBody));
         }
 
-        private void SpawnGroundEffect(Sprite[] frames, float duration, Vector3 position, bool flipX, float alpha, int sortingOrder, float targetWorldWidth)
+        private void SpawnGroundEffect(Sprite[] frames, float duration, Vector3 position, bool flipX, float alpha, int orderOffset, float targetWorldWidth)
         {
             if (frames == null || frames.Length == 0 || _primaryRenderer == null)
                 return;
@@ -354,18 +354,21 @@ namespace Scripts.Visuals
             effect.transform.rotation = Quaternion.identity;
             effect.transform.position = ResolveAlignedGroundEffectPosition(position, frames, targetWorldWidth);
 
+            string layerName = WorldRenderSorting.GetSortingLayer(RenderDepthCategory.GameplayVfx);
+            int sortingOrder = WorldRenderSorting.ResolveOrder(RenderDepthCategory.GameplayVfx, position.y, orderOffset);
+
             GroundingSpriteSheetVfx overlay = effect.AddComponent<GroundingSpriteSheetVfx>();
-            overlay.Initialize(frames, duration, alpha, _primaryRenderer.sortingLayerID, sortingOrder, targetWorldWidth, flipX);
+            overlay.Initialize(frames, duration, alpha, SortingLayer.NameToID(layerName), sortingOrder, targetWorldWidth, flipX);
         }
 
         private int ResolveDustSortingOrder()
         {
-            return _primaryRenderer != null ? _primaryRenderer.sortingOrder + _dustOrderOffset : 0;
+            return _dustOrderOffset;
         }
 
         private int ResolveLandingDustSortingOrder()
         {
-            return _primaryRenderer != null ? _primaryRenderer.sortingOrder + _landingDustOrderOffset : 0;
+            return _landingDustOrderOffset;
         }
 
         private Vector3 ResolveGroundEffectPosition(float xOffset)

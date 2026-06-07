@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Scripts.GameplayEvents;
 using Scripts.Skills;
+using Scripts.Visuals;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
@@ -505,21 +506,12 @@ public class PlayerAttackInput : MonoBehaviour
         go.transform.localScale = Vector3.one;
 
         var renderer = go.AddComponent<SpriteRenderer>();
-        int sortingLayerId = renderer.sortingLayerID;
-        int sortingOrder = renderer.sortingOrder;
-        if (_playerRenderers != null && _playerRenderers.Length > 0)
-        {
-            sortingLayerId = _playerRenderers[0].sortingLayerID;
-            sortingOrder = _playerRenderers[0].sortingOrder;
-            for (int i = 0; i < _playerRenderers.Length; i++)
-            {
-                if (_playerRenderers[i] != null)
-                    sortingOrder = Mathf.Max(sortingOrder, _playerRenderers[i].sortingOrder);
-            }
-        }
+        float anchorY = transform.position.y;
+        string layerName = WorldRenderSorting.GetSortingLayer(RenderDepthCategory.PlayerOverlay);
+        int sortingOrder = WorldRenderSorting.ResolveOrder(RenderDepthCategory.PlayerOverlay, anchorY, orderOffset);
 
         var overlay = go.AddComponent<SpriteSheetOverlayVfx>();
-        overlay.Initialize(frames, duration, _dodgeVfxAlpha, sortingLayerId, sortingOrder + orderOffset);
+        overlay.Initialize(frames, duration, _dodgeVfxAlpha, SortingLayer.NameToID(layerName), sortingOrder);
     }
 
     private void ApplyDodgePose(bool stationaryDodge)
@@ -646,8 +638,8 @@ public class PlayerAttackInput : MonoBehaviour
             clone.sprite = source.sprite;
             clone.flipX = source.flipX;
             clone.flipY = source.flipY;
-            clone.sortingLayerID = source.sortingLayerID;
-            clone.sortingOrder = source.sortingOrder - 1;
+            clone.sortingLayerName = WorldRenderSorting.GetSortingLayer(RenderDepthCategory.PlayerOverlay);
+            clone.sortingOrder = WorldRenderSorting.ResolveOrder(RenderDepthCategory.PlayerOverlay, source.transform.position.y, -1);
             clone.color = color;
             childCount++;
         }
@@ -899,8 +891,8 @@ public sealed class TransientSpriteFlashOverlay : MonoBehaviour
         _overlay.sprite = _source.sprite;
         _overlay.flipX = _source.flipX;
         _overlay.flipY = _source.flipY;
-        _overlay.sortingLayerID = _source.sortingLayerID;
-        _overlay.sortingOrder = _source.sortingOrder + 20;
+        _overlay.sortingLayerName = WorldRenderSorting.GetSortingLayer(RenderDepthCategory.PlayerOverlay);
+        _overlay.sortingOrder = WorldRenderSorting.ResolveOrder(RenderDepthCategory.PlayerOverlay, _source.transform.position.y, 20);
         _overlay.maskInteraction = _source.maskInteraction;
         float alpha = 1f - Mathf.Clamp01(_elapsed / _duration);
         _overlay.color = new Color(_baseColor.r, _baseColor.g, _baseColor.b, alpha);

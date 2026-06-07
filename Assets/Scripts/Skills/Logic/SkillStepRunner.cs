@@ -10,6 +10,7 @@ using Scripts.StatusEffects;
 using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Skills.Visuals;
+using Scripts.Visuals;
 
 namespace Scripts.Skills
 {
@@ -469,6 +470,12 @@ namespace Scripts.Skills
             if (autoDestroy != null)
                 autoDestroy.Initialize(lifetime, fadeOutEnabled, fadeOutStartLifePercent, fadeStartAlphaMultiplier);
             if (attachToParent) vfx.transform.SetParent(_ownerStats.transform);
+            WorldRenderSorting.ConfigureSorter(
+                vfx,
+                RenderDepthCategory.HeroAttackVfx,
+                spawnPos.y,
+                localOffset: 0,
+                staticAnchor: !attachToParent);
 
             CacheSpawnVfxStepResult(stepIndex, spawnPos, effectiveScale, lifetime, vfx);
         }
@@ -536,7 +543,6 @@ namespace Scripts.Skills
             }
 
             LayerMask groundSurfaceLayer = groundMotion ? ResolveGroundProjectileSurfaceLayer(step) : step.GetInt("GroundLayerMask", 1 << 6);
-            SpriteRenderer sortingSource = ResolveProjectileSortingSource();
             var data = new SkillProjectileLaunchData
             {
                 OwnerStats = _ownerStats,
@@ -574,9 +580,7 @@ namespace Scripts.Skills
                 ReverseInterval = Mathf.Max(0.01f, step.GetFloat("ReverseInterval", 1f)),
                 FirstReverseAtSeconds = Mathf.Max(0.01f, step.GetFloat("FirstReverseAtSeconds", 1f)),
                 ReturnToOwnerOnReverse = step.GetBool("ReturnToOwnerOnReverse", true),
-                ClearHitHistoryOnReverse = step.GetBool("ClearHitHistoryOnReverse", true),
-                SortingLayerId = sortingSource != null ? sortingSource.sortingLayerID : 0,
-                SortingOrder = sortingSource != null ? sortingSource.sortingOrder + 20 : 20050
+                ClearHitHistoryOnReverse = step.GetBool("ClearHitHistoryOnReverse", true)
             };
 
             Vector2 origin = (Vector2)_ownerStats.transform.position + new Vector2(offsetX * _ctx.FacingDirection, offsetY);
@@ -898,19 +902,6 @@ namespace Scripts.Skills
                 return weaponData.InHandSprite;
 
             return null;
-        }
-
-        private SpriteRenderer ResolveProjectileSortingSource()
-        {
-            Transform handPivot = _ownerStats != null ? _ownerStats.transform.Find("Visuals/HandPivot") : null;
-            if (handPivot != null)
-            {
-                SpriteRenderer weaponRenderer = handPivot.GetComponentInChildren<SpriteRenderer>(true);
-                if (weaponRenderer != null)
-                    return weaponRenderer;
-            }
-
-            return _ownerStats != null ? _ownerStats.GetComponentInChildren<SpriteRenderer>(true) : null;
         }
 
         private static float ResolveParallelProjectileOffset(int index, float spacing)
