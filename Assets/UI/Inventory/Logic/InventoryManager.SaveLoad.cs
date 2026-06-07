@@ -35,7 +35,7 @@ namespace Scripts.Inventory
             return data;
         }
 
-        public void LoadState(InventorySaveData data, ItemDatabaseSO itemDB)
+        public void LoadState(InventorySaveData data, ItemDatabaseSO itemDB, bool applyStatEvents = true)
         {
             // 1) Clear current state.
             for (int i = 0; i < EquipmentItems.Length; i++)
@@ -43,7 +43,8 @@ namespace Scripts.Inventory
                 InventoryItem equipped = EquipmentItems[i];
                 if (equipped == null) continue;
                 EquipmentItems[i] = null;
-                OnItemUnequipped?.Invoke(equipped);
+                if (applyStatEvents)
+                    OnItemUnequipped?.Invoke(equipped);
             }
 
             if (_backpack != null)
@@ -77,7 +78,8 @@ namespace Scripts.Inventory
                     if (equipIndex < EquipmentItems.Length)
                     {
                         EquipmentItems[equipIndex] = newItem;
-                        OnItemEquipped?.Invoke(newItem);
+                        if (applyStatEvents)
+                            OnItemEquipped?.Invoke(newItem);
                     }
                     continue;
                 }

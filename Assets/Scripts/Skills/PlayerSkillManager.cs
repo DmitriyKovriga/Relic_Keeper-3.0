@@ -49,11 +49,17 @@ namespace Scripts.Skills
                 InventoryManager.Instance.OnItemUnequipped += HandleEquipmentChanged;
                 RefreshAllSkills();
             }
+
+            if (CharacterPartyManager.Instance != null)
+                CharacterPartyManager.Instance.OnActiveCharacterChanged += HandleActiveCharacterChanged;
         }
 
         private void OnDestroy()
         {
             SkillProjectile.DespawnAllForOwner(_playerStats);
+
+            if (CharacterPartyManager.Instance != null)
+                CharacterPartyManager.Instance.OnActiveCharacterChanged -= HandleActiveCharacterChanged;
 
             if (InventoryManager.Instance != null)
             {
@@ -135,6 +141,12 @@ namespace Scripts.Skills
 
         private void HandleEquipmentChanged(InventoryItem _)
         {
+            RefreshAllSkills();
+        }
+
+        private void HandleActiveCharacterChanged(string _)
+        {
+            CancelAllSkills();
             RefreshAllSkills();
         }
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Scripts.Inventory;
 using Scripts.Skills.PassiveTree;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
@@ -220,6 +221,14 @@ public partial class TavernUI
             treeMgr.SetTreeData(_savedTreeForRestore);
             if (_savedAllocationsForRestore != null)
                 treeMgr.LoadState(_savedAllocationsForRestore);
+
+            var playerStats = treeMgr.PlayerStats != null ? treeMgr.PlayerStats : FindFirstObjectByType<PlayerStats>();
+            if (playerStats != null)
+            {
+                playerStats.ResyncExternalStatModifiers(
+                    InventoryManager.Instance != null ? InventoryManager.Instance.EquipmentItems : null,
+                    treeMgr);
+            }
         }
         else
         {

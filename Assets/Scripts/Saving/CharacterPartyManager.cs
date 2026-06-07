@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Scripts.Inventory;
 using Scripts.Saving;
+using Scripts.Skills;
 using Scripts.Skills.PassiveTree;
 
 public class CharacterPartyManager : MonoBehaviour
@@ -121,18 +122,29 @@ public class CharacterPartyManager : MonoBehaviour
         }
 
         _playerStats.Initialize(characterData);
-        _playerStats.ApplyLoadedState(chData);
-        _playerStats.Health.RestoreFull();
-        _playerStats.Mana.RestoreFull();
+
+        if (_passiveTreeManager != null)
+        {
+            _passiveTreeManager.IsPreviewMode = false;
+            _passiveTreeManager.SetTreeData(characterData.PassiveTree);
+            if (characterData.PassiveTree != null)
+                _passiveTreeManager.LoadState(chData.AllocatedPassiveNodes);
+        }
 
         if (InventoryManager.Instance != null && itemDB != null)
-            InventoryManager.Instance.LoadState(chData.Inventory ?? new InventorySaveData(), itemDB);
+            InventoryManager.Instance.LoadState(chData.Inventory ?? new InventorySaveData(), itemDB, applyStatEvents: false);
 
-        if (_passiveTreeManager != null && characterData.PassiveTree != null)
+        _playerStats.ResyncExternalStatModifiers(
+            InventoryManager.Instance != null ? InventoryManager.Instance.EquipmentItems : null,
+            _passiveTreeManager);
+
+        _playerStats.ApplyLoadedState(chData);
+
+        var skillManager = _playerStats.GetComponent<PlayerSkillManager>();
+        if (skillManager != null)
         {
-            _passiveTreeManager.SetTreeData(characterData.PassiveTree);
-            if (chData.AllocatedPassiveNodes != null)
-                _passiveTreeManager.LoadState(chData.AllocatedPassiveNodes);
+            skillManager.CancelAllSkills();
+            skillManager.RefreshAllSkills();
         }
     }
 

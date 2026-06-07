@@ -134,6 +134,10 @@ MonoBehaviour:
     m_Localized: Adventurer's Hammer
     m_Metadata:
       m_Items: []
+  - m_Id: 54136593798127616
+    m_Localized: Adventurer's Sword
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

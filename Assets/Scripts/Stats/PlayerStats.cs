@@ -5,6 +5,7 @@ using Scripts.Stats;
 using Scripts.Inventory;
 using Scripts.Saving;
 using Scripts.StatusEffects;
+using Scripts.Skills.PassiveTree;
 
 public class PlayerStats : MonoBehaviour, IStatsProvider
 {
@@ -81,7 +82,11 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     private void Start()
     {
         if (_defaultCharacterData != null && GetStat(StatType.MaxHealth).BaseValue <= 0)
+        {
             Initialize(_defaultCharacterData);
+            Health.RestoreFull();
+            Mana.RestoreFull();
+        }
 
         if (InventoryManager.Instance != null)
         {
@@ -132,7 +137,11 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         GetComponent<StatusEffectController>()?.ResetAll();
         _activeCharacterData = data;
         _activeCharacterID = data != null ? data.ID : "Unknown";
-        foreach (var stat in _stats.Values) stat.BaseValue = 0;
+        foreach (var stat in _stats.Values)
+        {
+            stat.BaseValue = 0;
+            stat.ClearAllModifiers();
+        }
 
         var globalBaseStats = ResolveGlobalBaseStats();
         if (globalBaseStats != null && globalBaseStats.BaseStats != null)
@@ -151,13 +160,10 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         EnsureMinStat(StatType.MysticShieldRechargeDuration, 5f);
         EnsureMinStat(StatType.MysticShieldMitigationPercent, 50f);
         EnsureMinStat(StatType.MaxMysticShieldMitigationPercent, 90f);
-        EnsureMinStat(StatType.AttackSpeed, 0f);
         EnsureMinStat(StatType.CritMultiplier, 150f);
+        // APS flat base comes from equipped weapons; keep scalar base at 0.
+        GetStat(StatType.AttackSpeed).BaseValue = 0f;
 
-        Health.RestoreFull();
-        Mana.RestoreFull();
-        
-        // --- ИЗМЕНЕНО: Используем единый метод создания ---
         CreateLevelingSystem(1, 0, 100, 0);
         ResetResourceRegenTimer();
 
@@ -169,8 +175,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     {
         GetComponent<StatusEffectController>()?.ResetAll();
         CreateLevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP, data.SkillPoints);
-        Health.SetCurrent(data.CurrentHealth);
-        Mana.SetCurrent(data.CurrentMana);
+        ApplySavedResourceValues(data.CurrentHealth, data.CurrentMana);
         ResetResourceRegenTimer();
         NotifyChanged();
     }
@@ -180,10 +185,25 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         if (data == null) return;
         GetComponent<StatusEffectController>()?.ResetAll();
         CreateLevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP, data.SkillPoints);
-        Health.SetCurrent(data.CurrentHealth);
-        Mana.SetCurrent(data.CurrentMana);
+        ApplySavedResourceValues(data.CurrentHealth, data.CurrentMana);
         ResetResourceRegenTimer();
         NotifyChanged();
+    }
+
+    private void ApplySavedResourceValues(float savedHealth, float savedMana)
+    {
+        if (savedHealth > 0f)
+            Health.SetCurrent(savedHealth);
+        else
+            Health.RestoreFull();
+
+        if (savedMana > 0f)
+            Mana.SetCurrent(savedMana);
+        else
+            Mana.RestoreFull();
+
+        Health.ReevaluateMax();
+        Mana.ReevaluateMax();
     }
 
     private void EnsureMinStat(StatType type, float minVal)
@@ -200,11 +220,38 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         return _globalBaseStats;
     }
 
+    public void ClearAllStatModifiers()
+    {
+        foreach (var stat in _stats.Values)
+            stat.ClearAllModifiers();
+    }
+
+    public void ApplyItemModifiers(InventoryItem item)
+    {
+        if (item == null) return;
+
+        foreach (var (statType, mod) in item.GetAllModifiers())
+            GetStat(statType).AddModifier(mod);
+    }
+
+    public void ResyncExternalStatModifiers(InventoryItem[] equipment, PassiveTreeManager passiveTree)
+    {
+        ClearAllStatModifiers();
+
+        if (equipment != null)
+        {
+            foreach (var item in equipment)
+                ApplyItemModifiers(item);
+        }
+
+        passiveTree?.ReapplyAllAllocatedNodeStats();
+        RefreshDerivedResourcesAfterExternalStatChange();
+    }
+
     private void HandleItemEquipped(InventoryItem item)
     {
         if (item == null) return;
-        var mods = item.GetAllModifiers();
-        foreach (var (statType, mod) in mods) GetStat(statType).AddModifier(mod);
+        ApplyItemModifiers(item);
         NotifyChanged();
     }
 

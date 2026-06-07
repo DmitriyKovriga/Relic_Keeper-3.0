@@ -140,11 +140,29 @@ public class GameSaveManager : MonoBehaviour
                 else
                 {
                     _playerStats.Initialize(characterData);
-                    _playerStats.ApplyLoadedState(data);
+                    if (_passiveTreeManager != null)
+                    {
+                        _passiveTreeManager.IsPreviewMode = false;
+                        _passiveTreeManager.SetTreeData(characterData.PassiveTree);
+                        if (characterData.PassiveTree != null)
+                            _passiveTreeManager.LoadState(data.AllocatedPassiveNodes);
+                    }
+
                     if (InventoryManager.Instance != null && _itemDatabase != null)
-                        InventoryManager.Instance.LoadState(data.Inventory ?? new InventorySaveData(), _itemDatabase);
-                    if (_passiveTreeManager != null && data.AllocatedPassiveNodes != null)
-                        _passiveTreeManager.LoadState(data.AllocatedPassiveNodes);
+                        InventoryManager.Instance.LoadState(data.Inventory ?? new InventorySaveData(), _itemDatabase, applyStatEvents: false);
+
+                    _playerStats.ResyncExternalStatModifiers(
+                        InventoryManager.Instance != null ? InventoryManager.Instance.EquipmentItems : null,
+                        _passiveTreeManager);
+
+                    _playerStats.ApplyLoadedState(data);
+
+                    var skillManager = _playerStats.GetComponent<Scripts.Skills.PlayerSkillManager>();
+                    if (skillManager != null)
+                    {
+                        skillManager.CancelAllSkills();
+                        skillManager.RefreshAllSkills();
+                    }
                 }
 
                 if (StashManager.Instance != null && _itemDatabase != null)
@@ -242,6 +260,8 @@ public class GameSaveManager : MonoBehaviour
             else
             {
                 _playerStats.Initialize(_defaultCharacter);
+                _playerStats.Health.RestoreFull();
+                _playerStats.Mana.RestoreFull();
             }
             Debug.Log("[System] Started New Game (Default Character).");
         }

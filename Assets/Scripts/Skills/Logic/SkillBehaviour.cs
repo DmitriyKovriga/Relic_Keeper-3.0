@@ -119,8 +119,19 @@ namespace Scripts.Skills
 
         private float ResolveAttackActionSpeed()
         {
-            float speed = _ownerStats != null ? _ownerStats.GetValue(StatType.AttackSpeed) : 0f;
-            return speed > 0f ? speed : DefaultActionSpeed;
+            if (_ownerStats == null
+                || !_ownerStats.TryGetStat(StatType.AttackSpeed, out CharacterStat attackStat)
+                || attackStat == null)
+            {
+                return DefaultActionSpeed;
+            }
+
+            float flatSpeed = attackStat.GetRawFlatValue();
+            if (flatSpeed <= 0f)
+                flatSpeed = DefaultActionSpeed;
+
+            float additiveFactor = Mathf.Max(0f, 1f + attackStat.GetTotalPercentAdd() / 100f);
+            return flatSpeed * additiveFactor * attackStat.GetTotalMultiplier();
         }
 
         private float ResolveSpellActionSpeed()

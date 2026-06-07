@@ -207,6 +207,14 @@ MonoBehaviour:
     m_Key: skills.GroundShakeSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 54130829566140416
+    m_Key: skills.TremorSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54130829603889152
+    m_Key: skills.TremorSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

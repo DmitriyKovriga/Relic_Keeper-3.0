@@ -9,6 +9,17 @@ using Scripts.Skills;
 
 namespace Scripts.Inventory
 {
+    internal static class InventoryItemStatRules
+    {
+        internal static StatModType NormalizeAffixModifierType(StatType stat, StatModType type)
+        {
+            if (stat == StatType.AttackSpeed && type == StatModType.Flat)
+                return StatModType.PercentAdd;
+
+            return type;
+        }
+    }
+
     [Serializable]
     public class AffixModifierInstance
     {
@@ -61,10 +72,10 @@ namespace Scripts.Inventory
                     if (secondaryValue < primaryValue)
                         (primaryValue, secondaryValue) = (secondaryValue, primaryValue);
 
-                    secondaryMod = new StatModifier(secondaryValue, NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
+                    secondaryMod = new StatModifier(secondaryValue, InventoryItemStatRules.NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
                 }
 
-                var primaryMod = new StatModifier(primaryValue, NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
+                var primaryMod = new StatModifier(primaryValue, InventoryItemStatRules.NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
                 Modifiers.Add(new AffixModifierInstance(statData.Stat, statData.Scope, primaryMod, secondaryMod));
             }
         }
@@ -88,22 +99,12 @@ namespace Scripts.Inventory
                 if (statData.UsesRangeRoll() && valueIndex < saveData.Values.Count)
                 {
                     float secondaryValue = saveData.Values[valueIndex++];
-                    secondaryMod = new StatModifier(secondaryValue, NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
+                    secondaryMod = new StatModifier(secondaryValue, InventoryItemStatRules.NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
                 }
 
-                var primaryMod = new StatModifier(primaryValue, NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
+                var primaryMod = new StatModifier(primaryValue, InventoryItemStatRules.NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
                 Modifiers.Add(new AffixModifierInstance(statData.Stat, statData.Scope, primaryMod, secondaryMod));
             }
-        }
-
-        private static StatModType NormalizeAffixModifierType(StatType stat, StatModType type)
-        {
-            // Weapon APS is the only intended flat source for AttackSpeed.
-            // Legacy/generated flat attack-speed affixes are repaired into percent increases.
-            if (stat == StatType.AttackSpeed && type == StatModType.Flat)
-                return StatModType.PercentAdd;
-
-            return type;
         }
 
         private static float RollAffixValue(float minValue, float maxValue)
@@ -467,7 +468,10 @@ namespace Scripts.Inventory
                 foreach (var imp in Data.ImplicitModifiers)
                 {
                     if (imp.Scope == StatScope.Global)
-                        result.Add((imp.Stat, new StatModifier(imp.Value, imp.Type, this)));
+                    {
+                        var modType = InventoryItemStatRules.NormalizeAffixModifierType(imp.Stat, imp.Type);
+                        result.Add((imp.Stat, new StatModifier(imp.Value, modType, this)));
+                    }
                 }
             }
 

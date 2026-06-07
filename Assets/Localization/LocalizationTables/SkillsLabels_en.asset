@@ -225,6 +225,15 @@ MonoBehaviour:
     m_Localized: Cast Wave of Shaking in front with 100% damage and pierce all target
     m_Metadata:
       m_Items: []
+  - m_Id: 54130829566140416
+    m_Localized: Tremor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54130829603889152
+    m_Localized: Hit the fround and spawn wave taht deal 250% damage and deal 250%
+      damage to stun
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

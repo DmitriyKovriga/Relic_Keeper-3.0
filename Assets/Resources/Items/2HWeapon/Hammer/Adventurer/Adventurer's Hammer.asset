@@ -43,4 +43,4 @@ MonoBehaviour:
   MaxLightningDamage: 0
   AttacksPerSecond: 1
   BaseCritChance: 5
-  SecondarySkillPool: {fileID: 0}
+  SecondarySkillPool: {fileID: 11400000, guid: e5222f5d6e26fb644912113b0cd74a0c, type: 2}

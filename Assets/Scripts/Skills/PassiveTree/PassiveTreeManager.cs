@@ -22,8 +22,12 @@ namespace Scripts.Skills.PassiveTree
         /// <summary>Сменить дерево (при смене персонажа). Очищает текущие ноды и устанавливает новое дерево.</summary>
         public void SetTreeData(PassiveSkillTreeSO newTree)
         {
-            foreach (var id in new List<string>(_activeModifiers.Keys))
-                RemoveNodeStats(id);
+            if (!IsPreviewMode)
+            {
+                foreach (var id in new List<string>(_activeModifiers.Keys))
+                    RemoveNodeStats(id);
+            }
+
             _allocatedNodeIDs.Clear();
             _activeModifiers.Clear();
             _treeData = newTree;
@@ -56,11 +60,7 @@ namespace Scripts.Skills.PassiveTree
 
         private void Start()
         {
-            if (_allocatedNodeIDs.Count == 0 && _treeData != null)
-            {
-                AutoAllocateStartNodes();
-            }
-            EnsureStartNodesAllocated();
+            // Passive stats are applied by CharacterPartyManager / GameSaveManager after load.
             OnTreeUpdated?.Invoke();
         }
 
@@ -251,47 +251,45 @@ namespace Scripts.Skills.PassiveTree
         }
 
         private void ApplyNodeStats(string nodeID)
-{
-    if (_activeModifiers.ContainsKey(nodeID)) return;
+        {
+            if (IsPreviewMode) return;
+            if (_activeModifiers.ContainsKey(nodeID)) return;
 
-    var nodeDef = _treeData.GetNode(nodeID);
-    if (nodeDef == null) return;
+            var nodeDef = _treeData.GetNode(nodeID);
+            if (nodeDef == null) return;
 
-    var modifiers = nodeDef.GetFinalModifiers();
-    if (modifiers.Count == 0) return;
+            var modifiers = nodeDef.GetFinalModifiers();
+            if (modifiers.Count == 0) return;
 
-    var appliedMods = new List<(StatType, StatModifier)>();
+            var appliedMods = new List<(StatType, StatModifier)>();
 
-    foreach (var modData in modifiers)
-    {
-        var runtimeMod = modData.ToStatModifier(this);
-        
-        // Добавляем модификатор (это пометит стат как "грязный", но не обновит UI)
-        _playerStats.GetStat(modData.Stat).AddModifier(runtimeMod);
-        
-        appliedMods.Add((modData.Stat, runtimeMod));
-    }
+            foreach (var modData in modifiers)
+            {
+                var runtimeMod = modData.ToStatModifier(this);
+                _playerStats.GetStat(modData.Stat).AddModifier(runtimeMod);
+                appliedMods.Add((modData.Stat, runtimeMod));
+            }
 
-    _activeModifiers[nodeID] = appliedMods;
-
-    // --- ДОБАВЛЕНО: Принудительно обновляем все системы и UI ---
-    _playerStats.NotifyChanged();
-}
+            _activeModifiers[nodeID] = appliedMods;
+            _playerStats.NotifyChanged();
+        }
 
         private void RemoveNodeStats(string nodeID)
-{
-    if (_activeModifiers.TryGetValue(nodeID, out var mods))
-    {
-        foreach (var (type, mod) in mods)
         {
-            _playerStats.GetStat(type).RemoveModifier(mod);
+            if (_activeModifiers.TryGetValue(nodeID, out var mods))
+            {
+                if (!IsPreviewMode)
+                {
+                    foreach (var (type, mod) in mods)
+                        _playerStats.GetStat(type).RemoveModifier(mod);
+                }
+
+                _activeModifiers.Remove(nodeID);
+
+                if (!IsPreviewMode)
+                    _playerStats.NotifyChanged();
+            }
         }
-        _activeModifiers.Remove(nodeID);
-        
-        // --- ДОБАВЛЕНО: Принудительно обновляем все системы и UI ---
-        _playerStats.NotifyChanged();
-    }
-}
 
         // --- SAVE / LOAD ---
 
@@ -299,6 +297,19 @@ namespace Scripts.Skills.PassiveTree
         {
             PruneMissingNodeReferences();
             return new List<string>(_allocatedNodeIDs);
+        }
+
+        public void ReapplyAllAllocatedNodeStats()
+        {
+            if (IsPreviewMode)
+                return;
+
+            _activeModifiers.Clear();
+
+            foreach (var id in _allocatedNodeIDs)
+                ApplyNodeStats(id);
+
+            EnsureStartNodesAllocated();
         }
 
         public void LoadState(List<string> savedIDs)
