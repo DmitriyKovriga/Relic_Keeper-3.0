@@ -1,132 +1,190 @@
-# Render Stack Guide (Relic Keeper)
+# Render Stack: как добавлять визуальный контент
 
-World sprite draw order is managed by **sorting layers** (coarse stack) and **sorting order + Y** (fine depth). UI Canvas is separate and always on top.
+Цель системы: **в 90% случаев ничего не настраивать вручную**.  
+Моргание врагов, порядок VFX и герой поверх мира должны решаться автоматически.
 
-## Stack (bottom → top)
+UI не участвует в этой системе: Canvas всегда отдельно и выше мира.
 
-| Layer (TagManager) | Category | What goes here |
+## Общий порядок отображения
+
+Снизу вверх:
+
+| Sorting Layer | Что находится здесь | Кто обычно настраивает |
 |---|---|---|
-| `Background` | `Background`, `Environment` | Parallax sky, baked shadows, distant props |
-| `Default` | *(legacy scene content)* | Tilemaps, hub props, static level art — keep order **≤ 200** |
-| `World` | `Enemy`, `EnemyRemains` | Mobs, corpses, blood |
-| `VFX` | `GameplayVfx` | Enemy telegraphs, stun, ground dust |
-| `Hero` | `Player`, `PlayerOverlay`, `HeroAttackVfx` | Player body, weapon, skills, projectiles |
-| `SFX` | — | Optional top FX (legacy) |
+| `Background` | небо, дальний фон, декоративные тени | редко вручную |
+| `Default` | тайлмапы, пол, стены, окружение, палатки | художник/сцена |
+| `World` | враги, трупы, кровь | автоматически |
+| `VFX` | VFX врагов, стан, телеграф атаки, пыль | автоматически, иногда вручную |
+| `Hero` | герой, оружие, атаки героя, снаряды героя | автоматически |
+| `SFX` | особые верхние эффекты, если понадобятся | вручную |
 
-**TagManager order must be:** `Background → Default → World → VFX → Hero → SFX`  
-Run **Tools → Relic Keeper → Visuals → Validate Render Stack** after changing TagManager.
+Порядок в TagManager должен быть именно таким:
 
-## Lit sprites (URP Light2D)
+`Background → Default → World → VFX → Hero → SFX`
 
-Any sprite with **Sprite-Lit-Default** must be on a layer targeted by `Light2D`.  
-The project syncs this automatically at runtime; in editor use **Validate Render Stack** to fix scene lights.
+После изменений в слоях или сценах запускай:
 
-If a sprite is **solid black** but the environment is fine → wrong sorting layer for lights.
+`Tools → Relic Keeper → Visuals → Validate Render Stack`
 
----
+## Главное правило
 
-## Adding content
+Не выставляй большие `sortingOrder` руками.  
+Если объект движется, спавнится или может пересекаться с другими объектами, порядок должен назначать код через `WorldDepthSort`.
 
-### 1. Static environment (tilemaps, hub props)
+Для статичного окружения на `Default` держи order примерно в диапазоне:
 
-- **Sorting layer:** `Default` (or `Background` for sky-only art).
-- **Sorting order:** `-50 … 200` (sky ≈ `-50`, floor ≈ `-10`, props `0–100`).
-- **Do not** hand-set orders like `20000` — that breaks the stack.
-- **No code required** if it stays static.
+- небо: `-50`
+- пол/стены: `-10 … 20`
+- декор: `0 … 200`
 
-### 2. Enemies
+Если хочется поставить `sortingOrder = 20000`, почти наверняка нужно не это, а правильная категория render stack.
 
-Handled automatically:
+## Что делать при добавлении контента
 
-- `EnemyEntity` adds `WorldDepthSort` (`Enemy` on `World`).
-- Y-position updates order every frame (no flicker at overlaps).
+### Враг
 
-**Prefab rules:**
+Обычно ничего не нужно.
 
-- One root; visual on child is OK.
-- Do not assign custom sorting layers/orders on the prefab — sorter owns them.
+Если на объекте есть `EnemyEntity`, он автоматически получает:
 
-### 3. Player
+- слой: `World`
+- категорию: `Enemy`
+- постоянный `sortingOrder`, который выдаётся один раз при инициализации
+- временный boost order на время атаки, чтобы атакующий враг был виден поверх других врагов
 
-Handled automatically:
+Проверка:
 
-- `PlayerMovement` → `WorldDepthSort` on root (`Player` / `Hero`).
-- `WeaponVisualController` → weapon only (`PlayerOverlay` / `Hero`), nested sorter on hand renderer.
+- у врага не должно быть вручную выставленного огромного `sortingOrder`;
+- если visual лежит в дочернем объекте, это нормально.
+- не нужно чинить моргание вручную: порядок врагов не зависит от Y и не должен прыгать от физики.
 
-**Do not** add a second body sorter on the weapon pivot.
+### Герой
 
-### 4. Runtime VFX (skills, projectiles, spawns)
+Ничего не нужно.
 
-Use **`WorldRenderSorting.ConfigureSorter`** for moving objects:
+`PlayerMovement` сортирует тело героя, `WeaponVisualController` сортирует оружие отдельно.
+
+Не добавляй второй `WorldDepthSort` на тело героя или на общий `Visuals`, если не понимаешь зачем.
+
+### Оружие героя
+
+Обычно ничего не нужно.
+
+Если оружие отображается через `WeaponVisualController`, оно автоматически идёт в категорию `PlayerOverlay` и рисуется поверх тела героя.
+
+### Атака героя / Skill VFX
+
+Если VFX спавнится через step `SpawnVFX`, всё уже автоматизировано:
+
+- по умолчанию категория: `HeroAttackVfx`
+- слой: `Hero`
+- атака героя видна поверх мобов и обычных VFX
+
+Если конкретный VFX должен быть не атакой героя, есть два варианта:
+
+1. На prefab добавить `RenderStackProfile` и выбрать категорию.
+2. В step добавить int-параметр `RenderDepthCategory`.
+
+Значения `RenderDepthCategory`:
+
+| Значение | Категория | Когда использовать |
+|---:|---|---|
+| `-1` | `Auto` | пусть система решает сама |
+| `0` | `Background` | фон |
+| `1` | `Environment` | статичная декоративная часть мира |
+| `2` | `Enemy` | враг |
+| `3` | `EnemyRemains` | кровь, трупы, куски |
+| `4` | `GameplayVfx` | обычный VFX мира или врага |
+| `5` | `Player` | тело героя |
+| `6` | `PlayerOverlay` | оверлей героя, оружие, dodge flash |
+| `7` | `HeroAttackVfx` | атаки/снаряды героя |
+
+### Снаряд героя
+
+Обычно ничего не нужно.
+
+`SkillProjectile` автоматически получает `HeroAttackVfx`, поэтому снаряд виден поверх врагов.
+
+### VFX врага
+
+Обычно ничего не нужно, если VFX спавнится существующими системами:
+
+- stun overlay → `GameplayVfx`
+- предупреждение атаки → `GameplayVfx`
+
+Если добавляешь новый enemy VFX prefab и он спавнится новым кодом, используй:
 
 ```csharp
-WorldRenderSorting.ConfigureSorter(
-    vfxRoot,
-    RenderDepthCategory.HeroAttackVfx,  // or GameplayVfx
-    spawnPosition.y,
-    localOffset: 0,
-    staticAnchor: false);               // true if effect stays at fixed Y
+WorldRenderSorting.ConfigureAutoSorter(
+    vfx,
+    RenderDepthCategory.GameplayVfx,
+    vfx.transform.position.y);
 ```
 
-Use **`ConfigureOneShotRenderer`** for a single `SpriteRenderer` without updates:
+### Кровь, трупы, куски после смерти
 
-```csharp
-WorldRenderSorting.ConfigureOneShotRenderer(renderer, RenderDepthCategory.GameplayVfx, position.y, localOffset: 0);
-```
+Обычно ничего не нужно.
 
-**Category cheat sheet:**
+`EnemyDeathEffectSpawner` использует `EnemyRemains` и статичный Y-якорь.  
+Останки не используют живой enemy-order, потому что после смерти это уже не активный враг, а декаль/физический мусор.
 
-| Effect | Category |
+### Окружение, тайлмапы, платформы
+
+Чаще всего оставляй:
+
+- sorting layer: `Default`
+- sorting order: `-50 … 200`
+
+Если это дальний фон/небо, можно использовать `Background`.
+
+Не добавляй `WorldDepthSort` на тайлмапы и статичные стены.
+
+## Когда нужен RenderStackProfile
+
+`RenderStackProfile` нужен только если система не может угадать категорию или если prefab должен сам явно сказать, где он рисуется.
+
+Примеры:
+
+- VFX prefab может использоваться и героем, и врагом;
+- декоративный animated prefab не является ни врагом, ни скиллом;
+- особый эффект должен быть выше обычного VFX, но ниже UI.
+
+В большинстве случаев:
+
+- врагам профиль не нужен;
+- герою профиль не нужен;
+- снарядам героя профиль не нужен;
+- стандартным skill VFX профиль не нужен.
+
+## Что делает автоматика
+
+`WorldRenderSorting.ConfigureAutoSorter` сначала смотрит:
+
+1. Есть ли `RenderStackProfile` на prefab.
+2. Есть ли на объекте/родителях `EnemyEntity`.
+3. Есть ли `PlayerStats`.
+4. Есть ли `SkillProjectile`.
+5. Есть ли `AutoDestroyVFX`.
+6. Если ничего не найдено, использует fallback-категорию из спавнера.
+
+То есть спавнер всегда даёт безопасный fallback, а prefab может его переопределить.
+
+## Минимальный чеклист
+
+Перед тем как считать контент готовым:
+
+- запусти `Tools → Relic Keeper → Visuals → Validate Render Stack`;
+- проверь, что lit-спрайты не чёрные;
+- проверь, что герой и его атаки поверх врагов;
+- проверь, что враги не моргают при пересечении;
+- проверь, что новое окружение не имеет `Default` order выше `200`.
+
+## Если что-то сломалось
+
+| Симптом | Что проверить |
 |---|---|
-| Hero skill slash, projectile, chain lightning | `HeroAttackVfx` |
-| Dodge/flash on player | `PlayerOverlay` |
-| Enemy attack telegraph, stun | `GameplayVfx` |
-| Run/land dust | `GameplayVfx` |
-| Death blood / remains | `EnemyRemains` (static anchor at death Y) |
-
-### 5. VFX prefabs
-
-- Prefer **no hard-coded** sorting layer/order on prefab root.
-- Assign in spawn code via `ConfigureSorter`.
-- If a prefab must be self-contained, match the table above and document it in the prefab name.
-
-### 6. Nested visuals (parent + child sorters)
-
-`WorldDepthSort` applies to **own renderers + children**, but **stops at nested `WorldDepthSort`**.  
-Example: player root sorts body; weapon child sorts itself as overlay.
-
----
-
-## API reference
-
-| API | When |
-|---|---|
-| `WorldRenderSorting.ConfigureSorter(go, category, worldY, offset, staticAnchor)` | Moving actors, timed VFX |
-| `WorldRenderSorting.ConfigureOneShotRenderer(sr, category, worldY, offset)` | Static decal, one-off sprite |
-| `WorldRenderSorting.GetSortingLayer(category)` | LineRenderer / custom render code |
-| `WorldRenderSorting.ResolveOrder(category, worldY, offset)` | Manual order (LineRenderer, etc.) |
-
-Settings asset (optional): `Resources/Visuals/RenderStackSettings.asset`  
-Create via **Tools → Relic Keeper → Visuals → Create Default Render Stack Settings**.
-
----
-
-## Checklist before merge
-
-- [ ] Run **Tools → Relic Keeper → Visuals → Validate Render Stack** (0 failures).
-- [ ] Play hub + one combat room: sky, player, mobs, skills visible and lit.
-- [ ] Overlapping enemies do not flicker.
-- [ ] Hero attacks render above mobs.
-- [ ] New prefabs do not use `Default` with order `> 200` unless static environment.
-
----
-
-## Troubleshooting
-
-| Symptom | Likely cause | Fix |
-|---|---|---|
-| Black player/mobs | Light2D missing `World`/`Hero` | Validate Render Stack |
-| Hidden under floor | Actor on layer below `Default` content | Check TagManager order |
-| Flickering mobs | Same order at same Y | Should not happen with `WorldDepthSort`; check duplicate sorters |
-| Weapon wrong depth | Two body sorters fighting | Only root + weapon sorters |
-| Sky missing | Parallax moved to wrong layer | Sky on `Default` order `-50` or `Background` |
+| персонаж или враг чёрный | `Light2D` должен освещать `World`, `VFX`, `Hero`; запусти validator |
+| герой под стеной/полом | у окружения слишком большой `sortingOrder` или неверный порядок layers |
+| враги моргают | у врага нет фиксированного `WorldDepthSort`, есть ручная сортировка поверх него или visual вынесен за объект врага |
+| VFX героя под мобами | VFX не прошёл через `SpawnVFX`/`ConfigureAutoSorter` или выбран `GameplayVfx` вместо `HeroAttackVfx` |
+| кровь моргает | останки не должны быть живым `Enemy`; нужна категория `EnemyRemains` и `staticAnchor` |

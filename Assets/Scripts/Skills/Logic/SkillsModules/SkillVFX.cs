@@ -18,6 +18,7 @@ namespace Scripts.Skills.Modules
         [Header("Settings")]
         [SerializeField] private bool _attachToParent = false;
         [SerializeField] private bool _invertFacing = false;
+        [SerializeField] private RenderDepthCategory _renderCategory = RenderDepthCategory.HeroAttackVfx;
 
         [Header("Visual Corrections")]
         [Tooltip("Mirror sprite horizontally")]
@@ -82,9 +83,9 @@ namespace Scripts.Skills.Modules
             if (_attachToParent && ownerTransform != null)
                 vfx.transform.SetParent(ownerTransform);
 
-            WorldRenderSorting.ConfigureSorter(
+            WorldRenderSorting.ConfigureAutoSorter(
                 vfx,
-                RenderDepthCategory.HeroAttackVfx,
+                _renderCategory,
                 spawnPos.y,
                 localOffset: 0,
                 staticAnchor: !_attachToParent);

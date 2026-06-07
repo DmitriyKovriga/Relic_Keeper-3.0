@@ -22,7 +22,7 @@ namespace Scripts.Visuals
 
         internal static void Register(WorldDepthSort sorter)
         {
-            if (sorter == null || sorter.UsesStaticAnchor)
+            if (sorter == null || !sorter.RequiresDynamicUpdates)
                 return;
 
             if (!s_dynamicSorters.Contains(sorter))

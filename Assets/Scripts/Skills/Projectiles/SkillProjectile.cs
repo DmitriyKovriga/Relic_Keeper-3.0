@@ -229,7 +229,7 @@ namespace Scripts.Skills.Projectiles
             _rigidbody.simulated = true;
 
             ApplyVisual();
-            WorldRenderSorting.ConfigureSorter(gameObject, RenderDepthCategory.HeroAttackVfx, transform.position.y, 0, staticAnchor: false);
+            WorldRenderSorting.ConfigureAutoSorter(gameObject, RenderDepthCategory.HeroAttackVfx, transform.position.y);
             _collider.isTrigger = true;
             _collider.radius = ResolveColliderRadius();
             if (_data.GroundMotion)

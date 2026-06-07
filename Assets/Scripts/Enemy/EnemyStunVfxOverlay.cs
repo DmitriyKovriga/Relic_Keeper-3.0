@@ -102,7 +102,7 @@ namespace Scripts.Enemies
             if (vfx == null)
                 return;
 
-            WorldRenderSorting.ConfigureSorter(
+            WorldRenderSorting.ConfigureAutoSorter(
                 vfx,
                 RenderDepthCategory.GameplayVfx,
                 ResolveWorldPosition().y,

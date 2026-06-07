@@ -113,12 +113,14 @@ namespace Scripts.Enemies
         private const int DefaultTargetMask = ~((1 << 6) | (1 << 7));
         private const string AttackAttentionResourcesPath = "VFX/AttackAttentionVFX/AttackAttentionVFXPrefab";
         private const float AttackAttentionDuration = 0.5f;
+        private const int AttackRenderOrderBoost = 50000;
 
         private EnemyEntity _entity;
         private EnemyDataSO _data;
         private EnemyStats _stats;
         private EnemyLocomotion2D _locomotion;
         private EnemyAnimationBridge _animation;
+        private WorldDepthSort _depthSort;
         private Transform _currentTarget;
         private AttackPhase _phase;
         private AttackVariant _currentAttackVariant;
@@ -150,6 +152,7 @@ namespace Scripts.Enemies
             _stats = GetComponent<EnemyStats>();
             _locomotion = GetComponent<EnemyLocomotion2D>();
             _animation = GetComponent<EnemyAnimationBridge>();
+            _depthSort = GetComponent<WorldDepthSort>();
             _phase = AttackPhase.Idle;
             _currentAttackVariant = AttackVariant.Primary;
             _phaseTimer = 0f;
@@ -166,6 +169,7 @@ namespace Scripts.Enemies
 
         private void OnDisable()
         {
+            SetAttackRenderBoost(false);
             DestroyAttackAttentionVfx();
         }
 
@@ -210,6 +214,7 @@ namespace Scripts.Enemies
 
                 case AttackPhase.Recovery:
                     ClearChargeMotion();
+                    SetAttackRenderBoost(false);
                     _phase = AttackPhase.Idle;
                     _phaseTimer = 0f;
                     _currentTarget = null;
@@ -246,6 +251,7 @@ namespace Scripts.Enemies
             _phaseTimer = AttackAttentionDuration;
             _hasAppliedHit = false;
             _lastAttackConnected = false;
+            SetAttackRenderBoost(true);
             _chargeDashDirection = ResolveAttackDirection(target);
             _chargeDashTimeRemaining = 0f;
             _chargeDashDistanceRemaining = 0f;
@@ -280,7 +286,17 @@ namespace Scripts.Enemies
             _hasAppliedHit = false;
             _lastAttackConnected = false;
             _currentAttackVariant = AttackVariant.Primary;
+            SetAttackRenderBoost(false);
             DestroyAttackAttentionVfx();
+        }
+
+        private void SetAttackRenderBoost(bool active)
+        {
+            if (_depthSort == null)
+                _depthSort = GetComponent<WorldDepthSort>();
+
+            if (_depthSort != null)
+                _depthSort.SetTemporaryOrderBoost(active ? AttackRenderOrderBoost : 0);
         }
 
         private void EnterWindupPhase()
@@ -588,7 +604,7 @@ namespace Scripts.Enemies
             if (vfx == null)
                 return;
 
-            WorldRenderSorting.ConfigureSorter(
+            WorldRenderSorting.ConfigureAutoSorter(
                 vfx,
                 RenderDepthCategory.GameplayVfx,
                 ResolveAttackAttentionPosition().y,

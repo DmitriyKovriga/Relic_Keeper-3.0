@@ -18,7 +18,8 @@ namespace Scripts.Visuals
 
         [Header("Y-sort")]
         [SerializeField] private float _ySortScale = 100f;
-        [SerializeField] private int _ySortRange = 7000;
+        [SerializeField] private int _ySortRange = 70000;
+        [SerializeField] private int _sameYSortStride = 8;
         [SerializeField] private float _ySortUpdateThreshold = 0.005f;
 
         [Header("Sorting order bases")]
@@ -41,6 +42,7 @@ namespace Scripts.Visuals
         public string LayerSfx => _layerSfx;
         public float YSortScale => _ySortScale;
         public int YSortRange => _ySortRange;
+        public int SameYSortStride => Mathf.Max(256, _sameYSortStride);
         public float YSortUpdateThreshold => _ySortUpdateThreshold;
         public int BackgroundBase => _backgroundBase;
         public int EnvironmentBase => _environmentBase;
@@ -102,7 +104,7 @@ namespace Scripts.Visuals
 
         public int ResolveOrder(RenderDepthCategory category, float worldY, int localOffset = 0)
         {
-            int yOrder = Mathf.RoundToInt(-worldY * _ySortScale);
+            int yOrder = Mathf.RoundToInt(-worldY * _ySortScale) * SameYSortStride;
 
             switch (category)
             {

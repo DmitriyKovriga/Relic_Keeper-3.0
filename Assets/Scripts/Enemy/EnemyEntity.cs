@@ -12,6 +12,8 @@ namespace Scripts.Enemies
     {
         private const int PlayerLayer = 0;
         private const int EnemyLayer = 7;
+        private const int EnemyRenderOrderStride = 8;
+        private static int s_nextEnemyRenderOrderOffset;
 
         [Header("Config")]
         [SerializeField] private EnemyDataSO _defaultData;
@@ -29,6 +31,8 @@ namespace Scripts.Enemies
         private Transform _visualRoot;
         private SpriteRenderer _visualRenderer;
         private bool _isInitialized;
+        private bool _hasRenderOrderOffset;
+        private int _renderOrderOffset;
         private static bool s_collisionMatrixConfigured;
 
         public EnemyDataSO Data => _defaultData;
@@ -194,7 +198,18 @@ namespace Scripts.Enemies
             if (sorter == null)
                 sorter = gameObject.AddComponent<WorldDepthSort>();
 
-            sorter.Configure(RenderDepthCategory.Enemy, localOffset: 0, staticAnchor: false, anchorY: transform.position.y);
+            sorter.ConfigureFixed(RenderDepthCategory.Enemy, GetOrAllocateRenderOrderOffset());
+        }
+
+        private int GetOrAllocateRenderOrderOffset()
+        {
+            if (_hasRenderOrderOffset)
+                return _renderOrderOffset;
+
+            _renderOrderOffset = s_nextEnemyRenderOrderOffset;
+            s_nextEnemyRenderOrderOffset += EnemyRenderOrderStride;
+            _hasRenderOrderOffset = true;
+            return _renderOrderOffset;
         }
 
         private static void EnsureCharacterCollisionRules()

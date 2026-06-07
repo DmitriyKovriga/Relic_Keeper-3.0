@@ -429,6 +429,7 @@ namespace Scripts.Skills
             float offsetY = step.GetFloat("OffsetY", 0f);
             float scaleMultiplier = step.GetFloat("ScaleMultiplier", 1f);
             float effectiveScale = _ctx.AoeScale * scaleMultiplier;
+            RenderDepthCategory renderCategory = ResolveRenderDepthCategory(step, RenderDepthCategory.HeroAttackVfx);
             SpawnVfxGrowthMode growthMode = ResolveSpawnVfxGrowthMode(step);
             Vector2 baseOffset = new Vector2(offsetX * _ctx.FacingDirection, offsetY);
             if (prefab == null)
@@ -470,9 +471,9 @@ namespace Scripts.Skills
             if (autoDestroy != null)
                 autoDestroy.Initialize(lifetime, fadeOutEnabled, fadeOutStartLifePercent, fadeStartAlphaMultiplier);
             if (attachToParent) vfx.transform.SetParent(_ownerStats.transform);
-            WorldRenderSorting.ConfigureSorter(
+            WorldRenderSorting.ConfigureAutoSorter(
                 vfx,
-                RenderDepthCategory.HeroAttackVfx,
+                renderCategory,
                 spawnPos.y,
                 localOffset: 0,
                 staticAnchor: !attachToParent);
@@ -488,6 +489,14 @@ namespace Scripts.Skills
             float legacyBaseDuration = Mathf.Max(0.0001f, step.GetFloat("BaseDuration", 0.5f));
             float attackSpeed = _ctx.TotalDuration > 0f ? 1f / _ctx.TotalDuration : 1f;
             return legacyBaseDuration / Mathf.Max(0.0001f, attackSpeed);
+        }
+
+        private static RenderDepthCategory ResolveRenderDepthCategory(StepEntry step, RenderDepthCategory fallback)
+        {
+            int min = (int)RenderDepthCategory.Auto;
+            int max = (int)RenderDepthCategory.HeroAttackVfx;
+            int raw = step != null ? step.GetInt("RenderDepthCategory", (int)fallback) : (int)fallback;
+            return (RenderDepthCategory)Mathf.Clamp(raw, min, max);
         }
 
         private void CacheSpawnVfxStepResult(int stepIndex, Vector3 spawnPos, float scale, float lifetime, GameObject vfx)
@@ -1149,6 +1158,8 @@ namespace Scripts.Skills
                 var anim = vfx.GetComponentInChildren<Animator>();
                 if (anim != null)
                     anim.speed = SkillVFX.GetAnimatorPlaybackDurationAtSpeedOne(anim, lifetime) / lifetime;
+
+                WorldRenderSorting.ConfigureAutoSorter(vfx, RenderDepthCategory.HeroAttackVfx, origin.y, staticAnchor: true);
 
                 var autoDestroy = AutoDestroyVFX.Ensure(vfx);
                 if (autoDestroy != null)

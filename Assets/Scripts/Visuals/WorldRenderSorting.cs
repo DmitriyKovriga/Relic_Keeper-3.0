@@ -4,6 +4,7 @@ namespace Scripts.Visuals
 {
     public enum RenderDepthCategory
     {
+        Auto = -1,
         Background = 0,
         Environment = 1,
         Enemy = 2,
@@ -38,6 +39,33 @@ namespace Scripts.Visuals
         }
 
         public static string GetSortingLayer(RenderDepthCategory category) => Settings.GetSortingLayer(category);
+
+        public static RenderDepthCategory ResolveCategory(GameObject root, RenderDepthCategory fallback)
+        {
+            if (root == null)
+                return fallback == RenderDepthCategory.Auto ? RenderDepthCategory.GameplayVfx : fallback;
+
+            RenderStackProfile profile = root.GetComponent<RenderStackProfile>();
+            if (profile != null && profile.Category != RenderDepthCategory.Auto)
+                return profile.Category;
+
+            if (fallback != RenderDepthCategory.Auto)
+                return fallback;
+
+            if (root.GetComponentInParent<Scripts.Enemies.EnemyEntity>() != null)
+                return RenderDepthCategory.Enemy;
+
+            if (root.GetComponentInParent<global::PlayerStats>() != null)
+                return RenderDepthCategory.Player;
+
+            if (root.GetComponentInChildren<Scripts.Skills.Projectiles.SkillProjectile>(true) != null)
+                return RenderDepthCategory.HeroAttackVfx;
+
+            if (root.GetComponentInChildren<global::AutoDestroyVFX>(true) != null)
+                return fallback == RenderDepthCategory.Auto ? RenderDepthCategory.GameplayVfx : fallback;
+
+            return fallback == RenderDepthCategory.Auto ? RenderDepthCategory.GameplayVfx : fallback;
+        }
 
         public static int ResolveOrder(RenderDepthCategory category, float worldY, int localOffset = 0)
         {
@@ -78,6 +106,23 @@ namespace Scripts.Visuals
 
             sorter.Configure(category, localOffset, staticAnchor, worldY);
             return sorter;
+        }
+
+        public static WorldDepthSort ConfigureAutoSorter(
+            GameObject root,
+            RenderDepthCategory fallbackCategory,
+            float worldY,
+            int localOffset = 0,
+            bool staticAnchor = false)
+        {
+            if (root == null)
+                return null;
+
+            RenderStackProfile profile = root.GetComponent<RenderStackProfile>();
+            RenderDepthCategory category = ResolveCategory(root, fallbackCategory);
+            int resolvedOffset = profile != null ? profile.LocalOffset + localOffset : localOffset;
+            bool resolvedStaticAnchor = profile != null ? profile.StaticAnchor : staticAnchor;
+            return ConfigureSorter(root, category, worldY, resolvedOffset, resolvedStaticAnchor);
         }
 
         public static void ConfigureOneShotRenderer(
