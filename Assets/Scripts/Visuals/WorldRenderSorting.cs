@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace Scripts.Visuals
 {
@@ -17,8 +16,7 @@ namespace Scripts.Visuals
 
     /// <summary>
     /// Central render stack for world sprites (UI canvases stay separate and on top).
-    /// Sorting layer order in TagManager: Background → Default (scene props) → World → VFX → Hero → SFX.
-    /// Within dynamic layers, higher sortingOrder draws on top; Y-position drives order for actors.
+    /// Sorting layer order in TagManager: Background → Default → World → VFX → Hero → SFX.
     /// </summary>
     public static class WorldRenderSorting
     {
@@ -27,107 +25,41 @@ namespace Scripts.Visuals
         public const string LayerVfx = "VFX";
         public const string LayerHero = "Hero";
 
-        private const float YSortScale = 100f;
-        private const int YSortRange = 7000;
+        private static RenderStackSettings s_settings;
 
-        private const int BackgroundBase = 0;
-        private const int EnvironmentBase = 500;
-        private const int EnemyBase = 0;
-        private const int GameplayVfxBase = 0;
-        private const int PlayerBase = 8000;
-        private const int PlayerOverlayBase = 8500;
-        private const int HeroAttackBase = 9000;
-
-        public static string GetSortingLayer(RenderDepthCategory category)
+        public static RenderStackSettings Settings
         {
-            switch (category)
+            get
             {
-                case RenderDepthCategory.Background:
-                case RenderDepthCategory.Environment:
-                    return LayerBackground;
-                case RenderDepthCategory.Enemy:
-                case RenderDepthCategory.EnemyRemains:
-                    return LayerWorld;
-                case RenderDepthCategory.GameplayVfx:
-                    return LayerVfx;
-                case RenderDepthCategory.Player:
-                case RenderDepthCategory.PlayerOverlay:
-                case RenderDepthCategory.HeroAttackVfx:
-                    return LayerHero;
-                default:
-                    return SortingLayer.layers.Length > 0 ? SortingLayer.layers[0].name : "Default";
+                if (s_settings == null)
+                    s_settings = LoadSettings();
+                return s_settings;
             }
         }
+
+        public static string GetSortingLayer(RenderDepthCategory category) => Settings.GetSortingLayer(category);
 
         public static int ResolveOrder(RenderDepthCategory category, float worldY, int localOffset = 0)
         {
-            int yOrder = Mathf.RoundToInt(-worldY * YSortScale);
-
-            switch (category)
-            {
-                case RenderDepthCategory.Background:
-                    return BackgroundBase + localOffset;
-
-                case RenderDepthCategory.Environment:
-                    return EnvironmentBase + localOffset;
-
-                case RenderDepthCategory.Enemy:
-                case RenderDepthCategory.EnemyRemains:
-                case RenderDepthCategory.GameplayVfx:
-                    return ClampBand(GetCategoryBase(category) + yOrder + localOffset, GetCategoryBase(category));
-
-                case RenderDepthCategory.Player:
-                    return ClampBand(PlayerBase + yOrder + localOffset, PlayerBase);
-
-                case RenderDepthCategory.PlayerOverlay:
-                    return ClampBand(PlayerOverlayBase + yOrder + localOffset, PlayerOverlayBase);
-
-                case RenderDepthCategory.HeroAttackVfx:
-                    return ClampBand(HeroAttackBase + yOrder + localOffset, HeroAttackBase);
-
-                default:
-                    return localOffset;
-            }
+            return Settings.ResolveOrder(category, worldY, localOffset);
         }
 
-        public static void ApplyToSortingGroup(SortingGroup group, RenderDepthCategory category, float worldY, int localOffset = 0)
-        {
-            if (group == null)
-                return;
-
-            group.sortingLayerName = GetSortingLayer(category);
-            group.sortingOrder = ResolveOrder(category, worldY, localOffset);
-        }
-
-        public static void ApplyToRenderers(GameObject root, RenderDepthCategory category, float worldY, int localOffset = 0)
+        public static void ApplyToRenderers(
+            Transform root,
+            RenderDepthCategory category,
+            float worldY,
+            int localOffset = 0,
+            bool respectNestedSorters = true)
         {
             if (root == null)
                 return;
 
-            string layerName = GetSortingLayer(category);
-            int order = ResolveOrder(category, worldY, localOffset);
-
-            var renderers = root.GetComponentsInChildren<SpriteRenderer>(true);
-            for (int i = 0; i < renderers.Length; i++)
-            {
-                SpriteRenderer renderer = renderers[i];
-                if (renderer == null)
-                    continue;
-
-                renderer.sortingLayerName = layerName;
-                renderer.sortingOrder = order + i;
-            }
-
-            var lineRenderers = root.GetComponentsInChildren<LineRenderer>(true);
-            for (int i = 0; i < lineRenderers.Length; i++)
-            {
-                LineRenderer lineRenderer = lineRenderers[i];
-                if (lineRenderer == null)
-                    continue;
-
-                lineRenderer.sortingLayerName = layerName;
-                lineRenderer.sortingOrder = order + i;
-            }
+            RenderStackSettings settings = Settings;
+            string layerName = settings.GetSortingLayer(category);
+            int order = settings.ResolveOrder(category, worldY, localOffset);
+            int spriteIndex = 0;
+            int lineIndex = 0;
+            ApplyToRenderersRecursive(root, root, layerName, order, respectNestedSorters, ref spriteIndex, ref lineIndex);
         }
 
         public static WorldDepthSort ConfigureSorter(
@@ -140,7 +72,7 @@ namespace Scripts.Visuals
             if (root == null)
                 return null;
 
-            var sorter = root.GetComponent<WorldDepthSort>();
+            WorldDepthSort sorter = root.GetComponent<WorldDepthSort>();
             if (sorter == null)
                 sorter = root.AddComponent<WorldDepthSort>();
 
@@ -148,23 +80,72 @@ namespace Scripts.Visuals
             return sorter;
         }
 
-        private static int GetCategoryBase(RenderDepthCategory category)
+        public static void ConfigureOneShotRenderer(
+            SpriteRenderer renderer,
+            RenderDepthCategory category,
+            float worldY,
+            int localOffset = 0)
         {
-            switch (category)
-            {
-                case RenderDepthCategory.Enemy:
-                case RenderDepthCategory.EnemyRemains:
-                    return EnemyBase;
-                case RenderDepthCategory.GameplayVfx:
-                    return GameplayVfxBase;
-                default:
-                    return 0;
-            }
+            if (renderer == null)
+                return;
+
+            renderer.sortingLayerName = GetSortingLayer(category);
+            renderer.sortingOrder = ResolveOrder(category, worldY, localOffset);
         }
 
-        private static int ClampBand(int value, int bandBase)
+        public static bool ValidateProjectStack(out string error)
         {
-            return Mathf.Clamp(value, bandBase, bandBase + YSortRange);
+            return Settings.ValidateSortingLayerOrder(out error);
+        }
+
+        public static void InvalidateSettingsCache()
+        {
+            s_settings = null;
+        }
+
+        private static RenderStackSettings LoadSettings()
+        {
+            RenderStackSettings loaded = Resources.Load<RenderStackSettings>(RenderStackSettings.DefaultResourcePath);
+            if (loaded != null)
+                return loaded;
+
+            return ScriptableObject.CreateInstance<RenderStackSettings>();
+        }
+
+        private static void ApplyToRenderersRecursive(
+            Transform root,
+            Transform current,
+            string layerName,
+            int baseOrder,
+            bool respectNestedSorters,
+            ref int spriteIndex,
+            ref int lineIndex)
+        {
+            if (respectNestedSorters && current != root && current.GetComponent<WorldDepthSort>() != null)
+                return;
+
+            SpriteRenderer spriteRenderer = current.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.sortingLayerName = layerName;
+                spriteRenderer.sortingOrder = baseOrder + spriteIndex;
+                spriteIndex++;
+            }
+
+            LineRenderer lineRenderer = current.GetComponent<LineRenderer>();
+            if (lineRenderer != null)
+            {
+                lineRenderer.sortingLayerName = layerName;
+                lineRenderer.sortingOrder = baseOrder + lineIndex;
+                lineIndex++;
+            }
+
+            for (int i = 0; i < current.childCount; i++)
+            {
+                Transform child = current.GetChild(i);
+                if (child != null)
+                    ApplyToRenderersRecursive(root, child, layerName, baseOrder, respectNestedSorters, ref spriteIndex, ref lineIndex);
+            }
         }
     }
 }

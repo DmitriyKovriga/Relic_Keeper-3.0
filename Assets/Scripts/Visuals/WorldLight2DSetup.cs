@@ -5,21 +5,10 @@ using UnityEngine.SceneManagement;
 namespace Scripts.Visuals
 {
     /// <summary>
-    /// URP Light2D only lights configured target sorting layers.
-    /// Scene lights were authored for Default only, so actors moved to World/Hero rendered black.
+    /// Keeps URP Light2D target layers in sync with the render stack (safety net for scene assets).
     /// </summary>
     internal static class WorldLight2DSetup
     {
-        private static readonly string[] RequiredSortingLayers =
-        {
-            WorldRenderSorting.LayerBackground,
-            "Default",
-            WorldRenderSorting.LayerWorld,
-            WorldRenderSorting.LayerVfx,
-            WorldRenderSorting.LayerHero,
-            "SFX"
-        };
-
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void RegisterSceneHook()
         {
@@ -38,27 +27,30 @@ namespace Scripts.Visuals
             SyncAllLights();
         }
 
-        private static void SyncAllLights()
+        internal static void SyncAllLights()
         {
             Light2D[] lights = Object.FindObjectsByType<Light2D>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            RenderStackSettings settings = WorldRenderSorting.Settings;
+            string[] layerNames = settings.GetLitSortingLayerNamesArray();
+
             for (int i = 0; i < lights.Length; i++)
             {
                 Light2D light = lights[i];
                 if (light == null)
                     continue;
 
-                for (int j = 0; j < RequiredSortingLayers.Length; j++)
-                    TryAddSortingLayer(light, RequiredSortingLayers[j]);
+                for (int j = 0; j < layerNames.Length; j++)
+                    TryAddSortingLayer(light, layerNames[j], settings);
             }
         }
 
-        private static void TryAddSortingLayer(Light2D light, string layerName)
+        private static void TryAddSortingLayer(Light2D light, string layerName, RenderStackSettings settings)
         {
             if (string.IsNullOrEmpty(layerName))
                 return;
 
             int layerId = SortingLayer.NameToID(layerName);
-            if (layerId == 0 && layerName != "Default")
+            if (layerId == 0 && layerName != settings.LayerDefault)
                 return;
 
             light.AddTargetSortingLayer(layerName);

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace Scripts.Visuals
 {
@@ -11,32 +10,17 @@ namespace Scripts.Visuals
         [SerializeField] private bool _staticAnchor;
         [SerializeField] private float _staticAnchorY;
         [SerializeField] private Transform _anchor;
-        [SerializeField] private bool _useSortingGroup = false;
 
-        private SortingGroup _sortingGroup;
+        private float _lastAppliedAnchorY = float.NaN;
 
         public RenderDepthCategory Category => _category;
         public bool UsesStaticAnchor => _staticAnchor;
 
-        private void Awake()
-        {
-            if (_useSortingGroup)
-            {
-                _sortingGroup = GetComponent<SortingGroup>();
-                if (_sortingGroup == null)
-                    _sortingGroup = gameObject.AddComponent<SortingGroup>();
-                return;
-            }
-
-            SortingGroup existingGroup = GetComponent<SortingGroup>();
-            if (existingGroup != null)
-                Destroy(existingGroup);
-        }
-
         private void OnEnable()
         {
+            _lastAppliedAnchorY = float.NaN;
             WorldDepthSortManager.Register(this);
-            ApplySort();
+            ApplySort(force: true);
         }
 
         private void OnDisable()
@@ -50,26 +34,22 @@ namespace Scripts.Visuals
             _localOffset = localOffset;
             _staticAnchor = staticAnchor;
             _staticAnchorY = anchorY;
+            _lastAppliedAnchorY = float.NaN;
+            ApplySort(force: true);
         }
 
-        public void ApplySort()
+        public void ApplySort(bool force = false)
         {
             float worldY = ResolveAnchorY();
-
-            if (_useSortingGroup)
+            if (!force && !UsesStaticAnchor)
             {
-                if (_sortingGroup == null)
-                {
-                    _sortingGroup = GetComponent<SortingGroup>();
-                    if (_sortingGroup == null)
-                        _sortingGroup = gameObject.AddComponent<SortingGroup>();
-                }
-
-                WorldRenderSorting.ApplyToSortingGroup(_sortingGroup, _category, worldY, _localOffset);
-                return;
+                float threshold = WorldRenderSorting.Settings.YSortUpdateThreshold;
+                if (!float.IsNaN(_lastAppliedAnchorY) && Mathf.Abs(worldY - _lastAppliedAnchorY) < threshold)
+                    return;
             }
 
-            WorldRenderSorting.ApplyToRenderers(gameObject, _category, worldY, _localOffset);
+            _lastAppliedAnchorY = worldY;
+            WorldRenderSorting.ApplyToRenderers(transform, _category, worldY, _localOffset, respectNestedSorters: true);
         }
 
         public float ResolveAnchorY()
