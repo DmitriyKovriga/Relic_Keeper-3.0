@@ -5822,7 +5822,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 000000008d43cdb6
+  m_ApplyToSortingLayers: 000000008d43cdb615211771162117711721177118211771
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -7708,10 +7708,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _weaponRenderer: {fileID: 300408022}
-  _playerRenderer: {fileID: 1563690797}
-  _enforceTopCharacterSorting: 1
-  _playerSortingOrder: 20000
-  _weaponOrderOffset: 10
 --- !u!114 &1563690806
 MonoBehaviour:
   m_ObjectHideFlags: 0

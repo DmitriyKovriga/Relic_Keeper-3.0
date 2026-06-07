@@ -242,6 +242,14 @@ MonoBehaviour:
     m_Localized: Deal 100% damage and get +100% to crit multiplier
     m_Metadata:
       m_Items: []
+  - m_Id: 54311258424336384
+    m_Localized: Lunge Slash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54311258457890816
+    m_Localized: Deal 250% damage and move forward
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

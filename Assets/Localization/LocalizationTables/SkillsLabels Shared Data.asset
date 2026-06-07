@@ -223,6 +223,14 @@ MonoBehaviour:
     m_Key: skills.WaveCutSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 54311258424336384
+    m_Key: skills.LungeSlashSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54311258457890816
+    m_Key: skills.LungeSlashSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
