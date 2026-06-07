@@ -234,6 +234,14 @@ MonoBehaviour:
       damage to stun
     m_Metadata:
       m_Items: []
+  - m_Id: 54282813623492608
+    m_Localized: Wave Cut
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54282813661241344
+    m_Localized: Deal 100% damage and get +100% to crit multiplier
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

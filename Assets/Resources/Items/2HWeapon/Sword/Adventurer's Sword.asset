@@ -38,5 +38,5 @@ MonoBehaviour:
   MinLightningDamage: 0
   MaxLightningDamage: 0
   AttacksPerSecond: 1
-  BaseCritChance: 5
+  BaseCritChance: 8
   SecondarySkillPool: {fileID: 0}

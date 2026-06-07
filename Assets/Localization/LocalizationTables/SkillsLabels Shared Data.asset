@@ -215,6 +215,14 @@ MonoBehaviour:
     m_Key: skills.TremorSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 54282813623492608
+    m_Key: skills.WaveCutSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54282813661241344
+    m_Key: skills.WaveCutSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
