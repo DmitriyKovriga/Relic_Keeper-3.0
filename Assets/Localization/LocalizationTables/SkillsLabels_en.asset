@@ -250,6 +250,14 @@ MonoBehaviour:
     m_Localized: Deal 250% damage and move forward
     m_Metadata:
       m_Items: []
+  - m_Id: 54517666864422912
+    m_Localized: Orbital Weapon Throw
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54517666897977344
+    m_Localized: Throw Weapon to fly around hero and deal 350% damage on hit
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

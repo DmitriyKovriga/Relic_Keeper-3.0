@@ -231,6 +231,14 @@ MonoBehaviour:
     m_Key: skills.LungeSlashSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 54517666864422912
+    m_Key: skills.OrbitalWeaponTrowSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54517666897977344
+    m_Key: skills.OrbitalWeaponTrowSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
