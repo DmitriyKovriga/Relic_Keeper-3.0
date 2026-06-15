@@ -239,6 +239,14 @@ MonoBehaviour:
     m_Key: skills.OrbitalWeaponTrowSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 57105828231655424
+    m_Key: skills.HomingWeaponThrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 57105828265209856
+    m_Key: skills.HomingWeaponThrow.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

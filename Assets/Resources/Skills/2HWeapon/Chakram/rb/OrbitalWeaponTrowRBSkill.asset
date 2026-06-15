@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 037112ba607a5b2409ab1b0826944402, type: 3}
-  m_Name: OrbitalWeaponTrowSkill
+  m_Name: OrbitalWeaponTrowRBSkill
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
   ID: OrbitalWeaponThrowSkill
   SkillName: Orbital Weapon Throw

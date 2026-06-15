@@ -138,6 +138,10 @@ MonoBehaviour:
     m_Localized: Adventurer's Sword
     m_Metadata:
       m_Items: []
+  - m_Id: 54649981439565824
+    m_Localized: Adventurer's Chakram
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -55,6 +55,12 @@ namespace Scripts.Skills.Projectiles
         public float ReverseInterval = 1f;
         public bool ReturnToOwnerOnReverse = true;
         public bool ClearHitHistoryOnReverse = true;
+        public bool OrbitOwner;
+        public Vector2 OrbitCenterOffset;
+        public float OrbitRadius = 1.2f;
+        public float OrbitAngularSpeedDegreesPerSecond = 180f;
+        public float OrbitAngleDegrees;
+        public float RehitCooldownSeconds;
         public HashSet<IDamageable> HitHistory;
 
         public SkillProjectileLaunchData Clone()
@@ -89,6 +95,7 @@ namespace Scripts.Skills.Projectiles
         private Rigidbody2D _rigidbody;
         private GameObject _template;
         private HashSet<IDamageable> _hitHistory = new HashSet<IDamageable>();
+        private readonly Dictionary<IDamageable, float> _nextTargetHitAllowedAt = new Dictionary<IDamageable, float>();
         private Transform _homingTarget;
         private float _nextReverseAt;
 
@@ -227,11 +234,14 @@ namespace Scripts.Skills.Projectiles
             _rigidbody.bodyType = RigidbodyType2D.Kinematic;
             _rigidbody.gravityScale = 0f;
             _rigidbody.simulated = true;
+            _nextTargetHitAllowedAt.Clear();
 
             ApplyVisual();
             WorldRenderSorting.ConfigureAutoSorter(gameObject, RenderDepthCategory.HeroAttackVfx, transform.position.y);
             _collider.isTrigger = true;
             _collider.radius = ResolveColliderRadius();
+            if (_data.OrbitOwner)
+                UpdateOrbitPosition();
             if (_data.GroundMotion)
                 SnapToGroundOrDespawn();
             if (_data.Homing)
@@ -258,19 +268,39 @@ namespace Scripts.Skills.Projectiles
 
             UpdateReversal();
             UpdateHoming(dt);
-            float travelDistance = Mathf.Max(0.01f, _data.Speed) * dt;
-            if (_data.GroundMotion && TryBreakOnGroundObstacle(travelDistance))
-                return;
+            if (_data.OrbitOwner)
+            {
+                _data.OrbitAngleDegrees += _data.OrbitAngularSpeedDegreesPerSecond * dt;
+                UpdateOrbitPosition();
+            }
+            else
+            {
+                float travelDistance = Mathf.Max(0.01f, _data.Speed) * dt;
+                if (_data.GroundMotion && TryBreakOnGroundObstacle(travelDistance))
+                    return;
 
-            transform.position += (Vector3)(_direction * travelDistance);
-            if (_data.GroundMotion && !SnapToGroundOrDespawn())
-                return;
+                transform.position += (Vector3)(_direction * travelDistance);
+                if (_data.GroundMotion && !SnapToGroundOrDespawn())
+                    return;
+            }
 
             float spin = _data.RotationDegreesPerSecond;
             if (!Mathf.Approximately(spin, 0f))
                 transform.Rotate(0f, 0f, spin * dt, Space.Self);
 
             ScanImmediateOverlaps();
+        }
+
+        private void UpdateOrbitPosition()
+        {
+            if (_data == null || _data.OwnerTransform == null)
+                return;
+
+            float angleRadians = _data.OrbitAngleDegrees * Mathf.Deg2Rad;
+            Vector2 orbitOffset = new Vector2(Mathf.Cos(angleRadians), Mathf.Sin(angleRadians)) * Mathf.Max(0.01f, _data.OrbitRadius);
+            Vector2 center = (Vector2)_data.OwnerTransform.position + _data.OrbitCenterOffset;
+            transform.position = center + orbitOffset;
+            _direction = new Vector2(-Mathf.Sin(angleRadians), Mathf.Cos(angleRadians)).normalized;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -307,10 +337,10 @@ namespace Scripts.Skills.Projectiles
                 if (!IsAllowedTargetLayer(other, targetTransform))
                     return false;
 
-                if (target == null || _hitHistory.Contains(target))
+                if (target == null || IsTargetHitBlocked(target))
                     return false;
 
-                _hitHistory.Add(target);
+                RegisterTargetHit(target);
                 DamageSnapshot snapshot = DealDamage(target);
                 ExecuteOnHitEffects(target, targetTransform, snapshot);
 
@@ -353,6 +383,33 @@ namespace Scripts.Skills.Projectiles
                 return true;
 
             return targetTransform != null && IsInLayerMask(targetTransform.gameObject.layer, _data.TargetLayer);
+        }
+
+        private bool IsTargetHitBlocked(IDamageable target)
+        {
+            if (target == null || _data == null)
+                return true;
+
+            float cooldown = Mathf.Max(0f, _data.RehitCooldownSeconds);
+            if (cooldown <= 0f)
+                return _hitHistory.Contains(target);
+
+            return _nextTargetHitAllowedAt.TryGetValue(target, out float nextAllowedAt) && Time.time < nextAllowedAt;
+        }
+
+        private void RegisterTargetHit(IDamageable target)
+        {
+            if (target == null || _data == null)
+                return;
+
+            float cooldown = Mathf.Max(0f, _data.RehitCooldownSeconds);
+            if (cooldown <= 0f)
+            {
+                _hitHistory.Add(target);
+                return;
+            }
+
+            _nextTargetHitAllowedAt[target] = Time.time + cooldown;
         }
 
         private DamageSnapshot DealDamage(IDamageable target)
@@ -574,7 +631,10 @@ namespace Scripts.Skills.Projectiles
             }
 
             if (_data.ClearHitHistoryOnReverse)
+            {
                 _hitHistory.Clear();
+                _nextTargetHitAllowedAt.Clear();
+            }
 
             _homingTarget = null;
             if (_data.Homing)
@@ -1000,6 +1060,7 @@ namespace Scripts.Skills.Projectiles
             _data = null;
             _template = null;
             _hitHistory.Clear();
+            _nextTargetHitAllowedAt.Clear();
             _age = 0f;
             _despawning = false;
             if (_spriteRenderer != null)

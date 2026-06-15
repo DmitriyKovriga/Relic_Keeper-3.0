@@ -591,9 +591,11 @@ namespace Scripts.Editor.Skills
             EditorGUILayout.BeginVertical(GUILayout.Width(width), GUILayout.ExpandHeight(true));
             GUILayout.Label("Step types (click to add)", EditorStyles.boldLabel);
             _typesScroll = EditorGUILayout.BeginScrollView(_typesScroll, GUILayout.ExpandHeight(true));
-            DrawStepDefinitionCategory(recipe, "Базовые", StepEditorCategory.Basic);
-            DrawStepDefinitionCategory(recipe, "Изменение статов", StepEditorCategory.StatChanges);
-            DrawStepDefinitionCategory(recipe, "Особые эффекты", StepEditorCategory.Special);
+            DrawStepDefinitionCategory(recipe, "Тайминг и движение", StepEditorCategory.TimingAndMotion);
+            DrawStepDefinitionCategory(recipe, "Хитбоксы, VFX и снаряды", StepEditorCategory.HitboxesVfxProjectiles);
+            DrawStepDefinitionCategory(recipe, "Цепные скиллы", StepEditorCategory.ChainSkills);
+            DrawStepDefinitionCategory(recipe, "Статусы и статы", StepEditorCategory.StatusAndStats);
+            DrawStepDefinitionCategory(recipe, "Mystic Shield и особые эффекты", StepEditorCategory.Special);
             DrawStepDefinitionCategory(recipe, "Прочее", StepEditorCategory.Other);
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
@@ -601,8 +603,10 @@ namespace Scripts.Editor.Skills
 
         private enum StepEditorCategory
         {
-            Basic,
-            StatChanges,
+            TimingAndMotion,
+            HitboxesVfxProjectiles,
+            ChainSkills,
+            StatusAndStats,
             Special,
             Other
         }
@@ -640,18 +644,21 @@ namespace Scripts.Editor.Skills
                 case "WeaponStrike":
                 case "WeaponRecovery":
                 case "Wait":
+                    return StepEditorCategory.TimingAndMotion;
                 case "SpawnVFX":
                 case "SpawnProjectile":
                 case "SpawnGroundProjectile":
-                case "BuildChainTargets":
-                case "SpawnChainVFX":
-                case "ChainDamage":
+                case "SpawnOrbitProjectiles":
                 case "DealDamageCircle":
                 case "DealDamageRectangle":
                 case "PersistentDamageCircle":
                 case "PersistentDamageRectangle":
+                    return StepEditorCategory.HitboxesVfxProjectiles;
+                case "BuildChainTargets":
+                case "SpawnChainVFX":
+                case "ChainDamage":
                 case "ParallelGroup":
-                    return StepEditorCategory.Basic;
+                    return StepEditorCategory.ChainSkills;
                 case "ApplyStatusSelf":
                 case "ApplyStatusCircle":
                 case "ApplyStatusRectangle":
@@ -662,7 +669,7 @@ namespace Scripts.Editor.Skills
                 case "ApplyStatBasedEffectSelf":
                 case "ApplyStatusSelfIfMysticShieldConsumed":
                 case "ApplyStatusSelfPerConsumedMysticShield":
-                    return StepEditorCategory.StatChanges;
+                    return StepEditorCategory.StatusAndStats;
                 case "GenerateMysticShield":
                 case "ConsumeMysticShield":
                 case "MysticShieldDamageBoost":
@@ -1237,6 +1244,12 @@ namespace Scripts.Editor.Skills
                 return;
             }
 
+            if (id == "SpawnOrbitProjectiles")
+            {
+                DrawOrbitProjectileFields(recipe, step);
+                return;
+            }
+
             if (id == "BuildChainTargets")
             {
                 DrawBuildChainTargetsFields(recipe, step);
@@ -1715,6 +1728,83 @@ namespace Scripts.Editor.Skills
             bool newClearHistory = EditorGUILayout.Toggle(new GUIContent("Can hit same targets again", "Очищает историю попаданий при развороте, чтобы диск мог ударить ту же цель на возврате."), clearHistory);
             if (newClearHistory != clearHistory) { step.SetOverrideBool("ClearHitHistoryOnReverse", newClearHistory); EditorUtility.SetDirty(recipe); }
             EditorGUI.EndDisabledGroup();
+
+            float damageMultiplier = step.GetFloat("DamageMultiplier", 1f);
+            float newDamageMultiplier = Mathf.Max(0f, EditorGUILayout.FloatField("Damage multiplier", damageMultiplier));
+            if (Mathf.Abs(newDamageMultiplier - damageMultiplier) > 0.001f) { step.SetOverrideFloat("DamageMultiplier", newDamageMultiplier); EditorUtility.SetDirty(recipe); }
+
+            DrawDamageConversionRules(recipe, step);
+            DrawSkillScopedModifierFields(recipe, step);
+            DrawOnHitEffectRules(recipe, step);
+        }
+
+        private void DrawOrbitProjectileFields(SkillRecipeSO recipe, StepEntry step)
+        {
+            EditorGUILayout.HelpBox("Спавнит снаряды, которые вращаются вокруг игрока. Урон, конверсии, scoped modifiers и on-hit effects работают через обычный SkillProjectile.", MessageType.None);
+
+            GameObject prefab = step.GetObject<GameObject>("ProjectilePrefab");
+            GameObject newPrefab = (GameObject)EditorGUILayout.ObjectField("Projectile prefab", prefab, typeof(GameObject), false);
+            if (newPrefab != prefab) { step.SetOverrideObject("ProjectilePrefab", newPrefab); EditorUtility.SetDirty(recipe); }
+
+            bool useWeaponSprite = step.GetBool("UseCurrentWeaponSprite", false);
+            bool newUseWeaponSprite = EditorGUILayout.Toggle("Use current weapon sprite", useWeaponSprite);
+            if (newUseWeaponSprite != useWeaponSprite) { step.SetOverrideBool("UseCurrentWeaponSprite", newUseWeaponSprite); EditorUtility.SetDirty(recipe); }
+
+            int baseCount = Mathf.Max(1, step.GetInt("BaseProjectileCount", 3));
+            int newBaseCount = Mathf.Max(1, EditorGUILayout.IntField("Base projectile count", baseCount));
+            if (newBaseCount != baseCount) { step.SetOverrideInt("BaseProjectileCount", newBaseCount); EditorUtility.SetDirty(recipe); }
+
+            bool useProjectileCountStat = step.GetBool("UseProjectileCountStat", true);
+            bool newUseProjectileCountStat = EditorGUILayout.Toggle(new GUIContent("Add ProjectileCount stat", "ProjectileCount добавляет дополнительные снаряды на орбиту."), useProjectileCountStat);
+            if (newUseProjectileCountStat != useProjectileCountStat) { step.SetOverrideBool("UseProjectileCountStat", newUseProjectileCountStat); EditorUtility.SetDirty(recipe); }
+
+            float lifetime = step.GetFloat("Lifetime", 4f);
+            float newLifetime = Mathf.Max(0.05f, EditorGUILayout.FloatField("Lifetime", lifetime));
+            if (Mathf.Abs(newLifetime - lifetime) > 0.001f) { step.SetOverrideFloat("Lifetime", newLifetime); EditorUtility.SetDirty(recipe); }
+
+            bool pierceTargets = step.GetBool("PierceTargets", true);
+            bool newPierceTargets = EditorGUILayout.Toggle(new GUIContent("Pierce targets", "Включено: летит дальше после попадания. Выключено: разбивается об первого врага."), pierceTargets);
+            if (newPierceTargets != pierceTargets) { step.SetOverrideBool("PierceTargets", newPierceTargets); EditorUtility.SetDirty(recipe); }
+
+            float rehitCooldown = step.GetFloat("RehitCooldownSeconds", 0.35f);
+            float newRehitCooldown = Mathf.Max(0.01f, EditorGUILayout.FloatField(new GUIContent("Same target hit cooldown", "Сколько секунд эта же цель не может получить урон от этого же орбитального снаряда."), rehitCooldown));
+            if (Mathf.Abs(newRehitCooldown - rehitCooldown) > 0.001f) { step.SetOverrideFloat("RehitCooldownSeconds", newRehitCooldown); EditorUtility.SetDirty(recipe); }
+
+            EditorGUILayout.Space(4f);
+            EditorGUILayout.LabelField("Orbit", EditorStyles.boldLabel);
+            float radius = step.GetFloat("OrbitRadius", 1.2f);
+            float newRadius = Mathf.Max(0.05f, EditorGUILayout.FloatField("Orbit radius", radius));
+            if (Mathf.Abs(newRadius - radius) > 0.001f) { step.SetOverrideFloat("OrbitRadius", newRadius); EditorUtility.SetDirty(recipe); }
+
+            float angularSpeed = step.GetFloat("OrbitAngularSpeedDegreesPerSecond", 180f);
+            float newAngularSpeed = Mathf.Max(0f, EditorGUILayout.FloatField("Angular speed deg/sec", angularSpeed));
+            if (Mathf.Abs(newAngularSpeed - angularSpeed) > 0.001f) { step.SetOverrideFloat("OrbitAngularSpeedDegreesPerSecond", newAngularSpeed); EditorUtility.SetDirty(recipe); }
+
+            bool clockwise = step.GetBool("Clockwise", false);
+            bool newClockwise = EditorGUILayout.Toggle("Clockwise", clockwise);
+            if (newClockwise != clockwise) { step.SetOverrideBool("Clockwise", newClockwise); EditorUtility.SetDirty(recipe); }
+
+            float startAngle = step.GetFloat("StartAngleDegrees", 0f);
+            float newStartAngle = EditorGUILayout.FloatField("Start angle degrees", startAngle);
+            if (Mathf.Abs(newStartAngle - startAngle) > 0.001f) { step.SetOverrideFloat("StartAngleDegrees", newStartAngle); EditorUtility.SetDirty(recipe); }
+
+            float offsetX = step.GetFloat("OffsetX", 0f);
+            float newOffsetX = EditorGUILayout.FloatField("Center offset X", offsetX);
+            if (Mathf.Abs(newOffsetX - offsetX) > 0.001f) { step.SetOverrideFloat("OffsetX", newOffsetX); EditorUtility.SetDirty(recipe); }
+
+            float offsetY = step.GetFloat("OffsetY", 0.25f);
+            float newOffsetY = EditorGUILayout.FloatField("Center offset Y", offsetY);
+            if (Mathf.Abs(newOffsetY - offsetY) > 0.001f) { step.SetOverrideFloat("OffsetY", newOffsetY); EditorUtility.SetDirty(recipe); }
+
+            EditorGUILayout.Space(4f);
+            EditorGUILayout.LabelField("Hit / visual", EditorStyles.boldLabel);
+            float hitRadius = step.GetFloat("HitRadius", 1f);
+            float newHitRadius = Mathf.Max(0.02f, EditorGUILayout.FloatField("Hit radius scale", hitRadius));
+            if (Mathf.Abs(newHitRadius - hitRadius) > 0.001f) { step.SetOverrideFloat("HitRadius", newHitRadius); EditorUtility.SetDirty(recipe); }
+
+            float rotation = step.GetFloat("RotationDegreesPerSecond", newUseWeaponSprite ? 720f : 0f);
+            float newRotation = EditorGUILayout.FloatField("Sprite rotation deg/sec", rotation);
+            if (Mathf.Abs(newRotation - rotation) > 0.001f) { step.SetOverrideFloat("RotationDegreesPerSecond", newRotation); EditorUtility.SetDirty(recipe); }
 
             float damageMultiplier = step.GetFloat("DamageMultiplier", 1f);
             float newDamageMultiplier = Mathf.Max(0f, EditorGUILayout.FloatField("Damage multiplier", damageMultiplier));
@@ -2380,6 +2470,7 @@ namespace Scripts.Editor.Skills
                 ("SpawnVFX", "Spawn VFX", "РЎРїР°РІРЅ VFX", 0f),
                 ("SpawnProjectile", "Spawn projectile", "Спавн снаряда", 0f),
                 ("SpawnGroundProjectile", "Spawn ground projectile", "Спавн волны по земле", 0f),
+                ("SpawnOrbitProjectiles", "Spawn orbit projectiles", "Спавн снарядов по орбите", 0f),
                 ("BuildChainTargets", "Build chain targets", "Построить цепь целей", 0f),
                 ("SpawnChainVFX", "Spawn chain VFX", "Спавн VFX цепи", 0f),
                 ("ChainDamage", "Chain damage", "Урон по цепи", 0f),

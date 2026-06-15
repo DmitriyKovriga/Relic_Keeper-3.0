@@ -340,6 +340,9 @@ namespace Scripts.Skills
                 case "SpawnGroundProjectile":
                     ExecuteSpawnProjectile(step);
                     break;
+                case "SpawnOrbitProjectiles":
+                    ExecuteSpawnOrbitProjectiles(step);
+                    break;
                 case "BuildChainTargets":
                     ExecuteBuildChainTargets(stepIndex, step);
                     break;
@@ -616,6 +619,77 @@ namespace Scripts.Skills
                 }
 
                 SkillProjectile.Spawn(data, spawnPos, direction, null);
+            }
+        }
+
+        private void ExecuteSpawnOrbitProjectiles(StepEntry step)
+        {
+            if (_ownerStats == null || step == null)
+                return;
+
+            bool useProjectileCountStat = step.GetBool("UseProjectileCountStat", true);
+            int baseCount = Mathf.Max(1, step.GetInt("BaseProjectileCount", 3));
+            int additionalCount = useProjectileCountStat ? Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileCount))) : 0;
+            int totalCount = Mathf.Max(1, baseCount + additionalCount);
+            bool useWeaponSprite = step.GetBool("UseCurrentWeaponSprite", false);
+            Sprite projectileSprite = useWeaponSprite ? ResolveCurrentWeaponSprite() : null;
+            GameObject projectilePrefab = step.GetObject<GameObject>("ProjectilePrefab");
+
+            if (projectilePrefab == null && projectileSprite == null)
+            {
+                Debug.LogWarning("[SkillStepRunner] SpawnOrbitProjectiles needs Projectile Prefab or Use Current Weapon Sprite with equipped weapon sprite.");
+                return;
+            }
+
+            float radius = Mathf.Max(0.05f, step.GetFloat("OrbitRadius", 1.2f));
+            float angularSpeed = step.GetFloat("OrbitAngularSpeedDegreesPerSecond", 180f);
+            if (step.GetBool("Clockwise", false))
+                angularSpeed = -Mathf.Abs(angularSpeed);
+            float startAngle = step.GetFloat("StartAngleDegrees", 0f);
+            Vector2 centerOffset = new Vector2(step.GetFloat("OffsetX", 0f), step.GetFloat("OffsetY", 0.25f));
+            float lifetime = Mathf.Max(0.05f, step.GetFloat("Lifetime", 4f));
+            bool pierceTargets = step.GetBool("PierceTargets", true);
+            float rehitCooldown = Mathf.Max(0.01f, step.GetFloat("RehitCooldownSeconds", 0.35f));
+
+            for (int i = 0; i < totalCount; i++)
+            {
+                float angle = startAngle + 360f * i / totalCount;
+                float angleRadians = angle * Mathf.Deg2Rad;
+                Vector2 orbitOffset = new Vector2(Mathf.Cos(angleRadians), Mathf.Sin(angleRadians)) * radius;
+                Vector2 origin = (Vector2)_ownerStats.transform.position + centerOffset + orbitOffset;
+                Vector2 tangent = new Vector2(-Mathf.Sin(angleRadians), Mathf.Cos(angleRadians)).normalized;
+
+                var data = new SkillProjectileLaunchData
+                {
+                    OwnerStats = _ownerStats,
+                    OwnerTransform = _ownerStats.transform,
+                    Step = step,
+                    DamageContext = ResolveProjectileDamageContext(),
+                    DamageMultiplier = ResolveDamageMultiplier(step),
+                    TargetLayer = _targetLayer.value == 0 ? ~0 : _targetLayer,
+                    WorldLayer = step.GetInt("WorldLayerMask", 1 << 6),
+                    StopOnWorld = false,
+                    ProjectilePrefab = projectilePrefab,
+                    OverrideSprite = projectileSprite,
+                    Speed = 0f,
+                    Lifetime = lifetime,
+                    HitRadius = Mathf.Max(0.02f, step.GetFloat("HitRadius", 1f)),
+                    RotationDegreesPerSecond = step.GetFloat("RotationDegreesPerSecond", useWeaponSprite ? 720f : 0f),
+                    RemainingForks = 0,
+                    RemainingChains = 0,
+                    RemainingPierces = pierceTargets ? int.MaxValue : 0,
+                    InfinitePierce = pierceTargets,
+                    IgnoreFork = true,
+                    IgnoreChain = true,
+                    OrbitOwner = true,
+                    OrbitCenterOffset = centerOffset,
+                    OrbitRadius = radius,
+                    OrbitAngularSpeedDegreesPerSecond = angularSpeed,
+                    OrbitAngleDegrees = angle,
+                    RehitCooldownSeconds = rehitCooldown
+                };
+
+                SkillProjectile.Spawn(data, origin, tangent, null);
             }
         }
 
