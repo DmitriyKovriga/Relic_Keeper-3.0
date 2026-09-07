@@ -237,7 +237,7 @@ namespace Scripts.Visuals
         private void UpdateGroundingEffects()
         {
             bool groundedNow = ResolveGroundedState();
-            bool dodgingNow = _playerAttackInput != null && _playerAttackInput.IsDamageImmune;
+            bool dodgingNow = _playerAttackInput != null && (_playerAttackInput.IsDamageImmune || _playerAttackInput.IsDashing);
             Vector2 velocity = ResolveVelocity();
             bool isHeavy = ResolveIsHeavy();
 

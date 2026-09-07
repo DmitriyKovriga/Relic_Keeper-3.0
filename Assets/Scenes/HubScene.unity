@@ -7588,20 +7588,20 @@ MonoBehaviour:
   _baseJumpForce: 12
   _stopThreshold: 0.01
   _groundAcceleration: 90
-  _groundDeceleration: 32
-  _airAcceleration: 38
-  _airDeceleration: 6
+  _groundDeceleration: 55
+  _airAcceleration: 65
+  _airDeceleration: 16
   _maxJumpCount: 2
   _jumpBufferDuration: 0.12
-  _dashJumpHorizontalSpeed: 10.5
-  _dashJumpVerticalMultiplier: 0.92
-  _dashJumpCarryDuration: 0.12
+  _dashJumpHorizontalSpeed: 12.5
+  _dashJumpVerticalMultiplier: 0.62
+  _dashJumpCarryDuration: 0.2
   _fastFallInputThreshold: -0.6
   _fastFallPrimeDuration: 0.18
   _fastFallPrimeUpwardVelocityCap: 0.75
   _fastFallPrimeDamping: 22
   _fastFallInitialDownwardSpeed: 4.5
-  _fastFallGravityMultiplier: 1.5
+  _fastFallGravityMultiplier: 2.05
 --- !u!70 &1563690801
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -7737,7 +7737,7 @@ MonoBehaviour:
   _afterImageLifetime: 0.16
   _afterImageAlpha: 0.45
   _afterImageColor: {r: 0.1, g: 0.1, b: 0.1, a: 0.45}
-  _directionalDodgeHorizontalCarryDuration: 0.35
+  _directionalDodgeHorizontalCarryDuration: 0.18
   _directionalDodgeReleaseMomentumMultiplier: 1
   _stationaryDodgeScaleY: 0.86
 --- !u!114 &1563690807

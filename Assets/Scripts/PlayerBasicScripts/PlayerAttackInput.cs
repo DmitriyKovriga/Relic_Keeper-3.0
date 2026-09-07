@@ -43,6 +43,12 @@ public class PlayerAttackInput : MonoBehaviour
     [SerializeField] private Key _keyboardDodgeKey = Key.LeftShift;
     [SerializeField] private DodgeGamepadButton _gamepadDodgeButton = DodgeGamepadButton.RightShoulder;
 
+    [Header("Ground Dash (movement, no invulnerability)")]
+    [SerializeField, Min(0.02f)] private float _groundDashTime = 0.14f;
+    [SerializeField, Min(0.02f)] private float _groundDashCooldown = 0.2f;
+    [SerializeField, Min(0f)] private float _groundDashBrakeDelay = 0.04f;
+    [SerializeField, Min(0.01f)] private float _dodgeInputBuffer = 0.12f;
+
     [Header("Dodge Feedback")]
     [SerializeField] private float _readyFlashDuration = 0.12f;
     [SerializeField] private Color _readyFlashColor = new(1f, 1f, 1f, 1f);
@@ -97,24 +103,28 @@ public class PlayerAttackInput : MonoBehaviour
     private float _currentDodgeDistance;
     private float _currentDodgeDuration;
     private Vector2 _currentDirectionalDodgeVelocity;
+    private bool _isGroundDash;
+    private float _groundDashReadyTime;
+    private float _currentDodgeStartTime;
+    private float _dodgeQueuedUntil = float.NegativeInfinity;
+    private Vector2 _queuedDodgeInput;
 
     private readonly InputAction[] _skillInputActions = new InputAction[SkillActionNames.Length];
     private readonly Action<InputAction.CallbackContext>[] _skillStartedHandlers = new Action<InputAction.CallbackContext>[SkillActionNames.Length];
     private readonly Action<InputAction.CallbackContext>[] _skillCanceledHandlers = new Action<InputAction.CallbackContext>[SkillActionNames.Length];
 
-    public bool IsDamageImmune => _isDodging;
+    public bool IsDamageImmune => _isDodging && !_isGroundDash;
+    public bool IsDashing => _isDodging && _isGroundDash;
 
     private void Awake()
     {
         _skillManager = GetComponent<PlayerSkillManager>();
         _playerMovement = GetComponent<PlayerMovement>();
         _visualRoot = transform.Find("Visuals");
-        if (_visualRoot == null)
-            _visualRoot = transform;
 
         RefreshPlayerRendererCache();
-        _visualRootInitialLocalPosition = _visualRoot.localPosition;
-        _visualRootInitialLocalScale = _visualRoot.localScale;
+        _visualRootInitialLocalPosition = _visualRoot != null ? _visualRoot.localPosition : Vector3.zero;
+        _visualRootInitialLocalScale = _visualRoot != null ? _visualRoot.localScale : Vector3.one;
         _visualRootBoundsHeight = CalculateVisualBoundsHeight();
         _moveDodgeFrames = LoadOrderedSprites("VFX/Dodge/move_dodge");
         _standDodgeFrames = LoadOrderedSprites("VFX/Dodge/stand_dodge-Sheet");
@@ -133,6 +143,8 @@ public class PlayerAttackInput : MonoBehaviour
     private void OnEnable()
     {
         _dodgeAction = InputManager.InputActions.asset?.FindAction("Dodge", false);
+        if (_dodgeAction != null)
+            _dodgeAction.performed += QueueDodge;
         for (int i = 0; i < SkillActionNames.Length; i++)
         {
             InputAction action = InputManager.InputActions.asset?.FindAction(SkillActionNames[i], false);
@@ -147,6 +159,9 @@ public class PlayerAttackInput : MonoBehaviour
 
     private void OnDisable()
     {
+        if (_dodgeAction != null)
+            _dodgeAction.performed -= QueueDodge;
+        _dodgeQueuedUntil = float.NegativeInfinity;
         ClearPressedSkillInputs();
 
         if (InputManager.InputActions != null)
@@ -183,27 +198,46 @@ public class PlayerAttackInput : MonoBehaviour
 
     private void Update()
     {
-        UpdateDodgeState();
-
-        if (_isDodging && TryConvertCurrentDodgeToDashJump())
-            return;
-
-        if (WasDodgePressedThisFrame())
-        {
-            if (TryStartDashJumpFromGroundInput())
-                return;
-
-            TryStartDodge();
-            return;
-        }
+        if (_dodgeAction == null && WasDodgePressedThisFrame())
+            QueueDodge(default);
 
         if (_isDodging)
-            return;
+        {
+            bool wantsSkill = Array.Exists(_pressedSkillInputs, pressed => pressed);
+            if (!_isGroundDash || !wantsSkill || Time.time < _currentDodgeStartTime + _groundDashBrakeDelay)
+                return;
+            FinishDodge();
+        }
 
         for (int i = 0; i < _pressedSkillInputs.Length; i++)
         {
             if (_pressedSkillInputs[i])
                 _skillManager.UseSkill(i);
+        }
+    }
+
+    private void QueueDodge(InputAction.CallbackContext context)
+    {
+        _dodgeQueuedUntil = Time.time + _dodgeInputBuffer;
+        _queuedDodgeInput = InputManager.InputActions.Player.Move.ReadValue<Vector2>();
+    }
+
+    // Called by PlayerMovement after refreshing ground/input and before consuming jump.
+    public void TickMovementActions()
+    {
+        if (_isDodging && TryConvertCurrentDodgeToDashJump())
+            return;
+        UpdateDodgeState();
+        if (_isGroundDash && Time.time >= _currentDodgeStartTime + _groundDashBrakeDelay
+            && _playerMovement.CurrentMoveInput.x * _currentDodgeDirectionX < -0.01f)
+            FinishDodge();
+
+        if (Time.time <= _dodgeQueuedUntil)
+        {
+            if (TryStartDashJumpFromGroundInput())
+                _dodgeQueuedUntil = float.NegativeInfinity;
+            else
+                TryStartDodge();
         }
     }
 
@@ -239,21 +273,23 @@ public class PlayerAttackInput : MonoBehaviour
         if (Time.time < _dodgeLockedUntilTime)
             return;
 
-        if (Time.time < _dodgeCooldownReadyTime)
+        bool startedGrounded = _playerMovement != null && _playerMovement.IsGrounded;
+        Vector2 moveInput = _queuedDodgeInput;
+        Vector2 dodgeDirection = GetDodgeDirection(moveInput, startedGrounded);
+        bool groundDash = startedGrounded && dodgeDirection.sqrMagnitude > 0.001f;
+        if (Time.time < (groundDash ? _groundDashReadyTime : _dodgeCooldownReadyTime))
             return;
 
         _skillManager.CancelAllSkills();
         ClearPressedSkillInputs();
-
-        bool startedGrounded = _playerMovement != null && _playerMovement.IsGrounded;
-        Vector2 moveInput = _playerMovement != null ? _playerMovement.CurrentMoveInput : Vector2.zero;
-        Vector2 dodgeDirection = GetDodgeDirection(moveInput, startedGrounded);
+        _dodgeQueuedUntil = float.NegativeInfinity;
         float dodgeDistance = startedGrounded ? _groundDodgeDistance : _airDodgeDistance;
-        float effectiveDodgeTime = Mathf.Max(0.01f, _dodgeTime);
+        float effectiveDodgeTime = Mathf.Max(0.01f, groundDash ? _groundDashTime : _dodgeTime);
 
         _savedVelocityBeforeDodge = _playerMovement != null ? _playerMovement.CurrentVelocity : Vector2.zero;
         bool stationaryDodge = dodgeDirection.sqrMagnitude <= 0.001f;
         _isDodging = true;
+        _isGroundDash = groundDash;
         _isStationaryDodge = stationaryDodge;
         _isDirectionalPhysicsDodge = !stationaryDodge;
         _currentDodgeDirection = dodgeDirection;
@@ -263,13 +299,19 @@ public class PlayerAttackInput : MonoBehaviour
         _currentDodgeCanDashJump = startedGrounded && !_isStationaryDodge;
         _dashJumpCancelWindowEndTime = _currentDodgeCanDashJump ? Time.time + GetDashJumpWindowSeconds() : -1f;
         _currentDodgeDirectionX = Mathf.Abs(dodgeDirection.x) > 0.01f ? Mathf.Sign(dodgeDirection.x) : 0f;
-        _lastDodgeStartedInAir = !startedGrounded;
-        _landingRefundConsumed = startedGrounded;
-        _readyFlashTriggered = false;
         _dodgeEndTime = Time.time + effectiveDodgeTime;
-        _dodgeCooldownStartTime = Time.time;
-        _dodgeCooldownReadyTime = Time.time + (startedGrounded ? _groundDodgeCooldown : _airDodgeCooldown);
-        GameplayEventBus.Raise(GameplayEventType.Dodged, source: gameObject, target: gameObject);
+        _currentDodgeStartTime = Time.time;
+        if (groundDash)
+            _groundDashReadyTime = Time.time + _groundDashCooldown;
+        else
+        {
+            _dodgeCooldownStartTime = Time.time;
+            _lastDodgeStartedInAir = !startedGrounded;
+            _landingRefundConsumed = startedGrounded;
+            _readyFlashTriggered = false;
+            _dodgeCooldownReadyTime = Time.time + (startedGrounded ? _groundDodgeCooldown : _airDodgeCooldown);
+            GameplayEventBus.Raise(GameplayEventType.Dodged, source: gameObject, target: gameObject);
+        }
 
         _skillManager.SetSkillUsageSuppressed(true);
 
@@ -280,8 +322,8 @@ public class PlayerAttackInput : MonoBehaviour
             {
                 _playerMovement.BeginMotionOverride(
                     _currentDirectionalDodgeVelocity,
-                    suspendGravity: true,
-                    preserveVerticalVelocity: false);
+                    suspendGravity: !groundDash,
+                    preserveVerticalVelocity: groundDash);
             }
             else
             {
@@ -318,7 +360,9 @@ public class PlayerAttackInput : MonoBehaviour
         {
             if (_isDirectionalPhysicsDodge)
             {
-                Vector2 releaseVelocity = _currentDirectionalDodgeVelocity * Mathf.Max(0.1f, _directionalDodgeReleaseMomentumMultiplier);
+                // Preserve collision-resolved velocity; never resurrect speed after hitting a wall.
+                Vector2 releaseVelocity = _playerMovement.CurrentVelocity;
+                releaseVelocity.x *= Mathf.Max(0.1f, _directionalDodgeReleaseMomentumMultiplier);
                 _playerMovement.EndMotionOverride(releaseVelocity);
                 if (Mathf.Abs(releaseVelocity.x) > 0.01f && _directionalDodgeHorizontalCarryDuration > 0f)
                     _playerMovement.ApplyHorizontalMomentumCarry(releaseVelocity.x, _directionalDodgeHorizontalCarryDuration);
@@ -350,6 +394,7 @@ public class PlayerAttackInput : MonoBehaviour
 
         _skillManager.SetSkillUsageSuppressed(false);
         _isDirectionalPhysicsDodge = false;
+        _isGroundDash = false;
 
         if (_playerMovement != null && _playerMovement.IsGrounded)
             HandleLandingDuringCooldown();
@@ -394,12 +439,14 @@ public class PlayerAttackInput : MonoBehaviour
 
     private bool TryStartDashJumpFromGroundInput()
     {
+        if (_isDodging || Time.time < _groundDashReadyTime || Time.time < _dodgeLockedUntilTime)
+            return false;
         if (_playerMovement == null || !_playerMovement.IsGrounded)
             return false;
         if (!_playerMovement.HasBufferedJump)
             return false;
 
-        float direction = ResolveDashJumpDirection(_playerMovement.CurrentMoveInput, 0f);
+        float direction = ResolveDashJumpDirection(_queuedDodgeInput, 0f);
         if (Mathf.Abs(direction) < 0.01f)
             return false;
 
@@ -463,16 +510,13 @@ public class PlayerAttackInput : MonoBehaviour
         _playerMovement.SetMovementLock(false);
         _skillManager.SetSkillUsageSuppressed(false);
         _isDirectionalPhysicsDodge = false;
+        _isGroundDash = false;
 
         if (!_playerMovement.TryPerformDashJump(direction))
             return false;
 
-        _lastDodgeStartedInAir = false;
-        _landingRefundConsumed = true;
-        _dodgeCooldownStartTime = Time.time;
-        _dodgeCooldownReadyTime = Time.time;
+        _groundDashReadyTime = Time.time + _groundDashCooldown;
         _dodgeLockedUntilTime = Time.time + Mathf.Max(0f, _postDashJumpDodgeLockout);
-        _readyFlashTriggered = true;
         return true;
     }
 
@@ -581,12 +625,16 @@ public class PlayerAttackInput : MonoBehaviour
         if (rootRenderer != null && seen.Add(rootRenderer))
             renderers.Add(rootRenderer);
 
-        if (_visualRoot != null)
+        Transform rendererRoot = _visualRoot != null ? _visualRoot : transform;
+        PlayerMovementVisual movementVisual = GetComponent<PlayerMovementVisual>();
+        if (rendererRoot != null)
         {
-            SpriteRenderer[] childRenderers = _visualRoot.GetComponentsInChildren<SpriteRenderer>(true);
+            SpriteRenderer[] childRenderers = rendererRoot.GetComponentsInChildren<SpriteRenderer>(true);
             for (int i = 0; i < childRenderers.Length; i++)
             {
                 SpriteRenderer childRenderer = childRenderers[i];
+                if (movementVisual != null && childRenderer == movementVisual.DisplayRenderer)
+                    continue;
                 if (childRenderer != null && seen.Add(childRenderer))
                     renderers.Add(childRenderer);
             }
