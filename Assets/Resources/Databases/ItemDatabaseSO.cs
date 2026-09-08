@@ -8,6 +8,12 @@ using Scripts.Skills;
 [CreateAssetMenu(menuName = "RPG/Database/Item Database")]
 public class ItemDatabaseSO : ScriptableObject
 {
+    [Header("Enemy Loot Chances")]
+    [Range(0f, 1f)] public float CommonItemDropChance = 0.10f;
+    [Range(0f, 1f)] public float MagicItemDropChance = 0.05f;
+    [Range(0f, 1f)] public float RareItemDropChance = 0.02f;
+
+    [Header("Database Contents")]
     public List<EquipmentItemSO> AllItems = new List<EquipmentItemSO>();
     public List<ItemAffixSO> AllAffixes = new List<ItemAffixSO>();
     public List<SkillDataSO> AllSkills = new List<SkillDataSO>();

@@ -11,13 +11,31 @@ public class ItemGenerator : MonoBehaviour
 
     public InventoryItem Generate(EquipmentItemSO baseItem, int itemLevel, int rarity)
     {
+        return GenerateRuntime(baseItem, itemLevel, rarity);
+    }
+
+    public static InventoryItem GenerateRuntime(EquipmentItemSO baseItem, int itemLevel, int rarity)
+    {
+        if (baseItem == null)
+            return null;
+
         var newItem = new InventoryItem(baseItem);
 
         // Affixes are now opt-in per item. Empty AffixPool means no random affixes.
         var pool = baseItem.AffixPool;
-        if (pool != null && rarity > 0)
+        int availableAffixGroups = pool != null ? pool.GetAvailableAffixGroupCount(itemLevel) : 0;
+        if (availableAffixGroups > 0 && rarity > 0)
         {
-            int count = (rarity == 1) ? Random.Range(1, 3) : Random.Range(3, 7);
+            int count;
+            if (rarity == 1 || availableAffixGroups < 4)
+            {
+                count = Random.Range(1, Mathf.Min(3, availableAffixGroups) + 1);
+            }
+            else
+            {
+                count = Random.Range(4, Mathf.Min(6, availableAffixGroups) + 1);
+            }
+
             var affixDatas = pool.GetRandomAffixes(count, itemLevel);
 
             foreach (var data in affixDatas)
@@ -64,7 +82,13 @@ public class ItemGenerator : MonoBehaviour
         var pool = baseItem.AffixPool;
         if (pool == null) return;
 
-        int count = Random.Range(3, 7);
+        int availableAffixGroups = pool.GetAvailableAffixGroupCount(baseItem.DropLevel);
+        if (availableAffixGroups <= 0)
+            return;
+
+        int count = availableAffixGroups < 4
+            ? Random.Range(1, Mathf.Min(3, availableAffixGroups) + 1)
+            : Random.Range(4, Mathf.Min(6, availableAffixGroups) + 1);
         var affixDatas = pool.GetRandomAffixes(count, baseItem.DropLevel);
         foreach (var data in affixDatas)
             item.Affixes.Add(new AffixInstance(data, item));
@@ -72,6 +96,6 @@ public class ItemGenerator : MonoBehaviour
 
     public static bool IsRare(InventoryItem item)
     {
-        return item != null && item.Affixes != null && item.Affixes.Count >= 3;
+        return item != null && item.Affixes != null && item.Affixes.Count >= 4;
     }
 }

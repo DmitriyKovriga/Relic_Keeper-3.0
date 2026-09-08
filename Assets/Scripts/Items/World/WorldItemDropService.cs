@@ -8,7 +8,7 @@ namespace Scripts.Items.World
     {
         private const int GroundLayerMask = 1 << 6;
         private const float PixelsPerUnit = 24f;
-        private const float GroundLift = 0.08f;
+        private const float GroundLift = 0.62f;
         private const float RaycastUp = 3f;
         private const float RaycastDown = 12f;
 
@@ -26,6 +26,14 @@ namespace Scripts.Items.World
             var dropped = go.AddComponent<WorldDroppedItem>();
             dropped.Initialize(item, PixelsPerUnit);
             return dropped;
+        }
+
+        public static WorldDroppedItem SpawnOnGround(InventoryItem item, Vector2 position)
+        {
+            if (item?.Data == null)
+                return null;
+
+            return Spawn(item, ProjectToGround(position, position));
         }
 
         public static bool TryDropFromScreen(InventoryItem item, Vector2 screenPosition)
@@ -67,7 +75,7 @@ namespace Scripts.Items.World
             if (hit.collider != null)
                 return hit.point + Vector2.up * GroundLift;
 
-            return fallbackPosition;
+            return fallbackPosition + Vector2.up * GroundLift;
         }
 
         private static int BuildGroundMask()

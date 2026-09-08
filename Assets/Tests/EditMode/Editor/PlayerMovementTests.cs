@@ -1,6 +1,7 @@
 using System.Reflection;
 using NUnit.Framework;
 using Scripts.Stats;
+using Scripts.Visuals;
 using UnityEngine;
 
 namespace RelicKeeper.Tests.EditMode
@@ -202,6 +203,44 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(attack.IsDamageImmune, Is.True);
             typeof(PlayerAttackInput).GetField("_isDodging", BindingFlags.Instance | BindingFlags.NonPublic)
                 .SetValue(attack, false);
+        }
+
+        [Test]
+        public void PresentationSpriteFeetAlignWithCapsuleBottom()
+        {
+            var capsule = _player.AddComponent<CapsuleCollider2D>();
+            capsule.offset = new Vector2(0f, -0.04f);
+            capsule.size = new Vector2(0.51f, 0.92f);
+
+            var texture = new Texture2D(28, 28);
+            var sprite = Sprite.Create(texture, new Rect(0f, 0f, 28f, 28f), new Vector2(0.5f, 0.5f), 24f);
+            try
+            {
+                var renderer = _player.GetComponent<SpriteRenderer>();
+                if (renderer == null)
+                    renderer = _player.AddComponent<SpriteRenderer>();
+                renderer.sprite = sprite;
+                var visual = _player.GetComponent<PlayerMovementVisual>();
+                if (visual == null)
+                    visual = _player.AddComponent<PlayerMovementVisual>();
+                if (visual.DisplayRenderer == null)
+                {
+                    typeof(PlayerMovementVisual)
+                        .GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic)
+                        .Invoke(visual, null);
+                }
+                typeof(PlayerMovementVisual)
+                    .GetMethod("LateUpdate", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Invoke(visual, null);
+
+                Assert.That(visual.DisplayRenderer.bounds.min.y,
+                    Is.EqualTo(capsule.bounds.min.y).Within(0.0001f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(sprite);
+                Object.DestroyImmediate(texture);
+            }
         }
 
         [Test]

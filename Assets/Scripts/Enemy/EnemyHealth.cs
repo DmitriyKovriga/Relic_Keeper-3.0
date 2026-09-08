@@ -179,13 +179,14 @@ namespace Scripts.Enemies
         {
             _isDead = true;
 
+            var entity = GetComponent<EnemyEntity>();
+
             if (_stats != null)
             {
                 float xp = _stats.ExperienceReward;
                 if (xp > 0f)
                 {
                     Vector3 soulPosition = transform.position;
-                    var entity = GetComponent<EnemyEntity>();
                     var spriteRenderer = entity != null ? entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>(true);
                     if (spriteRenderer != null)
                         soulPosition = spriteRenderer.bounds.center;
@@ -200,7 +201,7 @@ namespace Scripts.Enemies
 
             if (DestroyOnDeath)
             {
-                var entity = GetComponent<EnemyEntity>();
+                EnemyLootDropService.TrySpawnLoot(entity);
                 var spriteRenderer = entity != null ? entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>(true);
                 EnemyDeathEffectSpawner.Spawn(entity, spriteRenderer);
                 Destroy(gameObject);

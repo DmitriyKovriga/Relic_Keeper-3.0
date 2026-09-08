@@ -4,6 +4,7 @@ using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Stats;
 using Scripts.Skills;
+using Scripts.Items.World;
 using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Text;
@@ -49,6 +50,8 @@ public class ItemTooltipController : MonoBehaviour
     private CraftingOrbSO _currentTargetOrb;
     private VisualElement _targetAnchorSlot;
     private IVisualElementScheduledItem _hideScheduler;
+    private VisualElement _worldAnchor;
+    private WorldDroppedItem _worldTargetItem;
 
     // --- Orb Tooltip ---
     private VisualElement _orbTooltipBox;
@@ -140,6 +143,18 @@ public class ItemTooltipController : MonoBehaviour
         if (old1 != null) _root.Remove(old1);
         var old2 = _root.Q<VisualElement>("GlobalSkillTooltip");
         if (old2 != null) _root.Remove(old2);
+        var oldOrb = _root.Q<VisualElement>("GlobalOrbTooltip");
+        if (oldOrb != null) _root.Remove(oldOrb);
+        var oldWorldAnchor = _root.Q<VisualElement>("WorldItemTooltipAnchor");
+        if (oldWorldAnchor != null) _root.Remove(oldWorldAnchor);
+
+        _worldAnchor = new VisualElement { name = "WorldItemTooltipAnchor" };
+        _worldAnchor.style.position = Position.Absolute;
+        _worldAnchor.style.width = 18f;
+        _worldAnchor.style.height = 18f;
+        _worldAnchor.style.visibility = Visibility.Hidden;
+        _worldAnchor.pickingMode = PickingMode.Ignore;
+        _root.Add(_worldAnchor);
 
         // --- 1. Item Tooltip ---
         _itemTooltipBox = CreateContainer("GlobalItemTooltip", _colBg);
@@ -247,6 +262,7 @@ public class ItemTooltipController : MonoBehaviour
         _currentTargetItem = null;
         _currentTargetOrb = orb;
         _targetAnchorSlot = anchorSlot;
+        _worldTargetItem = null;
 
         if (_itemTooltipBox != null) { _itemTooltipBox.style.display = DisplayStyle.None; }
         if (_skillTooltipBox != null) { _skillTooltipBox.style.display = DisplayStyle.None; }
@@ -267,6 +283,32 @@ public class ItemTooltipController : MonoBehaviour
 
     public void ShowTooltip(InventoryItem item, VisualElement anchorSlot)
     {
+        ShowTooltipInternal(item, anchorSlot, null);
+    }
+
+    public void ShowWorldTooltip(WorldDroppedItem droppedItem)
+    {
+        if (droppedItem == null || droppedItem.Item?.Data == null)
+            return;
+
+        if (_itemTooltipBox == null || _worldAnchor == null)
+            RebuildTooltipStructure();
+        if (!UpdateWorldAnchorPosition(droppedItem.TooltipWorldPosition))
+            return;
+
+        ShowTooltipInternal(droppedItem.Item, _worldAnchor, droppedItem);
+        if (_worldTargetItem == droppedItem)
+            RecalculatePosition();
+    }
+
+    public void HideWorldTooltip(WorldDroppedItem droppedItem)
+    {
+        if (_worldTargetItem == droppedItem)
+            HideTooltipImmediate();
+    }
+
+    private void ShowTooltipInternal(InventoryItem item, VisualElement anchorSlot, WorldDroppedItem worldTargetItem)
+    {
         if (_itemTooltipBox == null || item == null || item.Data == null) return;
         
         if (_hideScheduler != null)
@@ -278,10 +320,15 @@ public class ItemTooltipController : MonoBehaviour
         _currentTargetOrb = null;
         if (_orbTooltipBox != null) _orbTooltipBox.style.display = DisplayStyle.None;
 
-        if (_currentTargetItem == item && _itemTooltipBox.style.display == DisplayStyle.Flex) return;
+        if (_currentTargetItem == item && _targetAnchorSlot == anchorSlot && _itemTooltipBox.style.display == DisplayStyle.Flex)
+        {
+            _worldTargetItem = worldTargetItem;
+            return;
+        }
 
         _currentTargetItem = item;
         _targetAnchorSlot = anchorSlot;
+        _worldTargetItem = worldTargetItem;
 
         FillItemData(item);
         FillSkillData(item);
@@ -357,6 +404,7 @@ public class ItemTooltipController : MonoBehaviour
         _currentTargetItem = null;
         _currentTargetOrb = null;
         _targetAnchorSlot = null;
+        _worldTargetItem = null;
     }
 
     /// <summary>
@@ -371,6 +419,12 @@ public class ItemTooltipController : MonoBehaviour
             (_orbTooltipBox != null && _orbTooltipBox.style.display == DisplayStyle.Flex);
 
         if (!anyVisible) return;
+        if (_worldTargetItem != null)
+        {
+            if (!_worldTargetItem.CanInteract())
+                HideTooltipImmediate();
+            return;
+        }
         if (_targetAnchorSlot == null || _targetAnchorSlot.panel == null)
         {
             HideTooltipImmediate();
@@ -379,6 +433,24 @@ public class ItemTooltipController : MonoBehaviour
 
         if (_currentTargetItem != null && !IsItemStillPresent(_currentTargetItem))
             HideTooltipImmediate();
+    }
+
+    private bool UpdateWorldAnchorPosition(Vector3 worldPosition)
+    {
+        if (_root == null || _root.panel == null || _worldAnchor == null || Camera.main == null)
+            return false;
+
+        Vector3 screenPoint = Camera.main.WorldToScreenPoint(worldPosition);
+        if (screenPoint.z < 0f)
+            return false;
+
+        Vector2 panelPoint = RuntimePanelUtils.ScreenToPanel(
+            _root.panel,
+            new Vector2(screenPoint.x, Screen.height - screenPoint.y));
+        Vector2 rootPoint = _root.WorldToLocal(panelPoint);
+        _worldAnchor.style.left = rootPoint.x - 9f;
+        _worldAnchor.style.top = rootPoint.y - 9f;
+        return true;
     }
 
     private static bool IsItemStillPresent(InventoryItem target)

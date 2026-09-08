@@ -11,9 +11,12 @@ namespace Scripts.Visuals
         [SerializeField, Range(0f, 0.15f)] private float _jumpStretch = 0.075f;
         [SerializeField, Range(0f, 0.15f)] private float _landingSquash = 0.055f;
         [SerializeField, Min(1f)] private float _returnSpeed = 16f;
+        [SerializeField] private bool _alignFeetToCollider = true;
+        [SerializeField] private float _feetOffset;
 
         private PlayerMovement _movement;
         private PlayerAttackInput _attack;
+        private CapsuleCollider2D _bodyCollider;
         private SpriteRenderer _source;
         private SpriteRenderer _display;
         private MaterialPropertyBlock _properties;
@@ -25,6 +28,7 @@ namespace Scripts.Visuals
         {
             _movement = GetComponent<PlayerMovement>();
             _attack = GetComponent<PlayerAttackInput>();
+            _bodyCollider = GetComponent<CapsuleCollider2D>();
             _source = GetComponent<SpriteRenderer>();
             _originalForceRenderingOff = _source.forceRenderingOff;
             var visual = new GameObject("MovementSprite");
@@ -80,10 +84,31 @@ namespace Scripts.Visuals
                 stretch -= 0.035f;
             float scaleY = 1f + stretch;
             _display.transform.localScale = new Vector3(1f / scaleY, scaleY, 1f);
-            // Keep the feet anchored while the upper body compresses/extends.
-            float footY = _source.sprite != null ? _source.sprite.bounds.min.y : 0f;
-            _display.transform.localPosition = new Vector3(0f, footY * (1f - scaleY), 0f);
+            _display.transform.localPosition = new Vector3(0f, ResolveDisplayY(scaleY), 0f);
             _pulse *= Mathf.Exp(-_returnSpeed * Time.deltaTime);
+        }
+
+        private float ResolveDisplayY(float scaleY)
+        {
+            if (_source.sprite == null)
+                return 0f;
+
+            if (_alignFeetToCollider && _bodyCollider == null)
+                _bodyCollider = GetComponent<CapsuleCollider2D>();
+
+            // A flipped sprite has its visual bottom on the opposite side of its pivot.
+            float spriteFootY = _source.flipY
+                ? -_source.sprite.bounds.max.y
+                : _source.sprite.bounds.min.y;
+
+            // Keep the feet anchored while the upper body compresses/extends. Animation
+            // frames can have a different height/pivot, so align every frame to the
+            // physical body's bottom instead of assuming that both origins already match.
+            float targetFootY = _alignFeetToCollider && _bodyCollider != null
+                ? _bodyCollider.offset.y - _bodyCollider.size.y * 0.5f + _feetOffset
+                : spriteFootY;
+
+            return targetFootY - spriteFootY * scaleY;
         }
     }
 }

@@ -8900,6 +8900,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   _debugInput: 1
+  _itemTooltipDelay: 0.5
 --- !u!114 &1563690815
 MonoBehaviour:
   m_ObjectHideFlags: 0

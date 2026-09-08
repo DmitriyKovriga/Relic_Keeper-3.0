@@ -71,4 +71,5 @@ MonoBehaviour:
     MoveStateName: Walk
     AttackStateName: Attack
   XPReward: 25
+  LootDropMultiplier: 0
   LegacyGrowthPerLevelPercent: 25

@@ -12,6 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16e5b693ef63f6d4491fd3ede7cf12a2, type: 3}
   m_Name: ItemDatabaseSO
   m_EditorClassIdentifier: 
+  CommonItemDropChance: 0.1
+  MagicItemDropChance: 0.05
+  RareItemDropChance: 0.02
   AllItems:
   - {fileID: 11400000, guid: ddfb08f184b04c74bb95f559d0997a2a, type: 2}
   - {fileID: 11400000, guid: bf0bd4209ab586144b213f66fce87ad3, type: 2}

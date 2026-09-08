@@ -19,40 +19,52 @@ namespace Scripts.Items.Affixes
         public List<ItemAffixSO> GetRandomAffixes(int count, int itemLevel)
         {
             List<ItemAffixSO> result = new List<ItemAffixSO>();
-            List<string> usedGroups = new List<string>();
-            
-            // РљР°РЅРґРёРґР°С‚С‹: Р°С„С„РёРєСЃС‹, С‡РµР№ С‚РёСЂ РґРѕРїСѓСЃРєР°РµС‚ РґР°РЅРЅС‹Р№ СѓСЂРѕРІРµРЅСЊ РїСЂРµРґРјРµС‚Р° (Р·Р°С…Р°СЂРґРєРѕР¶РµРЅРѕ РІ AffixTierHelper)
-            var candidates = new List<ItemAffixSO>();
-            foreach (var a in Affixes)
-            {
-                if (a != null && AffixTierHelper.IsTierAllowedForLevel(itemLevel, a.Tier) && IsRuntimeAllowed(a))
-                    candidates.Add(a);
-            }
+            var candidates = BuildCandidates(itemLevel);
 
-            // РџС‹С‚Р°РµРјСЃСЏ РЅР°Р±СЂР°С‚СЊ РЅСѓР¶РЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ
             for (int i = 0; i < count; i++)
             {
                 if (candidates.Count == 0) break;
 
-                // Р‘РµСЂРµРј СЃР»СѓС‡Р°Р№РЅС‹Р№
                 int index = Random.Range(0, candidates.Count);
                 ItemAffixSO picked = candidates[index];
-
-                // РџСЂРѕРІРµСЂСЏРµРј РіСЂСѓРїРїСѓ (С‡С‚РѕР±С‹ РЅРµ Р±С‹Р»Рѕ 2 СЂР°Р·Р° Life)
-                if (!usedGroups.Contains(picked.GroupID))
-                {
-                    result.Add(picked);
-                    usedGroups.Add(picked.GroupID);
-                }
-
-                // РЈРґР°Р»СЏРµРј РёР· РєР°РЅРґРёРґР°С‚РѕРІ (С‡С‚РѕР±С‹ РЅРµ РІС‹С‚Р°С‰РёС‚СЊ СЌС‚РѕС‚ Р¶Рµ РѕР±СЉРµРєС‚ СЃРЅРѕРІР°)
-                candidates.RemoveAt(index);
-                
-                // РћРїС‚РёРјРёР·Р°С†РёСЏ: РјРѕР¶РЅРѕ СЃСЂР°Р·Сѓ СѓРґР°Р»РёС‚СЊ РёР· РєР°РЅРґРёРґР°С‚РѕРІ РІСЃРµ Р°С„С„РёРєСЃС‹ СЌС‚РѕР№ Р¶Рµ РіСЂСѓРїРїС‹,
-                // РЅРѕ РґР»СЏ РїСЂРѕСЃС‚РѕС‚С‹ РїРѕРєР° РѕСЃС‚Р°РІРёРј С‚Р°Рє.
+                string pickedGroup = GetGroupKey(picked);
+                result.Add(picked);
+                candidates.RemoveAll(candidate => GetGroupKey(candidate) == pickedGroup);
             }
 
             return result;
+        }
+
+        public int GetAvailableAffixGroupCount(int itemLevel)
+        {
+            var groups = new HashSet<string>();
+            foreach (ItemAffixSO affix in BuildCandidates(itemLevel))
+                groups.Add(GetGroupKey(affix));
+            return groups.Count;
+        }
+
+        private List<ItemAffixSO> BuildCandidates(int itemLevel)
+        {
+            var candidates = new List<ItemAffixSO>();
+            if (Affixes == null)
+                return candidates;
+
+            foreach (var affix in Affixes)
+            {
+                if (affix != null && AffixTierHelper.IsTierAllowedForLevel(itemLevel, affix.Tier) && IsRuntimeAllowed(affix))
+                    candidates.Add(affix);
+            }
+
+            return candidates;
+        }
+
+        private static string GetGroupKey(ItemAffixSO affix)
+        {
+            if (!string.IsNullOrWhiteSpace(affix.GroupID))
+                return affix.GroupID.Trim();
+            if (!string.IsNullOrWhiteSpace(affix.UniqueID))
+                return affix.UniqueID.Trim();
+            return affix.name;
         }
 
         private static bool IsRuntimeAllowed(ItemAffixSO affix)

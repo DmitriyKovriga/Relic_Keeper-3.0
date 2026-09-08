@@ -1,6 +1,8 @@
 using Scripts.Dungeon;
 using Scripts.Inventory;
+using Scripts.Visuals;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Scripts.Items.World
 {
@@ -8,7 +10,9 @@ namespace Scripts.Items.World
     public sealed class WorldDroppedItem : MonoBehaviour, IInteractable
     {
         private const int CirclePixels = 18;
-        private const int SortingOrder = 130;
+        private const int SortingOrder = 32000;
+        private const float HoverAmplitude = 0.08f;
+        private const float HoverCyclesPerSecond = 0.8f;
 
         private static Sprite _circleSprite;
 
@@ -16,15 +20,35 @@ namespace Scripts.Items.World
         private float _pixelsPerUnit = 24f;
         private SpriteRenderer _circleRenderer;
         private SpriteRenderer _iconRenderer;
+        private Canvas _inspectionCanvas;
+        private Image _inspectionOverlay;
+        private float _hoverBaseLocalY;
+        private float _hoverPhase;
+        private bool _isInitialized;
 
         public InventoryItem Item => _item;
+        public Vector3 TooltipWorldPosition => transform.position + Vector3.up * 0.48f;
 
         public void Initialize(InventoryItem item, float pixelsPerUnit)
         {
             _item = item;
             _pixelsPerUnit = Mathf.Max(1f, pixelsPerUnit);
+            _hoverBaseLocalY = transform.localPosition.y;
+            _hoverPhase = Mathf.Abs(GetInstanceID() % 1000) * 0.013f;
             BuildVisual();
             BuildCollider();
+            BuildInspectionProgress();
+            _isInitialized = true;
+        }
+
+        private void Update()
+        {
+            if (!_isInitialized)
+                return;
+
+            Vector3 localPosition = transform.localPosition;
+            localPosition.y = _hoverBaseLocalY + Mathf.Sin((Time.time + _hoverPhase) * Mathf.PI * 2f * HoverCyclesPerSecond) * HoverAmplitude;
+            transform.localPosition = localPosition;
         }
 
         public string GetPrompt()
@@ -55,7 +79,18 @@ namespace Scripts.Items.World
             }
 
             _item = null;
+            ItemTooltipController.Instance?.HideWorldTooltip(this);
             Destroy(gameObject);
+        }
+
+        public void SetInspectionProgress(float normalizedProgress, bool visible)
+        {
+            if (_inspectionOverlay == null)
+                return;
+
+            float progress = Mathf.Clamp01(normalizedProgress);
+            _inspectionCanvas.enabled = visible && progress < 0.999f;
+            _inspectionOverlay.fillAmount = 1f - progress;
         }
 
         private void BuildVisual()
@@ -66,6 +101,7 @@ namespace Scripts.Items.World
 
             _circleRenderer.sprite = GetCircleSprite();
             _circleRenderer.color = GetRarityColor(_item);
+            _circleRenderer.sortingLayerName = WorldRenderSorting.LayerVfx;
             _circleRenderer.sortingOrder = SortingOrder;
 
             Transform iconTransform = transform.Find("Icon");
@@ -82,6 +118,7 @@ namespace Scripts.Items.World
 
             _iconRenderer.sprite = _item?.Data != null ? _item.Data.Icon : null;
             _iconRenderer.color = Color.white;
+            _iconRenderer.sortingLayerName = WorldRenderSorting.LayerVfx;
             _iconRenderer.sortingOrder = SortingOrder + 1;
             _iconRenderer.transform.localPosition = new Vector3(0f, 0f, -0.01f);
             FitIconInsideCircle();
@@ -95,6 +132,37 @@ namespace Scripts.Items.World
 
             collider.isTrigger = true;
             collider.radius = (CirclePixels / _pixelsPerUnit) * 0.65f;
+        }
+
+        private void BuildInspectionProgress()
+        {
+            Transform existing = transform.Find("InspectionProgress");
+            GameObject progressObject = existing != null
+                ? existing.gameObject
+                : new GameObject("InspectionProgress", typeof(RectTransform), typeof(Canvas), typeof(CanvasRenderer), typeof(Image));
+            progressObject.transform.SetParent(transform, false);
+
+            RectTransform rect = progressObject.GetComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(CirclePixels, CirclePixels);
+            rect.localPosition = new Vector3(0f, 0f, -0.02f);
+            rect.localScale = Vector3.one / _pixelsPerUnit;
+
+            _inspectionCanvas = progressObject.GetComponent<Canvas>();
+            _inspectionCanvas.renderMode = RenderMode.WorldSpace;
+            _inspectionCanvas.overrideSorting = true;
+            _inspectionCanvas.sortingLayerName = WorldRenderSorting.LayerVfx;
+            _inspectionCanvas.sortingOrder = SortingOrder + 2;
+
+            _inspectionOverlay = progressObject.GetComponent<Image>();
+            _inspectionOverlay.sprite = GetCircleSprite();
+            _inspectionOverlay.color = new Color(0.05f, 0.05f, 0.05f, 0.68f);
+            _inspectionOverlay.raycastTarget = false;
+            _inspectionOverlay.type = Image.Type.Filled;
+            _inspectionOverlay.fillMethod = Image.FillMethod.Radial360;
+            _inspectionOverlay.fillOrigin = 2;
+            _inspectionOverlay.fillClockwise = true;
+            _inspectionOverlay.fillAmount = 1f;
+            _inspectionCanvas.enabled = false;
         }
 
         private void FitIconInsideCircle()
@@ -116,7 +184,7 @@ namespace Scripts.Items.World
         private static Color GetRarityColor(InventoryItem item)
         {
             int affixCount = item?.Affixes?.Count ?? 0;
-            if (affixCount >= 3)
+            if (affixCount >= 4)
                 return new Color(1f, 0.82f, 0.22f, 0.95f);
             if (affixCount > 0)
                 return new Color(0.25f, 0.48f, 1f, 0.95f);

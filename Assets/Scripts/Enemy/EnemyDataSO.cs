@@ -280,6 +280,9 @@ namespace Scripts.Enemies
         [Header("Rewards")]
         public float XPReward = 10f;
 
+        [Tooltip("Множитель шанса выпадения предмета. 1 = базовый шанс, 0.5 = вдвое реже, 2 = вдвое чаще, 0 = без предметов.")]
+        [Min(0f)] public float LootDropMultiplier = 1f;
+
         [Tooltip("Используется только для legacy Base Stats, если новые Stats ещё не заполнены.")]
         public float LegacyGrowthPerLevelPercent = 25f;
 

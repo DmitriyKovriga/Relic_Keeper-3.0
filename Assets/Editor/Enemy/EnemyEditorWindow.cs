@@ -159,6 +159,7 @@ namespace Scripts.Editor.Enemy
 
             EditorGUILayout.LabelField("Rewards", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(so.FindProperty("XPReward"));
+            EditorGUILayout.PropertyField(so.FindProperty("LootDropMultiplier"));
             EditorGUILayout.Space(10f);
 
             DrawValidation(enemy);

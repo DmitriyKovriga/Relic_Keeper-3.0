@@ -29,6 +29,8 @@ MonoBehaviour:
     Value: 0
   - Type: 24
     Value: 0
+  - Type: 102
+    Value: 70
   Stats:
   - Type: 0
     BaseValue: 200
@@ -54,6 +56,11 @@ MonoBehaviour:
     BaseValue: 0
     ScalingMode: 0
     ScalingValue: 0
+  - Type: 102
+    BaseValue: 140
+    ScalingMode: 2
+    ScalingValue: 25
+  StunThresholdMultiplier: 1
   Perception:
     AggroRange: 6
     LoseTargetRange: 10
@@ -118,6 +125,13 @@ MonoBehaviour:
     TurnDelayMin: 0.04
     TurnDelayMax: 0.1
     MissRecoveryMultiplier: 1.2
+    IdleWanderEnabled: 1
+    IdleWanderMoveChance: 0.65
+    IdleWanderSpeedMultiplier: 0.45
+    IdleWanderStandMin: 1.2
+    IdleWanderStandMax: 3
+    IdleWanderMoveMin: 0.35
+    IdleWanderMoveMax: 1.1
   Burrow:
     Enabled: 0
     TriggerMinDistance: 1.6
@@ -174,4 +188,5 @@ MonoBehaviour:
     AttackImpactFrame: 8
     ChargeImpactFrame: 8
   XPReward: 50
+  LootDropMultiplier: 3
   LegacyGrowthPerLevelPercent: 25
