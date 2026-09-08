@@ -913,7 +913,8 @@ namespace Scripts.Skills.Projectiles
                 Cold = source.Cold * multiplier,
                 Lightning = source.Lightning * multiplier,
                 IsCrit = source.IsCrit,
-                CritMultiplier = source.CritMultiplier
+                CritMultiplier = source.CritMultiplier,
+                IsDirectHit = source.IsDirectHit
             };
         }
 

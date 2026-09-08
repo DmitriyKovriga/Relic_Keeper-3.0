@@ -1,9 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[DefaultExecutionOrder(-200)]
 public class InputManager : MonoBehaviour
 {
     private static GameInput _inputActions;
+    private static bool _rebindsApplied;
 
     // "Ленивая" инициализация. Если переменной нет - создаем.
     public static GameInput InputActions
@@ -15,6 +17,7 @@ public class InputManager : MonoBehaviour
                 _inputActions = new GameInput();
                 GameInputRuntimeSetup.EnsureRelicKeeperRuntimeActions(_inputActions);
                 _inputActions.Enable();
+                ApplySavedRebinds(_inputActions.asset);
             }
             return _inputActions;
         }
@@ -24,6 +27,15 @@ public class InputManager : MonoBehaviour
     {
         // Просто дергаем свойство, чтобы убедиться, что оно инициализировано
         var _ = InputActions;
+    }
+
+    private static void ApplySavedRebinds(InputActionAsset actions)
+    {
+        if (_rebindsApplied || actions == null)
+            return;
+
+        _rebindsApplied = true;
+        InputRebindSaver.Load(actions);
     }
     
     private void OnDisable()

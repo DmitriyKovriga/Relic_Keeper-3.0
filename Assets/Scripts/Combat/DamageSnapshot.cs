@@ -21,6 +21,7 @@ namespace Scripts.Combat
         // Мета-данные
         public bool IsCrit;
         public float CritMultiplier; // 1.5 = 150%
+        public bool IsDirectHit = true;
 
         // Хелпер для получения суммы
         public float TotalDamage => Physical + Fire + Cold + Lightning;

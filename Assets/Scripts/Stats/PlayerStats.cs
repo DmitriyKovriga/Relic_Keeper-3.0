@@ -6,6 +6,7 @@ using Scripts.Inventory;
 using Scripts.Saving;
 using Scripts.StatusEffects;
 using Scripts.Skills.PassiveTree;
+using Scripts.GameplayEvents;
 
 public class PlayerStats : MonoBehaviour, IStatsProvider
 {
@@ -94,6 +95,16 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
             InventoryManager.Instance.OnItemUnequipped += HandleItemUnequipped;
         }
         NotifyChanged();
+    }
+
+    private void OnEnable()
+    {
+        GameplayEventBus.EventRaised += HandleGameplayEvent;
+    }
+
+    private void OnDisable()
+    {
+        GameplayEventBus.EventRaised -= HandleGameplayEvent;
     }
 
     private void Update()
@@ -281,6 +292,32 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         Debug.Log("YOU DIED");
         FindFirstObjectByType<GameSaveManager>()?.HandlePlayerDeath();
     }
+
+    private void HandleGameplayEvent(GameplayEventContext context)
+    {
+        if (context == null || context.Type != GameplayEventType.DamageDealt)
+            return;
+        if (context.Source != gameObject)
+            return;
+        if (context.Damage != null && !context.Damage.IsDirectHit)
+            return;
+        if (context.Amount <= 0f)
+            return;
+
+        ApplyOnHitResources();
+    }
+
+    private void ApplyOnHitResources()
+    {
+        float healthOnHit = GetValue(StatType.HealthOnHit);
+        if (healthOnHit > 0f && Health != null)
+            Health.Increase(healthOnHit);
+
+        float manaOnHit = GetValue(StatType.ManaOnHit);
+        if (manaOnHit > 0f && Mana != null)
+            Mana.Increase(manaOnHit);
+    }
+
     public void NotifyChanged() 
 { 
     OnAnyStatChanged?.Invoke(); 

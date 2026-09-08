@@ -10,7 +10,7 @@ using UnityEngine.InputSystem;
 [DisallowMultipleComponent]
 public class PlayerMovement : MonoBehaviour
 {
-    private const float DefaultDropThroughDuration = 0.42f;
+    private const float DropThroughFailsafeDuration = 0.55f;
     private const float DefaultDropThroughDownwardVelocity = -3f;
     private const float OneWayGroundRaycastLift = 0.08f;
     private const float OneWayGroundProbeDistance = 0.18f;
@@ -25,7 +25,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private LayerMask _oneWayPlatformLayer;
     [SerializeField, Min(0.01f)] private float _groundCheckRadius = 0.2f;
-    [SerializeField, Min(0.05f)] private float _dropThroughDuration = DefaultDropThroughDuration;
+    [SerializeField, Min(0.05f)] private float _dropThroughDuration = DropThroughFailsafeDuration;
     [SerializeField, Range(-1f, 0f)] private float _dropThroughInputThreshold = -0.5f;
 
     [Header("Movement")]
@@ -258,14 +258,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnEnable()
     {
-        ApplyBindingOverrides();
-        InputRebindSaver.RebindsChanged += ApplyBindingOverrides;
         InputManager.InputActions.Player.Jump.performed += OnJumpPerformed;
     }
 
     private void OnDisable()
     {
-        InputRebindSaver.RebindsChanged -= ApplyBindingOverrides;
         if (InputManager.InputActions != null)
             InputManager.InputActions.Player.Jump.performed -= OnJumpPerformed;
 
@@ -316,12 +313,6 @@ public class PlayerMovement : MonoBehaviour
     {
         _hasQueuedJump = true;
         _jumpQueuedUntilTime = Time.time + Mathf.Max(0.01f, _jumpBufferDuration);
-    }
-
-    private void ApplyBindingOverrides()
-    {
-        if (InputManager.InputActions != null)
-            InputRebindSaver.Load(InputManager.InputActions.asset);
     }
 
     private void ApplyMovement()
@@ -484,9 +475,7 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        int combinedMask = _groundLayer.value;
-        if (!_isDroppingThroughPlatform)
-            combinedMask |= _oneWayPlatformLayer.value;
+        int combinedMask = _groundLayer.value | _oneWayPlatformLayer.value;
 
         Collider2D[] hits = Physics2D.OverlapCircleAll(_groundCheckPoint.position, _groundCheckRadius, combinedMask);
         _isGrounded = false;
@@ -544,7 +533,7 @@ public class PlayerMovement : MonoBehaviour
         _ignoredPlatformSurfaceY[platform] = surfaceY;
 
         _isDroppingThroughPlatform = true;
-        _dropThroughEndTime = Time.time + Mathf.Max(_dropThroughDuration, DefaultDropThroughDuration);
+        _dropThroughEndTime = Time.time + Mathf.Max(DropThroughFailsafeDuration, _dropThroughDuration);
         _isGrounded = false;
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, Mathf.Min(_rb.linearVelocity.y, DefaultDropThroughDownwardVelocity));
         transform.position += Vector3.down * 0.1f;
@@ -556,7 +545,6 @@ public class PlayerMovement : MonoBehaviour
         if (!_isDroppingThroughPlatform)
             return;
 
-        bool canAttemptRestore = Time.time >= _dropThroughEndTime;
         for (int i = _ignoredPlatformColliders.Count - 1; i >= 0; i--)
         {
             Collider2D platform = _ignoredPlatformColliders[i];
@@ -567,7 +555,8 @@ public class PlayerMovement : MonoBehaviour
             }
 
             bool playerIsBelowDroppedSurface = IsBelowDroppedPlatformSurface(platform);
-            if (!canAttemptRestore || (!playerIsBelowDroppedSurface && !CanRestoreCollisionWithPlatform(platform)))
+            bool failsafeElapsed = Time.time >= _dropThroughEndTime;
+            if (!playerIsBelowDroppedSurface && !failsafeElapsed)
                 continue;
 
             Physics2D.IgnoreCollision(_mainCollider, platform, false);
@@ -618,19 +607,6 @@ public class PlayerMovement : MonoBehaviour
             return false;
 
         return _mainCollider.bounds.max.y < surfaceY - 0.02f;
-    }
-
-    private bool CanRestoreCollisionWithPlatform(Collider2D platform)
-    {
-        if (_mainCollider == null || platform == null)
-            return true;
-
-        Bounds playerBounds = _mainCollider.bounds;
-        Bounds platformBounds = platform.bounds;
-
-        bool separatedHorizontally = playerBounds.max.x < platformBounds.min.x - 0.01f || playerBounds.min.x > platformBounds.max.x + 0.01f;
-        bool separatedVertically = playerBounds.max.y < platformBounds.min.y - 0.01f || playerBounds.min.y > platformBounds.max.y + 0.01f;
-        return separatedHorizontally || separatedVertically;
     }
 
     private void EnsureOneWayPlatformMask()

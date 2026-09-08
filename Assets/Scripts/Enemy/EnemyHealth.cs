@@ -143,7 +143,8 @@ namespace Scripts.Enemies
 
             var damage = new DamageSnapshot(source)
             {
-                Physical = finalDamage
+                Physical = finalDamage,
+                IsDirectHit = false
             };
 
             _currentHealth -= finalDamage;

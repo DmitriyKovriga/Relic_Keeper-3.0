@@ -29,11 +29,11 @@ MonoBehaviour:
   - actionName: FirstSkill
     displayOrder: 3
     showInSettings: 1
-    defaultBindingPath: 
+    defaultBindingPath: <Keyboard>/q
   - actionName: SecondSkill
     displayOrder: 4
     showInSettings: 1
-    defaultBindingPath: 
+    defaultBindingPath: <Keyboard>/z
   - actionName: Interact
     displayOrder: 5
     showInSettings: 1
@@ -77,16 +77,16 @@ MonoBehaviour:
   - actionName: ThirdSkill
     displayOrder: 15
     showInSettings: 1
-    defaultBindingPath: <Keyboard>/q
+    defaultBindingPath: <Keyboard>/r
   - actionName: FourthSkill
     displayOrder: 16
     showInSettings: 1
-    defaultBindingPath: <Keyboard>/e
+    defaultBindingPath: <Keyboard>/v
   - actionName: FifthSkill
     displayOrder: 17
     showInSettings: 1
-    defaultBindingPath: <Keyboard>/r
+    defaultBindingPath: <Keyboard>/f
   - actionName: SixthSkill
     displayOrder: 18
     showInSettings: 1
-    defaultBindingPath: <Keyboard>/f
+    defaultBindingPath: <Keyboard>/1

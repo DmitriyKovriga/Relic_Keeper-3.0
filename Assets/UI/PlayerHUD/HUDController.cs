@@ -179,9 +179,17 @@ public class HUDController : MonoBehaviour
             _skillManager = FindFirstObjectByType<PlayerSkillManager>();
             if (_skillManager != null) _skillManager.OnSkillSlotUpdated += UpdateSkillSlotUI;
         }
+    }
 
+    private void OnEnable()
+    {
         InputRebindSaver.RebindsChanged += RefreshAllSkillSlotBindings;
         RefreshAllSkillSlotBindings();
+    }
+
+    private void OnDisable()
+    {
+        InputRebindSaver.RebindsChanged -= RefreshAllSkillSlotBindings;
     }
 
     private void OnDestroy()
