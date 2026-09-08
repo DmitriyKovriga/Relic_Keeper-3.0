@@ -72,6 +72,48 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(selected, Is.Not.SameAs(farther));
         }
 
+        [Test]
+        public void TryDropAtPlayer_SpawnsNearPlayerEvenIfCursorWouldBeElsewhere()
+        {
+            GameObject player = CreateGameObject("Player");
+            player.tag = "Player";
+            player.transform.position = new Vector3(6f, 2f, 0f);
+
+            Assert.IsTrue(WorldItemDropService.TryDropAtPlayer(CreateInventoryItem()));
+
+            WorldDroppedItem spawned = Object.FindFirstObjectByType<WorldDroppedItem>();
+            Assert.That(spawned, Is.Not.Null);
+            _createdObjects.Add(spawned.gameObject);
+
+            GameObject dropRoot = GameObject.Find("WorldDroppedItems");
+            if (dropRoot != null)
+                _createdObjects.Add(dropRoot);
+
+            Assert.That(spawned.transform.position.x, Is.EqualTo(6f).Within(0.01f));
+            Assert.That(spawned.transform.position.y, Is.EqualTo(2.62f).Within(0.01f));
+        }
+
+        [Test]
+        public void ProjectToGroundUnder_WithoutCollider_LiftsFromOrigin()
+        {
+            MethodInfo method = typeof(WorldItemDropService).GetMethod(
+                "ProjectToGroundUnder",
+                BindingFlags.Static | BindingFlags.NonPublic);
+            Assert.That(method, Is.Not.Null);
+
+            Vector2 origin = new Vector2(1.5f, 4f);
+            Vector2 result = (Vector2)method.Invoke(null, new object[] { origin });
+            Assert.That(result, Is.EqualTo(origin + Vector2.up * 0.62f));
+        }
+
+        private InventoryItem CreateInventoryItem()
+        {
+            ArmorItemSO data = ScriptableObject.CreateInstance<ArmorItemSO>();
+            data.ID = $"drop_{_createdObjects.Count}";
+            _createdObjects.Add(data);
+            return new InventoryItem(data);
+        }
+
         private WorldDroppedItem CreateDroppedItem(Vector2 position)
         {
             ArmorItemSO data = ScriptableObject.CreateInstance<ArmorItemSO>();

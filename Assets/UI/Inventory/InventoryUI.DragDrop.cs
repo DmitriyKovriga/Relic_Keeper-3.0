@@ -636,7 +636,7 @@ public partial class InventoryUI
         }
 
         if (!placed && CanDropItemToWorld(itemToPlace, dropCenter))
-            placed = WorldItemDropService.TryDropFromScreen(itemToPlace, Input.mousePosition);
+            placed = WorldItemDropService.TryDropAtPlayer(itemToPlace);
 
         if (!placed)
         {

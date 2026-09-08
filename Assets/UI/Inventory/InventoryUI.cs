@@ -188,6 +188,7 @@ public partial class InventoryUI : MonoBehaviour
     private void OnInventoryWindowOpened()
     {
         ApplyInventorySpacing(IsStashVisible);
+        ItemTooltipController.Instance?.HideWorldTooltip();
     }
 
     /// <summary>Переключает видимость склада. Раскладка задаётся только в USS: класс stash-open на WindowRoot и MainRow.</summary>

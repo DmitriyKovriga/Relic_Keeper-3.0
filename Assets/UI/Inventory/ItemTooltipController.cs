@@ -290,6 +290,8 @@ public class ItemTooltipController : MonoBehaviour
     {
         if (droppedItem == null || droppedItem.Item?.Data == null)
             return;
+        if (ShouldHideWorldItemTooltip())
+            return;
 
         if (_itemTooltipBox == null || _worldAnchor == null)
             RebuildTooltipStructure();
@@ -305,6 +307,18 @@ public class ItemTooltipController : MonoBehaviour
     {
         if (_worldTargetItem == droppedItem)
             HideTooltipImmediate();
+    }
+
+    public void HideWorldTooltip()
+    {
+        if (_worldTargetItem != null)
+            HideTooltipImmediate();
+    }
+
+    private static bool ShouldHideWorldItemTooltip()
+    {
+        var windowManager = Object.FindFirstObjectByType<WindowManager>();
+        return windowManager != null && windowManager.HasOpenWindow;
     }
 
     private void ShowTooltipInternal(InventoryItem item, VisualElement anchorSlot, WorldDroppedItem worldTargetItem)

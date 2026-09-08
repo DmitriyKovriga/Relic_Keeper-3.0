@@ -9,7 +9,7 @@ namespace Scripts.Items.World
         private const int GroundLayerMask = 1 << 6;
         private const float PixelsPerUnit = 24f;
         private const float GroundLift = 0.62f;
-        private const float RaycastUp = 3f;
+        private const float PlayerRaycastLift = 0.5f;
         private const float RaycastDown = 12f;
 
         private static Transform _runtimeRoot;
@@ -33,49 +33,33 @@ namespace Scripts.Items.World
             if (item?.Data == null)
                 return null;
 
-            return Spawn(item, ProjectToGround(position, position));
+            return Spawn(item, ProjectToGroundUnder(position));
         }
 
-        public static bool TryDropFromScreen(InventoryItem item, Vector2 screenPosition)
+        public static bool TryDropAtPlayer(InventoryItem item)
         {
             if (item?.Data == null)
                 return false;
 
-            Vector2 dropPosition = ResolveDropPosition(screenPosition);
-            return Spawn(item, dropPosition) != null;
+            return Spawn(item, ResolveDropPositionAtPlayer()) != null;
         }
 
-        public static Vector2 ResolveDropPosition(Vector2 screenPosition)
+        public static Vector2 ResolveDropPositionAtPlayer()
         {
-            Camera camera = Camera.main;
             Transform player = FindPlayerTransform();
-
-            if (camera == null)
-            {
-                Vector2 fallback = player != null ? player.position : Vector3.zero;
-                return ProjectToGround(fallback, fallback);
-            }
-
-            Vector3 world = camera.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y, -camera.transform.position.z));
-            Vector2 desired = new Vector2(world.x, world.y);
-            Vector2 fallbackPosition = player != null ? player.position : desired;
-            return ProjectToGround(desired, fallbackPosition);
+            Vector2 origin = player != null ? (Vector2)player.position : Vector2.zero;
+            return ProjectToGroundUnder(origin);
         }
 
-        private static Vector2 ProjectToGround(Vector2 desiredPosition, Vector2 fallbackPosition)
+        internal static Vector2 ProjectToGroundUnder(Vector2 origin)
         {
             int mask = BuildGroundMask();
-            Vector2 origin = desiredPosition + Vector2.up * RaycastUp;
-            RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, RaycastUp + RaycastDown, mask);
+            Vector2 rayOrigin = origin + Vector2.up * PlayerRaycastLift;
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, PlayerRaycastLift + RaycastDown, mask);
             if (hit.collider != null)
                 return hit.point + Vector2.up * GroundLift;
 
-            origin = fallbackPosition + Vector2.up * RaycastUp;
-            hit = Physics2D.Raycast(origin, Vector2.down, RaycastUp + RaycastDown, mask);
-            if (hit.collider != null)
-                return hit.point + Vector2.up * GroundLift;
-
-            return fallbackPosition + Vector2.up * GroundLift;
+            return origin + Vector2.up * GroundLift;
         }
 
         private static int BuildGroundMask()
