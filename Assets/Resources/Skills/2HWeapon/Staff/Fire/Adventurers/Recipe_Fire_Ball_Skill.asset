@@ -56,6 +56,13 @@ MonoBehaviour:
       BoolVal: 0
       StringVal: 
       ObjectVal: {fileID: 0}
+    - Key: OffsetY
+      Type: 0
+      FloatVal: 0.25
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
     DamageConversions: []
     ScopedStatModifiers: []
     TargetAilmentStackModifiers: []
