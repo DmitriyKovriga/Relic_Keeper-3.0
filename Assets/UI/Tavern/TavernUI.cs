@@ -35,6 +35,10 @@ public partial class TavernUI : MonoBehaviour
     private VisualElement _hostelContent;
     private ScrollView _hostelScrollView;
     private VisualElement _recruitContent;
+    private VisualElement _gearContent;
+    private VisualElement _toastContainer;
+    private Label _toastLabel;
+    private Coroutine _toastRoutine;
     private VisualElement _deleteDialogOverlay;
     private Label _deleteDialogTitle;
     private Label _deleteDialogMessage;
@@ -42,12 +46,13 @@ public partial class TavernUI : MonoBehaviour
     private Button _deleteDialogCancelButton;
     private Button _tabHostel;
     private Button _tabRecruit;
+    private Button _tabGear;
     private Button _rerollButton;
     private Button _closeButton;
     private readonly List<CharacterDataSO> _currentHireChoices = new List<CharacterDataSO>();
     private bool _isNewGameMode;
     private bool _requiresCharacterSelection;
-    private int _activeTabIndex; // 0 = Hostel, 1 = Recruitment
+    private int _activeTabIndex; // 0 = Hostel, 1 = Recruitment, 2 = Starter gear
     private CharacterDataSO _pendingDeleteCharacter;
     private string _pendingDeleteCharacterInstanceId;
     private bool _deleteNeedsFinalConfirmation;
@@ -66,6 +71,7 @@ public partial class TavernUI : MonoBehaviour
 
     private void OnDisable()
     {
+        HideToast();
         if (_windowView != null)
             _windowView.OnClosed -= OnTavernWindowClosed;
     }
@@ -79,9 +85,11 @@ public partial class TavernUI : MonoBehaviour
         _windowView?.SetCloseLocked(_requiresCharacterSelection);
         if (_closeButton != null)
             _closeButton.style.display = forNewGame ? DisplayStyle.None : DisplayStyle.Flex;
+        HideToast();
         RefreshHireChoices();
         RefreshHostelList();
-        ShowTab(_activeTabIndex);
+        // После смерти таверна открывается принудительно — сразу показываем найм, а не вкладку, на которой игрок был раньше.
+        ShowTab(forNewGame ? 1 : _activeTabIndex);
         if (_windowView != null)
             _windowView.Open();
         else
@@ -98,6 +106,7 @@ public partial class TavernUI : MonoBehaviour
             return;
 
         HideDeleteDialog();
+        HideToast();
 
         if (_windowView != null)
             _windowView.Close();

@@ -224,14 +224,36 @@ public class GameSaveManager : MonoBehaviour
         if (_handlingPlayerDeath || PlaytestConfiguration.PlayerImmortal)
             return;
 
-        _handlingPlayerDeath = true;
         if (_partyManager == null)
             _partyManager = FindObjectOfType<CharacterPartyManager>();
 
+        if (_partyManager == null || !_partyManager.HasActiveCharacter)
+        {
+            Debug.LogError("[System] Player death could not remove the active character.");
+            return;
+        }
+
+        _handlingPlayerDeath = true;
+        if (InputManager.InputActions != null)
+            InputManager.InputActions.Player.Disable();
+
+        StartCoroutine(PlayerDeathRoutine());
+    }
+
+    private System.Collections.IEnumerator PlayerDeathRoutine()
+    {
+        yield return DeathScreenOverlay.GetOrCreate().PlayDeathSequence(ReturnToHubAfterDeath);
+        _handlingPlayerDeath = false;
+    }
+
+    /// <summary>Собственно перенос в хаб и открытие таверны. Вызывается под чёрным экраном.</summary>
+    private void ReturnToHubAfterDeath()
+    {
         if (_partyManager == null || !_partyManager.RemoveActiveCharacterAfterDeath())
         {
             Debug.LogError("[System] Player death could not remove the active character.");
-            _handlingPlayerDeath = false;
+            if (InputManager.InputActions != null)
+                InputManager.InputActions.Player.Enable();
             return;
         }
 
@@ -246,8 +268,11 @@ public class GameSaveManager : MonoBehaviour
             Scripts.Dungeon.DungeonController.Instance.ReturnToHub();
 
         SaveGame();
-        _tavernUIForNewGame?.OpenForRequiredCharacterSelection();
-        _handlingPlayerDeath = false;
+        if (_tavernUIForNewGame != null)
+            _tavernUIForNewGame.OpenForRequiredCharacterSelection();
+        else if (InputManager.InputActions != null)
+            InputManager.InputActions.Player.Enable();
+
         Debug.Log("[System] Character died permanently. Returned to Hub and opened Tavern selection.");
     }
 

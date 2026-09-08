@@ -983,6 +983,46 @@ MonoBehaviour:
     m_Key: stats.MaxIgniteStacks
     m_Metadata:
       m_Items: []
+  - m_Id: 62000000000000001
+    m_Key: ui.death.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000002
+    m_Key: tavern.ui.gear
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000003
+    m_Key: tavern.ui.gearTitle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000004
+    m_Key: tavern.ui.gearHint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000005
+    m_Key: tavern.ui.grantStarterGear
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000006
+    m_Key: tavern.ui.starterGearGranted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000007
+    m_Key: tavern.ui.starterGearAlreadyArmed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000008
+    m_Key: tavern.ui.starterGearNoSpace
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000009
+    m_Key: tavern.ui.starterGearNoCharacter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000010
+    m_Key: tavern.ui.starterGearUnavailable
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

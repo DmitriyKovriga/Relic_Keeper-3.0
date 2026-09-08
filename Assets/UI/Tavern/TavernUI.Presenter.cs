@@ -68,11 +68,14 @@ public partial class TavernUI
 
         var tabHostel = new Button(() => { _activeTabIndex = 0; ShowTab(0); UpdateTabStyles(); }) { text = "Hostel" };
         var tabRecruit = new Button(() => { _activeTabIndex = 1; ShowTab(1); UpdateTabStyles(); }) { text = "Recruit" };
+        var tabGear = new Button(() => { _activeTabIndex = 2; ShowTab(2); UpdateTabStyles(); }) { text = "Gear" };
         SetLocalizedButton(tabHostel, TavernLocKeys.Hostel, "Hostel");
         SetLocalizedButton(tabRecruit, TavernLocKeys.Recruit, "Recruit");
+        SetLocalizedButton(tabGear, TavernLocKeys.Gear, "Gear");
         _tabHostel = tabHostel;
         _tabRecruit = tabRecruit;
-        foreach (var btn in new[] { tabHostel, tabRecruit })
+        _tabGear = tabGear;
+        foreach (var btn in new[] { tabHostel, tabRecruit, tabGear })
         {
             btn.style.fontSize = 7;
             btn.style.width = 44;
@@ -81,6 +84,8 @@ public partial class TavernUI
             btn.style.paddingLeft = btn.style.paddingRight = 2;
             headerRow.Add(btn);
         }
+        // "Снаряжение" длиннее остальных заголовков вкладок.
+        tabGear.style.width = 62;
 
         var spacer = new VisualElement();
         spacer.style.flexGrow = 1;
@@ -147,6 +152,8 @@ public partial class TavernUI
         _recruitContent.Add(_hireChoicesContainer);
         panel.Add(_recruitContent);
 
+        BuildStarterGearTab(panel);
+        BuildToast();
         BuildDeleteDialog();
 
         _activeTabIndex = 1;
@@ -226,15 +233,21 @@ public partial class TavernUI
         _activeTabIndex = index;
         if (_hostelContent != null) _hostelContent.style.display = index == 0 ? DisplayStyle.Flex : DisplayStyle.None;
         if (_recruitContent != null) _recruitContent.style.display = index == 1 ? DisplayStyle.Flex : DisplayStyle.None;
+        if (_gearContent != null) _gearContent.style.display = index == 2 ? DisplayStyle.Flex : DisplayStyle.None;
         UpdateTabStyles();
     }
 
     private void UpdateTabStyles()
     {
-        if (_tabHostel != null)
-            _tabHostel.style.backgroundColor = _activeTabIndex == 0 ? new Color(0.35f, 0.3f, 0.22f) : new Color(0.2f, 0.18f, 0.15f);
-        if (_tabRecruit != null)
-            _tabRecruit.style.backgroundColor = _activeTabIndex == 1 ? new Color(0.35f, 0.3f, 0.22f) : new Color(0.2f, 0.18f, 0.15f);
+        SetTabSelected(_tabHostel, _activeTabIndex == 0);
+        SetTabSelected(_tabRecruit, _activeTabIndex == 1);
+        SetTabSelected(_tabGear, _activeTabIndex == 2);
+    }
+
+    private static void SetTabSelected(Button tab, bool selected)
+    {
+        if (tab == null) return;
+        tab.style.backgroundColor = selected ? new Color(0.35f, 0.3f, 0.22f) : new Color(0.2f, 0.18f, 0.15f);
     }
 
     private void RefreshHireChoices()
