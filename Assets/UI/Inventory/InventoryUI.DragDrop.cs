@@ -271,24 +271,36 @@ public partial class InventoryUI
 
     private bool CanDropItemToWorld(InventoryItem item, Vector2 pointerPanelPosition)
     {
-        if (item?.Data == null)
+        bool hasStash = IsStashVisible && _stashPanel != null;
+        return ShouldDropItemToWorld(
+            item?.Data != null,
+            pointerPanelPosition,
+            hasInventoryWindow: _windowRoot != null,
+            inventoryWindowWorldBound: _windowRoot != null ? _windowRoot.worldBound : default,
+            hasStashPanel: hasStash,
+            stashPanelWorldBound: hasStash ? _stashPanel.worldBound : default);
+    }
+
+    /// <summary>
+    /// World drop is only for a real throw outside the inventory/stash window.
+    /// Empty backdrop, frames, and gaps between slots restore the item to its source instead.
+    /// </summary>
+    private static bool ShouldDropItemToWorld(
+        bool hasItemData,
+        Vector2 pointerPanelPosition,
+        bool hasInventoryWindow,
+        Rect inventoryWindowWorldBound,
+        bool hasStashPanel,
+        Rect stashPanelWorldBound)
+    {
+        if (!hasItemData)
             return false;
 
-        if (_inventoryContainer != null && _inventoryContainer.worldBound.Contains(pointerPanelPosition))
+        if (hasInventoryWindow && inventoryWindowWorldBound.Contains(pointerPanelPosition))
             return false;
 
-        if (IsStashVisible && _stashPanel != null && _stashPanel.worldBound.Contains(pointerPanelPosition))
+        if (hasStashPanel && stashPanelWorldBound.Contains(pointerPanelPosition))
             return false;
-
-        if (_craftSlot != null && _craftSlot.worldBound.Contains(pointerPanelPosition))
-            return false;
-
-        for (int i = 0; i < _equipmentSlots.Count; i++)
-        {
-            VisualElement slot = _equipmentSlots[i];
-            if (slot != null && slot.worldBound.Contains(pointerPanelPosition))
-                return false;
-        }
 
         return true;
     }
