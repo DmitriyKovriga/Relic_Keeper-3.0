@@ -25,6 +25,6 @@ MonoBehaviour:
   Cooldown: 0
   ManaCost: 0
   DamageContextTags: 21
-  SkillPrefab: {fileID: 676491238417898282, guid: e1c63f63211992d4ba5a9acd651c7ee4, type: 3}
+  SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: 44a710f291bef5845b458e72d304cc50, type: 2}

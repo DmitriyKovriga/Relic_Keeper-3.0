@@ -37,7 +37,7 @@ public class PlayerAttackInput : MonoBehaviour
     [SerializeField] private float _groundDodgeCooldown = 1f;
     [SerializeField] private float _airDodgeCooldown = 4f;
     [SerializeField] private float _airLandingRefundThreshold = 1f;
-    [SerializeField] private float _groundDodgeDistance = 2.6f;
+    [SerializeField] private float _groundDodgeDistance = 1.05f;
     [SerializeField] private float _airDodgeDistance = 2.6f;
     [SerializeField, Range(0f, 1f)] private float _dodgeVfxAlpha = 0.8f;
     [SerializeField] private Key _keyboardDodgeKey = Key.LeftShift;
@@ -106,6 +106,8 @@ public class PlayerAttackInput : MonoBehaviour
     private bool _isGroundDash;
     private float _groundDashReadyTime;
     private float _currentDodgeStartTime;
+    private float _groundDashEntrySpeed;
+    private float _groundDashExitSpeed;
     private float _dodgeQueuedUntil = float.NegativeInfinity;
     private Vector2 _queuedDodgeInput;
 
@@ -296,6 +298,14 @@ public class PlayerAttackInput : MonoBehaviour
         _currentDodgeDistance = dodgeDistance;
         _currentDodgeDuration = effectiveDodgeTime;
         _currentDirectionalDodgeVelocity = BuildDirectionalDodgeVelocity(dodgeDirection, dodgeDistance, effectiveDodgeTime);
+        if (groundDash)
+        {
+            // A linear speed envelope preserves the requested distance while ending at run speed.
+            float averageSpeed = Mathf.Max(0f, dodgeDistance) / effectiveDodgeTime;
+            _groundDashExitSpeed = Mathf.Min(_playerMovement.CurrentMoveSpeed, averageSpeed);
+            _groundDashEntrySpeed = 2f * averageSpeed - _groundDashExitSpeed;
+            _currentDirectionalDodgeVelocity = dodgeDirection * _groundDashEntrySpeed;
+        }
         _currentDodgeCanDashJump = startedGrounded && !_isStationaryDodge;
         _dashJumpCancelWindowEndTime = _currentDodgeCanDashJump ? Time.time + GetDashJumpWindowSeconds() : -1f;
         _currentDodgeDirectionX = Mathf.Abs(dodgeDirection.x) > 0.01f ? Mathf.Sign(dodgeDirection.x) : 0f;
@@ -362,9 +372,12 @@ public class PlayerAttackInput : MonoBehaviour
             {
                 // Preserve collision-resolved velocity; never resurrect speed after hitting a wall.
                 Vector2 releaseVelocity = _playerMovement.CurrentVelocity;
-                releaseVelocity.x *= Mathf.Max(0.1f, _directionalDodgeReleaseMomentumMultiplier);
+                if (_isGroundDash)
+                    releaseVelocity.x = Mathf.Sign(releaseVelocity.x) * Mathf.Min(Mathf.Abs(releaseVelocity.x), _groundDashExitSpeed);
+                else
+                    releaseVelocity.x *= Mathf.Max(0.1f, _directionalDodgeReleaseMomentumMultiplier);
                 _playerMovement.EndMotionOverride(releaseVelocity);
-                if (Mathf.Abs(releaseVelocity.x) > 0.01f && _directionalDodgeHorizontalCarryDuration > 0f)
+                if (!_isGroundDash && Mathf.Abs(releaseVelocity.x) > 0.01f && _directionalDodgeHorizontalCarryDuration > 0f)
                     _playerMovement.ApplyHorizontalMomentumCarry(releaseVelocity.x, _directionalDodgeHorizontalCarryDuration);
             }
             else
@@ -723,6 +736,13 @@ public class PlayerAttackInput : MonoBehaviour
         if (!_isDodging || !_isDirectionalPhysicsDodge || _playerMovement == null)
             return;
 
+        if (_isGroundDash)
+        {
+            // Midpoint sampling integrates the speed envelope over this physics step.
+            float progress = (Time.time - _currentDodgeStartTime + Time.fixedDeltaTime * 0.5f) / _currentDodgeDuration;
+            _currentDirectionalDodgeVelocity = _currentDodgeDirection
+                * Mathf.Lerp(_groundDashEntrySpeed, _groundDashExitSpeed, progress);
+        }
         _playerMovement.UpdateMotionOverride(_currentDirectionalDodgeVelocity);
     }
 

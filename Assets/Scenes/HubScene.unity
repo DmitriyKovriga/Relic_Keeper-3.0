@@ -7585,21 +7585,26 @@ MonoBehaviour:
   _dropThroughDuration: 0.3
   _dropThroughInputThreshold: -0.5
   _baseMoveSpeed: 5
-  _baseJumpForce: 12
+  _baseJumpForce: 15
   _stopThreshold: 0.01
   _groundAcceleration: 90
   _groundDeceleration: 55
-  _airAcceleration: 65
-  _airDeceleration: 16
+  _airAcceleration: 90
+  _airDeceleration: 45
+  _groundTurnAcceleration: 180
+  _airTurnAcceleration: 160
+  _momentumDeceleration: 35
   _maxJumpCount: 2
   _jumpBufferDuration: 0.12
-  _dashJumpHorizontalSpeed: 12.5
-  _dashJumpVerticalMultiplier: 0.62
-  _dashJumpCarryDuration: 0.2
+  _coyoteTime: 0.1
+  _riseGravityMultiplier: 1.65
+  _fallGravityMultiplier: 1.95
+  _maxFallSpeed: 24
+  _dashJumpHorizontalSpeed: 13
+  _dashJumpVerticalMultiplier: 0.7
+  _dashJumpCarryDuration: 0.1
   _fastFallInputThreshold: -0.6
-  _fastFallPrimeDuration: 0.18
-  _fastFallPrimeUpwardVelocityCap: 0.75
-  _fastFallPrimeDamping: 22
+  _fastFallPrimeDuration: 0.14
   _fastFallInitialDownwardSpeed: 4.5
   _fastFallGravityMultiplier: 2.05
 --- !u!70 &1563690801
@@ -7724,11 +7729,15 @@ MonoBehaviour:
   _groundDodgeCooldown: 1
   _airDodgeCooldown: 4
   _airLandingRefundThreshold: 1
-  _groundDodgeDistance: 2.2
+  _groundDodgeDistance: 1.7
   _airDodgeDistance: 2.6
   _dodgeVfxAlpha: 0.8
   _keyboardDodgeKey: 51
   _gamepadDodgeButton: 0
+  _groundDashTime: 0.14
+  _groundDashCooldown: 0.2
+  _groundDashBrakeDelay: 0.04
+  _dodgeInputBuffer: 0.12
   _readyFlashDuration: 0.16
   _readyFlashColor: {r: 0.92, g: 0.92, b: 0.92, a: 1}
   _dashJumpWindowMilliseconds: 160

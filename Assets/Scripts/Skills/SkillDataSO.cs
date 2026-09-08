@@ -38,13 +38,13 @@ namespace Scripts.Skills
         public StatContextTagFlags DamageContextTags;
 
         [Header("Visuals & Logic")]
-        [Tooltip("Префаб, который спавнится при атаке (снаряд, эффект удара). Если задан Recipe — используется StepRunner на префабе.")]
+        [Tooltip("Префаб логики с компонентом SkillBehaviour на корне. Для навыка с Recipe можно оставить пустым: StepRunner создаётся автоматически. Визуальные эффекты назначаются в шагах рецепта, не здесь.")]
         public GameObject SkillPrefab;
         [Tooltip("Анимация игрока при касте")]
         public string AnimationTrigger = "Attack";
 
         [Header("Step-based (optional)")]
-        [Tooltip("Если задан — скилл выполняется по рецепту степов (StepRunner на префабе). Иначе — классический SkillBehaviour (например CleaveSkill).")]
+        [Tooltip("Рецепт для StepRunner. Если SkillPrefab не задан, исполнитель создаётся автоматически. Иначе префаб должен содержать SkillBehaviour.")]
         public SkillRecipeSO Recipe;
     }
 }

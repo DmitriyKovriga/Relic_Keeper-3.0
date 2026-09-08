@@ -31,31 +31,32 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement")]
     [Tooltip("Fallback only. Real movement speed is StatType.MoveSpeed after flat/increased/more stat calculation.")]
     [SerializeField] private float _baseMoveSpeed = 5f;
-    [SerializeField] private float _baseJumpForce = 12f;
+    [SerializeField] private float _baseJumpForce = 13f;
     [SerializeField] private float _stopThreshold = 0.01f;
     [SerializeField, Min(0.01f)] private float _groundAcceleration = 90f;
     [SerializeField, Min(0.01f)] private float _groundDeceleration = 55f;
-    [SerializeField, Min(0.01f)] private float _airAcceleration = 65f;
-    [SerializeField, Min(0.01f)] private float _airDeceleration = 16f;
+    [SerializeField, Min(0.01f)] private float _airAcceleration = 90f;
+    [SerializeField, Min(0.01f)] private float _airDeceleration = 45f;
     [SerializeField, Min(1f)] private float _groundTurnAcceleration = 140f;
-    [SerializeField, Min(1f)] private float _airTurnAcceleration = 100f;
-    [SerializeField, Min(1f)] private float _momentumDeceleration = 18f;
+    [SerializeField, Min(1f)] private float _airTurnAcceleration = 120f;
+    [SerializeField, Min(1f)] private float _momentumDeceleration = 35f;
 
     [Header("Jump")]
     [SerializeField, Min(1)] private int _maxJumpCount = 2;
     [SerializeField, Min(0.01f)] private float _jumpBufferDuration = 0.12f;
     [SerializeField, Min(0f)] private float _coyoteTime = 0.1f;
-    [SerializeField, Min(1f)] private float _fallGravityMultiplier = 1.35f;
+    [SerializeField, Min(1f)] private float _riseGravityMultiplier = 1.65f;
+    [SerializeField, Min(1f)] private float _fallGravityMultiplier = 1.95f;
     [SerializeField, Min(1f)] private float _maxFallSpeed = 24f;
 
     [Header("Dash Jump")]
-    [SerializeField, Min(0.01f)] private float _dashJumpHorizontalSpeed = 12.5f;
-    [SerializeField, Range(0.3f, 1.5f)] private float _dashJumpVerticalMultiplier = 0.62f;
-    [SerializeField, Min(0.01f)] private float _dashJumpCarryDuration = 0.2f;
+    [SerializeField, Min(0.01f)] private float _dashJumpHorizontalSpeed = 8.5f;
+    [SerializeField, Range(0.3f, 1.5f)] private float _dashJumpVerticalMultiplier = 0.7f;
+    [SerializeField, Min(0.01f)] private float _dashJumpCarryDuration = 0.1f;
 
     [Header("Fast Fall")]
     [SerializeField, Range(-1f, 0f)] private float _fastFallInputThreshold = -0.6f;
-    [SerializeField, Min(0.01f)] private float _fastFallPrimeDuration = 0.18f;
+    [SerializeField, Min(0.01f)] private float _fastFallPrimeDuration = 0.14f;
     [SerializeField, Min(0f)] private float _fastFallInitialDownwardSpeed = 4.4f;
     [SerializeField, Min(1f)] private float _fastFallGravityMultiplier = 2.05f;
 
@@ -98,6 +99,7 @@ public class PlayerMovement : MonoBehaviour
     public int FacingDirection => _isFacingRight ? 1 : -1;
     public Vector2 CurrentMoveInput => _moveInput;
     public Vector2 CurrentVelocity => _rb != null ? _rb.linearVelocity : Vector2.zero;
+    public float CurrentMoveSpeed => ResolveMoveSpeed();
     public bool IsMovementLocked => _isMovementLocked;
     public bool HasBufferedJump => _hasQueuedJump && Time.time <= _jumpQueuedUntilTime;
     public float DashJumpHorizontalSpeed => _dashJumpHorizontalSpeed;
@@ -216,7 +218,8 @@ public class PlayerMovement : MonoBehaviour
         ForceFaceDirection(horizontalDirection);
 
         float direction = Mathf.Sign(horizontalDirection);
-        float horizontalSpeed = Mathf.Max(Mathf.Abs(_rb.linearVelocity.x), _dashJumpHorizontalSpeed) * direction;
+        // A dash jump has a deliberate launch speed, not the peak speed of an interrupted dash.
+        float horizontalSpeed = _dashJumpHorizontalSpeed * direction;
         _isFastFalling = false;
         ApplyJumpForce(_dashJumpVerticalMultiplier, horizontalSpeed);
         _isDashJump = true;
@@ -340,8 +343,9 @@ public class PlayerMovement : MonoBehaviour
         else if (hasInput && Mathf.Abs(currentHorizontalSpeed) > Mathf.Abs(targetSpeed))
             acceleration = _momentumDeceleration;
 
-        // Carry decays from actual velocity: it never pushes into walls or overrides braking.
-        if (_hasHorizontalLaunch && hasInput && !reversing)
+        // Carry only slows the loss of excess launch speed, never normal air acceleration.
+        if (_hasHorizontalLaunch && hasInput && !reversing
+            && Mathf.Abs(currentHorizontalSpeed) > Mathf.Abs(targetSpeed))
             acceleration = Mathf.Min(acceleration, _momentumDeceleration * 0.5f);
 
         float nextHorizontalSpeed = Mathf.MoveTowards(currentHorizontalSpeed, targetSpeed, acceleration * Time.fixedDeltaTime);
@@ -400,7 +404,7 @@ public class PlayerMovement : MonoBehaviour
             _isFastFalling = false;
 
         float gravityMultiplier = _isFastFalling ? _fastFallGravityMultiplier
-            : _rb.linearVelocity.y < 0f ? _fallGravityMultiplier : 1f;
+            : _rb.linearVelocity.y < 0f ? _fallGravityMultiplier : _riseGravityMultiplier;
         _rb.gravityScale = _baseGravityScale * gravityMultiplier;
         if (_rb.linearVelocity.y < -_maxFallSpeed)
             _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, -_maxFallSpeed);
@@ -465,6 +469,7 @@ public class PlayerMovement : MonoBehaviour
         float jumpBonusPercent = _stats.GetValue(StatType.JumpForce);
         float finalJump = _baseJumpForce * (1f + (jumpBonusPercent / 100f)) * Mathf.Max(0f, verticalMultiplier);
         _rb.AddForce(Vector2.up * finalJump, ForceMode2D.Impulse);
+        _rb.gravityScale = _baseGravityScale * _riseGravityMultiplier;
         _isGrounded = false;
         GameplayEventBus.Raise(GameplayEventType.Jumped, source: gameObject, target: gameObject);
         OnJumpStarted?.Invoke();

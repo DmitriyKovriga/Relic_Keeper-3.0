@@ -222,6 +222,62 @@ namespace RelicKeeper.Tests.EditMode
             finally { Object.DestroyImmediate(wall); }
         }
 
+        [Test]
+        public void AirReleaseStopsWithinThreeTenthsOfAUnit()
+        {
+            _body.linearVelocity = Vector2.right * 5f;
+            float drift = 0f;
+            for (int i = 0; i < 8; i++)
+            {
+                Call("ApplyMovement");
+                drift += _body.linearVelocity.x * Time.fixedDeltaTime;
+            }
+            Assert.That(_body.linearVelocity.x, Is.Zero);
+            Assert.That(drift, Is.LessThan(0.3f));
+        }
+
+        [Test]
+        public void DashJumpCapsPeakDashVelocity()
+        {
+            _body.linearVelocity = Vector2.right * 16f;
+            Assert.That(_movement.TryPerformDashJump(1f), Is.True);
+            Assert.That(_body.linearVelocity.x, Is.EqualTo(8.5f).Within(0.01f));
+        }
+
+        [Test]
+        public void CarryDoesNotWeakenAirControlAfterCollision()
+        {
+            _body.linearVelocity = Vector2.zero;
+            _movement.ApplyHorizontalMomentumCarry(8.5f, 0.1f);
+            Set("_horizontalInput", -1f);
+            Call("ApplyMovement");
+            Assert.That(_body.linearVelocity.x, Is.LessThanOrEqualTo(-1.5f));
+        }
+
+        [Test]
+        public void NormalJumpHasCompactControllableArc()
+        {
+            SimulationMode2D originalMode = Physics2D.simulationMode;
+            try
+            {
+                Physics2D.simulationMode = SimulationMode2D.Script;
+                _body.position = Vector2.zero;
+                _body.linearVelocity = Vector2.up * 13f;
+                float peak = 0f;
+                float flight = 0f;
+                do
+                {
+                    Call("UpdateFastFallState");
+                    Physics2D.Simulate(Time.fixedDeltaTime);
+                    peak = Mathf.Max(peak, _body.position.y);
+                    flight += Time.fixedDeltaTime;
+                } while (_body.position.y > 0f && flight < 2f);
+                Assert.That(peak, Is.InRange(1.8f, 2.2f));
+                Assert.That(flight, Is.InRange(0.55f, 0.68f));
+            }
+            finally { Physics2D.simulationMode = originalMode; }
+        }
+
         private void Set(string name, object value) => typeof(PlayerMovement)
             .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(_movement, value);
         private T Get<T>(string name) => (T)typeof(PlayerMovement)

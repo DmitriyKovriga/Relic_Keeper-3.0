@@ -41,10 +41,16 @@ public class CharacterPartyManager : MonoBehaviour
             _passiveTreeManager = _playerStats.GetComponent<PassiveTreeManager>();
     }
 
-    public bool HasCharacter(string characterInstanceId) => _partyCharacters.ContainsKey(characterInstanceId);
+    public bool HasCharacter(string characterInstanceId) =>
+        !string.IsNullOrEmpty(characterInstanceId) && _partyCharacters.ContainsKey(characterInstanceId);
 
-    public CharacterSaveData GetCharacterData(string characterInstanceId) =>
-        _partyCharacters.TryGetValue(characterInstanceId, out var data) ? data : null;
+    public CharacterSaveData GetCharacterData(string characterInstanceId)
+    {
+        if (string.IsNullOrEmpty(characterInstanceId))
+            return null;
+
+        return _partyCharacters.TryGetValue(characterInstanceId, out var data) ? data : null;
+    }
 
     public void LoadFromSave(GameSaveData data, CharacterDatabaseSO characterDB, ItemDatabaseSO itemDB)
     {
@@ -66,7 +72,7 @@ public class CharacterPartyManager : MonoBehaviour
 
             _activeCharacterID = !string.IsNullOrEmpty(data.ActiveCharacterID) && _partyCharacters.ContainsKey(data.ActiveCharacterID)
                 ? data.ActiveCharacterID
-                : data.Characters.FirstOrDefault(c => !string.IsNullOrEmpty(c.CharacterInstanceID))?.CharacterInstanceID;
+                : _partyCharacters.Keys.FirstOrDefault();
         }
         else if (!string.IsNullOrEmpty(data.CharacterClassID))
         {
@@ -98,8 +104,19 @@ public class CharacterPartyManager : MonoBehaviour
 
     public void SaveCurrentToParty()
     {
-        if (string.IsNullOrEmpty(_activeCharacterID) || _playerStats == null)
+        if (_playerStats == null)
             return;
+
+        if (string.IsNullOrEmpty(_activeCharacterID))
+        {
+            if (string.IsNullOrEmpty(_playerStats.CurrentClassID))
+            {
+                Debug.LogWarning("[CharacterPartyManager] SaveCurrentToParty: active character is not initialized.");
+                return;
+            }
+
+            _activeCharacterID = AddCharacterToParty(_playerStats.CurrentClassID);
+        }
 
         var ch = GetOrCreateCharacterData(_activeCharacterID);
         ch.CurrentHealth = _playerStats.Health.Current;

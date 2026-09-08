@@ -17,7 +17,7 @@ namespace RelicKeeper.Tests.EditMode
             _runner.Execute(new ExecutionSettings(new Filter
             {
                 testMode = TestMode.EditMode,
-                testNames = new[] { "RelicKeeper.Tests.EditMode.PlayerMovementTests" }
+                testNames = new[] { "RelicKeeper.Tests.EditMode.PlayerMovementTests", "RelicKeeper.Tests.EditMode.SkillAssetRegressionTests" }
             }));
         }
 
