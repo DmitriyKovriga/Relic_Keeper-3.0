@@ -18,13 +18,17 @@ namespace Scripts.Editor.Affixes
         private List<ItemAffixSO> _allAffixes = new List<ItemAffixSO>();
         private int _selectedPoolIndex;
         private StatType? _selectedStat;
+        private StatsDatabaseSO _statsDatabase;
+        private string _statSearch = "";
         private string _affixSearch = "";
         private Vector2 _affixListScroll;
         private Vector2 _poolListScroll;
         private Vector2 _statListScroll;
         private bool _showOnlyMissingInPool; // показывать только аффиксы, которых ещё нет в пуле
         private readonly Dictionary<string, bool> _affixBucketFoldouts = new Dictionary<string, bool>();
-        private const float LeftStatWidth = 180f;
+        private readonly Dictionary<string, bool> _statCategoryFoldouts = new Dictionary<string, bool>();
+        private readonly Dictionary<string, bool> _poolCategoryFoldouts = new Dictionary<string, bool>();
+        private const float LeftStatWidth = 285f;
         private const float PoolListWidth = 260f;
         private static readonly string[] AffixBucketOrder =
         {
@@ -34,6 +38,18 @@ namespace Scripts.Editor.Affixes
             "Negative Light",
             "Negative Medium",
             "Negative High",
+            "Misc"
+        };
+        private static readonly string[] StatCategoryOrder =
+        {
+            "Damage",
+            "Critical",
+            "Speed",
+            "Defense",
+            "Resistances",
+            "Vitals",
+            "Ailments",
+            "Conversion",
             "Misc"
         };
 
@@ -52,6 +68,7 @@ namespace Scripts.Editor.Affixes
 
         private void LoadAll()
         {
+            _statsDatabase = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase);
             _pools.Clear();
             foreach (string g in AssetDatabase.FindAssets("t:AffixPoolSO"))
             {
@@ -106,7 +123,7 @@ namespace Scripts.Editor.Affixes
             EditorGUILayout.BeginHorizontal();
 
             // --- Левая колонка: список статов ---
-            DrawStatList();
+            DrawStatList(pool);
 
             // --- Центр: аффиксы по выбранному стату ---
             DrawAffixListByStat(pool);
@@ -117,22 +134,54 @@ namespace Scripts.Editor.Affixes
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawStatList()
+        private void DrawStatList(AffixPoolSO pool)
         {
             EditorGUILayout.BeginVertical(GUILayout.Width(LeftStatWidth));
             GUILayout.Label("Stats", EditorStyles.boldLabel);
+            _statSearch = EditorGUILayout.TextField(_statSearch);
             _statListScroll = EditorGUILayout.BeginScrollView(_statListScroll);
-            var stats = System.Enum.GetValues(typeof(StatType)).Cast<StatType>().ToArray();
-            foreach (var st in stats)
+            string search = (_statSearch ?? string.Empty).Trim();
+            var availableByStat = CountAffixesByStat(_allAffixes);
+            var usedByStat = CountAffixesByStat(pool?.Affixes);
+            var stats = System.Enum.GetValues(typeof(StatType)).Cast<StatType>()
+                .Where(stat => search.Length == 0 || stat.ToString().IndexOf(search, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToList();
+            var statButtonStyle = new GUIStyle(EditorStyles.miniButton) { alignment = TextAnchor.MiddleLeft };
+
+            foreach (string category in GetOrderedCategories(stats.Select(GetStatCategory)))
             {
-                bool selected = _selectedStat == st;
-                if (selected) GUI.backgroundColor = new Color(0.5f, 0.7f, 1f);
-                if (GUILayout.Button(st.ToString(), EditorStyles.miniButton))
+                var categoryStats = stats.Where(stat => GetStatCategory(stat) == category).OrderBy(stat => stat.ToString()).ToList();
+                bool containsSelected = _selectedStat.HasValue && categoryStats.Contains(_selectedStat.Value);
+                bool expanded = search.Length > 0 || containsSelected || (_statCategoryFoldouts.TryGetValue(category, out bool saved) && saved);
+                expanded = EditorGUILayout.Foldout(expanded, $"{category} ({categoryStats.Count})", true, EditorStyles.foldoutHeader);
+                _statCategoryFoldouts[category] = expanded;
+                if (!expanded) continue;
+
+                EditorGUI.indentLevel++;
+                foreach (var stat in categoryStats)
                 {
-                    _selectedStat = st;
-                    GUI.FocusControl(null);
+                    int available = availableByStat.TryGetValue(stat, out int availableCount) ? availableCount : 0;
+                    int used = usedByStat.TryGetValue(stat, out int usedCount) ? usedCount : 0;
+                    bool selected = _selectedStat == stat;
+                    if (selected) GUI.backgroundColor = new Color(0.5f, 0.7f, 1f);
+                    EditorGUILayout.BeginHorizontal();
+                    if (GUILayout.Button(stat.ToString(), statButtonStyle, GUILayout.ExpandWidth(true)))
+                    {
+                        _selectedStat = stat;
+                        GUI.FocusControl(null);
+                    }
+                    GUI.backgroundColor = Color.white;
+
+                    Color previousColor = GUI.backgroundColor;
+                    GUI.backgroundColor = GetUsageBadgeColor(used, available);
+                    GUILayout.Label(
+                        new GUIContent($"{used}/{available}", $"{used} of {available} affixes for {stat} are used in this pool"),
+                        EditorStyles.miniButton,
+                        GUILayout.Width(44));
+                    GUI.backgroundColor = previousColor;
+                    EditorGUILayout.EndHorizontal();
                 }
-                GUI.backgroundColor = Color.white;
+                EditorGUI.indentLevel--;
             }
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
@@ -269,6 +318,80 @@ namespace Scripts.Editor.Affixes
             return new Color(0.82f, 0.82f, 0.82f);
         }
 
+        private string GetStatCategory(StatType stat)
+        {
+            return _statsDatabase != null ? _statsDatabase.GetCategory(stat) : StatsDatabaseSO.DefaultCategoryFor(stat);
+        }
+
+        private string GetAffixCategory(ItemAffixSO affix)
+        {
+            var stats = AffixSetGenerator.GetRepresentativeStats(affix);
+            return stats.Length > 0 ? GetStatCategory(stats[0].Stat) : "Misc";
+        }
+
+        private static IEnumerable<string> GetOrderedCategories(IEnumerable<string> categories)
+        {
+            return categories
+                .Where(category => !string.IsNullOrWhiteSpace(category))
+                .Distinct()
+                .OrderBy(category =>
+                {
+                    int index = System.Array.IndexOf(StatCategoryOrder, category);
+                    return index >= 0 ? index : StatCategoryOrder.Length;
+                })
+                .ThenBy(category => category);
+        }
+
+        private static int GetBucketSortOrder(string bucket)
+        {
+            int index = System.Array.IndexOf(AffixBucketOrder, bucket);
+            return index >= 0 ? index : AffixBucketOrder.Length;
+        }
+
+        private static string GetAffixStatName(ItemAffixSO affix)
+        {
+            var stats = AffixSetGenerator.GetRepresentativeStats(affix);
+            return stats.Length > 0 ? stats[0].Stat.ToString() : affix != null ? affix.name : "Missing";
+        }
+
+        private static string GetAffixModifierName(ItemAffixSO affix)
+        {
+            var stats = AffixSetGenerator.GetRepresentativeStats(affix);
+            return stats.Length > 0 ? AffixSetGenerator.GetTypeDisplayName(stats[0].Type) : "Misc";
+        }
+
+        private static Color GetBucketTextColor(string bucket)
+        {
+            if (bucket.StartsWith("Positive")) return new Color(0.55f, 0.9f, 0.55f);
+            if (bucket.StartsWith("Negative")) return new Color(1f, 0.58f, 0.58f);
+            return Color.white;
+        }
+
+        private static Dictionary<StatType, int> CountAffixesByStat(IEnumerable<ItemAffixSO> affixes)
+        {
+            var counts = new Dictionary<StatType, int>();
+            if (affixes == null)
+                return counts;
+
+            foreach (var affix in affixes.Where(value => value != null).Distinct())
+            {
+                var stats = AffixSetGenerator.GetRepresentativeStats(affix)
+                    .Select(value => value.Stat)
+                    .Distinct();
+                foreach (StatType stat in stats)
+                    counts[stat] = counts.TryGetValue(stat, out int count) ? count + 1 : 1;
+            }
+            return counts;
+        }
+
+        private static Color GetUsageBadgeColor(int used, int available)
+        {
+            if (available <= 0) return new Color(0.65f, 0.65f, 0.65f);
+            if (used <= 0) return new Color(0.9f, 0.62f, 0.62f);
+            if (used >= available) return new Color(0.55f, 0.85f, 0.55f);
+            return new Color(0.92f, 0.8f, 0.48f);
+        }
+
         private void DrawPoolContents(AffixPoolSO pool)
         {
             EditorGUILayout.BeginVertical(GUILayout.Width(PoolListWidth));
@@ -281,19 +404,44 @@ namespace Scripts.Editor.Affixes
             {
                 for (int i = pool.Affixes.Count - 1; i >= 0; i--)
                 {
-                    var a = pool.Affixes[i];
-                    if (a == null)
-                    {
-                        pool.Affixes.RemoveAt(i);
-                        EditorUtility.SetDirty(pool);
-                        continue;
-                    }
-                    if (GUILayout.Button(a.name + " [-]", EditorStyles.miniButton))
+                    if (pool.Affixes[i] == null)
                     {
                         pool.Affixes.RemoveAt(i);
                         EditorUtility.SetDirty(pool);
                     }
                 }
+
+                var validAffixes = pool.Affixes.Where(affix => affix != null).ToList();
+                ItemAffixSO remove = null;
+                foreach (string category in GetOrderedCategories(validAffixes.Select(GetAffixCategory)))
+                {
+                    var categoryAffixes = validAffixes.Where(affix => GetAffixCategory(affix) == category).ToList();
+                    bool expanded = _poolCategoryFoldouts.TryGetValue(category, out bool saved) && saved;
+                    expanded = EditorGUILayout.Foldout(expanded, $"{category} ({categoryAffixes.Count})", true, EditorStyles.foldoutHeader);
+                    _poolCategoryFoldouts[category] = expanded;
+                    if (!expanded) continue;
+
+                    EditorGUI.indentLevel++;
+                    foreach (var bucket in categoryAffixes.GroupBy(GetAffixBucket).OrderBy(group => GetBucketSortOrder(group.Key)))
+                    {
+                        Color previousColor = GUI.color;
+                        GUI.color = GetBucketTextColor(bucket.Key);
+                        EditorGUILayout.LabelField($"{bucket.Key} ({bucket.Count()})", EditorStyles.miniBoldLabel);
+                        GUI.color = previousColor;
+
+                        foreach (var affix in bucket.OrderBy(GetAffixStatName).ThenBy(GetAffixModifierName))
+                        {
+                            EditorGUILayout.BeginHorizontal();
+                            EditorGUILayout.LabelField($"{GetAffixStatName(affix)} · {GetAffixModifierName(affix)}", EditorStyles.miniLabel);
+                            if (GUILayout.Button("−", GUILayout.Width(24))) remove = affix;
+                            EditorGUILayout.EndHorizontal();
+                        }
+                    }
+                    EditorGUI.indentLevel--;
+                }
+
+                if (remove != null)
+                    ToggleAffixInPool(pool, remove);
             }
             EditorGUILayout.EndScrollView();
 
