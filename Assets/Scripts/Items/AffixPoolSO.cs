@@ -5,6 +5,18 @@ using Scripts.Stats;
 
 namespace Scripts.Items.Affixes
 {
+    public readonly struct AffixRollSelection
+    {
+        public ItemAffixSO Affix { get; }
+        public int Tier { get; }
+
+        public AffixRollSelection(ItemAffixSO affix, int tier)
+        {
+            Affix = affix;
+            Tier = tier;
+        }
+    }
+
     [CreateAssetMenu(menuName = "RPG/Affixes/Affix Pool")]
     public class AffixPoolSO : ScriptableObject
     {
@@ -16,9 +28,9 @@ namespace Scripts.Items.Affixes
         public List<ItemAffixSO> Affixes;
 
         // Р“Р»Р°РІРЅС‹Р№ РјРµС‚РѕРґ: Р”Р°Р№ РјРЅРµ N СЃР»СѓС‡Р°Р№РЅС‹С… СѓРЅРёРєР°Р»СЊРЅС‹С… Р°С„С„РёРєСЃРѕРІ
-        public List<ItemAffixSO> GetRandomAffixes(int count, int itemLevel)
+        public List<AffixRollSelection> GetRandomAffixes(int count, int itemLevel)
         {
-            List<ItemAffixSO> result = new List<ItemAffixSO>();
+            var result = new List<AffixRollSelection>();
             var candidates = BuildCandidates(itemLevel);
 
             for (int i = 0; i < count; i++)
@@ -27,9 +39,10 @@ namespace Scripts.Items.Affixes
 
                 int index = Random.Range(0, candidates.Count);
                 ItemAffixSO picked = candidates[index];
-                string pickedGroup = GetGroupKey(picked);
-                result.Add(picked);
-                candidates.RemoveAll(candidate => GetGroupKey(candidate) == pickedGroup);
+                List<int> eligibleTiers = GetRuntimeAllowedTiers(picked, itemLevel);
+                if (eligibleTiers.Count > 0)
+                    result.Add(new AffixRollSelection(picked, eligibleTiers[Random.Range(0, eligibleTiers.Count)]));
+                candidates.RemoveAt(index);
             }
 
             return result;
@@ -37,10 +50,7 @@ namespace Scripts.Items.Affixes
 
         public int GetAvailableAffixGroupCount(int itemLevel)
         {
-            var groups = new HashSet<string>();
-            foreach (ItemAffixSO affix in BuildCandidates(itemLevel))
-                groups.Add(GetGroupKey(affix));
-            return groups.Count;
+            return BuildCandidates(itemLevel).Count;
         }
 
         private List<ItemAffixSO> BuildCandidates(int itemLevel)
@@ -49,9 +59,10 @@ namespace Scripts.Items.Affixes
             if (Affixes == null)
                 return candidates;
 
+            var seenGroups = new HashSet<string>();
             foreach (var affix in Affixes)
             {
-                if (affix != null && AffixTierHelper.IsTierAllowedForLevel(itemLevel, affix.Tier) && IsRuntimeAllowed(affix))
+                if (affix != null && seenGroups.Add(GetGroupKey(affix)) && GetRuntimeAllowedTiers(affix, itemLevel).Count > 0)
                     candidates.Add(affix);
             }
 
@@ -67,18 +78,30 @@ namespace Scripts.Items.Affixes
             return affix.name;
         }
 
-        private static bool IsRuntimeAllowed(ItemAffixSO affix)
+        private static List<int> GetRuntimeAllowedTiers(ItemAffixSO affix, int itemLevel)
         {
-            if (affix == null || affix.Stats == null)
-                return true;
+            var result = new List<int>();
+            if (affix == null)
+                return result;
 
-            foreach (var stat in affix.Stats)
+            foreach (int tier in affix.GetEligibleTiers(itemLevel))
             {
-                if (stat.Stat == StatType.AttackSpeed && stat.Type == StatModType.Flat)
-                    return false;
+                ItemAffixSO.AffixStatData[] stats = affix.GetStatsForTier(tier);
+                bool allowed = true;
+                for (int i = 0; i < stats.Length; i++)
+                {
+                    if (stats[i].Stat == StatType.AttackSpeed && stats[i].Type == StatModType.Flat)
+                    {
+                        allowed = false;
+                        break;
+                    }
+                }
+
+                if (allowed)
+                    result.Add(tier);
             }
 
-            return true;
+            return result;
         }
     }
 }

@@ -3,6 +3,8 @@ using NUnit.Framework;
 using Scripts.Enemies;
 using Scripts.Items;
 using Scripts.Items.Affixes;
+using Scripts.Inventory;
+using Scripts.Stats;
 using UnityEngine;
 
 namespace RelicKeeper.Tests.EditMode
@@ -88,6 +90,57 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(EnemyLootDropService.SelectBaseItem(database, 1, 0.99f), Is.SameAs(lowLevelItem));
         }
 
+        [Test]
+        public void EmbeddedAffixChoosesTierAllowedForItemLevel()
+        {
+            ItemAffixSO affix = CreateTieredAffix("embedded_test");
+            AffixPoolSO pool = Create<AffixPoolSO>();
+            pool.Affixes = new List<ItemAffixSO> { affix };
+
+            var lowLevel = pool.GetRandomAffixes(1, 1);
+            var highLevel = pool.GetRandomAffixes(1, 30);
+
+            Assert.That(lowLevel, Has.Count.EqualTo(1));
+            Assert.That(lowLevel[0].Affix, Is.SameAs(affix));
+            Assert.That(lowLevel[0].Tier, Is.EqualTo(5));
+            Assert.That(highLevel, Has.Count.EqualTo(1));
+            Assert.That(highLevel[0].Tier, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void LegacyAffixIdResolvesCanonicalAssetAndOriginalTier()
+        {
+            ItemAffixSO affix = CreateTieredAffix("canonical_test");
+            affix.LegacyTierIds = new List<ItemAffixSO.LegacyTierId>
+            {
+                new ItemAffixSO.LegacyTierId { Id = "canonical_test_T2", Tier = 2 }
+            };
+            ItemDatabaseSO database = Create<ItemDatabaseSO>();
+            database.AllAffixes = new List<ItemAffixSO> { affix };
+            database.Init();
+
+            bool resolved = database.TryResolveAffix("canonical_test_T2", out ItemAffixSO result, out int tier);
+
+            Assert.That(resolved, Is.True);
+            Assert.That(result, Is.SameAs(affix));
+            Assert.That(tier, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void SavedAffixStoresSelectedEmbeddedTier()
+        {
+            ArmorItemSO itemBase = CreateItem("tier_save_item", 1);
+            ItemAffixSO affix = CreateTieredAffix("tier_save_affix");
+            var item = new InventoryItem(itemBase);
+            item.Affixes.Add(new AffixInstance(affix, 3, item));
+
+            var save = item.GetSaveData(0);
+
+            Assert.That(save.Affixes, Has.Count.EqualTo(1));
+            Assert.That(save.Affixes[0].AffixID, Is.EqualTo("tier_save_affix"));
+            Assert.That(save.Affixes[0].Tier, Is.EqualTo(3));
+        }
+
         private ArmorItemSO CreateItem(string id, int dropLevel)
         {
             ArmorItemSO item = Create<ArmorItemSO>();
@@ -108,6 +161,34 @@ namespace RelicKeeper.Tests.EditMode
                 pool.Affixes.Add(affix);
             }
             return pool;
+        }
+
+        private ItemAffixSO CreateTieredAffix(string id)
+        {
+            ItemAffixSO affix = Create<ItemAffixSO>();
+            affix.name = id;
+            affix.UniqueID = id;
+            affix.GroupID = id;
+            affix.Tiers = new List<ItemAffixSO.AffixTierData>();
+            for (int tier = 1; tier <= 5; tier++)
+            {
+                affix.Tiers.Add(new ItemAffixSO.AffixTierData
+                {
+                    Tier = tier,
+                    Stats = new[]
+                    {
+                        new ItemAffixSO.AffixStatData
+                        {
+                            Stat = StatType.MaxHealth,
+                            Type = StatModType.Flat,
+                            Scope = StatScope.Global,
+                            MinValue = tier,
+                            MaxValue = tier
+                        }
+                    }
+                });
+            }
+            return affix;
         }
 
         private T Create<T>() where T : ScriptableObject

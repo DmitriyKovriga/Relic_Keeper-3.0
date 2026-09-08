@@ -1048,8 +1048,7 @@ namespace Scripts.Editor.Stats
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
                 var affix = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path);
-                if (affix == null || affix.Stats == null) continue;
-                if (affix.Stats.Any(s => s.Stat == stat))
+                if (AffixSetGenerator.GetRepresentativeStats(affix).Any(s => s.Stat == stat))
                     _affixesUsingStat.Add(affix);
             }
 

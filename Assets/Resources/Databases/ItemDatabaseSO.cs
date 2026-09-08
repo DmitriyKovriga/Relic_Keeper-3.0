@@ -20,6 +20,7 @@ public class ItemDatabaseSO : ScriptableObject
 
     private Dictionary<string, EquipmentItemSO> _itemLookup;
     private Dictionary<string, ItemAffixSO> _affixLookup;
+    private Dictionary<string, int> _legacyAffixTierLookup;
     private Dictionary<string, SkillDataSO> _skillLookup;
 
     public void Init()
@@ -47,15 +48,14 @@ public class ItemDatabaseSO : ScriptableObject
 
             // 2. Инициализация АФФИКСОВ (список + подгрузка из Resources для сгенерированных)
             _affixLookup = new Dictionary<string, ItemAffixSO>();
+            _legacyAffixTierLookup = new Dictionary<string, int>();
             
             if (AllAffixes != null)
             {
                 foreach (var affix in AllAffixes)
                 {
                     if (affix == null) continue;
-                    string key = string.IsNullOrEmpty(affix.UniqueID) ? affix.name : affix.UniqueID;
-                    if (!_affixLookup.ContainsKey(key))
-                        _affixLookup.Add(key, affix);
+                    RegisterAffixLookupKeys(affix);
                 }
             }
             // Подгрузить аффиксы из Resources/Affixes, чтобы сгенерированные были в базе без ручного Auto-Find
@@ -65,9 +65,7 @@ public class ItemDatabaseSO : ScriptableObject
                 foreach (var affix in fromResources)
                 {
                     if (affix == null) continue;
-                    string key = string.IsNullOrEmpty(affix.UniqueID) ? affix.name : affix.UniqueID;
-                    if (!_affixLookup.ContainsKey(key))
-                        _affixLookup.Add(key, affix);
+                    RegisterAffixLookupKeys(affix);
                 }
             }
 
@@ -104,19 +102,51 @@ public class ItemDatabaseSO : ScriptableObject
 
         public ItemAffixSO GetAffix(string id)
         {
-            if (_affixLookup == null) Init();
-            
-            if (_affixLookup == null) return null;
-            if (string.IsNullOrEmpty(id)) return null;
+            return TryResolveAffix(id, out ItemAffixSO affix, out _) ? affix : null;
+        }
 
-            if (_affixLookup.TryGetValue(id, out var affix))
+        public bool TryResolveAffix(string id, out ItemAffixSO affix, out int tier)
+        {
+            if (_affixLookup == null) Init();
+
+            affix = null;
+            tier = 0;
+            if (_affixLookup == null || string.IsNullOrEmpty(id)) return false;
+
+            if (_affixLookup.TryGetValue(id, out affix))
             {
-                return affix;
+                if (_legacyAffixTierLookup != null)
+                    _legacyAffixTierLookup.TryGetValue(id, out tier);
+                if (tier <= 0 && affix != null)
+                    tier = affix.GetDefaultTier();
+                return affix != null;
             }
-            
-            // Лог можно убрать, если часто спамит при смене версий игры
+
             Debug.LogWarning($"[ItemDatabase] Аффикс с ID '{id}' не найден в базе!");
-            return null;
+            return false;
+        }
+
+        private void RegisterAffixLookupKeys(ItemAffixSO affix)
+        {
+            if (affix == null) return;
+
+            RegisterAffixLookupKey(affix.UniqueID, affix, 0);
+            RegisterAffixLookupKey(affix.GroupID, affix, 0);
+            RegisterAffixLookupKey(affix.name, affix, 0);
+
+            if (affix.LegacyTierIds == null) return;
+            foreach (ItemAffixSO.LegacyTierId legacy in affix.LegacyTierIds)
+                RegisterAffixLookupKey(legacy.Id, affix, legacy.Tier);
+        }
+
+        private void RegisterAffixLookupKey(string key, ItemAffixSO affix, int tier)
+        {
+            if (string.IsNullOrWhiteSpace(key) || affix == null) return;
+            string normalized = key.Trim();
+            if (!_affixLookup.ContainsKey(normalized))
+                _affixLookup.Add(normalized, affix);
+            if (tier > 0 && !_legacyAffixTierLookup.ContainsKey(normalized))
+                _legacyAffixTierLookup.Add(normalized, tier);
         }
 
         public SkillDataSO GetSkill(string id)

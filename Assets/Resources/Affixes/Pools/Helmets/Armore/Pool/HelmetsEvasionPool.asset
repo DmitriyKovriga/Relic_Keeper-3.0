@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f012c5ec840dd543becc6dccbf857b4, type: 3}
+  m_Name: HelmetsEvasionPool
+  m_EditorClassIdentifier: 
+  Slot: 0
+  DefenseType: 1
+  Affixes:
+  - {fileID: 11400000, guid: 3d789f479306fe348ae2b74eccd39038, type: 2}
+  - {fileID: 11400000, guid: 4bf8521644816ff43bcf0a9ba768e070, type: 2}
+  - {fileID: 11400000, guid: 9e99407fffa864a4dbdfd7071cddd0ba, type: 2}
+  - {fileID: 11400000, guid: 9c4c511c3e677414eb82f200532ca2fd, type: 2}
+  - {fileID: 11400000, guid: 7323db1503ebe844c97ecf0246097b4c, type: 2}
+  - {fileID: 11400000, guid: 5a688bcfbbda2bf48b9521cc9e478629, type: 2}
+  - {fileID: 11400000, guid: 54107a636ef30d042b176985ecf0bc41, type: 2}
+  - {fileID: 11400000, guid: 97e01c2033a43dd4598807b26d6a2aca, type: 2}
+  - {fileID: 11400000, guid: 8711bf5bba301a14e8866ba12113f2ab, type: 2}
+  - {fileID: 11400000, guid: 39dc5b079f47beb45b1dfa6dfc294a5f, type: 2}
+  - {fileID: 11400000, guid: 3b9f9d00fd0c4e24b8b3e621c1318292, type: 2}
+  - {fileID: 11400000, guid: f25192ba988aac34cb1252427b5487eb, type: 2}
+  - {fileID: 11400000, guid: 846945c27e94a804ab1745093fc256c4, type: 2}
+  - {fileID: 11400000, guid: ea3bcd0c3f469ba44a6d57308ce7231b, type: 2}
+  - {fileID: 11400000, guid: 60b74de17329fea419a8ecaff130f5cb, type: 2}
+  - {fileID: 11400000, guid: 92c9c849e458ab740b98d48f711332e3, type: 2}
+  - {fileID: 11400000, guid: 3bd4f102d4d16524895bce57a93f33d3, type: 2}
+  - {fileID: 11400000, guid: 2653a417ef603c84a9fd83b5a547e25f, type: 2}

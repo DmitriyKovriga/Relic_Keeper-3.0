@@ -14123,6 +14123,2586 @@ MonoBehaviour:
     m_Key: affix_name_stunbuildup_more_light_t5
     m_Metadata:
       m_Items: []
+  - m_Id: 88537089962897408
+    m_Key: affix_name_bleedchance_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167040
+    m_Key: affix_name_bleedchance_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167041
+    m_Key: affix_name_bleedchance_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167042
+    m_Key: affix_name_bleeddamage_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167043
+    m_Key: affix_name_bleeddamage_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167044
+    m_Key: affix_name_bleeddamage_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167045
+    m_Key: affix_name_bleeddamage_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167046
+    m_Key: affix_name_bleeddamage_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167047
+    m_Key: affix_name_bleeddamage_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167048
+    m_Key: affix_name_bleeddamage_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167049
+    m_Key: affix_name_bleeddamage_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167050
+    m_Key: affix_name_bleeddamage_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167051
+    m_Key: affix_name_bleeddamage_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167052
+    m_Key: affix_name_bleeddamage_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167053
+    m_Key: affix_name_bleeddamage_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167054
+    m_Key: affix_name_bleeddamage_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167055
+    m_Key: affix_name_bleeddamage_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167056
+    m_Key: affix_name_bleeddamage_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167057
+    m_Key: affix_name_bleeddamagemult_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167058
+    m_Key: affix_name_bleeddamagemult_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167059
+    m_Key: affix_name_bleeddamagemult_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167060
+    m_Key: affix_name_bleedduration_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167061
+    m_Key: affix_name_bleedduration_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167062
+    m_Key: affix_name_bleedduration_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167063
+    m_Key: affix_name_chansetoavoidbleed_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167064
+    m_Key: affix_name_chansetoavoidbleed_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167065
+    m_Key: affix_name_chansetoavoidbleed_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167066
+    m_Key: affix_name_chansetoavoidfreeze_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167067
+    m_Key: affix_name_chansetoavoidfreeze_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167068
+    m_Key: affix_name_chansetoavoidfreeze_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167069
+    m_Key: affix_name_chansetoavoidignite_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167070
+    m_Key: affix_name_chansetoavoidignite_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167071
+    m_Key: affix_name_chansetoavoidignite_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167072
+    m_Key: affix_name_chansetoavoidpoison_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167073
+    m_Key: affix_name_chansetoavoidpoison_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167074
+    m_Key: affix_name_chansetoavoidpoison_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167075
+    m_Key: affix_name_chansetoavoidshock_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167076
+    m_Key: affix_name_chansetoavoidshock_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167077
+    m_Key: affix_name_chansetoavoidshock_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167078
+    m_Key: affix_name_freezechance_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167079
+    m_Key: affix_name_freezechance_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167080
+    m_Key: affix_name_freezechance_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167081
+    m_Key: affix_name_freezeduration_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167082
+    m_Key: affix_name_freezeduration_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090206167083
+    m_Key: affix_name_freezeduration_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361344
+    m_Key: affix_name_ignitechance_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361345
+    m_Key: affix_name_ignitechance_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361346
+    m_Key: affix_name_ignitechance_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361347
+    m_Key: affix_name_ignitedamage_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361348
+    m_Key: affix_name_ignitedamage_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361349
+    m_Key: affix_name_ignitedamage_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361350
+    m_Key: affix_name_ignitedamage_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361351
+    m_Key: affix_name_ignitedamage_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361352
+    m_Key: affix_name_ignitedamage_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361353
+    m_Key: affix_name_ignitedamage_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361354
+    m_Key: affix_name_ignitedamage_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361355
+    m_Key: affix_name_ignitedamage_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361356
+    m_Key: affix_name_ignitedamage_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361357
+    m_Key: affix_name_ignitedamage_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361358
+    m_Key: affix_name_ignitedamage_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361359
+    m_Key: affix_name_ignitedamage_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361360
+    m_Key: affix_name_ignitedamage_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361361
+    m_Key: affix_name_ignitedamage_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361362
+    m_Key: affix_name_ignitedamagemult_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361363
+    m_Key: affix_name_ignitedamagemult_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361364
+    m_Key: affix_name_ignitedamagemult_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361365
+    m_Key: affix_name_igniteduration_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361366
+    m_Key: affix_name_igniteduration_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361367
+    m_Key: affix_name_igniteduration_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361368
+    m_Key: affix_name_igniteduration_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361369
+    m_Key: affix_name_igniteduration_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361370
+    m_Key: affix_name_igniteduration_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361371
+    m_Key: affix_name_igniteduration_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361372
+    m_Key: affix_name_igniteduration_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361373
+    m_Key: affix_name_igniteduration_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361374
+    m_Key: affix_name_igniteduration_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361375
+    m_Key: affix_name_igniteduration_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361376
+    m_Key: affix_name_igniteduration_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361377
+    m_Key: affix_name_igniteduration_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361378
+    m_Key: affix_name_igniteduration_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361379
+    m_Key: affix_name_igniteduration_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361380
+    m_Key: affix_name_maxbleedstack_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361381
+    m_Key: affix_name_maxbleedstack_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361382
+    m_Key: affix_name_maxbleedstack_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361383
+    m_Key: affix_name_poisonchance_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361384
+    m_Key: affix_name_poisonchance_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361385
+    m_Key: affix_name_poisonchance_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361386
+    m_Key: affix_name_poisondamage_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361387
+    m_Key: affix_name_poisondamage_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361388
+    m_Key: affix_name_poisondamage_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361389
+    m_Key: affix_name_poisondamage_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361390
+    m_Key: affix_name_poisondamage_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361391
+    m_Key: affix_name_poisondamage_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361392
+    m_Key: affix_name_poisondamage_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361393
+    m_Key: affix_name_poisondamage_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361394
+    m_Key: affix_name_poisondamage_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361395
+    m_Key: affix_name_poisondamage_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361396
+    m_Key: affix_name_poisondamage_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361397
+    m_Key: affix_name_poisondamage_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361398
+    m_Key: affix_name_poisondamage_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361399
+    m_Key: affix_name_poisondamage_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361400
+    m_Key: affix_name_poisondamage_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361401
+    m_Key: affix_name_poisondamagemult_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361402
+    m_Key: affix_name_poisondamagemult_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361403
+    m_Key: affix_name_poisondamagemult_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361404
+    m_Key: affix_name_poisonduration_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361405
+    m_Key: affix_name_poisonduration_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361406
+    m_Key: affix_name_poisonduration_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361407
+    m_Key: affix_name_poisonduration_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361408
+    m_Key: affix_name_poisonduration_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361409
+    m_Key: affix_name_poisonduration_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361410
+    m_Key: affix_name_poisonduration_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361411
+    m_Key: affix_name_poisonduration_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361412
+    m_Key: affix_name_poisonduration_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361413
+    m_Key: affix_name_poisonduration_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361414
+    m_Key: affix_name_poisonduration_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090210361415
+    m_Key: affix_name_poisonduration_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555648
+    m_Key: affix_name_poisonduration_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555649
+    m_Key: affix_name_poisonduration_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555650
+    m_Key: affix_name_poisonduration_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555651
+    m_Key: affix_name_shockchance_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555652
+    m_Key: affix_name_shockchance_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555653
+    m_Key: affix_name_shockchance_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555654
+    m_Key: affix_name_shockduration_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555655
+    m_Key: affix_name_shockduration_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555656
+    m_Key: affix_name_shockduration_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555657
+    m_Key: affix_name_shockduration_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555658
+    m_Key: affix_name_shockduration_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555659
+    m_Key: affix_name_shockduration_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555660
+    m_Key: affix_name_shockduration_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555661
+    m_Key: affix_name_shockduration_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555662
+    m_Key: affix_name_shockduration_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555663
+    m_Key: affix_name_shockduration_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555664
+    m_Key: affix_name_shockduration_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555665
+    m_Key: affix_name_shockduration_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555666
+    m_Key: affix_name_shockduration_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555667
+    m_Key: affix_name_shockduration_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555668
+    m_Key: affix_name_shockduration_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555669
+    m_Key: affix_name_elementaltophysical_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555670
+    m_Key: affix_name_elementaltophysical_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555671
+    m_Key: affix_name_elementaltophysical_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555672
+    m_Key: affix_name_physicaltocold_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555673
+    m_Key: affix_name_physicaltocold_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555674
+    m_Key: affix_name_physicaltocold_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555675
+    m_Key: affix_name_physicaltofire_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555676
+    m_Key: affix_name_physicaltofire_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555677
+    m_Key: affix_name_physicaltofire_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555678
+    m_Key: affix_name_physicaltolightning_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555679
+    m_Key: affix_name_physicaltolightning_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555680
+    m_Key: affix_name_physicaltolightning_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555681
+    m_Key: affix_name_takecoldasfire_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555682
+    m_Key: affix_name_takecoldasfire_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555683
+    m_Key: affix_name_takecoldasfire_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555684
+    m_Key: affix_name_takecoldaslightning_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555685
+    m_Key: affix_name_takecoldaslightning_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555686
+    m_Key: affix_name_takecoldaslightning_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555687
+    m_Key: affix_name_takecoldasphys_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555688
+    m_Key: affix_name_takecoldasphys_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555689
+    m_Key: affix_name_takecoldasphys_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555690
+    m_Key: affix_name_takefireascold_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555691
+    m_Key: affix_name_takefireascold_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555692
+    m_Key: affix_name_takefireascold_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555693
+    m_Key: affix_name_takefireaslightning_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555694
+    m_Key: affix_name_takefireaslightning_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555695
+    m_Key: affix_name_takefireaslightning_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555696
+    m_Key: affix_name_takefireasphys_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555697
+    m_Key: affix_name_takefireasphys_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555698
+    m_Key: affix_name_takefireasphys_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555699
+    m_Key: affix_name_takelightningascold_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555700
+    m_Key: affix_name_takelightningascold_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555701
+    m_Key: affix_name_takelightningascold_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555702
+    m_Key: affix_name_takelightningasfire_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555703
+    m_Key: affix_name_takelightningasfire_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555704
+    m_Key: affix_name_takelightningasfire_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555705
+    m_Key: affix_name_takelightningasphys_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555706
+    m_Key: affix_name_takelightningasphys_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555707
+    m_Key: affix_name_takelightningasphys_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555708
+    m_Key: affix_name_takephysascold_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555709
+    m_Key: affix_name_takephysascold_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555710
+    m_Key: affix_name_takephysascold_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555711
+    m_Key: affix_name_takephysasfire_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555712
+    m_Key: affix_name_takephysasfire_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555713
+    m_Key: affix_name_takephysasfire_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555714
+    m_Key: affix_name_takephysaslightning_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555715
+    m_Key: affix_name_takephysaslightning_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555716
+    m_Key: affix_name_takephysaslightning_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555717
+    m_Key: affix_name_accuracy_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555718
+    m_Key: affix_name_accuracy_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555719
+    m_Key: affix_name_accuracy_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555720
+    m_Key: affix_name_accuracy_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555721
+    m_Key: affix_name_accuracy_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555722
+    m_Key: affix_name_accuracy_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555723
+    m_Key: affix_name_accuracy_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555724
+    m_Key: affix_name_accuracy_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555725
+    m_Key: affix_name_accuracy_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555726
+    m_Key: affix_name_accuracy_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555727
+    m_Key: affix_name_accuracy_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555728
+    m_Key: affix_name_accuracy_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555729
+    m_Key: affix_name_accuracy_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555730
+    m_Key: affix_name_accuracy_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555731
+    m_Key: affix_name_accuracy_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555732
+    m_Key: affix_name_critchance_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555733
+    m_Key: affix_name_critchance_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555734
+    m_Key: affix_name_critchance_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555735
+    m_Key: affix_name_critchance_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555736
+    m_Key: affix_name_critchance_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555737
+    m_Key: affix_name_critchance_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555738
+    m_Key: affix_name_critchance_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555739
+    m_Key: affix_name_critchance_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555740
+    m_Key: affix_name_critchance_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555741
+    m_Key: affix_name_critchance_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555742
+    m_Key: affix_name_critchance_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555743
+    m_Key: affix_name_critchance_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555744
+    m_Key: affix_name_critchance_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555745
+    m_Key: affix_name_critchance_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555746
+    m_Key: affix_name_critchance_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555747
+    m_Key: affix_name_local_critchance_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555748
+    m_Key: affix_name_critmultiplier_flatnegative_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555749
+    m_Key: affix_name_critmultiplier_flatnegative_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555750
+    m_Key: affix_name_critmultiplier_flatnegative_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555751
+    m_Key: affix_name_critmultiplier_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555752
+    m_Key: affix_name_critmultiplier_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090214555753
+    m_Key: affix_name_critmultiplier_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944256
+    m_Key: affix_name_damagecold_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944257
+    m_Key: affix_name_damagecold_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944258
+    m_Key: affix_name_damagecold_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944259
+    m_Key: affix_name_damagecold_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944260
+    m_Key: affix_name_damagecold_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944261
+    m_Key: affix_name_damagecold_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944262
+    m_Key: affix_name_damagecold_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944263
+    m_Key: affix_name_damagecold_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944264
+    m_Key: affix_name_damagecold_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944265
+    m_Key: affix_name_damagecold_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944266
+    m_Key: affix_name_damagecold_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944267
+    m_Key: affix_name_damagecold_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944268
+    m_Key: affix_name_damagecold_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944269
+    m_Key: affix_name_damagecold_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944270
+    m_Key: affix_name_damagecold_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944271
+    m_Key: affix_name_local_damagecold_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944272
+    m_Key: affix_name_damagefire_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944273
+    m_Key: affix_name_damagefire_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944274
+    m_Key: affix_name_damagefire_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944275
+    m_Key: affix_name_damagefire_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944276
+    m_Key: affix_name_damagefire_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944277
+    m_Key: affix_name_damagefire_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944278
+    m_Key: affix_name_damagefire_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944279
+    m_Key: affix_name_damagefire_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944280
+    m_Key: affix_name_damagefire_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944281
+    m_Key: affix_name_damagefire_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944282
+    m_Key: affix_name_damagefire_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944283
+    m_Key: affix_name_damagefire_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944284
+    m_Key: affix_name_damagefire_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944285
+    m_Key: affix_name_damagefire_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944286
+    m_Key: affix_name_damagefire_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944287
+    m_Key: affix_name_local_damagefire_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944288
+    m_Key: affix_name_damagelightning_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944289
+    m_Key: affix_name_damagelightning_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944290
+    m_Key: affix_name_damagelightning_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944291
+    m_Key: affix_name_damagelightning_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944292
+    m_Key: affix_name_damagelightning_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944293
+    m_Key: affix_name_damagelightning_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944294
+    m_Key: affix_name_damagelightning_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944295
+    m_Key: affix_name_damagelightning_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944296
+    m_Key: affix_name_damagelightning_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944297
+    m_Key: affix_name_local_damagelightning_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944298
+    m_Key: affix_name_damagephysical_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944299
+    m_Key: affix_name_damagephysical_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944300
+    m_Key: affix_name_damagephysical_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944301
+    m_Key: affix_name_damagephysical_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944302
+    m_Key: affix_name_damagephysical_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944303
+    m_Key: affix_name_damagephysical_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944304
+    m_Key: affix_name_damagephysical_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944305
+    m_Key: affix_name_damagephysical_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944306
+    m_Key: affix_name_damagephysical_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944307
+    m_Key: affix_name_damagephysical_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944308
+    m_Key: affix_name_damagephysical_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944309
+    m_Key: affix_name_damagephysical_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944310
+    m_Key: affix_name_damagephysical_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944311
+    m_Key: affix_name_damagephysical_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944312
+    m_Key: affix_name_damagephysical_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944313
+    m_Key: affix_name_local_damagephysical_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944314
+    m_Key: affix_name_local_damagephysical_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944315
+    m_Key: affix_name_extratargetsformeleehits_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944316
+    m_Key: affix_name_extratargetsformeleehits_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944317
+    m_Key: affix_name_extratargetsformeleehits_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944318
+    m_Key: affix_name_spelldamage_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944319
+    m_Key: affix_name_spelldamage_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944320
+    m_Key: affix_name_spelldamage_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944321
+    m_Key: affix_name_spelldamage_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944322
+    m_Key: affix_name_spelldamage_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090222944323
+    m_Key: affix_name_spelldamage_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138560
+    m_Key: affix_name_armor_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138561
+    m_Key: affix_name_armor_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138562
+    m_Key: affix_name_armor_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138563
+    m_Key: affix_name_armor_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138564
+    m_Key: affix_name_armor_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138565
+    m_Key: affix_name_armor_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138566
+    m_Key: affix_name_armor_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138567
+    m_Key: affix_name_armor_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138568
+    m_Key: affix_name_armor_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138569
+    m_Key: affix_name_armor_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138570
+    m_Key: affix_name_armor_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138571
+    m_Key: affix_name_armor_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138572
+    m_Key: affix_name_armor_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138573
+    m_Key: affix_name_armor_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138574
+    m_Key: affix_name_armor_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138575
+    m_Key: affix_name_blockchance_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138576
+    m_Key: affix_name_blockchance_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138577
+    m_Key: affix_name_blockchance_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138578
+    m_Key: affix_name_blockchance_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138579
+    m_Key: affix_name_blockchance_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138580
+    m_Key: affix_name_blockchance_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138581
+    m_Key: affix_name_blockchance_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138582
+    m_Key: affix_name_blockchance_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138583
+    m_Key: affix_name_blockchance_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138584
+    m_Key: affix_name_evasion_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138585
+    m_Key: affix_name_evasion_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138586
+    m_Key: affix_name_evasion_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138587
+    m_Key: affix_name_evasion_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138588
+    m_Key: affix_name_evasion_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138589
+    m_Key: affix_name_evasion_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138590
+    m_Key: affix_name_evasion_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138591
+    m_Key: affix_name_evasion_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138592
+    m_Key: affix_name_evasion_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138593
+    m_Key: affix_name_evasion_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138594
+    m_Key: affix_name_evasion_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138595
+    m_Key: affix_name_evasion_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138596
+    m_Key: affix_name_evasion_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138597
+    m_Key: affix_name_evasion_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138598
+    m_Key: affix_name_evasion_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138599
+    m_Key: affix_name_maxblockchance_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138600
+    m_Key: affix_name_maxblockchance_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138601
+    m_Key: affix_name_maxblockchance_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138602
+    m_Key: affix_name_maxblockchance_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138603
+    m_Key: affix_name_maxblockchance_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138604
+    m_Key: affix_name_maxblockchance_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138605
+    m_Key: affix_name_maxblockchance_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138606
+    m_Key: affix_name_maxblockchance_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138607
+    m_Key: affix_name_maxblockchance_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138608
+    m_Key: affix_name_maxmysticshield_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138609
+    m_Key: affix_name_maxmysticshield_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138610
+    m_Key: affix_name_maxmysticshield_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138611
+    m_Key: affix_name_areaofeffect_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138612
+    m_Key: affix_name_areaofeffect_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138613
+    m_Key: affix_name_areaofeffect_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138614
+    m_Key: affix_name_areaofeffect_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138615
+    m_Key: affix_name_areaofeffect_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138616
+    m_Key: affix_name_areaofeffect_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138617
+    m_Key: affix_name_areaofeffect_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138618
+    m_Key: affix_name_areaofeffect_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138619
+    m_Key: affix_name_areaofeffect_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138620
+    m_Key: affix_name_cooldownreductionpercent_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138621
+    m_Key: affix_name_cooldownreductionpercent_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138622
+    m_Key: affix_name_cooldownreductionpercent_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138623
+    m_Key: affix_name_cooldownreductionpercent_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138624
+    m_Key: affix_name_cooldownreductionpercent_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138625
+    m_Key: affix_name_cooldownreductionpercent_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138626
+    m_Key: affix_name_cooldownreductionpercent_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138627
+    m_Key: affix_name_cooldownreductionpercent_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138628
+    m_Key: affix_name_cooldownreductionpercent_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138629
+    m_Key: affix_name_cooldownreductionpercent_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138630
+    m_Key: affix_name_cooldownreductionpercent_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138631
+    m_Key: affix_name_cooldownreductionpercent_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138632
+    m_Key: affix_name_cooldownreductionpercent_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138633
+    m_Key: affix_name_cooldownreductionpercent_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138634
+    m_Key: affix_name_cooldownreductionpercent_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138635
+    m_Key: affix_name_effectduration_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138636
+    m_Key: affix_name_effectduration_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138637
+    m_Key: affix_name_effectduration_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138638
+    m_Key: affix_name_effectduration_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138639
+    m_Key: affix_name_effectduration_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138640
+    m_Key: affix_name_effectduration_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138641
+    m_Key: affix_name_effectduration_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138642
+    m_Key: affix_name_effectduration_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138643
+    m_Key: affix_name_effectduration_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138644
+    m_Key: affix_name_effectduration_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138645
+    m_Key: affix_name_effectduration_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138646
+    m_Key: affix_name_effectduration_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138647
+    m_Key: affix_name_effectduration_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138648
+    m_Key: affix_name_effectduration_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138649
+    m_Key: affix_name_effectduration_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138650
+    m_Key: affix_name_jumpforce_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138651
+    m_Key: affix_name_jumpforce_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138652
+    m_Key: affix_name_jumpforce_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138653
+    m_Key: affix_name_mysticshieldrechargeduration_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138654
+    m_Key: affix_name_mysticshieldrechargeduration_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138655
+    m_Key: affix_name_mysticshieldrechargeduration_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138656
+    m_Key: affix_name_mysticshieldrechargeduration_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138657
+    m_Key: affix_name_mysticshieldrechargeduration_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138658
+    m_Key: affix_name_mysticshieldrechargeduration_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138659
+    m_Key: affix_name_mysticshieldrechargeduration_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090227138660
+    m_Key: affix_name_mysticshieldrechargeduration_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332864
+    m_Key: affix_name_mysticshieldrechargeduration_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332865
+    m_Key: affix_name_mysticshieldrechargeduration_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332866
+    m_Key: affix_name_mysticshieldrechargeduration_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332867
+    m_Key: affix_name_mysticshieldrechargeduration_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332868
+    m_Key: affix_name_mysticshieldrechargeduration_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332869
+    m_Key: affix_name_mysticshieldrechargeduration_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332870
+    m_Key: affix_name_mysticshieldrechargeduration_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332871
+    m_Key: affix_name_projectilechain_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332872
+    m_Key: affix_name_projectilechain_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332873
+    m_Key: affix_name_projectilechain_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332874
+    m_Key: affix_name_projectilecount_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332875
+    m_Key: affix_name_projectilecount_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332876
+    m_Key: affix_name_projectilecount_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332877
+    m_Key: affix_name_projectilefork_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332878
+    m_Key: affix_name_projectilefork_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332879
+    m_Key: affix_name_projectilefork_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332880
+    m_Key: affix_name_stunbuildup_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332881
+    m_Key: affix_name_stunbuildup_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332882
+    m_Key: affix_name_stunbuildup_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332883
+    m_Key: affix_name_stunbuildup_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332884
+    m_Key: affix_name_stunbuildup_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332885
+    m_Key: affix_name_stunbuildup_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332886
+    m_Key: affix_name_stunduration_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332887
+    m_Key: affix_name_stunduration_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332888
+    m_Key: affix_name_stunduration_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332889
+    m_Key: affix_name_stunduration_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332890
+    m_Key: affix_name_stunduration_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332891
+    m_Key: affix_name_stunduration_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332892
+    m_Key: affix_name_coldresist_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332893
+    m_Key: affix_name_coldresist_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332894
+    m_Key: affix_name_coldresist_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332895
+    m_Key: affix_name_coldresist_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332896
+    m_Key: affix_name_coldresist_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332897
+    m_Key: affix_name_coldresist_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332898
+    m_Key: affix_name_coldresist_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332899
+    m_Key: affix_name_coldresist_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332900
+    m_Key: affix_name_coldresist_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332901
+    m_Key: affix_name_fireresist_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332902
+    m_Key: affix_name_fireresist_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332903
+    m_Key: affix_name_fireresist_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332904
+    m_Key: affix_name_fireresist_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332905
+    m_Key: affix_name_fireresist_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332906
+    m_Key: affix_name_fireresist_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332907
+    m_Key: affix_name_fireresist_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332908
+    m_Key: affix_name_fireresist_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332909
+    m_Key: affix_name_fireresist_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332910
+    m_Key: affix_name_lightningresist_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332911
+    m_Key: affix_name_lightningresist_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332912
+    m_Key: affix_name_lightningresist_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332913
+    m_Key: affix_name_lightningresist_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332914
+    m_Key: affix_name_lightningresist_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332915
+    m_Key: affix_name_lightningresist_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332916
+    m_Key: affix_name_lightningresist_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332917
+    m_Key: affix_name_lightningresist_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332918
+    m_Key: affix_name_lightningresist_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332919
+    m_Key: affix_name_maxcoldresist_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332920
+    m_Key: affix_name_maxcoldresist_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332921
+    m_Key: affix_name_maxcoldresist_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332922
+    m_Key: affix_name_maxcoldresist_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332923
+    m_Key: affix_name_maxcoldresist_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332924
+    m_Key: affix_name_maxcoldresist_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332925
+    m_Key: affix_name_maxcoldresist_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332926
+    m_Key: affix_name_maxcoldresist_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332927
+    m_Key: affix_name_maxcoldresist_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332928
+    m_Key: affix_name_maxfireresist_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332929
+    m_Key: affix_name_maxfireresist_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332930
+    m_Key: affix_name_maxfireresist_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332931
+    m_Key: affix_name_maxfireresist_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090231332932
+    m_Key: affix_name_maxfireresist_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527168
+    m_Key: affix_name_maxfireresist_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527169
+    m_Key: affix_name_maxfireresist_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527170
+    m_Key: affix_name_maxfireresist_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527171
+    m_Key: affix_name_maxfireresist_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527172
+    m_Key: affix_name_maxlightningresist_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527173
+    m_Key: affix_name_maxlightningresist_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527174
+    m_Key: affix_name_maxlightningresist_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527175
+    m_Key: affix_name_maxlightningresist_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527176
+    m_Key: affix_name_maxlightningresist_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527177
+    m_Key: affix_name_maxlightningresist_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527178
+    m_Key: affix_name_maxlightningresist_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527179
+    m_Key: affix_name_maxlightningresist_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527180
+    m_Key: affix_name_maxlightningresist_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527181
+    m_Key: affix_name_maxmysticshieldmitigationpercent_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527182
+    m_Key: affix_name_maxmysticshieldmitigationpercent_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527183
+    m_Key: affix_name_maxmysticshieldmitigationpercent_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527184
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527185
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527186
+    m_Key: affix_name_maxmysticshieldmitigationpercent_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527187
+    m_Key: affix_name_maxmysticshieldmitigationpercent_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527188
+    m_Key: affix_name_maxmysticshieldmitigationpercent_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527189
+    m_Key: affix_name_maxmysticshieldmitigationpercent_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527190
+    m_Key: affix_name_maxphysicalresist_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527191
+    m_Key: affix_name_maxphysicalresist_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527192
+    m_Key: affix_name_maxphysicalresist_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527193
+    m_Key: affix_name_maxphysicalresist_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527194
+    m_Key: affix_name_maxphysicalresist_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527195
+    m_Key: affix_name_maxphysicalresist_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527196
+    m_Key: affix_name_maxphysicalresist_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527197
+    m_Key: affix_name_maxphysicalresist_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527198
+    m_Key: affix_name_maxphysicalresist_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527199
+    m_Key: affix_name_mysticshieldmitigationpercent_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527200
+    m_Key: affix_name_mysticshieldmitigationpercent_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527201
+    m_Key: affix_name_mysticshieldmitigationpercent_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527202
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527203
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527204
+    m_Key: affix_name_mysticshieldmitigationpercent_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527205
+    m_Key: affix_name_mysticshieldmitigationpercent_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527206
+    m_Key: affix_name_mysticshieldmitigationpercent_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527207
+    m_Key: affix_name_mysticshieldmitigationpercent_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527208
+    m_Key: affix_name_penetrationcold_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527209
+    m_Key: affix_name_penetrationcold_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527210
+    m_Key: affix_name_penetrationcold_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527211
+    m_Key: affix_name_penetrationfire_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527212
+    m_Key: affix_name_penetrationfire_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527213
+    m_Key: affix_name_penetrationfire_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527214
+    m_Key: affix_name_penetrationlightning_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527215
+    m_Key: affix_name_penetrationlightning_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527216
+    m_Key: affix_name_penetrationlightning_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527217
+    m_Key: affix_name_penetrationphysical_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527218
+    m_Key: affix_name_penetrationphysical_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527219
+    m_Key: affix_name_penetrationphysical_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527220
+    m_Key: affix_name_physicalresist_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527221
+    m_Key: affix_name_physicalresist_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527222
+    m_Key: affix_name_physicalresist_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527223
+    m_Key: affix_name_physicalresist_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527224
+    m_Key: affix_name_physicalresist_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527225
+    m_Key: affix_name_physicalresist_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527226
+    m_Key: affix_name_physicalresist_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527227
+    m_Key: affix_name_physicalresist_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527228
+    m_Key: affix_name_physicalresist_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090235527229
+    m_Key: affix_name_reducedamagetaken_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721472
+    m_Key: affix_name_reducedamagetaken_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721473
+    m_Key: affix_name_reducedamagetaken_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721474
+    m_Key: affix_name_attackspeed_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721475
+    m_Key: affix_name_attackspeed_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721476
+    m_Key: affix_name_attackspeed_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721477
+    m_Key: affix_name_attackspeed_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721478
+    m_Key: affix_name_attackspeed_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721479
+    m_Key: affix_name_attackspeed_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721480
+    m_Key: affix_name_attackspeed_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721481
+    m_Key: affix_name_attackspeed_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721482
+    m_Key: affix_name_attackspeed_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721483
+    m_Key: affix_name_attackspeed_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721484
+    m_Key: affix_name_attackspeed_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721485
+    m_Key: affix_name_attackspeed_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721486
+    m_Key: affix_name_attackspeed_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721487
+    m_Key: affix_name_attackspeed_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721488
+    m_Key: affix_name_attackspeed_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721489
+    m_Key: affix_name_castspeed_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721490
+    m_Key: affix_name_castspeed_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721491
+    m_Key: affix_name_castspeed_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721492
+    m_Key: affix_name_castspeed_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721493
+    m_Key: affix_name_castspeed_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721494
+    m_Key: affix_name_castspeed_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721495
+    m_Key: affix_name_castspeed_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721496
+    m_Key: affix_name_castspeed_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721497
+    m_Key: affix_name_castspeed_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721498
+    m_Key: affix_name_movespeed_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721499
+    m_Key: affix_name_movespeed_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721500
+    m_Key: affix_name_movespeed_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721501
+    m_Key: affix_name_projectilespeed_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721502
+    m_Key: affix_name_projectilespeed_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721503
+    m_Key: affix_name_projectilespeed_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721504
+    m_Key: affix_name_healthonblock_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721505
+    m_Key: affix_name_healthonblock_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721506
+    m_Key: affix_name_healthonblock_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721507
+    m_Key: affix_name_healthonhit_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721508
+    m_Key: affix_name_healthonhit_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721509
+    m_Key: affix_name_healthonhit_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721510
+    m_Key: affix_name_healthregen_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721511
+    m_Key: affix_name_healthregen_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090239721512
+    m_Key: affix_name_healthregen_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915776
+    m_Key: affix_name_healthregen_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915777
+    m_Key: affix_name_healthregen_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915778
+    m_Key: affix_name_healthregen_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915779
+    m_Key: affix_name_healthregen_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915780
+    m_Key: affix_name_healthregen_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915781
+    m_Key: affix_name_healthregen_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915782
+    m_Key: affix_name_healthregen_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915783
+    m_Key: affix_name_healthregen_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915784
+    m_Key: affix_name_healthregen_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915785
+    m_Key: affix_name_healthregen_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915786
+    m_Key: affix_name_healthregen_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915787
+    m_Key: affix_name_healthregen_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915788
+    m_Key: affix_name_healthregenpercent_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915789
+    m_Key: affix_name_healthregenpercent_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915790
+    m_Key: affix_name_healthregenpercent_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915791
+    m_Key: affix_name_healthregenpercent_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915792
+    m_Key: affix_name_healthregenpercent_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915793
+    m_Key: affix_name_healthregenpercent_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915794
+    m_Key: affix_name_healthregenpercent_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915795
+    m_Key: affix_name_healthregenpercent_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915796
+    m_Key: affix_name_healthregenpercent_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915797
+    m_Key: affix_name_manaonblock_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915798
+    m_Key: affix_name_manaonblock_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915799
+    m_Key: affix_name_manaonblock_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915800
+    m_Key: affix_name_manaonhit_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915801
+    m_Key: affix_name_manaonhit_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915802
+    m_Key: affix_name_manaonhit_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915803
+    m_Key: affix_name_manaregen_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915804
+    m_Key: affix_name_manaregen_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915805
+    m_Key: affix_name_manaregen_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915806
+    m_Key: affix_name_manaregen_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915807
+    m_Key: affix_name_manaregen_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915808
+    m_Key: affix_name_manaregen_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915809
+    m_Key: affix_name_manaregen_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915810
+    m_Key: affix_name_manaregen_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915811
+    m_Key: affix_name_manaregen_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915812
+    m_Key: affix_name_manaregen_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915813
+    m_Key: affix_name_manaregen_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915814
+    m_Key: affix_name_manaregen_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915815
+    m_Key: affix_name_manaregen_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915816
+    m_Key: affix_name_manaregen_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915817
+    m_Key: affix_name_manaregen_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915818
+    m_Key: affix_name_manaregenpercent_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915819
+    m_Key: affix_name_manaregenpercent_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915820
+    m_Key: affix_name_manaregenpercent_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915821
+    m_Key: affix_name_manaregenpercent_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915822
+    m_Key: affix_name_manaregenpercent_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915823
+    m_Key: affix_name_manaregenpercent_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915824
+    m_Key: affix_name_manaregenpercent_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915825
+    m_Key: affix_name_manaregenpercent_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915826
+    m_Key: affix_name_manaregenpercent_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915827
+    m_Key: affix_name_maxhealth_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915828
+    m_Key: affix_name_maxhealth_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915829
+    m_Key: affix_name_maxhealth_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915830
+    m_Key: affix_name_maxhealth_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915831
+    m_Key: affix_name_maxhealth_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915832
+    m_Key: affix_name_maxhealth_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915833
+    m_Key: affix_name_maxhealth_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915834
+    m_Key: affix_name_maxhealth_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915835
+    m_Key: affix_name_maxhealth_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915836
+    m_Key: affix_name_maxhealth_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915837
+    m_Key: affix_name_maxhealth_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915838
+    m_Key: affix_name_maxhealth_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915839
+    m_Key: affix_name_maxhealth_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915840
+    m_Key: affix_name_maxhealth_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915841
+    m_Key: affix_name_maxhealth_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915842
+    m_Key: affix_name_maxmana_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915843
+    m_Key: affix_name_maxmana_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915844
+    m_Key: affix_name_maxmana_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915845
+    m_Key: affix_name_maxmana_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915846
+    m_Key: affix_name_maxmana_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915847
+    m_Key: affix_name_maxmana_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915848
+    m_Key: affix_name_maxmana_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915849
+    m_Key: affix_name_maxmana_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915850
+    m_Key: affix_name_maxmana_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915851
+    m_Key: affix_name_maxmana_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915852
+    m_Key: affix_name_maxmana_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915853
+    m_Key: affix_name_maxmana_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915854
+    m_Key: affix_name_maxmana_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915855
+    m_Key: affix_name_maxmana_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88537090243915856
+    m_Key: affix_name_maxmana_more_strong
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

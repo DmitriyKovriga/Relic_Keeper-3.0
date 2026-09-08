@@ -5,6 +5,8 @@ using System.Linq;
 using Scripts.Items;
 using Scripts.Items.Affixes;
 using Scripts.Skills;
+using Scripts.Stats;
+using Scripts.Editor.Affixes;
 using UnityEditor.Localization;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
@@ -43,6 +45,12 @@ namespace Scripts.Editor.Items
         private string _poolSearch = "";
         private int _poolSlotFilter = -1;
         private int _poolDefenseFilter = -1;
+        private int _poolAddCategoryIndex;
+        private int _poolAddStatIndex;
+        private int _poolAddModifierIndex;
+        private int _poolAddStrengthIndex;
+        private EquipmentItemSO _poolCopySourceItem;
+        private readonly Dictionary<string, bool> _poolFoldouts = new Dictionary<string, bool>();
 
         // Affixes
         private List<ItemAffixSO> _affixes = new List<ItemAffixSO>();
@@ -211,7 +219,8 @@ namespace Scripts.Editor.Items
                 GUI.backgroundColor = sel ? new Color(0.5f, 0.7f, 1f) : Color.white;
                 string typeLabel = item is ArmorItemSO ? "A" : item is WeaponItemSO ? "W" : "?";
                 string slotLabel = item.Slot.ToString();
-                if (GUILayout.Button($"{item.ItemName ?? item.name}  [{typeLabel}] {slotLabel}", GUILayout.Height(22)))
+                var content = new GUIContent($"{item.ItemName ?? item.name}  [{typeLabel}] {slotLabel}", GetItemIconTexture(item));
+                if (GUILayout.Button(content, GUILayout.Height(40)))
                 {
                     _selectedItem = item;
                     _serializedItem = null;
@@ -712,13 +721,29 @@ namespace Scripts.Editor.Items
             so.Update();
             EditorGUILayout.PropertyField(so.FindProperty("Slot"));
             EditorGUILayout.PropertyField(so.FindProperty("DefenseType"));
-            EditorGUILayout.PropertyField(so.FindProperty("Affixes"), true);
             so.ApplyModifiedProperties();
 
             EditorGUILayout.Space(8);
-            GUILayout.Label("Add affix to pool", EditorStyles.boldLabel);
-            if (GUILayout.Button("Add affix..."))
-                ShowAddAffixToPoolMenu();
+            DrawGuidedAffixPicker();
+
+            EditorGUILayout.Space(8);
+            DrawPoolCopyTools();
+
+            EditorGUILayout.Space(8);
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label($"Affixes ({(_selectedPool.Affixes?.Count ?? 0)})", EditorStyles.boldLabel);
+            GUILayout.FlexibleSpace();
+            GUI.enabled = _selectedPool.Affixes != null && _selectedPool.Affixes.Count > 0;
+            if (GUILayout.Button("Clear pool", GUILayout.Width(100)) &&
+                EditorUtility.DisplayDialog("Clear affix pool", $"Remove every affix from {_selectedPool.name}?", "Clear", "Cancel"))
+            {
+                Undo.RecordObject(_selectedPool, "Clear affix pool");
+                _selectedPool.Affixes.Clear();
+                EditorUtility.SetDirty(_selectedPool);
+            }
+            GUI.enabled = true;
+            EditorGUILayout.EndHorizontal();
+            DrawGroupedPoolAffixes();
 
             EditorGUILayout.Space(8);
             GUILayout.Label("Used by items", EditorStyles.miniLabel);
@@ -728,7 +753,7 @@ namespace Scripts.Editor.Items
             else
                 foreach (var item in usedBy)
                 {
-                    if (GUILayout.Button($"  {item.ItemName ?? item.name}", EditorStyles.linkLabel))
+                    if (GUILayout.Button(new GUIContent($"  {item.ItemName ?? item.name}", GetItemIconTexture(item)), GUILayout.Height(36)))
                     {
                         _selectedItem = item;
                         _tab = 0;
@@ -751,29 +776,211 @@ namespace Scripts.Editor.Items
             EditorGUILayout.EndScrollView();
         }
 
-        private void ShowAddAffixToPoolMenu()
+        private void DrawGuidedAffixPicker()
         {
-            var menu = new GenericMenu();
-            var available = _affixes.Where(a => _selectedPool.Affixes == null || !_selectedPool.Affixes.Contains(a)).ToList();
+            GUILayout.Label("Add affix", EditorStyles.boldLabel);
+            var available = _affixes
+                .Where(a => a != null && (_selectedPool.Affixes == null || !_selectedPool.Affixes.Contains(a)))
+                .ToList();
             if (available.Count == 0)
             {
-                menu.AddDisabledItem(new GUIContent("(all affixes already in pool)"));
+                EditorGUILayout.HelpBox("All available affixes are already in this pool.", MessageType.Info);
+                return;
             }
+
+            var categories = available.Select(GetAffixCategory).Distinct().OrderBy(v => v).ToList();
+            _poolAddCategoryIndex = ClampPopupIndex(_poolAddCategoryIndex, categories.Count);
+            _poolAddCategoryIndex = EditorGUILayout.Popup("Category", _poolAddCategoryIndex, categories.ToArray());
+            string category = categories[_poolAddCategoryIndex];
+
+            var stats = available.Where(a => GetAffixCategory(a) == category)
+                .Select(GetAffixStat).Distinct().OrderBy(v => v.ToString()).ToList();
+            _poolAddStatIndex = ClampPopupIndex(_poolAddStatIndex, stats.Count);
+            _poolAddStatIndex = EditorGUILayout.Popup("Stat", _poolAddStatIndex, stats.Select(v => v.ToString()).ToArray());
+            StatType stat = stats[_poolAddStatIndex];
+
+            var modifiers = available.Where(a => GetAffixCategory(a) == category && GetAffixStat(a).Equals(stat))
+                .Select(GetAffixModifierLabel).Distinct().OrderBy(GetModifierSortOrder).ThenBy(v => v).ToList();
+            _poolAddModifierIndex = ClampPopupIndex(_poolAddModifierIndex, modifiers.Count);
+            _poolAddModifierIndex = EditorGUILayout.Popup("Modifier", _poolAddModifierIndex, modifiers.ToArray());
+            string modifier = modifiers[_poolAddModifierIndex];
+
+            var matching = available.Where(a => GetAffixCategory(a) == category && GetAffixStat(a).Equals(stat) && GetAffixModifierLabel(a) == modifier)
+                .OrderBy(a => GetStrengthSortOrder(GetAffixStrength(a))).ThenBy(a => a.name).ToList();
+            var strengths = matching.Select(GetAffixStrength).Distinct().OrderBy(GetStrengthSortOrder).ToList();
+            _poolAddStrengthIndex = ClampPopupIndex(_poolAddStrengthIndex, strengths.Count);
+            _poolAddStrengthIndex = EditorGUILayout.Popup("Strength", _poolAddStrengthIndex, strengths.ToArray());
+            string strength = strengths[_poolAddStrengthIndex];
+            var selected = matching.FirstOrDefault(a => GetAffixStrength(a) == strength);
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(selected != null ? selected.name : "No matching affix", EditorStyles.miniLabel);
+            GUI.enabled = selected != null;
+            if (GUILayout.Button("Add (all T1–T5)", GUILayout.Width(145)))
+            {
+                Undo.RecordObject(_selectedPool, "Add affix to pool");
+                if (_selectedPool.Affixes == null) _selectedPool.Affixes = new List<ItemAffixSO>();
+                _selectedPool.Affixes.Add(selected);
+                EditorUtility.SetDirty(_selectedPool);
+            }
+            GUI.enabled = true;
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawPoolCopyTools()
+        {
+            GUILayout.Label("Copy pool from item", EditorStyles.boldLabel);
+            _poolCopySourceItem = (EquipmentItemSO)EditorGUILayout.ObjectField("Source item", _poolCopySourceItem, typeof(EquipmentItemSO), false);
+            AffixPoolSO sourcePool = FindPoolForItem(_poolCopySourceItem);
+            if (_poolCopySourceItem != null && sourcePool == null)
+                EditorGUILayout.HelpBox("The selected item has no affix pool.", MessageType.Warning);
+
+            GUI.enabled = sourcePool != null && sourcePool != _selectedPool;
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Replace with source"))
+                CopyAffixesFromPool(sourcePool, false);
+            if (GUILayout.Button("Merge with source"))
+                CopyAffixesFromPool(sourcePool, true);
+            EditorGUILayout.EndHorizontal();
+            GUI.enabled = true;
+        }
+
+        private void CopyAffixesFromPool(AffixPoolSO source, bool merge)
+        {
+            if (source == null || source == _selectedPool)
+                return;
+
+            Undo.RecordObject(_selectedPool, merge ? "Merge affix pools" : "Copy affix pool");
+            var sourceAffixes = source.Affixes?.Where(a => a != null).Distinct().ToList() ?? new List<ItemAffixSO>();
+            if (!merge)
+                _selectedPool.Affixes = sourceAffixes;
             else
             {
-                foreach (var a in available.Take(100))
-                {
-                    var affix = a;
-                    menu.AddItem(new GUIContent($"{affix.name}  (T{affix.Tier})"), false, () =>
-                    {
-                        if (_selectedPool.Affixes == null) _selectedPool.Affixes = new List<ItemAffixSO>();
-                        _selectedPool.Affixes.Add(affix);
-                        EditorUtility.SetDirty(_selectedPool);
-                    });
-                }
-                if (available.Count > 100) menu.AddDisabledItem(new GUIContent($"... and {available.Count - 100} more (use search in Affixes tab)"));
+                if (_selectedPool.Affixes == null) _selectedPool.Affixes = new List<ItemAffixSO>();
+                foreach (var affix in sourceAffixes)
+                    if (!_selectedPool.Affixes.Contains(affix)) _selectedPool.Affixes.Add(affix);
             }
-            menu.ShowAsContext();
+            EditorUtility.SetDirty(_selectedPool);
+        }
+
+        private void DrawGroupedPoolAffixes()
+        {
+            var affixes = _selectedPool.Affixes?.Where(a => a != null).Distinct().ToList() ?? new List<ItemAffixSO>();
+            if (affixes.Count == 0)
+            {
+                EditorGUILayout.HelpBox("This pool is empty. Items using it can only roll as normal (white) items.", MessageType.Info);
+                return;
+            }
+
+            ItemAffixSO remove = null;
+            foreach (var categoryGroup in affixes.GroupBy(GetAffixCategory).OrderBy(g => g.Key))
+            {
+                string categoryKey = "category/" + categoryGroup.Key;
+                bool open = !_poolFoldouts.TryGetValue(categoryKey, out bool stored) || stored;
+                open = EditorGUILayout.Foldout(open, $"{categoryGroup.Key} ({categoryGroup.Count()})", true, EditorStyles.foldoutHeader);
+                _poolFoldouts[categoryKey] = open;
+                if (!open) continue;
+
+                EditorGUI.indentLevel++;
+                foreach (var modifierGroup in categoryGroup.GroupBy(GetAffixModifierLabel).OrderBy(g => GetModifierSortOrder(g.Key)).ThenBy(g => g.Key))
+                {
+                    EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                    EditorGUILayout.LabelField(modifierGroup.Key, EditorStyles.boldLabel);
+                    foreach (var affix in modifierGroup.OrderBy(a => GetAffixStat(a).ToString()).ThenBy(a => GetStrengthSortOrder(GetAffixStrength(a))))
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField($"{GetAffixStat(affix)}  •  {GetAffixStrength(affix)}", GUILayout.MinWidth(220));
+                        EditorGUILayout.LabelField(GetTierSummary(affix), EditorStyles.miniLabel, GUILayout.Width(70));
+                        if (GUILayout.Button("Remove", GUILayout.Width(70))) remove = affix;
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    EditorGUILayout.EndVertical();
+                }
+                EditorGUI.indentLevel--;
+            }
+
+            if (remove != null)
+            {
+                Undo.RecordObject(_selectedPool, "Remove affix from pool");
+                _selectedPool.Affixes.Remove(remove);
+                EditorUtility.SetDirty(_selectedPool);
+            }
+        }
+
+        private static int ClampPopupIndex(int index, int count)
+        {
+            return count <= 0 ? 0 : Mathf.Clamp(index, 0, count - 1);
+        }
+
+        private static Texture GetItemIconTexture(EquipmentItemSO item)
+        {
+            if (item?.Icon == null)
+                return null;
+            return AssetPreview.GetAssetPreview(item.Icon) ?? AssetPreview.GetMiniThumbnail(item.Icon);
+        }
+
+        private static ItemAffixSO.AffixStatData[] GetAffixStats(ItemAffixSO affix)
+        {
+            return AffixSetGenerator.GetRepresentativeStats(affix);
+        }
+
+        private static StatType GetAffixStat(ItemAffixSO affix)
+        {
+            var stats = GetAffixStats(affix);
+            return stats.Length > 0 ? stats[0].Stat : default;
+        }
+
+        private static string GetAffixCategory(ItemAffixSO affix)
+        {
+            var stats = GetAffixStats(affix);
+            return stats.Length > 0 ? StatsDatabaseSO.DefaultCategoryFor(stats[0].Stat) : "Misc";
+        }
+
+        private static string GetAffixModifierLabel(ItemAffixSO affix)
+        {
+            if (!string.IsNullOrEmpty(affix?.GroupID) && affix.GroupID.IndexOf("NegativeFlat", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Negative Flat";
+
+            var stats = GetAffixStats(affix);
+            return stats.Length > 0 ? AffixSetGenerator.GetTypeDisplayName(stats[0].Type) : "Misc";
+        }
+
+        private static string GetAffixStrength(ItemAffixSO affix)
+        {
+            string id = affix?.GroupID ?? affix?.name ?? string.Empty;
+            if (id.EndsWith("_Strong", System.StringComparison.OrdinalIgnoreCase)) return "Strong";
+            if (id.EndsWith("_Medium", System.StringComparison.OrdinalIgnoreCase)) return "Medium";
+            if (id.EndsWith("_Light", System.StringComparison.OrdinalIgnoreCase)) return "Light";
+            return "Custom";
+        }
+
+        private static int GetStrengthSortOrder(string strength)
+        {
+            if (strength == "Strong") return 0;
+            if (strength == "Medium") return 1;
+            if (strength == "Light") return 2;
+            return 3;
+        }
+
+        private static int GetModifierSortOrder(string modifier)
+        {
+            string value = (modifier ?? string.Empty).ToLowerInvariant();
+            if (value.Contains("flat")) return 0;
+            if (value.Contains("increase")) return 1;
+            if (value.Contains("decrease")) return 2;
+            if (value.Contains("more")) return 3;
+            if (value.Contains("less")) return 4;
+            return 5;
+        }
+
+        private static string GetTierSummary(ItemAffixSO affix)
+        {
+            var tiers = affix != null && affix.UsesEmbeddedTiers
+                ? affix.Tiers.Where(entry => entry != null && entry.Stats != null && entry.Stats.Length > 0).Select(entry => entry.Tier).Distinct().OrderBy(tier => tier).ToList()
+                : affix != null && affix.Tier > 0 ? new List<int> { affix.Tier } : new List<int>();
+            if (tiers.Count == 0) return "No tiers";
+            if (tiers.Count == 1) return $"T{tiers[0]}";
+            return $"T{tiers.Min()}–T{tiers.Max()}";
         }
 
         private void CreateNewPool()
@@ -801,7 +1008,7 @@ namespace Scripts.Editor.Items
             EditorGUILayout.BeginVertical(GUILayout.Width(300));
             GUILayout.Label("Affixes", EditorStyles.boldLabel);
             _affixSearch = EditorGUILayout.TextField("Search", _affixSearch);
-            _affixTierFilter = EditorGUILayout.Popup("Tier", _affixTierFilter + 1, new[] { "All", "1", "2", "3", "4", "5" }) - 1;
+            _affixTierFilter = EditorGUILayout.Popup("Contains tier", _affixTierFilter + 1, new[] { "All", "1", "2", "3", "4", "5" }) - 1;
             if (GUILayout.Button("Refresh")) LoadAffixes();
 
             _listScroll = EditorGUILayout.BeginScrollView(_listScroll, GUILayout.ExpandHeight(true));
@@ -809,7 +1016,7 @@ namespace Scripts.Editor.Items
             var filtered = _affixes.Where(a =>
             {
                 if (a == null) return false;
-                if (_affixTierFilter >= 0 && a.Tier != _affixTierFilter + 1) return false;
+                if (_affixTierFilter >= 0 && a.GetStatsForTier(_affixTierFilter + 1).Length == 0) return false;
                 if (search.Length > 0 && !(a.name + (a.GroupID ?? "") + (a.TranslationKey ?? "")).ToLowerInvariant().Contains(search)) return false;
                 return true;
             }).ToList();
@@ -818,7 +1025,7 @@ namespace Scripts.Editor.Items
             {
                 bool sel = _selectedAffix == affix;
                 GUI.backgroundColor = sel ? new Color(0.5f, 0.7f, 1f) : Color.white;
-                if (GUILayout.Button($"{affix.name}  T{affix.Tier}", GUILayout.Height(22)))
+                if (GUILayout.Button($"{affix.name}  [{GetTierSummary(affix)}]", GUILayout.Height(22)))
                 {
                     _selectedAffix = affix;
                     SessionState.SetString(SessionKeySelectedAffix, AssetDatabase.GetAssetPath(affix));
@@ -939,7 +1146,15 @@ namespace Scripts.Editor.Items
             string path = EditorUtility.SaveFilePanelInProject("Create affix", "NewAffix", "asset", "Save", "Assets/Resources/Affixes");
             if (string.IsNullOrEmpty(path)) return;
             var affix = ScriptableObject.CreateInstance<ItemAffixSO>();
-            affix.Stats = new ItemAffixSO.AffixStatData[0];
+            string id = Path.GetFileNameWithoutExtension(path);
+            affix.UniqueID = id;
+            affix.GroupID = id;
+            affix.Stats = System.Array.Empty<ItemAffixSO.AffixStatData>();
+            affix.Tiers = Enumerable.Range(1, 5).Select(tier => new ItemAffixSO.AffixTierData
+            {
+                Tier = tier,
+                Stats = System.Array.Empty<ItemAffixSO.AffixStatData>()
+            }).ToList();
             AssetDatabase.CreateAsset(affix, path);
             LoadAffixes();
             _selectedAffix = affix;

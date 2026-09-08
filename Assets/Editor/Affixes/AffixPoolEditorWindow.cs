@@ -23,8 +23,19 @@ namespace Scripts.Editor.Affixes
         private Vector2 _poolListScroll;
         private Vector2 _statListScroll;
         private bool _showOnlyMissingInPool; // показывать только аффиксы, которых ещё нет в пуле
+        private readonly Dictionary<string, bool> _affixBucketFoldouts = new Dictionary<string, bool>();
         private const float LeftStatWidth = 180f;
         private const float PoolListWidth = 260f;
+        private static readonly string[] AffixBucketOrder =
+        {
+            "Positive Light",
+            "Positive Medium",
+            "Positive High",
+            "Negative Light",
+            "Negative Medium",
+            "Negative High",
+            "Misc"
+        };
 
         [MenuItem("Tools/Affix Pool Editor")]
         public static void OpenWindow()
@@ -140,7 +151,11 @@ namespace Scripts.Editor.Affixes
                 return;
             }
 
-            var forStat = _allAffixes.Where(a => a != null && a.Stats != null && a.Stats.Length > 0 && a.Stats[0].Stat == _selectedStat.Value).ToList();
+            var forStat = _allAffixes.Where(a =>
+            {
+                var stats = AffixSetGenerator.GetRepresentativeStats(a);
+                return stats.Length > 0 && stats[0].Stat == _selectedStat.Value;
+            }).ToList();
             string search = (_affixSearch ?? "").Trim().ToLowerInvariant();
             if (!string.IsNullOrEmpty(search))
                 forStat = forStat.Where(a => a.name.ToLowerInvariant().Contains(search)).ToList();
@@ -157,25 +172,101 @@ namespace Scripts.Editor.Affixes
             EditorGUILayout.EndHorizontal();
 
             _affixListScroll = EditorGUILayout.BeginScrollView(_affixListScroll);
-            bool inPool = pool.Affixes != null;
-            foreach (var affix in forStat)
+            foreach (string bucketName in AffixBucketOrder)
             {
-                bool isInPool = inPool && pool.Affixes.Contains(affix);
-                if (isInPool) GUI.backgroundColor = new Color(0.5f, 0.55f, 0.6f);
-                EditorGUILayout.BeginHorizontal();
-                string tierLabel = $" T{affix.Tier}";
-                if (GUILayout.Button(affix.name + tierLabel, EditorStyles.miniButtonLeft, GUILayout.ExpandWidth(true)))
-                {
-                    ToggleAffixInPool(pool, affix);
-                }
-                if (GUILayout.Button("Local", GUILayout.Width(44))) CreateLocalCopy(affix);
-                if (GUILayout.Button("◎", GUILayout.Width(22))) { Selection.activeObject = affix; EditorGUIUtility.PingObject(affix); }
-                EditorGUILayout.EndHorizontal();
-                GUI.backgroundColor = Color.white;
+                var bucketAffixes = forStat.Where(affix => GetAffixBucket(affix) == bucketName).ToList();
+                DrawAffixBucket(pool, bucketName, bucketAffixes);
             }
             EditorGUILayout.EndScrollView();
             EditorGUILayout.LabelField($"Count: {forStat.Count}", EditorStyles.miniLabel);
             EditorGUILayout.EndVertical();
+        }
+
+        private void DrawAffixBucket(AffixPoolSO pool, string bucketName, List<ItemAffixSO> affixes)
+        {
+            bool expanded = !_affixBucketFoldouts.TryGetValue(bucketName, out bool saved) || saved;
+            Color previousColor = GUI.backgroundColor;
+            GUI.backgroundColor = GetBucketColor(bucketName);
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            expanded = EditorGUILayout.Foldout(expanded, $"{bucketName} ({affixes.Count})", true, EditorStyles.foldoutHeader);
+            GUI.enabled = affixes.Any(affix => pool.Affixes == null || !pool.Affixes.Contains(affix));
+            if (GUILayout.Button("Add section", GUILayout.Width(90)))
+                AddAllVisibleToPool(pool, affixes);
+            GUI.enabled = true;
+            EditorGUILayout.EndHorizontal();
+            GUI.backgroundColor = previousColor;
+            _affixBucketFoldouts[bucketName] = expanded;
+
+            if (!expanded)
+                return;
+
+            if (affixes.Count == 0)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.LabelField("— no matching affixes", EditorStyles.miniLabel);
+                EditorGUI.indentLevel--;
+                return;
+            }
+
+            foreach (var affix in affixes.OrderBy(value => value.name))
+            {
+                bool isInPool = pool.Affixes != null && pool.Affixes.Contains(affix);
+                EditorGUILayout.BeginHorizontal();
+                string tierLabel = affix.UsesEmbeddedTiers ? " [T1–T5]" : $" T{affix.Tier}";
+                EditorGUILayout.LabelField(affix.name + tierLabel, EditorStyles.miniLabel, GUILayout.ExpandWidth(true));
+
+                GUI.backgroundColor = isInPool ? new Color(0.8f, 0.55f, 0.55f) : new Color(0.55f, 0.8f, 0.55f);
+                if (GUILayout.Button(isInPool ? "− Remove" : "+ Add", GUILayout.Width(74)))
+                    ToggleAffixInPool(pool, affix);
+                GUI.backgroundColor = previousColor;
+
+                if (GUILayout.Button("Local", GUILayout.Width(44))) CreateLocalCopy(affix);
+                if (GUILayout.Button("◎", GUILayout.Width(22))) { Selection.activeObject = affix; EditorGUIUtility.PingObject(affix); }
+                EditorGUILayout.EndHorizontal();
+            }
+        }
+
+        private static string GetAffixBucket(ItemAffixSO affix)
+        {
+            string strength = GetAffixStrength(affix);
+            if (strength == null)
+                return "Misc";
+
+            var stats = AffixSetGenerator.GetRepresentativeStats(affix);
+            if (stats.Length == 0)
+                return "Misc";
+
+            bool hasPositive = false;
+            bool hasNegative = false;
+            foreach (var stat in stats)
+            {
+                bool negative = stat.Type == StatModType.PercentSub ||
+                                stat.Type == StatModType.PercentLess ||
+                                (stat.Type == StatModType.Flat && stat.MaxValue < 0f);
+                if (negative) hasNegative = true;
+                else hasPositive = true;
+            }
+
+            if (hasPositive == hasNegative)
+                return "Misc";
+
+            return $"{(hasNegative ? "Negative" : "Positive")} {strength}";
+        }
+
+        private static string GetAffixStrength(ItemAffixSO affix)
+        {
+            string id = affix?.GroupID ?? affix?.name ?? string.Empty;
+            if (id.EndsWith("_Light", System.StringComparison.OrdinalIgnoreCase)) return "Light";
+            if (id.EndsWith("_Medium", System.StringComparison.OrdinalIgnoreCase)) return "Medium";
+            if (id.EndsWith("_Strong", System.StringComparison.OrdinalIgnoreCase)) return "High";
+            return null;
+        }
+
+        private static Color GetBucketColor(string bucketName)
+        {
+            if (bucketName.StartsWith("Positive")) return new Color(0.65f, 0.9f, 0.65f);
+            if (bucketName.StartsWith("Negative")) return new Color(0.95f, 0.68f, 0.68f);
+            return new Color(0.82f, 0.82f, 0.82f);
         }
 
         private void DrawPoolContents(AffixPoolSO pool)
@@ -228,6 +319,7 @@ namespace Scripts.Editor.Affixes
 
         private void ToggleAffixInPool(AffixPoolSO pool, ItemAffixSO affix)
         {
+            Undo.RecordObject(pool, pool.Affixes != null && pool.Affixes.Contains(affix) ? "Remove affix from pool" : "Add affix to pool");
             if (pool.Affixes == null) pool.Affixes = new List<ItemAffixSO>();
             if (pool.Affixes.Contains(affix))
                 pool.Affixes.Remove(affix);
@@ -238,6 +330,10 @@ namespace Scripts.Editor.Affixes
 
         private void AddAllVisibleToPool(AffixPoolSO pool, List<ItemAffixSO> visible)
         {
+            if (visible == null || visible.Count == 0)
+                return;
+
+            Undo.RecordObject(pool, "Add affixes to pool");
             if (pool.Affixes == null) pool.Affixes = new List<ItemAffixSO>();
             int added = 0;
             foreach (var a in visible)
@@ -268,7 +364,20 @@ namespace Scripts.Editor.Affixes
             copy.name = localName;
             copy.GroupID = "Local_" + (string.IsNullOrEmpty(source.GroupID) ? baseName : source.GroupID);
             copy.NameKey = string.IsNullOrEmpty(source.NameKey) ? "" : "affix_name_local_" + source.NameKey.Replace("affix_name_", "");
-            if (copy.Stats != null)
+            if (copy.Tiers != null && copy.Tiers.Count > 0)
+            {
+                foreach (var tierData in copy.Tiers)
+                {
+                    if (tierData?.Stats == null) continue;
+                    for (int i = 0; i < tierData.Stats.Length; i++)
+                    {
+                        var s = tierData.Stats[i];
+                        s.Scope = StatScope.Local;
+                        tierData.Stats[i] = s;
+                    }
+                }
+            }
+            else if (copy.Stats != null)
             {
                 for (int i = 0; i < copy.Stats.Length; i++)
                 {
@@ -278,7 +387,7 @@ namespace Scripts.Editor.Affixes
                 }
             }
             AssetDatabase.CreateAsset(copy, newPath);
-            copy.UniqueID = newPath.Replace("Assets/", "").Replace(".asset", "");
+            copy.UniqueID = copy.GroupID;
             EditorUtility.SetDirty(copy);
             AssetDatabase.SaveAssets();
             LoadAll();

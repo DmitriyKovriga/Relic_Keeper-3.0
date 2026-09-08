@@ -53,15 +53,23 @@ namespace Scripts.Inventory
     public class AffixInstance
     {
         public ItemAffixSO Data;
+        public int Tier;
         public List<AffixModifierInstance> Modifiers = new List<AffixModifierInstance>();
 
         // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РіРµРЅРµСЂР°С†РёРё (РЎР›РЈР§РђР™РќР«Р™)
         public AffixInstance(ItemAffixSO data, InventoryItem ownerItem)
+            : this(data, data != null ? data.GetDefaultTier() : 0, ownerItem)
+        {
+        }
+
+        public AffixInstance(ItemAffixSO data, int tier, InventoryItem ownerItem)
         {
             Data = data;
-            if (data.Stats == null) return;
+            Tier = tier > 0 ? tier : data != null ? data.GetDefaultTier() : 0;
+            ItemAffixSO.AffixStatData[] stats = data != null ? data.GetStatsForTier(Tier) : null;
+            if (stats == null) return;
 
-            foreach (var statData in data.Stats)
+            foreach (var statData in stats)
             {
                 float primaryValue = RollAffixValue(statData.GetPrimaryRollMin(), statData.GetPrimaryRollMax());
                 StatModifier secondaryMod = null;
@@ -82,17 +90,24 @@ namespace Scripts.Inventory
 
         // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Р—РђР“Р РЈР—РљР (РР— РЎРћРҐР РђРќР•РќРРЇ)
         public AffixInstance(ItemAffixSO data, AffixSaveData saveData, InventoryItem ownerItem)
+            : this(data, saveData != null ? saveData.Tier : 0, saveData, ownerItem)
+        {
+        }
+
+        public AffixInstance(ItemAffixSO data, int tier, AffixSaveData saveData, InventoryItem ownerItem)
         {
             Data = data;
-            if (data.Stats == null || saveData.Values == null) return;
+            Tier = tier > 0 ? tier : data != null ? data.GetDefaultTier() : 0;
+            ItemAffixSO.AffixStatData[] stats = data != null ? data.GetStatsForTier(Tier) : null;
+            if (stats == null || saveData?.Values == null) return;
 
             // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј РјРѕРґРёС„РёРєР°С‚РѕСЂС‹ РїРѕ РїРѕСЂСЏРґРєСѓ
             int valueIndex = 0;
-            for (int i = 0; i < data.Stats.Length; i++)
+            for (int i = 0; i < stats.Length; i++)
             {
                 if (valueIndex >= saveData.Values.Count) break;
 
-                var statData = data.Stats[i];
+                var statData = stats[i];
                 float primaryValue = saveData.Values[valueIndex++];
                 StatModifier secondaryMod = null;
 
@@ -153,6 +168,7 @@ namespace Scripts.Inventory
                 var afData = new AffixSaveData
                 {
                     AffixID = affixKey,
+                    Tier = affix.Tier,
                     Values = new List<float>()
                 };
                 foreach (var mod in affix.Modifiers)
@@ -195,11 +211,11 @@ namespace Scripts.Inventory
             // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р°С„С„РёРєСЃС‹
             foreach (var afSave in save.Affixes)
             {
-                var affixSO = db.GetAffix(afSave.AffixID);
-                if (affixSO != null)
+                if (db.TryResolveAffix(afSave.AffixID, out var affixSO, out int legacyTier))
                 {
                     // Р’С‹Р·С‹РІР°РµРј СЃРїРµС†РёР°Р»СЊРЅС‹Р№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Р·Р°РіСЂСѓР·РєРё
-                    newItem.Affixes.Add(new AffixInstance(affixSO, afSave, newItem));
+                    int resolvedTier = afSave.Tier > 0 ? afSave.Tier : legacyTier;
+                    newItem.Affixes.Add(new AffixInstance(affixSO, resolvedTier, afSave, newItem));
                 }
             }
 

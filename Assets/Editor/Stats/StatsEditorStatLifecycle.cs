@@ -159,10 +159,7 @@ namespace Scripts.Editor.Stats
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
                 var affix = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path);
-                if (affix?.Stats == null)
-                    continue;
-
-                if (affix.Stats.Any(stat => stat.Stat == StatType.CritMultiplier &&
+                if (EnumerateAffixStats(affix).Any(stat => stat.Stat == StatType.CritMultiplier &&
                                             (stat.Type == StatModType.PercentAdd || stat.Type == StatModType.PercentSub)))
                 {
                     report.LegacyCritMultiplierAffixes++;
@@ -239,38 +236,39 @@ namespace Scripts.Editor.Stats
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
                 var affix = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path);
-                if (affix == null || affix.Stats == null || affix.Stats.Length == 0)
+                if (affix == null || !EnumerateAffixStats(affix).Any())
                     continue;
 
                 bool changed = false;
                 bool migratedCritMultiplier = false;
-                var stats = affix.Stats;
-                for (int i = 0; i < stats.Length; i++)
+                foreach (var stats in GetAffixStatArrays(affix))
                 {
-                    var statData = stats[i];
-                    if (statData.Stat != StatType.CritMultiplier)
-                        continue;
+                    for (int i = 0; i < stats.Length; i++)
+                    {
+                        var statData = stats[i];
+                        if (statData.Stat != StatType.CritMultiplier)
+                            continue;
 
-                    if (statData.Type == StatModType.PercentAdd)
-                    {
-                        statData.Type = StatModType.Flat;
-                        stats[i] = statData;
-                        changed = true;
-                        migratedCritMultiplier = true;
-                    }
-                    else if (statData.Type == StatModType.PercentSub)
-                    {
-                        statData.Type = StatModType.Flat;
-                        ConvertAffixStatRangeToNegative(ref statData);
-                        stats[i] = statData;
-                        changed = true;
-                        migratedCritMultiplier = true;
+                        if (statData.Type == StatModType.PercentAdd)
+                        {
+                            statData.Type = StatModType.Flat;
+                            stats[i] = statData;
+                            changed = true;
+                            migratedCritMultiplier = true;
+                        }
+                        else if (statData.Type == StatModType.PercentSub)
+                        {
+                            statData.Type = StatModType.Flat;
+                            ConvertAffixStatRangeToNegative(ref statData);
+                            stats[i] = statData;
+                            changed = true;
+                            migratedCritMultiplier = true;
+                        }
                     }
                 }
 
                 if (changed)
                 {
-                    affix.Stats = stats;
                     if (migratedCritMultiplier)
                     {
                         report.MigratedCritMultiplierAffixes++;
@@ -419,22 +417,16 @@ namespace Scripts.Editor.Stats
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
                 var affix = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path);
-                if (affix == null || affix.Stats == null) continue;
-                int idx = -1;
-                for (int i = 0; i < affix.Stats.Length; i++)
-                    if (affix.Stats[i].Stat == stat) { idx = i; break; }
-                if (idx < 0) continue;
+                if (affix == null || !EnumerateAffixStats(affix).Any(s => s.Stat == stat)) continue;
 
-                var list = affix.Stats.ToList();
-                list.RemoveAt(idx);
-                if (list.Count == 0)
+                RemoveStatFromAffix(affix, stat);
+                if (!EnumerateAffixStats(affix).Any())
                 {
                     AssetDatabase.DeleteAsset(path);
                     affixesModified++;
                 }
                 else
                 {
-                    affix.Stats = list.ToArray();
                     EditorUtility.SetDirty(affix);
                     affixesModified++;
                 }
@@ -667,7 +659,7 @@ namespace Scripts.Editor.Stats
             if (!AssetDatabase.IsValidFolder(EditorPaths.AffixesBaseFolder + "/ByStat/" + category)) AssetDatabase.CreateFolder(EditorPaths.AffixesBaseFolder + "/ByStat", category);
             if (!AssetDatabase.IsValidFolder(EditorPaths.AffixesBaseFolder + "/ByStat/" + category + "/" + statName)) AssetDatabase.CreateFolder(EditorPaths.AffixesBaseFolder + "/ByStat/" + category, statName);
 
-            string path = $"{folder}/{statName}_Flat_T1.asset";
+            string path = $"{folder}/{statName}_Flat_Medium.asset";
             if (AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path) != null)
             {
                 Debug.LogWarning($"Stats Editor: Affix already exists at {path}");
@@ -675,15 +667,29 @@ namespace Scripts.Editor.Stats
             }
 
             var affix = ScriptableObject.CreateInstance<ItemAffixSO>();
-            affix.GroupID = $"{statName}_Flat";
-            affix.Tier = 1;
-            affix.TranslationKey = $"affix_flat_{statName.ToLowerInvariant()}_t1";
-            affix.Stats = new ItemAffixSO.AffixStatData[1];
-            affix.Stats[0].Stat = stat;
-            affix.Stats[0].Type = StatModType.Flat;
-            affix.Stats[0].Scope = StatScope.Global;
-            affix.Stats[0].MinValue = 1f;
-            affix.Stats[0].MaxValue = 10f;
+            affix.GroupID = $"{statName}_Flat_Medium";
+            affix.UniqueID = affix.GroupID;
+            affix.NameKey = $"affix_name_{statName.ToLowerInvariant()}_flat_medium";
+            affix.TranslationKey = $"affix_flat_{statName.ToLowerInvariant()}";
+            affix.Tiers = new List<ItemAffixSO.AffixTierData>();
+            for (int tier = 1; tier <= 5; tier++)
+            {
+                affix.Tiers.Add(new ItemAffixSO.AffixTierData
+                {
+                    Tier = tier,
+                    Stats = new[]
+                    {
+                        new ItemAffixSO.AffixStatData
+                        {
+                            Stat = stat,
+                            Type = StatModType.Flat,
+                            Scope = StatScope.Global,
+                            MinValue = 1f,
+                            MaxValue = 10f
+                        }
+                    }
+                });
+            }
 
             AssetDatabase.CreateAsset(affix, path);
             EditorUtility.SetDirty(affix);
@@ -844,14 +850,15 @@ namespace Scripts.Editor.Stats
 
         private static void NormalizeAffixLocalizationKeys(ItemAffixSO affix)
         {
-            if (affix?.Stats == null || affix.Stats.Length == 0)
+            var stats = AffixSetGenerator.GetRepresentativeStats(affix);
+            if (stats.Length == 0)
                 return;
 
-            var statData = affix.Stats[0];
+            var statData = stats[0];
             string strength = ParseStrengthFromGroupId(affix.GroupID);
             bool isNegativeFlat = statData.Type == StatModType.Flat && statData.MaxValue < 0f;
             string kindId = isNegativeFlat ? "flatnegative" : "flat";
-            affix.NameKey = $"affix_name_{statData.Stat.ToString().ToLowerInvariant()}_{kindId}_{strength.ToLowerInvariant()}_t{affix.Tier}";
+            affix.NameKey = $"affix_name_{statData.Stat.ToString().ToLowerInvariant()}_{kindId}_{strength.ToLowerInvariant()}";
             affix.TranslationKey = AffixSetGenerator.GetValueKey(statData.Stat, StatAffixModifierKind.Flat, statData.GetEffectiveValueMode());
         }
 
@@ -869,6 +876,41 @@ namespace Scripts.Editor.Stats
             }
 
             return "Medium";
+        }
+
+        private static IEnumerable<ItemAffixSO.AffixStatData[]> GetAffixStatArrays(ItemAffixSO affix)
+        {
+            if (affix == null)
+                yield break;
+
+            if (affix.UsesEmbeddedTiers)
+            {
+                foreach (var tierData in affix.Tiers)
+                    if (tierData?.Stats != null) yield return tierData.Stats;
+                yield break;
+            }
+
+            if (affix.Stats != null)
+                yield return affix.Stats;
+        }
+
+        private static IEnumerable<ItemAffixSO.AffixStatData> EnumerateAffixStats(ItemAffixSO affix)
+        {
+            return GetAffixStatArrays(affix).SelectMany(stats => stats);
+        }
+
+        private static void RemoveStatFromAffix(ItemAffixSO affix, StatType stat)
+        {
+            if (affix.UsesEmbeddedTiers)
+            {
+                foreach (var tierData in affix.Tiers)
+                    if (tierData?.Stats != null)
+                        tierData.Stats = tierData.Stats.Where(entry => entry.Stat != stat).ToArray();
+            }
+            else if (affix.Stats != null)
+            {
+                affix.Stats = affix.Stats.Where(entry => entry.Stat != stat).ToArray();
+            }
         }
 
         private static bool SetIfDifferent<T>(ref T field, T value)

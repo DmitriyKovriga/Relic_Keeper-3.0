@@ -36,7 +36,9 @@ namespace Scripts.Saving
     [Serializable]
     public class AffixSaveData
     {
-        public string AffixID;      // Имя ItemAffixSO
+        public string AffixID;      // Stable ItemAffixSO ID
+        [Tooltip("Выбранный тир встроенного аффикса. 0 означает старый сейв, тир определяется по legacy ID.")]
+        public int Tier;
         public List<float> Values;  // Сохраненные значения модификаторов
     }
 

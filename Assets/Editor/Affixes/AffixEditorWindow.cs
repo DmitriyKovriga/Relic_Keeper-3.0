@@ -185,14 +185,15 @@ namespace Scripts.Editor.Affixes
             var filtered = _affixes.Where(a =>
             {
                 if (a == null) return false;
-                if (_tierFilter > 0 && a.Tier != _tierFilter) return false;
+                if (_tierFilter > 0 && a.GetStatsForTier(_tierFilter).Length == 0) return false;
                 if (filterTagId != null && (a.TagIds == null || !a.TagIds.Contains(filterTagId))) return false;
                 if (filterStatVal.HasValue)
                 {
-                    if (a.Stats == null || a.Stats.Length == 0) return false;
+                    var stats = AffixSetGenerator.GetRepresentativeStats(a);
+                    if (stats.Length == 0) return false;
                     bool hasStat = false;
-                    for (int i = 0; i < a.Stats.Length; i++)
-                        if (a.Stats[i].Stat == filterStatVal.Value) { hasStat = true; break; }
+                    for (int i = 0; i < stats.Length; i++)
+                        if (stats[i].Stat == filterStatVal.Value) { hasStat = true; break; }
                     if (!hasStat) return false;
                 }
                 if (!MatchesMissingLocalizationFilter(a)) return false;
@@ -206,7 +207,8 @@ namespace Scripts.Editor.Affixes
             {
                 bool sel = _selectedAffix == affix;
                 GUI.backgroundColor = sel ? new Color(0.5f, 0.7f, 1f) : Color.white;
-                if (GUILayout.Button($"{affix.name}  T{affix.Tier}", GUILayout.Height(22)))
+                string tiers = affix.UsesEmbeddedTiers ? "T1–T5" : $"T{affix.Tier}";
+                if (GUILayout.Button($"{affix.name}  [{tiers}]", GUILayout.Height(22)))
                 {
                     if (_selectedAffix != affix)
                         ResetLocalizationInputState(clearValues: true);
@@ -383,14 +385,15 @@ namespace Scripts.Editor.Affixes
 
         private void RebuildSelectedStatFamily()
         {
-            if (_selectedAffix == null || _selectedAffix.Stats == null || _selectedAffix.Stats.Length == 0)
+            var selectedStats = AffixSetGenerator.GetRepresentativeStats(_selectedAffix);
+            if (_selectedAffix == null || selectedStats.Length == 0)
                 return;
 
             if (_statsDatabase == null) { EditorUtility.DisplayDialog("Rebuild", "Stats Database not found.", "OK"); return; }
             if (_menuLabelsCollection == null) { EditorUtility.DisplayDialog("Rebuild", "MenuLabels table not found.", "OK"); return; }
             if (_affixesLabelsCollection == null) { EditorUtility.DisplayDialog("Rebuild", "AffixesLabels table not found.", "OK"); return; }
 
-            StatType stat = _selectedAffix.Stats[0].Stat;
+            StatType stat = selectedStats[0].Stat;
             bool confirmed = EditorUtility.DisplayDialog(
                 "Rebuild generated affix family",
                 $"Rebuild generated affixes for {stat}? Obsolete generated variants in its stat folder will be removed, and pool references will be replaced when a safe successor exists.",
@@ -411,7 +414,7 @@ namespace Scripts.Editor.Affixes
                 removeObsolete: true);
 
             LoadAll();
-            _selectedAffix = _affixes.FirstOrDefault(a => a != null && a.Stats != null && a.Stats.Length > 0 && a.Stats[0].Stat == stat);
+            _selectedAffix = _affixes.FirstOrDefault(a => AffixSetGenerator.GetRepresentativeStats(a).Any(s => s.Stat == stat));
             if (_selectedAffix != null)
                 ReloadSelectedAffixLocalizationFields(resetInputState: true);
 
@@ -483,9 +486,10 @@ namespace Scripts.Editor.Affixes
                 string key = GetAffixNameKey(affix);
                 string existingEn = GetLocalizedString(_affixesLabelsCollection, "en", key);
                 if (!string.IsNullOrWhiteSpace(existingEn)) continue;
-                if (affix.Stats == null || affix.Stats.Length == 0) continue;
+                var stats = AffixSetGenerator.GetRepresentativeStats(affix);
+                if (stats.Length == 0) continue;
 
-                var s = affix.Stats[0];
+                var s = stats[0];
                 string statNameEn = GetLocalizedString(_menuLabelsCollection, "en", "stats." + s.Stat);
                 string statNameRu = GetLocalizedString(_menuLabelsCollection, "ru", "stats." + s.Stat);
                 if (string.IsNullOrWhiteSpace(statNameEn)) statNameEn = s.Stat.ToString();
@@ -516,7 +520,7 @@ namespace Scripts.Editor.Affixes
             int filled = 0;
             foreach (var affix in _affixes)
             {
-                if (affix == null || affix.Stats == null || affix.Stats.Length == 0) continue;
+                if (AffixSetGenerator.GetRepresentativeStats(affix).Length == 0) continue;
                 if (affix.LockAutoLocalization) continue;
                 string nameKey = GetAffixNameKey(affix);
                 string valueKey = GetAffixValueKey(affix);
@@ -542,7 +546,7 @@ namespace Scripts.Editor.Affixes
             int updated = 0;
             foreach (var affix in _affixes)
             {
-                if (affix == null || affix.Stats == null || affix.Stats.Length == 0) continue;
+                if (AffixSetGenerator.GetRepresentativeStats(affix).Length == 0) continue;
                 if (affix.LockAutoLocalization) continue;
 
                 AffixSetGenerator.RegenerateLocalizationFromStat(affix, _menuLabelsCollection, _affixesLabelsCollection);
@@ -787,13 +791,14 @@ namespace Scripts.Editor.Affixes
         private List<string> GetSuggestedTagsFromStats(ItemAffixSO affix)
         {
             var list = new List<string>();
-            if (affix?.Stats == null) return list;
+            var stats = AffixSetGenerator.GetRepresentativeStats(affix);
+            if (stats.Length == 0) return list;
             string GetCategory(StatType stat)
             {
                 if (_statsDatabase != null) return _statsDatabase.GetCategory(stat);
                 return FallbackCategory(stat);
             }
-            foreach (var s in affix.Stats)
+            foreach (var s in stats)
             {
                 string cat = GetCategory(s.Stat);
                 if (!string.IsNullOrEmpty(cat) && !list.Contains(cat)) list.Add(cat);
@@ -803,14 +808,15 @@ namespace Scripts.Editor.Affixes
 
         private void SyncTagsFromStats(ItemAffixSO affix)
         {
-            if (affix.Stats == null || affix.Stats.Length == 0) return;
+            var stats = AffixSetGenerator.GetRepresentativeStats(affix);
+            if (stats.Length == 0) return;
             string GetCategory(StatType stat)
             {
                 if (_statsDatabase != null) return _statsDatabase.GetCategory(stat);
                 return FallbackCategory(stat);
             }
             if (affix.TagIds == null) affix.TagIds = new List<string>();
-            foreach (var s in affix.Stats)
+            foreach (var s in stats)
             {
                 string cat = GetCategory(s.Stat);
                 if (string.IsNullOrEmpty(cat)) continue;
@@ -931,8 +937,15 @@ namespace Scripts.Editor.Affixes
             string path = EditorUtility.SaveFilePanelInProject("Create affix", "NewAffix", "asset", "Save", EditorPaths.AffixesBaseFolder);
             if (string.IsNullOrEmpty(path)) return;
             var affix = ScriptableObject.CreateInstance<ItemAffixSO>();
-            affix.Stats = new ItemAffixSO.AffixStatData[0];
-            affix.Tier = 5;
+            string id = System.IO.Path.GetFileNameWithoutExtension(path);
+            affix.UniqueID = id;
+            affix.GroupID = id;
+            affix.Stats = System.Array.Empty<ItemAffixSO.AffixStatData>();
+            affix.Tiers = Enumerable.Range(1, 5).Select(tier => new ItemAffixSO.AffixTierData
+            {
+                Tier = tier,
+                Stats = System.Array.Empty<ItemAffixSO.AffixStatData>()
+            }).ToList();
             if (affix.TagIds == null) affix.TagIds = new List<string>();
             AssetDatabase.CreateAsset(affix, path);
             LoadAll();

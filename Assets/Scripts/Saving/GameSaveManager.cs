@@ -8,7 +8,7 @@ using Scripts.Configuration;
 
 public class GameSaveManager : MonoBehaviour
 {
-    public const int CurrentSaveVersion = 4;
+    public const int CurrentSaveVersion = 5;
 
     [Header("Core Dependencies")]
     [SerializeField] private PlayerStats _playerStats;
@@ -334,6 +334,11 @@ public class GameSaveManager : MonoBehaviour
         {
             data.SaveVersion = 4;
             Debug.Log("[System] Save migrated: 3 -> 4 (required character selection support).");
+        }
+        if (data.SaveVersion == 4)
+        {
+            data.SaveVersion = 5;
+            Debug.Log("[System] Save migrated: 4 -> 5 (embedded affix tiers support).");
         }
     }
 

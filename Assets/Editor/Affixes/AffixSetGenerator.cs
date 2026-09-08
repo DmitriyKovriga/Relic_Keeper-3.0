@@ -75,7 +75,6 @@ namespace Scripts.Editor.Affixes
             public readonly StatModType ModType;
             public readonly StatAffixModifierKind Kind;
             public readonly string Strength;
-            public readonly int Tier;
             public readonly StatAffixGenType GenType;
             public readonly bool NegativeFlat;
             public readonly string AssetPath;
@@ -85,7 +84,6 @@ namespace Scripts.Editor.Affixes
                 StatModType modType,
                 StatAffixModifierKind kind,
                 string strength,
-                int tier,
                 StatAffixGenType genType,
                 bool negativeFlat,
                 string assetPath)
@@ -94,7 +92,6 @@ namespace Scripts.Editor.Affixes
                 ModType = modType;
                 Kind = kind;
                 Strength = strength;
-                Tier = tier;
                 GenType = genType;
                 NegativeFlat = negativeFlat;
                 AssetPath = assetPath;
@@ -136,8 +133,9 @@ namespace Scripts.Editor.Affixes
             var withSet = new HashSet<StatType>();
             foreach (var affix in allAffixes)
             {
-                if (affix?.Stats != null && affix.Stats.Length > 0)
-                    withSet.Add(affix.Stats[0].Stat);
+                var stats = GetRepresentativeStats(affix);
+                if (stats != null && stats.Length > 0)
+                    withSet.Add(stats[0].Stat);
             }
 
             var result = new HashSet<StatType>();
@@ -191,21 +189,18 @@ namespace Scripts.Editor.Affixes
 
                         foreach (string strength in Strengths)
                         {
-                            for (int tier = 1; tier <= 5; tier++)
-                            {
-                                string fileName = $"{statName}_{kindDisplayName}_{strength}_T{tier}.asset";
-                                string path = Path.Combine(folder, fileName);
-                                if (AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path) != null)
-                                    continue;
+                            string fileName = $"{statName}_{kindDisplayName}_{strength}.asset";
+                            string path = Path.Combine(folder, fileName).Replace('\\', '/');
+                            if (AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path) != null)
+                                continue;
 
-                                var affix = CreateAffix(stat, modType, kind, strength, tier, genType, negativeFlat);
-                                AssetDatabase.CreateAsset(affix, path);
-                                affix.UniqueID = path.Replace("Assets/", string.Empty).Replace(".asset", string.Empty).Replace('\\', '/');
-                                WriteLocalization(affix, stat, kind, strength, menuLabels, affixesLabels, statsDb);
-                                SyncTagFromCategory(affix, statsDb, stat, tagDatabase);
-                                EditorUtility.SetDirty(affix);
-                                created++;
-                            }
+                            var affix = CreateTieredAffix(stat, modType, kind, strength, genType, negativeFlat);
+                            AssetDatabase.CreateAsset(affix, path);
+                            affix.UniqueID = affix.GroupID;
+                            WriteLocalization(affix, stat, kind, strength, menuLabels, affixesLabels, statsDb);
+                            SyncTagFromCategory(affix, statsDb, stat, tagDatabase);
+                            EditorUtility.SetDirty(affix);
+                            created++;
                         }
                     }
                 }
@@ -242,12 +237,11 @@ namespace Scripts.Editor.Affixes
 
             foreach (var definition in desiredDefinitions)
             {
-                var blueprint = CreateAffix(
+                var blueprint = CreateTieredAffix(
                     definition.Stat,
                     definition.ModType,
                     definition.Kind,
                     definition.Strength,
-                    definition.Tier,
                     definition.GenType,
                     definition.NegativeFlat);
 
@@ -255,7 +249,7 @@ namespace Scripts.Editor.Affixes
                 if (existing == null)
                 {
                     AssetDatabase.CreateAsset(blueprint, definition.AssetPath);
-                    blueprint.UniqueID = definition.AssetPath.Replace("Assets/", string.Empty).Replace(".asset", string.Empty).Replace('\\', '/');
+                    blueprint.UniqueID = blueprint.GroupID;
                     WriteLocalization(blueprint, definition.Stat, definition.Kind, definition.Strength, menuLabels, affixesLabels, statsDb);
                     SyncTagFromCategory(blueprint, statsDb, definition.Stat, tagDatabase);
                     EditorUtility.SetDirty(blueprint);
@@ -266,7 +260,7 @@ namespace Scripts.Editor.Affixes
                 }
 
                 CopyGeneratedAffixData(blueprint, existing);
-                existing.UniqueID = definition.AssetPath.Replace("Assets/", string.Empty).Replace(".asset", string.Empty).Replace('\\', '/');
+                existing.UniqueID = existing.GroupID;
                 SyncTagFromCategory(existing, statsDb, definition.Stat, tagDatabase);
 
                 if (!existing.LockAutoLocalization)
@@ -390,25 +384,22 @@ namespace Scripts.Editor.Affixes
 
             foreach (string strength in Strengths)
             {
-                for (int tier = 1; tier <= 5; tier++)
+                string fileName = $"{statName}_{kindDisplayName}_{strength}.asset";
+                string path = Path.Combine(folder, fileName).Replace('\\', '/');
+                if (AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path) != null)
                 {
-                    string fileName = $"{statName}_{kindDisplayName}_{strength}_T{tier}.asset";
-                    string path = Path.Combine(folder, fileName).Replace('\\', '/');
-                    if (AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path) != null)
-                    {
-                        report.Existing++;
-                        continue;
-                    }
-
-                    var affix = CreateAffix(stat, modType, kind, strength, tier, genType, negativeFlat);
-                    AssetDatabase.CreateAsset(affix, path);
-                    affix.UniqueID = path.Replace("Assets/", string.Empty).Replace(".asset", string.Empty).Replace('\\', '/');
-                    WriteLocalization(affix, stat, kind, strength, menuLabels, affixesLabels, statsDb);
-                    SyncTagFromCategory(affix, statsDb, stat, tagDatabase);
-                    EditorUtility.SetDirty(affix);
-                    report.Created++;
-                    report.LocalizationsRegenerated++;
+                    report.Existing++;
+                    continue;
                 }
+
+                var affix = CreateTieredAffix(stat, modType, kind, strength, genType, negativeFlat);
+                AssetDatabase.CreateAsset(affix, path);
+                affix.UniqueID = affix.GroupID;
+                WriteLocalization(affix, stat, kind, strength, menuLabels, affixesLabels, statsDb);
+                SyncTagFromCategory(affix, statsDb, stat, tagDatabase);
+                EditorUtility.SetDirty(affix);
+                report.Created++;
+                report.LocalizationsRegenerated++;
             }
 
             AssetDatabase.SaveAssets();
@@ -437,12 +428,13 @@ namespace Scripts.Editor.Affixes
             if (affix == null || affixesLabels == null || affix.LockAutoLocalization)
                 return;
 
-            if (affix.Stats == null || affix.Stats.Length == 0)
+            var stats = GetRepresentativeStats(affix);
+            if (stats == null || stats.Length == 0)
                 return;
 
             EnsureValueUnitLocalizations(menuLabels);
-            var stat = affix.Stats[0].Stat;
-            var kind = StatPresentation.FromStatModType(affix.Stats[0].Type);
+            var stat = stats[0].Stat;
+            var kind = StatPresentation.FromStatModType(stats[0].Type);
             string strength = ParseStrengthFromGroupId(affix.GroupID);
 
             string nameKey = string.IsNullOrEmpty(affix.NameKey) ? "affix_name_" + SanitizeKey(affix.name) : affix.NameKey;
@@ -461,12 +453,13 @@ namespace Scripts.Editor.Affixes
 
         public static void RegenerateLocalizationFromStat(ItemAffixSO affix, StringTableCollection menuLabels, StringTableCollection affixesLabels)
         {
-            if (affix == null || affixesLabels == null || affix.Stats == null || affix.Stats.Length == 0)
+            var stats = GetRepresentativeStats(affix);
+            if (affix == null || affixesLabels == null || stats == null || stats.Length == 0)
                 return;
 
             EnsureValueUnitLocalizations(menuLabels);
-            var stat = affix.Stats[0].Stat;
-            var kind = StatPresentation.FromStatModType(affix.Stats[0].Type);
+            var stat = stats[0].Stat;
+            var kind = StatPresentation.FromStatModType(stats[0].Type);
             string strength = ParseStrengthFromGroupId(affix.GroupID);
 
             WriteNameLocalization(affix, stat, kind, strength, menuLabels, affixesLabels);
@@ -481,10 +474,11 @@ namespace Scripts.Editor.Affixes
 
         public static string GetValueKeyForAffix(ItemAffixSO affix)
         {
-            if (affix == null || affix.Stats == null || affix.Stats.Length == 0)
+            var stats = GetRepresentativeStats(affix);
+            if (stats == null || stats.Length == 0)
                 return null;
 
-            var statData = affix.Stats[0];
+            var statData = stats[0];
             var kind = StatPresentation.FromStatModType(statData.Type);
             return ResolveValueKey(affix, statData.Stat, kind);
         }
@@ -492,6 +486,14 @@ namespace Scripts.Editor.Affixes
         public static string GetTypeDisplayName(StatModType type)
         {
             return StatPresentation.GetModifierKindDisplayName(StatPresentation.FromStatModType(type));
+        }
+
+        public static ItemAffixSO.AffixStatData[] GetRepresentativeStats(ItemAffixSO affix)
+        {
+            if (affix == null)
+                return Array.Empty<ItemAffixSO.AffixStatData>();
+
+            return affix.GetStatsForTier(affix.GetDefaultTier()) ?? Array.Empty<ItemAffixSO.AffixStatData>();
         }
 
         public static string GetGeneratedFolderPath(StatsDatabaseSO statsDb, StatType stat, string affixesBaseFolder)
@@ -537,12 +539,9 @@ namespace Scripts.Editor.Affixes
 
                     foreach (string strength in Strengths)
                     {
-                        for (int tier = 1; tier <= 5; tier++)
-                        {
-                            string fileName = $"{stat}_{kindDisplayName}_{strength}_T{tier}.asset";
-                            string assetPath = Path.Combine(folder, fileName).Replace('\\', '/');
-                            definitions.Add(new GeneratedAffixDefinition(stat, modType, kind, strength, tier, genType, negativeFlat, assetPath));
-                        }
+                        string fileName = $"{stat}_{kindDisplayName}_{strength}.asset";
+                        string assetPath = Path.Combine(folder, fileName).Replace('\\', '/');
+                        definitions.Add(new GeneratedAffixDefinition(stat, modType, kind, strength, genType, negativeFlat, assetPath));
                     }
                 }
             }
@@ -577,6 +576,41 @@ namespace Scripts.Editor.Affixes
                 affix.TagIds = new List<string>();
 
             return affix;
+        }
+
+        private static ItemAffixSO CreateTieredAffix(
+            StatType stat,
+            StatModType modType,
+            StatAffixModifierKind kind,
+            string strength,
+            StatAffixGenType genType,
+            bool negativeFlat = false)
+        {
+            var result = ScriptableObject.CreateInstance<ItemAffixSO>();
+            string groupKindId = GetGeneratedKindDisplayName(kind, negativeFlat);
+            string nameKeyKindId = GetGeneratedKindLocalizationId(kind, negativeFlat);
+            result.GroupID = $"{stat}_{groupKindId}_{strength}";
+            result.UniqueID = result.GroupID;
+            result.TranslationKey = BuildValueKey(stat, kind, AffixValueMode.Single);
+            result.NameKey = $"affix_name_{stat.ToString().ToLowerInvariant()}_{nameKeyKindId}_{strength.ToLowerInvariant()}";
+            result.Tiers = new List<ItemAffixSO.AffixTierData>();
+
+            for (int tier = 1; tier <= 5; tier++)
+            {
+                var legacy = CreateAffix(stat, modType, kind, strength, tier, genType, negativeFlat);
+                result.Tiers.Add(new ItemAffixSO.AffixTierData
+                {
+                    Tier = tier,
+                    Stats = legacy.Stats
+                });
+                UnityEngine.Object.DestroyImmediate(legacy);
+            }
+
+            result.Tier = 0;
+            result.Stats = Array.Empty<ItemAffixSO.AffixStatData>();
+            result.LegacyTierIds = new List<ItemAffixSO.LegacyTierId>();
+            result.TagIds = new List<string>();
+            return result;
         }
 
         private static void SetValuesFullCalc(ref ItemAffixSO.AffixStatData data, StatType stat, StatAffixModifierKind kind, int tier, string strength)
@@ -654,10 +688,11 @@ namespace Scripts.Editor.Affixes
         private static void CopyGeneratedAffixData(ItemAffixSO source, ItemAffixSO target)
         {
             target.GroupID = source.GroupID;
-            target.Tier = source.Tier;
+            target.Tier = 0;
             target.NameKey = source.NameKey;
             target.TranslationKey = source.TranslationKey;
-            target.Stats = source.Stats;
+            target.Stats = Array.Empty<ItemAffixSO.AffixStatData>();
+            target.Tiers = source.Tiers;
             if (target.TagIds == null)
                 target.TagIds = new List<string>();
         }
@@ -759,10 +794,11 @@ namespace Scripts.Editor.Affixes
 
         private static AffixValueMode GetValueMode(ItemAffixSO affix)
         {
-            if (affix == null || affix.Stats == null || affix.Stats.Length == 0)
+            var stats = GetRepresentativeStats(affix);
+            if (stats == null || stats.Length == 0)
                 return AffixValueMode.Single;
 
-            return affix.Stats[0].GetEffectiveValueMode();
+            return stats[0].GetEffectiveValueMode();
         }
 
         private static bool IsRangeValueMode(ItemAffixSO affix, StatAffixModifierKind kind)
@@ -996,10 +1032,11 @@ namespace Scripts.Editor.Affixes
             IReadOnlyDictionary<string, GeneratedAffixDefinition> desiredByPath,
             IReadOnlyDictionary<string, ItemAffixSO> createdOrUpdatedAssets)
         {
-            if (obsolete?.Stats == null || obsolete.Stats.Length == 0)
+            var obsoleteStats = GetRepresentativeStats(obsolete);
+            if (obsoleteStats.Length == 0)
                 return null;
 
-            var statData = obsolete.Stats[0];
+            var statData = obsoleteStats[0];
             if (statData.Stat != stat)
                 return null;
 
@@ -1008,7 +1045,6 @@ namespace Scripts.Editor.Affixes
                 return null;
 
             string strength = ParseStrengthFromGroupId(obsolete.GroupID);
-            int tier = Mathf.Clamp(obsolete.Tier, 1, 5);
             bool negativeFlat = statData.Type == StatModType.PercentSub || (statData.Type == StatModType.Flat && statData.MaxValue < 0f);
 
             StatAffixModifierKind replacementKind = statData.Type switch
@@ -1021,7 +1057,7 @@ namespace Scripts.Editor.Affixes
             };
 
             string kindDisplayName = GetGeneratedKindDisplayName(replacementKind, negativeFlat);
-            string replacementPath = $"{folder}/{stat}_{kindDisplayName}_{strength}_T{tier}.asset";
+            string replacementPath = $"{folder}/{stat}_{kindDisplayName}_{strength}.asset";
 
             if (!desiredByPath.ContainsKey(replacementPath))
                 return null;

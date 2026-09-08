@@ -38,9 +38,9 @@ public class ItemGenerator : MonoBehaviour
 
             var affixDatas = pool.GetRandomAffixes(count, itemLevel);
 
-            foreach (var data in affixDatas)
+            foreach (var selection in affixDatas)
             {
-                newItem.Affixes.Add(new AffixInstance(data, newItem));
+                newItem.Affixes.Add(new AffixInstance(selection.Affix, selection.Tier, newItem));
             }
         }
 
@@ -90,8 +90,8 @@ public class ItemGenerator : MonoBehaviour
             ? Random.Range(1, Mathf.Min(3, availableAffixGroups) + 1)
             : Random.Range(4, Mathf.Min(6, availableAffixGroups) + 1);
         var affixDatas = pool.GetRandomAffixes(count, baseItem.DropLevel);
-        foreach (var data in affixDatas)
-            item.Affixes.Add(new AffixInstance(data, item));
+        foreach (var selection in affixDatas)
+            item.Affixes.Add(new AffixInstance(selection.Affix, selection.Tier, item));
     }
 
     public static bool IsRare(InventoryItem item)
