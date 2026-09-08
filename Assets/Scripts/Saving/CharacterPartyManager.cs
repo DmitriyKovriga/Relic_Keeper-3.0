@@ -73,9 +73,12 @@ public class CharacterPartyManager : MonoBehaviour
 
             bool savedActiveCharacterExists = !string.IsNullOrEmpty(data.ActiveCharacterID) &&
                                               _partyCharacters.ContainsKey(data.ActiveCharacterID);
-            _activeCharacterID = savedActiveCharacterExists
-                ? data.ActiveCharacterID
-                : data.SaveVersion >= 4 ? null : _partyCharacters.Keys.FirstOrDefault();
+            if (savedActiveCharacterExists)
+                _activeCharacterID = data.ActiveCharacterID;
+            else if (!string.IsNullOrEmpty(data.ActiveCharacterID) || data.SaveVersion < 4)
+                _activeCharacterID = _partyCharacters.Keys.FirstOrDefault();
+            else
+                _activeCharacterID = null;
         }
         else if (!string.IsNullOrEmpty(data.CharacterClassID))
         {

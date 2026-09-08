@@ -70,5 +70,45 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(_manager.ActiveCharacterID, Is.EqualTo("valid-character"));
             Assert.That(_manager.GetCharacterData("valid-character"), Is.SameAs(validCharacter));
         }
+
+        [Test]
+        public void LoadVersionFourSave_WithNoActiveCharacter_PreservesRequiredSelectionState()
+        {
+            var hostelCharacter = new CharacterSaveData("mage", "hostel-character");
+            var save = new GameSaveData
+            {
+                SaveVersion = GameSaveManager.CurrentSaveVersion,
+                ActiveCharacterID = null
+            };
+            save.Characters.Add(hostelCharacter);
+
+            _manager.LoadFromSave(save, null, null);
+
+            Assert.That(_manager.HasActiveCharacter, Is.False);
+            Assert.That(_manager.HostelCharacterIDs, Does.Contain("hostel-character"));
+        }
+
+        [Test]
+        public void RemoveActiveCharacterAfterDeath_RemovesOnlyDeadCharacterAndWritesNoActiveId()
+        {
+            var deadCharacter = new CharacterSaveData("warrior", "dead-character");
+            var hostelCharacter = new CharacterSaveData("mage", "hostel-character");
+            var source = new GameSaveData
+            {
+                SaveVersion = GameSaveManager.CurrentSaveVersion,
+                ActiveCharacterID = deadCharacter.CharacterInstanceID
+            };
+            source.Characters.Add(deadCharacter);
+            source.Characters.Add(hostelCharacter);
+            _manager.LoadFromSave(source, null, null);
+
+            Assert.That(_manager.RemoveActiveCharacterAfterDeath(), Is.True);
+
+            var written = new GameSaveData();
+            _manager.WriteToSave(written);
+            Assert.That(written.ActiveCharacterID, Is.Null);
+            Assert.That(written.Characters, Has.Count.EqualTo(1));
+            Assert.That(written.Characters[0].CharacterInstanceID, Is.EqualTo("hostel-character"));
+        }
     }
 }

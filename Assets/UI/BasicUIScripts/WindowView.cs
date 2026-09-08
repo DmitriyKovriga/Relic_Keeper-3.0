@@ -71,7 +71,9 @@ public class WindowView : MonoBehaviour
 
     public void Open()
     {
-        if (!isInitialized) return;
+        if (!isInitialized)
+            Initialize();
+        if (!isInitialized || manager == null) return;
         manager.OpenWindow(this);
     }
 
