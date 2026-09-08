@@ -20,6 +20,10 @@ public class LanguageSelector : MonoBehaviour
     private Button _optEnglish;
     private Button _optRussian;
     private EventCallback<ClickEvent> _rootClickCallback;
+    private Label _displayLabel;
+    private DropdownField _displayDropdown;
+    private EventCallback<ChangeEvent<string>> _displayChangedCallback;
+    private List<DisplayInfo> _displays = new List<DisplayInfo>();
 
     private void OnEnable()
     {
@@ -34,6 +38,7 @@ public class LanguageSelector : MonoBehaviour
 
         LoadLanguage();
         UpdateButtonText();
+        SetupDisplaySelector();
 
         _popup.style.display = DisplayStyle.None;
 
@@ -50,6 +55,8 @@ public class LanguageSelector : MonoBehaviour
         if (_languageButton != null) _languageButton.clicked -= OnLanguageButtonClick;
         if (_optEnglish != null) _optEnglish.clicked -= OnOptEnglishClick;
         if (_optRussian != null) _optRussian.clicked -= OnOptRussianClick;
+        if (_displayDropdown != null && _displayChangedCallback != null)
+            _displayDropdown.UnregisterValueChangedCallback(_displayChangedCallback);
         if (ui?.rootVisualElement != null && _rootClickCallback != null)
             ui.rootVisualElement.UnregisterCallback(_rootClickCallback);
     }
@@ -95,6 +102,8 @@ public class LanguageSelector : MonoBehaviour
             LocalizationSettings.SelectedLocale = locale;
             SaveLanguage(name);
             UpdateButtonText();
+            UpdateDisplayLabel();
+            RefreshDisplayChoices();
         }
         _popup.style.display = DisplayStyle.None;
     }
@@ -136,5 +145,83 @@ public class LanguageSelector : MonoBehaviour
         if (_languageButton == null) return;
         string saved = PlayerPrefs.GetString(LANGUAGE_KEY, "English");
         _languageButton.text = saved;
+    }
+
+    private void SetupDisplaySelector()
+    {
+        var root = ui?.rootVisualElement;
+        _displayLabel = root?.Q<Label>("DisplayLabel");
+        _displayDropdown = root?.Q<DropdownField>("DisplayDropdown");
+        if (_displayDropdown == null)
+            return;
+
+        _displays = DisplaySettings.GetDisplays();
+        var choices = BuildDisplayChoices();
+
+        if (choices.Count == 0)
+        {
+            _displayDropdown.SetEnabled(false);
+            _displayDropdown.choices = new List<string> { "Display 1" };
+            _displayDropdown.SetValueWithoutNotify("Display 1");
+            UpdateDisplayLabel();
+            return;
+        }
+
+        int selectedIndex = DisplaySettings.ClampIndex(
+            PlayerPrefs.GetInt(DisplaySettings.SelectedDisplayKey, 0),
+            choices.Count);
+
+        _displayDropdown.choices = choices;
+        _displayDropdown.index = selectedIndex;
+        _displayChangedCallback = OnDisplayChanged;
+        _displayDropdown.RegisterValueChangedCallback(_displayChangedCallback);
+        UpdateDisplayLabel();
+    }
+
+    private void RefreshDisplayChoices()
+    {
+        if (_displayDropdown == null || _displays.Count == 0)
+            return;
+
+        int selectedIndex = DisplaySettings.ClampIndex(_displayDropdown.index, _displays.Count);
+        var choices = BuildDisplayChoices();
+        _displayDropdown.choices = choices;
+        _displayDropdown.SetValueWithoutNotify(choices[selectedIndex]);
+    }
+
+    private List<string> BuildDisplayChoices()
+    {
+        var choices = new List<string>();
+        for (int i = 0; i < _displays.Count; i++)
+            choices.Add(FormatDisplayChoice(i, _displays[i]));
+        return choices;
+    }
+
+    private void OnDisplayChanged(ChangeEvent<string> evt)
+    {
+        int selectedIndex = _displayDropdown?.choices?.IndexOf(evt.newValue) ?? -1;
+        if (selectedIndex < 0)
+            return;
+
+        DisplaySettings.SaveAndApply(selectedIndex);
+    }
+
+    private string FormatDisplayChoice(int index, DisplayInfo display)
+    {
+        string displayName = string.IsNullOrWhiteSpace(display.name) ? $"Display {index + 1}" : display.name;
+        string primarySuffix = index == 0 ? (IsRussianLocale() ? " — основной" : " — primary") : string.Empty;
+        return $"{index + 1}. {displayName} ({display.width}×{display.height}){primarySuffix}";
+    }
+
+    private void UpdateDisplayLabel()
+    {
+        if (_displayLabel != null)
+            _displayLabel.text = IsRussianLocale() ? "Монитор" : "Display";
+    }
+
+    private static bool IsRussianLocale()
+    {
+        return LocalizationSettings.SelectedLocale != null &&
+               LocalizationSettings.SelectedLocale.Identifier.Code.StartsWith("ru");
     }
 }

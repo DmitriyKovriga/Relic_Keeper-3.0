@@ -507,6 +507,7 @@ namespace Scripts.Stats
                 AllowedAffixKinds = DefaultAllowedAffixKindsFor(type, genType)
             };
         }
+#endif
 
         public static StatSemanticKind DefaultSemanticKindFor(StatType type)
         {
@@ -885,6 +886,5 @@ namespace Scripts.Stats
                     return flags;
             }
         }
-#endif
     }
 }

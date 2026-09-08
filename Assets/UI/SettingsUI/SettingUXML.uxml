@@ -4,6 +4,10 @@
         <ui:VisualElement name="Overlay" class="darkener settings-overlay" />
         <ui:VisualElement name="WindowPanel" class="panel settings-panel">
             <ui:ScrollView name="BindingScrollView" class="settings-scroll">
+                <ui:VisualElement name="DisplayRow" class="settings-language-row">
+                    <ui:Label text="Display" name="DisplayLabel" class="settings-language-label" />
+                    <ui:DropdownField name="DisplayDropdown" class="settings-display-dropdown" />
+                </ui:VisualElement>
                 <ui:VisualElement name="BindingRowLocal" class="settings-language-row">
                     <ui:Label text="Language" name="ActionName1" class="settings-language-label">
                         <Bindings>

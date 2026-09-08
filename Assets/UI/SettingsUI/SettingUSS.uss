@@ -183,6 +183,23 @@
     flex-shrink: 0;
 }
 
+.settings-display-dropdown {
+    color: rgb(255, 255, 255);
+    background-color: rgb(34, 34, 34);
+    width: 290px;
+    min-width: 290px;
+    height: 18px;
+    min-height: 18px;
+    font-size: 9px;
+    flex-shrink: 0;
+}
+
+.settings-display-dropdown > .unity-base-field__input {
+    background-color: rgb(34, 34, 34);
+    border-width: 1px;
+    border-color: rgb(96, 96, 96);
+}
+
 /* Popup выбора языка — тёмная тема в тон панели, поверх контента */
 .settings-language-popup {
     flex-direction: column;
