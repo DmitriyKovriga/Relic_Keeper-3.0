@@ -1988,6 +1988,34 @@ MonoBehaviour:
     m_Localized: Dungeon 1
     m_Metadata:
       m_Items: []
+  - m_Id: 62000000000000014
+    m_Localized: Head
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000015
+    m_Localized: Body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000016
+    m_Localized: Main
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000017
+    m_Localized: Off
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000018
+    m_Localized: Hand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000019
+    m_Localized: Feet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000020
+    m_Localized: Item
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

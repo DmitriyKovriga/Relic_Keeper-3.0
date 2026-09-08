@@ -1035,6 +1035,34 @@ MonoBehaviour:
     m_Key: hub.label.dungeon1
     m_Metadata:
       m_Items: []
+  - m_Id: 62000000000000014
+    m_Key: inventory.slot.head
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000015
+    m_Key: inventory.slot.body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000016
+    m_Key: inventory.slot.main
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000017
+    m_Key: inventory.slot.off
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000018
+    m_Key: inventory.slot.hand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000019
+    m_Key: inventory.slot.feet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000020
+    m_Key: inventory.slot.item
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

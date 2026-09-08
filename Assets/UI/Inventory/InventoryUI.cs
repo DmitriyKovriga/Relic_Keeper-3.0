@@ -121,6 +121,7 @@ public partial class InventoryUI : MonoBehaviour
         LoadOrbSlotsConfig();
         SetupTabs();
         SetupCraftView();
+        RegisterInventoryLocalization();
         ApplyInventoryArtTheme();
         RegisterQuickTransferEndpoints();
 
@@ -164,6 +165,7 @@ public partial class InventoryUI : MonoBehaviour
             ItemTooltipController.Instance.HideTooltipImmediate();
         CancelDragSession(restoreHeldItem: true);
         ExitApplyOrbMode();
+        UnregisterInventoryLocalization();
         UnregisterQuickTransferEndpoints();
 
         _root.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
