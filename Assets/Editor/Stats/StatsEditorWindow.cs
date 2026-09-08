@@ -32,8 +32,10 @@ namespace Scripts.Editor.Stats
         private bool _showUsageSection = true;
         private bool _showGlobalHeroDefaults = true;
         private bool _showTechnicalTools;
-        private bool _showGeneratedAffixTools = true;
-        private bool _showAffixKindGenerator = true;
+        // Legacy maintenance draw methods remain temporarily for serialized editor compatibility,
+        // but are intentionally no longer exposed in the Stats Editor UI.
+        private bool _showGeneratedAffixTools;
+        private bool _showAffixKindGenerator;
         private bool _showGlobalUpgradeTools;
         private bool _showDangerousLifecycleTools;
         private int _guideTopicIndex;
@@ -250,17 +252,6 @@ namespace Scripts.Editor.Stats
             _showTechnicalTools = EditorGUILayout.Foldout(_showTechnicalTools, "Технические инструменты и обслуживание", true);
             if (_showTechnicalTools)
             {
-                EditorGUILayout.Space(10);
-                _showGeneratedAffixTools = EditorGUILayout.Foldout(_showGeneratedAffixTools, "Generated affixes для выбранного стата", true);
-                if (_showGeneratedAffixTools)
-                    DrawGeneratedAffixSection(type, id);
-
-                EditorGUILayout.Space(8);
-                _showGlobalUpgradeTools = EditorGUILayout.Foldout(_showGlobalUpgradeTools, "Глобальный repair / upgrade системы", true);
-                if (_showGlobalUpgradeTools)
-                    DrawSystemUpgradeSection();
-
-                EditorGUILayout.Space(8);
                 _showDangerousLifecycleTools = EditorGUILayout.Foldout(_showDangerousLifecycleTools, "Редкие и опасные операции со stat id", true);
                 if (_showDangerousLifecycleTools)
                     DrawStatLifecycleSection(type, id);

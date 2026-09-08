@@ -23,7 +23,6 @@ namespace Scripts.Editor.Affixes
         private List<EquipmentItemSO> _items = new List<EquipmentItemSO>();
         private ItemAffixSO _selectedAffix;
         private string _search = "";
-        private int _tierFilter = 0; // 0 = All, 1..5
         private int _tagFilterIndex; // 0 = All, 1+ = tag from list
         private int _statFilterIndex; // 0 = All stats, 1+ = StatType index
         private int _missingLocalizationFilterIndex; // 0 = All, 1 = Missing RU, 2 = Missing EN, 3 = Missing RU/EN, 4 = Missing RU&EN
@@ -144,7 +143,6 @@ namespace Scripts.Editor.Affixes
             GUILayout.Label("Affixes", EditorStyles.boldLabel);
             _search = EditorGUILayout.TextField("Search", _search);
             EditorGUILayout.BeginHorizontal();
-            _tierFilter = EditorGUILayout.Popup("Tier", _tierFilter, new[] { "All", "1", "2", "3", "4", "5" });
             var tagOpts = new List<string> { "All tags" };
             if (_tagDatabase != null) tagOpts.AddRange(_tagDatabase.Tags.Select(t => t.Id));
             _tagFilterIndex = EditorGUILayout.Popup("Tag", Mathf.Clamp(_tagFilterIndex, 0, tagOpts.Count - 1), tagOpts.ToArray());
@@ -161,15 +159,6 @@ namespace Scripts.Editor.Affixes
             if (GUILayout.Button("Sync missing name & value text")) SyncMissingNameAndValueText();
             if (GUILayout.Button("Regenerate all localizations (mode-aware)")) RegenerateAllLocalizationsFromStats();
             EditorGUILayout.EndHorizontal();
-            EditorGUILayout.BeginHorizontal();
-            GUI.backgroundColor = new Color(1f, 0.85f, 0.7f);
-            if (GUILayout.Button("Delete all affixes")) DeleteAllAffixesConfirm();
-            GUI.backgroundColor = new Color(0.7f, 1f, 0.85f);
-            if (GUILayout.Button("Generate sets for stats without")) GenerateSetsForStatsWithout();
-            if (GUILayout.Button("Generate missing variants by metadata")) GenerateMissingVariantsByMetadata();
-            GUI.backgroundColor = Color.white;
-            EditorGUILayout.EndHorizontal();
-
             _listScroll = EditorGUILayout.BeginScrollView(_listScroll, GUILayout.ExpandHeight(true));
             string search = (_search ?? "").Trim().ToLowerInvariant();
             string filterTagId = (_tagFilterIndex > 0 && _tagDatabase != null && _tagDatabase.Tags.Count >= _tagFilterIndex)
@@ -185,7 +174,6 @@ namespace Scripts.Editor.Affixes
             var filtered = _affixes.Where(a =>
             {
                 if (a == null) return false;
-                if (_tierFilter > 0 && a.GetStatsForTier(_tierFilter).Length == 0) return false;
                 if (filterTagId != null && (a.TagIds == null || !a.TagIds.Contains(filterTagId))) return false;
                 if (filterStatVal.HasValue)
                 {
@@ -265,7 +253,6 @@ namespace Scripts.Editor.Affixes
                 if (uniqueId != null) EditorGUILayout.PropertyField(uniqueId);
             }
             DrawProperty(_serializedAffix, "GroupID");
-            DrawProperty(_serializedAffix, "Tier");
             DrawProperty(_serializedAffix, "LockAutoLocalization");
             EditorGUILayout.LabelField("NameKey (auto)", _selectedAffix != null ? (GetAffixNameKey(_selectedAffix) ?? "(save name to set)") : "");
             EditorGUILayout.LabelField("Value key (auto)", _selectedAffix != null ? (GetAffixValueKey(_selectedAffix) ?? "(save value to set)") : "");
@@ -363,10 +350,6 @@ namespace Scripts.Editor.Affixes
             GUILayout.Label("Actions", EditorStyles.boldLabel);
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Open in Inspector")) { Selection.activeObject = _selectedAffix; EditorGUIUtility.PingObject(_selectedAffix); }
-            if (GUILayout.Button("Rebuild this stat family"))
-            {
-                RebuildSelectedStatFamily();
-            }
             GUI.backgroundColor = new Color(1f, 0.8f, 0.8f);
             if (GUILayout.Button("Delete affix"))
             {
@@ -706,86 +689,14 @@ namespace Scripts.Editor.Affixes
 
         private void DrawStatsProperty(SerializedObject so)
         {
-            var statsProp = so.FindProperty("Stats");
-            if (statsProp == null)
+            var tiersProp = so.FindProperty("Tiers");
+            if (tiersProp == null)
                 return;
 
             EditorGUILayout.Space(4);
-            GUILayout.Label("Stats", EditorStyles.boldLabel);
-
-            for (int i = 0; i < statsProp.arraySize; i++)
-            {
-                var element = statsProp.GetArrayElementAtIndex(i);
-                if (element == null)
-                    continue;
-
-                var statProp = element.FindPropertyRelative("Stat");
-                var typeProp = element.FindPropertyRelative("Type");
-                var scopeProp = element.FindPropertyRelative("Scope");
-                var valueModeProp = element.FindPropertyRelative("ValueMode");
-                var minValueProp = element.FindPropertyRelative("MinValue");
-                var maxValueProp = element.FindPropertyRelative("MaxValue");
-                var rangeMinValueProp = element.FindPropertyRelative("RangeMinValue");
-                var rangeMaxValueProp = element.FindPropertyRelative("RangeMaxValue");
-
-                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.Label($"Stat {i + 1}", EditorStyles.miniBoldLabel);
-                GUILayout.FlexibleSpace();
-                if (GUILayout.Button("Remove", GUILayout.Width(70)))
-                {
-                    statsProp.DeleteArrayElementAtIndex(i);
-                    break;
-                }
-                EditorGUILayout.EndHorizontal();
-
-                StatPickerUtility.DrawStatPickerLayout(statProp, "Stat");
-                EditorGUILayout.PropertyField(typeProp);
-                EditorGUILayout.PropertyField(scopeProp);
-
-                var rawValueMode = (AffixValueMode)valueModeProp.intValue;
-                var shownValueMode = rawValueMode == AffixValueMode.SingleLegacy ? AffixValueMode.Single : rawValueMode;
-                var newValueMode = (AffixValueMode)EditorGUILayout.EnumPopup("Value mode", shownValueMode);
-                if (newValueMode != shownValueMode || rawValueMode == AffixValueMode.SingleLegacy)
-                    valueModeProp.intValue = (int)newValueMode;
-
-                if (newValueMode == AffixValueMode.Range)
-                {
-                    EditorGUILayout.HelpBox("Range uses two independent roll windows: one for the lower rolled value and one for the upper rolled value.", MessageType.None);
-                    DrawMinMaxRow("Lower roll", minValueProp, maxValueProp);
-                    DrawMinMaxRow("Upper roll", rangeMinValueProp, rangeMaxValueProp);
-                }
-                else
-                {
-                    DrawMinMaxRow("Value roll", minValueProp, maxValueProp);
-                }
-
-                EditorGUILayout.EndVertical();
-            }
-
-            if (GUILayout.Button("Add stat"))
-            {
-                int index = statsProp.arraySize;
-                statsProp.InsertArrayElementAtIndex(index);
-                var newElement = statsProp.GetArrayElementAtIndex(index);
-                newElement.FindPropertyRelative("Stat").enumValueIndex = 0;
-                newElement.FindPropertyRelative("Type").intValue = (int)StatModType.Flat;
-                newElement.FindPropertyRelative("Scope").enumValueIndex = 0;
-                newElement.FindPropertyRelative("ValueMode").intValue = (int)AffixValueMode.Single;
-                newElement.FindPropertyRelative("MinValue").floatValue = 0f;
-                newElement.FindPropertyRelative("MaxValue").floatValue = 0f;
-                newElement.FindPropertyRelative("RangeMinValue").floatValue = 0f;
-                newElement.FindPropertyRelative("RangeMaxValue").floatValue = 0f;
-            }
-        }
-
-        private static void DrawMinMaxRow(string label, SerializedProperty minProp, SerializedProperty maxProp)
-        {
-            EditorGUILayout.LabelField(label, EditorStyles.miniBoldLabel);
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PropertyField(minProp, new GUIContent("Min"));
-            EditorGUILayout.PropertyField(maxProp, new GUIContent("Max"));
-            EditorGUILayout.EndHorizontal();
+            GUILayout.Label("Tier values", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox("T1 is the strongest tier and T5 is the weakest. Every generated affix stores all five tiers in this single asset.", MessageType.None);
+            EditorGUILayout.PropertyField(tiersProp, new GUIContent("Tiers (T1–T5)"), true);
         }
 
         private List<string> GetSuggestedTagsFromStats(ItemAffixSO affix)

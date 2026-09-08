@@ -55426,6 +55426,678 @@ MonoBehaviour:
     m_Localized: Strong Max Mana more
     m_Metadata:
       m_Items: []
+  - m_Id: 88575214491758592
+    m_Localized: Strong Melee Damage increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575214760194048
+    m_Localized: '{0}% increased Melee Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575215028629504
+    m_Localized: Medium Melee Damage increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575215309647872
+    m_Localized: Light Melee Damage increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575215565500416
+    m_Localized: Strong Melee Damage decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575215565500417
+    m_Localized: '{0}% reduced Melee Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575215833935872
+    m_Localized: Medium Melee Damage decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575216064622592
+    m_Localized: Light Melee Damage decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575216295309312
+    m_Localized: Strong Melee Damage more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575216295309313
+    m_Localized: '{0}% more Melee Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575216563744768
+    m_Localized: Medium Melee Damage more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575216790237184
+    m_Localized: Light Melee Damage more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575217012535296
+    m_Localized: Strong Melee Damage less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575217012535297
+    m_Localized: '{0}% less Melee Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575217239027712
+    m_Localized: Medium Melee Damage less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575217490685952
+    m_Localized: Light Melee Damage less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575217998196736
+    m_Localized: Strong FireToPhysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575218002391040
+    m_Localized: '{0:+0.##;-0.##;0}% to FireToPhysical'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575218216300544
+    m_Localized: Medium FireToPhysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575218480541696
+    m_Localized: Light FireToPhysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575218736394240
+    m_Localized: Strong FireToPhysical increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575218736394241
+    m_Localized: '{0}% increased FireToPhysical'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575218992246784
+    m_Localized: Medium FireToPhysical increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575219252293632
+    m_Localized: Light FireToPhysical increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575219520729088
+    m_Localized: Strong FireToPhysical decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575219520729089
+    m_Localized: '{0}% reduced FireToPhysical'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575219868856320
+    m_Localized: Medium FireToPhysical decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575220137291776
+    m_Localized: Light FireToPhysical decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575220607053824
+    m_Localized: Strong FireToCold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575220607053825
+    m_Localized: '{0:+0.##;-0.##;0}% to FireToCold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575220841934848
+    m_Localized: Medium FireToCold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575221089398784
+    m_Localized: Light FireToCold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575221345251328
+    m_Localized: Strong FireToCold increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575221345251329
+    m_Localized: '{0}% increased FireToCold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575221567549440
+    m_Localized: Medium FireToCold increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575221806624768
+    m_Localized: Light FireToCold increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575222037311488
+    m_Localized: Strong FireToCold decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575222037311489
+    m_Localized: '{0}% reduced FireToCold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575222259609600
+    m_Localized: Medium FireToCold decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575222494490624
+    m_Localized: Light FireToCold decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575222989418496
+    m_Localized: Strong FireToLightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575222989418497
+    m_Localized: '{0:+0.##;-0.##;0}% to FireToLightning'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575223232688128
+    m_Localized: Medium FireToLightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575223471763456
+    m_Localized: Light FireToLightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575223689867264
+    m_Localized: Strong FireToLightning increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575223689867265
+    m_Localized: '{0}% increased FireToLightning'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575223912165376
+    m_Localized: Medium FireToLightning increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575224163823616
+    m_Localized: Light FireToLightning increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575224373538816
+    m_Localized: Strong FireToLightning decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575224373538817
+    m_Localized: '{0}% reduced FireToLightning'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575224629391360
+    m_Localized: Medium FireToLightning decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575224843300864
+    m_Localized: Light FireToLightning decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575225321451520
+    m_Localized: Strong ColdToPhysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575225321451521
+    m_Localized: '{0:+0.##;-0.##;0}% to ColdToPhysical'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575225560526848
+    m_Localized: Medium ColdToPhysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575225824768000
+    m_Localized: Light ColdToPhysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575226068037632
+    m_Localized: Strong ColdToPhysical increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575226068037633
+    m_Localized: '{0}% increased ColdToPhysical'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575226319695872
+    m_Localized: Medium ColdToPhysical increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575226579742720
+    m_Localized: Light ColdToPhysical increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575226957230080
+    m_Localized: Strong ColdToPhysical decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575226957230081
+    m_Localized: '{0}% reduced ColdToPhysical'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575227208888320
+    m_Localized: Medium ColdToPhysical decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575227439575040
+    m_Localized: Light ColdToPhysical decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575227930308608
+    m_Localized: Strong ColdToFire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575227930308609
+    m_Localized: '{0:+0.##;-0.##;0}% to ColdToFire'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575228194549760
+    m_Localized: Medium ColdToFire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575228446208000
+    m_Localized: Light ColdToFire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575228693671936
+    m_Localized: Strong ColdToFire increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575228693671937
+    m_Localized: '{0}% increased ColdToFire'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575228928552960
+    m_Localized: Medium ColdToFire increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575229180211200
+    m_Localized: Light ColdToFire increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575229427675136
+    m_Localized: Strong ColdToFire decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575229427675137
+    m_Localized: '{0}% reduced ColdToFire'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575229679333376
+    m_Localized: Medium ColdToFire decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575229914214400
+    m_Localized: Light ColdToFire decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575230396559360
+    m_Localized: Strong ColdToLightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575230396559361
+    m_Localized: '{0:+0.##;-0.##;0}% to ColdToLightning'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575230656606208
+    m_Localized: Medium ColdToLightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575230916653056
+    m_Localized: Light ColdToLightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575231180894208
+    m_Localized: Strong ColdToLightning increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575231180894209
+    m_Localized: '{0}% increased ColdToLightning'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575231428358144
+    m_Localized: Medium ColdToLightning increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575231684210688
+    m_Localized: Light ColdToLightning increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575231902314496
+    m_Localized: Strong ColdToLightning decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575231902314497
+    m_Localized: '{0}% reduced ColdToLightning'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575232149778432
+    m_Localized: Medium ColdToLightning decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575232397242368
+    m_Localized: Light ColdToLightning decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575232875393024
+    m_Localized: Strong LightningToPhysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575232875393025
+    m_Localized: '{0:+0.##;-0.##;0}% to LightningToPhysical'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575233139634176
+    m_Localized: Medium LightningToPhysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575233391292416
+    m_Localized: Light LightningToPhysical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575233621979136
+    m_Localized: Strong LightningToPhysical increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575233630367744
+    m_Localized: '{0}% increased LightningToPhysical'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575233861054464
+    m_Localized: Medium LightningToPhysical increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575234079158272
+    m_Localized: Light LightningToPhysical increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575234335010816
+    m_Localized: Strong LightningToPhysical decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575234335010817
+    m_Localized: '{0}% reduced LightningToPhysical'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575234574086144
+    m_Localized: Medium LightningToPhysical decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575234838327296
+    m_Localized: Light LightningToPhysical decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575235308089344
+    m_Localized: Strong LightningToFire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575235308089345
+    m_Localized: '{0:+0.##;-0.##;0}% to LightningToFire'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575235538776064
+    m_Localized: Medium LightningToFire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575235782045696
+    m_Localized: Light LightningToFire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575236008538112
+    m_Localized: Strong LightningToFire increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575236008538113
+    m_Localized: '{0}% increased LightningToFire'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575236239224832
+    m_Localized: Medium LightningToFire increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575236490883072
+    m_Localized: Light LightningToFire increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575236746735616
+    m_Localized: Strong LightningToFire decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575236746735617
+    m_Localized: '{0}% reduced LightningToFire'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575236981616640
+    m_Localized: Medium LightningToFire decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575237199720448
+    m_Localized: Light LightningToFire decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575237669482496
+    m_Localized: Strong LightningToCold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575237669482497
+    m_Localized: '{0:+0.##;-0.##;0}% to LightningToCold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575237883392000
+    m_Localized: Medium LightningToCold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575238114078720
+    m_Localized: Light LightningToCold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575238361542656
+    m_Localized: Strong LightningToCold increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575238361542657
+    m_Localized: '{0}% increased LightningToCold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575238596423680
+    m_Localized: Medium LightningToCold increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575238827110400
+    m_Localized: Light LightningToCold increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575239066185728
+    m_Localized: Strong LightningToCold decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575239066185729
+    m_Localized: '{0}% reduced LightningToCold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575239309455360
+    m_Localized: Medium LightningToCold decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575239556919296
+    m_Localized: Light LightningToCold decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575240056041472
+    m_Localized: Strong Projectile Pierce Targets
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575240056041473
+    m_Localized: '{0:+0.##;-0.##;0} targets to Projectile Pierce Targets'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575240303505408
+    m_Localized: Medium Projectile Pierce Targets
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575240550969344
+    m_Localized: Light Projectile Pierce Targets
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575240785850368
+    m_Localized: Strong Projectile Pierce Targets increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575240785850369
+    m_Localized: '{0}% increased Projectile Pierce Targets'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575241058480128
+    m_Localized: Medium Projectile Pierce Targets increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575241322721280
+    m_Localized: Light Projectile Pierce Targets increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575241557602304
+    m_Localized: Strong Projectile Pierce Targets decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575241561796608
+    m_Localized: '{0}% reduced Projectile Pierce Targets'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575241826037760
+    m_Localized: Medium Projectile Pierce Targets decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575242073501696
+    m_Localized: Light Projectile Pierce Targets decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575242316771328
+    m_Localized: Strong Projectile Pierce Targets more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575242316771329
+    m_Localized: '{0}% more Projectile Pierce Targets'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575242547458048
+    m_Localized: Medium Projectile Pierce Targets more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575242807504896
+    m_Localized: Light Projectile Pierce Targets more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575243059163136
+    m_Localized: Strong Projectile Pierce Targets less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575243059163137
+    m_Localized: '{0}% less Projectile Pierce Targets'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575243294044160
+    m_Localized: Medium Projectile Pierce Targets less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575243533119488
+    m_Localized: Light Projectile Pierce Targets less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575244011270144
+    m_Localized: Strong Stun Threshold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575244011270145
+    m_Localized: '{0:+0.##;-0.##;0} pts to Stun Threshold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575244254539776
+    m_Localized: Medium Stun Threshold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575244502003712
+    m_Localized: Light Stun Threshold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575244741079040
+    m_Localized: Strong Stun Threshold increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575244741079041
+    m_Localized: '{0}% increased Stun Threshold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575244975960064
+    m_Localized: Medium Stun Threshold increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575245215035392
+    m_Localized: Light Stun Threshold increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575245454110720
+    m_Localized: Strong Stun Threshold decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575245454110721
+    m_Localized: '{0}% reduced Stun Threshold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575245672214528
+    m_Localized: Medium Stun Threshold decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575245902901248
+    m_Localized: Light Stun Threshold decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575246150365184
+    m_Localized: Strong Stun Threshold more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575246150365185
+    m_Localized: '{0}% more Stun Threshold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575246376857600
+    m_Localized: Medium Stun Threshold more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575246620127232
+    m_Localized: Light Stun Threshold more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575246859202560
+    m_Localized: Strong Stun Threshold less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575246859202561
+    m_Localized: '{0}% less Stun Threshold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575247085694976
+    m_Localized: Medium Stun Threshold less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575247337353216
+    m_Localized: Light Stun Threshold less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575247836475392
+    m_Localized: Strong Maximum Ignite Stacks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575247836475393
+    m_Localized: '{0:+0.##;-0.##;0} stacks to Maximum Ignite Stacks'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575248071356416
+    m_Localized: Medium Maximum Ignite Stacks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 88575248306237440
+    m_Localized: Light Maximum Ignite Stacks
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
