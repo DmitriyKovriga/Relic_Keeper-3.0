@@ -17,6 +17,11 @@ public class WindowView : MonoBehaviour
     private WindowManager manager;
     
     private bool isInitialized = false;
+    private bool _closeLocked;
+
+    public bool CanClose => !_closeLocked;
+
+    public void SetCloseLocked(bool locked) => _closeLocked = locked;
 
     private void Awake()
     {
@@ -88,7 +93,7 @@ public class WindowView : MonoBehaviour
 
     public void Close()
     {
-        if (!isInitialized) return;
+        if (!isInitialized || !CanClose) return;
         manager.NotifyClosed(this);
     }
 

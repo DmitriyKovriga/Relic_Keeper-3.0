@@ -44,6 +44,7 @@ public class WindowManager : MonoBehaviour
         if (_windows.Count == 0) return;
 
         var top = _windows[_windows.Count - 1];
+        if (!top.CanClose) return;
         _windows.RemoveAt(_windows.Count - 1);
         top.CloseInternal();
         RefreshPanelSortOrders();
@@ -57,7 +58,7 @@ public class WindowManager : MonoBehaviour
 
     public void CloseWindow(WindowView window)
     {
-        if (window == null || !_windows.Contains(window)) return;
+        if (window == null || !window.CanClose || !_windows.Contains(window)) return;
 
         _windows.Remove(window);
         window.CloseInternal();

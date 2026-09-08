@@ -1,6 +1,7 @@
 using UnityEngine;
 using Scripts.Stats;
 using Scripts.Combat;
+using Scripts.Configuration;
 using Scripts.GameplayEvents;
 
 namespace Scripts.Enemies
@@ -34,6 +35,12 @@ namespace Scripts.Enemies
             result.RawFire = Mathf.Max(0f, damage.Fire);
             result.RawCold = Mathf.Max(0f, damage.Cold);
             result.RawLightning = Mathf.Max(0f, damage.Lightning);
+
+            if (PlaytestConfiguration.PlayerImmortal)
+            {
+                result.WasImmune = true;
+                return result;
+            }
 
             if (_attackInput == null)
                 _attackInput = GetComponent<PlayerAttackInput>();
@@ -120,6 +127,9 @@ namespace Scripts.Enemies
 
         public void ApplyPureDamage(float amount, object source, string damageType = "Pure")
         {
+            if (PlaytestConfiguration.PlayerImmortal)
+                return;
+
             if (_stats == null)
                 _stats = GetComponent<PlayerStats>();
             if (_stats == null || _stats.Health == null)

@@ -20,6 +20,7 @@ public class CharacterPartyManager : MonoBehaviour
     private PassiveTreeManager _passiveTreeManager;
 
     public string ActiveCharacterID => _activeCharacterID;
+    public bool HasActiveCharacter => !string.IsNullOrEmpty(_activeCharacterID) && _partyCharacters.ContainsKey(_activeCharacterID);
     public IReadOnlyList<string> PartyCharacterIDs => _partyCharacters.Keys.ToList();
     public IReadOnlyList<string> HostelCharacterIDs => _partyCharacters.Keys.Where(id => id != _activeCharacterID).ToList();
 
@@ -70,9 +71,11 @@ public class CharacterPartyManager : MonoBehaviour
                 _partyCharacters[ch.CharacterInstanceID] = ch;
             }
 
-            _activeCharacterID = !string.IsNullOrEmpty(data.ActiveCharacterID) && _partyCharacters.ContainsKey(data.ActiveCharacterID)
+            bool savedActiveCharacterExists = !string.IsNullOrEmpty(data.ActiveCharacterID) &&
+                                              _partyCharacters.ContainsKey(data.ActiveCharacterID);
+            _activeCharacterID = savedActiveCharacterExists
                 ? data.ActiveCharacterID
-                : _partyCharacters.Keys.FirstOrDefault();
+                : data.SaveVersion >= 4 ? null : _partyCharacters.Keys.FirstOrDefault();
         }
         else if (!string.IsNullOrEmpty(data.CharacterClassID))
         {
@@ -90,7 +93,7 @@ public class CharacterPartyManager : MonoBehaviour
             _activeCharacterID = legacy.CharacterInstanceID;
         }
 
-        if (string.IsNullOrEmpty(_activeCharacterID) && _partyCharacters.Count > 0)
+        if (data.SaveVersion < 4 && string.IsNullOrEmpty(_activeCharacterID) && _partyCharacters.Count > 0)
             _activeCharacterID = _partyCharacters.Keys.First();
     }
 
@@ -107,16 +110,8 @@ public class CharacterPartyManager : MonoBehaviour
         if (_playerStats == null)
             return;
 
-        if (string.IsNullOrEmpty(_activeCharacterID))
-        {
-            if (string.IsNullOrEmpty(_playerStats.CurrentClassID))
-            {
-                Debug.LogWarning("[CharacterPartyManager] SaveCurrentToParty: active character is not initialized.");
-                return;
-            }
-
-            _activeCharacterID = AddCharacterToParty(_playerStats.CurrentClassID);
-        }
+        if (!HasActiveCharacter)
+            return;
 
         var ch = GetOrCreateCharacterData(_activeCharacterID);
         ch.CurrentHealth = _playerStats.Health.Current;
@@ -189,6 +184,19 @@ public class CharacterPartyManager : MonoBehaviour
         return _partyCharacters.Remove(characterInstanceId);
     }
 
+    public bool RemoveActiveCharacterAfterDeath()
+    {
+        if (!HasActiveCharacter)
+            return false;
+
+        string deadCharacterId = _activeCharacterID;
+        _activeCharacterID = null;
+        bool removed = _partyCharacters.Remove(deadCharacterId);
+        if (removed)
+            Debug.Log($"[CharacterPartyManager] Dead character '{deadCharacterId}' was permanently removed.");
+        return removed;
+    }
+
     public bool SwapToCharacter(string characterInstanceId, CharacterDatabaseSO characterDB, ItemDatabaseSO itemDB)
     {
         if (string.IsNullOrEmpty(characterInstanceId) || !_partyCharacters.ContainsKey(characterInstanceId))
@@ -211,7 +219,8 @@ public class CharacterPartyManager : MonoBehaviour
             return false;
         }
 
-        SaveCurrentToParty();
+        if (HasActiveCharacter)
+            SaveCurrentToParty();
         _activeCharacterID = characterInstanceId;
         LoadCharacterIntoGame(chData, characterData, itemDB);
         OnActiveCharacterChanged?.Invoke(characterInstanceId);

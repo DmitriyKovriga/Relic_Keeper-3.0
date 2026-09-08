@@ -46,6 +46,7 @@ public partial class TavernUI : MonoBehaviour
     private Button _closeButton;
     private readonly List<CharacterDataSO> _currentHireChoices = new List<CharacterDataSO>();
     private bool _isNewGameMode;
+    private bool _requiresCharacterSelection;
     private int _activeTabIndex; // 0 = Hostel, 1 = Recruitment
     private CharacterDataSO _pendingDeleteCharacter;
     private string _pendingDeleteCharacterInstanceId;
@@ -74,6 +75,8 @@ public partial class TavernUI : MonoBehaviour
     public void Open(bool forNewGame = false)
     {
         _isNewGameMode = forNewGame;
+        _requiresCharacterSelection = forNewGame;
+        _windowView?.SetCloseLocked(_requiresCharacterSelection);
         if (_closeButton != null)
             _closeButton.style.display = forNewGame ? DisplayStyle.None : DisplayStyle.Flex;
         RefreshHireChoices();
@@ -91,6 +94,9 @@ public partial class TavernUI : MonoBehaviour
 
     public void Close()
     {
+        if (_requiresCharacterSelection)
+            return;
+
         HideDeleteDialog();
 
         if (_windowView != null)
@@ -102,5 +108,14 @@ public partial class TavernUI : MonoBehaviour
                 InputManager.InputActions.Player.Enable();
             OnClosed?.Invoke();
         }
+    }
+
+    public void OpenForRequiredCharacterSelection() => Open(forNewGame: true);
+
+    private void CompleteRequiredCharacterSelection()
+    {
+        _requiresCharacterSelection = false;
+        _isNewGameMode = false;
+        _windowView?.SetCloseLocked(false);
     }
 }

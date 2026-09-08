@@ -4,10 +4,11 @@ using System.IO;
 using Scripts.Inventory;
 using Scripts.Saving;
 using Scripts.Skills.PassiveTree;
+using Scripts.Configuration;
 
 public class GameSaveManager : MonoBehaviour
 {
-    public const int CurrentSaveVersion = 3;
+    public const int CurrentSaveVersion = 4;
 
     [Header("Core Dependencies")]
     [SerializeField] private PlayerStats _playerStats;
@@ -23,6 +24,7 @@ public class GameSaveManager : MonoBehaviour
 
     private PassiveTreeManager _passiveTreeManager;
     private CharacterPartyManager _partyManager;
+    private bool _handlingPlayerDeath;
 
     private string SavePath => Path.Combine(Application.persistentDataPath, "savegame.json");
 
@@ -71,7 +73,8 @@ public class GameSaveManager : MonoBehaviour
 
         if (_partyManager != null)
         {
-            _partyManager.SaveCurrentToParty();
+            if (_partyManager.HasActiveCharacter)
+                _partyManager.SaveCurrentToParty();
             _partyManager.WriteToSave(data);
         }
         else
@@ -97,6 +100,18 @@ public class GameSaveManager : MonoBehaviour
         Debug.Log($"[System] Game Saved.");
     }
 
+    public bool TryAutoSave(string reason = null)
+    {
+        if (!PlaytestConfiguration.AutoSaveEnabled)
+            return false;
+
+        SaveGame();
+        Debug.Log(string.IsNullOrEmpty(reason)
+            ? "[System] Autosave completed."
+            : $"[System] Autosave completed: {reason}.");
+        return true;
+    }
+
     public void LoadGame()
     {
         if (!File.Exists(SavePath)) return;
@@ -119,6 +134,18 @@ public class GameSaveManager : MonoBehaviour
                 activeId = _partyManager.ActiveCharacterID;
                 activeCharacterSave = _partyManager.GetCharacterData(activeId);
                 characterData = _characterDB?.GetCharacterByID(activeCharacterSave?.CharacterClassID);
+
+                if (!_partyManager.HasActiveCharacter)
+                {
+                    if (InventoryManager.Instance != null && _itemDatabase != null)
+                        InventoryManager.Instance.LoadState(new InventorySaveData(), _itemDatabase);
+                    if (StashManager.Instance != null && _itemDatabase != null)
+                        StashManager.Instance.LoadState(data.Stash ?? new StashSaveData(), _itemDatabase);
+
+                    _tavernUIForNewGame?.OpenForRequiredCharacterSelection();
+                    Debug.Log("[System] Save has no active character. Waiting for a required Tavern selection.");
+                    return;
+                }
             }
             else
             {
@@ -192,6 +219,38 @@ public class GameSaveManager : MonoBehaviour
         }
     }
 
+    public void HandlePlayerDeath()
+    {
+        if (_handlingPlayerDeath || PlaytestConfiguration.PlayerImmortal)
+            return;
+
+        _handlingPlayerDeath = true;
+        if (_partyManager == null)
+            _partyManager = FindObjectOfType<CharacterPartyManager>();
+
+        if (_partyManager == null || !_partyManager.RemoveActiveCharacterAfterDeath())
+        {
+            Debug.LogError("[System] Player death could not remove the active character.");
+            _handlingPlayerDeath = false;
+            return;
+        }
+
+        if (InventoryManager.Instance != null && _itemDatabase != null)
+            InventoryManager.Instance.LoadState(new InventorySaveData(), _itemDatabase);
+
+        _playerStats?.ResyncExternalStatModifiers(
+            InventoryManager.Instance != null ? InventoryManager.Instance.EquipmentItems : null,
+            _passiveTreeManager);
+
+        if (Scripts.Dungeon.DungeonController.Instance != null)
+            Scripts.Dungeon.DungeonController.Instance.ReturnToHub();
+
+        SaveGame();
+        _tavernUIForNewGame?.OpenForRequiredCharacterSelection();
+        _handlingPlayerDeath = false;
+        Debug.Log("[System] Character died permanently. Returned to Hub and opened Tavern selection.");
+    }
+
     private void MigrateSaveData(GameSaveData data)
     {
         if (data.SaveVersion >= CurrentSaveVersion) return;
@@ -245,6 +304,11 @@ public class GameSaveManager : MonoBehaviour
 
             data.SaveVersion = 3;
             Debug.Log("[System] Save migrated: 2 -> 3 (character instances support).");
+        }
+        if (data.SaveVersion == 3)
+        {
+            data.SaveVersion = 4;
+            Debug.Log("[System] Save migrated: 3 -> 4 (required character selection support).");
         }
     }
 

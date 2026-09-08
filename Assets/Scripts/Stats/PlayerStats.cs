@@ -276,7 +276,11 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     }
 
     private void HandleLevelUp() { if (_restoreStateOnLevelUp) { Health.RestoreFull(); Mana.RestoreFull(); } NotifyChanged(); }
-    private void HandleDeath() { Debug.Log("YOU DIED"); }
+    private void HandleDeath()
+    {
+        Debug.Log("YOU DIED");
+        FindFirstObjectByType<GameSaveManager>()?.HandlePlayerDeath();
+    }
     public void NotifyChanged() 
 { 
     OnAnyStatChanged?.Invoke(); 

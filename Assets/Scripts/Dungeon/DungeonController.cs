@@ -65,6 +65,7 @@ namespace Scripts.Dungeon
                 return;
             }
 
+            AutoSaveForLocationTransition("enter dungeon");
             _currentDungeon = dungeon;
             SkillProjectile.DespawnAll();
             BuildRoomSequence();
@@ -82,6 +83,7 @@ namespace Scripts.Dungeon
 
         public void ReturnToHub()
         {
+            AutoSaveForLocationTransition("return to Hub");
             SkillProjectile.DespawnAll();
 
             if (_currentRoomInstance != null)
@@ -248,6 +250,7 @@ namespace Scripts.Dungeon
                 return;
             }
 
+            AutoSaveForLocationTransition("enter next room");
             _currentRoomIndex++;
             if (_currentRoomIndex >= _roomSequence.Count)
             {
@@ -256,6 +259,12 @@ namespace Scripts.Dungeon
             }
 
             LoadCurrentRoom();
+        }
+
+        private static void AutoSaveForLocationTransition(string reason)
+        {
+            GameSaveManager saveManager = FindFirstObjectByType<GameSaveManager>();
+            saveManager?.TryAutoSave(reason);
         }
 
         private void PrepareSharedBackground()

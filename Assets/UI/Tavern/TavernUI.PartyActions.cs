@@ -33,6 +33,8 @@ public partial class TavernUI
         }
 
         RerollHireChoices();
+        CompleteRequiredCharacterSelection();
+        FindObjectOfType<GameSaveManager>()?.SaveGame();
         Close();
     }
 
@@ -41,7 +43,11 @@ public partial class TavernUI
         if (CharacterPartyManager.Instance == null || string.IsNullOrEmpty(characterInstanceId))
             return;
 
-        CharacterPartyManager.Instance.SwapToCharacter(characterInstanceId, _characterDB, _itemDatabase);
+        if (!CharacterPartyManager.Instance.SwapToCharacter(characterInstanceId, _characterDB, _itemDatabase))
+            return;
+
+        CompleteRequiredCharacterSelection();
+        FindObjectOfType<GameSaveManager>()?.SaveGame();
         Close();
     }
 
