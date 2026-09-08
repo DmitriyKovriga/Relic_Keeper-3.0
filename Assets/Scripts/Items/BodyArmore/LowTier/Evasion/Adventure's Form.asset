@@ -24,6 +24,7 @@ MonoBehaviour:
     Value: 10
     Type: 100
     Scope: 0
+  AffixPool: {fileID: 11400000, guid: 247ff9d281bef3f46921f44ffb923c39, type: 2}
   SkillPool: {fileID: 11400000, guid: 573777b9a66b0e742b32995bce8c13fb, type: 2}
   SkillCount: 1
   DefenseType: 2

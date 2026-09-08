@@ -28,7 +28,7 @@ MonoBehaviour:
     Value: 100
     Type: 200
     Scope: 0
-  AffixPool: {fileID: 0}
+  AffixPool: {fileID: 11400000, guid: 0c4491ddb2780944e95ed1008432eabd, type: 2}
   SkillPool: {fileID: 11400000, guid: 9f10f31176dc12a4e8ac2444e58200e4, type: 2}
   SkillCount: 1
   IsTwoHanded: 1

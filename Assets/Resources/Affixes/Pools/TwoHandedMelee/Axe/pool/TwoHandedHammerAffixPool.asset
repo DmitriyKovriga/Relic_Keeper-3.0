@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f012c5ec840dd543becc6dccbf857b4, type: 3}
-  m_Name: TwoHandedAxeAffixPool
+  m_Name: TwoHandedHammerAffixPool
   m_EditorClassIdentifier: 
   Slot: 2
   DefenseType: 0
@@ -38,6 +38,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: bea1d75624c22c2418d1a4569999578d, type: 2}
   - {fileID: 11400000, guid: 6721cc1599ec5cc4589c480d040848a8, type: 2}
   - {fileID: 11400000, guid: 9e99407fffa864a4dbdfd7071cddd0ba, type: 2}
-  - {fileID: 11400000, guid: dab729699c47452498e7622538eadfdf, type: 2}
-  - {fileID: 11400000, guid: 5c849dc3339481c42a99a142bf6fed6c, type: 2}
+  - {fileID: 11400000, guid: 76055a79e7f60544a8c07905d433314e, type: 2}
+  - {fileID: 11400000, guid: 123658e45a2f5364f83ff31ccedb8f29, type: 2}
   - {fileID: 11400000, guid: 2facf81d40aeb074cab05bf96ee2df89, type: 2}

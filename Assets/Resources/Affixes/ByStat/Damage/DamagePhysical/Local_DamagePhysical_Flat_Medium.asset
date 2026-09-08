@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
+  m_Name: Local_DamagePhysical_Flat_Medium
+  m_EditorClassIdentifier: 
+  UniqueID: Local_DamagePhysical_Flat_Medium
+  GroupID: Local_DamagePhysical_Flat_Medium
+  Tier: 0
+  NameKey: affix_name_local_damagephysical_flat_medium
+  TranslationKey: affix_flat_damagephysical_range
+  LockAutoLocalization: 0
+  TagIds:
+  - Damage
+  Stats: []
+  Tiers:
+  - Tier: 1
+    Stats:
+    - Stat: 30
+      Type: 100
+      Scope: 1
+      ValueMode: 2
+      MinValue: 20
+      MaxValue: 24
+      RangeMinValue: 24
+      RangeMaxValue: 48
+  - Tier: 2
+    Stats:
+    - Stat: 30
+      Type: 100
+      Scope: 1
+      ValueMode: 2
+      MinValue: 16
+      MaxValue: 20
+      RangeMinValue: 20
+      RangeMaxValue: 40
+  - Tier: 3
+    Stats:
+    - Stat: 30
+      Type: 100
+      Scope: 1
+      ValueMode: 2
+      MinValue: 12
+      MaxValue: 16
+      RangeMinValue: 16
+      RangeMaxValue: 36
+  - Tier: 4
+    Stats:
+    - Stat: 30
+      Type: 100
+      Scope: 1
+      ValueMode: 2
+      MinValue: 8
+      MaxValue: 12
+      RangeMinValue: 12
+      RangeMaxValue: 24
+  - Tier: 5
+    Stats:
+    - Stat: 30
+      Type: 100
+      Scope: 1
+      ValueMode: 2
+      MinValue: 4
+      MaxValue: 8
+      RangeMinValue: 8
+      RangeMaxValue: 16
+  LegacyTierIds:
+  - Id: DamagePhysical_Flat_Medium_T1
+    Tier: 1
+  - Id: DamagePhysical_Flat_Medium_T2
+    Tier: 2
+  - Id: DamagePhysical_Flat_Medium_T3
+    Tier: 3
+  - Id: DamagePhysical_Flat_Medium_T4
+    Tier: 4
+  - Id: DamagePhysical_Flat_Medium_T5
+    Tier: 5

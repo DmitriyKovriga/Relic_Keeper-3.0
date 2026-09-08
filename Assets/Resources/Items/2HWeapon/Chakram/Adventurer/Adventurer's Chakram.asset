@@ -20,7 +20,7 @@ MonoBehaviour:
   Slot: 2
   DropLevel: 1
   ImplicitModifiers: []
-  AffixPool: {fileID: 0}
+  AffixPool: {fileID: 11400000, guid: 59caee742b4732249b46a600dc033f0e, type: 2}
   SkillPool: {fileID: 11400000, guid: 3fe9d07ea8212f447a337d07bb86a719, type: 2}
   SkillCount: 1
   IsTwoHanded: 1
