@@ -29,6 +29,14 @@ namespace Scripts.Dungeon
         [SerializeField, Min(0f)] private float _portalAnimationSpeed = 1f;
         [Header("Enter Dungeon")]
         [SerializeField] private DungeonDataSO _targetDungeon;
+        [Header("World Label")]
+        [Tooltip("Подпись над порталом. Работает только для порталов входа в данж.")]
+        [SerializeField] private bool _showWorldLabel = true;
+        [Tooltip("Если пусто — берётся ключ из DungeonDataSO")]
+        [SerializeField] private string _labelLocalizationKey;
+        [SerializeField] private string _labelFallback;
+        [Tooltip("Если у портала ещё нет ребёнка WorldLabel, он создастся в этой локальной точке. Дальше двигайте именно WorldLabel.")]
+        [SerializeField] private Vector3 _defaultLabelLocalPosition = new Vector3(0f, 1.4f, 0f);
 
         public PortalType Type => _portalType;
         public DungeonDataSO TargetDungeon => _targetDungeon;
@@ -44,6 +52,7 @@ namespace Scripts.Dungeon
         private void Awake()
         {
             ApplyAnimationSpeed();
+            TrySetupWorldLabel();
 
             if (_forceWorldZ)
             {
@@ -85,6 +94,25 @@ namespace Scripts.Dungeon
         private void OnValidate()
         {
             ApplyAnimationSpeed();
+        }
+
+        private void TrySetupWorldLabel()
+        {
+            if (!_showWorldLabel || _portalType != PortalType.EnterDungeon)
+                return;
+
+            string key = _labelLocalizationKey;
+            if (string.IsNullOrEmpty(key) && _targetDungeon != null)
+                key = _targetDungeon.NameLocalizationKey;
+
+            string fallback = _labelFallback;
+            if (string.IsNullOrEmpty(fallback) && _targetDungeon != null)
+                fallback = _targetDungeon.DisplayName;
+
+            if (string.IsNullOrEmpty(key) && string.IsNullOrEmpty(fallback))
+                return;
+
+            Scripts.UI.WorldLocalizedLabel.Create(transform, key, fallback, _defaultLabelLocalPosition);
         }
 
         private void ApplyAnimationSpeed()

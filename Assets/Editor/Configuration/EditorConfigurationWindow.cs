@@ -12,7 +12,7 @@ namespace RelicKeeper.EditorTools
         private static void Open()
         {
             var window = GetWindow<EditorConfigurationWindow>("Editor Configuration");
-            window.minSize = new Vector2(420f, 210f);
+            window.minSize = new Vector2(460f, 280f);
             window.Show();
         }
 
@@ -57,9 +57,22 @@ namespace RelicKeeper.EditorTools
             if (immortal != PlaytestConfiguration.PlayerImmortal)
                 PlaytestConfiguration.SetEditorPlayerImmortal(immortal);
 
+            bool stashAlwaysAvailable = EditorGUILayout.ToggleLeft(
+                "Stash is always available in Editor (hotkey B anywhere)",
+                PlaytestConfiguration.StashAlwaysAvailable);
+            if (stashAlwaysAvailable != PlaytestConfiguration.StashAlwaysAvailable)
+                PlaytestConfiguration.SetEditorStashAlwaysAvailable(stashAlwaysAvailable);
+
+            bool tavernAlwaysAvailable = EditorGUILayout.ToggleLeft(
+                "Tavern is always available in Editor (hotkey H anywhere)",
+                PlaytestConfiguration.TavernAlwaysAvailable);
+            if (tavernAlwaysAvailable != PlaytestConfiguration.TavernAlwaysAvailable)
+                PlaytestConfiguration.SetEditorTavernAlwaysAvailable(tavernAlwaysAvailable);
+
             EditorGUILayout.Space(6f);
             EditorGUILayout.HelpBox(
-                "Player build: autosave is always ON and immortality is always OFF.",
+                "Player build: autosave is always ON, immortality is always OFF, and the stash and the tavern " +
+                "can only be opened by interacting with their hub NPCs.",
                 MessageType.None);
         }
     }

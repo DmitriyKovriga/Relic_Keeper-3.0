@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -1023,6 +1023,18 @@ MonoBehaviour:
     m_Key: tavern.ui.starterGearUnavailable
     m_Metadata:
       m_Items: []
+  - m_Id: 62000000000000011
+    m_Key: hub.label.tavern
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000012
+    m_Key: hub.label.stash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000013
+    m_Key: hub.label.dungeon1
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
@@ -1034,4 +1046,3 @@ MonoBehaviour:
       type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
       data:
         m_CustomEpoch: 1764454848840
-

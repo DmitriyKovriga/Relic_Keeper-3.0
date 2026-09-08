@@ -1976,6 +1976,18 @@ MonoBehaviour:
     m_Localized: Starter equipment is unavailable
     m_Metadata:
       m_Items: []
+  - m_Id: 62000000000000011
+    m_Localized: Tavern
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000012
+    m_Localized: Stash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000013
+    m_Localized: Dungeon 1
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Cinemachine;
 using UnityEngine;
+using Scripts.Enemies;
 using Scripts.Skills.Projectiles;
 
 namespace Scripts.Dungeon
@@ -9,6 +10,12 @@ namespace Scripts.Dungeon
     public class DungeonController : MonoBehaviour
     {
         public static DungeonController Instance { get; private set; }
+
+        /// <summary>Игрок сейчас в хабе (true) или в подземелье (false).</summary>
+        public static bool IsHubActive { get; private set; } = true;
+
+        /// <summary>Срабатывает при переходе хаб &lt;-&gt; подземелье. Объекты хаба вне HubWorld могут отключать себя по нему.</summary>
+        public static event Action<bool> HubActiveChanged;
 
         [Header("References")]
         [SerializeField] private Transform _dungeonContainer;
@@ -39,8 +46,22 @@ namespace Scripts.Dungeon
             }
 
             Instance = this;
+            IsHubActive = _hubWorld == null || _hubWorld.activeSelf;
             PrepareSharedBackground();
             PrepareCameraConfiner();
+        }
+
+        private static void SetHubActive(bool active)
+        {
+            if (IsHubActive != active)
+            {
+                IsHubActive = active;
+                HubActiveChanged?.Invoke(active);
+            }
+
+            // Манекен выключается через SetActive(false) и сам не услышит C# event.
+            // Всегда восстанавливаем его с живого контроллера, в том числе после смерти в хабе.
+            DummyEvolution.RefreshHubVisibility(active);
         }
 
         private void OnDestroy()
@@ -78,6 +99,7 @@ namespace Scripts.Dungeon
             if (_dungeonContainer != null)
                 _dungeonContainer.gameObject.SetActive(true);
 
+            SetHubActive(false);
             LoadCurrentRoom();
         }
 
@@ -108,6 +130,7 @@ namespace Scripts.Dungeon
             _roomSequence.Clear();
             RestoreHubBackground();
             RestoreHubCameraBounds();
+            SetHubActive(true);
         }
 
         private void BuildRoomSequence()

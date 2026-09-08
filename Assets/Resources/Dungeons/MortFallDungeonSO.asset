@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: Mortfall
   DisplayName: Mortfall
+  NameLocalizationKey: hub.label.dungeon1
   MinLevel: 1
   MaxLevel: 10
   RoomCount: 10

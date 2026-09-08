@@ -10,6 +10,8 @@ namespace Scripts.Dungeon
         [Header("Info")]
         public string ID;
         public string DisplayName;
+        [Tooltip("Ключ в таблице MenuLabels для подписи над порталом входа. Если пусто — используется DisplayName.")]
+        public string NameLocalizationKey;
 
         [Header("Levels")]
         [Tooltip("Level range for this dungeon.")]
