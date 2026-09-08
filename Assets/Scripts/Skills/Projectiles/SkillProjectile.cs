@@ -21,6 +21,7 @@ namespace Scripts.Skills.Projectiles
     {
         public PlayerStats OwnerStats;
         public Transform OwnerTransform;
+        public int SkillSlotIndex = -1;
         public StepEntry Step;
         public DamageContext DamageContext;
         public float DamageMultiplier = 1f;
@@ -509,17 +510,18 @@ namespace Scripts.Skills.Projectiles
 
         private IStatsProvider BuildScopedStatsProvider(IDamageable target)
         {
+            IStatsProvider weaponStats = WeaponHandStatScope.ForSkill(_data.OwnerStats, _data.SkillSlotIndex);
             StepEntry step = _data.Step;
             if ((step.ScopedStatModifiers == null || step.ScopedStatModifiers.Count == 0) &&
                 (step.TargetAilmentStackModifiers == null || step.TargetAilmentStackModifiers.Count == 0))
-                return _data.OwnerStats;
+                return weaponStats;
 
             var modifiers = new List<SerializableStatModifier>();
             if (step.ScopedStatModifiers != null)
                 modifiers.AddRange(step.ScopedStatModifiers);
 
             AppendTargetAilmentStackModifiers(step, target, modifiers);
-            return modifiers.Count > 0 ? new ScopedStatsProvider(_data.OwnerStats, modifiers) : _data.OwnerStats;
+            return modifiers.Count > 0 ? new ScopedStatsProvider(weaponStats, modifiers) : weaponStats;
         }
 
         private static void AppendTargetAilmentStackModifiers(StepEntry step, IDamageable target, List<SerializableStatModifier> modifiers)

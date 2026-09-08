@@ -141,6 +141,15 @@ namespace Scripts.Inventory
         public EquipmentItemSO Data;
         public List<AffixInstance> Affixes = new List<AffixInstance>();
 
+        private WeaponLocalStatSource _weaponLocalModifierSource;
+
+        public WeaponLocalStatSource WeaponLocalModifierSource =>
+            _weaponLocalModifierSource ??= new WeaponLocalStatSource(this);
+
+        public bool IsDefensiveOffHand =>
+            Data is WeaponItemSO weapon && weapon.IsDefensiveOffHand
+            || (Data is ArmorItemSO && Data.Slot == EquipmentSlot.OffHand);
+
         public List<SkillDataSO> GrantedSkills = new List<SkillDataSO>();
 
         // РћР±С‹С‡РЅС‹Р№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
@@ -448,7 +457,7 @@ namespace Scripts.Inventory
         private void AddWeaponDamage(List<(StatType, StatModifier)> result, StatType type, float min, float max)
         {
             float avg = GetAverageWeaponDamage(type);
-            if (avg > 0) result.Add((type, new StatModifier(avg, StatModType.Flat, this)));
+            if (avg > 0) result.Add((type, new StatModifier(avg, StatModType.Flat, WeaponLocalModifierSource)));
         }
 
         public List<(StatType, StatModifier)> GetAllModifiers()
@@ -467,27 +476,30 @@ namespace Scripts.Inventory
             }
             else if (Data is WeaponItemSO weapon)
             {
-                AddWeaponDamage(result, StatType.DamagePhysical, weapon.MinPhysicalDamage, weapon.MaxPhysicalDamage);
-                AddWeaponDamage(result, StatType.DamageFire, weapon.MinFireDamage, weapon.MaxFireDamage);
-                AddWeaponDamage(result, StatType.DamageCold, weapon.MinColdDamage, weapon.MaxColdDamage);
-                AddWeaponDamage(result, StatType.DamageLightning, weapon.MinLightningDamage, weapon.MaxLightningDamage);
+                if (!weapon.IsDefensiveOffHand)
+                {
+                    AddWeaponDamage(result, StatType.DamagePhysical, weapon.MinPhysicalDamage, weapon.MaxPhysicalDamage);
+                    AddWeaponDamage(result, StatType.DamageFire, weapon.MinFireDamage, weapon.MaxFireDamage);
+                    AddWeaponDamage(result, StatType.DamageCold, weapon.MinColdDamage, weapon.MaxColdDamage);
+                    AddWeaponDamage(result, StatType.DamageLightning, weapon.MinLightningDamage, weapon.MaxLightningDamage);
 
-                float finalAps = GetCalculatedStat(StatType.AttackSpeed, weapon.AttacksPerSecond);
-                if (finalAps > 0) result.Add((StatType.AttackSpeed, new StatModifier(finalAps, StatModType.Flat, this)));
+                    float finalAps = GetCalculatedStat(StatType.AttackSpeed, weapon.AttacksPerSecond);
+                    if (finalAps > 0) result.Add((StatType.AttackSpeed, new StatModifier(finalAps, StatModType.Flat, WeaponLocalModifierSource)));
 
-                float finalCrit = GetCalculatedStat(StatType.CritChance, weapon.BaseCritChance);
-                if (finalCrit > 0) result.Add((StatType.CritChance, new StatModifier(finalCrit, StatModType.Flat, this)));
+                    float finalCrit = GetCalculatedStat(StatType.CritChance, weapon.BaseCritChance);
+                    if (finalCrit > 0) result.Add((StatType.CritChance, new StatModifier(finalCrit, StatModType.Flat, WeaponLocalModifierSource)));
+                }
             }
 
             if (Data.ImplicitModifiers != null)
             {
                 foreach (var imp in Data.ImplicitModifiers)
                 {
-                    if (imp.Scope == StatScope.Global)
-                    {
-                        var modType = InventoryItemStatRules.NormalizeAffixModifierType(imp.Stat, imp.Type);
-                        result.Add((imp.Stat, new StatModifier(imp.Value, modType, this)));
-                    }
+                    if (imp.Scope != StatScope.Global && !ShouldPromoteLocalStatToCharacter(imp.Stat))
+                        continue;
+
+                    var modType = InventoryItemStatRules.NormalizeAffixModifierType(imp.Stat, imp.Type);
+                    result.Add((imp.Stat, new StatModifier(imp.Value, modType, this)));
                 }
             }
 
@@ -495,7 +507,7 @@ namespace Scripts.Inventory
             {
                 foreach (var modifier in affix.Modifiers)
                 {
-                    if (modifier.Scope != StatScope.Global)
+                    if (modifier.Scope != StatScope.Global && !ShouldPromoteLocalStatToCharacter(modifier.Type))
                         continue;
 
                     if (modifier.HasRange && IsDamageStat(modifier.Type))
@@ -510,6 +522,25 @@ namespace Scripts.Inventory
                 }
             }
             return result;
+        }
+
+        private bool ShouldPromoteLocalStatToCharacter(StatType stat)
+        {
+            if (!IsDefensiveOffHand)
+                return false;
+            if (IsWeaponOffenseStat(stat))
+                return false;
+            if (Data is ArmorItemSO && (stat == StatType.Armor || stat == StatType.Evasion || stat == StatType.MaxMysticShield))
+                return false;
+
+            return true;
+        }
+
+        private static bool IsWeaponOffenseStat(StatType type)
+        {
+            return type == StatType.AttackSpeed ||
+                   type == StatType.CritChance ||
+                   IsDamageStat(type);
         }
 
         private static bool IsDamageStat(StatType type)

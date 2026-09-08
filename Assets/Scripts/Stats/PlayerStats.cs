@@ -269,7 +269,11 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     private void HandleItemUnequipped(InventoryItem item)
     {
         if (item == null) return;
-        foreach (var stat in _stats.Values) stat.RemoveAllModifiersFromSource(item);
+        foreach (var stat in _stats.Values)
+        {
+            stat.RemoveAllModifiersFromSource(item);
+            stat.RemoveAllModifiersFromSource(item.WeaponLocalModifierSource);
+        }
         NotifyChanged();
     }
 

@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Scripts.Stats;
-using Scripts.Combat; // Namespace
+using Scripts.Combat;
+using Scripts.Skills;
 
 namespace Scripts.Skills.Modules
 {
@@ -29,8 +30,9 @@ namespace Scripts.Skills.Modules
 
             // 1. Создаем снапшот урона (один раз на весь удар)
             // Это важно! Крит роллится 1 раз на взмах, а не для каждого врага отдельно (как в PoE).
+            int slotIndex = GetComponent<SkillBehaviour>()?.SlotIndex ?? 0;
             DamageSnapshot damage = DamageCalculator.CreateDamageSnapshot(
-                _ownerStats,
+                WeaponHandStatScope.ForSkill(_ownerStats, slotIndex),
                 _damageMultiplier,
                 new DamageContext(StatContextTagFlags.Attack | StatContextTagFlags.Melee));
 

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UIElements;
 using Scripts.Stats;
+using Scripts.Combat;
 using System;
 using System.Collections.Generic;
 using UnityEngine.Localization.Settings;
@@ -255,27 +256,29 @@ public class CharacterWindowUI : MonoBehaviour
     {
         if (_playerStats == null) return;
 
+        IStatsProvider displayStats = WeaponHandStatScope.ForSkill(_playerStats, WeaponHandStatScope.MainHandSkillSlot);
+
         foreach (var kvp in _valueLabels)
         {
             StatType type = kvp.Key;
             Label label = kvp.Value;
-            float rawVal = _playerStats.GetValue(type);
+            float rawVal = displayStats.GetValue(type);
 
             var format = _statsDb?.GetFormat(type);
 
             // 1. ???? (Average Damage) ? from metadata or fallback
             if (format == StatDisplayFormat.Damage || (format == null && IsDamageStat(type)))
             {
-                float avgDmg = DamageCalculator.CalculateAverageDamage(_playerStats, type);
+                float avgDmg = DamageCalculator.CalculateAverageDamage(displayStats, type);
                 label.text = $"{Mathf.Round(avgDmg)}";
             }
             // 2. DOT ?????
             else if (type == StatType.BleedDamage || type == StatType.PoisonDamage || type == StatType.IgniteDamage)
             {
                 float dps = 0f;
-                if (type == StatType.BleedDamage) dps = DamageCalculator.CalculateBleedDPS(_playerStats);
-                else if (type == StatType.PoisonDamage) dps = DamageCalculator.CalculatePoisonDPS(_playerStats);
-                else dps = DamageCalculator.CalculateIgniteDPS(_playerStats);
+                if (type == StatType.BleedDamage) dps = DamageCalculator.CalculateBleedDPS(displayStats);
+                else if (type == StatType.PoisonDamage) dps = DamageCalculator.CalculatePoisonDPS(displayStats);
+                else dps = DamageCalculator.CalculateIgniteDPS(displayStats);
                 label.text = $"{dps:F1}/s";
             }
             // 3. Attack Speed (?????, APS)

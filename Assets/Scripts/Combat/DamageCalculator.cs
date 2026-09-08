@@ -225,9 +225,13 @@ public static class DamageCalculator
         if (equipment == null)
             return Mathf.Max(0f, channelLayers.Flat);
 
+        InventoryItem inactiveWeapon = FindWeaponHandScope(attackerStats)?.InactiveWeapon;
+
         foreach (var item in equipment)
         {
             if (item == null)
+                continue;
+            if (item == inactiveWeapon)
                 continue;
 
             float averageDamage = item.GetAverageItemDamageContribution(damageType);
@@ -248,10 +252,43 @@ public static class DamageCalculator
 
     private static IStatsProvider ResolveWeaponRollSource(IStatsProvider statsProvider)
     {
-        while (statsProvider is ScopedStatsProvider scopedProvider && scopedProvider.BaseProvider != null)
-            statsProvider = scopedProvider.BaseProvider;
+        while (statsProvider != null)
+        {
+            if (statsProvider is WeaponHandStatsProvider weaponProvider && weaponProvider.BaseProvider != null)
+            {
+                statsProvider = weaponProvider.BaseProvider;
+                continue;
+            }
+
+            if (statsProvider is ScopedStatsProvider scopedProvider && scopedProvider.BaseProvider != null)
+            {
+                statsProvider = scopedProvider.BaseProvider;
+                continue;
+            }
+
+            break;
+        }
 
         return statsProvider;
+    }
+
+    private static WeaponHandStatsProvider FindWeaponHandScope(IStatsProvider statsProvider)
+    {
+        while (statsProvider != null)
+        {
+            if (statsProvider is WeaponHandStatsProvider weaponProvider)
+                return weaponProvider;
+
+            if (statsProvider is ScopedStatsProvider scopedProvider)
+            {
+                statsProvider = scopedProvider.BaseProvider;
+                continue;
+            }
+
+            break;
+        }
+
+        return null;
     }
 
     private static void ApplyConversionRules(ref DamagePool pool, IReadOnlyList<DamageConversionRule> rules)

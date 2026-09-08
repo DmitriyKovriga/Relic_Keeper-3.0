@@ -32,6 +32,8 @@ public partial class TavernUI
             return;
         }
 
+        TryGrantStarterWeapon(checkStash: false, preferEquip: true);
+
         RerollHireChoices();
         CompleteRequiredCharacterSelection();
         FindObjectOfType<GameSaveManager>()?.SaveGame();

@@ -788,7 +788,7 @@ public class ItemTooltipController : MonoBehaviour
 
         _statsContainer.Clear();
 
-        if (item.Data is WeaponItemSO weapon)
+        if (item.Data is WeaponItemSO weapon && !weapon.IsDefensiveOffHand)
         {
             AddRow(StatType.DamagePhysical, item, weapon.MinPhysicalDamage, weapon.MaxPhysicalDamage);
             AddRow(StatType.DamageFire, item, weapon.MinFireDamage, weapon.MaxFireDamage, _colFireText);

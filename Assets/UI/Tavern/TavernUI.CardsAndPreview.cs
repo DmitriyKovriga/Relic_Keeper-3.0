@@ -78,6 +78,7 @@ public partial class TavernUI
         nameLabel.style.textOverflow = TextOverflow.Ellipsis;
         nameLabel.style.flexShrink = 0;
         col.Add(nameLabel);
+        BindHeroCardName(nameLabel, ch, ResolveHostelLevel(isHostel, characterInstanceId));
 
         var statsScroll = new ScrollView(ScrollViewMode.Vertical);
         statsScroll.style.flexGrow = 1;
@@ -173,6 +174,57 @@ public partial class TavernUI
             card.Add(deleteBtn);
         }
         return card;
+    }
+
+    private static int? ResolveHostelLevel(bool isHostel, string characterInstanceId)
+    {
+        if (!isHostel || string.IsNullOrEmpty(characterInstanceId))
+            return null;
+
+        var saveData = CharacterPartyManager.Instance?.GetCharacterData(characterInstanceId);
+        int level = saveData != null ? saveData.CurrentLevel : 1;
+        return Mathf.Max(1, level);
+    }
+
+    private void BindHeroCardName(Label nameLabel, CharacterDataSO ch, int? level)
+    {
+        if (nameLabel == null || ch == null)
+            return;
+
+        ApplyHeroCardName(nameLabel, GetLocalizedName(ch), level);
+        if (string.IsNullOrEmpty(ch.NameKey))
+            return;
+
+        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(MenuLabelsTable, ch.NameKey);
+        op.Completed += _ =>
+        {
+            if (nameLabel == null || nameLabel.panel == null)
+                return;
+
+            string localized = !IsMissingLocalization(op.Result) ? op.Result : ch.DisplayName;
+            ApplyHeroCardName(nameLabel, localized, level);
+        };
+    }
+
+    private static void ApplyHeroCardName(Label nameLabel, string name, int? level)
+    {
+        if (nameLabel == null)
+            return;
+
+        nameLabel.text = FormatHeroCardName(name, level);
+    }
+
+    private static string FormatHeroCardName(string name, int? level)
+    {
+        if (string.IsNullOrEmpty(name))
+            name = "";
+        if (!level.HasValue)
+            return name;
+
+        bool russian = LocalizationSettings.SelectedLocale != null
+            && LocalizationSettings.SelectedLocale.Identifier.Code.StartsWith("ru", System.StringComparison.OrdinalIgnoreCase);
+        string abbr = russian ? "Ур." : "Lv.";
+        return $"{name}  {abbr}{level.Value}";
     }
 
     private void ShowTreePreview(CharacterDataSO ch, string characterInstanceId = null)

@@ -139,44 +139,75 @@ public partial class TavernUI
 
     private void OnGrantStarterGearClicked()
     {
-        if (CharacterPartyManager.Instance == null || !CharacterPartyManager.Instance.HasActiveCharacter)
+        StarterGearGrantResult result = TryGrantStarterWeapon(checkStash: true, preferEquip: false);
+        switch (result)
         {
-            ShowToast(TavernLocKeys.StarterGearNoCharacter, "Choose a hero first", isError: true);
-            return;
+            case StarterGearGrantResult.Granted:
+                FindObjectOfType<GameSaveManager>()?.SaveGame();
+                ShowToast(TavernLocKeys.StarterGearGranted, "Adventurer's Dagger added to your inventory", isError: false);
+                break;
+            case StarterGearGrantResult.NoCharacter:
+                ShowToast(TavernLocKeys.StarterGearNoCharacter, "Choose a hero first", isError: true);
+                break;
+            case StarterGearGrantResult.AlreadyArmed:
+                ShowToast(TavernLocKeys.StarterGearAlreadyArmed, "You already have a weapon in your inventory or stash", isError: true);
+                break;
+            case StarterGearGrantResult.NoSpace:
+                ShowToast(TavernLocKeys.StarterGearNoSpace, "Not enough free space in your inventory", isError: true);
+                break;
+            default:
+                ShowToast(TavernLocKeys.StarterGearUnavailable, "Starter equipment is unavailable", isError: true);
+                break;
         }
+    }
+
+    private enum StarterGearGrantResult
+    {
+        Granted,
+        AlreadyArmed,
+        NoCharacter,
+        Unavailable,
+        NoSpace
+    }
+
+    /// <summary>
+    /// Выдаёт стартовый кинжал текущему герою, если у него нет своего оружия.
+    /// При найме stash не учитываем — это общий сундук, а не инвентарь нового персонажа.
+    /// </summary>
+    private StarterGearGrantResult TryGrantStarterWeapon(bool checkStash, bool preferEquip)
+    {
+        if (CharacterPartyManager.Instance == null || !CharacterPartyManager.Instance.HasActiveCharacter)
+            return StarterGearGrantResult.NoCharacter;
 
         if (InventoryManager.Instance == null || _itemDatabase == null)
-        {
-            ShowToast(TavernLocKeys.StarterGearUnavailable, "Starter equipment is unavailable", isError: true);
-            return;
-        }
+            return StarterGearGrantResult.Unavailable;
 
-        if (PlayerOwnsWeapon())
-        {
-            ShowToast(TavernLocKeys.StarterGearAlreadyArmed, "You already have a weapon in your inventory or stash", isError: true);
-            return;
-        }
+        if (PlayerOwnsWeapon(checkStash))
+            return StarterGearGrantResult.AlreadyArmed;
 
         var baseItem = _itemDatabase.GetItem(StarterWeaponItemId);
         if (baseItem == null)
-        {
-            ShowToast(TavernLocKeys.StarterGearUnavailable, "Starter equipment is unavailable", isError: true);
-            return;
-        }
+            return StarterGearGrantResult.Unavailable;
 
         var weapon = ItemGenerator.GenerateRuntime(baseItem, itemLevel: 1, rarity: 0);
-        if (weapon == null || !InventoryManager.Instance.AddItem(weapon))
+        if (weapon == null)
+            return StarterGearGrantResult.Unavailable;
+
+        if (preferEquip)
         {
-            ShowToast(TavernLocKeys.StarterGearNoSpace, "Not enough free space in your inventory", isError: true);
-            return;
+            int mainHandIndex = InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.MainHand;
+            if (InventoryManager.Instance.PlaceItemAt(weapon, mainHandIndex, -1))
+                return StarterGearGrantResult.Granted;
         }
 
-        FindObjectOfType<GameSaveManager>()?.SaveGame();
-        ShowToast(TavernLocKeys.StarterGearGranted, "Adventurer's Dagger added to your inventory", isError: false);
+        if (InventoryManager.Instance.AddItem(weapon))
+            return StarterGearGrantResult.Granted;
+
+        return StarterGearGrantResult.NoSpace;
     }
 
     /// <summary>Есть ли у игрока хоть одно оружие: в рюкзаке, в экипировке, в слоте крафта или на складе.</summary>
-    private static bool PlayerOwnsWeapon()
+    private static bool PlayerOwnsWeapon(bool includeStash = true)
     {
         var inventory = InventoryManager.Instance;
         if (inventory != null)
@@ -201,6 +232,9 @@ public partial class TavernUI
             if (IsWeapon(inventory.CraftingSlotItem))
                 return true;
         }
+
+        if (!includeStash)
+            return false;
 
         var stash = StashManager.Instance;
         if (stash != null)

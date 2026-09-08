@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Scripts.Stats;
+using Scripts.Combat;
 
 namespace Scripts.Skills
 {
@@ -91,6 +92,11 @@ namespace Scripts.Skills
             return new DamageContext(tags);
         }
 
+        protected IStatsProvider ResolveSkillStats()
+        {
+            return WeaponHandStatScope.ForSkill(_ownerStats, _slotIndex);
+        }
+
         protected float ResolveSkillSpeedMultiplier()
         {
             if (_data == null)
@@ -119,8 +125,9 @@ namespace Scripts.Skills
 
         private float ResolveAttackActionSpeed()
         {
-            if (_ownerStats == null
-                || !_ownerStats.TryGetStat(StatType.AttackSpeed, out CharacterStat attackStat)
+            IStatsProvider stats = WeaponHandStatScope.ForSkill(_ownerStats, _slotIndex);
+            if (stats == null
+                || !stats.TryGetStat(StatType.AttackSpeed, out CharacterStat attackStat)
                 || attackStat == null)
             {
                 return DefaultActionSpeed;
@@ -160,7 +167,8 @@ namespace Scripts.Skills
 
         private float ResolveAttackSpeedFlatBase()
         {
-            if (_ownerStats != null && _ownerStats.TryGetStat(StatType.AttackSpeed, out CharacterStat attackStat) && attackStat != null)
+            IStatsProvider stats = WeaponHandStatScope.ForSkill(_ownerStats, _slotIndex);
+            if (stats != null && stats.TryGetStat(StatType.AttackSpeed, out CharacterStat attackStat) && attackStat != null)
             {
                 float rawFlat = attackStat.GetRawFlatValue();
                 if (rawFlat > 0f)

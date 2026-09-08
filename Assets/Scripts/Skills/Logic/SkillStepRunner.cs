@@ -559,6 +559,7 @@ namespace Scripts.Skills
             {
                 OwnerStats = _ownerStats,
                 OwnerTransform = _ownerStats.transform,
+                SkillSlotIndex = _slotIndex,
                 Step = step,
                 DamageContext = ResolveProjectileDamageContext(),
                 DamageMultiplier = damageMultiplier,
@@ -663,6 +664,7 @@ namespace Scripts.Skills
                 {
                     OwnerStats = _ownerStats,
                     OwnerTransform = _ownerStats.transform,
+                    SkillSlotIndex = _slotIndex,
                     Step = step,
                     DamageContext = ResolveProjectileDamageContext(),
                     DamageMultiplier = ResolveDamageMultiplier(step),
@@ -978,6 +980,10 @@ namespace Scripts.Skills
                     return weaponRenderer.sprite;
             }
 
+            InventoryItem activeWeapon = WeaponHandStatScope.GetActiveWeapon(_slotIndex);
+            if (activeWeapon?.Data is WeaponItemSO activeWeaponData && activeWeaponData.InHandSprite != null)
+                return activeWeaponData.InHandSprite;
+
             InventoryItem mainHandItem = InventoryManager.Instance != null
                 ? InventoryManager.Instance.EquipmentItems[(int)EquipmentSlot.MainHand]
                 : null;
@@ -1143,16 +1149,17 @@ namespace Scripts.Skills
 
         private IStatsProvider BuildScopedStatsProvider(StepEntry step, IDamageable target)
         {
+            IStatsProvider weaponStats = ResolveSkillStats();
             if ((step.ScopedStatModifiers == null || step.ScopedStatModifiers.Count == 0) &&
                 (step.TargetAilmentStackModifiers == null || step.TargetAilmentStackModifiers.Count == 0))
-                return _ownerStats;
+                return weaponStats;
 
             var modifiers = new List<SerializableStatModifier>();
             if (step.ScopedStatModifiers != null)
                 modifiers.AddRange(step.ScopedStatModifiers);
 
             AppendTargetAilmentStackModifiers(step, target, modifiers);
-            return modifiers.Count > 0 ? new ScopedStatsProvider(_ownerStats, modifiers) : _ownerStats;
+            return modifiers.Count > 0 ? new ScopedStatsProvider(weaponStats, modifiers) : weaponStats;
         }
 
         private void AppendTargetAilmentStackModifiers(StepEntry step, IDamageable target, List<SerializableStatModifier> modifiers)

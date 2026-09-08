@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Scripts.UI
 {
@@ -33,6 +34,7 @@ namespace Scripts.UI
         [SerializeField] private int _sortingOrder = 1000;
 
         private TextMeshPro _text;
+        private bool _waitingForLocalizationInit;
 
         public static WorldLocalizedLabel Create(Transform parent, string localizationKey, string fallbackText, Vector3 localPosition)
         {
@@ -75,6 +77,8 @@ namespace Scripts.UI
             _fallbackText = fallbackText;
             EnsureText();
             Refresh();
+            if (LocalizationSettings.SelectedLocale == null)
+                RefreshWhenLocalizationReady();
         }
 
         public string CurrentText => _text != null ? _text.text : _fallbackText;
@@ -84,14 +88,55 @@ namespace Scripts.UI
             EnsureText();
             LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
             Refresh();
+            if (LocalizationSettings.SelectedLocale == null)
+                RefreshWhenLocalizationReady();
         }
 
         private void OnDisable()
         {
             LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+            UnsubscribeInitialization();
         }
 
         private void OnLocaleChanged(Locale locale) => Refresh();
+
+        private void RefreshWhenLocalizationReady()
+        {
+            if (LocalizationSettings.SelectedLocale != null)
+            {
+                Refresh();
+                return;
+            }
+
+            AsyncOperationHandle init = LocalizationSettings.InitializationOperation;
+            if (init.IsDone)
+                return;
+
+            if (_waitingForLocalizationInit)
+                return;
+
+            _waitingForLocalizationInit = true;
+            init.Completed += OnLocalizationInitialized;
+        }
+
+        private void OnLocalizationInitialized(AsyncOperationHandle handle)
+        {
+            handle.Completed -= OnLocalizationInitialized;
+            _waitingForLocalizationInit = false;
+            if (!isActiveAndEnabled)
+                return;
+            Refresh();
+        }
+
+        private void UnsubscribeInitialization()
+        {
+            if (!_waitingForLocalizationInit)
+                return;
+
+            _waitingForLocalizationInit = false;
+            AsyncOperationHandle init = LocalizationSettings.InitializationOperation;
+            init.Completed -= OnLocalizationInitialized;
+        }
 
         private void EnsureText()
         {
@@ -192,6 +237,9 @@ namespace Scripts.UI
             _text.ForceMeshUpdate();
 
             if (string.IsNullOrEmpty(_localizationKey) || string.IsNullOrEmpty(_localizationTable))
+                return;
+
+            if (LocalizationSettings.SelectedLocale == null)
                 return;
 
             var operation = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(_localizationTable, _localizationKey);

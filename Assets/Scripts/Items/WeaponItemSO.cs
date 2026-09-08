@@ -39,5 +39,11 @@ namespace Scripts.Items
         [Header("2H Special Skills")]
         [Tooltip("Только для двуручного оружия: Пул скиллов для правой кнопки мыши (Secondary Attack)")]
         public SkillPoolSO SecondarySkillPool;
+
+        /// <summary>
+        /// Щит и прочий защитный оффхенд: слот OffHand, даже если ассет унаследован от оружия.
+        /// Dual wield и локальный урон/APS/крит на такие предметы не распространяются.
+        /// </summary>
+        public bool IsDefensiveOffHand => Slot == EquipmentSlot.OffHand;
     }
 }
