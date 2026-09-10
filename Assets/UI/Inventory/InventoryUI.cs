@@ -6,6 +6,7 @@ using Scripts.Items;
 
 public partial class InventoryUI : MonoBehaviour
 {
+    private GamePauseService.PauseHandle _pauseHandle;
     [Header("UI References")]
     [SerializeField] private UIDocument _uiDoc;
     [Tooltip("Если задано, при закрытии окна инвентаря сбрасывается режим крафта орбой.")]
@@ -161,6 +162,7 @@ public partial class InventoryUI : MonoBehaviour
             _windowView.OnClosed -= OnInventoryWindowClosed;
             _windowView.OnOpened -= OnInventoryWindowOpened;
         }
+        ReleaseGameplayPause();
         if (ItemTooltipController.Instance != null)
             ItemTooltipController.Instance.HideTooltipImmediate();
         CancelDragSession(restoreHeldItem: true);
@@ -178,6 +180,7 @@ public partial class InventoryUI : MonoBehaviour
 
     private void OnInventoryWindowClosed()
     {
+        ReleaseGameplayPause();
         if (ItemTooltipController.Instance != null)
             ItemTooltipController.Instance.HideTooltipImmediate();
         ExitApplyOrbMode();
@@ -187,8 +190,17 @@ public partial class InventoryUI : MonoBehaviour
 
     private void OnInventoryWindowOpened()
     {
+        if (_pauseHandle == null)
+            _pauseHandle = GamePauseService.Acquire(GamePauseReason.Inventory);
+
         ApplyInventorySpacing(IsStashVisible);
         ItemTooltipController.Instance?.HideWorldTooltip();
+    }
+
+    private void ReleaseGameplayPause()
+    {
+        _pauseHandle?.Dispose();
+        _pauseHandle = null;
     }
 
     /// <summary>Переключает видимость склада. Раскладка задаётся только в USS: класс stash-open на WindowRoot и MainRow.</summary>

@@ -234,6 +234,7 @@ public class GameSaveManager : MonoBehaviour
         }
 
         _handlingPlayerDeath = true;
+        GamePauseService.ResumeAll();
         if (InputManager.InputActions != null)
             InputManager.InputActions.Player.Disable();
 

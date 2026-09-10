@@ -19,6 +19,7 @@ public class PauseMenuUI : MonoBehaviour
     private Button settingsButton;
 
     private EventCallback<ClickEvent> _continueClick, _exitClick, _settingsClick;
+    private GamePauseService.PauseHandle _pauseHandle;
 
     private void OnEnable()
     {
@@ -56,6 +57,7 @@ public class PauseMenuUI : MonoBehaviour
             pauseWindow.OnClosed -= OnPauseClosed;
         }
         SetParentRaycasterEnabled(true);
+        ReleasePause();
 
         if (continueButton != null && _continueClick != null) continueButton.UnregisterCallback(_continueClick);
         if (exitButton != null && _exitClick != null) exitButton.UnregisterCallback(_exitClick);
@@ -64,14 +66,24 @@ public class PauseMenuUI : MonoBehaviour
 
     private void OnPauseOpened()
     {
+        if (_pauseHandle == null)
+            _pauseHandle = GamePauseService.Acquire(GamePauseReason.PauseMenu);
+
         SetParentRaycasterEnabled(false);
         RaisePausePanelAboveOthers(true);
     }
 
     private void OnPauseClosed()
     {
+        ReleasePause();
         SetParentRaycasterEnabled(true);
         RaisePausePanelAboveOthers(false);
+    }
+
+    private void ReleasePause()
+    {
+        _pauseHandle?.Dispose();
+        _pauseHandle = null;
     }
 
     /// <summary> Поднимает PanelSettings меню паузы выше PixelArtPanelSettings (100), иначе клики попадают в HUD/инвентарь. </summary>

@@ -45,10 +45,17 @@ public class InventoryWindowToggle : MonoBehaviour
     private void Toggle()
     {
         if (_inventoryWindow == null || _manager == null) return;
+        if (_manager.HasOpenWindow && _manager.TopWindow != _inventoryWindow) return;
 
         if (_manager.IsOpen(_inventoryWindow))
             _manager.CloseWindow(_inventoryWindow);
         else
+        {
             _manager.OpenWindow(_inventoryWindow);
+
+            // WindowManager disables the Player map while a window is open. Keep only
+            // this UI toggle alive so the same key can close the inventory again.
+            _inputAction?.action.Enable();
+        }
     }
 }
