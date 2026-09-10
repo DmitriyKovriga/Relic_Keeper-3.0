@@ -5,6 +5,7 @@ namespace Scripts.Enemies
     public class EnemyLocomotion2D : MonoBehaviour
     {
         private EnemyDataSO _data;
+        private EnemyStats _stats;
         private Rigidbody2D _rb;
         private SpriteRenderer _spriteRenderer;
         private Collider2D _collider;
@@ -26,6 +27,7 @@ namespace Scripts.Enemies
         public void Initialize(EnemyEntity entity, EnemyDataSO data)
         {
             _data = data;
+            _stats = GetComponent<EnemyStats>();
             _spriteRenderer = entity != null ? entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>(true);
             EnsureGroundLayerMask();
             EnsurePhysicsComponents();
@@ -194,10 +196,22 @@ namespace Scripts.Enemies
                     FaceDirection(moveDir);
             }
 
-            float targetSpeed = desiredInput * _data.Movement.MoveSpeed;
+            float targetSpeed = desiredInput * ResolveMoveSpeed();
             float currentX = _rb.linearVelocity.x;
             float nextX = Mathf.MoveTowards(currentX, targetSpeed, _data.Movement.Acceleration * Time.fixedDeltaTime);
             _rb.linearVelocity = new Vector2(nextX, _rb.linearVelocity.y);
+        }
+
+        private float ResolveMoveSpeed()
+        {
+            if (_stats != null)
+            {
+                float fromStats = _stats.ResolveMoveSpeed();
+                if (fromStats > 0.01f)
+                    return fromStats;
+            }
+
+            return _data != null ? _data.Movement.MoveSpeed : 0f;
         }
 
         private void FaceDirection(int direction)

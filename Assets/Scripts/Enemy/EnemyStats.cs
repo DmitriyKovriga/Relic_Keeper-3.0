@@ -68,6 +68,27 @@ namespace Scripts.Enemies
             EnsureStat(StatType.MysticShieldRechargeDuration, 5f);
             EnsureStat(StatType.MysticShieldMitigationPercent, 50f);
             EnsureStat(StatType.MaxMysticShieldMitigationPercent, 90f);
+            EnsureStat(StatType.MoveSpeed, data != null && data.Movement != null ? data.Movement.MoveSpeed : 0f);
+            EnsureStat(StatType.AttackSpeed, 1f);
+            if (GetValue(StatType.AttackSpeed) <= 0f)
+                _stats[StatType.AttackSpeed] = new CharacterStat(1f);
+
+            ApplyHiddenTempoModifiers();
+        }
+
+        public float ActionSpeedMultiplier
+        {
+            get
+            {
+                float value = GetValue(StatType.AttackSpeed);
+                return value > 0.01f ? value : 1f;
+            }
+        }
+
+        public float ResolveMoveSpeed()
+        {
+            float fromStats = GetValue(StatType.MoveSpeed);
+            return fromStats > 0.01f ? fromStats : 0f;
         }
 
         public float GetValue(StatType type)
@@ -92,6 +113,17 @@ namespace Scripts.Enemies
         {
             if (_stats.ContainsKey(type))
                 _stats[type].RemoveModifier(modifier);
+        }
+
+        private void ApplyHiddenTempoModifiers()
+        {
+            float percent = EnemyLevelBalance.TempoPercent(Level);
+            if (percent <= 0f)
+                return;
+
+            object source = typeof(EnemyLevelBalance);
+            AddModifier(StatType.MoveSpeed, new StatModifier(percent, StatModType.PercentAdd, source));
+            AddModifier(StatType.AttackSpeed, new StatModifier(percent, StatModType.PercentAdd, source));
         }
 
         private static bool IsScalableStat(StatType type)

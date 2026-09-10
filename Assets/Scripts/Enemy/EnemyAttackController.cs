@@ -58,6 +58,24 @@ namespace Scripts.Enemies
 
             public bool HasDashMotion => DashSpeed > 0.01f && DashDuration > 0.01f;
 
+            public AttackRuntimeConfig WithActionSpeed(float actionSpeed)
+            {
+                return new AttackRuntimeConfig(
+                    DeliveryType,
+                    DamageType,
+                    EnemyLevelBalance.ScaleDurationByActionSpeed(Windup, actionSpeed),
+                    ActiveTime,
+                    EnemyLevelBalance.ScaleDurationByActionSpeed(Recovery, actionSpeed),
+                    EnemyLevelBalance.ScaleDurationByActionSpeed(AttackCooldown, actionSpeed),
+                    DamageMultiplier,
+                    HitboxSize,
+                    HitboxOffset,
+                    DashSpeed,
+                    DashDuration,
+                    DashOvershootDistance,
+                    IgnoreLedgesDuringDash);
+            }
+
             public static AttackRuntimeConfig FromPrimary(EnemyAttackConfig config)
             {
                 return new AttackRuntimeConfig(
@@ -628,10 +646,12 @@ namespace Scripts.Enemies
 
         private AttackRuntimeConfig GetAttackConfig(AttackVariant variant)
         {
-            if (variant == AttackVariant.Charge && _data != null && _data.ChargeAttack != null)
-                return AttackRuntimeConfig.FromCharge(_data.ChargeAttack);
+            AttackRuntimeConfig config = variant == AttackVariant.Charge && _data != null && _data.ChargeAttack != null
+                ? AttackRuntimeConfig.FromCharge(_data.ChargeAttack)
+                : AttackRuntimeConfig.FromPrimary(_data.Attack);
 
-            return AttackRuntimeConfig.FromPrimary(_data.Attack);
+            float actionSpeed = _stats != null ? _stats.ActionSpeedMultiplier : 1f;
+            return config.WithActionSpeed(actionSpeed);
         }
 
         internal static bool TryResolveDamageable(Transform candidate, out IDamageable damageable)

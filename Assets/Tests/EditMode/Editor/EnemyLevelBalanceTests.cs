@@ -102,5 +102,17 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(Mathf.Abs(right.x - left.x), Is.EqualTo(EnemySpawnSpread.MinSeparation).Within(0.001f));
             Assert.That((left.x + right.x) * 0.5f, Is.EqualTo(0f).Within(0.001f));
         }
+
+        [Test]
+        public void Tempo_GainsOnePercentThroughThirtyThenPointTwoAfter()
+        {
+            Assert.That(EnemyLevelBalance.TempoPercent(1), Is.EqualTo(0f));
+            Assert.That(EnemyLevelBalance.TempoMultiplier(1), Is.EqualTo(1f));
+            Assert.That(EnemyLevelBalance.TempoPercent(30), Is.EqualTo(29f));
+            Assert.That(EnemyLevelBalance.TempoMultiplier(30), Is.EqualTo(1.29f).Within(0.0001f));
+            Assert.That(EnemyLevelBalance.TempoPercent(31), Is.EqualTo(29.2f).Within(0.0001f));
+            Assert.That(EnemyLevelBalance.TempoPercent(50), Is.EqualTo(33f).Within(0.0001f));
+            Assert.That(EnemyLevelBalance.ScaleDurationByActionSpeed(1f, 1.29f), Is.EqualTo(1f / 1.29f).Within(0.0001f));
+        }
     }
 }

@@ -15,6 +15,7 @@ namespace Scripts.Enemies
 
         private EnemyDataSO _data;
         private EnemyEntity _entity;
+        private EnemyStats _stats;
         private Animator _animator;
         private SpriteRenderer _spriteRenderer;
         private Transform _visualRoot;
@@ -62,6 +63,7 @@ namespace Scripts.Enemies
         {
             _entity = entity;
             _data = data;
+            _stats = GetComponent<EnemyStats>();
             _spriteRenderer = entity != null ? entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>(true);
             _visualRoot = entity != null ? entity.VisualRoot : (_spriteRenderer != null ? _spriteRenderer.transform : transform);
             _baseLocalPosition = _visualRoot != null ? _visualRoot.localPosition : Vector3.zero;
@@ -343,6 +345,8 @@ namespace Scripts.Enemies
                 return;
 
             _currentState = stateName;
+            if (_animator != null && !_isFrozen)
+                _animator.speed = ResolvePlaybackSpeed(stateName);
             _animator.Play(stateName, 0, 0f);
         }
 
@@ -471,11 +475,11 @@ namespace Scripts.Enemies
                 return 8f;
 
             if (stateName == _data.Animation.MoveStateName)
-                return Mathf.Max(1f, _data.Animation.MoveFps);
+                return Mathf.Max(1f, _data.Animation.MoveFps) * ResolvePlaybackSpeed(stateName);
             if (stateName == _data.Animation.AttackStateName)
-                return Mathf.Max(1f, _data.Animation.AttackFps);
+                return Mathf.Max(1f, _data.Animation.AttackFps) * ResolvePlaybackSpeed(stateName);
             if (stateName == _data.Animation.ChargeStateName)
-                return Mathf.Max(1f, _data.Animation.ChargeFps);
+                return Mathf.Max(1f, _data.Animation.ChargeFps) * ResolvePlaybackSpeed(stateName);
             if (stateName == _data.Animation.HitStateName)
                 return Mathf.Max(1f, _data.Animation.HitFps);
             if (stateName == _data.Animation.DigInStateName)
@@ -483,6 +487,21 @@ namespace Scripts.Enemies
             if (stateName == _data.Animation.DigOutStateName)
                 return Mathf.Max(1f, _data.Animation.DigOutFps);
             return Mathf.Max(1f, _data.Animation.IdleFps);
+        }
+
+        private float ResolvePlaybackSpeed(string stateName)
+        {
+            if (_data == null || _data.Animation == null || string.IsNullOrEmpty(stateName))
+                return 1f;
+
+            if (stateName != _data.Animation.MoveStateName &&
+                stateName != _data.Animation.AttackStateName &&
+                stateName != _data.Animation.ChargeStateName)
+            {
+                return 1f;
+            }
+
+            return _stats != null ? _stats.ActionSpeedMultiplier : 1f;
         }
 
         private void LoadSpriteSheets()

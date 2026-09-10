@@ -11,6 +11,7 @@ namespace Scripts.Enemies
     /// Damage at ~26%/level (~8.5× at 30) keeps packs threatening. Health at ~22%/level (~7.4×)
     /// avoids sponges against that DPS. Armor trails slightly so physical hits still matter.
     /// After the soft cap, remaining levels use half the listed rate, except damage which uses a quarter.
+    /// Move and attack speed are a hidden Increased modifier: 1%/level to 30, then 0.2%/level.
     /// </summary>
     public static class EnemyLevelBalance
     {
@@ -21,6 +22,8 @@ namespace Scripts.Enemies
         public const float EnemyCountPercentPerLocationLevel = 2f;
         public const float PostSoftCapStatScale = 0.5f;
         public const float PostSoftCapDamageScale = 0.25f;
+        public const float TempoPercentPerLevel = 1f;
+        public const float PostSoftCapTempoPercentPerLevel = 0.2f;
 
         public static bool IsDamageStat(StatType type)
         {
@@ -47,6 +50,24 @@ namespace Scripts.Enemies
         public static float PercentMultiplier(int level, float percentPerLevel, bool isDamage)
         {
             return 1f + (percentPerLevel / 100f) * ScaledLevelSteps(level, isDamage);
+        }
+
+        public static float TempoPercent(int level)
+        {
+            int clampedLevel = Mathf.Max(1, level);
+            int beforeSoftCap = Mathf.Min(clampedLevel, ReferenceLevel) - 1;
+            int afterSoftCap = Mathf.Max(0, clampedLevel - ReferenceLevel);
+            return TempoPercentPerLevel * beforeSoftCap + PostSoftCapTempoPercentPerLevel * afterSoftCap;
+        }
+
+        public static float TempoMultiplier(int level)
+        {
+            return 1f + TempoPercent(level) / 100f;
+        }
+
+        public static float ScaleDurationByActionSpeed(float duration, float actionSpeed)
+        {
+            return duration / Mathf.Max(0.01f, actionSpeed);
         }
     }
 }
