@@ -26,8 +26,10 @@ namespace Scripts.Items.World
         private float _hoverBaseLocalY;
         private float _hoverPhase;
         private bool _isInitialized;
+        private Vector2 _groundPosition;
 
         public InventoryItem Item => _item;
+        public Vector2 GroundPosition => _isInitialized ? _groundPosition : (Vector2)transform.position;
         public Vector3 TooltipWorldPosition => transform.position + Vector3.up * 0.48f;
 
         public void Initialize(InventoryItem item, float pixelsPerUnit)
@@ -36,10 +38,18 @@ namespace Scripts.Items.World
             _pixelsPerUnit = Mathf.Max(1f, pixelsPerUnit);
             _hoverBaseLocalY = transform.localPosition.y;
             _hoverPhase = Mathf.Abs(GetInstanceID() % 1000) * 0.013f;
+            _groundPosition = transform.position;
             BuildVisual();
             BuildCollider();
             BuildInspectionProgress();
             _isInitialized = true;
+        }
+
+        public void SetGroundedWorldPosition(Vector2 worldPosition)
+        {
+            _groundPosition = worldPosition;
+            transform.position = new Vector3(worldPosition.x, worldPosition.y, transform.position.z);
+            _hoverBaseLocalY = transform.localPosition.y;
         }
 
         private void Update()

@@ -126,6 +126,121 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(result, Is.EqualTo(origin + Vector2.up * 0.62f));
         }
 
+        [Test]
+        public void CombatInspectDelay_IsTwoSecondsUntilRoomIsCleared()
+        {
+            Assert.That(WorldItemInspection.ResolveTooltipDelay(0.5f, false), Is.EqualTo(2f));
+            Assert.That(WorldItemInspection.ResolveTooltipDelay(0.5f, true), Is.EqualTo(0.5f));
+        }
+
+        [Test]
+        public void InspectSource_PrefersMovingCursorThenMovingPlayer()
+        {
+            Assert.That(
+                WorldItemInspection.ResolveSource(true, true, true, true),
+                Is.EqualTo(WorldItemInspectSource.Cursor));
+            Assert.That(
+                WorldItemInspection.ResolveSource(false, true, true, true),
+                Is.EqualTo(WorldItemInspectSource.Player));
+            Assert.That(
+                WorldItemInspection.ResolveSource(false, false, true, true),
+                Is.EqualTo(WorldItemInspectSource.Cursor));
+            Assert.That(
+                WorldItemInspection.ResolveSource(false, true, true, false),
+                Is.EqualTo(WorldItemInspectSource.Cursor));
+            Assert.That(
+                WorldItemInspection.ResolveSource(true, false, false, true),
+                Is.EqualTo(WorldItemInspectSource.Player));
+        }
+
+        [Test]
+        public void CursorClickPickup_OnlyWhenInspectingThatItemWithCursor()
+        {
+            WorldDroppedItem inspected = CreateDroppedItem(Vector2.zero);
+            WorldDroppedItem other = CreateDroppedItem(new Vector2(1f, 0f));
+
+            Assert.That(
+                WorldItemInspection.CanPickupWithCursorClick(WorldItemInspectSource.Cursor, inspected, inspected),
+                Is.True);
+            Assert.That(
+                WorldItemInspection.CanPickupWithCursorClick(WorldItemInspectSource.Player, inspected, inspected),
+                Is.False);
+            Assert.That(
+                WorldItemInspection.CanPickupWithCursorClick(WorldItemInspectSource.Cursor, inspected, other),
+                Is.False);
+            Assert.That(
+                WorldItemInspection.CanPickupWithCursorClick(WorldItemInspectSource.None, inspected, inspected),
+                Is.False);
+        }
+
+        [Test]
+        public void CursorMoveLinger_CountsRecentMotion()
+        {
+            Assert.That(WorldItemInspection.IsCursorMoving(2f, 0f, 0f), Is.True);
+            Assert.That(WorldItemInspection.IsCursorMoving(0f, 1f, 1.05f), Is.True);
+            Assert.That(WorldItemInspection.IsCursorMoving(0f, 1f, 1.2f), Is.False);
+        }
+
+        [Test]
+        public void PairOffsets_UnstackItemsHorizontally()
+        {
+            WorldDroppedItemSpread.GetPairOffsets(Vector2.zero, Vector2.zero, 0.86f, out float left, out float right);
+            Assert.That(right - left, Is.EqualTo(0.86f).Within(0.001f));
+            Assert.That(left, Is.LessThan(0f));
+            Assert.That(right, Is.GreaterThan(0f));
+        }
+
+        [Test]
+        public void SpawnedItems_SpreadApartOnTheGround()
+        {
+            WorldDroppedItem first = WorldItemDropService.Spawn(CreateInventoryItem(), Vector2.zero);
+            WorldDroppedItem second = WorldItemDropService.Spawn(CreateInventoryItem(), Vector2.zero);
+            TrackSpawnedDrop(first);
+            TrackSpawnedDrop(second);
+
+            Assert.That(Mathf.Abs(first.GroundPosition.x - second.GroundPosition.x),
+                Is.GreaterThanOrEqualTo(WorldDroppedItemSpread.MinSeparation - 0.02f));
+        }
+
+        [Test]
+        public void Spread_DoesNotPushNeighborThroughWall()
+        {
+            GameObject wall = CreateGameObject("SpreadWall");
+            wall.layer = 6;
+            wall.transform.position = new Vector3(0.45f, 0.5f, 0f);
+            BoxCollider2D box = wall.AddComponent<BoxCollider2D>();
+            box.size = new Vector2(0.2f, 3f);
+            Physics2D.SyncTransforms();
+
+            WorldDroppedItem left = CreateDroppedItem(Vector2.zero);
+            WorldDroppedItem right = CreateDroppedItem(new Vector2(0.05f, 0f));
+            WorldDroppedItemSpread.SeparateFromNeighbors(right);
+
+            float wallLeft = box.bounds.min.x;
+            Assert.That(left.GroundPosition.x, Is.LessThan(wallLeft - 0.02f));
+            Assert.That(right.GroundPosition.x, Is.LessThan(wallLeft - 0.02f));
+            Assert.That(Mathf.Abs(left.GroundPosition.x - right.GroundPosition.x),
+                Is.GreaterThanOrEqualTo(0.4f));
+        }
+
+        [Test]
+        public void EmptyRoom_IsClearedBeforeEnemiesSpawn()
+        {
+            GameObject roomObject = CreateGameObject("EmptyRoom");
+            RoomController room = roomObject.AddComponent<RoomController>();
+            Assert.That(room.IsCleared, Is.True);
+        }
+
+        private void TrackSpawnedDrop(WorldDroppedItem dropped)
+        {
+            if (dropped != null)
+                _createdObjects.Add(dropped.gameObject);
+
+            GameObject dropRoot = GameObject.Find("WorldDroppedItems");
+            if (dropRoot != null && !_createdObjects.Contains(dropRoot))
+                _createdObjects.Add(dropRoot);
+        }
+
         private InventoryItem CreateInventoryItem()
         {
             ArmorItemSO data = ScriptableObject.CreateInstance<ArmorItemSO>();

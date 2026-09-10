@@ -7,7 +7,12 @@ using UnityEngine.UIElements;
 public sealed class DungeonModifierHud : MonoBehaviour
 {
     private const float SortingOrder = 500f;
-    private const float PanelWidth = 112f;
+    public const int PanelWidth = 112;
+    public const int PanelPaddingLeft = 4;
+    public const int PanelPaddingRight = 2;
+    public const int ModifierFontSize = 5;
+    public const int ModifierLineHeight = 7;
+    public const int MaxCharactersPerLine = 34;
 
     private static readonly Color PanelBackground = new Color(0.055f, 0.045f, 0.035f, 0.52f);
     private static readonly Color BorderColor = new Color(0.43f, 0.33f, 0.19f, 0.45f);
@@ -116,10 +121,10 @@ public sealed class DungeonModifierHud : MonoBehaviour
         for (int i = 0; i < values.Count; i++)
         {
             string wrappedText = WrapForHud(values[i], out int lineCount);
-            float rowHeight = lineCount * 7f;
+            float rowHeight = lineCount * ModifierLineHeight;
             var label = new Label(wrappedText) { pickingMode = PickingMode.Ignore };
             label.name = "ModifierEntry";
-            label.style.fontSize = 5;
+            label.style.fontSize = ModifierFontSize;
             label.style.height = rowHeight;
             label.style.minHeight = rowHeight;
             label.style.maxHeight = rowHeight;
@@ -145,12 +150,11 @@ public sealed class DungeonModifierHud : MonoBehaviour
             WrapForHud(values[i], out int entryLines);
             lineCount += entryLines;
         }
-        return (showHeader ? 8f : 1f) + lineCount * 7f;
+        return (showHeader ? 8f : 1f) + lineCount * ModifierLineHeight;
     }
 
-    private static string WrapForHud(string text, out int lineCount)
+    public static string WrapForHud(string text, out int lineCount)
     {
-        const int maxCharactersPerLine = 27;
         string[] words = (text ?? string.Empty).Split((char[])null, System.StringSplitOptions.RemoveEmptyEntries);
         if (words.Length == 0)
         {
@@ -164,7 +168,7 @@ public sealed class DungeonModifierHud : MonoBehaviour
         for (int i = 0; i < words.Length; i++)
         {
             string word = words[i];
-            if (currentLength > 0 && currentLength + 1 + word.Length > maxCharactersPerLine)
+            if (currentLength > 0 && currentLength + 1 + word.Length > MaxCharactersPerLine)
             {
                 result.Append('\n');
                 currentLength = 0;
@@ -204,8 +208,8 @@ public sealed class DungeonModifierHud : MonoBehaviour
         _panel.style.justifyContent = Justify.FlexStart;
         _panel.style.flexGrow = 0;
         _panel.style.flexShrink = 0;
-        _panel.style.paddingLeft = 4;
-        _panel.style.paddingRight = 2;
+        _panel.style.paddingLeft = PanelPaddingLeft;
+        _panel.style.paddingRight = PanelPaddingRight;
         _panel.style.paddingTop = 2;
         _panel.style.paddingBottom = 3;
         _panel.style.backgroundColor = PanelBackground;

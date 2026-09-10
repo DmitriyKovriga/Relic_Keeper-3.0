@@ -206,6 +206,26 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void ModifierHudWrap_UsesFullLineBudgetButStillWrapsLongText()
+        {
+            int innerWidth = DungeonModifierHud.PanelWidth
+                - DungeonModifierHud.PanelPaddingLeft
+                - DungeonModifierHud.PanelPaddingRight;
+            Assert.That(DungeonModifierHud.MaxCharactersPerLine * 3, Is.LessThanOrEqualTo(innerWidth + 2));
+            Assert.That(DungeonModifierHud.MaxCharactersPerLine, Is.GreaterThan(27));
+
+            string lootLine = "Шанс выпадения предметов +11%";
+            string wrappedLoot = DungeonModifierHud.WrapForHud(lootLine, out int lootLines);
+            Assert.That(lootLines, Is.EqualTo(1));
+            Assert.That(wrappedLoot, Does.Not.Contain("\n"));
+
+            string longLine = "Шанс выпадения предметов +11% и дополнительный эффект на монстров в этой комнате";
+            string wrappedLong = DungeonModifierHud.WrapForHud(longLine, out int longLines);
+            Assert.That(longLines, Is.GreaterThan(1));
+            Assert.That(wrappedLong, Does.Contain("\n"));
+        }
+
+        [Test]
         public void EndlessSegment_DisplaysRoomsPastTheFirstTen()
         {
             Assert.That(DungeonRunProgress.ResolveDisplayedRoomNumber(0, 0), Is.EqualTo(1));

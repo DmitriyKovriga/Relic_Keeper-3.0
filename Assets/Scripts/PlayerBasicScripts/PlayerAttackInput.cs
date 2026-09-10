@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Scripts.Dungeon;
 using Scripts.GameplayEvents;
 using Scripts.Skills;
 using Scripts.Visuals;
@@ -216,6 +217,8 @@ public class PlayerAttackInput : MonoBehaviour
             if (!_pressedSkillInputs[i])
                 continue;
             if (UiPointerUtility.IsPointerOverHudShortcuts())
+                break;
+            if (PlayerInteractController.TryHandleCursorPickupClick())
                 break;
             _skillManager.UseSkill(i);
         }

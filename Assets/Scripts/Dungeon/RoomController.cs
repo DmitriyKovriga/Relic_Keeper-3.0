@@ -40,6 +40,7 @@ namespace Scripts.Dungeon
         private bool _roomClearRewardsSpawned;
 
         public int RoomLevel => _roomLevel;
+        public bool IsCleared => _livingEnemies.Count == 0;
         public DungeonModifierValues RoomModifiers => _roomModifiers;
 
         public void SetRuntimeLevel(int level)

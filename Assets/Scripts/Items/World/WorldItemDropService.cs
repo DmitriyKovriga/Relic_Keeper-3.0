@@ -25,6 +25,7 @@ namespace Scripts.Items.World
 
             var dropped = go.AddComponent<WorldDroppedItem>();
             dropped.Initialize(item, PixelsPerUnit);
+            WorldDroppedItemSpread.SeparateFromNeighbors(dropped);
             return dropped;
         }
 
@@ -51,15 +52,29 @@ namespace Scripts.Items.World
             return ProjectToGroundUnder(origin);
         }
 
+        internal static int TerrainMask => BuildGroundMask();
+
         internal static Vector2 ProjectToGroundUnder(Vector2 origin)
+        {
+            if (TrySnapToGround(origin, out Vector2 grounded))
+                return grounded;
+
+            return origin + Vector2.up * GroundLift;
+        }
+
+        internal static bool TrySnapToGround(Vector2 origin, out Vector2 grounded)
         {
             int mask = BuildGroundMask();
             Vector2 rayOrigin = origin + Vector2.up * PlayerRaycastLift;
             RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, PlayerRaycastLift + RaycastDown, mask);
             if (hit.collider != null)
-                return hit.point + Vector2.up * GroundLift;
+            {
+                grounded = hit.point + Vector2.up * GroundLift;
+                return true;
+            }
 
-            return origin + Vector2.up * GroundLift;
+            grounded = origin;
+            return false;
         }
 
         private static int BuildGroundMask()
