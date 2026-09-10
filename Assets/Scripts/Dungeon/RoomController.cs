@@ -41,6 +41,12 @@ namespace Scripts.Dungeon
 
         public int RoomLevel => _roomLevel;
         public DungeonModifierValues RoomModifiers => _roomModifiers;
+
+        public void SetRuntimeLevel(int level)
+        {
+            _roomLevel = Mathf.Max(1, level);
+        }
+
         public IReadOnlyList<DungeonModifierSO> BuiltInModifiers => _builtInModifiers;
         public Collider2D CameraBounds => ResolveCameraBounds();
 

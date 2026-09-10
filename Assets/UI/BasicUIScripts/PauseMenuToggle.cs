@@ -19,7 +19,7 @@ public class PauseMenuToggle : MonoBehaviour
 
     public void HandleEscape()
     {
-        if (DungeonModifierChoiceUI.IsVisible)
+        if (DungeonModifierChoiceUI.IsVisible || DungeonRunContinueUI.IsVisible)
             return;
         if (manager == null)
             manager = FindFirstObjectByType<WindowManager>();

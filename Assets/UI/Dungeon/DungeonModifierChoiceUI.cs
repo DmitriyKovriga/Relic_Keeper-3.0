@@ -11,6 +11,9 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
     private const float WindowHeight = 244f;
     private const float CardWidth = 138f;
     private const float CardHeight = 196f;
+    public const int ReturnButtonWidth = 78;
+    public const int ReturnButtonHeight = 14;
+    public const int ReturnButtonInset = 4;
 
     private static readonly Color WindowBackground = new Color(0.10f, 0.075f, 0.055f, 0.99f);
     private static readonly Color CardBackground = new Color(0.15f, 0.12f, 0.09f, 1f);
@@ -27,6 +30,8 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
     private VisualElement _choices;
     private GamePauseService.PauseHandle _pauseHandle;
     private Action<DungeonModifierSO> _onSelected;
+    private Action _onReturnToSettlement;
+    private Button _returnButton;
     private bool _playerInputWasEnabled;
     private bool _resolved;
 
@@ -51,7 +56,17 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
         return _instance;
     }
 
-    public void Show(string title, IReadOnlyList<DungeonModifierSO> choices, Action<DungeonModifierSO> onSelected)
+    public static void HideIfVisible()
+    {
+        if (_instance != null)
+            _instance.HideInternal();
+    }
+
+    public void Show(
+        string title,
+        IReadOnlyList<DungeonModifierSO> choices,
+        Action<DungeonModifierSO> onSelected,
+        Action onReturnToSettlement = null)
     {
         if (choices == null || choices.Count == 0)
         {
@@ -68,6 +83,12 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
 
         _resolved = false;
         _onSelected = onSelected;
+        _onReturnToSettlement = onReturnToSettlement;
+        if (_returnButton != null)
+        {
+            _returnButton.style.display = onReturnToSettlement != null ? DisplayStyle.Flex : DisplayStyle.None;
+            _returnButton.BringToFront();
+        }
         _title.text = string.IsNullOrWhiteSpace(title) ? "Выберите модификатор" : title;
         _choices.Clear();
 
@@ -205,8 +226,22 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
         _resolved = true;
         Action<DungeonModifierSO> callback = _onSelected;
         _onSelected = null;
+        _onReturnToSettlement = null;
         HideInternal();
         callback?.Invoke(selected);
+    }
+
+    private void CompleteReturnToSettlement()
+    {
+        if (_resolved)
+            return;
+
+        _resolved = true;
+        Action callback = _onReturnToSettlement;
+        _onSelected = null;
+        _onReturnToSettlement = null;
+        HideInternal();
+        callback?.Invoke();
     }
 
     private void HideInternal()
@@ -221,6 +256,8 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
         if (_playerInputWasEnabled)
             InputManager.InputActions.Player.Enable();
         _playerInputWasEnabled = false;
+        _onSelected = null;
+        _onReturnToSettlement = null;
     }
 
     private void Build()
@@ -279,6 +316,36 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
         _choices.style.flexGrow = 1;
         _choices.style.minHeight = 0;
         panel.Add(_choices);
+
+        _returnButton = CreateReturnToSettlementButton();
+        _returnButton.clicked += CompleteReturnToSettlement;
+        _overlay.Add(_returnButton);
+    }
+
+    public static Button CreateReturnToSettlementButton()
+    {
+        var button = new Button { name = "ReturnToSettlementButton", text = "В поселение" };
+        button.style.position = Position.Absolute;
+        button.style.right = ReturnButtonInset;
+        button.style.bottom = ReturnButtonInset;
+        button.style.width = ReturnButtonWidth;
+        button.style.height = ReturnButtonHeight;
+        button.style.flexShrink = 0;
+        button.style.marginLeft = 0;
+        button.style.marginRight = 0;
+        button.style.marginTop = 0;
+        button.style.marginBottom = 0;
+        button.style.paddingLeft = 2;
+        button.style.paddingRight = 2;
+        button.style.paddingTop = 0;
+        button.style.paddingBottom = 0;
+        button.style.fontSize = 7;
+        button.style.unityFontStyleAndWeight = FontStyle.Bold;
+        button.style.unityTextAlign = TextAnchor.MiddleCenter;
+        button.style.color = PrimaryText;
+        button.style.backgroundColor = new Color(0.25f, 0.20f, 0.14f, 1f);
+        SetSquareBorder(button, 1f, GoldHighlight);
+        return button;
     }
 
     private static void SetSquareBorder(VisualElement element, float width, Color color)

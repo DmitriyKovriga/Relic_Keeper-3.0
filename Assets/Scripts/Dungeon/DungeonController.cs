@@ -40,6 +40,8 @@ namespace Scripts.Dungeon
         private DungeonModifierSO _currentRoomModifier;
         private DungeonModifierContext _currentModifiers = new DungeonModifierContext();
         private bool _modifierChoiceOpen;
+        private bool _continueChoiceOpen;
+        private int _roomsCompletedBeforeSegment;
 
         public DungeonModifierContext CurrentModifiers => _currentModifiers;
 
@@ -110,7 +112,13 @@ namespace Scripts.Dungeon
                 {
                     _modifierChoiceOpen = false;
                     BeginDungeon(dungeon, selected);
-                });
+                },
+                CancelPendingDungeonEntry);
+        }
+
+        private void CancelPendingDungeonEntry()
+        {
+            _modifierChoiceOpen = false;
         }
 
         private void BeginDungeon(DungeonDataSO dungeon, DungeonModifierSO selectedEntryModifier)
@@ -123,6 +131,9 @@ namespace Scripts.Dungeon
             _selectedEntryModifier = selectedEntryModifier;
             _currentRoomModifier = null;
             _currentModifiers = new DungeonModifierContext();
+            _roomsCompletedBeforeSegment = 0;
+            _continueChoiceOpen = false;
+            DungeonRunContinueUI.HideIfVisible();
             SkillProjectile.DespawnAll();
             BuildRoomSequence();
             _currentRoomIndex = 0;
@@ -166,9 +177,13 @@ namespace Scripts.Dungeon
             _currentRoomModifier = null;
             _currentModifiers = new DungeonModifierContext();
             _modifierChoiceOpen = false;
+            _continueChoiceOpen = false;
+            _roomsCompletedBeforeSegment = 0;
             _roomSequence.Clear();
             RestoreHubBackground();
             RestoreHubCameraBounds();
+            DungeonModifierChoiceUI.HideIfVisible();
+            DungeonRunContinueUI.HideIfVisible();
             DungeonModifierHud.GetOrCreate().Hide();
             SetHubActive(true);
         }
@@ -282,6 +297,7 @@ namespace Scripts.Dungeon
             if (room != null && _playerTransform != null)
             {
                 ApplyRoomCameraBounds(room);
+                room.SetRuntimeLevel(ResolveCurrentLocationLevel());
                 _currentModifiers = BuildModifierContext(room);
                 room.OnRoomEntered(_playerTransform, _currentModifiers);
                 RefreshModifierHud(room);
@@ -315,12 +331,12 @@ namespace Scripts.Dungeon
                 return;
             }
 
-            if (_modifierChoiceOpen)
+            if (_modifierChoiceOpen || _continueChoiceOpen)
                 return;
 
             if (_currentRoomIndex + 1 >= _roomSequence.Count)
             {
-                ReturnToHub();
+                ShowContinueOrReturnChoice();
                 return;
             }
 
@@ -341,7 +357,49 @@ namespace Scripts.Dungeon
                 {
                     _modifierChoiceOpen = false;
                     AdvanceToNextRoom(selected);
-                });
+                },
+                AbortDungeonRunFromChoice);
+        }
+
+        private void AbortDungeonRunFromChoice()
+        {
+            _modifierChoiceOpen = false;
+            ReturnToHub();
+        }
+
+        private void ShowContinueOrReturnChoice()
+        {
+            if (_continueChoiceOpen)
+                return;
+
+            _continueChoiceOpen = true;
+            DungeonRunContinueUI.GetOrCreate().Show(
+                "Идти дальше или вернуться в поселение?",
+                ContinueEndlessSegment,
+                AbortDungeonRunFromContinue);
+        }
+
+        private void AbortDungeonRunFromContinue()
+        {
+            _continueChoiceOpen = false;
+            ReturnToHub();
+        }
+
+        private void ContinueEndlessSegment()
+        {
+            _continueChoiceOpen = false;
+            if (_currentDungeon == null)
+            {
+                ReturnToHub();
+                return;
+            }
+
+            AutoSaveForLocationTransition("continue dungeon");
+            _roomsCompletedBeforeSegment += _roomSequence.Count;
+            _currentRoomModifier = null;
+            BuildRoomSequence();
+            _currentRoomIndex = 0;
+            LoadCurrentRoom();
         }
 
         private void AdvanceToNextRoom(DungeonModifierSO selectedModifier)
@@ -349,7 +407,7 @@ namespace Scripts.Dungeon
             int nextRoomIndex = _currentRoomIndex + 1;
             if (nextRoomIndex >= _roomSequence.Count)
             {
-                ReturnToHub();
+                ShowContinueOrReturnChoice();
                 return;
             }
 
@@ -372,6 +430,8 @@ namespace Scripts.Dungeon
             }
 
             _currentRoomModifier?.ApplyTo(context);
+            context.Add(DungeonRunProgress.CreateLocationLevelLootModifier(
+                room != null ? room.RoomLevel : ResolveCurrentLocationLevel()));
             return context;
         }
 
@@ -380,6 +440,9 @@ namespace Scripts.Dungeon
             var global = new List<string>();
             AddModifierNames(global, _currentDungeon != null ? _currentDungeon.BuiltInModifiers : null);
             AddModifierName(global, _selectedEntryModifier);
+            DungeonRunProgress.AddLocationLevelLootDescriptions(
+                global,
+                room != null ? room.RoomLevel : ResolveCurrentLocationLevel());
 
             var local = new List<string>();
             if (room != null)
@@ -391,11 +454,19 @@ namespace Scripts.Dungeon
 
             DungeonModifierHud.GetOrCreate().Show(
                 _currentDungeon != null ? _currentDungeon.DisplayName : "Подземелье",
-                _currentRoomIndex + 1,
-                _roomSequence.Count,
-                room != null ? room.RoomLevel : 1,
+                DungeonRunProgress.ResolveDisplayedRoomNumber(_roomsCompletedBeforeSegment, _currentRoomIndex),
+                DungeonRunProgress.ResolveDisplayedRoomCount(_roomsCompletedBeforeSegment, _roomSequence.Count),
+                room != null ? room.RoomLevel : ResolveCurrentLocationLevel(),
                 global,
                 local);
+        }
+
+        private int ResolveCurrentLocationLevel()
+        {
+            return DungeonRunProgress.ResolveLocationLevel(
+                _currentDungeon != null ? _currentDungeon.MinLevel : 1,
+                _roomsCompletedBeforeSegment,
+                _currentRoomIndex);
         }
 
         private static void ApplyModifiers(DungeonModifierContext context, IReadOnlyList<DungeonModifierSO> modifiers)

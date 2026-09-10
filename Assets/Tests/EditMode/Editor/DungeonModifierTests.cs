@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Scripts.Dungeon;
 using Scripts.Enemies;
 using UnityEngine;
+using UnityEngine.UIElements;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -165,6 +166,95 @@ namespace RelicKeeper.Tests.EditMode
         {
             Assert.That(RoomClearedBanner.LocalizationKey, Is.EqualTo("dungeon.ui.roomCleared"));
             Assert.That(RoomClearedBanner.FallbackText, Is.EqualTo("Room Cleared"));
+        }
+
+        [Test]
+        public void LocationLevel_ScalesWithDungeonMinLevelAndCompletedRooms()
+        {
+            Assert.That(DungeonRunProgress.ResolveLocationLevel(1, 0, 0), Is.EqualTo(1));
+            Assert.That(DungeonRunProgress.ResolveLocationLevel(1, 0, 9), Is.EqualTo(10));
+            Assert.That(DungeonRunProgress.ResolveLocationLevel(1, 10, 0), Is.EqualTo(11));
+            Assert.That(DungeonRunProgress.ResolveLocationLevel(5, 10, 4), Is.EqualTo(19));
+        }
+
+        [Test]
+        public void LocationLevel_AddsOnePercentLootRarityAndQuantityPerLevel()
+        {
+            var firstRoom = new DungeonModifierContext();
+            firstRoom.Add(DungeonRunProgress.CreateLocationLevelLootModifier(1));
+            Assert.That(firstRoom.LootDropChancePercent, Is.EqualTo(1f));
+            Assert.That(firstRoom.LootRarityPercent, Is.EqualTo(1f));
+            Assert.That(firstRoom.LootDropChanceMultiplier, Is.EqualTo(1.01f).Within(0.0001f));
+            Assert.That(firstRoom.LootRarityMultiplier, Is.EqualTo(1.01f).Within(0.0001f));
+
+            var endlessRoom = new DungeonModifierContext();
+            endlessRoom.Add(DungeonRunProgress.CreateLocationLevelLootModifier(11));
+            Assert.That(endlessRoom.LootDropChancePercent, Is.EqualTo(11f));
+            Assert.That(endlessRoom.LootRarityPercent, Is.EqualTo(11f));
+            Assert.That(endlessRoom.LootDropChanceMultiplier, Is.EqualTo(1.11f).Within(0.0001f));
+            Assert.That(endlessRoom.LootRarityMultiplier, Is.EqualTo(1.11f).Within(0.0001f));
+        }
+
+        [Test]
+        public void LocationLevelLoot_AppearsInHudModifierDescriptions()
+        {
+            var lines = new List<string>();
+            DungeonRunProgress.AddLocationLevelLootDescriptions(lines, 11);
+
+            Assert.That(lines, Does.Contain("Шанс выпадения предметов +11%"));
+            Assert.That(lines, Does.Contain("Редкость предметов +11%"));
+        }
+
+        [Test]
+        public void EndlessSegment_DisplaysRoomsPastTheFirstTen()
+        {
+            Assert.That(DungeonRunProgress.ResolveDisplayedRoomNumber(0, 0), Is.EqualTo(1));
+            Assert.That(DungeonRunProgress.ResolveDisplayedRoomNumber(10, 0), Is.EqualTo(11));
+            Assert.That(DungeonRunProgress.ResolveDisplayedRoomCount(10, 10), Is.EqualTo(20));
+        }
+
+        [Test]
+        public void RoomController_SetRuntimeLevel_OverridesPrefabLevel()
+        {
+            var host = new GameObject("RuntimeLevelRoom");
+            try
+            {
+                RoomController room = host.AddComponent<RoomController>();
+                room.SetRuntimeLevel(11);
+                Assert.That(room.RoomLevel, Is.EqualTo(11));
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+            }
+        }
+
+        [Test]
+        public void ReturnToSettlementButton_FitsBottomRightOfPixelCanvas()
+        {
+            Button button = DungeonModifierChoiceUI.CreateReturnToSettlementButton();
+
+            Assert.That(DungeonModifierChoiceUI.ReturnButtonWidth + DungeonModifierChoiceUI.ReturnButtonInset, Is.LessThanOrEqualTo(480));
+            Assert.That(DungeonModifierChoiceUI.ReturnButtonHeight + DungeonModifierChoiceUI.ReturnButtonInset, Is.LessThanOrEqualTo(270));
+            Assert.That(button.style.right.value.value, Is.EqualTo(DungeonModifierChoiceUI.ReturnButtonInset));
+            Assert.That(button.style.bottom.value.value, Is.EqualTo(DungeonModifierChoiceUI.ReturnButtonInset));
+            Assert.That(button.style.width.value.value, Is.EqualTo(DungeonModifierChoiceUI.ReturnButtonWidth));
+            Assert.That(button.style.height.value.value, Is.EqualTo(DungeonModifierChoiceUI.ReturnButtonHeight));
+            Assert.That(button.text, Is.EqualTo("В поселение"));
+        }
+
+        [Test]
+        public void ContinueRunWindow_FitsPixelCanvasAndExposesBothChoices()
+        {
+            VisualElement window = DungeonRunContinueUI.CreateWindow(out Button continueButton, out Button returnButton);
+
+            Assert.That(window.style.width.value.value, Is.EqualTo(DungeonRunContinueUI.WindowWidth));
+            Assert.That(window.style.height.value.value, Is.EqualTo(DungeonRunContinueUI.WindowHeight));
+            Assert.That(DungeonRunContinueUI.WindowWidth, Is.LessThanOrEqualTo(480));
+            Assert.That(DungeonRunContinueUI.WindowHeight, Is.LessThanOrEqualTo(270));
+            Assert.That(continueButton.text, Is.EqualTo("Дальше"));
+            Assert.That(returnButton.text, Is.EqualTo("В поселение"));
+            Assert.That((DungeonRunContinueUI.ButtonWidth * 2) + 8, Is.LessThanOrEqualTo(DungeonRunContinueUI.WindowWidth));
         }
     }
 }
