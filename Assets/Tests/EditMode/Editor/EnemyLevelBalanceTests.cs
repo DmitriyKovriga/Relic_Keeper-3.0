@@ -114,5 +114,60 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(EnemyLevelBalance.TempoPercent(50), Is.EqualTo(33f).Within(0.0001f));
             Assert.That(EnemyLevelBalance.ScaleDurationByActionSpeed(1f, 1.29f), Is.EqualTo(1f / 1.29f).Within(0.0001f));
         }
+
+        [Test]
+        public void ExperienceReward_IsOneThirdOfPreviousCurve()
+        {
+            Assert.That(EnemyLevelBalance.ExperienceRewardScale, Is.EqualTo(1f / 3f).Within(0.0001f));
+
+            var data = ScriptableObject.CreateInstance<EnemyDataSO>();
+            try
+            {
+                data.XPReward = 30f;
+                data.LegacyGrowthPerLevelPercent = 25f;
+                Assert.That(EnemyLevelBalance.ResolveExperienceReward(data, 1, 1f, false), Is.EqualTo(10f).Within(0.01f));
+                Assert.That(
+                    EnemyLevelBalance.ResolveExperienceReward(data, 23, 1f, false),
+                    Is.EqualTo(30f * EnemyLevelBalance.PercentMultiplier(23, 25f) / 3f).Within(0.01f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(data);
+            }
+        }
+
+        [Test]
+        public void TrainingDummy_GivesNoExperienceAndDoesNotScaleIt()
+        {
+            var data = ScriptableObject.CreateInstance<EnemyDataSO>();
+            try
+            {
+                data.XPReward = 25f;
+                data.LegacyGrowthPerLevelPercent = 25f;
+                Assert.That(EnemyLevelBalance.ResolveExperienceReward(data, 1, 1.3f, true), Is.Zero);
+                Assert.That(EnemyLevelBalance.ResolveExperienceReward(data, 30, 2f, true), Is.Zero);
+
+                data.XPReward = 0f;
+                Assert.That(EnemyLevelBalance.ResolveExperienceReward(data, 10, 1f, false), Is.Zero);
+            }
+            finally
+            {
+                Object.DestroyImmediate(data);
+            }
+        }
+
+        [Test]
+        public void DummyDpsWindow_AveragesHitsOverTenSeconds()
+        {
+            var window = new DummyDpsWindow();
+            window.Add(0f, 100f);
+            Assert.That(window.Evaluate(0f), Is.EqualTo(10f).Within(0.001f));
+
+            window.Add(1f, 50f);
+            Assert.That(window.Evaluate(1f), Is.EqualTo(15f).Within(0.001f));
+            Assert.That(window.Evaluate(10.01f), Is.EqualTo(5f).Within(0.001f));
+            Assert.That(window.Evaluate(11.01f), Is.Zero);
+            Assert.That(DummyDpsMeter.FormatDps(12.4f), Is.EqualTo("12.4/с"));
+        }
     }
 }

@@ -34,6 +34,7 @@ namespace Scripts.Enemies
             _health = GetComponent<EnemyHealth>();
             _stats = GetComponent<EnemyStats>();
             PreventPermanentDeath();
+            EnsureDpsMeter();
 
             if (!Instances.Contains(this))
                 Instances.Add(this);
@@ -124,6 +125,12 @@ namespace Scripts.Enemies
         {
             if (_health != null)
                 _health.DestroyOnDeath = false;
+        }
+
+        private void EnsureDpsMeter()
+        {
+            if (GetComponent<DummyDpsMeter>() == null)
+                gameObject.AddComponent<DummyDpsMeter>();
         }
     }
 }

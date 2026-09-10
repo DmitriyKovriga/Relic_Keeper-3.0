@@ -279,6 +279,7 @@ namespace Scripts.Enemies
         public EnemyAnimationConfig Animation = new EnemyAnimationConfig();
 
         [Header("Rewards")]
+        [Tooltip("0 = не даёт опыт. Манекен должен оставаться на нуле и не скейлиться.")]
         public float XPReward = 10f;
 
         [Tooltip("Множитель шанса выпадения предмета. 1 = базовый шанс, 0.5 = вдвое реже, 2 = вдвое чаще, 0 = без предметов.")]

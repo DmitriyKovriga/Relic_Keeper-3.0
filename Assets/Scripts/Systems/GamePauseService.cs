@@ -6,7 +6,8 @@ public enum GamePauseReason
 {
     PauseMenu,
     Inventory,
-    DungeonChoice
+    DungeonChoice,
+    GameWindow
 }
 
 /// <summary>

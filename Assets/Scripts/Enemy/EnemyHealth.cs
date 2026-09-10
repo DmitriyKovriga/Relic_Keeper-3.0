@@ -31,6 +31,7 @@ namespace Scripts.Enemies
 
         public event System.Action<EnemyHealth> OnDeath;
         public event System.Action<float, float> OnHealthChanged;
+        public event System.Action<float> OnDamageReceived;
 
         private void Awake()
         {
@@ -116,6 +117,9 @@ namespace Scripts.Enemies
             }
             TryPlayHitReaction(finalDamage);
 
+            if (finalDamage > 0f)
+                OnDamageReceived?.Invoke(finalDamage);
+
             if (FloatingTextManager.Instance != null && finalDamage > 0f)
             {
                 string damageType = ResolveDominantDamageType(physDmg, fireDmg, coldDmg, lightDmg);
@@ -175,6 +179,7 @@ namespace Scripts.Enemies
             if (FloatingTextManager.Instance != null)
                 FloatingTextManager.Instance.Show(finalDamage, false, damageType, transform.position);
 
+            OnDamageReceived?.Invoke(finalDamage);
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
 
             if (_currentHealth <= 0)

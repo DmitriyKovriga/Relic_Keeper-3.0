@@ -21,9 +21,8 @@ namespace Scripts.Enemies
             float experienceMultiplier = DungeonController.Instance != null && DungeonController.Instance.CurrentModifiers != null
                 ? DungeonController.Instance.CurrentModifiers.ExperienceMultiplier
                 : 1f;
-            ExperienceReward = data != null
-                ? data.XPReward * EnemyLevelBalance.PercentMultiplier(Level, growthPercent) * experienceMultiplier
-                : 0f;
+            bool isTrainingDummy = GetComponent<DummyEvolution>() != null;
+            ExperienceReward = EnemyLevelBalance.ResolveExperienceReward(data, Level, experienceMultiplier, isTrainingDummy);
 
             if (data != null && data.Stats != null && data.Stats.Count > 0)
             {

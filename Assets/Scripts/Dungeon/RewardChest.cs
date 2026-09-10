@@ -49,8 +49,8 @@ namespace Scripts.Dungeon
 
         private void Awake()
         {
-            ConfigurePhysics();
             EnsurePlaceholderVisual();
+            ConfigurePhysics();
         }
 
         private void ConfigurePhysics()
@@ -62,6 +62,7 @@ namespace Scripts.Dungeon
             Rigidbody2D body = GetComponent<Rigidbody2D>();
             if (body == null)
                 body = gameObject.AddComponent<Rigidbody2D>();
+            body.simulated = true;
             body.bodyType = RigidbodyType2D.Dynamic;
             body.gravityScale = GravityScale;
             body.freezeRotation = true;
@@ -75,6 +76,30 @@ namespace Scripts.Dungeon
             box.isTrigger = false;
             if (box.size.x <= 0.01f || box.size.y <= 0.01f)
                 box.size = Vector2.one;
+
+            Physics2D.SyncTransforms();
+            SnapToGround(box, body);
+            body.WakeUp();
+        }
+
+        private void SnapToGround(BoxCollider2D box, Rigidbody2D body)
+        {
+            int groundMask = 1 << LayerMask.NameToLayer("Ground");
+            int oneWayPlatformLayer = LayerMask.NameToLayer("OneWayPlatform");
+            if (oneWayPlatformLayer >= 0)
+                groundMask |= 1 << oneWayPlatformLayer;
+
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 6f, groundMask);
+            if (hit.collider == null || hit.normal.y < 0.55f)
+                return;
+
+            float deltaY = hit.point.y + 0.01f - box.bounds.min.y;
+            if (deltaY >= -0.001f)
+                return;
+
+            transform.position += Vector3.up * deltaY;
+            body.linearVelocity = Vector2.zero;
+            Physics2D.SyncTransforms();
         }
 
         public string GetPrompt() => "Открыть сундук";
