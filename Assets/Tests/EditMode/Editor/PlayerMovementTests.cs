@@ -317,6 +317,41 @@ namespace RelicKeeper.Tests.EditMode
             finally { Physics2D.simulationMode = originalMode; }
         }
 
+        [Test]
+        public void DropThroughKeepsCollisionIgnoredUntilPlayerClearsOneTile()
+        {
+            var bodyCollider = _player.AddComponent<BoxCollider2D>();
+            bodyCollider.size = new Vector2(0.6f, 1.2f);
+            bodyCollider.offset = new Vector2(0f, 0.6f);
+            Set("_mainCollider", bodyCollider);
+            _player.transform.position = Vector3.zero;
+            Physics2D.SyncTransforms();
+
+            var surfaces = Get<System.Collections.Generic.Dictionary<Collider2D, float>>("_ignoredPlatformSurfaceY");
+            var dummyPlatform = _player.AddComponent<CircleCollider2D>();
+            dummyPlatform.radius = 0.01f;
+            dummyPlatform.isTrigger = true;
+            surfaces[dummyPlatform] = 0f;
+
+            var method = typeof(PlayerMovement).GetMethod(
+                "IsBelowDroppedPlatformSurface",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(method, Is.Not.Null);
+
+            Assert.That((bool)method.Invoke(_movement, new object[] { dummyPlatform }), Is.False,
+                "Head still overlapping the dropped tile must not restore collision.");
+
+            _player.transform.position = new Vector3(0f, -1.25f, 0f);
+            Physics2D.SyncTransforms();
+            Assert.That((bool)method.Invoke(_movement, new object[] { dummyPlatform }), Is.False,
+                "Barely below the top surface is still inside a 1-tile platform.");
+
+            _player.transform.position = new Vector3(0f, -2.4f, 0f);
+            Physics2D.SyncTransforms();
+            Assert.That((bool)method.Invoke(_movement, new object[] { dummyPlatform }), Is.True,
+                "After leaving one full tile the dropped platform can collide again.");
+        }
+
         private void Set(string name, object value) => typeof(PlayerMovement)
             .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(_movement, value);
         private T Get<T>(string name) => (T)typeof(PlayerMovement)

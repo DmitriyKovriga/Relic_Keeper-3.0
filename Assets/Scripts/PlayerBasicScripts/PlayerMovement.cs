@@ -12,6 +12,14 @@ public class PlayerMovement : MonoBehaviour
 {
     private const float DropThroughFailsafeDuration = 0.55f;
     private const float DefaultDropThroughDownwardVelocity = -3f;
+    private const float DropThroughStartNudge = 0.16f;
+    /// <summary>
+    /// One-way platforms are one tile thick. Collision must stay ignored until the whole body
+    /// leaves that tile; restoring at the top surface traps the player inside it.
+    /// A 3-tile gap below is still far enough to collide again.
+    /// </summary>
+    private const float DropThroughPlatformThickness = 1f;
+    private const float DropThroughClearance = 0.08f;
     private const float OneWayGroundRaycastLift = 0.08f;
     private const float OneWayGroundProbeDistance = 0.18f;
     private const float OneWayGroundNormalThreshold = 0.6f;
@@ -536,7 +544,7 @@ public class PlayerMovement : MonoBehaviour
         _dropThroughEndTime = Time.time + Mathf.Max(DropThroughFailsafeDuration, _dropThroughDuration);
         _isGrounded = false;
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, Mathf.Min(_rb.linearVelocity.y, DefaultDropThroughDownwardVelocity));
-        transform.position += Vector3.down * 0.1f;
+        transform.position += Vector3.down * DropThroughStartNudge;
         return true;
     }
 
@@ -606,7 +614,7 @@ public class PlayerMovement : MonoBehaviour
         if (!_ignoredPlatformSurfaceY.TryGetValue(platform, out float surfaceY))
             return false;
 
-        return _mainCollider.bounds.max.y < surfaceY - 0.02f;
+        return _mainCollider.bounds.max.y < surfaceY - DropThroughPlatformThickness - DropThroughClearance;
     }
 
     private void EnsureOneWayPlatformMask()
