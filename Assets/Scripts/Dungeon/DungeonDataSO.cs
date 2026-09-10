@@ -25,6 +25,16 @@ namespace Scripts.Dungeon
         [Tooltip("Boss room prefab path in Resources.")]
         [SerializeField] private string _bossRoomPrefabPath;
 
+        [Header("Dungeon Modifiers")]
+        [Tooltip("Всегда действуют во всех комнатах этого данжа.")]
+        [SerializeField] private List<DungeonModifierSO> _builtInModifiers = new List<DungeonModifierSO>();
+        [Tooltip("Из этого пула игрок выбирает один глобальный модификатор при входе. Пустой список отключает выбор.")]
+        [SerializeField] private List<DungeonModifierSO> _entryModifierPool = new List<DungeonModifierSO>();
+        [Tooltip("Из этого пула предлагаются три усиления перед следующей комнатой.")]
+        [SerializeField] private List<DungeonModifierSO> _roomModifierPool = new List<DungeonModifierSO>();
+        [SerializeField, Range(1, 5)] private int _entryChoiceCount = 3;
+        [SerializeField, Range(1, 5)] private int _roomChoiceCount = 3;
+
         [Header("Presentation")]
         [Tooltip("Background sprite path in Resources. Example: Sprites/WallAndGrounds/MortfallDungeon/MortFallAssets/Mortfall-background")]
         [SerializeField] private string _backgroundSpriteResourcePath;
@@ -32,6 +42,11 @@ namespace Scripts.Dungeon
         public IReadOnlyList<string> NormalRoomPrefabPaths => _normalRoomPrefabPaths;
         public string BossRoomPrefabPath => _bossRoomPrefabPath;
         public string BackgroundSpriteResourcePath => _backgroundSpriteResourcePath;
+        public IReadOnlyList<DungeonModifierSO> BuiltInModifiers => _builtInModifiers;
+        public IReadOnlyList<DungeonModifierSO> EntryModifierPool => _entryModifierPool;
+        public IReadOnlyList<DungeonModifierSO> RoomModifierPool => _roomModifierPool;
+        public int EntryChoiceCount => Mathf.Max(1, _entryChoiceCount);
+        public int RoomChoiceCount => Mathf.Max(1, _roomChoiceCount);
 
         public GameObject LoadRoomPrefab(string path)
         {

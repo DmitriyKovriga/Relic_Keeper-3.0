@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Serialization;
+using System.Collections.Generic;
+using Scripts.Enemies;
 
 namespace Scripts.Dungeon
 {
@@ -12,6 +14,10 @@ namespace Scripts.Dungeon
         [Header("Config")]
         [Tooltip("Room level used by enemy spawners.")]
         [SerializeField, Range(1, 100)] private int _roomLevel = 1;
+        [Tooltip("Числовые модификаторы, которые всегда принадлежат только этой комнате. Отрицательные значения уменьшают параметр.")]
+        [SerializeField] private DungeonModifierValues _roomModifiers = new DungeonModifierValues();
+        [Tooltip("Дополнительные data-driven модификаторы, всегда встроенные в эту комнату.")]
+        [SerializeField] private List<DungeonModifierSO> _builtInModifiers = new List<DungeonModifierSO>();
 
         [Header("References")]
         [Tooltip("Player spawn point inside this room.")]
@@ -29,8 +35,13 @@ namespace Scripts.Dungeon
         private EnemySpawner[] _spawners;
         private DungeonPortal[] _portals;
         private PolygonCollider2D _runtimeCameraBounds;
+        private readonly List<EnemyHealth> _livingEnemies = new List<EnemyHealth>();
+        private DungeonModifierContext _activeModifiers;
+        private bool _roomClearRewardsSpawned;
 
         public int RoomLevel => _roomLevel;
+        public DungeonModifierValues RoomModifiers => _roomModifiers;
+        public IReadOnlyList<DungeonModifierSO> BuiltInModifiers => _builtInModifiers;
         public Collider2D CameraBounds => ResolveCameraBounds();
 
         public Vector3 PlayerSpawnPosition => _playerSpawnPoint != null
@@ -55,17 +66,134 @@ namespace Scripts.Dungeon
 
         public void OnRoomEntered(Transform playerTransform)
         {
+            OnRoomEntered(playerTransform, new DungeonModifierContext());
+        }
+
+        public void OnRoomEntered(Transform playerTransform, DungeonModifierContext modifiers)
+        {
             if (playerTransform != null)
             {
                 Vector3 pos = PlayerSpawnPosition;
                 playerTransform.position = new Vector3(pos.x, pos.y, playerTransform.position.z);
             }
 
+            _activeModifiers = modifiers ?? new DungeonModifierContext();
+            _livingEnemies.Clear();
+            _roomClearRewardsSpawned = false;
+
+            int totalSpawnSlots = 0;
             foreach (var spawner in _spawners)
             {
                 if (spawner != null)
-                    spawner.Spawn(_roomLevel);
+                    totalSpawnSlots += spawner.GetScaledSpawnCount(_activeModifiers.EnemyCountMultiplier);
             }
+
+            int chestCount = 0;
+            if ((_activeModifiers.RewardEffects & DungeonRewardEffect.SpawnRewardChests) != 0 && totalSpawnSlots > 0)
+            {
+                int minimum = Mathf.Clamp(_activeModifiers.MinimumChests, 0, totalSpawnSlots);
+                int maximum = Mathf.Clamp(Mathf.Max(minimum, _activeModifiers.MaximumChests), minimum, totalSpawnSlots);
+                chestCount = Random.Range(minimum, maximum + 1);
+            }
+
+            List<int> chestSlots = PickUniqueSlots(totalSpawnSlots, chestCount);
+            int globalSlot = 0;
+            foreach (var spawner in _spawners)
+            {
+                if (spawner == null)
+                    continue;
+
+                int count = spawner.GetScaledSpawnCount(_activeModifiers.EnemyCountMultiplier);
+                int replacements = 0;
+                for (int i = 0; i < count; i++, globalSlot++)
+                {
+                    if (chestSlots.Contains(globalSlot))
+                        replacements++;
+                }
+
+                List<EnemyHealth> spawned = spawner.Spawn(
+                    _roomLevel,
+                    _activeModifiers.EnemyCountMultiplier,
+                    replacements);
+                for (int i = 0; i < spawned.Count; i++)
+                {
+                    EnemyHealth health = spawned[i];
+                    if (health == null)
+                        continue;
+
+                    _livingEnemies.Add(health);
+                    health.OnDeath += OnSpawnedEnemyDeath;
+                }
+            }
+
+            if (_livingEnemies.Count == 0)
+                SpawnRoomClearRewards();
+        }
+
+        private void OnDestroy()
+        {
+            for (int i = 0; i < _livingEnemies.Count; i++)
+            {
+                if (_livingEnemies[i] != null)
+                    _livingEnemies[i].OnDeath -= OnSpawnedEnemyDeath;
+            }
+        }
+
+        private void OnSpawnedEnemyDeath(EnemyHealth health)
+        {
+            if (health != null)
+                health.OnDeath -= OnSpawnedEnemyDeath;
+            _livingEnemies.Remove(health);
+            if (_livingEnemies.Count == 0)
+                SpawnRoomClearRewards();
+        }
+
+        private void SpawnRoomClearRewards()
+        {
+            if (_roomClearRewardsSpawned || _activeModifiers == null)
+                return;
+
+            _roomClearRewardsSpawned = true;
+            Vector2 position = ResolveRewardPosition();
+            DungeonRewardEffect effects = _activeModifiers.RewardEffects;
+            if ((effects & DungeonRewardEffect.GuaranteedRareItem) != 0)
+                EnemyLootDropService.TrySpawnGuaranteedRare(position, _roomLevel, GuaranteedLootFilter.Any);
+            if ((effects & DungeonRewardEffect.GuaranteedRareWeapon) != 0)
+                EnemyLootDropService.TrySpawnGuaranteedRare(position + Vector2.right * 0.45f, _roomLevel, GuaranteedLootFilter.Weapon);
+            if ((effects & DungeonRewardEffect.GuaranteedRareEquipment) != 0)
+                EnemyLootDropService.TrySpawnGuaranteedRare(position + Vector2.left * 0.45f, _roomLevel, GuaranteedLootFilter.Armor);
+        }
+
+        private Vector2 ResolveRewardPosition()
+        {
+            if (_portals != null)
+            {
+                foreach (DungeonPortal portal in _portals)
+                {
+                    if (portal != null && portal.Type == PortalType.NextRoom)
+                        return portal.transform.position;
+                }
+            }
+
+            return PlayerSpawnPosition;
+        }
+
+        private static List<int> PickUniqueSlots(int total, int count)
+        {
+            var result = new List<int>();
+            var available = new List<int>(Mathf.Max(0, total));
+            for (int i = 0; i < total; i++)
+                available.Add(i);
+
+            count = Mathf.Clamp(count, 0, available.Count);
+            for (int i = 0; i < count; i++)
+            {
+                int index = Random.Range(0, available.Count);
+                result.Add(available[index]);
+                available.RemoveAt(index);
+            }
+
+            return result;
         }
 
         private Collider2D ResolveCameraBounds()

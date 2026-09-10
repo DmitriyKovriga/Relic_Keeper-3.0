@@ -50,14 +50,26 @@ namespace Scripts.Dungeon
         /// </summary>
         public void Spawn(int level)
         {
+            Spawn(level, 1f, 0);
+        }
+
+        public int GetScaledSpawnCount(float multiplier)
+        {
+            return Mathf.Max(0, Mathf.RoundToInt(_spawnCount * Mathf.Max(0f, multiplier)));
+        }
+
+        /// <summary>Spawns the scaled group and optionally replaces some enemy slots with reward chests.</summary>
+        public List<EnemyHealth> Spawn(int level, float countMultiplier, int chestReplacements)
+        {
+            var spawnedEnemies = new List<EnemyHealth>();
             if (_enemyEntries == null || _enemyEntries.Count == 0)
             {
                 Debug.LogWarning($"[EnemySpawner] {gameObject.name}: Нет Enemy Entries.");
-                return;
+                return spawnedEnemies;
             }
 
             if (_hasSpawned && _spawnOnRoomEnter)
-                return;
+                return spawnedEnemies;
 
             int totalWeight = 0;
             int validEntries = 0;
@@ -73,14 +85,23 @@ namespace Scripts.Dungeon
             if (validEntries == 0)
             {
                 Debug.LogWarning($"[EnemySpawner] {gameObject.name}: Нет валидных Enemy Entries (EnemyData = null).");
-                return;
+                return spawnedEnemies;
             }
 
             if (totalWeight <= 0)
                 totalWeight = validEntries;
 
-            for (int i = 0; i < _spawnCount; i++)
+            int spawnCount = GetScaledSpawnCount(countMultiplier);
+            int safeChestReplacements = Mathf.Clamp(chestReplacements, 0, spawnCount);
+            for (int i = 0; i < spawnCount; i++)
             {
+                Vector3 spawnPosition = transform.position + Vector3.right * (i * 0.15f);
+                if (i < safeChestReplacements)
+                {
+                    RewardChest.Spawn(spawnPosition, level, transform.parent);
+                    continue;
+                }
+
                 var data = PickRandomEnemy(totalWeight);
                 if (data == null)
                     continue;
@@ -92,11 +113,15 @@ namespace Scripts.Dungeon
                     continue;
                 }
 
-                var instance = Instantiate(prefabToSpawn, transform.position, Quaternion.identity, transform.parent);
+                var instance = Instantiate(prefabToSpawn, spawnPosition, Quaternion.identity, transform.parent);
                 instance.Setup(data, level);
+                EnemyHealth health = instance.GetComponent<EnemyHealth>();
+                if (health != null)
+                    spawnedEnemies.Add(health);
             }
 
             _hasSpawned = true;
+            return spawnedEnemies;
         }
 
         private EnemyDataSO PickRandomEnemy(int totalWeight)

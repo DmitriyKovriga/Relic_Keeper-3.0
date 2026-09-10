@@ -36,6 +36,12 @@ namespace Scripts.Dungeon
         private bool _backgroundPrepared;
         private Collider2D _hubCameraBounds;
         private GameObject _hubCameraBoundsObject;
+        private DungeonModifierSO _selectedEntryModifier;
+        private DungeonModifierSO _currentRoomModifier;
+        private DungeonModifierContext _currentModifiers = new DungeonModifierContext();
+        private bool _modifierChoiceOpen;
+
+        public DungeonModifierContext CurrentModifiers => _currentModifiers;
 
         private void Awake()
         {
@@ -86,8 +92,37 @@ namespace Scripts.Dungeon
                 return;
             }
 
+            if (_modifierChoiceOpen)
+                return;
+
+            List<DungeonModifierSO> choices = PickModifierChoices(dungeon.EntryModifierPool, dungeon.EntryChoiceCount);
+            if (choices.Count == 0)
+            {
+                BeginDungeon(dungeon, null);
+                return;
+            }
+
+            _modifierChoiceOpen = true;
+            DungeonModifierChoiceUI.GetOrCreate().Show(
+                $"{dungeon.DisplayName}: выберите условие данжа",
+                choices,
+                selected =>
+                {
+                    _modifierChoiceOpen = false;
+                    BeginDungeon(dungeon, selected);
+                });
+        }
+
+        private void BeginDungeon(DungeonDataSO dungeon, DungeonModifierSO selectedEntryModifier)
+        {
+            if (dungeon == null)
+                return;
+
             AutoSaveForLocationTransition("enter dungeon");
             _currentDungeon = dungeon;
+            _selectedEntryModifier = selectedEntryModifier;
+            _currentRoomModifier = null;
+            _currentModifiers = new DungeonModifierContext();
             SkillProjectile.DespawnAll();
             BuildRoomSequence();
             _currentRoomIndex = 0;
@@ -127,9 +162,14 @@ namespace Scripts.Dungeon
             }
 
             _currentDungeon = null;
+            _selectedEntryModifier = null;
+            _currentRoomModifier = null;
+            _currentModifiers = new DungeonModifierContext();
+            _modifierChoiceOpen = false;
             _roomSequence.Clear();
             RestoreHubBackground();
             RestoreHubCameraBounds();
+            DungeonModifierHud.GetOrCreate().Hide();
             SetHubActive(true);
         }
 
@@ -242,7 +282,9 @@ namespace Scripts.Dungeon
             if (room != null && _playerTransform != null)
             {
                 ApplyRoomCameraBounds(room);
-                room.OnRoomEntered(_playerTransform);
+                _currentModifiers = BuildModifierContext(room);
+                room.OnRoomEntered(_playerTransform, _currentModifiers);
+                RefreshModifierHud(room);
             }
             else
             {
@@ -273,15 +315,138 @@ namespace Scripts.Dungeon
                 return;
             }
 
-            AutoSaveForLocationTransition("enter next room");
-            _currentRoomIndex++;
-            if (_currentRoomIndex >= _roomSequence.Count)
+            if (_modifierChoiceOpen)
+                return;
+
+            if (_currentRoomIndex + 1 >= _roomSequence.Count)
             {
                 ReturnToHub();
                 return;
             }
 
+            List<DungeonModifierSO> choices = PickModifierChoices(
+                _currentDungeon != null ? _currentDungeon.RoomModifierPool : null,
+                _currentDungeon != null ? _currentDungeon.RoomChoiceCount : 3);
+            if (choices.Count == 0)
+            {
+                AdvanceToNextRoom(null);
+                return;
+            }
+
+            _modifierChoiceOpen = true;
+            DungeonModifierChoiceUI.GetOrCreate().Show(
+                "Выберите усиление следующей комнаты",
+                choices,
+                selected =>
+                {
+                    _modifierChoiceOpen = false;
+                    AdvanceToNextRoom(selected);
+                });
+        }
+
+        private void AdvanceToNextRoom(DungeonModifierSO selectedModifier)
+        {
+            int nextRoomIndex = _currentRoomIndex + 1;
+            if (nextRoomIndex >= _roomSequence.Count)
+            {
+                ReturnToHub();
+                return;
+            }
+
+            AutoSaveForLocationTransition("enter next room");
+            _currentRoomModifier = selectedModifier;
+            _currentRoomIndex = nextRoomIndex;
             LoadCurrentRoom();
+        }
+
+        private DungeonModifierContext BuildModifierContext(RoomController room)
+        {
+            var context = new DungeonModifierContext();
+            ApplyModifiers(context, _currentDungeon != null ? _currentDungeon.BuiltInModifiers : null);
+            _selectedEntryModifier?.ApplyTo(context);
+
+            if (room != null)
+            {
+                context.Add(room.RoomModifiers);
+                ApplyModifiers(context, room.BuiltInModifiers);
+            }
+
+            _currentRoomModifier?.ApplyTo(context);
+            return context;
+        }
+
+        private void RefreshModifierHud(RoomController room)
+        {
+            var global = new List<string>();
+            AddModifierNames(global, _currentDungeon != null ? _currentDungeon.BuiltInModifiers : null);
+            AddModifierName(global, _selectedEntryModifier);
+
+            var local = new List<string>();
+            if (room != null)
+            {
+                room.RoomModifiers?.AddDescriptions(local);
+                AddModifierNames(local, room.BuiltInModifiers);
+            }
+            AddModifierName(local, _currentRoomModifier);
+
+            DungeonModifierHud.GetOrCreate().Show(
+                _currentDungeon != null ? _currentDungeon.DisplayName : "Подземелье",
+                _currentRoomIndex + 1,
+                _roomSequence.Count,
+                room != null ? room.RoomLevel : 1,
+                global,
+                local);
+        }
+
+        private static void ApplyModifiers(DungeonModifierContext context, IReadOnlyList<DungeonModifierSO> modifiers)
+        {
+            if (context == null || modifiers == null)
+                return;
+
+            for (int i = 0; i < modifiers.Count; i++)
+                modifiers[i]?.ApplyTo(context);
+        }
+
+        private static void AddModifierNames(List<string> target, IReadOnlyList<DungeonModifierSO> modifiers)
+        {
+            if (target == null || modifiers == null)
+                return;
+
+            for (int i = 0; i < modifiers.Count; i++)
+                AddModifierName(target, modifiers[i]);
+        }
+
+        private static void AddModifierName(List<string> target, DungeonModifierSO modifier)
+        {
+            if (target == null || modifier == null)
+                return;
+
+            modifier.AddHudDescriptions(target);
+        }
+
+        internal static List<DungeonModifierSO> PickModifierChoices(IReadOnlyList<DungeonModifierSO> pool, int count)
+        {
+            var available = new List<DungeonModifierSO>();
+            if (pool != null)
+            {
+                for (int i = 0; i < pool.Count; i++)
+                {
+                    DungeonModifierSO modifier = pool[i];
+                    if (modifier != null && !available.Contains(modifier))
+                        available.Add(modifier);
+                }
+            }
+
+            int targetCount = Mathf.Clamp(count, 0, available.Count);
+            var result = new List<DungeonModifierSO>(targetCount);
+            for (int i = 0; i < targetCount; i++)
+            {
+                int index = UnityEngine.Random.Range(0, available.Count);
+                result.Add(available[index]);
+                available.RemoveAt(index);
+            }
+
+            return result;
         }
 
         private static void AutoSaveForLocationTransition(string reason)

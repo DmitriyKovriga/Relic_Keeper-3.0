@@ -94,7 +94,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _portalType: 1
-  _interactPrompt: "\u0412\u044B\u0439\u0442\u0438"
+  _interactPrompt: "\u0412\u044B\u0431\u0440\u0430\u0442\u044C \u0443\u0441\u0438\u043B\u0435\u043D\u0438\u0435"
   _isActive: 1
   _autoFixSpriteOrder: 1
   _autoFixSpriteLayer: 1

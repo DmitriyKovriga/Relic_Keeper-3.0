@@ -30,4 +30,25 @@ MonoBehaviour:
   - Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_009.prefab
   - Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_010.prefab
   _bossRoomPrefabPath: Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_003.prefab
+  _builtInModifiers:
+  - {fileID: 11400000, guid: ab000000000000000000000000000011, type: 2}
+  _entryModifierPool:
+  - {fileID: 11400000, guid: a1000000000000000000000000000001, type: 2}
+  - {fileID: 11400000, guid: a2000000000000000000000000000002, type: 2}
+  - {fileID: 11400000, guid: a3000000000000000000000000000003, type: 2}
+  - {fileID: 11400000, guid: a4000000000000000000000000000004, type: 2}
+  - {fileID: 11400000, guid: a6000000000000000000000000000006, type: 2}
+  _roomModifierPool:
+  - {fileID: 11400000, guid: a1000000000000000000000000000001, type: 2}
+  - {fileID: 11400000, guid: a2000000000000000000000000000002, type: 2}
+  - {fileID: 11400000, guid: a3000000000000000000000000000003, type: 2}
+  - {fileID: 11400000, guid: a4000000000000000000000000000004, type: 2}
+  - {fileID: 11400000, guid: a5000000000000000000000000000005, type: 2}
+  - {fileID: 11400000, guid: a6000000000000000000000000000006, type: 2}
+  - {fileID: 11400000, guid: a7000000000000000000000000000007, type: 2}
+  - {fileID: 11400000, guid: a8000000000000000000000000000008, type: 2}
+  - {fileID: 11400000, guid: a9000000000000000000000000000009, type: 2}
+  - {fileID: 11400000, guid: aa000000000000000000000000000010, type: 2}
+  _entryChoiceCount: 3
+  _roomChoiceCount: 3
   _backgroundSpriteResourcePath: Assets/Resources/Sprites/WallAndGrounds/MortfallDungeon/MortFallAssets/Mortfall-background.png

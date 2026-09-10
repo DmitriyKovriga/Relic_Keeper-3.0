@@ -3,6 +3,7 @@ using Scripts.Stats;
 using Scripts.Combat;
 using Scripts.Configuration;
 using Scripts.GameplayEvents;
+using Scripts.Dungeon;
 
 namespace Scripts.Enemies
 {
@@ -31,10 +32,11 @@ namespace Scripts.Enemies
             if (damage == null)
                 return result;
 
-            result.RawPhysical = Mathf.Max(0f, damage.Physical);
-            result.RawFire = Mathf.Max(0f, damage.Fire);
-            result.RawCold = Mathf.Max(0f, damage.Cold);
-            result.RawLightning = Mathf.Max(0f, damage.Lightning);
+            float enemyDamageMultiplier = ResolveEnemyDamageMultiplier(damage.Source);
+            result.RawPhysical = Mathf.Max(0f, damage.Physical * enemyDamageMultiplier);
+            result.RawFire = Mathf.Max(0f, damage.Fire * enemyDamageMultiplier);
+            result.RawCold = Mathf.Max(0f, damage.Cold * enemyDamageMultiplier);
+            result.RawLightning = Mathf.Max(0f, damage.Lightning * enemyDamageMultiplier);
 
             if (PlaytestConfiguration.PlayerImmortal)
             {
@@ -136,7 +138,7 @@ namespace Scripts.Enemies
                 return;
 
             float finalDamage = DamageTakenCalculator.Apply(
-                Mathf.Max(0f, amount),
+                Mathf.Max(0f, amount) * ResolveEnemyDamageMultiplier(source),
                 _stats,
                 transform,
                 out _,
@@ -160,6 +162,16 @@ namespace Scripts.Enemies
 
             if (FloatingTextManager.Instance != null)
                 FloatingTextManager.Instance.Show(finalDamage, false, damageType, transform.position);
+        }
+
+        private static float ResolveEnemyDamageMultiplier(object source)
+        {
+            GameObject sourceObject = GameplayEventContext.ResolveGameObject(source);
+            bool comesFromEnemy = sourceObject != null && sourceObject.GetComponentInParent<EnemyEntity>() != null;
+            if (!comesFromEnemy || DungeonController.Instance == null || DungeonController.Instance.CurrentModifiers == null)
+                return 1f;
+
+            return DungeonController.Instance.CurrentModifiers.EnemyDamageDealtMultiplier;
         }
 
         public struct DamageResolution

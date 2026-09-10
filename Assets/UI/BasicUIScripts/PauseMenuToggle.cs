@@ -14,6 +14,8 @@ public class PauseMenuToggle : MonoBehaviour
     {
         if (!Input.GetKeyDown(KeyCode.Escape))
             return;
+        if (DungeonModifierChoiceUI.IsVisible)
+            return;
         if (manager == null || pauseMenu == null) return;
 
         if (manager.HasOpenWindow)

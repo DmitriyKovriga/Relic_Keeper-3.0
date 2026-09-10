@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using Scripts.Stats;
+using Scripts.Dungeon;
 
 namespace Scripts.Enemies
 {
@@ -18,7 +19,10 @@ namespace Scripts.Enemies
 
             float growthPerLevel = data != null ? data.LegacyGrowthPerLevelPercent / 100f : 0.25f;
             float levelMultiplier = 1f + ((Level - 1) * growthPerLevel);
-            ExperienceReward = data != null ? data.XPReward * levelMultiplier : 0f;
+            float experienceMultiplier = DungeonController.Instance != null && DungeonController.Instance.CurrentModifiers != null
+                ? DungeonController.Instance.CurrentModifiers.ExperienceMultiplier
+                : 1f;
+            ExperienceReward = data != null ? data.XPReward * levelMultiplier * experienceMultiplier : 0f;
 
             if (data != null && data.Stats != null && data.Stats.Count > 0)
             {

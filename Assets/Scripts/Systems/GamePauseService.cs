@@ -5,7 +5,8 @@ using UnityEngine;
 public enum GamePauseReason
 {
     PauseMenu,
-    Inventory
+    Inventory,
+    DungeonChoice
 }
 
 /// <summary>

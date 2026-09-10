@@ -2,6 +2,7 @@ using UnityEngine;
 using Scripts.Combat;
 using Scripts.GameplayEvents;
 using Scripts.Stats;
+using Scripts.Dungeon;
 
 namespace Scripts.Enemies
 {
@@ -89,6 +90,8 @@ namespace Scripts.Enemies
                 out _,
                 out _,
                 out _);
+            if (DungeonController.Instance != null && DungeonController.Instance.CurrentModifiers != null)
+                finalDamage *= DungeonController.Instance.CurrentModifiers.EnemyDamageTakenMultiplier;
 
             _currentHealth -= finalDamage;
             if (finalDamage > 0f)
@@ -138,6 +141,8 @@ namespace Scripts.Enemies
                 out _,
                 out _,
                 out _);
+            if (DungeonController.Instance != null && DungeonController.Instance.CurrentModifiers != null)
+                finalDamage *= DungeonController.Instance.CurrentModifiers.EnemyDamageTakenMultiplier;
             if (finalDamage <= 0f)
                 return;
 
