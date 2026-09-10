@@ -609,7 +609,8 @@ namespace Scripts.Stats
                 return StatDisplayFormat.Damage;
 
             if (type == StatType.ShockDuration || type == StatType.FreezeDuration || type == StatType.BleedDuration ||
-                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.MysticShieldRechargeDuration)
+                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.StunDuration ||
+                type == StatType.MysticShieldRechargeDuration)
                 return StatDisplayFormat.Time;
 
             string s = type.ToString();
@@ -661,7 +662,8 @@ namespace Scripts.Stats
             if (type == StatType.MaxMysticShield)
                 return StatValueUnit.MysticShield;
             if (type == StatType.ShockDuration || type == StatType.FreezeDuration || type == StatType.BleedDuration ||
-                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.MysticShieldRechargeDuration)
+                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.StunDuration ||
+                type == StatType.MysticShieldRechargeDuration)
                 return StatValueUnit.Seconds;
             if (type == StatType.MaxBleedStack)
                 return StatValueUnit.Stacks;

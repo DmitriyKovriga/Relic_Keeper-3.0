@@ -28,8 +28,8 @@ MonoBehaviour:
       Type: 100
       Scope: 0
       ValueMode: 0
-      MinValue: 5
-      MaxValue: 7
+      MinValue: 1
+      MaxValue: 1
       RangeMinValue: 0
       RangeMaxValue: 0
   - Tier: 2
@@ -38,8 +38,8 @@ MonoBehaviour:
       Type: 100
       Scope: 0
       ValueMode: 0
-      MinValue: 4
-      MaxValue: 6
+      MinValue: 1
+      MaxValue: 1
       RangeMinValue: 0
       RangeMaxValue: 0
   - Tier: 3
@@ -48,8 +48,8 @@ MonoBehaviour:
       Type: 100
       Scope: 0
       ValueMode: 0
-      MinValue: 3
-      MaxValue: 5
+      MinValue: 1
+      MaxValue: 1
       RangeMinValue: 0
       RangeMaxValue: 0
   - Tier: 4
@@ -58,8 +58,8 @@ MonoBehaviour:
       Type: 100
       Scope: 0
       ValueMode: 0
-      MinValue: 2
-      MaxValue: 4
+      MinValue: 1
+      MaxValue: 1
       RangeMinValue: 0
       RangeMaxValue: 0
   - Tier: 5
@@ -69,7 +69,7 @@ MonoBehaviour:
       Scope: 0
       ValueMode: 0
       MinValue: 1
-      MaxValue: 3
+      MaxValue: 1
       RangeMinValue: 0
       RangeMaxValue: 0
   LegacyTierIds: []

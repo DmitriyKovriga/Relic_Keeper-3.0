@@ -28,41 +28,21 @@ MonoBehaviour:
       Type: 100
       Scope: 1
       ValueMode: 2
-      MinValue: 20
-      MaxValue: 24
-      RangeMinValue: 24
-      RangeMaxValue: 34
+      MinValue: 8
+      MaxValue: 12
+      RangeMinValue: 12
+      RangeMaxValue: 18
   - Tier: 2
     Stats:
     - Stat: 32
       Type: 100
       Scope: 1
       ValueMode: 2
-      MinValue: 16
-      MaxValue: 20
-      RangeMinValue: 20
-      RangeMaxValue: 30
+      MinValue: 6
+      MaxValue: 10
+      RangeMinValue: 10
+      RangeMaxValue: 15
   - Tier: 3
-    Stats:
-    - Stat: 32
-      Type: 100
-      Scope: 1
-      ValueMode: 2
-      MinValue: 12
-      MaxValue: 16
-      RangeMinValue: 16
-      RangeMaxValue: 22
-  - Tier: 4
-    Stats:
-    - Stat: 32
-      Type: 100
-      Scope: 1
-      ValueMode: 2
-      MinValue: 8
-      MaxValue: 12
-      RangeMinValue: 12
-      RangeMaxValue: 16
-  - Tier: 5
     Stats:
     - Stat: 32
       Type: 100
@@ -72,6 +52,26 @@ MonoBehaviour:
       MaxValue: 8
       RangeMinValue: 8
       RangeMaxValue: 12
+  - Tier: 4
+    Stats:
+    - Stat: 32
+      Type: 100
+      Scope: 1
+      ValueMode: 2
+      MinValue: 3
+      MaxValue: 5
+      RangeMinValue: 5
+      RangeMaxValue: 8
+  - Tier: 5
+    Stats:
+    - Stat: 32
+      Type: 100
+      Scope: 1
+      ValueMode: 2
+      MinValue: 1
+      MaxValue: 3
+      RangeMinValue: 3
+      RangeMaxValue: 5
   LegacyTierIds:
   - Id: DamageCold_Flat_Medium_T1
     Tier: 1

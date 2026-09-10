@@ -13,12 +13,7 @@ namespace Scripts.Items
             if (stats == null || stats.Length == 0) return null;
             var statData = stats[0];
 
-            // Роллим число от Min до Max
-            float rolledValue = Random.Range(statData.MinValue, statData.MaxValue);
-
-            // --- ИСПРАВЛЕНИЕ: Округляем до целого всегда ---
-            rolledValue = Mathf.Round(rolledValue);
-
+            float rolledValue = AffixValueBalance.RollValue(statData.MinValue, statData.MaxValue, statData.Stat);
             return new ItemAffix(template, rolledValue);
         }
     }

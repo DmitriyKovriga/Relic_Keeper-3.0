@@ -28,50 +28,50 @@ MonoBehaviour:
       Type: 100
       Scope: 1
       ValueMode: 2
-      MinValue: 15
-      MaxValue: 19
-      RangeMinValue: 19
-      RangeMaxValue: 42
+      MinValue: 6
+      MaxValue: 10
+      RangeMinValue: 10
+      RangeMaxValue: 14
   - Tier: 2
     Stats:
     - Stat: 30
       Type: 100
       Scope: 1
       ValueMode: 2
-      MinValue: 12
-      MaxValue: 16
-      RangeMinValue: 16
-      RangeMaxValue: 32
+      MinValue: 5
+      MaxValue: 8
+      RangeMinValue: 8
+      RangeMaxValue: 12
   - Tier: 3
     Stats:
     - Stat: 30
       Type: 100
       Scope: 1
       ValueMode: 2
-      MinValue: 9
-      MaxValue: 13
-      RangeMinValue: 13
-      RangeMaxValue: 24
+      MinValue: 4
+      MaxValue: 6
+      RangeMinValue: 6
+      RangeMaxValue: 9
   - Tier: 4
     Stats:
     - Stat: 30
       Type: 100
       Scope: 1
       ValueMode: 2
-      MinValue: 6
-      MaxValue: 10
-      RangeMinValue: 10
-      RangeMaxValue: 18
+      MinValue: 2
+      MaxValue: 4
+      RangeMinValue: 4
+      RangeMaxValue: 7
   - Tier: 5
     Stats:
     - Stat: 30
       Type: 100
       Scope: 1
       ValueMode: 2
-      MinValue: 3
-      MaxValue: 7
-      RangeMinValue: 7
-      RangeMaxValue: 12
+      MinValue: 1
+      MaxValue: 2
+      RangeMinValue: 2
+      RangeMaxValue: 4
   LegacyTierIds:
   - Id: DamagePhysical_Flat_Light_T1
     Tier: 1

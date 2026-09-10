@@ -23,11 +23,11 @@ public class InventoryDebugger : MonoBehaviour
         float btnHeight = 40;
         float y = 10;
 
-        if (GUI.Button(new Rect(10, y, 220, btnHeight), "Gen Magic (1-2 aff)"))
+        if (GUI.Button(new Rect(10, y, 220, btnHeight), "Gen Magic (1-3 aff)"))
             SpawnGeneratedItem(1);
         y += 50;
 
-        if (GUI.Button(new Rect(10, y, 220, btnHeight), "Gen Rare (3-4 aff)"))
+        if (GUI.Button(new Rect(10, y, 220, btnHeight), "Gen Rare (4-6 aff)"))
             SpawnGeneratedItem(2);
         y += 50;
 

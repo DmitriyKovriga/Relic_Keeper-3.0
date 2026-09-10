@@ -71,12 +71,12 @@ namespace Scripts.Inventory
 
             foreach (var statData in stats)
             {
-                float primaryValue = RollAffixValue(statData.GetPrimaryRollMin(), statData.GetPrimaryRollMax());
+                float primaryValue = RollAffixValue(statData.Stat, statData.GetPrimaryRollMin(), statData.GetPrimaryRollMax());
                 StatModifier secondaryMod = null;
 
                 if (statData.UsesRangeRoll())
                 {
-                    float secondaryValue = RollAffixValue(statData.GetSecondaryRollMin(), statData.GetSecondaryRollMax());
+                    float secondaryValue = RollAffixValue(statData.Stat, statData.GetSecondaryRollMin(), statData.GetSecondaryRollMax());
                     if (secondaryValue < primaryValue)
                         (primaryValue, secondaryValue) = (secondaryValue, primaryValue);
 
@@ -122,15 +122,9 @@ namespace Scripts.Inventory
             }
         }
 
-        private static float RollAffixValue(float minValue, float maxValue)
+        private static float RollAffixValue(StatType stat, float minValue, float maxValue)
         {
-            if (maxValue < minValue)
-                (minValue, maxValue) = (maxValue, minValue);
-
-            float value = Mathf.Approximately(minValue, maxValue)
-                ? minValue
-                : UnityEngine.Random.Range(minValue, maxValue);
-            return Mathf.Round(value);
+            return AffixValueBalance.RollValue(minValue, maxValue, stat);
         }
     }
 

@@ -172,6 +172,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         EnsureMinStat(StatType.MysticShieldMitigationPercent, 50f);
         EnsureMinStat(StatType.MaxMysticShieldMitigationPercent, 90f);
         EnsureMinStat(StatType.CritMultiplier, 150f);
+        EnsureMinStat(StatType.StunDuration, 1f);
         // APS flat base comes from equipped weapons; keep scalar base at 0.
         GetStat(StatType.AttackSpeed).BaseValue = 0f;
 

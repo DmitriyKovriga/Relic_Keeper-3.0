@@ -27,13 +27,13 @@ public class ItemGenerator : MonoBehaviour
         if (availableAffixGroups > 0 && rarity > 0)
         {
             int count;
-            if (rarity == 1 || availableAffixGroups < 4)
+            if (rarity == 1 || availableAffixGroups < ItemRarity.RareAffixMin)
             {
-                count = Random.Range(1, Mathf.Min(3, availableAffixGroups) + 1);
+                count = Random.Range(ItemRarity.MagicAffixMin, Mathf.Min(ItemRarity.MagicAffixMax, availableAffixGroups) + 1);
             }
             else
             {
-                count = Random.Range(4, Mathf.Min(6, availableAffixGroups) + 1);
+                count = Random.Range(ItemRarity.RareAffixMin, Mathf.Min(ItemRarity.RareAffixMax, availableAffixGroups) + 1);
             }
 
             var affixDatas = pool.GetRandomAffixes(count, itemLevel);
@@ -86,9 +86,9 @@ public class ItemGenerator : MonoBehaviour
         if (availableAffixGroups <= 0)
             return;
 
-        int count = availableAffixGroups < 4
-            ? Random.Range(1, Mathf.Min(3, availableAffixGroups) + 1)
-            : Random.Range(4, Mathf.Min(6, availableAffixGroups) + 1);
+        int count = availableAffixGroups < ItemRarity.RareAffixMin
+            ? Random.Range(ItemRarity.MagicAffixMin, Mathf.Min(ItemRarity.MagicAffixMax, availableAffixGroups) + 1)
+            : Random.Range(ItemRarity.RareAffixMin, Mathf.Min(ItemRarity.RareAffixMax, availableAffixGroups) + 1);
         var affixDatas = pool.GetRandomAffixes(count, baseItem.DropLevel);
         foreach (var selection in affixDatas)
             item.Affixes.Add(new AffixInstance(selection.Affix, selection.Tier, item));
@@ -96,6 +96,6 @@ public class ItemGenerator : MonoBehaviour
 
     public static bool IsRare(InventoryItem item)
     {
-        return item != null && item.Affixes != null && item.Affixes.Count >= 4;
+        return ItemRarity.IsRare(item);
     }
 }

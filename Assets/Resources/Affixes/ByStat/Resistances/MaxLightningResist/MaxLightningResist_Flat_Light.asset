@@ -29,7 +29,7 @@ MonoBehaviour:
       Scope: 0
       ValueMode: 0
       MinValue: 1
-      MaxValue: 3
+      MaxValue: 1
       RangeMinValue: 0
       RangeMaxValue: 0
   - Tier: 2
@@ -39,7 +39,7 @@ MonoBehaviour:
       Scope: 0
       ValueMode: 0
       MinValue: 1
-      MaxValue: 2
+      MaxValue: 1
       RangeMinValue: 0
       RangeMaxValue: 0
   - Tier: 3

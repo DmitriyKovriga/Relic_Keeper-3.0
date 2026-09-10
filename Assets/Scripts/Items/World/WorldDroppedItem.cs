@@ -1,5 +1,6 @@
 using Scripts.Dungeon;
 using Scripts.Inventory;
+using Scripts.Items;
 using Scripts.Visuals;
 using UnityEngine;
 using UnityEngine.UI;
@@ -100,7 +101,7 @@ namespace Scripts.Items.World
                 _circleRenderer = gameObject.AddComponent<SpriteRenderer>();
 
             _circleRenderer.sprite = GetCircleSprite();
-            _circleRenderer.color = GetRarityColor(_item);
+            _circleRenderer.color = ItemRarity.GetGroundPlateColor(_item);
             _circleRenderer.sortingLayerName = WorldRenderSorting.LayerVfx;
             _circleRenderer.sortingOrder = SortingOrder;
 
@@ -179,16 +180,6 @@ namespace Scripts.Items.World
             float targetSize = (CirclePixels - 4f) / _pixelsPerUnit;
             float scale = targetSize / maxSize;
             _iconRenderer.transform.localScale = new Vector3(scale, scale, 1f);
-        }
-
-        private static Color GetRarityColor(InventoryItem item)
-        {
-            int affixCount = item?.Affixes?.Count ?? 0;
-            if (affixCount >= 4)
-                return new Color(1f, 0.82f, 0.22f, 0.95f);
-            if (affixCount > 0)
-                return new Color(0.25f, 0.48f, 1f, 0.95f);
-            return new Color(0.72f, 0.72f, 0.72f, 0.9f);
         }
 
         private static Sprite GetCircleSprite()

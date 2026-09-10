@@ -66,12 +66,7 @@ public class ItemTooltipController : MonoBehaviour
     private readonly Color _colNormalText = new Color(0.9f, 0.9f, 0.9f);
     private readonly Color _colModifiedText = new Color(0.5f, 0.6f, 1f);
     
-    private readonly Color _colTitleCommon = Color.white;
-    private readonly Color _colTitleMagic = new Color(0.3f, 0.3f, 1f); 
-    private readonly Color _colTitleRare = new Color(1f, 1f, 0.4f); 
-    
-    private readonly Color _colMagicBorder = new Color(0.3f, 0.3f, 0.7f);
-    private readonly Color _colRareBorder = new Color(0.7f, 0.6f, 0.2f);
+    private readonly Color _colTitleRare = ItemRarity.RareTitle;
 
     private readonly Color _colImplicit = new Color(0.6f, 0.8f, 1f);
     private readonly Color _colAffix = new Color(0.5f, 0.5f, 1f);
@@ -790,13 +785,10 @@ public class ItemTooltipController : MonoBehaviour
 
     private void FillItemData(InventoryItem item)
     {
-        int affixes = item.Affixes != null ? item.Affixes.Count : 0;
-        Color rarityCol = affixes >= 3 ? _colTitleRare : (affixes > 0 ? _colTitleMagic : _colTitleCommon);
-        
         LocalizeLabel(_headerLabel, TABLE_ITEMS, $"items.{item.Data.ID}", item.Data.ItemName);
-        _headerLabel.style.color = new StyleColor(rarityCol);
+        _headerLabel.style.color = new StyleColor(ItemRarity.GetTooltipTitleColor(item));
         
-        Color borderCol = affixes >= 3 ? _colRareBorder : (affixes > 0 ? _colMagicBorder : Color.gray);
+        Color borderCol = ItemRarity.GetTooltipBorderColor(item);
         _itemTooltipBox.style.borderTopColor = borderCol; _itemTooltipBox.style.borderBottomColor = borderCol;
         _itemTooltipBox.style.borderLeftColor = borderCol; _itemTooltipBox.style.borderRightColor = borderCol;
 
@@ -827,7 +819,7 @@ public class ItemTooltipController : MonoBehaviour
                 AddModRow(mod.Stat, mod.Value, mod.Type, _colImplicit);
         }
 
-        if (item.Data.ImplicitModifiers != null && item.Data.ImplicitModifiers.Count > 0 && affixes > 0)
+        if (item.Data.ImplicitModifiers != null && item.Data.ImplicitModifiers.Count > 0 && ItemRarity.GetAffixCount(item) > 0)
             AddDivToContainer();
 
         if (item.Affixes != null)

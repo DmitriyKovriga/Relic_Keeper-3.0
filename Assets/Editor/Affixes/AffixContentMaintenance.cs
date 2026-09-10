@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Scripts.Items;
 using Scripts.Items.Affixes;
 using Scripts.Stats;
 using UnityEditor;
@@ -51,6 +52,121 @@ namespace Scripts.Editor.Affixes
         {
             int created = GenerateMissing();
             Debug.Log($"[Affix Content] Missing stat generation complete. Created: {created}.");
+        }
+
+        [MenuItem(MenuRoot + "Rebalance All Affix Values")]
+        public static void RebalanceAllFromMenu()
+        {
+            if (!EditorUtility.DisplayDialog(
+                    "Rebalance affix values",
+                    "Rewrite Min/Max (and damage ranges) on every ItemAffixSO using AffixValueBalance. Passive tree assets are not touched. Localization and pools stay as they are.",
+                    "Rebalance",
+                    "Cancel"))
+                return;
+
+            int updated = RebalanceAllAffixValues();
+            EditorUtility.DisplayDialog("Affix content", $"Updated values on {updated} affix assets.", "OK");
+        }
+
+        public static int RebalanceAllAffixValues()
+        {
+            string[] guids = AssetDatabase.FindAssets("t:ItemAffixSO");
+            int updated = 0;
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var affix = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path);
+                if (affix == null)
+                    continue;
+
+                if (RebalanceAffix(affix))
+                {
+                    EditorUtility.SetDirty(affix);
+                    updated++;
+                }
+            }
+
+            AssetDatabase.SaveAssets();
+            return updated;
+        }
+
+        private static bool RebalanceAffix(ItemAffixSO affix)
+        {
+            bool changed = false;
+            string strength = AffixValueBalance.ResolveStrength(!string.IsNullOrEmpty(affix.GroupID) ? affix.GroupID : affix.name);
+            if (affix.Tiers != null)
+            {
+                foreach (var tierData in affix.Tiers)
+                {
+                    if (tierData?.Stats == null)
+                        continue;
+                    for (int i = 0; i < tierData.Stats.Length; i++)
+                    {
+                        var data = tierData.Stats[i];
+                        var kind = StatPresentation.FromStatModType(data.Type);
+                        var before = data;
+                        AffixValueBalance.Apply(ref data, data.Stat, kind, strength, tierData.Tier);
+                        if (data.MaxValue < 0f || before.MaxValue < 0f)
+                            KeepNegativeSign(ref data, before);
+                        if (!ValuesEqual(before, data))
+                        {
+                            tierData.Stats[i] = data;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+
+            if (affix.Stats != null)
+            {
+                for (int i = 0; i < affix.Stats.Length; i++)
+                {
+                    var data = affix.Stats[i];
+                    var kind = StatPresentation.FromStatModType(data.Type);
+                    var before = data;
+                    AffixValueBalance.Apply(ref data, data.Stat, kind, strength, Mathf.Clamp(affix.Tier, 1, 5));
+                    if (data.MaxValue < 0f || before.MaxValue < 0f)
+                        KeepNegativeSign(ref data, before);
+                    if (!ValuesEqual(before, data))
+                    {
+                        affix.Stats[i] = data;
+                        changed = true;
+                    }
+                }
+            }
+
+            return changed;
+        }
+
+        private static void KeepNegativeSign(ref ItemAffixSO.AffixStatData data, ItemAffixSO.AffixStatData before)
+        {
+            if (before.MaxValue >= 0f && before.MinValue >= 0f)
+                return;
+
+            float magMin = Mathf.Abs(data.MinValue);
+            float magMax = Mathf.Abs(data.MaxValue);
+            if (magMax < magMin)
+                (magMin, magMax) = (magMax, magMin);
+            data.MinValue = -magMax;
+            data.MaxValue = -magMin;
+
+            if (!data.UsesRangeRoll())
+                return;
+
+            float rangeMin = Mathf.Abs(data.RangeMinValue);
+            float rangeMax = Mathf.Abs(data.RangeMaxValue);
+            if (rangeMax < rangeMin)
+                (rangeMin, rangeMax) = (rangeMax, rangeMin);
+            data.RangeMinValue = -rangeMax;
+            data.RangeMaxValue = -rangeMin;
+        }
+
+        private static bool ValuesEqual(ItemAffixSO.AffixStatData a, ItemAffixSO.AffixStatData b)
+        {
+            return Mathf.Approximately(a.MinValue, b.MinValue) &&
+                   Mathf.Approximately(a.MaxValue, b.MaxValue) &&
+                   Mathf.Approximately(a.RangeMinValue, b.RangeMinValue) &&
+                   Mathf.Approximately(a.RangeMaxValue, b.RangeMaxValue);
         }
 
         private static int GenerateMissing()

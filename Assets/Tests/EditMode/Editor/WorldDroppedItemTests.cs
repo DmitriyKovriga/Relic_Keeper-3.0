@@ -4,6 +4,7 @@ using NUnit.Framework;
 using Scripts.Dungeon;
 using Scripts.Inventory;
 using Scripts.Items;
+using Scripts.Items.Affixes;
 using Scripts.Items.World;
 using Scripts.Visuals;
 using UnityEngine;
@@ -25,6 +26,25 @@ namespace RelicKeeper.Tests.EditMode
             }
 
             _createdObjects.Clear();
+        }
+
+        [Test]
+        public void GroundPlateMatchesTooltipRarityBands()
+        {
+            WorldDroppedItem magicDrop = CreateDroppedItem(Vector2.zero, affixCount: 3);
+            WorldDroppedItem rareDrop = CreateDroppedItem(new Vector2(2f, 0f), affixCount: 4);
+
+            SpriteRenderer magicCircle = magicDrop.GetComponent<SpriteRenderer>();
+            SpriteRenderer rareCircle = rareDrop.GetComponent<SpriteRenderer>();
+
+            Assert.That(ItemRarity.IsMagic(magicDrop.Item), Is.True);
+            Assert.That(ItemRarity.IsRare(magicDrop.Item), Is.False);
+            Assert.That(magicCircle.color, Is.EqualTo(ItemRarity.MagicPlate));
+            Assert.That(ItemRarity.GetTooltipTitleColor(magicDrop.Item), Is.EqualTo(ItemRarity.MagicTitle));
+
+            Assert.That(ItemRarity.IsRare(rareDrop.Item), Is.True);
+            Assert.That(rareCircle.color, Is.EqualTo(ItemRarity.RarePlate));
+            Assert.That(ItemRarity.GetTooltipTitleColor(rareDrop.Item), Is.EqualTo(ItemRarity.RareTitle));
         }
 
         [Test]
@@ -114,16 +134,24 @@ namespace RelicKeeper.Tests.EditMode
             return new InventoryItem(data);
         }
 
-        private WorldDroppedItem CreateDroppedItem(Vector2 position)
+        private WorldDroppedItem CreateDroppedItem(Vector2 position, int affixCount = 0)
         {
             ArmorItemSO data = ScriptableObject.CreateInstance<ArmorItemSO>();
             data.ID = $"test_{_createdObjects.Count}";
             _createdObjects.Add(data);
 
+            InventoryItem item = new InventoryItem(data);
+            for (int i = 0; i < affixCount; i++)
+            {
+                ItemAffixSO affix = ScriptableObject.CreateInstance<ItemAffixSO>();
+                _createdObjects.Add(affix);
+                item.Affixes.Add(new AffixInstance(affix, item));
+            }
+
             GameObject dropObject = CreateGameObject("WorldDroppedItem");
             dropObject.transform.position = position;
             WorldDroppedItem droppedItem = dropObject.AddComponent<WorldDroppedItem>();
-            droppedItem.Initialize(new InventoryItem(data), 24f);
+            droppedItem.Initialize(item, 24f);
             return droppedItem;
         }
 

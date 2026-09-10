@@ -564,10 +564,7 @@ namespace Scripts.Editor.Affixes
             affix.Stats[0].Scope = StatScope.Global;
             affix.Stats[0].ValueMode = AffixValueMode.Single;
 
-            if (genType == StatAffixGenType.FullCalcStat)
-                SetValuesFullCalc(ref affix.Stats[0], stat, kind, tier, strength);
-            else
-                SetValuesSmallFlat(ref affix.Stats[0], tier, strength);
+            AffixValueBalance.Apply(ref affix.Stats[0], stat, kind, strength, tier);
 
             if (negativeFlat)
                 ConvertStatDataToNegativeFlat(ref affix.Stats[0]);
@@ -611,65 +608,6 @@ namespace Scripts.Editor.Affixes
             result.LegacyTierIds = new List<ItemAffixSO.LegacyTierId>();
             result.TagIds = new List<string>();
             return result;
-        }
-
-        private static void SetValuesFullCalc(ref ItemAffixSO.AffixStatData data, StatType stat, StatAffixModifierKind kind, int tier, string strength)
-        {
-            int stepIndex = 5 - tier;
-            float hpManaMultiplier = (stat.ToString().Contains("Health") || stat.ToString().Contains("Mana")) ? 5f : 1f;
-
-            float baseMin;
-            float baseMax;
-            float stepMin;
-            float stepMax;
-
-            if (kind == StatAffixModifierKind.Flat)
-            {
-                if (strength == StrengthStrong) { baseMin = 5f; baseMax = 10f; stepMin = 5f; stepMax = 5f; }
-                else if (strength == StrengthMedium) { baseMin = 4f; baseMax = 8f; stepMin = 4f; stepMax = 4f; }
-                else { baseMin = 3f; baseMax = 7f; stepMin = 3f; stepMax = 3f; }
-
-                data.MinValue = (baseMin + (stepIndex * stepMin)) * hpManaMultiplier;
-                data.MaxValue = (baseMax + (stepIndex * stepMax)) * hpManaMultiplier;
-                return;
-            }
-
-            if (kind == StatAffixModifierKind.Increase || kind == StatAffixModifierKind.Decrease)
-            {
-                if (strength == StrengthStrong) { baseMin = 5f; baseMax = 10f; stepMin = 5f; stepMax = 5f; }
-                else if (strength == StrengthMedium) { baseMin = 4f; baseMax = 8f; stepMin = 4f; stepMax = 4f; }
-                else { baseMin = 3f; baseMax = 7f; stepMin = 3f; stepMax = 3f; }
-
-                data.MinValue = baseMin + (stepIndex * stepMin);
-                data.MaxValue = baseMax + (stepIndex * stepMax);
-                return;
-            }
-
-            if (strength == StrengthStrong) { baseMin = 2f; baseMax = 5f; stepMin = 2f; stepMax = 2f; }
-            else if (strength == StrengthMedium) { baseMin = 1.5f; baseMax = 4f; stepMin = 1.5f; stepMax = 1.5f; }
-            else { baseMin = 1f; baseMax = 3f; stepMin = 1f; stepMax = 1f; }
-
-            data.MinValue = baseMin + (stepIndex * stepMin);
-            data.MaxValue = baseMax + (stepIndex * stepMax);
-        }
-
-        private static void SetValuesSmallFlat(ref ItemAffixSO.AffixStatData data, int tier, string strength)
-        {
-            if (strength == StrengthStrong)
-            {
-                data.MinValue = Mathf.Clamp(6 - tier, 1, 5);
-                data.MaxValue = Mathf.Clamp(8 - tier, 2, 7);
-            }
-            else if (strength == StrengthMedium)
-            {
-                data.MinValue = Mathf.Clamp(4 - tier, 1, 3);
-                data.MaxValue = Mathf.Clamp(6 - tier, 2, 5);
-            }
-            else
-            {
-                data.MinValue = 1f;
-                data.MaxValue = Mathf.Clamp(4 - tier, 1, 3);
-            }
         }
 
         private static void WriteLocalization(
