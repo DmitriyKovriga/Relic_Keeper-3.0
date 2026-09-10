@@ -20,7 +20,9 @@ public class ItemTooltipController : MonoBehaviour
     [Header("Layout Settings (Pixel Perfect)")]
     [SerializeField] private float _tooltipWidth = 150f; // Чуть уже (было 160)
     [SerializeField] private float _gap = 5f; 
-    [SerializeField] private float _screenPadding = 4f; 
+    [SerializeField] private float _screenPadding = 4f;
+    private const float HudSkillTooltipGap = 2f;
+    private const float HudSkillTooltipPadding = 2f; 
     
     [SerializeField, Tooltip("Задержка в миллисекундах перед скрытием тултипа (увеличена против мерцания при наведении на экипировку)")]
     private long _hideDelayMs = 180;
@@ -52,6 +54,9 @@ public class ItemTooltipController : MonoBehaviour
     private IVisualElementScheduledItem _hideScheduler;
     private VisualElement _worldAnchor;
     private WorldDroppedItem _worldTargetItem;
+    private RectTransform _hudSkillRect;
+    private SkillDataSO _currentHudSkill;
+    private object _hudSkillSource;
 
     // --- Orb Tooltip ---
     private VisualElement _orbTooltipBox;
@@ -122,6 +127,11 @@ public class ItemTooltipController : MonoBehaviour
             LocalizeLabel(_orbDescLabel, TABLE_MENU, descKey, "");
             _root.schedule.Execute(RecalculateOrbPosition).ExecuteLater(1);
         }
+        else if (_currentHudSkill != null && _skillTooltipBox != null && _skillTooltipBox.style.display == DisplayStyle.Flex)
+        {
+            FillHudSkillTooltip(_currentHudSkill);
+            _root.schedule.Execute(RecalculateHudSkillPosition).ExecuteLater(1);
+        }
     }
 
     private void RebuildTooltipStructure()
@@ -142,6 +152,8 @@ public class ItemTooltipController : MonoBehaviour
         if (oldOrb != null) _root.Remove(oldOrb);
         var oldWorldAnchor = _root.Q<VisualElement>("WorldItemTooltipAnchor");
         if (oldWorldAnchor != null) _root.Remove(oldWorldAnchor);
+        var oldHudAnchor = _root.Q<VisualElement>("HudSkillTooltipAnchor");
+        if (oldHudAnchor != null) _root.Remove(oldHudAnchor);
 
         _worldAnchor = new VisualElement { name = "WorldItemTooltipAnchor" };
         _worldAnchor.style.position = Position.Absolute;
@@ -258,6 +270,7 @@ public class ItemTooltipController : MonoBehaviour
         _currentTargetOrb = orb;
         _targetAnchorSlot = anchorSlot;
         _worldTargetItem = null;
+        ClearHudSkillTarget();
 
         if (_itemTooltipBox != null) { _itemTooltipBox.style.display = DisplayStyle.None; }
         if (_skillTooltipBox != null) { _skillTooltipBox.style.display = DisplayStyle.None; }
@@ -310,6 +323,63 @@ public class ItemTooltipController : MonoBehaviour
             HideTooltipImmediate();
     }
 
+    public void ShowHudSkillTooltip(SkillDataSO skill, RectTransform slotRect, object source)
+    {
+        if (skill == null || slotRect == null)
+        {
+            HideHudSkillTooltip(source);
+            return;
+        }
+
+        if (_skillTooltipBox == null)
+            RebuildTooltipStructure();
+        if (_skillTooltipBox == null || _root == null || _root.panel == null)
+            return;
+
+        if (_hideScheduler != null)
+        {
+            _hideScheduler.Pause();
+            _hideScheduler = null;
+        }
+
+        _currentTargetItem = null;
+        _currentTargetOrb = null;
+        _targetAnchorSlot = null;
+        _worldTargetItem = null;
+        _currentHudSkill = skill;
+        _hudSkillRect = slotRect;
+        _hudSkillSource = source;
+
+        if (_itemTooltipBox != null)
+            _itemTooltipBox.style.display = DisplayStyle.None;
+        if (_orbTooltipBox != null)
+            _orbTooltipBox.style.display = DisplayStyle.None;
+
+        FillHudSkillTooltip(skill);
+        _skillTooltipBox.style.display = DisplayStyle.Flex;
+        _skillTooltipBox.style.visibility = Visibility.Hidden;
+        _skillTooltipBox.MarkDirtyRepaint();
+        RecalculateHudSkillPosition();
+        _root.schedule.Execute(RecalculateHudSkillPosition).ExecuteLater(1);
+    }
+
+    public void HideHudSkillTooltip(object source)
+    {
+        if (_currentHudSkill == null)
+            return;
+        if (source != null && _hudSkillSource != null && !ReferenceEquals(_hudSkillSource, source))
+            return;
+        HideTooltipImmediate();
+    }
+
+    public bool IsShowingHudSkillTooltip(object source)
+    {
+        return _currentHudSkill != null
+            && (source == null || ReferenceEquals(_hudSkillSource, source))
+            && _skillTooltipBox != null
+            && _skillTooltipBox.style.display == DisplayStyle.Flex;
+    }
+
     private static bool ShouldHideWorldItemTooltip()
     {
         var windowManager = Object.FindFirstObjectByType<WindowManager>();
@@ -338,6 +408,7 @@ public class ItemTooltipController : MonoBehaviour
         _currentTargetItem = item;
         _targetAnchorSlot = anchorSlot;
         _worldTargetItem = worldTargetItem;
+        ClearHudSkillTarget();
 
         FillItemData(item);
         FillSkillData(item);
@@ -414,6 +485,7 @@ public class ItemTooltipController : MonoBehaviour
         _currentTargetOrb = null;
         _targetAnchorSlot = null;
         _worldTargetItem = null;
+        ClearHudSkillTarget();
     }
 
     /// <summary>
@@ -428,6 +500,12 @@ public class ItemTooltipController : MonoBehaviour
             (_orbTooltipBox != null && _orbTooltipBox.style.display == DisplayStyle.Flex);
 
         if (!anyVisible) return;
+        if (_currentHudSkill != null)
+        {
+            if (_hudSkillRect == null)
+                HideTooltipImmediate();
+            return;
+        }
         if (_worldTargetItem != null)
         {
             if (!_worldTargetItem.CanInteract())
@@ -453,10 +531,7 @@ public class ItemTooltipController : MonoBehaviour
         if (screenPoint.z < 0f)
             return false;
 
-        Vector2 panelPoint = RuntimePanelUtils.ScreenToPanel(
-            _root.panel,
-            new Vector2(screenPoint.x, Screen.height - screenPoint.y));
-        Vector2 rootPoint = _root.WorldToLocal(panelPoint);
+        Vector2 rootPoint = ScreenToTooltipRootLocal(screenPoint);
         _worldAnchor.style.left = rootPoint.x - 9f;
         _worldAnchor.style.top = rootPoint.y - 9f;
         return true;
@@ -658,7 +733,111 @@ public class ItemTooltipController : MonoBehaviour
         _orbTooltipBox.style.visibility = Visibility.Visible;
     }
 
+    private void RecalculateHudSkillPosition()
+    {
+        if (_currentHudSkill == null || _skillTooltipBox == null || _root == null)
+            return;
+        if (_hudSkillRect == null || !TryGetHudSkillSlotRectInRoot(_hudSkillRect, out Vector2 pMin, out Vector2 pMax))
+            return;
+
+        float screenW = _root.resolvedStyle.width;
+        float screenH = _root.resolvedStyle.height;
+
+        float skillW = _skillTooltipBox.resolvedStyle.width;
+        if (float.IsNaN(skillW) || skillW < 10) skillW = _tooltipWidth;
+        float skillH = _skillTooltipBox.resolvedStyle.height;
+        if (float.IsNaN(skillH) || skillH < 10) skillH = 80f;
+
+        Vector2 pos = CalculateHudSkillTooltipPosition(
+            pMin,
+            pMax,
+            skillW,
+            skillH,
+            screenW,
+            screenH,
+            HudSkillTooltipGap,
+            HudSkillTooltipPadding);
+        _skillTooltipBox.style.left = pos.x;
+        _skillTooltipBox.style.top = pos.y;
+        _skillTooltipBox.style.visibility = Visibility.Visible;
+    }
+
+    public static Vector2 CalculateHudSkillTooltipPosition(
+        Vector2 slotMin,
+        Vector2 slotMax,
+        float tooltipWidth,
+        float tooltipHeight,
+        float screenWidth,
+        float screenHeight,
+        float gap,
+        float padding)
+    {
+        float slotLeft = slotMin.x;
+        float slotRight = slotMax.x;
+        float slotTop = slotMin.y;
+        float slotBottom = slotMax.y;
+        float centerX = (slotLeft + slotRight) * 0.5f;
+        float x = Mathf.Clamp(centerX - tooltipWidth * 0.5f, padding, Mathf.Max(padding, screenWidth - tooltipWidth - padding));
+        float yAbove = slotTop - tooltipHeight - gap;
+        float y = yAbove >= padding ? yAbove : slotBottom + gap;
+        if (y + tooltipHeight > screenHeight - padding)
+            y = Mathf.Max(padding, screenHeight - tooltipHeight - padding);
+        if (y < padding)
+            y = padding;
+        return new Vector2(Mathf.Round(x), Mathf.Round(y));
+    }
+
+    private bool TryGetHudSkillSlotRectInRoot(RectTransform slotRect, out Vector2 min, out Vector2 max)
+    {
+        min = max = Vector2.zero;
+        if (_root == null || _root.panel == null || slotRect == null)
+            return false;
+
+        Canvas canvas = slotRect.GetComponentInParent<Canvas>();
+        Camera camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? canvas.worldCamera
+            : null;
+        Vector3[] corners = new Vector3[4];
+        slotRect.GetWorldCorners(corners);
+        Vector2 topLeft = ScreenToTooltipRootLocal(RectTransformUtility.WorldToScreenPoint(camera, corners[1]));
+        Vector2 bottomRight = ScreenToTooltipRootLocal(RectTransformUtility.WorldToScreenPoint(camera, corners[3]));
+
+        float left = Mathf.Min(topLeft.x, bottomRight.x);
+        float top = Mathf.Min(topLeft.y, bottomRight.y);
+        float right = Mathf.Max(topLeft.x, bottomRight.x);
+        float bottom = Mathf.Max(topLeft.y, bottomRight.y);
+        min = new Vector2(left, top);
+        max = new Vector2(right, bottom);
+        return right - left >= 1f && bottom - top >= 1f;
+    }
+
+    private Vector2 ScreenToTooltipRootLocal(Vector2 screenPoint)
+    {
+        Vector2 panelPoint = RuntimePanelUtils.ScreenToPanel(
+            _root.panel,
+            new Vector2(screenPoint.x, Screen.height - screenPoint.y));
+        return _root.WorldToLocal(panelPoint);
+    }
+
+    private void ClearHudSkillTarget()
+    {
+        _currentHudSkill = null;
+        _hudSkillRect = null;
+        _hudSkillSource = null;
+    }
+
     // --- Fill Data Logic (SKILLS) - ТВОЙ КОД ---
+
+    private void FillHudSkillTooltip(SkillDataSO skill)
+    {
+        _skillTooltipBox.Clear();
+        bool hasSkill = skill != null;
+        _skillTooltipBox.userData = hasSkill ? "true" : null;
+        if (!hasSkill)
+            return;
+
+        AddSkillTooltipBlock(skill, typeKey: null, typeFallback: null, addDivider: false);
+    }
 
     private void FillSkillData(InventoryItem item)
     {
@@ -673,52 +852,61 @@ public class ItemTooltipController : MonoBehaviour
                 var skill = item.GrantedSkills[i];
                 if (skill == null) continue;
 
-                if (i > 0) 
-                {
-                    var div = CreateDivider();
-                    div.style.marginTop = 4; div.style.marginBottom = 4;
-                    _skillTooltipBox.Add(div);
-                }
-
-                // 1. Тип
                 string slotKey = "skill_type_granted";
                 if (item.Data is WeaponItemSO weapon)
                 {
                     if (weapon.IsTwoHanded) slotKey = (i == 0) ? "skill_type_mainhand" : "skill_type_offhand";
-                    else slotKey = "skill_type_weapon"; 
+                    else slotKey = "skill_type_weapon";
                 }
 
-                var typeLabel = CreateLabel("", 7, FontStyle.Italic, TextAnchor.UpperLeft);
-                typeLabel.style.color = new StyleColor(_colSkillType);
-                _skillTooltipBox.Add(typeLabel);
-                LocalizeLabel(typeLabel, TABLE_MENU, slotKey, (i == 0 ? "Primary Action" : "Secondary Action"));
-
-                // 2. Имя
-                var nameLabel = CreateLabel("", 8, FontStyle.Bold, TextAnchor.MiddleCenter);
-                nameLabel.style.color = new StyleColor(Color.cyan);
-                nameLabel.style.marginTop = 2;
-                _skillTooltipBox.Add(nameLabel);
-                LocalizeLabel(nameLabel, TABLE_SKILLS, GetSkillNameKey(skill), skill.SkillName);
-
-                // 3. Иконка
-                if (skill.Icon != null)
-                {
-                    var icon = new Image();
-                    icon.sprite = skill.Icon;
-                    icon.style.width = 24; // Чуть меньше для компактности (было 32)
-                    icon.style.height = 24;
-                    icon.style.alignSelf = Align.Center;
-                    icon.style.marginTop = 2;
-                    _skillTooltipBox.Add(icon);
-                }
-
-                // 4. Описание
-                var descLabel = CreateLabel("", 8, FontStyle.Normal, TextAnchor.UpperLeft);
-                descLabel.style.marginTop = 4;
-                _skillTooltipBox.Add(descLabel);
-                LocalizeSkillBody(descLabel, skill);
+                AddSkillTooltipBlock(skill, slotKey, i == 0 ? "Primary Action" : "Secondary Action", i > 0);
             }
         }
+    }
+
+    private void AddSkillTooltipBlock(SkillDataSO skill, string typeKey, string typeFallback, bool addDivider)
+    {
+        if (skill == null)
+            return;
+
+        if (addDivider)
+        {
+            var div = CreateDivider();
+            div.style.marginTop = 4;
+            div.style.marginBottom = 4;
+            _skillTooltipBox.Add(div);
+        }
+
+        if (!string.IsNullOrEmpty(typeKey))
+        {
+            var typeLabel = CreateLabel("", 7, FontStyle.Italic, TextAnchor.UpperLeft);
+            typeLabel.style.color = new StyleColor(_colSkillType);
+            _skillTooltipBox.Add(typeLabel);
+            LocalizeLabel(typeLabel, TABLE_MENU, typeKey, typeFallback ?? "");
+        }
+
+        var nameLabel = CreateLabel("", 8, FontStyle.Bold, TextAnchor.MiddleCenter);
+        nameLabel.style.color = new StyleColor(Color.cyan);
+        nameLabel.style.marginTop = 2;
+        _skillTooltipBox.Add(nameLabel);
+        LocalizeLabel(nameLabel, TABLE_SKILLS, GetSkillNameKey(skill), skill.SkillName);
+
+        if (skill.Icon != null)
+        {
+            var icon = new Image();
+            icon.sprite = skill.Icon;
+            icon.style.width = 24;
+            icon.style.height = 24;
+            icon.style.alignSelf = Align.Center;
+            icon.style.marginTop = 2;
+            _skillTooltipBox.Add(icon);
+        }
+
+        var descLabel = CreateLabel("", 8, FontStyle.Normal, TextAnchor.UpperLeft);
+        descLabel.style.marginTop = 4;
+        descLabel.style.minHeight = 0;
+        _skillTooltipBox.Add(descLabel);
+        LocalizeSkillBody(descLabel, skill);
     }
 
     private void LocalizeSkillBody(Label label, SkillDataSO skill)
@@ -750,11 +938,16 @@ public class ItemTooltipController : MonoBehaviour
                         sb.Append($"\n<color=#aaaaaa>{manaLabel}: {skill.ManaCost}</color>");
                     }
 
-                    if (label != null) 
+                        if (label != null) 
                     {
                         label.text = sb.ToString();
-                        if (_root != null) 
-                            _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
+                        if (_root != null)
+                        {
+                            if (_currentHudSkill != null)
+                                _root.schedule.Execute(RecalculateHudSkillPosition).ExecuteLater(1);
+                            else
+                                _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
+                        }
                     }
                 };
             };

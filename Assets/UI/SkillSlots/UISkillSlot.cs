@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using TMPro;
 using Scripts.Skills;
@@ -23,6 +24,27 @@ public class UISkillSlot : MonoBehaviour
     [SerializeField] private Color _cooldownTextColor = Color.white;
 
     private static Sprite _runtimeWhiteSprite;
+    private SkillDataSO _skill;
+    private bool _pointerInside;
+
+    public SkillDataSO CurrentSkill => _skill;
+
+    private void Update()
+    {
+        bool over = IsPointerOverThisSlot();
+        if (over == _pointerInside)
+        {
+            if (over && _skill != null && !IsHudSkillTooltipVisible())
+                RefreshHoverTooltip();
+            return;
+        }
+
+        _pointerInside = over;
+        if (over)
+            RefreshHoverTooltip();
+        else
+            ItemTooltipController.Instance?.HideHudSkillTooltip(this);
+    }
 
     private void Awake()
     {
@@ -40,6 +62,7 @@ public class UISkillSlot : MonoBehaviour
         }
 
         _iconImage.raycastTarget = false;
+        EnsureHitTarget();
         EnsureCooldownOverlay();
         EnsureInfoLabels();
         Clear();
@@ -64,22 +87,33 @@ public class UISkillSlot : MonoBehaviour
 
     public void Setup(SkillDataSO skill, string inputLabel)
     {
+        _skill = skill;
         Setup(skill != null ? skill.Icon : null);
         SetInputLabel(inputLabel);
         SetManaCost(skill != null ? skill.ManaCost : 0f);
         SetCooldownText(0f, false);
+        RefreshHoverTooltip();
     }
 
     public void Clear()
     {
-        if (_iconImage == null)
-            return;
+        _skill = null;
+        if (_iconImage != null)
+        {
+            _iconImage.sprite = null;
+            _iconImage.enabled = false;
+        }
 
-        _iconImage.sprite = null;
-        _iconImage.enabled = false;
         SetCooldownOverlay(0f, false);
         SetManaCost(0f);
         SetCooldownText(0f, false);
+        RefreshHoverTooltip();
+    }
+
+    private void OnDestroy()
+    {
+        if (_pointerInside)
+            ItemTooltipController.Instance?.HideHudSkillTooltip(this);
     }
 
     public void SetCooldownOverlay(float normalizedRemaining, bool visible)
@@ -133,6 +167,58 @@ public class UISkillSlot : MonoBehaviour
         bool hasManaCost = manaCost > 0.01f;
         _manaCostText.enabled = hasManaCost;
         _manaCostText.text = hasManaCost ? Mathf.CeilToInt(manaCost).ToString() : "";
+    }
+
+    private void RefreshHoverTooltip()
+    {
+        if (!_pointerInside)
+            return;
+
+        var tooltip = ItemTooltipController.Instance;
+        if (tooltip == null)
+            return;
+
+        if (_skill != null)
+            tooltip.ShowHudSkillTooltip(_skill, transform as RectTransform, this);
+        else
+            tooltip.HideHudSkillTooltip(this);
+    }
+
+    private bool IsPointerOverThisSlot()
+    {
+        if (Mouse.current == null)
+            return false;
+        if (HudShortcutBar.IsPointerOverBar())
+            return false;
+
+        var rect = transform as RectTransform;
+        if (rect == null)
+            return false;
+
+        Canvas canvas = GetComponentInParent<Canvas>();
+        Camera camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? canvas.worldCamera
+            : null;
+        return RectTransformUtility.RectangleContainsScreenPoint(rect, Mouse.current.position.ReadValue(), camera);
+    }
+
+    private bool IsHudSkillTooltipVisible()
+    {
+        var tooltip = ItemTooltipController.Instance;
+        return tooltip != null && tooltip.IsShowingHudSkillTooltip(this);
+    }
+
+    private void EnsureHitTarget()
+    {
+        var image = GetComponent<Image>();
+        if (image == null)
+        {
+            image = gameObject.AddComponent<Image>();
+            image.sprite = GetRuntimeWhiteSprite();
+            image.color = new Color(1f, 1f, 1f, 0.01f);
+        }
+
+        image.raycastTarget = true;
     }
 
     private void EnsureCooldownOverlay()
