@@ -97,6 +97,94 @@ namespace Scripts.StatusEffects
             TryApplyHitAilments(sourceStats, source, target, hitSnapshot);
         }
 
+        public static bool TryPreviewHitAilment(
+            IStatsProvider sourceStats,
+            DamageSnapshot hitSnapshot,
+            AilmentType ailmentType,
+            out float tickDamage,
+            out float chancePercent)
+        {
+            tickDamage = 0f;
+            chancePercent = 0f;
+            return ailmentType switch
+            {
+                AilmentType.Poison => TryPreviewPoison(sourceStats, hitSnapshot, out tickDamage, out chancePercent),
+                AilmentType.Bleed => TryPreviewBleed(sourceStats, hitSnapshot, out tickDamage, out chancePercent),
+                AilmentType.Ignite => TryPreviewIgnite(sourceStats, hitSnapshot, out tickDamage, out chancePercent),
+                _ => false
+            };
+        }
+
+        private static bool TryPreviewPoison(
+            IStatsProvider sourceStats,
+            DamageSnapshot hitSnapshot,
+            out float tickDamage,
+            out float chancePercent)
+        {
+            tickDamage = 0f;
+            chancePercent = 0f;
+            if (sourceStats == null || hitSnapshot == null || hitSnapshot.Physical <= 0f)
+                return false;
+
+            chancePercent = Mathf.Clamp(Mathf.Max(0f, sourceStats.GetValue(StatType.PoisonChance)), 0f, 100f);
+            if (chancePercent <= 0f)
+                return false;
+
+            float damageMult = sourceStats.GetValue(StatType.PoisonDamageMult);
+            if (damageMult <= 0f)
+                damageMult = DefaultPoisonDamageMult;
+
+            tickDamage = hitSnapshot.Physical * (damageMult / 100f) * Mathf.Max(0f, 1f + sourceStats.GetValue(StatType.PoisonDamage) / 100f);
+            return tickDamage > 0f;
+        }
+
+        private static bool TryPreviewBleed(
+            IStatsProvider sourceStats,
+            DamageSnapshot hitSnapshot,
+            out float tickDamage,
+            out float chancePercent)
+        {
+            tickDamage = 0f;
+            chancePercent = 0f;
+            if (sourceStats == null || hitSnapshot == null || hitSnapshot.Physical <= 0f)
+                return false;
+
+            chancePercent = Mathf.Clamp(Mathf.Max(0f, sourceStats.GetValue(StatType.BleedChance)), 0f, 100f);
+            if (chancePercent <= 0f)
+                return false;
+
+            float damageMult = sourceStats.GetValue(StatType.BleedDamageMult);
+            if (damageMult <= 0f)
+                damageMult = DefaultBleedDamageMult;
+
+            tickDamage = hitSnapshot.Physical * (damageMult / 100f) * Mathf.Max(0f, 1f + sourceStats.GetValue(StatType.BleedDamage) / 100f);
+            return tickDamage > 0f;
+        }
+
+        private static bool TryPreviewIgnite(
+            IStatsProvider sourceStats,
+            DamageSnapshot hitSnapshot,
+            out float tickDamage,
+            out float chancePercent)
+        {
+            tickDamage = 0f;
+            chancePercent = 0f;
+            if (sourceStats == null || hitSnapshot == null || hitSnapshot.Fire <= 0f || hitSnapshot.TotalDamage <= 0f)
+                return false;
+            if (hitSnapshot.Fire / hitSnapshot.TotalDamage < IgniteFireDamageShareThreshold)
+                return false;
+
+            float configuredChance = Mathf.Max(0f, sourceStats.GetValue(StatType.IgniteChance));
+            chancePercent = Mathf.Clamp(Mathf.Max(DefaultIgniteChance, configuredChance), 0f, 100f);
+
+            float damageMult = sourceStats.GetValue(StatType.IgniteDamageMult);
+            if (damageMult <= 0f)
+                damageMult = DefaultIgniteDamageMult;
+
+            tickDamage = hitSnapshot.Fire * (damageMult / 100f) * Mathf.Max(0f, 1f + sourceStats.GetValue(StatType.IgniteDamage) / 100f);
+            return tickDamage > 0f;
+        }
+
         public bool TryApplyPoison(IStatsProvider sourceStats, object source, DamageSnapshot hitSnapshot)
         {
             if (sourceStats == null || hitSnapshot == null || hitSnapshot.Physical <= 0f)

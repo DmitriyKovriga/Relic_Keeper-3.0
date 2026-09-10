@@ -28,6 +28,7 @@ public class UISkillSlot : MonoBehaviour
     private bool _pointerInside;
 
     public SkillDataSO CurrentSkill => _skill;
+    public int SlotIndex { get; private set; } = -1;
 
     private void Update()
     {
@@ -85,8 +86,9 @@ public class UISkillSlot : MonoBehaviour
         }
     }
 
-    public void Setup(SkillDataSO skill, string inputLabel)
+    public void Setup(SkillDataSO skill, string inputLabel, int slotIndex = -1)
     {
+        SlotIndex = slotIndex;
         _skill = skill;
         Setup(skill != null ? skill.Icon : null);
         SetInputLabel(inputLabel);
@@ -98,6 +100,7 @@ public class UISkillSlot : MonoBehaviour
     public void Clear()
     {
         _skill = null;
+        SlotIndex = -1;
         if (_iconImage != null)
         {
             _iconImage.sprite = null;
@@ -190,6 +193,10 @@ public class UISkillSlot : MonoBehaviour
             return false;
         if (HudShortcutBar.IsPointerOverBar())
             return false;
+
+        var tooltip = ItemTooltipController.Instance;
+        if (_skill != null && tooltip != null && tooltip.IsShowingHudSkillTooltip(this) && tooltip.IsPointerOverHudSkillUi())
+            return true;
 
         var rect = transform as RectTransform;
         if (rect == null)

@@ -117,32 +117,39 @@ public static class DamageCalculator
     {
         var snapshot = new DamageSnapshot(attackerStats);
 
-        DamagePool pool = BuildFlatDamagePool(attackerStats);
-        ApplyConversionRules(ref pool, skillConversions);
-        ApplyConversionRules(ref pool, BuildStatConversionRules(attackerStats));
-        ApplyDamageModifiers(attackerStats, ref pool, damageContext);
-        pool.Multiply(Mathf.Max(0f, skillMultiplier));
-
-        float critChance = attackerStats.GetValue(StatType.CritChance);
-        bool isCrit = Random.value < (critChance / 100f);
-
-        if (isCrit)
-        {
-            snapshot.IsCrit = true;
-            float critMult = attackerStats.GetValue(StatType.CritMultiplier);
-            if (critMult <= 0) critMult = 150f;
-
-            float multiplierFactor = critMult / 100f;
-
-            pool.Multiply(multiplierFactor);
-        }
-
-        snapshot.Physical = pool.Physical;
-        snapshot.Fire = pool.Fire;
-        snapshot.Cold = pool.Cold;
-        snapshot.Lightning = pool.Lightning;
-
+        DamagePool pool = BuildFinalDamagePool(attackerStats, skillMultiplier, damageContext, skillConversions, rollWeapon: true);
+        ApplyRandomCrit(attackerStats, ref pool, snapshot);
+        AssignSnapshot(snapshot, pool);
         return snapshot;
+    }
+
+    /// <summary>
+    /// Average hit preview: weapon midpoint, expected crit, no random rolls.
+    /// </summary>
+    public static DamageSnapshot CreatePreviewSnapshot(
+        IStatsProvider attackerStats,
+        float skillMultiplier = 1.0f,
+        DamageContext damageContext = default,
+        IReadOnlyList<DamageConversionRule> skillConversions = null)
+    {
+        var snapshot = new DamageSnapshot(attackerStats);
+        DamagePool pool = BuildFinalDamagePool(attackerStats, skillMultiplier, damageContext, skillConversions, rollWeapon: false);
+        pool.Multiply(GetExpectedCritFactor(attackerStats));
+        AssignSnapshot(snapshot, pool);
+        return snapshot;
+    }
+
+    public static float GetExpectedCritFactor(IStatsProvider stats)
+    {
+        if (stats == null)
+            return 1f;
+
+        float chance = Mathf.Clamp01(stats.GetValue(StatType.CritChance) / 100f);
+        float critMult = stats.GetValue(StatType.CritMultiplier);
+        if (critMult <= 0f)
+            critMult = 150f;
+
+        return 1f + chance * ((critMult / 100f) - 1f);
     }
 
     public static float CalculateBleedDPS(IStatsProvider stats)
@@ -181,6 +188,49 @@ public static class DamageCalculator
         return baseIgnite * (1f + igniteInc / 100f);
     }
 
+    private static DamagePool BuildFinalDamagePool(
+        IStatsProvider attackerStats,
+        float skillMultiplier,
+        DamageContext damageContext,
+        IReadOnlyList<DamageConversionRule> skillConversions,
+        bool rollWeapon)
+    {
+        DamagePool pool = rollWeapon
+            ? BuildFlatDamagePool(attackerStats)
+            : BuildAverageFlatDamagePool(attackerStats);
+        ApplyConversionRules(ref pool, skillConversions);
+        ApplyConversionRules(ref pool, BuildStatConversionRules(attackerStats));
+        ApplyDamageModifiers(attackerStats, ref pool, damageContext);
+        pool.Multiply(Mathf.Max(0f, skillMultiplier));
+        return pool;
+    }
+
+    private static void ApplyRandomCrit(IStatsProvider attackerStats, ref DamagePool pool, DamageSnapshot snapshot)
+    {
+        if (attackerStats == null)
+            return;
+
+        float critChance = attackerStats.GetValue(StatType.CritChance);
+        bool isCrit = Random.value < (critChance / 100f);
+        if (!isCrit)
+            return;
+
+        snapshot.IsCrit = true;
+        float critMult = attackerStats.GetValue(StatType.CritMultiplier);
+        if (critMult <= 0)
+            critMult = 150f;
+
+        pool.Multiply(critMult / 100f);
+    }
+
+    private static void AssignSnapshot(DamageSnapshot snapshot, DamagePool pool)
+    {
+        snapshot.Physical = pool.Physical;
+        snapshot.Fire = pool.Fire;
+        snapshot.Cold = pool.Cold;
+        snapshot.Lightning = pool.Lightning;
+    }
+
     private static DamagePool BuildFlatDamagePool(IStatsProvider attackerStats)
     {
         return new DamagePool
@@ -190,6 +240,22 @@ public static class DamageCalculator
             Cold = GetRolledFlatDamage(attackerStats, StatType.DamageCold),
             Lightning = GetRolledFlatDamage(attackerStats, StatType.DamageLightning)
         };
+    }
+
+    private static DamagePool BuildAverageFlatDamagePool(IStatsProvider attackerStats)
+    {
+        return new DamagePool
+        {
+            Physical = GetAverageFlatDamage(attackerStats, StatType.DamagePhysical),
+            Fire = GetAverageFlatDamage(attackerStats, StatType.DamageFire),
+            Cold = GetAverageFlatDamage(attackerStats, StatType.DamageCold),
+            Lightning = GetAverageFlatDamage(attackerStats, StatType.DamageLightning)
+        };
+    }
+
+    private static float GetAverageFlatDamage(IStatsProvider attackerStats, StatType damageType)
+    {
+        return Mathf.Max(0f, GetDamageChannelLayers(attackerStats, damageType).Flat);
     }
 
     private static void ApplyDamageModifiers(IStatsProvider attackerStats, ref DamagePool pool, DamageContext damageContext)

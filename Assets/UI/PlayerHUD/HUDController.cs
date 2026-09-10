@@ -238,7 +238,7 @@ public class HUDController : MonoBehaviour
         string inputLabel = GetSkillInputLabel(index);
         if (skill != null)
         {
-            _skillSlots[index].Setup(skill, inputLabel);
+            _skillSlots[index].Setup(skill, inputLabel, index);
         }
         else
         {
@@ -624,7 +624,7 @@ public class HUDController : MonoBehaviour
 
             SkillDataSO skill = _skillManager != null ? _skillManager.GetSkillData(i) : null;
             if (skill != null)
-                slot.Setup(skill, GetSkillInputLabel(i));
+                slot.Setup(skill, GetSkillInputLabel(i), i);
             else
                 slot.SetInputLabel(GetSkillInputLabel(i));
         }

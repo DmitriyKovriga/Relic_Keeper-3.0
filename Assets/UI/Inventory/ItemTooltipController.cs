@@ -1,9 +1,12 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Stats;
 using Scripts.Skills;
+using Scripts.Combat;
+using Scripts.StatusEffects;
 using Scripts.Items.World;
 using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -22,7 +25,8 @@ public class ItemTooltipController : MonoBehaviour
     [SerializeField] private float _gap = 5f; 
     [SerializeField] private float _screenPadding = 4f;
     private const float HudSkillTooltipGap = 2f;
-    private const float HudSkillTooltipPadding = 2f; 
+    private const float HudSkillTooltipPadding = 2f;
+    private const float HudDpsBreakdownWidth = 88f; 
     
     [SerializeField, Tooltip("Задержка в миллисекундах перед скрытием тултипа (увеличена против мерцания при наведении на экипировку)")]
     private long _hideDelayMs = 180;
@@ -54,9 +58,16 @@ public class ItemTooltipController : MonoBehaviour
     private IVisualElementScheduledItem _hideScheduler;
     private VisualElement _worldAnchor;
     private WorldDroppedItem _worldTargetItem;
+    private VisualElement _hudDpsBreakdownBox;
+    private VisualElement _hudDpsHoverRow;
+    private VisualElement _hudHitHoverRow;
+    private VisualElement _hudBreakdownAnchorRow;
+    private bool _hudBreakdownShowPerHit;
     private RectTransform _hudSkillRect;
     private SkillDataSO _currentHudSkill;
     private object _hudSkillSource;
+    private int _hudSkillSlotIndex = -1;
+    private SkillDpsPreview _hudDpsPreview;
 
     // --- Orb Tooltip ---
     private VisualElement _orbTooltipBox;
@@ -111,6 +122,11 @@ public class ItemTooltipController : MonoBehaviour
         HideTooltipImmediate();
     }
 
+    private void LateUpdate()
+    {
+        UpdateHudDpsBreakdownHover();
+    }
+
     private void OnLocaleChanged(UnityEngine.Localization.Locale locale)
     {
         if (_currentTargetItem != null && _itemTooltipBox.style.display == DisplayStyle.Flex)
@@ -154,6 +170,8 @@ public class ItemTooltipController : MonoBehaviour
         if (oldWorldAnchor != null) _root.Remove(oldWorldAnchor);
         var oldHudAnchor = _root.Q<VisualElement>("HudSkillTooltipAnchor");
         if (oldHudAnchor != null) _root.Remove(oldHudAnchor);
+        var oldDpsBreakdown = _root.Q<VisualElement>("GlobalHudSkillDpsBreakdown");
+        if (oldDpsBreakdown != null) _root.Remove(oldDpsBreakdown);
 
         _worldAnchor = new VisualElement { name = "WorldItemTooltipAnchor" };
         _worldAnchor.style.position = Position.Absolute;
@@ -181,6 +199,15 @@ public class ItemTooltipController : MonoBehaviour
         _skillTooltipBox.style.borderRightColor = new Color(0, 0.5f, 0.5f);
         
         _root.Add(_skillTooltipBox);
+
+        _hudDpsBreakdownBox = CreateContainer("GlobalHudSkillDpsBreakdown", _colSkillBg);
+        _hudDpsBreakdownBox.style.width = HudDpsBreakdownWidth;
+        _hudDpsBreakdownBox.style.borderTopColor = new Color(0, 0.5f, 0.5f);
+        _hudDpsBreakdownBox.style.borderBottomColor = new Color(0, 0.5f, 0.5f);
+        _hudDpsBreakdownBox.style.borderLeftColor = new Color(0, 0.5f, 0.5f);
+        _hudDpsBreakdownBox.style.borderRightColor = new Color(0, 0.5f, 0.5f);
+        _hudDpsBreakdownBox.style.alignItems = Align.Stretch;
+        _root.Add(_hudDpsBreakdownBox);
 
         // --- 3. Orb Tooltip (crafting orbs) ---
         _orbTooltipBox = CreateContainer("GlobalOrbTooltip", _colSkillBg);
@@ -349,6 +376,7 @@ public class ItemTooltipController : MonoBehaviour
         _currentHudSkill = skill;
         _hudSkillRect = slotRect;
         _hudSkillSource = source;
+        _hudSkillSlotIndex = source is UISkillSlot hudSlot ? hudSlot.SlotIndex : -1;
 
         if (_itemTooltipBox != null)
             _itemTooltipBox.style.display = DisplayStyle.None;
@@ -378,6 +406,63 @@ public class ItemTooltipController : MonoBehaviour
             && (source == null || ReferenceEquals(_hudSkillSource, source))
             && _skillTooltipBox != null
             && _skillTooltipBox.style.display == DisplayStyle.Flex;
+    }
+
+    public bool IsPointerOverHudSkillUi()
+    {
+        if (_currentHudSkill == null || _root == null || _root.panel == null || Mouse.current == null)
+            return false;
+
+        Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(_root.panel, Mouse.current.position.ReadValue());
+        return IsPanelPointOver(_skillTooltipBox, panelPos) || IsPanelPointOver(_hudDpsBreakdownBox, panelPos);
+    }
+
+    private static bool IsPanelPointOver(VisualElement element, Vector2 panelPos)
+    {
+        return element != null
+            && element.panel != null
+            && element.style.display == DisplayStyle.Flex
+            && element.worldBound.Contains(panelPos);
+    }
+
+    private static bool IsPointerOverElement(VisualElement element)
+    {
+        if (element == null || element.panel == null || Mouse.current == null)
+            return false;
+
+        Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(element.panel, Mouse.current.position.ReadValue());
+        return element.worldBound.Contains(panelPos);
+    }
+
+    private void UpdateHudDpsBreakdownHover()
+    {
+        VisualElement anchor = null;
+        bool perHit = false;
+        if (_currentHudSkill != null && _hudDpsPreview.HasHitDamage)
+        {
+            if (IsPointerOverElement(_hudHitHoverRow))
+            {
+                anchor = _hudHitHoverRow;
+                perHit = true;
+            }
+            else if (IsPointerOverElement(_hudDpsHoverRow))
+            {
+                anchor = _hudDpsHoverRow;
+            }
+        }
+
+        bool visible = _hudDpsBreakdownBox != null && _hudDpsBreakdownBox.style.display == DisplayStyle.Flex;
+        if (anchor == null)
+        {
+            if (visible)
+                HideHudDpsBreakdown();
+            return;
+        }
+
+        if (!visible || _hudBreakdownShowPerHit != perHit || _hudBreakdownAnchorRow != anchor)
+            ShowHudDpsBreakdown(perHit, anchor);
+        else
+            RecalculateHudDpsBreakdownPosition();
     }
 
     private static bool ShouldHideWorldItemTooltip()
@@ -481,6 +566,7 @@ public class ItemTooltipController : MonoBehaviour
             _orbTooltipBox.style.display = DisplayStyle.None;
             _orbTooltipBox.style.visibility = Visibility.Hidden;
         }
+        HideHudDpsBreakdown();
         _currentTargetItem = null;
         _currentTargetOrb = null;
         _targetAnchorSlot = null;
@@ -760,6 +846,7 @@ public class ItemTooltipController : MonoBehaviour
         _skillTooltipBox.style.left = pos.x;
         _skillTooltipBox.style.top = pos.y;
         _skillTooltipBox.style.visibility = Visibility.Visible;
+        RecalculateHudDpsBreakdownPosition();
     }
 
     public static Vector2 CalculateHudSkillTooltipPosition(
@@ -780,6 +867,28 @@ public class ItemTooltipController : MonoBehaviour
         float x = Mathf.Clamp(centerX - tooltipWidth * 0.5f, padding, Mathf.Max(padding, screenWidth - tooltipWidth - padding));
         float yAbove = slotTop - tooltipHeight - gap;
         float y = yAbove >= padding ? yAbove : slotBottom + gap;
+        if (y + tooltipHeight > screenHeight - padding)
+            y = Mathf.Max(padding, screenHeight - tooltipHeight - padding);
+        if (y < padding)
+            y = padding;
+        return new Vector2(Mathf.Round(x), Mathf.Round(y));
+    }
+
+    public static Vector2 CalculateHudNestedTooltipPosition(
+        Vector2 anchorMin,
+        Vector2 anchorMax,
+        float tooltipWidth,
+        float tooltipHeight,
+        float screenWidth,
+        float screenHeight,
+        float gap,
+        float padding)
+    {
+        float x = anchorMax.x + gap;
+        if (x + tooltipWidth + padding > screenWidth)
+            x = anchorMin.x - tooltipWidth - gap;
+        x = Mathf.Clamp(x, padding, Mathf.Max(padding, screenWidth - tooltipWidth - padding));
+        float y = anchorMin.y;
         if (y + tooltipHeight > screenHeight - padding)
             y = Mathf.Max(padding, screenHeight - tooltipHeight - padding);
         if (y < padding)
@@ -824,6 +933,12 @@ public class ItemTooltipController : MonoBehaviour
         _currentHudSkill = null;
         _hudSkillRect = null;
         _hudSkillSource = null;
+        _hudSkillSlotIndex = -1;
+        _hudDpsHoverRow = null;
+        _hudHitHoverRow = null;
+        _hudBreakdownAnchorRow = null;
+        _hudDpsPreview = default;
+        HideHudDpsBreakdown();
     }
 
     // --- Fill Data Logic (SKILLS) - ТВОЙ КОД ---
@@ -836,7 +951,7 @@ public class ItemTooltipController : MonoBehaviour
         if (!hasSkill)
             return;
 
-        AddSkillTooltipBlock(skill, typeKey: null, typeFallback: null, addDivider: false);
+        AddSkillTooltipBlock(skill, typeKey: null, typeFallback: null, addDivider: false, includeDps: true);
     }
 
     private void FillSkillData(InventoryItem item)
@@ -864,7 +979,7 @@ public class ItemTooltipController : MonoBehaviour
         }
     }
 
-    private void AddSkillTooltipBlock(SkillDataSO skill, string typeKey, string typeFallback, bool addDivider)
+    private void AddSkillTooltipBlock(SkillDataSO skill, string typeKey, string typeFallback, bool addDivider, bool includeDps = false)
     {
         if (skill == null)
             return;
@@ -902,11 +1017,272 @@ public class ItemTooltipController : MonoBehaviour
             _skillTooltipBox.Add(icon);
         }
 
+        if (includeDps)
+            AddHudSkillDpsBlock(skill);
+
         var descLabel = CreateLabel("", 8, FontStyle.Normal, TextAnchor.UpperLeft);
-        descLabel.style.marginTop = 4;
+        descLabel.style.marginTop = includeDps ? 2 : 4;
         descLabel.style.minHeight = 0;
         _skillTooltipBox.Add(descLabel);
         LocalizeSkillBody(descLabel, skill);
+    }
+
+    private void AddHudSkillDpsBlock(SkillDataSO skill)
+    {
+        HideHudDpsBreakdown();
+        _hudDpsHoverRow = null;
+        _hudHitHoverRow = null;
+        _hudBreakdownAnchorRow = null;
+
+        PlayerStats player = Object.FindFirstObjectByType<PlayerStats>();
+        if (player == null)
+            return;
+
+        SkillDpsPreview preview = SkillDpsPreview.Build(skill, player, _hudSkillSlotIndex);
+        _hudDpsPreview = preview;
+        if (!preview.HasContent)
+            return;
+
+        var block = new VisualElement { name = "HudSkillDpsBlock" };
+        block.pickingMode = PickingMode.Ignore;
+        block.style.alignSelf = Align.Stretch;
+        block.style.width = Length.Percent(100);
+        block.style.marginTop = 2;
+        block.style.marginBottom = 0;
+        block.style.minHeight = 0;
+
+        if (preview.HasHitDamage)
+        {
+            _hudHitHoverRow = CreateHudDpsRow(
+                "skills.hit_damage",
+                "Урон за удар",
+                SkillDpsPreview.FormatAmount(preview.Hit.TotalPerHit),
+                _colNormalText,
+                hoverable: true);
+            block.Add(_hudHitHoverRow);
+
+            _hudDpsHoverRow = CreateHudDpsRow(
+                "skills.dps",
+                "Урон в сек",
+                SkillDpsPreview.FormatAmount(preview.Hit.TotalDps),
+                _colNormalText,
+                hoverable: true);
+            block.Add(_hudDpsHoverRow);
+        }
+
+        for (int i = 0; i < preview.Dots.Length; i++)
+        {
+            SkillDotDpsPreview dot = preview.Dots[i];
+            GetDotDamageLabel(dot.Type, out string damageKey, out string damageFallback);
+            GetDotChanceLabel(dot.Type, out string chanceKey, out string chanceFallback);
+            block.Add(CreateHudDpsRow(
+                damageKey,
+                damageFallback,
+                $"{SkillDpsPreview.FormatAmount(dot.TickDps)}/с",
+                _colNormalText,
+                hoverable: false));
+            block.Add(CreateHudDpsRow(
+                chanceKey,
+                chanceFallback,
+                SkillDpsPreview.FormatChance(dot.ChancePercent),
+                _colNormalText,
+                hoverable: false));
+        }
+
+        _skillTooltipBox.Add(block);
+    }
+
+    private VisualElement CreateHudDpsRow(string key, string fallback, string value, Color color, bool hoverable)
+    {
+        var row = new VisualElement { name = hoverable ? "HudSkillTotalDpsRow" : "HudSkillDpsRow" };
+        row.pickingMode = hoverable ? PickingMode.Position : PickingMode.Ignore;
+        row.style.flexDirection = FlexDirection.Row;
+        row.style.justifyContent = Justify.SpaceBetween;
+        row.style.alignItems = Align.Center;
+        row.style.width = Length.Percent(100);
+        row.style.height = 8;
+        row.style.marginTop = 1;
+        row.style.paddingTop = 0;
+        row.style.paddingBottom = 0;
+        row.style.minHeight = 0;
+
+        var nameLabel = CreateCompactDpsLabel("", TextAnchor.MiddleLeft);
+        nameLabel.style.flexGrow = 1;
+        nameLabel.style.flexShrink = 1;
+        nameLabel.style.color = new StyleColor(color);
+        LocalizeLabel(nameLabel, TABLE_SKILLS, key, fallback);
+
+        var valueLabel = CreateCompactDpsLabel(value, TextAnchor.MiddleRight);
+        valueLabel.style.flexGrow = 0;
+        valueLabel.style.marginLeft = 4;
+        valueLabel.style.color = new StyleColor(color);
+
+        row.Add(nameLabel);
+        row.Add(valueLabel);
+        return row;
+    }
+
+    private Label CreateCompactDpsLabel(string text, TextAnchor align)
+    {
+        var lbl = CreateLabel(text, 7, FontStyle.Normal, align);
+        lbl.pickingMode = PickingMode.Ignore;
+        lbl.style.paddingTop = 0;
+        lbl.style.paddingBottom = 0;
+        lbl.style.paddingLeft = 0;
+        lbl.style.paddingRight = 0;
+        lbl.style.marginTop = 0;
+        lbl.style.marginBottom = 0;
+        lbl.style.minHeight = 0;
+        lbl.style.height = 8;
+        lbl.style.whiteSpace = WhiteSpace.NoWrap;
+        lbl.style.overflow = Overflow.Hidden;
+        return lbl;
+    }
+
+    private void ShowHudDpsBreakdown(bool perHit, VisualElement anchorRow)
+    {
+        if (_hudDpsBreakdownBox == null || !_hudDpsPreview.HasHitDamage || anchorRow == null)
+            return;
+
+        _hudBreakdownShowPerHit = perHit;
+        _hudBreakdownAnchorRow = anchorRow;
+        _hudDpsBreakdownBox.Clear();
+        SkillHitDpsPreview hit = _hudDpsPreview.Hit;
+        AddHudDpsBreakdownChannel("skills.damage_physical", "Физ.", perHit ? hit.PhysicalPerHit : hit.PhysicalDps, _colNormalText);
+        AddHudDpsBreakdownChannel("skills.damage_fire", "Огонь", perHit ? hit.FirePerHit : hit.FireDps, _colFireText);
+        AddHudDpsBreakdownChannel("skills.damage_cold", "Холод", perHit ? hit.ColdPerHit : hit.ColdDps, _colColdText);
+        AddHudDpsBreakdownChannel("skills.damage_lightning", "Молния", perHit ? hit.LightningPerHit : hit.LightningDps, _colLightningText);
+
+        if (_hudDpsBreakdownBox.childCount == 0)
+            return;
+
+        _hudDpsBreakdownBox.style.display = DisplayStyle.Flex;
+        _hudDpsBreakdownBox.style.visibility = Visibility.Hidden;
+        RecalculateHudDpsBreakdownPosition();
+        if (_root != null)
+            _root.schedule.Execute(RecalculateHudDpsBreakdownPosition).ExecuteLater(1);
+    }
+
+    private void AddHudDpsBreakdownChannel(string key, string fallback, float amount, Color color)
+    {
+        if (amount <= 0.049f)
+            return;
+
+        AddHudDpsBreakdownRow(key, fallback, amount, color);
+    }
+
+    private void AddHudDpsBreakdownRow(string key, string fallback, float dps, Color color)
+    {
+        var row = new VisualElement();
+        row.pickingMode = PickingMode.Ignore;
+        row.style.flexDirection = FlexDirection.Row;
+        row.style.justifyContent = Justify.SpaceBetween;
+        row.style.alignItems = Align.Center;
+        row.style.width = Length.Percent(100);
+        row.style.height = 8;
+        row.style.marginTop = 1;
+        row.style.minHeight = 0;
+
+        var nameLabel = CreateCompactDpsLabel("", TextAnchor.MiddleLeft);
+        nameLabel.style.flexGrow = 1;
+        nameLabel.style.color = new StyleColor(color);
+        LocalizeLabel(nameLabel, TABLE_SKILLS, key, fallback);
+
+        var valueLabel = CreateCompactDpsLabel(SkillDpsPreview.FormatAmount(dps), TextAnchor.MiddleRight);
+        valueLabel.style.marginLeft = 4;
+        valueLabel.style.color = new StyleColor(color);
+
+        row.Add(nameLabel);
+        row.Add(valueLabel);
+        _hudDpsBreakdownBox.Add(row);
+    }
+
+    private void HideHudDpsBreakdown()
+    {
+        if (_hudDpsBreakdownBox == null)
+            return;
+        _hudDpsBreakdownBox.style.display = DisplayStyle.None;
+        _hudDpsBreakdownBox.style.visibility = Visibility.Hidden;
+    }
+
+    private void RecalculateHudDpsBreakdownPosition()
+    {
+        if (_hudDpsBreakdownBox == null || _root == null || _hudBreakdownAnchorRow == null)
+            return;
+        if (_hudDpsBreakdownBox.style.display != DisplayStyle.Flex)
+            return;
+
+        float screenW = _root.resolvedStyle.width;
+        float screenH = _root.resolvedStyle.height;
+        Rect row = _hudBreakdownAnchorRow.worldBound;
+        Vector2 min = _root.WorldToLocal(row.min);
+        Vector2 max = _root.WorldToLocal(row.max);
+
+        float boxW = _hudDpsBreakdownBox.resolvedStyle.width;
+        if (float.IsNaN(boxW) || boxW < 10f)
+            boxW = HudDpsBreakdownWidth;
+        float boxH = _hudDpsBreakdownBox.resolvedStyle.height;
+        if (float.IsNaN(boxH) || boxH < 8f)
+            boxH = 8f + _hudDpsBreakdownBox.childCount * 9f;
+
+        Vector2 pos = CalculateHudNestedTooltipPosition(
+            min,
+            max,
+            boxW,
+            boxH,
+            screenW,
+            screenH,
+            HudSkillTooltipGap,
+            HudSkillTooltipPadding);
+        _hudDpsBreakdownBox.style.left = pos.x;
+        _hudDpsBreakdownBox.style.top = pos.y;
+        _hudDpsBreakdownBox.style.visibility = Visibility.Visible;
+    }
+
+    private static void GetDotDamageLabel(AilmentType type, out string key, out string fallback)
+    {
+        switch (type)
+        {
+            case AilmentType.Bleed:
+                key = "skills.dot_damage_bleed";
+                fallback = "Урон от кровотечения";
+                return;
+            case AilmentType.Poison:
+                key = "skills.dot_damage_poison";
+                fallback = "Урон от яда";
+                return;
+            case AilmentType.Ignite:
+                key = "skills.dot_damage_ignite";
+                fallback = "Урон от поджига";
+                return;
+            default:
+                key = "skills.dot";
+                fallback = "Постепенный урон";
+                return;
+        }
+    }
+
+    private static void GetDotChanceLabel(AilmentType type, out string key, out string fallback)
+    {
+        switch (type)
+        {
+            case AilmentType.Bleed:
+                key = "skills.dot_chance_bleed";
+                fallback = "Шанс кровотечения";
+                return;
+            case AilmentType.Poison:
+                key = "skills.dot_chance_poison";
+                fallback = "Шанс яда";
+                return;
+            case AilmentType.Ignite:
+                key = "skills.dot_chance_ignite";
+                fallback = "Шанс поджига";
+                return;
+            default:
+                key = "skills.dot_chance";
+                fallback = "Шанс наложить";
+                return;
+        }
     }
 
     private void LocalizeSkillBody(Label label, SkillDataSO skill)

@@ -266,6 +266,74 @@ MonoBehaviour:
     m_Localized: Throw Homing Weapon with 100% damage
     m_Metadata:
       m_Items: []
+  - m_Id: 58000000000000001
+    m_Localized: DPS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000002
+    m_Localized: Damage over time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000003
+    m_Localized: Inflict chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000004
+    m_Localized: Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000005
+    m_Localized: Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000006
+    m_Localized: Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000007
+    m_Localized: Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000008
+    m_Localized: Bleed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000009
+    m_Localized: Poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000010
+    m_Localized: Ignite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000011
+    m_Localized: Bleed damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000012
+    m_Localized: Poison damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000013
+    m_Localized: Ignite damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000014
+    m_Localized: Bleed chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000015
+    m_Localized: Poison chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000016
+    m_Localized: Ignite chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000017
+    m_Localized: Damage per hit
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

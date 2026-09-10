@@ -247,6 +247,74 @@ MonoBehaviour:
     m_Key: skills.HomingWeaponThrow.description
     m_Metadata:
       m_Items: []
+  - m_Id: 58000000000000001
+    m_Key: skills.dps
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000002
+    m_Key: skills.dot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000003
+    m_Key: skills.dot_chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000004
+    m_Key: skills.damage_physical
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000005
+    m_Key: skills.damage_fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000006
+    m_Key: skills.damage_cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000007
+    m_Key: skills.damage_lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000008
+    m_Key: skills.ailment_bleed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000009
+    m_Key: skills.ailment_poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000010
+    m_Key: skills.ailment_ignite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000011
+    m_Key: skills.dot_damage_bleed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000012
+    m_Key: skills.dot_damage_poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000013
+    m_Key: skills.dot_damage_ignite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000014
+    m_Key: skills.dot_chance_bleed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000015
+    m_Key: skills.dot_chance_poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000016
+    m_Key: skills.dot_chance_ignite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000017
+    m_Key: skills.hit_damage
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
