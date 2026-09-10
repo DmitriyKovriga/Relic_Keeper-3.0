@@ -2016,6 +2016,10 @@ MonoBehaviour:
     m_Localized: Item
     m_Metadata:
       m_Items: []
+  - m_Id: 62000000000000021
+    m_Localized: Room Cleared
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -1063,6 +1063,10 @@ MonoBehaviour:
     m_Key: inventory.slot.item
     m_Metadata:
       m_Items: []
+  - m_Id: 62000000000000021
+    m_Key: dungeon.ui.roomCleared
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

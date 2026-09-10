@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Scripts.Dungeon;
 using Scripts.Enemies;
 using UnityEngine;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace RelicKeeper.Tests.EditMode
@@ -92,6 +93,78 @@ namespace RelicKeeper.Tests.EditMode
             {
                 Object.DestroyImmediate(host);
             }
+        }
+
+        [Test]
+        public void RewardChest_UsesDynamicPhysicsLikeEnemies()
+        {
+            var created = new List<Object>();
+            try
+            {
+                RewardChest chest = RewardChest.Spawn(new Vector3(2f, 5f, 0f), 1, null);
+                created.Add(chest.gameObject);
+
+                Rigidbody2D body = chest.GetComponent<Rigidbody2D>();
+                BoxCollider2D box = chest.GetComponent<BoxCollider2D>();
+                Assert.That(body, Is.Not.Null);
+                Assert.That(box, Is.Not.Null);
+                Assert.That(body.bodyType, Is.EqualTo(RigidbodyType2D.Dynamic));
+                Assert.That(body.gravityScale, Is.EqualTo(3f));
+                Assert.That(body.freezeRotation, Is.True);
+                Assert.That(box.isTrigger, Is.False);
+            }
+            finally
+            {
+                for (int i = created.Count - 1; i >= 0; i--)
+                {
+                    if (created[i] != null)
+                        Object.DestroyImmediate(created[i]);
+                }
+            }
+        }
+
+        [Test]
+        public void ResolveRewardPosition_UsesPlayerCoordinatesNotPortal()
+        {
+            var created = new List<Object>();
+            try
+            {
+                var roomGo = new GameObject("RewardRoom");
+                created.Add(roomGo);
+                RoomController room = roomGo.AddComponent<RoomController>();
+
+                var portalGo = new GameObject("NextPortal");
+                created.Add(portalGo);
+                portalGo.transform.position = new Vector3(80f, 0f, 0f);
+
+                var player = new GameObject("Player");
+                created.Add(player);
+                player.tag = "Player";
+                player.transform.position = new Vector3(4f, 1.5f, 0f);
+
+                MethodInfo method = typeof(RoomController).GetMethod(
+                    "ResolveRewardPosition",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(method, Is.Not.Null);
+                Vector2 result = (Vector2)method.Invoke(room, null);
+                Assert.That(result.x, Is.EqualTo(4f).Within(0.01f));
+                Assert.That(result.y, Is.EqualTo(2.12f).Within(0.01f));
+            }
+            finally
+            {
+                for (int i = created.Count - 1; i >= 0; i--)
+                {
+                    if (created[i] != null)
+                        Object.DestroyImmediate(created[i]);
+                }
+            }
+        }
+
+        [Test]
+        public void RoomClearedBanner_UsesSharedLocalizationKey()
+        {
+            Assert.That(RoomClearedBanner.LocalizationKey, Is.EqualTo("dungeon.ui.roomCleared"));
+            Assert.That(RoomClearedBanner.FallbackText, Is.EqualTo("Room Cleared"));
         }
     }
 }

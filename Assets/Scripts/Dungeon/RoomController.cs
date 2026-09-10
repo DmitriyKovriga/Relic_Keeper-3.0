@@ -2,6 +2,7 @@
 using UnityEngine.Serialization;
 using System.Collections.Generic;
 using Scripts.Enemies;
+using Scripts.Items.World;
 
 namespace Scripts.Dungeon
 {
@@ -33,7 +34,6 @@ namespace Scripts.Dungeon
         [SerializeField, Min(0f)] private float _autoCameraBoundsPadding = 1.5f;
 
         private EnemySpawner[] _spawners;
-        private DungeonPortal[] _portals;
         private PolygonCollider2D _runtimeCameraBounds;
         private readonly List<EnemyHealth> _livingEnemies = new List<EnemyHealth>();
         private DungeonModifierContext _activeModifiers;
@@ -51,7 +51,6 @@ namespace Scripts.Dungeon
         private void Awake()
         {
             _spawners = GetComponentsInChildren<EnemySpawner>(true);
-            _portals = GetComponentsInChildren<DungeonPortal>(true);
             ResolveCameraBounds();
         }
 
@@ -71,6 +70,8 @@ namespace Scripts.Dungeon
 
         public void OnRoomEntered(Transform playerTransform, DungeonModifierContext modifiers)
         {
+            RoomClearedBanner.Hide();
+
             if (playerTransform != null)
             {
                 Vector3 pos = PlayerSpawnPosition;
@@ -145,7 +146,10 @@ namespace Scripts.Dungeon
                 health.OnDeath -= OnSpawnedEnemyDeath;
             _livingEnemies.Remove(health);
             if (_livingEnemies.Count == 0)
+            {
+                RoomClearedBanner.Show();
                 SpawnRoomClearRewards();
+            }
         }
 
         private void SpawnRoomClearRewards()
@@ -166,16 +170,16 @@ namespace Scripts.Dungeon
 
         private Vector2 ResolveRewardPosition()
         {
-            if (_portals != null)
+            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+            Transform player = playerObject != null ? playerObject.transform : null;
+            if (player == null)
             {
-                foreach (DungeonPortal portal in _portals)
-                {
-                    if (portal != null && portal.Type == PortalType.NextRoom)
-                        return portal.transform.position;
-                }
+                PlayerMovement movement = Object.FindFirstObjectByType<PlayerMovement>();
+                player = movement != null ? movement.transform : null;
             }
 
-            return PlayerSpawnPosition;
+            Vector2 origin = player != null ? (Vector2)player.position : (Vector2)PlayerSpawnPosition;
+            return WorldItemDropService.ProjectToGroundUnder(origin);
         }
 
         private static List<int> PickUniqueSlots(int total, int count)

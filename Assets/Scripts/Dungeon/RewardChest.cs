@@ -7,10 +7,14 @@ using UnityEngine;
 namespace Scripts.Dungeon
 {
     [RequireComponent(typeof(BoxCollider2D))]
+    [RequireComponent(typeof(Rigidbody2D))]
     public sealed class RewardChest : MonoBehaviour, IInteractable
     {
         private const string PrefabResourcePath = "Prefabs/Dungeon/RewardChest";
         private const int PlaceholderPixels = 24;
+        private const int PlayerLayer = 0;
+        private const int EnemyLayer = 7;
+        private const float GravityScale = 3f;
         private static Sprite _placeholderSprite;
 
         [SerializeField, Min(1)] private int _minimumDrops = 1;
@@ -45,12 +49,32 @@ namespace Scripts.Dungeon
 
         private void Awake()
         {
+            ConfigurePhysics();
+            EnsurePlaceholderVisual();
+        }
+
+        private void ConfigurePhysics()
+        {
+            gameObject.layer = EnemyLayer;
+            Physics2D.IgnoreLayerCollision(PlayerLayer, EnemyLayer, true);
+            Physics2D.IgnoreLayerCollision(EnemyLayer, EnemyLayer, true);
+
+            Rigidbody2D body = GetComponent<Rigidbody2D>();
+            if (body == null)
+                body = gameObject.AddComponent<Rigidbody2D>();
+            body.bodyType = RigidbodyType2D.Dynamic;
+            body.gravityScale = GravityScale;
+            body.freezeRotation = true;
+            body.interpolation = RigidbodyInterpolation2D.Interpolate;
+            body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+            body.constraints = RigidbodyConstraints2D.FreezeRotation;
+
             BoxCollider2D box = GetComponent<BoxCollider2D>();
             if (box == null)
                 box = gameObject.AddComponent<BoxCollider2D>();
-            box.isTrigger = true;
-            box.size = Vector2.one;
-            EnsurePlaceholderVisual();
+            box.isTrigger = false;
+            if (box.size.x <= 0.01f || box.size.y <= 0.01f)
+                box.size = Vector2.one;
         }
 
         public string GetPrompt() => "Открыть сундук";
