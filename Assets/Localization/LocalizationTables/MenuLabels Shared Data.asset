@@ -1067,6 +1067,10 @@ MonoBehaviour:
     m_Key: dungeon.ui.roomCleared
     m_Metadata:
       m_Items: []
+  - m_Id: 62000000000000022
+    m_Key: inventory.ui.pickupNoSpace
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

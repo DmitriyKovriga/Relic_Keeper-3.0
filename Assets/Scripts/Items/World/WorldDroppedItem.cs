@@ -85,7 +85,7 @@ namespace Scripts.Items.World
 
             if (!InventoryManager.Instance.AddItem(_item))
             {
-                Debug.Log($"[WorldDroppedItem] Inventory is full. Could not pick up '{_item.Data.ItemName}'.");
+                PlayerNoticeBanner.ShowInventoryFull();
                 return;
             }
 

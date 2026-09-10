@@ -2020,6 +2020,10 @@ MonoBehaviour:
     m_Localized: Room Cleared
     m_Metadata:
       m_Items: []
+  - m_Id: 62000000000000022
+    m_Localized: Can't pick up — inventory is full
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

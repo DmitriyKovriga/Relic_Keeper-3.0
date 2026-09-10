@@ -9,6 +9,7 @@ using Scripts.Items.World;
 using Scripts.Visuals;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace RelicKeeper.Tests.EditMode
 {
@@ -55,7 +56,7 @@ namespace RelicKeeper.Tests.EditMode
             SpriteRenderer circle = droppedItem.GetComponent<SpriteRenderer>();
             SpriteRenderer icon = droppedItem.transform.Find("Icon").GetComponent<SpriteRenderer>();
             Canvas progressCanvas = droppedItem.transform.Find("InspectionProgress").GetComponent<Canvas>();
-            Image progressImage = progressCanvas.GetComponent<Image>();
+            UnityEngine.UI.Image progressImage = progressCanvas.GetComponent<UnityEngine.UI.Image>();
 
             Assert.That(circle.sortingLayerName, Is.EqualTo(WorldRenderSorting.LayerVfx));
             Assert.That(icon.sortingLayerName, Is.EqualTo(WorldRenderSorting.LayerVfx));
@@ -64,12 +65,27 @@ namespace RelicKeeper.Tests.EditMode
 
             droppedItem.SetInspectionProgress(0.25f, true);
             Assert.That(progressCanvas.enabled, Is.True);
-            Assert.That(progressImage.type, Is.EqualTo(Image.Type.Filled));
-            Assert.That(progressImage.fillMethod, Is.EqualTo(Image.FillMethod.Radial360));
+            Assert.That(progressImage.type, Is.EqualTo(UnityEngine.UI.Image.Type.Filled));
+            Assert.That(progressImage.fillMethod, Is.EqualTo(UnityEngine.UI.Image.FillMethod.Radial360));
             Assert.That(progressImage.fillAmount, Is.EqualTo(0.75f).Within(0.001f));
 
             droppedItem.SetInspectionProgress(1f, true);
             Assert.That(progressCanvas.enabled, Is.False);
+        }
+
+        [Test]
+        public void InventoryFullNotice_FitsPixelCanvasAndKeepsPickupMeaning()
+        {
+            Assert.That(PlayerNoticeBanner.InventoryFullKey, Is.EqualTo("inventory.ui.pickupNoSpace"));
+            Assert.That(PlayerNoticeBanner.ToastMaxWidth + PlayerNoticeBanner.TopPixels, Is.LessThanOrEqualTo(480));
+            Assert.That(PlayerNoticeBanner.TopPixels, Is.LessThan(270));
+            Assert.That(PlayerNoticeBanner.ToastMaxWidth, Is.LessThanOrEqualTo(480));
+
+            VisualElement toast = PlayerNoticeBanner.CreateToast(PlayerNoticeBanner.InventoryFullFallback, out Label label);
+            Assert.That(toast.style.top.value.value, Is.EqualTo(PlayerNoticeBanner.TopPixels));
+            Assert.That(label.style.maxWidth.value.value, Is.EqualTo(PlayerNoticeBanner.ToastMaxWidth));
+            Assert.That(label.style.fontSize.value.value, Is.EqualTo(PlayerNoticeBanner.FontSize));
+            Assert.That(label.text, Does.Contain("inventory is full"));
         }
 
         [Test]
