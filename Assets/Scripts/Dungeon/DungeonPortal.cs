@@ -7,7 +7,8 @@ namespace Scripts.Dungeon
     {
         EnterDungeon,
         NextRoom,
-        ReturnToHub
+        ReturnToHub,
+        SelectReachedFloor
     }
 
     /// <summary>
@@ -40,14 +41,41 @@ namespace Scripts.Dungeon
         [SerializeField] private Vector3 _defaultLabelLocalPosition = new Vector3(0f, 1.4f, 0f);
 
         public PortalType Type => _portalType;
-        public DungeonDataSO TargetDungeon => _targetDungeon;
+        public DungeonDataSO TargetDungeon => ResolveTargetDungeon();
+
+        public DungeonDataSO ResolveTargetDungeon()
+        {
+            FloorPortal floorPortal = GetComponent<FloorPortal>();
+            if (floorPortal != null && floorPortal.TargetDungeon != null)
+                return floorPortal.TargetDungeon;
+
+            if (_targetDungeon != null)
+                return _targetDungeon;
+
+            if (OpensReachedFloorSelect)
+                return Resources.Load<DungeonDataSO>(FloorPortal.DefaultDungeonResourcePath);
+
+            return null;
+        }
+
+        public bool OpensReachedFloorSelect =>
+            _portalType == PortalType.SelectReachedFloor ||
+            GetComponent<FloorPortal>() != null ||
+            DungeonRunProgress.IsFloorSelectPortalName(name);
+
         public bool IsActive
         {
             get => _isActive;
             set => _isActive = value;
         }
 
-        public string GetPrompt() => _interactPrompt;
+        public string GetPrompt()
+        {
+            if (OpensReachedFloorSelect)
+                return "Выбрать этаж";
+
+            return _interactPrompt;
+        }
         public bool CanInteract() => _isActive;
 
         private void Awake()
@@ -92,32 +120,47 @@ namespace Scripts.Dungeon
             }
         }
 
+        private void Start()
+        {
+            TrySetupWorldLabel();
+        }
+
         private void OnValidate()
         {
             ApplyAnimationSpeed();
+            if (_showWorldLabel)
+                TrySetupWorldLabel();
+        }
+
+        public static string ResolveWorldTitle(bool opensReachedFloorSelect, DungeonDataSO dungeon)
+        {
+            if (opensReachedFloorSelect)
+                return FloorPortal.ObjectName;
+
+            if (dungeon != null && !string.IsNullOrWhiteSpace(dungeon.DisplayName))
+                return dungeon.DisplayName;
+
+            return string.Empty;
         }
 
         private void TrySetupWorldLabel()
         {
-            if (!_showWorldLabel || _portalType != PortalType.EnterDungeon)
+            if (!_showWorldLabel)
                 return;
 
-            string key = _labelLocalizationKey;
-            if (string.IsNullOrEmpty(key) && _targetDungeon != null)
-                key = _targetDungeon.NameLocalizationKey;
+            bool floorSelect = OpensReachedFloorSelect;
+            if (!floorSelect && _portalType != PortalType.EnterDungeon)
+                return;
 
-            string fallback = _labelFallback;
-            if (string.IsNullOrEmpty(fallback) && _targetDungeon != null)
-                fallback = _targetDungeon.DisplayName;
-
-            if (string.IsNullOrEmpty(key) && string.IsNullOrEmpty(fallback))
+            string title = ResolveWorldTitle(floorSelect, TargetDungeon);
+            if (string.IsNullOrEmpty(title))
                 return;
 
             Scripts.UI.WorldLocalizedLabel.Create(
                 transform,
-                key,
-                fallback,
-                BuildBuiltInModifiersLabel(),
+                string.Empty,
+                title,
+                floorSelect ? string.Empty : BuildBuiltInModifiersLabel(),
                 _defaultLabelLocalPosition);
         }
 

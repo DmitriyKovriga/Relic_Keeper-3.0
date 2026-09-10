@@ -285,5 +285,92 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(returnButton.text, Is.EqualTo("В поселение"));
             Assert.That((DungeonRunContinueUI.ButtonWidth * 2) + 8, Is.LessThanOrEqualTo(DungeonRunContinueUI.WindowWidth));
         }
+
+        [Test]
+        public void FloorCheckpoints_UnlockEveryTenReachedRooms()
+        {
+            Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(0), Is.Empty);
+            Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(9), Is.Empty);
+            Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(10), Is.EqualTo(new[] { 10 }));
+            Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(19), Is.EqualTo(new[] { 10 }));
+            Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(20), Is.EqualTo(new[] { 10, 20 }));
+            Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(25), Is.EqualTo(new[] { 10, 20 }));
+        }
+
+        [Test]
+        public void FloorSkip_StartsAtChosenRoomAndKeepsThirtyPercentBonus()
+        {
+            Assert.That(DungeonRunProgress.ResolveStartingRoomsCompleted(10), Is.EqualTo(9));
+            Assert.That(DungeonRunProgress.ResolveLocationLevel(1, 9, 0), Is.EqualTo(10));
+
+            DungeonModifierValues bonus = DungeonRunProgress.CreateFloorSkipBonusModifier();
+            Assert.That(bonus.LootDropChancePercent, Is.EqualTo(30f));
+            Assert.That(bonus.LootRarityPercent, Is.EqualTo(30f));
+            Assert.That(bonus.ExperiencePercent, Is.EqualTo(30f));
+            Assert.That(bonus.EnemyDamageDealtPercent, Is.EqualTo(30f));
+            Assert.That(bonus.EnemyCountPercent, Is.EqualTo(30f));
+        }
+
+        [Test]
+        public void FloorPortal_IsDetectedByNameIncludingCloneSuffix()
+        {
+            Assert.That(DungeonRunProgress.IsFloorSelectPortalName("FloorPortal"), Is.True);
+            Assert.That(DungeonRunProgress.IsFloorSelectPortalName("FloorPortal(Clone)"), Is.True);
+            Assert.That(DungeonRunProgress.IsFloorSelectPortalName("FloorPortal (1)"), Is.True);
+            Assert.That(DungeonRunProgress.IsFloorSelectPortalName("NextRoomPortal"), Is.False);
+        }
+
+        [Test]
+        public void PortalWorldTitles_UseMortfallAndFloorPortalLiterals()
+        {
+            DungeonDataSO dungeon = ScriptableObject.CreateInstance<DungeonDataSO>();
+            try
+            {
+                dungeon.DisplayName = "Mortfall";
+                Assert.That(DungeonPortal.ResolveWorldTitle(false, dungeon), Is.EqualTo("Mortfall"));
+                Assert.That(DungeonPortal.ResolveWorldTitle(true, dungeon), Is.EqualTo("FloorPortal"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(dungeon);
+            }
+        }
+
+        [Test]
+        public void FloorSelectWindow_FitsPixelCanvas()
+        {
+            VisualElement window = DungeonFloorSelectUI.CreateWindow(
+                out Label title,
+                out Label emptyLabel,
+                out VisualElement list,
+                out Button closeButton);
+
+            Assert.That(DungeonFloorSelectUI.WindowWidth, Is.LessThanOrEqualTo(480));
+            Assert.That(DungeonFloorSelectUI.WindowHeight, Is.LessThanOrEqualTo(270));
+            Assert.That(window.style.width.value.value, Is.EqualTo(DungeonFloorSelectUI.WindowWidth));
+            Assert.That(window.style.height.value.value, Is.EqualTo(DungeonFloorSelectUI.WindowHeight));
+            Assert.That(title, Is.Not.Null);
+            Assert.That(emptyLabel, Is.Not.Null);
+            Assert.That(list.style.maxHeight.value.value, Is.EqualTo(DungeonFloorSelectUI.ListMaxHeight));
+            Assert.That(closeButton.text, Is.EqualTo("Закрыть"));
+        }
+
+        [Test]
+        public void DungeonUnlocks_KeepHighestReachedRoomPerDungeon()
+        {
+            DungeonRunUnlocks.Clear();
+            try
+            {
+                DungeonRunUnlocks.RecordReachedRoom("Mortfall", 3);
+                DungeonRunUnlocks.RecordReachedRoom("Mortfall", 12);
+                DungeonRunUnlocks.RecordReachedRoom("Mortfall", 8);
+                Assert.That(DungeonRunUnlocks.GetHighestDisplayedRoom("Mortfall"), Is.EqualTo(12));
+                Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(12), Is.EqualTo(new[] { 10 }));
+            }
+            finally
+            {
+                DungeonRunUnlocks.Clear();
+            }
+        }
     }
 }

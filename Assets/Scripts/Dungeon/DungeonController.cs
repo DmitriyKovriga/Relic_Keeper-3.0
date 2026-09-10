@@ -30,6 +30,7 @@ namespace Scripts.Dungeon
 
         private DungeonDataSO _currentDungeon;
         private readonly List<string> _roomSequence = new List<string>();
+        private int _roomsCompletedBeforeSegment;
         private int _currentRoomIndex;
         private GameObject _currentRoomInstance;
         private Sprite _defaultHubBackgroundSprite;
@@ -41,7 +42,8 @@ namespace Scripts.Dungeon
         private DungeonModifierContext _currentModifiers = new DungeonModifierContext();
         private bool _modifierChoiceOpen;
         private bool _continueChoiceOpen;
-        private int _roomsCompletedBeforeSegment;
+        private int _startingDisplayedRoom = 1;
+        private bool _applyFloorSkipBonus;
 
         public DungeonModifierContext CurrentModifiers => _currentModifiers;
 
@@ -88,6 +90,11 @@ namespace Scripts.Dungeon
 
         public void EnterDungeon(DungeonDataSO dungeon)
         {
+            EnterDungeon(dungeon, 1, false);
+        }
+
+        public void EnterDungeon(DungeonDataSO dungeon, int startingDisplayedRoom, bool applyFloorSkipBonus)
+        {
             if (dungeon == null)
             {
                 Debug.LogWarning("[DungeonController] Dungeon Data is null.");
@@ -96,6 +103,10 @@ namespace Scripts.Dungeon
 
             if (_modifierChoiceOpen)
                 return;
+
+            _startingDisplayedRoom = Mathf.Max(1, startingDisplayedRoom);
+            _applyFloorSkipBonus = applyFloorSkipBonus;
+            DungeonFloorSelectUI.HideIfVisible();
 
             List<DungeonModifierSO> choices = PickModifierChoices(dungeon.EntryModifierPool, dungeon.EntryChoiceCount);
             if (choices.Count == 0)
@@ -119,6 +130,32 @@ namespace Scripts.Dungeon
         private void CancelPendingDungeonEntry()
         {
             _modifierChoiceOpen = false;
+            _startingDisplayedRoom = 1;
+            _applyFloorSkipBonus = false;
+        }
+
+        private void OpenReachedFloorSelect(DungeonDataSO dungeon)
+        {
+            if (dungeon == null || _modifierChoiceOpen)
+                return;
+
+            List<int> floors = DungeonRunProgress.ResolveUnlockedFloorCheckpoints(
+                DungeonRunUnlocks.GetHighestDisplayedRoom(dungeon.ID));
+            DungeonFloorSelectUI.GetOrCreate().Show(
+                dungeon.DisplayName,
+                floors,
+                floor => EnterDungeon(dungeon, floor, true),
+                null);
+        }
+
+        private void RecordCurrentRoomUnlock()
+        {
+            if (_currentDungeon == null)
+                return;
+
+            DungeonRunUnlocks.RecordReachedRoom(
+                _currentDungeon.ID,
+                DungeonRunProgress.ResolveDisplayedRoomNumber(_roomsCompletedBeforeSegment, _currentRoomIndex));
         }
 
         private void BeginDungeon(DungeonDataSO dungeon, DungeonModifierSO selectedEntryModifier)
@@ -131,7 +168,7 @@ namespace Scripts.Dungeon
             _selectedEntryModifier = selectedEntryModifier;
             _currentRoomModifier = null;
             _currentModifiers = new DungeonModifierContext();
-            _roomsCompletedBeforeSegment = 0;
+            _roomsCompletedBeforeSegment = DungeonRunProgress.ResolveStartingRoomsCompleted(_startingDisplayedRoom);
             _continueChoiceOpen = false;
             DungeonRunContinueUI.HideIfVisible();
             SkillProjectile.DespawnAll();
@@ -178,12 +215,15 @@ namespace Scripts.Dungeon
             _currentModifiers = new DungeonModifierContext();
             _modifierChoiceOpen = false;
             _continueChoiceOpen = false;
+            _startingDisplayedRoom = 1;
+            _applyFloorSkipBonus = false;
             _roomsCompletedBeforeSegment = 0;
             _roomSequence.Clear();
             RestoreHubBackground();
             RestoreHubCameraBounds();
             DungeonModifierChoiceUI.HideIfVisible();
             DungeonRunContinueUI.HideIfVisible();
+            DungeonFloorSelectUI.HideIfVisible();
             DungeonModifierHud.GetOrCreate().Hide();
             SetHubActive(true);
         }
@@ -298,6 +338,7 @@ namespace Scripts.Dungeon
             {
                 ApplyRoomCameraBounds(room);
                 room.SetRuntimeLevel(ResolveCurrentLocationLevel());
+                RecordCurrentRoomUnlock();
                 _currentModifiers = BuildModifierContext(room);
                 room.OnRoomEntered(_playerTransform, _currentModifiers);
                 RefreshModifierHud(room);
@@ -319,15 +360,29 @@ namespace Scripts.Dungeon
                 return;
             }
 
-            if (portal.Type == PortalType.EnterDungeon)
+            if (portal.OpensReachedFloorSelect)
             {
-                if (portal.TargetDungeon == null)
+                DungeonDataSO skipDungeon = portal.TargetDungeon;
+                if (skipDungeon == null)
+                {
+                    Debug.LogWarning($"[DungeonController] Floor select portal '{portal.name}' has no TargetDungeon assigned.");
+                    return;
+                }
+
+                OpenReachedFloorSelect(skipDungeon);
+                return;
+            }
+
+            if (portal.Type == PortalType.EnterDungeon || portal.Type == PortalType.SelectReachedFloor)
+            {
+                DungeonDataSO dungeon = portal.TargetDungeon;
+                if (dungeon == null)
                 {
                     Debug.LogWarning($"[DungeonController] EnterDungeon portal '{portal.name}' has no TargetDungeon assigned.");
                     return;
                 }
 
-                EnterDungeon(portal.TargetDungeon);
+                EnterDungeon(dungeon);
                 return;
             }
 
@@ -430,6 +485,8 @@ namespace Scripts.Dungeon
             }
 
             _currentRoomModifier?.ApplyTo(context);
+            if (_applyFloorSkipBonus)
+                context.Add(DungeonRunProgress.CreateFloorSkipBonusModifier());
             context.Add(DungeonRunProgress.CreateLocationLevelLootModifier(
                 room != null ? room.RoomLevel : ResolveCurrentLocationLevel()));
             return context;
@@ -440,6 +497,8 @@ namespace Scripts.Dungeon
             var global = new List<string>();
             AddModifierNames(global, _currentDungeon != null ? _currentDungeon.BuiltInModifiers : null);
             AddModifierName(global, _selectedEntryModifier);
+            if (_applyFloorSkipBonus)
+                DungeonRunProgress.CreateFloorSkipBonusModifier().AddDescriptions(global);
             DungeonRunProgress.AddLocationLevelLootDescriptions(
                 global,
                 room != null ? room.RoomLevel : ResolveCurrentLocationLevel());

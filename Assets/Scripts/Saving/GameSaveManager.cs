@@ -8,7 +8,7 @@ using Scripts.Configuration;
 
 public class GameSaveManager : MonoBehaviour
 {
-    public const int CurrentSaveVersion = 5;
+    public const int CurrentSaveVersion = 6;
 
     [Header("Core Dependencies")]
     [SerializeField] private PlayerStats _playerStats;
@@ -95,6 +95,7 @@ public class GameSaveManager : MonoBehaviour
             });
         }
 
+        Scripts.Dungeon.DungeonRunUnlocks.WriteToSave(data.DungeonUnlocks);
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(SavePath, json);
         Debug.Log($"[System] Game Saved.");
@@ -123,6 +124,8 @@ public class GameSaveManager : MonoBehaviour
 
             if (data.SaveVersion < CurrentSaveVersion)
                 MigrateSaveData(data);
+
+            Scripts.Dungeon.DungeonRunUnlocks.LoadFromSave(data.DungeonUnlocks);
 
             string activeId = !string.IsNullOrEmpty(data.ActiveCharacterID) ? data.ActiveCharacterID : data.CharacterClassID;
             CharacterDataSO characterData = null;
@@ -215,6 +218,7 @@ public class GameSaveManager : MonoBehaviour
         {
             File.Delete(SavePath);
             Debug.Log("[System] Save Deleted.");
+            Scripts.Dungeon.DungeonRunUnlocks.Clear();
             StartNewGame();
         }
     }
@@ -341,10 +345,16 @@ public class GameSaveManager : MonoBehaviour
             data.SaveVersion = 5;
             Debug.Log("[System] Save migrated: 4 -> 5 (embedded affix tiers support).");
         }
+        if (data.SaveVersion == 5)
+        {
+            data.SaveVersion = 6;
+            Debug.Log("[System] Save migrated: 5 -> 6 (dungeon floor unlocks).");
+        }
     }
 
     private void StartNewGame()
     {
+        Scripts.Dungeon.DungeonRunUnlocks.Clear();
         if (_defaultCharacter != null)
         {
             if (_partyManager != null)

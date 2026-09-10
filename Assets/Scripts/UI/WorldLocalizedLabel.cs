@@ -36,6 +36,7 @@ namespace Scripts.UI
 
         private TextMeshPro _text;
         private bool _waitingForLocalizationInit;
+        private int _refreshGeneration;
 
         public static WorldLocalizedLabel Create(Transform parent, string localizationKey, string fallbackText, Vector3 localPosition)
         {
@@ -52,7 +53,8 @@ namespace Scripts.UI
             if (parent == null)
                 return null;
 
-            var existing = parent.GetComponentInChildren<WorldLocalizedLabel>(true);
+            WorldLocalizedLabel existing = FindOwnLabel(parent);
+            GameObject host;
             if (existing != null)
             {
                 existing.Configure(localizationKey, fallbackText, secondaryText);
@@ -60,7 +62,6 @@ namespace Scripts.UI
             }
 
             Transform child = parent.Find(DefaultChildName);
-            GameObject host;
             if (child != null)
             {
                 host = child.gameObject;
@@ -82,6 +83,26 @@ namespace Scripts.UI
             return label;
         }
 
+        private static WorldLocalizedLabel FindOwnLabel(Transform parent)
+        {
+            Transform named = parent.Find(DefaultChildName);
+            if (named != null)
+            {
+                WorldLocalizedLabel namedLabel = named.GetComponent<WorldLocalizedLabel>();
+                if (namedLabel != null)
+                    return namedLabel;
+            }
+
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                WorldLocalizedLabel childLabel = parent.GetChild(i).GetComponent<WorldLocalizedLabel>();
+                if (childLabel != null)
+                    return childLabel;
+            }
+
+            return parent.GetComponent<WorldLocalizedLabel>();
+        }
+
         public void Configure(string localizationKey, string fallbackText)
         {
             Configure(localizationKey, fallbackText, string.Empty);
@@ -89,12 +110,13 @@ namespace Scripts.UI
 
         public void Configure(string localizationKey, string fallbackText, string secondaryText)
         {
-            _localizationKey = localizationKey;
-            _fallbackText = fallbackText;
-            _secondaryText = secondaryText;
+            _localizationKey = localizationKey ?? string.Empty;
+            _fallbackText = fallbackText ?? string.Empty;
+            _secondaryText = secondaryText ?? string.Empty;
+            _refreshGeneration++;
             EnsureText();
             Refresh();
-            if (LocalizationSettings.SelectedLocale == null)
+            if (!string.IsNullOrEmpty(_localizationKey) && LocalizationSettings.SelectedLocale == null)
                 RefreshWhenLocalizationReady();
         }
 
@@ -260,19 +282,26 @@ namespace Scripts.UI
             if (LocalizationSettings.SelectedLocale == null)
                 return;
 
+            int generation = _refreshGeneration;
             var operation = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(_localizationTable, _localizationKey);
             if (operation.IsDone)
             {
-                ApplyLocalized(operation.Result);
+                if (generation == _refreshGeneration)
+                    ApplyLocalized(operation.Result);
                 return;
             }
 
-            operation.Completed += _ => ApplyLocalized(operation.Result);
+            operation.Completed += _ =>
+            {
+                if (generation != _refreshGeneration || string.IsNullOrEmpty(_localizationKey))
+                    return;
+                ApplyLocalized(operation.Result);
+            };
         }
 
         private void ApplyLocalized(string value)
         {
-            if (_text == null || string.IsNullOrEmpty(value))
+            if (_text == null || string.IsNullOrEmpty(value) || string.IsNullOrEmpty(_localizationKey))
                 return;
             if (value.IndexOf("translation found", StringComparison.OrdinalIgnoreCase) >= 0)
                 return;

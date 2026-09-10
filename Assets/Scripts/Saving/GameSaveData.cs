@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Scripts.Dungeon;
 
 namespace Scripts.Saving
 {
@@ -28,6 +29,7 @@ namespace Scripts.Saving
         public int SkillPoints;
         public InventorySaveData Inventory;
         public List<string> AllocatedPassiveNodes = new List<string>();
+        public List<DungeonUnlockRecord> DungeonUnlocks = new List<DungeonUnlockRecord>();
 
         public GameSaveData() { }
     }
