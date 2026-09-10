@@ -19,7 +19,7 @@ namespace Scripts.Skills.PassiveTree.UI
         [Header("Colors - Allocated (Bought)")]
         public Color AllocatedFill = new Color(0.8f, 0.6f, 0.1f);
         public Color AllocatedBorder = new Color(1f, 0.8f, 0.2f);
-        public Color AllocatedGlow = new Color(1f, 0.75f, 0.25f, 0.30f);
+        public Color AllocatedGlow = new Color(1f, 0.82f, 0.30f, 0.42f);
         
         [Header("Colors - Available (Can Buy)")]
         public Color AvailableFill = new Color(0.15f, 0.15f, 0.15f);
@@ -31,8 +31,8 @@ namespace Scripts.Skills.PassiveTree.UI
         public Color LockedBorder = new Color(0.2f, 0.2f, 0.2f);
 
         [Header("Node Highlight")]
-        public Color AllocatedHighlightColor = new Color(1f, 0.78f, 0.25f, 0.34f);
-        public float AllocatedHighlightScale = 1.42f;
+        public Color AllocatedHighlightColor = new Color(1f, 0.84f, 0.32f, 0.50f);
+        public float AllocatedHighlightScale = 2.35f;
         public Color AvailableHighlightColor = new Color(0.95f, 0.95f, 0.95f, 0.24f);
         public float AvailableHighlightScale = 1.38f;
 

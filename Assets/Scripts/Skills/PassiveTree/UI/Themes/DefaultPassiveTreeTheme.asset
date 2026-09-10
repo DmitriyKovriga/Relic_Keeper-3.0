@@ -21,14 +21,14 @@ MonoBehaviour:
   KeystoneNodeFrame: {fileID: 21300000, guid: 7349b1d144852d54aa7f25e419b34558, type: 3}
   AllocatedFill: {r: 0.8, g: 0.6, b: 0.1, a: 1}
   AllocatedBorder: {r: 1, g: 0.8, b: 0.2, a: 1}
-  AllocatedGlow: {r: 1, g: 0.75, b: 0.25, a: 0.3}
+  AllocatedGlow: {r: 1, g: 0.82, b: 0.3, a: 0.42}
   AvailableFill: {r: 0.15, g: 0.15, b: 0.15, a: 1}
   AvailableBorder: {r: 0.5, g: 0.5, b: 0.5, a: 0.19607843}
   AvailableGlow: {r: 1, g: 1, b: 1, a: 0.24}
   LockedFill: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   LockedBorder: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-  AllocatedHighlightColor: {r: 1, g: 0.78, b: 0.25, a: 0.34}
-  AllocatedHighlightScale: 2
+  AllocatedHighlightColor: {r: 1, g: 0.84, b: 0.32, a: 0.5}
+  AllocatedHighlightScale: 2.35
   AvailableHighlightColor: {r: 0.95, g: 0.95, b: 0.95, a: 0.24}
   AvailableHighlightScale: 2
   LineAllocated: {r: 1, g: 0.8, b: 0.2, a: 0.8}
