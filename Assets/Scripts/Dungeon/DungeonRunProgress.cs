@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Scripts.Enemies;
 using UnityEngine;
 
 namespace Scripts.Dungeon
@@ -26,7 +27,8 @@ namespace Scripts.Dungeon
             return new DungeonModifierValues
             {
                 LootDropChancePercent = bonus,
-                LootRarityPercent = bonus
+                LootRarityPercent = bonus,
+                EnemyCountPercent = bonus * EnemyLevelBalance.EnemyCountPercentPerLocationLevel
             };
         }
 

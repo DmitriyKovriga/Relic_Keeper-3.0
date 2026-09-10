@@ -193,6 +193,9 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(endlessRoom.LootRarityPercent, Is.EqualTo(11f));
             Assert.That(endlessRoom.LootDropChanceMultiplier, Is.EqualTo(1.11f).Within(0.0001f));
             Assert.That(endlessRoom.LootRarityMultiplier, Is.EqualTo(1.11f).Within(0.0001f));
+            Assert.That(firstRoom.EnemyCountPercent, Is.EqualTo(2f));
+            Assert.That(endlessRoom.EnemyCountPercent, Is.EqualTo(22f));
+            Assert.That(endlessRoom.EnemyCountMultiplier, Is.EqualTo(1.22f).Within(0.0001f));
         }
 
         [Test]
@@ -203,6 +206,7 @@ namespace RelicKeeper.Tests.EditMode
 
             Assert.That(lines, Does.Contain("Шанс выпадения предметов +11%"));
             Assert.That(lines, Does.Contain("Редкость предметов +11%"));
+            Assert.That(lines, Does.Contain("Количество монстров +22%"));
         }
 
         [Test]
@@ -218,6 +222,11 @@ namespace RelicKeeper.Tests.EditMode
             string wrappedLoot = DungeonModifierHud.WrapForHud(lootLine, out int lootLines);
             Assert.That(lootLines, Is.EqualTo(1));
             Assert.That(wrappedLoot, Does.Not.Contain("\n"));
+
+            string countLine = "Количество монстров +22%";
+            string wrappedCount = DungeonModifierHud.WrapForHud(countLine, out int countLines);
+            Assert.That(countLines, Is.EqualTo(1));
+            Assert.That(wrappedCount, Does.Not.Contain("\n"));
 
             string longLine = "Шанс выпадения предметов +11% и дополнительный эффект на монстров в этой комнате";
             string wrappedLong = DungeonModifierHud.WrapForHud(longLine, out int longLines);

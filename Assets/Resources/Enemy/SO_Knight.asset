@@ -39,7 +39,7 @@ MonoBehaviour:
   - Type: 30
     BaseValue: 10
     ScalingMode: 2
-    ScalingValue: 10
+    ScalingValue: 26
   - Type: 18
     BaseValue: 0
     ScalingMode: 0

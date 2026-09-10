@@ -45,7 +45,7 @@ MonoBehaviour:
   - Type: 0
     BaseValue: 80
     ScalingMode: 2
-    ScalingValue: 16
+    ScalingValue: 22
   - Type: 14
     BaseValue: 0
     ScalingMode: 0
@@ -73,7 +73,7 @@ MonoBehaviour:
   - Type: 33
     BaseValue: 14
     ScalingMode: 2
-    ScalingValue: 12
+    ScalingValue: 26
   - Type: 18
     BaseValue: 0
     ScalingMode: 0

@@ -33,11 +33,11 @@ MonoBehaviour:
   - Type: 0
     BaseValue: 100
     ScalingMode: 2
-    ScalingValue: 20
+    ScalingValue: 22
   - Type: 30
     BaseValue: 10
     ScalingMode: 2
-    ScalingValue: 10
+    ScalingValue: 26
   - Type: 18
     BaseValue: 0
     ScalingMode: 0

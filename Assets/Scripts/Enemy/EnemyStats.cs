@@ -17,12 +17,13 @@ namespace Scripts.Enemies
             _stats.Clear();
             Level = Mathf.Clamp(level, 1, 100);
 
-            float growthPerLevel = data != null ? data.LegacyGrowthPerLevelPercent / 100f : 0.25f;
-            float levelMultiplier = 1f + ((Level - 1) * growthPerLevel);
+            float growthPercent = data != null ? data.LegacyGrowthPerLevelPercent : 25f;
             float experienceMultiplier = DungeonController.Instance != null && DungeonController.Instance.CurrentModifiers != null
                 ? DungeonController.Instance.CurrentModifiers.ExperienceMultiplier
                 : 1f;
-            ExperienceReward = data != null ? data.XPReward * levelMultiplier * experienceMultiplier : 0f;
+            ExperienceReward = data != null
+                ? data.XPReward * EnemyLevelBalance.PercentMultiplier(Level, growthPercent) * experienceMultiplier
+                : 0f;
 
             if (data != null && data.Stats != null && data.Stats.Count > 0)
             {
@@ -37,7 +38,12 @@ namespace Scripts.Enemies
                 {
                     float finalValue = config.Value;
                     if (IsScalableStat(config.Type))
-                        finalValue *= levelMultiplier;
+                    {
+                        finalValue *= EnemyLevelBalance.PercentMultiplier(
+                            Level,
+                            growthPercent,
+                            EnemyLevelBalance.IsDamageStat(config.Type));
+                    }
 
                     _stats[config.Type] = new CharacterStat(finalValue);
                 }

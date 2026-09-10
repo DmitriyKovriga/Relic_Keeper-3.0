@@ -89,11 +89,20 @@ namespace Scripts.Dungeon
             _livingEnemies.Clear();
             _roomClearRewardsSpawned = false;
 
+            if (_spawners == null)
+                _spawners = GetComponentsInChildren<EnemySpawner>(true);
+
+            var spawnCounts = new int[_spawners.Length];
             int totalSpawnSlots = 0;
-            foreach (var spawner in _spawners)
+            for (int i = 0; i < _spawners.Length; i++)
             {
-                if (spawner != null)
-                    totalSpawnSlots += spawner.GetScaledSpawnCount(_activeModifiers.EnemyCountMultiplier);
+                EnemySpawner spawner = _spawners[i];
+                if (spawner == null)
+                    continue;
+
+                int count = spawner.GetScaledSpawnCount(_activeModifiers.EnemyCountMultiplier);
+                spawnCounts[i] = count;
+                totalSpawnSlots += count;
             }
 
             int chestCount = 0;
@@ -106,12 +115,13 @@ namespace Scripts.Dungeon
 
             List<int> chestSlots = PickUniqueSlots(totalSpawnSlots, chestCount);
             int globalSlot = 0;
-            foreach (var spawner in _spawners)
+            for (int spawnerIndex = 0; spawnerIndex < _spawners.Length; spawnerIndex++)
             {
+                EnemySpawner spawner = _spawners[spawnerIndex];
                 if (spawner == null)
                     continue;
 
-                int count = spawner.GetScaledSpawnCount(_activeModifiers.EnemyCountMultiplier);
+                int count = spawnCounts[spawnerIndex];
                 int replacements = 0;
                 for (int i = 0; i < count; i++, globalSlot++)
                 {
@@ -121,7 +131,7 @@ namespace Scripts.Dungeon
 
                 List<EnemyHealth> spawned = spawner.Spawn(
                     _roomLevel,
-                    _activeModifiers.EnemyCountMultiplier,
+                    count,
                     replacements);
                 for (int i = 0; i < spawned.Count; i++)
                 {

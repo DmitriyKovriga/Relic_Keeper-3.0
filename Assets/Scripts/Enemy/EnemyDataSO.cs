@@ -49,14 +49,15 @@ namespace Scripts.Enemies
             int clampedLevel = Mathf.Max(1, level);
             float value = BaseValue;
 
+            bool isDamage = EnemyLevelBalance.IsDamageStat(Type);
             switch (ScalingMode)
             {
                 case EnemyStatScalingMode.FlatPerLevel:
-                    value += ScalingValue * (clampedLevel - 1);
+                    value += ScalingValue * EnemyLevelBalance.ScaledLevelSteps(clampedLevel, isDamage);
                     break;
 
                 case EnemyStatScalingMode.PercentPerLevel:
-                    value *= 1f + (ScalingValue / 100f) * (clampedLevel - 1);
+                    value *= EnemyLevelBalance.PercentMultiplier(clampedLevel, ScalingValue, isDamage);
                     break;
             }
 
@@ -336,7 +337,7 @@ namespace Scripts.Enemies
                     Type = StatType.StunThreshold,
                     BaseValue = baseValue,
                     ScalingMode = maxHealth != null ? maxHealth.ScalingMode : EnemyStatScalingMode.PercentPerLevel,
-                    ScalingValue = maxHealth != null ? maxHealth.ScalingValue : 20f
+                    ScalingValue = maxHealth != null ? maxHealth.ScalingValue : EnemyLevelBalance.HealthPercentPerLevel
                 });
             }
 

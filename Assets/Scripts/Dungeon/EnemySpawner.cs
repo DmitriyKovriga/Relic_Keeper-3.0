@@ -53,13 +53,44 @@ namespace Scripts.Dungeon
             Spawn(level, 1f, 0);
         }
 
+        public float GetExpectedSpawnCount(float multiplier)
+        {
+            return Mathf.Max(0f, _spawnCount * Mathf.Max(0f, multiplier));
+        }
+
         public int GetScaledSpawnCount(float multiplier)
         {
-            return Mathf.Max(0, Mathf.RoundToInt(_spawnCount * Mathf.Max(0f, multiplier)));
+            return ResolveSpawnCount(GetExpectedSpawnCount(multiplier));
+        }
+
+        /// <summary>
+        /// 1.1 means one guaranteed spawn and a 10% chance of a second.
+        /// </summary>
+        public static int ResolveSpawnCount(float expectedCount)
+        {
+            return ResolveSpawnCount(expectedCount, Random.value);
+        }
+
+        public static int ResolveSpawnCount(float expectedCount, float roll01)
+        {
+            if (expectedCount <= 0f)
+                return 0;
+
+            int whole = Mathf.FloorToInt(expectedCount);
+            float fraction = expectedCount - whole;
+            if (fraction > 0f && roll01 < fraction)
+                whole++;
+
+            return whole;
         }
 
         /// <summary>Spawns the scaled group and optionally replaces some enemy slots with reward chests.</summary>
         public List<EnemyHealth> Spawn(int level, float countMultiplier, int chestReplacements)
+        {
+            return Spawn(level, GetScaledSpawnCount(countMultiplier), chestReplacements);
+        }
+
+        public List<EnemyHealth> Spawn(int level, int spawnCount, int chestReplacements)
         {
             var spawnedEnemies = new List<EnemyHealth>();
             if (_enemyEntries == null || _enemyEntries.Count == 0)
@@ -91,14 +122,17 @@ namespace Scripts.Dungeon
             if (totalWeight <= 0)
                 totalWeight = validEntries;
 
-            int spawnCount = GetScaledSpawnCount(countMultiplier);
-            int safeChestReplacements = Mathf.Clamp(chestReplacements, 0, spawnCount);
-            for (int i = 0; i < spawnCount; i++)
+            int safeCount = Mathf.Max(0, spawnCount);
+            int safeChestReplacements = Mathf.Clamp(chestReplacements, 0, safeCount);
+            var pack = new List<Transform>(safeCount);
+            for (int i = 0; i < safeCount; i++)
             {
-                Vector3 spawnPosition = transform.position + Vector3.right * (i * 0.15f);
+                Vector3 spawnPosition = transform.position + (Vector3)EnemySpawnSpread.ResolvePackOffset(i, safeCount);
                 if (i < safeChestReplacements)
                 {
-                    RewardChest.Spawn(spawnPosition, level, transform.parent);
+                    RewardChest chest = RewardChest.Spawn(spawnPosition, level, transform.parent);
+                    if (chest != null)
+                        pack.Add(chest.transform);
                     continue;
                 }
 
@@ -115,10 +149,14 @@ namespace Scripts.Dungeon
 
                 var instance = Instantiate(prefabToSpawn, spawnPosition, Quaternion.identity, transform.parent);
                 instance.Setup(data, level);
+                pack.Add(instance.transform);
                 EnemyHealth health = instance.GetComponent<EnemyHealth>();
                 if (health != null)
                     spawnedEnemies.Add(health);
             }
+
+            if (pack.Count > 1)
+                EnemySpawnSpread.Separate(pack);
 
             _hasSpawned = true;
             return spawnedEnemies;

@@ -343,9 +343,9 @@ namespace Scripts.Editor.Enemy
         {
             return new List<EnemyStatEntry>
             {
-                new() { Type = StatType.MaxHealth, BaseValue = 100f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = 20f },
-                new() { Type = StatType.StunThreshold, BaseValue = 70f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = 20f },
-                new() { Type = StatType.DamagePhysical, BaseValue = 10f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = 10f },
+                new() { Type = StatType.MaxHealth, BaseValue = 100f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = EnemyLevelBalance.HealthPercentPerLevel },
+                new() { Type = StatType.StunThreshold, BaseValue = 70f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = EnemyLevelBalance.HealthPercentPerLevel },
+                new() { Type = StatType.DamagePhysical, BaseValue = 10f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = EnemyLevelBalance.DamagePercentPerLevel },
                 new() { Type = StatType.FireResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
                 new() { Type = StatType.ColdResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
                 new() { Type = StatType.LightningResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },

@@ -35,11 +35,11 @@ MonoBehaviour:
   - Type: 0
     BaseValue: 100
     ScalingMode: 2
-    ScalingValue: 20
+    ScalingValue: 22
   - Type: 14
     BaseValue: 10
     ScalingMode: 2
-    ScalingValue: 10
+    ScalingValue: 18
   - Type: 18
     BaseValue: 0
     ScalingMode: 0
@@ -59,11 +59,11 @@ MonoBehaviour:
   - Type: 30
     BaseValue: 12
     ScalingMode: 2
-    ScalingValue: 10
+    ScalingValue: 26
   - Type: 102
     BaseValue: 70
     ScalingMode: 2
-    ScalingValue: 20
+    ScalingValue: 22
   StunThresholdMultiplier: 1
   Perception:
     AggroRange: 7
