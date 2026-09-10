@@ -213,8 +213,11 @@ public class PlayerAttackInput : MonoBehaviour
 
         for (int i = 0; i < _pressedSkillInputs.Length; i++)
         {
-            if (_pressedSkillInputs[i])
-                _skillManager.UseSkill(i);
+            if (!_pressedSkillInputs[i])
+                continue;
+            if (UiPointerUtility.IsPointerOverHudShortcuts())
+                break;
+            _skillManager.UseSkill(i);
         }
     }
 

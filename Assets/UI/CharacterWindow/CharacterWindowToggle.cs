@@ -17,8 +17,10 @@ public class CharacterWindowToggle : MonoBehaviour
             Toggle();
     }
 
-    private void Toggle()
+    public void Toggle()
     {
+        if (_manager == null)
+            _manager = Object.FindFirstObjectByType<WindowManager>();
         if (_manager == null || _characterWindow == null) return;
 
         if (_manager.IsOpen(_characterWindow))

@@ -74,9 +74,11 @@ public partial class InventoryUI
         }
     }
 
+    public int CurrentTab => _currentTab;
+
     private void OnToggleModeClicked()
     {
-        SwitchTab(_currentTab == 0 ? 1 : 0);
+        SetTab(_currentTab == 0 ? 1 : 0);
     }
 
     private void UpdateToggleButtonLabel()
@@ -86,9 +88,10 @@ public partial class InventoryUI
         _toggleModeButton.tooltip = _currentTab == 0 ? "Craft" : "Equipment";
     }
 
-    private void SwitchTab(int tab)
+    public void SetTab(int tab)
     {
-        if (_currentTab == tab) return;
+        tab = tab == 1 ? 1 : 0;
+        bool changed = _currentTab != tab;
         _currentTab = tab;
         if (_equipmentView != null)
         {
@@ -101,8 +104,11 @@ public partial class InventoryUI
             else _craftView.RemoveFromClassList("visible");
         }
         UpdateToggleButtonLabel();
-        RefreshInventory();
+        if (changed)
+            RefreshInventory();
     }
+
+    private void SwitchTab(int tab) => SetTab(tab);
 
     private void SetupCraftView()
     {

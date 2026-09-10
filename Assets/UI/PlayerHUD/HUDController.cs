@@ -61,6 +61,14 @@ public class HUDController : MonoBehaviour
     [SerializeField] private Color _buffFrameColor = new Color(0.95f, 0.72f, 0.18f, 0.95f);
     [SerializeField] private Color _debuffFrameColor = new Color(0.88f, 0.28f, 0.28f, 0.95f);
 
+    [Header("HUD Shortcuts")]
+    [SerializeField] private Sprite _shortcutBarSprite;
+    [SerializeField] private Sprite _shortcutInventoryIcon;
+    [SerializeField] private Sprite _shortcutCraftIcon;
+    [SerializeField] private Sprite _shortcutPassiveTreeIcon;
+    [SerializeField] private Sprite _shortcutStatsIcon;
+    [SerializeField] private Sprite _shortcutPauseIcon;
+
     private float _healthTextBaseFontSize;
     private float _manaTextBaseFontSize;
     private Vector2 _lastHealthTextRectSize = Vector2.negativeInfinity;
@@ -74,6 +82,10 @@ public class HUDController : MonoBehaviour
     private RectTransform _statusEffectsRoot;
     private GridLayoutGroup _statusEffectsLayout;
     private readonly List<UIStatusEffectSlot> _statusEffectSlots = new List<UIStatusEffectSlot>();
+    private HudShortcutBar _shortcutBar;
+    private PlayerStats _boundShortcutPlayer;
+    private LevelingSystem _boundShortcutLeveling;
+
     private void Awake()
     {
         EnsureSkillSlots();
@@ -84,6 +96,7 @@ public class HUDController : MonoBehaviour
         CacheAdaptiveTextSettings();
         InitializeResourceBarEffects();
         EnsureStatusEffectsPanel();
+        EnsureShortcutBar();
     }
 
     private void EnsureSkillSlots()
@@ -169,6 +182,7 @@ public class HUDController : MonoBehaviour
             UpdateUI();
         }
         BindStatusEffectController();
+        BindShortcutSkillPoints();
         if (_skillManager != null)
         {
             _skillManager.OnSkillSlotUpdated += UpdateSkillSlotUI;
@@ -198,6 +212,12 @@ public class HUDController : MonoBehaviour
         if (_skillManager != null) _skillManager.OnSkillSlotUpdated -= UpdateSkillSlotUI;
         InputRebindSaver.RebindsChanged -= RefreshAllSkillSlotBindings;
         if (_statusEffectController != null) _statusEffectController.OnActiveEffectsChanged -= RefreshStatusEffectSlots;
+        UnbindShortcutSkillPoints();
+        if (_shortcutBar != null)
+        {
+            Destroy(_shortcutBar.gameObject);
+            _shortcutBar = null;
+        }
     }
 
     private void Update()
@@ -208,6 +228,7 @@ public class HUDController : MonoBehaviour
         if (ApplyStatusEffectHudSettings())
             RefreshStatusEffectSlots();
         UpdateStatusEffectSlotsRuntime();
+        _shortcutBar?.TickBreath(Time.unscaledTime);
     }
 
     private void UpdateSkillSlotUI(int index, SkillDataSO skill)
@@ -243,6 +264,7 @@ public class HUDController : MonoBehaviour
         }
 
         BindStatusEffectController();
+        BindShortcutSkillPoints();
     }
 
     private void SetupEvents()
@@ -260,6 +282,63 @@ public class HUDController : MonoBehaviour
             _statusEffectController.OnActiveEffectsChanged += RefreshStatusEffectSlots;
 
         RefreshStatusEffectSlots();
+    }
+
+    private void EnsureShortcutBar()
+    {
+        if (_shortcutBar != null)
+            return;
+
+        _shortcutBar = HudShortcutBar.GetOrCreate(
+            new HudShortcutBar.Icons(
+                _shortcutBarSprite,
+                _shortcutInventoryIcon,
+                _shortcutCraftIcon,
+                _shortcutPassiveTreeIcon,
+                _shortcutStatsIcon,
+                _shortcutPauseIcon));
+        RefreshShortcutUnspentPoints();
+    }
+
+    private void BindShortcutSkillPoints()
+    {
+        EnsureShortcutBar();
+        UnbindShortcutSkillPoints();
+
+        _boundShortcutPlayer = _playerStats;
+        if (_boundShortcutPlayer != null)
+            _boundShortcutPlayer.OnLevelingInitialized += HandleShortcutLevelingInitialized;
+
+        _boundShortcutLeveling = _boundShortcutPlayer != null ? _boundShortcutPlayer.Leveling : null;
+        if (_boundShortcutLeveling != null)
+            _boundShortcutLeveling.OnSkillPointsChanged += RefreshShortcutUnspentPoints;
+
+        RefreshShortcutUnspentPoints();
+    }
+
+    private void HandleShortcutLevelingInitialized()
+    {
+        BindShortcutSkillPoints();
+    }
+
+    private void UnbindShortcutSkillPoints()
+    {
+        if (_boundShortcutPlayer != null)
+            _boundShortcutPlayer.OnLevelingInitialized -= HandleShortcutLevelingInitialized;
+
+        if (_boundShortcutLeveling != null)
+            _boundShortcutLeveling.OnSkillPointsChanged -= RefreshShortcutUnspentPoints;
+
+        _boundShortcutPlayer = null;
+        _boundShortcutLeveling = null;
+    }
+
+    private void RefreshShortcutUnspentPoints()
+    {
+        bool hasPoints = _playerStats != null &&
+                         _playerStats.Leveling != null &&
+                         _playerStats.Leveling.SkillPoints > 0;
+        _shortcutBar?.SetUnspentPassivePoints(hasPoints);
     }
 
     private void EnsureStatusEffectsPanel()

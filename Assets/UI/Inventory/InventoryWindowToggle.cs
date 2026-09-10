@@ -42,20 +42,34 @@ public class InventoryWindowToggle : MonoBehaviour
         Toggle();
     }
 
-    private void Toggle()
+    public void Toggle()
     {
-        if (_inventoryWindow == null || _manager == null) return;
-        if (_manager.HasOpenWindow && _manager.TopWindow != _inventoryWindow) return;
+        ToggleTab(0);
+    }
 
-        if (_manager.IsOpen(_inventoryWindow))
-            _manager.CloseWindow(_inventoryWindow);
-        else
+    public void ToggleCraft()
+    {
+        ToggleTab(1);
+    }
+
+    private void ToggleTab(int tab)
+    {
+        if (_inventoryWindow == null) return;
+        if (_manager == null)
+            _manager = Object.FindFirstObjectByType<WindowManager>();
+        if (_manager == null) return;
+
+        InventoryUI inventoryUi = _inventoryWindow.GetComponent<InventoryUI>()
+            ?? _inventoryWindow.GetComponentInChildren<InventoryUI>(true);
+
+        if (_manager.IsOpen(_inventoryWindow) && inventoryUi != null && inventoryUi.CurrentTab == tab)
         {
-            _manager.OpenWindow(_inventoryWindow);
-
-            // WindowManager disables the Player map while a window is open. Keep only
-            // this UI toggle alive so the same key can close the inventory again.
-            _inputAction?.action.Enable();
+            _manager.CloseWindow(_inventoryWindow);
+            return;
         }
+
+        _manager.OpenWindow(_inventoryWindow);
+        inventoryUi?.SetTab(tab);
+        _inputAction?.action.Enable();
     }
 }
