@@ -24,6 +24,7 @@ namespace Scripts.UI
         [SerializeField] private string _localizationTable = "MenuLabels";
         [SerializeField] private string _localizationKey;
         [SerializeField] private string _fallbackText = string.Empty;
+        [SerializeField, TextArea(1, 5)] private string _secondaryText = string.Empty;
 
         [Header("Appearance")]
         [SerializeField, Min(0.1f)] private float _fontSize = 4f;
@@ -38,13 +39,23 @@ namespace Scripts.UI
 
         public static WorldLocalizedLabel Create(Transform parent, string localizationKey, string fallbackText, Vector3 localPosition)
         {
+            return Create(parent, localizationKey, fallbackText, string.Empty, localPosition);
+        }
+
+        public static WorldLocalizedLabel Create(
+            Transform parent,
+            string localizationKey,
+            string fallbackText,
+            string secondaryText,
+            Vector3 localPosition)
+        {
             if (parent == null)
                 return null;
 
             var existing = parent.GetComponentInChildren<WorldLocalizedLabel>(true);
             if (existing != null)
             {
-                existing.Configure(localizationKey, fallbackText);
+                existing.Configure(localizationKey, fallbackText, secondaryText);
                 return existing;
             }
 
@@ -67,14 +78,20 @@ namespace Scripts.UI
             if (label == null)
                 label = host.AddComponent<WorldLocalizedLabel>();
 
-            label.Configure(localizationKey, fallbackText);
+            label.Configure(localizationKey, fallbackText, secondaryText);
             return label;
         }
 
         public void Configure(string localizationKey, string fallbackText)
         {
+            Configure(localizationKey, fallbackText, string.Empty);
+        }
+
+        public void Configure(string localizationKey, string fallbackText, string secondaryText)
+        {
             _localizationKey = localizationKey;
             _fallbackText = fallbackText;
+            _secondaryText = secondaryText;
             EnsureText();
             Refresh();
             if (LocalizationSettings.SelectedLocale == null)
@@ -163,6 +180,7 @@ namespace Scripts.UI
                 _text = meshObject.AddComponent<TextMeshPro>();
 
             _text.raycastTarget = false;
+            _text.richText = true;
             _text.alignment = TextAlignmentOptions.Bottom;
             _text.textWrappingMode = TextWrappingModes.NoWrap;
             _text.overflowMode = TextOverflowModes.Overflow;
@@ -233,7 +251,7 @@ namespace Scripts.UI
                 return;
 
             ApplyStyle();
-            _text.text = string.IsNullOrEmpty(_fallbackText) ? _localizationKey : _fallbackText;
+            _text.text = ComposeText(string.IsNullOrEmpty(_fallbackText) ? _localizationKey : _fallbackText);
             _text.ForceMeshUpdate();
 
             if (string.IsNullOrEmpty(_localizationKey) || string.IsNullOrEmpty(_localizationTable))
@@ -258,8 +276,16 @@ namespace Scripts.UI
                 return;
             if (value.IndexOf("translation found", StringComparison.OrdinalIgnoreCase) >= 0)
                 return;
-            _text.text = value;
+            _text.text = ComposeText(value);
             _text.ForceMeshUpdate();
+        }
+
+        private string ComposeText(string primaryText)
+        {
+            if (string.IsNullOrWhiteSpace(_secondaryText))
+                return primaryText;
+
+            return $"{primaryText}\n<size=70%><color=#C9B078>{_secondaryText}</color></size>";
         }
 
 #if UNITY_EDITOR

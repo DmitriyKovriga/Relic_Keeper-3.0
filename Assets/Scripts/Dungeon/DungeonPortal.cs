@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Scripts.Dungeon
@@ -112,7 +113,25 @@ namespace Scripts.Dungeon
             if (string.IsNullOrEmpty(key) && string.IsNullOrEmpty(fallback))
                 return;
 
-            Scripts.UI.WorldLocalizedLabel.Create(transform, key, fallback, _defaultLabelLocalPosition);
+            Scripts.UI.WorldLocalizedLabel.Create(
+                transform,
+                key,
+                fallback,
+                BuildBuiltInModifiersLabel(),
+                _defaultLabelLocalPosition);
+        }
+
+        private string BuildBuiltInModifiersLabel()
+        {
+            if (_targetDungeon == null || _targetDungeon.BuiltInModifiers == null)
+                return string.Empty;
+
+            var descriptions = new List<string>();
+            IReadOnlyList<DungeonModifierSO> modifiers = _targetDungeon.BuiltInModifiers;
+            for (int i = 0; i < modifiers.Count; i++)
+                modifiers[i]?.AddHudDescriptions(descriptions);
+
+            return string.Join("\n", descriptions);
         }
 
         private void ApplyAnimationSpeed()
