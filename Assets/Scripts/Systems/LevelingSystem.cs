@@ -77,6 +77,12 @@ public class ExperienceSoulPickup : MonoBehaviour
     private const int SortingOrder = 18;
     private const int TailSegmentCount = 6;
     private const int HistoryCapacity = 26;
+    private const float ExperienceSpeedMultiplier = 0.8f;
+    private const float CraftingOrbRelativeSpeedMultiplier = 0.7f;
+    private const float CraftingOrbCoreScale = 1.5f;
+    private const float CraftingOrbTrailStrength = 1.2f;
+    private const float CraftingOrbHoverDuration = 0.85f;
+    private const float CraftingOrbFlashDuration = 0.22f;
 
     private static Sprite s_coreSprite;
     private static Sprite s_tailSprite;
@@ -86,6 +92,8 @@ public class ExperienceSoulPickup : MonoBehaviour
     {
         Delay,
         Arc,
+        Hover,
+        Flash,
         Homing
     }
 
@@ -107,12 +115,15 @@ public class ExperienceSoulPickup : MonoBehaviour
     private Vector3 _lastHistoryPosition;
     private Vector3 _arcStart;
     private Vector3 _arcControl;
+    private Vector3 _arcEnd;
+    private Vector3 _hoverAnchor;
     private SoulState _state;
 
     private PlayerStats _playerStats;
     private CraftingOrbSO _craftingOrb;
     private Transform _target;
     private SpriteRenderer _coreRenderer;
+    private SpriteRenderer _flashRenderer;
     private readonly List<SpriteRenderer> _tailSegments = new();
     private readonly List<Vector3> _history = new();
 
@@ -153,14 +164,16 @@ public class ExperienceSoulPickup : MonoBehaviour
         _tailColor = isCraftingOrb
             ? new Color(0.67f, 0.18f, 0.94f, 1f)
             : new Color(0.52f, 0.88f, 1f, 1f);
+        float movementSpeedMultiplier = ExperienceSpeedMultiplier *
+                                        (isCraftingOrb ? CraftingOrbRelativeSpeedMultiplier : 1f);
         _delayDuration = UnityEngine.Random.Range(0.08f, 0.14f);
-        _arcDuration = UnityEngine.Random.Range(0.34f, 0.44f);
+        _arcDuration = UnityEngine.Random.Range(0.34f, 0.44f) / movementSpeedMultiplier;
         _collectRadius = 0.42f;
         _homingResponsiveness = 18f;
-        _minHomingSpeed = 7.2f;
-        _maxHomingSpeed = 13.5f;
+        _minHomingSpeed = 7.2f * movementSpeedMultiplier;
+        _maxHomingSpeed = 13.5f * movementSpeedMultiplier;
         _velocity = Vector2.zero;
-        _tailWidth = 0.7f;
+        _tailWidth = 0.7f * (isCraftingOrb ? CraftingOrbTrailStrength : 1f);
         _state = SoulState.Delay;
         _stateTimer = 0f;
 
@@ -171,6 +184,9 @@ public class ExperienceSoulPickup : MonoBehaviour
         _coreRenderer.material = s_spriteMaterial;
         _coreRenderer.sortingOrder = SortingOrder;
         _coreRenderer.color = _coreColor;
+        _coreRenderer.transform.localScale = isCraftingOrb
+            ? Vector3.one * CraftingOrbCoreScale
+            : Vector3.one;
 
         for (int i = 0; i < TailSegmentCount; i++)
         {
@@ -209,6 +225,14 @@ public class ExperienceSoulPickup : MonoBehaviour
                 UpdateArc(dt);
                 break;
 
+            case SoulState.Hover:
+                UpdateHover();
+                break;
+
+            case SoulState.Flash:
+                UpdateFlash();
+                break;
+
             case SoulState.Homing:
                 UpdateHoming(dt);
                 break;
@@ -237,6 +261,19 @@ public class ExperienceSoulPickup : MonoBehaviour
     {
         ResolvePlayerTarget();
         _arcStart = transform.position;
+        if (_craftingOrb != null)
+        {
+            _arcEnd = _arcStart + new Vector3(
+                UnityEngine.Random.Range(-0.3f, 0.3f),
+                UnityEngine.Random.Range(2.6f, 3.15f),
+                0f);
+            _arcControl = Vector3.Lerp(_arcStart, _arcEnd, 0.5f) + new Vector3(
+                UnityEngine.Random.Range(-0.35f, 0.35f),
+                0.75f,
+                0f);
+            return;
+        }
+
         Vector3 targetAnchor = _target != null ? GetTargetAnchor() : (_arcStart + new Vector3(1.2f, 0.2f, 0f));
         float arcDirection = Mathf.Sign(targetAnchor.x - _arcStart.x);
         if (Mathf.Approximately(arcDirection, 0f))
@@ -246,24 +283,88 @@ public class ExperienceSoulPickup : MonoBehaviour
             arcDirection * UnityEngine.Random.Range(0.45f, 0.8f),
             UnityEngine.Random.Range(1.5f, 2.1f),
             0f);
+        _arcEnd = targetAnchor;
     }
 
     private void UpdateArc(float dt)
     {
-        Vector3 targetAnchor = _target != null ? GetTargetAnchor() : (_arcStart + new Vector3(1.2f, 0.2f, 0f));
         float t = Mathf.Clamp01(_stateTimer / Mathf.Max(0.01f, _arcDuration));
         float easedT = 1f - Mathf.Pow(1f - t, 2.2f);
         Vector3 p0 = _arcStart;
         Vector3 p1 = _arcControl;
-        Vector3 p2 = targetAnchor;
+        Vector3 p2 = _arcEnd;
         Vector3 pos = ((1f - easedT) * (1f - easedT) * p0) + (2f * (1f - easedT) * easedT * p1) + (easedT * easedT * p2);
         transform.position = SnapToPixelGrid(pos);
 
         if (t >= 1f)
         {
-            _state = SoulState.Homing;
+            if (_craftingOrb != null)
+            {
+                _hoverAnchor = _arcEnd;
+                _velocity = Vector2.zero;
+                _state = SoulState.Hover;
+            }
+            else
+            {
+                _state = SoulState.Homing;
+            }
             _stateTimer = 0f;
         }
+    }
+
+    private void UpdateHover()
+    {
+        float bob = Mathf.Sin(_stateTimer * 8f) * PixelStep;
+        transform.position = SnapToPixelGrid(_hoverAnchor + new Vector3(0f, bob, 0f));
+        float pulse = 1f + Mathf.Sin(_stateTimer * 10f) * 0.08f;
+        transform.localScale = Vector3.one * (CraftingOrbCoreScale * pulse);
+
+        if (_stateTimer < CraftingOrbHoverDuration)
+            return;
+
+        BeginFlash();
+        _state = SoulState.Flash;
+        _stateTimer = 0f;
+    }
+
+    private void BeginFlash()
+    {
+        if (_flashRenderer == null)
+        {
+            GameObject flash = new GameObject("CurrencyPickupFlash");
+            flash.transform.SetParent(transform, false);
+            _flashRenderer = flash.AddComponent<SpriteRenderer>();
+            _flashRenderer.sprite = s_coreSprite;
+            _flashRenderer.material = s_spriteMaterial;
+            _flashRenderer.sortingOrder = SortingOrder + 1;
+        }
+
+        _flashRenderer.enabled = true;
+        _flashRenderer.transform.localPosition = Vector3.zero;
+        _flashRenderer.transform.localRotation = Quaternion.identity;
+    }
+
+    private void UpdateFlash()
+    {
+        transform.position = SnapToPixelGrid(_hoverAnchor);
+        transform.localScale = Vector3.one * CraftingOrbCoreScale;
+
+        float t = Mathf.Clamp01(_stateTimer / CraftingOrbFlashDuration);
+        if (_flashRenderer != null)
+        {
+            float flashScale = Mathf.Lerp(1f, 2.8f, t);
+            _flashRenderer.transform.localScale = Vector3.one * flashScale;
+            _flashRenderer.color = new Color(0.92f, 0.58f, 1f, 1f - t);
+        }
+
+        if (t < 1f)
+            return;
+
+        if (_flashRenderer != null)
+            _flashRenderer.enabled = false;
+        _state = SoulState.Homing;
+        _stateTimer = 0f;
+        _velocity = Vector2.zero;
     }
 
     private void UpdateHoming(float dt)
@@ -375,6 +476,8 @@ public class ExperienceSoulPickup : MonoBehaviour
             float scaleY = Mathf.Max(width, 0.55f);
             segment.transform.localScale = new Vector3(scaleX, scaleY, 1f);
             float alpha = Mathf.Lerp(0.58f, 0.06f, i / (float)Mathf.Max(1, _tailSegments.Count - 1));
+            if (_craftingOrb != null)
+                alpha = Mathf.Clamp01(alpha * CraftingOrbTrailStrength);
             segment.color = new Color(_tailColor.r, _tailColor.g, _tailColor.b, alpha);
         }
     }

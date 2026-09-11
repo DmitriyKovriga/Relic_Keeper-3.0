@@ -318,9 +318,35 @@ namespace Scripts.UI
         }
 
 #if UNITY_EDITOR
+        [NonSerialized] private bool _validationRefreshQueued;
+
         private void OnValidate()
         {
             if (!isActiveAndEnabled)
+                return;
+
+            // Never create/reparent LabelMesh from a validation callback. Unity invokes
+            // OnValidate while checking scene hierarchy consistency and asserts if the
+            // transform tree is mutated at that point.
+            Transform meshTransform = transform.Find(MeshChildName);
+            _text = meshTransform != null ? meshTransform.GetComponent<TextMeshPro>() : null;
+            if (_text != null)
+            {
+                ApplyStyle();
+                _text.text = ComposeText(string.IsNullOrEmpty(_fallbackText) ? _localizationKey : _fallbackText);
+                _text.ForceMeshUpdate();
+            }
+
+            if (_validationRefreshQueued)
+                return;
+            _validationRefreshQueued = true;
+            UnityEditor.EditorApplication.delayCall += RefreshAfterValidation;
+        }
+
+        private void RefreshAfterValidation()
+        {
+            _validationRefreshQueued = false;
+            if (this == null || !isActiveAndEnabled || Application.isPlaying)
                 return;
             Refresh();
         }

@@ -129,8 +129,38 @@ namespace Scripts.Dungeon
         {
             ApplyAnimationSpeed();
             if (_showWorldLabel)
+            {
+#if UNITY_EDITOR
+                if (!Application.isPlaying)
+                {
+                    QueueWorldLabelRefresh();
+                    return;
+                }
+#endif
                 TrySetupWorldLabel();
+            }
         }
+
+#if UNITY_EDITOR
+        [System.NonSerialized] private bool _worldLabelRefreshQueued;
+
+        private void QueueWorldLabelRefresh()
+        {
+            if (_worldLabelRefreshQueued)
+                return;
+
+            _worldLabelRefreshQueued = true;
+            UnityEditor.EditorApplication.delayCall += RefreshWorldLabelAfterValidation;
+        }
+
+        private void RefreshWorldLabelAfterValidation()
+        {
+            _worldLabelRefreshQueued = false;
+            if (this == null || Application.isPlaying || !_showWorldLabel)
+                return;
+            TrySetupWorldLabel();
+        }
+#endif
 
         public static string ResolveWorldTitle(bool opensReachedFloorSelect, DungeonDataSO dungeon)
         {
