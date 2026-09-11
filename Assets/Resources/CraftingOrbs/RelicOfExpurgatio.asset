@@ -11,9 +11,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 315e7014138af084c8684d313d8ccf63, type: 3}
   m_Name: RelicOfExpurgatio
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   ID: RelicOfExpurgatio
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 0e2e6603004624b45aa1a3e8f10c6abd, type: 3}
   BaseDropChance: 0.0075
   NameKey: crafting_relic.RelicOfExpurgatio.name
   DescriptionKey: crafting_relic.RelicOfExpurgatio.description

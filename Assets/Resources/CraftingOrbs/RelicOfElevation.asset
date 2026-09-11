@@ -11,9 +11,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 315e7014138af084c8684d313d8ccf63, type: 3}
   m_Name: RelicOfElevation
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   ID: RelicOfElevation
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 10411d261e8b2de458b6b92d507e4f17, type: 3}
   BaseDropChance: 0.005
   NameKey: crafting_relic.RelicOfElevation.name
   DescriptionKey: crafting_relic.RelicOfElevation.description

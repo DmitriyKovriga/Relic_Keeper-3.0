@@ -11,9 +11,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 315e7014138af084c8684d313d8ccf63, type: 3}
   m_Name: RelicOfPurgatio
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   ID: RelicOfPurgatio
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 8aaa0d6c82649d14fa0a9c0f42fdc427, type: 3}
   BaseDropChance: 0.015
   NameKey: crafting_relic.RelicOfPurgatio.name
   DescriptionKey: crafting_relic.RelicOfPurgatio.description

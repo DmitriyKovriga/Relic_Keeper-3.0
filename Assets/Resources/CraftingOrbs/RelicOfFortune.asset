@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: RelicOfFortune
   m_EditorClassIdentifier: 
   ID: RelicOfFortune
-  Icon: {fileID: -666257928, guid: d429aca0f159a1045a23351eb6d0b259, type: 3}
+  Icon: {fileID: 21300000, guid: 4c8d2c812f1bfbd4886f816b76fe8cb9, type: 3}
   BaseDropChance: 0.0125
   NameKey: crafting_relic.RelicOfFortune.name
   DescriptionKey: crafting_relic.RelicOfFortune.description
