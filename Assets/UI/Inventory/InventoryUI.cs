@@ -70,7 +70,8 @@ public partial class InventoryUI : MonoBehaviour
     public bool IsMarketVisible { get; private set; }
     public bool IsCompanionPanelVisible => IsStashVisible || IsMarketVisible;
 
-    private Label _goldCounter;
+    private VisualElement _goldCounter;
+    private Label _goldAmountLabel;
 
     private VisualElement _equipmentView;
     private VisualElement _craftView;
@@ -379,17 +380,29 @@ public partial class InventoryUI : MonoBehaviour
         if (host == null)
             return;
 
-        _goldCounter = new Label { name = "GoldCounter", pickingMode = PickingMode.Ignore };
+        _goldCounter = new VisualElement { name = "GoldCounter", pickingMode = PickingMode.Ignore };
         _goldCounter.AddToClassList("gold-counter");
+
+        var icon = new VisualElement { name = "GoldIcon", pickingMode = PickingMode.Ignore };
+        icon.AddToClassList("gold-counter-icon");
+        var coin = Resources.Load<Sprite>("UI/Inventory/Coin");
+        if (coin != null)
+            icon.style.backgroundImage = new StyleBackground(coin);
+        _goldCounter.Add(icon);
+
+        _goldAmountLabel = new Label { name = "GoldAmount", pickingMode = PickingMode.Ignore };
+        _goldAmountLabel.AddToClassList("gold-counter-amount");
+        _goldCounter.Add(_goldAmountLabel);
+
         host.Add(_goldCounter);
         RefreshGoldCounter();
     }
 
     private void RefreshGoldCounter()
     {
-        if (_goldCounter == null)
+        if (_goldAmountLabel == null)
             return;
-        _goldCounter.text = $"{Scripts.Economy.GoldWallet.Amount}";
+        _goldAmountLabel.text = $"{Scripts.Economy.GoldWallet.Amount}";
     }
 
     private ITabbedItemGrid GetCompanionGrid()
