@@ -356,7 +356,8 @@ namespace Scripts.Skills.PassiveTree.UI
             }
 
             if (treeData.AreNodesOnSameOrbit(id1, id2, out string clusterId, out int orbitIndex)
-                && treeData.AreNodesOnSameOrbitCircleForDrawing(id1, id2, clusterId, orbitIndex))
+                && treeData.AreNodesOnSameOrbitCircleForDrawing(id1, id2, clusterId, orbitIndex)
+                && !PassiveOrbitArcDrawing.ShouldDrawAsStraightChord(nodeA.OrbitAngle, nodeB.OrbitAngle))
             {
                 CreateArcLine(treeData, nodeA, nodeB, clusterId, orbitIndex, radiusA, radiusB, id1, id2);
             }
@@ -587,9 +588,7 @@ namespace Scripts.Skills.PassiveTree.UI
                 _outerStrokeColor = outerStrokeColor;
                 _innerStrokeColor = innerStrokeColor;
 
-                float delta = (angleB - angleA + 360f) % 360f;
-                if (delta > 180f)
-                    (angleA, angleB) = (angleB, angleA);
+                PassiveOrbitArcDrawing.NormalizeShortClockwise(ref angleA, ref angleB);
 
                 _startAngle = angleA;
                 _endAngle = angleB;
@@ -623,17 +622,17 @@ namespace Scripts.Skills.PassiveTree.UI
             private void OnGenerateVisualContent(MeshGenerationContext ctx)
             {
                 var painter = ctx.painter2D;
+                Vector2 center = new Vector2(_localCenter, _localCenter);
+                painter.lineCap = LineCap.Round;
+                painter.lineJoin = LineJoin.Round;
+
                 painter.lineWidth = _thickness;
                 painter.strokeColor = _outerStrokeColor;
-                painter.BeginPath();
-                painter.Arc(new Vector2(_localCenter, _localCenter), _radius, Angle.Degrees(_startAngle), Angle.Degrees(_endAngle), ArcDirection.Clockwise);
-                painter.Stroke();
+                PassiveOrbitArcDrawing.StrokeClockwiseArc(painter, center, _radius, _startAngle, _endAngle);
 
                 painter.lineWidth = _thickness * _innerThicknessScale;
                 painter.strokeColor = _innerStrokeColor;
-                painter.BeginPath();
-                painter.Arc(new Vector2(_localCenter, _localCenter), _radius, Angle.Degrees(_startAngle), Angle.Degrees(_endAngle), ArcDirection.Clockwise);
-                painter.Stroke();
+                PassiveOrbitArcDrawing.StrokeClockwiseArc(painter, center, _radius, _startAngle, _endAngle);
             }
         }
 

@@ -13,8 +13,8 @@ namespace Scripts.Editor.PassiveTree
     public static class PassiveTreeConnectionLines
     {
         private const float LineWidth = 3f;
-        private static readonly Color LineColor = new Color(0.4f, 0.4f, 0.4f, 0.8f);
-        private static readonly Color BezierSelectedColor = new Color(0.98f, 0.82f, 0.28f, 0.95f);
+        private static readonly Color LineColor = new Color(0.93f, 0.78f, 0.28f, 0.95f);
+        private static readonly Color BezierSelectedColor = new Color(1f, 0.92f, 0.45f, 1f);
 
         public static List<BezierConnectionElement> Refresh(PassiveSkillTreeSO tree, VisualElement linesContainer)
         {
@@ -50,7 +50,8 @@ namespace Scripts.Editor.PassiveTree
                     {
                         var cluster = tree.GetCluster(clusterId);
                         if (cluster != null && orbitIndex >= 0 && orbitIndex < cluster.Orbits.Count
-                            && tree.AreNodesOnSameOrbitCircleForDrawing(node.ID, neighborID, clusterId, orbitIndex))
+                            && tree.AreNodesOnSameOrbitCircleForDrawing(node.ID, neighborID, clusterId, orbitIndex)
+                            && !PassiveOrbitArcDrawing.ShouldDrawAsStraightChord(node.OrbitAngle, neighbor.OrbitAngle))
                             line = CreateArcElement(node, neighbor, cluster.Center, cluster.Orbits[orbitIndex].Radius);
                         else
                             line = CreateLineElement(node, neighbor, tree);
@@ -110,16 +111,9 @@ namespace Scripts.Editor.PassiveTree
             Vector2 center,
             float radius)
         {
-            float angleA = nodeA.OrbitAngle;
-            float angleB = nodeB.OrbitAngle;
-            float delta = (angleB - angleA + 360f) % 360f;
-            if (delta > 180f)
-            {
-                (angleA, angleB) = (angleB, angleA);
-                delta = 360f - delta;
-            }
-            float startAngle = angleA;
-            float endAngle = angleB;
+            float startAngle = nodeA.OrbitAngle;
+            float endAngle = nodeB.OrbitAngle;
+            PassiveOrbitArcDrawing.NormalizeShortClockwise(ref startAngle, ref endAngle);
 
             var arc = new VisualElement();
             float padding = LineWidth * 2f;
@@ -131,7 +125,6 @@ namespace Scripts.Editor.PassiveTree
             arc.style.height = size;
             arc.pickingMode = PickingMode.Ignore;
 
-            // В локальных координатах элемента центр окружности:
             float localCenter = radius + padding;
             arc.userData = new ArcParams { LocalCenterX = localCenter, LocalCenterY = localCenter, Radius = radius, StartAngle = startAngle, EndAngle = endAngle };
             arc.generateVisualContent += ctx =>
@@ -140,9 +133,14 @@ namespace Scripts.Editor.PassiveTree
                 var painter = ctx.painter2D;
                 painter.lineWidth = LineWidth;
                 painter.strokeColor = LineColor;
-                painter.BeginPath();
-                painter.Arc(new Vector2(p.LocalCenterX, p.LocalCenterY), p.Radius, Angle.Degrees(p.StartAngle), Angle.Degrees(p.EndAngle), ArcDirection.Clockwise);
-                painter.Stroke();
+                painter.lineCap = LineCap.Round;
+                painter.lineJoin = LineJoin.Round;
+                PassiveOrbitArcDrawing.StrokeClockwiseArc(
+                    painter,
+                    new Vector2(p.LocalCenterX, p.LocalCenterY),
+                    p.Radius,
+                    p.StartAngle,
+                    p.EndAngle);
             };
             return arc;
         }

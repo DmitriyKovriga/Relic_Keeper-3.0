@@ -150,4 +150,20 @@ namespace RelicKeeper.Tests.EditMode
             }
         }
     }
+
+    public class PassiveOrbitArcDrawingTests
+    {
+        [Test]
+        public void OppositeOrbitNodes_UseStraightChordInsteadOfBrokenArc()
+        {
+            Assert.That(PassiveOrbitArcDrawing.ShouldDrawAsStraightChord(105.46f, 285f), Is.True);
+            Assert.That(PassiveOrbitArcDrawing.ShouldDrawAsStraightChord(10f, 40f), Is.False);
+        }
+
+        [Test]
+        public void ShortOrbitArc_StaysOneSegment()
+        {
+            Assert.That(PassiveOrbitArcDrawing.SegmentCount(10f, 40f), Is.EqualTo(1));
+        }
+    }
 }
