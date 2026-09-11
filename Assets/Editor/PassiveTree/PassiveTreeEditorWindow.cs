@@ -13,6 +13,8 @@ namespace Scripts.Editor.PassiveTree
     {
         private const string LastTreePathPrefKey = "RK.PassiveTreeEditor.LastTreePath";
         private const string DefaultClusterTemplateFolder = "Assets/Resources/PassiveTrees/ClusterTemplates";
+        private const int MinNodeWorkshopWidth = 285;
+        private const int MaxNodeWorkshopWidth = 390;
         private const float DefaultInspectorWidthRatio = 0.30f;
         private const int MinInspectorWidth = 320;
         private const int MaxInspectorWidth = 620;
@@ -25,9 +27,11 @@ namespace Scripts.Editor.PassiveTree
         private Vector2 _lastCanvasClickContentPosition;
         private ScrollView _inspectorContainer;
         private IMGUIContainer _inspectorGui;
+        private ScrollView _nodeWorkshopContainer;
+        private IMGUIContainer _nodeWorkshopGui;
+        private PassiveNodeAuthoringPanel _nodeAuthoringPanel;
         private ToolbarToggle _snapToggle;
         private PopupField<PassiveSkillTreeSO> _treePopup;
-        private ObjectField _treeObjectField;
         private List<PassiveSkillTreeSO> _availableTrees = new List<PassiveSkillTreeSO>();
         private List<PassiveClusterTemplateSO> _availableClusterTemplates = new List<PassiveClusterTemplateSO>();
 
@@ -74,14 +78,37 @@ namespace Scripts.Editor.PassiveTree
 
             BuildToolbar(root);
 
+            _nodeAuthoringPanel = new PassiveNodeAuthoringPanel(
+                HandleNodeAssetSaved,
+                () => _selectedNode,
+                AssignTemplateToSelectedNode);
+
             int inspectorWidth = Mathf.RoundToInt(position.width * DefaultInspectorWidthRatio);
             if (inspectorWidth <= 0)
                 inspectorWidth = 420;
             inspectorWidth = Mathf.Clamp(inspectorWidth, MinInspectorWidth, MaxInspectorWidth);
 
+            int workshopWidth = Mathf.Clamp(Mathf.RoundToInt(position.width * 0.23f), MinNodeWorkshopWidth, MaxNodeWorkshopWidth);
+            var outerSplit = new TwoPaneSplitView(0, workshopWidth, TwoPaneSplitViewOrientation.Horizontal);
+            outerSplit.style.flexGrow = 1f;
+            root.Add(outerSplit);
+
+            _nodeWorkshopContainer = new ScrollView(ScrollViewMode.Vertical);
+            _nodeWorkshopContainer.style.minWidth = MinNodeWorkshopWidth;
+            _nodeWorkshopContainer.style.paddingLeft = 7;
+            _nodeWorkshopContainer.style.paddingRight = 7;
+            _nodeWorkshopContainer.style.paddingTop = 7;
+            _nodeWorkshopContainer.style.paddingBottom = 7;
+            _nodeWorkshopGui = new IMGUIContainer(() => _nodeAuthoringPanel?.Draw());
+            _nodeWorkshopContainer.Add(_nodeWorkshopGui);
+            outerSplit.Add(_nodeWorkshopContainer);
+
+            var workspace = new VisualElement { style = { flexGrow = 1f } };
+            outerSplit.Add(workspace);
+
             var splitView = new TwoPaneSplitView(1, inspectorWidth, TwoPaneSplitViewOrientation.Horizontal);
             splitView.style.flexGrow = 1f;
-            root.Add(splitView);
+            workspace.Add(splitView);
 
             _canvas = new PassiveTreeEditorCanvas { style = { flexGrow = 1f } };
             _canvas.OnNodeSelected = HandleNodeSelectionChanged;
@@ -121,17 +148,7 @@ namespace Scripts.Editor.PassiveTree
                 AssetDatabase.SaveAssets();
                 Debug.Log("Passive tree saved.");
             })
-            { text = "Save Asset" });
-
-            toolbar.Add(new ToolbarButton(() =>
-            {
-                RefreshAvailableTrees();
-                UpdateTreeControls();
-            })
-            { text = "Refresh Trees" });
-
-            toolbar.Add(new ToolbarButton(GenerateBackbone)
-            { text = "Generate Backbone" });
+            { text = "Save Tree" });
 
             toolbar.Add(new ToolbarSpacer());
 
@@ -144,17 +161,12 @@ namespace Scripts.Editor.PassiveTree
             });
             toolbar.Add(_treePopup);
 
-            _treeObjectField = new ObjectField
+            toolbar.Add(new ToolbarButton(() =>
             {
-                objectType = typeof(PassiveSkillTreeSO),
-                allowSceneObjects = false
-            };
-            _treeObjectField.style.minWidth = 210f;
-            _treeObjectField.RegisterValueChangedCallback(evt =>
-            {
-                LoadTree(evt.newValue as PassiveSkillTreeSO);
-            });
-            toolbar.Add(_treeObjectField);
+                RefreshAvailableTrees();
+                UpdateTreeControls();
+            })
+            { text = "Refresh" });
 
             toolbar.Add(new ToolbarSpacer());
             toolbar.Add(new ToolbarButton(() => _canvas?.FrameAll()) { text = "Frame All" });
@@ -270,9 +282,6 @@ namespace Scripts.Editor.PassiveTree
                     _treePopup.SetValueWithoutNotify(_currentTree);
             }
 
-            if (_treeObjectField != null)
-                _treeObjectField.SetValueWithoutNotify(_currentTree);
-
             if (_snapToggle != null)
                 _snapToggle.SetValueWithoutNotify(_currentTree != null && _currentTree.SnapToGrid);
         }
@@ -312,6 +321,9 @@ namespace Scripts.Editor.PassiveTree
         {
             _selectedNode = nodeData;
             _selectedCluster = null;
+            if (nodeData?.Template != null)
+                _nodeAuthoringPanel?.SelectNode(nodeData.Template);
+            _nodeWorkshopGui?.MarkDirtyRepaint();
             RefreshInspector();
         }
 
@@ -342,9 +354,16 @@ namespace Scripts.Editor.PassiveTree
             _inspectorGui?.MarkDirtyRepaint();
         }
 
+        private void HandleNodeAssetSaved(PassiveNodeTemplateSO node)
+        {
+            _nodeWorkshopGui?.MarkDirtyRepaint();
+            if (_selectedNode != null && _selectedNode.Template == node)
+                RefreshCanvasKeepingSelection();
+        }
+
         private void DrawInspectorGUI()
         {
-            GUILayout.Label("Selection Settings", EditorStyles.boldLabel);
+            GUILayout.Label("Tree Inspector", EditorStyles.boldLabel);
             EditorGUILayout.Space(4f);
 
             if (_currentTree == null)
@@ -391,13 +410,13 @@ namespace Scripts.Editor.PassiveTree
                     Selection.activeObject = _currentTree;
                 }
 
-                if (GUILayout.Button("Open Node Editor"))
-                    PassiveNodeEditorWindow.OpenWindow();
-
-                if (GUILayout.Button("Open Cluster Template Folder"))
+                if (GUILayout.Button("Cluster Folder"))
                     EnsureFolderAndReveal(DefaultClusterTemplateFolder);
 
                 EditorGUILayout.EndHorizontal();
+
+                if (GUILayout.Button("Generate Backbone"))
+                    GenerateBackbone();
             }
 
             EditorGUILayout.Space(8f);
@@ -412,20 +431,11 @@ namespace Scripts.Editor.PassiveTree
             DrawClusterTemplateBrowser();
 
             EditorGUILayout.Space(8f);
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Create New Template"))
-            {
-                var template = PassiveNodeEditorWindow.CreateTemplateAndOpen("NewPassiveNode", "Utility");
-                if (template != null)
-                    Repaint();
-            }
-
-            if (GUILayout.Button("Refresh Templates"))
+            if (GUILayout.Button("Refresh Cluster Templates"))
             {
                 RefreshAvailableClusterTemplates();
                 Repaint();
             }
-            EditorGUILayout.EndHorizontal();
         }
 
         private void DrawMultiSelectionInspector()
@@ -496,7 +506,7 @@ namespace Scripts.Editor.PassiveTree
             }
 
             EditorGUILayout.Space(6f);
-            EditorGUILayout.LabelField("Node Modifiers", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Instance Modifiers", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("UniqueModifiers"), true);
 
             EditorGUILayout.Space(6f);
@@ -683,14 +693,14 @@ namespace Scripts.Editor.PassiveTree
         {
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
-                EditorGUILayout.LabelField("Template", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("Node", EditorStyles.boldLabel);
                 if (currentTemplate == null)
                 {
-                    EditorGUILayout.HelpBox("No template assigned. Pick one or create a new template for this node.", MessageType.Warning);
+                    EditorGUILayout.HelpBox("No reusable node asset assigned.", MessageType.Warning);
                 }
                 else
                 {
-                    EditorGUILayout.LabelField("Category", PassiveNodeTemplateLibrary.GetCategory(currentTemplate));
+                    EditorGUILayout.LabelField("Folder", PassiveNodeTemplateLibrary.GetStorageCategory(currentTemplate));
                     EditorGUILayout.LabelField("Name", PassiveNodeTemplateLibrary.GetDisplayName(currentTemplate));
                     string summary = PassiveNodeTemplateLibrary.GetSummary(currentTemplate, 4);
                     if (!string.IsNullOrWhiteSpace(summary))
@@ -698,31 +708,33 @@ namespace Scripts.Editor.PassiveTree
                 }
 
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("Pick Template"))
+                if (GUILayout.Button("Pick Node"))
                 {
                     PassiveNodeTemplatePickerWindow.Open(currentTemplate, template => AssignTemplateToSelectedNode(template));
                 }
 
                 using (new EditorGUI.DisabledScope(currentTemplate == null))
                 {
-                    if (GUILayout.Button("Open Template"))
-                        PassiveNodeEditorWindow.OpenWithTemplate(currentTemplate);
+                    if (GUILayout.Button("Edit On Left"))
+                        _nodeAuthoringPanel?.SelectNode(currentTemplate);
                 }
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("Create Template"))
+                if (GUILayout.Button("Create Node"))
                 {
-                    string suggestedName = PassiveNodeTemplateLibrary.SanitizeAssetName(_selectedNode.GetDisplayName());
+                    string suggestedName = currentTemplate != null
+                        ? PassiveNodeTemplateLibrary.SanitizeAssetName(_selectedNode.GetDisplayName())
+                        : $"New{_selectedNode.NodeType}Node";
                     if (string.IsNullOrWhiteSpace(suggestedName))
                         suggestedName = $"New{_selectedNode.NodeType}Node";
 
-                    string category = currentTemplate != null ? PassiveNodeTemplateLibrary.GetCategory(currentTemplate) : "Utility";
-                    var newTemplate = PassiveNodeEditorWindow.CreateTemplateAndOpen(suggestedName, category);
+                    var newTemplate = PassiveNodeTemplateLibrary.CreateNewTemplate(suggestedName, "Misc");
+                    _nodeAuthoringPanel?.SelectNode(newTemplate);
                     AssignTemplateToSelectedNode(newTemplate);
                 }
 
-                if (GUILayout.Button("Clear Template"))
+                if (GUILayout.Button("Clear Node"))
                 {
                     templateProp.objectReferenceValue = null;
                     serializedTree.ApplyModifiedProperties();
@@ -904,6 +916,10 @@ namespace Scripts.Editor.PassiveTree
                 }
 
                 Rect placeRect = new Rect(rowRect.xMax - 82f, rowRect.y + rowRect.height - 30f, 74f, 22f);
+                Rect nodesRect = new Rect(placeRect.x - 64f, placeRect.y, 58f, placeRect.height);
+                if (GUI.Button(nodesRect, "Nodes"))
+                    PassiveClusterNodesWindow.Open(template);
+
                 if (GUI.Button(placeRect, "Place"))
                 {
                     PlaceClusterTemplate(template);
@@ -930,6 +946,9 @@ namespace Scripts.Editor.PassiveTree
                     EditorGUIUtility.PingObject(template);
                     Selection.activeObject = template;
                 }
+
+                if (GUILayout.Button("View Nodes"))
+                    PassiveClusterNodesWindow.Open(template);
 
                 if (GUILayout.Button("Place At Last Click"))
                     PlaceClusterTemplate(template);

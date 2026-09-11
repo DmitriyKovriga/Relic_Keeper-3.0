@@ -4,7 +4,7 @@ using Scripts.Stats;
 
 namespace Scripts.Skills.PassiveTree
 {
-    [CreateAssetMenu(menuName = "RPG/Passive Tree/Node Template")]
+    [CreateAssetMenu(menuName = "RPG/Passive Tree/Node")]
     public class PassiveNodeTemplateSO : ScriptableObject
     {
         [Header("Visuals")]

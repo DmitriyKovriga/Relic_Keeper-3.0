@@ -11,7 +11,7 @@ namespace Scripts.Editor.PassiveTree
 {
     internal static class PassiveNodeTemplateLibrary
     {
-        private const string BaseTemplateFolder = "Assets/Resources/PassiveTrees/Templates";
+        internal const string BaseTemplateFolder = "Assets/Resources/PassiveTrees/Templates";
         private static StatsDatabaseSO _cachedStatsDatabase;
 
         internal static IReadOnlyList<PassiveNodeTemplateSO> LoadAllTemplates()
@@ -96,7 +96,7 @@ namespace Scripts.Editor.PassiveTree
             return builder.ToString().TrimEnd();
         }
 
-        internal static PassiveNodeTemplateSO CreateNewTemplate(string preferredName = null, string category = "Utility")
+        internal static PassiveNodeTemplateSO CreateNewTemplate(string preferredName = null, string category = "Misc")
         {
             EnsureTemplateFolders(category);
 
@@ -104,8 +104,11 @@ namespace Scripts.Editor.PassiveTree
             if (string.IsNullOrWhiteSpace(safeName))
                 safeName = "NewPassiveNode";
 
-            string folder = GetCategoryFolder(category);
-            string path = AssetDatabase.GenerateUniqueAssetPath($"{folder}/{safeName}.asset");
+            string categoryFolder = GetCategoryFolder(category);
+            string nodeFolder = AssetDatabase.GenerateUniqueAssetPath($"{categoryFolder}/{safeName}");
+            string folderName = Path.GetFileName(nodeFolder);
+            AssetDatabase.CreateFolder(categoryFolder, folderName);
+            string path = $"{nodeFolder}/{safeName}.asset";
 
             var template = ScriptableObject.CreateInstance<PassiveNodeTemplateSO>();
             template.Name = Path.GetFileNameWithoutExtension(path);
@@ -117,6 +120,139 @@ namespace Scripts.Editor.PassiveTree
             AssetDatabase.Refresh();
             EditorGUIUtility.PingObject(template);
             return template;
+        }
+
+        internal static string OrganizeTemplate(PassiveNodeTemplateSO template)
+        {
+            if (template == null)
+                return string.Empty;
+
+            string assetPath = AssetDatabase.GetAssetPath(template).Replace('\\', '/');
+            if (string.IsNullOrWhiteSpace(assetPath))
+                return string.Empty;
+
+            string category = GetStorageCategory(template);
+            EnsureTemplateFolders(category);
+            string categoryFolder = GetCategoryFolder(category);
+            string currentFolder = Path.GetDirectoryName(assetPath)?.Replace('\\', '/');
+            if (string.IsNullOrWhiteSpace(currentFolder))
+                return assetPath;
+
+            string currentParent = Path.GetDirectoryName(currentFolder)?.Replace('\\', '/');
+            if (string.Equals(currentParent, categoryFolder, System.StringComparison.OrdinalIgnoreCase))
+                return assetPath;
+
+            bool ownsNodeFolder = currentFolder.StartsWith(BaseTemplateFolder + "/", System.StringComparison.OrdinalIgnoreCase)
+                                  && !string.Equals(currentFolder, GetCategoryFolder(GetFolderCategory(currentFolder)), System.StringComparison.OrdinalIgnoreCase);
+
+            if (ownsNodeFolder && AssetDatabase.IsValidFolder(currentFolder))
+            {
+                string destinationFolder = AssetDatabase.GenerateUniqueAssetPath($"{categoryFolder}/{Path.GetFileName(currentFolder)}");
+                string error = AssetDatabase.MoveAsset(currentFolder, destinationFolder);
+                if (string.IsNullOrEmpty(error))
+                    return $"{destinationFolder}/{Path.GetFileName(assetPath)}";
+
+                Debug.LogWarning($"[PassiveNodeLibrary] Could not move node folder: {error}");
+                return assetPath;
+            }
+
+            string nodeFolderName = SanitizeAssetName(template.name);
+            string newNodeFolder = AssetDatabase.GenerateUniqueAssetPath($"{categoryFolder}/{nodeFolderName}");
+            AssetDatabase.CreateFolder(categoryFolder, Path.GetFileName(newNodeFolder));
+            string destinationAsset = $"{newNodeFolder}/{Path.GetFileName(assetPath)}";
+            string moveError = AssetDatabase.MoveAsset(assetPath, destinationAsset);
+            if (!string.IsNullOrEmpty(moveError))
+            {
+                Debug.LogWarning($"[PassiveNodeLibrary] Could not organize node asset: {moveError}");
+                return assetPath;
+            }
+
+            return destinationAsset;
+        }
+
+        internal static Sprite ImportIconBesideTemplate(PassiveNodeTemplateSO template, string sourcePath)
+        {
+            if (template == null || string.IsNullOrWhiteSpace(sourcePath))
+                return null;
+
+            string extension = Path.GetExtension(sourcePath).ToLowerInvariant();
+            if (extension != ".png" && extension != ".jpg" && extension != ".jpeg" && extension != ".tga" && extension != ".psd")
+                return null;
+
+            string assetPath = AssetDatabase.GetAssetPath(template).Replace('\\', '/');
+            string destinationFolder = Path.GetDirectoryName(assetPath)?.Replace('\\', '/');
+            if (string.IsNullOrWhiteSpace(destinationFolder))
+                return null;
+
+            string sourceAssetPath = sourcePath.Replace('\\', '/');
+            if (Path.IsPathRooted(sourceAssetPath))
+            {
+                string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, "..")).Replace('\\', '/').TrimEnd('/');
+                string normalizedSource = Path.GetFullPath(sourceAssetPath).Replace('\\', '/');
+                if (normalizedSource.StartsWith(projectRoot + "/", System.StringComparison.OrdinalIgnoreCase))
+                    sourceAssetPath = normalizedSource.Substring(projectRoot.Length + 1);
+            }
+
+            string destinationPath = AssetDatabase.GenerateUniqueAssetPath($"{destinationFolder}/{Path.GetFileName(sourcePath)}");
+            bool copied;
+            if (sourceAssetPath.StartsWith("Assets/", System.StringComparison.OrdinalIgnoreCase))
+            {
+                if (string.Equals(sourceAssetPath, destinationPath, System.StringComparison.OrdinalIgnoreCase))
+                    copied = true;
+                else
+                    copied = AssetDatabase.CopyAsset(sourceAssetPath, destinationPath);
+            }
+            else
+            {
+                try
+                {
+                    string absoluteDestination = Path.GetFullPath(Path.Combine(Application.dataPath, "..", destinationPath));
+                    File.Copy(sourcePath, absoluteDestination, false);
+                    copied = true;
+                }
+                catch (System.Exception exception)
+                {
+                    Debug.LogError($"[PassiveNodeLibrary] Could not copy icon: {exception.Message}");
+                    copied = false;
+                }
+            }
+
+            if (!copied)
+                return null;
+
+            AssetDatabase.ImportAsset(destinationPath, ImportAssetOptions.ForceSynchronousImport);
+            if (AssetImporter.GetAtPath(destinationPath) is TextureImporter importer)
+            {
+                importer.textureType = TextureImporterType.Sprite;
+                importer.spriteImportMode = SpriteImportMode.Single;
+                importer.filterMode = FilterMode.Point;
+                importer.mipmapEnabled = false;
+                importer.textureCompression = TextureImporterCompression.Uncompressed;
+                importer.SaveAndReimport();
+            }
+
+            return AssetDatabase.LoadAssetAtPath<Sprite>(destinationPath);
+        }
+
+        internal static string GetStorageCategory(PassiveNodeTemplateSO template)
+        {
+            if (template?.Modifiers == null || template.Modifiers.Count == 0)
+                return "Misc";
+
+            string stat = template.Modifiers[0].Stat.ToString().ToLowerInvariant();
+            if (stat.Contains("health") || stat.Contains("life")) return "Life";
+            if (stat.Contains("mana") || stat.Contains("mysticshield")) return "Mana";
+            if (stat.Contains("bleed") || stat.Contains("poison") || stat.Contains("ignite") ||
+                stat.Contains("freeze") || stat.Contains("shock") || stat.Contains("stun") || stat.Contains("ailment"))
+                return "Ailments";
+            if (stat.Contains("damage") || stat.Contains("attack") || stat.Contains("cast") || stat.Contains("crit") ||
+                stat.Contains("accuracy") || stat.Contains("armor") || stat.Contains("evasion") || stat.Contains("block") ||
+                stat.Contains("resist") || stat.Contains("penetration") || stat.Contains("projectile") ||
+                stat.Contains("speed") || stat.Contains("area") || stat.Contains("duration") || stat.Contains("cooldown") ||
+                stat.Contains("conversion") || stat.Contains("to") || stat.Contains("take"))
+                return "Utility";
+
+            return "Misc";
         }
 
         internal static string SanitizeAssetName(string value)
@@ -225,7 +361,7 @@ namespace Scripts.Editor.PassiveTree
             return _cachedStatsDatabase;
         }
 
-        private static void EnsureTemplateFolders(string category)
+        internal static void EnsureTemplateFolders(string category)
         {
             if (!AssetDatabase.IsValidFolder("Assets/Resources"))
                 AssetDatabase.CreateFolder("Assets", "Resources");
@@ -243,8 +379,29 @@ namespace Scripts.Editor.PassiveTree
 
         private static string GetCategoryFolder(string category)
         {
-            string normalized = string.IsNullOrWhiteSpace(category) ? "Utility" : NormalizeCategory(category);
+            string normalized = NormalizeStorageCategory(category);
             return $"{BaseTemplateFolder}/{normalized}";
+        }
+
+        private static string GetFolderCategory(string folder)
+        {
+            string relative = folder.Substring(BaseTemplateFolder.Length).Trim('/');
+            string[] segments = relative.Split('/');
+            return segments.Length > 0 ? segments[0] : "Misc";
+        }
+
+        private static string NormalizeStorageCategory(string category)
+        {
+            if (string.IsNullOrWhiteSpace(category)) return "Misc";
+            switch (category.Trim().ToLowerInvariant())
+            {
+                case "life": return "Life";
+                case "mana": return "Mana";
+                case "ailments": return "Ailments";
+                case "utility": return "Utility";
+                case "misc": return "Misc";
+                default: return "Misc";
+            }
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Scripts.Editor.PassiveTree
             GetWindow<PassiveNodeEditorWindow>().SelectTemplate(template);
         }
 
-        public static PassiveNodeTemplateSO CreateTemplateAndOpen(string preferredName = null, string category = "Utility")
+        public static PassiveNodeTemplateSO CreateTemplateAndOpen(string preferredName = null, string category = "Misc")
         {
             var template = PassiveNodeTemplateLibrary.CreateNewTemplate(preferredName, category);
             OpenWithTemplate(template);
@@ -76,7 +76,7 @@ namespace Scripts.Editor.PassiveTree
 
             // --- Left: list ---
             EditorGUILayout.BeginVertical(GUILayout.Width(280));
-            GUILayout.Label("Passive Node Templates", EditorStyles.boldLabel);
+            GUILayout.Label("Passive Nodes", EditorStyles.boldLabel);
             _search = EditorGUILayout.TextField("Search", _search);
             if (GUILayout.Button("Refresh")) LoadTemplates();
 
@@ -127,7 +127,7 @@ namespace Scripts.Editor.PassiveTree
             GUILayout.Label("Node Details", EditorStyles.boldLabel);
             if (_selected == null)
             {
-                EditorGUILayout.HelpBox("Select a template from the list or create a new one.", MessageType.Info);
+                EditorGUILayout.HelpBox("Select a node from the list or create a new one.", MessageType.Info);
                 return;
             }
 
@@ -341,7 +341,7 @@ namespace Scripts.Editor.PassiveTree
         {
             if (_selected == null) return;
             GUI.backgroundColor = new Color(1f, 0.8f, 0.8f);
-            if (GUILayout.Button("Delete Node Template"))
+            if (GUILayout.Button("Delete Node"))
             {
                 if (EditorUtility.DisplayDialog("Delete", $"Delete \"{_selected.name}\"?", "Delete", "Cancel"))
                 {
@@ -357,7 +357,7 @@ namespace Scripts.Editor.PassiveTree
 
         private void CreateNewNode()
         {
-            var template = PassiveNodeTemplateLibrary.CreateNewTemplate("NewPassiveNode", "Utility");
+            var template = PassiveNodeTemplateLibrary.CreateNewTemplate("NewPassiveNode", "Misc");
             LoadTemplates();
             SelectTemplate(template);
         }
