@@ -22,7 +22,7 @@ namespace Scripts.Editor.Enemy
         {
             var window = GetWindow<EnemyLootEditorWindow>();
             window.titleContent = new GUIContent("Enemy Loot");
-            window.minSize = new Vector2(650f, 480f);
+            window.minSize = new Vector2(760f, 480f);
             window.Refresh();
         }
 
@@ -101,6 +101,10 @@ namespace Scripts.Editor.Enemy
             if (total > 1f)
                 EditorGUILayout.HelpBox("The combined base chance exceeds 100%. Lower-priority common drops can be crowded out.", MessageType.Warning);
 
+            EditorGUILayout.HelpBox(
+                "Base XP is the reward for a level 1 enemy. Enemy-level scaling and dungeon XP modifiers are applied at runtime; no dungeon modifier means x1.",
+                MessageType.Info);
+
             EditorGUILayout.Space(10f);
         }
 
@@ -109,7 +113,8 @@ namespace Scripts.Editor.Enemy
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
             GUILayout.Label("Sprite", EditorStyles.boldLabel, GUILayout.Width(PreviewSize));
             GUILayout.Label("Enemy", EditorStyles.boldLabel, GUILayout.MinWidth(220f));
-            GUILayout.Label("Loot multiplier", EditorStyles.boldLabel, GUILayout.Width(150f));
+            GUILayout.Label(new GUIContent("Base XP", "Experience from a level 1 enemy at dungeon multiplier x1."), EditorStyles.boldLabel, GUILayout.Width(90f));
+            GUILayout.Label("Loot multiplier", EditorStyles.boldLabel, GUILayout.Width(135f));
             GUILayout.Label("Total chance", EditorStyles.boldLabel, GUILayout.Width(100f));
             EditorGUILayout.EndHorizontal();
 
@@ -145,8 +150,18 @@ namespace Scripts.Editor.Enemy
 
             GUILayout.FlexibleSpace();
             GUILayout.Space(8f);
+
             EditorGUI.BeginChangeCheck();
-            float multiplier = EditorGUILayout.FloatField(Mathf.Max(0f, enemy.LootDropMultiplier), GUILayout.Width(150f));
+            float baseExperience = EditorGUILayout.FloatField(Mathf.Max(0f, enemy.XPReward), GUILayout.Width(90f));
+            if (EditorGUI.EndChangeCheck())
+            {
+                Undo.RecordObject(enemy, "Change enemy base experience");
+                enemy.XPReward = Mathf.Max(0f, baseExperience);
+                EditorUtility.SetDirty(enemy);
+            }
+
+            EditorGUI.BeginChangeCheck();
+            float multiplier = EditorGUILayout.FloatField(Mathf.Max(0f, enemy.LootDropMultiplier), GUILayout.Width(135f));
             if (EditorGUI.EndChangeCheck())
             {
                 Undo.RecordObject(enemy, "Change enemy loot multiplier");

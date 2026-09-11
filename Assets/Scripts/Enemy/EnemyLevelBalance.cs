@@ -12,7 +12,8 @@ namespace Scripts.Enemies
     /// avoids sponges against that DPS. Armor trails slightly so physical hits still matter.
     /// After the soft cap, remaining levels use half the listed rate, except damage which uses a quarter.
     /// Move and attack speed are a hidden Increased modifier: 1%/level to 30, then 0.2%/level.
-    /// Experience from enemies is one-third of the previous reward curve.
+    /// XPReward is the real level-one reward. Enemy level and dungeon modifiers
+    /// are applied from a neutral multiplier of 1.
     /// </summary>
     public static class EnemyLevelBalance
     {
@@ -25,7 +26,6 @@ namespace Scripts.Enemies
         public const float PostSoftCapDamageScale = 0.25f;
         public const float TempoPercentPerLevel = 1f;
         public const float PostSoftCapTempoPercentPerLevel = 0.2f;
-        public const float ExperienceRewardScale = 1f / 3f;
 
         public static bool IsDamageStat(StatType type)
         {
@@ -79,7 +79,7 @@ namespace Scripts.Enemies
 
             float growthPercent = data.LegacyGrowthPerLevelPercent;
             float dungeonScale = Mathf.Max(0f, dungeonMultiplier);
-            return data.XPReward * PercentMultiplier(level, growthPercent) * dungeonScale * ExperienceRewardScale;
+            return data.XPReward * PercentMultiplier(level, growthPercent) * dungeonScale;
         }
     }
 }

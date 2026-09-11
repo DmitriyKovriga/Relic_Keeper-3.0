@@ -84,12 +84,12 @@ MonoBehaviour:
     DamageType: 0
     AttackRange: 1.15
     AttackCooldown: 1.15
-    Windup: 0.22
+    Windup: 0.62
     ActiveTime: 0.1
     Recovery: 0.28
     DamageMultiplier: 1.1
-    HitboxSize: {x: 1.3, y: 0.85}
-    HitboxOffset: {x: 0.82, y: 0}
+    HitboxSize: {x: 1.45, y: 1.05}
+    HitboxOffset: {x: 0.85, y: -0.58}
     ProjectileVisualResourcePath: 
     ProjectileSpawnOffset: {x: 0, y: 0.15}
     ProjectileSpeed: 6
@@ -108,8 +108,8 @@ MonoBehaviour:
     ActiveTime: 0.1
     Recovery: 0.52
     DamageMultiplier: 1.55
-    HitboxSize: {x: 1.8, y: 0.9}
-    HitboxOffset: {x: 1.05, y: 0}
+    HitboxSize: {x: 0.65, y: 1.5}
+    HitboxOffset: {x: 0.18, y: -0.58}
     DashSpeed: 8.5
     DashDuration: 0.26
     DashOvershootDistance: 1.1
@@ -187,6 +187,6 @@ MonoBehaviour:
     DigOutFps: 10
     AttackImpactFrame: 8
     ChargeImpactFrame: 8
-  XPReward: 50
+  XPReward: 15
   LootDropMultiplier: 3
   LegacyGrowthPerLevelPercent: 25

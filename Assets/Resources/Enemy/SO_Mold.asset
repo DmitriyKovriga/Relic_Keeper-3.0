@@ -168,6 +168,6 @@ MonoBehaviour:
     MoveFps: 7
     AttackFps: 10
     AttackImpactFrame: -1
-  XPReward: 28
+  XPReward: 8.4
   LootDropMultiplier: 1
   LegacyGrowthPerLevelPercent: 25

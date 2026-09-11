@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Scripts.Dungeon;
 using Scripts.Enemies;
 using Scripts.Stats;
+using UnityEditor;
 using UnityEngine;
 
 namespace RelicKeeper.Tests.EditMode
@@ -116,19 +117,18 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void ExperienceReward_IsOneThirdOfPreviousCurve()
+        public void ExperienceReward_UsesConfiguredBaseAndNeutralDungeonMultiplier()
         {
-            Assert.That(EnemyLevelBalance.ExperienceRewardScale, Is.EqualTo(1f / 3f).Within(0.0001f));
-
             var data = ScriptableObject.CreateInstance<EnemyDataSO>();
             try
             {
-                data.XPReward = 30f;
+                data.XPReward = 9f;
                 data.LegacyGrowthPerLevelPercent = 25f;
-                Assert.That(EnemyLevelBalance.ResolveExperienceReward(data, 1, 1f, false), Is.EqualTo(10f).Within(0.01f));
+                Assert.That(EnemyLevelBalance.ResolveExperienceReward(data, 1, 1f, false), Is.EqualTo(9f).Within(0.01f));
+                Assert.That(EnemyLevelBalance.ResolveExperienceReward(data, 1, 1.3f, false), Is.EqualTo(11.7f).Within(0.01f));
                 Assert.That(
                     EnemyLevelBalance.ResolveExperienceReward(data, 23, 1f, false),
-                    Is.EqualTo(30f * EnemyLevelBalance.PercentMultiplier(23, 25f) / 3f).Within(0.01f));
+                    Is.EqualTo(9f * EnemyLevelBalance.PercentMultiplier(23, 25f)).Within(0.01f));
             }
             finally
             {
@@ -154,6 +154,22 @@ namespace RelicKeeper.Tests.EditMode
             {
                 Object.DestroyImmediate(data);
             }
+        }
+
+        [Test]
+        public void Knight_AttackHitboxesMatchWeaponStrikeAndShoulderCharge()
+        {
+            const string knightPath = "Assets/Resources/Enemy/SO_Knight.asset";
+            EnemyDataSO knight = AssetDatabase.LoadAssetAtPath<EnemyDataSO>(knightPath);
+
+            Assert.That(knight, Is.Not.Null);
+            Assert.That(knight.Attack.HitboxOffset.y, Is.LessThan(0f));
+            Assert.That(knight.Attack.HitboxSize.x, Is.GreaterThan(knight.Attack.HitboxSize.y));
+            Assert.That(knight.Attack.Windup, Is.EqualTo(knight.Animation.AttackImpactFrame / knight.Animation.AttackFps).Within(0.02f));
+
+            Assert.That(knight.ChargeAttack.HitboxOffset.y, Is.LessThan(0f));
+            Assert.That(knight.ChargeAttack.HitboxSize.y, Is.GreaterThan(knight.ChargeAttack.HitboxSize.x * 2f));
+            Assert.That(Mathf.Abs(knight.ChargeAttack.HitboxOffset.x), Is.LessThan(0.5f));
         }
 
         [Test]

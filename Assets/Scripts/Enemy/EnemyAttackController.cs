@@ -150,6 +150,8 @@ namespace Scripts.Enemies
         private float _chargeDashTimeRemaining;
         private int _chargeDashDirection;
         private float _chargeDashDistanceRemaining;
+        private Vector2 _lastChargeHitboxCenter;
+        private bool _hasChargeHitboxSample;
         private bool _isStunned;
         private bool _isFrozen;
         private GameObject _attackAttentionPrefab;
@@ -180,6 +182,8 @@ namespace Scripts.Enemies
             _chargeDashTimeRemaining = 0f;
             _chargeDashDirection = 1;
             _chargeDashDistanceRemaining = 0f;
+            _lastChargeHitboxCenter = Vector2.zero;
+            _hasChargeHitboxSample = false;
             _isStunned = false;
             _isFrozen = false;
             DestroyAttackAttentionVfx();
@@ -379,9 +383,8 @@ namespace Scripts.Enemies
 
         private void PerformMeleeAttack(AttackRuntimeConfig config)
         {
-            Vector2 center = (Vector2)transform.position;
             int facing = _locomotion != null ? _locomotion.FacingDirection : 1;
-            center += new Vector2(config.HitboxOffset.x * facing, config.HitboxOffset.y);
+            Vector2 center = ResolveHitboxCenter(config, facing);
 
             Collider2D[] hits = Physics2D.OverlapBoxAll(center, config.HitboxSize, 0f, DefaultTargetMask);
             for (int i = 0; i < hits.Length; i++)
@@ -390,23 +393,17 @@ namespace Scripts.Enemies
                 if (hit == null || hit.transform == transform)
                     continue;
 
-                if (TryResolveDamageable(hit.transform, out var damageable))
+                if (TryApplyHit(hit.transform, config))
                 {
-                    DamageSnapshot snapshot = CreateDamageSnapshot(config);
-                    damageable.TakeDamage(snapshot);
-                    AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, hit.transform, snapshot);
                     _lastAttackConnected = true;
                     return;
                 }
             }
 
-            if (_currentTarget != null && IsTargetInsideMeleeFallbackZone(_currentTarget, center, config.HitboxSize))
+            if (_currentTarget != null && IsTargetInsideHitbox(_currentTarget, center, config.HitboxSize))
             {
-                if (TryResolveDamageable(_currentTarget, out var fallbackDamageable))
+                if (TryApplyHit(_currentTarget, config))
                 {
-                    DamageSnapshot snapshot = CreateDamageSnapshot(config);
-                    fallbackDamageable.TakeDamage(snapshot);
-                    AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, _currentTarget, snapshot);
                     _lastAttackConnected = true;
                 }
             }
@@ -512,6 +509,7 @@ namespace Scripts.Enemies
         {
             _chargeDashTimeRemaining = 0f;
             _chargeDashDistanceRemaining = 0f;
+            _hasChargeHitboxSample = false;
             _animation?.SetChargeImpactFrameHold(false);
             _locomotion?.ClearForcedHorizontalVelocity();
         }
@@ -521,7 +519,10 @@ namespace Scripts.Enemies
             float dashDistance = Mathf.Max(0f, ResolveChargeTravelDistance(config));
             _chargeDashDistanceRemaining = dashDistance;
             _chargeDashTimeRemaining = config.DashSpeed > 0.01f ? dashDistance / config.DashSpeed : 0f;
+            _lastChargeHitboxCenter = ResolveHitboxCenter(config, _chargeDashDirection);
+            _hasChargeHitboxSample = true;
             _animation?.SetChargeImpactFrameHold(true);
+            TryApplyChargeContactHit(config);
         }
 
         private float ResolveChargeTravelDistance(AttackRuntimeConfig config)
@@ -540,27 +541,57 @@ namespace Scripts.Enemies
             if (_hasAppliedHit)
                 return;
 
-            Vector2 center = (Vector2)transform.position;
-            int facing = _locomotion != null ? _locomotion.FacingDirection : _chargeDashDirection;
-            center += new Vector2(config.HitboxOffset.x * facing, config.HitboxOffset.y);
+            Vector2 center = ResolveHitboxCenter(config, _chargeDashDirection);
+            Vector2 queryCenter = center;
+            Vector2 querySize = config.HitboxSize;
+            if (_hasChargeHitboxSample)
+            {
+                Vector2 travel = center - _lastChargeHitboxCenter;
+                queryCenter = (_lastChargeHitboxCenter + center) * 0.5f;
+                querySize += new Vector2(Mathf.Abs(travel.x), Mathf.Abs(travel.y));
+            }
 
-            Collider2D[] hits = Physics2D.OverlapBoxAll(center, config.HitboxSize, 0f, DefaultTargetMask);
+            _lastChargeHitboxCenter = center;
+            _hasChargeHitboxSample = true;
+
+            Collider2D[] hits = Physics2D.OverlapBoxAll(queryCenter, querySize, 0f, DefaultTargetMask);
             for (int i = 0; i < hits.Length; i++)
             {
                 var hit = hits[i];
                 if (hit == null || hit.transform == transform)
                     continue;
 
-                if (!TryResolveDamageable(hit.transform, out var damageable))
+                if (!TryApplyHit(hit.transform, config))
                     continue;
 
-                DamageSnapshot snapshot = CreateDamageSnapshot(config);
-                damageable.TakeDamage(snapshot);
-                AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, hit.transform, snapshot);
                 _hasAppliedHit = true;
                 _lastAttackConnected = true;
                 return;
             }
+
+            if (_currentTarget != null && IsTargetInsideHitbox(_currentTarget, queryCenter, querySize) &&
+                TryApplyHit(_currentTarget, config))
+            {
+                _hasAppliedHit = true;
+                _lastAttackConnected = true;
+            }
+        }
+
+        private Vector2 ResolveHitboxCenter(AttackRuntimeConfig config, int facing)
+        {
+            return (Vector2)transform.position +
+                   new Vector2(config.HitboxOffset.x * (facing >= 0 ? 1 : -1), config.HitboxOffset.y);
+        }
+
+        private bool TryApplyHit(Transform candidate, AttackRuntimeConfig config)
+        {
+            if (!TryResolveDamageable(candidate, out var damageable))
+                return false;
+
+            DamageSnapshot snapshot = CreateDamageSnapshot(config);
+            damageable.TakeDamage(snapshot);
+            AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, candidate, snapshot);
+            return true;
         }
 
         private int ResolveAttackDirection(Transform target)
@@ -700,14 +731,22 @@ namespace Scripts.Enemies
             return fallback;
         }
 
-        private static bool IsTargetInsideMeleeFallbackZone(Transform target, Vector2 hitboxCenter, Vector2 hitboxSize)
+        private static bool IsTargetInsideHitbox(Transform target, Vector2 hitboxCenter, Vector2 hitboxSize)
         {
             if (target == null)
                 return false;
 
+            var hitboxBounds = new Bounds(hitboxCenter, hitboxSize);
+            Collider2D targetCollider = target.GetComponent<Collider2D>();
+            if (targetCollider == null)
+                targetCollider = target.GetComponentInChildren<Collider2D>();
+
+            if (targetCollider != null && targetCollider.enabled && targetCollider.gameObject.activeInHierarchy)
+                return hitboxBounds.Intersects(targetCollider.bounds);
+
             Vector2 delta = (Vector2)target.position - hitboxCenter;
-            float halfWidth = (hitboxSize.x * 0.5f) + 0.2f;
-            float halfHeight = (hitboxSize.y * 0.5f) + 0.35f;
+            float halfWidth = hitboxSize.x * 0.5f;
+            float halfHeight = hitboxSize.y * 0.5f;
             return Mathf.Abs(delta.x) <= halfWidth && Mathf.Abs(delta.y) <= halfHeight;
         }
 

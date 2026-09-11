@@ -191,6 +191,6 @@ MonoBehaviour:
     DigOutFps: 10
     AttackImpactFrame: -1
     ChargeImpactFrame: -1
-  XPReward: 25
+  XPReward: 7.5
   LootDropMultiplier: 0.5
   LegacyGrowthPerLevelPercent: 25
