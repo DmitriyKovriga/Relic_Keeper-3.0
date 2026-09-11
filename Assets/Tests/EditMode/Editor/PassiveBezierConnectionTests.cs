@@ -240,4 +240,18 @@ namespace RelicKeeper.Tests.EditMode
             }
         }
     }
+
+    public class PassiveStartNodeDisplayTests
+    {
+        [Test]
+        public void StartNode_UsesStartLabelInsteadOfUnknown()
+        {
+            var startNode = new PassiveNodeDefinition { NodeType = PassiveNodeType.Start };
+            var unknownNode = new PassiveNodeDefinition { NodeType = PassiveNodeType.Small };
+
+            Assert.That(startNode.GetDisplayName(), Is.EqualTo("Стартовый нод"));
+            Assert.That(startNode.GetDisplayDescription(), Is.EqualTo("Начальная точка дерева пассивок."));
+            Assert.That(unknownNode.GetDisplayName(), Is.EqualTo("Unknown Node"));
+        }
+    }
 }

@@ -2080,6 +2080,14 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 104000000000000001
+    m_Localized: Start Node
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104000000000000002
+    m_Localized: Starting point of the passive tree.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

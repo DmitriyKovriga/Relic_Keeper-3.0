@@ -339,7 +339,18 @@ namespace Scripts.Skills.PassiveTree
         // Хелпер для имени
         public string GetDisplayName()
         {
-            return Template != null ? Template.Name : "Unknown Node";
+            if (Template != null && !string.IsNullOrWhiteSpace(Template.Name))
+                return Template.Name;
+
+            return NodeType == PassiveNodeType.Start ? "Стартовый нод" : "Unknown Node";
+        }
+
+        public string GetDisplayDescription()
+        {
+            if (Template != null && !string.IsNullOrWhiteSpace(Template.Description))
+                return Template.Description;
+
+            return NodeType == PassiveNodeType.Start ? "Начальная точка дерева пассивок." : string.Empty;
         }
         
         // Хелпер для иконки

@@ -2,8 +2,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Localization;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Tables;
 using UnityEngine.UIElements;
 using Scripts.Skills.PassiveTree;
 
@@ -66,6 +69,7 @@ namespace Scripts.Editor.PassiveTree
             RefreshAvailableTrees();
             RefreshAvailableClusterTemplates();
             RestoreLastTreeIfNeeded();
+            EnsureStartNodeLocalization();
         }
 
         private void OnDisable()
@@ -163,6 +167,8 @@ namespace Scripts.Editor.PassiveTree
                     LoadTree(evt.newValue);
             });
             toolbar.Add(_treePopup);
+
+            toolbar.Add(new ToolbarButton(CreateNewTree) { text = "New Tree" });
 
             toolbar.Add(new ToolbarButton(() =>
             {
@@ -435,6 +441,8 @@ namespace Scripts.Editor.PassiveTree
             if (_currentTree == null)
             {
                 EditorGUILayout.HelpBox("Select a passive tree from the toolbar to start editing.", MessageType.Info);
+                if (GUILayout.Button("New Tree"))
+                    CreateNewTree();
                 return;
             }
 
@@ -487,6 +495,9 @@ namespace Scripts.Editor.PassiveTree
                     EnsureFolderAndReveal(DefaultClusterTemplateFolder);
 
                 EditorGUILayout.EndHorizontal();
+
+                if (GUILayout.Button("New Tree"))
+                    CreateNewTree();
 
                 if (GUILayout.Button("Generate Backbone"))
                     GenerateBackbone();
@@ -1119,6 +1130,38 @@ namespace Scripts.Editor.PassiveTree
             RefreshCanvasKeepingSelection();
         }
 
+        private void CreateNewTree()
+        {
+            EnsureFolder(EditorPaths.PassiveTemplatesFolder);
+
+            string uniqueFolder = AssetDatabase.GenerateUniqueAssetPath($"{EditorPaths.PassiveTemplatesFolder}/NewPassiveTree");
+            string folderName = Path.GetFileName(uniqueFolder);
+            AssetDatabase.CreateFolder(EditorPaths.PassiveTemplatesFolder, folderName);
+
+            string assetPath = $"{uniqueFolder}/{folderName}.asset";
+            var tree = ScriptableObject.CreateInstance<PassiveSkillTreeSO>();
+            tree.Nodes.Add(new PassiveNodeDefinition
+            {
+                ID = System.Guid.NewGuid().ToString(),
+                NodeType = PassiveNodeType.Start,
+                PlacementMode = NodePlacementMode.Free,
+                Position = Vector2.zero,
+                ConnectionIDs = new List<string>()
+            });
+
+            AssetDatabase.CreateAsset(tree, assetPath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            EnsureStartNodeLocalization();
+
+            EditorGUIUtility.PingObject(tree);
+            Selection.activeObject = tree;
+
+            RefreshAvailableTrees();
+            LoadTree(tree);
+            ShowNotification(new GUIContent($"Created {folderName}"));
+        }
+
         private void GenerateBackbone()
         {
             if (_currentTree == null)
@@ -1316,6 +1359,53 @@ namespace Scripts.Editor.PassiveTree
                     AssetDatabase.CreateFolder(current, segments[i]);
                 current = next;
             }
+        }
+
+        private static void EnsureStartNodeLocalization()
+        {
+            var collection = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.MenuLabels);
+            if (collection == null)
+                return;
+
+            var enTable = collection.GetTable("en") as StringTable
+                ?? collection.GetTable(new LocaleIdentifier("en")) as StringTable;
+            var ruTable = collection.GetTable("ru") as StringTable
+                ?? collection.GetTable(new LocaleIdentifier("ru")) as StringTable;
+
+            bool changed = false;
+            changed |= SetLocalizationEntryIfMissing(enTable, "passive.node.start.name", "Start Node");
+            changed |= SetLocalizationEntryIfMissing(ruTable, "passive.node.start.name", "Стартовый нод");
+            changed |= SetLocalizationEntryIfMissing(enTable, "passive.node.start.description", "Starting point of the passive tree.");
+            changed |= SetLocalizationEntryIfMissing(ruTable, "passive.node.start.description", "Начальная точка дерева пассивок.");
+
+            if (!changed)
+                return;
+
+            if (enTable != null)
+                EditorUtility.SetDirty(enTable);
+            if (ruTable != null)
+                EditorUtility.SetDirty(ruTable);
+            EditorUtility.SetDirty(collection.SharedData);
+            AssetDatabase.SaveAssets();
+        }
+
+        private static bool SetLocalizationEntryIfMissing(StringTable table, string key, string value)
+        {
+            if (table == null || string.IsNullOrWhiteSpace(key))
+                return false;
+
+            var entry = table.GetEntry(key);
+            if (entry == null)
+            {
+                table.AddEntry(key, value);
+                return true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(entry.Value))
+                return false;
+
+            entry.Value = value;
+            return true;
         }
     }
 }

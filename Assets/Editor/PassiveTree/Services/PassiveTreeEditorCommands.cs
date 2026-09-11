@@ -112,27 +112,18 @@ namespace Scripts.Editor.PassiveTree
 
             Vector2 startPosition = startNode.GetWorldPosition(_tree);
             const int innerRingCount = 8;
-            const int outerRingCount = 16;
             const int pathCount = 4;
             const float spokeInnerRadius = 180f;
             const float spokeOuterRadius = 320f;
             const float innerRingRadius = 500f;
-            const float bridgeInnerRadius = 630f;
-            const float bridgeOuterRadius = 770f;
-            const float outerRingRadius = 900f;
             const float ringStartAngle = 0f;
             const float spokeStartAngle = 45f;
-            const float bridgeStartAngle = 0f;
 
             List<PassiveNodeDefinition> spokeInnerNodes = CreateFreeNodes(BuildRingPoints(startPosition, spokeInnerRadius, pathCount, spokeStartAngle));
             List<PassiveNodeDefinition> spokeOuterNodes = CreateFreeNodes(BuildRingPoints(startPosition, spokeOuterRadius, pathCount, spokeStartAngle));
             List<PassiveNodeDefinition> innerRing = CreateFreeNodes(BuildRingPoints(startPosition, innerRingRadius, innerRingCount, ringStartAngle));
-            List<PassiveNodeDefinition> bridgeInnerNodes = CreateFreeNodes(BuildRingPoints(startPosition, bridgeInnerRadius, pathCount, bridgeStartAngle));
-            List<PassiveNodeDefinition> bridgeOuterNodes = CreateFreeNodes(BuildRingPoints(startPosition, bridgeOuterRadius, pathCount, bridgeStartAngle));
-            List<PassiveNodeDefinition> outerRing = CreateFreeNodes(BuildRingPoints(startPosition, outerRingRadius, outerRingCount, ringStartAngle));
 
             ConnectSequentially(innerRing, true);
-            ConnectSequentially(outerRing, true);
 
             int[] innerSpokeIndices = { 1, 3, 5, 7 };
             for (int i = 0; i < pathCount; i++)
@@ -142,16 +133,7 @@ namespace Scripts.Editor.PassiveTree
                 AddConnectionBidirectional(spokeOuterNodes[i], innerRing[innerSpokeIndices[i]]);
             }
 
-            int[] innerBridgeIndices = { 0, 2, 4, 6 };
-            int[] outerBridgeIndices = { 0, 4, 8, 12 };
-            for (int i = 0; i < pathCount; i++)
-            {
-                AddConnectionBidirectional(innerRing[innerBridgeIndices[i]], bridgeInnerNodes[i]);
-                AddConnectionBidirectional(bridgeInnerNodes[i], bridgeOuterNodes[i]);
-                AddConnectionBidirectional(bridgeOuterNodes[i], outerRing[outerBridgeIndices[i]]);
-            }
-
-            int createdNodes = spokeInnerNodes.Count + spokeOuterNodes.Count + innerRing.Count + bridgeInnerNodes.Count + bridgeOuterNodes.Count + outerRing.Count;
+            int createdNodes = spokeInnerNodes.Count + spokeOuterNodes.Count + innerRing.Count;
 
             _tree.InitLookup();
             PassiveTreeAssetPersistence.SaveAssets(_tree);

@@ -43,7 +43,7 @@ namespace Scripts.Skills.PassiveTree.UI
             _lastWorldPosition = worldPosition;
 
             string nameFallback = node.GetDisplayName();
-            string descFallback = node.Template != null ? node.Template.Description : "";
+            string descFallback = node.GetDisplayDescription();
             string nameKey = ResolveNameKey(node);
             string descKey = ResolveDescriptionKey(node);
 
@@ -85,14 +85,20 @@ namespace Scripts.Skills.PassiveTree.UI
 
         private static string ResolveNameKey(PassiveNodeDefinition node)
         {
-            if (node?.Template == null) return null;
-            return $"passive.node.{node.Template.name}.name";
+            if (node?.Template != null)
+                return $"passive.node.{node.Template.name}.name";
+            if (node != null && node.NodeType == PassiveNodeType.Start)
+                return "passive.node.start.name";
+            return null;
         }
 
         private static string ResolveDescriptionKey(PassiveNodeDefinition node)
         {
-            if (node?.Template == null) return null;
-            return $"passive.node.{node.Template.name}.description";
+            if (node?.Template != null)
+                return $"passive.node.{node.Template.name}.description";
+            if (node != null && node.NodeType == PassiveNodeType.Start)
+                return "passive.node.start.description";
+            return null;
         }
 
         private void LocalizeLabel(Label label, string key, string fallback)
