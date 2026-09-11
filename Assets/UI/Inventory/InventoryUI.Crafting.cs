@@ -150,6 +150,14 @@ public partial class InventoryUI
                     pickingMode = PickingMode.Ignore
                 };
                 iconFrame.AddToClassList("orb-icon-frame");
+
+                var emptyStateOverlay = new VisualElement
+                {
+                    name = "EmptyStateOverlay",
+                    pickingMode = PickingMode.Ignore
+                };
+                emptyStateOverlay.AddToClassList("orb-empty-overlay");
+                iconFrame.Add(emptyStateOverlay);
                 slot.Add(iconFrame);
 
                 var countLabel = new Label { name = "RelicCount", pickingMode = PickingMode.Ignore };

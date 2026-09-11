@@ -498,6 +498,30 @@
     flex-shrink: 0;
 }
 
+.orb-empty-overlay {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(126, 126, 126, 0.62);
+}
+
+.orb-slot-empty .orb-icon-frame {
+    opacity: 0.48;
+    -unity-background-image-tint-color: #888;
+}
+
+.orb-slot-empty .orb-empty-overlay {
+    display: flex;
+}
+
+.orb-slot-empty .orb-count {
+    color: #77717b;
+    background-color: rgba(5, 3, 7, 0.55);
+}
+
 .orb-slot:hover .orb-icon-frame {
     border-color: #666;
     background-color: #222;
