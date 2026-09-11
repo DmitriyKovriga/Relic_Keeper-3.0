@@ -463,45 +463,72 @@
     flex-wrap: wrap;
     flex-shrink: 0;
     margin-top: 3px;
+    min-height: 26px;
     -unity-content-container: none;
 }
 
 .orb-slot {
     width: 18px;
-    height: 18px;
+    height: 26px;
     min-width: 18px;
-    min-height: 18px;
+    min-height: 26px;
+    max-width: 18px;
+    max-height: 26px;
     margin-left: 1px;
     margin-right: 1px;
     position: relative;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.orb-icon-frame {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    max-width: 18px;
+    max-height: 18px;
     border-width: 1px;
     border-color: #333;
     background-color: #111;
-    align-items: center;
-    justify-content: center;
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
-.orb-slot:hover {
+.orb-slot:hover .orb-icon-frame {
     border-color: #666;
     background-color: #222;
 }
 
-.orb-slot-applying {
+.orb-slot-applying .orb-icon-frame {
     border-color: #cca360;
     background-color: rgba(204, 163, 96, 0.25);
 }
 
 .orb-slot .orb-count {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    font-size: 7px;
-    color: #fff;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding-left: 1px;
-    padding-right: 1px;
-    min-width: 8px;
+    width: 18px;
+    height: 7px;
+    min-width: 18px;
+    min-height: 7px;
+    max-width: 18px;
+    max-height: 7px;
+    margin-top: 1px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    font-size: 6px;
+    color: #ddd3e3;
+    background-color: rgba(5, 3, 7, 0.82);
     -unity-text-align: middle-center;
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
 .inventory-background-art {

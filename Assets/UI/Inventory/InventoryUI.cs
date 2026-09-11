@@ -76,7 +76,8 @@ public partial class InventoryUI : MonoBehaviour
     
     private List<VisualElement> _backpackSlots = new List<VisualElement>();
     private List<VisualElement> _equipmentSlots = new List<VisualElement>();
-    private List<(VisualElement slot, Label countLabel)> _orbSlots = new List<(VisualElement, Label)>();
+    private List<(VisualElement slot, VisualElement iconFrame, Label countLabel)> _orbSlots =
+        new List<(VisualElement, VisualElement, Label)>();
     
     private bool _isDragging;
     /// <summary>Предмет «в руке» — не в контейнере, пока держим курсор (PoE-style).</summary>

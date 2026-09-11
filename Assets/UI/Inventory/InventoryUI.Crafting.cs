@@ -140,9 +140,19 @@ public partial class InventoryUI
             for (int i = 0; i < count; i++)
             {
                 var slot = new VisualElement();
+                slot.name = $"RelicSlot_{i}";
                 slot.AddToClassList("orb-slot");
                 slot.userData = i;
-                var countLabel = new Label { name = "OrbCount" };
+
+                var iconFrame = new VisualElement
+                {
+                    name = "RelicIconFrame",
+                    pickingMode = PickingMode.Ignore
+                };
+                iconFrame.AddToClassList("orb-icon-frame");
+                slot.Add(iconFrame);
+
+                var countLabel = new Label { name = "RelicCount", pickingMode = PickingMode.Ignore };
                 countLabel.AddToClassList("orb-count");
                 slot.Add(countLabel);
                 slot.RegisterCallback<PointerDownEvent>(OnOrbSlotPointerDown);
@@ -150,7 +160,7 @@ public partial class InventoryUI
                 slot.RegisterCallback<PointerOverEvent>(OnOrbSlotPointerOver);
                 slot.RegisterCallback<PointerOutEvent>(OnOrbSlotPointerOut);
                 _orbSlotsRow.Add(slot);
-                _orbSlots.Add((slot, countLabel));
+                _orbSlots.Add((slot, iconFrame, countLabel));
             }
         }
     }
