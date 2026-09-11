@@ -74,6 +74,20 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void HandleModifiers_SnapAndKeepOppositeAlignment()
+        {
+            Vector2 fortyFive = PassiveBezierMath.ConstrainTo45Degrees(new Vector2(10f, 9f));
+            Assert.That(fortyFive.x, Is.EqualTo(fortyFive.y).Within(0.01f));
+            Assert.That(PassiveBezierMath.SnapPercent(23f), Is.EqualTo(25f));
+            Assert.That(PassiveBezierMath.AreSmoothOpposite(Vector2.left * 10f, Vector2.right * 4f), Is.True);
+            Assert.That(PassiveBezierMath.AreSmoothOpposite(Vector2.left * 10f, Vector2.up * 4f), Is.False);
+
+            Vector2 opposite = PassiveBezierMath.AlignOppositeHandle(Vector2.right * 8f, 4f);
+            Assert.That(opposite, Is.EqualTo(Vector2.left * 4f));
+            Assert.That(PassiveBezierMath.RotateOffset(Vector2.right, 90f).y, Is.EqualTo(1f).Within(0.01f));
+        }
+
+        [Test]
         public void TreeHelpers_FindAndRemoveBezierByEitherIdOrder()
         {
             var tree = ScriptableObject.CreateInstance<PassiveSkillTreeSO>();

@@ -131,6 +131,51 @@ namespace Scripts.Skills.PassiveTree
             return Mathf.Clamp01(Vector2.Dot(point - a, ab) / lengthSq) * 100f;
         }
 
+        public static float SnapPercent(float percent, float step = 5f)
+        {
+            step = Mathf.Max(0.01f, step);
+            return Mathf.Clamp(Mathf.Round(percent / step) * step, 0f, 100f);
+        }
+
+        public static Vector2 ConstrainTo45Degrees(Vector2 offset)
+        {
+            if (offset.sqrMagnitude < 0.0001f)
+                return offset;
+
+            float angle = Mathf.Atan2(offset.y, offset.x);
+            float snapped = Mathf.Round(angle / (Mathf.PI * 0.25f)) * (Mathf.PI * 0.25f);
+            return new Vector2(Mathf.Cos(snapped), Mathf.Sin(snapped)) * offset.magnitude;
+        }
+
+        public static Vector2 RotateOffset(Vector2 offset, float degrees)
+        {
+            float rad = degrees * Mathf.Deg2Rad;
+            float cos = Mathf.Cos(rad);
+            float sin = Mathf.Sin(rad);
+            return new Vector2((offset.x * cos) - (offset.y * sin), (offset.x * sin) + (offset.y * cos));
+        }
+
+        public static bool AreSmoothOpposite(Vector2 inHandle, Vector2 outHandle, float minDot = -0.92f)
+        {
+            if (inHandle.sqrMagnitude < 0.01f || outHandle.sqrMagnitude < 0.01f)
+                return false;
+
+            return Vector2.Dot(inHandle.normalized, outHandle.normalized) <= minDot;
+        }
+
+        public static Vector2 AlignOppositeHandle(Vector2 draggedHandle, float oppositeLength)
+        {
+            if (draggedHandle.sqrMagnitude < 0.0001f)
+                return Vector2.zero;
+
+            return -draggedHandle.normalized * Mathf.Max(0f, oppositeLength);
+        }
+
+        public static Vector2 MirrorHandle(Vector2 draggedHandle)
+        {
+            return -draggedHandle;
+        }
+
         public static Rect Bounds(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float padding)
         {
             float minX = Mathf.Min(p0.x, Mathf.Min(p1.x, Mathf.Min(p2.x, p3.x))) - padding;

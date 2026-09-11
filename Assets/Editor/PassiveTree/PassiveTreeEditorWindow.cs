@@ -308,6 +308,14 @@ namespace Scripts.Editor.PassiveTree
                 return;
             }
 
+            if (_selectedBezier != null && _canvas != null && _canvas.TryHandleBezierKey(evt))
+            {
+                evt.StopPropagation();
+                evt.PreventDefault();
+                RefreshInspector();
+                return;
+            }
+
             if (evt.keyCode != KeyCode.Delete && evt.keyCode != KeyCode.Backspace)
                 return;
 
@@ -460,7 +468,19 @@ namespace Scripts.Editor.PassiveTree
                 EditorGUILayout.LabelField("Free Bezier Connection", EditorStyles.boldLabel);
                 EditorGUILayout.LabelField("From", nodeA != null ? nodeA.GetDisplayName() : connection.NodeIdA);
                 EditorGUILayout.LabelField("To", nodeB != null ? nodeB.GetDisplayName() : connection.NodeIdB);
-                EditorGUILayout.HelpBox("Set the anchor along the segment, then drag the whiskers on the canvas to shape the curve.", MessageType.Info);
+                EditorGUILayout.HelpBox(
+                    "Click the curve to select it again after clicking empty space.\n\n" +
+                    "Illustrator-style handles:\n" +
+                    "• Drag whisker — move handle (paired handles stay opposite)\n" +
+                    "• Alt+Drag whisker — move one handle only (corner)\n" +
+                    "• Alt+Click whisker — convert to a smooth pair\n" +
+                    "• Ctrl/Cmd+Drag whisker — make handles symmetric\n" +
+                    "• Shift+Drag whisker — snap angle to 45°\n" +
+                    "• Shift+Drag diamond — snap anchor to 5%\n" +
+                    "• Alt+Drag diamond — move anchor, keep handle positions\n" +
+                    "• [ / ] — rotate handles 15° (Shift: 45°)\n" +
+                    "• R — reset handles",
+                    MessageType.Info);
 
                 EditorGUI.BeginChangeCheck();
                 float percent = EditorGUILayout.Slider("Anchor %", connection.AnchorPercent, 0f, 100f);

@@ -7,11 +7,14 @@ namespace Scripts.Editor.PassiveTree
 {
     /// <summary>
     /// Anchor + two Bezier whiskers for the selected free connection.
+    /// Handle modifiers follow Illustrator Direct Selection: paired opposite handles,
+    /// Alt to break a pair, Shift to snap 45°, Ctrl/Cmd to force symmetric handles.
     /// </summary>
     public sealed class PassiveBezierHandleOverlay : VisualElement
     {
         private const float HandleSize = 10f;
         private const float AnchorSize = 12f;
+        private const float ClickSlop = 4f;
         private static readonly Color WhiskerLineColor = new Color(0.98f, 0.86f, 0.42f, 0.85f);
         private static readonly Color HandleFill = new Color(0.12f, 0.11f, 0.08f, 0.95f);
         private static readonly Color HandleStroke = new Color(0.98f, 0.86f, 0.42f, 1f);
@@ -34,6 +37,13 @@ namespace Scripts.Editor.PassiveTree
         private HandleKind _dragKind;
         private Vector2 _posA;
         private Vector2 _posB;
+        private Vector2 _startIn;
+        private Vector2 _startOut;
+        private Vector2 _startInWorld;
+        private Vector2 _startOutWorld;
+        private Vector2 _pointerDownPanel;
+        private bool _wasSmoothAtDragStart;
+        private bool _dragMoved;
 
         public PassiveSkillTreeSO Tree { get; private set; }
         public PassiveBezierConnection Connection { get; private set; }
@@ -110,6 +120,14 @@ namespace Scripts.Editor.PassiveTree
                 return;
 
             _dragKind = kind;
+            _dragMoved = false;
+            _pointerDownPanel = (Vector2)evt.position;
+            _startIn = Connection.InHandleOffset;
+            _startOut = Connection.OutHandleOffset;
+            Vector2 anchor = Connection.GetAnchor(_posA, _posB);
+            _startInWorld = anchor + _startIn;
+            _startOutWorld = anchor + _startOut;
+            _wasSmoothAtDragStart = PassiveBezierMath.AreSmoothOpposite(_startIn, _startOut);
             (evt.currentTarget as VisualElement)?.CapturePointer(evt.pointerId);
             UnityEditor.Undo.RecordObject(Tree, "Edit Bezier Connection");
             evt.StopPropagation();
@@ -121,18 +139,16 @@ namespace Scripts.Editor.PassiveTree
             if (_dragKind == HandleKind.None || Connection == null || handle == null || !handle.HasPointerCapture(evt.pointerId))
                 return;
 
+            if (!_dragMoved && Vector2.Distance((Vector2)evt.position, _pointerDownPanel) >= ClickSlop)
+                _dragMoved = true;
+
+            if (!_dragMoved)
+                return;
+
             Vector2 content = parent != null
                 ? (Vector2)parent.WorldToLocal(evt.position)
                 : (Vector2)this.WorldToLocal(evt.position) + new Vector2(resolvedStyle.left, resolvedStyle.top);
-            Vector2 anchor = Connection.GetAnchor(_posA, _posB);
-
-            if (_dragKind == HandleKind.Anchor)
-                Connection.AnchorPercent = PassiveBezierMath.PercentAlongSegment(_posA, _posB, content);
-            else if (_dragKind == HandleKind.In)
-                Connection.InHandleOffset = content - anchor;
-            else if (_dragKind == HandleKind.Out)
-                Connection.OutHandleOffset = content - anchor;
-
+            ApplyDrag(content, evt.altKey, evt.shiftKey, evt.ctrlKey || evt.commandKey);
             RefreshPositions();
             Changed?.Invoke();
             evt.StopPropagation();
@@ -144,11 +160,73 @@ namespace Scripts.Editor.PassiveTree
             if (_dragKind == HandleKind.None)
                 return;
 
+            if (!_dragMoved && evt.altKey && (_dragKind == HandleKind.In || _dragKind == HandleKind.Out))
+                ConvertClickedHandleToSmooth();
+
             _dragKind = HandleKind.None;
             handle?.ReleasePointer(evt.pointerId);
             PassiveTreeAssetPersistence.SetDirty(Tree);
             Changed?.Invoke();
             evt.StopPropagation();
+        }
+
+        private void ApplyDrag(Vector2 content, bool alt, bool shift, bool ctrl)
+        {
+            Vector2 liveAnchor = Connection.GetAnchor(_posA, _posB);
+
+            if (_dragKind == HandleKind.Anchor)
+            {
+                float percent = PassiveBezierMath.PercentAlongSegment(_posA, _posB, content);
+                if (shift)
+                    percent = PassiveBezierMath.SnapPercent(percent);
+
+                Connection.AnchorPercent = percent;
+                if (alt)
+                {
+                    Vector2 newAnchor = Connection.GetAnchor(_posA, _posB);
+                    Connection.InHandleOffset = _startInWorld - newAnchor;
+                    Connection.OutHandleOffset = _startOutWorld - newAnchor;
+                }
+
+                return;
+            }
+
+            Vector2 offset = content - liveAnchor;
+            if (shift)
+                offset = PassiveBezierMath.ConstrainTo45Degrees(offset);
+
+            bool editingIn = _dragKind == HandleKind.In;
+            if (ctrl)
+            {
+                Connection.InHandleOffset = editingIn ? offset : PassiveBezierMath.MirrorHandle(offset);
+                Connection.OutHandleOffset = editingIn ? PassiveBezierMath.MirrorHandle(offset) : offset;
+                return;
+            }
+
+            if (editingIn)
+                Connection.InHandleOffset = offset;
+            else
+                Connection.OutHandleOffset = offset;
+
+            bool keepPaired = !alt && _wasSmoothAtDragStart;
+            if (!keepPaired)
+                return;
+
+            if (editingIn)
+                Connection.OutHandleOffset = PassiveBezierMath.AlignOppositeHandle(offset, _startOut.magnitude);
+            else
+                Connection.InHandleOffset = PassiveBezierMath.AlignOppositeHandle(offset, _startIn.magnitude);
+        }
+
+        private void ConvertClickedHandleToSmooth()
+        {
+            if (Connection == null)
+                return;
+
+            if (_dragKind == HandleKind.In)
+                Connection.OutHandleOffset = PassiveBezierMath.AlignOppositeHandle(Connection.InHandleOffset, Connection.OutHandleOffset.magnitude);
+            else
+                Connection.InHandleOffset = PassiveBezierMath.AlignOppositeHandle(Connection.OutHandleOffset, Connection.InHandleOffset.magnitude);
         }
 
         private void OnGenerateVisualContent(MeshGenerationContext ctx)

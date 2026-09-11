@@ -135,7 +135,6 @@ MonoBehaviour:
     - b55e17d1-4703-4faa-bb51-c56283546c49
     - df74aa06-feba-4957-8ea6-dd87dac6195d
     - 50f942a5-ed08-45ff-8a4a-9d77b4c80073
-    - e2ee4a45-38d0-4eda-9c41-9b78cf84f83a
   - ID: c71bee8d-a709-4fcf-966b-f739822acd7b
     NodeType: 0
     PlacementMode: 0
@@ -930,29 +929,6 @@ MonoBehaviour:
     ConnectionIDs:
     - a227f936-edb5-4d55-8fa4-8a569be8eda2
     - ee8ee6cf-3316-4536-a881-447a54ebe302
-  - ID: efbf8a92-8fcf-4954-848a-ad78c6ab18bc
-    NodeType: 1
-    PlacementMode: 0
-    Position: {x: 2100, y: 1220}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 3bb92544217fc9249be68a0f7986f4a2, type: 2}
-    UniqueModifiers: []
-    ConnectionIDs:
-    - e2ee4a45-38d0-4eda-9c41-9b78cf84f83a
-  - ID: e2ee4a45-38d0-4eda-9c41-9b78cf84f83a
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 2060, y: 1100}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 596aff1fa0937eb4b8c5ef253a3a4e4e, type: 2}
-    UniqueModifiers: []
-    ConnectionIDs:
-    - 0c711811-1fc5-40c3-975f-daf9fbd0ab0c
-    - efbf8a92-8fcf-4954-848a-ad78c6ab18bc
   Clusters:
   - ID: f7d051c5-e995-418d-b634-584a5c5b441e
     Name: Cicle 3+1 reverse
@@ -1044,16 +1020,6 @@ MonoBehaviour:
       ArcEndAngle: 360
     EditorColor: {r: 0.64367384, g: 0.7734686, b: 0.80831087, a: 0.4}
     RoadConnections: []
-  BezierConnections:
-  - NodeIdA: 0c711811-1fc5-40c3-975f-daf9fbd0ab0c
-    NodeIdB: e2ee4a45-38d0-4eda-9c41-9b78cf84f83a
-    AnchorPercent: 50
-    InHandleOffset: {x: -38.800003, y: -14.800001}
-    OutHandleOffset: {x: -5.200001, y: 41.2}
-  - NodeIdA: e2ee4a45-38d0-4eda-9c41-9b78cf84f83a
-    NodeIdB: efbf8a92-8fcf-4954-848a-ad78c6ab18bc
-    AnchorPercent: 50
-    InHandleOffset: {x: 35.19995, y: -41.80835}
-    OutHandleOffset: {x: 44.642822, y: 17.209473}
+  BezierConnections: []
   GridSize: 20
   SnapToGrid: 1

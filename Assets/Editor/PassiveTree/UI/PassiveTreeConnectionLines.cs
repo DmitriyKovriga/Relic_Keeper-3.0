@@ -16,9 +16,13 @@ namespace Scripts.Editor.PassiveTree
         private static readonly Color LineColor = new Color(0.93f, 0.78f, 0.28f, 0.95f);
         private static readonly Color BezierSelectedColor = new Color(1f, 0.92f, 0.45f, 1f);
 
-        public static List<BezierConnectionElement> Refresh(PassiveSkillTreeSO tree, VisualElement linesContainer)
+        public static List<BezierConnectionElement> Refresh(
+            PassiveSkillTreeSO tree,
+            VisualElement linesContainer,
+            VisualElement bezierContainer = null)
         {
             linesContainer.Clear();
+            bezierContainer?.Clear();
             var bezierElements = new List<BezierConnectionElement>();
             if (tree == null) return bezierElements;
 
@@ -40,7 +44,7 @@ namespace Scripts.Editor.PassiveTree
                     if (bezier != null)
                     {
                         var bezierElement = CreateBezierElement(node, neighbor, tree, bezier);
-                        linesContainer.Add(bezierElement);
+                        (bezierContainer ?? linesContainer).Add(bezierElement);
                         bezierElements.Add(bezierElement);
                         continue;
                     }
@@ -157,7 +161,7 @@ namespace Scripts.Editor.PassiveTree
 
     public sealed class BezierConnectionElement : VisualElement
     {
-        private const float HitThreshold = 8f;
+        private const float HitThreshold = 14f;
         private const float BoundsPadding = 12f;
 
         private readonly Color _idleColor;

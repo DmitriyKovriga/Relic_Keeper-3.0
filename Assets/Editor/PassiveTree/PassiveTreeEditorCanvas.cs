@@ -30,6 +30,7 @@ namespace Scripts.Editor.PassiveTree
         private VisualElement _clusterMarkersContainer;
         private VisualElement _orbitHitAreasContainer;
         private VisualElement _bezierHandlesContainer;
+        private VisualElement _bezierPickContainer;
         private PassiveBezierHandleOverlay _bezierHandleOverlay;
         private readonly List<BezierConnectionElement> _bezierElements = new List<BezierConnectionElement>();
 
@@ -97,16 +98,20 @@ namespace Scripts.Editor.PassiveTree
             _orbitHitAreasContainer = new VisualElement { name = "OrbitHitAreasContainer" };
             _orbitHitAreasContainer.style.position = Position.Absolute;
             _orbitHitAreasContainer.pickingMode = PickingMode.Position;
+            _bezierPickContainer = new VisualElement { name = "BezierPickContainer" };
+            _bezierPickContainer.style.position = Position.Absolute;
+            _bezierPickContainer.pickingMode = PickingMode.Ignore;
             _bezierHandlesContainer = new VisualElement { name = "BezierHandlesContainer" };
             _bezierHandlesContainer.style.position = Position.Absolute;
             _bezierHandlesContainer.pickingMode = PickingMode.Ignore;
 
-            // Порядок: области орбит внизу, маркеры кластеров поверх (чтобы центр кластера прокликивался), ноды сверху, усики Безье над нодами.
+            // Порядок: орбиты и маркеры, поверх них pickable Безье (чтобы кривую можно было выбрать снова), ноды, усики.
             _content.Add(_gridOverlay);
             _content.Add(_clustersContainer);
             _content.Add(_linesContainer);
             _content.Add(_orbitHitAreasContainer);
             _content.Add(_clusterMarkersContainer);
+            _content.Add(_bezierPickContainer);
             _content.Add(_nodesContainer);
             _content.Add(_bezierHandlesContainer);
             _viewport.Add(_content);
@@ -173,11 +178,7 @@ namespace Scripts.Editor.PassiveTree
                         _contextMenuBuilder.BuildClusterMenu(evt.menu, clusterView, _lastMousePosInViewport);
                         return;
                     }
-                    if (_orbitHitToCluster.TryGetValue(el, out var clusterViewOrbit))
-                    {
-                        _contextMenuBuilder.BuildClusterMenu(evt.menu, clusterViewOrbit, _lastMousePosInViewport);
-                        return;
-                    }
+
                     var nodeView = el.GetFirstAncestorOfType<PassiveTreeEditorNode>() ?? (el as PassiveTreeEditorNode);
                     if (nodeView != null)
                     {
@@ -186,10 +187,18 @@ namespace Scripts.Editor.PassiveTree
                     }
 
                     var bezierElement = el.GetFirstAncestorOfType<BezierConnectionElement>() ?? (el as BezierConnectionElement);
+                    if (bezierElement?.Connection == null)
+                        TryPickBezierAtPanelPosition((Vector2)pointerEvt.position, out bezierElement);
                     if (bezierElement?.Connection != null)
                     {
                         _selection.SelectBezier(bezierElement.Connection);
                         _contextMenuBuilder.BuildBezierMenu(evt.menu, bezierElement.Connection);
+                        return;
+                    }
+
+                    if (_orbitHitToCluster.TryGetValue(el, out var clusterViewOrbit))
+                    {
+                        _contextMenuBuilder.BuildClusterMenu(evt.menu, clusterViewOrbit, _lastMousePosInViewport);
                         return;
                     }
                 }
@@ -288,7 +297,8 @@ namespace Scripts.Editor.PassiveTree
             if (IsBezierHandleTarget(evt.target))
                 return;
 
-            if (TryGetBezierElement(evt.target, out var bezierElement))
+            if (TryGetBezierElement(evt.target, out var bezierElement)
+                || (!IsNodeTarget(evt.target) && TryPickBezierAtPanelPosition((Vector2)evt.position, out bezierElement)))
             {
                 if (evt.button == 0)
                 {
@@ -329,6 +339,7 @@ namespace Scripts.Editor.PassiveTree
             _orbitHitAreasContainer.Clear();
             _clustersContainer.Clear();
             _linesContainer.Clear();
+            _bezierPickContainer?.Clear();
             _nodesContainer.Clear();
             HideBezierHandles();
             _bezierElements.Clear();
@@ -423,13 +434,57 @@ namespace Scripts.Editor.PassiveTree
         {
             var t = target as VisualElement;
             return t != null && (t == _viewport || t == _content || t == _linesContainer || t == _clustersContainer
-                || t == _nodesContainer || t == _clusterMarkersContainer || t == _bezierHandlesContainer);
+                || t == _nodesContainer || t == _clusterMarkersContainer || t == _bezierHandlesContainer
+                || t == _bezierPickContainer);
         }
 
         private static bool TryGetBezierElement(IEventHandler target, out BezierConnectionElement bezierElement)
         {
             var element = target as VisualElement;
             bezierElement = element as BezierConnectionElement ?? element?.GetFirstAncestorOfType<BezierConnectionElement>();
+            return bezierElement != null;
+        }
+
+        private bool IsNodeTarget(IEventHandler target)
+        {
+            var element = target as VisualElement;
+            return element is PassiveTreeEditorNode || element?.GetFirstAncestorOfType<PassiveTreeEditorNode>() != null;
+        }
+
+        private bool TryPickBezierAtPanelPosition(Vector2 panelPosition, out BezierConnectionElement bezierElement)
+        {
+            bezierElement = null;
+            if (_tree == null || _bezierElements.Count == 0)
+                return false;
+
+            Vector2 content = GetContentPointerPosition(panelPosition);
+            const float threshold = 14f;
+            float best = threshold;
+            foreach (var element in _bezierElements)
+            {
+                if (element?.Connection == null)
+                    continue;
+
+                var nodeA = _tree.GetNode(element.Connection.NodeIdA);
+                var nodeB = _tree.GetNode(element.Connection.NodeIdB);
+                if (nodeA == null || nodeB == null)
+                    continue;
+
+                element.Connection.GetCubicPoints(
+                    nodeA.GetWorldPosition(_tree),
+                    nodeB.GetWorldPosition(_tree),
+                    out Vector2 p0,
+                    out Vector2 c1,
+                    out Vector2 c2,
+                    out Vector2 p3);
+                float distance = PassiveBezierMath.DistanceToCubic(p0, c1, c2, p3, content);
+                if (distance < best)
+                {
+                    best = distance;
+                    bezierElement = element;
+                }
+            }
+
             return bezierElement != null;
         }
 
@@ -930,13 +985,44 @@ namespace Scripts.Editor.PassiveTree
             _selection.SelectBezier(connection);
         }
 
+        public bool TryHandleBezierKey(KeyDownEvent evt)
+        {
+            var connection = _selection.SelectedBezier;
+            if (connection == null || _tree == null || evt == null)
+                return false;
+
+            if (evt.keyCode == KeyCode.R)
+            {
+                _commands.ResetBezierHandles(connection);
+                RefreshBezierVisuals();
+                _selection.SelectBezier(connection);
+                OnTreeGeometryChanged?.Invoke();
+                return true;
+            }
+
+            if (evt.keyCode != KeyCode.LeftBracket && evt.keyCode != KeyCode.RightBracket)
+                return false;
+
+            float degrees = evt.shiftKey ? 45f : 15f;
+            if (evt.keyCode == KeyCode.LeftBracket)
+                degrees = -degrees;
+
+            UnityEditor.Undo.RecordObject(_tree, "Rotate Bezier Handles");
+            connection.InHandleOffset = PassiveBezierMath.RotateOffset(connection.InHandleOffset, degrees);
+            connection.OutHandleOffset = PassiveBezierMath.RotateOffset(connection.OutHandleOffset, degrees);
+            PassiveTreeAssetPersistence.SetDirty(_tree);
+            RefreshSelectedBezierGeometry();
+            OnTreeGeometryChanged?.Invoke();
+            return true;
+        }
+
         private void RefreshConnectionVisuals()
         {
             if (_tree == null || _linesContainer == null)
                 return;
 
             _bezierElements.Clear();
-            _bezierElements.AddRange(PassiveTreeConnectionLines.Refresh(_tree, _linesContainer));
+            _bezierElements.AddRange(PassiveTreeConnectionLines.Refresh(_tree, _linesContainer, _bezierPickContainer));
             ApplyBezierSelectionVisuals();
 
             if (_selection.SelectedBezier != null)
