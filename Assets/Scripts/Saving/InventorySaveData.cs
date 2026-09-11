@@ -12,7 +12,7 @@ namespace Scripts.Saving
         [Tooltip("Предмет в слоте крафта (один слот сверху в режиме крафта).")]
         public ItemSaveData CraftingSlotItem;
 
-        [Tooltip("Количество сфер по OrbId. Сериализуется как список пар.")]
+        [Tooltip("Количество крафтовых реликвий по OrbId. Сериализуется как список пар.")]
         public List<OrbCountEntry> OrbCounts = new List<OrbCountEntry>();
     }
 

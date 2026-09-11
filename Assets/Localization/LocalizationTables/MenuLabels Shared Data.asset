@@ -455,14 +455,6 @@ MonoBehaviour:
     m_Key: menu_labels.SkillTree
     m_Metadata:
       m_Items: []
-  - m_Id: 24953468211462144
-    m_Key: crafting_orb.FartuneOrb.name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 24953468240822272
-    m_Key: crafting_orb.FartuneOrb.description
-    m_Metadata:
-      m_Items: []
   - m_Id: 25736290421473280
     m_Key: input.Jump
     m_Metadata:
@@ -500,11 +492,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 25988269287137280
-    m_Key: crafting_orb.FortuneOrb.name
+    m_Key: crafting_relic.RelicOfFortune.name
     m_Metadata:
       m_Items: []
   - m_Id: 25988269329080320
-    m_Key: crafting_orb.FortuneOrb.description
+    m_Key: crafting_relic.RelicOfFortune.description
     m_Metadata:
       m_Items: []
   - m_Id: 28232212627881984
@@ -1072,51 +1064,51 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000101
-    m_Key: crafting_orb.CreationOrb.name
+    m_Key: crafting_relic.RelicOfMutation.name
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000102
-    m_Key: crafting_orb.CreationOrb.description
+    m_Key: crafting_relic.RelicOfMutation.description
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000103
-    m_Key: crafting_orb.PerfectioOrb.name
+    m_Key: crafting_relic.RelicOfPerfectio.name
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000104
-    m_Key: crafting_orb.PerfectioOrb.description
+    m_Key: crafting_relic.RelicOfPerfectio.description
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000105
-    m_Key: crafting_orb.ElevationOrb.name
+    m_Key: crafting_relic.RelicOfElevation.name
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000106
-    m_Key: crafting_orb.ElevationOrb.description
+    m_Key: crafting_relic.RelicOfElevation.description
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000107
-    m_Key: crafting_orb.ExcelsiorOrb.name
+    m_Key: crafting_relic.RelicOfExcelsior.name
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000108
-    m_Key: crafting_orb.ExcelsiorOrb.description
+    m_Key: crafting_relic.RelicOfExcelsior.description
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000109
-    m_Key: crafting_orb.PurgatioOrb.name
+    m_Key: crafting_relic.RelicOfPurgatio.name
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000110
-    m_Key: crafting_orb.PurgatioOrb.description
+    m_Key: crafting_relic.RelicOfPurgatio.description
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000111
-    m_Key: crafting_orb.ExpurgatioOrb.name
+    m_Key: crafting_relic.RelicOfExpurgatio.name
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000112
-    m_Key: crafting_orb.ExpurgatioOrb.description
+    m_Key: crafting_relic.RelicOfExpurgatio.description
     m_Metadata:
       m_Items: []
   m_Metadata:

@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 315e7014138af084c8684d313d8ccf63, type: 3}
-  m_Name: PerfectioOrb
-  m_EditorClassIdentifier:
-  ID: PerfectioOrb
-  Icon: {fileID: 0}
-  BaseDropChance: 0.02
-  NameKey: crafting_orb.PerfectioOrb.name
-  DescriptionKey: crafting_orb.PerfectioOrb.description
-  EffectId: upgrade_magic_to_rare
+  m_Name: RelicOfFortune
+  m_EditorClassIdentifier: 
+  ID: RelicOfFortune
+  Icon: {fileID: -666257928, guid: d429aca0f159a1045a23351eb6d0b259, type: 3}
+  BaseDropChance: 0.0125
+  NameKey: crafting_relic.RelicOfFortune.name
+  DescriptionKey: crafting_relic.RelicOfFortune.description
+  EffectId: reroll_rare

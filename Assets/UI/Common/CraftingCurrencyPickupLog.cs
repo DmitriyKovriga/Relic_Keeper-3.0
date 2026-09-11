@@ -193,7 +193,7 @@ public sealed class CraftingCurrencyPickupLog : MonoBehaviour
     private static string SplitPascalCase(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return "Crafting Orb";
+            return "Crafting Relic";
 
         var result = new StringBuilder(value.Length + 4);
         for (int i = 0; i < value.Length; i++)
@@ -203,7 +203,7 @@ public sealed class CraftingCurrencyPickupLog : MonoBehaviour
                 result.Append(' ');
             result.Append(c);
         }
-        return result.ToString();
+        return result.ToString().Replace("Relic Of ", "Relic of ");
     }
 
     private static void ResetSpacing(VisualElement element)

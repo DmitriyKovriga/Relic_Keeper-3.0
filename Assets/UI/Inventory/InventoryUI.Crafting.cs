@@ -130,8 +130,8 @@ public partial class InventoryUI
             if (count == 0)
             {
                 var hint = new Label(_orbSlotsConfig == null
-                    ? "Orbs: create config in Crafting Orb Editor, then assign it to Inventory UI."
-                    : "Orbs: assign orb assets to slots in Crafting Orb Editor and save config.");
+                    ? "Relics: create config in Crafting Relic Editor, then assign it to Inventory UI."
+                    : "Relics: assign relic assets to slots in Crafting Relic Editor and save config.");
                 hint.style.fontSize = 9;
                 hint.style.color = new StyleColor(new Color(0.6f, 0.6f, 0.6f));
                 hint.style.unityTextAlign = TextAnchor.MiddleCenter;

@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 315e7014138af084c8684d313d8ccf63, type: 3}
-  m_Name: ExpurgatioOrb
+  m_Name: RelicOfExpurgatio
   m_EditorClassIdentifier:
-  ID: ExpurgatioOrb
+  ID: RelicOfExpurgatio
   Icon: {fileID: 0}
   BaseDropChance: 0.0075
-  NameKey: crafting_orb.ExpurgatioOrb.name
-  DescriptionKey: crafting_orb.ExpurgatioOrb.description
+  NameKey: crafting_relic.RelicOfExpurgatio.name
+  DescriptionKey: crafting_relic.RelicOfExpurgatio.description
   EffectId: remove_affix

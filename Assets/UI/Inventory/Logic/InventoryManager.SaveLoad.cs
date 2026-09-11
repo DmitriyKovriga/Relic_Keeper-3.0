@@ -31,6 +31,7 @@ namespace Scripts.Inventory
             if (CraftingSlotItem != null && CraftingSlotItem.Data != null)
                 data.CraftingSlotItem = CraftingSlotItem.GetSaveData(CRAFT_SLOT_INDEX);
 
+            NormalizeCraftingCurrencyCounts();
             data.OrbCounts = new List<OrbCountEntry>(_orbCounts);
             return data;
         }
@@ -64,6 +65,7 @@ namespace Scripts.Inventory
             CraftingSlotItem = null;
             _orbCounts.Clear();
             if (data.OrbCounts != null) _orbCounts.AddRange(data.OrbCounts);
+            NormalizeCraftingCurrencyCounts();
 
             // 2) Restore backpack/equipment.
             var claimedBackpack = new HashSet<int>();

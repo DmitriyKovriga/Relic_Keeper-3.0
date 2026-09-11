@@ -360,7 +360,7 @@ public class DebugInventoryWindowUI : MonoBehaviour
     {
         _orbList.Clear();
         _orbChoiceNames.Clear();
-        _orbChoiceNames.Add("(select orb)");
+        _orbChoiceNames.Add("(select relic)");
         var orbs = Resources.LoadAll<CraftingOrbSO>(ProjectPaths.ResourcesCraftingOrbsFolder);
         if (orbs != null && orbs.Length > 0)
         {
@@ -368,7 +368,7 @@ public class DebugInventoryWindowUI : MonoBehaviour
             {
                 if (orb == null) continue;
                 _orbList.Add(orb);
-                _orbChoiceNames.Add(string.IsNullOrEmpty(orb.ID) ? orb.name : orb.ID);
+                _orbChoiceNames.Add(FormatCraftingRelicName(string.IsNullOrEmpty(orb.ID) ? orb.name : orb.ID));
             }
         }
         _selectedOrbIndex = 0;
@@ -427,7 +427,7 @@ public class DebugInventoryWindowUI : MonoBehaviour
         int index = _selectedOrbIndex - 1;
         if (index < 0 || index >= _orbList.Count)
         {
-            Debug.LogWarning("[DebugInventoryWindow] Select an orb.");
+            Debug.LogWarning("[DebugInventoryWindow] Select a relic.");
             return;
         }
         var orb = _orbList[index];
@@ -435,6 +435,18 @@ public class DebugInventoryWindowUI : MonoBehaviour
         if (string.IsNullOrEmpty(orbId)) return;
         InventoryManager.Instance.AddOrb(orbId, 1);
         InventoryManager.Instance.TriggerUIUpdate();
+    }
+
+    private static string FormatCraftingRelicName(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id)) return "Relic";
+        var result = new System.Text.StringBuilder(id.Length + 6);
+        for (int i = 0; i < id.Length; i++)
+        {
+            if (i > 0 && char.IsUpper(id[i]) && !char.IsWhiteSpace(id[i - 1])) result.Append(' ');
+            result.Append(id[i]);
+        }
+        return result.ToString().Replace("Relic Of ", "Relic of ");
     }
 
     public void SetVisible(bool visible)

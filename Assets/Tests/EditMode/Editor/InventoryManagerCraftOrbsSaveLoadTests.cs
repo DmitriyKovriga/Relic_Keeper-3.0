@@ -96,6 +96,36 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void LoadState_MigratesAndMergesLegacyOrbIds()
+        {
+            var itemDb = ScriptableObject.CreateInstance<ItemDatabaseSO>();
+            _createdObjects.Add(itemDb);
+            itemDb.Init();
+
+            var save = new InventorySaveData
+            {
+                OrbCounts = new List<OrbCountEntry>
+                {
+                    new OrbCountEntry { OrbId = "CreationOrb", Count = 2 },
+                    new OrbCountEntry { OrbId = "RelicOfMutation", Count = 3 },
+                    new OrbCountEntry { OrbId = "FortuneOrb", Count = 4 }
+                }
+            };
+
+            var manager = CreateManager("mgr-legacy-orbs");
+            manager.LoadState(save, itemDb);
+
+            Assert.AreEqual(5, manager.GetOrbCount("RelicOfMutation"));
+            Assert.AreEqual(5, manager.GetOrbCount("CreationOrb"), "Legacy callers should resolve to the new currency ID.");
+            Assert.AreEqual(4, manager.GetOrbCount("RelicOfFortune"));
+
+            InventorySaveData migratedSave = manager.GetSaveData();
+            Assert.AreEqual(1, migratedSave.OrbCounts.FindAll(x => x.OrbId == "RelicOfMutation").Count);
+            Assert.AreEqual(0, migratedSave.OrbCounts.FindAll(x => x.OrbId == "CreationOrb").Count);
+            Assert.AreEqual(0, migratedSave.OrbCounts.FindAll(x => x.OrbId == "FortuneOrb").Count);
+        }
+
+        [Test]
         public void SaveLoad_RestoresBackpackEquipCraftAndOrbCounts()
         {
             var itemDb = ScriptableObject.CreateInstance<ItemDatabaseSO>();

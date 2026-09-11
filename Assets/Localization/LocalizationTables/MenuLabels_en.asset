@@ -1380,7 +1380,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 25988269287137280
-    m_Localized: Fortune Orb
+    m_Localized: Relic of Fortune
     m_Metadata:
       m_Items: []
   - m_Id: 25360759851089920
@@ -2025,7 +2025,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000101
-    m_Localized: Creation Orb
+    m_Localized: Relic of Mutation
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000102
@@ -2033,7 +2033,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000103
-    m_Localized: Perfectio Orb
+    m_Localized: Relic of Perfectio
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000104
@@ -2041,7 +2041,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000105
-    m_Localized: Elevation Orb
+    m_Localized: Relic of Elevation
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000106
@@ -2049,7 +2049,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000107
-    m_Localized: Excelsior Orb
+    m_Localized: Relic of Excelsior
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000108
@@ -2057,7 +2057,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000109
-    m_Localized: Purgatio Orb
+    m_Localized: Relic of Purgatio
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000110
@@ -2065,7 +2065,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000111
-    m_Localized: Expurgatio Orb
+    m_Localized: Relic of Expurgatio
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000112

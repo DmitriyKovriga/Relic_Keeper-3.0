@@ -137,8 +137,8 @@ public class ItemTooltipController : MonoBehaviour
         }
         else if (_currentTargetOrb != null && _orbTooltipBox != null && _orbTooltipBox.style.display == DisplayStyle.Flex)
         {
-            string nameKey = string.IsNullOrEmpty(_currentTargetOrb.NameKey) ? $"crafting_orb.{_currentTargetOrb.ID}.name" : _currentTargetOrb.NameKey;
-            string descKey = string.IsNullOrEmpty(_currentTargetOrb.DescriptionKey) ? $"crafting_orb.{_currentTargetOrb.ID}.description" : _currentTargetOrb.DescriptionKey;
+            string nameKey = string.IsNullOrEmpty(_currentTargetOrb.NameKey) ? $"crafting_relic.{_currentTargetOrb.ID}.name" : _currentTargetOrb.NameKey;
+            string descKey = string.IsNullOrEmpty(_currentTargetOrb.DescriptionKey) ? $"crafting_relic.{_currentTargetOrb.ID}.description" : _currentTargetOrb.DescriptionKey;
             LocalizeLabel(_orbTitleLabel, TABLE_MENU, nameKey, _currentTargetOrb.name);
             LocalizeLabel(_orbDescLabel, TABLE_MENU, descKey, "");
             _root.schedule.Execute(RecalculateOrbPosition).ExecuteLater(1);
@@ -302,8 +302,8 @@ public class ItemTooltipController : MonoBehaviour
         if (_itemTooltipBox != null) { _itemTooltipBox.style.display = DisplayStyle.None; }
         if (_skillTooltipBox != null) { _skillTooltipBox.style.display = DisplayStyle.None; }
 
-        string nameKey = string.IsNullOrEmpty(orb.NameKey) ? $"crafting_orb.{orb.ID}.name" : orb.NameKey;
-        string descKey = string.IsNullOrEmpty(orb.DescriptionKey) ? $"crafting_orb.{orb.ID}.description" : orb.DescriptionKey;
+        string nameKey = string.IsNullOrEmpty(orb.NameKey) ? $"crafting_relic.{orb.ID}.name" : orb.NameKey;
+        string descKey = string.IsNullOrEmpty(orb.DescriptionKey) ? $"crafting_relic.{orb.ID}.description" : orb.DescriptionKey;
         _orbTitleLabel.text = orb.name;
         _orbDescLabel.text = "";
 

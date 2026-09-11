@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 315e7014138af084c8684d313d8ccf63, type: 3}
-  m_Name: CreationOrb
+  m_Name: RelicOfElevation
   m_EditorClassIdentifier:
-  ID: CreationOrb
+  ID: RelicOfElevation
   Icon: {fileID: 0}
-  BaseDropChance: 0.04
-  NameKey: crafting_orb.CreationOrb.name
-  DescriptionKey: crafting_orb.CreationOrb.description
-  EffectId: create_magic
+  BaseDropChance: 0.005
+  NameKey: crafting_relic.RelicOfElevation.name
+  DescriptionKey: crafting_relic.RelicOfElevation.description
+  EffectId: create_rare

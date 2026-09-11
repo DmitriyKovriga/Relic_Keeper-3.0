@@ -11,7 +11,7 @@ namespace Scripts.Editor.Crafting
 {
     public class CraftingOrbEditorWindow : EditorWindow
     {
-        private const string MenuPath = "Tools/Crafting Orb Editor";
+        private const string MenuPath = "Tools/Crafting Relic Editor";
         private const int DefaultSlotCount = 7;
 
         private Vector2 _listScroll;
@@ -34,7 +34,7 @@ namespace Scripts.Editor.Crafting
         public static void OpenWindow()
         {
             var w = GetWindow<CraftingOrbEditorWindow>();
-            w.titleContent = new GUIContent("Crafting Orbs");
+            w.titleContent = new GUIContent("Crafting Relics");
         }
 
         private void OnEnable()
@@ -68,9 +68,9 @@ namespace Scripts.Editor.Crafting
         {
             EditorGUILayout.BeginHorizontal();
 
-            // --- Left: list of orbs ---
+            // --- Left: list of crafting relics ---
             EditorGUILayout.BeginVertical(GUILayout.Width(280));
-            GUILayout.Label("Crafting Orbs", EditorStyles.boldLabel);
+            GUILayout.Label("Crafting Relics", EditorStyles.boldLabel);
             _orbSearch = EditorGUILayout.TextField("Search", _orbSearch);
             if (GUILayout.Button("Refresh")) LoadOrbs();
 
@@ -110,7 +110,7 @@ namespace Scripts.Editor.Crafting
             EditorGUILayout.EndScrollView();
 
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Create New Orb")) CreateNewOrb();
+            if (GUILayout.Button("Create New Relic")) CreateNewOrb();
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.EndVertical();
@@ -133,10 +133,10 @@ namespace Scripts.Editor.Crafting
 
         private void DrawOrbDetails()
         {
-            GUILayout.Label("Orb details", EditorStyles.boldLabel);
+            GUILayout.Label("Relic details", EditorStyles.boldLabel);
             if (_selectedOrb == null)
             {
-                EditorGUILayout.HelpBox("Select an orb from the list.", MessageType.Info);
+                EditorGUILayout.HelpBox("Select a relic from the list.", MessageType.Info);
                 return;
             }
 
@@ -159,9 +159,9 @@ namespace Scripts.Editor.Crafting
             EditorGUILayout.Space(6);
             if (GUILayout.Button("Open in Inspector")) { Selection.activeObject = _selectedOrb; EditorGUIUtility.PingObject(_selectedOrb); }
             GUI.backgroundColor = new Color(1f, 0.8f, 0.8f);
-            if (GUILayout.Button("Delete orb"))
+            if (GUILayout.Button("Delete relic"))
             {
-                if (EditorUtility.DisplayDialog("Delete orb", $"Delete orb \"{_selectedOrb.name}\"?", "Delete", "Cancel"))
+                if (EditorUtility.DisplayDialog("Delete relic", $"Delete relic \"{_selectedOrb.name}\"?", "Delete", "Cancel"))
                 {
                     RemoveOrbFromSlotsConfig(_selectedOrb);
                     string path = AssetDatabase.GetAssetPath(_selectedOrb);
@@ -184,7 +184,7 @@ namespace Scripts.Editor.Crafting
 
             if (_slotsConfig == null)
             {
-                EditorGUILayout.HelpBox("Assign a Crafting Orb Slots Config (e.g. in Resources/CraftingOrbs/). Click \"Create config\" to create one.", MessageType.Info);
+                EditorGUILayout.HelpBox("Assign a Crafting Relic Slots Config (e.g. in Resources/CraftingOrbs/). Click \"Create config\" to create one.", MessageType.Info);
                 if (GUILayout.Button("Create config"))
                 {
                     CreateDefaultConfig();
@@ -246,18 +246,18 @@ namespace Scripts.Editor.Crafting
             if (newOrb == null)
             {
                 _slotsConfig.Slots[slotIndex] = null;
-                Debug.Log($"Crafting Orbs: Slot {slotIndex} cleared.");
+                Debug.Log($"Crafting Relics: Slot {slotIndex} cleared.");
             }
             else if (indexOfNew >= 0)
             {
                 _slotsConfig.Slots[indexOfNew] = currentInSlot;
                 _slotsConfig.Slots[slotIndex] = newOrb;
-                Debug.Log($"Crafting Orbs: Swap — Slot {slotIndex} ↔ Slot {indexOfNew} ({newOrb.name} ↔ {currentInSlot?.name ?? "empty"}).");
+                Debug.Log($"Crafting Relics: Swap — Slot {slotIndex} ↔ Slot {indexOfNew} ({newOrb.name} ↔ {currentInSlot?.name ?? "empty"}).");
             }
             else
             {
                 _slotsConfig.Slots[slotIndex] = newOrb;
-                Debug.Log($"Crafting Orbs: Slot {slotIndex} = {newOrb.name} (previous cleared).");
+                Debug.Log($"Crafting Relics: Slot {slotIndex} = {newOrb.name} (previous cleared).");
             }
 
             EditorUtility.SetDirty(_slotsConfig);
@@ -303,7 +303,7 @@ namespace Scripts.Editor.Crafting
 
             if (_selectedOrb == null)
             {
-                EditorGUILayout.HelpBox("Select an orb to edit localization.", MessageType.Info);
+                EditorGUILayout.HelpBox("Select a relic to edit localization.", MessageType.Info);
                 return;
             }
 
@@ -315,7 +315,7 @@ namespace Scripts.Editor.Crafting
             }
 
             EditorGUILayout.Space(4);
-            EditorGUILayout.LabelField("Key (from ID)", $"crafting_orb.{keyBase}.name / .description");
+            EditorGUILayout.LabelField("Key (from ID)", $"crafting_relic.{keyBase}.name / .description");
             _locNameEn = EditorGUILayout.TextField("Name (EN)", _locNameEn);
             _locNameRu = EditorGUILayout.TextField("Name (RU)", _locNameRu);
             _locDescEn = EditorGUILayout.TextField("Description (EN)", _locDescEn);
@@ -332,7 +332,7 @@ namespace Scripts.Editor.Crafting
 
         private static string GetOrbKeyBase(CraftingOrbSO orb)
         {
-            return string.IsNullOrEmpty(orb?.ID) ? (orb?.name ?? "Orb") : orb.ID;
+            return string.IsNullOrEmpty(orb?.ID) ? (orb?.name ?? "Relic") : orb.ID;
         }
 
         private void LoadOrbLocalizationValues()
@@ -340,8 +340,8 @@ namespace Scripts.Editor.Crafting
             if (_selectedOrb == null) return;
             string keyBase = GetOrbKeyBase(_selectedOrb);
             // Use keys stored on the orb so we load what runtime will use; fallback to standard pattern.
-            string nameKey = !string.IsNullOrEmpty(_selectedOrb.NameKey) ? _selectedOrb.NameKey : $"crafting_orb.{keyBase}.name";
-            string descKey = !string.IsNullOrEmpty(_selectedOrb.DescriptionKey) ? _selectedOrb.DescriptionKey : $"crafting_orb.{keyBase}.description";
+            string nameKey = !string.IsNullOrEmpty(_selectedOrb.NameKey) ? _selectedOrb.NameKey : $"crafting_relic.{keyBase}.name";
+            string descKey = !string.IsNullOrEmpty(_selectedOrb.DescriptionKey) ? _selectedOrb.DescriptionKey : $"crafting_relic.{keyBase}.description";
             _locNameEn = GetLocalizedStringFromTable(nameKey, new LocaleIdentifier("en"));
             _locNameRu = GetLocalizedStringFromTable(nameKey, new LocaleIdentifier("ru"));
             _locDescEn = GetLocalizedStringFromTable(descKey, new LocaleIdentifier("en"));
@@ -361,18 +361,18 @@ namespace Scripts.Editor.Crafting
         {
             if (_menuLabelsCollection == null || _selectedOrb == null) return;
             string keyBase = GetOrbKeyBase(_selectedOrb);
-            string nameKey = $"crafting_orb.{keyBase}.name";
-            string descKey = $"crafting_orb.{keyBase}.description";
+            string nameKey = $"crafting_relic.{keyBase}.name";
+            string descKey = $"crafting_relic.{keyBase}.description";
             var enTable = _menuLabelsCollection.GetTable(new LocaleIdentifier("en")) as StringTable;
             var ruTable = _menuLabelsCollection.GetTable(new LocaleIdentifier("ru")) as StringTable;
             if (enTable == null || ruTable == null)
             {
-                Debug.LogWarning("Crafting Orb Editor: en or ru table not found. Check that MenuLabels has tables with LocaleIdentifier Code 'en' and 'ru'.");
+                Debug.LogWarning("Crafting Relic Editor: en or ru table not found. Check that MenuLabels has tables with LocaleIdentifier Code 'en' and 'ru'.");
                 return;
             }
 
             var sharedData = _menuLabelsCollection.SharedData;
-            if (sharedData == null) { Debug.LogWarning("Crafting Orb Editor: SharedData is null."); return; }
+            if (sharedData == null) { Debug.LogWarning("Crafting Relic Editor: SharedData is null."); return; }
             // Ensure keys exist in SharedData so runtime can resolve them.
             if (!sharedData.Contains(nameKey)) sharedData.AddKey(nameKey);
             if (!sharedData.Contains(descKey)) sharedData.AddKey(descKey);
@@ -394,7 +394,7 @@ namespace Scripts.Editor.Crafting
             AssetDatabase.SaveAssets();
             _lastLoadedOrbKey = "";
             LoadOrbs();
-            Debug.Log($"Crafting Orb Editor: Saved locale for ID '{keyBase}' (keys: {nameKey}, {descKey})");
+            Debug.Log($"Crafting Relic Editor: Saved locale for ID '{keyBase}' (keys: {nameKey}, {descKey})");
         }
 
         private void RemoveOldOrbKeysFromTables(StringTable enTable, StringTable ruTable, string newKeyBase)
@@ -405,14 +405,16 @@ namespace Scripts.Editor.Crafting
             string oldNameKey = orb.NameKey;
             string oldDescKey = orb.DescriptionKey;
             var toRemove = new List<string>();
-            string newNameKey = $"crafting_orb.{newKeyBase}.name";
-            string newDescKey = $"crafting_orb.{newKeyBase}.description";
+            string newNameKey = $"crafting_relic.{newKeyBase}.name";
+            string newDescKey = $"crafting_relic.{newKeyBase}.description";
             if (!string.IsNullOrEmpty(oldNameKey) && oldNameKey != newNameKey) toRemove.Add(oldNameKey);
             if (!string.IsNullOrEmpty(oldDescKey) && oldDescKey != newDescKey) toRemove.Add(oldDescKey);
             if (oldKeyBaseFromName != newKeyBase)
             {
                 toRemove.Add($"crafting_orb.{oldKeyBaseFromName}.name");
                 toRemove.Add($"crafting_orb.{oldKeyBaseFromName}.description");
+                toRemove.Add($"crafting_relic.{oldKeyBaseFromName}.name");
+                toRemove.Add($"crafting_relic.{oldKeyBaseFromName}.description");
             }
             foreach (string key in toRemove.Distinct())
             {
@@ -434,7 +436,7 @@ namespace Scripts.Editor.Crafting
             string currentName = System.IO.Path.GetFileNameWithoutExtension(path);
             if (currentName == id) return;
             string err = AssetDatabase.RenameAsset(path, id + ".asset");
-            if (!string.IsNullOrEmpty(err)) Debug.LogWarning($"Crafting Orb Editor: could not rename asset to {id}: {err}");
+            if (!string.IsNullOrEmpty(err)) Debug.LogWarning($"Crafting Relic Editor: could not rename asset to {id}: {err}");
         }
 
         private static void RemoveEntry(StringTable table, string key)
@@ -457,7 +459,7 @@ namespace Scripts.Editor.Crafting
             if (!AssetDatabase.IsValidFolder("Assets/Resources")) AssetDatabase.CreateFolder("Assets", "Resources");
             if (!AssetDatabase.IsValidFolder("Assets/Resources/CraftingOrbs")) AssetDatabase.CreateFolder("Assets/Resources", "CraftingOrbs");
 
-            string path = AssetDatabase.GenerateUniqueAssetPath(EditorPaths.CraftingOrbsFolder + "/CraftingOrb.asset");
+            string path = AssetDatabase.GenerateUniqueAssetPath(EditorPaths.CraftingOrbsFolder + "/CraftingRelic.asset");
             var orb = CreateInstance<CraftingOrbSO>();
             orb.EffectId = CraftingOrbEffectId.RerollRare;
             AssetDatabase.CreateAsset(orb, path);

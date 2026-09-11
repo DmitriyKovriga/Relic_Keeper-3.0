@@ -152,8 +152,9 @@ namespace Scripts.Editor.Enemy
                     EditorGUI.DrawRect(iconRect, Color.white);
 
                 GUILayout.Space(5f);
+                string currencyId = string.IsNullOrWhiteSpace(orb.ID) ? orb.name : orb.ID;
                 EditorGUILayout.LabelField(
-                    string.IsNullOrWhiteSpace(orb.ID) ? orb.name : orb.ID,
+                    ObjectNames.NicifyVariableName(currencyId).Replace("Relic Of ", "Relic of "),
                     GUILayout.Width(180f));
 
                 EditorGUI.BeginChangeCheck();

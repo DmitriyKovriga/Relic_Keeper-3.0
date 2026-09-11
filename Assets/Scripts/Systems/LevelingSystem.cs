@@ -144,7 +144,7 @@ public class ExperienceSoulPickup : MonoBehaviour
         if (orb == null || string.IsNullOrWhiteSpace(orb.ID))
             return;
 
-        GameObject go = new GameObject($"Crafting Orb Soul ({orb.ID})");
+        GameObject go = new GameObject($"Crafting Relic Soul ({orb.ID})");
         go.transform.SetParent(parent, true);
         go.transform.position = SnapToPixelGrid(worldPosition);
         var soul = go.AddComponent<ExperienceSoulPickup>();
