@@ -900,7 +900,7 @@ MonoBehaviour:
     ClusterID: 659e927e-0091-431a-8f70-1843a35c74aa
     OrbitIndex: 0
     OrbitAngle: 315
-    Template: {fileID: 11400000, guid: 9ad7fe53fc03e614ba98b9a24d7a0b0c, type: 2}
+    Template: {fileID: 11400000, guid: ccb3e05a19e9edb4bab739d3407de3db, type: 2}
     UniqueModifiers: []
     ConnectionIDs:
     - bd0882af-e3c3-4674-b411-370e861b92bc
@@ -912,7 +912,7 @@ MonoBehaviour:
     ClusterID: 659e927e-0091-431a-8f70-1843a35c74aa
     OrbitIndex: 0
     OrbitAngle: 45
-    Template: {fileID: 11400000, guid: 9ad7fe53fc03e614ba98b9a24d7a0b0c, type: 2}
+    Template: {fileID: 11400000, guid: ccb3e05a19e9edb4bab739d3407de3db, type: 2}
     UniqueModifiers: []
     ConnectionIDs:
     - 01096dc9-d5ff-40be-acf4-17673732ff62
@@ -924,7 +924,7 @@ MonoBehaviour:
     ClusterID: 659e927e-0091-431a-8f70-1843a35c74aa
     OrbitIndex: 0
     OrbitAngle: 360
-    Template: {fileID: 11400000, guid: 9ad7fe53fc03e614ba98b9a24d7a0b0c, type: 2}
+    Template: {fileID: 11400000, guid: ccb3e05a19e9edb4bab739d3407de3db, type: 2}
     UniqueModifiers: []
     ConnectionIDs:
     - a227f936-edb5-4d55-8fa4-8a569be8eda2

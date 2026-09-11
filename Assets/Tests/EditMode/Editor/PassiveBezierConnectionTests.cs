@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Scripts.Editor.PassiveTree;
 using Scripts.Skills.PassiveTree;
+using Scripts.Stats;
 using UnityEngine;
 
 namespace RelicKeeper.Tests.EditMode
@@ -178,6 +179,65 @@ namespace RelicKeeper.Tests.EditMode
         public void ShortOrbitArc_StaysOneSegment()
         {
             Assert.That(PassiveOrbitArcDrawing.SegmentCount(10f, 40f), Is.EqualTo(1));
+        }
+    }
+
+    public class PassiveNodeContentClipboardTests
+    {
+        [Test]
+        public void Paste_ReplacesContentButKeepsIdPlacementAndConnections()
+        {
+            var source = new PassiveNodeDefinition
+            {
+                ID = "source",
+                NodeType = PassiveNodeType.Notable,
+                PlacementMode = NodePlacementMode.Free,
+                Position = new Vector2(10f, 20f),
+                Template = null,
+                UniqueModifiers = new List<SerializableStatModifier>
+                {
+                    new SerializableStatModifier { Stat = StatType.MaxHealth, Value = 12f, Type = StatModType.Flat }
+                },
+                ConnectionIDs = new List<string> { "a" }
+            };
+            var target = new PassiveNodeDefinition
+            {
+                ID = "target",
+                NodeType = PassiveNodeType.Small,
+                PlacementMode = NodePlacementMode.OnOrbit,
+                ClusterID = "cluster",
+                OrbitIndex = 1,
+                OrbitAngle = 45f,
+                Position = new Vector2(80f, 90f),
+                UniqueModifiers = new List<SerializableStatModifier>(),
+                ConnectionIDs = new List<string> { "b", "c" }
+            };
+
+            var tree = ScriptableObject.CreateInstance<PassiveSkillTreeSO>();
+            try
+            {
+                tree.Nodes.Add(source);
+                tree.Nodes.Add(target);
+                var commands = new PassiveTreeEditorCommands();
+                commands.SetTree(tree);
+                commands.PasteNodeContent(target, PassiveNodeContentClipboard.From(source));
+
+                Assert.That(target.ID, Is.EqualTo("target"));
+                Assert.That(target.PlacementMode, Is.EqualTo(NodePlacementMode.OnOrbit));
+                Assert.That(target.ClusterID, Is.EqualTo("cluster"));
+                Assert.That(target.OrbitIndex, Is.EqualTo(1));
+                Assert.That(target.OrbitAngle, Is.EqualTo(45f));
+                Assert.That(target.Position, Is.EqualTo(new Vector2(80f, 90f)));
+                Assert.That(target.ConnectionIDs, Is.EqualTo(new[] { "b", "c" }));
+                Assert.That(target.NodeType, Is.EqualTo(PassiveNodeType.Notable));
+                Assert.That(target.UniqueModifiers.Count, Is.EqualTo(1));
+                Assert.That(target.UniqueModifiers[0].Value, Is.EqualTo(12f));
+                Assert.That(source.ConnectionIDs, Is.EqualTo(new[] { "a" }));
+            }
+            finally
+            {
+                Object.DestroyImmediate(tree);
+            }
         }
     }
 }

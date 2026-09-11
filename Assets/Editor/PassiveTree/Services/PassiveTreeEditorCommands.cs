@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Scripts.Skills.PassiveTree;
+using Scripts.Stats;
 
 namespace Scripts.Editor.PassiveTree
 {
@@ -262,6 +263,16 @@ namespace Scripts.Editor.PassiveTree
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
 
+        public void PasteNodeContent(PassiveNodeDefinition target, PassiveNodeContentClipboard clipboard)
+        {
+            if (_tree == null || target == null || clipboard == null)
+                return;
+
+            RecordTree("Paste Node Content");
+            clipboard.ApplyTo(target);
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
         public void ConvertBezierToDirect(PassiveBezierConnection connection)
         {
             if (_tree == null || connection == null)
@@ -453,5 +464,42 @@ namespace Scripts.Editor.PassiveTree
             return points;
         }
 
+    }
+
+    /// <summary>
+    /// Copied node identity (template, type, unique mods). Placement and connections stay on the paste target.
+    /// </summary>
+    public sealed class PassiveNodeContentClipboard
+    {
+        public PassiveNodeType NodeType;
+        public PassiveNodeTemplateSO Template;
+        public List<SerializableStatModifier> UniqueModifiers;
+
+        public static PassiveNodeContentClipboard From(PassiveNodeDefinition source)
+        {
+            if (source == null)
+                return null;
+
+            return new PassiveNodeContentClipboard
+            {
+                NodeType = source.NodeType,
+                Template = source.Template,
+                UniqueModifiers = source.UniqueModifiers == null
+                    ? new List<SerializableStatModifier>()
+                    : new List<SerializableStatModifier>(source.UniqueModifiers)
+            };
+        }
+
+        public void ApplyTo(PassiveNodeDefinition target)
+        {
+            if (target == null)
+                return;
+
+            target.NodeType = NodeType;
+            target.Template = Template;
+            target.UniqueModifiers = UniqueModifiers == null
+                ? new List<SerializableStatModifier>()
+                : new List<SerializableStatModifier>(UniqueModifiers);
+        }
     }
 }

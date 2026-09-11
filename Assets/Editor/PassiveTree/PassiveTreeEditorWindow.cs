@@ -24,6 +24,7 @@ namespace Scripts.Editor.PassiveTree
         private PassiveNodeDefinition _selectedNode;
         private PassiveClusterDefinition _selectedCluster;
         private PassiveBezierConnection _selectedBezier;
+        private PassiveNodeContentClipboard _nodeClipboard;
         private PassiveClusterTemplateSO _selectedClusterTemplate;
         private Vector2 _lastCanvasClickContentPosition;
         private ScrollView _inspectorContainer;
@@ -308,6 +309,24 @@ namespace Scripts.Editor.PassiveTree
                 return;
             }
 
+            if ((evt.ctrlKey || evt.commandKey) && !evt.altKey)
+            {
+                if (evt.keyCode == KeyCode.C && TryCopySelectedNode())
+                {
+                    evt.StopPropagation();
+                    evt.PreventDefault();
+                    return;
+                }
+
+                if (evt.keyCode == KeyCode.V && TryPasteOntoSelectedNode())
+                {
+                    evt.StopPropagation();
+                    evt.PreventDefault();
+                    RefreshInspector();
+                    return;
+                }
+            }
+
             if (_selectedBezier != null && _canvas != null && _canvas.TryHandleBezierKey(evt))
             {
                 evt.StopPropagation();
@@ -328,6 +347,28 @@ namespace Scripts.Editor.PassiveTree
                 _selectedBezier = null;
                 RefreshInspector();
             }
+        }
+
+        private bool TryCopySelectedNode()
+        {
+            if (_selectedNode == null || _canvas == null || _canvas.GetTotalSelectionCount() != 1)
+                return false;
+
+            _nodeClipboard = PassiveNodeContentClipboard.From(_selectedNode);
+            return _nodeClipboard != null;
+        }
+
+        private bool TryPasteOntoSelectedNode()
+        {
+            if (_nodeClipboard == null || _selectedNode == null || _canvas == null || _canvas.GetTotalSelectionCount() != 1)
+                return false;
+
+            _canvas.Commands.PasteNodeContent(_selectedNode, _nodeClipboard);
+            _canvas.RefreshNodeVisuals(_selectedNode);
+            if (_selectedNode.Template != null)
+                _nodeAuthoringPanel?.SelectNode(_selectedNode.Template);
+            _nodeWorkshopGui?.MarkDirtyRepaint();
+            return true;
         }
 
         private void HandleNodeSelectionChanged(PassiveNodeDefinition nodeData)
@@ -469,17 +510,17 @@ namespace Scripts.Editor.PassiveTree
                 EditorGUILayout.LabelField("From", nodeA != null ? nodeA.GetDisplayName() : connection.NodeIdA);
                 EditorGUILayout.LabelField("To", nodeB != null ? nodeB.GetDisplayName() : connection.NodeIdB);
                 EditorGUILayout.HelpBox(
-                    "Click the curve to select it again after clicking empty space.\n\n" +
-                    "Illustrator-style handles:\n" +
-                    "• Drag whisker — move handle (paired handles stay opposite)\n" +
-                    "• Alt+Drag whisker — move one handle only (corner)\n" +
-                    "• Alt+Click whisker — convert to a smooth pair\n" +
-                    "• Ctrl/Cmd+Drag whisker — make handles symmetric\n" +
-                    "• Shift+Drag whisker — snap angle to 45°\n" +
-                    "• Shift+Drag diamond — snap anchor to 5%\n" +
-                    "• Alt+Drag diamond — move anchor, keep handle positions\n" +
-                    "• [ / ] — rotate handles 15° (Shift: 45°)\n" +
-                    "• R — reset handles",
+                    "Кликни по кривой, чтобы снова выделить её после клика в пустое место.\n\n" +
+                    "Усики как в Illustrator:\n" +
+                    "• Перетаскивание усика — двигается handle; парный остаётся напротив\n" +
+                    "• Alt+перетаскивание усика — двигается только один handle (излом)\n" +
+                    "• Alt+клик по усику — выровнять пару в smooth\n" +
+                    "• Ctrl/Cmd+перетаскивание усика — симметричные усики\n" +
+                    "• Shift+перетаскивание усика — угол с шагом 45°\n" +
+                    "• Shift+перетаскивание ромба — якорь с шагом 5%\n" +
+                    "• Alt+перетаскивание ромба — якорь едет, усики остаются на месте\n" +
+                    "• [ / ] — поворот усиков на 15° (Shift: 45°)\n" +
+                    "• R — сброс усиков",
                     MessageType.Info);
 
                 EditorGUI.BeginChangeCheck();
@@ -583,6 +624,7 @@ namespace Scripts.Editor.PassiveTree
             var currentTemplate = templateProp.objectReferenceValue as PassiveNodeTemplateSO;
 
             DrawNodeHeader(currentTemplate);
+            EditorGUILayout.HelpBox("Ctrl+C копирует содержимое нода. Ctrl+V вставляет его на выбранный нод: позиция и связи остаются своими.", MessageType.Info);
             DrawTemplateSection(serializedTree, templateProp, currentTemplate);
 
             serializedTree.Update();

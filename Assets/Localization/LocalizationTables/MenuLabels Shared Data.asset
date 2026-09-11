@@ -1111,6 +1111,14 @@ MonoBehaviour:
     m_Key: crafting_relic.RelicOfExpurgatio.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103481717434576896
+    m_Key: passive.node.SmallMeleeAndCrit.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103481717476519936
+    m_Key: passive.node.SmallMeleeAndCrit.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -114,6 +114,11 @@ namespace Scripts.Editor.PassiveTree
 
         public void RefreshVisuals()
         {
+            _nodeSize = GetSizeByType(Data.NodeType);
+            style.width = _nodeSize;
+            style.height = _nodeSize;
+            _circle.style.borderTopLeftRadius = _circle.style.borderTopRightRadius =
+                _circle.style.borderBottomLeftRadius = _circle.style.borderBottomRightRadius = _nodeSize / 2f;
             SetStyleByType(Data.NodeType);
             UpdatePosition(_tree);
             tooltip = null;

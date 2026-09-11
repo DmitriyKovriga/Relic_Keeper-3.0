@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -1645,7 +1645,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43348985866346496
-    m_Localized: Medium Armor
+    m_Localized: Small Melee Crit
     m_Metadata:
       m_Items: []
   - m_Id: 43348985899900928
@@ -2021,7 +2021,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62000000000000022
-    m_Localized: Can't pick up — inventory is full
+    m_Localized: "Can't pick up \u2014 inventory is full"
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000101
@@ -2029,7 +2029,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000102
-    m_Localized: Turns a normal item into a magic item and adds 1–3 affixes.
+    m_Localized: "Turns a normal item into a magic item and adds 1\u20133 affixes."
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000103
@@ -2045,7 +2045,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000106
-    m_Localized: Turns a normal item into a rare item and adds 4–6 affixes.
+    m_Localized: "Turns a normal item into a rare item and adds 4\u20136 affixes."
     m_Metadata:
       m_Items: []
   - m_Id: 63000000000000107
@@ -2072,8 +2072,14 @@ MonoBehaviour:
     m_Localized: Removes one random affix. Item rarity changes with its affix count.
     m_Metadata:
       m_Items: []
+  - m_Id: 103481717434576896
+    m_Localized: Small Melee Crit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103481717476519936
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
-
-
