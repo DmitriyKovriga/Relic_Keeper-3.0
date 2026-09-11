@@ -44,6 +44,16 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void CraftingCurrencyChanceUsesEnemyAndRoomMultiplier()
+        {
+            Assert.That(EnemyLootDropService.RollCraftingOrbDrop(0.039f, 0.04f, 1f), Is.True);
+            Assert.That(EnemyLootDropService.RollCraftingOrbDrop(0.04f, 0.04f, 1f), Is.False);
+            Assert.That(EnemyLootDropService.RollCraftingOrbDrop(0.079f, 0.04f, 2f), Is.True);
+            Assert.That(EnemyLootDropService.RollCraftingOrbDrop(0.02f, 0.04f, 0.5f), Is.False);
+            Assert.That(EnemyLootDropService.RollCraftingOrbDrop(0f, 0.04f, 0f), Is.False);
+        }
+
+        [Test]
         public void MagicAndRareItemsGenerateRequestedAffixRanges()
         {
             ArmorItemSO itemBase = CreateItem("test_item", 1);

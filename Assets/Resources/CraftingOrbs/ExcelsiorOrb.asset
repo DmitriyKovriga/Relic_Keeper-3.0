@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 315e7014138af084c8684d313d8ccf63, type: 3}
-  m_Name: FortuneOrb
-  m_EditorClassIdentifier: 
-  ID: FortuneOrb
-  Icon: {fileID: -666257928, guid: d429aca0f159a1045a23351eb6d0b259, type: 3}
-  BaseDropChance: 0.0125
-  NameKey: crafting_orb.FortuneOrb.name
-  DescriptionKey: crafting_orb.FortuneOrb.description
-  EffectId: reroll_rare
+  m_Name: ExcelsiorOrb
+  m_EditorClassIdentifier:
+  ID: ExcelsiorOrb
+  Icon: {fileID: 0}
+  BaseDropChance: 0.0025
+  NameKey: crafting_orb.ExcelsiorOrb.name
+  DescriptionKey: crafting_orb.ExcelsiorOrb.description
+  EffectId: add_rare_affix

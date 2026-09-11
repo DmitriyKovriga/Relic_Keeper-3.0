@@ -283,7 +283,7 @@ namespace Scripts.Enemies
         [Min(0f)]
         public float XPReward = 3f;
 
-        [Tooltip("Множитель шанса выпадения предмета. 1 = базовый шанс, 0.5 = вдвое реже, 2 = вдвое чаще, 0 = без предметов.")]
+        [Tooltip("Множитель шанса выпадения предметов и крафт-валюты. 1 = базовый шанс, 0.5 = вдвое реже, 2 = вдвое чаще, 0 = без лута.")]
         [Min(0f)] public float LootDropMultiplier = 1f;
 
         [Tooltip("Используется только для legacy Base Stats, если новые Stats ещё не заполнены.")]

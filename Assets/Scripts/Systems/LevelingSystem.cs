@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Scripts.Inventory;
+using Scripts.Items;
 using UnityEngine;
 
 public class LevelingSystem
@@ -98,6 +100,8 @@ public class ExperienceSoulPickup : MonoBehaviour
     private float _maxHomingSpeed;
     private float _timeAlive;
     private float _tailWidth;
+    private Color _coreColor;
+    private Color _tailColor;
 
     private Vector2 _velocity;
     private Vector3 _lastHistoryPosition;
@@ -106,6 +110,7 @@ public class ExperienceSoulPickup : MonoBehaviour
     private SoulState _state;
 
     private PlayerStats _playerStats;
+    private CraftingOrbSO _craftingOrb;
     private Transform _target;
     private SpriteRenderer _coreRenderer;
     private readonly List<SpriteRenderer> _tailSegments = new();
@@ -123,11 +128,31 @@ public class ExperienceSoulPickup : MonoBehaviour
         soul.Initialize(xpAmount);
     }
 
-    private void Initialize(float xpAmount)
+    public static void SpawnCraftingOrb(CraftingOrbSO orb, Vector3 worldPosition, Transform parent)
+    {
+        if (orb == null || string.IsNullOrWhiteSpace(orb.ID))
+            return;
+
+        GameObject go = new GameObject($"Crafting Orb Soul ({orb.ID})");
+        go.transform.SetParent(parent, true);
+        go.transform.position = SnapToPixelGrid(worldPosition);
+        var soul = go.AddComponent<ExperienceSoulPickup>();
+        soul.Initialize(0f, orb);
+    }
+
+    private void Initialize(float xpAmount, CraftingOrbSO craftingOrb = null)
     {
         EnsureVisualAssetsBuilt();
 
         _xpAmount = xpAmount;
+        _craftingOrb = craftingOrb;
+        bool isCraftingOrb = _craftingOrb != null;
+        _coreColor = isCraftingOrb
+            ? new Color(0.83f, 0.34f, 1f, 1f)
+            : new Color(0.68f, 0.95f, 1f, 1f);
+        _tailColor = isCraftingOrb
+            ? new Color(0.67f, 0.18f, 0.94f, 1f)
+            : new Color(0.52f, 0.88f, 1f, 1f);
         _delayDuration = UnityEngine.Random.Range(0.08f, 0.14f);
         _arcDuration = UnityEngine.Random.Range(0.34f, 0.44f);
         _collectRadius = 0.42f;
@@ -145,7 +170,7 @@ public class ExperienceSoulPickup : MonoBehaviour
         _coreRenderer.sprite = s_coreSprite;
         _coreRenderer.material = s_spriteMaterial;
         _coreRenderer.sortingOrder = SortingOrder;
-        _coreRenderer.color = new Color(0.68f, 0.95f, 1f, 1f);
+        _coreRenderer.color = _coreColor;
 
         for (int i = 0; i < TailSegmentCount; i++)
         {
@@ -155,7 +180,7 @@ public class ExperienceSoulPickup : MonoBehaviour
             renderer.sprite = s_tailSprite;
             renderer.material = s_spriteMaterial;
             renderer.sortingOrder = SortingOrder - 1 - i;
-            renderer.color = new Color(0.55f, 0.88f, 1f, 0.65f - (i * 0.08f));
+            renderer.color = new Color(_tailColor.r, _tailColor.g, _tailColor.b, 0.65f - (i * 0.08f));
             _tailSegments.Add(renderer);
         }
 
@@ -261,7 +286,16 @@ public class ExperienceSoulPickup : MonoBehaviour
 
     private void Collect()
     {
-        if (_playerStats != null)
+        if (_craftingOrb != null)
+        {
+            if (InventoryManager.Instance == null)
+                return;
+
+            InventoryManager.Instance.AddOrb(_craftingOrb.ID, 1);
+            InventoryManager.Instance.TriggerUIUpdate();
+            CraftingCurrencyPickupLog.Show(_craftingOrb, 1);
+        }
+        else if (_playerStats != null)
             _playerStats.AddExperience(_xpAmount);
 
         Destroy(gameObject);
@@ -341,7 +375,7 @@ public class ExperienceSoulPickup : MonoBehaviour
             float scaleY = Mathf.Max(width, 0.55f);
             segment.transform.localScale = new Vector3(scaleX, scaleY, 1f);
             float alpha = Mathf.Lerp(0.58f, 0.06f, i / (float)Mathf.Max(1, _tailSegments.Count - 1));
-            segment.color = new Color(0.52f, 0.88f, 1f, alpha);
+            segment.color = new Color(_tailColor.r, _tailColor.g, _tailColor.b, alpha);
         }
     }
 
@@ -374,8 +408,8 @@ public class ExperienceSoulPickup : MonoBehaviour
         };
 
         Color clear = new Color(0f, 0f, 0f, 0f);
-        Color core = new Color(0.78f, 0.99f, 1f, 1f);
-        Color mid = new Color(0.37f, 0.85f, 1f, 1f);
+        Color core = Color.white;
+        Color mid = new Color(0.72f, 0.72f, 0.72f, 1f);
 
         for (int y = 0; y < size; y++)
         {
@@ -415,7 +449,7 @@ public class ExperienceSoulPickup : MonoBehaviour
         };
 
         Color clear = new Color(0f, 0f, 0f, 0f);
-        Color color = new Color(0.46f, 0.82f, 1f, 1f);
+        Color color = Color.white;
 
         for (int y = 0; y < height; y++)
         {

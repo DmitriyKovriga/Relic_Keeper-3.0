@@ -6,6 +6,7 @@ using UnityEngine.UIElements;
 public partial class InventoryUI
 {
     private Button _toggleModeButton;
+    private static Sprite _orbPlaceholderIcon;
 
     private void OnRootPointerDown(PointerDownEvent evt)
     {
@@ -208,7 +209,7 @@ public partial class InventoryUI
         _applyOrbOrb = orb;
         _applyOrbSlotHighlight = orbSlotElement;
         orbSlotElement.AddToClassList("orb-slot-applying");
-        _ghostIcon.style.backgroundImage = orb.Icon != null ? new StyleBackground(orb.Icon) : default;
+        _ghostIcon.style.backgroundImage = new StyleBackground(GetOrbDisplayIcon(orb));
         _ghostIcon.style.width = 32;
         _ghostIcon.style.height = 32;
         _ghostIcon.style.opacity = 0.85f;
@@ -242,17 +243,41 @@ public partial class InventoryUI
         if (!_craftSlot.worldBound.Contains(pointerPosition)) return false;
 
         var craftItem = InventoryManager.Instance.CraftingSlotItem;
-        if (craftItem == null || !ItemGenerator.IsRare(craftItem)) return false;
-        if (_applyOrbOrb.EffectId != CraftingOrbEffectId.RerollRare) return false;
-        if (ItemGenerator.Instance == null) return false;
+        if (!ItemGenerator.CanApplyCraftingOrb(craftItem, _applyOrbOrb.EffectId)) return false;
 
         if (!InventoryManager.Instance.ConsumeOrb(_applyOrbOrb.ID)) return false;
-        ItemGenerator.Instance.RerollRare(craftItem);
+        if (!ItemGenerator.TryApplyCraftingOrb(craftItem, _applyOrbOrb.EffectId))
+        {
+            InventoryManager.Instance.AddOrb(_applyOrbOrb.ID, 1);
+            return false;
+        }
         ExitApplyOrbMode();
         InventoryManager.Instance.TriggerUIUpdate();
         if (ItemTooltipController.Instance != null)
             ItemTooltipController.Instance.RefreshCurrentItemTooltip();
         return true;
+    }
+
+    private static Sprite GetOrbDisplayIcon(CraftingOrbSO orb)
+    {
+        if (orb != null && orb.Icon != null)
+            return orb.Icon;
+        if (_orbPlaceholderIcon != null)
+            return _orbPlaceholderIcon;
+
+        var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false)
+        {
+            name = "CraftingOrbWhitePlaceholder",
+            filterMode = FilterMode.Point,
+            wrapMode = TextureWrapMode.Clamp,
+            hideFlags = HideFlags.HideAndDontSave
+        };
+        texture.SetPixel(0, 0, Color.white);
+        texture.Apply(false, false);
+        _orbPlaceholderIcon = Sprite.Create(texture, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+        _orbPlaceholderIcon.name = "CraftingOrbWhitePlaceholder";
+        _orbPlaceholderIcon.hideFlags = HideFlags.HideAndDontSave;
+        return _orbPlaceholderIcon;
     }
 
     private void OnKeyDown(KeyDownEvent evt)

@@ -12,7 +12,7 @@ namespace Scripts.Editor.Crafting
     public class CraftingOrbEditorWindow : EditorWindow
     {
         private const string MenuPath = "Tools/Crafting Orb Editor";
-        private const int DefaultSlotCount = 6;
+        private const int DefaultSlotCount = 7;
 
         private Vector2 _listScroll;
         private Vector2 _detailsScroll;
@@ -94,7 +94,10 @@ namespace Scripts.Editor.Crafting
                 if (orb.Icon != null)
                     GUILayout.Label(AssetPreview.GetAssetPreview(orb.Icon) ?? orb.Icon.texture, GUILayout.Width(24), GUILayout.Height(24));
                 else
-                    GUILayout.Box("", GUILayout.Width(24), GUILayout.Height(24));
+                {
+                    Rect placeholderRect = GUILayoutUtility.GetRect(24, 24, GUILayout.Width(24), GUILayout.Height(24));
+                    EditorGUI.DrawRect(placeholderRect, Color.white);
+                }
                 string label = $"{orb.name}  [{orb.EffectId}]";
                 if (GUILayout.Button(label, GUILayout.Height(24)))
                 {

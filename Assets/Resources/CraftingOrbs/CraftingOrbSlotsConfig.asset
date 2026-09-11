@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: CraftingOrbSlotsConfig
   m_EditorClassIdentifier: 
   Slots:
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 1a2b3c4d5e6f4789a0b1c2d3e4f50001, type: 2}
+  - {fileID: 11400000, guid: 1a2b3c4d5e6f4789a0b1c2d3e4f50002, type: 2}
   - {fileID: 11400000, guid: 51bba3efe3a70ab40a166cd069602b9f, type: 2}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 1a2b3c4d5e6f4789a0b1c2d3e4f50003, type: 2}
+  - {fileID: 11400000, guid: 1a2b3c4d5e6f4789a0b1c2d3e4f50004, type: 2}
+  - {fileID: 11400000, guid: 1a2b3c4d5e6f4789a0b1c2d3e4f50005, type: 2}
+  - {fileID: 11400000, guid: 1a2b3c4d5e6f4789a0b1c2d3e4f50006, type: 2}

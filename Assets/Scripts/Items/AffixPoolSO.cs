@@ -30,8 +30,16 @@ namespace Scripts.Items.Affixes
         // Р“Р»Р°РІРЅС‹Р№ РјРµС‚РѕРґ: Р”Р°Р№ РјРЅРµ N СЃР»СѓС‡Р°Р№РЅС‹С… СѓРЅРёРєР°Р»СЊРЅС‹С… Р°С„С„РёРєСЃРѕРІ
         public List<AffixRollSelection> GetRandomAffixes(int count, int itemLevel)
         {
+            return GetRandomAffixesExcluding(count, itemLevel, null);
+        }
+
+        public List<AffixRollSelection> GetRandomAffixesExcluding(
+            int count,
+            int itemLevel,
+            IEnumerable<ItemAffixSO> excludedAffixes)
+        {
             var result = new List<AffixRollSelection>();
-            var candidates = BuildCandidates(itemLevel);
+            var candidates = BuildCandidates(itemLevel, excludedAffixes);
 
             for (int i = 0; i < count; i++)
             {
@@ -50,16 +58,29 @@ namespace Scripts.Items.Affixes
 
         public int GetAvailableAffixGroupCount(int itemLevel)
         {
-            return BuildCandidates(itemLevel).Count;
+            return BuildCandidates(itemLevel, null).Count;
         }
 
-        private List<ItemAffixSO> BuildCandidates(int itemLevel)
+        public int GetAvailableAffixGroupCountExcluding(int itemLevel, IEnumerable<ItemAffixSO> excludedAffixes)
+        {
+            return BuildCandidates(itemLevel, excludedAffixes).Count;
+        }
+
+        private List<ItemAffixSO> BuildCandidates(int itemLevel, IEnumerable<ItemAffixSO> excludedAffixes)
         {
             var candidates = new List<ItemAffixSO>();
             if (Affixes == null)
                 return candidates;
 
             var seenGroups = new HashSet<string>();
+            if (excludedAffixes != null)
+            {
+                foreach (ItemAffixSO affix in excludedAffixes)
+                {
+                    if (affix != null)
+                        seenGroups.Add(GetGroupKey(affix));
+                }
+            }
             foreach (var affix in Affixes)
             {
                 if (affix != null && seenGroups.Add(GetGroupKey(affix)) && GetRuntimeAllowedTiers(affix, itemLevel).Count > 0)

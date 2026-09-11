@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Scripts.Enemies;
+using Scripts.Items;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,16 +14,18 @@ namespace Scripts.Editor.Enemy
 
         private readonly List<EnemyDataSO> _enemies = new List<EnemyDataSO>();
         private readonly Dictionary<EnemyDataSO, Sprite> _previewCache = new Dictionary<EnemyDataSO, Sprite>();
+        private readonly List<CraftingOrbSO> _orbs = new List<CraftingOrbSO>();
         private ItemDatabaseSO _itemDatabase;
         private Vector2 _scroll;
         private string _search = string.Empty;
+        private bool _showOrbChances = true;
 
         [MenuItem("Tools/Enemy Loot Settings")]
         public static void Open()
         {
             var window = GetWindow<EnemyLootEditorWindow>();
             window.titleContent = new GUIContent("Enemy Loot");
-            window.minSize = new Vector2(760f, 480f);
+            window.minSize = new Vector2(820f, 540f);
             window.Refresh();
         }
 
@@ -35,6 +38,7 @@ namespace Scripts.Editor.Enemy
         {
             _itemDatabase = AssetDatabase.LoadAssetAtPath<ItemDatabaseSO>(EditorPaths.ItemDatabase);
             _enemies.Clear();
+            _orbs.Clear();
             _previewCache.Clear();
 
             foreach (string guid in AssetDatabase.FindAssets("t:EnemyDataSO"))
@@ -48,6 +52,14 @@ namespace Scripts.Editor.Enemy
                 ResolveName(left),
                 ResolveName(right),
                 StringComparison.OrdinalIgnoreCase));
+
+            foreach (string guid in AssetDatabase.FindAssets("t:CraftingOrbSO"))
+            {
+                var orb = AssetDatabase.LoadAssetAtPath<CraftingOrbSO>(AssetDatabase.GUIDToAssetPath(guid));
+                if (orb != null)
+                    _orbs.Add(orb);
+            }
+            _orbs.Sort((left, right) => string.Compare(left.ID, right.ID, StringComparison.OrdinalIgnoreCase));
             Repaint();
         }
 
@@ -55,6 +67,7 @@ namespace Scripts.Editor.Enemy
         {
             DrawToolbar();
             DrawBaseChances();
+            DrawOrbDropChances();
             DrawEnemyList();
         }
 
@@ -108,6 +121,60 @@ namespace Scripts.Editor.Enemy
             EditorGUILayout.Space(10f);
         }
 
+        private void DrawOrbDropChances()
+        {
+            _showOrbChances = EditorGUILayout.Foldout(
+                _showOrbChances,
+                $"Crafting currency drop chances ({_orbs.Count})",
+                true,
+                EditorStyles.foldoutHeader);
+            if (!_showOrbChances)
+            {
+                EditorGUILayout.Space(6f);
+                return;
+            }
+
+            EditorGUILayout.HelpBox(
+                "Each currency rolls independently. Enemy Loot multiplier and the room drop-chance modifier affect these rates.",
+                MessageType.Info);
+
+            float combinedChance = 0f;
+            foreach (CraftingOrbSO orb in _orbs)
+            {
+                if (orb == null)
+                    continue;
+
+                EditorGUILayout.BeginHorizontal(EditorStyles.helpBox, GUILayout.Height(28f));
+                Rect iconRect = GUILayoutUtility.GetRect(20f, 20f, GUILayout.Width(20f), GUILayout.Height(20f));
+                if (orb.Icon != null && orb.Icon.texture != null)
+                    GUI.DrawTextureWithTexCoords(iconRect, orb.Icon.texture, ResolveTextureCoordinates(orb.Icon), true);
+                else
+                    EditorGUI.DrawRect(iconRect, Color.white);
+
+                GUILayout.Space(5f);
+                EditorGUILayout.LabelField(
+                    string.IsNullOrWhiteSpace(orb.ID) ? orb.name : orb.ID,
+                    GUILayout.Width(180f));
+
+                EditorGUI.BeginChangeCheck();
+                float chance = EditorGUILayout.Slider(Mathf.Clamp01(orb.BaseDropChance), 0f, 1f);
+                EditorGUILayout.LabelField($"{chance * 100f:0.###}%", GUILayout.Width(70f));
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(orb, "Change crafting currency drop chance");
+                    orb.BaseDropChance = chance;
+                    EditorUtility.SetDirty(orb);
+                }
+                combinedChance += chance;
+                EditorGUILayout.EndHorizontal();
+            }
+
+            EditorGUILayout.LabelField(
+                $"Expected currency drops per enemy at multiplier 1: {combinedChance * 100f:0.###}%",
+                EditorStyles.miniLabel);
+            EditorGUILayout.Space(8f);
+        }
+
         private void DrawEnemyList()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
@@ -115,7 +182,8 @@ namespace Scripts.Editor.Enemy
             GUILayout.Label("Enemy", EditorStyles.boldLabel, GUILayout.MinWidth(220f));
             GUILayout.Label(new GUIContent("Base XP", "Experience from a level 1 enemy at dungeon multiplier x1."), EditorStyles.boldLabel, GUILayout.Width(90f));
             GUILayout.Label("Loot multiplier", EditorStyles.boldLabel, GUILayout.Width(135f));
-            GUILayout.Label("Total chance", EditorStyles.boldLabel, GUILayout.Width(100f));
+            GUILayout.Label(new GUIContent("Item chance", "Chance of any equipment item at room multiplier x1."), EditorStyles.boldLabel, GUILayout.Width(90f));
+            GUILayout.Label(new GUIContent("Currency chance", "Chance of at least one crafting currency at room multiplier x1."), EditorStyles.boldLabel, GUILayout.Width(105f));
             EditorGUILayout.EndHorizontal();
 
             string normalizedSearch = _search?.Trim();
@@ -172,8 +240,24 @@ namespace Scripts.Editor.Enemy
             float totalChance = _itemDatabase != null
                 ? Mathf.Clamp01((_itemDatabase.CommonItemDropChance + _itemDatabase.MagicItemDropChance + _itemDatabase.RareItemDropChance) * Mathf.Max(0f, enemy.LootDropMultiplier))
                 : 0f;
-            EditorGUILayout.LabelField($"{totalChance * 100f:0.##}%", GUILayout.Width(100f));
+            EditorGUILayout.LabelField($"{totalChance * 100f:0.##}%", GUILayout.Width(90f));
+            EditorGUILayout.LabelField(
+                $"{CalculateAnyCurrencyChance(enemy.LootDropMultiplier) * 100f:0.##}%",
+                GUILayout.Width(105f));
             EditorGUILayout.EndHorizontal();
+        }
+
+        private float CalculateAnyCurrencyChance(float lootMultiplier)
+        {
+            float noneChance = 1f;
+            foreach (CraftingOrbSO orb in _orbs)
+            {
+                if (orb == null)
+                    continue;
+                float chance = Mathf.Clamp01(orb.BaseDropChance * Mathf.Max(0f, lootMultiplier));
+                noneChance *= 1f - chance;
+            }
+            return 1f - noneChance;
         }
 
         private static float DrawPercentSlider(string label, float value)

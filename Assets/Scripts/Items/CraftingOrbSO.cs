@@ -5,7 +5,13 @@ namespace Scripts.Items
     /// <summary> Известные ID эффектов крафт-орб. Используй константы вместо строк. </summary>
     public static class CraftingOrbEffectId
     {
+        public const string CreateMagic = "create_magic";
+        public const string UpgradeMagicToRare = "upgrade_magic_to_rare";
         public const string RerollRare = "reroll_rare";
+        public const string CreateRare = "create_rare";
+        public const string AddRareAffix = "add_rare_affix";
+        public const string PurgeAll = "purge_all";
+        public const string RemoveAffix = "remove_affix";
     }
 
     /// <summary>
@@ -21,6 +27,10 @@ namespace Scripts.Items
         [Header("Visual")]
         public Sprite Icon;
 
+        [Header("Drop")]
+        [Tooltip("Базовый шанс выпадения с одного врага при множителе лута 1. Каждая сфера бросается независимо.")]
+        [Range(0f, 1f)] public float BaseDropChance = 0.01f;
+
         [Header("Localization")]
         [Tooltip("Ключ в String Table для имени сферы (например crafting_orb.chaos.name).")]
         public string NameKey;
@@ -28,7 +38,7 @@ namespace Scripts.Items
         public string DescriptionKey;
 
         [Header("Effect")]
-        [Tooltip("Тип эффекта. Константы в CraftingOrbEffectId (RerollRare и т.д.).")]
+        [Tooltip("Тип эффекта. Используй константы из CraftingOrbEffectId.")]
         public string EffectId = CraftingOrbEffectId.RerollRare;
 
         private void OnValidate()

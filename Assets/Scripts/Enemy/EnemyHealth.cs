@@ -213,6 +213,7 @@ namespace Scripts.Enemies
             if (DestroyOnDeath)
             {
                 EnemyLootDropService.TrySpawnLoot(entity);
+                EnemyLootDropService.TrySpawnCraftingOrbs(entity);
                 var spriteRenderer = entity != null ? entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>(true);
                 EnemyDeathEffectSpawner.Spawn(entity, spriteRenderer);
                 Destroy(gameObject);

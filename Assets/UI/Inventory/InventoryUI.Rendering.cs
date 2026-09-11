@@ -152,7 +152,7 @@ public partial class InventoryUI
             var (slot, countLabel) = _orbSlots[i];
             var orb = _orbSlotsConfig != null ? _orbSlotsConfig.GetOrbInSlot(i) : null;
             int count = orb != null ? InventoryManager.Instance.GetOrbCount(orb.ID) : 0;
-            slot.style.backgroundImage = (orb != null && orb.Icon != null) ? new StyleBackground(orb.Icon) : default;
+            slot.style.backgroundImage = orb != null ? new StyleBackground(GetOrbDisplayIcon(orb)) : default;
             countLabel.text = count.ToString();
             countLabel.style.visibility = Visibility.Visible;
         }

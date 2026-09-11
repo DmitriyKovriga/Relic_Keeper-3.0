@@ -26,6 +26,7 @@ namespace Scripts.Enemies
         public const float DefaultCommonChance = 0.10f;
         public const float DefaultMagicChance = 0.05f;
         public const float DefaultRareChance = 0.02f;
+        private static CraftingOrbSO[] s_craftingOrbs;
 
         public static WorldDroppedItem TrySpawnLoot(EnemyEntity entity)
         {
@@ -77,6 +78,60 @@ namespace Scripts.Enemies
                 ? new Vector2(renderer.bounds.center.x, renderer.bounds.min.y)
                 : (Vector2)entity.transform.position;
             return WorldItemDropService.SpawnOnGround(item, dropPosition);
+        }
+
+        public static int TrySpawnCraftingOrbs(EnemyEntity entity)
+        {
+            EnemyDataSO enemy = entity != null ? entity.Data : null;
+            if (enemy == null || enemy.LootDropMultiplier <= 0f)
+                return 0;
+
+            CraftingOrbSO[] orbs = GetCraftingOrbs();
+            if (orbs == null || orbs.Length == 0)
+                return 0;
+
+            DungeonModifierContext modifiers = DungeonController.Instance != null
+                ? DungeonController.Instance.CurrentModifiers
+                : null;
+            float roomDropMultiplier = modifiers != null ? modifiers.LootDropChanceMultiplier : 1f;
+            float totalMultiplier = enemy.LootDropMultiplier * roomDropMultiplier;
+
+            SpriteRenderer renderer = entity.VisualRenderer;
+            Vector3 spawnPosition = renderer != null ? renderer.bounds.center : entity.transform.position;
+            int spawned = 0;
+
+            foreach (CraftingOrbSO orb in orbs)
+            {
+                if (orb == null || string.IsNullOrWhiteSpace(orb.ID) ||
+                    !RollCraftingOrbDrop(UnityEngine.Random.value, orb.BaseDropChance, totalMultiplier))
+                    continue;
+
+                ExperienceSoulPickup.SpawnCraftingOrb(orb, spawnPosition, entity.transform.parent);
+                spawned++;
+            }
+
+            return spawned;
+        }
+
+        private static CraftingOrbSO[] GetCraftingOrbs()
+        {
+            if (s_craftingOrbs != null)
+                return s_craftingOrbs;
+
+            s_craftingOrbs = Resources.LoadAll<CraftingOrbSO>(ProjectPaths.ResourcesCraftingOrbsFolder);
+            if (s_craftingOrbs == null)
+                s_craftingOrbs = System.Array.Empty<CraftingOrbSO>();
+            System.Array.Sort(s_craftingOrbs, (left, right) => string.Compare(
+                left != null ? left.ID : string.Empty,
+                right != null ? right.ID : string.Empty,
+                System.StringComparison.Ordinal));
+            return s_craftingOrbs;
+        }
+
+        public static bool RollCraftingOrbDrop(float roll, float baseChance, float multiplier)
+        {
+            float threshold = Mathf.Clamp01(Mathf.Max(0f, baseChance) * Mathf.Max(0f, multiplier));
+            return Mathf.Clamp01(roll) < threshold;
         }
 
         public static EnemyLootRarity RollRarity(
