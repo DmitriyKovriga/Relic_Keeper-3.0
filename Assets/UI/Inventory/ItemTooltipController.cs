@@ -12,6 +12,14 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Text;
 
+public enum ItemTooltipPriceMode
+{
+    None,
+    Buy,
+    Sell,
+    Buyback
+}
+
 public class ItemTooltipController : MonoBehaviour
 {
     public static ItemTooltipController Instance { get; private set; }
@@ -53,6 +61,7 @@ public class ItemTooltipController : MonoBehaviour
 
     // --- State ---
     private InventoryItem _currentTargetItem;
+    private ItemTooltipPriceMode _currentPriceMode;
     private CraftingOrbSO _currentTargetOrb;
     private VisualElement _targetAnchorSlot;
     private IVisualElementScheduledItem _hideScheduler;
@@ -86,6 +95,7 @@ public class ItemTooltipController : MonoBehaviour
 
     private readonly Color _colImplicit = new Color(0.6f, 0.8f, 1f);
     private readonly Color _colAffix = new Color(0.5f, 0.5f, 1f);
+    private readonly Color _colGoldText = new Color(0.93f, 0.78f, 0.28f);
     
     private readonly Color _colFireText = new Color(1f, 0.5f, 0.5f);
     private readonly Color _colColdText = new Color(0.5f, 0.6f, 1f);
@@ -318,6 +328,12 @@ public class ItemTooltipController : MonoBehaviour
 
     public void ShowTooltip(InventoryItem item, VisualElement anchorSlot)
     {
+        ShowTooltip(item, anchorSlot, ItemTooltipPriceMode.None);
+    }
+
+    public void ShowTooltip(InventoryItem item, VisualElement anchorSlot, ItemTooltipPriceMode priceMode)
+    {
+        _currentPriceMode = priceMode;
         ShowTooltipInternal(item, anchorSlot, null);
     }
 
@@ -333,6 +349,7 @@ public class ItemTooltipController : MonoBehaviour
         if (!UpdateWorldAnchorPosition(droppedItem.TooltipWorldPosition))
             return;
 
+        _currentPriceMode = ItemTooltipPriceMode.None;
         ShowTooltipInternal(droppedItem.Item, _worldAnchor, droppedItem);
         if (_worldTargetItem == droppedItem)
             RecalculatePosition();
@@ -1404,6 +1421,30 @@ public class ItemTooltipController : MonoBehaviour
                 AddAffixRow(key, minVal, maxVal, modifier.HasRange, _colAffix);
             }
         }
+
+        AppendPriceRow(item);
+    }
+
+    private void AppendPriceRow(InventoryItem item)
+    {
+        if (_currentPriceMode == ItemTooltipPriceMode.None || item == null)
+            return;
+
+        int price = _currentPriceMode == ItemTooltipPriceMode.Buy
+            ? Scripts.Economy.ItemPriceCalculator.GetVendorPrice(item)
+            : Scripts.Economy.ItemPriceCalculator.GetSellPrice(item);
+        string key = _currentPriceMode == ItemTooltipPriceMode.Sell
+            ? "market.price.sell"
+            : "market.price.buy";
+        string fallbackPrefix = _currentPriceMode == ItemTooltipPriceMode.Sell ? "Sell" : "Price";
+        AddDivToContainer();
+        CreateAsyncLabel(key, n =>
+        {
+            string prefix = string.IsNullOrEmpty(n) || n.IndexOf("translation found", System.StringComparison.OrdinalIgnoreCase) >= 0
+                ? fallbackPrefix
+                : n;
+            return $"{prefix}: {price}";
+        }, _colGoldText);
     }
 
     // --- Helpers (ТВОЙ КОД) ---

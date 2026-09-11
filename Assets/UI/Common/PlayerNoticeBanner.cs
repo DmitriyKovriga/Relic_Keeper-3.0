@@ -6,8 +6,10 @@ using UnityEngine.UIElements;
 
 public sealed class PlayerNoticeBanner : MonoBehaviour
 {
-    public const string InventoryFullKey = "inventory.ui.pickupNoSpace";
-    public const string InventoryFullFallback = "Can't pick up — inventory is full";
+        public const string InventoryFullKey = "inventory.ui.pickupNoSpace";
+        public const string InventoryFullFallback = "Can't pick up — inventory is full";
+        public const string NotEnoughGoldKey = "inventory.ui.notEnoughGold";
+        public const string NotEnoughGoldFallback = "Not enough gold";
 
     public const float SortingOrder = 900f;
     public const int ToastMaxWidth = 236;
@@ -34,6 +36,11 @@ public sealed class PlayerNoticeBanner : MonoBehaviour
     public static void ShowInventoryFull()
     {
         Show(InventoryFullKey, InventoryFullFallback);
+    }
+
+    public static void ShowNotEnoughGold()
+    {
+        Show(NotEnoughGoldKey, NotEnoughGoldFallback);
     }
 
     public static void Show(string key, string fallback)

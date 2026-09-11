@@ -5,10 +5,11 @@ using Scripts.Inventory;
 using Scripts.Saving;
 using Scripts.Skills.PassiveTree;
 using Scripts.Configuration;
+using Scripts.Economy;
 
 public class GameSaveManager : MonoBehaviour
 {
-    public const int CurrentSaveVersion = 6;
+    public const int CurrentSaveVersion = 7;
 
     [Header("Core Dependencies")]
     [SerializeField] private PlayerStats _playerStats;
@@ -39,12 +40,18 @@ public class GameSaveManager : MonoBehaviour
 
         yield return null;
 
+        MarketManager.EnsureInstance();
+
         if (File.Exists(SavePath))
             LoadGame();
-        else if (_tavernUIForNewGame != null)
-            _tavernUIForNewGame.Open(forNewGame: true);
         else
-            StartNewGame();
+        {
+            PlayerGoldGrants.GrantNewGameGold();
+            if (_tavernUIForNewGame != null)
+                _tavernUIForNewGame.Open(forNewGame: true);
+            else
+                StartNewGame();
+        }
     }
 
     private void Update()
@@ -70,6 +77,8 @@ public class GameSaveManager : MonoBehaviour
 
         var data = new GameSaveData { SaveVersion = CurrentSaveVersion };
         data.Stash = StashManager.Instance != null ? StashManager.Instance.GetSaveData() : new StashSaveData();
+        data.Gold = GoldWallet.Amount;
+        data.Market = MarketManager.EnsureInstance().GetSaveData();
 
         if (_partyManager != null)
         {
@@ -145,6 +154,9 @@ public class GameSaveManager : MonoBehaviour
                     if (StashManager.Instance != null && _itemDatabase != null)
                         StashManager.Instance.LoadState(data.Stash ?? new StashSaveData(), _itemDatabase);
 
+                    GoldWallet.Set(data.Gold);
+                    MarketManager.EnsureInstance().LoadState(data.Market, _itemDatabase);
+
                     _tavernUIForNewGame?.OpenForRequiredCharacterSelection();
                     Debug.Log("[System] Save has no active character. Waiting for a required Tavern selection.");
                     return;
@@ -197,6 +209,9 @@ public class GameSaveManager : MonoBehaviour
 
                 if (StashManager.Instance != null && _itemDatabase != null)
                     StashManager.Instance.LoadState(data.Stash ?? new StashSaveData(), _itemDatabase);
+
+                GoldWallet.Set(data.Gold);
+                MarketManager.EnsureInstance().LoadState(data.Market, _itemDatabase);
 
                 Debug.Log($"[System] Game Loaded.");
             }
@@ -349,6 +364,11 @@ public class GameSaveManager : MonoBehaviour
         {
             data.SaveVersion = 6;
             Debug.Log("[System] Save migrated: 5 -> 6 (dungeon floor unlocks).");
+        }
+        if (data.SaveVersion == 6)
+        {
+            data.SaveVersion = 7;
+            Debug.Log("[System] Save migrated: 6 -> 7 (account gold and market).");
         }
     }
 

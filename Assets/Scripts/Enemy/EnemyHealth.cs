@@ -194,17 +194,21 @@ namespace Scripts.Enemies
 
             if (_stats != null)
             {
+                Vector3 soulPosition = transform.position;
+                var spriteRenderer = entity != null ? entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>(true);
+                if (spriteRenderer != null)
+                    soulPosition = spriteRenderer.bounds.center;
+
                 float xp = _stats.ExperienceReward;
                 if (xp > 0f)
                 {
-                    Vector3 soulPosition = transform.position;
-                    var spriteRenderer = entity != null ? entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>(true);
-                    if (spriteRenderer != null)
-                        soulPosition = spriteRenderer.bounds.center;
-
                     ExperienceSoulPickup.Spawn(xp, soulPosition, transform.parent);
                     OnEnemyKilled?.Invoke(xp);
                 }
+
+                int gold = _stats.GoldReward;
+                if (gold > 0)
+                    ExperienceSoulPickup.SpawnGold(gold, soulPosition, transform.parent);
             }
 
             OnDeath?.Invoke(this);

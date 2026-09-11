@@ -25,6 +25,7 @@ public partial class InventoryUI
     {
         InventoryItem held = _draggedItem;
         bool fromStash = _draggedFromStash;
+        bool fromMarket = _draggedFromMarket;
         int stashTab = _draggedStashTab;
         int stashAnchor = _draggedStashAnchorSlot;
         int invAnchor = _draggedSourceAnchor;
@@ -34,6 +35,7 @@ public partial class InventoryUI
         _dropInProgress = false;
         _draggedSourceAnchor = -1;
         _draggedFromStash = false;
+        _draggedFromMarket = false;
         _draggedStashTab = -1;
         _draggedStashAnchorSlot = -1;
 
@@ -50,12 +52,17 @@ public partial class InventoryUI
             return;
 
         bool returned = false;
-        if (fromStash && StashManager.Instance != null && stashTab >= 0 && stashAnchor >= 0)
+        if (fromMarket && Scripts.Economy.MarketManager.Instance != null && stashTab >= 0 && stashAnchor >= 0)
+            returned = Scripts.Economy.MarketManager.Instance.PlaceItemBack(held, stashTab, stashAnchor);
+        else if (fromStash && StashManager.Instance != null && stashTab >= 0 && stashAnchor >= 0)
             returned = StashManager.Instance.PlaceItemInStash(held, stashTab, stashAnchor, -1, -1, -1);
-        else if (!fromStash && invAnchor >= 0 && InventoryManager.Instance != null)
+        else if (!fromStash && !fromMarket && invAnchor >= 0 && InventoryManager.Instance != null)
             returned = InventoryManager.Instance.PlaceItemAt(held, invAnchor, -1);
 
-        if (!returned && InventoryManager.Instance != null)
+        if (!returned && fromMarket && Scripts.Economy.MarketManager.Instance != null)
+            returned = Scripts.Economy.MarketManager.Instance.AcceptSoldItem(held);
+
+        if (!returned && !fromMarket && InventoryManager.Instance != null)
         {
             InventoryManager.Instance.RecoverItemToInventory(held);
             returned = true;
@@ -266,12 +273,14 @@ public partial class InventoryUI
 
     private bool CanDropDraggedItemToWorld(Vector2 pointerPanelPosition)
     {
+        if (_draggedFromMarket)
+            return false;
         return CanDropItemToWorld(_draggedItem, pointerPanelPosition);
     }
 
     private bool CanDropItemToWorld(InventoryItem item, Vector2 pointerPanelPosition)
     {
-        bool hasStash = IsStashVisible && _stashPanel != null;
+        bool hasStash = IsCompanionPanelVisible && _stashPanel != null;
         return ShouldDropItemToWorld(
             item?.Data != null,
             pointerPanelPosition,
@@ -329,7 +338,7 @@ public partial class InventoryUI
         {
             VisualElement anchorSlot = GetSlotVisual(anchorIndex);
             if (anchorSlot != null)
-                ItemTooltipController.Instance.ShowTooltip(item, anchorSlot);
+                ItemTooltipController.Instance.ShowTooltip(item, anchorSlot, ResolvePlayerTooltipPriceMode());
             else
                 ItemTooltipController.Instance.HideTooltip();
         }
@@ -347,7 +356,7 @@ public partial class InventoryUI
         int anchorIndex = (int)icon.userData;
         InventoryItem item = InventoryManager.Instance.GetItemAt(anchorIndex, out int _);
         if (item != null && item.Data != null)
-            ItemTooltipController.Instance.ShowTooltip(item, icon);
+            ItemTooltipController.Instance.ShowTooltip(item, icon, ResolvePlayerTooltipPriceMode());
     }
 
     private void OnPointerOutBackpackIcon(PointerOutEvent evt)
@@ -388,6 +397,7 @@ public partial class InventoryUI
         _draggedItem = takenDrag;
         _draggedSourceAnchor = anchorIdx;
         _draggedFromStash = false;
+        _draggedFromMarket = false;
         _draggedStashTab = -1;
         _draggedStashAnchorSlot = -1;
         RefreshInventory();
@@ -473,6 +483,7 @@ public partial class InventoryUI
         _draggedItem = taken;
         _draggedSourceAnchor = anchorIdx;
         _draggedFromStash = false;
+        _draggedFromMarket = false;
         _draggedStashTab = -1;
         _draggedStashAnchorSlot = -1;
         RefreshInventory();
@@ -500,7 +511,7 @@ public partial class InventoryUI
         float h;
         if (_isDragging && _draggedItem?.Data != null)
         {
-            if (_draggedFromStash)
+            if (_draggedFromStash || _draggedFromMarket)
             {
                 w = GetStashSpanSize(_draggedItem.Data.Width);
                 h = GetStashSpanSize(_draggedItem.Data.Height);
@@ -561,6 +572,7 @@ public partial class InventoryUI
 
         InventoryItem itemToPlace = _draggedItem;
         bool fromStash = _draggedFromStash;
+        bool fromMarket = _draggedFromMarket;
         int stashTab = _draggedStashTab;
         int stashAnchor = _draggedStashAnchorSlot;
         int invSourceAnchor = _draggedSourceAnchor;
@@ -570,6 +582,7 @@ public partial class InventoryUI
         _isDragging = false;
         _draggedSourceAnchor = -1;
         _draggedFromStash = false;
+        _draggedFromMarket = false;
         _draggedStashTab = -1;
         _draggedStashAnchorSlot = -1;
         _ghostIcon.style.display = DisplayStyle.None;
@@ -580,13 +593,14 @@ public partial class InventoryUI
         int itemH = itemToPlace.Data != null ? itemToPlace.Data.Height : 1;
         Vector2 dropCenter = GetDropCenterInPanel(_root, evt);
 
+        bool overCompanion = IsCompanionPanelVisible && _stashPanel != null && _stashPanel.worldBound.Contains(dropCenter);
         int stashFoundSlotIndex = -1;
         int stashFoundTab = StashManager.Instance != null ? StashManager.Instance.CurrentTabIndex : -1;
-        if (IsStashVisible && _stashPanel != null && _stashPanel.worldBound.Contains(dropCenter))
+        if (IsStashVisible && overCompanion)
             stashFoundSlotIndex = GetSmartStashTargetIndex(dropCenter, itemW, itemH, fromStash, dragGrabOffset);
 
         int foundIndex = -1;
-        if (stashFoundSlotIndex < 0)
+        if (stashFoundSlotIndex < 0 && !(IsMarketVisible && overCompanion))
         {
             if (_currentTab == 1 && _craftSlot != null && _craftSlot.worldBound.Contains(dropCenter))
                 foundIndex = InventoryManager.CRAFT_SLOT_INDEX;
@@ -610,7 +624,15 @@ public partial class InventoryUI
         }
 
         bool placed = false;
-        if (fromStash && StashManager.Instance != null)
+        var market = Scripts.Economy.MarketManager.Instance;
+        if (fromMarket && market != null)
+        {
+            if (overCompanion)
+                placed = market.PlaceItemBack(itemToPlace, stashTab, stashAnchor);
+            else if (foundIndex >= 0)
+                placed = market.TryBuy(itemToPlace, market.IsBuybackTab(stashTab));
+        }
+        else if (fromStash && StashManager.Instance != null)
         {
             if (stashFoundSlotIndex >= 0)
                 placed = StashManager.Instance.PlaceItemInStash(itemToPlace, stashFoundTab, stashFoundSlotIndex, stashTab, stashAnchor, -1);
@@ -619,13 +641,15 @@ public partial class InventoryUI
         }
         else
         {
-            if (stashFoundSlotIndex >= 0 && StashManager.Instance != null)
+            if (IsMarketVisible && overCompanion && market != null)
+                placed = market.TrySell(itemToPlace);
+            else if (stashFoundSlotIndex >= 0 && StashManager.Instance != null)
                 placed = StashManager.Instance.PlaceItemInStash(itemToPlace, stashFoundTab, stashFoundSlotIndex, -1, -1, invSourceAnchor);
             else if (foundIndex >= 0 && InventoryManager.Instance != null)
                 placed = InventoryManager.Instance.PlaceItemAt(itemToPlace, foundIndex, invSourceAnchor);
         }
 
-        if (!placed)
+        if (!placed && !fromMarket)
         {
             string sourceEndpointId = fromStash
                 ? ItemTransferEndpointIds.StashCurrentTab
@@ -635,17 +659,23 @@ public partial class InventoryUI
             placed = ItemDragDropService.TryDrop(sourceEndpointId, itemToPlace, dropCenter);
         }
 
-        if (!placed && CanDropItemToWorld(itemToPlace, dropCenter))
+        if (!placed && !fromMarket && CanDropItemToWorld(itemToPlace, dropCenter))
             placed = WorldItemDropService.TryDropAtPlayer(itemToPlace);
 
         if (!placed)
         {
             bool returned = false;
-            if (fromStash && StashManager.Instance != null)
+            if (fromMarket && market != null)
+            {
+                returned = market.PlaceItemBack(itemToPlace, stashTab, stashAnchor);
+                if (!returned)
+                    returned = market.AcceptSoldItem(itemToPlace);
+            }
+            else if (fromStash && StashManager.Instance != null)
                 returned = StashManager.Instance.PlaceItemInStash(itemToPlace, stashTab, stashAnchor, -1, -1, -1);
             else if (invSourceAnchor >= 0 && InventoryManager.Instance != null)
                 returned = InventoryManager.Instance.PlaceItemAt(itemToPlace, invSourceAnchor, -1);
-            if (!returned && InventoryManager.Instance != null)
+            if (!returned && !fromMarket && InventoryManager.Instance != null)
             {
                 InventoryManager.Instance.RecoverItemToInventory(itemToPlace);
                 Debug.LogWarning("[InventoryUI] Drop failed. Item was returned to inventory/stash fallback.");

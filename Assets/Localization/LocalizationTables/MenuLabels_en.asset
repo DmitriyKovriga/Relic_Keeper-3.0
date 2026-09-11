@@ -2088,6 +2088,22 @@ MonoBehaviour:
     m_Localized: Starting point of the passive tree.
     m_Metadata:
       m_Items: []
+  - m_Id: 104000000000000010
+    m_Localized: Market
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104000000000000011
+    m_Localized: Not enough gold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104000000000000012
+    m_Localized: Price
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104000000000000013
+    m_Localized: Sell
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -651,3 +651,21 @@
     z-index: 3;
 }
 
+.gold-counter {
+    position: absolute;
+    left: 4px;
+    bottom: 106px;
+    width: 40px;
+    height: 10px;
+    min-height: 0;
+    margin: 0;
+    padding: 0 1px;
+    font-size: 8px;
+    color: rgb(237, 199, 71);
+    background-color: rgba(10, 8, 12, 0.72);
+    -unity-text-align: middle-left;
+    overflow: hidden;
+    white-space: nowrap;
+    z-index: 20;
+}
+

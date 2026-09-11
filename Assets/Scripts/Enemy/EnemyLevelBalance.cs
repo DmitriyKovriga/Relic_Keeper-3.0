@@ -81,5 +81,31 @@ namespace Scripts.Enemies
             float dungeonScale = Mathf.Max(0f, dungeonMultiplier);
             return data.XPReward * PercentMultiplier(level, growthPercent) * dungeonScale;
         }
+
+        public const int GoldCapPerKill = 1000;
+        public const float KnightReferenceXp = 15f;
+
+        public static float RecommendedBaseGold(float xpReward, float growthPercent = 25f)
+        {
+            float xpAtCap = KnightReferenceXp * PercentMultiplier(ReferenceLevel, growthPercent);
+            if (xpAtCap <= 0f || xpReward <= 0f)
+                return 0f;
+            return xpReward * (GoldCapPerKill / xpAtCap);
+        }
+
+        public static int ResolveGoldReward(EnemyDataSO data, int level, float dungeonMultiplier, bool isTrainingDummy)
+        {
+            if (isTrainingDummy || data == null)
+                return 0;
+
+            float baseGold = data.GoldReward > 0f ? data.GoldReward : RecommendedBaseGold(data.XPReward, data.LegacyGrowthPerLevelPercent);
+            if (baseGold <= 0f)
+                return 0;
+
+            float growthPercent = data.LegacyGrowthPerLevelPercent;
+            float dungeonScale = Mathf.Max(0f, dungeonMultiplier);
+            float amount = baseGold * PercentMultiplier(level, growthPercent) * dungeonScale;
+            return Mathf.Clamp(Mathf.RoundToInt(amount), 0, GoldCapPerKill);
+        }
     }
 }

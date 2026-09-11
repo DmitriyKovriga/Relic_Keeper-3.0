@@ -69,6 +69,7 @@ namespace RelicKeeper.Tests.EditMode
             SetField(ui, "_draggedItem", held);
             SetField(ui, "_draggedSourceAnchor", 0);
             SetField(ui, "_draggedFromStash", false);
+            SetField(ui, "_draggedFromMarket", false);
             SetField(ui, "_draggedStashTab", -1);
             SetField(ui, "_draggedStashAnchorSlot", -1);
             SetField(ui, "_dragPointerId", 99);
@@ -81,6 +82,7 @@ namespace RelicKeeper.Tests.EditMode
             Assert.IsNull(GetField<InventoryItem>(ui, "_draggedItem"));
             Assert.AreEqual(-1, GetField<int>(ui, "_draggedSourceAnchor"));
             Assert.AreEqual(false, GetField<bool>(ui, "_draggedFromStash"));
+            Assert.AreEqual(false, GetField<bool>(ui, "_draggedFromMarket"));
             Assert.AreEqual(-1, GetField<int>(ui, "_draggedStashTab"));
             Assert.AreEqual(-1, GetField<int>(ui, "_draggedStashAnchorSlot"));
             Assert.AreEqual(-1, GetField<int>(ui, "_dragPointerId"));
@@ -116,6 +118,7 @@ namespace RelicKeeper.Tests.EditMode
             SetField(ui, "_draggedItem", held);
             SetField(ui, "_draggedSourceAnchor", -1);
             SetField(ui, "_draggedFromStash", true);
+            SetField(ui, "_draggedFromMarket", false);
             SetField(ui, "_draggedStashTab", 0);
             SetField(ui, "_draggedStashAnchorSlot", 0);
             SetField(ui, "_dragPointerId", 101);
@@ -128,6 +131,7 @@ namespace RelicKeeper.Tests.EditMode
             Assert.IsNull(GetField<InventoryItem>(ui, "_draggedItem"));
             Assert.AreEqual(-1, GetField<int>(ui, "_draggedSourceAnchor"));
             Assert.AreEqual(false, GetField<bool>(ui, "_draggedFromStash"));
+            Assert.AreEqual(false, GetField<bool>(ui, "_draggedFromMarket"));
             Assert.AreEqual(-1, GetField<int>(ui, "_draggedStashTab"));
             Assert.AreEqual(-1, GetField<int>(ui, "_draggedStashAnchorSlot"));
             Assert.AreEqual(-1, GetField<int>(ui, "_dragPointerId"));

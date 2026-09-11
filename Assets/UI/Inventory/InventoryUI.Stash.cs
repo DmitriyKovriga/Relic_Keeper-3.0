@@ -56,16 +56,26 @@ public partial class InventoryUI
         _stashGridContainer.Add(_stashItemsLayer);
     }
 
+    private void TrySubscribeMarket()
+    {
+        var market = Scripts.Economy.MarketManager.EnsureInstance();
+        market.OnChanged -= RefreshStash;
+        market.OnChanged += RefreshStash;
+        if (IsMarketVisible)
+            RefreshStash();
+    }
+
     private void EnsureStashPresentersInitialized()
     {
         _stashWindowController ??= new StashWindowController(
-            getStash: () => StashManager.Instance,
+            getGrid: GetCompanionGrid,
             refreshStash: RefreshStash,
             createItemIcon: (item, widthSlots, heightSlots, slotSizePx, receivePointerEvents) =>
                 CreateItemIcon(item, widthSlots, heightSlots, slotSizePx, receivePointerEvents, showFrame: true),
             onPointerOver: OnPointerOverStashIcon,
             onPointerOut: OnPointerOutStashIcon,
-            onPointerDown: OnStashIconPointerDown);
+            onPointerDown: OnStashIconPointerDown,
+            sourceEndpointId: ItemTransferEndpointIds.StashCurrentTab);
     }
 
     private void RefreshStash()
@@ -97,13 +107,13 @@ public partial class InventoryUI
     {
         ClearOccupiedSlotClasses(_stashSlots);
 
-        var stash = StashManager.Instance;
-        if (stash == null) return;
+        var grid = GetCompanionGrid();
+        if (grid == null) return;
 
-        int tab = stash.CurrentTabIndex;
+        int tab = grid.CurrentTabIndex;
         for (int i = 0; i < StashManager.STASH_SLOTS_PER_TAB; i++)
         {
-            InventoryItem item = stash.GetItemAt(tab, i, out int anchorIndex);
+            InventoryItem item = grid.GetItemAt(tab, i, out int anchorIndex);
             if (item == null || item.Data == null) continue;
             if (i != anchorIndex) continue;
 
@@ -114,14 +124,16 @@ public partial class InventoryUI
 
     private void OnPointerOverStashIcon(PointerOverEvent evt)
     {
-        if (_isDragging || ItemTooltipController.Instance == null || StashManager.Instance == null) return;
+        if (_isDragging || ItemTooltipController.Instance == null) return;
+        var grid = GetCompanionGrid();
+        if (grid == null) return;
         var icon = evt.currentTarget as VisualElement;
         if (icon?.userData == null) return;
         int anchorIndex = (int)icon.userData;
-        int tab = StashManager.Instance.CurrentTabIndex;
-        InventoryItem item = StashManager.Instance.GetItem(tab, anchorIndex);
+        int tab = grid.CurrentTabIndex;
+        InventoryItem item = grid.GetItem(tab, anchorIndex);
         if (item != null && item.Data != null)
-            ItemTooltipController.Instance.ShowTooltip(item, icon);
+            ItemTooltipController.Instance.ShowTooltip(item, icon, ResolveCompanionTooltipPriceMode(tab));
     }
 
     private void OnPointerOutStashIcon(PointerOutEvent evt)
@@ -171,7 +183,8 @@ public partial class InventoryUI
         _grabOffsetRootLocal = GetPointerRootLocalFromScreen() - originRoot;
         _isDragging = true;
         _draggedItem = item;
-        _draggedFromStash = true;
+        _draggedFromStash = !IsMarketVisible;
+        _draggedFromMarket = IsMarketVisible;
         _draggedStashTab = tab;
         _draggedStashAnchorSlot = anchorSlot;
         RefreshStash();
@@ -181,6 +194,21 @@ public partial class InventoryUI
         _ghostIcon.style.display = DisplayStyle.None;
         if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
         CaptureDragPointer(pointerId);
+    }
+
+    private ItemTooltipPriceMode ResolveCompanionTooltipPriceMode(int tab)
+    {
+        if (!IsMarketVisible)
+            return ItemTooltipPriceMode.None;
+        var market = Scripts.Economy.MarketManager.Instance;
+        if (market != null && market.IsBuybackTab(tab))
+            return ItemTooltipPriceMode.Buyback;
+        return ItemTooltipPriceMode.Buy;
+    }
+
+    private ItemTooltipPriceMode ResolvePlayerTooltipPriceMode()
+    {
+        return IsMarketVisible ? ItemTooltipPriceMode.Sell : ItemTooltipPriceMode.None;
     }
 
     private int GetSmartStashTargetIndex(Vector2 pointerWorldPosition, int itemWidth, int itemHeight)
@@ -240,16 +268,24 @@ internal sealed class StashWindowController
     private readonly StashGridPresenter _gridPresenter;
 
     public StashWindowController(
-        System.Func<StashManager> getStash,
+        System.Func<ITabbedItemGrid> getGrid,
         System.Action refreshStash,
         System.Func<InventoryItem, int?, int?, float, bool, VisualElement> createItemIcon,
         EventCallback<PointerOverEvent> onPointerOver,
         EventCallback<PointerOutEvent> onPointerOut,
-        EventCallback<PointerDownEvent> onPointerDown)
+        EventCallback<PointerDownEvent> onPointerDown,
+        string sourceEndpointId)
     {
-        _tabsPresenter = new StashTabsPresenter(getStash, refreshStash);
-        _gridPresenter = new StashGridPresenter(getStash, createItemIcon, onPointerOver, onPointerOut, onPointerDown);
+        _tabsPresenter = new StashTabsPresenter(getGrid, refreshStash);
+        _gridPresenter = new StashGridPresenter(getGrid, createItemIcon, onPointerOver, onPointerOut, onPointerDown);
+        SourceEndpointId = sourceEndpointId;
     }
+
+    public string SourceEndpointId { get; set; }
+
+    public System.Func<InventoryItem, int, bool> TryCtrlTransfer { get; set; }
+
+    public ITabbedItemGrid GetGrid() => _tabsPresenter.GetGrid();
 
     public void RefreshTabs(VisualElement stashTabsRow)
     {
@@ -268,38 +304,41 @@ internal sealed class StashWindowController
 
     public StashPointerAction ResolveIconPointerDown(PointerDownEvent evt)
     {
-        var stash = _tabsPresenter.GetStash();
-        if (evt == null || evt.button != 0 || stash == null) return StashPointerAction.None;
+        var grid = _tabsPresenter.GetGrid();
+        if (evt == null || evt.button != 0 || grid == null) return StashPointerAction.None;
 
         var icon = evt.currentTarget as VisualElement;
         if (icon?.userData == null) return StashPointerAction.None;
 
         int anchorSlot = (int)icon.userData;
-        int tab = stash.CurrentTabIndex;
+        int tab = grid.CurrentTabIndex;
 
         if (evt.ctrlKey)
         {
             evt.StopPropagation();
-            InventoryItem taken = stash.TakeItemFromStash(tab, anchorSlot);
+            InventoryItem taken = grid.TakeItem(tab, anchorSlot);
             if (taken == null) return StashPointerAction.None;
 
-            if (ItemQuickTransferService.TryQuickTransfer(ItemTransferEndpointIds.StashCurrentTab, taken, isShortcut: true))
+            bool transferred = TryCtrlTransfer != null
+                ? TryCtrlTransfer(taken, tab)
+                : ItemQuickTransferService.TryQuickTransfer(SourceEndpointId, taken, isShortcut: true);
+            if (transferred)
                 return StashPointerAction.QuickTransferSuccess;
 
-            stash.TryAddItemPreferringTab(taken, tab);
+            grid.TryAddItemPreferringTab(taken, tab);
             return StashPointerAction.ConsumedNoAction;
         }
 
         evt.StopPropagation();
-        InventoryItem dragItem = stash.TakeItemFromStash(tab, anchorSlot);
+        InventoryItem dragItem = grid.TakeItem(tab, anchorSlot);
         if (dragItem == null) return StashPointerAction.None;
         return StashPointerAction.CreateDrag(dragItem, tab, anchorSlot, evt.pointerId, icon);
     }
 
     public StashPointerAction ResolveSlotPointerDown(PointerDownEvent evt, int stashSlotOffset)
     {
-        var stash = _tabsPresenter.GetStash();
-        if (evt == null || evt.button != 0 || stash == null) return StashPointerAction.None;
+        var grid = _tabsPresenter.GetGrid();
+        if (evt == null || evt.button != 0 || grid == null) return StashPointerAction.None;
 
         var slot = evt.currentTarget as VisualElement;
         if (slot?.userData == null) return StashPointerAction.None;
@@ -307,11 +346,11 @@ internal sealed class StashWindowController
         if (raw < stashSlotOffset) return StashPointerAction.None;
 
         int slotIndex = raw - stashSlotOffset;
-        int tab = stash.CurrentTabIndex;
-        InventoryItem item = stash.GetItemAt(tab, slotIndex, out int anchorSlot);
+        int tab = grid.CurrentTabIndex;
+        InventoryItem item = grid.GetItemAt(tab, slotIndex, out int anchorSlot);
         if (item == null) return StashPointerAction.None;
 
-        InventoryItem taken = stash.TakeItemFromStash(tab, anchorSlot);
+        InventoryItem taken = grid.TakeItem(tab, anchorSlot);
         if (taken == null) return StashPointerAction.None;
         return StashPointerAction.CreateDrag(taken, tab, anchorSlot, evt.pointerId, null);
     }
@@ -319,18 +358,18 @@ internal sealed class StashWindowController
 
 internal sealed class StashTabsPresenter
 {
-    private readonly System.Func<StashManager> _getStash;
+    private readonly System.Func<ITabbedItemGrid> _getGrid;
     private readonly System.Action _refreshStash;
     private Sprite _tabBackgroundSprite;
     private Sprite _tabDeleteBackgroundSprite;
 
-    public StashTabsPresenter(System.Func<StashManager> getStash, System.Action refreshStash)
+    public StashTabsPresenter(System.Func<ITabbedItemGrid> getGrid, System.Action refreshStash)
     {
-        _getStash = getStash;
+        _getGrid = getGrid;
         _refreshStash = refreshStash;
     }
 
-    public StashManager GetStash() => _getStash?.Invoke();
+    public ITabbedItemGrid GetGrid() => _getGrid?.Invoke();
 
     public void SetArt(Sprite tabBackgroundSprite, Sprite tabDeleteBackgroundSprite)
     {
@@ -340,7 +379,7 @@ internal sealed class StashTabsPresenter
 
     public void Render(VisualElement stashTabsRow)
     {
-        var stash = _getStash?.Invoke();
+        var stash = _getGrid?.Invoke();
         if (stashTabsRow == null || stash == null) return;
 
         float savedScrollOffset = 0f;
@@ -379,19 +418,19 @@ internal sealed class StashTabsPresenter
 
             var tab = new Button(() =>
             {
-                var currentStash = _getStash?.Invoke();
+                var currentStash = _getGrid?.Invoke();
                 if (currentStash != null) currentStash.SetCurrentTab(tabIndex);
-            }) { text = (i + 1).ToString() };
+            }) { text = stash.GetTabLabel(i) };
             tab.AddToClassList("stash-tab");
             if (i == current) tab.AddToClassList("active");
             ApplyButtonArt(tab, _tabBackgroundSprite);
             wrap.Add(tab);
 
-            if (tabCount > 1 && i == current)
+            if (stash.CanRemoveTab(i) && i == current)
             {
                 var del = new Button(() =>
                 {
-                    var currentStash = _getStash?.Invoke();
+                    var currentStash = _getGrid?.Invoke();
                     if (currentStash != null && currentStash.TryRemoveTab(tabIndex))
                     {
                         currentStash.SetCurrentTab(0);
@@ -406,15 +445,18 @@ internal sealed class StashTabsPresenter
             content.Add(wrap);
         }
 
-        var addTab = new Button(() =>
+        if (stash.CanAddTab)
         {
-            var currentStash = _getStash?.Invoke();
-            if (currentStash != null) currentStash.AddTab();
-        }) { text = "+", tooltip = "New tab" };
-        addTab.AddToClassList("stash-tab");
-        addTab.AddToClassList("stash-tab-add");
-        ApplyButtonArt(addTab, _tabBackgroundSprite);
-        content.Add(addTab);
+            var addTab = new Button(() =>
+            {
+                var currentStash = _getGrid?.Invoke();
+                if (currentStash != null) currentStash.AddTab();
+            }) { text = "+", tooltip = "New tab" };
+            addTab.AddToClassList("stash-tab");
+            addTab.AddToClassList("stash-tab-add");
+            ApplyButtonArt(addTab, _tabBackgroundSprite);
+            content.Add(addTab);
+        }
 
         scroll.Add(content);
         stashTabsRow.Add(scroll);
@@ -522,20 +564,20 @@ internal readonly struct StashPointerAction
 
 internal sealed class StashGridPresenter
 {
-    private readonly System.Func<StashManager> _getStash;
+    private readonly System.Func<ITabbedItemGrid> _getGrid;
     private readonly System.Func<InventoryItem, int?, int?, float, bool, VisualElement> _createItemIcon;
     private readonly EventCallback<PointerOverEvent> _onPointerOver;
     private readonly EventCallback<PointerOutEvent> _onPointerOut;
     private readonly EventCallback<PointerDownEvent> _onPointerDown;
 
     public StashGridPresenter(
-        System.Func<StashManager> getStash,
+        System.Func<ITabbedItemGrid> getGrid,
         System.Func<InventoryItem, int?, int?, float, bool, VisualElement> createItemIcon,
         EventCallback<PointerOverEvent> onPointerOver,
         EventCallback<PointerOutEvent> onPointerOut,
         EventCallback<PointerDownEvent> onPointerDown)
     {
-        _getStash = getStash;
+        _getGrid = getGrid;
         _createItemIcon = createItemIcon;
         _onPointerOver = onPointerOver;
         _onPointerOut = onPointerOut;
@@ -544,7 +586,7 @@ internal sealed class StashGridPresenter
 
     public void RenderIcons(VisualElement stashItemsLayer, float stashSlotSize, float sharedBorderSize)
     {
-        var stash = _getStash?.Invoke();
+        var stash = _getGrid?.Invoke();
         if (stashItemsLayer == null || stash == null || _createItemIcon == null) return;
 
         stashItemsLayer.Clear();

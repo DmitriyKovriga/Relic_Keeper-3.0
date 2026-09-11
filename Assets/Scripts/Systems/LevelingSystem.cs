@@ -98,6 +98,7 @@ public class ExperienceSoulPickup : MonoBehaviour
     }
 
     private float _xpAmount;
+    private int _goldAmount;
     private float _stateTimer;
     private float _delayDuration;
     private float _arcDuration;
@@ -139,6 +140,18 @@ public class ExperienceSoulPickup : MonoBehaviour
         soul.Initialize(xpAmount);
     }
 
+    public static void SpawnGold(int goldAmount, Vector3 worldPosition, Transform parent)
+    {
+        if (goldAmount <= 0)
+            return;
+
+        GameObject go = new GameObject($"Gold Soul ({goldAmount})");
+        go.transform.SetParent(parent, true);
+        go.transform.position = SnapToPixelGrid(worldPosition);
+        var soul = go.AddComponent<ExperienceSoulPickup>();
+        soul.InitializeGold(goldAmount);
+    }
+
     public static void SpawnCraftingOrb(CraftingOrbSO orb, Vector3 worldPosition, Transform parent)
     {
         if (orb == null || string.IsNullOrWhiteSpace(orb.ID))
@@ -149,6 +162,21 @@ public class ExperienceSoulPickup : MonoBehaviour
         go.transform.position = SnapToPixelGrid(worldPosition);
         var soul = go.AddComponent<ExperienceSoulPickup>();
         soul.Initialize(0f, orb);
+    }
+
+    private void InitializeGold(int goldAmount)
+    {
+        _goldAmount = Mathf.Max(0, goldAmount);
+        Initialize(0f);
+        _coreColor = new Color(0.95f, 0.78f, 0.22f, 1f);
+        _tailColor = new Color(0.86f, 0.62f, 0.12f, 1f);
+        if (_coreRenderer != null)
+            _coreRenderer.color = _coreColor;
+        for (int i = 0; i < _tailSegments.Count; i++)
+        {
+            if (_tailSegments[i] != null)
+                _tailSegments[i].color = new Color(_tailColor.r, _tailColor.g, _tailColor.b, 0.65f - (i * 0.08f));
+        }
     }
 
     private void Initialize(float xpAmount, CraftingOrbSO craftingOrb = null)
@@ -395,6 +423,10 @@ public class ExperienceSoulPickup : MonoBehaviour
             InventoryManager.Instance.AddOrb(_craftingOrb.ID, 1);
             InventoryManager.Instance.TriggerUIUpdate();
             CraftingCurrencyPickupLog.Show(_craftingOrb, 1);
+        }
+        else if (_goldAmount > 0)
+        {
+            Scripts.Economy.GoldWallet.Add(_goldAmount);
         }
         else if (_playerStats != null)
             _playerStats.AddExperience(_xpAmount);

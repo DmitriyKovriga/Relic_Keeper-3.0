@@ -56,4 +56,13 @@ namespace Scripts.Saving
     {
         public List<StashTabSaveData> Tabs = new List<StashTabSaveData>();
     }
+
+    /// <summary>Ассортимент торговца и выкуп: общий для всех персонажей.</summary>
+    [Serializable]
+    public class MarketSaveData
+    {
+        public int CurrentTabIndex;
+        public List<StashTabSaveData> StockTabs = new List<StashTabSaveData>();
+        public List<StashTabSaveData> BuybackTabs = new List<StashTabSaveData>();
+    }
 }

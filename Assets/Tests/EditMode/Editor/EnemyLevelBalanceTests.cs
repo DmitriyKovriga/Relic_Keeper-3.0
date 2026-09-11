@@ -157,6 +157,39 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void KnightLevelThirty_GoldRewardCapsAtOneThousand()
+        {
+            const string knightPath = "Assets/Resources/Enemy/SO_Knight.asset";
+            EnemyDataSO knight = AssetDatabase.LoadAssetAtPath<EnemyDataSO>(knightPath);
+            Assert.That(knight, Is.Not.Null);
+            Assert.That(knight.XPReward, Is.EqualTo(15f));
+            Assert.That(knight.GoldReward, Is.EqualTo(0f));
+            Assert.That(
+                EnemyLevelBalance.ResolveGoldReward(knight, EnemyLevelBalance.ReferenceLevel, 1f, false),
+                Is.EqualTo(EnemyLevelBalance.GoldCapPerKill));
+        }
+
+        [Test]
+        public void TrainingDummy_GivesNoGold()
+        {
+            var data = ScriptableObject.CreateInstance<EnemyDataSO>();
+            try
+            {
+                data.XPReward = 15f;
+                data.GoldReward = 500f;
+                data.LegacyGrowthPerLevelPercent = 25f;
+                Assert.That(EnemyLevelBalance.ResolveGoldReward(data, 30, 1f, true), Is.Zero);
+                data.XPReward = 0f;
+                data.GoldReward = 0f;
+                Assert.That(EnemyLevelBalance.ResolveGoldReward(data, 30, 1f, false), Is.Zero);
+            }
+            finally
+            {
+                Object.DestroyImmediate(data);
+            }
+        }
+
+        [Test]
         public void Knight_AttackHitboxesMatchWeaponStrikeAndShoulderCharge()
         {
             const string knightPath = "Assets/Resources/Enemy/SO_Knight.asset";

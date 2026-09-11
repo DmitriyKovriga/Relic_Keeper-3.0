@@ -7,11 +7,12 @@ namespace Scripts.Hub
     public enum HubService
     {
         Tavern,
-        Stash
+        Stash,
+        Market
     }
 
     /// <summary>
-    /// NPC в хабе, который по Interact открывает трактир или склад. Сам создаёт триггер
+    /// NPC в хабе, который по Interact открывает трактир, склад или рынок. Сам создаёт триггер
     /// взаимодействия и локализованную подпись над головой, так что достаточно повесить
     /// компонент на объект NPC и выбрать сервис.
     /// </summary>
@@ -21,6 +22,7 @@ namespace Scripts.Hub
     {
         public const string TavernLabelKey = "hub.label.tavern";
         public const string StashLabelKey = "hub.label.stash";
+        public const string MarketLabelKey = "hub.label.market";
 
         [Header("Service")]
         [SerializeField] private HubService _service = HubService.Tavern;
@@ -53,14 +55,22 @@ namespace Scripts.Hub
         {
             if (_label != null && !string.IsNullOrEmpty(_label.CurrentText))
                 return _label.CurrentText;
-            return _service == HubService.Tavern ? "Tavern" : "Stash";
+            return _service switch
+            {
+                HubService.Tavern => "Tavern",
+                HubService.Market => "Market",
+                _ => "Stash"
+            };
         }
 
         public bool CanInteract()
         {
-            return _service == HubService.Tavern
-                ? ResolveTavern() != null
-                : ResolveStash() != null;
+            return _service switch
+            {
+                HubService.Tavern => ResolveTavern() != null,
+                HubService.Market => ResolveStash() != null,
+                _ => ResolveStash() != null
+            };
         }
 
         public void Interact()
@@ -70,7 +80,10 @@ namespace Scripts.Hub
                 case HubService.Tavern:
                     OpenTavern();
                     break;
-                case HubService.Stash:
+                case HubService.Market:
+                    OpenMarket();
+                    break;
+                default:
                     OpenStash();
                     break;
             }
@@ -100,6 +113,18 @@ namespace Scripts.Hub
             stash.OpenStash();
         }
 
+        private void OpenMarket()
+        {
+            var stash = ResolveStash();
+            if (stash == null)
+            {
+                Debug.LogWarning($"[HubServiceNpc] '{name}': StashPanelToggle was not found in the scene.");
+                return;
+            }
+
+            stash.OpenMarket();
+        }
+
         private TavernUI ResolveTavern()
         {
             if (_service != HubService.Tavern)
@@ -111,7 +136,7 @@ namespace Scripts.Hub
 
         private StashPanelToggle ResolveStash()
         {
-            if (_service != HubService.Stash)
+            if (_service == HubService.Tavern)
                 return null;
             if (_stashPanel == null)
                 _stashPanel = FindFirstObjectByType<StashPanelToggle>(FindObjectsInactive.Include);
@@ -134,8 +159,18 @@ namespace Scripts.Hub
             if (!_showLabel)
                 return;
 
-            string key = _service == HubService.Tavern ? TavernLabelKey : StashLabelKey;
-            string fallback = _service == HubService.Tavern ? "Tavern" : "Stash";
+            string key = _service switch
+            {
+                HubService.Tavern => TavernLabelKey,
+                HubService.Market => MarketLabelKey,
+                _ => StashLabelKey
+            };
+            string fallback = _service switch
+            {
+                HubService.Tavern => "Tavern",
+                HubService.Market => "Market",
+                _ => "Stash"
+            };
             _label = WorldLocalizedLabel.Create(transform, key, fallback, _defaultLabelLocalPosition);
         }
 
@@ -148,3 +183,4 @@ namespace Scripts.Hub
 #endif
     }
 }
+

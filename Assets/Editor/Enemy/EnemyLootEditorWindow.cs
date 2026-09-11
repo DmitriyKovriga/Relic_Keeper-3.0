@@ -25,7 +25,7 @@ namespace Scripts.Editor.Enemy
         {
             var window = GetWindow<EnemyLootEditorWindow>();
             window.titleContent = new GUIContent("Enemy Loot");
-            window.minSize = new Vector2(820f, 540f);
+            window.minSize = new Vector2(940f, 540f);
             window.Refresh();
         }
 
@@ -115,7 +115,7 @@ namespace Scripts.Editor.Enemy
                 EditorGUILayout.HelpBox("The combined base chance exceeds 100%. Lower-priority common drops can be crowded out.", MessageType.Warning);
 
             EditorGUILayout.HelpBox(
-                "Base XP is the reward for a level 1 enemy. Enemy-level scaling and dungeon XP modifiers are applied at runtime; no dungeon modifier means x1.",
+                "Base XP and Base Gold are rewards for a level 1 enemy. Level scaling and dungeon modifiers apply at runtime; no dungeon modifier means x1. Gold 0 derives from XP so a level-30 knight yields 1000. Dummy stays at 0.",
                 MessageType.Info);
 
             EditorGUILayout.Space(10f);
@@ -182,6 +182,7 @@ namespace Scripts.Editor.Enemy
             GUILayout.Label("Sprite", EditorStyles.boldLabel, GUILayout.Width(PreviewSize));
             GUILayout.Label("Enemy", EditorStyles.boldLabel, GUILayout.MinWidth(220f));
             GUILayout.Label(new GUIContent("Base XP", "Experience from a level 1 enemy at dungeon multiplier x1."), EditorStyles.boldLabel, GUILayout.Width(90f));
+            GUILayout.Label(new GUIContent("Base Gold", "Gold from a level 1 enemy. 0 = derive from Base XP so knight level 30 yields 1000."), EditorStyles.boldLabel, GUILayout.Width(90f));
             GUILayout.Label("Loot multiplier", EditorStyles.boldLabel, GUILayout.Width(135f));
             GUILayout.Label(new GUIContent("Item chance", "Chance of any equipment item at room multiplier x1."), EditorStyles.boldLabel, GUILayout.Width(90f));
             GUILayout.Label(new GUIContent("Currency chance", "Chance of at least one crafting currency at room multiplier x1."), EditorStyles.boldLabel, GUILayout.Width(105f));
@@ -226,6 +227,15 @@ namespace Scripts.Editor.Enemy
             {
                 Undo.RecordObject(enemy, "Change enemy base experience");
                 enemy.XPReward = Mathf.Max(0f, baseExperience);
+                EditorUtility.SetDirty(enemy);
+            }
+
+            EditorGUI.BeginChangeCheck();
+            float baseGold = EditorGUILayout.FloatField(Mathf.Max(0f, enemy.GoldReward), GUILayout.Width(90f));
+            if (EditorGUI.EndChangeCheck())
+            {
+                Undo.RecordObject(enemy, "Change enemy base gold");
+                enemy.GoldReward = Mathf.Max(0f, baseGold);
                 EditorUtility.SetDirty(enemy);
             }
 

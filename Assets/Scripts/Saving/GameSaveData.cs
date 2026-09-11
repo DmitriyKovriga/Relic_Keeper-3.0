@@ -19,6 +19,12 @@ namespace Scripts.Saving
         /// <summary>Склад — общий для всех персонажей.</summary>
         public StashSaveData Stash;
 
+        /// <summary>Золото — общее для всех персонажей.</summary>
+        public int Gold;
+
+        /// <summary>Ассортимент торговца и выкуп — общие для всех персонажей.</summary>
+        public MarketSaveData Market;
+
         // --- Legacy (v1): оставляем для миграции ---
         public string CharacterClassID;
         public float CurrentHealth;

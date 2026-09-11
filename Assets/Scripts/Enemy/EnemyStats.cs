@@ -10,6 +10,7 @@ namespace Scripts.Enemies
         private readonly Dictionary<StatType, CharacterStat> _stats = new Dictionary<StatType, CharacterStat>();
 
         public float ExperienceReward { get; private set; }
+        public int GoldReward { get; private set; }
         public int Level { get; private set; }
 
         public void Initialize(EnemyDataSO data, int level)
@@ -23,6 +24,7 @@ namespace Scripts.Enemies
                 : 1f;
             bool isTrainingDummy = GetComponent<DummyEvolution>() != null;
             ExperienceReward = EnemyLevelBalance.ResolveExperienceReward(data, Level, experienceMultiplier, isTrainingDummy);
+            GoldReward = EnemyLevelBalance.ResolveGoldReward(data, Level, experienceMultiplier, isTrainingDummy);
 
             if (data != null && data.Stats != null && data.Stats.Count > 0)
             {

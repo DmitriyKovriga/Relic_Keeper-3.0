@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Scripts.Economy;
+using UnityEngine;
 
 public partial class TavernUI
 {
@@ -33,6 +34,7 @@ public partial class TavernUI
         }
 
         TryGrantStarterWeapon(checkStash: false, preferEquip: true);
+        PlayerGoldGrants.TryGrantPovertyGold();
 
         RerollHireChoices();
         CompleteRequiredCharacterSelection();

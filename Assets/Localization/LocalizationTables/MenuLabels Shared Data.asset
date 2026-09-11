@@ -1127,6 +1127,22 @@ MonoBehaviour:
     m_Key: passive.node.start.description
     m_Metadata:
       m_Items: []
+  - m_Id: 104000000000000010
+    m_Key: hub.label.market
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104000000000000011
+    m_Key: inventory.ui.notEnoughGold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104000000000000012
+    m_Key: market.price.buy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104000000000000013
+    m_Key: market.price.sell
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
