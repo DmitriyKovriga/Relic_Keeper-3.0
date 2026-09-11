@@ -23,6 +23,7 @@ namespace Scripts.Editor.PassiveTree
         private PassiveSkillTreeSO _currentTree;
         private PassiveNodeDefinition _selectedNode;
         private PassiveClusterDefinition _selectedCluster;
+        private PassiveBezierConnection _selectedBezier;
         private PassiveClusterTemplateSO _selectedClusterTemplate;
         private Vector2 _lastCanvasClickContentPosition;
         private ScrollView _inspectorContainer;
@@ -113,6 +114,7 @@ namespace Scripts.Editor.PassiveTree
             _canvas = new PassiveTreeEditorCanvas { style = { flexGrow = 1f } };
             _canvas.OnNodeSelected = HandleNodeSelectionChanged;
             _canvas.OnClusterSelected = HandleClusterSelectionChanged;
+            _canvas.OnBezierSelected = HandleBezierSelectionChanged;
             _canvas.OnSelectionCleared = HandleSelectionCleared;
             _canvas.OnTreeGeometryChanged = RefreshInspector;
             _canvas.OnBackgroundClicked = HandleCanvasBackgroundClicked;
@@ -249,6 +251,7 @@ namespace Scripts.Editor.PassiveTree
             _currentTree = tree;
             _selectedNode = null;
             _selectedCluster = null;
+            _selectedBezier = null;
 
             if (_canvas != null)
                 _canvas.PopulateView(_currentTree);
@@ -298,6 +301,7 @@ namespace Scripts.Editor.PassiveTree
                 _canvas?.ClearSelection();
                 _selectedNode = null;
                 _selectedCluster = null;
+                _selectedBezier = null;
                 evt.StopPropagation();
                 evt.PreventDefault();
                 RefreshInspector();
@@ -313,6 +317,7 @@ namespace Scripts.Editor.PassiveTree
                 evt.PreventDefault();
                 _selectedNode = null;
                 _selectedCluster = null;
+                _selectedBezier = null;
                 RefreshInspector();
             }
         }
@@ -321,6 +326,7 @@ namespace Scripts.Editor.PassiveTree
         {
             _selectedNode = nodeData;
             _selectedCluster = null;
+            _selectedBezier = null;
             if (nodeData?.Template != null)
                 _nodeAuthoringPanel?.SelectNode(nodeData.Template);
             _nodeWorkshopGui?.MarkDirtyRepaint();
@@ -331,6 +337,15 @@ namespace Scripts.Editor.PassiveTree
         {
             _selectedCluster = clusterData;
             _selectedNode = null;
+            _selectedBezier = null;
+            RefreshInspector();
+        }
+
+        private void HandleBezierSelectionChanged(PassiveBezierConnection connection)
+        {
+            _selectedBezier = connection;
+            _selectedNode = null;
+            _selectedCluster = null;
             RefreshInspector();
         }
 
@@ -338,6 +353,7 @@ namespace Scripts.Editor.PassiveTree
         {
             _selectedNode = null;
             _selectedCluster = null;
+            _selectedBezier = null;
             RefreshInspector();
         }
 
@@ -346,6 +362,7 @@ namespace Scripts.Editor.PassiveTree
             _lastCanvasClickContentPosition = contentPosition;
             _selectedNode = null;
             _selectedCluster = null;
+            _selectedBezier = null;
             RefreshInspector();
         }
 
@@ -373,6 +390,12 @@ namespace Scripts.Editor.PassiveTree
             }
 
             DrawTreeSummary();
+
+            if (_selectedBezier != null)
+            {
+                DrawSelectedBezierInspector();
+                return;
+            }
 
             if (_selectedCluster != null)
             {
@@ -402,6 +425,7 @@ namespace Scripts.Editor.PassiveTree
                 EditorGUILayout.LabelField("Current Tree", _currentTree != null ? _currentTree.name : "None");
                 EditorGUILayout.LabelField("Nodes", _currentTree != null && _currentTree.Nodes != null ? _currentTree.Nodes.Count.ToString() : "0");
                 EditorGUILayout.LabelField("Clusters", _currentTree != null && _currentTree.Clusters != null ? _currentTree.Clusters.Count.ToString() : "0");
+                EditorGUILayout.LabelField("Free Links", _currentTree != null && _currentTree.BezierConnections != null ? _currentTree.BezierConnections.Count.ToString() : "0");
 
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button("Ping Asset"))
@@ -420,6 +444,60 @@ namespace Scripts.Editor.PassiveTree
             }
 
             EditorGUILayout.Space(8f);
+        }
+
+        private void DrawSelectedBezierInspector()
+        {
+            var connection = _selectedBezier;
+            if (connection == null || _currentTree == null)
+                return;
+
+            var nodeA = _currentTree.GetNode(connection.NodeIdA);
+            var nodeB = _currentTree.GetNode(connection.NodeIdB);
+
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField("Free Bezier Connection", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("From", nodeA != null ? nodeA.GetDisplayName() : connection.NodeIdA);
+                EditorGUILayout.LabelField("To", nodeB != null ? nodeB.GetDisplayName() : connection.NodeIdB);
+                EditorGUILayout.HelpBox("Set the anchor along the segment, then drag the whiskers on the canvas to shape the curve.", MessageType.Info);
+
+                EditorGUI.BeginChangeCheck();
+                float percent = EditorGUILayout.Slider("Anchor %", connection.AnchorPercent, 0f, 100f);
+                Vector2 inOffset = EditorGUILayout.Vector2Field("In Handle", connection.InHandleOffset);
+                Vector2 outOffset = EditorGUILayout.Vector2Field("Out Handle", connection.OutHandleOffset);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(_currentTree, "Edit Bezier Connection");
+                    connection.AnchorPercent = percent;
+                    connection.InHandleOffset = inOffset;
+                    connection.OutHandleOffset = outOffset;
+                    PassiveTreeAssetPersistence.SetDirty(_currentTree);
+                    _canvas?.RefreshSelectedBezierGeometry();
+                }
+
+                EditorGUILayout.Space(6f);
+                if (GUILayout.Button("Reset Handles"))
+                {
+                    _canvas?.Commands.ResetBezierHandles(connection);
+                    _canvas?.RefreshBezierVisuals();
+                    _canvas?.SelectBezierByNodeIds(connection.NodeIdA, connection.NodeIdB);
+                }
+
+                if (GUILayout.Button("Convert to Direct"))
+                {
+                    _canvas?.Commands.ConvertBezierToDirect(connection);
+                    _selectedBezier = null;
+                    RefreshCanvasKeepingSelection();
+                }
+
+                if (GUILayout.Button("Disconnect"))
+                {
+                    _canvas?.Commands.DisconnectBezier(connection);
+                    _selectedBezier = null;
+                    RefreshCanvasKeepingSelection();
+                }
+            }
         }
 
         private void DrawNoSelectionHelp()
@@ -772,6 +850,8 @@ namespace Scripts.Editor.PassiveTree
 
             string selectedNodeId = _selectedNode != null ? _selectedNode.ID : null;
             string selectedClusterId = _selectedCluster != null ? _selectedCluster.ID : null;
+            string selectedBezierA = _selectedBezier != null ? _selectedBezier.NodeIdA : null;
+            string selectedBezierB = _selectedBezier != null ? _selectedBezier.NodeIdB : null;
             _canvas.PopulateView(_currentTree);
             if (!string.IsNullOrWhiteSpace(selectedNodeId))
             {
@@ -782,6 +862,11 @@ namespace Scripts.Editor.PassiveTree
             {
                 _selectedCluster = _currentTree.GetCluster(selectedClusterId);
                 _canvas.SelectClusterById(selectedClusterId);
+            }
+            else if (!string.IsNullOrWhiteSpace(selectedBezierA) && !string.IsNullOrWhiteSpace(selectedBezierB))
+            {
+                _canvas.SelectBezierByNodeIds(selectedBezierA, selectedBezierB);
+                _selectedBezier = _currentTree.FindBezierConnection(selectedBezierA, selectedBezierB);
             }
 
             RefreshInspector();

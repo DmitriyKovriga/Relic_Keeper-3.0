@@ -252,6 +252,12 @@ namespace Scripts.Skills.PassiveTree.UI
                 return;
             }
 
+            if (line is BezierLineElement bezierLine)
+            {
+                bezierLine.SetStyle(outerColor, innerColor, innerThicknessScale);
+                return;
+            }
+
             if (line is TrackLineElement trackLine)
             {
                 trackLine.SetStyle(outerColor, innerColor, innerThicknessScale);
@@ -343,6 +349,12 @@ namespace Scripts.Skills.PassiveTree.UI
             float radiusA = GetNodeSize(nodeA.NodeType) * 0.5f;
             float radiusB = GetNodeSize(nodeB.NodeType) * 0.5f;
 
+            if (treeData.FindBezierConnection(id1, id2) != null)
+            {
+                CreateBezierLine(treeData, nodeA, nodeB, id1, id2, radiusA, radiusB);
+                return;
+            }
+
             if (treeData.AreNodesOnSameOrbit(id1, id2, out string clusterId, out int orbitIndex)
                 && treeData.AreNodesOnSameOrbitCircleForDrawing(id1, id2, clusterId, orbitIndex))
             {
@@ -373,6 +385,41 @@ namespace Scripts.Skills.PassiveTree.UI
 
             _container.Add(line);
             _connections.Add((id1, id2, line));
+        }
+
+        private void CreateBezierLine(
+            PassiveSkillTreeSO treeData,
+            PassiveNodeDefinition nodeA,
+            PassiveNodeDefinition nodeB,
+            string id1,
+            string id2,
+            float radiusA,
+            float radiusB)
+        {
+            var bezier = treeData.FindBezierConnection(id1, id2);
+            if (bezier == null)
+            {
+                CreateStraightLine(nodeA.GetWorldPosition(treeData), nodeB.GetWorldPosition(treeData), radiusA, radiusB, id1, id2);
+                return;
+            }
+
+            var storedA = treeData.GetNode(bezier.NodeIdA) ?? nodeA;
+            var storedB = treeData.GetNode(bezier.NodeIdB) ?? nodeB;
+            Vector2 posA = storedA.GetWorldPosition(treeData);
+            Vector2 posB = storedB.GetWorldPosition(treeData);
+            bezier.GetCubicPoints(posA, posB, out Vector2 p0, out Vector2 c1, out Vector2 c2, out Vector2 p3);
+
+            var bezierLine = new BezierLineElement(
+                p0,
+                c1,
+                c2,
+                p3,
+                _theme.LineThickness,
+                _theme.LineLockedInnerThicknessScale,
+                _theme.LineLockedOuter,
+                _theme.LineLockedInner);
+            _container.Add(bezierLine);
+            _connections.Add((id1, id2, bezierLine));
         }
 
         private void CreateArcLine(PassiveSkillTreeSO treeData, PassiveNodeDefinition nodeA, PassiveNodeDefinition nodeB, string clusterId, int orbitIndex, float radiusA, float radiusB, string id1, string id2)
@@ -586,6 +633,83 @@ namespace Scripts.Skills.PassiveTree.UI
                 painter.strokeColor = _innerStrokeColor;
                 painter.BeginPath();
                 painter.Arc(new Vector2(_localCenter, _localCenter), _radius, Angle.Degrees(_startAngle), Angle.Degrees(_endAngle), ArcDirection.Clockwise);
+                painter.Stroke();
+            }
+        }
+
+        private sealed class BezierLineElement : VisualElement
+        {
+            private readonly Vector2 _localP0;
+            private readonly Vector2 _localC1;
+            private readonly Vector2 _localC2;
+            private readonly Vector2 _localP3;
+            private readonly float _thickness;
+            private float _innerThicknessScale;
+            private Color _outerStrokeColor;
+            private Color _innerStrokeColor;
+
+            public BezierLineElement(
+                Vector2 p0,
+                Vector2 c1,
+                Vector2 c2,
+                Vector2 p3,
+                float thickness,
+                float innerThicknessScale,
+                Color outerStrokeColor,
+                Color innerStrokeColor)
+            {
+                _thickness = thickness;
+                _innerThicknessScale = Mathf.Clamp(innerThicknessScale, 0.1f, 0.95f);
+                _outerStrokeColor = outerStrokeColor;
+                _innerStrokeColor = innerStrokeColor;
+
+                float padding = thickness * 2f;
+                Rect bounds = PassiveBezierMath.Bounds(p0, c1, c2, p3, padding);
+                Vector2 origin = new Vector2(bounds.xMin, bounds.yMin);
+                _localP0 = p0 - origin;
+                _localC1 = c1 - origin;
+                _localC2 = c2 - origin;
+                _localP3 = p3 - origin;
+
+                style.position = Position.Absolute;
+                style.left = bounds.xMin;
+                style.top = bounds.yMin;
+                style.width = Mathf.Max(1f, bounds.width);
+                style.height = Mathf.Max(1f, bounds.height);
+                pickingMode = PickingMode.Ignore;
+                generateVisualContent += OnGenerateVisualContent;
+            }
+
+            public void SetStyle(Color outerColor, Color innerColor, float innerThicknessScale)
+            {
+                float clampedThicknessScale = Mathf.Clamp(innerThicknessScale, 0.1f, 0.95f);
+                if (_outerStrokeColor == outerColor && _innerStrokeColor == innerColor && Mathf.Approximately(_innerThicknessScale, clampedThicknessScale))
+                    return;
+
+                _outerStrokeColor = outerColor;
+                _innerStrokeColor = innerColor;
+                _innerThicknessScale = clampedThicknessScale;
+                MarkDirtyRepaint();
+            }
+
+            private void OnGenerateVisualContent(MeshGenerationContext ctx)
+            {
+                var painter = ctx.painter2D;
+                painter.lineCap = LineCap.Round;
+                painter.lineJoin = LineJoin.Round;
+
+                painter.lineWidth = _thickness;
+                painter.strokeColor = _outerStrokeColor;
+                painter.BeginPath();
+                painter.MoveTo(_localP0);
+                painter.BezierCurveTo(_localC1, _localC2, _localP3);
+                painter.Stroke();
+
+                painter.lineWidth = _thickness * _innerThicknessScale;
+                painter.strokeColor = _innerStrokeColor;
+                painter.BeginPath();
+                painter.MoveTo(_localP0);
+                painter.BezierCurveTo(_localC1, _localC2, _localP3);
                 painter.Stroke();
             }
         }

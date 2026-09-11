@@ -14,17 +14,20 @@ namespace Scripts.Editor.PassiveTree
         private readonly PassiveTreeSelectionService _selection;
         private readonly PassiveTreeViewportController _viewportController;
         private readonly Action _onTreeModified;
+        private readonly Action<string, string> _onSelectBezierConnection;
 
         public PassiveTreeContextMenuBuilder(
             PassiveTreeEditorCommands commands,
             PassiveTreeSelectionService selection,
             PassiveTreeViewportController viewportController,
-            Action onTreeModified)
+            Action onTreeModified,
+            Action<string, string> onSelectBezierConnection = null)
         {
             _commands = commands;
             _selection = selection;
             _viewportController = viewportController;
             _onTreeModified = onTreeModified;
+            _onSelectBezierConnection = onSelectBezierConnection;
         }
 
         public void BuildViewportMenu(DropdownMenu menu, Vector2 viewportPos)
@@ -49,9 +52,7 @@ namespace Scripts.Editor.PassiveTree
             if (_selection.SelectedNodeCount == 2)
             {
                 menu.AppendSeparator();
-                var (a, b) = _selection.GetTwoSelectedNodes();
-                menu.AppendAction("Connect Selected", _ => Execute(() => _commands.ConnectNodes(a.Data, b.Data)), DropdownMenuAction.AlwaysEnabled);
-                menu.AppendAction("Disconnect Selected", _ => Execute(() => _commands.DisconnectNodes(a.Data, b.Data)), DropdownMenuAction.AlwaysEnabled);
+                AppendConnectActions(menu);
             }
         }
 
@@ -59,9 +60,7 @@ namespace Scripts.Editor.PassiveTree
         {
             if (_selection.SelectedNodeCount == 2)
             {
-                var (a, b) = _selection.GetTwoSelectedNodes();
-                menu.AppendAction("Connect Selected", _ => Execute(() => _commands.ConnectNodes(a.Data, b.Data)), DropdownMenuAction.AlwaysEnabled);
-                menu.AppendAction("Disconnect Selected", _ => Execute(() => _commands.DisconnectNodes(a.Data, b.Data)), DropdownMenuAction.AlwaysEnabled);
+                AppendConnectActions(menu);
             }
             else
             {
@@ -100,6 +99,34 @@ namespace Scripts.Editor.PassiveTree
             menu.AppendAction("  (Select cluster, click another)", _ => { }, DropdownMenuAction.AlwaysDisabled);
             menu.AppendSeparator();
             menu.AppendAction("Delete Cluster", _ => Execute(() => _commands.DeleteCluster(clusterView.Data)));
+        }
+
+        public void BuildBezierMenu(DropdownMenu menu, PassiveBezierConnection connection)
+        {
+            menu.AppendAction("Convert to Direct", _ => Execute(() => _commands.ConvertBezierToDirect(connection)));
+            menu.AppendAction("Reset Handles", _ =>
+            {
+                _commands.ResetBezierHandles(connection);
+                _onTreeModified?.Invoke();
+                _onSelectBezierConnection?.Invoke(connection.NodeIdA, connection.NodeIdB);
+            });
+            menu.AppendAction("Disconnect", _ => Execute(() => _commands.DisconnectBezier(connection)));
+        }
+
+        private void AppendConnectActions(DropdownMenu menu)
+        {
+            var (a, b) = _selection.GetTwoSelectedNodes();
+            if (a == null || b == null)
+                return;
+
+            menu.AppendAction("Connect Selected Direct", _ => Execute(() => _commands.ConnectNodesDirect(a.Data, b.Data)), DropdownMenuAction.AlwaysEnabled);
+            menu.AppendAction("Connect Selected Free", _ =>
+            {
+                _commands.ConnectNodesFree(a.Data, b.Data);
+                _onTreeModified?.Invoke();
+                _onSelectBezierConnection?.Invoke(a.Data.ID, b.Data.ID);
+            }, DropdownMenuAction.AlwaysEnabled);
+            menu.AppendAction("Disconnect Selected", _ => Execute(() => _commands.DisconnectNodes(a.Data, b.Data)), DropdownMenuAction.AlwaysEnabled);
         }
 
         private void Execute(Action action)

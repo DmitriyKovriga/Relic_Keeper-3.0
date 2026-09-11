@@ -202,6 +202,7 @@ namespace Scripts.Editor.PassiveTree
                 if (neighbor != null)
                     neighbor.ConnectionIDs.Remove(nodeData.ID);
             }
+            _tree.RemoveBezierConnectionsForNode(nodeData.ID);
             _tree.Nodes.Remove(nodeData);
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
@@ -225,11 +226,71 @@ namespace Scripts.Editor.PassiveTree
 
         public void ConnectNodes(PassiveNodeDefinition nodeA, PassiveNodeDefinition nodeB)
         {
-            if (_tree == null || nodeA == null || nodeB == null) return;
-            if (nodeA.ConnectionIDs.Contains(nodeB.ID)) return;
-            RecordTree("Connect Nodes");
-            nodeA.ConnectionIDs.Add(nodeB.ID);
-            nodeB.ConnectionIDs.Add(nodeA.ID);
+            ConnectNodesDirect(nodeA, nodeB);
+        }
+
+        public void ConnectNodesDirect(PassiveNodeDefinition nodeA, PassiveNodeDefinition nodeB)
+        {
+            if (_tree == null || nodeA == null || nodeB == null || nodeA == nodeB)
+                return;
+
+            RecordTree("Connect Nodes Direct");
+            AddConnectionBidirectional(nodeA, nodeB);
+            _tree.RemoveBezierConnection(nodeA.ID, nodeB.ID);
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public void ConnectNodesFree(PassiveNodeDefinition nodeA, PassiveNodeDefinition nodeB)
+        {
+            if (_tree == null || nodeA == null || nodeB == null || nodeA == nodeB)
+                return;
+
+            RecordTree("Connect Nodes Free");
+            AddConnectionBidirectional(nodeA, nodeB);
+            if (_tree.BezierConnections == null)
+                _tree.BezierConnections = new List<PassiveBezierConnection>();
+
+            if (_tree.FindBezierConnection(nodeA.ID, nodeB.ID) == null)
+            {
+                _tree.BezierConnections.Add(PassiveBezierConnection.CreateDefault(
+                    nodeA.ID,
+                    nodeB.ID,
+                    nodeA.GetWorldPosition(_tree),
+                    nodeB.GetWorldPosition(_tree)));
+            }
+
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public void ConvertBezierToDirect(PassiveBezierConnection connection)
+        {
+            if (_tree == null || connection == null)
+                return;
+
+            RecordTree("Convert Connection to Direct");
+            _tree.RemoveBezierConnection(connection.NodeIdA, connection.NodeIdB);
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public void ResetBezierHandles(PassiveBezierConnection connection)
+        {
+            if (_tree == null || connection == null)
+                return;
+
+            var nodeA = _tree.GetNode(connection.NodeIdA);
+            var nodeB = _tree.GetNode(connection.NodeIdB);
+            if (nodeA == null || nodeB == null)
+                return;
+
+            RecordTree("Reset Bezier Handles");
+            var defaults = PassiveBezierConnection.CreateDefault(
+                nodeA.ID,
+                nodeB.ID,
+                nodeA.GetWorldPosition(_tree),
+                nodeB.GetWorldPosition(_tree));
+            connection.AnchorPercent = defaults.AnchorPercent;
+            connection.InHandleOffset = defaults.InHandleOffset;
+            connection.OutHandleOffset = defaults.OutHandleOffset;
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
 
@@ -237,9 +298,18 @@ namespace Scripts.Editor.PassiveTree
         {
             if (nodeA == null || nodeB == null) return;
             RecordTree("Disconnect Nodes");
-            nodeA.ConnectionIDs.Remove(nodeB.ID);
-            nodeB.ConnectionIDs.Remove(nodeA.ID);
+            nodeA.ConnectionIDs?.Remove(nodeB.ID);
+            nodeB.ConnectionIDs?.Remove(nodeA.ID);
+            _tree?.RemoveBezierConnection(nodeA.ID, nodeB.ID);
             PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public void DisconnectBezier(PassiveBezierConnection connection)
+        {
+            if (_tree == null || connection == null)
+                return;
+
+            DisconnectNodes(_tree.GetNode(connection.NodeIdA), _tree.GetNode(connection.NodeIdB));
         }
 
         public void ConvertNodeToFree(PassiveNodeDefinition node)
@@ -287,6 +357,7 @@ namespace Scripts.Editor.PassiveTree
             }
 
             node.ConnectionIDs.Clear();
+            _tree.RemoveBezierConnectionsForNode(node.ID);
         }
 
         private List<PassiveNodeDefinition> CreateFreeNodes(IEnumerable<Vector2> positions)

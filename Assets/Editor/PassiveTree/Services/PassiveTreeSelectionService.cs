@@ -13,15 +13,18 @@ namespace Scripts.Editor.PassiveTree
     {
         private readonly HashSet<PassiveTreeEditorNode> _selectedNodes = new HashSet<PassiveTreeEditorNode>();
         private readonly HashSet<PassiveTreeClusterView> _selectedClusters = new HashSet<PassiveTreeClusterView>();
+        private PassiveBezierConnection _selectedBezier;
 
         public event Action<PassiveNodeDefinition> OnNodeSelected;
         public event Action<PassiveClusterDefinition> OnClusterSelected;
+        public event Action<PassiveBezierConnection> OnBezierSelected;
         public event Action OnSelectionCleared;
 
         public int SelectedNodeCount => _selectedNodes.Count;
         public int SelectedClusterCount => _selectedClusters.Count;
-        public int TotalSelectionCount => _selectedNodes.Count + _selectedClusters.Count;
+        public int TotalSelectionCount => _selectedNodes.Count + _selectedClusters.Count + (_selectedBezier != null ? 1 : 0);
         public PassiveClusterDefinition SelectedClusterData => GetSingleSelectedClusterData();
+        public PassiveBezierConnection SelectedBezier => _selectedBezier;
 
         public void ClearSelection()
         {
@@ -32,8 +35,26 @@ namespace Scripts.Editor.PassiveTree
             foreach (var cluster in _selectedClusters)
                 cluster.SetSelected(false);
             _selectedClusters.Clear();
+            _selectedBezier = null;
 
             NotifySelectionChanged();
+        }
+
+        public void SelectBezier(PassiveBezierConnection connection)
+        {
+            if (connection == null)
+                return;
+
+            foreach (var node in _selectedNodes)
+                node.SetSelected(false);
+            _selectedNodes.Clear();
+
+            foreach (var cluster in _selectedClusters)
+                cluster.SetSelected(false);
+            _selectedClusters.Clear();
+
+            _selectedBezier = connection;
+            OnBezierSelected?.Invoke(connection);
         }
 
         public void SelectNode(PassiveTreeEditorNode nodeView, bool addToSelection = false)
@@ -43,6 +64,8 @@ namespace Scripts.Editor.PassiveTree
 
             if (!addToSelection)
                 ClearSelection();
+            else
+                _selectedBezier = null;
 
             if (_selectedNodes.Contains(nodeView))
                 return;
@@ -64,6 +87,8 @@ namespace Scripts.Editor.PassiveTree
 
             if (!addToSelection)
                 ClearSelection();
+            else
+                _selectedBezier = null;
 
             if (_selectedClusters.Contains(clusterView))
                 return;
@@ -82,6 +107,8 @@ namespace Scripts.Editor.PassiveTree
         {
             if (!addToSelection)
                 ClearSelection();
+            else
+                _selectedBezier = null;
 
             if (nodeViews != null)
             {
@@ -156,11 +183,19 @@ namespace Scripts.Editor.PassiveTree
 
         private void NotifySelectionChanged(PassiveNodeDefinition preferredNode = null)
         {
-            if (TotalSelectionCount == 0)
+            if (_selectedNodes.Count == 0 && _selectedClusters.Count == 0 && _selectedBezier == null)
             {
                 OnSelectionCleared?.Invoke();
                 return;
             }
+
+            if (_selectedBezier != null && _selectedNodes.Count == 0 && _selectedClusters.Count == 0)
+            {
+                OnBezierSelected?.Invoke(_selectedBezier);
+                return;
+            }
+
+            _selectedBezier = null;
 
             if (_selectedNodes.Count == 1 && _selectedClusters.Count == 0)
             {
