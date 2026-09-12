@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
+  m_Name: SmallRegenAndArmore
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
+  Name: Regen And Armore
+  Description: 
+  Icon: {fileID: 21300000, guid: 7e80428df7716724a97fccaee7952706, type: 3}
+  Modifiers:
+  - Stat: 2
+    Value: 1
+    Type: 100
+  - Stat: 14
+    Value: 25
+    Type: 100

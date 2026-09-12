@@ -1143,6 +1143,30 @@ MonoBehaviour:
     m_Key: market.price.sell
     m_Metadata:
       m_Items: []
+  - m_Id: 103784834281598976
+    m_Key: passive.node.SmallCritLichNode.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103784834319347712
+    m_Key: passive.node.SmallCritLichNode.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103785123587911680
+    m_Key: passive.node.MediumLeechAndCrit.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103785123587911681
+    m_Key: passive.node.MediumLeechAndCrit.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103788322591961088
+    m_Key: passive.node.SmallRegenAndArmore.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103788322591961089
+    m_Key: passive.node.SmallRegenAndArmore.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

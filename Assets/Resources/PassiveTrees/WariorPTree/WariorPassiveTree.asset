@@ -160,6 +160,7 @@ MonoBehaviour:
     - c71bee8d-a709-4fcf-966b-f739822acd7b
     - 184656e0-bad7-4ccf-9476-06f964d45268
     - a88a49f4-d9c1-4d00-9a32-c5b60bd4a412
+    - 32ef806c-993f-4aa8-a550-08ba76901bd2
   - ID: 184656e0-bad7-4ccf-9476-06f964d45268
     NodeType: 0
     PlacementMode: 0
@@ -186,6 +187,7 @@ MonoBehaviour:
     - 184656e0-bad7-4ccf-9476-06f964d45268
     - 455de6ab-8a0a-4e12-81a8-9fd095319e1f
     - f7efabe2-152b-4cce-b510-925313303142
+    - 4e94d17c-aed9-45fe-8537-0ba7e114443b
   - ID: 455de6ab-8a0a-4e12-81a8-9fd095319e1f
     NodeType: 0
     PlacementMode: 0
@@ -929,6 +931,76 @@ MonoBehaviour:
     ConnectionIDs:
     - a227f936-edb5-4d55-8fa4-8a569be8eda2
     - ee8ee6cf-3316-4536-a881-447a54ebe302
+  - ID: 32ef806c-993f-4aa8-a550-08ba76901bd2
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 2058.5, y: 1577.5}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 094fc148-c07d-447a-a663-cb4bb7cc8358
+    - eb3181be-ae65-4522-890a-b120524545f0
+  - ID: eb3181be-ae65-4522-890a-b120524545f0
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 1979.4795, y: 1577.6974}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 32ef806c-993f-4aa8-a550-08ba76901bd2
+    - f77ce47d-1d02-4765-9a20-47ae7a8be028
+  - ID: f77ce47d-1d02-4765-9a20-47ae7a8be028
+    NodeType: 1
+    PlacementMode: 0
+    Position: {x: 1899.4795, y: 1577.6152}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 711d2f51207f3ec4d8ce744dc3dd1913, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - eb3181be-ae65-4522-890a-b120524545f0
+  - ID: 4e94d17c-aed9-45fe-8537-0ba7e114443b
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 1499.4121, y: 1576.6547}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: e2b7b7eae3da082438b918f0b4ad2481, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 21083c92-b60d-4617-a90e-c2ad295f768c
+    - 7005bd15-dece-4a0c-8573-7115911b9a0c
+  - ID: 7005bd15-dece-4a0c-8573-7115911b9a0c
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 1579.251, y: 1577.9529}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: e2b7b7eae3da082438b918f0b4ad2481, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 4e94d17c-aed9-45fe-8537-0ba7e114443b
+    - dbe18102-fb2f-4f56-ac54-716bbc3c5d51
+  - ID: dbe18102-fb2f-4f56-ac54-716bbc3c5d51
+    NodeType: 1
+    PlacementMode: 0
+    Position: {x: 1658.4407, y: 1579.251}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 29e2016a7ecb5c1418222f688b0e0fe6, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 7005bd15-dece-4a0c-8573-7115911b9a0c
   Clusters:
   - ID: f7d051c5-e995-418d-b634-584a5c5b441e
     Name: Cicle 3+1 reverse
@@ -1020,6 +1092,36 @@ MonoBehaviour:
       ArcEndAngle: 360
     EditorColor: {r: 0.64367384, g: 0.7734686, b: 0.80831087, a: 0.4}
     RoadConnections: []
-  BezierConnections: []
+  BezierConnections:
+  - NodeIdA: 094fc148-c07d-447a-a663-cb4bb7cc8358
+    NodeIdB: 32ef806c-993f-4aa8-a550-08ba76901bd2
+    AnchorPercent: 47.148655
+    InHandleOffset: {x: -1.7478027, y: 17.9552}
+    OutHandleOffset: {x: -29.009766, y: 8.21875}
+  - NodeIdA: 32ef806c-993f-4aa8-a550-08ba76901bd2
+    NodeIdB: eb3181be-ae65-4522-890a-b120524545f0
+    AnchorPercent: 50
+    InHandleOffset: {x: 19.17212, y: -20.416992}
+    OutHandleOffset: {x: -18.475464, y: -19.767944}
+  - NodeIdA: eb3181be-ae65-4522-890a-b120524545f0
+    NodeIdB: f77ce47d-1d02-4765-9a20-47ae7a8be028
+    AnchorPercent: 50
+    InHandleOffset: {x: 18.194458, y: 24.962036}
+    OutHandleOffset: {x: -18.154907, y: 26.260254}
+  - NodeIdA: 21083c92-b60d-4617-a90e-c2ad295f768c
+    NodeIdB: 4e94d17c-aed9-45fe-8537-0ba7e114443b
+    AnchorPercent: 50
+    InHandleOffset: {x: 0.111206055, y: 18.449097}
+    OutHandleOffset: {x: 29.320557, y: 10.010864}
+  - NodeIdA: 4e94d17c-aed9-45fe-8537-0ba7e114443b
+    NodeIdB: 7005bd15-dece-4a0c-8573-7115911b9a0c
+    AnchorPercent: 50
+    InHandleOffset: {x: -17.20105, y: -20.12207}
+    OutHandleOffset: {x: 18.499268, y: -18.174805}
+  - NodeIdA: 7005bd15-dece-4a0c-8573-7115911b9a0c
+    NodeIdB: dbe18102-fb2f-4f56-ac54-716bbc3c5d51
+    AnchorPercent: 50
+    InHandleOffset: {x: -17.525635, y: 20.770874}
+    OutHandleOffset: {x: 18.82373, y: 18.823608}
   GridSize: 20
-  SnapToGrid: 1
+  SnapToGrid: 0

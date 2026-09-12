@@ -1645,7 +1645,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43348985866346496
-    m_Localized: Small Melee Crit
+    m_Localized: Small Regen And Armore
     m_Metadata:
       m_Items: []
   - m_Id: 43348985899900928
@@ -2102,6 +2102,30 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 104000000000000013
     m_Localized: Sell
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103784834281598976
+    m_Localized: Crit And Leech
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103784834319347712
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103785123587911680
+    m_Localized: Crit And Leech
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103785123587911681
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103788322591961088
+    m_Localized: Small Regen And Armore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103788322591961089
+    m_Localized: 
     m_Metadata:
       m_Items: []
   references:
