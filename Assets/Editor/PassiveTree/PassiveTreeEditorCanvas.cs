@@ -309,6 +309,14 @@ namespace Scripts.Editor.PassiveTree
             if (IsBezierHandleTarget(evt.target))
                 return;
 
+            // Alt+LMB cycles through nodes occupying the same point. This avoids having
+            // to delete the top node when two constructions overlap after a move.
+            if (evt.button == 0 && evt.altKey && TryPickNextOverlappingNode((Vector2)evt.position, out var overlappingNode))
+            {
+                OnNodePointerDown(overlappingNode, evt);
+                return;
+            }
+
             if (TryGetBezierElement(evt.target, out var bezierElement)
                 || (!IsNodeTarget(evt.target) && TryPickBezierAtPanelPosition((Vector2)evt.position, out bezierElement)))
             {
@@ -463,6 +471,26 @@ namespace Scripts.Editor.PassiveTree
             return element is PassiveTreeEditorNode || element?.GetFirstAncestorOfType<PassiveTreeEditorNode>() != null;
         }
 
+        private bool TryPickNextOverlappingNode(Vector2 panelPosition, out PassiveTreeEditorNode nodeView)
+        {
+            nodeView = null;
+            if (_nodeViews.Count < 2)
+                return false;
+
+            var candidates = new List<PassiveTreeEditorNode>();
+            foreach (var candidate in _nodeViews.Values)
+                if (candidate != null && candidate.worldBound.Contains(panelPosition))
+                    candidates.Add(candidate);
+
+            if (candidates.Count < 2)
+                return false;
+
+            candidates.Sort((a, b) => _nodesContainer.IndexOf(b).CompareTo(_nodesContainer.IndexOf(a)));
+            int selectedIndex = candidates.FindIndex(candidate => _selection.IsNodeSelected(candidate));
+            nodeView = candidates[(selectedIndex + 1) % candidates.Count];
+            return true;
+        }
+
         private bool TryPickBezierAtPanelPosition(Vector2 panelPosition, out BezierConnectionElement bezierElement)
         {
             bezierElement = null;
@@ -470,7 +498,9 @@ namespace Scripts.Editor.PassiveTree
                 return false;
 
             Vector2 content = GetContentPointerPosition(panelPosition);
-            const float threshold = 14f;
+            // Match the visible FREE road more closely so its invisible selection corridor
+            // does not win clicks intended for nearby nodes.
+            const float threshold = 7f;
             float best = threshold;
             foreach (var element in _bezierElements)
             {
@@ -590,6 +620,11 @@ namespace Scripts.Editor.PassiveTree
                 _selection.SelectNode(nodeView, addToSelection);
 
             _draggedNode = nodeView;
+            // Keep the carried construction above stationary nodes while it is being moved.
+            // Otherwise overlapping nodes can cover the selection and make it impossible to continue the drag.
+            foreach (var selectedView in _selection.GetSelectedNodeViews())
+                selectedView?.BringToFront();
+            nodeView.BringToFront();
             _nodeDragStartPos = nodeView.Data.GetWorldPosition(_tree);
             _pointerDragStartPos = (Vector2)evt.position;
             CacheSelectedDragStartPositions();

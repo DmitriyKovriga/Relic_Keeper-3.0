@@ -284,6 +284,33 @@ namespace RelicKeeper.Tests.EditMode
                 Object.DestroyImmediate(template);
             }
         }
+
+        [Test]
+        public void ClipboardCapture_AllowsDisconnectedSelectionAndCentresPasteAtTarget()
+        {
+            var tree = ScriptableObject.CreateInstance<PassiveSkillTreeSO>();
+            var template = ScriptableObject.CreateInstance<PassiveNodeGroupTemplateSO>();
+            var targetTree = ScriptableObject.CreateInstance<PassiveSkillTreeSO>();
+            try
+            {
+                tree.Nodes.Add(new PassiveNodeDefinition { ID = "a", Position = new Vector2(100f, 50f), ConnectionIDs = new List<string>() });
+                tree.Nodes.Add(new PassiveNodeDefinition { ID = "b", Position = new Vector2(300f, 150f), ConnectionIDs = new List<string>() });
+                tree.InitLookup();
+
+                Assert.That(template.CaptureFrom(tree, tree.Nodes, false), Is.True);
+                List<PassiveNodeDefinition> created = template.ApplyToTree(targetTree, new Vector2(800f, 600f));
+
+                Vector2 min = created.Select(node => node.Position).Aggregate(Vector2.Min);
+                Vector2 max = created.Select(node => node.Position).Aggregate(Vector2.Max);
+                Assert.That((min + max) * 0.5f, Is.EqualTo(new Vector2(800f, 600f)));
+            }
+            finally
+            {
+                Object.DestroyImmediate(tree);
+                Object.DestroyImmediate(template);
+                Object.DestroyImmediate(targetTree);
+            }
+        }
     }
 
     public class PassiveOrbitArcDrawingTests

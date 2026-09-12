@@ -161,7 +161,9 @@ namespace Scripts.Editor.PassiveTree
 
     public sealed class BezierConnectionElement : VisualElement
     {
-        private const float HitThreshold = 14f;
+        // Keep FREE connections selectable without letting their broad invisible hit area
+        // block nearby nodes. The previous 14 px corridor was wider than a visible road.
+        private const float HitThreshold = 7f;
         private const float BoundsPadding = 12f;
 
         private readonly Color _idleColor;

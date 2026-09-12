@@ -17,13 +17,16 @@ namespace Scripts.Skills.PassiveTree
         public List<PassiveNodeDefinition> Nodes = new List<PassiveNodeDefinition>();
         public List<PassiveBezierConnection> BezierConnections = new List<PassiveBezierConnection>();
 
-        public bool CaptureFrom(PassiveSkillTreeSO tree, IEnumerable<PassiveNodeDefinition> sourceNodes)
+        public bool CaptureFrom(
+            PassiveSkillTreeSO tree,
+            IEnumerable<PassiveNodeDefinition> sourceNodes,
+            bool requireConnected = true)
         {
             if (tree == null || sourceNodes == null)
                 return false;
 
             List<PassiveNodeDefinition> selected = sourceNodes.Where(node => node != null).Distinct().ToList();
-            if (selected.Count == 0 || !IsConnected(selected))
+            if (selected.Count == 0 || (requireConnected && !IsConnected(selected)))
                 return false;
 
             var ids = new HashSet<string>(selected.Select(node => node.ID));

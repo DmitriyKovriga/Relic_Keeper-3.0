@@ -28,7 +28,9 @@ namespace Scripts.Editor.PassiveTree
         private PassiveNodeDefinition _selectedNode;
         private PassiveClusterDefinition _selectedCluster;
         private PassiveBezierConnection _selectedBezier;
-        private PassiveNodeContentClipboard _nodeClipboard;
+        private PassiveNodeContentClipboard _nodeContentClipboard;
+        private PassiveNodeGroupTemplateSO _selectionClipboard;
+        private PassiveClusterTemplateSO _clusterClipboard;
         private PassiveClusterTemplateSO _selectedClusterTemplate;
         private Vector2 _lastCanvasClickContentPosition;
         private ScrollView _inspectorContainer;
@@ -80,6 +82,7 @@ namespace Scripts.Editor.PassiveTree
         private void OnDisable()
         {
             RememberCurrentTree();
+            DestroyTransientClipboard();
         }
 
         private void CreateGUI()
@@ -349,14 +352,14 @@ namespace Scripts.Editor.PassiveTree
                     return;
                 }
 
-                if (evt.keyCode == KeyCode.C && TryCopySelectedNode())
+                if (evt.keyCode == KeyCode.C && TryCopySelection())
                 {
                     evt.StopPropagation();
                     evt.PreventDefault();
                     return;
                 }
 
-                if (evt.keyCode == KeyCode.V && TryPasteOntoSelectedNode())
+                if (evt.keyCode == KeyCode.V && TryPasteSelectionAtCursor())
                 {
                     evt.StopPropagation();
                     evt.PreventDefault();
@@ -387,26 +390,101 @@ namespace Scripts.Editor.PassiveTree
             }
         }
 
-        private bool TryCopySelectedNode()
+        private bool TryCopySelection()
         {
-            if (_selectedNode == null || _canvas == null || _canvas.GetTotalSelectionCount() != 1)
+            if (_canvas == null || _currentTree == null)
                 return false;
 
-            _nodeClipboard = PassiveNodeContentClipboard.From(_selectedNode);
-            return _nodeClipboard != null;
+            List<PassiveNodeDefinition> nodes = _canvas.GetSelectedNodeData();
+            if (nodes.Count > 0)
+            {
+                DestroyTransientClipboard();
+                _nodeContentClipboard = nodes.Count == 1
+                    ? PassiveNodeContentClipboard.From(nodes[0])
+                    : null;
+                _selectionClipboard = CreateInstance<PassiveNodeGroupTemplateSO>();
+                _selectionClipboard.hideFlags = HideFlags.HideAndDontSave;
+                _selectionClipboard.DisplayName = "Clipboard";
+                if (_selectionClipboard.CaptureFrom(_currentTree, nodes, false))
+                    return true;
+
+                DestroyImmediate(_selectionClipboard);
+                _selectionClipboard = null;
+                return false;
+            }
+
+            PassiveClusterDefinition cluster = _canvas.GetSelectedClusterData();
+            if (cluster == null)
+                return false;
+
+            DestroyTransientClipboard();
+            _nodeContentClipboard = null;
+            _clusterClipboard = CreateInstance<PassiveClusterTemplateSO>();
+            _clusterClipboard.hideFlags = HideFlags.HideAndDontSave;
+            _clusterClipboard.CaptureFrom(cluster, _currentTree.Nodes);
+            return true;
         }
 
-        private bool TryPasteOntoSelectedNode()
+        private bool TryPasteSelectionAtCursor()
         {
-            if (_nodeClipboard == null || _selectedNode == null || _canvas == null || _canvas.GetTotalSelectionCount() != 1)
+            if (_canvas == null || _currentTree == null)
                 return false;
 
-            _canvas.Commands.PasteNodeContent(_selectedNode, _nodeClipboard);
-            _canvas.RefreshNodeVisuals(_selectedNode);
-            if (_selectedNode.Template != null)
-                _nodeAuthoringPanel?.SelectNode(_selectedNode.Template);
-            _nodeWorkshopGui?.MarkDirtyRepaint();
-            return true;
+            PassiveNodeDefinition pasteTarget = _canvas.GetSingleSelectedNodeData();
+            if (pasteTarget != null && _nodeContentClipboard != null)
+            {
+                _canvas.Commands.PasteNodeContent(pasteTarget, _nodeContentClipboard);
+                _canvas.RefreshNodeVisuals(pasteTarget);
+                if (pasteTarget.Template != null)
+                    _nodeAuthoringPanel?.SelectNode(pasteTarget.Template);
+                _nodeWorkshopGui?.MarkDirtyRepaint();
+                return true;
+            }
+
+            Vector2 pastePosition = _canvas.GetLastMouseContentPosition();
+            if (_selectionClipboard != null)
+            {
+                List<PassiveNodeDefinition> created = _canvas.Commands.CreateNodeGroupFromTemplateAtPosition(
+                    _selectionClipboard,
+                    pastePosition);
+                if (created.Count == 0)
+                    return false;
+
+                _canvas.PopulateView(_currentTree);
+                _canvas.SelectNodesByIds(created.Select(node => node.ID));
+                _selectedNode = null;
+                _selectedCluster = null;
+                _selectedBezier = null;
+                return true;
+            }
+
+            if (_clusterClipboard != null)
+            {
+                PassiveClusterDefinition created = _canvas.Commands.CreateClusterFromTemplateAtPosition(
+                    _clusterClipboard,
+                    pastePosition);
+                if (created == null)
+                    return false;
+
+                _canvas.PopulateView(_currentTree);
+                _canvas.SelectClusterById(created.ID);
+                _selectedNode = null;
+                _selectedCluster = created;
+                _selectedBezier = null;
+                return true;
+            }
+
+            return false;
+        }
+
+        private void DestroyTransientClipboard()
+        {
+            if (_selectionClipboard != null)
+                DestroyImmediate(_selectionClipboard);
+            if (_clusterClipboard != null)
+                DestroyImmediate(_clusterClipboard);
+            _selectionClipboard = null;
+            _clusterClipboard = null;
         }
 
         private void HandleNodeSelectionChanged(PassiveNodeDefinition nodeData)
@@ -657,7 +735,7 @@ namespace Scripts.Editor.PassiveTree
                 EditorGUILayout.LabelField("Selected Nodes", selectedNodeCount.ToString());
                 EditorGUILayout.LabelField("Selected Clusters", selectedClusterCount.ToString());
                 EditorGUILayout.HelpBox(
-                    "Drag a selected node or cluster to move the whole mixed selection. Delete or Backspace removes the whole selection. Escape clears selection.",
+                    "Drag a selected node or cluster to move the whole mixed selection. Alt+click cycles through overlapping nodes. Delete or Backspace removes the whole selection. Escape clears selection.",
                     MessageType.Info);
 
                 using (new EditorGUILayout.HorizontalScope())
@@ -710,7 +788,9 @@ namespace Scripts.Editor.PassiveTree
             var currentTemplate = templateProp.objectReferenceValue as PassiveNodeTemplateSO;
 
             DrawNodeHeader(currentTemplate);
-            EditorGUILayout.HelpBox("Ctrl+C копирует содержимое нода. Ctrl+V вставляет его на выбранный нод: позиция и связи остаются своими.", MessageType.Info);
+            EditorGUILayout.HelpBox(
+                "Ctrl+C копирует выделение. Если при Ctrl+V выделен один нод, его содержимое заменяется с сохранением позиции и связей. Без выделенного нода копия создаётся под курсором. Один выделенный кластер копируется целиком. Кнопки Place используют точку последнего клика по canvas.",
+                MessageType.Info);
             DrawTemplateSection(serializedTree, templateProp, currentTemplate);
 
             serializedTree.Update();
@@ -1179,7 +1259,7 @@ namespace Scripts.Editor.PassiveTree
             if (_canvas == null || _currentTree == null || template == null)
                 return;
 
-            Vector2 position = _canvas.GetLastMouseContentPosition();
+            Vector2 position = _lastCanvasClickContentPosition;
             List<PassiveNodeDefinition> created = _canvas.Commands.CreateNodeGroupFromTemplateAtPosition(template, position);
             _canvas.PopulateView(_currentTree);
             _canvas.SelectNodesByIds(created.Select(node => node.ID));
@@ -1358,7 +1438,7 @@ namespace Scripts.Editor.PassiveTree
 
             var commands = new PassiveTreeEditorCommands();
             commands.SetTree(_currentTree);
-            Vector2 placementPosition = _canvas != null ? _canvas.GetLastMouseContentPosition() : _lastCanvasClickContentPosition;
+            Vector2 placementPosition = _lastCanvasClickContentPosition;
             PassiveClusterDefinition createdCluster = commands.CreateClusterFromTemplateAtPosition(template, placementPosition);
             RefreshAvailableClusterTemplates();
             _selectedCluster = createdCluster;
