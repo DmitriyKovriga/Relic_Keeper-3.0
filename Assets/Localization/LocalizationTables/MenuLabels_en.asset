@@ -1645,7 +1645,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43348985866346496
-    m_Localized: Small Regen And Armore
+    m_Localized: Medium Mana On Hit
     m_Metadata:
       m_Items: []
   - m_Id: 43348985899900928
@@ -2125,6 +2125,38 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 103788322591961089
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103802495149371392
+    m_Localized: Small Crit and Attack Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103802495149371393
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103806431616921600
+    m_Localized: Regen Life And Attack Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103806431616921601
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103810397025169408
+    m_Localized: Medium Mana On Hit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103810397025169409
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103812605548523520
+    m_Localized: Medium Mana On Hit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103812605548523521
     m_Localized: 
     m_Metadata:
       m_Items: []

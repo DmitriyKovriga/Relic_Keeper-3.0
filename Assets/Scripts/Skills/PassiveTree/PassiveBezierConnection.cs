@@ -23,6 +23,9 @@ namespace Scripts.Skills.PassiveTree
         [Tooltip("Offset from the anchor to the outgoing Bezier handle (toward B).")]
         public Vector2 OutHandleOffset;
 
+        [Tooltip("When enabled, dragging either handle keeps the other handle exactly mirrored around the anchor.")]
+        public bool MirrorHandles;
+
         public bool Matches(string nodeIdA, string nodeIdB)
         {
             SortIds(ref nodeIdA, ref nodeIdB);
@@ -31,7 +34,12 @@ namespace Scripts.Skills.PassiveTree
 
         public void NormalizeIds()
         {
-            SortIds(ref NodeIdA, ref NodeIdB);
+            if (string.CompareOrdinal(NodeIdA ?? string.Empty, NodeIdB ?? string.Empty) <= 0)
+                return;
+
+            (NodeIdA, NodeIdB) = (NodeIdB, NodeIdA);
+            (InHandleOffset, OutHandleOffset) = (OutHandleOffset, InHandleOffset);
+            AnchorPercent = 100f - AnchorPercent;
         }
 
         public Vector2 GetAnchor(Vector2 posA, Vector2 posB)
@@ -62,7 +70,8 @@ namespace Scripts.Skills.PassiveTree
                 NodeIdB = nodeIdB,
                 AnchorPercent = 50f,
                 InHandleOffset = (-direction * 0.28f + perpendicular * 0.22f) * distance,
-                OutHandleOffset = (direction * 0.28f + perpendicular * 0.22f) * distance
+                OutHandleOffset = (direction * 0.28f + perpendicular * 0.22f) * distance,
+                MirrorHandles = false
             };
         }
 
@@ -174,6 +183,15 @@ namespace Scripts.Skills.PassiveTree
         public static Vector2 MirrorHandle(Vector2 draggedHandle)
         {
             return -draggedHandle;
+        }
+
+        public static Vector2 ReflectAcrossAxis(Vector2 offset, Vector2 axis)
+        {
+            if (axis.sqrMagnitude < 0.0001f)
+                return offset;
+
+            Vector2 direction = axis.normalized;
+            return (2f * Vector2.Dot(offset, direction) * direction) - offset;
         }
 
         public static Rect Bounds(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float padding)

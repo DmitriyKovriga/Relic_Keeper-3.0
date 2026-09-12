@@ -95,6 +95,17 @@ namespace Scripts.Editor.PassiveTree
             return cluster;
         }
 
+        public List<PassiveNodeDefinition> CreateNodeGroupFromTemplateAtPosition(PassiveNodeGroupTemplateSO template, Vector2 contentPos)
+        {
+            if (_tree == null || template == null)
+                return new List<PassiveNodeDefinition>();
+
+            RecordTree("Create Node Group From Template");
+            List<PassiveNodeDefinition> nodes = template.ApplyToTree(_tree, SnapPosition(contentPos));
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+            return nodes;
+        }
+
         public int GenerateBackboneFromStart()
         {
             if (_tree == null)
@@ -284,6 +295,97 @@ namespace Scripts.Editor.PassiveTree
             connection.AnchorPercent = defaults.AnchorPercent;
             connection.InHandleOffset = defaults.InHandleOffset;
             connection.OutHandleOffset = defaults.OutHandleOffset;
+            if (connection.MirrorHandles)
+                connection.OutHandleOffset = PassiveBezierMath.MirrorHandle(connection.InHandleOffset);
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public void SetBezierMirrorHandles(PassiveBezierConnection connection, bool enabled)
+        {
+            if (_tree == null || connection == null || connection.MirrorHandles == enabled)
+                return;
+
+            RecordTree(enabled ? "Link Bezier Handles" : "Unlink Bezier Handles");
+            connection.MirrorHandles = enabled;
+            if (enabled)
+                connection.OutHandleOffset = PassiveBezierMath.MirrorHandle(connection.InHandleOffset);
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public void FlipBezierSide(PassiveBezierConnection connection)
+        {
+            if (_tree == null || connection == null)
+                return;
+
+            var nodeA = _tree.GetNode(connection.NodeIdA);
+            var nodeB = _tree.GetNode(connection.NodeIdB);
+            if (nodeA == null || nodeB == null)
+                return;
+
+            RecordTree("Flip Bezier Side");
+            Vector2 axis = nodeB.GetWorldPosition(_tree) - nodeA.GetWorldPosition(_tree);
+            connection.InHandleOffset = PassiveBezierMath.ReflectAcrossAxis(connection.InHandleOffset, axis);
+            connection.OutHandleOffset = PassiveBezierMath.ReflectAcrossAxis(connection.OutHandleOffset, axis);
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public void MirrorNodes(IReadOnlyCollection<PassiveNodeDefinition> nodes, bool horizontal)
+        {
+            if (_tree == null || nodes == null || nodes.Count == 0)
+                return;
+
+            List<PassiveNodeDefinition> selected = nodes.Where(node => node != null).Distinct().ToList();
+            if (selected.Count == 0)
+                return;
+
+            Vector2 min = selected[0].GetWorldPosition(_tree);
+            Vector2 max = min;
+            foreach (var node in selected)
+            {
+                Vector2 position = node.GetWorldPosition(_tree);
+                min = Vector2.Min(min, position);
+                max = Vector2.Max(max, position);
+            }
+
+            Vector2 pivot = (min + max) * 0.5f;
+            RecordTree(horizontal ? "Mirror Nodes Horizontally" : "Mirror Nodes Vertically");
+            var selectedIds = new HashSet<string>(selected.Select(node => node.ID));
+            foreach (var node in selected)
+            {
+                Vector2 position = node.GetWorldPosition(_tree);
+                if (horizontal)
+                    position.x = (2f * pivot.x) - position.x;
+                else
+                    position.y = (2f * pivot.y) - position.y;
+
+                node.Position = SnapPosition(position);
+                node.PlacementMode = NodePlacementMode.Free;
+                node.ClusterID = string.Empty;
+                node.OrbitIndex = 0;
+                node.OrbitAngle = 0f;
+            }
+
+            if (_tree.BezierConnections != null)
+            {
+                foreach (var connection in _tree.BezierConnections)
+                {
+                    if (connection == null || !selectedIds.Contains(connection.NodeIdA) || !selectedIds.Contains(connection.NodeIdB))
+                        continue;
+
+                    if (horizontal)
+                    {
+                        connection.InHandleOffset.x *= -1f;
+                        connection.OutHandleOffset.x *= -1f;
+                    }
+                    else
+                    {
+                        connection.InHandleOffset.y *= -1f;
+                        connection.OutHandleOffset.y *= -1f;
+                    }
+                }
+            }
+
+            _tree.InitLookup();
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
 

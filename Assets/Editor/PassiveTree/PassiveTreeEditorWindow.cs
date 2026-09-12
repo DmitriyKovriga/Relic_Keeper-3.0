@@ -16,6 +16,7 @@ namespace Scripts.Editor.PassiveTree
     {
         private const string LastTreePathPrefKey = "RK.PassiveTreeEditor.LastTreePath";
         private const string DefaultClusterTemplateFolder = "Assets/Resources/PassiveTrees/ClusterTemplates";
+        private const string DefaultNodeGroupTemplateFolder = "Assets/Resources/PassiveTrees/NodeGroupTemplates";
         private const int MinNodeWorkshopWidth = 285;
         private const int MaxNodeWorkshopWidth = 390;
         private const float DefaultInspectorWidthRatio = 0.30f;
@@ -39,6 +40,9 @@ namespace Scripts.Editor.PassiveTree
         private PopupField<PassiveSkillTreeSO> _treePopup;
         private List<PassiveSkillTreeSO> _availableTrees = new List<PassiveSkillTreeSO>();
         private List<PassiveClusterTemplateSO> _availableClusterTemplates = new List<PassiveClusterTemplateSO>();
+        private List<PassiveNodeGroupTemplateSO> _availableNodeGroupTemplates = new List<PassiveNodeGroupTemplateSO>();
+        private bool _nodeGroupTemplatesExpanded = true;
+        private string _nodeGroupTemplateSearch = string.Empty;
 
         [MenuItem("Tools/Passive Tree Editor")]
         public static void OpenWindow()
@@ -68,6 +72,7 @@ namespace Scripts.Editor.PassiveTree
         {
             RefreshAvailableTrees();
             RefreshAvailableClusterTemplates();
+            RefreshAvailableNodeGroupTemplates();
             RestoreLastTreeIfNeeded();
             EnsureStartNodeLocalization();
         }
@@ -220,6 +225,19 @@ namespace Scripts.Editor.PassiveTree
                 _selectedClusterTemplate = _availableClusterTemplates.FirstOrDefault();
         }
 
+        private void RefreshAvailableNodeGroupTemplates()
+        {
+            _availableNodeGroupTemplates.Clear();
+            foreach (string guid in AssetDatabase.FindAssets("t:PassiveNodeGroupTemplateSO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var template = AssetDatabase.LoadAssetAtPath<PassiveNodeGroupTemplateSO>(path);
+                if (template != null)
+                    _availableNodeGroupTemplates.Add(template);
+            }
+            _availableNodeGroupTemplates = _availableNodeGroupTemplates.OrderBy(template => template.name).ToList();
+        }
+
         private void RestoreLastTreeIfNeeded()
         {
             if (_currentTree != null)
@@ -317,6 +335,20 @@ namespace Scripts.Editor.PassiveTree
 
             if ((evt.ctrlKey || evt.commandKey) && !evt.altKey)
             {
+                if (evt.shiftKey && evt.keyCode == KeyCode.H && MirrorSelectedNodes(true))
+                {
+                    evt.StopPropagation();
+                    evt.PreventDefault();
+                    return;
+                }
+
+                if (evt.shiftKey && evt.keyCode == KeyCode.V && MirrorSelectedNodes(false))
+                {
+                    evt.StopPropagation();
+                    evt.PreventDefault();
+                    return;
+                }
+
                 if (evt.keyCode == KeyCode.C && TryCopySelectedNode())
                 {
                     evt.StopPropagation();
@@ -531,6 +563,8 @@ namespace Scripts.Editor.PassiveTree
                     "• Shift+перетаскивание ромба — якорь с шагом 5%\n" +
                     "• Alt+перетаскивание ромба — якорь едет, усики остаются на месте\n" +
                     "• [ / ] — поворот усиков на 15° (Shift: 45°)\n" +
+                    "• L — вкл/выкл постоянное зеркальное движение усиков\n" +
+                    "• M — отзеркалить сторону изгиба\n" +
                     "• R — сброс усиков",
                     MessageType.Info);
 
@@ -538,17 +572,37 @@ namespace Scripts.Editor.PassiveTree
                 float percent = EditorGUILayout.Slider("Anchor %", connection.AnchorPercent, 0f, 100f);
                 Vector2 inOffset = EditorGUILayout.Vector2Field("In Handle", connection.InHandleOffset);
                 Vector2 outOffset = EditorGUILayout.Vector2Field("Out Handle", connection.OutHandleOffset);
+                bool mirrorHandles = EditorGUILayout.Toggle("Mirror Handles", connection.MirrorHandles);
                 if (EditorGUI.EndChangeCheck())
                 {
                     Undo.RecordObject(_currentTree, "Edit Bezier Connection");
                     connection.AnchorPercent = percent;
                     connection.InHandleOffset = inOffset;
-                    connection.OutHandleOffset = outOffset;
+                    connection.OutHandleOffset = mirrorHandles
+                        ? PassiveBezierMath.MirrorHandle(connection.InHandleOffset)
+                        : outOffset;
+                    connection.MirrorHandles = mirrorHandles;
                     PassiveTreeAssetPersistence.SetDirty(_currentTree);
                     _canvas?.RefreshSelectedBezierGeometry();
                 }
 
                 EditorGUILayout.Space(6f);
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("Flip Side (M)"))
+                    {
+                        _canvas?.Commands.FlipBezierSide(connection);
+                        _canvas?.RefreshSelectedBezierGeometry();
+                    }
+
+                    string mirrorLabel = connection.MirrorHandles ? "Unlink Handles (L)" : "Link Handles (L)";
+                    if (GUILayout.Button(mirrorLabel))
+                    {
+                        _canvas?.Commands.SetBezierMirrorHandles(connection, !connection.MirrorHandles);
+                        _canvas?.RefreshSelectedBezierGeometry();
+                    }
+                }
+
                 if (GUILayout.Button("Reset Handles"))
                 {
                     _canvas?.Commands.ResetBezierHandles(connection);
@@ -575,15 +629,18 @@ namespace Scripts.Editor.PassiveTree
         private void DrawNoSelectionHelp()
         {
             EditorGUILayout.HelpBox(
-                "Click empty space to browse cluster templates and place ready-made cluster chunks into the tree. Select a node or cluster to edit it.",
+                "Click empty space to place reusable node groups or browse cluster templates. Select a node or cluster to edit it.",
                 MessageType.Info);
+
+            DrawNodeGroupTemplateBrowser();
 
             DrawClusterTemplateBrowser();
 
             EditorGUILayout.Space(8f);
-            if (GUILayout.Button("Refresh Cluster Templates"))
+            if (GUILayout.Button("Refresh Templates"))
             {
                 RefreshAvailableClusterTemplates();
+                RefreshAvailableNodeGroupTemplates();
                 Repaint();
             }
         }
@@ -615,6 +672,24 @@ namespace Scripts.Editor.PassiveTree
                         _selectedCluster = null;
                         RefreshInspector();
                     }
+                }
+
+
+                if (selectedNodeCount > 0 && selectedClusterCount == 0)
+                {
+                    EditorGUILayout.Space(6f);
+                    EditorGUILayout.LabelField("Selection Tools", EditorStyles.boldLabel);
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        if (GUILayout.Button("Mirror Horizontal"))
+                            MirrorSelectedNodes(true);
+                        if (GUILayout.Button("Mirror Vertical"))
+                            MirrorSelectedNodes(false);
+                    }
+                    EditorGUILayout.LabelField("Shortcuts: Ctrl/Cmd+Shift+H / V", EditorStyles.miniLabel);
+                    EditorGUILayout.HelpBox("При зеркалировании ноды с орбит переводятся в FREE, чтобы точно сохранить общую симметрию выделения.", MessageType.None);
+                    if (GUILayout.Button("Save Selection As Node Group Template"))
+                        SaveSelectedNodesAsTemplate();
                 }
             }
         }
@@ -953,6 +1028,167 @@ namespace Scripts.Editor.PassiveTree
             return _currentTree.Nodes.Count(node => node.ClusterID == clusterId);
         }
 
+        private bool MirrorSelectedNodes(bool horizontal)
+        {
+            if (_canvas == null || _currentTree == null || _canvas.GetSelectedClusterCount() > 0)
+                return false;
+
+            List<PassiveNodeDefinition> nodes = _canvas.GetSelectedNodeData();
+            if (nodes.Count == 0)
+                return false;
+
+            List<string> ids = nodes.Select(node => node.ID).ToList();
+            _canvas.Commands.MirrorNodes(nodes, horizontal);
+            _canvas.PopulateView(_currentTree);
+            _canvas.SelectNodesByIds(ids);
+            _selectedNode = null;
+            _selectedCluster = null;
+            _selectedBezier = null;
+            RefreshInspector();
+            return true;
+        }
+
+        private void SaveSelectedNodesAsTemplate()
+        {
+            if (_canvas == null || _currentTree == null)
+                return;
+
+            List<PassiveNodeDefinition> nodes = _canvas.GetSelectedNodeData();
+            if (nodes.Count == 0)
+                return;
+
+            EnsureFolder(DefaultNodeGroupTemplateFolder);
+            string path = EditorUtility.SaveFilePanelInProject(
+                "Save Node Group Template",
+                "NodeGroupTemplate",
+                "asset",
+                "Choose a name for this connected node construction.",
+                DefaultNodeGroupTemplateFolder);
+            if (string.IsNullOrWhiteSpace(path))
+                return;
+
+            var template = CreateInstance<PassiveNodeGroupTemplateSO>();
+            template.DisplayName = Path.GetFileNameWithoutExtension(path);
+            if (!template.CaptureFrom(_currentTree, nodes))
+            {
+                DestroyImmediate(template);
+                EditorUtility.DisplayDialog(
+                    "Cannot Save Node Group",
+                    "Выделенные ноды должны образовывать одну связанную конструкцию. Проверь связи между отдельными частями выделения.",
+                    "OK");
+                return;
+            }
+
+            AssetDatabase.CreateAsset(template, path);
+            AssetDatabase.SaveAssets();
+            RefreshAvailableNodeGroupTemplates();
+            EditorGUIUtility.PingObject(template);
+            Selection.activeObject = template;
+        }
+
+        private void DrawNodeGroupTemplateBrowser()
+        {
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                _nodeGroupTemplatesExpanded = EditorGUILayout.Foldout(
+                    _nodeGroupTemplatesExpanded,
+                    $"Node Group Templates ({_availableNodeGroupTemplates.Count})",
+                    true,
+                    EditorStyles.foldoutHeader);
+                if (!_nodeGroupTemplatesExpanded)
+                    return;
+
+                EditorGUILayout.LabelField("Placement Point", $"{_lastCanvasClickContentPosition.x:0}, {_lastCanvasClickContentPosition.y:0}");
+                _nodeGroupTemplateSearch = EditorGUILayout.TextField("Search", _nodeGroupTemplateSearch ?? string.Empty);
+
+                if (_availableNodeGroupTemplates.Count == 0)
+                {
+                    EditorGUILayout.HelpBox("No node group templates yet. Select connected nodes and save the selection as a template.", MessageType.Info);
+                    return;
+                }
+
+                string query = (_nodeGroupTemplateSearch ?? string.Empty).Trim();
+                int visibleCount = 0;
+                foreach (var template in _availableNodeGroupTemplates)
+                {
+                    string displayName = GetNodeGroupDisplayName(template);
+                    if (!string.IsNullOrWhiteSpace(query) && displayName.IndexOf(query, System.StringComparison.OrdinalIgnoreCase) < 0)
+                        continue;
+
+                    visibleCount++;
+                    DrawNodeGroupTemplateListItem(template);
+                }
+
+                if (visibleCount == 0)
+                    EditorGUILayout.HelpBox("No node groups match the search.", MessageType.None);
+            }
+        }
+
+        private void DrawNodeGroupTemplateListItem(PassiveNodeGroupTemplateSO template)
+        {
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                Rect rowRect = GUILayoutUtility.GetRect(1f, 82f, GUILayout.ExpandWidth(true));
+                Rect previewRect = new Rect(rowRect.x + 6f, rowRect.y + 6f, 96f, rowRect.height - 12f);
+                DrawNodeGroupTemplatePreview(previewRect, template);
+
+                Rect buttonRect = new Rect(rowRect.xMax - 70f, rowRect.yMax - 28f, 64f, 22f);
+                Rect pingRect = new Rect(buttonRect.x, rowRect.y + 6f, buttonRect.width, 20f);
+                Rect contentRect = new Rect(previewRect.xMax + 8f, rowRect.y + 6f, Mathf.Max(40f, buttonRect.x - previewRect.xMax - 14f), rowRect.height - 12f);
+                GUILayout.BeginArea(contentRect);
+                GUILayout.Label(GetNodeGroupDisplayName(template), EditorStyles.boldLabel);
+                int nodeCount = template?.Nodes?.Count ?? 0;
+                int freeCount = template?.BezierConnections?.Count ?? 0;
+                int allConnections = CountNodeGroupConnections(template);
+                EditorGUILayout.LabelField($"{nodeCount} nodes", EditorStyles.miniLabel);
+                EditorGUILayout.LabelField($"DIRECT {Mathf.Max(0, allConnections - freeCount)}  •  FREE {freeCount}", EditorStyles.miniLabel);
+                GUILayout.EndArea();
+
+                if (GUI.Button(pingRect, "Ping"))
+                {
+                    EditorGUIUtility.PingObject(template);
+                    Selection.activeObject = template;
+                }
+
+                if (GUI.Button(buttonRect, "Place"))
+                    PlaceNodeGroupTemplate(template);
+            }
+        }
+
+        private static string GetNodeGroupDisplayName(PassiveNodeGroupTemplateSO template)
+        {
+            if (template == null)
+                return "Missing Template";
+            return string.IsNullOrWhiteSpace(template.DisplayName) ? template.name : template.DisplayName;
+        }
+
+        private static int CountNodeGroupConnections(PassiveNodeGroupTemplateSO template)
+        {
+            if (template?.Nodes == null)
+                return 0;
+
+            int count = 0;
+            foreach (var node in template.Nodes)
+                if (node?.ConnectionIDs != null)
+                    count += node.ConnectionIDs.Count;
+            return count / 2;
+        }
+
+        private void PlaceNodeGroupTemplate(PassiveNodeGroupTemplateSO template)
+        {
+            if (_canvas == null || _currentTree == null || template == null)
+                return;
+
+            Vector2 position = _canvas.GetLastMouseContentPosition();
+            List<PassiveNodeDefinition> created = _canvas.Commands.CreateNodeGroupFromTemplateAtPosition(template, position);
+            _canvas.PopulateView(_currentTree);
+            _canvas.SelectNodesByIds(created.Select(node => node.ID));
+            _selectedNode = null;
+            _selectedCluster = null;
+            _selectedBezier = null;
+            RefreshInspector();
+        }
+
         private void SaveSelectedClusterAsTemplate()
         {
             if (_selectedCluster == null)
@@ -1184,6 +1420,91 @@ namespace Scripts.Editor.PassiveTree
             RefreshCanvasKeepingSelection();
             _canvas?.FrameAll();
             ShowNotification(new GUIContent($"Backbone generated: {createdNodes} nodes"));
+        }
+
+        private void DrawNodeGroupTemplatePreview(Rect rect, PassiveNodeGroupTemplateSO template)
+        {
+            EditorGUI.DrawRect(rect, new Color(0.10f, 0.10f, 0.11f, 1f));
+            if (template?.Nodes == null || template.Nodes.Count == 0)
+                return;
+
+            List<PassiveNodeDefinition> nodes = template.Nodes.Where(node => node != null).ToList();
+            if (nodes.Count == 0)
+                return;
+
+            Vector2 min = nodes[0].Position;
+            Vector2 max = min;
+            foreach (var node in nodes)
+            {
+                min = Vector2.Min(min, node.Position);
+                max = Vector2.Max(max, node.Position);
+            }
+
+            Vector2 sourceCenter = (min + max) * 0.5f;
+            float width = Mathf.Max(1f, max.x - min.x);
+            float height = Mathf.Max(1f, max.y - min.y);
+            float scale = Mathf.Min((rect.width - 18f) / width, (rect.height - 18f) / height);
+            scale = Mathf.Min(scale, 1.2f);
+
+            Vector2 ToPreview(Vector2 point) => rect.center + ((point - sourceCenter) * scale);
+            var positions = new Dictionary<string, Vector2>();
+            foreach (var node in nodes)
+                if (!string.IsNullOrWhiteSpace(node.ID))
+                    positions[node.ID] = ToPreview(node.Position);
+
+            Handles.BeginGUI();
+            Color previousColor = Handles.color;
+            foreach (var node in nodes)
+            {
+                if (node.ConnectionIDs == null || !positions.TryGetValue(node.ID, out Vector2 from))
+                    continue;
+
+                foreach (string connectionId in node.ConnectionIDs)
+                {
+                    if (!positions.TryGetValue(connectionId, out Vector2 to) || string.CompareOrdinal(node.ID, connectionId) > 0)
+                        continue;
+
+                    PassiveBezierConnection bezier = template.BezierConnections?.FirstOrDefault(link => link != null && link.Matches(node.ID, connectionId));
+                    if (bezier == null)
+                    {
+                        Handles.color = new Color(0.82f, 0.69f, 0.28f, 0.85f);
+                        Handles.DrawAAPolyLine(2f, from, to);
+                        continue;
+                    }
+
+                    if (!positions.TryGetValue(bezier.NodeIdA, out Vector2 bezierA) || !positions.TryGetValue(bezier.NodeIdB, out Vector2 bezierB))
+                        continue;
+                    Vector2 anchor = Vector2.Lerp(bezierA, bezierB, Mathf.Clamp01(bezier.AnchorPercent / 100f));
+                    Handles.DrawBezier(
+                        bezierA,
+                        bezierB,
+                        anchor + (bezier.InHandleOffset * scale),
+                        anchor + (bezier.OutHandleOffset * scale),
+                        new Color(0.98f, 0.78f, 0.24f, 0.95f),
+                        null,
+                        2f);
+                }
+            }
+
+            foreach (var node in nodes)
+            {
+                Vector2 nodePosition = ToPreview(node.Position);
+                float radius = Mathf.Clamp(GetPreviewNodeRadius(node.NodeType) * 0.72f, 4f, 9f);
+                Rect nodeRect = new Rect(nodePosition.x - radius, nodePosition.y - radius, radius * 2f, radius * 2f);
+                Handles.color = Color.white;
+                Handles.DrawSolidDisc(nodePosition, Vector3.forward, radius);
+                Sprite icon = node.GetIcon();
+                if (icon != null)
+                {
+                    Texture texture = AssetPreview.GetAssetPreview(icon) ?? AssetPreview.GetMiniThumbnail(icon);
+                    if (texture != null)
+                        GUI.DrawTexture(nodeRect, texture, ScaleMode.ScaleAndCrop, true);
+                }
+                Handles.color = new Color(0.18f, 0.18f, 0.20f, 1f);
+                Handles.DrawWireDisc(nodePosition, Vector3.forward, radius);
+            }
+            Handles.color = previousColor;
+            Handles.EndGUI();
         }
 
         private void DrawClusterTemplatePreview(Rect rect, PassiveClusterTemplateSO template)

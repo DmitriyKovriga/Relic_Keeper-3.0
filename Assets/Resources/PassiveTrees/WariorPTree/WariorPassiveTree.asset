@@ -213,6 +213,7 @@ MonoBehaviour:
     - 455de6ab-8a0a-4e12-81a8-9fd095319e1f
     - 17aa1f43-dcbb-4a61-a0dd-b49bfc7d84a0
     - 151d3869-a745-434f-b145-ebf0e1b8b202
+    - 1041ba2d-3c38-4cbe-be82-f125e3fef90d
   - ID: 17aa1f43-dcbb-4a61-a0dd-b49bfc7d84a0
     NodeType: 0
     PlacementMode: 0
@@ -239,6 +240,7 @@ MonoBehaviour:
     - 17aa1f43-dcbb-4a61-a0dd-b49bfc7d84a0
     - c71bee8d-a709-4fcf-966b-f739822acd7b
     - 0c711811-1fc5-40c3-975f-daf9fbd0ab0c
+    - c442bab8-dc56-4bf8-ab17-9ef65cde316b
   - ID: 325a50ac-9859-48e0-82bd-c7ebb36edf8a
     NodeType: 0
     PlacementMode: 1
@@ -1001,6 +1003,76 @@ MonoBehaviour:
     UniqueModifiers: []
     ConnectionIDs:
     - 7005bd15-dece-4a0c-8573-7115911b9a0c
+  - ID: c442bab8-dc56-4bf8-ab17-9ef65cde316b
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 2079.5645, y: 865.4394}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: fc0ba8e7f746bd840add3a175586e705, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 5b8a753a-203c-4b74-bd12-07f31a8cc4bb
+    - df74aa06-feba-4957-8ea6-dd87dac6195d
+  - ID: 5b8a753a-203c-4b74-bd12-07f31a8cc4bb
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 2000.0441, y: 866.1368}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: fc0ba8e7f746bd840add3a175586e705, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - c442bab8-dc56-4bf8-ab17-9ef65cde316b
+    - f7def7e3-10cc-4157-b9be-08f328dea4c0
+  - ID: f7def7e3-10cc-4157-b9be-08f328dea4c0
+    NodeType: 1
+    PlacementMode: 0
+    Position: {x: 1920.5441, y: 866.0546}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: e2da1132ef2a54845a2701d52d3986c5, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 5b8a753a-203c-4b74-bd12-07f31a8cc4bb
+  - ID: 1041ba2d-3c38-4cbe-be82-f125e3fef90d
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 1480.2262, y: 866.329}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 939d162d749e35f4ebcde04a2ae8636b, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - c6473995-e120-410f-8773-6122b06cfe03
+    - 917aba84-3d6d-436d-87e8-c1282744accb
+  - ID: c6473995-e120-410f-8773-6122b06cfe03
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 1558.7467, y: 866.02637}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 939d162d749e35f4ebcde04a2ae8636b, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 1041ba2d-3c38-4cbe-be82-f125e3fef90d
+    - 8c45db8e-b6bf-431c-98e6-5d5e84352612
+  - ID: 8c45db8e-b6bf-431c-98e6-5d5e84352612
+    NodeType: 1
+    PlacementMode: 0
+    Position: {x: 1639.7467, y: 865.4442}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 6b273789b44efe94d8d70c81d6adca6f, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - c6473995-e120-410f-8773-6122b06cfe03
   Clusters:
   - ID: f7d051c5-e995-418d-b634-584a5c5b441e
     Name: Cicle 3+1 reverse
@@ -1044,7 +1116,7 @@ MonoBehaviour:
     RoadConnections: []
   - ID: 54821fa0-2fbd-4144-aa2a-832e5627a27e
     Name: Half-Circle
-    Center: {x: 1660, y: 920}
+    Center: {x: 1659.5, y: 919.5}
     Orbits:
     - Radius: 60
       IsPartialArc: 0
@@ -1098,30 +1170,72 @@ MonoBehaviour:
     AnchorPercent: 47.148655
     InHandleOffset: {x: -1.7478027, y: 17.9552}
     OutHandleOffset: {x: -29.009766, y: 8.21875}
+    MirrorHandles: 0
   - NodeIdA: 32ef806c-993f-4aa8-a550-08ba76901bd2
     NodeIdB: eb3181be-ae65-4522-890a-b120524545f0
     AnchorPercent: 50
     InHandleOffset: {x: 19.17212, y: -20.416992}
     OutHandleOffset: {x: -18.475464, y: -19.767944}
+    MirrorHandles: 0
   - NodeIdA: eb3181be-ae65-4522-890a-b120524545f0
     NodeIdB: f77ce47d-1d02-4765-9a20-47ae7a8be028
     AnchorPercent: 50
     InHandleOffset: {x: 18.194458, y: 24.962036}
     OutHandleOffset: {x: -18.154907, y: 26.260254}
+    MirrorHandles: 0
   - NodeIdA: 21083c92-b60d-4617-a90e-c2ad295f768c
     NodeIdB: 4e94d17c-aed9-45fe-8537-0ba7e114443b
     AnchorPercent: 50
     InHandleOffset: {x: 0.111206055, y: 18.449097}
     OutHandleOffset: {x: 29.320557, y: 10.010864}
+    MirrorHandles: 0
   - NodeIdA: 4e94d17c-aed9-45fe-8537-0ba7e114443b
     NodeIdB: 7005bd15-dece-4a0c-8573-7115911b9a0c
     AnchorPercent: 50
     InHandleOffset: {x: -17.20105, y: -20.12207}
     OutHandleOffset: {x: 18.499268, y: -18.174805}
+    MirrorHandles: 0
   - NodeIdA: 7005bd15-dece-4a0c-8573-7115911b9a0c
     NodeIdB: dbe18102-fb2f-4f56-ac54-716bbc3c5d51
     AnchorPercent: 50
     InHandleOffset: {x: -17.525635, y: 20.770874}
     OutHandleOffset: {x: 18.82373, y: 18.823608}
+    MirrorHandles: 0
+  - NodeIdA: 5b8a753a-203c-4b74-bd12-07f31a8cc4bb
+    NodeIdB: c442bab8-dc56-4bf8-ab17-9ef65cde316b
+    AnchorPercent: 50
+    InHandleOffset: {x: -18.475464, y: -19.767944}
+    OutHandleOffset: {x: 19.17212, y: -20.416992}
+    MirrorHandles: 0
+  - NodeIdA: 5b8a753a-203c-4b74-bd12-07f31a8cc4bb
+    NodeIdB: f7def7e3-10cc-4157-b9be-08f328dea4c0
+    AnchorPercent: 50
+    InHandleOffset: {x: 18.194458, y: 24.962036}
+    OutHandleOffset: {x: -18.154907, y: 26.260254}
+    MirrorHandles: 0
+  - NodeIdA: c442bab8-dc56-4bf8-ab17-9ef65cde316b
+    NodeIdB: df74aa06-feba-4957-8ea6-dd87dac6195d
+    AnchorPercent: 50
+    InHandleOffset: {x: 2.7177734, y: 25.780273}
+    OutHandleOffset: {x: 26.717773, y: 0.78027344}
+    MirrorHandles: 0
+  - NodeIdA: 1041ba2d-3c38-4cbe-be82-f125e3fef90d
+    NodeIdB: c6473995-e120-410f-8773-6122b06cfe03
+    AnchorPercent: 50
+    InHandleOffset: {x: -19.17212, y: -20.416992}
+    OutHandleOffset: {x: 18.475464, y: -19.767944}
+    MirrorHandles: 0
+  - NodeIdA: 8c45db8e-b6bf-431c-98e6-5d5e84352612
+    NodeIdB: c6473995-e120-410f-8773-6122b06cfe03
+    AnchorPercent: 50
+    InHandleOffset: {x: 18.154907, y: 26.260254}
+    OutHandleOffset: {x: -18.194458, y: 24.962036}
+    MirrorHandles: 0
+  - NodeIdA: 1041ba2d-3c38-4cbe-be82-f125e3fef90d
+    NodeIdB: 917aba84-3d6d-436d-87e8-c1282744accb
+    AnchorPercent: 50
+    InHandleOffset: {x: 15.230963, y: 16.191877}
+    OutHandleOffset: {x: -19.33571, y: 10.967649}
+    MirrorHandles: 0
   GridSize: 20
   SnapToGrid: 0

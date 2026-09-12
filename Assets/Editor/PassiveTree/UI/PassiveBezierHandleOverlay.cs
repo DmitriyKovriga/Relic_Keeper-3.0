@@ -196,7 +196,10 @@ namespace Scripts.Editor.PassiveTree
                 offset = PassiveBezierMath.ConstrainTo45Degrees(offset);
 
             bool editingIn = _dragKind == HandleKind.In;
-            if (ctrl)
+            if (alt && Connection.MirrorHandles)
+                Connection.MirrorHandles = false;
+
+            if (ctrl || (Connection.MirrorHandles && !alt))
             {
                 Connection.InHandleOffset = editingIn ? offset : PassiveBezierMath.MirrorHandle(offset);
                 Connection.OutHandleOffset = editingIn ? PassiveBezierMath.MirrorHandle(offset) : offset;

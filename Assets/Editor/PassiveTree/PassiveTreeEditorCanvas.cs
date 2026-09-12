@@ -281,6 +281,7 @@ namespace Scripts.Editor.PassiveTree
             _viewport.RegisterCallback<PointerMoveEvent>(OnViewportPointerMove);
             _viewport.RegisterCallback<PointerUpEvent>(OnViewportPointerUp);
             _viewport.RegisterCallback<PointerLeaveEvent>(OnViewportPointerLeave);
+            _viewport.RegisterCallback<PointerCaptureOutEvent>(OnViewportPointerCaptureOut);
 
             this.RegisterCallback<PointerDownEvent>(OnRootPointerDown, TrickleDown.TrickleDown);
         }
@@ -535,6 +536,7 @@ namespace Scripts.Editor.PassiveTree
                 OnTreeGeometryChanged?.Invoke();
             }
             _viewportController.EndPan(evt.pointerId);
+            ReleaseViewportPointer(evt.pointerId);
         }
 
         private void OnViewportPointerLeave(PointerLeaveEvent evt)
@@ -546,15 +548,35 @@ namespace Scripts.Editor.PassiveTree
             _resizingCluster = null;
             _resizingOrbitIndex = -1;
             CancelBackgroundInteraction();
+            ReleaseViewportPointer(evt.pointerId);
             HideNodeHoverTooltip();
+        }
+
+        private void OnViewportPointerCaptureOut(PointerCaptureOutEvent evt)
+        {
+            _draggedNode = null;
+            _draggedCluster = null;
+            _resizingCluster = null;
+            _resizingOrbitIndex = -1;
+            _selectedNodeDragStartPositions.Clear();
+            _selectedClusterDragStartPositions.Clear();
+            CancelBackgroundInteraction(false);
+            _viewportController.CancelPan();
         }
 
         private void OnNodePointerDown(PassiveTreeEditorNode nodeView, PointerDownEvent evt)
         {
             if (evt.button != 0) return;
+            CancelBackgroundInteraction();
             Focus();
             bool addToSelection = evt.ctrlKey || evt.commandKey;
-            _selection.SelectNode(nodeView, addToSelection);
+            // Clicking one member of an existing multi-selection starts a group drag.
+            // Re-selecting it without a modifier would otherwise collapse the selection to one node.
+            bool keepExistingGroup = !addToSelection &&
+                                     _selection.IsNodeSelected(nodeView) &&
+                                     _selection.TotalSelectionCount > 1;
+            if (!keepExistingGroup)
+                _selection.SelectNode(nodeView, addToSelection);
 
             _draggedNode = nodeView;
             _nodeDragStartPos = nodeView.Data.GetWorldPosition(_tree);
@@ -758,6 +780,7 @@ namespace Scripts.Editor.PassiveTree
 
         private void BeginBackgroundInteraction(PointerDownEvent evt)
         {
+            CancelBackgroundInteraction();
             Focus();
             _pendingBackgroundClick = true;
             _isMarqueeSelecting = false;
@@ -810,17 +833,25 @@ namespace Scripts.Editor.PassiveTree
             }
 
             CancelBackgroundInteraction();
-            _viewport.ReleasePointer(evt.pointerId);
         }
 
-        private void CancelBackgroundInteraction()
+        private void CancelBackgroundInteraction(bool releasePointer = true)
         {
+            int pointerId = _marqueePointerId;
             _pendingBackgroundClick = false;
             _isMarqueeSelecting = false;
             _marqueeAdditiveSelection = false;
             _marqueePointerId = -1;
             if (_marqueeSelectionBox != null)
                 _marqueeSelectionBox.style.display = DisplayStyle.None;
+            if (releasePointer && pointerId >= 0)
+                ReleaseViewportPointer(pointerId);
+        }
+
+        private void ReleaseViewportPointer(int pointerId)
+        {
+            if (_viewport != null && pointerId >= 0 && _viewport.HasPointerCapture(pointerId))
+                _viewport.ReleasePointer(pointerId);
         }
 
         private void UpdateMarqueeSelectionBox(Vector2 start, Vector2 current)
@@ -914,6 +945,14 @@ namespace Scripts.Editor.PassiveTree
         }
 
         public PassiveNodeDefinition GetSingleSelectedNodeData() => _selection.GetSingleSelectedNodeData();
+        public List<PassiveNodeDefinition> GetSelectedNodeData()
+        {
+            var result = new List<PassiveNodeDefinition>();
+            foreach (var view in _selection.GetSelectedNodeViews())
+                if (view?.Data != null)
+                    result.Add(view.Data);
+            return result;
+        }
         public int GetSelectedNodeCount() => _selection.SelectedNodeCount;
         public int GetSelectedClusterCount() => _selection.SelectedClusterCount;
         public int GetTotalSelectionCount() => _selection.TotalSelectionCount;
@@ -964,6 +1003,19 @@ namespace Scripts.Editor.PassiveTree
                 _selection.SelectNode(view);
         }
 
+        public void SelectNodesByIds(IEnumerable<string> nodeIds)
+        {
+            if (nodeIds == null)
+                return;
+
+            var views = new List<PassiveTreeEditorNode>();
+            foreach (string nodeId in nodeIds)
+                if (!string.IsNullOrWhiteSpace(nodeId) && _nodeViews.TryGetValue(nodeId, out var view))
+                    views.Add(view);
+
+            _selection.SelectNodes(views);
+        }
+
         public void SelectClusterById(string clusterId)
         {
             if (string.IsNullOrWhiteSpace(clusterId))
@@ -994,6 +1046,24 @@ namespace Scripts.Editor.PassiveTree
             if (evt.keyCode == KeyCode.R)
             {
                 _commands.ResetBezierHandles(connection);
+                RefreshBezierVisuals();
+                _selection.SelectBezier(connection);
+                OnTreeGeometryChanged?.Invoke();
+                return true;
+            }
+
+            if (evt.keyCode == KeyCode.M)
+            {
+                _commands.FlipBezierSide(connection);
+                RefreshBezierVisuals();
+                _selection.SelectBezier(connection);
+                OnTreeGeometryChanged?.Invoke();
+                return true;
+            }
+
+            if (evt.keyCode == KeyCode.L)
+            {
+                _commands.SetBezierMirrorHandles(connection, !connection.MirrorHandles);
                 RefreshBezierVisuals();
                 _selection.SelectBezier(connection);
                 OnTreeGeometryChanged?.Invoke();

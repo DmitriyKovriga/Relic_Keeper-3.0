@@ -1167,6 +1167,38 @@ MonoBehaviour:
     m_Key: passive.node.SmallRegenAndArmore.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103802495149371392
+    m_Key: passive.node.SmallCritAttackSpeed.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103802495149371393
+    m_Key: passive.node.SmallCritAttackSpeed.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103806431616921600
+    m_Key: passive.node.RegenLifeAndAttackSpeed.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103806431616921601
+    m_Key: passive.node.RegenLifeAndAttackSpeed.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103810397025169408
+    m_Key: passive.node.MediumManaOnHit.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103810397025169409
+    m_Key: passive.node.MediumManaOnHit.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103812605548523520
+    m_Key: passive.node.SmallManaOnHit.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103812605548523521
+    m_Key: passive.node.SmallManaOnHit.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

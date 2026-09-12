@@ -104,6 +104,18 @@ namespace Scripts.Editor.PassiveTree
         public void BuildBezierMenu(DropdownMenu menu, PassiveBezierConnection connection)
         {
             menu.AppendAction("Convert to Direct", _ => Execute(() => _commands.ConvertBezierToDirect(connection)));
+            menu.AppendAction("Flip Curve Side (M)", _ =>
+            {
+                _commands.FlipBezierSide(connection);
+                _onTreeModified?.Invoke();
+                _onSelectBezierConnection?.Invoke(connection.NodeIdA, connection.NodeIdB);
+            });
+            menu.AppendAction(connection.MirrorHandles ? "Unlink Mirrored Handles (L)" : "Link Mirrored Handles (L)", _ =>
+            {
+                _commands.SetBezierMirrorHandles(connection, !connection.MirrorHandles);
+                _onTreeModified?.Invoke();
+                _onSelectBezierConnection?.Invoke(connection.NodeIdA, connection.NodeIdB);
+            });
             menu.AppendAction("Reset Handles", _ =>
             {
                 _commands.ResetBezierHandles(connection);

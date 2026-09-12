@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7e3cc1aac22436bbfca0e2e4ddcc79a, type: 3}
+  m_Name: LineNodeGroupTemplate
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeGroupTemplateSO
+  DisplayName: LineNodeGroupTemplate
+  Nodes:
+  - ID: 32ef806c-993f-4aa8-a550-08ba76901bd2
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 79.510254, y: -0.09863281}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - eb3181be-ae65-4522-890a-b120524545f0
+  - ID: eb3181be-ae65-4522-890a-b120524545f0
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 0.4897461, y: 0.09875488}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 32ef806c-993f-4aa8-a550-08ba76901bd2
+    - f77ce47d-1d02-4765-9a20-47ae7a8be028
+  - ID: f77ce47d-1d02-4765-9a20-47ae7a8be028
+    NodeType: 1
+    PlacementMode: 0
+    Position: {x: -79.510254, y: 0.016601562}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 711d2f51207f3ec4d8ce744dc3dd1913, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - eb3181be-ae65-4522-890a-b120524545f0
+  BezierConnections:
+  - NodeIdA: 32ef806c-993f-4aa8-a550-08ba76901bd2
+    NodeIdB: eb3181be-ae65-4522-890a-b120524545f0
+    AnchorPercent: 50
+    InHandleOffset: {x: 19.17212, y: -20.416992}
+    OutHandleOffset: {x: -18.475464, y: -19.767944}
+    MirrorHandles: 0
+  - NodeIdA: eb3181be-ae65-4522-890a-b120524545f0
+    NodeIdB: f77ce47d-1d02-4765-9a20-47ae7a8be028
+    AnchorPercent: 50
+    InHandleOffset: {x: 18.194458, y: 24.962036}
+    OutHandleOffset: {x: -18.154907, y: 26.260254}
+    MirrorHandles: 0

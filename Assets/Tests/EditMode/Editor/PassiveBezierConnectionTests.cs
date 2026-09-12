@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Scripts.Editor.PassiveTree;
 using Scripts.Skills.PassiveTree;
@@ -86,6 +87,28 @@ namespace RelicKeeper.Tests.EditMode
             Vector2 opposite = PassiveBezierMath.AlignOppositeHandle(Vector2.right * 8f, 4f);
             Assert.That(opposite, Is.EqualTo(Vector2.left * 4f));
             Assert.That(PassiveBezierMath.RotateOffset(Vector2.right, 90f).y, Is.EqualTo(1f).Within(0.01f));
+            Assert.That(PassiveBezierMath.ReflectAcrossAxis(new Vector2(3f, 4f), Vector2.right), Is.EqualTo(new Vector2(3f, -4f)));
+        }
+
+        [Test]
+        public void NormalizeIds_PreservesBezierGeometryWhenEndpointsSwap()
+        {
+            var connection = new PassiveBezierConnection
+            {
+                NodeIdA = "z",
+                NodeIdB = "a",
+                AnchorPercent = 30f,
+                InHandleOffset = new Vector2(1f, 2f),
+                OutHandleOffset = new Vector2(3f, 4f)
+            };
+
+            connection.NormalizeIds();
+
+            Assert.That(connection.NodeIdA, Is.EqualTo("a"));
+            Assert.That(connection.NodeIdB, Is.EqualTo("z"));
+            Assert.That(connection.AnchorPercent, Is.EqualTo(70f));
+            Assert.That(connection.InHandleOffset, Is.EqualTo(new Vector2(3f, 4f)));
+            Assert.That(connection.OutHandleOffset, Is.EqualTo(new Vector2(1f, 2f)));
         }
 
         [Test]
@@ -162,6 +185,60 @@ namespace RelicKeeper.Tests.EditMode
             finally
             {
                 Object.DestroyImmediate(tree);
+            }
+        }
+    }
+
+    public class PassiveNodeGroupTemplateTests
+    {
+        [Test]
+        public void CaptureAndApply_PreservesInternalDirectAndFreeConnections()
+        {
+            var tree = ScriptableObject.CreateInstance<PassiveSkillTreeSO>();
+            var template = ScriptableObject.CreateInstance<PassiveNodeGroupTemplateSO>();
+            var targetTree = ScriptableObject.CreateInstance<PassiveSkillTreeSO>();
+            try
+            {
+                var a = new PassiveNodeDefinition { ID = "a", Position = Vector2.zero, ConnectionIDs = new List<string> { "b" } };
+                var b = new PassiveNodeDefinition { ID = "b", Position = new Vector2(100f, 0f), ConnectionIDs = new List<string> { "a", "c" } };
+                var c = new PassiveNodeDefinition { ID = "c", Position = new Vector2(200f, 20f), ConnectionIDs = new List<string> { "b" } };
+                tree.Nodes.AddRange(new[] { a, b, c });
+                tree.BezierConnections.Add(PassiveBezierConnection.CreateDefault("b", "c", b.Position, c.Position));
+                tree.InitLookup();
+
+                Assert.That(template.CaptureFrom(tree, tree.Nodes), Is.True);
+                List<PassiveNodeDefinition> created = template.ApplyToTree(targetTree, new Vector2(500f, 300f));
+
+                Assert.That(created.Count, Is.EqualTo(3));
+                Assert.That(created.Sum(node => node.ConnectionIDs.Count), Is.EqualTo(4));
+                Assert.That(targetTree.BezierConnections.Count, Is.EqualTo(1));
+                Assert.That(targetTree.HasBezierConnection(created[1].ID, created[2].ID), Is.True);
+                Assert.That(created.TrueForAll(node => node.PlacementMode == NodePlacementMode.Free), Is.True);
+            }
+            finally
+            {
+                Object.DestroyImmediate(tree);
+                Object.DestroyImmediate(template);
+                Object.DestroyImmediate(targetTree);
+            }
+        }
+
+        [Test]
+        public void Capture_RejectsDisconnectedSelection()
+        {
+            var tree = ScriptableObject.CreateInstance<PassiveSkillTreeSO>();
+            var template = ScriptableObject.CreateInstance<PassiveNodeGroupTemplateSO>();
+            try
+            {
+                tree.Nodes.Add(new PassiveNodeDefinition { ID = "a", ConnectionIDs = new List<string>() });
+                tree.Nodes.Add(new PassiveNodeDefinition { ID = "b", ConnectionIDs = new List<string>() });
+                tree.InitLookup();
+                Assert.That(template.CaptureFrom(tree, tree.Nodes), Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(tree);
+                Object.DestroyImmediate(template);
             }
         }
     }
