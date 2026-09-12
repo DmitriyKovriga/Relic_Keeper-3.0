@@ -142,7 +142,7 @@ namespace Scripts.Editor.PassiveTree
             EditorGUILayout.Space(4f);
             EditorGUILayout.LabelField("Special Stat Scaling", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(
-                "Generic source-to-target rule. Example: +10 flat DamagePhysical for every 100 final Armor.",
+                "Example: Grant +10 flat Phys Damage per 100 Armor.",
                 MessageType.None);
             EditorGUILayout.PropertyField(_serialized.FindProperty("StatScalingRules"), true);
             _serialized.ApplyModifiedProperties();

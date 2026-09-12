@@ -139,7 +139,7 @@ namespace Scripts.Editor.PassiveTree
             EditorGUILayout.Space(3f);
             EditorGUILayout.LabelField("Special Stat Scaling", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(
-                "Example: Source Armor / 100, Target DamagePhysical +10 Flat, Whole Steps enabled.",
+                "Example: Grant +10 flat Phys Damage per 100 Armor.",
                 MessageType.None);
             EditorGUILayout.PropertyField(_serialized.FindProperty("StatScalingRules"), true);
             if (EditorGUI.EndChangeCheck())

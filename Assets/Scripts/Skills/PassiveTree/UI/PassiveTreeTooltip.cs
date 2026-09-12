@@ -164,24 +164,43 @@ namespace Scripts.Skills.PassiveTree.UI
             if (rule == null)
                 return string.Empty;
 
-            string target = StatPresentation.FormatModifierLine(
-                _statsDatabase,
-                rule.TargetStat,
-                GetLocalizedStatName(rule.TargetStat),
-                rule.TargetValuePerStep,
-                rule.TargetModifierType,
-                StatPresentation.ModifierLineStyle.StatThenValue);
-            string source = GetLocalizedStatName(rule.SourceStat);
             bool russian = LocalizationSettings.SelectedLocale != null &&
                            LocalizationSettings.SelectedLocale.Identifier.Code.StartsWith("ru", System.StringComparison.OrdinalIgnoreCase);
+            string sign = rule.TargetValuePerStep >= 0f ? "+" : string.Empty;
+            string suffix = rule.TargetModifierType == StatModType.Flat ? string.Empty : "%";
+            string value = $"{sign}{rule.TargetValuePerStep:0.##}{suffix}";
+            string target = GetLocalizedStatName(rule.TargetStat);
+            string source = GetLocalizedStatName(rule.SourceStat);
             if (russian)
+            {
+                string kind = rule.TargetModifierType switch
+                {
+                    StatModType.Flat => "плоского бонуса",
+                    StatModType.PercentAdd => "увеличения",
+                    StatModType.PercentSub => "уменьшения",
+                    StatModType.PercentMult => "больше",
+                    StatModType.PercentLess => "меньше",
+                    _ => "бонуса"
+                };
                 return rule.UseWholeSteps
-                    ? $"{source}: каждые {rule.SourceAmountPerStep:0.##} ед. → {target}"
-                    : $"{source}: на {rule.SourceAmountPerStep:0.##} ед. → {target} (пропорционально)";
+                    ? $"Дарует {value} {kind} к «{target}» за каждые {rule.SourceAmountPerStep:0.##} ед. характеристики «{source}»."
+                    : $"Дарует {value} {kind} к «{target}» на {rule.SourceAmountPerStep:0.##} ед. характеристики «{source}» (пропорционально).";
+            }
 
+            string englishKind = rule.TargetModifierType switch
+            {
+                StatModType.Flat => "flat",
+                StatModType.PercentAdd => "increased",
+                StatModType.PercentSub => "decreased",
+                StatModType.PercentMult => "more",
+                StatModType.PercentLess => "less",
+                _ => rule.TargetModifierType.ToString().ToLowerInvariant()
+            };
+            if (rule.TargetStat == StatType.DamagePhysical)
+                target = "Phys Damage";
             return rule.UseWholeSteps
-                ? $"{source}: every {rule.SourceAmountPerStep:0.##} → {target}"
-                : $"{source}: per {rule.SourceAmountPerStep:0.##} → {target} (proportional)";
+                ? $"Grant {value} {englishKind} {target} per {rule.SourceAmountPerStep:0.##} {source}."
+                : $"Grant {value} {englishKind} {target} per {rule.SourceAmountPerStep:0.##} {source} (proportional).";
         }
 
         private string GetLocalizedStatName(StatType stat)

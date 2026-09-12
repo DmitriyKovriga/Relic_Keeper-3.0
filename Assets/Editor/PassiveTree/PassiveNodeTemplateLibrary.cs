@@ -313,15 +313,22 @@ namespace Scripts.Editor.PassiveTree
             if (rule == null)
                 return "Invalid stat scaling rule";
 
-            string target = FormatModifier(new SerializableStatModifier
+            string sign = rule.TargetValuePerStep >= 0f ? "+" : string.Empty;
+            string suffix = rule.TargetModifierType == StatModType.Flat ? string.Empty : "%";
+            string modifierKind = rule.TargetModifierType switch
             {
-                Stat = rule.TargetStat,
-                Value = rule.TargetValuePerStep,
-                Type = rule.TargetModifierType
-            });
+                StatModType.Flat => "flat",
+                StatModType.PercentAdd => "increased",
+                StatModType.PercentSub => "decreased",
+                StatModType.PercentMult => "more",
+                StatModType.PercentLess => "less",
+                _ => rule.TargetModifierType.ToString().ToLowerInvariant()
+            };
+            string target = rule.TargetStat == StatType.DamagePhysical
+                ? "Phys Damage"
+                : ObjectNames.NicifyVariableName(rule.TargetStat.ToString());
             string source = ObjectNames.NicifyVariableName(rule.SourceStat.ToString());
-            string step = rule.UseWholeSteps ? "per" : "scaled by";
-            return $"{target} {step} {rule.SourceAmountPerStep:0.##} {source}";
+            return $"Grant {sign}{rule.TargetValuePerStep:0.##}{suffix} {modifierKind} {target} per {rule.SourceAmountPerStep:0.##} {source}.";
         }
 
         private static string InferCategoryFromModifiers(IReadOnlyList<SerializableStatModifier> modifiers)
