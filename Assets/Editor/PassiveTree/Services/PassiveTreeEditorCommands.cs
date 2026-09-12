@@ -396,6 +396,88 @@ namespace Scripts.Editor.PassiveTree
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
 
+        public void MirrorClusters(IReadOnlyCollection<PassiveClusterDefinition> clusters, bool horizontal)
+        {
+            if (_tree == null || clusters == null || clusters.Count == 0)
+                return;
+
+            List<PassiveClusterDefinition> selected = clusters.Where(cluster => cluster != null).Distinct().ToList();
+            if (selected.Count == 0)
+                return;
+
+            Vector2 min = selected[0].Center;
+            Vector2 max = min;
+            foreach (PassiveClusterDefinition cluster in selected)
+            {
+                min = Vector2.Min(min, cluster.Center);
+                max = Vector2.Max(max, cluster.Center);
+            }
+
+            Vector2 pivot = (min + max) * 0.5f;
+            var clusterIds = new HashSet<string>(selected.Select(cluster => cluster.ID));
+            var mirroredNodeIds = new HashSet<string>();
+            RecordTree(horizontal ? "Mirror Clusters Horizontally" : "Mirror Clusters Vertically");
+
+            foreach (PassiveClusterDefinition cluster in selected)
+            {
+                Vector2 center = cluster.Center;
+                if (horizontal)
+                    center.x = (2f * pivot.x) - center.x;
+                else
+                    center.y = (2f * pivot.y) - center.y;
+                cluster.Center = SnapPosition(center);
+
+                if (cluster.Orbits == null)
+                    continue;
+                foreach (PassiveOrbitDefinition orbit in cluster.Orbits)
+                {
+                    if (orbit == null || !orbit.IsPartialArc)
+                        continue;
+                    float oldStart = orbit.ArcStartAngle;
+                    orbit.ArcStartAngle = MirrorOrbitAngle(orbit.ArcEndAngle, horizontal);
+                    orbit.ArcEndAngle = MirrorOrbitAngle(oldStart, horizontal);
+                }
+            }
+
+            if (_tree.Nodes != null)
+            {
+                foreach (PassiveNodeDefinition node in _tree.Nodes)
+                {
+                    if (node == null || node.PlacementMode != NodePlacementMode.OnOrbit || !clusterIds.Contains(node.ClusterID))
+                        continue;
+                    node.OrbitAngle = MirrorOrbitAngle(node.OrbitAngle, horizontal);
+                    mirroredNodeIds.Add(node.ID);
+                }
+            }
+
+            if (_tree.BezierConnections != null)
+            {
+                foreach (PassiveBezierConnection connection in _tree.BezierConnections)
+                {
+                    if (connection == null || !mirroredNodeIds.Contains(connection.NodeIdA) || !mirroredNodeIds.Contains(connection.NodeIdB))
+                        continue;
+                    if (horizontal)
+                    {
+                        connection.InHandleOffset.x *= -1f;
+                        connection.OutHandleOffset.x *= -1f;
+                    }
+                    else
+                    {
+                        connection.InHandleOffset.y *= -1f;
+                        connection.OutHandleOffset.y *= -1f;
+                    }
+                }
+            }
+
+            _tree.InitLookup();
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        private static float MirrorOrbitAngle(float angle, bool horizontal)
+        {
+            return Mathf.Repeat(horizontal ? 180f - angle : -angle, 360f);
+        }
+
         public void DisconnectNodes(PassiveNodeDefinition nodeA, PassiveNodeDefinition nodeB)
         {
             if (nodeA == null || nodeB == null) return;
@@ -565,6 +647,7 @@ namespace Scripts.Editor.PassiveTree
         public PassiveNodeType NodeType;
         public PassiveNodeTemplateSO Template;
         public List<SerializableStatModifier> UniqueModifiers;
+        public List<PassiveStatScalingRule> UniqueStatScalingRules;
 
         public static PassiveNodeContentClipboard From(PassiveNodeDefinition source)
         {
@@ -577,7 +660,10 @@ namespace Scripts.Editor.PassiveTree
                 Template = source.Template,
                 UniqueModifiers = source.UniqueModifiers == null
                     ? new List<SerializableStatModifier>()
-                    : new List<SerializableStatModifier>(source.UniqueModifiers)
+                    : new List<SerializableStatModifier>(source.UniqueModifiers),
+                UniqueStatScalingRules = source.UniqueStatScalingRules == null
+                    ? new List<PassiveStatScalingRule>()
+                    : source.UniqueStatScalingRules.Where(rule => rule != null).Select(rule => rule.Clone()).ToList()
             };
         }
 
@@ -591,6 +677,9 @@ namespace Scripts.Editor.PassiveTree
             target.UniqueModifiers = UniqueModifiers == null
                 ? new List<SerializableStatModifier>()
                 : new List<SerializableStatModifier>(UniqueModifiers);
+            target.UniqueStatScalingRules = UniqueStatScalingRules == null
+                ? new List<PassiveStatScalingRule>()
+                : UniqueStatScalingRules.Where(rule => rule != null).Select(rule => rule.Clone()).ToList();
         }
     }
 }

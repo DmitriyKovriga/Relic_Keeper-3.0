@@ -8,6 +8,27 @@ using UnityEngine;
 
 namespace RelicKeeper.Tests.EditMode
 {
+    public class PassiveStatScalingRuleTests
+    {
+        [Test]
+        public void CalculateTargetValue_UsesWholeSourceSteps()
+        {
+            var rule = new PassiveStatScalingRule
+            {
+                SourceStat = StatType.Armor,
+                SourceAmountPerStep = 100f,
+                UseWholeSteps = true,
+                TargetStat = StatType.DamagePhysical,
+                TargetValuePerStep = 10f,
+                TargetModifierType = StatModType.Flat
+            };
+
+            Assert.That(rule.CalculateTargetValue(99f), Is.EqualTo(0f));
+            Assert.That(rule.CalculateTargetValue(250f), Is.EqualTo(20f));
+            Assert.That(rule.CalculateTargetValue(300f), Is.EqualTo(30f));
+        }
+    }
+
     public class PassiveBezierConnectionTests
     {
         [Test]
@@ -309,6 +330,80 @@ namespace RelicKeeper.Tests.EditMode
                 Object.DestroyImmediate(tree);
                 Object.DestroyImmediate(template);
                 Object.DestroyImmediate(targetTree);
+            }
+        }
+    }
+
+    public class PassiveClusterMirrorTests
+    {
+        [Test]
+        public void MirrorHorizontal_PreservesOrbitPlacementAndMirrorsArcAndBezierHandles()
+        {
+            var tree = ScriptableObject.CreateInstance<PassiveSkillTreeSO>();
+            try
+            {
+                tree.SnapToGrid = false;
+                var cluster = new PassiveClusterDefinition
+                {
+                    ID = "cluster",
+                    Center = new Vector2(400f, 300f),
+                    Orbits = new List<PassiveOrbitDefinition>
+                    {
+                        new PassiveOrbitDefinition
+                        {
+                            Radius = 100f,
+                            IsPartialArc = true,
+                            ArcStartAngle = 20f,
+                            ArcEndAngle = 80f
+                        }
+                    }
+                };
+                var a = new PassiveNodeDefinition
+                {
+                    ID = "a",
+                    PlacementMode = NodePlacementMode.OnOrbit,
+                    ClusterID = cluster.ID,
+                    OrbitIndex = 0,
+                    OrbitAngle = 30f,
+                    ConnectionIDs = new List<string> { "b" }
+                };
+                var b = new PassiveNodeDefinition
+                {
+                    ID = "b",
+                    PlacementMode = NodePlacementMode.OnOrbit,
+                    ClusterID = cluster.ID,
+                    OrbitIndex = 0,
+                    OrbitAngle = 60f,
+                    ConnectionIDs = new List<string> { "a" }
+                };
+                tree.Clusters.Add(cluster);
+                tree.Nodes.AddRange(new[] { a, b });
+                tree.BezierConnections.Add(new PassiveBezierConnection
+                {
+                    NodeIdA = "a",
+                    NodeIdB = "b",
+                    InHandleOffset = new Vector2(10f, 3f),
+                    OutHandleOffset = new Vector2(-15f, 4f)
+                });
+                tree.InitLookup();
+
+                var commands = new PassiveTreeEditorCommands();
+                commands.SetTree(tree);
+                commands.MirrorClusters(new[] { cluster }, true);
+
+                Assert.That(cluster.Center, Is.EqualTo(new Vector2(400f, 300f)));
+                Assert.That(a.PlacementMode, Is.EqualTo(NodePlacementMode.OnOrbit));
+                Assert.That(a.ClusterID, Is.EqualTo("cluster"));
+                Assert.That(a.OrbitAngle, Is.EqualTo(150f).Within(0.001f));
+                Assert.That(b.OrbitAngle, Is.EqualTo(120f).Within(0.001f));
+                Assert.That(cluster.Orbits[0].ArcStartAngle, Is.EqualTo(100f).Within(0.001f));
+                Assert.That(cluster.Orbits[0].ArcEndAngle, Is.EqualTo(160f).Within(0.001f));
+                Assert.That(tree.BezierConnections[0].InHandleOffset, Is.EqualTo(new Vector2(-10f, 3f)));
+                Assert.That(tree.BezierConnections[0].OutHandleOffset, Is.EqualTo(new Vector2(15f, 4f)));
+            }
+            finally
+            {
+                Object.DestroyImmediate(tree);
             }
         }
     }

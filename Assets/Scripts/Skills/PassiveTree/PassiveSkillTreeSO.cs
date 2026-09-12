@@ -290,6 +290,7 @@ namespace Scripts.Skills.PassiveTree
         
         // Вариант Б: Уникальные статы (переопределяют или дополняют шаблон)
         public List<SerializableStatModifier> UniqueModifiers;
+        public List<PassiveStatScalingRule> UniqueStatScalingRules;
 
         [Header("Graph Connections")]
         public List<string> ConnectionIDs = new List<string>(); // ID соседей
@@ -333,6 +334,16 @@ namespace Scripts.Skills.PassiveTree
                 result.AddRange(UniqueModifiers);
             }
             
+            return result;
+        }
+
+        public List<PassiveStatScalingRule> GetFinalStatScalingRules()
+        {
+            var result = new List<PassiveStatScalingRule>();
+            if (Template != null && Template.StatScalingRules != null)
+                result.AddRange(Template.StatScalingRules);
+            if (UniqueStatScalingRules != null)
+                result.AddRange(UniqueStatScalingRules);
             return result;
         }
         

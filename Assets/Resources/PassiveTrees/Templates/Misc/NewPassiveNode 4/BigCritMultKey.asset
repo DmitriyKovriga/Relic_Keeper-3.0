@@ -10,18 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
-  m_Name: MediumPoisonAttackSpeed
+  m_Name: BigCritMultKey
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
-  Name: MediumPoisonAttackSpeed
+  Name: BigCritMultKey
   Description: 
-  Icon: {fileID: 21300000, guid: 4f40ef8c76091c44db9bf5a2475a2f51, type: 3}
+  Icon: {fileID: 21300000, guid: 88be0f00b3e8cfe4bb7eba63fad54d27, type: 3}
   Modifiers:
-  - Stat: 62
-    Value: 25
+  - Stat: 52
+    Value: 100
     Type: 100
   - Stat: 28
-    Value: 25
-    Type: 200
-  - Stat: 63
-    Value: 50
-    Type: 200
+    Value: 15
+    Type: 310

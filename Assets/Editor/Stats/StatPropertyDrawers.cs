@@ -4,9 +4,92 @@ using Scripts.Enemies;
 using Scripts.Items;
 using Scripts.Stats;
 using Scripts.StatusEffects;
+using Scripts.Skills.PassiveTree;
 
 namespace Scripts.Editor.Stats
 {
+    [CustomPropertyDrawer(typeof(PassiveStatScalingRule))]
+    public class PassiveStatScalingRuleDrawer : PropertyDrawer
+    {
+        private const float Spacing = 2f;
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return EditorGUIUtility.singleLineHeight * 5f + Spacing * 6f;
+        }
+
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            EditorGUI.BeginProperty(position, label, property);
+            position = EditorGUI.IndentedRect(position);
+
+            SerializedProperty sourceStat = property.FindPropertyRelative("SourceStat");
+            SerializedProperty sourceAmount = property.FindPropertyRelative("SourceAmountPerStep");
+            SerializedProperty wholeSteps = property.FindPropertyRelative("UseWholeSteps");
+            SerializedProperty targetStat = property.FindPropertyRelative("TargetStat");
+            SerializedProperty targetValue = property.FindPropertyRelative("TargetValuePerStep");
+            SerializedProperty targetType = property.FindPropertyRelative("TargetModifierType");
+
+            float h = EditorGUIUtility.singleLineHeight;
+            Rect summaryRect = new Rect(position.x, position.y + Spacing, position.width, h);
+            Rect targetRect = new Rect(position.x, summaryRect.yMax + Spacing, position.width, h);
+            Rect grantRect = new Rect(position.x, targetRect.yMax + Spacing, position.width, h);
+            Rect sourceRect = new Rect(position.x, grantRect.yMax + Spacing, position.width, h);
+            Rect stepRect = new Rect(position.x, sourceRect.yMax + Spacing, position.width, h);
+
+            EditorGUI.LabelField(summaryRect, BuildSummary(targetStat, targetValue, targetType, sourceStat, sourceAmount), EditorStyles.boldLabel);
+            StatPickerUtility.DrawStatPicker(targetRect, targetStat, new GUIContent("Target stat"));
+
+            float valueWidth = grantRect.width * 0.45f;
+            EditorGUI.PropertyField(new Rect(grantRect.x, grantRect.y, valueWidth, h), targetValue, new GUIContent("Grant per step"));
+            EditorGUI.PropertyField(new Rect(grantRect.x + valueWidth + 6f, grantRect.y, grantRect.width - valueWidth - 6f, h), targetType, GUIContent.none);
+
+            StatPickerUtility.DrawStatPicker(sourceRect, sourceStat, new GUIContent("Source stat"));
+            float amountWidth = stepRect.width * 0.58f;
+            EditorGUI.PropertyField(new Rect(stepRect.x, stepRect.y, amountWidth, h), sourceAmount, new GUIContent("Source per step"));
+            EditorGUI.PropertyField(new Rect(stepRect.x + amountWidth + 6f, stepRect.y, stepRect.width - amountWidth - 6f, h), wholeSteps, new GUIContent("Whole"));
+
+            EditorGUI.EndProperty();
+        }
+
+        private static string BuildSummary(
+            SerializedProperty targetStat,
+            SerializedProperty targetValue,
+            SerializedProperty targetType,
+            SerializedProperty sourceStat,
+            SerializedProperty sourceAmount)
+        {
+            var target = (StatType)targetStat.enumValueIndex;
+            var source = (StatType)sourceStat.enumValueIndex;
+            var type = (StatModType)targetType.intValue;
+            float value = targetValue.floatValue;
+            string sign = value >= 0f ? "+" : string.Empty;
+            string typeName = type switch
+            {
+                StatModType.Flat => "flat",
+                StatModType.PercentAdd => "increased",
+                StatModType.PercentSub => "decreased",
+                StatModType.PercentMult => "more",
+                StatModType.PercentLess => "less",
+                _ => ObjectNames.NicifyVariableName(type.ToString()).ToLowerInvariant()
+            };
+            string valueSuffix = type == StatModType.Flat ? string.Empty : "%";
+            return $"Grant {sign}{value:0.##}{valueSuffix} {typeName} {CompactStatName(target)} per {sourceAmount.floatValue:0.##} {CompactStatName(source)}.";
+        }
+
+        private static string CompactStatName(StatType stat)
+        {
+            return stat switch
+            {
+                StatType.DamagePhysical => "Phys Damage",
+                StatType.DamageFire => "Fire Damage",
+                StatType.DamageCold => "Cold Damage",
+                StatType.DamageLightning => "Lightning Damage",
+                _ => ObjectNames.NicifyVariableName(stat.ToString())
+            };
+        }
+    }
+
     [CustomPropertyDrawer(typeof(SerializableStatModifier))]
     public class SerializableStatModifierDrawer : PropertyDrawer
     {

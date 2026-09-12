@@ -24,8 +24,17 @@ namespace Scripts.Skills.PassiveTree
         {
             if (!IsPreviewMode)
             {
-                foreach (var id in new List<string>(_activeModifiers.Keys))
-                    RemoveNodeStats(id);
+                _isRefreshingStatScaling = true;
+                try
+                {
+                    ClearActiveStatScalingModifiers();
+                    foreach (var id in new List<string>(_activeModifiers.Keys))
+                        RemoveNodeStats(id);
+                }
+                finally
+                {
+                    _isRefreshingStatScaling = false;
+                }
             }
 
             _allocatedNodeIDs.Clear();
@@ -48,6 +57,8 @@ namespace Scripts.Skills.PassiveTree
         
         // Храним тип стата вместе с модификатором, чтобы знать, откуда удалять
         private Dictionary<string, List<(StatType type, StatModifier mod)>> _activeModifiers = new Dictionary<string, List<(StatType, StatModifier)>>();
+        private readonly List<(StatType type, StatModifier mod)> _activeStatScalingModifiers = new List<(StatType, StatModifier)>();
+        private bool _isRefreshingStatScaling;
 
         public event System.Action OnTreeUpdated; 
 
@@ -69,6 +80,7 @@ namespace Scripts.Skills.PassiveTree
             if (_playerStats != null)
             {
                 _playerStats.OnLevelingInitialized += RefreshLevelingSubscription;
+                _playerStats.OnAnyStatChanged += HandleAnyStatChanged;
                 RefreshLevelingSubscription();
             }
         }
@@ -78,6 +90,7 @@ namespace Scripts.Skills.PassiveTree
             if (_playerStats != null)
             {
                 _playerStats.OnLevelingInitialized -= RefreshLevelingSubscription;
+                _playerStats.OnAnyStatChanged -= HandleAnyStatChanged;
                 if (_playerStats.Leveling != null)
                     _playerStats.Leveling.OnSkillPointsChanged -= HandlePointsChanged;
             }
@@ -94,6 +107,11 @@ namespace Scripts.Skills.PassiveTree
         }
 
         private void HandlePointsChanged() => OnTreeUpdated?.Invoke();
+
+        private void HandleAnyStatChanged()
+        {
+            RefreshStatScalingModifiers();
+        }
 
         // --- ALLOCATION LOGIC ---
 
@@ -259,8 +277,6 @@ namespace Scripts.Skills.PassiveTree
             if (nodeDef == null) return;
 
             var modifiers = nodeDef.GetFinalModifiers();
-            if (modifiers.Count == 0) return;
-
             var appliedMods = new List<(StatType, StatModifier)>();
 
             foreach (var modData in modifiers)
@@ -272,6 +288,65 @@ namespace Scripts.Skills.PassiveTree
 
             _activeModifiers[nodeID] = appliedMods;
             _playerStats.NotifyChanged();
+        }
+
+        private void RefreshStatScalingModifiers()
+        {
+            if (IsPreviewMode || _playerStats == null || _treeData == null || _isRefreshingStatScaling)
+                return;
+
+            _isRefreshingStatScaling = true;
+            try
+            {
+                bool changed = _activeStatScalingModifiers.Count > 0;
+                ClearActiveStatScalingModifiers();
+
+                foreach (string nodeId in _allocatedNodeIDs)
+                {
+                    PassiveNodeDefinition node = _treeData.GetNode(nodeId);
+                    if (node == null)
+                        continue;
+
+                    List<PassiveStatScalingRule> rules = node.GetFinalStatScalingRules();
+                    foreach (PassiveStatScalingRule rule in rules)
+                    {
+                        if (rule == null || rule.SourceAmountPerStep <= 0.0001f)
+                            continue;
+
+                        // Scaling modifiers were removed above, therefore this is the final
+                        // source value after normal Flat/Increase/More modifiers, without
+                        // recursively feeding other scaling rules back into themselves.
+                        float sourceValue = _playerStats.GetValue(rule.SourceStat);
+                        float targetValue = rule.CalculateTargetValue(sourceValue);
+                        if (Mathf.Abs(targetValue) <= 0.0001f)
+                            continue;
+
+                        var runtimeModifier = new StatModifier(targetValue, rule.TargetModifierType, rule);
+                        _playerStats.GetStat(rule.TargetStat).AddModifier(runtimeModifier);
+                        _activeStatScalingModifiers.Add((rule.TargetStat, runtimeModifier));
+                        changed = true;
+                    }
+                }
+
+                // Notify UI and combat readers after the dependent target stats are dirty.
+                // The guard prevents this nested notification from starting another rebuild.
+                if (changed)
+                    _playerStats.NotifyChanged();
+            }
+            finally
+            {
+                _isRefreshingStatScaling = false;
+            }
+        }
+
+        private void ClearActiveStatScalingModifiers()
+        {
+            if (_playerStats != null)
+            {
+                foreach (var (type, modifier) in _activeStatScalingModifiers)
+                    _playerStats.GetStat(type).RemoveModifier(modifier);
+            }
+            _activeStatScalingModifiers.Clear();
         }
 
         private void RemoveNodeStats(string nodeID)
@@ -304,6 +379,7 @@ namespace Scripts.Skills.PassiveTree
             if (IsPreviewMode)
                 return;
 
+            ClearActiveStatScalingModifiers();
             _activeModifiers.Clear();
 
             foreach (var id in _allocatedNodeIDs)
@@ -319,9 +395,16 @@ namespace Scripts.Skills.PassiveTree
 
             // 1. Очищаем ТЕКУЩИЕ статы перед загрузкой новых
             // Это критично, если мы делаем LoadGame, не перезапуская игру
-            foreach (var id in new List<string>(_activeModifiers.Keys))
+            _isRefreshingStatScaling = true;
+            try
             {
-                RemoveNodeStats(id);
+                ClearActiveStatScalingModifiers();
+                foreach (var id in new List<string>(_activeModifiers.Keys))
+                    RemoveNodeStats(id);
+            }
+            finally
+            {
+                _isRefreshingStatScaling = false;
             }
             
             _allocatedNodeIDs.Clear();

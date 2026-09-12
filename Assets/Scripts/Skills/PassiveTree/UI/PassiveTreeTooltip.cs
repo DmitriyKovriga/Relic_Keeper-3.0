@@ -127,7 +127,10 @@ namespace Scripts.Skills.PassiveTree.UI
         private void FillStats(PassiveNodeDefinition node)
         {
             var mods = node.GetFinalModifiers();
-            if (mods == null || mods.Count == 0)
+            var scalingRules = node.GetFinalStatScalingRules();
+            int modifierCount = mods?.Count ?? 0;
+            int scalingCount = scalingRules?.Count ?? 0;
+            if (modifierCount == 0 && scalingCount == 0)
             {
                 _stats.text = "";
                 _stats.style.display = DisplayStyle.None;
@@ -136,33 +139,74 @@ namespace Scripts.Skills.PassiveTree.UI
             }
 
             _stats.style.display = DisplayStyle.Flex;
-            var results = new string[mods.Count];
-            int pending = mods.Count;
-            for (int i = 0; i < mods.Count; i++)
+            var results = new string[modifierCount + scalingCount];
+            for (int i = 0; i < modifierCount; i++)
             {
                 var mod = mods[i];
-                int idx = i;
-                string statKey = $"stats.{mod.Stat}";
-                var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(MenuLabelsTable, statKey);
-                op.Completed += handle =>
-                {
-                    string statName = (handle.Status == AsyncOperationStatus.Succeeded && !IsMissingTranslation(handle.Result))
-                        ? handle.Result
-                        : mod.Stat.ToString();
-                    results[idx] = StatPresentation.FormatModifierLine(
-                        _statsDatabase,
-                        mod.Stat,
-                        statName,
-                        mod.Value,
-                        mod.Type,
-                        StatPresentation.ModifierLineStyle.StatThenValue);
-                    if (--pending == 0 && _stats != null)
-                    {
-                        _stats.text = string.Join("\n", results);
-                        RefreshLayoutIfVisible();
-                    }
-                };
+                results[i] = StatPresentation.FormatModifierLine(
+                    _statsDatabase,
+                    mod.Stat,
+                    GetLocalizedStatName(mod.Stat),
+                    mod.Value,
+                    mod.Type,
+                    StatPresentation.ModifierLineStyle.StatThenValue);
             }
+
+            for (int i = 0; i < scalingCount; i++)
+                results[modifierCount + i] = FormatScalingRule(scalingRules[i]);
+
+            _stats.text = string.Join("\n", results);
+            RefreshLayoutIfVisible();
+        }
+
+        private string FormatScalingRule(PassiveStatScalingRule rule)
+        {
+            if (rule == null)
+                return string.Empty;
+
+            bool russian = LocalizationSettings.SelectedLocale != null &&
+                           LocalizationSettings.SelectedLocale.Identifier.Code.StartsWith("ru", System.StringComparison.OrdinalIgnoreCase);
+            string sign = rule.TargetValuePerStep >= 0f ? "+" : string.Empty;
+            string suffix = rule.TargetModifierType == StatModType.Flat ? string.Empty : "%";
+            string value = $"{sign}{rule.TargetValuePerStep:0.##}{suffix}";
+            string target = GetLocalizedStatName(rule.TargetStat);
+            string source = GetLocalizedStatName(rule.SourceStat);
+            if (russian)
+            {
+                string kind = rule.TargetModifierType switch
+                {
+                    StatModType.Flat => "плоского бонуса",
+                    StatModType.PercentAdd => "увеличения",
+                    StatModType.PercentSub => "уменьшения",
+                    StatModType.PercentMult => "больше",
+                    StatModType.PercentLess => "меньше",
+                    _ => "бонуса"
+                };
+                return rule.UseWholeSteps
+                    ? $"Дарует {value} {kind} к «{target}» за каждые {rule.SourceAmountPerStep:0.##} ед. характеристики «{source}»."
+                    : $"Дарует {value} {kind} к «{target}» на {rule.SourceAmountPerStep:0.##} ед. характеристики «{source}» (пропорционально).";
+            }
+
+            string englishKind = rule.TargetModifierType switch
+            {
+                StatModType.Flat => "flat",
+                StatModType.PercentAdd => "increased",
+                StatModType.PercentSub => "decreased",
+                StatModType.PercentMult => "more",
+                StatModType.PercentLess => "less",
+                _ => rule.TargetModifierType.ToString().ToLowerInvariant()
+            };
+            if (rule.TargetStat == StatType.DamagePhysical)
+                target = "Phys Damage";
+            return rule.UseWholeSteps
+                ? $"Grant {value} {englishKind} {target} per {rule.SourceAmountPerStep:0.##} {source}."
+                : $"Grant {value} {englishKind} {target} per {rule.SourceAmountPerStep:0.##} {source} (proportional).";
+        }
+
+        private string GetLocalizedStatName(StatType stat)
+        {
+            string localized = LocalizationSettings.StringDatabase.GetLocalizedString(MenuLabelsTable, $"stats.{stat}");
+            return IsMissingTranslation(localized) ? stat.ToString() : localized;
         }
 
         private void CreateElements()

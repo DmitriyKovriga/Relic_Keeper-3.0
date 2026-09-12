@@ -10,18 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
-  m_Name: MediumPoisonAttackSpeed
+  m_Name: ArmoreToDamageKey
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
-  Name: MediumPoisonAttackSpeed
+  Name: ArmoreToDamageKey
   Description: 
-  Icon: {fileID: 21300000, guid: 4f40ef8c76091c44db9bf5a2475a2f51, type: 3}
+  Icon: {fileID: 21300000, guid: 645b428bac15dc9499930b9459477d34, type: 3}
   Modifiers:
-  - Stat: 62
-    Value: 25
-    Type: 100
-  - Stat: 28
-    Value: 25
-    Type: 200
-  - Stat: 63
-    Value: 50
-    Type: 200
+  - Stat: 33
+    Value: 75
+    Type: 310
+  - Stat: 31
+    Value: 75
+    Type: 310
+  - Stat: 32
+    Value: 75
+    Type: 310
+  StatScalingRules:
+  - SourceStat: 14
+    SourceAmountPerStep: 100
+    UseWholeSteps: 1
+    TargetStat: 30
+    TargetValuePerStep: 10
+    TargetModifierType: 100
