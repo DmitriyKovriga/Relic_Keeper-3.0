@@ -53,6 +53,7 @@ namespace Scripts.Editor.PassiveTree
                 ConnectionIDs = new List<string>()
             };
             _tree.Nodes.Add(newNodeData);
+            _tree.InitLookup();
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
 
@@ -80,6 +81,7 @@ namespace Scripts.Editor.PassiveTree
                 RoadConnections = new List<string>()
             };
             _tree.Clusters.Add(cluster);
+            _tree.InitLookup();
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
 
@@ -162,7 +164,11 @@ namespace Scripts.Editor.PassiveTree
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
 
-        public void CreateNodeOnOrbit(PassiveClusterDefinition cluster, int orbitIndex, Vector2 contentPos)
+        public void CreateNodeOnOrbit(
+            PassiveClusterDefinition cluster,
+            int orbitIndex,
+            Vector2 contentPos,
+            PassiveNodeType nodeType = PassiveNodeType.Small)
         {
             if (_tree == null || cluster == null) return;
             if (orbitIndex < 0 || orbitIndex >= cluster.Orbits.Count) return;
@@ -175,7 +181,7 @@ namespace Scripts.Editor.PassiveTree
             var newNodeData = new PassiveNodeDefinition
             {
                 ID = Guid.NewGuid().ToString(),
-                NodeType = PassiveNodeType.Small,
+                NodeType = nodeType,
                 PlacementMode = NodePlacementMode.OnOrbit,
                 ClusterID = cluster.ID,
                 OrbitIndex = orbitIndex,
@@ -183,6 +189,7 @@ namespace Scripts.Editor.PassiveTree
                 ConnectionIDs = new List<string>()
             };
             _tree.Nodes.Add(newNodeData);
+            _tree.InitLookup();
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
 

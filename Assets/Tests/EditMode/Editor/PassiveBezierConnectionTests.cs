@@ -243,6 +243,49 @@ namespace RelicKeeper.Tests.EditMode
         }
     }
 
+    public class PassiveClusterTemplatePlacementTests
+    {
+        [Test]
+        public void ApplyToTree_ForcesStoredNodesOntoCreatedClusterOrbit()
+        {
+            var tree = ScriptableObject.CreateInstance<PassiveSkillTreeSO>();
+            var template = ScriptableObject.CreateInstance<PassiveClusterTemplateSO>();
+            try
+            {
+                template.Cluster.Orbits = new List<PassiveOrbitDefinition>
+                {
+                    new PassiveOrbitDefinition { Radius = 60f }
+                };
+                template.Nodes = new List<PassiveNodeDefinition>
+                {
+                    new PassiveNodeDefinition
+                    {
+                        ID = "stored",
+                        PlacementMode = NodePlacementMode.Free,
+                        Position = new Vector2(999f, 999f),
+                        OrbitIndex = 12,
+                        OrbitAngle = -45f,
+                        ConnectionIDs = new List<string>()
+                    }
+                };
+
+                PassiveClusterDefinition cluster = template.ApplyToTree(tree, new Vector2(200f, 300f));
+                PassiveNodeDefinition created = tree.Nodes.Single();
+
+                Assert.That(created.PlacementMode, Is.EqualTo(NodePlacementMode.OnOrbit));
+                Assert.That(created.ClusterID, Is.EqualTo(cluster.ID));
+                Assert.That(created.OrbitIndex, Is.EqualTo(0));
+                Assert.That(created.OrbitAngle, Is.EqualTo(315f));
+                Assert.That(Vector2.Distance(created.GetWorldPosition(tree), cluster.Center), Is.EqualTo(60f).Within(0.01f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(tree);
+                Object.DestroyImmediate(template);
+            }
+        }
+    }
+
     public class PassiveOrbitArcDrawingTests
     {
         [Test]

@@ -84,15 +84,30 @@ namespace Scripts.Editor.PassiveTree
             menu.AppendAction("Delete Node", _ => Execute(() => _commands.DeleteNode(nodeView.Data)));
         }
 
-        public void BuildClusterMenu(DropdownMenu menu, PassiveTreeClusterView clusterView, Vector2 viewportPos)
+        public void BuildClusterMenu(DropdownMenu menu, PassiveTreeClusterView clusterView, Vector2 viewportPos, int clickedOrbitIndex = -1)
         {
             Vector2 contentPos = _viewportController.ViewportToContentPosition(viewportPos);
 
-            menu.AppendAction("Add Orbit", _ => Execute(() => _commands.AddOrbitToCluster(clusterView.Data)));
-            for (int i = 0; i < clusterView.Data.Orbits.Count; i++)
+            if (clickedOrbitIndex >= 0 && clickedOrbitIndex < clusterView.Data.Orbits.Count)
             {
-                int orbitIndex = i;
-                menu.AppendAction($"Add Node on Orbit {i}", _ => Execute(() => _commands.CreateNodeOnOrbit(clusterView.Data, orbitIndex, contentPos)));
+                int orbitIndex = clickedOrbitIndex;
+                menu.AppendAction("Create Small Node on This Orbit", _ =>
+                    Execute(() => _commands.CreateNodeOnOrbit(clusterView.Data, orbitIndex, contentPos, PassiveNodeType.Small)));
+                menu.AppendAction("Create Notable Node on This Orbit", _ =>
+                    Execute(() => _commands.CreateNodeOnOrbit(clusterView.Data, orbitIndex, contentPos, PassiveNodeType.Notable)));
+                menu.AppendAction("Create Keystone on This Orbit", _ =>
+                    Execute(() => _commands.CreateNodeOnOrbit(clusterView.Data, orbitIndex, contentPos, PassiveNodeType.Keystone)));
+                menu.AppendSeparator();
+            }
+
+            menu.AppendAction("Add Orbit", _ => Execute(() => _commands.AddOrbitToCluster(clusterView.Data)));
+            if (clickedOrbitIndex < 0)
+            {
+                for (int i = 0; i < clusterView.Data.Orbits.Count; i++)
+                {
+                    int orbitIndex = i;
+                    menu.AppendAction($"Add Small Node on Orbit {i}", _ => Execute(() => _commands.CreateNodeOnOrbit(clusterView.Data, orbitIndex, contentPos)));
+                }
             }
             menu.AppendSeparator();
             menu.AppendAction("Connect to Another Cluster...", _ => { }, DropdownMenuAction.AlwaysDisabled);

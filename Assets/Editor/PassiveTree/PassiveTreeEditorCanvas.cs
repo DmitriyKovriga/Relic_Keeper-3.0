@@ -186,6 +186,16 @@ namespace Scripts.Editor.PassiveTree
                         return;
                     }
 
+                    // The visible orbit stroke is drawn by a non-pickable layer, while a number
+                    // of other full-canvas layers can become the picked element. Resolve the
+                    // orbit geometrically so RMB on the circle cannot fall through to FREE-node creation.
+                    if (TryPickOrbitAtPanelPosition((Vector2)pointerEvt.position, out var orbitClusterView, out int orbitIndex))
+                    {
+                        _selection.SelectCluster(orbitClusterView);
+                        _contextMenuBuilder.BuildClusterMenu(evt.menu, orbitClusterView, _lastMousePosInViewport, orbitIndex);
+                        return;
+                    }
+
                     var bezierElement = el.GetFirstAncestorOfType<BezierConnectionElement>() ?? (el as BezierConnectionElement);
                     if (bezierElement?.Connection == null)
                         TryPickBezierAtPanelPosition((Vector2)pointerEvt.position, out bezierElement);
@@ -198,7 +208,8 @@ namespace Scripts.Editor.PassiveTree
 
                     if (_orbitHitToCluster.TryGetValue(el, out var clusterViewOrbit))
                     {
-                        _contextMenuBuilder.BuildClusterMenu(evt.menu, clusterViewOrbit, _lastMousePosInViewport);
+                        int closestOrbit = GetClosestOrbitIndex(clusterViewOrbit.Data, GetContentPointerPosition((Vector2)pointerEvt.position));
+                        _contextMenuBuilder.BuildClusterMenu(evt.menu, clusterViewOrbit, _lastMousePosInViewport, closestOrbit);
                         return;
                     }
                 }
@@ -1222,6 +1233,63 @@ namespace Scripts.Editor.PassiveTree
             }
 
             return bestIndex;
+        }
+
+        private bool TryPickOrbitAtPanelPosition(
+            Vector2 panelPosition,
+            out PassiveTreeClusterView clusterView,
+            out int orbitIndex)
+        {
+            clusterView = null;
+            orbitIndex = -1;
+            if (_tree == null || _viewportController == null)
+                return false;
+
+            Vector2 contentPosition = GetContentPointerPosition(panelPosition);
+            float tolerance = 8f / Mathf.Max(0.01f, _viewportController.Zoom);
+            float bestDelta = float.MaxValue;
+
+            foreach (var candidate in _clusterViews.Values)
+            {
+                PassiveClusterDefinition cluster = candidate?.Data;
+                if (cluster?.Orbits == null)
+                    continue;
+
+                Vector2 fromCenter = contentPosition - cluster.Center;
+                float distance = fromCenter.magnitude;
+                float angle = Mathf.Repeat(Mathf.Atan2(fromCenter.y, fromCenter.x) * Mathf.Rad2Deg, 360f);
+                for (int i = 0; i < cluster.Orbits.Count; i++)
+                {
+                    PassiveOrbitDefinition orbit = cluster.Orbits[i];
+                    if (orbit == null || !IsAngleOnOrbit(orbit, angle))
+                        continue;
+
+                    float delta = Mathf.Abs(distance - orbit.Radius);
+                    if (delta <= tolerance && delta < bestDelta)
+                    {
+                        bestDelta = delta;
+                        clusterView = candidate;
+                        orbitIndex = i;
+                    }
+                }
+            }
+
+            return clusterView != null;
+        }
+
+        private static bool IsAngleOnOrbit(PassiveOrbitDefinition orbit, float angle)
+        {
+            if (orbit == null || !orbit.IsPartialArc)
+                return true;
+
+            float start = Mathf.Repeat(orbit.ArcStartAngle, 360f);
+            float end = Mathf.Repeat(orbit.ArcEndAngle, 360f);
+            angle = Mathf.Repeat(angle, 360f);
+            if (Mathf.Approximately(start, end))
+                return true;
+            return start < end
+                ? angle >= start && angle <= end
+                : angle >= start || angle <= end;
         }
 
         private static float ClampOrbitRadius(PassiveClusterDefinition cluster, int orbitIndex, float radius)

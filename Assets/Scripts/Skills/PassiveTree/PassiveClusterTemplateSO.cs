@@ -81,10 +81,14 @@ namespace Scripts.Skills.PassiveTree
             newCluster.Name = !string.IsNullOrWhiteSpace(NameEN) ? NameEN : Cluster.Name;
             newCluster.Center = center;
             newCluster.RoadConnections = new List<string>();
+            if (newCluster.Orbits == null || newCluster.Orbits.Count == 0)
+                newCluster.Orbits = new List<PassiveOrbitDefinition> { new PassiveOrbitDefinition { Radius = 80f } };
             tree.Clusters.Add(newCluster);
 
             var idMap = new Dictionary<string, string>();
             var createdNodes = new List<PassiveNodeDefinition>();
+            var createdByStoredId = new Dictionary<string, PassiveNodeDefinition>();
+            int maxOrbitIndex = newCluster.Orbits.Count - 1;
 
             foreach (var storedNode in Nodes)
             {
@@ -95,18 +99,24 @@ namespace Scripts.Skills.PassiveTree
                 string oldId = newNode.ID;
                 string newId = Guid.NewGuid().ToString();
                 newNode.ID = newId;
+                // A cluster template always describes orbit-bound nodes. Do not trust stale
+                // placement data in older assets: otherwise a copied node can silently stay FREE.
+                newNode.PlacementMode = NodePlacementMode.OnOrbit;
                 newNode.ClusterID = newCluster.ID;
+                newNode.OrbitIndex = Mathf.Clamp(storedNode.OrbitIndex, 0, maxOrbitIndex);
+                newNode.OrbitAngle = Mathf.Repeat(storedNode.OrbitAngle, 360f);
+                newNode.Position = Vector2.zero;
                 newNode.ConnectionIDs = new List<string>();
                 idMap[oldId] = newId;
+                createdByStoredId[oldId] = newNode;
                 createdNodes.Add(newNode);
                 tree.Nodes.Add(newNode);
             }
 
-            for (int i = 0; i < createdNodes.Count; i++)
+            foreach (PassiveNodeDefinition storedNode in Nodes)
             {
-                PassiveNodeDefinition storedNode = Nodes[i];
-                PassiveNodeDefinition createdNode = createdNodes[i];
-                if (storedNode.ConnectionIDs == null)
+                if (storedNode == null || storedNode.ConnectionIDs == null ||
+                    !createdByStoredId.TryGetValue(storedNode.ID, out PassiveNodeDefinition createdNode))
                     continue;
 
                 foreach (string oldConnectionId in storedNode.ConnectionIDs)
