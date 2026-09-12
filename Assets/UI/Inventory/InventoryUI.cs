@@ -6,6 +6,7 @@ using Scripts.Items;
 
 public partial class InventoryUI : MonoBehaviour
 {
+    private GamePauseService.PauseHandle _pauseHandle;
     [Header("UI References")]
     [SerializeField] private UIDocument _uiDoc;
     [Tooltip("Если задано, при закрытии окна инвентаря сбрасывается режим крафта орбой.")]
@@ -54,6 +55,7 @@ public partial class InventoryUI : MonoBehaviour
     private VisualElement _ghostIcon;
     /// <summary>Подсветка зона дропа: зелёный — можно, жёлтый — своп, красный — нельзя.</summary>
     private VisualElement _ghostHighlight;
+    private Label _worldDropCross;
 
     private VisualElement _stashPanel;
     private VisualElement _stashTabsRow;
@@ -65,6 +67,11 @@ public partial class InventoryUI : MonoBehaviour
 
     /// <summary>Склад открыт отдельно (бинт B). По умолчанию скрыт при открытии инвентаря по I.</summary>
     public bool IsStashVisible { get; private set; }
+    public bool IsMarketVisible { get; private set; }
+    public bool IsCompanionPanelVisible => IsStashVisible || IsMarketVisible;
+
+    private VisualElement _goldCounter;
+    private Label _goldAmountLabel;
 
     private VisualElement _equipmentView;
     private VisualElement _craftView;
@@ -74,13 +81,15 @@ public partial class InventoryUI : MonoBehaviour
     
     private List<VisualElement> _backpackSlots = new List<VisualElement>();
     private List<VisualElement> _equipmentSlots = new List<VisualElement>();
-    private List<(VisualElement slot, Label countLabel)> _orbSlots = new List<(VisualElement, Label)>();
+    private List<(VisualElement slot, VisualElement iconFrame, Label countLabel)> _orbSlots =
+        new List<(VisualElement, VisualElement, Label)>();
     
     private bool _isDragging;
     /// <summary>Предмет «в руке» — не в контейнере, пока держим курсор (PoE-style).</summary>
     private InventoryItem _draggedItem;
     private int _draggedSourceAnchor = -1;
     private bool _draggedFromStash;
+    private bool _draggedFromMarket;
     private int _draggedStashTab = -1;
     private int _draggedStashAnchorSlot = -1;
     /// <summary>Смещение курсора от верх-левого угла иконки при захвате (grab offset), в локальных координатах root.</summary>
@@ -117,9 +126,11 @@ public partial class InventoryUI : MonoBehaviour
         GenerateBackpackGrid();
         SetupEquipmentSlots();
         SetupStashPanel();
+        CreateGoldCounter();
         LoadOrbSlotsConfig();
         SetupTabs();
         SetupCraftView();
+        RegisterInventoryLocalization();
         ApplyInventoryArtTheme();
         RegisterQuickTransferEndpoints();
 
@@ -131,6 +142,8 @@ public partial class InventoryUI : MonoBehaviour
             _root.schedule.Execute(TrySubscribeStash).Every(100).Until(() => StashManager.Instance != null);
         else
             TrySubscribeStash();
+        TrySubscribeMarket();
+        Scripts.Economy.GoldWallet.OnGoldChanged += RefreshGoldCounter;
 
         _root.RegisterCallback<PointerMoveEvent>(OnPointerMove);
         _root.RegisterCallback<PointerUpEvent>(OnPointerUp);
@@ -145,7 +158,7 @@ public partial class InventoryUI : MonoBehaviour
             _windowView.OnClosed += OnInventoryWindowClosed;
             _windowView.OnOpened += OnInventoryWindowOpened;
         }
-        _root.schedule.Execute(() => ApplyInventorySpacing(IsStashVisible)).ExecuteLater(3);
+        _root.schedule.Execute(() => ApplyInventorySpacing(IsCompanionPanelVisible)).ExecuteLater(3);
     }
 
     private void OnDisable()
@@ -154,15 +167,20 @@ public partial class InventoryUI : MonoBehaviour
             InventoryManager.Instance.OnInventoryChanged -= RefreshInventory;
         if (StashManager.Instance != null)
             StashManager.Instance.OnStashChanged -= RefreshStash;
+        if (Scripts.Economy.MarketManager.Instance != null)
+            Scripts.Economy.MarketManager.Instance.OnChanged -= RefreshStash;
+        Scripts.Economy.GoldWallet.OnGoldChanged -= RefreshGoldCounter;
         if (_windowView != null)
         {
             _windowView.OnClosed -= OnInventoryWindowClosed;
             _windowView.OnOpened -= OnInventoryWindowOpened;
         }
+        ReleaseGameplayPause();
         if (ItemTooltipController.Instance != null)
             ItemTooltipController.Instance.HideTooltipImmediate();
         CancelDragSession(restoreHeldItem: true);
         ExitApplyOrbMode();
+        UnregisterInventoryLocalization();
         UnregisterQuickTransferEndpoints();
 
         _root.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
@@ -175,6 +193,7 @@ public partial class InventoryUI : MonoBehaviour
 
     private void OnInventoryWindowClosed()
     {
+        ReleaseGameplayPause();
         if (ItemTooltipController.Instance != null)
             ItemTooltipController.Instance.HideTooltipImmediate();
         ExitApplyOrbMode();
@@ -184,13 +203,36 @@ public partial class InventoryUI : MonoBehaviour
 
     private void OnInventoryWindowOpened()
     {
-        ApplyInventorySpacing(IsStashVisible);
+        if (_pauseHandle == null)
+            _pauseHandle = GamePauseService.Acquire(GamePauseReason.Inventory);
+
+        ApplyInventorySpacing(IsCompanionPanelVisible);
+        ItemTooltipController.Instance?.HideWorldTooltip();
+        RefreshGoldCounter();
+    }
+
+    private void ReleaseGameplayPause()
+    {
+        _pauseHandle?.Dispose();
+        _pauseHandle = null;
     }
 
     /// <summary>Переключает видимость склада. Раскладка задаётся только в USS: класс stash-open на WindowRoot и MainRow.</summary>
     public void SetStashPanelVisible(bool visible)
     {
-        IsStashVisible = visible;
+        SetCompanionPanelVisible(visible, market: false);
+    }
+
+    public void SetMarketPanelVisible(bool visible)
+    {
+        SetCompanionPanelVisible(visible, market: true);
+    }
+
+    private void SetCompanionPanelVisible(bool visible, bool market)
+    {
+        IsStashVisible = visible && !market;
+        IsMarketVisible = visible && market;
+        BindCompanionPresenters();
         if (_stashPanel != null)
         {
             if (visible) _stashPanel.AddToClassList("visible");
@@ -224,6 +266,8 @@ public partial class InventoryUI : MonoBehaviour
             }
         }
         ApplyInventorySpacing(visible);
+        RefreshStash();
+        RefreshGoldCounter();
     }
 
     /// <summary>Внутренние отступы: соло — 8px слева и справа у окна; дуо — 8px справа у контента. Задаём из кода в пикселях.</summary>
@@ -325,4 +369,68 @@ public partial class InventoryUI : MonoBehaviour
     /// Якорь в рюкзаке по максимальному пересечению виртуального прямоугольника (центр дропа + размер) с кандидатом.
     /// </summary>
 
+    private void CreateGoldCounter()
+    {
+        if (_goldCounter != null)
+            return;
+
+        VisualElement host = _root != null ? _root.Q<VisualElement>("ContentRow") : null;
+        if (host == null)
+            host = _windowRoot;
+        if (host == null)
+            return;
+
+        _goldCounter = new VisualElement { name = "GoldCounter", pickingMode = PickingMode.Ignore };
+        _goldCounter.AddToClassList("gold-counter");
+
+        var icon = new VisualElement { name = "GoldIcon", pickingMode = PickingMode.Ignore };
+        icon.AddToClassList("gold-counter-icon");
+        var coin = Resources.Load<Sprite>("UI/Inventory/Coin");
+        if (coin != null)
+            icon.style.backgroundImage = new StyleBackground(coin);
+        _goldCounter.Add(icon);
+
+        _goldAmountLabel = new Label { name = "GoldAmount", pickingMode = PickingMode.Ignore };
+        _goldAmountLabel.AddToClassList("gold-counter-amount");
+        _goldCounter.Add(_goldAmountLabel);
+
+        host.Add(_goldCounter);
+        RefreshGoldCounter();
+    }
+
+    private void RefreshGoldCounter()
+    {
+        if (_goldAmountLabel == null)
+            return;
+        _goldAmountLabel.text = $"{Scripts.Economy.GoldWallet.Amount}";
+    }
+
+    private ITabbedItemGrid GetCompanionGrid()
+    {
+        if (IsMarketVisible)
+            return Scripts.Economy.MarketManager.EnsureInstance();
+        return StashManager.Instance;
+    }
+
+    private void BindCompanionPresenters()
+    {
+        EnsureStashPresentersInitialized();
+        if (_stashWindowController == null)
+            return;
+
+        _stashWindowController.SourceEndpointId = IsMarketVisible
+            ? ItemTransferEndpointIds.MarketCurrentTab
+            : ItemTransferEndpointIds.StashCurrentTab;
+        _stashWindowController.TryCtrlTransfer = IsMarketVisible
+            ? TryBuyCompanionItem
+            : null;
+    }
+
+    private bool TryBuyCompanionItem(InventoryItem item, int tab)
+    {
+        var market = Scripts.Economy.MarketManager.Instance;
+        if (market == null || item == null)
+            return false;
+        return market.TryBuy(item, market.IsBuybackTab(tab));
+    }
 }

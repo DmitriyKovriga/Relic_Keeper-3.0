@@ -1,0 +1,467 @@
+fileFormatVersion: 2
+guid: 27e2ca25eacee89429d19a4872fe4a5e
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 618970123898751095
+    second: Mystic Implulse-Sheet_0
+  - first:
+      213: -4235075268856492561
+    second: Mystic Implulse-Sheet_1
+  - first:
+      213: -5729350968221072810
+    second: Mystic Implulse-Sheet_2
+  - first:
+      213: 2838277367530603979
+    second: Mystic Implulse-Sheet_3
+  - first:
+      213: -7819060797139189318
+    second: Mystic Implulse-Sheet_4
+  - first:
+      213: -5442768611424716134
+    second: Mystic Implulse-Sheet_5
+  - first:
+      213: 5516864613967510035
+    second: Mystic Implulse-Sheet_6
+  - first:
+      213: 3644399592839905794
+    second: Mystic Implulse-Sheet_7
+  - first:
+      213: 5911675207085992154
+    second: Mystic Implulse-Sheet_8
+  - first:
+      213: 2228274932177394925
+    second: Mystic Implulse-Sheet_9
+  - first:
+      213: 6510061382612719510
+    second: Mystic Implulse-Sheet_10
+  - first:
+      213: -2470070835462757582
+    second: Mystic Implulse-Sheet_11
+  - first:
+      213: 8212754307353621140
+    second: Mystic Implulse-Sheet_12
+  - first:
+      213: -5636367072749255725
+    second: Mystic Implulse-Sheet_13
+  - first:
+      213: -3504448266895224639
+    second: Mystic Implulse-Sheet_14
+  - first:
+      213: -2478970930141214995
+    second: Mystic Implulse-Sheet_15
+  - first:
+      213: 8793228793678814045
+    second: Mystic Implulse-Sheet_16
+  - first:
+      213: -10681738386769322
+    second: Mystic Implulse-Sheet_17
+  - first:
+      213: -7315097776977530092
+    second: Mystic Implulse-Sheet_18
+  - first:
+      213: 8433178803976315291
+    second: Mystic Implulse-Sheet_19
+  - first:
+      213: 3661036574923542588
+    second: Mystic Implulse-Sheet_20
+  - first:
+      213: 2535913590891992506
+    second: Mystic Implulse-Sheet_21
+  - first:
+      213: -2483961869937488027
+    second: Mystic Implulse-Sheet_22
+  - first:
+      213: -4954055149600361187
+    second: Mystic Implulse-Sheet_23
+  - first:
+      213: -2964560863849979709
+    second: Mystic Implulse-Sheet_24
+  - first:
+      213: 8875003262557683978
+    second: Mystic Implulse-Sheet_25
+  - first:
+      213: 8617371057345398833
+    second: Mystic Implulse-Sheet_26
+  - first:
+      213: 6450966734072958490
+    second: Mystic Implulse-Sheet_27
+  - first:
+      213: 938120708662375468
+    second: Mystic Implulse-Sheet_28
+  - first:
+      213: 8100937459268514894
+    second: Mystic Implulse-Sheet_29
+  - first:
+      213: -6775882170333129214
+    second: Mystic Implulse-Sheet_30
+  - first:
+      213: 8106340264959599235
+    second: Mystic Implulse-Sheet_31
+  - first:
+      213: -4983425189431235677
+    second: Mystic Implulse-Sheet_32
+  - first:
+      213: -1594563208933411250
+    second: Mystic Implulse-Sheet_33
+  - first:
+      213: 5042979165606310238
+    second: Mystic Implulse-Sheet_34
+  - first:
+      213: -6835109858868972711
+    second: Mystic Implulse-Sheet_35
+  - first:
+      213: -2672505049170289766
+    second: Mystic Implulse-Sheet_36
+  - first:
+      213: 6791681399518773919
+    second: Mystic Implulse-Sheet_37
+  - first:
+      213: -8522703166328044693
+    second: Mystic Implulse-Sheet_38
+  - first:
+      213: 764347239485408786
+    second: Mystic Implulse-Sheet_39
+  - first:
+      213: 74190922283469332
+    second: Mystic Implulse-Sheet_40
+  - first:
+      213: -6707629699764971038
+    second: Mystic Implulse-Sheet_41
+  - first:
+      213: 5210118606876940471
+    second: Mystic Implulse-Sheet_42
+  - first:
+      213: -2225237464244009403
+    second: Mystic Implulse-Sheet_43
+  - first:
+      213: 2461287442252426589
+    second: Mystic Implulse-Sheet_44
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 24
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Mystic Implulse-Sheet_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 96
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77880995c06079800800000000000000
+      internalID: 618970123898751095
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mystic Implulse-Sheet_1
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 96
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fed44ca3b7df935c0800000000000000
+      internalID: -4235075268856492561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mystic Implulse-Sheet_2
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 96
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65284a956a14d70b0800000000000000
+      internalID: -5729350968221072810
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mystic Implulse-Sheet_3
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 0
+        width: 96
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc541b95a36936720800000000000000
+      internalID: 2838277367530603979
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mystic Implulse-Sheet_4
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 0
+        width: 96
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab10655d1ad1d7390800000000000000
+      internalID: -7819060797139189318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mystic Implulse-Sheet_5
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 0
+        width: 96
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9a3261f8c66774b0800000000000000
+      internalID: -5442768611424716134
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Mystic Implulse-Sheet_6
+      rect:
+        serializedVersion: 2
+        x: 576
+        y: 0
+        width: 96
+        height: 96
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31ab4750327df8c40800000000000000
+      internalID: 5516864613967510035
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 7e81ef786b1e2d54e98004d24648fc48
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":96.0,"y":96.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      Mystic Implulse-Sheet_0: 618970123898751095
+      Mystic Implulse-Sheet_1: -4235075268856492561
+      Mystic Implulse-Sheet_2: -5729350968221072810
+      Mystic Implulse-Sheet_3: 2838277367530603979
+      Mystic Implulse-Sheet_4: -7819060797139189318
+      Mystic Implulse-Sheet_5: -5442768611424716134
+      Mystic Implulse-Sheet_6: 5516864613967510035
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

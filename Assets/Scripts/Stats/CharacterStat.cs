@@ -76,6 +76,15 @@ namespace Scripts.Stats
             return didRemove;
         }
 
+        public void ClearAllModifiers()
+        {
+            if (_modifiers.Count == 0)
+                return;
+
+            _modifiers.Clear();
+            _isDirty = true;
+        }
+
         public float GetRawFlatValue()
         {
             float finalValue = BaseValue;

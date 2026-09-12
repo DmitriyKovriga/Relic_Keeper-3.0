@@ -22,8 +22,12 @@ namespace Scripts.Skills.PassiveTree
         /// <summary>Сменить дерево (при смене персонажа). Очищает текущие ноды и устанавливает новое дерево.</summary>
         public void SetTreeData(PassiveSkillTreeSO newTree)
         {
-            foreach (var id in new List<string>(_activeModifiers.Keys))
-                RemoveNodeStats(id);
+            if (!IsPreviewMode)
+            {
+                foreach (var id in new List<string>(_activeModifiers.Keys))
+                    RemoveNodeStats(id);
+            }
+
             _allocatedNodeIDs.Clear();
             _activeModifiers.Clear();
             _treeData = newTree;
@@ -51,15 +55,12 @@ namespace Scripts.Skills.PassiveTree
         {
             if (_playerStats == null) _playerStats = GetComponent<PlayerStats>();
             if (_treeData != null) _treeData.InitLookup();
+            PruneMissingNodeReferences();
         }
 
         private void Start()
         {
-            if (_allocatedNodeIDs.Count == 0 && _treeData != null)
-            {
-                AutoAllocateStartNodes();
-            }
-            EnsureStartNodesAllocated();
+            // Passive stats are applied by CharacterPartyManager / GameSaveManager after load.
             OnTreeUpdated?.Invoke();
         }
 
@@ -100,6 +101,11 @@ namespace Scripts.Skills.PassiveTree
 
         public bool CanAllocate(string nodeID)
         {
+            if (_treeData == null)
+                return false;
+
+            PruneMissingNodeReferences();
+
             if (_allocatedNodeIDs.Contains(nodeID)) return false;
             if (SkillPoints <= 0) return false; 
 
@@ -129,6 +135,11 @@ namespace Scripts.Skills.PassiveTree
 
         public bool CanRefund(string nodeID)
         {
+            if (_treeData == null)
+                return false;
+
+            PruneMissingNodeReferences();
+
             // 1. Нельзя откатить то, чего нет
             if (!IsAllocated(nodeID)) return false;
 
@@ -150,7 +161,8 @@ namespace Scripts.Skills.PassiveTree
             foreach (var id in potentialNodes)
             {
                 var n = _treeData.GetNode(id);
-                if (n.NodeType == PassiveNodeType.Start) startNodes.Add(id);
+                if (n != null && n.NodeType == PassiveNodeType.Start)
+                    startNodes.Add(id);
             }
 
             // Запускаем поиск в ширину (BFS) от всех стартовых точек
@@ -167,6 +179,8 @@ namespace Scripts.Skills.PassiveTree
             {
                 string current = queue.Dequeue();
                 var currentDef = _treeData.GetNode(current);
+                if (currentDef == null)
+                    continue;
 
                 foreach (var neighborID in currentDef.ConnectionIDs)
                 {
@@ -195,7 +209,7 @@ namespace Scripts.Skills.PassiveTree
             RemoveNodeStats(nodeID);
 
             // 3. Возвращаем очко
-            _playerStats.Leveling.RefundPoint(1);
+            _playerStats?.Leveling?.RefundPoint(1);
 
             OnTreeUpdated?.Invoke();
         }
@@ -204,8 +218,14 @@ namespace Scripts.Skills.PassiveTree
 
         private void AutoAllocateStartNodes()
         {
+            if (_treeData == null || _treeData.Nodes == null)
+                return;
+
             foreach (var node in _treeData.Nodes)
             {
+                if (node == null)
+                    continue;
+
                 if (node.NodeType == PassiveNodeType.Start)
                 {
                     _allocatedNodeIDs.Add(node.ID);
@@ -219,6 +239,9 @@ namespace Scripts.Skills.PassiveTree
             if (_treeData == null) return;
             foreach (var node in _treeData.Nodes)
             {
+                if (node == null)
+                    continue;
+
                 if (node.NodeType == PassiveNodeType.Start && !_allocatedNodeIDs.Contains(node.ID))
                 {
                     _allocatedNodeIDs.Add(node.ID);
@@ -228,54 +251,72 @@ namespace Scripts.Skills.PassiveTree
         }
 
         private void ApplyNodeStats(string nodeID)
-{
-    if (_activeModifiers.ContainsKey(nodeID)) return;
+        {
+            if (IsPreviewMode) return;
+            if (_activeModifiers.ContainsKey(nodeID)) return;
 
-    var nodeDef = _treeData.GetNode(nodeID);
-    if (nodeDef == null) return;
+            var nodeDef = _treeData.GetNode(nodeID);
+            if (nodeDef == null) return;
 
-    var modifiers = nodeDef.GetFinalModifiers();
-    if (modifiers.Count == 0) return;
+            var modifiers = nodeDef.GetFinalModifiers();
+            if (modifiers.Count == 0) return;
 
-    var appliedMods = new List<(StatType, StatModifier)>();
+            var appliedMods = new List<(StatType, StatModifier)>();
 
-    foreach (var modData in modifiers)
-    {
-        var runtimeMod = modData.ToStatModifier(this);
-        
-        // Добавляем модификатор (это пометит стат как "грязный", но не обновит UI)
-        _playerStats.GetStat(modData.Stat).AddModifier(runtimeMod);
-        
-        appliedMods.Add((modData.Stat, runtimeMod));
-    }
+            foreach (var modData in modifiers)
+            {
+                var runtimeMod = modData.ToStatModifier(this);
+                _playerStats.GetStat(modData.Stat).AddModifier(runtimeMod);
+                appliedMods.Add((modData.Stat, runtimeMod));
+            }
 
-    _activeModifiers[nodeID] = appliedMods;
-
-    // --- ДОБАВЛЕНО: Принудительно обновляем все системы и UI ---
-    _playerStats.NotifyChanged();
-}
+            _activeModifiers[nodeID] = appliedMods;
+            _playerStats.NotifyChanged();
+        }
 
         private void RemoveNodeStats(string nodeID)
-{
-    if (_activeModifiers.TryGetValue(nodeID, out var mods))
-    {
-        foreach (var (type, mod) in mods)
         {
-            _playerStats.GetStat(type).RemoveModifier(mod);
+            if (_activeModifiers.TryGetValue(nodeID, out var mods))
+            {
+                if (!IsPreviewMode)
+                {
+                    foreach (var (type, mod) in mods)
+                        _playerStats.GetStat(type).RemoveModifier(mod);
+                }
+
+                _activeModifiers.Remove(nodeID);
+
+                if (!IsPreviewMode)
+                    _playerStats.NotifyChanged();
+            }
         }
-        _activeModifiers.Remove(nodeID);
-        
-        // --- ДОБАВЛЕНО: Принудительно обновляем все системы и UI ---
-        _playerStats.NotifyChanged();
-    }
-}
 
         // --- SAVE / LOAD ---
 
-        public List<string> GetSaveData() => new List<string>(_allocatedNodeIDs);
+        public List<string> GetSaveData()
+        {
+            PruneMissingNodeReferences();
+            return new List<string>(_allocatedNodeIDs);
+        }
+
+        public void ReapplyAllAllocatedNodeStats()
+        {
+            if (IsPreviewMode)
+                return;
+
+            _activeModifiers.Clear();
+
+            foreach (var id in _allocatedNodeIDs)
+                ApplyNodeStats(id);
+
+            EnsureStartNodesAllocated();
+        }
 
         public void LoadState(List<string> savedIDs)
         {
+            if (savedIDs == null)
+                savedIDs = new List<string>();
+
             // 1. Очищаем ТЕКУЩИЕ статы перед загрузкой новых
             // Это критично, если мы делаем LoadGame, не перезапуская игру
             foreach (var id in new List<string>(_activeModifiers.Keys))
@@ -289,12 +330,44 @@ namespace Scripts.Skills.PassiveTree
             // 2. Накатываем новые
             foreach (var id in savedIDs)
             {
+                if (_treeData == null || _treeData.GetNode(id) == null)
+                    continue;
+
                 _allocatedNodeIDs.Add(id);
                 ApplyNodeStats(id);
             }
-            
+             
             EnsureStartNodesAllocated();
             OnTreeUpdated?.Invoke();
+        }
+
+        private void PruneMissingNodeReferences()
+        {
+            if (_treeData == null)
+                return;
+
+            bool changed = false;
+            foreach (var id in new List<string>(_allocatedNodeIDs))
+            {
+                if (_treeData.GetNode(id) != null)
+                    continue;
+
+                RemoveNodeStats(id);
+                _allocatedNodeIDs.Remove(id);
+                changed = true;
+            }
+
+            foreach (var id in new List<string>(_activeModifiers.Keys))
+            {
+                if (_allocatedNodeIDs.Contains(id))
+                    continue;
+
+                RemoveNodeStats(id);
+                changed = true;
+            }
+
+            if (changed)
+                OnTreeUpdated?.Invoke();
         }
     }
 }

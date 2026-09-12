@@ -1,0 +1,115 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa469c8d85911614bbc9afc2a526821c, type: 3}
+  m_Name: Recipe_Mystic_Impulse_Skill
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.Steps.SkillRecipeSO
+  Steps:
+  - StepDefinition: {fileID: 11400000, guid: da9d1b6e1929e504bad1966f095c2252, type: 2}
+    Overrides: []
+    DamageConversions: []
+    StartPercentPipeline: 0
+    EndPercentPipeline: 0
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: 1c82999dedb567c46a4bdb5de49e135f, type: 2}
+    Overrides:
+    - Key: QuickStatusStat
+      Type: 1
+      FloatVal: 0
+      IntVal: 89
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: QuickStatusValue
+      Type: 0
+      FloatVal: 50
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: QuickStatusModType
+      Type: 1
+      FloatVal: 0
+      IntVal: 300
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    DamageConversions: []
+    StartPercentPipeline: 0.01
+    EndPercentPipeline: 0.01
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: 42eb5f18fe84bc0428a2a5c38ca3570d, type: 2}
+    Overrides:
+    - Key: AttachToParent
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 1
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: VfxPrefab
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 3781618429183576840, guid: 65055df6a47832244a8bce41a7273fe4, type: 3}
+    DamageConversions: []
+    StartPercentPipeline: 0
+    EndPercentPipeline: 0.1
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: 339d36ebcc275fe4592eba937ce39bbc, type: 2}
+    Overrides:
+    - Key: Radius
+      Type: 0
+      FloatVal: 1
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SourceStepIndex
+      Type: 1
+      FloatVal: 0
+      IntVal: 2
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: VfxLifetimePercent
+      Type: 0
+      FloatVal: 0.8
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: DamageMultiplier
+      Type: 0
+      FloatVal: 2
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    DamageConversions:
+    - Source: 0
+      Target: 3
+      Percent: 100
+    - Source: 1
+      Target: 3
+      Percent: 100
+    - Source: 2
+      Target: 3
+      Percent: 100
+    StartPercentPipeline: 0
+    EndPercentPipeline: 0
+    SubSteps: []
+  IsChanneling: 0
+  ChannelLoopStepIndices: 
+  ChannelMaxDuration: 5
+  ChannelTickDuration: 0

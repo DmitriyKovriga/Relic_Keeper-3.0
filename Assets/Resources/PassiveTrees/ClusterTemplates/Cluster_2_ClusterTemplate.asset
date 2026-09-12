@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59d1157b86cb69f48850e8aace8f84c0, type: 3}
+  m_Name: Cluster_2_ClusterTemplate
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveClusterTemplateSO
+  NameEN: Circle 3+1
+  NameRU: "\u041A\u0440\u0443\u0433 3+1"
+  Cluster:
+    ID: 
+    Name: Cluster 2
+    Center: {x: 0, y: 0}
+    Orbits:
+    - Radius: 60
+      IsPartialArc: 0
+      ArcStartAngle: 0
+      ArcEndAngle: 360
+    EditorColor: {r: 0.33753848, g: 0.7760476, b: 0.7121618, a: 0.4}
+    RoadConnections: []
+  Nodes:
+  - ID: 2990bdc4-9265-4569-8442-7b781f69df5e
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 240
+    Template: {fileID: 11400000, guid: f0972e61878103444bcae5bd7e6bf009, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 679f95d3-4efe-4077-96a6-ce6d268ad8f6
+    - 9e60128d-d3d3-4a81-a9c2-910d117b0ce0
+  - ID: 679f95d3-4efe-4077-96a6-ce6d268ad8f6
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 285
+    Template: {fileID: 11400000, guid: f0972e61878103444bcae5bd7e6bf009, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 2990bdc4-9265-4569-8442-7b781f69df5e
+    - 9f63d7a5-5b2c-49f7-bc60-15708d384a2f
+  - ID: 9e60128d-d3d3-4a81-a9c2-910d117b0ce0
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 195
+    Template: {fileID: 11400000, guid: f0972e61878103444bcae5bd7e6bf009, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 2990bdc4-9265-4569-8442-7b781f69df5e
+    - 9f63d7a5-5b2c-49f7-bc60-15708d384a2f
+  - ID: 9f63d7a5-5b2c-49f7-bc60-15708d384a2f
+    NodeType: 1
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 60
+    Template: {fileID: 11400000, guid: 596aff1fa0937eb4b8c5ef253a3a4e4e, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 679f95d3-4efe-4077-96a6-ce6d268ad8f6
+    - 9e60128d-d3d3-4a81-a9c2-910d117b0ce0

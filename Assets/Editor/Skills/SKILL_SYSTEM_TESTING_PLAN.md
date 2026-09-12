@@ -40,7 +40,7 @@
   - **MovementLock** — выделить степ, справа в **Timing** задать Start % = 0, End % = 100.
   - **WeaponWindup** — Start % = 0, End % = 35.
   - **WeaponStrike** — Trigger at % = 35.
-  - **Spawn VFX** — Trigger at % = 35. В **Step settings**: VFX Prefab (префаб из проекта), **Scale multiplier** (например 1 или 1.2), Offset X/Y, Base duration, при необходимости Attach to parent / Invert facing.
+  - **Spawn VFX** — Start % = 35, End % = 66. В **Step settings**: VFX Prefab (префаб из проекта), **Scale multiplier** (например 1 или 1.2), Offset X/Y, Fade out over lifetime, Fade start at life %, при необходимости Attach to parent / Invert facing.
   - **DealDamageCircle** — Trigger at % = 35. Radius, **Source step index** = индекс степа SpawnVFX (обычно 3), Damage multiplier.
   - **WeaponRecovery** — Start % = 35, End % = 100.
   - **MovementUnlock** — Trigger at % = 100 (опционально, т.к. Lock уже снимается в End % MovementLock).
@@ -122,7 +122,7 @@
 ### Рантайм (SkillStepRunner)
 
 - [ ] Выполнение по времени (0–100% пайплайна), Lock 0–100%, Windup 0–35%, Strike/VFX/Damage на 35%, Recovery 35–100%.
-- [ ] SpawnVFX: префаб, Scale multiplier, позиция, длительность; DealDamage с SourceStepIndex берёт масштаб из VFX.
+- [ ] SpawnVFX: префаб, Scale multiplier, позиция, длительность из окна Start % → End %, fade-параметры; DealDamage с SourceStepIndex берёт масштаб из VFX.
 - [ ] Движение блокируется/разблокируется, анимация руки (Windup/Strike/Recovery).
 - [ ] Cancel() (если вызывается) разблокирует движение и сбрасывает анимацию.
 

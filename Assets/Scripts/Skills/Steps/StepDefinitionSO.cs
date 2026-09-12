@@ -29,7 +29,13 @@ namespace Scripts.Skills.Steps
         }
 
         /// <summary> Степ с диапазоном (Start % — End %): Lock, Windup, Recovery, Wait. Остальные — мгновенные в один момент. </summary>
-        public bool IsDurationStep => Id == "MovementLock" || Id == "WeaponWindup" || Id == "WeaponRecovery" || Id == "Wait";
+        public bool IsDurationStep =>
+            Id == "MovementLock" ||
+            Id == "WeaponWindup" ||
+            Id == "WeaponRecovery" ||
+            Id == "Wait" ||
+            Id == "PersistentDamageCircle" ||
+            Id == "PersistentDamageRectangle";
 
         /// <summary> Получить дефолтное значение по ключу. </summary>
         public bool TryGetDefault(string key, out float value)

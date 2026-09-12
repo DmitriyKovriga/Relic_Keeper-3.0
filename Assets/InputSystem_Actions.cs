@@ -226,6 +226,42 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ThirdSkill"",
+                    ""type"": ""Button"",
+                    ""id"": ""f0371490-6503-41dd-a04c-25162527a337"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""FourthSkill"",
+                    ""type"": ""Button"",
+                    ""id"": ""ef1788aa-09d6-4cda-88be-1ff9d29de446"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""FifthSkill"",
+                    ""type"": ""Button"",
+                    ""id"": ""407e62ca-a551-4333-bd90-2d9e2db654a5"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SixthSkill"",
+                    ""type"": ""Button"",
+                    ""id"": ""5d135d2b-7454-4d8a-a7bb-8bdb843df3a1"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -496,7 +532,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""2722ef91-8425-4dc6-abfb-a20e88cdc16c"",
-                    ""path"": """",
+                    ""path"": ""<Keyboard>/z"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -507,7 +543,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""212e403a-77fb-4d1d-a1e8-bf219d24f2b0"",
-                    ""path"": """",
+                    ""path"": ""<Keyboard>/q"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -600,6 +636,50 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
                     ""action"": ""Dodge"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5af5333f-1c7e-4671-b919-ca880930838b"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ThirdSkill"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""95225817-78fe-4d51-b23c-c2ca15150e11"",
+                    ""path"": ""<Keyboard>/v"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FourthSkill"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0c623ce1-0314-41b7-8935-bdea977b0011"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FifthSkill"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c5cf744f-2d35-4ad5-bcce-f073625708af"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SixthSkill"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1222,6 +1302,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Player_ToggleDebugInventory = m_Player.FindAction("ToggleDebugInventory", throwIfNotFound: true);
         m_Player_OpenStash = m_Player.FindAction("OpenStash", throwIfNotFound: true);
         m_Player_Dodge = m_Player.FindAction("Dodge", throwIfNotFound: true);
+        m_Player_ThirdSkill = m_Player.FindAction("ThirdSkill", throwIfNotFound: true);
+        m_Player_FourthSkill = m_Player.FindAction("FourthSkill", throwIfNotFound: true);
+        m_Player_FifthSkill = m_Player.FindAction("FifthSkill", throwIfNotFound: true);
+        m_Player_SixthSkill = m_Player.FindAction("SixthSkill", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1331,6 +1415,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_ToggleDebugInventory;
     private readonly InputAction m_Player_OpenStash;
     private readonly InputAction m_Player_Dodge;
+    private readonly InputAction m_Player_ThirdSkill;
+    private readonly InputAction m_Player_FourthSkill;
+    private readonly InputAction m_Player_FifthSkill;
+    private readonly InputAction m_Player_SixthSkill;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1403,6 +1491,22 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Dodge => m_Wrapper.m_Player_Dodge;
         /// <summary>
+        /// Provides access to the underlying input action "Player/ThirdSkill".
+        /// </summary>
+        public InputAction @ThirdSkill => m_Wrapper.m_Player_ThirdSkill;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/FourthSkill".
+        /// </summary>
+        public InputAction @FourthSkill => m_Wrapper.m_Player_FourthSkill;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/FifthSkill".
+        /// </summary>
+        public InputAction @FifthSkill => m_Wrapper.m_Player_FifthSkill;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/SixthSkill".
+        /// </summary>
+        public InputAction @SixthSkill => m_Wrapper.m_Player_SixthSkill;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -1473,6 +1577,18 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Dodge.started += instance.OnDodge;
             @Dodge.performed += instance.OnDodge;
             @Dodge.canceled += instance.OnDodge;
+            @ThirdSkill.started += instance.OnThirdSkill;
+            @ThirdSkill.performed += instance.OnThirdSkill;
+            @ThirdSkill.canceled += instance.OnThirdSkill;
+            @FourthSkill.started += instance.OnFourthSkill;
+            @FourthSkill.performed += instance.OnFourthSkill;
+            @FourthSkill.canceled += instance.OnFourthSkill;
+            @FifthSkill.started += instance.OnFifthSkill;
+            @FifthSkill.performed += instance.OnFifthSkill;
+            @FifthSkill.canceled += instance.OnFifthSkill;
+            @SixthSkill.started += instance.OnSixthSkill;
+            @SixthSkill.performed += instance.OnSixthSkill;
+            @SixthSkill.canceled += instance.OnSixthSkill;
         }
 
         /// <summary>
@@ -1529,6 +1645,18 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Dodge.started -= instance.OnDodge;
             @Dodge.performed -= instance.OnDodge;
             @Dodge.canceled -= instance.OnDodge;
+            @ThirdSkill.started -= instance.OnThirdSkill;
+            @ThirdSkill.performed -= instance.OnThirdSkill;
+            @ThirdSkill.canceled -= instance.OnThirdSkill;
+            @FourthSkill.started -= instance.OnFourthSkill;
+            @FourthSkill.performed -= instance.OnFourthSkill;
+            @FourthSkill.canceled -= instance.OnFourthSkill;
+            @FifthSkill.started -= instance.OnFifthSkill;
+            @FifthSkill.performed -= instance.OnFifthSkill;
+            @FifthSkill.canceled -= instance.OnFifthSkill;
+            @SixthSkill.started -= instance.OnSixthSkill;
+            @SixthSkill.performed -= instance.OnSixthSkill;
+            @SixthSkill.canceled -= instance.OnSixthSkill;
         }
 
         /// <summary>
@@ -1945,6 +2073,34 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDodge(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ThirdSkill" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnThirdSkill(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "FourthSkill" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnFourthSkill(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "FifthSkill" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnFifthSkill(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SixthSkill" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSixthSkill(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
   m_Name: SmallLifeNPS
   m_EditorClassIdentifier: 
-  Name: +5 to maximum life
+  Name: Transport HP Node
   Description: 
   Icon: {fileID: 21300000, guid: 52e87571e47177c4599838f9ebd15a52, type: 3}
   Modifiers:

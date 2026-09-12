@@ -9,6 +9,17 @@ using Scripts.Skills;
 
 namespace Scripts.Inventory
 {
+    internal static class InventoryItemStatRules
+    {
+        internal static StatModType NormalizeAffixModifierType(StatType stat, StatModType type)
+        {
+            if (stat == StatType.AttackSpeed && type == StatModType.Flat)
+                return StatModType.PercentAdd;
+
+            return type;
+        }
+    }
+
     [Serializable]
     public class AffixModifierInstance
     {
@@ -42,69 +53,78 @@ namespace Scripts.Inventory
     public class AffixInstance
     {
         public ItemAffixSO Data;
+        public int Tier;
         public List<AffixModifierInstance> Modifiers = new List<AffixModifierInstance>();
 
         // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РіРµРЅРµСЂР°С†РёРё (РЎР›РЈР§РђР™РќР«Р™)
         public AffixInstance(ItemAffixSO data, InventoryItem ownerItem)
+            : this(data, data != null ? data.GetDefaultTier() : 0, ownerItem)
+        {
+        }
+
+        public AffixInstance(ItemAffixSO data, int tier, InventoryItem ownerItem)
         {
             Data = data;
-            if (data.Stats == null) return;
+            Tier = tier > 0 ? tier : data != null ? data.GetDefaultTier() : 0;
+            ItemAffixSO.AffixStatData[] stats = data != null ? data.GetStatsForTier(Tier) : null;
+            if (stats == null) return;
 
-            foreach (var statData in data.Stats)
+            foreach (var statData in stats)
             {
-                float primaryValue = RollAffixValue(statData.GetPrimaryRollMin(), statData.GetPrimaryRollMax());
+                float primaryValue = RollAffixValue(statData.Stat, statData.GetPrimaryRollMin(), statData.GetPrimaryRollMax());
                 StatModifier secondaryMod = null;
 
                 if (statData.UsesRangeRoll())
                 {
-                    float secondaryValue = RollAffixValue(statData.GetSecondaryRollMin(), statData.GetSecondaryRollMax());
+                    float secondaryValue = RollAffixValue(statData.Stat, statData.GetSecondaryRollMin(), statData.GetSecondaryRollMax());
                     if (secondaryValue < primaryValue)
                         (primaryValue, secondaryValue) = (secondaryValue, primaryValue);
 
-                    secondaryMod = new StatModifier(secondaryValue, statData.Type, ownerItem);
+                    secondaryMod = new StatModifier(secondaryValue, InventoryItemStatRules.NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
                 }
 
-                var primaryMod = new StatModifier(primaryValue, statData.Type, ownerItem);
+                var primaryMod = new StatModifier(primaryValue, InventoryItemStatRules.NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
                 Modifiers.Add(new AffixModifierInstance(statData.Stat, statData.Scope, primaryMod, secondaryMod));
             }
         }
 
         // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Р—РђР“Р РЈР—РљР (РР— РЎРћРҐР РђРќР•РќРРЇ)
         public AffixInstance(ItemAffixSO data, AffixSaveData saveData, InventoryItem ownerItem)
+            : this(data, saveData != null ? saveData.Tier : 0, saveData, ownerItem)
+        {
+        }
+
+        public AffixInstance(ItemAffixSO data, int tier, AffixSaveData saveData, InventoryItem ownerItem)
         {
             Data = data;
-            if (data.Stats == null || saveData.Values == null) return;
+            Tier = tier > 0 ? tier : data != null ? data.GetDefaultTier() : 0;
+            ItemAffixSO.AffixStatData[] stats = data != null ? data.GetStatsForTier(Tier) : null;
+            if (stats == null || saveData?.Values == null) return;
 
             // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј РјРѕРґРёС„РёРєР°С‚РѕСЂС‹ РїРѕ РїРѕСЂСЏРґРєСѓ
             int valueIndex = 0;
-            for (int i = 0; i < data.Stats.Length; i++)
+            for (int i = 0; i < stats.Length; i++)
             {
                 if (valueIndex >= saveData.Values.Count) break;
 
-                var statData = data.Stats[i];
+                var statData = stats[i];
                 float primaryValue = saveData.Values[valueIndex++];
                 StatModifier secondaryMod = null;
 
                 if (statData.UsesRangeRoll() && valueIndex < saveData.Values.Count)
                 {
                     float secondaryValue = saveData.Values[valueIndex++];
-                    secondaryMod = new StatModifier(secondaryValue, statData.Type, ownerItem);
+                    secondaryMod = new StatModifier(secondaryValue, InventoryItemStatRules.NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
                 }
 
-                var primaryMod = new StatModifier(primaryValue, statData.Type, ownerItem);
+                var primaryMod = new StatModifier(primaryValue, InventoryItemStatRules.NormalizeAffixModifierType(statData.Stat, statData.Type), ownerItem);
                 Modifiers.Add(new AffixModifierInstance(statData.Stat, statData.Scope, primaryMod, secondaryMod));
             }
         }
 
-        private static float RollAffixValue(float minValue, float maxValue)
+        private static float RollAffixValue(StatType stat, float minValue, float maxValue)
         {
-            if (maxValue < minValue)
-                (minValue, maxValue) = (maxValue, minValue);
-
-            float value = Mathf.Approximately(minValue, maxValue)
-                ? minValue
-                : UnityEngine.Random.Range(minValue, maxValue);
-            return Mathf.Round(value);
+            return AffixValueBalance.RollValue(minValue, maxValue, stat);
         }
     }
 
@@ -114,6 +134,15 @@ namespace Scripts.Inventory
         public string InstanceID;
         public EquipmentItemSO Data;
         public List<AffixInstance> Affixes = new List<AffixInstance>();
+
+        private WeaponLocalStatSource _weaponLocalModifierSource;
+
+        public WeaponLocalStatSource WeaponLocalModifierSource =>
+            _weaponLocalModifierSource ??= new WeaponLocalStatSource(this);
+
+        public bool IsDefensiveOffHand =>
+            Data is WeaponItemSO weapon && weapon.IsDefensiveOffHand
+            || (Data is ArmorItemSO && Data.Slot == EquipmentSlot.OffHand);
 
         public List<SkillDataSO> GrantedSkills = new List<SkillDataSO>();
 
@@ -142,6 +171,7 @@ namespace Scripts.Inventory
                 var afData = new AffixSaveData
                 {
                     AffixID = affixKey,
+                    Tier = affix.Tier,
                     Values = new List<float>()
                 };
                 foreach (var mod in affix.Modifiers)
@@ -155,7 +185,9 @@ namespace Scripts.Inventory
 
             foreach (var skill in GrantedSkills)
             {
-                if (skill != null) saveData.RolledSkillIDs.Add(skill.ID);
+                string skillKey = GetStableSkillKey(skill);
+                if (!string.IsNullOrEmpty(skillKey))
+                    saveData.RolledSkillIDs.Add(skillKey);
             }
 
             return saveData;
@@ -182,11 +214,11 @@ namespace Scripts.Inventory
             // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р°С„С„РёРєСЃС‹
             foreach (var afSave in save.Affixes)
             {
-                var affixSO = db.GetAffix(afSave.AffixID);
-                if (affixSO != null)
+                if (db.TryResolveAffix(afSave.AffixID, out var affixSO, out int legacyTier))
                 {
                     // Р’С‹Р·С‹РІР°РµРј СЃРїРµС†РёР°Р»СЊРЅС‹Р№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Р·Р°РіСЂСѓР·РєРё
-                    newItem.Affixes.Add(new AffixInstance(affixSO, afSave, newItem));
+                    int resolvedTier = afSave.Tier > 0 ? afSave.Tier : legacyTier;
+                    newItem.Affixes.Add(new AffixInstance(affixSO, resolvedTier, afSave, newItem));
                 }
             }
 
@@ -205,7 +237,56 @@ namespace Scripts.Inventory
                 }
             }
 
+            RepairMissingGrantedSkillsFromPools(baseItem, newItem);
+
             return newItem;
+        }
+
+        private static string GetStableSkillKey(SkillDataSO skill)
+        {
+            if (skill == null)
+                return null;
+
+            if (!string.IsNullOrWhiteSpace(skill.ID))
+                return skill.ID.Trim();
+
+            if (!string.IsNullOrWhiteSpace(skill.name))
+                return skill.name.Trim();
+
+            return !string.IsNullOrWhiteSpace(skill.SkillName) ? skill.SkillName.Trim() : null;
+        }
+
+        private static void RepairMissingGrantedSkillsFromPools(EquipmentItemSO baseItem, InventoryItem item)
+        {
+            if (baseItem == null || item == null || item.GrantedSkills.Count > 0)
+                return;
+
+            TryAddOnlySkillFromPool(item, baseItem.SkillPool);
+
+            if (baseItem is WeaponItemSO weapon)
+                TryAddOnlySkillFromPool(item, weapon.SecondarySkillPool);
+        }
+
+        private static void TryAddOnlySkillFromPool(InventoryItem item, SkillPoolSO pool)
+        {
+            if (item == null || pool?.PossibleSkills == null)
+                return;
+
+            SkillDataSO onlySkill = null;
+            for (int i = 0; i < pool.PossibleSkills.Count; i++)
+            {
+                SkillDataSO skill = pool.PossibleSkills[i].Skill;
+                if (skill == null)
+                    continue;
+
+                if (onlySkill != null && onlySkill != skill)
+                    return;
+
+                onlySkill = skill;
+            }
+
+            if (onlySkill != null && !item.GrantedSkills.Contains(onlySkill))
+                item.GrantedSkills.Add(onlySkill);
         }
 
         // --- Helper Methods (Р±РµР· РёР·РјРµРЅРµРЅРёР№) ---
@@ -370,7 +451,7 @@ namespace Scripts.Inventory
         private void AddWeaponDamage(List<(StatType, StatModifier)> result, StatType type, float min, float max)
         {
             float avg = GetAverageWeaponDamage(type);
-            if (avg > 0) result.Add((type, new StatModifier(avg, StatModType.Flat, this)));
+            if (avg > 0) result.Add((type, new StatModifier(avg, StatModType.Flat, WeaponLocalModifierSource)));
         }
 
         public List<(StatType, StatModifier)> GetAllModifiers()
@@ -389,24 +470,30 @@ namespace Scripts.Inventory
             }
             else if (Data is WeaponItemSO weapon)
             {
-                AddWeaponDamage(result, StatType.DamagePhysical, weapon.MinPhysicalDamage, weapon.MaxPhysicalDamage);
-                AddWeaponDamage(result, StatType.DamageFire, weapon.MinFireDamage, weapon.MaxFireDamage);
-                AddWeaponDamage(result, StatType.DamageCold, weapon.MinColdDamage, weapon.MaxColdDamage);
-                AddWeaponDamage(result, StatType.DamageLightning, weapon.MinLightningDamage, weapon.MaxLightningDamage);
+                if (!weapon.IsDefensiveOffHand)
+                {
+                    AddWeaponDamage(result, StatType.DamagePhysical, weapon.MinPhysicalDamage, weapon.MaxPhysicalDamage);
+                    AddWeaponDamage(result, StatType.DamageFire, weapon.MinFireDamage, weapon.MaxFireDamage);
+                    AddWeaponDamage(result, StatType.DamageCold, weapon.MinColdDamage, weapon.MaxColdDamage);
+                    AddWeaponDamage(result, StatType.DamageLightning, weapon.MinLightningDamage, weapon.MaxLightningDamage);
 
-                float finalAps = GetCalculatedStat(StatType.AttackSpeed, weapon.AttacksPerSecond);
-                if (finalAps > 0) result.Add((StatType.AttackSpeed, new StatModifier(finalAps, StatModType.Flat, this)));
+                    float finalAps = GetCalculatedStat(StatType.AttackSpeed, weapon.AttacksPerSecond);
+                    if (finalAps > 0) result.Add((StatType.AttackSpeed, new StatModifier(finalAps, StatModType.Flat, WeaponLocalModifierSource)));
 
-                float finalCrit = GetCalculatedStat(StatType.CritChance, weapon.BaseCritChance);
-                if (finalCrit > 0) result.Add((StatType.CritChance, new StatModifier(finalCrit, StatModType.Flat, this)));
+                    float finalCrit = GetCalculatedStat(StatType.CritChance, weapon.BaseCritChance);
+                    if (finalCrit > 0) result.Add((StatType.CritChance, new StatModifier(finalCrit, StatModType.Flat, WeaponLocalModifierSource)));
+                }
             }
 
             if (Data.ImplicitModifiers != null)
             {
                 foreach (var imp in Data.ImplicitModifiers)
                 {
-                    if (imp.Scope == StatScope.Global)
-                        result.Add((imp.Stat, new StatModifier(imp.Value, imp.Type, this)));
+                    if (imp.Scope != StatScope.Global && !ShouldPromoteLocalStatToCharacter(imp.Stat))
+                        continue;
+
+                    var modType = InventoryItemStatRules.NormalizeAffixModifierType(imp.Stat, imp.Type);
+                    result.Add((imp.Stat, new StatModifier(imp.Value, modType, this)));
                 }
             }
 
@@ -414,7 +501,7 @@ namespace Scripts.Inventory
             {
                 foreach (var modifier in affix.Modifiers)
                 {
-                    if (modifier.Scope != StatScope.Global)
+                    if (modifier.Scope != StatScope.Global && !ShouldPromoteLocalStatToCharacter(modifier.Type))
                         continue;
 
                     if (modifier.HasRange && IsDamageStat(modifier.Type))
@@ -429,6 +516,25 @@ namespace Scripts.Inventory
                 }
             }
             return result;
+        }
+
+        private bool ShouldPromoteLocalStatToCharacter(StatType stat)
+        {
+            if (!IsDefensiveOffHand)
+                return false;
+            if (IsWeaponOffenseStat(stat))
+                return false;
+            if (Data is ArmorItemSO && (stat == StatType.Armor || stat == StatType.Evasion || stat == StatType.MaxMysticShield))
+                return false;
+
+            return true;
+        }
+
+        private static bool IsWeaponOffenseStat(StatType type)
+        {
+            return type == StatType.AttackSpeed ||
+                   type == StatType.CritChance ||
+                   IsDamageStat(type);
         }
 
         private static bool IsDamageStat(StatType type)

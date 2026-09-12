@@ -50,6 +50,290 @@ MonoBehaviour:
     m_Localized: Sweep
     m_Metadata:
       m_Items: []
+  - m_Id: 43884134558892032
+    m_Localized: Haste
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43884134588252160
+    m_Localized: Increase attack speed by 30% and movement speed by 10%
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43884353245708288
+    m_Localized: Warrior Step
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43884353245708289
+    m_Localized: Increase movespeed and armore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44078985015492608
+    m_Localized: Endless Battery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44078985053241344
+    m_Localized: Charge current Mystic Shields to MAX
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44087408490741760
+    m_Localized: Mystic Consume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44087408511713280
+    m_Localized: Consume 1 Mystic Shield to gain More Spell Damage for 5 sec
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44089621963374592
+    m_Localized: Mystic Haste
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44089621984346112
+    m_Localized: Consume 1 Mystic Shield to grant 30% More Movement Speed and 50%
+      More Manna Regeneration for 29 sec
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44091253375664128
+    m_Localized: Evasionary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44091253375664129
+    m_Localized: 'Grant 100% Increase Evasion for 8 sec '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44092771675963392
+    m_Localized: Rush
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44092771675963393
+    m_Localized: "Grant 20% More Movement Speed and Attack Speed \u043D\u0430 8 \u0441\u0435\u043A"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44122424381833216
+    m_Localized: Archer Focus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44122424427970560
+    m_Localized: 'Grant Archer Focus Buff for 12 sec
+
+      Archer Focus - Increase
+      Prjijectile Damage by 50% but end effect when take damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44125566913773568
+    m_Localized: Vail Of Evasion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44125566913773569
+    m_Localized: 'Grant Vail Of Evasion Buff
+
+      Vail Of Evasion - grant +5% regeneration
+      life and mana per second for every Evade'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44131521147731968
+    m_Localized: Vitality Force
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44131521147731969
+    m_Localized: Instant resoring life in 25% of current Armore
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44132878743273472
+    m_Localized: Might Of Destruction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44132878743273473
+    m_Localized: Increase 50% Skill Area Effect by 8 sec
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44181893308514304
+    m_Localized: Mystic Impulse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44181893333680128
+    m_Localized: 'Convert all weapon damage from weapon to lightning and deal 200%
+      damage
+
+      Consume Mystic Shield and gain 50% More spell damage for this
+      cast'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44617556415774720
+    m_Localized: Venom Strike
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44617556449329152
+    m_Localized: 'Have 50% chanse to apply Poison
+
+      Deal +10 flat physical damage
+      for every Posion stack on enemy.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44859357152182272
+    m_Localized: Weapon Throw
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44859357181542400
+    m_Localized: Weapon Throw with 100% weapon damage +50% attack speed and pierce
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46458832145080320
+    m_Localized: Dexterous Lunge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46458832174440448
+    m_Localized: Deal 100% damage with 50% More Attack Speed and 100% Increase Crit
+      Chanse, move forward
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47456163879444480
+    m_Localized: Fire Ball
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47456163908804608
+    m_Localized: Fire Ball is projectile that deal 100% damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48250520601616384
+    m_Localized: Icecle Shot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48250520618393600
+    m_Localized: Deal 100% of damage and grant additional 25% to freeze enemy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48305267404693504
+    m_Localized: Lightning Arc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48305267421470720
+    m_Localized: Deal 100% damage that chain 3 times
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48604781587980288
+    m_Localized: Stunning Blow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48604781617340416
+    m_Localized: Deal 100% damage with +25% attack speed and cast Shock Wave on hit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48649166614683648
+    m_Localized: Ground Shake
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48649166644043776
+    m_Localized: Cast Wave of Shaking in front with 100% damage and pierce all target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54130829566140416
+    m_Localized: Tremor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54130829603889152
+    m_Localized: Hit the fround and spawn wave taht deal 250% damage and deal 250%
+      damage to stun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54282813623492608
+    m_Localized: Wave Cut
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54282813661241344
+    m_Localized: Deal 100% damage and get +100% to crit multiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54311258424336384
+    m_Localized: Lunge Slash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54311258457890816
+    m_Localized: Deal 250% damage and move forward
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54517666864422912
+    m_Localized: Orbital Weapon Throw
+    m_Metadata:
+      m_Items: []
+  - m_Id: 54517666897977344
+    m_Localized: Throw Weapon to fly around hero and deal 350% damage on hit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 57105828231655424
+    m_Localized: Homing Weapon Throw
+    m_Metadata:
+      m_Items: []
+  - m_Id: 57105828265209856
+    m_Localized: Throw Homing Weapon with 100% damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000001
+    m_Localized: DPS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000002
+    m_Localized: Damage over time
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000003
+    m_Localized: Inflict chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000004
+    m_Localized: Phys
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000005
+    m_Localized: Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000006
+    m_Localized: Cold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000007
+    m_Localized: Lightning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000008
+    m_Localized: Bleed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000009
+    m_Localized: Poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000010
+    m_Localized: Ignite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000011
+    m_Localized: Bleed damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000012
+    m_Localized: Poison damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000013
+    m_Localized: Ignite damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000014
+    m_Localized: Bleed chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000015
+    m_Localized: Poison chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000016
+    m_Localized: Ignite chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58000000000000017
+    m_Localized: Damage per hit
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -4,25 +4,20 @@ using Scripts.Items;
 
 namespace Scripts.Visuals
 {
+    /// <summary>
+    /// Weapon overlay depth only. Body sorting is owned by PlayerMovement (root WorldDepthSort).
+    /// </summary>
     public class WeaponVisualController : MonoBehaviour
     {
         [Header("Components")]
         [Tooltip("Weapon renderer located in the character hand")]
         [SerializeField] private SpriteRenderer _weaponRenderer;
-        [SerializeField] private SpriteRenderer _playerRenderer;
 
-        [Header("Sorting")]
-        [Tooltip("Keeps player above world sprites. UI is not affected.")]
-        [SerializeField] private bool _enforceTopCharacterSorting = true;
-        [SerializeField] private int _playerSortingOrder = 20000;
-        [SerializeField] private int _weaponOrderOffset = 10;
+        private WorldDepthSort _weaponDepthSort;
 
         private void Awake()
         {
-            if (_playerRenderer == null)
-                _playerRenderer = GetComponent<SpriteRenderer>();
-
-            ApplySortingOrder();
+            EnsureWeaponDepthSort();
         }
 
         private void Start()
@@ -32,7 +27,7 @@ namespace Scripts.Visuals
                 InventoryManager.Instance.OnItemEquipped += UpdateVisuals;
                 InventoryManager.Instance.OnItemUnequipped += UpdateVisuals;
                 InventoryManager.Instance.OnInventoryChanged += RefreshVisuals;
-                CheckCurrentWeapon();
+                RefreshVisuals();
             }
         }
 
@@ -46,11 +41,6 @@ namespace Scripts.Visuals
             }
         }
 
-        private void CheckCurrentWeapon()
-        {
-            RefreshVisuals();
-        }
-
         private void UpdateVisuals(InventoryItem _)
         {
             RefreshVisuals();
@@ -61,8 +51,7 @@ namespace Scripts.Visuals
             if (InventoryManager.Instance == null || _weaponRenderer == null)
                 return;
 
-            var mainHandItem = InventoryManager.Instance.EquipmentItems[2];
-
+            InventoryItem mainHandItem = InventoryManager.Instance.EquipmentItems[2];
             if (mainHandItem != null && mainHandItem.Data is WeaponItemSO weaponData)
             {
                 _weaponRenderer.sprite = weaponData.InHandSprite;
@@ -74,29 +63,23 @@ namespace Scripts.Visuals
                 _weaponRenderer.enabled = false;
             }
 
-            ApplySortingOrder();
+            EnsureWeaponDepthSort();
         }
 
-        private void ApplySortingOrder()
+        private void EnsureWeaponDepthSort()
         {
-            if (!_enforceTopCharacterSorting)
+            if (_weaponRenderer == null || !_weaponRenderer.enabled)
                 return;
 
-            if (_playerRenderer != null)
-                _playerRenderer.sortingOrder = _playerSortingOrder;
+            _weaponDepthSort = _weaponRenderer.GetComponent<WorldDepthSort>();
+            if (_weaponDepthSort == null)
+                _weaponDepthSort = _weaponRenderer.gameObject.AddComponent<WorldDepthSort>();
 
-            if (_weaponRenderer != null)
-                _weaponRenderer.sortingOrder = _playerSortingOrder + _weaponOrderOffset;
+            _weaponDepthSort.Configure(
+                RenderDepthCategory.PlayerOverlay,
+                localOffset: 2,
+                staticAnchor: false,
+                anchorY: _weaponRenderer.transform.position.y);
         }
-
-#if UNITY_EDITOR
-        private void OnValidate()
-        {
-            if (_playerRenderer == null)
-                _playerRenderer = GetComponent<SpriteRenderer>();
-
-            ApplySortingOrder();
-        }
-#endif
     }
 }

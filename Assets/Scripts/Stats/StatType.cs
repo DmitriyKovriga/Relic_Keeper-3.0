@@ -42,7 +42,7 @@ namespace Scripts.Stats
         JumpForce,
 
         // --- 5. Скорость действий (Action Speed) ---
-        AttackSpeed,         // Множитель скорости атаки (Base: 1.0)
+        AttackSpeed,         // Атак в секунду: база приходит от оружия, модификаторы обычно процентные
         CastSpeed,           // Множитель скорости каста (Base: 1.0)
 
         // --- 6. Глобальные модификаторы урона (Global Damage) ---
@@ -116,7 +116,7 @@ namespace Scripts.Stats
         ShockDuration, 
         ChanseToAvoidShock, 
 
-        ReduceDamageTaken, 
+        DamageTaken, 
 
         // --- 11. Утилиты ---
         AreaOfEffect,             // Множитель радиуса (Base: 1.0)
@@ -128,6 +128,24 @@ namespace Scripts.Stats
         ProjectileFork, 
         ProjectileChain,
         MaxBleedStack,
-        ExtraTargetsForMeleeHits
+        ExtraTargetsForMeleeHits,
+        MeleeDamage,
+        SpellDamage,
+
+        // Outgoing damage conversion stats. Added at the end to preserve serialized enum values.
+        FireToPhysical,
+        FireToCold,
+        FireToLightning,
+        ColdToPhysical,
+        ColdToFire,
+        ColdToLightning,
+        LightningToPhysical,
+        LightningToFire,
+        LightningToCold,
+        ProjectilePierce,
+        StunDuration,
+        StunBuildUp,
+        StunThreshold,
+        MaxIgniteStacks
     }
 }

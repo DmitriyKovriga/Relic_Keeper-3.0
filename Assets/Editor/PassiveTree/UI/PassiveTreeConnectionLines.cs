@@ -7,17 +7,24 @@ namespace Scripts.Editor.PassiveTree
 {
     /// <summary>
     /// Отрисовка линий связей между нодами. Прямые линии — для разных орбит/свободных нод;
-    /// дуга по окружности орбиты — для двух нод на одной орбите кластера.
+    /// дуга по окружности орбиты — для двух нод на одной орбите кластера;
+    /// кубическая Безье — для free-связей.
     /// </summary>
     public static class PassiveTreeConnectionLines
     {
         private const float LineWidth = 3f;
-        private static readonly Color LineColor = new Color(0.4f, 0.4f, 0.4f, 0.8f);
+        private static readonly Color LineColor = new Color(0.93f, 0.78f, 0.28f, 0.95f);
+        private static readonly Color BezierSelectedColor = new Color(1f, 0.92f, 0.45f, 1f);
 
-        public static void Refresh(PassiveSkillTreeSO tree, VisualElement linesContainer)
+        public static List<BezierConnectionElement> Refresh(
+            PassiveSkillTreeSO tree,
+            VisualElement linesContainer,
+            VisualElement bezierContainer = null)
         {
             linesContainer.Clear();
-            if (tree == null) return;
+            bezierContainer?.Clear();
+            var bezierElements = new List<BezierConnectionElement>();
+            if (tree == null) return bezierElements;
 
             var processed = new HashSet<string>();
             foreach (var node in tree.Nodes)
@@ -33,12 +40,22 @@ namespace Scripts.Editor.PassiveTree
                     if (processed.Contains(key)) continue;
                     processed.Add(key);
 
+                    var bezier = tree.FindBezierConnection(node.ID, neighborID);
+                    if (bezier != null)
+                    {
+                        var bezierElement = CreateBezierElement(node, neighbor, tree, bezier);
+                        (bezierContainer ?? linesContainer).Add(bezierElement);
+                        bezierElements.Add(bezierElement);
+                        continue;
+                    }
+
                     VisualElement line;
                     if (tree.AreNodesOnSameOrbit(node.ID, neighborID, out var clusterId, out var orbitIndex))
                     {
                         var cluster = tree.GetCluster(clusterId);
                         if (cluster != null && orbitIndex >= 0 && orbitIndex < cluster.Orbits.Count
-                            && tree.AreNodesOnSameOrbitCircleForDrawing(node.ID, neighborID, clusterId, orbitIndex))
+                            && tree.AreNodesOnSameOrbitCircleForDrawing(node.ID, neighborID, clusterId, orbitIndex)
+                            && !PassiveOrbitArcDrawing.ShouldDrawAsStraightChord(node.OrbitAngle, neighbor.OrbitAngle))
                             line = CreateArcElement(node, neighbor, cluster.Center, cluster.Orbits[orbitIndex].Radius);
                         else
                             line = CreateLineElement(node, neighbor, tree);
@@ -49,6 +66,21 @@ namespace Scripts.Editor.PassiveTree
                     linesContainer.Add(line);
                 }
             }
+
+            return bezierElements;
+        }
+
+        private static BezierConnectionElement CreateBezierElement(
+            PassiveNodeDefinition nodeA,
+            PassiveNodeDefinition nodeB,
+            PassiveSkillTreeSO tree,
+            PassiveBezierConnection connection)
+        {
+            Vector2 posA = tree.GetNode(connection.NodeIdA)?.GetWorldPosition(tree) ?? nodeA.GetWorldPosition(tree);
+            Vector2 posB = tree.GetNode(connection.NodeIdB)?.GetWorldPosition(tree) ?? nodeB.GetWorldPosition(tree);
+            var element = new BezierConnectionElement(connection, LineColor, BezierSelectedColor, LineWidth);
+            element.SetEndpoints(posA, posB);
+            return element;
         }
 
         private static VisualElement CreateLineElement(
@@ -83,16 +115,9 @@ namespace Scripts.Editor.PassiveTree
             Vector2 center,
             float radius)
         {
-            float angleA = nodeA.OrbitAngle;
-            float angleB = nodeB.OrbitAngle;
-            float delta = (angleB - angleA + 360f) % 360f;
-            if (delta > 180f)
-            {
-                (angleA, angleB) = (angleB, angleA);
-                delta = 360f - delta;
-            }
-            float startAngle = angleA;
-            float endAngle = angleB;
+            float startAngle = nodeA.OrbitAngle;
+            float endAngle = nodeB.OrbitAngle;
+            PassiveOrbitArcDrawing.NormalizeShortClockwise(ref startAngle, ref endAngle);
 
             var arc = new VisualElement();
             float padding = LineWidth * 2f;
@@ -104,7 +129,6 @@ namespace Scripts.Editor.PassiveTree
             arc.style.height = size;
             arc.pickingMode = PickingMode.Ignore;
 
-            // В локальных координатах элемента центр окружности:
             float localCenter = radius + padding;
             arc.userData = new ArcParams { LocalCenterX = localCenter, LocalCenterY = localCenter, Radius = radius, StartAngle = startAngle, EndAngle = endAngle };
             arc.generateVisualContent += ctx =>
@@ -113,9 +137,14 @@ namespace Scripts.Editor.PassiveTree
                 var painter = ctx.painter2D;
                 painter.lineWidth = LineWidth;
                 painter.strokeColor = LineColor;
-                painter.BeginPath();
-                painter.Arc(new Vector2(p.LocalCenterX, p.LocalCenterY), p.Radius, Angle.Degrees(p.StartAngle), Angle.Degrees(p.EndAngle), ArcDirection.Clockwise);
-                painter.Stroke();
+                painter.lineCap = LineCap.Round;
+                painter.lineJoin = LineJoin.Round;
+                PassiveOrbitArcDrawing.StrokeClockwiseArc(
+                    painter,
+                    new Vector2(p.LocalCenterX, p.LocalCenterY),
+                    p.Radius,
+                    p.StartAngle,
+                    p.EndAngle);
             };
             return arc;
         }
@@ -127,6 +156,82 @@ namespace Scripts.Editor.PassiveTree
             public float Radius;
             public float StartAngle;
             public float EndAngle;
+        }
+    }
+
+    public sealed class BezierConnectionElement : VisualElement
+    {
+        private const float HitThreshold = 14f;
+        private const float BoundsPadding = 12f;
+
+        private readonly Color _idleColor;
+        private readonly Color _selectedColor;
+        private readonly float _lineWidth;
+        private Vector2 _localP0;
+        private Vector2 _localC1;
+        private Vector2 _localC2;
+        private Vector2 _localP3;
+        private bool _selected;
+
+        public PassiveBezierConnection Connection { get; }
+
+        public BezierConnectionElement(PassiveBezierConnection connection, Color idleColor, Color selectedColor, float lineWidth)
+        {
+            Connection = connection;
+            _idleColor = idleColor;
+            _selectedColor = selectedColor;
+            _lineWidth = lineWidth;
+            name = "BezierConnection";
+            style.position = Position.Absolute;
+            pickingMode = PickingMode.Position;
+            generateVisualContent += OnGenerateVisualContent;
+        }
+
+        public void SetEndpoints(Vector2 posA, Vector2 posB)
+        {
+            if (Connection == null)
+                return;
+
+            Connection.GetCubicPoints(posA, posB, out Vector2 p0, out Vector2 c1, out Vector2 c2, out Vector2 p3);
+            Rect bounds = PassiveBezierMath.Bounds(p0, c1, c2, p3, BoundsPadding);
+            style.left = bounds.xMin;
+            style.top = bounds.yMin;
+            style.width = Mathf.Max(1f, bounds.width);
+            style.height = Mathf.Max(1f, bounds.height);
+
+            Vector2 origin = new Vector2(bounds.xMin, bounds.yMin);
+            _localP0 = p0 - origin;
+            _localC1 = c1 - origin;
+            _localC2 = c2 - origin;
+            _localP3 = p3 - origin;
+            MarkDirtyRepaint();
+        }
+
+        public void SetSelected(bool selected)
+        {
+            if (_selected == selected)
+                return;
+
+            _selected = selected;
+            MarkDirtyRepaint();
+        }
+
+        public override bool ContainsPoint(Vector2 localPoint)
+        {
+            return PassiveBezierMath.DistanceToCubic(_localP0, _localC1, _localC2, _localP3, localPoint) <= HitThreshold;
+        }
+
+        private void OnGenerateVisualContent(MeshGenerationContext ctx)
+        {
+            var painter = ctx.painter2D;
+            painter.lineWidth = _selected ? _lineWidth + 1.5f : _lineWidth;
+            painter.strokeColor = _selected ? _selectedColor : _idleColor;
+            painter.lineCap = LineCap.Round;
+            painter.lineJoin = LineJoin.Round;
+            painter.BeginPath();
+            painter.MoveTo(_localP0);
+            painter.BezierCurveTo(_localC1, _localC2, _localP3);
+            painter.Stroke();
         }
     }
 }

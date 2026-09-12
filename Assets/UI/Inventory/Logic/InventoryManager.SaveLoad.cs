@@ -31,11 +31,12 @@ namespace Scripts.Inventory
             if (CraftingSlotItem != null && CraftingSlotItem.Data != null)
                 data.CraftingSlotItem = CraftingSlotItem.GetSaveData(CRAFT_SLOT_INDEX);
 
+            NormalizeCraftingCurrencyCounts();
             data.OrbCounts = new List<OrbCountEntry>(_orbCounts);
             return data;
         }
 
-        public void LoadState(InventorySaveData data, ItemDatabaseSO itemDB)
+        public void LoadState(InventorySaveData data, ItemDatabaseSO itemDB, bool applyStatEvents = true)
         {
             // 1) Clear current state.
             for (int i = 0; i < EquipmentItems.Length; i++)
@@ -43,7 +44,8 @@ namespace Scripts.Inventory
                 InventoryItem equipped = EquipmentItems[i];
                 if (equipped == null) continue;
                 EquipmentItems[i] = null;
-                OnItemUnequipped?.Invoke(equipped);
+                if (applyStatEvents)
+                    OnItemUnequipped?.Invoke(equipped);
             }
 
             if (_backpack != null)
@@ -63,6 +65,7 @@ namespace Scripts.Inventory
             CraftingSlotItem = null;
             _orbCounts.Clear();
             if (data.OrbCounts != null) _orbCounts.AddRange(data.OrbCounts);
+            NormalizeCraftingCurrencyCounts();
 
             // 2) Restore backpack/equipment.
             var claimedBackpack = new HashSet<int>();
@@ -77,7 +80,8 @@ namespace Scripts.Inventory
                     if (equipIndex < EquipmentItems.Length)
                     {
                         EquipmentItems[equipIndex] = newItem;
-                        OnItemEquipped?.Invoke(newItem);
+                        if (applyStatEvents)
+                            OnItemEquipped?.Invoke(newItem);
                     }
                     continue;
                 }

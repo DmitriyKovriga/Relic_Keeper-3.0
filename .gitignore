@@ -100,3 +100,9 @@ ShaderCache/
 
 # --- Unity 6 Cache ---
 /Artifacts/
+
+# --- AI script export (Tools/Export Scripts in Unity) ---
+/_AI_Source_Dump/
+
+# --- Recruitment / hiring materials (private, not part of the game) ---
+/Recruitment/

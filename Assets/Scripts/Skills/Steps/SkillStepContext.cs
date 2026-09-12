@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 using Scripts.Stats;
+using Scripts.Combat;
 
 namespace Scripts.Skills.Steps
 {
@@ -14,9 +16,69 @@ namespace Scripts.Skills.Steps
         public float FacingDirection => OwnerStats != null && OwnerStats.transform != null && OwnerStats.transform.localScale.x > 0 ? 1f : -1f;
         public float AoeScale = 1f;
         public bool Cancelled;
+        public int MysticShieldsConsumed;
+        public int MysticShieldsGenerated;
+        public float MysticShieldDamageMultiplier = 1f;
+        private readonly List<Action> _cleanupActions = new List<Action>();
+        private bool _cleanupRan;
+
+        public bool HasConsumedMysticShield => MysticShieldsConsumed > 0;
+
+        public void RegisterMysticShieldConsumption(int consumed)
+        {
+            if (consumed <= 0)
+                return;
+
+            MysticShieldsConsumed += consumed;
+        }
+
+        public void RegisterMysticShieldGeneration(int generated)
+        {
+            if (generated <= 0)
+                return;
+
+            MysticShieldsGenerated += generated;
+        }
+
+        public void MultiplyDamageFromMysticShield(float multiplier)
+        {
+            MysticShieldDamageMultiplier *= Mathf.Max(0f, multiplier);
+        }
+
+        public void RegisterCleanup(Action cleanup)
+        {
+            if (cleanup == null || _cleanupRan)
+                return;
+
+            _cleanupActions.Add(cleanup);
+        }
+
+        public void Cleanup()
+        {
+            if (_cleanupRan)
+                return;
+
+            _cleanupRan = true;
+            for (int i = _cleanupActions.Count - 1; i >= 0; i--)
+            {
+                try
+                {
+                    _cleanupActions[i]?.Invoke();
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            }
+
+            _cleanupActions.Clear();
+        }
 
         /// <summary>Per-step cached results used by dependent steps.</summary>
         public Dictionary<int, StepResult> StepResults = new Dictionary<int, StepResult>();
+        private readonly Dictionary<int, ChainResult> _chainResultsByStep = new Dictionary<int, ChainResult>();
+        private readonly Dictionary<int, List<HitResult>> _hitResultsByStep = new Dictionary<int, List<HitResult>>();
+        private int _lastHitStepIndex = -1;
 
         public struct StepResult
         {
@@ -62,6 +124,88 @@ namespace Scripts.Skills.Steps
         public bool TryGetStepResult(int stepIndex, out StepResult result)
         {
             return StepResults.TryGetValue(stepIndex, out result);
+        }
+
+        public void RegisterChainResult(int stepIndex, ChainResult chainResult)
+        {
+            if (stepIndex < 0 || chainResult == null)
+                return;
+
+            _chainResultsByStep[stepIndex] = chainResult;
+        }
+
+        public bool TryGetChainResult(int stepIndex, out ChainResult chainResult)
+        {
+            chainResult = null;
+            return stepIndex >= 0 && _chainResultsByStep.TryGetValue(stepIndex, out chainResult) && chainResult != null;
+        }
+
+        public void RegisterHitResults(int stepIndex, List<HitResult> hitResults)
+        {
+            if (stepIndex < 0 || hitResults == null)
+                return;
+
+            _hitResultsByStep[stepIndex] = hitResults;
+            _lastHitStepIndex = stepIndex;
+        }
+
+        public int GetHitCount(int stepIndex)
+        {
+            if (stepIndex < 0)
+                stepIndex = _lastHitStepIndex;
+
+            return stepIndex >= 0 && _hitResultsByStep.TryGetValue(stepIndex, out var hits) && hits != null
+                ? hits.Count
+                : 0;
+        }
+
+        public bool TryGetHitResults(int stepIndex, out List<HitResult> hitResults)
+        {
+            hitResults = null;
+            if (stepIndex < 0)
+                stepIndex = _lastHitStepIndex;
+
+            return stepIndex >= 0 && _hitResultsByStep.TryGetValue(stepIndex, out hitResults) && hitResults != null;
+        }
+
+        public struct HitResult
+        {
+            public IDamageable Target;
+            public Transform TargetTransform;
+            public Vector3 Position;
+            public DamageSnapshot Snapshot;
+        }
+
+        public sealed class ChainResult
+        {
+            public Vector3 StartPosition;
+            public Vector3 FizzleEndPosition;
+            public bool IsFizzle;
+            public readonly List<ChainTarget> Targets = new List<ChainTarget>();
+
+            public int SegmentCount => IsFizzle ? 1 : Targets.Count;
+
+            public List<Vector3> BuildVisualPoints()
+            {
+                var points = new List<Vector3>(Mathf.Max(2, Targets.Count + 1)) { StartPosition };
+                if (IsFizzle || Targets.Count == 0)
+                {
+                    points.Add(FizzleEndPosition);
+                    return points;
+                }
+
+                for (int i = 0; i < Targets.Count; i++)
+                    points.Add(Targets[i].Position);
+
+                return points;
+            }
+        }
+
+        public struct ChainTarget
+        {
+            public IDamageable Target;
+            public Transform TargetTransform;
+            public Vector3 Position;
         }
     }
 }

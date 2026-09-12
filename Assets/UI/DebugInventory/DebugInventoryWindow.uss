@@ -10,7 +10,7 @@
 
 .debug-panel {
     position: relative;
-    width: 200px;
+    width: 240px;
     padding: 6px 8px;
     background-color: rgba(18, 16, 14, 0.98);
     border-width: 1px;
@@ -79,8 +79,8 @@
     left: 46px;
     top: 34px;
     max-height: 180px;
-    min-width: 160px;
-    width: 220px;
+    min-width: 190px;
+    width: 280px;
     background-color: #252220;
     border-width: 1px;
     border-color: #555;

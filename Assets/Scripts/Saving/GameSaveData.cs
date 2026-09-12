@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Scripts.Dungeon;
 
 namespace Scripts.Saving
 {
@@ -18,6 +19,12 @@ namespace Scripts.Saving
         /// <summary>Склад — общий для всех персонажей.</summary>
         public StashSaveData Stash;
 
+        /// <summary>Золото — общее для всех персонажей.</summary>
+        public int Gold;
+
+        /// <summary>Ассортимент торговца и выкуп — общие для всех персонажей.</summary>
+        public MarketSaveData Market;
+
         // --- Legacy (v1): оставляем для миграции ---
         public string CharacterClassID;
         public float CurrentHealth;
@@ -28,6 +35,7 @@ namespace Scripts.Saving
         public int SkillPoints;
         public InventorySaveData Inventory;
         public List<string> AllocatedPassiveNodes = new List<string>();
+        public List<DungeonUnlockRecord> DungeonUnlocks = new List<DungeonUnlockRecord>();
 
         public GameSaveData() { }
     }

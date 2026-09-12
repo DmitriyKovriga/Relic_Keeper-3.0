@@ -51,5 +51,14 @@ namespace Scripts.Stats
             if (_currentValue > Max) _currentValue = Max;
             OnValueChanged?.Invoke();
         }
+
+        public void ReevaluateMax()
+        {
+            float clamped = Mathf.Clamp(_currentValue, 0f, Max);
+            bool changed = Mathf.Abs(clamped - _currentValue) > 0.001f;
+            _currentValue = clamped;
+            if (changed)
+                OnValueChanged?.Invoke();
+        }
     }
 }

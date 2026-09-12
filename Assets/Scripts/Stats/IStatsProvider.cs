@@ -7,5 +7,6 @@ namespace Scripts.Stats
     public interface IStatsProvider
     {
         float GetValue(StatType type);
+        bool TryGetStat(StatType type, out CharacterStat stat);
     }
 }

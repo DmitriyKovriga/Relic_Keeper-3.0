@@ -7,6 +7,7 @@ namespace Scripts.Inventory
     {
         public const string InventoryBackpack = "inventory.backpack";
         public const string StashCurrentTab = "inventory.stash.current-tab";
+        public const string MarketCurrentTab = "inventory.market.current-tab";
         public const string CraftSlot = "inventory.craft.slot";
     }
 

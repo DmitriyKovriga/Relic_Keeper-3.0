@@ -72,6 +72,10 @@ namespace Scripts.Skills.PassiveTree
         [Header("Clusters (Orbit Groups)")]
         public List<PassiveClusterDefinition> Clusters = new List<PassiveClusterDefinition>();
 
+        [Header("Free Connections")]
+        [Tooltip("Cubic Bezier visuals for selected node pairs. Gameplay still uses node ConnectionIDs.")]
+        public List<PassiveBezierConnection> BezierConnections = new List<PassiveBezierConnection>();
+
         [Header("Editor Settings")]
         [Tooltip("Шаг сетки в пикселях. 0 = сетка отключена.")]
         public float GridSize = 20f;
@@ -95,6 +99,7 @@ namespace Scripts.Skills.PassiveTree
 
             _clusterLookup = new Dictionary<string, PassiveClusterDefinition>();
             if (Clusters == null) Clusters = new List<PassiveClusterDefinition>();
+            if (BezierConnections == null) BezierConnections = new List<PassiveBezierConnection>();
             foreach (var cluster in Clusters)
             {
                 if (!string.IsNullOrEmpty(cluster.ID) && !_clusterLookup.ContainsKey(cluster.ID))
@@ -114,6 +119,43 @@ namespace Scripts.Skills.PassiveTree
         {
             if (_clusterLookup == null) InitLookup();
             return _clusterLookup?.GetValueOrDefault(id);
+        }
+
+        public PassiveBezierConnection FindBezierConnection(string nodeIdA, string nodeIdB)
+        {
+            if (BezierConnections == null || string.IsNullOrEmpty(nodeIdA) || string.IsNullOrEmpty(nodeIdB))
+                return null;
+
+            for (int i = 0; i < BezierConnections.Count; i++)
+            {
+                var connection = BezierConnections[i];
+                if (connection != null && connection.Matches(nodeIdA, nodeIdB))
+                    return connection;
+            }
+
+            return null;
+        }
+
+        public bool HasBezierConnection(string nodeIdA, string nodeIdB)
+        {
+            return FindBezierConnection(nodeIdA, nodeIdB) != null;
+        }
+
+        public void RemoveBezierConnection(string nodeIdA, string nodeIdB)
+        {
+            if (BezierConnections == null)
+                return;
+
+            BezierConnections.RemoveAll(connection => connection != null && connection.Matches(nodeIdA, nodeIdB));
+        }
+
+        public void RemoveBezierConnectionsForNode(string nodeId)
+        {
+            if (BezierConnections == null || string.IsNullOrEmpty(nodeId))
+                return;
+
+            BezierConnections.RemoveAll(connection =>
+                connection != null && (connection.NodeIdA == nodeId || connection.NodeIdB == nodeId));
         }
 
         /// <summary>
@@ -297,7 +339,18 @@ namespace Scripts.Skills.PassiveTree
         // Хелпер для имени
         public string GetDisplayName()
         {
-            return Template != null ? Template.Name : "Unknown Node";
+            if (Template != null && !string.IsNullOrWhiteSpace(Template.Name))
+                return Template.Name;
+
+            return NodeType == PassiveNodeType.Start ? "Стартовый нод" : "Unknown Node";
+        }
+
+        public string GetDisplayDescription()
+        {
+            if (Template != null && !string.IsNullOrWhiteSpace(Template.Description))
+                return Template.Description;
+
+            return NodeType == PassiveNodeType.Start ? "Начальная точка дерева пассивок." : string.Empty;
         }
         
         // Хелпер для иконки

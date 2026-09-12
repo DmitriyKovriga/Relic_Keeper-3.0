@@ -1,6 +1,8 @@
 using UnityEngine;
 using Scripts.Combat;
 using Scripts.Stats;
+using Scripts.StatusEffects;
+using Scripts.Visuals;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,29 +10,160 @@ namespace Scripts.Enemies
 {
     public class EnemyAttackController : MonoBehaviour
     {
+        private readonly struct AttackRuntimeConfig
+        {
+            public readonly EnemyAttackDeliveryType DeliveryType;
+            public readonly EnemyAttackDamageType DamageType;
+            public readonly float Windup;
+            public readonly float ActiveTime;
+            public readonly float Recovery;
+            public readonly float AttackCooldown;
+            public readonly float DamageMultiplier;
+            public readonly Vector2 HitboxSize;
+            public readonly Vector2 HitboxOffset;
+            public readonly float DashSpeed;
+            public readonly float DashDuration;
+            public readonly float DashOvershootDistance;
+            public readonly bool IgnoreLedgesDuringDash;
+
+            public AttackRuntimeConfig(
+                EnemyAttackDeliveryType deliveryType,
+                EnemyAttackDamageType damageType,
+                float windup,
+                float activeTime,
+                float recovery,
+                float attackCooldown,
+                float damageMultiplier,
+                Vector2 hitboxSize,
+                Vector2 hitboxOffset,
+                float dashSpeed,
+                float dashDuration,
+                float dashOvershootDistance,
+                bool ignoreLedgesDuringDash)
+            {
+                DeliveryType = deliveryType;
+                DamageType = damageType;
+                Windup = windup;
+                ActiveTime = activeTime;
+                Recovery = recovery;
+                AttackCooldown = attackCooldown;
+                DamageMultiplier = damageMultiplier;
+                HitboxSize = hitboxSize;
+                HitboxOffset = hitboxOffset;
+                DashSpeed = dashSpeed;
+                DashDuration = dashDuration;
+                DashOvershootDistance = dashOvershootDistance;
+                IgnoreLedgesDuringDash = ignoreLedgesDuringDash;
+            }
+
+            public bool HasDashMotion => DashSpeed > 0.01f && DashDuration > 0.01f;
+
+            public AttackRuntimeConfig WithActionSpeed(float actionSpeed)
+            {
+                return new AttackRuntimeConfig(
+                    DeliveryType,
+                    DamageType,
+                    EnemyLevelBalance.ScaleDurationByActionSpeed(Windup, actionSpeed),
+                    ActiveTime,
+                    EnemyLevelBalance.ScaleDurationByActionSpeed(Recovery, actionSpeed),
+                    EnemyLevelBalance.ScaleDurationByActionSpeed(AttackCooldown, actionSpeed),
+                    DamageMultiplier,
+                    HitboxSize,
+                    HitboxOffset,
+                    DashSpeed,
+                    DashDuration,
+                    DashOvershootDistance,
+                    IgnoreLedgesDuringDash);
+            }
+
+            public static AttackRuntimeConfig FromPrimary(EnemyAttackConfig config)
+            {
+                return new AttackRuntimeConfig(
+                    config.DeliveryType,
+                    config.DamageType,
+                    config.Windup,
+                    config.ActiveTime,
+                    config.Recovery,
+                    config.AttackCooldown,
+                    config.DamageMultiplier,
+                    config.HitboxSize,
+                    config.HitboxOffset,
+                    0f,
+                    0f,
+                    0f,
+                    false);
+            }
+
+            public static AttackRuntimeConfig FromCharge(EnemyChargeAttackConfig config)
+            {
+                return new AttackRuntimeConfig(
+                    config.DeliveryType,
+                    config.DamageType,
+                    config.Windup,
+                    config.ActiveTime,
+                    config.Recovery,
+                    config.AttackCooldown,
+                    config.DamageMultiplier,
+                    config.HitboxSize,
+                    config.HitboxOffset,
+                    config.DashSpeed,
+                    config.DashDuration,
+                    config.DashOvershootDistance,
+                    config.IgnoreLedgesDuringDash);
+            }
+        }
+
         private enum AttackPhase
         {
             Idle,
+            Telegraph,
             Windup,
             Active,
             Recovery
         }
 
+        private enum AttackVariant
+        {
+            Primary,
+            Charge
+        }
+
         private const int DefaultTargetMask = ~((1 << 6) | (1 << 7));
+        private const string AttackAttentionResourcesPath = "VFX/AttackAttentionVFX/AttackAttentionVFXPrefab";
+        private const float AttackAttentionDuration = 0.5f;
+        private const int AttackRenderOrderBoost = 50000;
 
         private EnemyEntity _entity;
         private EnemyDataSO _data;
         private EnemyStats _stats;
         private EnemyLocomotion2D _locomotion;
         private EnemyAnimationBridge _animation;
+        private WorldDepthSort _depthSort;
         private Transform _currentTarget;
         private AttackPhase _phase;
+        private AttackVariant _currentAttackVariant;
         private float _phaseTimer;
         private float _nextAttackAllowedAt;
+        private float _nextChargeAllowedAt;
         private bool _hasAppliedHit;
         private bool _lastAttackConnected;
+        private float _chargeDashTimeRemaining;
+        private int _chargeDashDirection;
+        private float _chargeDashDistanceRemaining;
+        private Vector2 _lastChargeHitboxCenter;
+        private bool _hasChargeHitboxSample;
+        private bool _isStunned;
+        private bool _isFrozen;
+        private GameObject _attackAttentionPrefab;
+        private GameObject _activeAttackAttentionVfx;
 
         public bool IsBusy => _phase != AttackPhase.Idle;
+        public bool IsPlayingAttackAnimation => IsBusy && _phase != AttackPhase.Telegraph;
+        public bool IsChargeAttackActive => IsBusy && _currentAttackVariant == AttackVariant.Charge;
+        public string CurrentAttackAnimationStateName =>
+            _data == null || _data.Animation == null
+                ? string.Empty
+                : (_currentAttackVariant == AttackVariant.Charge ? _data.Animation.ChargeStateName : _data.Animation.AttackStateName);
 
         public void Initialize(EnemyEntity entity, EnemyDataSO data)
         {
@@ -39,16 +172,41 @@ namespace Scripts.Enemies
             _stats = GetComponent<EnemyStats>();
             _locomotion = GetComponent<EnemyLocomotion2D>();
             _animation = GetComponent<EnemyAnimationBridge>();
+            _depthSort = GetComponent<WorldDepthSort>();
             _phase = AttackPhase.Idle;
+            _currentAttackVariant = AttackVariant.Primary;
             _phaseTimer = 0f;
             _hasAppliedHit = false;
             _lastAttackConnected = false;
+            _nextChargeAllowedAt = 0f;
+            _chargeDashTimeRemaining = 0f;
+            _chargeDashDirection = 1;
+            _chargeDashDistanceRemaining = 0f;
+            _lastChargeHitboxCenter = Vector2.zero;
+            _hasChargeHitboxSample = false;
+            _isStunned = false;
+            _isFrozen = false;
+            DestroyAttackAttentionVfx();
+        }
+
+        private void OnDisable()
+        {
+            SetAttackRenderBoost(false);
+            DestroyAttackAttentionVfx();
         }
 
         private void Update()
         {
+            if (IsControlLocked)
+                return;
+
             if (_phase == AttackPhase.Idle)
                 return;
+
+            if (_phase == AttackPhase.Telegraph)
+                UpdateAttackAttentionVfxPosition();
+
+            UpdateTransientChargeMotion(Time.deltaTime);
 
             if (_phase == AttackPhase.Windup && _animation != null && _animation.ConsumeAttackImpactSignal())
             {
@@ -62,103 +220,196 @@ namespace Scripts.Enemies
 
             switch (_phase)
             {
+                case AttackPhase.Telegraph:
+                    EnterWindupPhase();
+                    break;
+
                 case AttackPhase.Windup:
                     EnterActivePhase();
                     break;
 
                 case AttackPhase.Active:
+                    ClearChargeMotion();
                     _phase = AttackPhase.Recovery;
                     _phaseTimer = Mathf.Max(0.01f, GetRecoveryDuration());
                     break;
 
                 case AttackPhase.Recovery:
+                    ClearChargeMotion();
+                    SetAttackRenderBoost(false);
                     _phase = AttackPhase.Idle;
                     _phaseTimer = 0f;
                     _currentTarget = null;
+                    _currentAttackVariant = AttackVariant.Primary;
                     break;
             }
         }
 
         public bool TryStartAttack(Transform target)
         {
-            if (_data == null || target == null || IsBusy || Time.time < _nextAttackAllowedAt)
+            return TryStartAttackInternal(target, AttackVariant.Primary);
+        }
+
+        public bool TryStartChargeAttack(Transform target)
+        {
+            return TryStartAttackInternal(target, AttackVariant.Charge);
+        }
+
+        private bool TryStartAttackInternal(Transform target, AttackVariant variant)
+        {
+            if (IsControlLocked || _data == null || target == null || IsBusy)
+                return false;
+
+            if (variant == AttackVariant.Charge && (_data.ChargeAttack == null || !_data.ChargeAttack.Enabled))
+                return false;
+
+            float nextAllowedAt = variant == AttackVariant.Charge ? _nextChargeAllowedAt : _nextAttackAllowedAt;
+            if (Time.time < nextAllowedAt)
                 return false;
 
             _currentTarget = target;
-            _phase = AttackPhase.Windup;
-            _phaseTimer = Mathf.Max(0.01f, _data.Attack.Windup);
-            _nextAttackAllowedAt = Time.time + Mathf.Max(0.01f, _data.Attack.AttackCooldown);
+            _currentAttackVariant = variant;
+            _phase = AttackPhase.Telegraph;
+            _phaseTimer = AttackAttentionDuration;
             _hasAppliedHit = false;
             _lastAttackConnected = false;
+            SetAttackRenderBoost(true);
+            _chargeDashDirection = ResolveAttackDirection(target);
+            _chargeDashTimeRemaining = 0f;
+            _chargeDashDistanceRemaining = 0f;
             _locomotion?.Stop();
-            _animation?.PlayAttack();
+            SpawnAttackAttentionVfx();
+
             return true;
+        }
+
+        public void SetStunned(bool stunned)
+        {
+            _isStunned = stunned;
+            if (IsControlLocked)
+                CancelCurrentAttack();
+        }
+
+        public void SetFrozen(bool frozen)
+        {
+            _isFrozen = frozen;
+            if (IsControlLocked)
+                CancelCurrentAttack();
+        }
+
+        private bool IsControlLocked => _isStunned || _isFrozen;
+
+        private void CancelCurrentAttack()
+        {
+            ClearChargeMotion();
+            _phase = AttackPhase.Idle;
+            _phaseTimer = 0f;
+            _currentTarget = null;
+            _hasAppliedHit = false;
+            _lastAttackConnected = false;
+            _currentAttackVariant = AttackVariant.Primary;
+            SetAttackRenderBoost(false);
+            DestroyAttackAttentionVfx();
+        }
+
+        private void SetAttackRenderBoost(bool active)
+        {
+            if (_depthSort == null)
+                _depthSort = GetComponent<WorldDepthSort>();
+
+            if (_depthSort != null)
+                _depthSort.SetTemporaryOrderBoost(active ? AttackRenderOrderBoost : 0);
+        }
+
+        private void EnterWindupPhase()
+        {
+            DestroyAttackAttentionVfx();
+
+            AttackRuntimeConfig config = GetCurrentAttackConfig();
+            _phase = AttackPhase.Windup;
+            _phaseTimer = Mathf.Max(0.01f, config.Windup);
+
+            if (_currentAttackVariant == AttackVariant.Charge)
+            {
+                _nextChargeAllowedAt = Time.time + Mathf.Max(0.01f, config.AttackCooldown);
+                _animation?.PlayChargeAttack();
+            }
+            else
+            {
+                _nextAttackAllowedAt = Time.time + Mathf.Max(0.01f, config.AttackCooldown);
+                _animation?.PlayAttack();
+            }
         }
 
         private void EnterActivePhase()
         {
+            AttackRuntimeConfig config = GetCurrentAttackConfig();
             _phase = AttackPhase.Active;
-            _phaseTimer = Mathf.Max(0.01f, _data.Attack.ActiveTime);
+            if (_currentAttackVariant == AttackVariant.Charge && config.HasDashMotion)
+            {
+                StartChargeDash(config);
+                _phaseTimer = Mathf.Max(0.01f, _chargeDashTimeRemaining);
+                return;
+            }
+
+            _phaseTimer = Mathf.Max(0.01f, config.ActiveTime);
             if (_hasAppliedHit)
                 return;
 
-            PerformAttack();
+            PerformAttack(config);
             _hasAppliedHit = true;
         }
 
-        private void PerformAttack()
+        private void PerformAttack(AttackRuntimeConfig config)
         {
             if (_data == null)
                 return;
 
-            switch (_data.Attack.DeliveryType)
+            switch (config.DeliveryType)
             {
                 case EnemyAttackDeliveryType.Melee:
-                    PerformMeleeAttack();
+                    PerformMeleeAttack(config);
                     break;
 
                 case EnemyAttackDeliveryType.Projectile:
-                    PerformProjectileAttack();
+                    PerformProjectileAttack(config);
                     break;
 
                 default:
-                    PerformDirectTargetAttack();
+                    PerformDirectTargetAttack(config);
                     break;
             }
         }
 
-        private void PerformMeleeAttack()
+        private void PerformMeleeAttack(AttackRuntimeConfig config)
         {
-            Vector2 center = (Vector2)transform.position;
             int facing = _locomotion != null ? _locomotion.FacingDirection : 1;
-            center += new Vector2(_data.Attack.HitboxOffset.x * facing, _data.Attack.HitboxOffset.y);
+            Vector2 center = ResolveHitboxCenter(config, facing);
 
-            Collider2D[] hits = Physics2D.OverlapBoxAll(center, _data.Attack.HitboxSize, 0f, DefaultTargetMask);
+            Collider2D[] hits = Physics2D.OverlapBoxAll(center, config.HitboxSize, 0f, DefaultTargetMask);
             for (int i = 0; i < hits.Length; i++)
             {
                 var hit = hits[i];
                 if (hit == null || hit.transform == transform)
                     continue;
 
-                if (TryResolveDamageable(hit.transform, out var damageable))
+                if (TryApplyHit(hit.transform, config))
                 {
-                    damageable.TakeDamage(CreateDamageSnapshot());
                     _lastAttackConnected = true;
                     return;
                 }
             }
 
-            if (_currentTarget != null && IsTargetInsideMeleeFallbackZone(_currentTarget, center, _data.Attack.HitboxSize))
+            if (_currentTarget != null && IsTargetInsideHitbox(_currentTarget, center, config.HitboxSize))
             {
-                if (TryResolveDamageable(_currentTarget, out var fallbackDamageable))
+                if (TryApplyHit(_currentTarget, config))
                 {
-                    fallbackDamageable.TakeDamage(CreateDamageSnapshot());
                     _lastAttackConnected = true;
                 }
             }
         }
 
-        private void PerformProjectileAttack()
+        private void PerformProjectileAttack(AttackRuntimeConfig config)
         {
             if (_currentTarget == null || _data == null)
                 return;
@@ -168,39 +419,46 @@ namespace Scripts.Enemies
             if (direction.sqrMagnitude <= 0.0001f)
                 direction = Vector2.right * (_locomotion != null ? _locomotion.FacingDirection : 1);
 
-            EnemyProjectile.Spawn(_data, CreateDamageSnapshot(), origin, direction.normalized, transform.parent, gameObject);
+            EnemyProjectile.Spawn(_data, CreateDamageSnapshot(config), origin, direction.normalized, transform.parent, gameObject);
             _lastAttackConnected = true;
         }
 
-        private void PerformDirectTargetAttack()
+        private void PerformDirectTargetAttack(AttackRuntimeConfig config)
         {
             if (_currentTarget == null)
                 return;
 
             if (TryResolveDamageable(_currentTarget, out var damageable))
             {
-                damageable.TakeDamage(CreateDamageSnapshot());
+                DamageSnapshot snapshot = CreateDamageSnapshot(config);
+                damageable.TakeDamage(snapshot);
+                AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, _currentTarget, snapshot);
                 _lastAttackConnected = true;
             }
         }
 
         private float GetRecoveryDuration()
         {
-            float baseRecovery = Mathf.Max(0.01f, _data.Attack.Recovery);
-            if (_lastAttackConnected)
-                return baseRecovery;
+            AttackRuntimeConfig config = GetCurrentAttackConfig();
+            float baseRecovery = Mathf.Max(0.01f, config.Recovery);
+            if (!_lastAttackConnected)
+            {
+                float multiplier = _data?.Behaviour?.MissRecoveryMultiplier ?? 1f;
+                baseRecovery = Mathf.Max(0.01f, baseRecovery * Mathf.Max(1f, multiplier));
+            }
 
-            float multiplier = _data?.Behaviour?.MissRecoveryMultiplier ?? 1f;
-            return Mathf.Max(0.01f, baseRecovery * Mathf.Max(1f, multiplier));
+            float animationRemaining = _animation != null ? _animation.GetCurrentStateRemainingDuration() : 0f;
+            return Mathf.Max(baseRecovery, animationRemaining, 0.01f);
         }
 
-        private DamageSnapshot CreateDamageSnapshot()
+        private DamageSnapshot CreateDamageSnapshot(AttackRuntimeConfig config)
         {
             var snapshot = new DamageSnapshot(_entity);
-            float damageAmount = Mathf.Max(0f, _stats != null ? _stats.GetValue(_data.GetAttackDamageStatType()) : 0f);
-            damageAmount *= Mathf.Max(0f, _data.Attack.DamageMultiplier);
+            StatType damageStatType = _currentAttackVariant == AttackVariant.Charge ? _data.GetChargeDamageStatType() : _data.GetAttackDamageStatType();
+            float damageAmount = Mathf.Max(0f, _stats != null ? _stats.GetValue(damageStatType) : 0f);
+            damageAmount *= Mathf.Max(0f, config.DamageMultiplier);
 
-            switch (_data.Attack.DamageType)
+            switch (config.DamageType)
             {
                 case EnemyAttackDamageType.Fire:
                     snapshot.Fire = damageAmount;
@@ -217,6 +475,214 @@ namespace Scripts.Enemies
             }
 
             return snapshot;
+        }
+
+        private void UpdateTransientChargeMotion(float deltaTime)
+        {
+            if (_currentAttackVariant != AttackVariant.Charge || _locomotion == null)
+                return;
+
+            AttackRuntimeConfig config = GetCurrentAttackConfig();
+            if (!config.HasDashMotion || _phase == AttackPhase.Recovery || _phase == AttackPhase.Idle)
+            {
+                ClearChargeMotion();
+                return;
+            }
+
+            if (_chargeDashTimeRemaining <= 0f || _chargeDashDistanceRemaining <= 0f)
+            {
+                ClearChargeMotion();
+                return;
+            }
+
+            _chargeDashTimeRemaining -= deltaTime;
+            float frameTravel = config.DashSpeed * deltaTime;
+            _chargeDashDistanceRemaining = Mathf.Max(0f, _chargeDashDistanceRemaining - frameTravel);
+            _locomotion.SetForcedHorizontalVelocity(_chargeDashDirection * config.DashSpeed, config.IgnoreLedgesDuringDash);
+            TryApplyChargeContactHit(config);
+
+            if (_chargeDashTimeRemaining <= 0f || _chargeDashDistanceRemaining <= 0f)
+                ClearChargeMotion();
+        }
+
+        private void ClearChargeMotion()
+        {
+            _chargeDashTimeRemaining = 0f;
+            _chargeDashDistanceRemaining = 0f;
+            _hasChargeHitboxSample = false;
+            _animation?.SetChargeImpactFrameHold(false);
+            _locomotion?.ClearForcedHorizontalVelocity();
+        }
+
+        private void StartChargeDash(AttackRuntimeConfig config)
+        {
+            float dashDistance = Mathf.Max(0f, ResolveChargeTravelDistance(config));
+            _chargeDashDistanceRemaining = dashDistance;
+            _chargeDashTimeRemaining = config.DashSpeed > 0.01f ? dashDistance / config.DashSpeed : 0f;
+            _lastChargeHitboxCenter = ResolveHitboxCenter(config, _chargeDashDirection);
+            _hasChargeHitboxSample = true;
+            _animation?.SetChargeImpactFrameHold(true);
+            TryApplyChargeContactHit(config);
+        }
+
+        private float ResolveChargeTravelDistance(AttackRuntimeConfig config)
+        {
+            float baseDistance = Mathf.Max(0f, config.DashSpeed * Mathf.Max(0f, config.DashDuration));
+            if (_currentTarget == null)
+                return baseDistance;
+
+            float toTargetDistance = Mathf.Abs(_currentTarget.position.x - transform.position.x);
+            float desiredDistance = toTargetDistance + Mathf.Max(0f, config.DashOvershootDistance);
+            return Mathf.Max(baseDistance, desiredDistance);
+        }
+
+        private void TryApplyChargeContactHit(AttackRuntimeConfig config)
+        {
+            if (_hasAppliedHit)
+                return;
+
+            Vector2 center = ResolveHitboxCenter(config, _chargeDashDirection);
+            Vector2 queryCenter = center;
+            Vector2 querySize = config.HitboxSize;
+            if (_hasChargeHitboxSample)
+            {
+                Vector2 travel = center - _lastChargeHitboxCenter;
+                queryCenter = (_lastChargeHitboxCenter + center) * 0.5f;
+                querySize += new Vector2(Mathf.Abs(travel.x), Mathf.Abs(travel.y));
+            }
+
+            _lastChargeHitboxCenter = center;
+            _hasChargeHitboxSample = true;
+
+            Collider2D[] hits = Physics2D.OverlapBoxAll(queryCenter, querySize, 0f, DefaultTargetMask);
+            for (int i = 0; i < hits.Length; i++)
+            {
+                var hit = hits[i];
+                if (hit == null || hit.transform == transform)
+                    continue;
+
+                if (!TryApplyHit(hit.transform, config))
+                    continue;
+
+                _hasAppliedHit = true;
+                _lastAttackConnected = true;
+                return;
+            }
+
+            if (_currentTarget != null && IsTargetInsideHitbox(_currentTarget, queryCenter, querySize) &&
+                TryApplyHit(_currentTarget, config))
+            {
+                _hasAppliedHit = true;
+                _lastAttackConnected = true;
+            }
+        }
+
+        private Vector2 ResolveHitboxCenter(AttackRuntimeConfig config, int facing)
+        {
+            return (Vector2)transform.position +
+                   new Vector2(config.HitboxOffset.x * (facing >= 0 ? 1 : -1), config.HitboxOffset.y);
+        }
+
+        private bool TryApplyHit(Transform candidate, AttackRuntimeConfig config)
+        {
+            if (!TryResolveDamageable(candidate, out var damageable))
+                return false;
+
+            DamageSnapshot snapshot = CreateDamageSnapshot(config);
+            damageable.TakeDamage(snapshot);
+            AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, candidate, snapshot);
+            return true;
+        }
+
+        private int ResolveAttackDirection(Transform target)
+        {
+            if (target == null)
+                return _locomotion != null ? _locomotion.FacingDirection : 1;
+
+            float deltaX = target.position.x - transform.position.x;
+            if (Mathf.Abs(deltaX) <= 0.01f)
+                return _locomotion != null ? _locomotion.FacingDirection : 1;
+
+            return deltaX > 0f ? 1 : -1;
+        }
+
+        private void SpawnAttackAttentionVfx()
+        {
+            GameObject prefab = ResolveAttackAttentionPrefab();
+            if (prefab == null)
+                return;
+
+            DestroyAttackAttentionVfx();
+            _activeAttackAttentionVfx = Instantiate(prefab, ResolveAttackAttentionPosition(), Quaternion.identity, transform.parent);
+            ConfigureAttackAttentionSorting(_activeAttackAttentionVfx);
+
+            var autoDestroy = AutoDestroyVFX.Ensure(_activeAttackAttentionVfx);
+            if (autoDestroy != null)
+                autoDestroy.Initialize(AttackAttentionDuration, fadeOutEnabled: false);
+        }
+
+        private GameObject ResolveAttackAttentionPrefab()
+        {
+            if (_attackAttentionPrefab != null)
+                return _attackAttentionPrefab;
+
+            _attackAttentionPrefab = Resources.Load<GameObject>(AttackAttentionResourcesPath);
+            return _attackAttentionPrefab;
+        }
+
+        private Vector3 ResolveAttackAttentionPosition()
+        {
+            Bounds bounds = _entity != null
+                ? _entity.GetVisualBounds()
+                : new Bounds(transform.position, Vector3.one);
+
+            if (bounds.size.sqrMagnitude <= 0.0001f)
+                bounds = new Bounds(transform.position + Vector3.up, Vector3.one);
+
+            return new Vector3(bounds.center.x, bounds.max.y + 0.55f, transform.position.z);
+        }
+
+        private void UpdateAttackAttentionVfxPosition()
+        {
+            if (_activeAttackAttentionVfx != null)
+                _activeAttackAttentionVfx.transform.position = ResolveAttackAttentionPosition();
+        }
+
+        private void ConfigureAttackAttentionSorting(GameObject vfx)
+        {
+            if (vfx == null)
+                return;
+
+            WorldRenderSorting.ConfigureAutoSorter(
+                vfx,
+                RenderDepthCategory.GameplayVfx,
+                ResolveAttackAttentionPosition().y,
+                localOffset: 0,
+                staticAnchor: false);
+        }
+
+        private void DestroyAttackAttentionVfx()
+        {
+            if (_activeAttackAttentionVfx == null)
+                return;
+
+            Destroy(_activeAttackAttentionVfx);
+            _activeAttackAttentionVfx = null;
+        }
+
+        private AttackRuntimeConfig GetCurrentAttackConfig()
+        {
+            return GetAttackConfig(_currentAttackVariant);
+        }
+
+        private AttackRuntimeConfig GetAttackConfig(AttackVariant variant)
+        {
+            AttackRuntimeConfig config = variant == AttackVariant.Charge && _data != null && _data.ChargeAttack != null
+                ? AttackRuntimeConfig.FromCharge(_data.ChargeAttack)
+                : AttackRuntimeConfig.FromPrimary(_data.Attack);
+
+            float actionSpeed = _stats != null ? _stats.ActionSpeedMultiplier : 1f;
+            return config.WithActionSpeed(actionSpeed);
         }
 
         internal static bool TryResolveDamageable(Transform candidate, out IDamageable damageable)
@@ -265,14 +731,22 @@ namespace Scripts.Enemies
             return fallback;
         }
 
-        private static bool IsTargetInsideMeleeFallbackZone(Transform target, Vector2 hitboxCenter, Vector2 hitboxSize)
+        private static bool IsTargetInsideHitbox(Transform target, Vector2 hitboxCenter, Vector2 hitboxSize)
         {
             if (target == null)
                 return false;
 
+            var hitboxBounds = new Bounds(hitboxCenter, hitboxSize);
+            Collider2D targetCollider = target.GetComponent<Collider2D>();
+            if (targetCollider == null)
+                targetCollider = target.GetComponentInChildren<Collider2D>();
+
+            if (targetCollider != null && targetCollider.enabled && targetCollider.gameObject.activeInHierarchy)
+                return hitboxBounds.Intersects(targetCollider.bounds);
+
             Vector2 delta = (Vector2)target.position - hitboxCenter;
-            float halfWidth = (hitboxSize.x * 0.5f) + 0.2f;
-            float halfHeight = (hitboxSize.y * 0.5f) + 0.35f;
+            float halfWidth = hitboxSize.x * 0.5f;
+            float halfHeight = hitboxSize.y * 0.5f;
             return Mathf.Abs(delta.x) <= halfWidth && Mathf.Abs(delta.y) <= halfHeight;
         }
 
@@ -286,9 +760,10 @@ namespace Scripts.Enemies
             if (locomotion != null)
                 facing = locomotion.FacingDirection;
 
-            Vector2 center = (Vector2)transform.position + new Vector2(_data.Attack.HitboxOffset.x * facing, _data.Attack.HitboxOffset.y);
+            AttackRuntimeConfig config = GetCurrentAttackConfig();
+            Vector2 center = (Vector2)transform.position + new Vector2(config.HitboxOffset.x * facing, config.HitboxOffset.y);
             Gizmos.color = Color.red;
-            Gizmos.DrawWireCube(center, _data.Attack.HitboxSize);
+            Gizmos.DrawWireCube(center, config.HitboxSize);
         }
     }
 
@@ -351,7 +826,6 @@ namespace Scripts.Enemies
             template.layer = 0;
 
             var renderer = template.AddComponent<SpriteRenderer>();
-            renderer.sortingOrder = 120;
 
             var collider = template.AddComponent<CircleCollider2D>();
             collider.isTrigger = true;
@@ -387,11 +861,12 @@ namespace Scripts.Enemies
             _currentFrameIndex = -1;
             ApplyFrame(force: true);
             _spriteRenderer.flipX = _direction.x < 0f;
+            WorldRenderSorting.ConfigureSorter(gameObject, RenderDepthCategory.GameplayVfx, transform.position.y, 0, staticAnchor: false);
         }
 
         private void Update()
         {
-            if (_data == null)
+            if (_data == null || _data.Attack == null)
             {
                 Despawn();
                 return;
@@ -416,7 +891,7 @@ namespace Scripts.Enemies
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (other == null)
+            if (_data == null || _data.Attack == null || other == null)
                 return;
 
             if (_owner != null && (other.gameObject == _owner || other.transform.IsChildOf(_owner.transform)))
@@ -431,6 +906,7 @@ namespace Scripts.Enemies
             if (EnemyAttackController.TryResolveDamageable(other.transform, out var damageable))
             {
                 damageable.TakeDamage(_damageSnapshot);
+                AilmentController.TryApplyHitAilmentsFromSource(_damageSnapshot?.Source, other.transform, _damageSnapshot);
                 Despawn();
             }
         }

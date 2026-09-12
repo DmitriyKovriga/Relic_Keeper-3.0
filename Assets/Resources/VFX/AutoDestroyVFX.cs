@@ -1,61 +1,134 @@
 using UnityEngine;
 
-[RequireComponent(typeof(SpriteRenderer))]
 public class AutoDestroyVFX : MonoBehaviour
 {
+    private static readonly int ColorId = Shader.PropertyToID("_Color");
+    private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+    private static readonly int RendererColorId = Shader.PropertyToID("_RendererColor");
+    private const float DefaultFadeStartAlphaMultiplier = 0.5f;
+
     private float _duration;
     private float _timer;
-    private SpriteRenderer _sr;
-    private Color _startColor;
-    private bool _initialized = false;
+    private bool _fadeOutEnabled;
+    private float _fadeOutStartLifePercent;
+    private float _fadeStartAlphaMultiplier;
+    private SpriteRenderer[] _renderers;
+    private Color[] _startColors;
+    private MaterialPropertyBlock _propertyBlock;
+    private bool _initialized;
 
-    // Вот этот метод, которого не хватало
-    public void Initialize(float duration)
+    public static AutoDestroyVFX Ensure(GameObject target)
     {
-        _duration = duration;
-        _timer = 0;
-        _sr = GetComponent<SpriteRenderer>();
-        
-        if (_sr != null)
+        if (target == null)
+            return null;
+
+        var autoDestroy = target.GetComponent<AutoDestroyVFX>();
+        if (autoDestroy == null)
+            autoDestroy = target.AddComponent<AutoDestroyVFX>();
+
+        return autoDestroy;
+    }
+
+    public void Initialize(
+        float duration,
+        bool fadeOutEnabled = true,
+        float fadeOutStartLifePercent = 0.5f,
+        float fadeStartAlphaMultiplier = DefaultFadeStartAlphaMultiplier)
+    {
+        _duration = Mathf.Max(0.0001f, duration);
+        _timer = 0f;
+        _fadeOutEnabled = fadeOutEnabled;
+        _fadeOutStartLifePercent = Mathf.Clamp01(fadeOutStartLifePercent);
+        _fadeStartAlphaMultiplier = Mathf.Clamp01(fadeStartAlphaMultiplier);
+        _renderers = GetComponentsInChildren<SpriteRenderer>(true);
+        _startColors = new Color[_renderers.Length];
+        _propertyBlock ??= new MaterialPropertyBlock();
+
+        for (int i = 0; i < _renderers.Length; i++)
         {
-            _startColor = _sr.color;
+            _startColors[i] = _renderers[i] != null ? _renderers[i].color : Color.white;
         }
 
+        ApplyAlphaMultiplier(1f);
         _initialized = true;
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        // Если Initialize не вызвали (например, старый код), удаляем по старинке через Destroy в Start не сработает,
-        // поэтому тут защита: если не инициализирован, ничего не делаем или удаляем сразу.
-        // Но так как мы теперь управляем через SkillVFX, ждем инициализации.
-        if (!_initialized) return;
+        if (!_initialized)
+            return;
 
         _timer += Time.deltaTime;
 
-        // Логика затухания (Fade Out)
-        if (_sr != null)
+        if (_fadeOutEnabled && _fadeOutStartLifePercent < 1f)
         {
-            // Нормализованное время от 0.0 до 1.0
-            float progress = _timer / _duration;
+            float lifeProgress = Mathf.Clamp01(_timer / _duration);
+            float alphaMultiplier = 1f;
 
-            // Начинаем затухать после 50% времени жизни
-            if (progress > 0.5f)
+            if (lifeProgress >= _fadeOutStartLifePercent)
             {
-                // Переводим диапазон [0.5 ... 1.0] в [0.0 ... 1.0]
-                float fadeProgress = (progress - 0.5f) * 2f;
-                
-                // Lerp от текущей Альфы до 0
-                float newAlpha = Mathf.Lerp(_startColor.a, 0f, fadeProgress);
-                
-                _sr.color = new Color(_startColor.r, _startColor.g, _startColor.b, newAlpha);
+                float fadeProgress = Mathf.InverseLerp(_fadeOutStartLifePercent, 1f, lifeProgress);
+                alphaMultiplier = Mathf.Lerp(_fadeStartAlphaMultiplier, 0f, Mathf.SmoothStep(0f, 1f, fadeProgress));
             }
+
+            ApplyAlphaMultiplier(alphaMultiplier);
         }
 
-        // Смерть по таймеру
         if (_timer >= _duration)
-        {
             Destroy(gameObject);
+    }
+
+    private void ApplyAlphaMultiplier(float alphaMultiplier)
+    {
+        if (_renderers == null || _startColors == null)
+            return;
+
+        alphaMultiplier = Mathf.Clamp01(alphaMultiplier);
+
+        for (int i = 0; i < _renderers.Length; i++)
+        {
+            SpriteRenderer renderer = _renderers[i];
+            if (renderer == null)
+                continue;
+
+            Color startColor = i < _startColors.Length ? _startColors[i] : renderer.color;
+            Color fadedColor = new Color(startColor.r, startColor.g, startColor.b, startColor.a * alphaMultiplier);
+            renderer.color = fadedColor;
+            ApplyMaterialColor(renderer, fadedColor);
         }
+    }
+
+    private void ApplyMaterialColor(SpriteRenderer renderer, Color color)
+    {
+        if (renderer == null)
+            return;
+
+        var sharedMaterial = renderer.sharedMaterial;
+        if (sharedMaterial == null)
+            return;
+
+        renderer.GetPropertyBlock(_propertyBlock);
+
+        bool changed = false;
+        if (sharedMaterial.HasProperty(ColorId))
+        {
+            _propertyBlock.SetColor(ColorId, color);
+            changed = true;
+        }
+
+        if (sharedMaterial.HasProperty(BaseColorId))
+        {
+            _propertyBlock.SetColor(BaseColorId, color);
+            changed = true;
+        }
+
+        if (sharedMaterial.HasProperty(RendererColorId))
+        {
+            _propertyBlock.SetColor(RendererColorId, color);
+            changed = true;
+        }
+
+        if (changed)
+            renderer.SetPropertyBlock(_propertyBlock);
     }
 }

@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Scripts.Skills.PassiveTree;
+using Scripts.Stats;
 
 namespace Scripts.Editor.PassiveTree
 {
@@ -67,8 +69,7 @@ namespace Scripts.Editor.PassiveTree
                 Center = contentPos,
                 Orbits = new List<PassiveOrbitDefinition>
                 {
-                    new PassiveOrbitDefinition { Radius = 80f },
-                    new PassiveOrbitDefinition { Radius = 120f }
+                    new PassiveOrbitDefinition { Radius = 80f }
                 },
                 EditorColor = new Color(
                     UnityEngine.Random.Range(0.3f, 0.8f),
@@ -80,6 +81,63 @@ namespace Scripts.Editor.PassiveTree
             };
             _tree.Clusters.Add(cluster);
             PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public PassiveClusterDefinition CreateClusterFromTemplateAtPosition(PassiveClusterTemplateSO template, Vector2 contentPos)
+        {
+            if (_tree == null || template == null)
+                return null;
+
+            RecordTree("Create Cluster From Template");
+            contentPos = SnapPosition(contentPos);
+            PassiveClusterDefinition cluster = template.ApplyToTree(_tree, contentPos);
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+            return cluster;
+        }
+
+        public int GenerateBackboneFromStart()
+        {
+            if (_tree == null)
+                return 0;
+
+            PassiveNodeDefinition startNode = FindStartNode();
+            if (startNode == null)
+                return 0;
+
+            if (_tree.Nodes == null)
+                _tree.Nodes = new List<PassiveNodeDefinition>();
+
+            RecordTree("Generate Passive Backbone");
+            DisconnectNodeFromAll(startNode);
+
+            Vector2 startPosition = startNode.GetWorldPosition(_tree);
+            const int innerRingCount = 8;
+            const int pathCount = 4;
+            const float spokeInnerRadius = 180f;
+            const float spokeOuterRadius = 320f;
+            const float innerRingRadius = 500f;
+            const float ringStartAngle = 0f;
+            const float spokeStartAngle = 45f;
+
+            List<PassiveNodeDefinition> spokeInnerNodes = CreateFreeNodes(BuildRingPoints(startPosition, spokeInnerRadius, pathCount, spokeStartAngle));
+            List<PassiveNodeDefinition> spokeOuterNodes = CreateFreeNodes(BuildRingPoints(startPosition, spokeOuterRadius, pathCount, spokeStartAngle));
+            List<PassiveNodeDefinition> innerRing = CreateFreeNodes(BuildRingPoints(startPosition, innerRingRadius, innerRingCount, ringStartAngle));
+
+            ConnectSequentially(innerRing, true);
+
+            int[] innerSpokeIndices = { 1, 3, 5, 7 };
+            for (int i = 0; i < pathCount; i++)
+            {
+                AddConnectionBidirectional(startNode, spokeInnerNodes[i]);
+                AddConnectionBidirectional(spokeInnerNodes[i], spokeOuterNodes[i]);
+                AddConnectionBidirectional(spokeOuterNodes[i], innerRing[innerSpokeIndices[i]]);
+            }
+
+            int createdNodes = spokeInnerNodes.Count + spokeOuterNodes.Count + innerRing.Count;
+
+            _tree.InitLookup();
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+            return createdNodes;
         }
 
         public void AddOrbitToCluster(PassiveClusterDefinition cluster)
@@ -127,6 +185,7 @@ namespace Scripts.Editor.PassiveTree
                 if (neighbor != null)
                     neighbor.ConnectionIDs.Remove(nodeData.ID);
             }
+            _tree.RemoveBezierConnectionsForNode(nodeData.ID);
             _tree.Nodes.Remove(nodeData);
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
@@ -150,11 +209,81 @@ namespace Scripts.Editor.PassiveTree
 
         public void ConnectNodes(PassiveNodeDefinition nodeA, PassiveNodeDefinition nodeB)
         {
-            if (_tree == null || nodeA == null || nodeB == null) return;
-            if (nodeA.ConnectionIDs.Contains(nodeB.ID)) return;
-            RecordTree("Connect Nodes");
-            nodeA.ConnectionIDs.Add(nodeB.ID);
-            nodeB.ConnectionIDs.Add(nodeA.ID);
+            ConnectNodesDirect(nodeA, nodeB);
+        }
+
+        public void ConnectNodesDirect(PassiveNodeDefinition nodeA, PassiveNodeDefinition nodeB)
+        {
+            if (_tree == null || nodeA == null || nodeB == null || nodeA == nodeB)
+                return;
+
+            RecordTree("Connect Nodes Direct");
+            AddConnectionBidirectional(nodeA, nodeB);
+            _tree.RemoveBezierConnection(nodeA.ID, nodeB.ID);
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public void ConnectNodesFree(PassiveNodeDefinition nodeA, PassiveNodeDefinition nodeB)
+        {
+            if (_tree == null || nodeA == null || nodeB == null || nodeA == nodeB)
+                return;
+
+            RecordTree("Connect Nodes Free");
+            AddConnectionBidirectional(nodeA, nodeB);
+            if (_tree.BezierConnections == null)
+                _tree.BezierConnections = new List<PassiveBezierConnection>();
+
+            if (_tree.FindBezierConnection(nodeA.ID, nodeB.ID) == null)
+            {
+                _tree.BezierConnections.Add(PassiveBezierConnection.CreateDefault(
+                    nodeA.ID,
+                    nodeB.ID,
+                    nodeA.GetWorldPosition(_tree),
+                    nodeB.GetWorldPosition(_tree)));
+            }
+
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public void PasteNodeContent(PassiveNodeDefinition target, PassiveNodeContentClipboard clipboard)
+        {
+            if (_tree == null || target == null || clipboard == null)
+                return;
+
+            RecordTree("Paste Node Content");
+            clipboard.ApplyTo(target);
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public void ConvertBezierToDirect(PassiveBezierConnection connection)
+        {
+            if (_tree == null || connection == null)
+                return;
+
+            RecordTree("Convert Connection to Direct");
+            _tree.RemoveBezierConnection(connection.NodeIdA, connection.NodeIdB);
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public void ResetBezierHandles(PassiveBezierConnection connection)
+        {
+            if (_tree == null || connection == null)
+                return;
+
+            var nodeA = _tree.GetNode(connection.NodeIdA);
+            var nodeB = _tree.GetNode(connection.NodeIdB);
+            if (nodeA == null || nodeB == null)
+                return;
+
+            RecordTree("Reset Bezier Handles");
+            var defaults = PassiveBezierConnection.CreateDefault(
+                nodeA.ID,
+                nodeB.ID,
+                nodeA.GetWorldPosition(_tree),
+                nodeB.GetWorldPosition(_tree));
+            connection.AnchorPercent = defaults.AnchorPercent;
+            connection.InHandleOffset = defaults.InHandleOffset;
+            connection.OutHandleOffset = defaults.OutHandleOffset;
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
 
@@ -162,9 +291,18 @@ namespace Scripts.Editor.PassiveTree
         {
             if (nodeA == null || nodeB == null) return;
             RecordTree("Disconnect Nodes");
-            nodeA.ConnectionIDs.Remove(nodeB.ID);
-            nodeB.ConnectionIDs.Remove(nodeA.ID);
+            nodeA.ConnectionIDs?.Remove(nodeB.ID);
+            nodeB.ConnectionIDs?.Remove(nodeA.ID);
+            _tree?.RemoveBezierConnection(nodeA.ID, nodeB.ID);
             PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public void DisconnectBezier(PassiveBezierConnection connection)
+        {
+            if (_tree == null || connection == null)
+                return;
+
+            DisconnectNodes(_tree.GetNode(connection.NodeIdA), _tree.GetNode(connection.NodeIdB));
         }
 
         public void ConvertNodeToFree(PassiveNodeDefinition node)
@@ -190,6 +328,160 @@ namespace Scripts.Editor.PassiveTree
             node.OrbitIndex = 0;
             node.OrbitAngle = angle;
             PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        private PassiveNodeDefinition FindStartNode()
+        {
+            if (_tree?.Nodes == null)
+                return null;
+
+            return _tree.Nodes.FirstOrDefault(node => node != null && node.NodeType == PassiveNodeType.Start);
+        }
+
+        private void DisconnectNodeFromAll(PassiveNodeDefinition node)
+        {
+            if (_tree == null || node == null || node.ConnectionIDs == null)
+                return;
+
+            foreach (string connectionId in new List<string>(node.ConnectionIDs))
+            {
+                var neighbour = _tree.GetNode(connectionId);
+                neighbour?.ConnectionIDs?.Remove(node.ID);
+            }
+
+            node.ConnectionIDs.Clear();
+            _tree.RemoveBezierConnectionsForNode(node.ID);
+        }
+
+        private List<PassiveNodeDefinition> CreateFreeNodes(IEnumerable<Vector2> positions)
+        {
+            var created = new List<PassiveNodeDefinition>();
+            foreach (Vector2 position in positions)
+            {
+                var node = new PassiveNodeDefinition
+                {
+                    ID = Guid.NewGuid().ToString(),
+                    NodeType = PassiveNodeType.Small,
+                    PlacementMode = NodePlacementMode.Free,
+                    Position = SnapPosition(position),
+                    ConnectionIDs = new List<string>()
+                };
+                _tree.Nodes.Add(node);
+                created.Add(node);
+            }
+
+            return created;
+        }
+
+        private int CreateBridgeChain(PassiveNodeDefinition from, PassiveNodeDefinition to, int internalNodeCount)
+        {
+            List<PassiveNodeDefinition> chain = CreateFreeNodes(BuildConnectorPoints(from.GetWorldPosition(_tree), to.GetWorldPosition(_tree), internalNodeCount));
+            ConnectSequentially(chain, false, from, to);
+            return chain.Count;
+        }
+
+        private int CreateApproachChain(PassiveNodeDefinition startNode, PassiveNodeDefinition targetNode, int internalNodeCount)
+        {
+            List<PassiveNodeDefinition> chain = CreateFreeNodes(BuildConnectorPoints(startNode.GetWorldPosition(_tree), targetNode.GetWorldPosition(_tree), internalNodeCount));
+            ConnectSequentially(chain, false, startNode, targetNode);
+            return chain.Count;
+        }
+
+        private static void ConnectSequentially(IReadOnlyList<PassiveNodeDefinition> nodes, bool closeLoop, PassiveNodeDefinition startAnchor = null, PassiveNodeDefinition endAnchor = null)
+        {
+            if (nodes == null || nodes.Count == 0)
+            {
+                if (startAnchor != null && endAnchor != null)
+                    AddConnectionBidirectional(startAnchor, endAnchor);
+                return;
+            }
+
+            if (startAnchor != null)
+                AddConnectionBidirectional(startAnchor, nodes[0]);
+
+            for (int i = 0; i < nodes.Count - 1; i++)
+                AddConnectionBidirectional(nodes[i], nodes[i + 1]);
+
+            if (endAnchor != null)
+                AddConnectionBidirectional(nodes[nodes.Count - 1], endAnchor);
+
+            if (closeLoop && nodes.Count > 2)
+                AddConnectionBidirectional(nodes[nodes.Count - 1], nodes[0]);
+        }
+
+        private static void AddConnectionBidirectional(PassiveNodeDefinition a, PassiveNodeDefinition b)
+        {
+            if (a == null || b == null || a == b)
+                return;
+
+            a.ConnectionIDs ??= new List<string>();
+            b.ConnectionIDs ??= new List<string>();
+
+            if (!a.ConnectionIDs.Contains(b.ID))
+                a.ConnectionIDs.Add(b.ID);
+            if (!b.ConnectionIDs.Contains(a.ID))
+                b.ConnectionIDs.Add(a.ID);
+        }
+
+        private static List<Vector2> BuildRingPoints(Vector2 center, float radius, int count, float startAngleDegrees)
+        {
+            var points = new List<Vector2>(count);
+            float step = 360f / count;
+            for (int i = 0; i < count; i++)
+            {
+                float angle = (startAngleDegrees + step * i) * Mathf.Deg2Rad;
+                points.Add(center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius);
+            }
+            return points;
+        }
+
+        private static List<Vector2> BuildConnectorPoints(Vector2 from, Vector2 to, int internalNodeCount)
+        {
+            var points = new List<Vector2>(internalNodeCount);
+            for (int i = 1; i <= internalNodeCount; i++)
+            {
+                float t = i / (float)(internalNodeCount + 1);
+                points.Add(Vector2.Lerp(from, to, t));
+            }
+            return points;
+        }
+
+    }
+
+    /// <summary>
+    /// Copied node identity (template, type, unique mods). Placement and connections stay on the paste target.
+    /// </summary>
+    public sealed class PassiveNodeContentClipboard
+    {
+        public PassiveNodeType NodeType;
+        public PassiveNodeTemplateSO Template;
+        public List<SerializableStatModifier> UniqueModifiers;
+
+        public static PassiveNodeContentClipboard From(PassiveNodeDefinition source)
+        {
+            if (source == null)
+                return null;
+
+            return new PassiveNodeContentClipboard
+            {
+                NodeType = source.NodeType,
+                Template = source.Template,
+                UniqueModifiers = source.UniqueModifiers == null
+                    ? new List<SerializableStatModifier>()
+                    : new List<SerializableStatModifier>(source.UniqueModifiers)
+            };
+        }
+
+        public void ApplyTo(PassiveNodeDefinition target)
+        {
+            if (target == null)
+                return;
+
+            target.NodeType = NodeType;
+            target.Template = Template;
+            target.UniqueModifiers = UniqueModifiers == null
+                ? new List<SerializableStatModifier>()
+                : new List<SerializableStatModifier>(UniqueModifiers);
         }
     }
 }

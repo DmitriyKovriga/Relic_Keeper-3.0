@@ -4,7 +4,7 @@ using Scripts.Stats;
 namespace Scripts.Skills.Modules
 {
     /// <summary>
-    /// Модуль отвечает только за блокировку передвижения персонажа.
+    /// Movement bridge used by skill steps.
     /// </summary>
     public class SkillMovementControl : MonoBehaviour
     {
@@ -22,12 +22,15 @@ namespace Scripts.Skills.Modules
         public void SetLock(bool isLocked)
         {
             if (_playerMovement != null)
-            {
                 _playerMovement.SetMovementLock(isLocked);
-            }
         }
 
-        // Гарантируем разблокировку при отключении/прерывании скилла
+        public void ApplyImpulse(float angleDegrees, float force, bool relativeToFacing, bool clearCurrentVelocity)
+        {
+            if (_playerMovement != null)
+                _playerMovement.ApplySkillImpulse(angleDegrees, force, relativeToFacing, clearCurrentVelocity);
+        }
+
         private void OnDisable()
         {
             SetLock(false);

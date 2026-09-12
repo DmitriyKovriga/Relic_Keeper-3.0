@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Scripts.Dungeon
@@ -6,7 +7,8 @@ namespace Scripts.Dungeon
     {
         EnterDungeon,
         NextRoom,
-        ReturnToHub
+        ReturnToHub,
+        SelectReachedFloor
     }
 
     /// <summary>
@@ -26,22 +28,61 @@ namespace Scripts.Dungeon
         [SerializeField] private int _minOrderInLayer = 10;
         [SerializeField] private bool _forceWorldZ = true;
         [SerializeField] private float _targetWorldZ = 0f;
+        [SerializeField, Min(0f)] private float _portalAnimationSpeed = 1f;
         [Header("Enter Dungeon")]
         [SerializeField] private DungeonDataSO _targetDungeon;
+        [Header("World Label")]
+        [Tooltip("Подпись над порталом. Работает только для порталов входа в данж.")]
+        [SerializeField] private bool _showWorldLabel = true;
+        [Tooltip("Если пусто — берётся ключ из DungeonDataSO")]
+        [SerializeField] private string _labelLocalizationKey;
+        [SerializeField] private string _labelFallback;
+        [Tooltip("Если у портала ещё нет ребёнка WorldLabel, он создастся в этой локальной точке. Дальше двигайте именно WorldLabel.")]
+        [SerializeField] private Vector3 _defaultLabelLocalPosition = new Vector3(0f, 1.4f, 0f);
 
         public PortalType Type => _portalType;
-        public DungeonDataSO TargetDungeon => _targetDungeon;
+        public DungeonDataSO TargetDungeon => ResolveTargetDungeon();
+
+        public DungeonDataSO ResolveTargetDungeon()
+        {
+            FloorPortal floorPortal = GetComponent<FloorPortal>();
+            if (floorPortal != null && floorPortal.TargetDungeon != null)
+                return floorPortal.TargetDungeon;
+
+            if (_targetDungeon != null)
+                return _targetDungeon;
+
+            if (OpensReachedFloorSelect)
+                return Resources.Load<DungeonDataSO>(FloorPortal.DefaultDungeonResourcePath);
+
+            return null;
+        }
+
+        public bool OpensReachedFloorSelect =>
+            _portalType == PortalType.SelectReachedFloor ||
+            GetComponent<FloorPortal>() != null ||
+            DungeonRunProgress.IsFloorSelectPortalName(name);
+
         public bool IsActive
         {
             get => _isActive;
             set => _isActive = value;
         }
 
-        public string GetPrompt() => _interactPrompt;
+        public string GetPrompt()
+        {
+            if (OpensReachedFloorSelect)
+                return "Выбрать этаж";
+
+            return _interactPrompt;
+        }
         public bool CanInteract() => _isActive;
 
         private void Awake()
         {
+            ApplyAnimationSpeed();
+            TrySetupWorldLabel();
+
             if (_forceWorldZ)
             {
                 var pos = transform.position;
@@ -77,6 +118,100 @@ namespace Scripts.Dungeon
                     sr.color = c;
                 }
             }
+        }
+
+        private void Start()
+        {
+            TrySetupWorldLabel();
+        }
+
+        private void OnValidate()
+        {
+            ApplyAnimationSpeed();
+            if (_showWorldLabel)
+            {
+#if UNITY_EDITOR
+                if (!Application.isPlaying)
+                {
+                    QueueWorldLabelRefresh();
+                    return;
+                }
+#endif
+                TrySetupWorldLabel();
+            }
+        }
+
+#if UNITY_EDITOR
+        [System.NonSerialized] private bool _worldLabelRefreshQueued;
+
+        private void QueueWorldLabelRefresh()
+        {
+            if (_worldLabelRefreshQueued)
+                return;
+
+            _worldLabelRefreshQueued = true;
+            UnityEditor.EditorApplication.delayCall += RefreshWorldLabelAfterValidation;
+        }
+
+        private void RefreshWorldLabelAfterValidation()
+        {
+            _worldLabelRefreshQueued = false;
+            if (this == null || Application.isPlaying || !_showWorldLabel)
+                return;
+            TrySetupWorldLabel();
+        }
+#endif
+
+        public static string ResolveWorldTitle(bool opensReachedFloorSelect, DungeonDataSO dungeon)
+        {
+            if (opensReachedFloorSelect)
+                return FloorPortal.ObjectName;
+
+            if (dungeon != null && !string.IsNullOrWhiteSpace(dungeon.DisplayName))
+                return dungeon.DisplayName;
+
+            return string.Empty;
+        }
+
+        private void TrySetupWorldLabel()
+        {
+            if (!_showWorldLabel)
+                return;
+
+            bool floorSelect = OpensReachedFloorSelect;
+            if (!floorSelect && _portalType != PortalType.EnterDungeon)
+                return;
+
+            string title = ResolveWorldTitle(floorSelect, TargetDungeon);
+            if (string.IsNullOrEmpty(title))
+                return;
+
+            Scripts.UI.WorldLocalizedLabel.Create(
+                transform,
+                string.Empty,
+                title,
+                floorSelect ? string.Empty : BuildBuiltInModifiersLabel(),
+                _defaultLabelLocalPosition);
+        }
+
+        private string BuildBuiltInModifiersLabel()
+        {
+            if (_targetDungeon == null || _targetDungeon.BuiltInModifiers == null)
+                return string.Empty;
+
+            var descriptions = new List<string>();
+            IReadOnlyList<DungeonModifierSO> modifiers = _targetDungeon.BuiltInModifiers;
+            for (int i = 0; i < modifiers.Count; i++)
+                modifiers[i]?.AddHudDescriptions(descriptions);
+
+            return string.Join("\n", descriptions);
+        }
+
+        private void ApplyAnimationSpeed()
+        {
+            var animator = GetComponent<Animator>();
+            if (animator != null)
+                animator.speed = Mathf.Max(0f, _portalAnimationSpeed);
         }
 
         public void Interact()

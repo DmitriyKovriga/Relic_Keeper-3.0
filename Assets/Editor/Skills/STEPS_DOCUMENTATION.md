@@ -11,7 +11,7 @@
 | **SkillRecipeSO** | Список степов (порядок только для отображения в редакторе), опционально ченнелинг (IsChanneling, ChannelLoopStepIndices, ChannelMaxDuration, ChannelTickDuration). |
 | **SkillDataSO** | Данные скилла (ID, имя, иконка, кулдаун, мана). Поле **Recipe** — ссылка на SkillRecipeSO. Если Recipe задан, на префабе должен быть **SkillStepRunner** вместо классического SkillBehaviour. |
 
-Общая длительность пайплайна (**TotalDuration**) считается в начале каста (например `1 / AttackSpeed` для атак). Время пайплайна **T** идёт от 0 до 1. Каждый степ задаёт **Start %** и **End %** пайплайна: мгновенные степы (Strike, SpawnVFX, DealDamage) имеют Start = End и выполняются в один момент; степы с диапазоном (MovementLock, WeaponWindup, WeaponRecovery, Wait) активны от Start до End (например Lock: в Start — блок, в End — разблок).
+Общая длительность пайплайна (**TotalDuration**) считается в начале каста (например `1 / AttackSpeed` для атак). Время пайплайна **T** идёт от 0 до 1. Каждый степ задаёт **Start %** и **End %** пайплайна: мгновенные степы (Strike, DealDamage) имеют Start = End и выполняются в один момент; степы с диапазоном (MovementLock, WeaponWindup, WeaponRecovery, Wait, обычный SpawnVFX) используют окно Start → End.
 
 ---
 
@@ -40,14 +40,14 @@
 
 1. **Timing (% of pipeline)**  
    - Для степов **с диапазоном** (MovementLock, WeaponWindup, WeaponRecovery, Wait): поля **Start %** и **End %** (0–100). Момент начала и конца степа в пайплайне. У MovementLock: в Start % движение блокируется, в End % — разблокируется.  
-   - Для **мгновенных** степов (Strike, SpawnVFX, DealDamage, MovementUnlock, ParallelGroup): одно поле **Trigger at %** — момент выполнения (0–100).  
+   - Для **мгновенных** степов (Strike, DealDamage, MovementUnlock, ParallelGroup): одно поле **Trigger at %** — момент выполнения (0–100).  
    - В центральном списке отображается тот же тайминг: **35%** (мгновенный) или **0% – 35%** (диапазон).
 
 2. **Step type** — popup смены типа степа (для обычного степа).
 
 3. **Step settings** — поля, зависящие от типа:
    - **WeaponWindup / WeaponRecovery / Wait:** подсказка «Use Start % and End % in Timing section above. Duration = End − Start.»
-   - **SpawnVFX:** VFX Prefab, **Scale multiplier**, Offset X/Y, Base duration (sec), Attach to parent, Invert facing.
+   - **SpawnVFX:** VFX Prefab, **Scale multiplier**, Offset X/Y, Fade out over lifetime, Fade start at life %, Attach to parent, Invert facing. Для старых рецептов при `End % = Start %` остаётся legacy fallback через Base duration.
    - **DealDamageCircle:** Radius, Source step index, Offset X/Y, Damage multiplier.
    - **DealDamageRectangle:** Size X/Y, Angle, Source step index, Damage multiplier.
    - **MovementLock / MovementUnlock / WeaponStrike:** подсказка «No extra settings».
@@ -137,17 +137,19 @@
 
 ### SpawnVFX (Спавн VFX)
 
-**Назначение:** Спавнит один VFX-префаб в точке относительно игрока. Позиция и масштаб сохраняются в контекст и могут использоваться степом урона через **SourceStepIndex**.
+**Назначение:** Спавнит один VFX-префаб в точке относительно игрока. Для обычного степа длительность VFX берётся из окна **Start % → End %** внутри общего времени скилла. Позиция и масштаб сохраняются в контекст и могут использоваться степом урона через **SourceStepIndex**.
 
 **Параметры (оверрайды в рецепте):**
 - **VfxPrefab** (Object) — префаб VFX. Если не задан, используется компонент SkillVFX на том же объекте (если есть).
 - **ScaleMultiplier** (float) — множитель размера VFX (1 = без изменения). Удобно при переиспользовании одного префаба в разных скиллах с разным визуальным масштабом. Итоговый масштаб = AoeScale × ScaleMultiplier.
 - **OffsetX**, **OffsetY** (float) — смещение от позиции игрока; OffsetX умножается на направление взгляда.
-- **BaseDuration** (float) — базовая длительность жизни VFX в секундах (при скорости 1); реальная длительность масштабируется от скорости атаки.
+- **BaseDuration** (float) — legacy fallback для старых рецептов и SpawnVFX внутри ParallelGroup, когда диапазон Start % → End % не используется.
+- **FadeOutEnabled** (bool) — включить плавное исчезновение VFX через прозрачность.
+- **FadeOutStartLifePercent** (float, 0–1) — с какого процента жизни VFX начинается затухание. `0.5` = начать на 50% жизни и плавно уйти в 0 к концу.
 - **AttachToParent** (bool) — привязать VFX к трансформу игрока.
 - **InvertFacing** (bool) — инвертировать направление по горизонтали.
 
-**Длительность:** 0% (спавн моментальный; длительность VFX задаётся BaseDuration).
+**Тайминг:** обычно диапазон **Start % → End %**. В момент **Start %** VFX спавнится, а его жизнь и скорость анимации автоматически подгоняются под длину окна до **End %**.
 
 **Когда использовать:** Для визуала удара. Если следующий степ — DealDamageCircle с **SourceStepIndex** = индекс этого степа, хитбокс возьмёт позицию и масштаб из результата SpawnVFX (совпадение с VFX).
 
@@ -264,7 +266,7 @@
 ## 2. Инспектор: где настраивать степ
 
 1. **Выберите степ в центральном списке** (один клик по строке). Справа появится:
-   - **Timing (% of pipeline)** — у степов с диапазоном (MovementLock, WeaponWindup, WeaponRecovery, Wait): поля **Start %** и **End %**. У мгновенных (Strike, SpawnVFX, DealDamage, MovementUnlock): поле **Trigger at %**.
+   - **Timing (% of pipeline)** — у степов с диапазоном (MovementLock, WeaponWindup, WeaponRecovery, Wait, обычный SpawnVFX): поля **Start %** и **End %**. У мгновенных (Strike, DealDamage, MovementUnlock): поле **Trigger at %**.
    - **Step type** (popup).
    - **Step settings** — поля по типу (VFX Prefab, Radius и т.д.).
 2. **MovementLock** — один степ с диапазоном: задайте Start % и End % (например 0% и 100%). В момент Start % движение блокируется, в момент End % — разблокируется. Можно поставить, например, 10%–90%.
@@ -277,8 +279,8 @@
 1. В левой колонке нажмите **Spawn VFX** — в рецепт добавится новый степ, он выделится.
 2. В **правой колонке (Inspector)** в блоке **Step settings** должны быть:
    - **VFX Prefab** — перетащите сюда префаб VFX или выберите из проекта.
-   - Offset X, Offset Y, Base duration (sec), Attach to parent, Invert facing.
-3. В блоке **Timing** задайте **Trigger at %** (момент спавна VFX, например 35). Задайте VFX Prefab и сохраните рецепт. В игре при касте этого скилла должен спавниться выбранный VFX в заданный момент.
+   - Offset X, Offset Y, Fade out over lifetime, Fade start at life %, Attach to parent, Invert facing.
+3. В блоке **Timing** задайте **Start %** и **End %** (например 35 и 66). В момент Start % VFX появится, а к End % завершится, автоматически ускоряясь или замедляясь под это окно.
 4. Выберите степ **WeaponWindup**. В блоке Timing — **Start %** и **End %**. Поставьте, например, 0 и 25 — в центральном списке отобразится `[0% – 25%]`.
 5. Аналогично проверьте **WeaponRecovery** и **Wait** (Start % / End %), **DealDamageCircle** (Radius, Source step index, Damage multiplier), **DealDamageRectangle** (Size X/Y, Angle и т.д.). У **MovementLock / MovementUnlock / WeaponStrike** в Step settings только подсказка «No extra settings».
 
@@ -308,13 +310,13 @@
 - [ ] Create default step defs создаёт Step_*.asset; после Refresh типы видны слева.
 - [ ] Добавление степа: клик по типу слева. Удаление: кнопка − в центральном списке. Перемещение: ↑/↓.
 - [ ] В центральном списке тайминг: `[35%]` (мгновенный) или `[0% – 35%]` (диапазон) — задаётся в блоке Timing инспектора (Start % / End % или Trigger at %).
-- [ ] Migrate Cleave to recipe создаёт Recipe_Cleave и префаб с StepRunner; в рецепте 7 степов (Lock 0–100%, Windup 0–35%, Strike 35%, SpawnVFX 35%, DealDamage 35%, Recovery 35–100%, Unlock 100%).
+- [ ] Migrate Cleave to recipe создаёт Recipe_Cleave и префаб с StepRunner; в рецепте 7 степов (Lock 0–100%, Windup 0–35%, Strike 35%, SpawnVFX 35–75%, DealDamage 35%, Recovery 35–100%, Unlock 100%).
 
 ### Инспектор и настройки степов
 
 - [ ] Выбор степа в центральном списке показывает справа: **Timing** (% of pipeline), Step type, Step settings.
 - [ ] WeaponWindup / WeaponRecovery / Wait: в блоке Timing — **Start %** и **End %**; в Step settings — подсказка про Timing. Диапазон в списке совпадает с Start % – End %.
-- [ ] SpawnVFX: в Step settings есть **VFX Prefab**, Offset X/Y, Base duration, Attach to parent, Invert facing. Назначенный префаб спавнится в игре.
+- [ ] SpawnVFX: у обычного степа в Timing есть **Start % / End %**, в Step settings есть **VFX Prefab**, Offset X/Y, Fade out over lifetime, Fade start at life %, Attach to parent, Invert facing. Назначенный префаб спавнится в игре и вписывается в окно Start → End.
 - [ ] DealDamageCircle/Rectangle: Radius (или Size), Source step index, Damage multiplier и т.д. редактируются и работают в игре.
 - [ ] MovementLock / MovementUnlock / WeaponStrike: в Step settings отображается «No extra settings».
 

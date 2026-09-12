@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f012c5ec840dd543becc6dccbf857b4, type: 3}
+  m_Name: BodyArmorePool
+  m_EditorClassIdentifier: 
+  Slot: 0
+  DefenseType: 1
+  Affixes:
+  - {fileID: 11400000, guid: 846945c27e94a804ab1745093fc256c4, type: 2}
+  - {fileID: 11400000, guid: e957245934d442548a5c0ab389451f50, type: 2}
+  - {fileID: 11400000, guid: ea3bcd0c3f469ba44a6d57308ce7231b, type: 2}
+  - {fileID: 11400000, guid: 5c849dc3339481c42a99a142bf6fed6c, type: 2}
+  - {fileID: 11400000, guid: bd27e64df15706f41b7d6e19a27acac2, type: 2}
+  - {fileID: 11400000, guid: 65c72dfb80b519143baa91bccdaa2532, type: 2}
+  - {fileID: 11400000, guid: b52fb0540d380a3409ab2a8fff9fb53e, type: 2}
+  - {fileID: 11400000, guid: 2077cdc711a449f4c8ba5cf8dcdb16a4, type: 2}
+  - {fileID: 11400000, guid: eeebbaef192d4ac4b98580a48a2b957c, type: 2}
+  - {fileID: 11400000, guid: 250de2f5359d28646b0ff77646a44e51, type: 2}
+  - {fileID: 11400000, guid: fab3ebd7704c1ce4ab4f0b419a6d4cde, type: 2}
+  - {fileID: 11400000, guid: 923b080e70dfb5745b956fe3c933b2c5, type: 2}
+  - {fileID: 11400000, guid: 41f3d798d621ae343aeb4457e07c7403, type: 2}
+  - {fileID: 11400000, guid: 155f5f177a03bcc4288c7e5e481fabe7, type: 2}

@@ -1,0 +1,379 @@
+using System;
+using TMPro;
+using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
+using UnityEngine.ResourceManagement.AsyncOperations;
+
+namespace Scripts.UI
+{
+    /// <summary>
+    /// Локализованная подпись в мире. Вешается на дочерний объект WorldLabel:
+    /// его Transform — это позиция надписи, код её никогда не перезаписывает.
+    /// Сам текст рисуется на вложенном меше, чтобы не превращать WorldLabel в RectTransform.
+    /// </summary>
+    [ExecuteAlways]
+    [DisallowMultipleComponent]
+    [AddComponentMenu("Relic Keeper/World Localized Label")]
+    public class WorldLocalizedLabel : MonoBehaviour
+    {
+        public const string DefaultChildName = "WorldLabel";
+        private const string MeshChildName = "LabelMesh";
+
+        [Header("Text")]
+        [SerializeField] private string _localizationTable = "MenuLabels";
+        [SerializeField] private string _localizationKey;
+        [SerializeField] private string _fallbackText = string.Empty;
+        [SerializeField, TextArea(1, 5)] private string _secondaryText = string.Empty;
+
+        [Header("Appearance")]
+        [SerializeField, Min(0.1f)] private float _fontSize = 4f;
+        [SerializeField] private Color _color = new Color(0.95f, 0.88f, 0.68f);
+
+        [Header("Sorting")]
+        [SerializeField] private string _sortingLayer = "VFX";
+        [SerializeField] private int _sortingOrder = 1000;
+
+        private TextMeshPro _text;
+        private bool _waitingForLocalizationInit;
+        private int _refreshGeneration;
+
+        public static WorldLocalizedLabel Create(Transform parent, string localizationKey, string fallbackText, Vector3 localPosition)
+        {
+            return Create(parent, localizationKey, fallbackText, string.Empty, localPosition);
+        }
+
+        public static WorldLocalizedLabel Create(
+            Transform parent,
+            string localizationKey,
+            string fallbackText,
+            string secondaryText,
+            Vector3 localPosition)
+        {
+            if (parent == null)
+                return null;
+
+            WorldLocalizedLabel existing = FindOwnLabel(parent);
+            GameObject host;
+            if (existing != null)
+            {
+                existing.Configure(localizationKey, fallbackText, secondaryText);
+                return existing;
+            }
+
+            Transform child = parent.Find(DefaultChildName);
+            if (child != null)
+            {
+                host = child.gameObject;
+            }
+            else
+            {
+                host = new GameObject(DefaultChildName);
+                host.transform.SetParent(parent, false);
+                host.transform.localPosition = localPosition;
+                host.transform.localRotation = Quaternion.identity;
+                host.transform.localScale = Vector3.one;
+            }
+
+            var label = host.GetComponent<WorldLocalizedLabel>();
+            if (label == null)
+                label = host.AddComponent<WorldLocalizedLabel>();
+
+            label.Configure(localizationKey, fallbackText, secondaryText);
+            return label;
+        }
+
+        private static WorldLocalizedLabel FindOwnLabel(Transform parent)
+        {
+            Transform named = parent.Find(DefaultChildName);
+            if (named != null)
+            {
+                WorldLocalizedLabel namedLabel = named.GetComponent<WorldLocalizedLabel>();
+                if (namedLabel != null)
+                    return namedLabel;
+            }
+
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                WorldLocalizedLabel childLabel = parent.GetChild(i).GetComponent<WorldLocalizedLabel>();
+                if (childLabel != null)
+                    return childLabel;
+            }
+
+            return parent.GetComponent<WorldLocalizedLabel>();
+        }
+
+        public void Configure(string localizationKey, string fallbackText)
+        {
+            Configure(localizationKey, fallbackText, string.Empty);
+        }
+
+        public void Configure(string localizationKey, string fallbackText, string secondaryText)
+        {
+            _localizationKey = localizationKey ?? string.Empty;
+            _fallbackText = fallbackText ?? string.Empty;
+            _secondaryText = secondaryText ?? string.Empty;
+            _refreshGeneration++;
+            EnsureText();
+            Refresh();
+            if (!string.IsNullOrEmpty(_localizationKey) && LocalizationSettings.SelectedLocale == null)
+                RefreshWhenLocalizationReady();
+        }
+
+        public string CurrentText => _text != null ? _text.text : _fallbackText;
+
+        private void OnEnable()
+        {
+            EnsureText();
+            LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+            Refresh();
+            if (LocalizationSettings.SelectedLocale == null)
+                RefreshWhenLocalizationReady();
+        }
+
+        private void OnDisable()
+        {
+            LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+            UnsubscribeInitialization();
+        }
+
+        private void OnLocaleChanged(Locale locale) => Refresh();
+
+        private void RefreshWhenLocalizationReady()
+        {
+            if (LocalizationSettings.SelectedLocale != null)
+            {
+                Refresh();
+                return;
+            }
+
+            AsyncOperationHandle init = LocalizationSettings.InitializationOperation;
+            if (init.IsDone)
+                return;
+
+            if (_waitingForLocalizationInit)
+                return;
+
+            _waitingForLocalizationInit = true;
+            init.Completed += OnLocalizationInitialized;
+        }
+
+        private void OnLocalizationInitialized(AsyncOperationHandle handle)
+        {
+            handle.Completed -= OnLocalizationInitialized;
+            _waitingForLocalizationInit = false;
+            if (!isActiveAndEnabled)
+                return;
+            Refresh();
+        }
+
+        private void UnsubscribeInitialization()
+        {
+            if (!_waitingForLocalizationInit)
+                return;
+
+            _waitingForLocalizationInit = false;
+            AsyncOperationHandle init = LocalizationSettings.InitializationOperation;
+            init.Completed -= OnLocalizationInitialized;
+        }
+
+        private void EnsureText()
+        {
+            DisableLeftoverHostText();
+
+            Transform meshTransform = transform.Find(MeshChildName);
+            GameObject meshObject;
+            if (meshTransform != null)
+            {
+                meshObject = meshTransform.gameObject;
+            }
+            else
+            {
+                meshObject = new GameObject(MeshChildName);
+                meshObject.transform.SetParent(transform, false);
+                meshObject.transform.localPosition = Vector3.zero;
+                meshObject.transform.localRotation = Quaternion.identity;
+                meshObject.transform.localScale = Vector3.one;
+                meshObject.hideFlags = HideFlags.DontSave;
+            }
+
+            _text = meshObject.GetComponent<TextMeshPro>();
+            if (_text == null)
+                _text = meshObject.AddComponent<TextMeshPro>();
+
+            _text.raycastTarget = false;
+            _text.richText = true;
+            _text.alignment = TextAlignmentOptions.Bottom;
+            _text.textWrappingMode = TextWrappingModes.NoWrap;
+            _text.overflowMode = TextOverflowModes.Overflow;
+            _text.extraPadding = true;
+
+            var font = UIFontResolver.ResolveTMPFontAsset(_text.font);
+            if (font != null)
+                _text.font = font;
+
+            var rect = _text.rectTransform;
+            rect.anchorMin = new Vector2(0.5f, 0f);
+            rect.anchorMax = new Vector2(0.5f, 0f);
+            rect.pivot = new Vector2(0.5f, 0f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.localRotation = Quaternion.identity;
+            rect.localScale = Vector3.one;
+            rect.localPosition = Vector3.zero;
+            rect.sizeDelta = new Vector2(8f, 2f);
+
+            ApplyStyle();
+        }
+
+        private void DisableLeftoverHostText()
+        {
+            var leftover = GetComponent<TextMeshPro>();
+            if (leftover != null)
+                leftover.enabled = false;
+        }
+
+        private void ApplyStyle()
+        {
+            if (_text == null)
+                return;
+
+            _text.fontSize = _fontSize;
+            _text.color = _color;
+
+            var meshRenderer = _text.GetComponent<MeshRenderer>();
+            if (meshRenderer == null)
+                return;
+
+            if (TryGetSortingLayerId(_sortingLayer, out int sortingLayerId))
+                meshRenderer.sortingLayerID = sortingLayerId;
+            meshRenderer.sortingOrder = _sortingOrder;
+        }
+
+        private static bool TryGetSortingLayerId(string layerName, out int id)
+        {
+            id = 0;
+            if (string.IsNullOrEmpty(layerName))
+                return false;
+
+            foreach (var layer in SortingLayer.layers)
+            {
+                if (!string.Equals(layer.name, layerName, StringComparison.Ordinal))
+                    continue;
+                id = layer.id;
+                return true;
+            }
+
+            return false;
+        }
+
+        private void Refresh()
+        {
+            EnsureText();
+            if (_text == null)
+                return;
+
+            ApplyStyle();
+            _text.text = ComposeText(string.IsNullOrEmpty(_fallbackText) ? _localizationKey : _fallbackText);
+            _text.ForceMeshUpdate();
+
+            if (string.IsNullOrEmpty(_localizationKey) || string.IsNullOrEmpty(_localizationTable))
+                return;
+
+            if (LocalizationSettings.SelectedLocale == null)
+                return;
+
+            int generation = _refreshGeneration;
+            var operation = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(_localizationTable, _localizationKey);
+            if (operation.IsDone)
+            {
+                if (generation == _refreshGeneration)
+                    ApplyLocalized(operation.Result);
+                return;
+            }
+
+            operation.Completed += _ =>
+            {
+                if (generation != _refreshGeneration || string.IsNullOrEmpty(_localizationKey))
+                    return;
+                ApplyLocalized(operation.Result);
+            };
+        }
+
+        private void ApplyLocalized(string value)
+        {
+            if (_text == null || string.IsNullOrEmpty(value) || string.IsNullOrEmpty(_localizationKey))
+                return;
+            if (value.IndexOf("translation found", StringComparison.OrdinalIgnoreCase) >= 0)
+                return;
+            _text.text = ComposeText(value);
+            _text.ForceMeshUpdate();
+        }
+
+        private string ComposeText(string primaryText)
+        {
+            if (string.IsNullOrWhiteSpace(_secondaryText))
+                return primaryText;
+
+            return $"{primaryText}\n<size=70%><color=#C9B078>{_secondaryText}</color></size>";
+        }
+
+#if UNITY_EDITOR
+        [NonSerialized] private bool _validationRefreshQueued;
+
+        private void OnValidate()
+        {
+            if (!isActiveAndEnabled)
+                return;
+
+            // Never create/reparent LabelMesh from a validation callback. Unity invokes
+            // OnValidate while checking scene hierarchy consistency and asserts if the
+            // transform tree is mutated at that point.
+            Transform meshTransform = transform.Find(MeshChildName);
+            _text = meshTransform != null ? meshTransform.GetComponent<TextMeshPro>() : null;
+            if (_text != null)
+            {
+                ApplyStyle();
+                _text.text = ComposeText(string.IsNullOrEmpty(_fallbackText) ? _localizationKey : _fallbackText);
+                _text.ForceMeshUpdate();
+            }
+
+            if (_validationRefreshQueued)
+                return;
+            _validationRefreshQueued = true;
+            UnityEditor.EditorApplication.delayCall += RefreshAfterValidation;
+        }
+
+        private void RefreshAfterValidation()
+        {
+            _validationRefreshQueued = false;
+            if (this == null || !isActiveAndEnabled || Application.isPlaying)
+                return;
+            Refresh();
+        }
+
+        private void OnDrawGizmos()
+        {
+            Bounds bounds = GetTextBounds();
+            Gizmos.color = _color;
+            Gizmos.DrawWireCube(bounds.center, bounds.size);
+        }
+
+        private Bounds GetTextBounds()
+        {
+            if (_text != null)
+            {
+                _text.ForceMeshUpdate();
+                var meshBounds = _text.textBounds;
+                if (meshBounds.size.sqrMagnitude > 0.0001f)
+                {
+                    Vector3 worldCenter = _text.transform.TransformPoint(meshBounds.center);
+                    Vector3 worldSize = Vector3.Scale(meshBounds.size, _text.transform.lossyScale);
+                    return new Bounds(worldCenter, worldSize);
+                }
+            }
+
+            return new Bounds(transform.position + Vector3.up * 0.25f, new Vector3(1.2f, 0.5f, 0.1f));
+        }
+#endif
+    }
+}

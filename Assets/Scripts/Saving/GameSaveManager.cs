@@ -4,10 +4,12 @@ using System.IO;
 using Scripts.Inventory;
 using Scripts.Saving;
 using Scripts.Skills.PassiveTree;
+using Scripts.Configuration;
+using Scripts.Economy;
 
 public class GameSaveManager : MonoBehaviour
 {
-    public const int CurrentSaveVersion = 2;
+    public const int CurrentSaveVersion = 7;
 
     [Header("Core Dependencies")]
     [SerializeField] private PlayerStats _playerStats;
@@ -23,6 +25,7 @@ public class GameSaveManager : MonoBehaviour
 
     private PassiveTreeManager _passiveTreeManager;
     private CharacterPartyManager _partyManager;
+    private bool _handlingPlayerDeath;
 
     private string SavePath => Path.Combine(Application.persistentDataPath, "savegame.json");
 
@@ -37,12 +40,18 @@ public class GameSaveManager : MonoBehaviour
 
         yield return null;
 
+        MarketManager.EnsureInstance();
+
         if (File.Exists(SavePath))
             LoadGame();
-        else if (_tavernUIForNewGame != null)
-            _tavernUIForNewGame.Open(forNewGame: true);
         else
-            StartNewGame();
+        {
+            PlayerGoldGrants.GrantNewGameGold();
+            if (_tavernUIForNewGame != null)
+                _tavernUIForNewGame.Open(forNewGame: true);
+            else
+                StartNewGame();
+        }
     }
 
     private void Update()
@@ -68,10 +77,13 @@ public class GameSaveManager : MonoBehaviour
 
         var data = new GameSaveData { SaveVersion = CurrentSaveVersion };
         data.Stash = StashManager.Instance != null ? StashManager.Instance.GetSaveData() : new StashSaveData();
+        data.Gold = GoldWallet.Amount;
+        data.Market = MarketManager.EnsureInstance().GetSaveData();
 
         if (_partyManager != null)
         {
-            _partyManager.SaveCurrentToParty();
+            if (_partyManager.HasActiveCharacter)
+                _partyManager.SaveCurrentToParty();
             _partyManager.WriteToSave(data);
         }
         else
@@ -79,6 +91,7 @@ public class GameSaveManager : MonoBehaviour
             data.ActiveCharacterID = _playerStats.CurrentClassID;
             data.Characters.Add(new CharacterSaveData
             {
+                CharacterInstanceID = _playerStats.CurrentClassID,
                 CharacterClassID = _playerStats.CurrentClassID,
                 CurrentHealth = _playerStats.Health.Current,
                 CurrentMana = _playerStats.Mana.Current,
@@ -91,9 +104,22 @@ public class GameSaveManager : MonoBehaviour
             });
         }
 
+        Scripts.Dungeon.DungeonRunUnlocks.WriteToSave(data.DungeonUnlocks);
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(SavePath, json);
         Debug.Log($"[System] Game Saved.");
+    }
+
+    public bool TryAutoSave(string reason = null)
+    {
+        if (!PlaytestConfiguration.AutoSaveEnabled)
+            return false;
+
+        SaveGame();
+        Debug.Log(string.IsNullOrEmpty(reason)
+            ? "[System] Autosave completed."
+            : $"[System] Autosave completed: {reason}.");
+        return true;
     }
 
     public void LoadGame()
@@ -108,35 +134,84 @@ public class GameSaveManager : MonoBehaviour
             if (data.SaveVersion < CurrentSaveVersion)
                 MigrateSaveData(data);
 
+            Scripts.Dungeon.DungeonRunUnlocks.LoadFromSave(data.DungeonUnlocks);
+
             string activeId = !string.IsNullOrEmpty(data.ActiveCharacterID) ? data.ActiveCharacterID : data.CharacterClassID;
-            CharacterDataSO characterData = _characterDB?.GetCharacterByID(activeId);
+            CharacterDataSO characterData = null;
+            CharacterSaveData activeCharacterSave = null;
 
             if (_partyManager != null)
             {
                 _partyManager.LoadFromSave(data, _characterDB, _itemDatabase);
                 activeId = _partyManager.ActiveCharacterID;
+                activeCharacterSave = _partyManager.GetCharacterData(activeId);
+                characterData = _characterDB?.GetCharacterByID(activeCharacterSave?.CharacterClassID);
+
+                if (!_partyManager.HasActiveCharacter)
+                {
+                    if (InventoryManager.Instance != null && _itemDatabase != null)
+                        InventoryManager.Instance.LoadState(new InventorySaveData(), _itemDatabase);
+                    if (StashManager.Instance != null && _itemDatabase != null)
+                        StashManager.Instance.LoadState(data.Stash ?? new StashSaveData(), _itemDatabase);
+
+                    GoldWallet.Set(data.Gold);
+                    MarketManager.EnsureInstance().LoadState(data.Market, _itemDatabase);
+
+                    _tavernUIForNewGame?.OpenForRequiredCharacterSelection();
+                    Debug.Log("[System] Save has no active character. Waiting for a required Tavern selection.");
+                    return;
+                }
+            }
+            else
+            {
                 characterData = _characterDB?.GetCharacterByID(activeId);
+                if (characterData == null && data.Characters != null && data.Characters.Count > 0)
+                {
+                    activeCharacterSave = data.Characters.Find(ch => ch.CharacterInstanceID == activeId)
+                        ?? data.Characters[0];
+                    characterData = _characterDB?.GetCharacterByID(activeCharacterSave?.CharacterClassID);
+                }
             }
 
             if (characterData != null)
             {
                 if (_partyManager != null)
                 {
-                    var chData = _partyManager.GetCharacterData(activeId);
-                    _partyManager.LoadCharacterIntoGame(chData, characterData, _itemDatabase);
+                    _partyManager.LoadCharacterIntoGame(activeCharacterSave, characterData, _itemDatabase);
                 }
                 else
                 {
                     _playerStats.Initialize(characterData);
-                    _playerStats.ApplyLoadedState(data);
+                    if (_passiveTreeManager != null)
+                    {
+                        _passiveTreeManager.IsPreviewMode = false;
+                        _passiveTreeManager.SetTreeData(characterData.PassiveTree);
+                        if (characterData.PassiveTree != null)
+                            _passiveTreeManager.LoadState(data.AllocatedPassiveNodes);
+                    }
+
                     if (InventoryManager.Instance != null && _itemDatabase != null)
-                        InventoryManager.Instance.LoadState(data.Inventory ?? new InventorySaveData(), _itemDatabase);
-                    if (_passiveTreeManager != null && data.AllocatedPassiveNodes != null)
-                        _passiveTreeManager.LoadState(data.AllocatedPassiveNodes);
+                        InventoryManager.Instance.LoadState(data.Inventory ?? new InventorySaveData(), _itemDatabase, applyStatEvents: false);
+
+                    _playerStats.ResyncExternalStatModifiers(
+                        InventoryManager.Instance != null ? InventoryManager.Instance.EquipmentItems : null,
+                        _passiveTreeManager);
+
+                    _playerStats.ApplyLoadedState(data);
+
+                    var skillManager = _playerStats.GetComponent<Scripts.Skills.PlayerSkillManager>();
+                    if (skillManager != null)
+                    {
+                        skillManager.CancelAllSkills();
+                        skillManager.RefreshAllSkills();
+                    }
                 }
 
                 if (StashManager.Instance != null && _itemDatabase != null)
                     StashManager.Instance.LoadState(data.Stash ?? new StashSaveData(), _itemDatabase);
+
+                GoldWallet.Set(data.Gold);
+                MarketManager.EnsureInstance().LoadState(data.Market, _itemDatabase);
 
                 Debug.Log($"[System] Game Loaded.");
             }
@@ -158,8 +233,67 @@ public class GameSaveManager : MonoBehaviour
         {
             File.Delete(SavePath);
             Debug.Log("[System] Save Deleted.");
+            Scripts.Dungeon.DungeonRunUnlocks.Clear();
             StartNewGame();
         }
+    }
+
+    public void HandlePlayerDeath()
+    {
+        if (_handlingPlayerDeath || PlaytestConfiguration.PlayerImmortal)
+            return;
+
+        if (_partyManager == null)
+            _partyManager = FindObjectOfType<CharacterPartyManager>();
+
+        if (_partyManager == null || !_partyManager.HasActiveCharacter)
+        {
+            Debug.LogError("[System] Player death could not remove the active character.");
+            return;
+        }
+
+        _handlingPlayerDeath = true;
+        GamePauseService.ResumeAll();
+        if (InputManager.InputActions != null)
+            InputManager.InputActions.Player.Disable();
+
+        StartCoroutine(PlayerDeathRoutine());
+    }
+
+    private System.Collections.IEnumerator PlayerDeathRoutine()
+    {
+        yield return DeathScreenOverlay.GetOrCreate().PlayDeathSequence(ReturnToHubAfterDeath);
+        _handlingPlayerDeath = false;
+    }
+
+    /// <summary>Собственно перенос в хаб и открытие таверны. Вызывается под чёрным экраном.</summary>
+    private void ReturnToHubAfterDeath()
+    {
+        if (_partyManager == null || !_partyManager.RemoveActiveCharacterAfterDeath())
+        {
+            Debug.LogError("[System] Player death could not remove the active character.");
+            if (InputManager.InputActions != null)
+                InputManager.InputActions.Player.Enable();
+            return;
+        }
+
+        if (InventoryManager.Instance != null && _itemDatabase != null)
+            InventoryManager.Instance.LoadState(new InventorySaveData(), _itemDatabase);
+
+        _playerStats?.ResyncExternalStatModifiers(
+            InventoryManager.Instance != null ? InventoryManager.Instance.EquipmentItems : null,
+            _passiveTreeManager);
+
+        if (Scripts.Dungeon.DungeonController.Instance != null)
+            Scripts.Dungeon.DungeonController.Instance.ReturnToHub();
+
+        SaveGame();
+        if (_tavernUIForNewGame != null)
+            _tavernUIForNewGame.OpenForRequiredCharacterSelection();
+        else if (InputManager.InputActions != null)
+            InputManager.InputActions.Player.Enable();
+
+        Debug.Log("[System] Character died permanently. Returned to Hub and opened Tavern selection.");
     }
 
     private void MigrateSaveData(GameSaveData data)
@@ -192,20 +326,67 @@ public class GameSaveManager : MonoBehaviour
             data.SaveVersion = 2;
             Debug.Log("[System] Save migrated: 1 -> 2 (per-character save).");
         }
+        if (data.SaveVersion == 2)
+        {
+            string oldActiveClassId = data.ActiveCharacterID;
+            if (data.Characters != null)
+            {
+                string migratedActiveInstanceId = null;
+                foreach (var ch in data.Characters)
+                {
+                    if (string.IsNullOrEmpty(ch.CharacterInstanceID))
+                        ch.CharacterInstanceID = System.Guid.NewGuid().ToString("N");
+
+                    if (migratedActiveInstanceId == null && !string.IsNullOrEmpty(oldActiveClassId) && ch.CharacterClassID == oldActiveClassId)
+                        migratedActiveInstanceId = ch.CharacterInstanceID;
+                }
+
+                if (!string.IsNullOrEmpty(migratedActiveInstanceId))
+                    data.ActiveCharacterID = migratedActiveInstanceId;
+                else if (data.Characters.Count > 0)
+                    data.ActiveCharacterID = data.Characters[0].CharacterInstanceID;
+            }
+
+            data.SaveVersion = 3;
+            Debug.Log("[System] Save migrated: 2 -> 3 (character instances support).");
+        }
+        if (data.SaveVersion == 3)
+        {
+            data.SaveVersion = 4;
+            Debug.Log("[System] Save migrated: 3 -> 4 (required character selection support).");
+        }
+        if (data.SaveVersion == 4)
+        {
+            data.SaveVersion = 5;
+            Debug.Log("[System] Save migrated: 4 -> 5 (embedded affix tiers support).");
+        }
+        if (data.SaveVersion == 5)
+        {
+            data.SaveVersion = 6;
+            Debug.Log("[System] Save migrated: 5 -> 6 (dungeon floor unlocks).");
+        }
+        if (data.SaveVersion == 6)
+        {
+            data.SaveVersion = 7;
+            Debug.Log("[System] Save migrated: 6 -> 7 (account gold and market).");
+        }
     }
 
     private void StartNewGame()
     {
+        Scripts.Dungeon.DungeonRunUnlocks.Clear();
         if (_defaultCharacter != null)
         {
             if (_partyManager != null)
             {
-                _partyManager.AddCharacterToParty(_defaultCharacter.ID);
-                _partyManager.SwapToCharacter(_defaultCharacter.ID, _characterDB, _itemDatabase);
+                string instanceId = _partyManager.AddCharacterToParty(_defaultCharacter.ID);
+                _partyManager.SwapToCharacter(instanceId, _characterDB, _itemDatabase);
             }
             else
             {
                 _playerStats.Initialize(_defaultCharacter);
+                _playerStats.Health.RestoreFull();
+                _playerStats.Mana.RestoreFull();
             }
             Debug.Log("[System] Started New Game (Default Character).");
         }

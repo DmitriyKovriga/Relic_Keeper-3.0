@@ -43,8 +43,10 @@ public class PassiveTreeWindowToggle : MonoBehaviour
         Toggle();
     }
 
-    private void Toggle()
+    public void Toggle()
     {
+        if (_manager == null)
+            _manager = FindFirstObjectByType<WindowManager>();
         if (_manager == null || _skillTreeWindow == null) return;
 
         if (_manager.IsOpen(_skillTreeWindow))

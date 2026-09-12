@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 315e7014138af084c8684d313d8ccf63, type: 3}
+  m_Name: RelicOfElevation
+  m_EditorClassIdentifier: 
+  ID: RelicOfElevation
+  Icon: {fileID: 21300000, guid: 10411d261e8b2de458b6b92d507e4f17, type: 3}
+  BaseDropChance: 0.005
+  NameKey: crafting_relic.RelicOfElevation.name
+  DescriptionKey: crafting_relic.RelicOfElevation.description
+  EffectId: create_rare

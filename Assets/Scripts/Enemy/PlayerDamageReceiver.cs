@@ -1,6 +1,9 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Scripts.Stats;
 using Scripts.Combat;
+using Scripts.Configuration;
+using Scripts.GameplayEvents;
+using Scripts.Dungeon;
 
 namespace Scripts.Enemies
 {
@@ -9,48 +12,202 @@ namespace Scripts.Enemies
     {
         private PlayerStats _stats;
         private PlayerAttackInput _attackInput;
+        private MysticShieldController _mysticShield;
 
         private void Awake()
         {
             _stats = GetComponent<PlayerStats>();
             _attackInput = GetComponent<PlayerAttackInput>();
+            _mysticShield = GetComponent<MysticShieldController>();
         }
 
         public void TakeDamage(DamageSnapshot damage)
         {
+            TakeDamageDetailed(damage);
+        }
+
+        public DamageResolution TakeDamageDetailed(DamageSnapshot damage)
+        {
+            DamageResolution result = new DamageResolution();
             if (damage == null)
-                return;
+                return result;
+
+            float enemyDamageMultiplier = ResolveEnemyDamageMultiplier(damage.Source);
+            result.RawPhysical = Mathf.Max(0f, damage.Physical * enemyDamageMultiplier);
+            result.RawFire = Mathf.Max(0f, damage.Fire * enemyDamageMultiplier);
+            result.RawCold = Mathf.Max(0f, damage.Cold * enemyDamageMultiplier);
+            result.RawLightning = Mathf.Max(0f, damage.Lightning * enemyDamageMultiplier);
+
+            if (PlaytestConfiguration.PlayerImmortal)
+            {
+                result.WasImmune = true;
+                return result;
+            }
 
             if (_attackInput == null)
                 _attackInput = GetComponent<PlayerAttackInput>();
             if (_attackInput != null && _attackInput.IsDamageImmune)
+            {
+                result.WasImmune = true;
+                GameplayEventBus.Raise(
+                    GameplayEventType.Evaded,
+                    source: GameplayEventContext.ResolveGameObject(damage.Source),
+                    target: gameObject,
+                    damage: damage);
+                return result;
+            }
+
+            if (_stats == null)
+                _stats = GetComponent<PlayerStats>();
+            if (_stats == null || _stats.Health == null)
+                return result;
+
+            result.HealthBefore = _stats.Health.Current;
+
+            float physical = result.RawPhysical;
+            result.PhysicalResist = ArmorMitigation.ResolveTotalPhysicalResist(
+                _stats,
+                out result.Armor,
+                out result.ArmorPhysicalResist,
+                out result.StatPhysicalResist,
+                out result.MaxPhysicalResist);
+            physical *= 1f - (result.PhysicalResist / 100f);
+            result.PhysicalAfterResist = Mathf.Max(0f, physical);
+
+            float maxFireRes = _stats.GetValue(StatType.MaxFireResist);
+            float maxColdRes = _stats.GetValue(StatType.MaxColdResist);
+            float maxLightningRes = _stats.GetValue(StatType.MaxLightningResist);
+            result.FireResist = Mathf.Clamp(_stats.GetValue(StatType.FireResist), -200f, maxFireRes <= 0 ? 75f : maxFireRes);
+            result.ColdResist = Mathf.Clamp(_stats.GetValue(StatType.ColdResist), -200f, maxColdRes <= 0 ? 75f : maxColdRes);
+            result.LightningResist = Mathf.Clamp(_stats.GetValue(StatType.LightningResist), -200f, maxLightningRes <= 0 ? 75f : maxLightningRes);
+
+            result.FireAfterResist = Mathf.Max(0f, result.RawFire * (1f - result.FireResist / 100f));
+            result.ColdAfterResist = Mathf.Max(0f, result.RawCold * (1f - result.ColdResist / 100f));
+            result.LightningAfterResist = Mathf.Max(0f, result.RawLightning * (1f - result.LightningResist / 100f));
+
+            float total = Mathf.Max(0f, result.PhysicalAfterResist + result.FireAfterResist + result.ColdAfterResist + result.LightningAfterResist);
+            result.TotalBeforeMysticShield = total;
+
+            if (_mysticShield == null)
+                MysticShieldController.TryResolve(transform, out _mysticShield);
+            if (_mysticShield != null)
+            {
+                result.MysticShieldMaxCharges = _mysticShield.MaxCharges;
+                result.MysticShieldChargesBefore = _mysticShield.CurrentCharges;
+                result.MysticShieldMitigationPercent = _mysticShield.MitigationPercent;
+                total = _mysticShield.ApplyMitigation(total);
+                result.MysticShieldChargesAfter = _mysticShield.CurrentCharges;
+                result.MysticShieldConsumed = result.MysticShieldChargesAfter < result.MysticShieldChargesBefore;
+            }
+
+            result.TotalBeforeDamageTaken = total;
+            total = DamageTakenCalculator.Apply(
+                total,
+                _stats,
+                transform,
+                out result.DamageTakenStatMultiplier,
+                out result.DamageTakenShockMultiplier,
+                out result.DamageTakenTotalMultiplier);
+            result.TotalAfterDamageTaken = total;
+
+            result.FinalDamage = Mathf.Max(0f, total);
+            if (result.FinalDamage > 0f)
+            {
+                _stats.Health.Decrease(result.FinalDamage);
+                GameplayEventBus.Raise(
+                    GameplayEventType.DamageTaken,
+                    source: GameplayEventContext.ResolveGameObject(damage.Source),
+                    target: gameObject,
+                    amount: result.FinalDamage,
+                    damage: damage);
+            }
+
+            result.HealthAfter = _stats.Health.Current;
+            result.FinalHealthDelta = Mathf.Max(0f, result.HealthBefore - result.HealthAfter);
+            return result;
+        }
+
+        public void ApplyPureDamage(float amount, object source, string damageType = "Pure")
+        {
+            if (PlaytestConfiguration.PlayerImmortal)
                 return;
 
             if (_stats == null)
                 _stats = GetComponent<PlayerStats>();
-            if (_stats == null)
+            if (_stats == null || _stats.Health == null)
                 return;
 
-            float physical = damage.Physical;
-            float armor = _stats.GetValue(StatType.Armor);
-            if (armor > 0f && physical > 0f)
-                physical = Mathf.Max(0f, physical - (armor * 0.1f));
-
-            float physicalRes = Mathf.Clamp(_stats.GetValue(StatType.PhysicalResist), -200f, _stats.GetValue(StatType.MaxPhysicalResist) <= 0 ? 90f : _stats.GetValue(StatType.MaxPhysicalResist));
-            physical *= 1f - (physicalRes / 100f);
-
-            float fireRes = Mathf.Clamp(_stats.GetValue(StatType.FireResist), -200f, _stats.GetValue(StatType.MaxFireResist) <= 0 ? 75f : _stats.GetValue(StatType.MaxFireResist));
-            float coldRes = Mathf.Clamp(_stats.GetValue(StatType.ColdResist), -200f, _stats.GetValue(StatType.MaxColdResist) <= 0 ? 75f : _stats.GetValue(StatType.MaxColdResist));
-            float lightRes = Mathf.Clamp(_stats.GetValue(StatType.LightningResist), -200f, _stats.GetValue(StatType.MaxLightningResist) <= 0 ? 75f : _stats.GetValue(StatType.MaxLightningResist));
-
-            float fire = damage.Fire * (1f - fireRes / 100f);
-            float cold = damage.Cold * (1f - coldRes / 100f);
-            float light = damage.Lightning * (1f - lightRes / 100f);
-            float total = Mathf.Max(0f, physical + fire + cold + light);
-            if (total <= 0f)
+            float finalDamage = DamageTakenCalculator.Apply(
+                Mathf.Max(0f, amount) * ResolveEnemyDamageMultiplier(source),
+                _stats,
+                transform,
+                out _,
+                out _,
+                out _);
+            if (finalDamage <= 0f)
                 return;
 
-            _stats.Health.Decrease(total);
+            var damage = new DamageSnapshot(source)
+            {
+                Physical = finalDamage
+            };
+
+            _stats.Health.Decrease(finalDamage);
+            GameplayEventBus.Raise(
+                GameplayEventType.DamageTaken,
+                source: GameplayEventContext.ResolveGameObject(source),
+                target: gameObject,
+                amount: finalDamage,
+                damage: damage);
+
+            if (FloatingTextManager.Instance != null)
+                FloatingTextManager.Instance.Show(finalDamage, false, damageType, transform.position);
+        }
+
+        private static float ResolveEnemyDamageMultiplier(object source)
+        {
+            GameObject sourceObject = GameplayEventContext.ResolveGameObject(source);
+            bool comesFromEnemy = sourceObject != null && sourceObject.GetComponentInParent<EnemyEntity>() != null;
+            if (!comesFromEnemy || DungeonController.Instance == null || DungeonController.Instance.CurrentModifiers == null)
+                return 1f;
+
+            return DungeonController.Instance.CurrentModifiers.EnemyDamageDealtMultiplier;
+        }
+
+        public struct DamageResolution
+        {
+            public bool WasImmune;
+            public float RawPhysical;
+            public float RawFire;
+            public float RawCold;
+            public float RawLightning;
+            public float Armor;
+            public float ArmorPhysicalResist;
+            public float StatPhysicalResist;
+            public float MaxPhysicalResist;
+            public float PhysicalResist;
+            public float PhysicalAfterResist;
+            public float FireResist;
+            public float FireAfterResist;
+            public float ColdResist;
+            public float ColdAfterResist;
+            public float LightningResist;
+            public float LightningAfterResist;
+            public float TotalBeforeMysticShield;
+            public int MysticShieldMaxCharges;
+            public int MysticShieldChargesBefore;
+            public int MysticShieldChargesAfter;
+            public float MysticShieldMitigationPercent;
+            public bool MysticShieldConsumed;
+            public float TotalBeforeDamageTaken;
+            public float DamageTakenStatMultiplier;
+            public float DamageTakenShockMultiplier;
+            public float DamageTakenTotalMultiplier;
+            public float TotalAfterDamageTaken;
+            public float FinalDamage;
+            public float FinalHealthDelta;
+            public float HealthBefore;
+            public float HealthAfter;
         }
     }
 }

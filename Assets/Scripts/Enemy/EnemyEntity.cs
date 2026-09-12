@@ -1,5 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Rendering;
+using Scripts.Visuals;
+using Scripts.StatusEffects;
+using Scripts.Stats;
 
 namespace Scripts.Enemies
 {
@@ -9,6 +12,8 @@ namespace Scripts.Enemies
     {
         private const int PlayerLayer = 0;
         private const int EnemyLayer = 7;
+        private const int EnemyRenderOrderStride = 8;
+        private static int s_nextEnemyRenderOrderOffset;
 
         [Header("Config")]
         [SerializeField] private EnemyDataSO _defaultData;
@@ -21,9 +26,13 @@ namespace Scripts.Enemies
         private EnemyAttackController _attack;
         private EnemyAnimationBridge _animation;
         private EnemyBrain _brain;
+        private EnemyStunController _stun;
+        private EnemyFreezeController _freeze;
         private Transform _visualRoot;
         private SpriteRenderer _visualRenderer;
         private bool _isInitialized;
+        private bool _hasRenderOrderOffset;
+        private int _renderOrderOffset;
         private static bool s_collisionMatrixConfigured;
 
         public EnemyDataSO Data => _defaultData;
@@ -54,7 +63,7 @@ namespace Scripts.Enemies
 
             EnsureCoreComponents();
             EnsureRuntimeComponents(data);
-
+            GetComponent<StatusEffectController>()?.ResetAll();
             _stats.Initialize(data, _level);
             _health.Initialize();
             _sensor.Initialize(this, data);
@@ -62,6 +71,7 @@ namespace Scripts.Enemies
             _attack.Initialize(this, data);
             _animation.Initialize(this, data);
             _brain.Initialize(this, data);
+            _stun.Initialize(data);
 
             name = $"[{_level}] {data.DisplayName}";
             _isInitialized = true;
@@ -88,6 +98,26 @@ namespace Scripts.Enemies
         private void EnsureRuntimeComponents(EnemyDataSO data)
         {
             EnsureVisualRoot(data);
+
+            if (GetComponent<GroundingVisualController>() == null)
+                gameObject.AddComponent<GroundingVisualController>();
+
+            if (GetComponent<StatusEffectController>() == null)
+                gameObject.AddComponent<StatusEffectController>();
+
+            if (GetComponent<MysticShieldController>() == null)
+                gameObject.AddComponent<MysticShieldController>();
+
+            _stun = GetComponent<EnemyStunController>();
+            if (_stun == null)
+                _stun = gameObject.AddComponent<EnemyStunController>();
+
+            if (GetComponent<EnemyStunVfxOverlay>() == null)
+                gameObject.AddComponent<EnemyStunVfxOverlay>();
+
+            _freeze = GetComponent<EnemyFreezeController>();
+            if (_freeze == null)
+                _freeze = gameObject.AddComponent<EnemyFreezeController>();
 
             _sensor = GetComponent<EnemySensor2D>();
             if (_sensor == null)
@@ -164,12 +194,22 @@ namespace Scripts.Enemies
 
         private void ConfigureRendererDefaults()
         {
-            var sr = EnsureVisualRenderer(_defaultData);
-            if (sr == null)
-                return;
+            var sorter = GetComponent<WorldDepthSort>();
+            if (sorter == null)
+                sorter = gameObject.AddComponent<WorldDepthSort>();
 
-            if (sr.sortingLayerID == 0)
-                sr.sortingOrder = Mathf.Max(sr.sortingOrder, 10);
+            sorter.ConfigureFixed(RenderDepthCategory.Enemy, GetOrAllocateRenderOrderOffset());
+        }
+
+        private int GetOrAllocateRenderOrderOffset()
+        {
+            if (_hasRenderOrderOffset)
+                return _renderOrderOffset;
+
+            _renderOrderOffset = s_nextEnemyRenderOrderOffset;
+            s_nextEnemyRenderOrderOffset += EnemyRenderOrderStride;
+            _hasRenderOrderOffset = true;
+            return _renderOrderOffset;
         }
 
         private static void EnsureCharacterCollisionRules()
@@ -203,17 +243,24 @@ namespace Scripts.Enemies
             if (collider == null)
                 return;
 
-            const int groundLayerMask = 1 << 6;
+            int groundLayerMask = 1 << 6;
+            int oneWayPlatformLayer = LayerMask.NameToLayer("OneWayPlatform");
+            if (oneWayPlatformLayer >= 0)
+                groundLayerMask |= 1 << oneWayPlatformLayer;
+
             Bounds bounds = collider.bounds;
-            Vector2 castOrigin = new Vector2(bounds.center.x, bounds.center.y + 0.05f);
-            Vector2 castSize = new Vector2(Mathf.Max(0.05f, bounds.size.x * 0.9f), Mathf.Max(0.05f, bounds.size.y));
-            RaycastHit2D hit = Physics2D.BoxCast(castOrigin, castSize, 0f, Vector2.down, 2f, groundLayerMask);
+            Vector2 rayOrigin = new Vector2(transform.position.x, transform.position.y);
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, 6f, groundLayerMask);
             if (hit.collider == null)
+                return;
+            if (hit.normal.y < 0.55f)
                 return;
 
             float desiredBottomY = hit.point.y + 0.01f;
             float currentBottomY = bounds.min.y;
             float deltaY = desiredBottomY - currentBottomY;
+            if (deltaY > 0.001f)
+                return;
             if (Mathf.Abs(deltaY) < 0.001f)
                 return;
 
@@ -286,3 +333,4 @@ namespace Scripts.Enemies
         }
     }
 }
+

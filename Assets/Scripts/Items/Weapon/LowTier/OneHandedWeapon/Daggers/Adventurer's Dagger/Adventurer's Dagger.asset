@@ -17,14 +17,15 @@ MonoBehaviour:
   Icon: {fileID: 21300000, guid: dbb8e5d452786cc42925ba05664b52e4, type: 3}
   Width: 1
   Height: 2
-  Slot: 0
+  Slot: 2
   DropLevel: 1
   ImplicitModifiers:
   - Stat: 51
     Value: 50
     Type: 200
     Scope: 1
-  SkillPool: {fileID: 0}
+  AffixPool: {fileID: 11400000, guid: d45fbf078e021434b97e3cefbca0f78a, type: 2}
+  SkillPool: {fileID: 11400000, guid: f7ee0a84d4564084397cd7341f3542bf, type: 2}
   SkillCount: 1
   IsTwoHanded: 0
   InHandSprite: {fileID: 0}

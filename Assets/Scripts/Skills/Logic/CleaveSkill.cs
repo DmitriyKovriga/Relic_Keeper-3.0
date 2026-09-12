@@ -92,9 +92,7 @@ namespace Scripts.Skills
 
         private void CalculateSkillStats()
         {
-            _currentAps = _ownerStats.GetValue(StatType.AttackSpeed);
-            if (_currentAps <= 0f)
-                _currentAps = 1f;
+            _currentAps = ResolveActionSpeed();
 
             _currentDuration = 1f / _currentAps;
             _currentAoe = 1f + (_ownerStats.GetValue(StatType.AreaOfEffect) / 100f);

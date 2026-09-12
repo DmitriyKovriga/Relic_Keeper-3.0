@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f012c5ec840dd543becc6dccbf857b4, type: 3}
+  m_Name: GlovesArmorePool
+  m_EditorClassIdentifier: 
+  Slot: 0
+  DefenseType: 1
+  Affixes:
+  - {fileID: 11400000, guid: 8711bf5bba301a14e8866ba12113f2ab, type: 2}
+  - {fileID: 11400000, guid: 0cd7d853f0d9f424787050f594dd73e2, type: 2}
+  - {fileID: 11400000, guid: f25192ba988aac34cb1252427b5487eb, type: 2}
+  - {fileID: 11400000, guid: 39dc5b079f47beb45b1dfa6dfc294a5f, type: 2}
+  - {fileID: 11400000, guid: 6086df3472524004198af3d676ed7f3a, type: 2}
+  - {fileID: 11400000, guid: d6777b154fcf0fe4dadbf4165a920d7a, type: 2}
+  - {fileID: 11400000, guid: 2bf3654ae38f4fb46a9ef50b9d03d4ff, type: 2}
+  - {fileID: 11400000, guid: 5349ae494e72c994ca59329f29641f56, type: 2}
+  - {fileID: 11400000, guid: 26c7cafffc468144bad65d5d9caf773b, type: 2}
+  - {fileID: 11400000, guid: e957245934d442548a5c0ab389451f50, type: 2}
+  - {fileID: 11400000, guid: e504cc3d638af0846a90c9806008e5f1, type: 2}
+  - {fileID: 11400000, guid: ea3bcd0c3f469ba44a6d57308ce7231b, type: 2}
+  - {fileID: 11400000, guid: 5c849dc3339481c42a99a142bf6fed6c, type: 2}
+  - {fileID: 11400000, guid: c5fb7ba2ee0810f46891c002f5f2ee06, type: 2}
+  - {fileID: 11400000, guid: 9573b3d9e59e3d648bb96eb26d32c08e, type: 2}
+  - {fileID: 11400000, guid: 3e52664d44e63ea4f8c5000867c59a94, type: 2}
+  - {fileID: 11400000, guid: 467787c7a53af6b4191af76d6ac27cec, type: 2}
+  - {fileID: 11400000, guid: 20d1de9c73c49c14d9ae62cc134a083a, type: 2}
+  - {fileID: 11400000, guid: c17584eaddd07bf43a81a68dfdfae32d, type: 2}
+  - {fileID: 11400000, guid: 18cc1e7f1113c3340972d0f4389f73c7, type: 2}

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
+  m_Name: SmallLifeRegen
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
+  Name: SmallLifeRegen
+  Description: 
+  Icon: {fileID: 7953879011634251565, guid: a7da671e14defad44bfe503eb95bdc2e, type: 3}
+  Modifiers:
+  - Stat: 1
+    Value: 1
+    Type: 100

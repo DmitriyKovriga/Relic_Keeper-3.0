@@ -47,7 +47,7 @@ namespace Scripts.Editor.PassiveTree
         /// </summary>
         public Vector2 ViewportToContentPosition(Vector2 viewportPos)
         {
-            Vector2 contentPos = new Vector2(_content.resolvedStyle.left, _content.resolvedStyle.top);
+            Vector2 contentPos = GetContentViewportPosition();
             return (viewportPos - contentPos) / _zoom;
         }
 
@@ -129,8 +129,8 @@ namespace Scripts.Editor.PassiveTree
             _zoom = Mathf.Clamp(_zoom * zoomDelta, MinZoom, MaxZoom);
             if (Mathf.Approximately(oldZoom, _zoom)) return;
 
-            Vector2 mousePosInViewport = evt.localMousePosition;
-            Vector2 oldContainerPos = new Vector2(_content.resolvedStyle.left, _content.resolvedStyle.top);
+            Vector2 mousePosInViewport = GetWheelPositionInViewport(evt);
+            Vector2 oldContainerPos = GetContentViewportPosition();
             Vector2 mousePosInContainer = (mousePosInViewport - oldContainerPos) / oldZoom;
 
             _content.transform.scale = Vector3.one * _zoom;
@@ -139,6 +139,50 @@ namespace Scripts.Editor.PassiveTree
             _content.style.top = newContainerPos.y;
 
             evt.StopPropagation();
+            evt.PreventDefault();
+        }
+
+        private Vector2 GetWheelPositionInViewport(WheelEvent evt)
+        {
+            Vector2 local = evt.localMousePosition;
+            if (IsUsableViewportPosition(local))
+                return local;
+
+            Vector2 world = _viewport.WorldToLocal(evt.mousePosition);
+            if (IsUsableViewportPosition(world))
+                return world;
+
+            return local;
+        }
+
+        private bool IsUsableViewportPosition(Vector2 position)
+        {
+            if (float.IsNaN(position.x) || float.IsNaN(position.y))
+                return false;
+
+            float width = _viewport.resolvedStyle.width;
+            float height = _viewport.resolvedStyle.height;
+            if (width <= 0f || height <= 0f)
+                return true;
+
+            const float tolerance = 64f;
+            return position.x >= -tolerance &&
+                   position.y >= -tolerance &&
+                   position.x <= width + tolerance &&
+                   position.y <= height + tolerance;
+        }
+
+        private Vector2 GetContentViewportPosition()
+        {
+            float left = _content.resolvedStyle.left;
+            float top = _content.resolvedStyle.top;
+
+            if (float.IsNaN(left))
+                left = _content.layout.x;
+            if (float.IsNaN(top))
+                top = _content.layout.y;
+
+            return new Vector2(left, top);
         }
     }
 }

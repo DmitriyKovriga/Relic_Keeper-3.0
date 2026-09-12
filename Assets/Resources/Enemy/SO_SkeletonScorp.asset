@@ -1,0 +1,154 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c880423b817041f408a51e5192873482, type: 3}
+  m_Name: SO_SkeletonScorp
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Enemies.EnemyDataSO
+  ID: Skeleton Scorpion
+  DisplayName: Skeleton Scorpion
+  Prefab: {fileID: 3239475662571640954, guid: bb181fe8ba7b4aee96428cec455996ff, type: 3}
+  AIType: 1
+  BaseStats:
+  - Type: 0
+    Value: 100
+  - Type: 30
+    Value: 10
+  - Type: 18
+    Value: 0
+  - Type: 20
+    Value: 0
+  - Type: 22
+    Value: 0
+  - Type: 24
+    Value: 0
+  Stats:
+  - Type: 0
+    BaseValue: 100
+    ScalingMode: 2
+    ScalingValue: 22
+  - Type: 30
+    BaseValue: 10
+    ScalingMode: 2
+    ScalingValue: 26
+  - Type: 18
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 20
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 22
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 24
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  Perception:
+    AggroRange: 9
+    LoseTargetRange: 12
+    RequireLineOfSight: 0
+    AggroMemoryDuration: 3.5
+    AlertLoseTargetRangeMultiplier: 1.5
+    IgnoreLineOfSightWhileAlerted: 1
+  Movement:
+    MoveSpeed: 1.75
+    StopDistance: 1
+    Acceleration: 20
+    CanJump: 0
+    CanUseJumpLinks: 0
+    CanFallFromPlatform: 0
+    JumpForce: 8
+    GroundCheckDistance: 0.15
+    WallCheckDistance: 0.2
+    LedgeCheckDistance: 0.35
+  Attack:
+    DeliveryType: 0
+    DamageType: 0
+    AttackRange: 1.25
+    AttackCooldown: 1.15
+    Windup: 0.45
+    ActiveTime: 0.08
+    Recovery: 0.32
+    DamageMultiplier: 1.15
+    HitboxSize: {x: 1.45, y: 0.9}
+    HitboxOffset: {x: 0.7, y: 0}
+    ProjectileVisualResourcePath: 
+    ProjectileSpawnOffset: {x: 0, y: 0.15}
+    ProjectileSpeed: 6
+    ProjectileLifetime: 8
+    ProjectileHitRadius: 0.22
+    ProjectileAnimationFps: 10
+    ProjectileStopsOnGround: 1
+  Behaviour:
+    DecisionIntervalMin: 0.08
+    DecisionIntervalMax: 0.16
+    ActionHesitationMin: 0.08
+    ActionHesitationMax: 0.16
+    PostActionPauseMin: 1
+    PostActionPauseMax: 3
+    StopDistanceVariance: 0.08
+    TurnDelayMin: 0.02
+    TurnDelayMax: 0.05
+    MissRecoveryMultiplier: 1.1
+  Burrow:
+    Enabled: 1
+    TriggerMinDistance: 1.6
+    Cooldown: 10
+    ExitOffsetRadius: 0.28
+    HiddenDelay: 0.04
+    PostExitPause: 0.1
+    DestinationSearchHeight: 3.5
+    DestinationSearchDepth: 6
+  DeathEffect:
+    Enabled: 1
+    ChunkCount: 6
+    ChunkHorizontalForce: 3.4
+    ChunkVerticalForce: 5.2
+    BloodHorizontalSpread: 0.7
+    BloodVerticalSpread: 0.95
+    Lifetime: 30
+    FadeDuration: 5.5
+    GravityScale: 3.15
+    ChunkLinearDamping: 1.35
+    ChunkAngularDamping: 1.1
+    RestCheckDelay: 0.3
+    RestVelocityThreshold: 0.18
+    RestAngularVelocityThreshold: 8
+    BloodColor: {r: 0.48, g: 0.03, b: 0.06, a: 1}
+    GoreColor: {r: 0.23, g: 0.025, b: 0.035, a: 1}
+  Animation:
+    Controller: {fileID: 0}
+    IdleStateName: Idle
+    MoveStateName: Walk
+    AttackStateName: Attack
+    HitStateName: Hit
+    DigInStateName: DigIn
+    DigOutStateName: DigOut
+    IdleSpritesResourcePath: Enemy/SkeletonScrorpResources/bonescorp idle-Sheet
+    MoveSpritesResourcePath: Enemy/SkeletonScrorpResources/bonescorp walk-Sheet
+    AttackSpritesResourcePath: Enemy/SkeletonScrorpResources/bonescorp attack-Sheet
+    HitSpritesResourcePath: Enemy/SkeletonScrorpResources/bonescorp take-damage-Sheet
+    DigInSpritesResourcePath: Enemy/SkeletonScrorpResources/bonescorp digin-Sheet
+    DigOutSpritesResourcePath: Enemy/SkeletonScrorpResources/bonescorp digout-Sheet
+    InvertFacingX: 1
+    IdleFps: 8
+    MoveFps: 8
+    AttackFps: 12
+    HitFps: 14
+    DigInFps: 18
+    DigOutFps: 15
+    AttackImpactFrame: 5
+  XPReward: 6.6
+  LootDropMultiplier: 1
+  LegacyGrowthPerLevelPercent: 25

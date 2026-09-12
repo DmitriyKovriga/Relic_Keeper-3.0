@@ -1,4 +1,4 @@
-// ==========================================
+﻿// ==========================================
 // FILENAME: Assets/UI/SettingsUI/ControlsEditorConfig.cs
 // ==========================================
 using UnityEngine;
@@ -7,42 +7,57 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// Одна запись для отображения в окне настроек управлений.
-/// Локализация: ключ в MenuLabels = "input.{actionName}" (EN/RU).
+/// One row shown in the controls settings UI.
+/// Localization key is MenuLabels: input.{actionName}.
 /// </summary>
 [Serializable]
 public class ControlEntry
 {
-    [Tooltip("Имя действия в карте Player (например Jump, OpenInventory).")]
+    [Tooltip("Action name in the Player map, for example Jump or OpenInventory.")]
     public string actionName = "";
 
-    [Tooltip("Порядок строк в окне настроек (меньше = выше).")]
+    [Tooltip("Sort order in settings. Lower value is shown earlier.")]
     public int displayOrder;
 
-    [Tooltip("Показывать ли в окне Controls.")]
+    [Tooltip("Whether this action is shown in the controls settings window.")]
     public bool showInSettings = true;
 
-    [Tooltip("Дефолтный бинд при первом запуске (нет сейва). Например: <Keyboard>/space")]
+    [Tooltip("Default binding used when the player has no saved rebinds yet. Example: <Keyboard>/space")]
     public string defaultBindingPath = "";
 
-    /// <summary> Ключ локализации: input.{actionName}. </summary>
+    /// <summary>Localization key: input.{actionName}</summary>
     public string LocalizationKey => string.IsNullOrEmpty(actionName) ? "" : "input." + actionName;
+
+    public static int GetFirstBindableBindingIndex(InputAction action)
+    {
+        if (action == null)
+            return -1;
+
+        for (int i = 0; i < action.bindings.Count; i++)
+        {
+            InputBinding binding = action.bindings[i];
+            if (binding.isComposite || binding.isPartOfComposite)
+                continue;
+
+            return i;
+        }
+
+        return -1;
+    }
 }
 
 /// <summary>
-/// Конфиг окна настроек управлений: список действий, порядок, связка с InputActionAsset.
-/// Редактор (Controls Editor) заполняет список и локали EN/RU в MenuLabels по ключу input.{actionName}.
+/// Controls editor config: visible action list, order, and the linked InputActionAsset.
 /// </summary>
 [CreateAssetMenu(fileName = "ControlsEditorConfig", menuName = "Relic Keeper/Controls Editor Config", order = 0)]
 public class ControlsEditorConfig : ScriptableObject
 {
-    [Tooltip("Asset с действиями (InputSystem_Actions).")]
+    [Tooltip("InputSystem_Actions asset.")]
     public InputActionAsset inputActionAsset;
 
-    [Tooltip("Список действий для отображения в настройках. Редактор синхронизирует с картой Player.")]
+    [Tooltip("Entries displayed and edited through Controls Editor.")]
     public List<ControlEntry> entries = new List<ControlEntry>();
 
-    /// <summary> Действия с showInSettings, отсортированные по displayOrder. </summary>
     public List<ControlEntry> GetVisibleEntries()
     {
         var list = new List<ControlEntry>(entries);
@@ -51,19 +66,31 @@ public class ControlsEditorConfig : ScriptableObject
         return list;
     }
 
-    /// <summary> Применить дефолтные бинды из конфига (когда нет сейва). </summary>
+    /// <summary>Apply config defaults when there is no saved rebind file.</summary>
     public void ApplyDefaultBindings(InputActionAsset targetAsset = null)
     {
         var assetToApply = targetAsset != null ? targetAsset : inputActionAsset;
-        if (assetToApply == null) return;
+        if (assetToApply == null)
+            return;
+
         var map = assetToApply.FindActionMap("Player");
-        if (map == null) return;
+        if (map == null)
+            return;
+
         foreach (var e in entries)
         {
-            if (string.IsNullOrEmpty(e.actionName) || string.IsNullOrEmpty(e.defaultBindingPath)) continue;
+            if (string.IsNullOrEmpty(e.actionName) || string.IsNullOrEmpty(e.defaultBindingPath))
+                continue;
+
             var action = map.FindAction(e.actionName);
-            if (action != null)
-                action.ApplyBindingOverride(0, e.defaultBindingPath);
+            if (action == null)
+                continue;
+
+            int bindingIndex = ControlEntry.GetFirstBindableBindingIndex(action);
+            if (bindingIndex >= 0)
+                action.ApplyBindingOverride(bindingIndex, e.defaultBindingPath);
+            else
+                action.AddBinding(e.defaultBindingPath);
         }
     }
 }

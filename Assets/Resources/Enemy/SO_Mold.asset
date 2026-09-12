@@ -45,7 +45,7 @@ MonoBehaviour:
   - Type: 0
     BaseValue: 80
     ScalingMode: 2
-    ScalingValue: 16
+    ScalingValue: 22
   - Type: 14
     BaseValue: 0
     ScalingMode: 0
@@ -73,7 +73,7 @@ MonoBehaviour:
   - Type: 33
     BaseValue: 14
     ScalingMode: 2
-    ScalingValue: 12
+    ScalingValue: 26
   - Type: 18
     BaseValue: 0
     ScalingMode: 0
@@ -94,6 +94,9 @@ MonoBehaviour:
     AggroRange: 11
     LoseTargetRange: 14
     RequireLineOfSight: 0
+    AggroMemoryDuration: 3
+    AlertLoseTargetRangeMultiplier: 1.45
+    IgnoreLineOfSightWhileAlerted: 1
   Movement:
     MoveSpeed: 0
     StopDistance: 0.85
@@ -124,10 +127,12 @@ MonoBehaviour:
     ProjectileAnimationFps: 10
     ProjectileStopsOnGround: 0
   Behaviour:
-    DecisionIntervalMin: 0.12
-    DecisionIntervalMax: 0.2
-    PostActionPauseMin: 0.08
-    PostActionPauseMax: 0.14
+    DecisionIntervalMin: 0.14
+    DecisionIntervalMax: 0.24
+    ActionHesitationMin: 0.12
+    ActionHesitationMax: 0.22
+    PostActionPauseMin: 1
+    PostActionPauseMax: 3
     StopDistanceVariance: 0
     TurnDelayMin: 0.02
     TurnDelayMax: 0.05
@@ -157,9 +162,12 @@ MonoBehaviour:
     IdleSpritesResourcePath: Enemy/MoldResources/mold_idle-Sheet
     MoveSpritesResourcePath: Enemy/MoldResources/mold_walk-Sheet
     AttackSpritesResourcePath: Enemy/MoldResources/mold_attack-Sheet
+    GroundShadowOffset: {x: 0, y: 0}
+    GroundShadowWidthScale: 1.2
     IdleFps: 6
     MoveFps: 7
     AttackFps: 10
     AttackImpactFrame: -1
-  XPReward: 28
+  XPReward: 8.4
+  LootDropMultiplier: 1
   LegacyGrowthPerLevelPercent: 25

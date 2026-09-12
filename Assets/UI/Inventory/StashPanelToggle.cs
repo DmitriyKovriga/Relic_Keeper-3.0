@@ -1,3 +1,4 @@
+using Scripts.Configuration;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -63,15 +64,44 @@ public class StashPanelToggle : MonoBehaviour
         if (_inventoryUI == null) _inventoryUI = GetComponentInChildren<InventoryUI>(true);
         if (_inventoryUI == null) return;
 
-        if (_inventoryUI.IsStashVisible)
+        if (_inventoryUI.IsStashVisible || _inventoryUI.IsMarketVisible)
         {
             _inventoryUI.SetStashPanelVisible(false);
             return;
         }
 
+        // В билде склад открывается только через NPC в хабе, хоткей там не работает.
+        if (!PlaytestConfiguration.StashAlwaysAvailable)
+            return;
+
+        OpenStash();
+    }
+
+    /// <summary>Открыть склад в обход хоткея — используется NPC склада в хабе.</summary>
+    public void OpenStash()
+    {
+        if (_inventoryUI == null) _inventoryUI = GetComponentInChildren<InventoryUI>(true);
+        if (_inventoryUI == null) return;
+        if (_manager == null) _manager = Object.FindFirstObjectByType<WindowManager>();
+        if (_inventoryWindow == null) _inventoryWindow = GetComponentInChildren<WindowView>(true);
+
         if (_openInventoryWhenOpeningStash && _inventoryWindow != null && _manager != null && !_manager.IsOpen(_inventoryWindow))
             _manager.OpenWindow(_inventoryWindow);
 
         _inventoryUI.SetStashPanelVisible(true);
+    }
+
+    /// <summary>Открыть рынок в обход хоткея — используется NPC торговца в хабе.</summary>
+    public void OpenMarket()
+    {
+        if (_inventoryUI == null) _inventoryUI = GetComponentInChildren<InventoryUI>(true);
+        if (_inventoryUI == null) return;
+        if (_manager == null) _manager = Object.FindFirstObjectByType<WindowManager>();
+        if (_inventoryWindow == null) _inventoryWindow = GetComponentInChildren<WindowView>(true);
+
+        if (_openInventoryWhenOpeningStash && _inventoryWindow != null && _manager != null && !_manager.IsOpen(_inventoryWindow))
+            _manager.OpenWindow(_inventoryWindow);
+
+        _inventoryUI.SetMarketPanelVisible(true);
     }
 }

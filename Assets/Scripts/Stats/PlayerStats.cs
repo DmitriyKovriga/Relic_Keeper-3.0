@@ -4,10 +4,14 @@ using System.Collections.Generic;
 using Scripts.Stats;
 using Scripts.Inventory;
 using Scripts.Saving;
+using Scripts.StatusEffects;
+using Scripts.Skills.PassiveTree;
+using Scripts.GameplayEvents;
 
 public class PlayerStats : MonoBehaviour, IStatsProvider
 {
     public event Action OnAnyStatChanged;
+    public event Action<CharacterDataSO> OnCharacterDataChanged;
     // --- НОВОЕ СОБЫТИЕ: Сообщает, что объект LevelingSystem был пересоздан ---
     public event Action OnLevelingInitialized; 
 
@@ -16,15 +20,20 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     [SerializeField] private CharacterDataSO _defaultCharacterData; 
     [Header("Base Stat Defaults")]
     [SerializeField] private GlobalBaseStatsSO _globalBaseStats;
+    [Header("Passive Regen")]
+    [SerializeField] private float _resourceRegenTickSeconds = 1f;
 
     private Dictionary<StatType, CharacterStat> _stats = new Dictionary<StatType, CharacterStat>();
+    private float _resourceRegenTimer;
 
     public StatResource Health { get; private set; }
     public StatResource Mana { get; private set; }
     public LevelingSystem Leveling { get; private set; }
 
     public string CurrentClassID => _activeCharacterID;
+    public CharacterDataSO CurrentCharacterData => _activeCharacterData;
     private string _activeCharacterID;
+    private CharacterDataSO _activeCharacterData;
 
     private void Awake()
     {
@@ -43,6 +52,11 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         Health.OnValueChanged += NotifyChanged;
         Mana.OnValueChanged += NotifyChanged;
         Health.OnDepleted += HandleDeath;
+
+        if (GetComponent<StatusEffectController>() == null)
+            gameObject.AddComponent<StatusEffectController>();
+        if (GetComponent<MysticShieldController>() == null)
+            gameObject.AddComponent<MysticShieldController>();
     }
 
     // --- ВЫНЕСЛИ СОЗДАНИЕ В ОТДЕЛЬНЫЙ МЕТОД ДЛЯ УДОБСТВА ---
@@ -69,7 +83,11 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     private void Start()
     {
         if (_defaultCharacterData != null && GetStat(StatType.MaxHealth).BaseValue <= 0)
+        {
             Initialize(_defaultCharacterData);
+            Health.RestoreFull();
+            Mana.RestoreFull();
+        }
 
         if (InventoryManager.Instance != null)
         {
@@ -77,6 +95,21 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
             InventoryManager.Instance.OnItemUnequipped += HandleItemUnequipped;
         }
         NotifyChanged();
+    }
+
+    private void OnEnable()
+    {
+        GameplayEventBus.EventRaised += HandleGameplayEvent;
+    }
+
+    private void OnDisable()
+    {
+        GameplayEventBus.EventRaised -= HandleGameplayEvent;
+    }
+
+    private void Update()
+    {
+        TickPassiveResourceRegen();
     }
     
     private void OnDestroy()
@@ -100,15 +133,31 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
 
     public float GetValue(StatType type) => GetStat(type).Value;
 
+    public bool TryGetStat(StatType type, out CharacterStat stat)
+    {
+        if (_stats.TryGetValue(type, out stat))
+            return true;
+
+        stat = null;
+        return false;
+    }
+
 
     public void Initialize(CharacterDataSO data)
     {
+        GetComponent<StatusEffectController>()?.ResetAll();
+        _activeCharacterData = data;
         _activeCharacterID = data != null ? data.ID : "Unknown";
-        foreach (var stat in _stats.Values) stat.BaseValue = 0;
-
-        if (_globalBaseStats != null && _globalBaseStats.BaseStats != null)
+        foreach (var stat in _stats.Values)
         {
-            foreach (var config in _globalBaseStats.BaseStats) GetStat(config.Type).BaseValue = config.Value;
+            stat.BaseValue = 0;
+            stat.ClearAllModifiers();
+        }
+
+        var globalBaseStats = ResolveGlobalBaseStats();
+        if (globalBaseStats != null && globalBaseStats.BaseStats != null)
+        {
+            foreach (var config in globalBaseStats.BaseStats) GetStat(config.Type).BaseValue = config.Value;
         }
 
         if (data != null && data.StartingStats != null)
@@ -118,33 +167,55 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
 
         EnsureMinStat(StatType.MaxHealth, 10);
         EnsureMinStat(StatType.MaxMana, 10);
-        EnsureMinStat(StatType.AttackSpeed, 0f);
+        EnsureMinStat(StatType.MoveSpeed, 5f);
+        EnsureMinStat(StatType.MysticShieldRechargeDuration, 5f);
+        EnsureMinStat(StatType.MysticShieldMitigationPercent, 50f);
+        EnsureMinStat(StatType.MaxMysticShieldMitigationPercent, 90f);
         EnsureMinStat(StatType.CritMultiplier, 150f);
+        EnsureMinStat(StatType.StunDuration, 1f);
+        // APS flat base comes from equipped weapons; keep scalar base at 0.
+        GetStat(StatType.AttackSpeed).BaseValue = 0f;
 
-        Health.RestoreFull();
-        Mana.RestoreFull();
-        
-        // --- ИЗМЕНЕНО: Используем единый метод создания ---
         CreateLevelingSystem(1, 0, 100, 0);
+        ResetResourceRegenTimer();
 
         NotifyChanged();
+        OnCharacterDataChanged?.Invoke(_activeCharacterData);
     }
 
     public void ApplyLoadedState(GameSaveData data)
     {
+        GetComponent<StatusEffectController>()?.ResetAll();
         CreateLevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP, data.SkillPoints);
-        Health.SetCurrent(data.CurrentHealth);
-        Mana.SetCurrent(data.CurrentMana);
+        ApplySavedResourceValues(data.CurrentHealth, data.CurrentMana);
+        ResetResourceRegenTimer();
         NotifyChanged();
     }
 
     public void ApplyLoadedState(CharacterSaveData data)
     {
         if (data == null) return;
+        GetComponent<StatusEffectController>()?.ResetAll();
         CreateLevelingSystem(data.CurrentLevel, data.CurrentXP, data.RequiredXP, data.SkillPoints);
-        Health.SetCurrent(data.CurrentHealth);
-        Mana.SetCurrent(data.CurrentMana);
+        ApplySavedResourceValues(data.CurrentHealth, data.CurrentMana);
+        ResetResourceRegenTimer();
         NotifyChanged();
+    }
+
+    private void ApplySavedResourceValues(float savedHealth, float savedMana)
+    {
+        if (savedHealth > 0f)
+            Health.SetCurrent(savedHealth);
+        else
+            Health.RestoreFull();
+
+        if (savedMana > 0f)
+            Mana.SetCurrent(savedMana);
+        else
+            Mana.RestoreFull();
+
+        Health.ReevaluateMax();
+        Mana.ReevaluateMax();
     }
 
     private void EnsureMinStat(StatType type, float minVal)
@@ -153,18 +224,57 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         if (stat.BaseValue <= 0) stat.BaseValue = minVal;
     }
 
+    private GlobalBaseStatsSO ResolveGlobalBaseStats()
+    {
+        if (_globalBaseStats == null)
+            _globalBaseStats = Resources.Load<GlobalBaseStatsSO>(GlobalBaseStatsSO.DefaultResourcesPath);
+
+        return _globalBaseStats;
+    }
+
+    public void ClearAllStatModifiers()
+    {
+        foreach (var stat in _stats.Values)
+            stat.ClearAllModifiers();
+    }
+
+    public void ApplyItemModifiers(InventoryItem item)
+    {
+        if (item == null) return;
+
+        foreach (var (statType, mod) in item.GetAllModifiers())
+            GetStat(statType).AddModifier(mod);
+    }
+
+    public void ResyncExternalStatModifiers(InventoryItem[] equipment, PassiveTreeManager passiveTree)
+    {
+        ClearAllStatModifiers();
+
+        if (equipment != null)
+        {
+            foreach (var item in equipment)
+                ApplyItemModifiers(item);
+        }
+
+        passiveTree?.ReapplyAllAllocatedNodeStats();
+        RefreshDerivedResourcesAfterExternalStatChange();
+    }
+
     private void HandleItemEquipped(InventoryItem item)
     {
         if (item == null) return;
-        var mods = item.GetAllModifiers();
-        foreach (var (statType, mod) in mods) GetStat(statType).AddModifier(mod);
+        ApplyItemModifiers(item);
         NotifyChanged();
     }
 
     private void HandleItemUnequipped(InventoryItem item)
     {
         if (item == null) return;
-        foreach (var stat in _stats.Values) stat.RemoveAllModifiersFromSource(item);
+        foreach (var stat in _stats.Values)
+        {
+            stat.RemoveAllModifiersFromSource(item);
+            stat.RemoveAllModifiersFromSource(item.WeaponLocalModifierSource);
+        }
         NotifyChanged();
     }
 
@@ -182,9 +292,94 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     }
 
     private void HandleLevelUp() { if (_restoreStateOnLevelUp) { Health.RestoreFull(); Mana.RestoreFull(); } NotifyChanged(); }
-    private void HandleDeath() { Debug.Log("YOU DIED"); }
+    private void HandleDeath()
+    {
+        Debug.Log("YOU DIED");
+        FindFirstObjectByType<GameSaveManager>()?.HandlePlayerDeath();
+    }
+
+    private void HandleGameplayEvent(GameplayEventContext context)
+    {
+        if (context == null || context.Type != GameplayEventType.DamageDealt)
+            return;
+        if (context.Source != gameObject)
+            return;
+        if (context.Damage != null && !context.Damage.IsDirectHit)
+            return;
+        if (context.Amount <= 0f)
+            return;
+
+        ApplyOnHitResources();
+    }
+
+    private void ApplyOnHitResources()
+    {
+        float healthOnHit = GetValue(StatType.HealthOnHit);
+        if (healthOnHit > 0f && Health != null)
+            Health.Increase(healthOnHit);
+
+        float manaOnHit = GetValue(StatType.ManaOnHit);
+        if (manaOnHit > 0f && Mana != null)
+            Mana.Increase(manaOnHit);
+    }
+
     public void NotifyChanged() 
 { 
     OnAnyStatChanged?.Invoke(); 
 }
+
+    public void RefreshDerivedResourcesAfterExternalStatChange()
+    {
+        Health?.ReevaluateMax();
+        Mana?.ReevaluateMax();
+        NotifyChanged();
+    }
+
+    private void TickPassiveResourceRegen()
+    {
+        if (_resourceRegenTickSeconds <= 0f)
+            return;
+
+        _resourceRegenTimer += Time.deltaTime;
+        while (_resourceRegenTimer >= _resourceRegenTickSeconds)
+        {
+            _resourceRegenTimer -= _resourceRegenTickSeconds;
+            ApplyPassiveRegenTick();
+        }
+    }
+
+    private void ApplyPassiveRegenTick()
+    {
+        ApplyResourceRegen(Health, StatType.HealthRegen, StatType.HealthRegenPercent);
+        ApplyResourceRegen(Mana, StatType.ManaRegen, StatType.ManaRegenPercent);
+    }
+
+    private void ApplyResourceRegen(StatResource resource, StatType flatRegenStatType, StatType percentRegenStatType)
+    {
+        if (resource == null || resource.Current >= resource.Max)
+            return;
+
+        float flatRegenPerSecond = GetValue(flatRegenStatType);
+        float percentRegenPerSecond = GetValue(percentRegenStatType);
+        if (flatRegenPerSecond <= 0f && percentRegenPerSecond <= 0f)
+            return;
+
+        float totalRegenPerSecond = flatRegenPerSecond;
+        if (percentRegenPerSecond > 0f && resource.Max > 0f)
+            totalRegenPerSecond += resource.Max * (percentRegenPerSecond / 100f);
+
+        if (totalRegenPerSecond <= 0f)
+            return;
+
+        int regenAmount = Mathf.CeilToInt(totalRegenPerSecond);
+        if (regenAmount <= 0)
+            return;
+
+        resource.Increase(regenAmount);
+    }
+
+    private void ResetResourceRegenTimer()
+    {
+        _resourceRegenTimer = 0f;
+    }
 }

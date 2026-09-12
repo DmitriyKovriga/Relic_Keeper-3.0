@@ -10,7 +10,7 @@ namespace Scripts.Inventory
     /// Склад с вкладками в стиле PoE. Каждая вкладка — GridContainer (STASH_COLS x STASH_ROWS).
     /// Swap-if-One при дропе: 0 предметов — место, 1 — своп, >1 — блок.
     /// </summary>
-    public class StashManager : MonoBehaviour
+    public class StashManager : MonoBehaviour, ITabbedItemGrid
     {
         public static StashManager Instance { get; private set; }
 
@@ -19,12 +19,33 @@ namespace Scripts.Inventory
         public const int STASH_SLOTS_PER_TAB = STASH_COLS * STASH_ROWS;
 
         public event Action OnStashChanged;
+        public event Action OnChanged
+        {
+            add => OnStashChanged += value;
+            remove => OnStashChanged -= value;
+        }
 
         private List<GridContainer> _tabs = new List<GridContainer>();
         private int _currentTabIndex;
 
         public int TabCount => _tabs.Count;
         public int CurrentTabIndex => _currentTabIndex;
+        public bool CanAddTab => true;
+
+        public bool CanRemoveTab(int index)
+        {
+            return TabCount > 1 && IsTabEmpty(index);
+        }
+
+        public string GetTabLabel(int index)
+        {
+            return (index + 1).ToString();
+        }
+
+        public InventoryItem TakeItem(int tabIndex, int anchorSlot)
+        {
+            return TakeItemFromStash(tabIndex, anchorSlot);
+        }
 
         /// <summary>Размер предмета для сетки склада.</summary>
         public static void GetStashItemSize(InventoryItem item, out int w, out int h)

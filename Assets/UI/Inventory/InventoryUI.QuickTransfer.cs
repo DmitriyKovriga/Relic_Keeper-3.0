@@ -7,6 +7,7 @@ public partial class InventoryUI
 {
     private ItemTransferEndpointRegistration _inventoryTransferRegistration;
     private ItemTransferEndpointRegistration _stashTransferRegistration;
+    private ItemTransferEndpointRegistration _marketTransferRegistration;
     private ItemTransferEndpointRegistration _craftTransferRegistration;
 
     private void RegisterQuickTransferEndpoints()
@@ -37,9 +38,22 @@ public partial class InventoryUI
                 StashManager.Instance != null &&
                 context.Item != null &&
                 StashManager.Instance.TryAddItemPreferringTab(context.Item, StashManager.Instance.CurrentTabIndex),
-            isPointerOver: pointerWorld => _stashPanel != null && _stashPanel.worldBound.Contains(pointerWorld),
+            isPointerOver: pointerWorld => IsStashVisible && _stashPanel != null && _stashPanel.worldBound.Contains(pointerWorld),
             canAcceptDrop: context => context.Item != null && context.Item.Data != null,
             tryAcceptDrop: TryAcceptStashDrop);
+
+        _marketTransferRegistration = ItemTransferEndpointRegistration.RegisterPair(
+            endpointId: ItemTransferEndpointIds.MarketCurrentTab,
+            priority: ItemTransferEndpointPriorities.CompanionDefault,
+            isOpen: () => IsInventoryWindowVisible() && IsMarketVisible,
+            canAcceptQuick: context => context.Item != null && context.Item.Data != null,
+            tryAcceptQuick: context =>
+                Scripts.Economy.MarketManager.Instance != null &&
+                context.Item != null &&
+                Scripts.Economy.MarketManager.Instance.TrySell(context.Item),
+            isPointerOver: pointerWorld => IsMarketVisible && _stashPanel != null && _stashPanel.worldBound.Contains(pointerWorld),
+            canAcceptDrop: context => context.Item != null && context.Item.Data != null,
+            tryAcceptDrop: TryAcceptMarketDrop);
 
         _craftTransferRegistration = ItemTransferEndpointRegistration.RegisterPair(
             endpointId: ItemTransferEndpointIds.CraftSlot,
@@ -58,6 +72,8 @@ public partial class InventoryUI
         _inventoryTransferRegistration = null;
         _stashTransferRegistration?.Dispose();
         _stashTransferRegistration = null;
+        _marketTransferRegistration?.Dispose();
+        _marketTransferRegistration = null;
         _craftTransferRegistration?.Dispose();
         _craftTransferRegistration = null;
     }
@@ -111,6 +127,15 @@ public partial class InventoryUI
             return false;
 
         return InventoryManager.Instance.PlaceItemAt(context.Item, targetIndex, -1);
+    }
+
+    private bool TryAcceptMarketDrop(ItemDragDropContext context)
+    {
+        if (!IsMarketVisible || context.Item == null || context.Item.Data == null || Scripts.Economy.MarketManager.Instance == null)
+            return false;
+        if (_stashPanel == null || !_stashPanel.worldBound.Contains(context.PointerWorldPosition))
+            return false;
+        return Scripts.Economy.MarketManager.Instance.TrySell(context.Item);
     }
 
     private bool TryAcceptStashDrop(ItemDragDropContext context)

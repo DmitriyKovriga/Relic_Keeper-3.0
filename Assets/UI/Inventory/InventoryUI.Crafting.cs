@@ -6,6 +6,7 @@ using UnityEngine.UIElements;
 public partial class InventoryUI
 {
     private Button _toggleModeButton;
+    private static Sprite _orbPlaceholderIcon;
 
     private void OnRootPointerDown(PointerDownEvent evt)
     {
@@ -74,9 +75,11 @@ public partial class InventoryUI
         }
     }
 
+    public int CurrentTab => _currentTab;
+
     private void OnToggleModeClicked()
     {
-        SwitchTab(_currentTab == 0 ? 1 : 0);
+        SetTab(_currentTab == 0 ? 1 : 0);
     }
 
     private void UpdateToggleButtonLabel()
@@ -86,9 +89,10 @@ public partial class InventoryUI
         _toggleModeButton.tooltip = _currentTab == 0 ? "Craft" : "Equipment";
     }
 
-    private void SwitchTab(int tab)
+    public void SetTab(int tab)
     {
-        if (_currentTab == tab) return;
+        tab = tab == 1 ? 1 : 0;
+        bool changed = _currentTab != tab;
         _currentTab = tab;
         if (_equipmentView != null)
         {
@@ -101,8 +105,11 @@ public partial class InventoryUI
             else _craftView.RemoveFromClassList("visible");
         }
         UpdateToggleButtonLabel();
-        RefreshInventory();
+        if (changed)
+            RefreshInventory();
     }
+
+    private void SwitchTab(int tab) => SetTab(tab);
 
     private void SetupCraftView()
     {
@@ -123,8 +130,8 @@ public partial class InventoryUI
             if (count == 0)
             {
                 var hint = new Label(_orbSlotsConfig == null
-                    ? "Orbs: create config in Crafting Orb Editor, then assign it to Inventory UI."
-                    : "Orbs: assign orb assets to slots in Crafting Orb Editor and save config.");
+                    ? "Relics: create config in Crafting Relic Editor, then assign it to Inventory UI."
+                    : "Relics: assign relic assets to slots in Crafting Relic Editor and save config.");
                 hint.style.fontSize = 9;
                 hint.style.color = new StyleColor(new Color(0.6f, 0.6f, 0.6f));
                 hint.style.unityTextAlign = TextAnchor.MiddleCenter;
@@ -133,9 +140,27 @@ public partial class InventoryUI
             for (int i = 0; i < count; i++)
             {
                 var slot = new VisualElement();
+                slot.name = $"RelicSlot_{i}";
                 slot.AddToClassList("orb-slot");
                 slot.userData = i;
-                var countLabel = new Label { name = "OrbCount" };
+
+                var iconFrame = new VisualElement
+                {
+                    name = "RelicIconFrame",
+                    pickingMode = PickingMode.Ignore
+                };
+                iconFrame.AddToClassList("orb-icon-frame");
+
+                var emptyStateOverlay = new VisualElement
+                {
+                    name = "EmptyStateOverlay",
+                    pickingMode = PickingMode.Ignore
+                };
+                emptyStateOverlay.AddToClassList("orb-empty-overlay");
+                iconFrame.Add(emptyStateOverlay);
+                slot.Add(iconFrame);
+
+                var countLabel = new Label { name = "RelicCount", pickingMode = PickingMode.Ignore };
                 countLabel.AddToClassList("orb-count");
                 slot.Add(countLabel);
                 slot.RegisterCallback<PointerDownEvent>(OnOrbSlotPointerDown);
@@ -143,7 +168,7 @@ public partial class InventoryUI
                 slot.RegisterCallback<PointerOverEvent>(OnOrbSlotPointerOver);
                 slot.RegisterCallback<PointerOutEvent>(OnOrbSlotPointerOut);
                 _orbSlotsRow.Add(slot);
-                _orbSlots.Add((slot, countLabel));
+                _orbSlots.Add((slot, iconFrame, countLabel));
             }
         }
     }
@@ -202,7 +227,7 @@ public partial class InventoryUI
         _applyOrbOrb = orb;
         _applyOrbSlotHighlight = orbSlotElement;
         orbSlotElement.AddToClassList("orb-slot-applying");
-        _ghostIcon.style.backgroundImage = orb.Icon != null ? new StyleBackground(orb.Icon) : default;
+        _ghostIcon.style.backgroundImage = new StyleBackground(GetOrbDisplayIcon(orb));
         _ghostIcon.style.width = 32;
         _ghostIcon.style.height = 32;
         _ghostIcon.style.opacity = 0.85f;
@@ -236,17 +261,41 @@ public partial class InventoryUI
         if (!_craftSlot.worldBound.Contains(pointerPosition)) return false;
 
         var craftItem = InventoryManager.Instance.CraftingSlotItem;
-        if (craftItem == null || !ItemGenerator.IsRare(craftItem)) return false;
-        if (_applyOrbOrb.EffectId != CraftingOrbEffectId.RerollRare) return false;
-        if (ItemGenerator.Instance == null) return false;
+        if (!ItemGenerator.CanApplyCraftingOrb(craftItem, _applyOrbOrb.EffectId)) return false;
 
         if (!InventoryManager.Instance.ConsumeOrb(_applyOrbOrb.ID)) return false;
-        ItemGenerator.Instance.RerollRare(craftItem);
+        if (!ItemGenerator.TryApplyCraftingOrb(craftItem, _applyOrbOrb.EffectId))
+        {
+            InventoryManager.Instance.AddOrb(_applyOrbOrb.ID, 1);
+            return false;
+        }
         ExitApplyOrbMode();
         InventoryManager.Instance.TriggerUIUpdate();
         if (ItemTooltipController.Instance != null)
             ItemTooltipController.Instance.RefreshCurrentItemTooltip();
         return true;
+    }
+
+    private static Sprite GetOrbDisplayIcon(CraftingOrbSO orb)
+    {
+        if (orb != null && orb.Icon != null)
+            return orb.Icon;
+        if (_orbPlaceholderIcon != null)
+            return _orbPlaceholderIcon;
+
+        var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false)
+        {
+            name = "CraftingOrbWhitePlaceholder",
+            filterMode = FilterMode.Point,
+            wrapMode = TextureWrapMode.Clamp,
+            hideFlags = HideFlags.HideAndDontSave
+        };
+        texture.SetPixel(0, 0, Color.white);
+        texture.Apply(false, false);
+        _orbPlaceholderIcon = Sprite.Create(texture, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+        _orbPlaceholderIcon.name = "CraftingOrbWhitePlaceholder";
+        _orbPlaceholderIcon.hideFlags = HideFlags.HideAndDontSave;
+        return _orbPlaceholderIcon;
     }
 
     private void OnKeyDown(KeyDownEvent evt)

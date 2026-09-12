@@ -398,6 +398,8 @@
     color: rgba(255, 255, 255, 0.15);
     padding: 0;
     margin: 0;
+    white-space: pre-wrap;
+    -unity-text-align: middle-center;
     picking-mode: ignore;
 }
 
@@ -460,45 +462,97 @@
     flex-direction: row;
     flex-wrap: wrap;
     flex-shrink: 0;
-    margin-top: 4px;
+    margin-top: 3px;
+    min-height: 26px;
     -unity-content-container: none;
 }
 
 .orb-slot {
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    min-height: 32px;
+    width: 18px;
+    height: 26px;
+    min-width: 18px;
+    min-height: 26px;
+    max-width: 18px;
+    max-height: 26px;
+    margin-left: 1px;
+    margin-right: 1px;
     position: relative;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.orb-icon-frame {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    max-width: 18px;
+    max-height: 18px;
     border-width: 1px;
     border-color: #333;
     background-color: #111;
-    margin: 2px;
-    align-items: center;
-    justify-content: center;
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
-.orb-slot:hover {
+.orb-empty-overlay {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(126, 126, 126, 0.62);
+}
+
+.orb-slot-empty .orb-icon-frame {
+    opacity: 0.48;
+    -unity-background-image-tint-color: #888;
+}
+
+.orb-slot-empty .orb-empty-overlay {
+    display: flex;
+}
+
+.orb-slot-empty .orb-count {
+    color: #77717b;
+    background-color: rgba(5, 3, 7, 0.55);
+}
+
+.orb-slot:hover .orb-icon-frame {
     border-color: #666;
     background-color: #222;
 }
 
-.orb-slot-applying {
+.orb-slot-applying .orb-icon-frame {
     border-color: #cca360;
     background-color: rgba(204, 163, 96, 0.25);
 }
 
 .orb-slot .orb-count {
-    position: absolute;
-    right: 2px;
-    bottom: 2px;
-    font-size: 10px;
-    color: #fff;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding-left: 3px;
-    padding-right: 3px;
-    min-width: 12px;
+    width: 18px;
+    height: 7px;
+    min-width: 18px;
+    min-height: 7px;
+    max-width: 18px;
+    max-height: 7px;
+    margin-top: 1px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    font-size: 6px;
+    color: #ddd3e3;
+    background-color: rgba(5, 3, 7, 0.82);
     -unity-text-align: middle-center;
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
 .inventory-background-art {
@@ -595,5 +649,52 @@
 .backpack-items-layer,
 .stash-items-layer {
     z-index: 3;
+}
+
+.gold-counter {
+    position: absolute;
+    left: 4px;
+    bottom: 104px;
+    width: 52px;
+    min-width: 52px;
+    max-width: 52px;
+    height: 12px;
+    min-height: 12px;
+    margin: 0;
+    padding: 0;
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 0;
+    flex-shrink: 0;
+    overflow: hidden;
+    z-index: 20;
+}
+
+.gold-counter-icon {
+    width: 12px;
+    height: 12px;
+    min-width: 12px;
+    min-height: 12px;
+    margin: 0;
+    margin-right: 2px;
+    padding: 0;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.gold-counter-amount {
+    width: 38px;
+    min-width: 0;
+    height: 10px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 8px;
+    color: rgb(237, 199, 71);
+    -unity-text-align: middle-left;
+    overflow: hidden;
+    white-space: nowrap;
+    flex-grow: 1;
+    flex-shrink: 1;
 }
 

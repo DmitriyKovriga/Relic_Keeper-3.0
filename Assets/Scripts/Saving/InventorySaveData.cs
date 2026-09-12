@@ -12,7 +12,7 @@ namespace Scripts.Saving
         [Tooltip("Предмет в слоте крафта (один слот сверху в режиме крафта).")]
         public ItemSaveData CraftingSlotItem;
 
-        [Tooltip("Количество сфер по OrbId. Сериализуется как список пар.")]
+        [Tooltip("Количество крафтовых реликвий по OrbId. Сериализуется как список пар.")]
         public List<OrbCountEntry> OrbCounts = new List<OrbCountEntry>();
     }
 
@@ -36,7 +36,9 @@ namespace Scripts.Saving
     [Serializable]
     public class AffixSaveData
     {
-        public string AffixID;      // Имя ItemAffixSO
+        public string AffixID;      // Stable ItemAffixSO ID
+        [Tooltip("Выбранный тир встроенного аффикса. 0 означает старый сейв, тир определяется по legacy ID.")]
+        public int Tier;
         public List<float> Values;  // Сохраненные значения модификаторов
     }
 
@@ -53,5 +55,14 @@ namespace Scripts.Saving
     public class StashSaveData
     {
         public List<StashTabSaveData> Tabs = new List<StashTabSaveData>();
+    }
+
+    /// <summary>Ассортимент торговца и выкуп: общий для всех персонажей.</summary>
+    [Serializable]
+    public class MarketSaveData
+    {
+        public int CurrentTabIndex;
+        public List<StashTabSaveData> StockTabs = new List<StashTabSaveData>();
+        public List<StashTabSaveData> BuybackTabs = new List<StashTabSaveData>();
     }
 }

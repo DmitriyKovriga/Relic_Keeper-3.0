@@ -1023,15 +1023,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13848919878959105
-    m_Localized: Adds {0} to Reduce Damage Taken
+    m_Localized: Adds {0} to Damage Taken
     m_Metadata:
       m_Items: []
   - m_Id: 13848919883153408
-    m_Localized: '{0}% increased Reduce Damage Taken'
+    m_Localized: '{0}% increased Damage Taken'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919883153409
-    m_Localized: '{0}% more Reduce Damage Taken'
+    m_Localized: '{0}% more Damage Taken'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919887347712
@@ -1315,7 +1315,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14174021153751040
-    m_Localized: Reduce Damage Taken
+    m_Localized: Damage Taken
     m_Metadata:
       m_Items: []
   - m_Id: 14174041500319744
@@ -1380,7 +1380,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 25988269287137280
-    m_Localized: Fortune Orb
+    m_Localized: Relic of Fortune
     m_Metadata:
       m_Items: []
   - m_Id: 25360759851089920
@@ -1507,8 +1507,33 @@ MonoBehaviour:
     m_Localized: x
     m_Metadata:
       m_Items: []
+  - m_Id: 28263538823299090
+    m_Localized: X
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299091
+    m_Localized: Delete Hero
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299092
+    m_Localized: You are about to remove this hero from the hostel. All items in
+      this hero's inventory will also be deleted.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299093
+    m_Localized: Delete Hero
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299094
+    m_Localized: Confirm Delete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 28263538823299095
+    m_Localized: Cancel
+    m_Metadata:
+      m_Items: []
   - m_Id: 28263538823299080
-    m_Localized: +5 to maximum life
+    m_Localized: Transport HP Node
     m_Metadata:
       m_Items: []
   - m_Id: 28263538823299081
@@ -1617,6 +1642,466 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 40804688767516672
     m_Localized: Dodge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43348985866346496
+    m_Localized: Small Melee Crit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43348985899900928
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43349067210678272
+    m_Localized: +1 to Mana regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43349067210678273
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43349438855372800
+    m_Localized: Medium Mana Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43349438855372801
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43349483667316736
+    m_Localized: Small Mana Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43349483667316737
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43376266055286784
+    m_Localized: Small Life Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43376266084646912
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43376621526745088
+    m_Localized: Medium Life Regen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43376621526745089
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44901563737079808
+    m_Localized: "\u041C\u0430\u043B\u044B\u0439 \u041E\u0445\u0432\u0430\u0442"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44901563766439936
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44901676475777024
+    m_Localized: "\u041C\u0430\u043B\u044B\u0439 \u041E\u0445\u0432\u0430\u0442"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 44901676475777025
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45461264119922688
+    m_Localized: Medium Coverage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45461264153477120
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45467560298708992
+    m_Localized: Small Phys Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45467560323874816
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45468343333322752
+    m_Localized: Medium Phys Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45468343333322753
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45622344225947648
+    m_Localized: Small Attack Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45622344251113472
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45628057937543168
+    m_Localized: Medium Attack Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45628057937543169
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45632710414729216
+    m_Localized: Snall Bleed Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45632710444089344
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45634516628832256
+    m_Localized: Blood Strike
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45634516628832257
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45637768497889280
+    m_Localized: Small Bleed Multiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45637768497889281
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45638402685042688
+    m_Localized: Medium Bleed Multi
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45638402685042689
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45641118157144064
+    m_Localized: Small Max Life
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45641118161338368
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45643139211886592
+    m_Localized: Medium Attack Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45643139211886593
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45644382625890304
+    m_Localized: Small Life On Hit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45644382625890305
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45645655018340352
+    m_Localized: Medium Vampirism
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45645655018340353
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45654313332670464
+    m_Localized: Small Armor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45654313332670465
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45656252162277376
+    m_Localized: Medium Armor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45656252162277377
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45659178230382592
+    m_Localized: Small Critical Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45659178230382593
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45662144253427712
+    m_Localized: Medium Crit Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45662144253427713
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45666555553939456
+    m_Localized: Small Fire Res
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45666555553939457
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45667597553270784
+    m_Localized: Small Cold Res
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45667597553270785
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45669489192763392
+    m_Localized: Small Lightning Res
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45669489192763393
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45871641072795648
+    m_Localized: Melee Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45872038244024320
+    m_Localized: Small Melee Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45872038244024321
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45874059672059904
+    m_Localized: Medium Melee Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45874059672059905
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45879034603143168
+    m_Localized: Magma Skin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 45879034603143169
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 49278527889506304
+    m_Localized: Third Skill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50009768142077952
+    m_Localized: Fourth Skill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50009922148532224
+    m_Localized: Fifth Skill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50010000000000000
+    m_Localized: Sixth Skill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 58596768352862208
+    m_Localized: Spell Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59374563437871104
+    m_Localized: Projectile Pierce Targets
+    m_Metadata:
+      m_Items: []
+  - m_Id: 61160435758391296
+    m_Localized: Stun Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 61161156872495104
+    m_Localized: Stun Build-Up
+    m_Metadata:
+      m_Items: []
+  - m_Id: 61163688596332544
+    m_Localized: Stun Threshold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 61888136995659776
+    m_Localized: Maximum Ignite Stacks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000001
+    m_Localized: You Died
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000002
+    m_Localized: Gear
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000003
+    m_Localized: Starter Gear
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000004
+    m_Localized: Available only while you have no weapon in your inventory or stash.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000005
+    m_Localized: Get Starter Equipment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000006
+    m_Localized: Adventurer's Dagger added to your inventory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000007
+    m_Localized: You already have a weapon in your inventory or stash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000008
+    m_Localized: Not enough free space in your inventory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000009
+    m_Localized: Choose a hero first
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000010
+    m_Localized: Starter equipment is unavailable
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000011
+    m_Localized: Tavern
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000012
+    m_Localized: Stash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000013
+    m_Localized: Dungeon 1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000014
+    m_Localized: Head
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000015
+    m_Localized: Body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000016
+    m_Localized: Main
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000017
+    m_Localized: Off
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000018
+    m_Localized: Hand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000019
+    m_Localized: Feet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000020
+    m_Localized: Item
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000021
+    m_Localized: Room Cleared
+    m_Metadata:
+      m_Items: []
+  - m_Id: 62000000000000022
+    m_Localized: "Can't pick up \u2014 inventory is full"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63000000000000101
+    m_Localized: Relic of Mutation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63000000000000102
+    m_Localized: "Turns a normal item into a magic item and adds 1\u20133 affixes."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63000000000000103
+    m_Localized: Relic of Perfectio
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63000000000000104
+    m_Localized: Adds affixes to a magic item until it has 4 and becomes rare.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63000000000000105
+    m_Localized: Relic of Elevation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63000000000000106
+    m_Localized: "Turns a normal item into a rare item and adds 4\u20136 affixes."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63000000000000107
+    m_Localized: Relic of Excelsior
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63000000000000108
+    m_Localized: Adds one affix to a rare item that has fewer than 6 affixes.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63000000000000109
+    m_Localized: Relic of Purgatio
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63000000000000110
+    m_Localized: Removes all affixes and turns the item back into a normal item.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63000000000000111
+    m_Localized: Relic of Expurgatio
+    m_Metadata:
+      m_Items: []
+  - m_Id: 63000000000000112
+    m_Localized: Removes one random affix. Item rarity changes with its affix count.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103481717434576896
+    m_Localized: Small Melee Crit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103481717476519936
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104000000000000001
+    m_Localized: Start Node
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104000000000000002
+    m_Localized: Starting point of the passive tree.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104000000000000010
+    m_Localized: Market
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104000000000000011
+    m_Localized: Not enough gold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104000000000000012
+    m_Localized: Price
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104000000000000013
+    m_Localized: Sell
     m_Metadata:
       m_Items: []
   references:

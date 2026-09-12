@@ -69,6 +69,7 @@ namespace RelicKeeper.Tests.EditMode
             SetField(ui, "_draggedItem", held);
             SetField(ui, "_draggedSourceAnchor", 0);
             SetField(ui, "_draggedFromStash", false);
+            SetField(ui, "_draggedFromMarket", false);
             SetField(ui, "_draggedStashTab", -1);
             SetField(ui, "_draggedStashAnchorSlot", -1);
             SetField(ui, "_dragPointerId", 99);
@@ -81,6 +82,7 @@ namespace RelicKeeper.Tests.EditMode
             Assert.IsNull(GetField<InventoryItem>(ui, "_draggedItem"));
             Assert.AreEqual(-1, GetField<int>(ui, "_draggedSourceAnchor"));
             Assert.AreEqual(false, GetField<bool>(ui, "_draggedFromStash"));
+            Assert.AreEqual(false, GetField<bool>(ui, "_draggedFromMarket"));
             Assert.AreEqual(-1, GetField<int>(ui, "_draggedStashTab"));
             Assert.AreEqual(-1, GetField<int>(ui, "_draggedStashAnchorSlot"));
             Assert.AreEqual(-1, GetField<int>(ui, "_dragPointerId"));
@@ -116,6 +118,7 @@ namespace RelicKeeper.Tests.EditMode
             SetField(ui, "_draggedItem", held);
             SetField(ui, "_draggedSourceAnchor", -1);
             SetField(ui, "_draggedFromStash", true);
+            SetField(ui, "_draggedFromMarket", false);
             SetField(ui, "_draggedStashTab", 0);
             SetField(ui, "_draggedStashAnchorSlot", 0);
             SetField(ui, "_dragPointerId", 101);
@@ -128,11 +131,69 @@ namespace RelicKeeper.Tests.EditMode
             Assert.IsNull(GetField<InventoryItem>(ui, "_draggedItem"));
             Assert.AreEqual(-1, GetField<int>(ui, "_draggedSourceAnchor"));
             Assert.AreEqual(false, GetField<bool>(ui, "_draggedFromStash"));
+            Assert.AreEqual(false, GetField<bool>(ui, "_draggedFromMarket"));
             Assert.AreEqual(-1, GetField<int>(ui, "_draggedStashTab"));
             Assert.AreEqual(-1, GetField<int>(ui, "_draggedStashAnchorSlot"));
             Assert.AreEqual(-1, GetField<int>(ui, "_dragPointerId"));
             Assert.AreEqual(DisplayStyle.None, ghost.style.display.value);
             Assert.AreEqual(DisplayStyle.None, highlight.style.display.value);
+        }
+
+        [Test]
+        public void ShouldDropItemToWorld_WhenPointerIsOverInventoryWindowBackdrop_ReturnsFalse()
+        {
+            var window = new Rect(200f, 0f, 275f, 270f);
+            Vector2 overEquipmentArt = new Vector2(220f, 80f);
+            Vector2 outsideWindow = new Vector2(50f, 80f);
+
+            Assert.IsFalse(
+                InvokeShouldDropItemToWorld(true, overEquipmentArt, true, window, false, default),
+                "Releasing over empty inventory chrome must not throw the item into the world.");
+            Assert.IsTrue(
+                InvokeShouldDropItemToWorld(true, outsideWindow, true, window, false, default),
+                "A pointer clearly outside the inventory window may still drop to the world.");
+        }
+
+        [Test]
+        public void ShouldDropItemToWorld_WhenPointerIsOverStashPanel_ReturnsFalse()
+        {
+            var window = new Rect(200f, 0f, 275f, 270f);
+            var stash = new Rect(0f, 0f, 210f, 270f);
+            Vector2 overStashBackdrop = new Vector2(40f, 100f);
+
+            Assert.IsFalse(InvokeShouldDropItemToWorld(true, overStashBackdrop, true, window, true, stash));
+        }
+
+        [Test]
+        public void ShouldDropItemToWorld_WhenItemDataMissing_ReturnsFalse()
+        {
+            var window = new Rect(200f, 0f, 275f, 270f);
+            Assert.IsFalse(InvokeShouldDropItemToWorld(false, new Vector2(10f, 10f), true, window, false, default));
+        }
+
+        private static bool InvokeShouldDropItemToWorld(
+            bool hasItemData,
+            Vector2 pointerPanelPosition,
+            bool hasInventoryWindow,
+            Rect inventoryWindowWorldBound,
+            bool hasStashPanel,
+            Rect stashPanelWorldBound)
+        {
+            var method = typeof(InventoryUI).GetMethod(
+                "ShouldDropItemToWorld",
+                BindingFlags.Static | BindingFlags.NonPublic);
+            if (method == null)
+                throw new MissingMethodException(nameof(InventoryUI), "ShouldDropItemToWorld");
+
+            return (bool)method.Invoke(null, new object[]
+            {
+                hasItemData,
+                pointerPanelPosition,
+                hasInventoryWindow,
+                inventoryWindowWorldBound,
+                hasStashPanel,
+                stashPanelWorldBound
+            });
         }
 
         private InventoryManager CreateManager(string name)

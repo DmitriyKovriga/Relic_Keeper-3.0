@@ -44,6 +44,13 @@ namespace Scripts.Editor.PassiveTree
             GetWindow<PassiveNodeEditorWindow>().SelectTemplate(template);
         }
 
+        public static PassiveNodeTemplateSO CreateTemplateAndOpen(string preferredName = null, string category = "Misc")
+        {
+            var template = PassiveNodeTemplateLibrary.CreateNewTemplate(preferredName, category);
+            OpenWithTemplate(template);
+            return template;
+        }
+
         private void OnEnable()
         {
             LoadTemplates();
@@ -53,14 +60,7 @@ namespace Scripts.Editor.PassiveTree
 
         private void LoadTemplates()
         {
-            _templates.Clear();
-            foreach (var g in AssetDatabase.FindAssets("t:PassiveNodeTemplateSO"))
-            {
-                var path = AssetDatabase.GUIDToAssetPath(g);
-                var t = AssetDatabase.LoadAssetAtPath<PassiveNodeTemplateSO>(path);
-                if (t != null) _templates.Add(t);
-            }
-            _templates = _templates.OrderBy(x => x.name).ToList();
+            _templates = PassiveNodeTemplateLibrary.LoadAllTemplates().ToList();
         }
 
         private void SelectTemplate(PassiveNodeTemplateSO t)
@@ -76,7 +76,7 @@ namespace Scripts.Editor.PassiveTree
 
             // --- Left: list ---
             EditorGUILayout.BeginVertical(GUILayout.Width(280));
-            GUILayout.Label("Passive Node Templates", EditorStyles.boldLabel);
+            GUILayout.Label("Passive Nodes", EditorStyles.boldLabel);
             _search = EditorGUILayout.TextField("Search", _search);
             if (GUILayout.Button("Refresh")) LoadTemplates();
 
@@ -127,7 +127,7 @@ namespace Scripts.Editor.PassiveTree
             GUILayout.Label("Node Details", EditorStyles.boldLabel);
             if (_selected == null)
             {
-                EditorGUILayout.HelpBox("Select a template from the list or create a new one.", MessageType.Info);
+                EditorGUILayout.HelpBox("Select a node from the list or create a new one.", MessageType.Info);
                 return;
             }
 
@@ -341,7 +341,7 @@ namespace Scripts.Editor.PassiveTree
         {
             if (_selected == null) return;
             GUI.backgroundColor = new Color(1f, 0.8f, 0.8f);
-            if (GUILayout.Button("Delete Node Template"))
+            if (GUILayout.Button("Delete Node"))
             {
                 if (EditorUtility.DisplayDialog("Delete", $"Delete \"{_selected.name}\"?", "Delete", "Cancel"))
                 {
@@ -357,26 +357,7 @@ namespace Scripts.Editor.PassiveTree
 
         private void CreateNewNode()
         {
-            string baseName = "NewPassiveNode";
-            string folder = EditorPaths.PassiveTemplatesFolder;
-            if (!AssetDatabase.IsValidFolder("Assets/Resources")) AssetDatabase.CreateFolder("Assets", "Resources");
-            if (!AssetDatabase.IsValidFolder("Assets/Resources/PassiveTrees"))
-                AssetDatabase.CreateFolder("Assets/Resources", "PassiveTrees");
-            string subFolder = $"{folder}/Templates";
-            if (!AssetDatabase.IsValidFolder("Assets/Resources/PassiveTrees/Templates"))
-                AssetDatabase.CreateFolder("Assets/Resources/PassiveTrees", "Templates");
-
-            string name = baseName;
-            int i = 0;
-            while (AssetDatabase.LoadAssetAtPath<PassiveNodeTemplateSO>($"{subFolder}/{name}.asset") != null)
-                name = $"{baseName}{++i}";
-
-            string path = $"{subFolder}/{name}.asset";
-            var template = ScriptableObject.CreateInstance<PassiveNodeTemplateSO>();
-            template.Name = name;
-            template.Modifiers = new List<SerializableStatModifier>();
-            AssetDatabase.CreateAsset(template, path);
-            AssetDatabase.SaveAssets();
+            var template = PassiveNodeTemplateLibrary.CreateNewTemplate("NewPassiveNode", "Misc");
             LoadTemplates();
             SelectTemplate(template);
         }

@@ -7,5 +7,7 @@ public static class ProjectPaths
     public const string ResourcesCraftingOrbSlotsConfig = "CraftingOrbs/CraftingOrbSlotsConfig";
     public const string ResourcesItemDatabase = "Databases/ItemDatabaseSO";
     public const string ResourcesStatsDatabase = "Databases/StatsDatabase";
+    public const string ResourcesStatusEffects = "StatusEffects";
+    public const string ResourcesStatusEffectsHudSettings = "StatusEffects/StatusEffectsHudSettings";
     public const string ResourcesUIFontProfile = "UI/UIFontProfile";
 }

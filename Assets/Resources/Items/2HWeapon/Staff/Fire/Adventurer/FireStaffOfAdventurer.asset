@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8dfeb579bbf0f148826246799bf1174, type: 3}
+  m_Name: Fire Staff Of Adventurer
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Items.WeaponItemSO
+  ID: 69520cf2
+  ItemName: FireStaffOfAdventurer
+  Icon: {fileID: 21300000, guid: 2a03de01595639a4f862a80c270de404, type: 3}
+  Width: 2
+  Height: 4
+  Slot: 2
+  DropLevel: 1
+  ImplicitModifiers:
+  - Stat: 67
+    Value: 25
+    Type: 100
+    Scope: 0
+  AffixPool: {fileID: 11400000, guid: 4b195def843754544bee1b96abfece0e, type: 2}
+  SkillPool: {fileID: 11400000, guid: 21a51d580dd10eb49a7542db974fcb4c, type: 2}
+  SkillCount: 1
+  IsTwoHanded: 1
+  InHandSprite: {fileID: 21300000, guid: c725d749977b3264c9eb1a8f23bc8abd, type: 3}
+  MinPhysicalDamage: 0
+  MaxPhysicalDamage: 0
+  MinFireDamage: 14
+  MaxFireDamage: 24
+  MinColdDamage: 0
+  MaxColdDamage: 0
+  MinLightningDamage: 0
+  MaxLightningDamage: 0
+  AttacksPerSecond: 1
+  BaseCritChance: 5
+  SecondarySkillPool: {fileID: 0}

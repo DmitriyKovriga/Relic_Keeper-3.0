@@ -166,6 +166,12 @@ namespace Scripts.Inventory
             return _backpack != null ? _backpack.GetItemAt(index) : null;
         }
 
+        public bool CanAddItem(InventoryItem newItem)
+        {
+            if (_backpack == null || newItem?.Data == null) return false;
+            return _backpack.FindFirstEmptyRoot(newItem, -1) >= 0;
+        }
+
         public bool AddItem(InventoryItem newItem)
         {
             if (_backpack == null || newItem?.Data == null) return false;

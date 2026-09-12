@@ -8,12 +8,19 @@ using Scripts.Skills;
 [CreateAssetMenu(menuName = "RPG/Database/Item Database")]
 public class ItemDatabaseSO : ScriptableObject
 {
+    [Header("Enemy Loot Chances")]
+    [Range(0f, 1f)] public float CommonItemDropChance = 0.10f;
+    [Range(0f, 1f)] public float MagicItemDropChance = 0.05f;
+    [Range(0f, 1f)] public float RareItemDropChance = 0.02f;
+
+    [Header("Database Contents")]
     public List<EquipmentItemSO> AllItems = new List<EquipmentItemSO>();
     public List<ItemAffixSO> AllAffixes = new List<ItemAffixSO>();
     public List<SkillDataSO> AllSkills = new List<SkillDataSO>();
 
     private Dictionary<string, EquipmentItemSO> _itemLookup;
     private Dictionary<string, ItemAffixSO> _affixLookup;
+    private Dictionary<string, int> _legacyAffixTierLookup;
     private Dictionary<string, SkillDataSO> _skillLookup;
 
     public void Init()
@@ -41,15 +48,14 @@ public class ItemDatabaseSO : ScriptableObject
 
             // 2. Инициализация АФФИКСОВ (список + подгрузка из Resources для сгенерированных)
             _affixLookup = new Dictionary<string, ItemAffixSO>();
+            _legacyAffixTierLookup = new Dictionary<string, int>();
             
             if (AllAffixes != null)
             {
                 foreach (var affix in AllAffixes)
                 {
                     if (affix == null) continue;
-                    string key = string.IsNullOrEmpty(affix.UniqueID) ? affix.name : affix.UniqueID;
-                    if (!_affixLookup.ContainsKey(key))
-                        _affixLookup.Add(key, affix);
+                    RegisterAffixLookupKeys(affix);
                 }
             }
             // Подгрузить аффиксы из Resources/Affixes, чтобы сгенерированные были в базе без ручного Auto-Find
@@ -59,9 +65,7 @@ public class ItemDatabaseSO : ScriptableObject
                 foreach (var affix in fromResources)
                 {
                     if (affix == null) continue;
-                    string key = string.IsNullOrEmpty(affix.UniqueID) ? affix.name : affix.UniqueID;
-                    if (!_affixLookup.ContainsKey(key))
-                        _affixLookup.Add(key, affix);
+                    RegisterAffixLookupKeys(affix);
                 }
             }
 
@@ -70,11 +74,12 @@ public class ItemDatabaseSO : ScriptableObject
             {
                 foreach(var skill in AllSkills)
                 {
-                    if (skill != null && !string.IsNullOrEmpty(skill.ID) && !_skillLookup.ContainsKey(skill.ID))
-                        _skillLookup.Add(skill.ID, skill);
+                    RegisterSkillLookupKeys(skill);
                 }
             }
-            Debug.Log($"[ItemDatabase] Initialized. Items: {_itemLookup.Count}, Affixes: {_affixLookup.Count}");
+            RegisterSkillsFromResources();
+
+            Debug.Log($"[ItemDatabase] Initialized. Items: {_itemLookup.Count}, Affixes: {_affixLookup.Count}, Skills: {_skillLookup.Count}");
         }
 
     public EquipmentItemSO GetItem(string id)
@@ -97,19 +102,51 @@ public class ItemDatabaseSO : ScriptableObject
 
         public ItemAffixSO GetAffix(string id)
         {
-            if (_affixLookup == null) Init();
-            
-            if (_affixLookup == null) return null;
-            if (string.IsNullOrEmpty(id)) return null;
+            return TryResolveAffix(id, out ItemAffixSO affix, out _) ? affix : null;
+        }
 
-            if (_affixLookup.TryGetValue(id, out var affix))
+        public bool TryResolveAffix(string id, out ItemAffixSO affix, out int tier)
+        {
+            if (_affixLookup == null) Init();
+
+            affix = null;
+            tier = 0;
+            if (_affixLookup == null || string.IsNullOrEmpty(id)) return false;
+
+            if (_affixLookup.TryGetValue(id, out affix))
             {
-                return affix;
+                if (_legacyAffixTierLookup != null)
+                    _legacyAffixTierLookup.TryGetValue(id, out tier);
+                if (tier <= 0 && affix != null)
+                    tier = affix.GetDefaultTier();
+                return affix != null;
             }
-            
-            // Лог можно убрать, если часто спамит при смене версий игры
+
             Debug.LogWarning($"[ItemDatabase] Аффикс с ID '{id}' не найден в базе!");
-            return null;
+            return false;
+        }
+
+        private void RegisterAffixLookupKeys(ItemAffixSO affix)
+        {
+            if (affix == null) return;
+
+            RegisterAffixLookupKey(affix.UniqueID, affix, 0);
+            RegisterAffixLookupKey(affix.GroupID, affix, 0);
+            RegisterAffixLookupKey(affix.name, affix, 0);
+
+            if (affix.LegacyTierIds == null) return;
+            foreach (ItemAffixSO.LegacyTierId legacy in affix.LegacyTierIds)
+                RegisterAffixLookupKey(legacy.Id, affix, legacy.Tier);
+        }
+
+        private void RegisterAffixLookupKey(string key, ItemAffixSO affix, int tier)
+        {
+            if (string.IsNullOrWhiteSpace(key) || affix == null) return;
+            string normalized = key.Trim();
+            if (!_affixLookup.ContainsKey(normalized))
+                _affixLookup.Add(normalized, affix);
+            if (tier > 0 && !_legacyAffixTierLookup.ContainsKey(normalized))
+                _legacyAffixTierLookup.Add(normalized, tier);
         }
 
         public SkillDataSO GetSkill(string id)
@@ -119,7 +156,42 @@ public class ItemDatabaseSO : ScriptableObject
             if (string.IsNullOrEmpty(id)) return null;
             if (_skillLookup.TryGetValue(id, out var skill))
                 return skill;
+
+            RegisterSkillsFromResources();
+            if (_skillLookup.TryGetValue(id, out skill))
+                return skill;
             Debug.LogWarning($"[ItemDatabase] Скилл с ID '{id}' не найден в базе!");
             return null;
+        }
+
+        private void RegisterSkillsFromResources()
+        {
+            var skillsFromResources = Resources.LoadAll<SkillDataSO>("Skills");
+            if (skillsFromResources == null)
+                return;
+
+            foreach (var skill in skillsFromResources)
+                RegisterSkillLookupKeys(skill);
+        }
+
+        private void RegisterSkillLookupKeys(SkillDataSO skill)
+        {
+            if (skill == null)
+                return;
+
+            RegisterSkillLookupKey(skill.ID, skill);
+            RegisterSkillLookupKey(skill.name, skill);
+            RegisterSkillLookupKey(skill.SkillName, skill);
+            RegisterSkillLookupKey(skill.NameKey, skill);
+        }
+
+        private void RegisterSkillLookupKey(string key, SkillDataSO skill)
+        {
+            if (string.IsNullOrWhiteSpace(key) || skill == null)
+                return;
+
+            string normalizedKey = key.Trim();
+            if (!_skillLookup.ContainsKey(normalizedKey))
+                _skillLookup.Add(normalizedKey, skill);
         }
 }

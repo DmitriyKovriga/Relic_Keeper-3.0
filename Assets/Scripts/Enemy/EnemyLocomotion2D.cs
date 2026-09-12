@@ -5,11 +5,18 @@ namespace Scripts.Enemies
     public class EnemyLocomotion2D : MonoBehaviour
     {
         private EnemyDataSO _data;
+        private EnemyStats _stats;
         private Rigidbody2D _rb;
         private SpriteRenderer _spriteRenderer;
         private Collider2D _collider;
         private float _moveInput;
         private int _groundLayerMask = 1 << 6;
+        private bool _hasForcedHorizontalVelocity;
+        private float _forcedHorizontalVelocity;
+        private bool _ignoreLedgeForForcedMotion;
+        private bool _isStunned;
+        private bool _isFrozen;
+        private float _cachedGravityScale = float.NaN;
 
         public bool IsGrounded { get; private set; }
         public bool IsNearWall { get; private set; }
@@ -20,10 +27,14 @@ namespace Scripts.Enemies
         public void Initialize(EnemyEntity entity, EnemyDataSO data)
         {
             _data = data;
+            _stats = GetComponent<EnemyStats>();
             _spriteRenderer = entity != null ? entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>(true);
             EnsureGroundLayerMask();
             EnsurePhysicsComponents();
             _moveInput = 0f;
+            _isStunned = false;
+            _isFrozen = false;
+            _cachedGravityScale = float.NaN;
         }
 
         private void FixedUpdate()
@@ -37,6 +48,12 @@ namespace Scripts.Enemies
 
         public void SetMoveInput(float input)
         {
+            if (IsControlLocked)
+            {
+                Stop();
+                return;
+            }
+
             _moveInput = Mathf.Clamp(input, -1f, 1f);
             if (Mathf.Abs(_moveInput) > 0.01f)
                 FaceDirection(_moveInput > 0f ? 1 : -1);
@@ -49,7 +66,7 @@ namespace Scripts.Enemies
 
         public bool TryJump()
         {
-            if (_data == null || !_data.Movement.CanJump || !IsGrounded || _rb == null)
+            if (IsControlLocked || _data == null || !_data.Movement.CanJump || !IsGrounded || _rb == null)
                 return false;
 
             _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, 0f);
@@ -57,10 +74,115 @@ namespace Scripts.Enemies
             return true;
         }
 
+        public void ForceStopMotion()
+        {
+            _moveInput = 0f;
+            _hasForcedHorizontalVelocity = false;
+            _forcedHorizontalVelocity = 0f;
+            if (_rb != null)
+                _rb.linearVelocity = Vector2.zero;
+        }
+
+        public void SetForcedHorizontalVelocity(float velocityX, bool ignoreLedge = false)
+        {
+            if (IsControlLocked)
+                return;
+
+            _hasForcedHorizontalVelocity = true;
+            _forcedHorizontalVelocity = velocityX;
+            _ignoreLedgeForForcedMotion = ignoreLedge;
+
+            if (Mathf.Abs(velocityX) > 0.01f)
+                FaceDirection(velocityX > 0f ? 1 : -1);
+        }
+
+        public void ClearForcedHorizontalVelocity()
+        {
+            _hasForcedHorizontalVelocity = false;
+            _forcedHorizontalVelocity = 0f;
+            _ignoreLedgeForForcedMotion = false;
+        }
+
+        public void SnapToGroundNow()
+        {
+            if (_collider is BoxCollider2D boxCollider)
+            {
+                SnapToGround(boxCollider);
+                RefreshEnvironmentState();
+            }
+        }
+
+        public void SetStunned(bool stunned)
+        {
+            _isStunned = stunned;
+            ApplyControlLockState();
+        }
+
+        public void SetFrozen(bool frozen)
+        {
+            _isFrozen = frozen;
+            ApplyControlLockState();
+        }
+
+        private bool IsControlLocked => _isStunned || _isFrozen;
+
+        private void ApplyControlLockState()
+        {
+            if (!IsControlLocked)
+            {
+                RestoreGravityIfNeeded();
+                return;
+            }
+
+            _moveInput = 0f;
+            _hasForcedHorizontalVelocity = false;
+            _forcedHorizontalVelocity = 0f;
+            _ignoreLedgeForForcedMotion = false;
+            if (_rb != null)
+            {
+                if (_isFrozen)
+                {
+                    if (float.IsNaN(_cachedGravityScale))
+                        _cachedGravityScale = _rb.gravityScale;
+
+                    _rb.gravityScale = 0f;
+                    _rb.linearVelocity = Vector2.zero;
+                }
+                else
+                {
+                    _rb.linearVelocity = new Vector2(0f, _rb.linearVelocity.y);
+                }
+            }
+        }
+
         private void ApplyMovement()
         {
             if (_rb == null || _data == null)
                 return;
+
+            if (IsControlLocked)
+            {
+                _rb.linearVelocity = _isFrozen ? Vector2.zero : new Vector2(0f, _rb.linearVelocity.y);
+                return;
+            }
+
+            if (_hasForcedHorizontalVelocity)
+            {
+                float forcedVelocity = _forcedHorizontalVelocity;
+                if (Mathf.Abs(forcedVelocity) > 0.01f)
+                {
+                    int forcedDirection = forcedVelocity > 0f ? 1 : -1;
+                    if (IsNearWall)
+                        forcedVelocity = 0f;
+                    else if (IsApproachingLedge && !_ignoreLedgeForForcedMotion && !_data.Movement.CanFallFromPlatform)
+                        forcedVelocity = 0f;
+                    else
+                        FaceDirection(forcedDirection);
+                }
+
+                _rb.linearVelocity = new Vector2(forcedVelocity, _rb.linearVelocity.y);
+                return;
+            }
 
             float desiredInput = _moveInput;
             if (Mathf.Abs(desiredInput) > 0.01f)
@@ -74,17 +196,32 @@ namespace Scripts.Enemies
                     FaceDirection(moveDir);
             }
 
-            float targetSpeed = desiredInput * _data.Movement.MoveSpeed;
+            float targetSpeed = desiredInput * ResolveMoveSpeed();
             float currentX = _rb.linearVelocity.x;
             float nextX = Mathf.MoveTowards(currentX, targetSpeed, _data.Movement.Acceleration * Time.fixedDeltaTime);
             _rb.linearVelocity = new Vector2(nextX, _rb.linearVelocity.y);
+        }
+
+        private float ResolveMoveSpeed()
+        {
+            if (_stats != null)
+            {
+                float fromStats = _stats.ResolveMoveSpeed();
+                if (fromStats > 0.01f)
+                    return fromStats;
+            }
+
+            return _data != null ? _data.Movement.MoveSpeed : 0f;
         }
 
         private void FaceDirection(int direction)
         {
             FacingDirection = direction >= 0 ? 1 : -1;
             if (_spriteRenderer != null)
-                _spriteRenderer.flipX = FacingDirection < 0;
+            {
+                bool invertFacing = _data != null && _data.Animation != null && _data.Animation.InvertFacingX;
+                _spriteRenderer.flipX = invertFacing ? FacingDirection > 0 : FacingDirection < 0;
+            }
         }
 
         private void RefreshEnvironmentState()
@@ -136,6 +273,15 @@ namespace Scripts.Enemies
             }
         }
 
+        private void RestoreGravityIfNeeded()
+        {
+            if (_rb == null || float.IsNaN(_cachedGravityScale))
+                return;
+
+            _rb.gravityScale = _cachedGravityScale;
+            _cachedGravityScale = float.NaN;
+        }
+
         private void AutoFitCollider(BoxCollider2D collider)
         {
             if (_spriteRenderer == null || _spriteRenderer.sprite == null)
@@ -157,15 +303,18 @@ namespace Scripts.Enemies
                 return;
 
             Bounds bounds = collider.bounds;
-            Vector2 castOrigin = new Vector2(bounds.center.x, bounds.max.y + 0.1f);
-            Vector2 castSize = new Vector2(Mathf.Max(0.05f, bounds.size.x * 0.9f), Mathf.Max(0.1f, bounds.size.y * 0.5f));
-            RaycastHit2D hit = Physics2D.BoxCast(castOrigin, castSize, 0f, Vector2.down, 4f, _groundLayerMask);
+            Vector2 rayOrigin = new Vector2(transform.position.x, transform.position.y);
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, 6f, _groundLayerMask);
             if (hit.collider == null)
+                return;
+            if (hit.normal.y < 0.55f)
                 return;
 
             float desiredBottomY = hit.point.y + 0.01f;
             float currentBottomY = bounds.min.y;
             float deltaY = desiredBottomY - currentBottomY;
+            if (deltaY > 0.001f)
+                return;
             if (Mathf.Abs(deltaY) < 0.001f)
                 return;
 

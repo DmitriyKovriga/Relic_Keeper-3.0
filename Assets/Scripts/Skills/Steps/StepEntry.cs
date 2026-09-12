@@ -1,5 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Scripts.Combat;
+using Scripts.Stats;
+using Scripts.StatusEffects;
 
 namespace Scripts.Skills.Steps
 {
@@ -13,6 +16,14 @@ namespace Scripts.Skills.Steps
         public StepDefinitionSO StepDefinition;
         [Tooltip("Переопределения параметров для этого скилла")]
         public List<StepParamValue> Overrides = new List<StepParamValue>();
+        [Tooltip("Outgoing damage conversion rules applied by this step before character stat conversions.")]
+        public List<DamageConversionRule> DamageConversions = new List<DamageConversionRule>();
+        [Tooltip("Private stat modifiers that exist only while this step builds its hit snapshot.")]
+        public List<SerializableStatModifier> ScopedStatModifiers = new List<SerializableStatModifier>();
+        [Tooltip("Private stat modifiers scaled by ailment stacks on each individual target.")]
+        public List<TargetAilmentStackStatModifierRule> TargetAilmentStackModifiers = new List<TargetAilmentStackStatModifierRule>();
+        [Tooltip("Extra actions triggered once for every target hit by this damage/projectile step.")]
+        public List<SkillOnHitEffectRule> OnHitEffects = new List<SkillOnHitEffectRule>();
 
         [Header("Timing (percent of pipeline 0..1)")]
         [Range(0f, 1f)] [Tooltip("Момент начала степа (0 = старт пайплайна, 0.35 = 35%)")]
@@ -89,5 +100,36 @@ namespace Scripts.Skills.Steps
             if (o != null) { o.Type = StepParamValue.ParamKind.Object; o.ObjectVal = value; }
             else Overrides.Add(new StepParamValue { Key = key, Type = StepParamValue.ParamKind.Object, ObjectVal = value });
         }
+    }
+
+    [System.Serializable]
+    public class TargetAilmentStackStatModifierRule
+    {
+        public AilmentType Ailment = AilmentType.Poison;
+        public StatType Stat = StatType.DamagePhysical;
+        public StatModType Type = StatModType.Flat;
+        public float ValuePerStack = 10f;
+        public int MaxStacksCounted;
+    }
+
+    public enum SkillOnHitEffectType
+    {
+        SpawnVfxDamageCircle = 0
+    }
+
+    [System.Serializable]
+    public class SkillOnHitEffectRule
+    {
+        public SkillOnHitEffectType Type = SkillOnHitEffectType.SpawnVfxDamageCircle;
+        public GameObject VfxPrefab;
+        [Min(0.01f)] public float Lifetime = 0.35f;
+        [Min(0.01f)] public float ScaleMultiplier = 1f;
+        [Range(0f, 1f)] public float HitAtLifePercent = 0.5f;
+        [Min(0.01f)] public float Radius = 1.2f;
+        [Min(0f)] public float DamageMultiplier = 0.5f;
+        public bool ExcludePrimaryTarget = true;
+        public bool FadeOutEnabled = true;
+        [Range(0f, 1f)] public float FadeOutStartLifePercent = 0.6f;
+        [Range(0f, 1f)] public float FadeStartAlphaMultiplier = 0.5f;
     }
 }

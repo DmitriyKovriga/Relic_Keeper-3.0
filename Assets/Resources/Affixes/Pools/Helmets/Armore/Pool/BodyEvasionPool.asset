@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f012c5ec840dd543becc6dccbf857b4, type: 3}
+  m_Name: BodyEvasionPool
+  m_EditorClassIdentifier: 
+  Slot: 0
+  DefenseType: 2
+  Affixes:
+  - {fileID: 11400000, guid: 846945c27e94a804ab1745093fc256c4, type: 2}
+  - {fileID: 11400000, guid: 92c9c849e458ab740b98d48f711332e3, type: 2}
+  - {fileID: 11400000, guid: 3bd4f102d4d16524895bce57a93f33d3, type: 2}
+  - {fileID: 11400000, guid: 2653a417ef603c84a9fd83b5a547e25f, type: 2}
+  - {fileID: 11400000, guid: 8ae1b22205c66ab49ad3f9d5e35d609a, type: 2}
+  - {fileID: 11400000, guid: bcacff725822c4046bc1a6c30ebddfaf, type: 2}
+  - {fileID: 11400000, guid: 76177891f75bf76418a0bb0dcef3a093, type: 2}
+  - {fileID: 11400000, guid: c681b8cb7aafc6b4c8af67b9ac46ff4d, type: 2}
+  - {fileID: 11400000, guid: 1f20769847c9141459b0b7ab16aba4d6, type: 2}
+  - {fileID: 11400000, guid: 29f896ffededcf04b9d6d754db9f12b6, type: 2}
+  - {fileID: 11400000, guid: 0deeeea55c58a5c4d9dbdf9f6ac829ac, type: 2}
+  - {fileID: 11400000, guid: fab3ebd7704c1ce4ab4f0b419a6d4cde, type: 2}
+  - {fileID: 11400000, guid: 923b080e70dfb5745b956fe3c933b2c5, type: 2}
+  - {fileID: 11400000, guid: 41f3d798d621ae343aeb4457e07c7403, type: 2}
+  - {fileID: 11400000, guid: 155f5f177a03bcc4288c7e5e481fabe7, type: 2}
+  - {fileID: 11400000, guid: b52fb0540d380a3409ab2a8fff9fb53e, type: 2}
+  - {fileID: 11400000, guid: eeebbaef192d4ac4b98580a48a2b957c, type: 2}
+  - {fileID: 11400000, guid: e3a47fda65f65d346860f90de7bb098d, type: 2}
+  - {fileID: 11400000, guid: e957245934d442548a5c0ab389451f50, type: 2}
+  - {fileID: 11400000, guid: 9ab2dff2368407544a4ebf0623be7b1a, type: 2}
+  - {fileID: 11400000, guid: 250de2f5359d28646b0ff77646a44e51, type: 2}
+  - {fileID: 11400000, guid: 47e0c2912ebc65848ada8b4c52e02696, type: 2}

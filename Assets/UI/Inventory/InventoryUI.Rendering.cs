@@ -64,8 +64,7 @@ public partial class InventoryUI
         ClearOccupiedSlotClasses(_backpackSlots);
         foreach (var slot in _equipmentSlots)
         {
-            var oldImg = slot.Q<Image>();
-            if (oldImg != null) slot.Remove(oldImg);
+            RemoveSlotItemIcons(slot);
             SetEquipmentSlotLabelVisible(slot, true);
         }
         var inv = InventoryManager.Instance;
@@ -130,8 +129,7 @@ public partial class InventoryUI
     private void DrawCraftSlotIcon()
     {
         if (_craftSlot == null) return;
-        var oldImg = _craftSlot.Q<Image>();
-        if (oldImg != null) _craftSlot.Remove(oldImg);
+        RemoveSlotItemIcons(_craftSlot);
         var item = InventoryManager.Instance.CraftingSlotItem;
         if (item != null && item.Data != null)
         {
@@ -151,10 +149,11 @@ public partial class InventoryUI
         if (InventoryManager.Instance == null) return;
         for (int i = 0; i < _orbSlots.Count; i++)
         {
-            var (slot, countLabel) = _orbSlots[i];
+            var (slot, iconFrame, countLabel) = _orbSlots[i];
             var orb = _orbSlotsConfig != null ? _orbSlotsConfig.GetOrbInSlot(i) : null;
             int count = orb != null ? InventoryManager.Instance.GetOrbCount(orb.ID) : 0;
-            slot.style.backgroundImage = (orb != null && orb.Icon != null) ? new StyleBackground(orb.Icon) : default;
+            iconFrame.style.backgroundImage = orb != null ? new StyleBackground(GetOrbDisplayIcon(orb)) : default;
+            slot.EnableInClassList("orb-slot-empty", orb != null && count <= 0);
             countLabel.text = count.ToString();
             countLabel.style.visibility = Visibility.Visible;
         }
@@ -176,8 +175,18 @@ public partial class InventoryUI
         icon.style.height = h * slotSizePx;
         icon.style.position = Position.Absolute;
         icon.pickingMode = receivePointerEvents ? PickingMode.Position : PickingMode.Ignore;
-        if (item.Data.Icon != null) icon.style.backgroundImage = new StyleBackground(item.Data.Icon);
         return icon;
+    }
+
+    private static void RemoveSlotItemIcons(VisualElement slot)
+    {
+        if (slot == null) return;
+
+        for (int i = slot.childCount - 1; i >= 0; i--)
+        {
+            if (slot[i] is Image)
+                slot.RemoveAt(i);
+        }
     }
 
     private static void SetEquipmentSlotLabelVisible(VisualElement slot, bool visible)

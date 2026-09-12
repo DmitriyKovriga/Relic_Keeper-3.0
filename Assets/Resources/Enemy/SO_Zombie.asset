@@ -22,46 +22,56 @@ MonoBehaviour:
   - Type: 14
     Value: 10
   - Type: 18
-    Value: 25
+    Value: 0
   - Type: 20
-    Value: 25
+    Value: 0
   - Type: 22
-    Value: 25
+    Value: 0
   - Type: 24
-    Value: 25
+    Value: 0
+  - Type: 102
+    Value: 70
   Stats:
   - Type: 0
     BaseValue: 100
     ScalingMode: 2
-    ScalingValue: 20
+    ScalingValue: 22
   - Type: 14
     BaseValue: 10
     ScalingMode: 2
-    ScalingValue: 10
+    ScalingValue: 18
   - Type: 18
-    BaseValue: 25
+    BaseValue: 0
     ScalingMode: 0
     ScalingValue: 0
   - Type: 20
-    BaseValue: 25
+    BaseValue: 0
     ScalingMode: 0
     ScalingValue: 0
   - Type: 22
-    BaseValue: 25
+    BaseValue: 0
     ScalingMode: 0
     ScalingValue: 0
   - Type: 24
-    BaseValue: 25
+    BaseValue: 0
     ScalingMode: 0
     ScalingValue: 0
   - Type: 30
     BaseValue: 12
     ScalingMode: 2
-    ScalingValue: 10
+    ScalingValue: 26
+  - Type: 102
+    BaseValue: 70
+    ScalingMode: 2
+    ScalingValue: 22
+  StunThresholdMultiplier: 1
   Perception:
     AggroRange: 7
     LoseTargetRange: 10
     RequireLineOfSight: 0
+    AggroMemoryDuration: 2.75
+    AlertLoseTargetRangeMultiplier: 1.35
+    IgnoreLineOfSightWhileAlerted: 1
   Movement:
     MoveSpeed: 1.8
     StopDistance: 0.95
@@ -84,15 +94,57 @@ MonoBehaviour:
     DamageMultiplier: 1
     HitboxSize: {x: 1.1, y: 0.8}
     HitboxOffset: {x: 0.7, y: 0}
+    ProjectileVisualResourcePath:
+    ProjectileSpawnOffset: {x: 0, y: 0.15}
+    ProjectileSpeed: 6
+    ProjectileLifetime: 8
+    ProjectileHitRadius: 0.22
+    ProjectileAnimationFps: 10
+    ProjectileStopsOnGround: 1
+  ChargeAttack:
+    Enabled: 0
+    TriggerMinDistance: 2.2
+    TriggerMaxDistance: 4.8
+    AttackCooldown: 3
+    DeliveryType: 0
+    DamageType: 0
+    Windup: 0.3
+    ActiveTime: 0.1
+    Recovery: 0.35
+    DamageMultiplier: 1.35
+    HitboxSize: {x: 1.6, y: 0.9}
+    HitboxOffset: {x: 0.95, y: 0}
+    DashSpeed: 5.25
+    DashDuration: 0.22
+    DashOvershootDistance: 0.95
+    IgnoreLedgesDuringDash: 0
   Behaviour:
-    DecisionIntervalMin: 0.08
-    DecisionIntervalMax: 0.16
-    PostActionPauseMin: 0.14
-    PostActionPauseMax: 0.24
+    DecisionIntervalMin: 0.1
+    DecisionIntervalMax: 0.2
+    ActionHesitationMin: 0.08
+    ActionHesitationMax: 0.18
+    PostActionPauseMin: 1
+    PostActionPauseMax: 3
     StopDistanceVariance: 0.12
     TurnDelayMin: 0.06
     TurnDelayMax: 0.12
     MissRecoveryMultiplier: 1.35
+    IdleWanderEnabled: 1
+    IdleWanderMoveChance: 0.65
+    IdleWanderSpeedMultiplier: 0.45
+    IdleWanderStandMin: 1.2
+    IdleWanderStandMax: 3
+    IdleWanderMoveMin: 0.35
+    IdleWanderMoveMax: 1.1
+  Burrow:
+    Enabled: 0
+    TriggerMinDistance: 1.6
+    Cooldown: 2.2
+    ExitOffsetRadius: 0.35
+    HiddenDelay: 0.04
+    PostExitPause: 0.12
+    DestinationSearchHeight: 3.5
+    DestinationSearchDepth: 6
   DeathEffect:
     Enabled: 1
     ChunkCount: 6
@@ -115,5 +167,30 @@ MonoBehaviour:
     IdleStateName: Zombie_Idle
     MoveStateName: Zombie_Walk
     AttackStateName: Zombie_Attacks
-  XPReward: 25
+    ChargeStateName: Charge
+    HitStateName: Zombie_Hit
+    DigInStateName: DigIn
+    DigOutStateName: DigOut
+    IdleSpritesResourcePath:
+    MoveSpritesResourcePath:
+    AttackSpritesResourcePath:
+    ChargeSpritesResourcePath:
+    HitSpritesResourcePath:
+    DigInSpritesResourcePath:
+    DigOutSpritesResourcePath:
+    VisualLocalOffset: {x: 0, y: 0}
+    GroundShadowOffset: {x: 0, y: 0}
+    GroundShadowWidthScale: 1
+    InvertFacingX: 1
+    IdleFps: 8
+    MoveFps: 8
+    AttackFps: 10
+    ChargeFps: 10
+    HitFps: 10
+    DigInFps: 10
+    DigOutFps: 10
+    AttackImpactFrame: -1
+    ChargeImpactFrame: -1
+  XPReward: 7.5
+  LootDropMultiplier: 0.5
   LegacyGrowthPerLevelPercent: 25

@@ -1,3 +1,4 @@
+using Scripts.Configuration;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -27,10 +28,11 @@ public class TavernWindowToggle : MonoBehaviour
                 _windowManager.CloseWindow(wv);
             else if (_tavernUI.IsOpen)
                 _tavernUI.Close();
-            else
+            else if (PlaytestConfiguration.TavernAlwaysAvailable)
                 _tavernUI.Open(forNewGame: false);
         }
     }
 
+    /// <summary>Открыть трактир в обход хоткея — используется NPC трактирщика в хабе.</summary>
     public void OpenTavern() => _tavernUI?.Open(forNewGame: false);
 }

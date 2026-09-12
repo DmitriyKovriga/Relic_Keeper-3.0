@@ -14,8 +14,8 @@ namespace Scripts.Enemies
         private float _age;
         private bool _spawnCollisionSplat;
         private bool _hasSpawnedImpactSplat;
-        private int _sortingLayerId;
-        private int _decalSortingOrder;
+        private float _decalAnchorY;
+        private int _decalLocalOffset;
         private float _restCheckDelay;
         private float _restVelocityThreshold;
         private float _restAngularVelocityThreshold;
@@ -24,14 +24,14 @@ namespace Scripts.Enemies
         private float _restVelocityMultiplier = 1f;
         private bool _allowCollisionSplat = true;
 
-        public void Initialize(EnemyDeathEffectConfig config, int sortingLayerId, int decalSortingOrder, float restDelayMultiplier = 1f, float restVelocityMultiplier = 1f, bool allowCollisionSplat = true)
+        public void Initialize(EnemyDeathEffectConfig config, float remainsAnchorY, int localOffset, float restDelayMultiplier = 1f, float restVelocityMultiplier = 1f, bool allowCollisionSplat = true)
         {
             _config = config;
             _lifetime = Mathf.Max(0.1f, config.Lifetime);
             _fadeDuration = Mathf.Clamp(config.FadeDuration, 0f, _lifetime);
             _spawnCollisionSplat = allowCollisionSplat;
-            _sortingLayerId = sortingLayerId;
-            _decalSortingOrder = decalSortingOrder;
+            _decalAnchorY = remainsAnchorY;
+            _decalLocalOffset = localOffset + 50;
             _restCheckDelay = Mathf.Max(0f, config.RestCheckDelay);
             _restVelocityThreshold = Mathf.Max(0f, config.RestVelocityThreshold);
             _restAngularVelocityThreshold = Mathf.Max(0f, config.RestAngularVelocityThreshold);
@@ -86,7 +86,7 @@ namespace Scripts.Enemies
                 return;
 
             ContactPoint2D contact = collision.GetContact(0);
-            EnemyDeathEffectSpawner.SpawnSurfacePixelMark(contact.point, contact.normal, _config, _sortingLayerId, _decalSortingOrder, transform.parent);
+            EnemyDeathEffectSpawner.SpawnSurfacePixelMark(contact.point, contact.normal, _config, _decalAnchorY, transform.parent, _decalLocalOffset);
             _hasSpawnedImpactSplat = true;
         }
 

@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ab3c1233e08acf4fb693bfdd7c93c19, type: 3}
+  m_Name: MysticBodyArmorSkillPool
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillPoolSO
+  PossibleSkills:
+  - Skill: {fileID: 11400000, guid: 8649b20de9cc8e143bcfb0a088ec3b48, type: 2}
+    Weight: 1
