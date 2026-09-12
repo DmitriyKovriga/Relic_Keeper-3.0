@@ -1295,6 +1295,22 @@ MonoBehaviour:
     m_Key: passive.node.ArmoreAndLifeKey.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103878957776990208
+    m_Key: passive.node.ArmoreToDamage.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103878957776990209
+    m_Key: passive.node.ArmoreToDamage.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103878974633897984
+    m_Key: passive.node.ArmoreToDamageKey.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103878974633897985
+    m_Key: passive.node.ArmoreToDamageKey.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

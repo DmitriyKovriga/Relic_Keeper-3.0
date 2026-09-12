@@ -2256,6 +2256,22 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 103878957776990208
+    m_Localized: More Poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103878957776990209
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103878974633897984
+    m_Localized: Big Guy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103878974633897985
+    m_Localized: Every 100 Armore grants 10 flat Phys Damage
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

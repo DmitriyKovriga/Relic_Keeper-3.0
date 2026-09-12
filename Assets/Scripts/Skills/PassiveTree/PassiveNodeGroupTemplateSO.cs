@@ -163,6 +163,9 @@ namespace Scripts.Skills.PassiveTree
                         Value = modifier.Value,
                         Type = modifier.Type
                     }).ToList(),
+                UniqueStatScalingRules = source.UniqueStatScalingRules == null
+                    ? new List<PassiveStatScalingRule>()
+                    : source.UniqueStatScalingRules.Where(rule => rule != null).Select(rule => rule.Clone()).ToList(),
                 ConnectionIDs = source.ConnectionIDs == null ? new List<string>() : new List<string>(source.ConnectionIDs)
             };
         }

@@ -999,6 +999,14 @@ namespace Scripts.Editor.PassiveTree
                     result.Add(view.Data);
             return result;
         }
+        public List<PassiveClusterDefinition> GetSelectedClusterDataList()
+        {
+            var result = new List<PassiveClusterDefinition>();
+            foreach (var view in _selection.GetSelectedClusterViews())
+                if (view?.Data != null)
+                    result.Add(view.Data);
+            return result;
+        }
         public int GetSelectedNodeCount() => _selection.SelectedNodeCount;
         public int GetSelectedClusterCount() => _selection.SelectedClusterCount;
         public int GetTotalSelectionCount() => _selection.TotalSelectionCount;
@@ -1069,6 +1077,18 @@ namespace Scripts.Editor.PassiveTree
 
             if (_clusterViews.TryGetValue(clusterId, out var view))
                 _selection.SelectCluster(view);
+        }
+
+        public void SelectClustersByIds(IEnumerable<string> clusterIds)
+        {
+            if (clusterIds == null)
+                return;
+
+            var views = new List<PassiveTreeClusterView>();
+            foreach (string clusterId in clusterIds)
+                if (!string.IsNullOrWhiteSpace(clusterId) && _clusterViews.TryGetValue(clusterId, out var view))
+                    views.Add(view);
+            _selection.SelectClusters(views);
         }
 
         public void SelectBezierByNodeIds(string nodeIdA, string nodeIdB)

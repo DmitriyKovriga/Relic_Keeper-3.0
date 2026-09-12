@@ -127,7 +127,10 @@ namespace Scripts.Skills.PassiveTree.UI
         private void FillStats(PassiveNodeDefinition node)
         {
             var mods = node.GetFinalModifiers();
-            if (mods == null || mods.Count == 0)
+            var scalingRules = node.GetFinalStatScalingRules();
+            int modifierCount = mods?.Count ?? 0;
+            int scalingCount = scalingRules?.Count ?? 0;
+            if (modifierCount == 0 && scalingCount == 0)
             {
                 _stats.text = "";
                 _stats.style.display = DisplayStyle.None;
@@ -136,33 +139,55 @@ namespace Scripts.Skills.PassiveTree.UI
             }
 
             _stats.style.display = DisplayStyle.Flex;
-            var results = new string[mods.Count];
-            int pending = mods.Count;
-            for (int i = 0; i < mods.Count; i++)
+            var results = new string[modifierCount + scalingCount];
+            for (int i = 0; i < modifierCount; i++)
             {
                 var mod = mods[i];
-                int idx = i;
-                string statKey = $"stats.{mod.Stat}";
-                var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(MenuLabelsTable, statKey);
-                op.Completed += handle =>
-                {
-                    string statName = (handle.Status == AsyncOperationStatus.Succeeded && !IsMissingTranslation(handle.Result))
-                        ? handle.Result
-                        : mod.Stat.ToString();
-                    results[idx] = StatPresentation.FormatModifierLine(
-                        _statsDatabase,
-                        mod.Stat,
-                        statName,
-                        mod.Value,
-                        mod.Type,
-                        StatPresentation.ModifierLineStyle.StatThenValue);
-                    if (--pending == 0 && _stats != null)
-                    {
-                        _stats.text = string.Join("\n", results);
-                        RefreshLayoutIfVisible();
-                    }
-                };
+                results[i] = StatPresentation.FormatModifierLine(
+                    _statsDatabase,
+                    mod.Stat,
+                    GetLocalizedStatName(mod.Stat),
+                    mod.Value,
+                    mod.Type,
+                    StatPresentation.ModifierLineStyle.StatThenValue);
             }
+
+            for (int i = 0; i < scalingCount; i++)
+                results[modifierCount + i] = FormatScalingRule(scalingRules[i]);
+
+            _stats.text = string.Join("\n", results);
+            RefreshLayoutIfVisible();
+        }
+
+        private string FormatScalingRule(PassiveStatScalingRule rule)
+        {
+            if (rule == null)
+                return string.Empty;
+
+            string target = StatPresentation.FormatModifierLine(
+                _statsDatabase,
+                rule.TargetStat,
+                GetLocalizedStatName(rule.TargetStat),
+                rule.TargetValuePerStep,
+                rule.TargetModifierType,
+                StatPresentation.ModifierLineStyle.StatThenValue);
+            string source = GetLocalizedStatName(rule.SourceStat);
+            bool russian = LocalizationSettings.SelectedLocale != null &&
+                           LocalizationSettings.SelectedLocale.Identifier.Code.StartsWith("ru", System.StringComparison.OrdinalIgnoreCase);
+            if (russian)
+                return rule.UseWholeSteps
+                    ? $"{source}: каждые {rule.SourceAmountPerStep:0.##} ед. → {target}"
+                    : $"{source}: на {rule.SourceAmountPerStep:0.##} ед. → {target} (пропорционально)";
+
+            return rule.UseWholeSteps
+                ? $"{source}: every {rule.SourceAmountPerStep:0.##} → {target}"
+                : $"{source}: per {rule.SourceAmountPerStep:0.##} → {target} (proportional)";
+        }
+
+        private string GetLocalizedStatName(StatType stat)
+        {
+            string localized = LocalizationSettings.StringDatabase.GetLocalizedString(MenuLabelsTable, $"stats.{stat}");
+            return IsMissingTranslation(localized) ? stat.ToString() : localized;
         }
 
         private void CreateElements()

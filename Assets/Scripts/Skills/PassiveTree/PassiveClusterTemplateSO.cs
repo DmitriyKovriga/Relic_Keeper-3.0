@@ -176,6 +176,7 @@ namespace Scripts.Skills.PassiveTree
                 OrbitAngle = source.OrbitAngle,
                 Template = source.Template,
                 UniqueModifiers = CloneModifiers(source.UniqueModifiers),
+                UniqueStatScalingRules = CloneScalingRules(source.UniqueStatScalingRules),
                 ConnectionIDs = source.ConnectionIDs == null ? new List<string>() : new List<string>(source.ConnectionIDs)
             };
         }
@@ -219,6 +220,18 @@ namespace Scripts.Skills.PassiveTree
                 });
             }
 
+            return result;
+        }
+
+        private static List<PassiveStatScalingRule> CloneScalingRules(List<PassiveStatScalingRule> source)
+        {
+            var result = new List<PassiveStatScalingRule>();
+            if (source == null)
+                return result;
+
+            foreach (var rule in source)
+                if (rule != null)
+                    result.Add(rule.Clone());
             return result;
         }
     }

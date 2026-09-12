@@ -139,6 +139,12 @@ namespace Scripts.Editor.PassiveTree
             EditorGUILayout.PropertyField(_serialized.FindProperty("Description"));
             EditorGUILayout.PropertyField(_serialized.FindProperty("Icon"));
             EditorGUILayout.PropertyField(_serialized.FindProperty("Modifiers"), true);
+            EditorGUILayout.Space(4f);
+            EditorGUILayout.LabelField("Special Stat Scaling", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "Generic source-to-target rule. Example: +10 flat DamagePhysical for every 100 final Armor.",
+                MessageType.None);
+            EditorGUILayout.PropertyField(_serialized.FindProperty("StatScalingRules"), true);
             _serialized.ApplyModifiedProperties();
 
             if (GUILayout.Button("Open in Inspector"))

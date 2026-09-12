@@ -22,6 +22,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 0}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 8172309c-4ddf-4f9b-a5fa-2dfdf0fdb87d
     - 7cf45e47-cfce-4708-8cd9-67f3ff99ed82
@@ -36,6 +37,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - c5fe6017-c3d9-4ad2-b22e-73549c73ffab
     - a88a49f4-d9c1-4d00-9a32-c5b60bd4a412
@@ -50,6 +52,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - c5fe6017-c3d9-4ad2-b22e-73549c73ffab
     - f7efabe2-152b-4cce-b510-925313303142
@@ -64,6 +67,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - c5fe6017-c3d9-4ad2-b22e-73549c73ffab
     - 151d3869-a745-434f-b145-ebf0e1b8b202
@@ -78,6 +82,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - c5fe6017-c3d9-4ad2-b22e-73549c73ffab
     - 0c711811-1fc5-40c3-975f-daf9fbd0ab0c
@@ -92,6 +97,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 8172309c-4ddf-4f9b-a5fa-2dfdf0fdb87d
     - 094fc148-c07d-447a-a663-cb4bb7cc8358
@@ -105,6 +111,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 7cf45e47-cfce-4708-8cd9-67f3ff99ed82
     - 21083c92-b60d-4617-a90e-c2ad295f768c
@@ -118,6 +125,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 5a5c29b2-ff12-4d8a-b511-72aa8b0372db
     - 917aba84-3d6d-436d-87e8-c1282744accb
@@ -132,6 +140,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - b55e17d1-4703-4faa-bb51-c56283546c49
     - df74aa06-feba-4957-8ea6-dd87dac6195d
@@ -146,10 +155,12 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 094fc148-c07d-447a-a663-cb4bb7cc8358
     - df74aa06-feba-4957-8ea6-dd87dac6195d
     - c4085f2e-a626-48a1-8e80-d1328a86438f
+    - 266e32b4-8c15-40e3-b1c7-71ee9ff36a8b
   - ID: 094fc148-c07d-447a-a663-cb4bb7cc8358
     NodeType: 0
     PlacementMode: 0
@@ -159,6 +170,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - c71bee8d-a709-4fcf-966b-f739822acd7b
     - 184656e0-bad7-4ccf-9476-06f964d45268
@@ -174,6 +186,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 094fc148-c07d-447a-a663-cb4bb7cc8358
     - 21083c92-b60d-4617-a90e-c2ad295f768c
@@ -188,6 +201,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 184656e0-bad7-4ccf-9476-06f964d45268
     - 455de6ab-8a0a-4e12-81a8-9fd095319e1f
@@ -203,6 +217,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 21083c92-b60d-4617-a90e-c2ad295f768c
     - 917aba84-3d6d-436d-87e8-c1282744accb
@@ -217,6 +232,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 455de6ab-8a0a-4e12-81a8-9fd095319e1f
     - 17aa1f43-dcbb-4a61-a0dd-b49bfc7d84a0
@@ -231,6 +247,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 917aba84-3d6d-436d-87e8-c1282744accb
     - df74aa06-feba-4957-8ea6-dd87dac6195d
@@ -245,6 +262,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8b96521b6513a3740b4726ab32f87c20, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 17aa1f43-dcbb-4a61-a0dd-b49bfc7d84a0
     - c71bee8d-a709-4fcf-966b-f739822acd7b
@@ -260,6 +278,7 @@ MonoBehaviour:
     OrbitAngle: 60.459324
     Template: {fileID: 11400000, guid: 6d3df4c79978dac4dbcc7f9055fc137b, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 1f050c1e-b570-403d-a436-6e279dc013ac
     - 35e023ca-0c14-44b3-bcdb-34efb26ad4b2
@@ -273,6 +292,7 @@ MonoBehaviour:
     OrbitAngle: 104.53784
     Template: {fileID: 11400000, guid: 6d3df4c79978dac4dbcc7f9055fc137b, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 325a50ac-9859-48e0-82bd-c7ebb36edf8a
     - 8172309c-4ddf-4f9b-a5fa-2dfdf0fdb87d
@@ -286,6 +306,7 @@ MonoBehaviour:
     OrbitAngle: 15
     Template: {fileID: 11400000, guid: 6d3df4c79978dac4dbcc7f9055fc137b, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 325a50ac-9859-48e0-82bd-c7ebb36edf8a
     - 9450b2f8-f9ab-4ce7-9012-37607ed2e1b7
@@ -299,6 +320,7 @@ MonoBehaviour:
     OrbitAngle: 240
     Template: {fileID: 11400000, guid: 3bb92544217fc9249be68a0f7986f4a2, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 35e023ca-0c14-44b3-bcdb-34efb26ad4b2
     - b55e17d1-4703-4faa-bb51-c56283546c49
@@ -312,6 +334,7 @@ MonoBehaviour:
     OrbitAngle: 255
     Template: {fileID: 11400000, guid: f0972e61878103444bcae5bd7e6bf009, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 1b790e3d-1dcd-47bd-bd47-72302b39a352
     - da79b7b8-895a-4cdd-9111-3fed3ef6fc5a
@@ -325,6 +348,7 @@ MonoBehaviour:
     OrbitAngle: 210
     Template: {fileID: 11400000, guid: f0972e61878103444bcae5bd7e6bf009, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 56ccc49d-b908-4017-9018-e4c1153b8d07
     - f52ce43c-3f3f-44e0-b056-0aadce66239b
@@ -338,6 +362,7 @@ MonoBehaviour:
     OrbitAngle: 300
     Template: {fileID: 11400000, guid: f0972e61878103444bcae5bd7e6bf009, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 56ccc49d-b908-4017-9018-e4c1153b8d07
     - 5a5c29b2-ff12-4d8a-b511-72aa8b0372db
@@ -351,6 +376,7 @@ MonoBehaviour:
     OrbitAngle: 105.5885
     Template: {fileID: 11400000, guid: 596aff1fa0937eb4b8c5ef253a3a4e4e, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 1b790e3d-1dcd-47bd-bd47-72302b39a352
     - 7cf45e47-cfce-4708-8cd9-67f3ff99ed82
@@ -364,6 +390,7 @@ MonoBehaviour:
     OrbitAngle: 45
     Template: {fileID: 11400000, guid: 3fa4588704430534b84b7a171ce1eb12, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 1baa5acd-fc71-47c1-8140-cf391d8907a0
     - b55e17d1-4703-4faa-bb51-c56283546c49
@@ -376,6 +403,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 3fa4588704430534b84b7a171ce1eb12, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 2940115f-2abe-4afc-a553-3e55fc46075b
     - b7b8b034-b2f3-4933-8caf-fe49df35bc67
@@ -388,6 +416,7 @@ MonoBehaviour:
     OrbitAngle: 315
     Template: {fileID: 11400000, guid: 9594fc6da9c6c1947b7237f43a4c19e9, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 1baa5acd-fc71-47c1-8140-cf391d8907a0
     - d95d065d-5181-4b03-ba7f-21e4fa8df378
@@ -400,6 +429,7 @@ MonoBehaviour:
     OrbitAngle: 135.2521
     Template: {fileID: 11400000, guid: 70df5b04e76069c40afaa4120e3d0ad2, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 95bdb97f-2f1c-4ee0-ab58-72ad3b599cc9
     - 5a5c29b2-ff12-4d8a-b511-72aa8b0372db
@@ -412,6 +442,7 @@ MonoBehaviour:
     OrbitAngle: 180
     Template: {fileID: 11400000, guid: 70df5b04e76069c40afaa4120e3d0ad2, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 4b8164d9-3f81-4f8e-868c-0c78161fb3af
     - 30df6f16-707a-4a07-b51d-47275d88c8fb
@@ -424,6 +455,7 @@ MonoBehaviour:
     OrbitAngle: 225
     Template: {fileID: 11400000, guid: 401f5c25b36c62c44816f9c5be48caf5, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 95bdb97f-2f1c-4ee0-ab58-72ad3b599cc9
     - d95d065d-5181-4b03-ba7f-21e4fa8df378
@@ -436,6 +468,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 142224d46b320194eb33d4ea3e274111, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - b7b8b034-b2f3-4933-8caf-fe49df35bc67
     - 30df6f16-707a-4a07-b51d-47275d88c8fb
@@ -449,6 +482,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 142224d46b320194eb33d4ea3e274111, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - d95d065d-5181-4b03-ba7f-21e4fa8df378
     - f49e2a50-bdfc-415e-a6eb-c4a9e411504e
@@ -461,6 +495,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 142224d46b320194eb33d4ea3e274111, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 218aed1c-d0ac-4a0b-a3ee-c8adfb42b10f
     - 89def36f-fcf0-499c-806e-d1a00f9a1669
@@ -473,6 +508,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 07ca94a39bf27774eb1cf4dfa905daa9, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - f49e2a50-bdfc-415e-a6eb-c4a9e411504e
   - ID: 1bbf64d2-bbc2-4bb8-9d63-bddb3ba72808
@@ -484,6 +520,7 @@ MonoBehaviour:
     OrbitAngle: 270
     Template: {fileID: 11400000, guid: e8a39682fa193bf4ab2d3fb1f174de41, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 17aa1f43-dcbb-4a61-a0dd-b49bfc7d84a0
     - 10975ff3-2520-410c-bccd-a7f5b79408a5
@@ -497,6 +534,7 @@ MonoBehaviour:
     OrbitAngle: 240
     Template: {fileID: 11400000, guid: e8a39682fa193bf4ab2d3fb1f174de41, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 1bbf64d2-bbc2-4bb8-9d63-bddb3ba72808
     - 3bba7099-bf8a-412d-a454-477ad037ecd7
@@ -509,6 +547,7 @@ MonoBehaviour:
     OrbitAngle: 300
     Template: {fileID: 11400000, guid: e8a39682fa193bf4ab2d3fb1f174de41, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 1bbf64d2-bbc2-4bb8-9d63-bddb3ba72808
     - 4cfbc7ce-5c50-4763-be39-47473c9d33ee
@@ -521,6 +560,7 @@ MonoBehaviour:
     OrbitAngle: 330
     Template: {fileID: 11400000, guid: 84351cbc476c94948be3a82699041ede, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 10975ff3-2520-410c-bccd-a7f5b79408a5
   - ID: 3bba7099-bf8a-412d-a454-477ad037ecd7
@@ -532,6 +572,7 @@ MonoBehaviour:
     OrbitAngle: 210
     Template: {fileID: 11400000, guid: 84351cbc476c94948be3a82699041ede, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 9b2a63cc-b0f2-4da1-8262-ae0637ca7cec
   - ID: 48ac6c82-7b33-45d5-ab6b-082403183302
@@ -543,6 +584,7 @@ MonoBehaviour:
     OrbitAngle: 150
     Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 4595454e-2808-452f-bff0-64f52cb93ca1
     - 5aca71a5-6f3c-4fb7-9080-f5a15269f7ca
@@ -555,6 +597,7 @@ MonoBehaviour:
     OrbitAngle: 90
     Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 48ac6c82-7b33-45d5-ab6b-082403183302
     - 50f942a5-ed08-45ff-8a4a-9d77b4c80073
@@ -567,6 +610,7 @@ MonoBehaviour:
     OrbitAngle: 210
     Template: {fileID: 11400000, guid: 711d2f51207f3ec4d8ce744dc3dd1913, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 48ac6c82-7b33-45d5-ab6b-082403183302
   - ID: 50f942a5-ed08-45ff-8a4a-9d77b4c80073
@@ -578,6 +622,7 @@ MonoBehaviour:
     OrbitAngle: 30
     Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 4595454e-2808-452f-bff0-64f52cb93ca1
     - 0c711811-1fc5-40c3-975f-daf9fbd0ab0c
@@ -590,6 +635,7 @@ MonoBehaviour:
     OrbitAngle: 150
     Template: {fileID: 11400000, guid: e2b7b7eae3da082438b918f0b4ad2481, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - f92796f0-61a0-4f48-9098-e0a144e1b8a3
     - 151d3869-a745-434f-b145-ebf0e1b8b202
@@ -602,6 +648,7 @@ MonoBehaviour:
     OrbitAngle: 90
     Template: {fileID: 11400000, guid: e2b7b7eae3da082438b918f0b4ad2481, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 683d71ec-2b06-48c2-8755-50775ad737fe
     - ab242759-2a71-4f85-952d-82b24de283b6
@@ -614,6 +661,7 @@ MonoBehaviour:
     OrbitAngle: 330
     Template: {fileID: 11400000, guid: c4f7613e5dad13e46aefbc2b50ed333f, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - ab242759-2a71-4f85-952d-82b24de283b6
   - ID: ab242759-2a71-4f85-952d-82b24de283b6
@@ -625,6 +673,7 @@ MonoBehaviour:
     OrbitAngle: 30
     Template: {fileID: 11400000, guid: e2b7b7eae3da082438b918f0b4ad2481, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - f92796f0-61a0-4f48-9098-e0a144e1b8a3
     - 7c848a35-f461-4079-97c2-6e8b2397367e
@@ -637,6 +686,7 @@ MonoBehaviour:
     OrbitAngle: 30
     Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - a7818b84-6476-4407-ae65-cd8648f07662
     - a88a49f4-d9c1-4d00-9a32-c5b60bd4a412
@@ -649,6 +699,7 @@ MonoBehaviour:
     OrbitAngle: 75
     Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - cc621568-348d-4167-a915-b6594f669751
     - 26d52b1d-35be-468b-9a69-d1c163a3c2e4
@@ -661,6 +712,7 @@ MonoBehaviour:
     OrbitAngle: 165.46216
     Template: {fileID: 11400000, guid: 14d433e7c8d6086459d92fe12d6f2ee0, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 26d52b1d-35be-468b-9a69-d1c163a3c2e4
     - 59c6adf0-149d-4df6-9a4d-741f4703c3b8
@@ -674,6 +726,7 @@ MonoBehaviour:
     OrbitAngle: 119.58477
     Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - a7818b84-6476-4407-ae65-cd8648f07662
     - 2bc302a5-eae4-4cae-a5dc-7772822225a2
@@ -686,6 +739,7 @@ MonoBehaviour:
     OrbitAngle: 105
     Template: {fileID: 11400000, guid: 281052b23329eee4b83c01e82f149eb7, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 23ea16a8-ca88-42a7-a302-f31f26ae1b04
     - 95d18f44-6e45-4d2c-bebc-24c561d23337
@@ -698,6 +752,7 @@ MonoBehaviour:
     OrbitAngle: 60
     Template: {fileID: 11400000, guid: 281052b23329eee4b83c01e82f149eb7, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - efc1d93e-9864-48c6-b36a-b2a57061b3e4
     - 06e1e6a7-799e-4cc0-8df9-e0043be82e11
@@ -710,6 +765,7 @@ MonoBehaviour:
     OrbitAngle: 150
     Template: {fileID: 11400000, guid: 281052b23329eee4b83c01e82f149eb7, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - efc1d93e-9864-48c6-b36a-b2a57061b3e4
     - 06e1e6a7-799e-4cc0-8df9-e0043be82e11
@@ -723,6 +779,7 @@ MonoBehaviour:
     OrbitAngle: 15
     Template: {fileID: 11400000, guid: a5919a27f7a033747b961769217d0592, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 23ea16a8-ca88-42a7-a302-f31f26ae1b04
     - 95d18f44-6e45-4d2c-bebc-24c561d23337
@@ -737,6 +794,7 @@ MonoBehaviour:
     OrbitAngle: 45
     Template: {fileID: 11400000, guid: a57fb3f7129c9c3438fac8dad3864da2, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 8c1b6447-1e94-467f-93f3-fc48703cb0a3
     - 59c6adf0-149d-4df6-9a4d-741f4703c3b8
@@ -749,6 +807,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: b05e7233c4594714d95dddda587db6e7, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 85cbce54-0501-4662-a0e2-d266af9513e6
     - 5c75131a-d3ae-4d5c-9e88-94b98ce81910
@@ -762,6 +821,7 @@ MonoBehaviour:
     OrbitAngle: 315
     Template: {fileID: 11400000, guid: efe56f0c635694d4280c6089c13168f0, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 8c1b6447-1e94-467f-93f3-fc48703cb0a3
     - 8172309c-4ddf-4f9b-a5fa-2dfdf0fdb87d
@@ -774,6 +834,7 @@ MonoBehaviour:
     OrbitAngle: 135.2521
     Template: {fileID: 11400000, guid: 1af602dd3698d4245a35d85c29079f1a, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 1b4856cc-bc76-406c-812f-e68b41726b38
     - c2c34977-ef14-4b4a-a589-3417afa83ca0
@@ -786,6 +847,7 @@ MonoBehaviour:
     OrbitAngle: 180.4735
     Template: {fileID: 11400000, guid: 1af602dd3698d4245a35d85c29079f1a, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 31ad44ed-dc5e-41fb-af86-71fea0d2eac0
     - 12a239ab-d639-4ce8-9469-6f0a77820f61
@@ -799,6 +861,7 @@ MonoBehaviour:
     OrbitAngle: 225
     Template: {fileID: 11400000, guid: 1af602dd3698d4245a35d85c29079f1a, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 1b4856cc-bc76-406c-812f-e68b41726b38
     - 7cf45e47-cfce-4708-8cd9-67f3ff99ed82
@@ -811,6 +874,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 50b479d7daa6c1e44b380191a8f74383, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 31ad44ed-dc5e-41fb-af86-71fea0d2eac0
     - 06e1e6a7-799e-4cc0-8df9-e0043be82e11
@@ -823,6 +887,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 5e5c00697c3c407429ebbc63490bc600, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 85cbce54-0501-4662-a0e2-d266af9513e6
     - 2bc302a5-eae4-4cae-a5dc-7772822225a2
@@ -835,6 +900,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 8c1b6447-1e94-467f-93f3-fc48703cb0a3
     - 1b4856cc-bc76-406c-812f-e68b41726b38
@@ -847,6 +913,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 2bc302a5-eae4-4cae-a5dc-7772822225a2
     - 06e1e6a7-799e-4cc0-8df9-e0043be82e11
@@ -859,6 +926,7 @@ MonoBehaviour:
     OrbitAngle: 90
     Template: {fileID: 11400000, guid: 9ad7fe53fc03e614ba98b9a24d7a0b0c, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 184656e0-bad7-4ccf-9476-06f964d45268
     - a227f936-edb5-4d55-8fa4-8a569be8eda2
@@ -872,6 +940,7 @@ MonoBehaviour:
     OrbitAngle: 135.25433
     Template: {fileID: 11400000, guid: 9ad7fe53fc03e614ba98b9a24d7a0b0c, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 9c3221c1-53de-4421-b095-d2c8f1fb9c40
     - 01096dc9-d5ff-40be-acf4-17673732ff62
@@ -884,6 +953,7 @@ MonoBehaviour:
     OrbitAngle: 270
     Template: {fileID: 11400000, guid: 5fcd5513dcffd3542a5b82769648a120, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - ee8ee6cf-3316-4536-a881-447a54ebe302
     - 36cc2e69-8fe8-440a-895d-ed1e37cfa3a7
@@ -896,6 +966,7 @@ MonoBehaviour:
     OrbitAngle: 180.3581
     Template: {fileID: 11400000, guid: 9ad7fe53fc03e614ba98b9a24d7a0b0c, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 01470126-bf2e-47c4-af25-bf79bb8b914b
     - 36cc2e69-8fe8-440a-895d-ed1e37cfa3a7
@@ -908,6 +979,7 @@ MonoBehaviour:
     OrbitAngle: 225
     Template: {fileID: 11400000, guid: 9ad7fe53fc03e614ba98b9a24d7a0b0c, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 9c3221c1-53de-4421-b095-d2c8f1fb9c40
     - 6f8959d2-e895-4cf8-9675-8c82ec94f42c
@@ -920,6 +992,7 @@ MonoBehaviour:
     OrbitAngle: 315
     Template: {fileID: 11400000, guid: ccb3e05a19e9edb4bab739d3407de3db, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - bd0882af-e3c3-4674-b411-370e861b92bc
     - 6f8959d2-e895-4cf8-9675-8c82ec94f42c
@@ -932,6 +1005,7 @@ MonoBehaviour:
     OrbitAngle: 45
     Template: {fileID: 11400000, guid: ccb3e05a19e9edb4bab739d3407de3db, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 01096dc9-d5ff-40be-acf4-17673732ff62
     - bd0882af-e3c3-4674-b411-370e861b92bc
@@ -944,6 +1018,7 @@ MonoBehaviour:
     OrbitAngle: 360
     Template: {fileID: 11400000, guid: ccb3e05a19e9edb4bab739d3407de3db, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - a227f936-edb5-4d55-8fa4-8a569be8eda2
     - ee8ee6cf-3316-4536-a881-447a54ebe302
@@ -956,6 +1031,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 094fc148-c07d-447a-a663-cb4bb7cc8358
     - eb3181be-ae65-4522-890a-b120524545f0
@@ -968,6 +1044,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 32ef806c-993f-4aa8-a550-08ba76901bd2
     - f77ce47d-1d02-4765-9a20-47ae7a8be028
@@ -980,6 +1057,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 711d2f51207f3ec4d8ce744dc3dd1913, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - eb3181be-ae65-4522-890a-b120524545f0
   - ID: 4e94d17c-aed9-45fe-8537-0ba7e114443b
@@ -991,6 +1069,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: e2b7b7eae3da082438b918f0b4ad2481, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 21083c92-b60d-4617-a90e-c2ad295f768c
     - 7005bd15-dece-4a0c-8573-7115911b9a0c
@@ -1003,6 +1082,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: e2b7b7eae3da082438b918f0b4ad2481, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 4e94d17c-aed9-45fe-8537-0ba7e114443b
     - dbe18102-fb2f-4f56-ac54-716bbc3c5d51
@@ -1015,6 +1095,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 29e2016a7ecb5c1418222f688b0e0fe6, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 7005bd15-dece-4a0c-8573-7115911b9a0c
   - ID: c442bab8-dc56-4bf8-ab17-9ef65cde316b
@@ -1026,6 +1107,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: fc0ba8e7f746bd840add3a175586e705, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 5b8a753a-203c-4b74-bd12-07f31a8cc4bb
     - df74aa06-feba-4957-8ea6-dd87dac6195d
@@ -1038,6 +1120,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: fc0ba8e7f746bd840add3a175586e705, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - c442bab8-dc56-4bf8-ab17-9ef65cde316b
     - f7def7e3-10cc-4157-b9be-08f328dea4c0
@@ -1050,6 +1133,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: e2da1132ef2a54845a2701d52d3986c5, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 5b8a753a-203c-4b74-bd12-07f31a8cc4bb
   - ID: 1041ba2d-3c38-4cbe-be82-f125e3fef90d
@@ -1061,6 +1145,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 939d162d749e35f4ebcde04a2ae8636b, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - c6473995-e120-410f-8773-6122b06cfe03
     - 917aba84-3d6d-436d-87e8-c1282744accb
@@ -1073,6 +1158,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 939d162d749e35f4ebcde04a2ae8636b, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 1041ba2d-3c38-4cbe-be82-f125e3fef90d
     - 8c45db8e-b6bf-431c-98e6-5d5e84352612
@@ -1085,6 +1171,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 6b273789b44efe94d8d70c81d6adca6f, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - c6473995-e120-410f-8773-6122b06cfe03
   - ID: 9dd20071-58f6-488c-af39-ed242832b2b8
@@ -1096,6 +1183,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 18f63601d5f32754296b4aab721392e4, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 17aa1f43-dcbb-4a61-a0dd-b49bfc7d84a0
   - ID: ecd31edf-bca8-4a20-b31c-6abab6e979eb
@@ -1107,6 +1195,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 139e359856104004193e3e280298082b, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 35e023ca-0c14-44b3-bcdb-34efb26ad4b2
     - cbaff3e5-6543-4a06-9d7c-bb4ce2e6bebe
@@ -1119,6 +1208,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 139e359856104004193e3e280298082b, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - ecd31edf-bca8-4a20-b31c-6abab6e979eb
     - c4085f2e-a626-48a1-8e80-d1328a86438f
@@ -1132,6 +1222,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 139e359856104004193e3e280298082b, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - cbaff3e5-6543-4a06-9d7c-bb4ce2e6bebe
     - c71bee8d-a709-4fcf-966b-f739822acd7b
@@ -1144,6 +1235,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: d5c3686b5e37d224eb8d8875a8e7fa30, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - cbaff3e5-6543-4a06-9d7c-bb4ce2e6bebe
   - ID: 62b763ff-6b77-423f-9f4c-3447ec74abec
@@ -1155,6 +1247,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 139e359856104004193e3e280298082b, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 1b790e3d-1dcd-47bd-bd47-72302b39a352
     - 3e100911-ef78-4a38-b115-90b1a3265eb7
@@ -1168,6 +1261,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 139e359856104004193e3e280298082b, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 62b763ff-6b77-423f-9f4c-3447ec74abec
     - 9bc72534-1bcd-4f74-9758-43811ecd82e6
@@ -1180,6 +1274,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 139e359856104004193e3e280298082b, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 5f7f0f37-36b3-4355-882f-f6b0b821194f
     - 3e100911-ef78-4a38-b115-90b1a3265eb7
@@ -1193,6 +1288,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: ec8770d294307b84eb3d8ab51d38dbc8, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 62b763ff-6b77-423f-9f4c-3447ec74abec
     - 9bc72534-1bcd-4f74-9758-43811ecd82e6
@@ -1205,6 +1301,7 @@ MonoBehaviour:
     OrbitAngle: 285
     Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 623242c8-af7b-4d46-a13b-a1c690018b9f
     - 151d3869-a745-434f-b145-ebf0e1b8b202
@@ -1217,6 +1314,7 @@ MonoBehaviour:
     OrbitAngle: 150
     Template: {fileID: 11400000, guid: 14d433e7c8d6086459d92fe12d6f2ee0, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - bf7cc49b-addb-4b8c-94eb-d4db616a2791
   - ID: 623242c8-af7b-4d46-a13b-a1c690018b9f
@@ -1228,6 +1326,7 @@ MonoBehaviour:
     OrbitAngle: 240
     Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 3cf0e5d6-4dcc-4aa4-961c-138b1ad6b2fd
     - bf7cc49b-addb-4b8c-94eb-d4db616a2791
@@ -1240,6 +1339,7 @@ MonoBehaviour:
     OrbitAngle: 195
     Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 623242c8-af7b-4d46-a13b-a1c690018b9f
     - af866d4a-e51b-445b-a16c-cbfbcb7b759a
@@ -1252,6 +1352,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 9eddf70ace6cb6349a9810aec9b2f247, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - d9408885-a049-45f3-8ef9-3ba1237fdbfd
     - 5d9d1383-e23d-405f-8548-fcebff5f6e00
@@ -1264,6 +1365,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 9eddf70ace6cb6349a9810aec9b2f247, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 1ca0bb1b-7855-484a-8ea5-1548355e1b42
     - 1fedb8a0-80d8-4cf0-86b6-0a1526e92d0a
@@ -1276,6 +1378,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 4f67440b6b7f48f42a728bdbbeab655e, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - d9408885-a049-45f3-8ef9-3ba1237fdbfd
   - ID: 5d9d1383-e23d-405f-8548-fcebff5f6e00
@@ -1287,6 +1390,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 9eddf70ace6cb6349a9810aec9b2f247, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 56ccc49d-b908-4017-9018-e4c1153b8d07
     - 1ca0bb1b-7855-484a-8ea5-1548355e1b42
@@ -1299,6 +1403,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: c78205805b87b9945a3d6ae0794452fe, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 7d6bedb9-22bf-4fd3-9ad1-83c79a293616
     - 325a50ac-9859-48e0-82bd-c7ebb36edf8a
@@ -1311,6 +1416,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: c78205805b87b9945a3d6ae0794452fe, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - d6aeb111-07a4-4d58-a922-6f616c656158
     - a03ec02b-30d6-46cb-a8c3-896f5b083a52
@@ -1323,6 +1429,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: c78205805b87b9945a3d6ae0794452fe, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 7d6bedb9-22bf-4fd3-9ad1-83c79a293616
     - 0593187a-0d2a-497e-8b6b-d9a2c5eb848f
@@ -1335,6 +1442,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 66812fff7905d414fb2426d9d9a07df0, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - d6aeb111-07a4-4d58-a922-6f616c656158
   - ID: c3fb476e-872e-4909-ba4f-8e0d04ae7d2a
@@ -1346,6 +1454,7 @@ MonoBehaviour:
     OrbitAngle: 75
     Template: {fileID: 11400000, guid: ccb3e05a19e9edb4bab739d3407de3db, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - c62acc8d-b811-4d82-9da7-63703650bf4d
     - 0c009a71-7443-4bb3-a909-004936568f8e
@@ -1358,6 +1467,7 @@ MonoBehaviour:
     OrbitAngle: 135
     Template: {fileID: 11400000, guid: ccb3e05a19e9edb4bab739d3407de3db, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - c3fb476e-872e-4909-ba4f-8e0d04ae7d2a
     - 25b2459e-28f0-491b-92b2-8f734df84655
@@ -1370,6 +1480,7 @@ MonoBehaviour:
     OrbitAngle: 15
     Template: {fileID: 11400000, guid: 3e14cd9f8ead0764291af62acf48d545, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - c3fb476e-872e-4909-ba4f-8e0d04ae7d2a
   - ID: 25b2459e-28f0-491b-92b2-8f734df84655
@@ -1381,6 +1492,7 @@ MonoBehaviour:
     OrbitAngle: 195
     Template: {fileID: 11400000, guid: ccb3e05a19e9edb4bab739d3407de3db, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - c62acc8d-b811-4d82-9da7-63703650bf4d
     - 0c711811-1fc5-40c3-975f-daf9fbd0ab0c
@@ -1393,6 +1505,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 5785f4f70c0aaa74cae93d69d314c6b8, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - df74aa06-feba-4957-8ea6-dd87dac6195d
   - ID: c1de6a56-b3cf-499f-b02d-78bda141ab7c
@@ -1404,6 +1517,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: f0c9b1559b3feb445a88c05895bf3916, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 455de6ab-8a0a-4e12-81a8-9fd095319e1f
   - ID: d34249a7-152c-4bf5-9fa2-be79d3e19a9e
@@ -1415,6 +1529,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: cf632d56fc8cfd1468d5ca586b128d13, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 094fc148-c07d-447a-a663-cb4bb7cc8358
   - ID: 4fbcd74d-c648-469f-abcd-c630fb2c62cb
@@ -1426,6 +1541,7 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 8fea4c8a1bbc6eb4190c4286e75cb878, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 184656e0-bad7-4ccf-9476-06f964d45268
   - ID: 7b442035-6aac-48e9-b1f4-decc0b3646d3
@@ -1437,8 +1553,21 @@ MonoBehaviour:
     OrbitAngle: 0
     Template: {fileID: 11400000, guid: 3e32601798d4e91498003b8136226afb, type: 2}
     UniqueModifiers: []
+    UniqueStatScalingRules: []
     ConnectionIDs:
     - 21083c92-b60d-4617-a90e-c2ad295f768c
+  - ID: 266e32b4-8c15-40e3-b1c7-71ee9ff36a8b
+    NodeType: 2
+    PlacementMode: 0
+    Position: {x: 2339.5889, y: 1203.6394}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 3ca86d219330fa441902be63323a2e89, type: 2}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - c71bee8d-a709-4fcf-966b-f739822acd7b
   Clusters:
   - ID: f7d051c5-e995-418d-b634-584a5c5b441e
     Name: Cicle 3+1 reverse

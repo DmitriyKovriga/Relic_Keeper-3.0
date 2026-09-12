@@ -67,7 +67,7 @@ namespace Scripts.Editor.PassiveTree
             if (template == null)
                 return "No template selected.";
 
-            return BuildModifierSummary(template.Modifiers, maxModifiers, template.Description);
+            return BuildModifierSummary(template.Modifiers, template.StatScalingRules, maxModifiers, template.Description);
         }
 
         internal static string GetNodeSummary(PassiveNodeDefinition node, int maxModifiers = 3)
@@ -75,7 +75,11 @@ namespace Scripts.Editor.PassiveTree
             if (node == null)
                 return string.Empty;
 
-            string summary = BuildModifierSummary(node.GetFinalModifiers(), maxModifiers, node.Template != null ? node.Template.Description : string.Empty);
+            string summary = BuildModifierSummary(
+                node.GetFinalModifiers(),
+                node.GetFinalStatScalingRules(),
+                maxModifiers,
+                node.Template != null ? node.Template.Description : string.Empty);
             return string.IsNullOrWhiteSpace(summary) ? "No modifiers." : summary;
         }
 
@@ -114,6 +118,7 @@ namespace Scripts.Editor.PassiveTree
             template.Name = Path.GetFileNameWithoutExtension(path);
             template.Description = string.Empty;
             template.Modifiers = new List<SerializableStatModifier>();
+            template.StatScalingRules = new List<PassiveStatScalingRule>();
 
             AssetDatabase.CreateAsset(template, path);
             AssetDatabase.SaveAssets();
@@ -236,10 +241,16 @@ namespace Scripts.Editor.PassiveTree
 
         internal static string GetStorageCategory(PassiveNodeTemplateSO template)
         {
-            if (template?.Modifiers == null || template.Modifiers.Count == 0)
+            if (template == null)
                 return "Misc";
 
-            string stat = template.Modifiers[0].Stat.ToString().ToLowerInvariant();
+            string stat;
+            if (template.Modifiers != null && template.Modifiers.Count > 0)
+                stat = template.Modifiers[0].Stat.ToString().ToLowerInvariant();
+            else if (template.StatScalingRules != null && template.StatScalingRules.Count > 0 && template.StatScalingRules[0] != null)
+                stat = template.StatScalingRules[0].TargetStat.ToString().ToLowerInvariant();
+            else
+                return "Misc";
             if (stat.Contains("health") || stat.Contains("life")) return "Life";
             if (stat.Contains("mana") || stat.Contains("mysticshield")) return "Mana";
             if (stat.Contains("bleed") || stat.Contains("poison") || stat.Contains("ignite") ||
@@ -270,22 +281,47 @@ namespace Scripts.Editor.PassiveTree
             return builder.ToString().Trim().Replace(' ', '_');
         }
 
-        private static string BuildModifierSummary(IReadOnlyList<SerializableStatModifier> modifiers, int maxModifiers, string fallbackDescription)
+        private static string BuildModifierSummary(
+            IReadOnlyList<SerializableStatModifier> modifiers,
+            IReadOnlyList<PassiveStatScalingRule> scalingRules,
+            int maxModifiers,
+            string fallbackDescription)
         {
-            if (modifiers != null && modifiers.Count > 0)
+            int modifierCount = modifiers?.Count ?? 0;
+            int scalingCount = scalingRules?.Count ?? 0;
+            int totalCount = modifierCount + scalingCount;
+            if (totalCount > 0)
             {
-                int takeCount = Mathf.Clamp(maxModifiers, 1, modifiers.Count);
                 var parts = new List<string>();
-                for (int i = 0; i < takeCount; i++)
+                int limit = Mathf.Clamp(maxModifiers, 1, totalCount);
+                for (int i = 0; i < modifierCount && parts.Count < limit; i++)
                     parts.Add(FormatModifier(modifiers[i]));
+                for (int i = 0; i < scalingCount && parts.Count < limit; i++)
+                    parts.Add(FormatScalingRule(scalingRules[i]));
 
-                if (modifiers.Count > takeCount)
-                    parts.Add($"+{modifiers.Count - takeCount} more");
+                if (totalCount > parts.Count)
+                    parts.Add($"+{totalCount - parts.Count} more");
 
                 return string.Join("\n", parts);
             }
 
             return string.IsNullOrWhiteSpace(fallbackDescription) ? string.Empty : fallbackDescription.Trim();
+        }
+
+        private static string FormatScalingRule(PassiveStatScalingRule rule)
+        {
+            if (rule == null)
+                return "Invalid stat scaling rule";
+
+            string target = FormatModifier(new SerializableStatModifier
+            {
+                Stat = rule.TargetStat,
+                Value = rule.TargetValuePerStep,
+                Type = rule.TargetModifierType
+            });
+            string source = ObjectNames.NicifyVariableName(rule.SourceStat.ToString());
+            string step = rule.UseWholeSteps ? "per" : "scaled by";
+            return $"{target} {step} {rule.SourceAmountPerStep:0.##} {source}";
         }
 
         private static string InferCategoryFromModifiers(IReadOnlyList<SerializableStatModifier> modifiers)

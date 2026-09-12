@@ -136,6 +136,12 @@ namespace Scripts.Editor.PassiveTree
             EditorGUILayout.Space(3f);
             EditorGUILayout.LabelField("Stats", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(_serialized.FindProperty("Modifiers"), true);
+            EditorGUILayout.Space(3f);
+            EditorGUILayout.LabelField("Special Stat Scaling", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "Example: Source Armor / 100, Target DamagePhysical +10 Flat, Whole Steps enabled.",
+                MessageType.None);
+            EditorGUILayout.PropertyField(_serialized.FindProperty("StatScalingRules"), true);
             if (EditorGUI.EndChangeCheck())
             {
                 _serialized.ApplyModifiedProperties();

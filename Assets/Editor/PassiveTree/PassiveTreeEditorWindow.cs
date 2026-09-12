@@ -338,28 +338,28 @@ namespace Scripts.Editor.PassiveTree
 
             if ((evt.ctrlKey || evt.commandKey) && !evt.altKey)
             {
-                if (evt.shiftKey && evt.keyCode == KeyCode.H && MirrorSelectedNodes(true))
+                if (evt.shiftKey && evt.keyCode == KeyCode.H && MirrorSelectedGeometry(true))
                 {
                     evt.StopPropagation();
                     evt.PreventDefault();
                     return;
                 }
 
-                if (evt.shiftKey && evt.keyCode == KeyCode.V && MirrorSelectedNodes(false))
+                if (evt.shiftKey && evt.keyCode == KeyCode.V && MirrorSelectedGeometry(false))
                 {
                     evt.StopPropagation();
                     evt.PreventDefault();
                     return;
                 }
 
-                if (evt.keyCode == KeyCode.C && TryCopySelection())
+                if (!evt.shiftKey && evt.keyCode == KeyCode.C && TryCopySelection())
                 {
                     evt.StopPropagation();
                     evt.PreventDefault();
                     return;
                 }
 
-                if (evt.keyCode == KeyCode.V && TryPasteSelectionAtCursor())
+                if (!evt.shiftKey && evt.keyCode == KeyCode.V && TryPasteSelectionAtCursor())
                 {
                     evt.StopPropagation();
                     evt.PreventDefault();
@@ -753,20 +753,22 @@ namespace Scripts.Editor.PassiveTree
                 }
 
 
-                if (selectedNodeCount > 0 && selectedClusterCount == 0)
+                if ((selectedNodeCount > 0 && selectedClusterCount == 0) ||
+                    (selectedClusterCount > 0 && selectedNodeCount == 0))
                 {
                     EditorGUILayout.Space(6f);
                     EditorGUILayout.LabelField("Selection Tools", EditorStyles.boldLabel);
                     using (new EditorGUILayout.HorizontalScope())
                     {
                         if (GUILayout.Button("Mirror Horizontal"))
-                            MirrorSelectedNodes(true);
+                            MirrorSelectedGeometry(true);
                         if (GUILayout.Button("Mirror Vertical"))
-                            MirrorSelectedNodes(false);
+                            MirrorSelectedGeometry(false);
                     }
                     EditorGUILayout.LabelField("Shortcuts: Ctrl/Cmd+Shift+H / V", EditorStyles.miniLabel);
-                    EditorGUILayout.HelpBox("При зеркалировании ноды с орбит переводятся в FREE, чтобы точно сохранить общую симметрию выделения.", MessageType.None);
-                    if (GUILayout.Button("Save Selection As Node Group Template"))
+                    if (selectedNodeCount > 0)
+                        EditorGUILayout.HelpBox("При зеркалировании ноды с орбит переводятся в FREE, чтобы точно сохранить общую симметрию выделения.", MessageType.None);
+                    if (selectedNodeCount > 0 && GUILayout.Button("Save Selection As Node Group Template"))
                         SaveSelectedNodesAsTemplate();
                 }
             }
@@ -814,6 +816,8 @@ namespace Scripts.Editor.PassiveTree
             EditorGUILayout.Space(6f);
             EditorGUILayout.LabelField("Instance Modifiers", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("UniqueModifiers"), true);
+            EditorGUILayout.LabelField("Instance Stat Scaling", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("UniqueStatScalingRules"), true);
 
             EditorGUILayout.Space(6f);
             EditorGUILayout.LabelField("Connections", EditorStyles.boldLabel);
@@ -843,6 +847,14 @@ namespace Scripts.Editor.PassiveTree
             SerializedProperty orbitProp = clusterProp.FindPropertyRelative("Orbits");
 
             DrawClusterHeader(clusterProp, orbitProp.arraySize);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("Mirror Horizontal"))
+                    MirrorSelectedGeometry(true);
+                if (GUILayout.Button("Mirror Vertical"))
+                    MirrorSelectedGeometry(false);
+            }
+            EditorGUILayout.LabelField("Shortcuts: Ctrl/Cmd+Shift+H / V", EditorStyles.miniLabel);
             DrawClusterTemplateSection();
             EditorGUI.BeginChangeCheck();
 
@@ -1108,12 +1120,29 @@ namespace Scripts.Editor.PassiveTree
             return _currentTree.Nodes.Count(node => node.ClusterID == clusterId);
         }
 
-        private bool MirrorSelectedNodes(bool horizontal)
+        private bool MirrorSelectedGeometry(bool horizontal)
         {
-            if (_canvas == null || _currentTree == null || _canvas.GetSelectedClusterCount() > 0)
+            if (_canvas == null || _currentTree == null)
                 return false;
 
             List<PassiveNodeDefinition> nodes = _canvas.GetSelectedNodeData();
+            List<PassiveClusterDefinition> clusters = _canvas.GetSelectedClusterDataList();
+            if (nodes.Count > 0 && clusters.Count > 0)
+                return false;
+
+            if (clusters.Count > 0)
+            {
+                List<string> clusterIds = clusters.Select(cluster => cluster.ID).ToList();
+                _canvas.Commands.MirrorClusters(clusters, horizontal);
+                _canvas.PopulateView(_currentTree);
+                _canvas.SelectClustersByIds(clusterIds);
+                _selectedNode = null;
+                _selectedCluster = clusters.Count == 1 ? _currentTree.GetCluster(clusterIds[0]) : null;
+                _selectedBezier = null;
+                RefreshInspector();
+                return true;
+            }
+
             if (nodes.Count == 0)
                 return false;
 
