@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
-  m_Name: MediumMenaRegen
+  m_Name: MediumManaRegenPercentAndMaxMana
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
-  Name: MediumMenaRegen
+  Name: MediumManaRegenPercentAndMaxMana
   Description: 
-  Icon: {fileID: 20927892714965017, guid: 9194de1d2ff294544ae776c164ac525b, type: 3}
+  Icon: {fileID: 21300000, guid: f229cc08e8e3e4f4193aa6122d857c67, type: 3}
   Modifiers:
-  - Stat: 6
-    Value: 3
+  - Stat: 7
+    Value: 15
     Type: 100
   - Stat: 5
     Value: 50
-    Type: 100
+    Type: 200

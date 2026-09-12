@@ -10,15 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
-  m_Name: MediumMenaRegen
+  m_Name: MediumPoisonAttackSpeed
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
-  Name: MediumMenaRegen
+  Name: MediumPoisonAttackSpeed
   Description: 
-  Icon: {fileID: 20927892714965017, guid: 9194de1d2ff294544ae776c164ac525b, type: 3}
+  Icon: {fileID: 21300000, guid: 4f40ef8c76091c44db9bf5a2475a2f51, type: 3}
   Modifiers:
-  - Stat: 6
-    Value: 3
+  - Stat: 62
+    Value: 25
     Type: 100
-  - Stat: 5
+  - Stat: 28
+    Value: 25
+    Type: 100
+  - Stat: 63
     Value: 50
-    Type: 100
+    Type: 200

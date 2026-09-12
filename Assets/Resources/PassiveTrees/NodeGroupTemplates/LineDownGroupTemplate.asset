@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7e3cc1aac22436bbfca0e2e4ddcc79a, type: 3}
+  m_Name: LineDownGroupTemplate
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeGroupTemplateSO
+  DisplayName: LineDownGroupTemplate
+  Nodes:
+  - ID: 5d9d1383-e23d-405f-8548-fcebff5f6e00
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 67.5, y: 21}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 9eddf70ace6cb6349a9810aec9b2f247, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 1ca0bb1b-7855-484a-8ea5-1548355e1b42
+  - ID: 1ca0bb1b-7855-484a-8ea5-1548355e1b42
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 12.5, y: 30}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 9eddf70ace6cb6349a9810aec9b2f247, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - d9408885-a049-45f3-8ef9-3ba1237fdbfd
+    - 5d9d1383-e23d-405f-8548-fcebff5f6e00
+  - ID: d9408885-a049-45f3-8ef9-3ba1237fdbfd
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: -7.5, y: -30}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 9eddf70ace6cb6349a9810aec9b2f247, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 1ca0bb1b-7855-484a-8ea5-1548355e1b42
+    - 1fedb8a0-80d8-4cf0-86b6-0a1526e92d0a
+  - ID: 1fedb8a0-80d8-4cf0-86b6-0a1526e92d0a
+    NodeType: 1
+    PlacementMode: 0
+    Position: {x: -67.5, y: -30}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 4f67440b6b7f48f42a728bdbbeab655e, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - d9408885-a049-45f3-8ef9-3ba1237fdbfd
+  BezierConnections:
+  - NodeIdA: 1ca0bb1b-7855-484a-8ea5-1548355e1b42
+    NodeIdB: d9408885-a049-45f3-8ef9-3ba1237fdbfd
+    AnchorPercent: 50
+    InHandleOffset: {x: 14.399999, y: 6.8}
+    OutHandleOffset: {x: 3.1999998, y: -15.599999}
+    MirrorHandles: 0
+  - NodeIdA: 1fedb8a0-80d8-4cf0-86b6-0a1526e92d0a
+    NodeIdB: d9408885-a049-45f3-8ef9-3ba1237fdbfd
+    AnchorPercent: 50
+    InHandleOffset: {x: -11.2, y: 8.8}
+    OutHandleOffset: {x: 11.2, y: 8.8}
+    MirrorHandles: 0
+  - NodeIdA: 1ca0bb1b-7855-484a-8ea5-1548355e1b42
+    NodeIdB: 5d9d1383-e23d-405f-8548-fcebff5f6e00
+    AnchorPercent: 50
+    InHandleOffset: {x: -15.6, y: 9.540001}
+    OutHandleOffset: {x: 12.960001, y: 12.9}
+    MirrorHandles: 0

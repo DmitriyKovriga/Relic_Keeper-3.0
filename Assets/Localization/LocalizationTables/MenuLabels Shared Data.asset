@@ -1207,6 +1207,62 @@ MonoBehaviour:
     m_Key: passive.node.AttackSpeedLessDamage.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103834130343489536
+    m_Key: passive.node.SmallPoison.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103834130347683840
+    m_Key: passive.node.SmallPoison.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103836864123727872
+    m_Key: passive.node.MediumPoison.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103836864123727873
+    m_Key: passive.node.MediumPoison.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103841839772037120
+    m_Key: passive.node.MediumPoisonAttackSpeed.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103841839772037121
+    m_Key: passive.node.MediumPoisonAttackSpeed.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103849241141538816
+    m_Key: passive.node.MediumRegenLifePercentMaxLife.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103849241141538817
+    m_Key: passive.node.MediumRegenLifePercentMaxLife.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103849725499764736
+    m_Key: passive.node.SmallRegenLifePercent.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103849725499764737
+    m_Key: passive.node.SmallRegenLifePercent.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103850831055384576
+    m_Key: passive.node.SmallManaRegenPercent.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103850831055384577
+    m_Key: passive.node.SmallManaRegenPercent.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103852529228410880
+    m_Key: passive.node.MediumManaRegenPercentAndMaxMana.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103852529228410881
+    m_Key: passive.node.MediumManaRegenPercentAndMaxMana.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

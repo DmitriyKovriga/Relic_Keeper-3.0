@@ -19,3 +19,6 @@ MonoBehaviour:
   - Stat: 6
     Value: 1
     Type: 100
+  - Stat: 5
+    Value: 25
+    Type: 100

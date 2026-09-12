@@ -1645,7 +1645,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43348985866346496
-    m_Localized: Medium Mana On Hit
+    m_Localized: Small Regen Life Percent
     m_Metadata:
       m_Items: []
   - m_Id: 43348985899900928
@@ -2165,6 +2165,62 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 103819448496910336
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103834130343489536
+    m_Localized: Small Poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103834130347683840
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103836864123727872
+    m_Localized: Medium Poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103836864123727873
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103841839772037120
+    m_Localized: Medium Poison Attack Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103841839772037121
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103849241141538816
+    m_Localized: Medium Regen Life Percent Max Life
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103849241141538817
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103849725499764736
+    m_Localized: Small Regen Life Percent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103849725499764737
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103850831055384576
+    m_Localized: Small Mana Regen Percent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103850831055384577
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103852529228410880
+    m_Localized: Medium Mana Regen Percent And Max Mana
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103852529228410881
     m_Localized: 
     m_Metadata:
       m_Items: []

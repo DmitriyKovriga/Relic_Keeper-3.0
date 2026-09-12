@@ -10,15 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
-  m_Name: MediumMenaRegen
+  m_Name: MediumPoison
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
-  Name: MediumMenaRegen
+  Name: MediumPoison
   Description: 
-  Icon: {fileID: 20927892714965017, guid: 9194de1d2ff294544ae776c164ac525b, type: 3}
+  Icon: {fileID: 21300000, guid: 0b839c695caf4174c9c133a826217a1e, type: 3}
   Modifiers:
-  - Stat: 6
-    Value: 3
+  - Stat: 62
+    Value: 25
     Type: 100
-  - Stat: 5
+  - Stat: 63
     Value: 50
+    Type: 200
+  - Stat: 64
+    Value: 10
     Type: 100
