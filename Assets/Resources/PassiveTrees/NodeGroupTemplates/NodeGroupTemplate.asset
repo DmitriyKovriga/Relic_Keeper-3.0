@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7e3cc1aac22436bbfca0e2e4ddcc79a, type: 3}
+  m_Name: NodeGroupTemplate
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeGroupTemplateSO
+  DisplayName: NodeGroupTemplate
+  Nodes:
+  - ID: f0711827-38c8-495e-ae30-2e8477aa788d
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 68.06946, y: 30.470825}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 12c96286-4cbe-4646-88e0-d6817f6f2016
+  - ID: 12c96286-4cbe-4646-88e0-d6817f6f2016
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 11.930542, y: -10.470703}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - f3538f3d-bf7f-4379-b403-094ca20a9b98
+    - f0711827-38c8-495e-ae30-2e8477aa788d
+  - ID: f3538f3d-bf7f-4379-b403-094ca20a9b98
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: -68.06946, y: -30.470703}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 12c96286-4cbe-4646-88e0-d6817f6f2016
+  BezierConnections:
+  - NodeIdA: 12c96286-4cbe-4646-88e0-d6817f6f2016
+    NodeIdB: f3538f3d-bf7f-4379-b403-094ca20a9b98
+    AnchorPercent: 50
+    InHandleOffset: {x: 50, y: -30}
+    OutHandleOffset: {x: -20, y: -50}
+    MirrorHandles: 0
+  - NodeIdA: 12c96286-4cbe-4646-88e0-d6817f6f2016
+    NodeIdB: f0711827-38c8-495e-ae30-2e8477aa788d
+    AnchorPercent: 50
+    InHandleOffset: {x: -25, y: 0}
+    OutHandleOffset: {x: 5, y: 25}
+    MirrorHandles: 0
