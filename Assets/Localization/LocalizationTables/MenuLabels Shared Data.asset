@@ -1263,6 +1263,38 @@ MonoBehaviour:
     m_Key: passive.node.MediumManaRegenPercentAndMaxMana.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103866386948780032
+    m_Key: passive.node.BigCritKey.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103866386952974336
+    m_Key: passive.node.BigCritKey.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103868469634625536
+    m_Key: passive.node.BigCritMultKey.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103868469634625537
+    m_Key: passive.node.BigCritMultKey.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103870225693241344
+    m_Key: passive.node.BigBloodKey.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103870225693241345
+    m_Key: passive.node.BigBloodKey.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103873082022653952
+    m_Key: passive.node.ArmoreAndLifeKey.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103873082022653953
+    m_Key: passive.node.ArmoreAndLifeKey.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

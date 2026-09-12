@@ -1645,7 +1645,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43348985866346496
-    m_Localized: Small Regen Life Percent
+    m_Localized: More Poison
     m_Metadata:
       m_Items: []
   - m_Id: 43348985899900928
@@ -2221,6 +2221,38 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 103852529228410881
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103866386948780032
+    m_Localized: Big Crit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103866386952974336
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103868469634625536
+    m_Localized: Big Crit Multiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103868469634625537
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103870225693241344
+    m_Localized: More Blood
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103870225693241345
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103873082022653952
+    m_Localized: Rock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103873082022653953
     m_Localized: 
     m_Metadata:
       m_Items: []
