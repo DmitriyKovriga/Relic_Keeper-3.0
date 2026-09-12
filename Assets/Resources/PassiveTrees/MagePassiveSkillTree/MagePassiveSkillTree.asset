@@ -226,4 +226,4 @@ MonoBehaviour:
   Clusters: []
   BezierConnections: []
   GridSize: 20
-  SnapToGrid: 1
+  SnapToGrid: 0

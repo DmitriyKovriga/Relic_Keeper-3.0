@@ -2160,6 +2160,14 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 103819448450772992
+    m_Localized: Fast Attacks
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103819448496910336
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

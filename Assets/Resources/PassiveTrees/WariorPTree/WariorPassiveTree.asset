@@ -227,6 +227,7 @@ MonoBehaviour:
     - 917aba84-3d6d-436d-87e8-c1282744accb
     - df74aa06-feba-4957-8ea6-dd87dac6195d
     - 1bbf64d2-bbc2-4bb8-9d63-bddb3ba72808
+    - 9dd20071-58f6-488c-af39-ed242832b2b8
   - ID: df74aa06-feba-4957-8ea6-dd87dac6195d
     NodeType: 0
     PlacementMode: 0
@@ -1073,6 +1074,17 @@ MonoBehaviour:
     UniqueModifiers: []
     ConnectionIDs:
     - c6473995-e120-410f-8773-6122b06cfe03
+  - ID: 9dd20071-58f6-488c-af39-ed242832b2b8
+    NodeType: 2
+    PlacementMode: 0
+    Position: {x: 1780, y: 660}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 18f63601d5f32754296b4aab721392e4, type: 2}
+    UniqueModifiers: []
+    ConnectionIDs:
+    - 17aa1f43-dcbb-4a61-a0dd-b49bfc7d84a0
   Clusters:
   - ID: f7d051c5-e995-418d-b634-584a5c5b441e
     Name: Cicle 3+1 reverse
@@ -1238,4 +1250,4 @@ MonoBehaviour:
     OutHandleOffset: {x: -19.33571, y: 10.967649}
     MirrorHandles: 0
   GridSize: 20
-  SnapToGrid: 0
+  SnapToGrid: 1
