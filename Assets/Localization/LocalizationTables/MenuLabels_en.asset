@@ -2272,6 +2272,22 @@ MonoBehaviour:
     m_Localized: Every 100 Armore grants 10 flat Phys Damage
     m_Metadata:
       m_Items: []
+  - m_Id: 103885121533210624
+    m_Localized: Vital Force
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103885121533210625
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103886636046053376
+    m_Localized: Vital Force
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103886636046053377
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

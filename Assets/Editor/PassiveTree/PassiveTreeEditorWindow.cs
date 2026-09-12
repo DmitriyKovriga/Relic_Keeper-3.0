@@ -766,6 +766,7 @@ namespace Scripts.Editor.PassiveTree
                             MirrorSelectedGeometry(false);
                     }
                     EditorGUILayout.LabelField("Shortcuts: Ctrl/Cmd+Shift+H / V", EditorStyles.miniLabel);
+                    DrawRotationControls();
                     if (selectedNodeCount > 0)
                         EditorGUILayout.HelpBox("При зеркалировании ноды с орбит переводятся в FREE, чтобы точно сохранить общую симметрию выделения.", MessageType.None);
                     if (selectedNodeCount > 0 && GUILayout.Button("Save Selection As Node Group Template"))
@@ -855,6 +856,7 @@ namespace Scripts.Editor.PassiveTree
                     MirrorSelectedGeometry(false);
             }
             EditorGUILayout.LabelField("Shortcuts: Ctrl/Cmd+Shift+H / V", EditorStyles.miniLabel);
+            DrawRotationControls();
             DrawClusterTemplateSection();
             EditorGUI.BeginChangeCheck();
 
@@ -1150,6 +1152,63 @@ namespace Scripts.Editor.PassiveTree
             _canvas.Commands.MirrorNodes(nodes, horizontal);
             _canvas.PopulateView(_currentTree);
             _canvas.SelectNodesByIds(ids);
+            _selectedNode = null;
+            _selectedCluster = null;
+            _selectedBezier = null;
+            RefreshInspector();
+            return true;
+        }
+
+        private void DrawRotationControls()
+        {
+            EditorGUILayout.Space(5f);
+            EditorGUILayout.LabelField("Rotate Selection", EditorStyles.boldLabel);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField("CCW", GUILayout.Width(36f));
+                if (GUILayout.Button("5°")) RotateSelectedGeometry(-5f);
+                if (GUILayout.Button("45°")) RotateSelectedGeometry(-45f);
+                if (GUILayout.Button("90°")) RotateSelectedGeometry(-90f);
+            }
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField("CW", GUILayout.Width(36f));
+                if (GUILayout.Button("5°")) RotateSelectedGeometry(5f);
+                if (GUILayout.Button("45°")) RotateSelectedGeometry(45f);
+                if (GUILayout.Button("90°")) RotateSelectedGeometry(90f);
+            }
+        }
+
+        private bool RotateSelectedGeometry(float degrees)
+        {
+            if (_canvas == null || _currentTree == null)
+                return false;
+
+            List<PassiveNodeDefinition> nodes = _canvas.GetSelectedNodeData();
+            List<PassiveClusterDefinition> clusters = _canvas.GetSelectedClusterDataList();
+            if (nodes.Count > 0 && clusters.Count > 0)
+                return false;
+
+            if (clusters.Count > 0)
+            {
+                List<string> ids = clusters.Select(cluster => cluster.ID).ToList();
+                _canvas.Commands.RotateClusters(clusters, degrees);
+                _canvas.PopulateView(_currentTree);
+                _canvas.SelectClustersByIds(ids);
+                _selectedCluster = ids.Count == 1 ? _currentTree.GetCluster(ids[0]) : null;
+                _selectedNode = null;
+                _selectedBezier = null;
+                RefreshInspector();
+                return true;
+            }
+
+            if (nodes.Count < 2)
+                return false;
+
+            List<string> nodeIds = nodes.Select(node => node.ID).ToList();
+            _canvas.Commands.RotateNodes(nodes, degrees);
+            _canvas.PopulateView(_currentTree);
+            _canvas.SelectNodesByIds(nodeIds);
             _selectedNode = null;
             _selectedCluster = null;
             _selectedBezier = null;

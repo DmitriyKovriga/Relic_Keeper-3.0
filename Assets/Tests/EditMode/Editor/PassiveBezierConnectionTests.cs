@@ -408,6 +408,107 @@ namespace RelicKeeper.Tests.EditMode
         }
     }
 
+    public class PassiveSelectionRotationTests
+    {
+        [Test]
+        public void RotateNodes_RotatesPositionsAndFreeBezierHandlesAroundSelectionCentre()
+        {
+            var tree = ScriptableObject.CreateInstance<PassiveSkillTreeSO>();
+            try
+            {
+                tree.SnapToGrid = false;
+                var a = new PassiveNodeDefinition
+                {
+                    ID = "a",
+                    Position = new Vector2(-10f, 0f),
+                    PlacementMode = NodePlacementMode.Free,
+                    ConnectionIDs = new List<string> { "b" }
+                };
+                var b = new PassiveNodeDefinition
+                {
+                    ID = "b",
+                    Position = new Vector2(10f, 0f),
+                    PlacementMode = NodePlacementMode.Free,
+                    ConnectionIDs = new List<string> { "a" }
+                };
+                tree.Nodes.AddRange(new[] { a, b });
+                tree.BezierConnections.Add(new PassiveBezierConnection
+                {
+                    NodeIdA = "a",
+                    NodeIdB = "b",
+                    InHandleOffset = new Vector2(10f, 0f),
+                    OutHandleOffset = new Vector2(-10f, 0f)
+                });
+                tree.InitLookup();
+
+                var commands = new PassiveTreeEditorCommands();
+                commands.SetTree(tree);
+                commands.RotateNodes(new[] { a, b }, 90f);
+
+                Assert.That(a.Position.x, Is.EqualTo(0f).Within(0.001f));
+                Assert.That(a.Position.y, Is.EqualTo(-10f).Within(0.001f));
+                Assert.That(b.Position.x, Is.EqualTo(0f).Within(0.001f));
+                Assert.That(b.Position.y, Is.EqualTo(10f).Within(0.001f));
+                Assert.That(tree.BezierConnections[0].InHandleOffset.x, Is.EqualTo(0f).Within(0.001f));
+                Assert.That(tree.BezierConnections[0].InHandleOffset.y, Is.EqualTo(10f).Within(0.001f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(tree);
+            }
+        }
+
+        [Test]
+        public void RotateCluster_KeepsNodeOnOrbitAndRotatesPartialArc()
+        {
+            var tree = ScriptableObject.CreateInstance<PassiveSkillTreeSO>();
+            try
+            {
+                var cluster = new PassiveClusterDefinition
+                {
+                    ID = "cluster",
+                    Center = new Vector2(200f, 300f),
+                    Orbits = new List<PassiveOrbitDefinition>
+                    {
+                        new PassiveOrbitDefinition
+                        {
+                            Radius = 80f,
+                            IsPartialArc = true,
+                            ArcStartAngle = 10f,
+                            ArcEndAngle = 70f
+                        }
+                    }
+                };
+                var node = new PassiveNodeDefinition
+                {
+                    ID = "node",
+                    PlacementMode = NodePlacementMode.OnOrbit,
+                    ClusterID = "cluster",
+                    OrbitIndex = 0,
+                    OrbitAngle = 30f,
+                    ConnectionIDs = new List<string>()
+                };
+                tree.Clusters.Add(cluster);
+                tree.Nodes.Add(node);
+                tree.InitLookup();
+
+                var commands = new PassiveTreeEditorCommands();
+                commands.SetTree(tree);
+                commands.RotateClusters(new[] { cluster }, 45f);
+
+                Assert.That(cluster.Center, Is.EqualTo(new Vector2(200f, 300f)));
+                Assert.That(node.PlacementMode, Is.EqualTo(NodePlacementMode.OnOrbit));
+                Assert.That(node.OrbitAngle, Is.EqualTo(75f).Within(0.001f));
+                Assert.That(cluster.Orbits[0].ArcStartAngle, Is.EqualTo(55f).Within(0.001f));
+                Assert.That(cluster.Orbits[0].ArcEndAngle, Is.EqualTo(115f).Within(0.001f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(tree);
+            }
+        }
+    }
+
     public class PassiveOrbitArcDrawingTests
     {
         [Test]

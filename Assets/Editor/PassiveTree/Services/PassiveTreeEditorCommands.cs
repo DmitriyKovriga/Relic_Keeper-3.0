@@ -478,6 +478,120 @@ namespace Scripts.Editor.PassiveTree
             return Mathf.Repeat(horizontal ? 180f - angle : -angle, 360f);
         }
 
+        public void RotateNodes(IReadOnlyCollection<PassiveNodeDefinition> nodes, float degrees)
+        {
+            if (_tree == null || nodes == null || nodes.Count == 0 || Mathf.Approximately(degrees, 0f))
+                return;
+
+            List<PassiveNodeDefinition> selected = nodes.Where(node => node != null).Distinct().ToList();
+            if (selected.Count < 2)
+                return;
+
+            Vector2 min = selected[0].GetWorldPosition(_tree);
+            Vector2 max = min;
+            foreach (PassiveNodeDefinition node in selected)
+            {
+                Vector2 position = node.GetWorldPosition(_tree);
+                min = Vector2.Min(min, position);
+                max = Vector2.Max(max, position);
+            }
+
+            Vector2 pivot = (min + max) * 0.5f;
+            var selectedIds = new HashSet<string>(selected.Select(node => node.ID));
+            RecordTree($"Rotate Nodes {Mathf.Abs(degrees):0.##}°");
+            foreach (PassiveNodeDefinition node in selected)
+            {
+                node.Position = RotatePoint(node.GetWorldPosition(_tree), pivot, degrees);
+                node.PlacementMode = NodePlacementMode.Free;
+                node.ClusterID = string.Empty;
+                node.OrbitIndex = 0;
+                node.OrbitAngle = 0f;
+            }
+
+            RotateInternalBezierHandles(selectedIds, degrees);
+            _tree.InitLookup();
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        public void RotateClusters(IReadOnlyCollection<PassiveClusterDefinition> clusters, float degrees)
+        {
+            if (_tree == null || clusters == null || clusters.Count == 0 || Mathf.Approximately(degrees, 0f))
+                return;
+
+            List<PassiveClusterDefinition> selected = clusters.Where(cluster => cluster != null).Distinct().ToList();
+            if (selected.Count == 0)
+                return;
+
+            Vector2 min = selected[0].Center;
+            Vector2 max = min;
+            foreach (PassiveClusterDefinition cluster in selected)
+            {
+                min = Vector2.Min(min, cluster.Center);
+                max = Vector2.Max(max, cluster.Center);
+            }
+
+            Vector2 pivot = (min + max) * 0.5f;
+            var clusterIds = new HashSet<string>(selected.Select(cluster => cluster.ID));
+            var rotatedNodeIds = new HashSet<string>();
+            RecordTree($"Rotate Clusters {Mathf.Abs(degrees):0.##}°");
+
+            foreach (PassiveClusterDefinition cluster in selected)
+            {
+                cluster.Center = RotatePoint(cluster.Center, pivot, degrees);
+                if (cluster.Orbits == null)
+                    continue;
+                foreach (PassiveOrbitDefinition orbit in cluster.Orbits)
+                {
+                    if (orbit == null || !orbit.IsPartialArc)
+                        continue;
+                    orbit.ArcStartAngle = Mathf.Repeat(orbit.ArcStartAngle + degrees, 360f);
+                    orbit.ArcEndAngle = Mathf.Repeat(orbit.ArcEndAngle + degrees, 360f);
+                }
+            }
+
+            if (_tree.Nodes != null)
+            {
+                foreach (PassiveNodeDefinition node in _tree.Nodes)
+                {
+                    if (node == null || node.PlacementMode != NodePlacementMode.OnOrbit || !clusterIds.Contains(node.ClusterID))
+                        continue;
+                    node.OrbitAngle = Mathf.Repeat(node.OrbitAngle + degrees, 360f);
+                    rotatedNodeIds.Add(node.ID);
+                }
+            }
+
+            RotateInternalBezierHandles(rotatedNodeIds, degrees);
+            _tree.InitLookup();
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
+        private void RotateInternalBezierHandles(HashSet<string> selectedNodeIds, float degrees)
+        {
+            if (_tree?.BezierConnections == null || selectedNodeIds == null || selectedNodeIds.Count == 0)
+                return;
+
+            foreach (PassiveBezierConnection connection in _tree.BezierConnections)
+            {
+                if (connection == null || !selectedNodeIds.Contains(connection.NodeIdA) || !selectedNodeIds.Contains(connection.NodeIdB))
+                    continue;
+                connection.InHandleOffset = RotateVector(connection.InHandleOffset, degrees);
+                connection.OutHandleOffset = RotateVector(connection.OutHandleOffset, degrees);
+            }
+        }
+
+        private static Vector2 RotatePoint(Vector2 point, Vector2 pivot, float degrees)
+        {
+            return pivot + RotateVector(point - pivot, degrees);
+        }
+
+        private static Vector2 RotateVector(Vector2 value, float degrees)
+        {
+            float radians = degrees * Mathf.Deg2Rad;
+            float cos = Mathf.Cos(radians);
+            float sin = Mathf.Sin(radians);
+            return new Vector2(value.x * cos - value.y * sin, value.x * sin + value.y * cos);
+        }
+
         public void DisconnectNodes(PassiveNodeDefinition nodeA, PassiveNodeDefinition nodeB)
         {
             if (nodeA == null || nodeB == null) return;
