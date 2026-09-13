@@ -18,12 +18,14 @@ MonoBehaviour:
 
     Archer Focus - Increase Prjijectile
     Damage by 50% but end effect when take damage'
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 9a9949da853a44c4fa3aaa0d106384ee, type: 3}
   NameKey: skills.ArcherFocusSkill
   DescriptionKey: skills.ArcherFocusSkill.description
   IsActive: 1
   Cooldown: 20
   ManaCost: 10
+  ActionSpeedMode: 0
+  SkillSpeedMultiplier: 1
   DamageContextTags: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack

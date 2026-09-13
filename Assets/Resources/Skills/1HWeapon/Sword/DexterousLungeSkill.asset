@@ -16,12 +16,13 @@ MonoBehaviour:
   SkillName: Dexterous Lunge
   Description: Deal 100% damage with 50% More Attack Speed and 100% Increase Crit
     Chanse, move forward
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: a84466b3a029da04dbe1fe23b5c7b60a, type: 3}
   NameKey: skills.DexterousLungeSkill
   DescriptionKey: skills.DexterousLungeSkill.description
   IsActive: 1
   Cooldown: 0
   ManaCost: 0
+  ActionSpeedMode: 0
   SkillSpeedMultiplier: 1.5
   DamageContextTags: 21
   SkillPrefab: {fileID: 0}

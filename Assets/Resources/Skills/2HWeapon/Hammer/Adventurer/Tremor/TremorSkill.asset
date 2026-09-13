@@ -16,7 +16,7 @@ MonoBehaviour:
   SkillName: Tremor
   Description: Hit the fround and spawn wave taht deal 250% damage and deal 250%
     damage to stun
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: b0bc8a5b3ae1a524fabdd6c76050df6f, type: 3}
   NameKey: skills.TremorSkill
   DescriptionKey: skills.TremorSkill.description
   IsActive: 1

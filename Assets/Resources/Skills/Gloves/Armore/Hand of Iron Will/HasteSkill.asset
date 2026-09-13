@@ -15,12 +15,14 @@ MonoBehaviour:
   ID: Haste
   SkillName: Haste
   Description: Increase attack speed by 30% and movement speed by 10%
-  Icon: {fileID: 21300000, guid: 8e1cbaf60a2a9f04391f33debb58cbd1, type: 3}
+  Icon: {fileID: 21300000, guid: a5b60b1aa1e55024d80635d1dea91c2b, type: 3}
   NameKey: skills.Haste
   DescriptionKey: skills.Haste.description
   IsActive: 1
   Cooldown: 15
   ManaCost: 10
+  ActionSpeedMode: 0
+  SkillSpeedMultiplier: 1
   DamageContextTags: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack

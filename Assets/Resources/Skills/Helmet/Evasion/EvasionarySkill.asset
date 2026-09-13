@@ -15,12 +15,14 @@ MonoBehaviour:
   ID: EvasionarySkill
   SkillName: Evasionary
   Description: 'Grant 100% Increase Evasion for 8 sec '
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: ad9178f0f5a2ada4098a6232b7a5d419, type: 3}
   NameKey: skills.EvasionarySkill
   DescriptionKey: skills.EvasionarySkill.description
   IsActive: 1
   Cooldown: 15
   ManaCost: 10
+  ActionSpeedMode: 0
+  SkillSpeedMultiplier: 1
   DamageContextTags: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack

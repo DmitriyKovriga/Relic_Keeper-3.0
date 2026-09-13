@@ -15,12 +15,14 @@ MonoBehaviour:
   ID: VitalityForceSkill
   SkillName: Vitality Force
   Description: Instant resoring life in 25% of current Armore
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 7785b4228b7f27f41a02964af6e80147, type: 3}
   NameKey: skills.VitalityForceSkill
   DescriptionKey: skills.VitalityForceSkill.description
   IsActive: 1
   Cooldown: 8
   ManaCost: 10
+  ActionSpeedMode: 0
+  SkillSpeedMultiplier: 1
   DamageContextTags: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack

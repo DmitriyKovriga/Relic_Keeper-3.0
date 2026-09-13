@@ -15,7 +15,7 @@ MonoBehaviour:
   ID: OrbitalWeaponThrowSkill
   SkillName: Orbital Weapon Throw
   Description: Throw Weapon to fly around hero and deal 350% damage on hit
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: a5c6bef6b24677346837f66573b6b001, type: 3}
   NameKey: skills.OrbitalWeaponTrowSkill
   DescriptionKey: skills.OrbitalWeaponTrowSkill.description
   IsActive: 1

@@ -15,7 +15,7 @@ MonoBehaviour:
   ID: HomingWeaponThrow
   SkillName: Homing Weapon Throw
   Description: Throw Homing Weapon with 100% damage
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 658466fbf230fa34f85a4775d394bd18, type: 3}
   NameKey: skills.HomingWeaponThrow
   DescriptionKey: skills.HomingWeaponThrow.description
   IsActive: 1

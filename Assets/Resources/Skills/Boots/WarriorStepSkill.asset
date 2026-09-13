@@ -15,12 +15,14 @@ MonoBehaviour:
   ID: WarriorStepSkill
   SkillName: Warrior Step
   Description: Increase movespeed and armore
-  Icon: {fileID: 21300000, guid: 10885698cb1174d4591cf3f38b6cdc75, type: 3}
+  Icon: {fileID: 21300000, guid: 2b7c39271d8ae38478b4ead24da1effe, type: 3}
   NameKey: skills.WarriorStepSkill
   DescriptionKey: skills.WarriorStepSkill.description
   IsActive: 1
   Cooldown: 15
   ManaCost: 10
+  ActionSpeedMode: 0
+  SkillSpeedMultiplier: 1
   DamageContextTags: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack

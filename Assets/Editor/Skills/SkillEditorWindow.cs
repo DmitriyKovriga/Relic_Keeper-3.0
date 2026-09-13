@@ -4,6 +4,7 @@ using UnityEditor.Localization;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Scripts.Combat;
 using Scripts.Skills;
@@ -809,6 +810,7 @@ namespace Scripts.Editor.Skills
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("SkillName"), new GUIContent("Skill Name"));
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("Description"));
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("Icon"));
+            DrawSkillIconDropArea(skill, serializedSkill);
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("NameKey"));
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("DescriptionKey"));
 
@@ -864,6 +866,149 @@ namespace Scripts.Editor.Skills
                     }
                 }
             }
+        }
+
+        private void DrawSkillIconDropArea(SkillDataSO skill, SerializedObject serializedSkill)
+        {
+            Rect dropRect = GUILayoutUtility.GetRect(1f, 42f, GUILayout.ExpandWidth(true));
+            EditorGUI.DrawRect(dropRect, new Color(0.13f, 0.13f, 0.13f));
+            GUI.Box(
+                dropRect,
+                new GUIContent(
+                    "Drop skill icon here\nPNG, JPG, TGA or PSD",
+                    "Copies the image beside this Skill asset, imports it with the project's pixel-art settings, and assigns it as the skill icon."),
+                EditorStyles.helpBox);
+
+            Event evt = Event.current;
+            if (!dropRect.Contains(evt.mousePosition) ||
+                (evt.type != EventType.DragUpdated && evt.type != EventType.DragPerform))
+                return;
+
+            string sourcePath = GetFirstDraggedSkillImagePath();
+            DragAndDrop.visualMode = string.IsNullOrWhiteSpace(sourcePath)
+                ? DragAndDropVisualMode.Rejected
+                : DragAndDropVisualMode.Copy;
+
+            if (evt.type == EventType.DragPerform && !string.IsNullOrWhiteSpace(sourcePath))
+            {
+                DragAndDrop.AcceptDrag();
+
+                // Preserve edits made in the other Base fields before changing the asset directly.
+                serializedSkill.ApplyModifiedProperties();
+                Sprite imported = ImportIconBesideSkill(skill, sourcePath);
+                if (imported != null)
+                {
+                    Undo.RecordObject(skill, "Assign Skill Icon");
+                    skill.Icon = imported;
+                    EditorUtility.SetDirty(skill);
+                    AssetDatabase.SaveAssets();
+                    serializedSkill.Update();
+                    Repaint();
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog("Skill Icon", "Could not import this image as a Sprite.", "OK");
+                }
+            }
+
+            evt.Use();
+        }
+
+        private static string GetFirstDraggedSkillImagePath()
+        {
+            if (DragAndDrop.paths != null)
+            {
+                foreach (string path in DragAndDrop.paths)
+                {
+                    if (IsSupportedSkillIconPath(path))
+                        return path;
+                }
+            }
+
+            if (DragAndDrop.objectReferences != null)
+            {
+                foreach (UnityEngine.Object draggedObject in DragAndDrop.objectReferences)
+                {
+                    if (draggedObject is Sprite || draggedObject is Texture2D)
+                    {
+                        string path = AssetDatabase.GetAssetPath(draggedObject);
+                        if (IsSupportedSkillIconPath(path))
+                            return path;
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private static bool IsSupportedSkillIconPath(string path)
+        {
+            string extension = Path.GetExtension(path).ToLowerInvariant();
+            return extension == ".png" || extension == ".jpg" || extension == ".jpeg" ||
+                   extension == ".tga" || extension == ".psd";
+        }
+
+        private static Sprite ImportIconBesideSkill(SkillDataSO skill, string sourcePath)
+        {
+            if (skill == null || string.IsNullOrWhiteSpace(sourcePath) || !IsSupportedSkillIconPath(sourcePath))
+                return null;
+
+            string skillAssetPath = AssetDatabase.GetAssetPath(skill).Replace('\\', '/');
+            string destinationFolder = Path.GetDirectoryName(skillAssetPath)?.Replace('\\', '/');
+            if (string.IsNullOrWhiteSpace(destinationFolder))
+                return null;
+
+            string sourceAssetPath = sourcePath.Replace('\\', '/');
+            if (Path.IsPathRooted(sourceAssetPath))
+            {
+                string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, "..")).Replace('\\', '/').TrimEnd('/');
+                string normalizedSource = Path.GetFullPath(sourceAssetPath).Replace('\\', '/');
+                if (normalizedSource.StartsWith(projectRoot + "/", System.StringComparison.OrdinalIgnoreCase))
+                    sourceAssetPath = normalizedSource.Substring(projectRoot.Length + 1);
+            }
+
+            string destinationPath = AssetDatabase.GenerateUniqueAssetPath(
+                $"{destinationFolder}/{Path.GetFileName(sourcePath)}");
+
+            bool copied;
+            if (sourceAssetPath.StartsWith("Assets/", System.StringComparison.OrdinalIgnoreCase))
+            {
+                copied = AssetDatabase.CopyAsset(sourceAssetPath, destinationPath);
+            }
+            else
+            {
+                try
+                {
+                    string absoluteDestination = Path.GetFullPath(
+                        Path.Combine(Application.dataPath, "..", destinationPath));
+                    File.Copy(sourcePath, absoluteDestination, false);
+                    copied = true;
+                }
+                catch (System.Exception exception)
+                {
+                    Debug.LogError($"[SkillEditor] Could not copy skill icon: {exception.Message}");
+                    copied = false;
+                }
+            }
+
+            if (!copied)
+                return null;
+
+            AssetDatabase.ImportAsset(destinationPath, ImportAssetOptions.ForceSynchronousImport);
+            if (AssetImporter.GetAtPath(destinationPath) is not TextureImporter importer)
+                return null;
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = 24f;
+            importer.filterMode = FilterMode.Point;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.mipmapEnabled = false;
+            importer.alphaIsTransparency = true;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+
+            return AssetDatabase.LoadAssetAtPath<Sprite>(destinationPath);
         }
 
         private void DrawSkillLocalizationSection(SkillDataSO skill)

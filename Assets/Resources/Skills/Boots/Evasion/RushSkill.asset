@@ -15,12 +15,14 @@ MonoBehaviour:
   ID: RushSkill
   SkillName: Rush
   Description: "Grant 20% More Movement Speed and Attack Speed \u043D\u0430 8 \u0441\u0435\u043A"
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 775d8eebaae48fd4d95822c84a6253b4, type: 3}
   NameKey: skills.RushSkill
   DescriptionKey: skills.RushSkill.description
   IsActive: 1
   Cooldown: 15
   ManaCost: 10
+  ActionSpeedMode: 0
+  SkillSpeedMultiplier: 1
   DamageContextTags: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack

@@ -15,12 +15,14 @@ MonoBehaviour:
   ID: MightOfDestructionSkill
   SkillName: Might Of Destruction
   Description: Increase 50% Skill Area Effect by 8 sec
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 81c88c84aba6240489738ac982034d6d, type: 3}
   NameKey: skills.MightOfDestructionSkill
   DescriptionKey: skills.MightOfDestructionSkill.description
   IsActive: 1
   Cooldown: 16
   ManaCost: 10
+  ActionSpeedMode: 0
+  SkillSpeedMultiplier: 1
   DamageContextTags: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack

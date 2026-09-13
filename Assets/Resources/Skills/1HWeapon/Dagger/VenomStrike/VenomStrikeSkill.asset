@@ -18,12 +18,14 @@ MonoBehaviour:
 
     Deal +10 flat physical damage
     for every Posion stack on enemy.'
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: e947a49320c006b47b2888d2c374979e, type: 3}
   NameKey: skills.VenomStrikeSkill
   DescriptionKey: skills.VenomStrikeSkill.description
   IsActive: 1
   Cooldown: 0
   ManaCost: 0
+  ActionSpeedMode: 0
+  SkillSpeedMultiplier: 1
   DamageContextTags: 21
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack

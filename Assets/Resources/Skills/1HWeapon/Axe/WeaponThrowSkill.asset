@@ -15,12 +15,13 @@ MonoBehaviour:
   ID: WeaponThrowSkill
   SkillName: Weapon Throw
   Description: Weapon Throw with 100% weapon damage +50% attack speed and pierce
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 85847aa5d81a3d140a6bf464f1abc187, type: 3}
   NameKey: skills.WeaponThrowSkill
   DescriptionKey: skills.WeaponThrowSkill.description
   IsActive: 1
   Cooldown: 0
   ManaCost: 0
+  ActionSpeedMode: 0
   SkillSpeedMultiplier: 1.5
   DamageContextTags: 0
   SkillPrefab: {fileID: 0}

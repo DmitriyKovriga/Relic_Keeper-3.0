@@ -15,7 +15,7 @@ MonoBehaviour:
   ID: GroundShakeSkill
   SkillName: Ground Shake
   Description: Cast Wave of Shaking in front with 100% damage and pierce all target
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 208788e6e446d8c469a196edf6c5511f, type: 3}
   NameKey: skills.GroundShakeSkill
   DescriptionKey: skills.GroundShakeSkill.description
   IsActive: 1
