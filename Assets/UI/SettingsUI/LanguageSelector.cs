@@ -21,16 +21,21 @@ public class LanguageSelector : MonoBehaviour
     private Button _optRussian;
     private EventCallback<ClickEvent> _rootClickCallback;
     private Label _displayLabel;
-    private DropdownField _displayDropdown;
-    private EventCallback<ChangeEvent<string>> _displayChangedCallback;
+    private Button _displayButton;
+    private VisualElement _displayPopup;
     private List<DisplayInfo> _displays = new List<DisplayInfo>();
     private Label _hudScaleLabel;
     private Label _hudOpacityLabel;
     private Label _attackVfxOpacityLabel;
-    private DropdownField _hudScaleDropdown;
+    private Button _hudScaleButton;
+    private VisualElement _hudScalePopup;
+    private Button _hudScaleOption100;
+    private Button _hudScaleOption75;
+    private Button _hudScaleOption50;
     private SliderInt _hudOpacitySlider;
     private SliderInt _attackVfxOpacitySlider;
-    private EventCallback<ChangeEvent<string>> _hudScaleChangedCallback;
+    private Label _hudOpacityValue;
+    private Label _attackVfxOpacityValue;
     private EventCallback<ChangeEvent<int>> _hudOpacityChangedCallback;
     private EventCallback<ChangeEvent<int>> _attackVfxOpacityChangedCallback;
 
@@ -51,8 +56,15 @@ public class LanguageSelector : MonoBehaviour
         SetupPresentationSettings();
 
         _popup.style.display = DisplayStyle.None;
+        if (_displayPopup != null) _displayPopup.style.display = DisplayStyle.None;
+        if (_hudScalePopup != null) _hudScalePopup.style.display = DisplayStyle.None;
 
         _languageButton.clicked += OnLanguageButtonClick;
+        if (_displayButton != null) _displayButton.clicked += OnDisplayButtonClick;
+        if (_hudScaleButton != null) _hudScaleButton.clicked += OnHudScaleButtonClick;
+        if (_hudScaleOption100 != null) _hudScaleOption100.clicked += OnHudScale100Click;
+        if (_hudScaleOption75 != null) _hudScaleOption75.clicked += OnHudScale75Click;
+        if (_hudScaleOption50 != null) _hudScaleOption50.clicked += OnHudScale50Click;
         if (_optEnglish != null) _optEnglish.clicked += OnOptEnglishClick;
         if (_optRussian != null) _optRussian.clicked += OnOptRussianClick;
 
@@ -65,10 +77,11 @@ public class LanguageSelector : MonoBehaviour
         if (_languageButton != null) _languageButton.clicked -= OnLanguageButtonClick;
         if (_optEnglish != null) _optEnglish.clicked -= OnOptEnglishClick;
         if (_optRussian != null) _optRussian.clicked -= OnOptRussianClick;
-        if (_displayDropdown != null && _displayChangedCallback != null)
-            _displayDropdown.UnregisterValueChangedCallback(_displayChangedCallback);
-        if (_hudScaleDropdown != null && _hudScaleChangedCallback != null)
-            _hudScaleDropdown.UnregisterValueChangedCallback(_hudScaleChangedCallback);
+        if (_displayButton != null) _displayButton.clicked -= OnDisplayButtonClick;
+        if (_hudScaleButton != null) _hudScaleButton.clicked -= OnHudScaleButtonClick;
+        if (_hudScaleOption100 != null) _hudScaleOption100.clicked -= OnHudScale100Click;
+        if (_hudScaleOption75 != null) _hudScaleOption75.clicked -= OnHudScale75Click;
+        if (_hudScaleOption50 != null) _hudScaleOption50.clicked -= OnHudScale50Click;
         if (_hudOpacitySlider != null && _hudOpacityChangedCallback != null)
             _hudOpacitySlider.UnregisterValueChangedCallback(_hudOpacityChangedCallback);
         if (_attackVfxOpacitySlider != null && _attackVfxOpacityChangedCallback != null)
@@ -82,32 +95,17 @@ public class LanguageSelector : MonoBehaviour
 
     private void OnRootClick(ClickEvent evt)
     {
-        if (_popup == null || _popup.style.display != DisplayStyle.Flex) return;
         var target = evt.target as VisualElement;
-        // Не закрывать при клике по кнопке языка или по popup
-        if (target != null && (target == _languageButton || _languageButton.Contains(target) || _popup.Contains(target)))
-            return;
-        _popup.style.display = DisplayStyle.None;
+        ClosePopupFromOutsideClick(_popup, _languageButton, target);
+        ClosePopupFromOutsideClick(_displayPopup, _displayButton, target);
+        ClosePopupFromOutsideClick(_hudScalePopup, _hudScaleButton, target);
     }
 
     private void OnLanguageButtonClick()
     {
-        if (_popup.style.display == DisplayStyle.Flex)
-        {
-            _popup.style.display = DisplayStyle.None;
-            return;
-        }
-        // Позиционируем popup под кнопкой (координаты относительно родителя)
-        var btnWorld = _languageButton.worldBound;
-        var parent = _popup.parent;
-        if (parent != null)
-        {
-            var parentWorld = parent.worldBound;
-            _popup.style.position = Position.Absolute;
-            _popup.style.left = btnWorld.x - parentWorld.x;
-            _popup.style.top = btnWorld.yMax - parentWorld.y;
-        }
-        _popup.style.display = DisplayStyle.Flex;
+        HidePopup(_displayPopup);
+        HidePopup(_hudScalePopup);
+        TogglePopup(_popup, _languageButton);
     }
 
     private void SelectLanguage(string name)
@@ -168,30 +166,27 @@ public class LanguageSelector : MonoBehaviour
     {
         var root = ui?.rootVisualElement;
         _displayLabel = root?.Q<Label>("DisplayLabel");
-        _displayDropdown = root?.Q<DropdownField>("DisplayDropdown");
-        if (_displayDropdown == null)
+        _displayButton = root?.Q<Button>("DisplayButton");
+        _displayPopup = root?.Q<VisualElement>("DisplayPopup");
+        if (_displayButton == null || _displayPopup == null)
             return;
 
         _displays = DisplaySettings.GetDisplays();
-        var choices = BuildDisplayChoices();
+        RebuildDisplayPopup();
 
-        if (choices.Count == 0)
+        if (_displays.Count == 0)
         {
-            _displayDropdown.SetEnabled(false);
-            _displayDropdown.choices = new List<string> { "Display 1" };
-            _displayDropdown.SetValueWithoutNotify("Display 1");
+            _displayButton.SetEnabled(false);
+            _displayButton.text = "Display 1";
             UpdateDisplayLabel();
             return;
         }
 
         int selectedIndex = DisplaySettings.ClampIndex(
             PlayerPrefs.GetInt(DisplaySettings.SelectedDisplayKey, 0),
-            choices.Count);
+            _displays.Count);
 
-        _displayDropdown.choices = choices;
-        _displayDropdown.index = selectedIndex;
-        _displayChangedCallback = OnDisplayChanged;
-        _displayDropdown.RegisterValueChangedCallback(_displayChangedCallback);
+        _displayButton.text = FormatDisplayChoice(selectedIndex, _displays[selectedIndex]);
         UpdateDisplayLabel();
     }
 
@@ -201,28 +196,40 @@ public class LanguageSelector : MonoBehaviour
         _hudScaleLabel = root?.Q<Label>("HudScaleLabel");
         _hudOpacityLabel = root?.Q<Label>("HudOpacityLabel");
         _attackVfxOpacityLabel = root?.Q<Label>("AttackVfxOpacityLabel");
-        _hudScaleDropdown = root?.Q<DropdownField>("HudScaleDropdown");
+        _hudScaleButton = root?.Q<Button>("HudScaleButton");
+        _hudScalePopup = root?.Q<VisualElement>("HudScalePopup");
+        _hudScaleOption100 = root?.Q<Button>("HudScaleOption100");
+        _hudScaleOption75 = root?.Q<Button>("HudScaleOption75");
+        _hudScaleOption50 = root?.Q<Button>("HudScaleOption50");
         _hudOpacitySlider = root?.Q<SliderInt>("HudOpacitySlider");
         _attackVfxOpacitySlider = root?.Q<SliderInt>("AttackVfxOpacitySlider");
+        _hudOpacityValue = root?.Q<Label>("HudOpacityValue");
+        _attackVfxOpacityValue = root?.Q<Label>("AttackVfxOpacityValue");
 
-        if (_hudScaleDropdown != null)
-        {
+        if (_hudScaleButton != null)
             RefreshHudScaleChoices();
-            _hudScaleChangedCallback = OnHudScaleChanged;
-            _hudScaleDropdown.RegisterValueChangedCallback(_hudScaleChangedCallback);
-        }
 
         if (_hudOpacitySlider != null)
         {
             _hudOpacitySlider.SetValueWithoutNotify(Mathf.RoundToInt(GameplayPresentationSettings.HudOpacity * 100f));
-            _hudOpacityChangedCallback = evt => GameplayPresentationSettings.SetHudOpacity(evt.newValue / 100f);
+            UpdatePercentLabel(_hudOpacityValue, _hudOpacitySlider.value);
+            _hudOpacityChangedCallback = evt =>
+            {
+                GameplayPresentationSettings.SetHudOpacity(evt.newValue / 100f);
+                UpdatePercentLabel(_hudOpacityValue, evt.newValue);
+            };
             _hudOpacitySlider.RegisterValueChangedCallback(_hudOpacityChangedCallback);
         }
 
         if (_attackVfxOpacitySlider != null)
         {
             _attackVfxOpacitySlider.SetValueWithoutNotify(Mathf.RoundToInt(GameplayPresentationSettings.PlayerAttackVfxOpacity * 100f));
-            _attackVfxOpacityChangedCallback = evt => GameplayPresentationSettings.SetPlayerAttackVfxOpacity(evt.newValue / 100f);
+            UpdatePercentLabel(_attackVfxOpacityValue, _attackVfxOpacitySlider.value);
+            _attackVfxOpacityChangedCallback = evt =>
+            {
+                GameplayPresentationSettings.SetPlayerAttackVfxOpacity(evt.newValue / 100f);
+                UpdatePercentLabel(_attackVfxOpacityValue, evt.newValue);
+            };
             _attackVfxOpacitySlider.RegisterValueChangedCallback(_attackVfxOpacityChangedCallback);
         }
 
@@ -244,53 +251,123 @@ public class LanguageSelector : MonoBehaviour
 
     private void RefreshHudScaleChoices()
     {
-        if (_hudScaleDropdown == null)
+        if (_hudScaleButton == null)
             return;
 
-        bool russian = IsRussianLocale();
-        var choices = new List<string>
-        {
-            russian ? "100% (по умолчанию)" : "100% (default)",
-            "75% (-25%)",
-            "50% (-50%)"
-        };
-        int selectedIndex = GameplayPresentationSettings.GetHudScaleIndex();
-        _hudScaleDropdown.choices = choices;
-        _hudScaleDropdown.SetValueWithoutNotify(choices[selectedIndex]);
+        _hudScaleButton.text = GetHudScaleText(GameplayPresentationSettings.GetHudScaleIndex());
     }
 
-    private void OnHudScaleChanged(ChangeEvent<string> evt)
+    private void OnDisplayButtonClick()
     {
-        GameplayPresentationSettings.SetHudScale(
-            GameplayPresentationSettings.GetHudScaleForIndex(_hudScaleDropdown?.index ?? 0));
+        HidePopup(_popup);
+        HidePopup(_hudScalePopup);
+        TogglePopup(_displayPopup, _displayButton);
+    }
+
+    private void OnHudScaleButtonClick()
+    {
+        HidePopup(_popup);
+        HidePopup(_displayPopup);
+        TogglePopup(_hudScalePopup, _hudScaleButton);
+    }
+
+    private void OnHudScale100Click() => SelectHudScale(0);
+    private void OnHudScale75Click() => SelectHudScale(1);
+    private void OnHudScale50Click() => SelectHudScale(2);
+
+    private void SelectHudScale(int index)
+    {
+        GameplayPresentationSettings.SetHudScale(GameplayPresentationSettings.GetHudScaleForIndex(index));
+        _hudScaleButton.text = GetHudScaleText(index);
+        _hudScalePopup.style.display = DisplayStyle.None;
     }
 
     private void RefreshDisplayChoices()
     {
-        if (_displayDropdown == null || _displays.Count == 0)
+        if (_displayButton == null || _displays.Count == 0)
             return;
 
-        int selectedIndex = DisplaySettings.ClampIndex(_displayDropdown.index, _displays.Count);
-        var choices = BuildDisplayChoices();
-        _displayDropdown.choices = choices;
-        _displayDropdown.SetValueWithoutNotify(choices[selectedIndex]);
+        int selectedIndex = DisplaySettings.ClampIndex(
+            PlayerPrefs.GetInt(DisplaySettings.SelectedDisplayKey, 0),
+            _displays.Count);
+        _displayButton.text = FormatDisplayChoice(selectedIndex, _displays[selectedIndex]);
+        RebuildDisplayPopup();
     }
 
-    private List<string> BuildDisplayChoices()
+    private void RebuildDisplayPopup()
     {
-        var choices = new List<string>();
+        if (_displayPopup == null)
+            return;
+
+        _displayPopup.Clear();
         for (int i = 0; i < _displays.Count; i++)
-            choices.Add(FormatDisplayChoice(i, _displays[i]));
-        return choices;
+        {
+            int displayIndex = i;
+            var option = new Button(() => SelectDisplay(displayIndex))
+            {
+                text = FormatDisplayChoice(displayIndex, _displays[displayIndex])
+            };
+            option.AddToClassList("settings-select-option");
+            _displayPopup.Add(option);
+        }
     }
 
-    private void OnDisplayChanged(ChangeEvent<string> evt)
+    private void SelectDisplay(int selectedIndex)
     {
-        int selectedIndex = _displayDropdown?.choices?.IndexOf(evt.newValue) ?? -1;
-        if (selectedIndex < 0)
+        if (selectedIndex < 0 || selectedIndex >= _displays.Count)
             return;
 
         DisplaySettings.SaveAndApply(selectedIndex);
+        _displayButton.text = FormatDisplayChoice(selectedIndex, _displays[selectedIndex]);
+        _displayPopup.style.display = DisplayStyle.None;
+    }
+
+    private static string GetHudScaleText(int index) => index switch
+    {
+        0 => "100%",
+        2 => "50%",
+        _ => "75%"
+    };
+
+    private static void UpdatePercentLabel(Label label, int value)
+    {
+        if (label != null)
+            label.text = $"{value}%";
+    }
+
+    private static void ClosePopupFromOutsideClick(VisualElement popup, VisualElement button, VisualElement target)
+    {
+        if (popup == null || popup.style.display != DisplayStyle.Flex)
+            return;
+        if (target != null && ((button != null && (target == button || button.Contains(target))) || popup.Contains(target)))
+            return;
+        popup.style.display = DisplayStyle.None;
+    }
+
+    private static void HidePopup(VisualElement popup)
+    {
+        if (popup != null)
+            popup.style.display = DisplayStyle.None;
+    }
+
+    private static void TogglePopup(VisualElement popup, VisualElement button)
+    {
+        if (popup == null || button == null)
+            return;
+        if (popup.style.display == DisplayStyle.Flex)
+        {
+            popup.style.display = DisplayStyle.None;
+            return;
+        }
+
+        var buttonWorld = button.worldBound;
+        var parentWorld = popup.parent.worldBound;
+        popup.style.position = Position.Absolute;
+        popup.style.left = Mathf.Round(buttonWorld.x - parentWorld.x);
+        popup.style.top = Mathf.Round(buttonWorld.yMax - parentWorld.y);
+        popup.style.width = Mathf.Round(buttonWorld.width);
+        popup.style.display = DisplayStyle.Flex;
+        popup.BringToFront();
     }
 
     private string FormatDisplayChoice(int index, DisplayInfo display)

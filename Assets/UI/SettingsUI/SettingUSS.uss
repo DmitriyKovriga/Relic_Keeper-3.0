@@ -60,7 +60,7 @@
 /* Ширина задаётся динамически в ControlsUI.RecalculateActionNameColumnWidth по самому длинному тексту */
 .binding-action-name {
     color: rgb(255, 255, 255);
-    font-size: 10px;
+    font-size: 9px;
     min-width: 80px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -89,7 +89,7 @@
 }
 
 .binding-box .unity-label {
-    font-size: 10px;
+    font-size: 9px;
     -unity-text-align: middle-center;
 }
 
@@ -144,7 +144,36 @@
 }
 
 .settings-scroll .unity-scroll-view__vertical-scroller {
-    width: 10px;
+    width: 5px;
+    min-width: 5px;
+    margin-left: 1px;
+    background-color: rgb(23, 23, 23);
+    border-left-width: 1px;
+    border-left-color: rgb(58, 58, 58);
+}
+
+.settings-scroll .unity-scroll-view__vertical-scroller .unity-scroller__low-button,
+.settings-scroll .unity-scroll-view__vertical-scroller .unity-scroller__high-button {
+    display: none;
+}
+
+.settings-scroll .unity-scroll-view__vertical-scroller .unity-base-slider__tracker {
+    background-color: transparent;
+    border-width: 0;
+}
+
+.settings-scroll .unity-scroll-view__vertical-scroller .unity-base-slider__dragger {
+    width: 3px;
+    min-width: 3px;
+    margin-left: 1px;
+    margin-right: 1px;
+    background-color: rgb(105, 101, 93);
+    border-width: 0;
+    border-radius: 0;
+}
+
+.settings-scroll .unity-scroll-view__vertical-scroller .unity-base-slider__dragger:hover {
+    background-color: rgb(150, 137, 108);
 }
 
 .settings-language-row {
@@ -160,7 +189,7 @@
 
 .settings-language-label {
     color: rgb(255, 255, 255);
-    font-size: 10px;
+    font-size: 9px;
     width: 110px;
     min-width: 110px;
     max-width: 110px;
@@ -169,35 +198,13 @@
     white-space: nowrap;
 }
 
-/* Кнопка выбора языка — полный текст виден */
-.settings-language-button {
-    color: rgb(255, 255, 255);
-    background-color: rgb(34, 34, 34);
-    border-width: 1px;
-    border-color: rgb(96, 96, 96);
-    width: 110px;
-    min-width: 110px;
-    height: 16px;
-    min-height: 16px;
-    font-size: 10px;
-    flex-shrink: 0;
-}
-
-.settings-display-dropdown {
-    color: rgb(255, 255, 255);
-    background-color: rgb(34, 34, 34);
+.settings-display-button {
     width: 290px;
     min-width: 290px;
     height: 18px;
     min-height: 18px;
     font-size: 9px;
     flex-shrink: 0;
-}
-
-.settings-display-dropdown > .unity-base-field__input {
-    background-color: rgb(34, 34, 34);
-    border-width: 1px;
-    border-color: rgb(96, 96, 96);
 }
 
 .settings-presentation-row {
@@ -212,7 +219,7 @@
 
 .settings-presentation-label {
     color: rgb(255, 255, 255);
-    font-size: 10px;
+    font-size: 9px;
     width: 110px;
     min-width: 110px;
     max-width: 110px;
@@ -223,44 +230,141 @@
 
 .settings-presentation-dropdown,
 .settings-presentation-slider {
-    width: 290px;
-    min-width: 290px;
     height: 18px;
     min-height: 18px;
     flex-shrink: 0;
     font-size: 9px;
 }
 
-.settings-presentation-dropdown > .unity-base-field__input,
-.settings-presentation-slider > .unity-base-field__input {
-    background-color: rgb(34, 34, 34);
-    border-width: 1px;
-    border-color: rgb(96, 96, 96);
+.settings-presentation-dropdown {
+    width: 290px;
+    min-width: 290px;
 }
 
-/* Popup выбора языка — тёмная тема в тон панели, поверх контента */
-.settings-language-popup {
-    flex-direction: column;
-    background-color: rgb(34, 34, 34);
-    border-width: 1px;
-    border-color: rgb(96, 96, 96);
-    padding: 2px;
-    min-width: 110px;
-    position: absolute;
+.settings-presentation-slider {
+    min-width: 0;
+    flex-grow: 1;
 }
 
-.settings-language-option {
-    background-color: transparent;
-    color: rgb(255, 255, 255);
-    border-width: 0;
-    font-size: 10px;
-    padding: 4px 8px;
+.settings-full-control {
+    width: 290px;
+    min-width: 290px;
+    height: 18px;
     min-height: 18px;
+    flex-shrink: 0;
+}
+
+.settings-select-button {
+    color: rgb(226, 220, 207);
+    background-color: rgb(29, 29, 29);
+    border-width: 1px;
+    border-color: rgb(82, 78, 70);
+    border-radius: 0;
+    font-size: 9px;
+    padding-left: 4px;
+    padding-right: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     -unity-text-align: middle-left;
 }
 
-.settings-language-option:hover {
-    background-color: rgb(55, 55, 55);
+.settings-select-button:hover {
+    background-color: rgb(42, 38, 31);
+    border-color: rgb(133, 111, 68);
+}
+
+.settings-slider-control {
+    flex-direction: row;
+    align-items: center;
+    width: 290px;
+    min-width: 290px;
+    height: 18px;
+    min-height: 18px;
+    flex-shrink: 0;
+}
+
+/* Компактные числовые слайдеры для референса 480x270. */
+.settings-presentation-slider .unity-base-slider__input {
+    height: 14px;
+    min-height: 14px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.settings-presentation-slider .unity-base-slider__tracker {
+    height: 3px;
+    min-height: 3px;
+    background-color: rgb(19, 19, 19);
+    border-width: 1px;
+    border-color: rgb(72, 69, 63);
+    border-radius: 0;
+}
+
+.settings-presentation-slider .unity-base-slider__dragger {
+    width: 5px;
+    min-width: 5px;
+    height: 10px;
+    min-height: 10px;
+    background-color: rgb(177, 166, 144);
+    border-width: 1px;
+    border-color: rgb(61, 58, 52);
+    border-radius: 0;
+}
+
+.settings-presentation-slider .unity-base-slider__dragger:hover {
+    background-color: rgb(211, 187, 132);
+}
+
+.settings-slider-value {
+    width: 34px;
+    min-width: 34px;
+    height: 14px;
+    min-height: 14px;
+    margin-left: 4px;
+    color: rgb(226, 220, 207);
+    background-color: rgb(29, 29, 29);
+    border-width: 1px;
+    border-color: rgb(82, 78, 70);
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 9px;
+    overflow: hidden;
+    white-space: nowrap;
+    -unity-text-align: middle-center;
+}
+
+.settings-select-popup {
+    display: none;
+    position: absolute;
+    flex-direction: column;
+    background-color: rgb(29, 29, 29);
+    border-width: 1px;
+    border-color: rgb(82, 78, 70);
+    border-radius: 0;
+    padding: 1px;
+    max-height: 76px;
+}
+
+.settings-select-option {
+    height: 17px;
+    min-height: 17px;
+    color: rgb(226, 220, 207);
+    background-color: transparent;
+    border-width: 0;
+    border-radius: 0;
+    font-size: 9px;
+    padding-left: 4px;
+    padding-right: 4px;
+    -unity-text-align: middle-left;
+}
+
+.settings-select-option:hover {
+    background-color: rgb(57, 50, 37);
 }
 
 .settings-rows-container {

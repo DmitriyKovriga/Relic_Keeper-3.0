@@ -6,7 +6,7 @@
             <ui:ScrollView name="BindingScrollView" class="settings-scroll">
                 <ui:VisualElement name="DisplayRow" class="settings-language-row">
                     <ui:Label text="Display" name="DisplayLabel" class="settings-language-label" />
-                    <ui:DropdownField name="DisplayDropdown" class="settings-display-dropdown" />
+                    <ui:Button text="Display 1" name="DisplayButton" class="settings-select-button settings-display-button" />
                 </ui:VisualElement>
                 <ui:VisualElement name="BindingRowLocal" class="settings-language-row">
                     <ui:Label text="Language" name="ActionName1" class="settings-language-label">
@@ -14,25 +14,37 @@
                             <UnityEngine.Localization.LocalizedString property="text" table="GUID:1e98064ea36b71e4584c75c3e3fd8cae" entry="Id(3492335837184)" />
                         </Bindings>
                     </ui:Label>
-                    <ui:Button text="English" name="LanguageButton" class="settings-language-button" />
+                    <ui:Button text="English" name="LanguageButton" class="settings-select-button settings-full-control" />
                 </ui:VisualElement>
                 <ui:VisualElement name="HudScaleRow" class="settings-presentation-row">
                     <ui:Label text="HUD size" name="HudScaleLabel" class="settings-presentation-label" />
-                    <ui:DropdownField name="HudScaleDropdown" class="settings-presentation-dropdown" />
+                    <ui:Button text="75%" name="HudScaleButton" class="settings-select-button settings-presentation-dropdown" />
                 </ui:VisualElement>
                 <ui:VisualElement name="HudOpacityRow" class="settings-presentation-row">
                     <ui:Label text="HUD opacity" name="HudOpacityLabel" class="settings-presentation-label" />
-                    <ui:SliderInt name="HudOpacitySlider" low-value="20" high-value="100" show-input-field="true" class="settings-presentation-slider" />
+                    <ui:VisualElement name="HudOpacityControl" class="settings-slider-control">
+                        <ui:SliderInt name="HudOpacitySlider" low-value="20" high-value="100" show-input-field="false" class="settings-presentation-slider" />
+                        <ui:Label text="100%" name="HudOpacityValue" class="settings-slider-value" />
+                    </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement name="AttackVfxOpacityRow" class="settings-presentation-row">
                     <ui:Label text="Attack VFX opacity" name="AttackVfxOpacityLabel" class="settings-presentation-label" />
-                    <ui:SliderInt name="AttackVfxOpacitySlider" low-value="10" high-value="100" show-input-field="true" class="settings-presentation-slider" />
+                    <ui:VisualElement name="AttackVfxOpacityControl" class="settings-slider-control">
+                        <ui:SliderInt name="AttackVfxOpacitySlider" low-value="10" high-value="100" show-input-field="false" class="settings-presentation-slider" />
+                        <ui:Label text="100%" name="AttackVfxOpacityValue" class="settings-slider-value" />
+                    </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement name="BindingRowsContainer" class="settings-rows-container" />
             </ui:ScrollView>
-            <ui:VisualElement name="LanguagePopup" class="settings-language-popup">
-                <ui:Button text="English" name="LanguageOptionEnglish" class="settings-language-option" />
-                <ui:Button text="Russian" name="LanguageOptionRussian" class="settings-language-option" />
+            <ui:VisualElement name="LanguagePopup" class="settings-select-popup">
+                <ui:Button text="English" name="LanguageOptionEnglish" class="settings-select-option" />
+                <ui:Button text="Russian" name="LanguageOptionRussian" class="settings-select-option" />
+            </ui:VisualElement>
+            <ui:VisualElement name="DisplayPopup" class="settings-select-popup" />
+            <ui:VisualElement name="HudScalePopup" class="settings-select-popup">
+                <ui:Button text="100%" name="HudScaleOption100" class="settings-select-option" />
+                <ui:Button text="75%" name="HudScaleOption75" class="settings-select-option" />
+                <ui:Button text="50%" name="HudScaleOption50" class="settings-select-option" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

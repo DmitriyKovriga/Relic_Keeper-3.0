@@ -9,7 +9,7 @@ public static class GameplayPresentationSettings
 
     public static event Action Changed;
 
-    public static float HudScale => NormalizeHudScale(PlayerPrefs.GetFloat(HudScaleKey, 1f));
+    public static float HudScale => NormalizeHudScale(PlayerPrefs.GetFloat(HudScaleKey, 0.75f));
     public static float HudOpacity => Mathf.Clamp(PlayerPrefs.GetFloat(HudOpacityKey, 1f), 0.2f, 1f);
     public static float PlayerAttackVfxOpacity => Mathf.Clamp(PlayerPrefs.GetFloat(PlayerAttackVfxOpacityKey, 1f), 0.1f, 1f);
 
