@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.agents-unity-bridge": "https://github.com/WarrenMondeville/agents-unity-bridge.git?path=package",
     "com.unity.cinemachine": "3.1.5",
     "com.unity.collab-proxy": "2.11.4",
     "com.unity.feature.2d": "2.0.2",

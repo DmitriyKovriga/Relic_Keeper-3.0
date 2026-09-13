@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.agents-unity-bridge": {
+      "version": "https://github.com/WarrenMondeville/agents-unity-bridge.git?path=package",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "59893f44924efd1323097daab959b6921f979267"
+    },
     "com.unity.2d.animation": {
       "version": "13.0.4",
       "depth": 1,

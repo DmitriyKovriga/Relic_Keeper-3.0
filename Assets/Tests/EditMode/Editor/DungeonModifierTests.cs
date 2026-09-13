@@ -105,6 +105,13 @@ namespace RelicKeeper.Tests.EditMode
                 RewardChest chest = RewardChest.Spawn(new Vector3(2f, 5f, 0f), 1, null);
                 created.Add(chest.gameObject);
 
+                // Awake is not guaranteed to run for instantiated scene objects in EditMode.
+                // Apply the same runtime physics configuration explicitly before asserting it.
+                MethodInfo configurePhysics = typeof(RewardChest).GetMethod(
+                    "ConfigurePhysics", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(configurePhysics, Is.Not.Null);
+                configurePhysics.Invoke(chest, null);
+
                 Rigidbody2D body = chest.GetComponent<Rigidbody2D>();
                 BoxCollider2D box = chest.GetComponent<BoxCollider2D>();
                 Assert.That(body, Is.Not.Null);

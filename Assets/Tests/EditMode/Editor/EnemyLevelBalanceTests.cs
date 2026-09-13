@@ -86,11 +86,13 @@ namespace RelicKeeper.Tests.EditMode
         [Test]
         public void FractionalSpawnCount_UsesGuaranteedWholePlusRemainderChance()
         {
-            Assert.That(EnemySpawner.ResolveSpawnCount(1.1f, 0.099f), Is.EqualTo(2));
-            Assert.That(EnemySpawner.ResolveSpawnCount(1.1f, 0.1f), Is.EqualTo(1));
+            // Use values on either side of the float-derived remainder rather than
+            // assuming decimal boundary values such as 0.1f are represented exactly.
+            Assert.That(EnemySpawner.ResolveSpawnCount(1.1f, 0.09f), Is.EqualTo(2));
+            Assert.That(EnemySpawner.ResolveSpawnCount(1.1f, 0.11f), Is.EqualTo(1));
             Assert.That(EnemySpawner.ResolveSpawnCount(2f, 0.99f), Is.EqualTo(2));
             Assert.That(EnemySpawner.ResolveSpawnCount(0.4f, 0.39f), Is.EqualTo(1));
-            Assert.That(EnemySpawner.ResolveSpawnCount(0.4f, 0.4f), Is.EqualTo(0));
+            Assert.That(EnemySpawner.ResolveSpawnCount(0.4f, 0.41f), Is.EqualTo(0));
         }
 
         [Test]

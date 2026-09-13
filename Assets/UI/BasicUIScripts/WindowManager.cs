@@ -11,7 +11,6 @@ public class WindowManager : MonoBehaviour
 
     private readonly List<WindowView> _windows = new List<WindowView>();
     private GamePauseService.PauseHandle _windowPauseHandle;
-    private bool _restorePlayerInputWhenClosed;
 
     public WindowView TopWindow => _windows.Count > 0 ? _windows[_windows.Count - 1] : null;
     public bool HasOpenWindow => _windows.Count > 0;
@@ -88,8 +87,8 @@ public class WindowManager : MonoBehaviour
 
     private void BeginWindowSession()
     {
-        _restorePlayerInputWhenClosed = InputManager.InputActions.Player.Get().enabled;
-        InputManager.InputActions.Player.Disable();
+        if (InputManager.InputActions != null)
+            InputManager.InputActions.Player.Disable();
 
         _windowPauseHandle?.Dispose();
         _windowPauseHandle = GamePauseService.Acquire(GamePauseReason.GameWindow);
@@ -101,10 +100,15 @@ public class WindowManager : MonoBehaviour
         _windowPauseHandle?.Dispose();
         _windowPauseHandle = null;
 
-        if (_restorePlayerInputWhenClosed)
+        // Закрытие последнего окна ВСЕГДА возвращает управление игроку.
+        // Здесь нельзя опираться на запомненное "было ли включено": поток смерти
+        // (GameSaveManager.HandlePlayerDeath) выключает карту Player ДО того, как
+        // откроется таверна с обязательным выбором персонажа. Запомненное значение
+        // оказалось бы false, карта осталась бы выключенной навсегда — игрок
+        // респавнится и не может ходить.
+        if (InputManager.InputActions != null)
             InputManager.InputActions.Player.Enable();
 
-        _restorePlayerInputWhenClosed = false;
         Debug.Log("<color=green>GAME WINDOW CLOSED</color>");
     }
 

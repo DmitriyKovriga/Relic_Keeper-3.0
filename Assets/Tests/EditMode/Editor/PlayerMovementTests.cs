@@ -15,10 +15,11 @@ namespace RelicKeeper.Tests.EditMode
         [SetUp]
         public void SetUp()
         {
-            _player = new GameObject("MovementTest");
+            _player = new GameObject("MovementTest", typeof(BoxCollider2D));
             _movement = _player.AddComponent<PlayerMovement>();
             _body = _player.GetComponent<Rigidbody2D>();
             Set("_rb", _body);
+            Set("_mainCollider", _player.GetComponent<BoxCollider2D>());
             Set("_stats", _player.GetComponent<PlayerStats>());
             Set("_baseGravityScale", 2.5f);
             Set("_availableJumpCount", 2);

@@ -1,0 +1,100 @@
+{
+    "id": "8dcf40bc-a6d8-4ff9-ac70-272e453e06be",
+    "status": "success",
+    "action": "run-tests",
+    "duration_ms": 5059,
+    "result": {
+        "passed": 196,
+        "failed": 0,
+        "skipped": 0,
+        "failures": []
+    },
+    "progress": {
+        "current": 0,
+        "total": 0,
+        "currentTest": ""
+    },
+    "failures": [],
+    "error": "",
+    "consoleLogs": [],
+    "editorStatus": {
+        "isCompiling": false,
+        "isUpdating": false,
+        "isPlaying": false,
+        "isPaused": false
+    },
+    "buildInfo": {
+        "buildResult": "",
+        "totalErrors": 0,
+        "totalWarnings": 0,
+        "totalSeconds": 0.0,
+        "outputPath": "",
+        "sizeBytes": 0,
+        "method": ""
+    },
+    "assetDependencies": {
+        "asset": "",
+        "dependencies": [],
+        "count": 0,
+        "recursive": false
+    },
+    "assetReferences": {
+        "asset": "",
+        "references": [],
+        "count": 0
+    },
+    "unusedAssets": {
+        "unusedAssets": [],
+        "totalAssets": 0,
+        "unusedCount": 0,
+        "roots": []
+    },
+    "tracePath": {
+        "from": "",
+        "to": "",
+        "path": [],
+        "depth": 0,
+        "found": false
+    },
+    "searchResult": {
+        "query": "",
+        "results": [],
+        "count": 0
+    },
+    "assetInfo": {
+        "path": "",
+        "guid": "",
+        "type": "",
+        "sizeBytes": 0,
+        "directDependencyCount": 0,
+        "dependencyCount": 0
+    },
+    "prefabResult": {
+        "prefabAction": "",
+        "prefabPath": "",
+        "guid": "",
+        "prefabType": "",
+        "rootObjectName": "",
+        "rootComponentTypes": [],
+        "childCount": 0,
+        "isVariant": false,
+        "parentPrefab": "",
+        "total": 0,
+        "items": [],
+        "instanceId": 0,
+        "instanceName": "",
+        "componentCount": 0,
+        "wasUnlinked": false,
+        "wasReplaced": false,
+        "message": ""
+    },
+    "assetDump": {
+        "asset": "",
+        "assetType": "",
+        "rootName": "",
+        "gameObjectCount": 0,
+        "gameObjects": [],
+        "components": [],
+        "message": ""
+    }
+}

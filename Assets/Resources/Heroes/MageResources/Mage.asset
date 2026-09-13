@@ -36,4 +36,4 @@ MonoBehaviour:
   _startingStats:
   - Type: 6
     Value: 5
-  _passiveTree: {fileID: 11400000, guid: 6752a4534ba53f64abcaaf62d25a63d6, type: 2}
+  _passiveTree: {fileID: 11400000, guid: c5ff1cbe42969a64997558e0ecbf6a10, type: 2}

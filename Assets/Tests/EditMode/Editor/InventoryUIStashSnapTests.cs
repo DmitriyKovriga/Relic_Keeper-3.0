@@ -42,16 +42,24 @@ namespace RelicKeeper.Tests.EditMode
             int targetIndex = (int)InvokePrivate(
                 ui,
                 "GetSmartStashTargetIndex",
+                new[] { typeof(Vector2), typeof(int), typeof(int), typeof(float), typeof(float) },
                 dropCenter,
                 1,
-                1);
+                1,
+                0.5f,
+                0.5f);
 
             Assert.AreEqual((StashManager.STASH_ROWS - 1) * StashManager.STASH_COLS, targetIndex);
         }
 
-        private static object InvokePrivate(object target, string methodName, params object[] args)
+        private static object InvokePrivate(object target, string methodName, Type[] parameterTypes, params object[] args)
         {
-            var method = target.GetType().GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
+            var method = target.GetType().GetMethod(
+                methodName,
+                BindingFlags.Instance | BindingFlags.NonPublic,
+                null,
+                parameterTypes,
+                null);
             if (method == null)
                 throw new MissingMethodException(target.GetType().Name, methodName);
 
