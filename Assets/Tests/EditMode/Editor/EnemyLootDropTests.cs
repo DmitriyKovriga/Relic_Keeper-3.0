@@ -44,6 +44,41 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void PositiveDropMultiplierAddsQualityDropsWithoutIncreasingCommonChance()
+        {
+            // At 1x the common band is [0.07, 0.17): exactly 10 percentage points.
+            Assert.That(EnemyLootDropService.RollItemOutcome(0.169f, 1f, 1f), Is.EqualTo(EnemyLootRarity.Common));
+            Assert.That(EnemyLootDropService.RollItemOutcome(0.17f, 1f, 1f), Is.EqualTo(EnemyLootRarity.None));
+
+            // At 2x total drops grow to 34%, but common remains the final 10 percentage points.
+            Assert.That(EnemyLootDropService.RollItemOutcome(0.239f, 2f, 1f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollItemOutcome(0.25f, 2f, 1f), Is.EqualTo(EnemyLootRarity.Common));
+            Assert.That(EnemyLootDropService.RollItemOutcome(0.339f, 2f, 1f), Is.EqualTo(EnemyLootRarity.Common));
+            Assert.That(EnemyLootDropService.RollItemOutcome(0.34f, 2f, 1f), Is.EqualTo(EnemyLootRarity.None));
+        }
+
+        [Test]
+        public void RarityMultiplierReducesCommonResultsWithoutChangingTotalDropChance()
+        {
+            Assert.That(EnemyLootDropService.RollItemOutcome(0.10f, 1f, 1f), Is.EqualTo(EnemyLootRarity.Common));
+            Assert.That(EnemyLootDropService.RollItemOutcome(0.10f, 1f, 3f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollItemOutcome(0.17f, 1f, 3f), Is.EqualTo(EnemyLootRarity.None));
+        }
+
+        [Test]
+        public void RareItemsReplaceMagicAfterCommonChanceIsExhausted()
+        {
+            // At 3x, magic-or-better has filled the entire 17% drop band.
+            Assert.That(EnemyLootDropService.RollItemOutcome(0.10f, 1f, 3f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollItemOutcome(0.16f, 1f, 3f), Is.EqualTo(EnemyLootRarity.Magic));
+
+            // Rare-or-better keeps growing after that and eventually occupies the whole band.
+            Assert.That(EnemyLootDropService.RollItemOutcome(0.10f, 1f, 6f), Is.EqualTo(EnemyLootRarity.Rare));
+            Assert.That(EnemyLootDropService.RollItemOutcome(0.16f, 1f, 8.5f), Is.EqualTo(EnemyLootRarity.Rare));
+            Assert.That(EnemyLootDropService.RollItemOutcome(0.17f, 1f, 8.5f), Is.EqualTo(EnemyLootRarity.None));
+        }
+
+        [Test]
         public void CraftingCurrencyChanceUsesEnemyAndRoomMultiplier()
         {
             Assert.That(EnemyLootDropService.RollCraftingOrbDrop(0.039f, 0.04f, 1f), Is.True);
@@ -101,6 +136,25 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void ColoredBaseItemSelectionSkipsItemsWithoutEnoughAffixes()
+        {
+            ItemDatabaseSO database = Create<ItemDatabaseSO>();
+            ArmorItemSO whiteOnly = CreateItem("white_only", 1);
+            ArmorItemSO magicCapable = CreateItem("magic_capable", 1);
+            magicCapable.AffixPool = CreatePool(2);
+            ArmorItemSO rareCapable = CreateItem("rare_capable", 1);
+            rareCapable.AffixPool = CreatePool(6);
+            database.AllItems = new List<EquipmentItemSO> { whiteOnly, magicCapable, rareCapable };
+
+            Assert.That(
+                EnemyLootDropService.SelectBaseItem(database, 1, EnemyLootRarity.Magic, 0f),
+                Is.SameAs(magicCapable));
+            Assert.That(
+                EnemyLootDropService.SelectBaseItem(database, 1, EnemyLootRarity.Rare, 0f),
+                Is.SameAs(rareCapable));
+        }
+
+        [Test]
         public void EmbeddedAffixChoosesTierAllowedForItemLevel()
         {
             ItemAffixSO affix = CreateTieredAffix("embedded_test");
@@ -115,6 +169,41 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(lowLevel[0].Tier, Is.EqualTo(5));
             Assert.That(highLevel, Has.Count.EqualTo(1));
             Assert.That(highLevel[0].Tier, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void HighestAffixTierRemainsAvailableAtHighDungeonLevels()
+        {
+            ArmorItemSO itemBase = CreateItem("high_level_item", 1);
+            itemBase.AffixPool = CreatePoolWithTieredAffixes(6);
+
+            InventoryItem magic = ItemGenerator.GenerateRuntime(itemBase, 60, (int)EnemyLootRarity.Magic);
+            InventoryItem rare = ItemGenerator.GenerateRuntime(itemBase, 60, (int)EnemyLootRarity.Rare);
+
+            Assert.That(itemBase.AffixPool.GetAvailableAffixGroupCount(60), Is.EqualTo(6));
+            Assert.That(magic.Affixes.Count, Is.InRange(ItemRarity.MagicAffixMin, ItemRarity.MagicAffixMax));
+            Assert.That(rare.Affixes.Count, Is.InRange(ItemRarity.RareAffixMin, ItemRarity.RareAffixMax));
+            Assert.That(magic.Affixes, Has.All.Matches<AffixInstance>(affix => affix.Tier == 1));
+            Assert.That(rare.Affixes, Has.All.Matches<AffixInstance>(affix => affix.Tier == 1));
+        }
+
+        [Test]
+        public void RuntimeItemDatabaseHasRareCapableBasesAtLevelSixty()
+        {
+            ItemDatabaseSO database = Resources.Load<ItemDatabaseSO>(ProjectPaths.ResourcesItemDatabase);
+            Assert.That(database, Is.Not.Null);
+
+            int rareCapableCount = 0;
+            foreach (EquipmentItemSO item in database.AllItems)
+            {
+                if (item?.AffixPool != null &&
+                    item.DropLevel <= 60 &&
+                    item.AffixPool.GetAvailableAffixGroupCount(60) >= ItemRarity.RareAffixMin)
+                    rareCapableCount++;
+            }
+
+            Assert.That(rareCapableCount, Is.GreaterThan(0),
+                "The runtime item database must contain at least one rare-capable base at dungeon level 60.");
         }
 
         [Test]
@@ -199,6 +288,20 @@ namespace RelicKeeper.Tests.EditMode
                 });
             }
             return affix;
+        }
+
+        private AffixPoolSO CreatePoolWithTieredAffixes(int count)
+        {
+            AffixPoolSO pool = Create<AffixPoolSO>();
+            pool.Affixes = new List<ItemAffixSO>();
+            for (int i = 0; i < count; i++)
+            {
+                ItemAffixSO affix = CreateTieredAffix($"high_level_affix_{i}");
+                affix.GroupID = $"high_level_group_{i}";
+                pool.Affixes.Add(affix);
+            }
+
+            return pool;
         }
 
         private T Create<T>() where T : ScriptableObject

@@ -17,9 +17,9 @@ namespace Scripts.Dungeon
     [Serializable]
     public sealed class DungeonModifierValues
     {
-        [Tooltip("Изменение общего шанса выпадения предмета, %. 50 = в 1.5 раза чаще, -50 = в 2 раза реже.")]
+        [Tooltip("Изменение общего количества выпадений, %. 50 = в 1.5 раза больше. Дополнительные выпадения не увеличивают шанс белых предметов.")]
         public float LootDropChancePercent;
-        [Tooltip("Изменение весов синей и редкой редкости, не затрагивает количество предметов, %.")]
+        [Tooltip("Повышение качества без изменения количества: сначала магические и редкие предметы вытесняют белые, затем редкие вытесняют магические, %.")]
         public float LootRarityPercent;
         [Tooltip("Изменение опыта с противников, %.")]
         public float ExperiencePercent;

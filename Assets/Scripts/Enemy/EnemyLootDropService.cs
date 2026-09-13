@@ -47,22 +47,18 @@ namespace Scripts.Enemies
             float roomDropMultiplier = modifiers != null ? modifiers.LootDropChanceMultiplier : 1f;
             float rarityMultiplier = modifiers != null ? modifiers.LootRarityMultiplier : 1f;
 
-            if (!RollDrop(
-                    Random.value,
-                    enemy.LootDropMultiplier * roomDropMultiplier,
-                    database.CommonItemDropChance,
-                    database.MagicItemDropChance,
-                    database.RareItemDropChance))
-                return null;
-
-            EnemyLootRarity rarity = RollDroppedRarity(
+            float totalDropMultiplier = enemy.LootDropMultiplier * roomDropMultiplier;
+            EnemyLootRarity rarity = RollItemOutcome(
                 Random.value,
+                totalDropMultiplier,
                 rarityMultiplier,
                 database.CommonItemDropChance,
                 database.MagicItemDropChance,
                 database.RareItemDropChance);
+            if (rarity == EnemyLootRarity.None)
+                return null;
 
-            EquipmentItemSO baseItem = SelectBaseItem(database, entity.Level, Random.value);
+            EquipmentItemSO baseItem = SelectBaseItemForRarity(database, entity.Level, ref rarity, Random.value);
             if (baseItem == null)
             {
                 Debug.LogWarning($"[EnemyLoot] No item with DropLevel <= {entity.Level} is available for '{enemy.DisplayName}'.");
@@ -141,10 +137,58 @@ namespace Scripts.Enemies
             float magicChance = DefaultMagicChance,
             float rareChance = DefaultRareChance)
         {
-            float safeMultiplier = Mathf.Max(0f, multiplier);
-            float rareThreshold = Mathf.Clamp01(Mathf.Max(0f, rareChance) * safeMultiplier);
-            float magicThreshold = Mathf.Clamp01(rareThreshold + Mathf.Max(0f, magicChance) * safeMultiplier);
-            float commonThreshold = Mathf.Clamp01(magicThreshold + Mathf.Max(0f, commonChance) * safeMultiplier);
+            return RollItemOutcome(roll, multiplier, 1f, commonChance, magicChance, rareChance);
+        }
+
+        /// <summary>
+        /// Rolls the complete item result. Drop chance controls total item quantity, while rarity only
+        /// converts the quality mix. Positive quantity never increases the absolute common-item chance.
+        /// </summary>
+        public static EnemyLootRarity RollItemOutcome(
+            float roll,
+            float dropMultiplier,
+            float rarityMultiplier,
+            float commonChance = DefaultCommonChance,
+            float magicChance = DefaultMagicChance,
+            float rareChance = DefaultRareChance)
+        {
+            float commonBase = Mathf.Max(0f, commonChance);
+            float magicBase = Mathf.Max(0f, magicChance);
+            float rareBase = Mathf.Max(0f, rareChance);
+            float qualityBase = magicBase + rareBase;
+            float baseTotal = commonBase + qualityBase;
+            float safeDropMultiplier = Mathf.Max(0f, dropMultiplier);
+            float safeRarityMultiplier = Mathf.Max(0f, rarityMultiplier);
+            float totalDropChance = Mathf.Clamp01(baseTotal * safeDropMultiplier);
+            if (totalDropChance <= 0f)
+                return EnemyLootRarity.None;
+
+            float baseQuantityFactor = Mathf.Min(1f, safeDropMultiplier);
+            float baselineDropChance = baseTotal * baseQuantityFactor;
+            float extraDropChance = Mathf.Max(0f, totalDropChance - baselineDropChance);
+
+            // Extra quantity is quality-only: it cannot grow the absolute common-item chance.
+            // Rarity uses cumulative thresholds. "Magic or better" saturates first; after that,
+            // "Rare or better" keeps growing and replaces magic results.
+            float magicOrBetterBeforeRarity = qualityBase * baseQuantityFactor + extraDropChance;
+            float rareOrBetterBeforeRarity = rareBase * baseQuantityFactor;
+            if (qualityBase > 0f)
+                rareOrBetterBeforeRarity += extraDropChance * rareBase / qualityBase;
+
+            float magicOrBetterChance = Mathf.Min(
+                totalDropChance,
+                magicOrBetterBeforeRarity * safeRarityMultiplier);
+            float rareOrBetterChance = Mathf.Min(
+                magicOrBetterChance,
+                rareOrBetterBeforeRarity * safeRarityMultiplier);
+
+            float rareResultChance = rareOrBetterChance;
+            float magicResultChance = Mathf.Max(0f, magicOrBetterChance - rareOrBetterChance);
+            float commonResultChance = Mathf.Max(0f, totalDropChance - magicOrBetterChance);
+
+            float rareThreshold = rareResultChance;
+            float magicThreshold = rareThreshold + magicResultChance;
+            float commonThreshold = Mathf.Min(1f, magicThreshold + commonResultChance);
             float safeRoll = Mathf.Clamp01(roll);
 
             if (safeRoll < rareThreshold)
@@ -168,7 +212,7 @@ namespace Scripts.Enemies
             return Mathf.Clamp01(roll) < threshold;
         }
 
-        /// <summary>Rolls quality after a drop is guaranteed. Rarity changes quality weights, not item count.</summary>
+        /// <summary>Rolls quality after a drop is guaranteed. Rarity promotes common to magic, then magic to rare.</summary>
         public static EnemyLootRarity RollDroppedRarity(
             float roll,
             float rarityMultiplier,
@@ -176,20 +220,18 @@ namespace Scripts.Enemies
             float magicChance = DefaultMagicChance,
             float rareChance = DefaultRareChance)
         {
-            float commonWeight = Mathf.Max(0f, commonChance);
-            float qualityMultiplier = Mathf.Max(0f, rarityMultiplier);
-            float magicWeight = Mathf.Max(0f, magicChance) * qualityMultiplier;
-            float rareWeight = Mathf.Max(0f, rareChance) * qualityMultiplier;
-            float total = commonWeight + magicWeight + rareWeight;
+            float total = Mathf.Max(0f, commonChance) + Mathf.Max(0f, magicChance) + Mathf.Max(0f, rareChance);
             if (total <= 0f)
                 return EnemyLootRarity.Common;
 
-            float value = Mathf.Clamp01(roll) * total;
-            if (value < rareWeight)
-                return EnemyLootRarity.Rare;
-            if (value < rareWeight + magicWeight)
-                return EnemyLootRarity.Magic;
-            return EnemyLootRarity.Common;
+            EnemyLootRarity result = RollItemOutcome(
+                Mathf.Clamp01(roll) * total,
+                1f,
+                rarityMultiplier,
+                commonChance,
+                magicChance,
+                rareChance);
+            return result == EnemyLootRarity.None ? EnemyLootRarity.Common : result;
         }
 
         public static WorldDroppedItem TrySpawnGuaranteedRare(
@@ -218,10 +260,6 @@ namespace Scripts.Enemies
             if (database == null)
                 return null;
 
-            EquipmentItemSO baseItem = SelectBaseItem(database, itemLevel, Random.value);
-            if (baseItem == null)
-                return null;
-
             DungeonModifierContext modifiers = DungeonController.Instance != null
                 ? DungeonController.Instance.CurrentModifiers
                 : null;
@@ -232,6 +270,10 @@ namespace Scripts.Enemies
                 database.CommonItemDropChance,
                 database.MagicItemDropChance,
                 database.RareItemDropChance);
+            EquipmentItemSO baseItem = SelectBaseItemForRarity(database, itemLevel, ref rarity, Random.value);
+            if (baseItem == null)
+                return null;
+
             return ItemGenerator.GenerateRuntime(baseItem, itemLevel, (int)rarity);
         }
 
@@ -269,15 +311,30 @@ namespace Scripts.Enemies
 
         public static EquipmentItemSO SelectBaseItem(ItemDatabaseSO database, int enemyLevel, float roll)
         {
+            return SelectBaseItem(database, enemyLevel, EnemyLootRarity.Common, roll);
+        }
+
+        public static EquipmentItemSO SelectBaseItem(
+            ItemDatabaseSO database,
+            int enemyLevel,
+            EnemyLootRarity rarity,
+            float roll)
+        {
             if (database?.AllItems == null)
                 return null;
 
             int maximumDropLevel = Mathf.Max(1, enemyLevel);
+            int requiredAffixGroups = rarity switch
+            {
+                EnemyLootRarity.Rare => ItemRarity.RareAffixMin,
+                EnemyLootRarity.Magic => ItemRarity.MagicAffixMin,
+                _ => 0
+            };
             int eligibleCount = 0;
             for (int i = 0; i < database.AllItems.Count; i++)
             {
                 EquipmentItemSO item = database.AllItems[i];
-                if (item != null && !string.IsNullOrWhiteSpace(item.ID) && item.DropLevel <= maximumDropLevel)
+                if (IsEligibleBaseItem(item, maximumDropLevel, requiredAffixGroups))
                     eligibleCount++;
             }
 
@@ -288,7 +345,7 @@ namespace Scripts.Enemies
             for (int i = 0; i < database.AllItems.Count; i++)
             {
                 EquipmentItemSO item = database.AllItems[i];
-                if (item == null || string.IsNullOrWhiteSpace(item.ID) || item.DropLevel > maximumDropLevel)
+                if (!IsEligibleBaseItem(item, maximumDropLevel, requiredAffixGroups))
                     continue;
 
                 if (selectedIndex-- == 0)
@@ -296,6 +353,39 @@ namespace Scripts.Enemies
             }
 
             return null;
+        }
+
+        private static EquipmentItemSO SelectBaseItemForRarity(
+            ItemDatabaseSO database,
+            int enemyLevel,
+            ref EnemyLootRarity rarity,
+            float roll)
+        {
+            EquipmentItemSO item = SelectBaseItem(database, enemyLevel, rarity, roll);
+            if (item != null)
+                return item;
+
+            if (rarity == EnemyLootRarity.Rare)
+            {
+                rarity = EnemyLootRarity.Magic;
+                item = SelectBaseItem(database, enemyLevel, rarity, roll);
+                if (item != null)
+                    return item;
+            }
+
+            rarity = EnemyLootRarity.Common;
+            return SelectBaseItem(database, enemyLevel, rarity, roll);
+        }
+
+        private static bool IsEligibleBaseItem(EquipmentItemSO item, int maximumDropLevel, int requiredAffixGroups)
+        {
+            if (item == null || string.IsNullOrWhiteSpace(item.ID) || item.DropLevel > maximumDropLevel)
+                return false;
+            if (requiredAffixGroups <= 0)
+                return true;
+
+            return item.AffixPool != null &&
+                   item.AffixPool.GetAvailableAffixGroupCount(maximumDropLevel) >= requiredAffixGroups;
         }
     }
 }
