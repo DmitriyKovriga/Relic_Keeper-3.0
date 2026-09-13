@@ -148,8 +148,8 @@ namespace Scripts.Skills.Visuals
             Material material = GetLineMaterial();
             if (material != null)
                 line.material = material;
-            line.startColor = color;
-            line.endColor = color;
+            line.startColor = PlayerAttackVfxOpacity.MultiplyAlpha(color);
+            line.endColor = PlayerAttackVfxOpacity.MultiplyAlpha(color);
             _activeLines.Add(line);
             return line;
         }
@@ -211,6 +211,7 @@ namespace Scripts.Skills.Visuals
                 return;
 
             _activeObjects.Add(impact);
+            PlayerAttackVfxOpacity.ApplyOnce(impact);
             impact.transform.localScale = Vector3.one * _impactScale;
             WorldRenderSorting.ConfigureSorter(impact, RenderDepthCategory.HeroAttackVfx, position.y, _sortingOrderOffset, staticAnchor: true);
             StartCoroutine(DestroyAfter(impact, _impactLifetime));

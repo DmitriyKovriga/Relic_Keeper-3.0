@@ -24,6 +24,15 @@ public class LanguageSelector : MonoBehaviour
     private DropdownField _displayDropdown;
     private EventCallback<ChangeEvent<string>> _displayChangedCallback;
     private List<DisplayInfo> _displays = new List<DisplayInfo>();
+    private Label _hudScaleLabel;
+    private Label _hudOpacityLabel;
+    private Label _attackVfxOpacityLabel;
+    private DropdownField _hudScaleDropdown;
+    private SliderInt _hudOpacitySlider;
+    private SliderInt _attackVfxOpacitySlider;
+    private EventCallback<ChangeEvent<string>> _hudScaleChangedCallback;
+    private EventCallback<ChangeEvent<int>> _hudOpacityChangedCallback;
+    private EventCallback<ChangeEvent<int>> _attackVfxOpacityChangedCallback;
 
     private void OnEnable()
     {
@@ -39,6 +48,7 @@ public class LanguageSelector : MonoBehaviour
         LoadLanguage();
         UpdateButtonText();
         SetupDisplaySelector();
+        SetupPresentationSettings();
 
         _popup.style.display = DisplayStyle.None;
 
@@ -57,6 +67,12 @@ public class LanguageSelector : MonoBehaviour
         if (_optRussian != null) _optRussian.clicked -= OnOptRussianClick;
         if (_displayDropdown != null && _displayChangedCallback != null)
             _displayDropdown.UnregisterValueChangedCallback(_displayChangedCallback);
+        if (_hudScaleDropdown != null && _hudScaleChangedCallback != null)
+            _hudScaleDropdown.UnregisterValueChangedCallback(_hudScaleChangedCallback);
+        if (_hudOpacitySlider != null && _hudOpacityChangedCallback != null)
+            _hudOpacitySlider.UnregisterValueChangedCallback(_hudOpacityChangedCallback);
+        if (_attackVfxOpacitySlider != null && _attackVfxOpacityChangedCallback != null)
+            _attackVfxOpacitySlider.UnregisterValueChangedCallback(_attackVfxOpacityChangedCallback);
         if (ui?.rootVisualElement != null && _rootClickCallback != null)
             ui.rootVisualElement.UnregisterCallback(_rootClickCallback);
     }
@@ -104,6 +120,7 @@ public class LanguageSelector : MonoBehaviour
             UpdateButtonText();
             UpdateDisplayLabel();
             RefreshDisplayChoices();
+            RefreshPresentationLabels();
         }
         _popup.style.display = DisplayStyle.None;
     }
@@ -176,6 +193,76 @@ public class LanguageSelector : MonoBehaviour
         _displayChangedCallback = OnDisplayChanged;
         _displayDropdown.RegisterValueChangedCallback(_displayChangedCallback);
         UpdateDisplayLabel();
+    }
+
+    private void SetupPresentationSettings()
+    {
+        var root = ui?.rootVisualElement;
+        _hudScaleLabel = root?.Q<Label>("HudScaleLabel");
+        _hudOpacityLabel = root?.Q<Label>("HudOpacityLabel");
+        _attackVfxOpacityLabel = root?.Q<Label>("AttackVfxOpacityLabel");
+        _hudScaleDropdown = root?.Q<DropdownField>("HudScaleDropdown");
+        _hudOpacitySlider = root?.Q<SliderInt>("HudOpacitySlider");
+        _attackVfxOpacitySlider = root?.Q<SliderInt>("AttackVfxOpacitySlider");
+
+        if (_hudScaleDropdown != null)
+        {
+            RefreshHudScaleChoices();
+            _hudScaleChangedCallback = OnHudScaleChanged;
+            _hudScaleDropdown.RegisterValueChangedCallback(_hudScaleChangedCallback);
+        }
+
+        if (_hudOpacitySlider != null)
+        {
+            _hudOpacitySlider.SetValueWithoutNotify(Mathf.RoundToInt(GameplayPresentationSettings.HudOpacity * 100f));
+            _hudOpacityChangedCallback = evt => GameplayPresentationSettings.SetHudOpacity(evt.newValue / 100f);
+            _hudOpacitySlider.RegisterValueChangedCallback(_hudOpacityChangedCallback);
+        }
+
+        if (_attackVfxOpacitySlider != null)
+        {
+            _attackVfxOpacitySlider.SetValueWithoutNotify(Mathf.RoundToInt(GameplayPresentationSettings.PlayerAttackVfxOpacity * 100f));
+            _attackVfxOpacityChangedCallback = evt => GameplayPresentationSettings.SetPlayerAttackVfxOpacity(evt.newValue / 100f);
+            _attackVfxOpacitySlider.RegisterValueChangedCallback(_attackVfxOpacityChangedCallback);
+        }
+
+        RefreshPresentationLabels();
+    }
+
+    private void RefreshPresentationLabels()
+    {
+        bool russian = IsRussianLocale();
+        if (_hudScaleLabel != null)
+            _hudScaleLabel.text = russian ? "Размер HUD" : "HUD size";
+        if (_hudOpacityLabel != null)
+            _hudOpacityLabel.text = russian ? "Прозрачность HUD" : "HUD opacity";
+        if (_attackVfxOpacityLabel != null)
+            _attackVfxOpacityLabel.text = russian ? "Прозрачность атак" : "Attack VFX opacity";
+
+        RefreshHudScaleChoices();
+    }
+
+    private void RefreshHudScaleChoices()
+    {
+        if (_hudScaleDropdown == null)
+            return;
+
+        bool russian = IsRussianLocale();
+        var choices = new List<string>
+        {
+            russian ? "100% (по умолчанию)" : "100% (default)",
+            "75% (-25%)",
+            "50% (-50%)"
+        };
+        int selectedIndex = GameplayPresentationSettings.GetHudScaleIndex();
+        _hudScaleDropdown.choices = choices;
+        _hudScaleDropdown.SetValueWithoutNotify(choices[selectedIndex]);
+    }
+
+    private void OnHudScaleChanged(ChangeEvent<string> evt)
+    {
+        GameplayPresentationSettings.SetHudScale(
+            GameplayPresentationSettings.GetHudScaleForIndex(_hudScaleDropdown?.index ?? 0));
     }
 
     private void RefreshDisplayChoices()

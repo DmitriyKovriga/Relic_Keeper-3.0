@@ -4,6 +4,7 @@ using Scripts.Combat;
 using Scripts.Enemies;
 using Scripts.Skills.Modules;
 using Scripts.Skills.Steps;
+using Scripts.Skills.Visuals;
 using Scripts.Stats;
 using Scripts.StatusEffects;
 using Scripts.Visuals;
@@ -90,6 +91,7 @@ namespace Scripts.Skills.Projectiles
         private bool _usePool;
         private SpriteRenderer _spriteRenderer;
         private Sprite _defaultSprite;
+        private Color _defaultColor = Color.white;
         private bool _defaultFlipX;
         private bool _defaultVisualStateCaptured;
         private CircleCollider2D _collider;
@@ -463,6 +465,7 @@ namespace Scripts.Skills.Projectiles
             if (rule.VfxPrefab != null)
             {
                 vfx = Instantiate(rule.VfxPrefab, origin, Quaternion.identity);
+                PlayerAttackVfxOpacity.ApplyOnce(vfx);
                 vfx.transform.localScale = new Vector3(
                     Mathf.Abs(vfx.transform.localScale.x) * scale,
                     Mathf.Abs(vfx.transform.localScale.y) * scale,
@@ -946,6 +949,7 @@ namespace Scripts.Skills.Projectiles
                 return;
 
             _spriteRenderer.sprite = _data.OverrideSprite != null ? _data.OverrideSprite : _defaultSprite;
+            _spriteRenderer.color = PlayerAttackVfxOpacity.MultiplyAlpha(_defaultColor);
             _spriteRenderer.enabled = _spriteRenderer.sprite != null;
             _spriteRenderer.flipX = _defaultFlipX;
         }
@@ -1013,6 +1017,7 @@ namespace Scripts.Skills.Projectiles
                 return;
 
             _defaultFlipX = _spriteRenderer.flipX;
+            _defaultColor = _spriteRenderer.color;
             _defaultVisualStateCaptured = true;
         }
 

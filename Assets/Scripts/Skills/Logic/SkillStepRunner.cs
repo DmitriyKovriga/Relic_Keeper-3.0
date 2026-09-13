@@ -461,6 +461,7 @@ namespace Scripts.Skills
             bool invertFacing = step.GetBool("InvertFacing", false);
             Vector3 spawnPos = _ownerStats.transform.position + new Vector3(baseOffset.x, baseOffset.y, 0f);
             GameObject vfx = Instantiate(prefab, spawnPos, Quaternion.identity);
+            PlayerAttackVfxOpacity.ApplyOnce(vfx);
             float finalDir = _ctx.FacingDirection * (invertFacing ? -1f : 1f);
             Vector3 scale = vfx.transform.localScale;
             scale.x = Mathf.Abs(scale.x) * finalDir * effectiveScale;
@@ -1231,6 +1232,7 @@ namespace Scripts.Skills
             if (rule.VfxPrefab != null)
             {
                 vfx = Instantiate(rule.VfxPrefab, origin, Quaternion.identity);
+                PlayerAttackVfxOpacity.ApplyOnce(vfx);
                 vfx.transform.localScale = new Vector3(
                     Mathf.Abs(vfx.transform.localScale.x) * scale,
                     Mathf.Abs(vfx.transform.localScale.y) * scale,

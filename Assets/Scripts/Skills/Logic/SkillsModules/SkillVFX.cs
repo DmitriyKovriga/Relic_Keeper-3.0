@@ -1,5 +1,6 @@
 using UnityEngine;
 using Scripts.Visuals;
+using Scripts.Skills.Visuals;
 
 namespace Scripts.Skills.Modules
 {
@@ -59,6 +60,7 @@ namespace Scripts.Skills.Modules
             lifetime = Mathf.Max(0.0001f, lifetime);
 
             GameObject vfx = Instantiate(_vfxPrefab, spawnPos, Quaternion.identity);
+            PlayerAttackVfxOpacity.ApplyOnce(vfx);
 
             float finalDir = facingDirection * (_invertFacing ? -1f : 1f);
             Vector3 scale = vfx.transform.localScale;

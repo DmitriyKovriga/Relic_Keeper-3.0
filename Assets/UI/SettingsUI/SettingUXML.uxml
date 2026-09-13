@@ -16,6 +16,18 @@
                     </ui:Label>
                     <ui:Button text="English" name="LanguageButton" class="settings-language-button" />
                 </ui:VisualElement>
+                <ui:VisualElement name="HudScaleRow" class="settings-presentation-row">
+                    <ui:Label text="HUD size" name="HudScaleLabel" class="settings-presentation-label" />
+                    <ui:DropdownField name="HudScaleDropdown" class="settings-presentation-dropdown" />
+                </ui:VisualElement>
+                <ui:VisualElement name="HudOpacityRow" class="settings-presentation-row">
+                    <ui:Label text="HUD opacity" name="HudOpacityLabel" class="settings-presentation-label" />
+                    <ui:SliderInt name="HudOpacitySlider" low-value="20" high-value="100" show-input-field="true" class="settings-presentation-slider" />
+                </ui:VisualElement>
+                <ui:VisualElement name="AttackVfxOpacityRow" class="settings-presentation-row">
+                    <ui:Label text="Attack VFX opacity" name="AttackVfxOpacityLabel" class="settings-presentation-label" />
+                    <ui:SliderInt name="AttackVfxOpacitySlider" low-value="10" high-value="100" show-input-field="true" class="settings-presentation-slider" />
+                </ui:VisualElement>
                 <ui:VisualElement name="BindingRowsContainer" class="settings-rows-container" />
             </ui:ScrollView>
             <ui:VisualElement name="LanguagePopup" class="settings-language-popup">

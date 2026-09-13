@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Scripts.Skills.Visuals;
 using UnityEngine;
 
 namespace Scripts.Skills.Projectiles
@@ -489,7 +490,11 @@ namespace Scripts.Skills.Projectiles
             if (!_distortion.Enabled && !force) return;
 
             _distortionRenderer.sprite = _mainRenderer != null ? _mainRenderer.sprite : _distortionRenderer.sprite;
-            _distortionRenderer.color = new Color(1f, 1f, 1f, Mathf.Clamp01(_distortion.Alpha * _distortion.Intensity));
+            _distortionRenderer.color = new Color(
+                1f,
+                1f,
+                1f,
+                Mathf.Clamp01(_distortion.Alpha * _distortion.Intensity * PlayerAttackVfxOpacity.Multiplier));
             _distortionRenderer.sharedMaterial = GetDefaultLineMaterial();
             ApplySorting(_distortionRenderer, _distortion.SortingOrderOffset);
         }
@@ -533,7 +538,9 @@ namespace Scripts.Skills.Projectiles
                     continue;
 
                 Color baseColor = i < _baseSpriteColors.Length ? _baseSpriteColors[i] : Color.white;
-                renderer.color = MultiplyPreserveBaseAlpha(baseColor, colorMultiplier);
+                Color color = MultiplyPreserveBaseAlpha(baseColor, colorMultiplier);
+                color.a *= PlayerAttackVfxOpacity.Multiplier;
+                renderer.color = color;
             }
         }
 
@@ -582,7 +589,7 @@ namespace Scripts.Skills.Projectiles
 
             float pulse = 1f + Mathf.Sin(_age * Mathf.Max(0f, _dynamicGlow.PulseSpeed)) * Mathf.Clamp01(_dynamicGlow.PulseAmount);
             SetLightProperty("color", _dynamicGlow.Color);
-            SetLightProperty("intensity", Mathf.Max(0f, _dynamicGlow.Intensity) * pulse);
+            SetLightProperty("intensity", Mathf.Max(0f, _dynamicGlow.Intensity) * pulse * PlayerAttackVfxOpacity.Multiplier);
             SetLightProperty("pointLightOuterRadius", Mathf.Max(0f, _dynamicGlow.Radius) * pulse);
         }
 
@@ -910,7 +917,7 @@ namespace Scripts.Skills.Projectiles
             var gradient = new Gradient();
             GradientColorKey[] colors = source.colorKeys;
             GradientAlphaKey[] alphas = source.alphaKeys;
-            float alphaScale = Mathf.Max(0f, intensity);
+            float alphaScale = Mathf.Max(0f, intensity) * PlayerAttackVfxOpacity.Multiplier;
             for (int i = 0; i < alphas.Length; i++)
                 alphas[i].alpha = Mathf.Clamp01(alphas[i].alpha * alphaScale);
             gradient.SetKeys(colors, alphas);
@@ -919,7 +926,7 @@ namespace Scripts.Skills.Projectiles
 
         private static Color ScaleColorAlpha(Color color, float intensity)
         {
-            color.a = Mathf.Clamp01(color.a * Mathf.Max(0f, intensity));
+            color.a = Mathf.Clamp01(color.a * Mathf.Max(0f, intensity) * PlayerAttackVfxOpacity.Multiplier);
             return color;
         }
 

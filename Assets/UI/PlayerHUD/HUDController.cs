@@ -85,6 +85,10 @@ public class HUDController : MonoBehaviour
     private HudShortcutBar _shortcutBar;
     private PlayerStats _boundShortcutPlayer;
     private LevelingSystem _boundShortcutLeveling;
+    private RectTransform _skillHudPresentationRoot;
+    private RectTransform _bottomHudPresentationRoot;
+    private CanvasGroup _skillHudCanvasGroup;
+    private CanvasGroup _bottomHudCanvasGroup;
 
     private void Awake()
     {
@@ -96,6 +100,8 @@ public class HUDController : MonoBehaviour
         CacheAdaptiveTextSettings();
         InitializeResourceBarEffects();
         EnsureStatusEffectsPanel();
+        EnsurePresentationRoots();
+        ApplyPresentationSettings();
         EnsureShortcutBar();
     }
 
@@ -198,12 +204,15 @@ public class HUDController : MonoBehaviour
     private void OnEnable()
     {
         InputRebindSaver.RebindsChanged += RefreshAllSkillSlotBindings;
+        GameplayPresentationSettings.Changed += ApplyPresentationSettings;
         RefreshAllSkillSlotBindings();
+        ApplyPresentationSettings();
     }
 
     private void OnDisable()
     {
         InputRebindSaver.RebindsChanged -= RefreshAllSkillSlotBindings;
+        GameplayPresentationSettings.Changed -= ApplyPresentationSettings;
     }
 
     private void OnDestroy()
@@ -211,6 +220,7 @@ public class HUDController : MonoBehaviour
         if (_playerStats != null) _playerStats.OnAnyStatChanged -= UpdateUI;
         if (_skillManager != null) _skillManager.OnSkillSlotUpdated -= UpdateSkillSlotUI;
         InputRebindSaver.RebindsChanged -= RefreshAllSkillSlotBindings;
+        GameplayPresentationSettings.Changed -= ApplyPresentationSettings;
         if (_statusEffectController != null) _statusEffectController.OnActiveEffectsChanged -= RefreshStatusEffectSlots;
         UnbindShortcutSkillPoints();
         if (_shortcutBar != null)
@@ -298,6 +308,146 @@ public class HUDController : MonoBehaviour
                 _shortcutStatsIcon,
                 _shortcutPauseIcon));
         RefreshShortcutUnspentPoints();
+    }
+
+    private void EnsurePresentationRoots()
+    {
+        if (_skillHudPresentationRoot != null && _bottomHudPresentationRoot != null)
+            return;
+
+        Canvas.ForceUpdateCanvases();
+
+        RectTransform skillPanel = _skillSlots != null && _skillSlots.Length > 0 && _skillSlots[0] != null
+            ? _skillSlots[0].transform.parent as RectTransform
+            : null;
+        RectTransform statsPanel = _healthFill != null ? _healthFill.rectTransform.parent as RectTransform : null;
+        RectTransform xpPanel = _xpFill != null ? _xpFill.rectTransform.parent as RectTransform : null;
+
+        if (_skillHudPresentationRoot == null && skillPanel != null)
+        {
+            _skillHudPresentationRoot = CreatePresentationRoot(
+                "SkillHudPresentationRoot",
+                new[] { skillPanel },
+                keepTopEdge: true,
+                out _skillHudCanvasGroup);
+        }
+
+        if (_bottomHudPresentationRoot == null && (statsPanel != null || xpPanel != null))
+        {
+            var bottomParts = new List<RectTransform>(2);
+            if (statsPanel != null) bottomParts.Add(statsPanel);
+            if (xpPanel != null && xpPanel != statsPanel) bottomParts.Add(xpPanel);
+            _bottomHudPresentationRoot = CreatePresentationRoot(
+                "BottomHudPresentationRoot",
+                bottomParts,
+                keepTopEdge: false,
+                out _bottomHudCanvasGroup);
+        }
+    }
+
+    private RectTransform CreatePresentationRoot(
+        string objectName,
+        IReadOnlyList<RectTransform> contentRoots,
+        bool keepTopEdge,
+        out CanvasGroup canvasGroup)
+    {
+        canvasGroup = null;
+        if (transform is not RectTransform parent || contentRoots == null || contentRoots.Count == 0)
+            return null;
+
+        if (!TryGetGraphicBoundsInParent(parent, contentRoots, out Rect bounds))
+            return null;
+
+        int siblingIndex = parent.childCount;
+        for (int i = 0; i < contentRoots.Count; i++)
+        {
+            if (contentRoots[i] != null && contentRoots[i].parent == parent)
+                siblingIndex = Mathf.Min(siblingIndex, contentRoots[i].GetSiblingIndex());
+        }
+
+        var rootObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasGroup));
+        var root = rootObject.GetComponent<RectTransform>();
+        root.SetParent(parent, false);
+        root.anchorMin = new Vector2(0.5f, 0.5f);
+        root.anchorMax = new Vector2(0.5f, 0.5f);
+        root.pivot = new Vector2(0.5f, keepTopEdge ? 1f : 0f);
+        root.sizeDelta = Vector2.zero;
+        root.localPosition = new Vector3(bounds.center.x, keepTopEdge ? bounds.yMax : bounds.yMin, 0f);
+        root.SetSiblingIndex(Mathf.Clamp(siblingIndex, 0, Mathf.Max(0, parent.childCount - 1)));
+
+        for (int i = 0; i < contentRoots.Count; i++)
+        {
+            RectTransform content = contentRoots[i];
+            if (content != null)
+                content.SetParent(root, true);
+        }
+
+        canvasGroup = rootObject.GetComponent<CanvasGroup>();
+        return root;
+    }
+
+    private static bool TryGetGraphicBoundsInParent(
+        RectTransform parent,
+        IReadOnlyList<RectTransform> contentRoots,
+        out Rect bounds)
+    {
+        bounds = default;
+        bool hasPoint = false;
+        float minX = float.PositiveInfinity;
+        float minY = float.PositiveInfinity;
+        float maxX = float.NegativeInfinity;
+        float maxY = float.NegativeInfinity;
+        var corners = new Vector3[4];
+
+        for (int i = 0; i < contentRoots.Count; i++)
+        {
+            RectTransform content = contentRoots[i];
+            if (content == null)
+                continue;
+
+            Graphic[] graphics = content.GetComponentsInChildren<Graphic>(true);
+            for (int j = 0; j < graphics.Length; j++)
+            {
+                RectTransform graphicRect = graphics[j] != null ? graphics[j].rectTransform : null;
+                if (graphicRect == null)
+                    continue;
+
+                graphicRect.GetWorldCorners(corners);
+                for (int corner = 0; corner < corners.Length; corner++)
+                {
+                    Vector3 local = parent.InverseTransformPoint(corners[corner]);
+                    minX = Mathf.Min(minX, local.x);
+                    minY = Mathf.Min(minY, local.y);
+                    maxX = Mathf.Max(maxX, local.x);
+                    maxY = Mathf.Max(maxY, local.y);
+                    hasPoint = true;
+                }
+            }
+        }
+
+        if (!hasPoint)
+            return false;
+
+        bounds = Rect.MinMaxRect(minX, minY, maxX, maxY);
+        return true;
+    }
+
+    private void ApplyPresentationSettings()
+    {
+        EnsurePresentationRoots();
+
+        float scale = GameplayPresentationSettings.HudScale;
+        Vector3 localScale = new Vector3(scale, scale, 1f);
+        if (_skillHudPresentationRoot != null)
+            _skillHudPresentationRoot.localScale = localScale;
+        if (_bottomHudPresentationRoot != null)
+            _bottomHudPresentationRoot.localScale = localScale;
+
+        float opacity = GameplayPresentationSettings.HudOpacity;
+        if (_skillHudCanvasGroup != null)
+            _skillHudCanvasGroup.alpha = opacity;
+        if (_bottomHudCanvasGroup != null)
+            _bottomHudCanvasGroup.alpha = opacity;
     }
 
     private void BindShortcutSkillPoints()
