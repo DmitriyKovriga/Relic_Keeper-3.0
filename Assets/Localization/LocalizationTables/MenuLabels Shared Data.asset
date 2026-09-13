@@ -1311,6 +1311,14 @@ MonoBehaviour:
     m_Key: passive.node.ArmoreToDamageKey.description
     m_Metadata:
       m_Items: []
+  - m_Id: 104241224381095936
+    m_Key: passive.node.MaxMpHpFlat.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104241224406261760
+    m_Key: passive.node.MaxMpHpFlat.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
