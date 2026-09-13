@@ -171,6 +171,26 @@ namespace RelicKeeper.Tests.EditMode
             Assert.IsFalse(InvokeShouldDropItemToWorld(false, new Vector2(10f, 10f), true, window, false, default));
         }
 
+        [Test]
+        public void ShowDraggedItemGhostImmediately_MakesExistingGhostVisibleWithoutPointerMove()
+        {
+            var uiGo = new GameObject("inventory-ui-immediate-ghost");
+            _createdGameObjects.Add(uiGo);
+            var ui = uiGo.AddComponent<InventoryUI>();
+            var ghost = new VisualElement();
+            ghost.style.display = DisplayStyle.None;
+            ghost.style.opacity = 0.85f;
+
+            SetField(ui, "_ghostIcon", ghost);
+            SetField(ui, "_isDragging", true);
+            SetField(ui, "_draggedItem", CreateWeapon("immediate-ghost-item", EquipmentSlot.MainHand));
+
+            InvokePrivate(ui, "ShowDraggedItemGhostImmediately");
+
+            Assert.AreEqual(DisplayStyle.Flex, ghost.style.display.value);
+            Assert.AreEqual(0.7f, ghost.style.opacity.value, 0.001f);
+        }
+
         private static bool InvokeShouldDropItemToWorld(
             bool hasItemData,
             Vector2 pointerPanelPosition,

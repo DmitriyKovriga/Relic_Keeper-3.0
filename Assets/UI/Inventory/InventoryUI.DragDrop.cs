@@ -114,6 +114,19 @@ public partial class InventoryUI
         return _root.WorldToLocal(panelPos);
     }
 
+    private void ShowDraggedItemGhostImmediately()
+    {
+        if (!_isDragging || _draggedItem?.Data == null || _ghostIcon == null)
+            return;
+
+        // The old flow kept the ghost hidden until PointerMove. Position the existing
+        // drag visual immediately so picking an item up never leaves an empty cursor frame.
+        UpdateGhostPosition(GetPointerRootLocalFromScreen());
+        _ghostIcon.style.opacity = 0.7f;
+        _ghostIcon.style.display = DisplayStyle.Flex;
+        _ghostIcon.MarkDirtyRepaint();
+    }
+
     private void UpdateGhostHighlight(Vector2 rootLocalPos)
     {
         if (!_isDragging || _draggedItem?.Data == null)
@@ -404,7 +417,7 @@ public partial class InventoryUI
         _ghostIcon.style.backgroundImage = new StyleBackground(takenDrag.Data.Icon);
         _ghostIcon.style.width = takenDrag.Data.Width * InventorySlotSize;
         _ghostIcon.style.height = takenDrag.Data.Height * InventorySlotSize;
-        _ghostIcon.style.display = DisplayStyle.None;
+        ShowDraggedItemGhostImmediately();
         if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
         CaptureDragPointer(evt.pointerId);
     }
@@ -490,7 +503,7 @@ public partial class InventoryUI
         _ghostIcon.style.backgroundImage = new StyleBackground(taken.Data.Icon);
         _ghostIcon.style.width = taken.Data.Width * InventorySlotSize;
         _ghostIcon.style.height = taken.Data.Height * InventorySlotSize;
-        _ghostIcon.style.display = DisplayStyle.None;
+        ShowDraggedItemGhostImmediately();
         if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
         CaptureDragPointer(evt.pointerId);
     }

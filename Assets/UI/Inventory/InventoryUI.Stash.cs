@@ -191,7 +191,7 @@ public partial class InventoryUI
         _ghostIcon.style.backgroundImage = new StyleBackground(item.Data.Icon);
         _ghostIcon.style.width = GetStashSpanSize(item.Data.Width);
         _ghostIcon.style.height = GetStashSpanSize(item.Data.Height);
-        _ghostIcon.style.display = DisplayStyle.None;
+        ShowDraggedItemGhostImmediately();
         if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
         CaptureDragPointer(pointerId);
     }
