@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 public class WindowManager : MonoBehaviour
 {
+    // Persistent HUD documents use orders up to 1500. Game windows must always cover them.
+    public const int WindowSortingOrderBase = 2000;
+
     private readonly List<WindowView> _windows = new List<WindowView>();
     private GamePauseService.PauseHandle _windowPauseHandle;
     private bool _restorePlayerInputWhenClosed;
@@ -27,6 +30,7 @@ public class WindowManager : MonoBehaviour
             // Уже открыто — можно вынести "наверх" (в конец списка)
             _windows.Remove(window);
             _windows.Add(window);
+            RefreshPanelSortOrders();
             return;
         }
 
@@ -78,9 +82,8 @@ public class WindowManager : MonoBehaviour
 
     private void RefreshPanelSortOrders()
     {
-        const int baseOrder = 1000;
         for (int i = 0; i < _windows.Count; i++)
-            _windows[i].SetPanelSortOrder(baseOrder + i);
+            _windows[i].SetPanelSortOrder(WindowSortingOrderBase + i);
     }
 
     private void BeginWindowSession()

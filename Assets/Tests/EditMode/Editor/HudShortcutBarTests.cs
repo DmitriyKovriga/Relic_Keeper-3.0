@@ -58,5 +58,11 @@ namespace RelicKeeper.Tests.EditMode
             Assert.AreEqual(PickingMode.Position, bar.pickingMode);
             Assert.AreEqual(PickingMode.Position, bar.Q("Inventory").pickingMode);
         }
+
+        [Test]
+        public void GameWindows_RenderAbovePersistentHud()
+        {
+            Assert.That(WindowManager.WindowSortingOrderBase, Is.GreaterThan(HudShortcutBar.SortingOrder));
+        }
     }
 }

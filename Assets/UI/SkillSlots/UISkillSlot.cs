@@ -26,12 +26,22 @@ public class UISkillSlot : MonoBehaviour
     private static Sprite _runtimeWhiteSprite;
     private SkillDataSO _skill;
     private bool _pointerInside;
+    private WindowManager _windowManager;
 
     public SkillDataSO CurrentSkill => _skill;
     public int SlotIndex { get; private set; } = -1;
 
     private void Update()
     {
+        if (IsHudTooltipBlocked())
+        {
+            if (_pointerInside || IsHudSkillTooltipVisible())
+                ItemTooltipController.Instance?.HideHudSkillTooltip(this);
+
+            _pointerInside = false;
+            return;
+        }
+
         bool over = IsPointerOverThisSlot();
         if (over == _pointerInside)
         {
@@ -174,7 +184,7 @@ public class UISkillSlot : MonoBehaviour
 
     private void RefreshHoverTooltip()
     {
-        if (!_pointerInside)
+        if (!_pointerInside || IsHudTooltipBlocked())
             return;
 
         var tooltip = ItemTooltipController.Instance;
@@ -213,6 +223,14 @@ public class UISkillSlot : MonoBehaviour
     {
         var tooltip = ItemTooltipController.Instance;
         return tooltip != null && tooltip.IsShowingHudSkillTooltip(this);
+    }
+
+    private bool IsHudTooltipBlocked()
+    {
+        if (_windowManager == null)
+            _windowManager = FindFirstObjectByType<WindowManager>();
+
+        return _windowManager != null && _windowManager.HasOpenWindow;
     }
 
     private void EnsureHitTarget()
