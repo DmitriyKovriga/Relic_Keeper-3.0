@@ -7,6 +7,7 @@ namespace Scripts.Skills.PassiveTree.UI
     public class PassiveTreeRenderer
     {
         private static readonly Dictionary<uint, Texture2D> GlowTextureCache = new Dictionary<uint, Texture2D>();
+        private static readonly Dictionary<uint, Texture2D> InsetTextureCache = new Dictionary<uint, Texture2D>();
         private bool _pulseScheduled;
 
         private readonly VisualElement _container;
@@ -75,8 +76,11 @@ namespace Scripts.Skills.PassiveTree.UI
             {
                 var circle = kvp.Value.Q<VisualElement>("Circle");
                 if (circle != null)
-                    SetStyle(circle, _theme.LockedFill, _theme.LockedBorder);
+                {
+                    SetIconTint(circle, _theme.LockedIconTint);
+                }
 
+                SetAllocatedInsetState(kvp.Value, false);
                 SetGlowState(kvp.Value, false, Color.clear, 1f);
             }
 
@@ -102,17 +106,20 @@ namespace Scripts.Skills.PassiveTree.UI
 
                 if (allocated)
                 {
-                    SetStyle(circle, _theme.AllocatedFill, _theme.AllocatedBorder);
+                    SetIconTint(circle, _theme.AllocatedIconTint);
+                    SetAllocatedInsetState(nodeRoot, true);
                     SetGlowState(nodeRoot, true, _theme.AllocatedHighlightColor, _theme.AllocatedHighlightScale);
                 }
                 else if (canAllocate)
                 {
-                    SetStyle(circle, _theme.AvailableFill, _theme.AvailableBorder);
+                    SetIconTint(circle, _theme.AvailableIconTint);
+                    SetAllocatedInsetState(nodeRoot, false);
                     SetGlowState(nodeRoot, true, _theme.AvailableHighlightColor, _theme.AvailableHighlightScale);
                 }
                 else
                 {
-                    SetStyle(circle, _theme.LockedFill, _theme.LockedBorder);
+                    SetIconTint(circle, _theme.LockedIconTint);
+                    SetAllocatedInsetState(nodeRoot, false);
                     SetGlowState(nodeRoot, false, Color.clear, 1f);
                 }
             }
@@ -129,11 +136,13 @@ namespace Scripts.Skills.PassiveTree.UI
                 float innerThicknessScale;
                 if (a1 && a2)
                 {
+                    outerColor = _theme.LineAllocatedOuter;
                     innerColor = _theme.LineAllocatedInner;
                     innerThicknessScale = _theme.LineAllocatedInnerThicknessScale;
                 }
                 else if ((a1 && avail2) || (a2 && avail1))
                 {
+                    outerColor = _theme.LinePathOuter;
                     innerColor = _theme.LinePathInner;
                     innerThicknessScale = _theme.LinePathInnerThicknessScale;
                 }
@@ -149,13 +158,9 @@ namespace Scripts.Skills.PassiveTree.UI
             }
         }
 
-        private void SetStyle(VisualElement el, Color bg, Color border)
+        private static void SetNodeFill(VisualElement element, Color background)
         {
-            el.style.backgroundColor = bg;
-            el.style.borderTopColor = border;
-            el.style.borderBottomColor = border;
-            el.style.borderLeftColor = border;
-            el.style.borderRightColor = border;
+            element.style.backgroundColor = background;
         }
 
         private void CreateNode(PassiveSkillTreeSO treeData, PassiveNodeDefinition node)
@@ -184,16 +189,23 @@ namespace Scripts.Skills.PassiveTree.UI
             glowAura.pickingMode = PickingMode.Ignore;
             nodeRoot.Add(glowAura);
 
+            Sprite frameSprite = GetFrameSprite(node.NodeType);
             var circle = new VisualElement { name = "Circle" };
             circle.style.flexGrow = 1f;
             circle.style.borderTopLeftRadius = size * 0.5f;
             circle.style.borderTopRightRadius = size * 0.5f;
             circle.style.borderBottomLeftRadius = size * 0.5f;
             circle.style.borderBottomRightRadius = size * 0.5f;
-            circle.style.borderTopWidth = 2f;
-            circle.style.borderBottomWidth = 2f;
-            circle.style.borderLeftWidth = 2f;
-            circle.style.borderRightWidth = 2f;
+            float fallbackBorderWidth = frameSprite == null ? 2f : 0f;
+            circle.style.borderTopWidth = fallbackBorderWidth;
+            circle.style.borderBottomWidth = fallbackBorderWidth;
+            circle.style.borderLeftWidth = fallbackBorderWidth;
+            circle.style.borderRightWidth = fallbackBorderWidth;
+            circle.style.borderTopColor = _theme.LockedBorder;
+            circle.style.borderBottomColor = _theme.LockedBorder;
+            circle.style.borderLeftColor = _theme.LockedBorder;
+            circle.style.borderRightColor = _theme.LockedBorder;
+            SetNodeFill(circle, _theme.LockedFill);
 
             var icon = node.GetIcon();
             if (icon != null)
@@ -201,7 +213,19 @@ namespace Scripts.Skills.PassiveTree.UI
 
             nodeRoot.Add(circle);
 
-            Sprite frameSprite = GetFrameSprite(node.NodeType);
+            float insetSize = Mathf.Max(1f, size - 4f);
+            var allocatedInset = new Image { name = "AllocatedInset" };
+            allocatedInset.image = GetAllocatedInsetTexture(_theme.AllocatedInsetShadow);
+            allocatedInset.scaleMode = ScaleMode.StretchToFill;
+            allocatedInset.style.position = Position.Absolute;
+            allocatedInset.style.width = insetSize;
+            allocatedInset.style.height = insetSize;
+            allocatedInset.style.left = (size - insetSize) * 0.5f;
+            allocatedInset.style.top = (size - insetSize) * 0.5f;
+            allocatedInset.style.display = DisplayStyle.None;
+            allocatedInset.pickingMode = PickingMode.Ignore;
+            nodeRoot.Add(allocatedInset);
+
             if (frameSprite != null)
             {
                 float frameWidth = frameSprite.rect.width;
@@ -315,6 +339,19 @@ namespace Scripts.Skills.PassiveTree.UI
             glowAura.style.left = (size - haloSize) * 0.5f;
             glowAura.style.top = (size - haloSize) * 0.5f;
             glowAura.image = GetSoftGlowTexture(glowColor);
+        }
+
+        private static void SetIconTint(VisualElement circle, Color tint)
+        {
+            if (circle != null)
+                circle.style.unityBackgroundImageTintColor = tint;
+        }
+
+        private static void SetAllocatedInsetState(VisualElement nodeRoot, bool visible)
+        {
+            var inset = nodeRoot?.Q<Image>("AllocatedInset");
+            if (inset != null)
+                inset.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private float GetNodeSize(PassiveNodeType nodeType)
@@ -496,6 +533,53 @@ namespace Scripts.Skills.PassiveTree.UI
             texture.Apply();
             GlowTextureCache[key] = texture;
             return texture;
+        }
+
+        private static Texture2D GetAllocatedInsetTexture(Color shadowColor)
+        {
+            Color32 shadow = shadowColor;
+            uint key = PackColor(shadow);
+            if (InsetTextureCache.TryGetValue(key, out var cached) && cached != null)
+                return cached;
+
+            const int textureSize = 64;
+            const float center = (textureSize - 1) * 0.5f;
+            var pixels = new Color32[textureSize * textureSize];
+
+            for (int y = 0; y < textureSize; y++)
+            {
+                for (int x = 0; x < textureSize; x++)
+                {
+                    float radius = Vector2.Distance(new Vector2(x, y), new Vector2(center, center)) / center;
+                    Color32 pixel = new Color32(0, 0, 0, 0);
+
+                    if (radius >= 0.86f && radius <= 1f)
+                    {
+                        float edgeStrength = Mathf.InverseLerp(0.86f, 0.95f, radius);
+                        pixel = shadow;
+                        pixel.a = (byte)Mathf.RoundToInt(shadow.a * Mathf.Lerp(0.35f, 1f, edgeStrength));
+                    }
+
+                    pixels[y * textureSize + x] = pixel;
+                }
+            }
+
+            var texture = new Texture2D(textureSize, textureSize, TextureFormat.RGBA32, false)
+            {
+                name = $"PassiveNodeInset_{key:X8}",
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            InsetTextureCache[key] = texture;
+            return texture;
+        }
+
+        private static uint PackColor(Color32 color)
+        {
+            return ((uint)color.r << 24) | ((uint)color.g << 16) | ((uint)color.b << 8) | color.a;
         }
 
         private static Color MultiplyAlpha(Color color, float alphaMultiplier)

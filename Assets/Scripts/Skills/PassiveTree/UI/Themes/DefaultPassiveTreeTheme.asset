@@ -31,18 +31,22 @@ MonoBehaviour:
   AllocatedHighlightScale: 2.35
   AvailableHighlightColor: {r: 0.95, g: 0.95, b: 0.95, a: 0.24}
   AvailableHighlightScale: 2
+  AllocatedIconTint: {r: 1, g: 1, b: 1, a: 1}
+  AvailableIconTint: {r: 0.92, g: 0.95, b: 1, a: 1}
+  LockedIconTint: {r: 0.68, g: 0.68, b: 0.72, a: 1}
+  AllocatedInsetShadow: {r: 0.08, g: 0.035, b: 0, a: 0.48}
   LineAllocated: {r: 1, g: 0.8, b: 0.2, a: 0.8}
   LinePath: {r: 0.7, g: 0.7, b: 0.7, a: 0.5}
   LineLocked: {r: 0.15, g: 0.15, b: 0.15, a: 0.5}
   LineLockedInnerThicknessScale: 0.46
-  LinePathInnerThicknessScale: 0.28
-  LineAllocatedInnerThicknessScale: 0.3
-  LineAllocatedOuter: {r: 0.87, g: 0.67, b: 0.24, a: 0.98}
-  LineAllocatedInner: {r: 1, g: 0.96, b: 0.76, a: 0.82}
-  LinePathOuter: {r: 0.68, g: 0.68, b: 0.68, a: 0.95}
-  LinePathInner: {r: 0.93, g: 0.93, b: 0.93, a: 0.72}
+  LinePathInnerThicknessScale: 0.22
+  LineAllocatedInnerThicknessScale: 0.62
+  LineAllocatedOuter: {r: 0.76, g: 0.42, b: 0.06, a: 1}
+  LineAllocatedInner: {r: 1, g: 0.84, b: 0.24, a: 1}
+  LinePathOuter: {r: 0.22, g: 0.34, b: 0.42, a: 0.9}
+  LinePathInner: {r: 0.72, g: 0.9, b: 1, a: 0.88}
   LineLockedOuter: {r: 0.42, g: 0.34, b: 0.17, a: 0.75}
   LineLockedInner: {r: 0.12, g: 0.1, b: 0.07, a: 0.88}
   LinePathPulseSpeed: 0.9
-  LinePathPulseMinAlpha: 0.05
-  LinePathPulseMaxAlpha: 0.55
+  LinePathPulseMinAlpha: 0.2
+  LinePathPulseMaxAlpha: 0.8

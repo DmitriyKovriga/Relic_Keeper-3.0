@@ -36,6 +36,12 @@ namespace Scripts.Skills.PassiveTree.UI
         public Color AvailableHighlightColor = new Color(0.95f, 0.95f, 0.95f, 0.24f);
         public float AvailableHighlightScale = 1.38f;
 
+        [Header("Node State Readability")]
+        public Color AllocatedIconTint = Color.white;
+        public Color AvailableIconTint = new Color(0.92f, 0.95f, 1f, 1f);
+        public Color LockedIconTint = new Color(0.68f, 0.68f, 0.72f, 1f);
+        public Color AllocatedInsetShadow = new Color(0.08f, 0.035f, 0f, 0.48f);
+
         [Header("Colors - Connections")]
         public Color LineAllocated = new Color(1f, 0.8f, 0.2f, 0.8f);
         public Color LinePath = new Color(0.7f, 0.7f, 0.7f, 0.5f);    
@@ -43,8 +49,8 @@ namespace Scripts.Skills.PassiveTree.UI
 
         [Header("Connection Track")]
         [Range(0.1f, 0.95f)] public float LineLockedInnerThicknessScale = 0.46f;
-        [Range(0.1f, 0.95f)] public float LinePathInnerThicknessScale = 0.28f;
-        [Range(0.1f, 0.95f)] public float LineAllocatedInnerThicknessScale = 0.30f;
+        [Range(0.1f, 0.95f)] public float LinePathInnerThicknessScale = 0.22f;
+        [Range(0.1f, 0.95f)] public float LineAllocatedInnerThicknessScale = 0.62f;
         public Color LineAllocatedOuter = new Color(0.87f, 0.67f, 0.24f, 0.98f);
         public Color LineAllocatedInner = new Color(1f, 0.96f, 0.76f, 0.82f);
         public Color LinePathOuter = new Color(0.68f, 0.68f, 0.68f, 0.95f);
