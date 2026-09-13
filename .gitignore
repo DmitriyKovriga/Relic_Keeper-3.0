@@ -92,6 +92,9 @@ ShaderCache/
 /Linux/
 /macOS/
 
+# --- Unity Bridge ---
+.agents-unity-bridge/
+
 # --- TextMeshPro ---
 /Assets/TextMesh Pro/Resources/Font Assets/*.asset
 
