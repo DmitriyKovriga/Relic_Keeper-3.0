@@ -2615,6 +2615,39 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 104289155511316480
+    m_Localized: Small Bleed And Poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104289155561648128
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104290178934075392
+    m_Localized: "\u0421\u0440\u0435\u0434\u043D\u0438\u0439 \u042F\u0434 \u0438
+      \u041A\u0440\u043E\u0432\u043E\u0442\u0435\u0447\u0435\u043D\u0438\u0435"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104290178934075393
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104292538339127296
+    m_Localized: "\u0422\u0435\u0436\u0435\u0441\u0442\u044C \u0432 \u041B\u0435\u0433\u043A\u043E\u0441\u0442\u0438"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104292538339127297
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104294168631537664
+    m_Localized: "\u0410\u0441\u0441\u0430\u0441\u0438\u043D"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104294168631537665
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

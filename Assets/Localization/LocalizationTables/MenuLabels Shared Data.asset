@@ -1335,6 +1335,38 @@ MonoBehaviour:
     m_Key: passive.node.MaxMpHpFlat.description
     m_Metadata:
       m_Items: []
+  - m_Id: 104289155511316480
+    m_Key: passive.node.SmallBleedPoison.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104289155561648128
+    m_Key: passive.node.SmallBleedPoison.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104290178934075392
+    m_Key: passive.node.MediumBleedPoison.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104290178934075393
+    m_Key: passive.node.MediumBleedPoison.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104292538339127296
+    m_Key: passive.node.smallCtriMultAndAtSpeed.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104292538339127297
+    m_Key: passive.node.smallCtriMultAndAtSpeed.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104294168631537664
+    m_Key: passive.node.MediumCritAndSpeed.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104294168631537665
+    m_Key: passive.node.MediumCritAndSpeed.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
