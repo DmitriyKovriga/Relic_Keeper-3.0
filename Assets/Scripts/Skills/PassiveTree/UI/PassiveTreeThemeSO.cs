@@ -51,14 +51,14 @@ namespace Scripts.Skills.PassiveTree.UI
         [Range(0.1f, 0.95f)] public float LineLockedInnerThicknessScale = 0.46f;
         [Range(0.1f, 0.95f)] public float LinePathInnerThicknessScale = 0.22f;
         [Range(0.1f, 0.95f)] public float LineAllocatedInnerThicknessScale = 0.62f;
-        public Color LineAllocatedOuter = new Color(0.87f, 0.67f, 0.24f, 0.98f);
-        public Color LineAllocatedInner = new Color(1f, 0.96f, 0.76f, 0.82f);
-        public Color LinePathOuter = new Color(0.68f, 0.68f, 0.68f, 0.95f);
-        public Color LinePathInner = new Color(0.93f, 0.93f, 0.93f, 0.72f);
+        public Color LineAllocatedOuter = new Color(0.38f, 0.28f, 0.12f, 1f);
+        public Color LineAllocatedInner = new Color(0.78f, 0.58f, 0.24f, 1f);
+        public Color LinePathOuter = new Color(0.30f, 0.30f, 0.29f, 0.95f);
+        public Color LinePathInner = new Color(0.68f, 0.67f, 0.63f, 0.88f);
         public Color LineLockedOuter = new Color(0.42f, 0.34f, 0.17f, 0.75f);
         public Color LineLockedInner = new Color(0.12f, 0.10f, 0.07f, 0.88f);
         [Range(0.1f, 2.5f)] public float LinePathPulseSpeed = 0.9f;
-        [Range(0f, 1f)] public float LinePathPulseMinAlpha = 0.05f;
-        [Range(0f, 1f)] public float LinePathPulseMaxAlpha = 0.55f;
+        [Range(0f, 1f)] public float LinePathPulseMinAlpha = 0.45f;
+        [Range(0f, 1f)] public float LinePathPulseMaxAlpha = 0.85f;
     }
 }
