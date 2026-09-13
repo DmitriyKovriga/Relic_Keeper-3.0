@@ -36,6 +36,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField, Min(0.01f)] private float _groundCheckRadius = 0.2f;
     [SerializeField, Min(0.05f)] private float _dropThroughDuration = DropThroughFailsafeDuration;
     [SerializeField, Range(-1f, 0f)] private float _dropThroughInputThreshold = -0.5f;
+    [SerializeField, Min(0.01f)] private float _dropThroughIntentBufferDuration = 0.16f;
 
     [Header("Movement")]
     [Tooltip("Fallback only. Real movement speed is StatType.MoveSpeed after flat/increased/more stat calculation.")]
@@ -84,7 +85,9 @@ public class PlayerMovement : MonoBehaviour
     private bool _wasGroundedLastFixedUpdate;
     private bool _hasQueuedJump;
     private float _dropThroughEndTime = -1f;
+    private float _dropThroughIntentUntilTime = float.NegativeInfinity;
     private float _jumpQueuedUntilTime = -1f;
+    private bool _wasDropThroughInputHeld;
     private int _availableJumpCount;
 
     private bool _hasMotionOverride;
@@ -280,6 +283,8 @@ public class PlayerMovement : MonoBehaviour
         if (_hasMotionOverride)
             EndMotionOverride(Vector2.zero);
         _hasQueuedJump = false;
+        _dropThroughIntentUntilTime = float.NegativeInfinity;
+        _wasDropThroughInputHeld = false;
         _hasHorizontalLaunch = false;
         _isFastFallPriming = false;
         _isFastFalling = false;
@@ -288,15 +293,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        _moveInput = InputManager.InputActions.Player.Move.ReadValue<Vector2>();
-        _horizontalInput = _moveInput.x;
+        SampleMovementInput();
     }
 
     private void FixedUpdate()
     {
         // Sample intent even during a dash/skill lock; locks restrict motion, not input.
-        _moveInput = InputManager.InputActions.Player.Move.ReadValue<Vector2>();
-        _horizontalInput = _moveInput.x;
+        SampleMovementInput();
         UpdateDropThroughState();
         CheckGround();
         RefreshJumpCountIfLanded();
@@ -320,8 +323,32 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
+        // Input callbacks can run between Update and FixedUpdate. Sampling here preserves a
+        // freshly pressed Down even when Jump is pressed almost simultaneously before landing.
+        SampleMovementInput();
         _hasQueuedJump = true;
         _jumpQueuedUntilTime = Time.time + Mathf.Max(0.01f, _jumpBufferDuration);
+    }
+
+    private void SampleMovementInput()
+    {
+        _moveInput = InputManager.InputActions.Player.Move.ReadValue<Vector2>();
+        _horizontalInput = _moveInput.x;
+        UpdateDropThroughInputIntent(_moveInput.y);
+    }
+
+    private void UpdateDropThroughInputIntent(float verticalInput)
+    {
+        bool isDownHeld = verticalInput <= _dropThroughInputThreshold;
+        if (isDownHeld && !_wasDropThroughInputHeld)
+            _dropThroughIntentUntilTime = Time.time + Mathf.Max(0.01f, _dropThroughIntentBufferDuration);
+
+        _wasDropThroughInputHeld = isDownHeld;
+    }
+
+    private bool HasFreshDropThroughIntent()
+    {
+        return Time.time <= _dropThroughIntentUntilTime;
     }
 
     private void ApplyMovement()
@@ -529,7 +556,7 @@ public class PlayerMovement : MonoBehaviour
             return false;
         if (_oneWayPlatformLayer.value == 0)
             return false;
-        if (_moveInput.y > _dropThroughInputThreshold)
+        if (!_isGrounded || _moveInput.y > _dropThroughInputThreshold || !HasFreshDropThroughIntent())
             return false;
 
         if (!TryGetCurrentOneWayPlatform(out Collider2D platform, out float surfaceY))
@@ -542,6 +569,7 @@ public class PlayerMovement : MonoBehaviour
         _ignoredPlatformSurfaceY[platform] = surfaceY;
 
         _isDroppingThroughPlatform = true;
+        _dropThroughIntentUntilTime = float.NegativeInfinity;
         _dropThroughEndTime = Time.time + Mathf.Max(DropThroughFailsafeDuration, _dropThroughDuration);
         _isGrounded = false;
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, Mathf.Min(_rb.linearVelocity.y, DefaultDropThroughDownwardVelocity));

@@ -146,6 +146,43 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void HeldFastFallDoesNotBecomeDropThroughIntentAtLanding()
+        {
+            Set("_wasDropThroughInputHeld", true);
+            Set("_dropThroughIntentUntilTime", Time.time - 1f);
+
+            Call("UpdateDropThroughInputIntent", -1f);
+
+            Assert.That((bool)Call("HasFreshDropThroughIntent"), Is.False,
+                "Continuing to hold fast fall must not turn a buffered landing jump into drop-through.");
+        }
+
+        [Test]
+        public void RepressingDownNearLandingCreatesForgivingDropThroughIntent()
+        {
+            Set("_wasDropThroughInputHeld", true);
+            Set("_dropThroughIntentUntilTime", Time.time - 1f);
+
+            Call("UpdateDropThroughInputIntent", 0f);
+            Call("UpdateDropThroughInputIntent", -1f);
+
+            Assert.That((bool)Call("HasFreshDropThroughIntent"), Is.True,
+                "A fresh Down press should be buffered briefly so input order near landing is forgiving.");
+        }
+
+        [Test]
+        public void DropThroughRequiresConfirmedGroundedState()
+        {
+            Set("_groundCheckPoint", _player.transform);
+            Set("_mainCollider", _player.GetComponent<BoxCollider2D>());
+            Set("_oneWayPlatformLayer", (LayerMask)(1 << 7));
+            Set("_dropThroughIntentUntilTime", Time.time + 1f);
+            Set("_isGrounded", false);
+
+            Assert.That((bool)Call("TryStartDropThrough"), Is.False);
+        }
+
+        [Test]
         public void GroundDashOverrideKeepsGravityAndVerticalVelocity()
         {
             _body.linearVelocity = new Vector2(0f, -3f);
@@ -356,7 +393,7 @@ namespace RelicKeeper.Tests.EditMode
             .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(_movement, value);
         private T Get<T>(string name) => (T)typeof(PlayerMovement)
             .GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_movement);
-        private object Call(string name) => typeof(PlayerMovement)
-            .GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(_movement, null);
+        private object Call(string name, params object[] arguments) => typeof(PlayerMovement)
+            .GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(_movement, arguments);
     }
 }
