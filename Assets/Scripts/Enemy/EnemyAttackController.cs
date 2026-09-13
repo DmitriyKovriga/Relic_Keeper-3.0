@@ -129,8 +129,7 @@ namespace Scripts.Enemies
         }
 
         private const int DefaultTargetMask = ~((1 << 6) | (1 << 7));
-        private const string AttackAttentionResourcesPath = "VFX/AttackAttentionVFX/AttackAttentionVFXPrefab";
-        private const float AttackAttentionDuration = 0.5f;
+        private const float AttackTelegraphDuration = 0.5f;
         private const int AttackRenderOrderBoost = 50000;
 
         private EnemyEntity _entity;
@@ -139,6 +138,7 @@ namespace Scripts.Enemies
         private EnemyLocomotion2D _locomotion;
         private EnemyAnimationBridge _animation;
         private WorldDepthSort _depthSort;
+        private EnemyAttackTelegraphVfx _attackTelegraphVfx;
         private Transform _currentTarget;
         private AttackPhase _phase;
         private AttackVariant _currentAttackVariant;
@@ -154,8 +154,6 @@ namespace Scripts.Enemies
         private bool _hasChargeHitboxSample;
         private bool _isStunned;
         private bool _isFrozen;
-        private GameObject _attackAttentionPrefab;
-        private GameObject _activeAttackAttentionVfx;
 
         public bool IsBusy => _phase != AttackPhase.Idle;
         public bool IsPlayingAttackAnimation => IsBusy && _phase != AttackPhase.Telegraph;
@@ -173,6 +171,9 @@ namespace Scripts.Enemies
             _locomotion = GetComponent<EnemyLocomotion2D>();
             _animation = GetComponent<EnemyAnimationBridge>();
             _depthSort = GetComponent<WorldDepthSort>();
+            _attackTelegraphVfx = GetComponent<EnemyAttackTelegraphVfx>();
+            if (_attackTelegraphVfx == null)
+                _attackTelegraphVfx = gameObject.AddComponent<EnemyAttackTelegraphVfx>();
             _phase = AttackPhase.Idle;
             _currentAttackVariant = AttackVariant.Primary;
             _phaseTimer = 0f;
@@ -186,13 +187,13 @@ namespace Scripts.Enemies
             _hasChargeHitboxSample = false;
             _isStunned = false;
             _isFrozen = false;
-            DestroyAttackAttentionVfx();
+            _attackTelegraphVfx.Stop();
         }
 
         private void OnDisable()
         {
             SetAttackRenderBoost(false);
-            DestroyAttackAttentionVfx();
+            _attackTelegraphVfx?.Stop();
         }
 
         private void Update()
@@ -202,9 +203,6 @@ namespace Scripts.Enemies
 
             if (_phase == AttackPhase.Idle)
                 return;
-
-            if (_phase == AttackPhase.Telegraph)
-                UpdateAttackAttentionVfxPosition();
 
             UpdateTransientChargeMotion(Time.deltaTime);
 
@@ -270,7 +268,7 @@ namespace Scripts.Enemies
             _currentTarget = target;
             _currentAttackVariant = variant;
             _phase = AttackPhase.Telegraph;
-            _phaseTimer = AttackAttentionDuration;
+            _phaseTimer = AttackTelegraphDuration;
             _hasAppliedHit = false;
             _lastAttackConnected = false;
             SetAttackRenderBoost(true);
@@ -278,7 +276,7 @@ namespace Scripts.Enemies
             _chargeDashTimeRemaining = 0f;
             _chargeDashDistanceRemaining = 0f;
             _locomotion?.Stop();
-            SpawnAttackAttentionVfx();
+            _attackTelegraphVfx?.Play(_entity, AttackTelegraphDuration);
 
             return true;
         }
@@ -309,7 +307,7 @@ namespace Scripts.Enemies
             _lastAttackConnected = false;
             _currentAttackVariant = AttackVariant.Primary;
             SetAttackRenderBoost(false);
-            DestroyAttackAttentionVfx();
+            _attackTelegraphVfx?.Stop();
         }
 
         private void SetAttackRenderBoost(bool active)
@@ -323,7 +321,7 @@ namespace Scripts.Enemies
 
         private void EnterWindupPhase()
         {
-            DestroyAttackAttentionVfx();
+            _attackTelegraphVfx?.Stop();
 
             AttackRuntimeConfig config = GetCurrentAttackConfig();
             _phase = AttackPhase.Windup;
@@ -604,70 +602,6 @@ namespace Scripts.Enemies
                 return _locomotion != null ? _locomotion.FacingDirection : 1;
 
             return deltaX > 0f ? 1 : -1;
-        }
-
-        private void SpawnAttackAttentionVfx()
-        {
-            GameObject prefab = ResolveAttackAttentionPrefab();
-            if (prefab == null)
-                return;
-
-            DestroyAttackAttentionVfx();
-            _activeAttackAttentionVfx = Instantiate(prefab, ResolveAttackAttentionPosition(), Quaternion.identity, transform.parent);
-            ConfigureAttackAttentionSorting(_activeAttackAttentionVfx);
-
-            var autoDestroy = AutoDestroyVFX.Ensure(_activeAttackAttentionVfx);
-            if (autoDestroy != null)
-                autoDestroy.Initialize(AttackAttentionDuration, fadeOutEnabled: false);
-        }
-
-        private GameObject ResolveAttackAttentionPrefab()
-        {
-            if (_attackAttentionPrefab != null)
-                return _attackAttentionPrefab;
-
-            _attackAttentionPrefab = Resources.Load<GameObject>(AttackAttentionResourcesPath);
-            return _attackAttentionPrefab;
-        }
-
-        private Vector3 ResolveAttackAttentionPosition()
-        {
-            Bounds bounds = _entity != null
-                ? _entity.GetVisualBounds()
-                : new Bounds(transform.position, Vector3.one);
-
-            if (bounds.size.sqrMagnitude <= 0.0001f)
-                bounds = new Bounds(transform.position + Vector3.up, Vector3.one);
-
-            return new Vector3(bounds.center.x, bounds.max.y + 0.55f, transform.position.z);
-        }
-
-        private void UpdateAttackAttentionVfxPosition()
-        {
-            if (_activeAttackAttentionVfx != null)
-                _activeAttackAttentionVfx.transform.position = ResolveAttackAttentionPosition();
-        }
-
-        private void ConfigureAttackAttentionSorting(GameObject vfx)
-        {
-            if (vfx == null)
-                return;
-
-            WorldRenderSorting.ConfigureAutoSorter(
-                vfx,
-                RenderDepthCategory.GameplayVfx,
-                ResolveAttackAttentionPosition().y,
-                localOffset: 0,
-                staticAnchor: false);
-        }
-
-        private void DestroyAttackAttentionVfx()
-        {
-            if (_activeAttackAttentionVfx == null)
-                return;
-
-            Destroy(_activeAttackAttentionVfx);
-            _activeAttackAttentionVfx = null;
         }
 
         private AttackRuntimeConfig GetCurrentAttackConfig()
