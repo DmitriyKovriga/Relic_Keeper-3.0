@@ -119,7 +119,7 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void FastFallCanBePrimedEarlyWithoutCuttingInitialRise()
+        public void FastFallWaitsForApexWithoutCuttingVerticalMomentum()
         {
             Set("_jumpStartedTime", Time.time);
             Set("_moveInput", Vector2.down);
@@ -128,7 +128,15 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(_body.linearVelocity.y, Is.EqualTo(10f));
             Set("_jumpStartedTime", Time.time - 0.2f);
             Call("UpdateFastFallState");
-            Assert.That(_body.linearVelocity.y, Is.LessThan(-4f));
+            Assert.That(_body.linearVelocity.y, Is.EqualTo(10f));
+            Assert.That(Get<bool>("_isFastFalling"), Is.False);
+
+            _body.linearVelocity = Vector2.down;
+            Call("UpdateFastFallState");
+
+            Assert.That(Get<bool>("_isFastFalling"), Is.True);
+            Assert.That(_body.linearVelocity.y, Is.EqualTo(-1f),
+                "Fast fall should strengthen gravity without snapping the trajectory.");
         }
 
         [Test]
@@ -168,6 +176,68 @@ namespace RelicKeeper.Tests.EditMode
 
             Assert.That((bool)Call("HasFreshDropThroughIntent"), Is.True,
                 "A fresh Down press should be buffered briefly so input order near landing is forgiving.");
+        }
+
+        [Test]
+        public void BufferedJumpAfterFastFallStartsLightBunnyHopBoost()
+        {
+            Set("_isGrounded", true);
+            Set("_wasGroundedLastFixedUpdate", false);
+            Set("_isFastFalling", true);
+            Set("_moveInput", new Vector2(1f, -1f));
+            Set("_horizontalInput", 1f);
+            Set("_availableJumpCount", 0);
+            Set("_hasQueuedJump", true);
+            Set("_jumpQueuedUntilTime", Time.time + 0.12f);
+
+            Call("RefreshJumpCountIfLanded");
+            Call("ProcessQueuedJump");
+
+            Assert.That(Get<bool>("_hasJumpMomentumBoost"), Is.True);
+            Assert.That(_movement.IsGrounded, Is.False);
+        }
+
+        [Test]
+        public void FastFallBunnyHopTemporarilyRaisesHorizontalTargetSpeed()
+        {
+            _player.GetComponent<PlayerStats>().GetStat(StatType.MoveSpeed).BaseValue = 5f;
+            Set("_horizontalInput", 1f);
+            _body.linearVelocity = Vector2.right * 5f;
+            Call("StartFastFallBunnyHopBoost");
+
+            Call("ApplyMovement");
+
+            Assert.That(_body.linearVelocity.x, Is.EqualTo(5.6f).Within(0.01f));
+        }
+
+        [Test]
+        public void FastFallPreservesHorizontalMomentumWithoutDirectionalInput()
+        {
+            Set("_isFastFalling", true);
+            Set("_horizontalInput", 0f);
+            _body.linearVelocity = new Vector2(5f, -2f);
+
+            Call("ApplyMovement");
+
+            Assert.That(_body.linearVelocity.x, Is.EqualTo(5f).Within(0.001f));
+        }
+
+        [Test]
+        public void RegularGroundJumpGetsSmallerForwardBoostThanBunnyHop()
+        {
+            Set("_isGrounded", true);
+            Set("_groundJumpAvailable", true);
+            Set("_horizontalInput", 1f);
+            Set("_hasQueuedJump", true);
+            Set("_jumpQueuedUntilTime", Time.time + 0.12f);
+
+            Call("ProcessQueuedJump");
+
+            Assert.That(Get<bool>("_hasJumpMomentumBoost"), Is.True);
+            Assert.That(Get<float>("_jumpMomentumSpeedMultiplier"),
+                Is.EqualTo(Get<float>("_normalJumpSpeedMultiplier")));
+            Assert.That(Get<float>("_jumpMomentumSpeedMultiplier"),
+                Is.LessThan(Get<float>("_fastFallBunnyHopSpeedMultiplier")));
         }
 
         [Test]
@@ -296,6 +366,55 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(_movement.IsGrounded, Is.False);
             }
             finally { Object.DestroyImmediate(wall); }
+        }
+
+        [Test]
+        public void TouchingPlatformWithHeadDoesNotRefreshJumps()
+        {
+            var ceiling = new GameObject("Ceiling", typeof(BoxCollider2D));
+            try
+            {
+                ceiling.layer = 6;
+                ceiling.transform.position = Vector3.up;
+                Set("_groundLayer", (LayerMask)(1 << 6));
+                Set("_availableJumpCount", 0);
+                Set("_groundJumpAvailable", false);
+                Set("_wasGroundedLastFixedUpdate", false);
+                _body.linearVelocity = Vector2.zero;
+                Physics2D.SyncTransforms();
+
+                Call("CheckGround");
+                Call("RefreshJumpCountIfLanded");
+
+                Assert.That(_movement.IsGrounded, Is.False);
+                Assert.That(Get<int>("_availableJumpCount"), Is.Zero,
+                    "A ceiling contact must not restore air jumps.");
+            }
+            finally { Object.DestroyImmediate(ceiling); }
+        }
+
+        [Test]
+        public void PlatformDirectlyUnderFeetRefreshesJumps()
+        {
+            var floor = new GameObject("Floor", typeof(BoxCollider2D));
+            try
+            {
+                floor.layer = 6;
+                floor.transform.position = Vector3.down;
+                Set("_groundLayer", (LayerMask)(1 << 6));
+                Set("_availableJumpCount", 0);
+                Set("_groundJumpAvailable", false);
+                Set("_wasGroundedLastFixedUpdate", false);
+                _body.linearVelocity = Vector2.zero;
+                Physics2D.SyncTransforms();
+
+                Call("CheckGround");
+                Call("RefreshJumpCountIfLanded");
+
+                Assert.That(_movement.IsGrounded, Is.True);
+                Assert.That(Get<int>("_availableJumpCount"), Is.EqualTo(2));
+            }
+            finally { Object.DestroyImmediate(floor); }
         }
 
         [Test]

@@ -25,6 +25,9 @@ public class PlayerMovement : MonoBehaviour
     private const float OneWayGroundProbeDistance = 0.18f;
     private const float OneWayGroundNormalThreshold = 0.6f;
     private const float GroundedVerticalVelocityThreshold = 0.5f;
+    private const float GroundSupportProbeInset = 0.04f;
+    private const float GroundSupportProbeDistance = 0.1f;
+    private const float GroundSupportHorizontalInset = 0.04f;
 
     public event System.Action OnJumpStarted;
     public event System.Action OnLanded;
@@ -67,11 +70,18 @@ public class PlayerMovement : MonoBehaviour
     [Header("Fast Fall")]
     [SerializeField, Range(-1f, 0f)] private float _fastFallInputThreshold = -0.6f;
     [SerializeField, Min(0.01f)] private float _fastFallPrimeDuration = 0.14f;
-    [SerializeField, Min(0f)] private float _fastFallInitialDownwardSpeed = 4.4f;
-    [SerializeField, Min(1f)] private float _fastFallGravityMultiplier = 2.05f;
+    [Tooltip("Optional downward velocity snap. Keep at zero for a smooth jump trajectory.")]
+    [SerializeField, Min(0f)] private float _fastFallInitialDownwardSpeed;
+    [SerializeField, Min(1f)] private float _fastFallGravityMultiplier = 2.15f;
+    [SerializeField, Range(1f, 1.2f)] private float _normalJumpSpeedMultiplier = 1.04f;
+    [SerializeField, Min(0.01f)] private float _normalJumpBoostDuration = 0.1f;
+    [SerializeField, Min(0.01f)] private float _fastFallBunnyHopWindow = 0.14f;
+    [SerializeField, Range(1f, 1.25f)] private float _fastFallBunnyHopSpeedMultiplier = 1.12f;
+    [SerializeField, Min(0.01f)] private float _fastFallBunnyHopBoostDuration = 0.18f;
 
     private readonly List<Collider2D> _ignoredPlatformColliders = new();
     private readonly Dictionary<Collider2D, float> _ignoredPlatformSurfaceY = new();
+    private readonly RaycastHit2D[] _groundSupportHits = new RaycastHit2D[8];
 
     private Rigidbody2D _rb;
     private Collider2D _mainCollider;
@@ -98,6 +108,11 @@ public class PlayerMovement : MonoBehaviour
     private bool _hasCachedGravityScale;
     private bool _isFastFallPriming;
     private bool _isFastFalling;
+    private float _fastFallBunnyHopUntilTime = float.NegativeInfinity;
+    private bool _hasJumpMomentumBoost;
+    private float _jumpMomentumBoostEndTime = float.NegativeInfinity;
+    private float _jumpMomentumBoostDirection;
+    private float _jumpMomentumSpeedMultiplier = 1f;
     private float _baseGravityScale;
     private bool _hasHorizontalLaunch;
     private float _horizontalLaunchEndTime;
@@ -140,6 +155,8 @@ public class PlayerMovement : MonoBehaviour
         _hasHorizontalLaunch = false;
         _isFastFallPriming = false;
         _isFastFalling = false;
+        _fastFallBunnyHopUntilTime = float.NegativeInfinity;
+        _hasJumpMomentumBoost = false;
         RestoreBaseGravity();
 
         if (suspendGravity && !_hasCachedGravityScale)
@@ -288,6 +305,8 @@ public class PlayerMovement : MonoBehaviour
         _hasHorizontalLaunch = false;
         _isFastFallPriming = false;
         _isFastFalling = false;
+        _fastFallBunnyHopUntilTime = float.NegativeInfinity;
+        _hasJumpMomentumBoost = false;
         RestoreBaseGravity();
     }
 
@@ -355,6 +374,7 @@ public class PlayerMovement : MonoBehaviour
     {
         float finalSpeed = ResolveMoveSpeed();
         float targetSpeed = _horizontalInput * finalSpeed;
+        UpdateJumpMomentumBoost(ref targetSpeed, finalSpeed);
         float currentHorizontalSpeed = _rb.linearVelocity.x;
 
         bool hasInput = Mathf.Abs(_horizontalInput) > _stopThreshold;
@@ -375,7 +395,10 @@ public class PlayerMovement : MonoBehaviour
             && Mathf.Abs(currentHorizontalSpeed) > Mathf.Abs(targetSpeed))
             acceleration = Mathf.Min(acceleration, _momentumDeceleration * 0.5f);
 
-        float nextHorizontalSpeed = Mathf.MoveTowards(currentHorizontalSpeed, targetSpeed, acceleration * Time.fixedDeltaTime);
+        bool preserveFastFallMomentum = _isFastFalling && !hasInput;
+        float nextHorizontalSpeed = preserveFastFallMomentum
+            ? currentHorizontalSpeed
+            : Mathf.MoveTowards(currentHorizontalSpeed, targetSpeed, acceleration * Time.fixedDeltaTime);
         float currentVerticalSpeed = _rb.linearVelocity.y;
 
         if (Mathf.Abs(targetSpeed) < _stopThreshold && _isGrounded && Mathf.Abs(nextHorizontalSpeed) < _stopThreshold)
@@ -394,6 +417,24 @@ public class PlayerMovement : MonoBehaviour
             moveSpeed.BaseValue = Mathf.Max(0f, _baseMoveSpeed);
 
         return Mathf.Max(0f, moveSpeed.Value);
+    }
+
+    private void UpdateJumpMomentumBoost(ref float targetSpeed, float finalSpeed)
+    {
+        if (!_hasJumpMomentumBoost)
+            return;
+
+        bool expired = Time.time > _jumpMomentumBoostEndTime;
+        bool changedDirection = Mathf.Abs(_horizontalInput) <= _stopThreshold
+            || Mathf.Sign(_horizontalInput) != _jumpMomentumBoostDirection;
+        if (expired || changedDirection)
+        {
+            _hasJumpMomentumBoost = false;
+            return;
+        }
+
+        targetSpeed = _jumpMomentumBoostDirection * finalSpeed
+            * Mathf.Max(1f, _jumpMomentumSpeedMultiplier);
     }
 
     private void UpdateFastFallState()
@@ -420,12 +461,17 @@ public class PlayerMovement : MonoBehaviour
 
         bool wantsFastFall = !_isMovementLocked && _moveInput.y <= _fastFallInputThreshold;
         float minimumRiseTime = _isDashJump ? 0.04f : _fastFallPrimeDuration;
-        _isFastFallPriming = wantsFastFall && Time.time < _jumpStartedTime + minimumRiseTime;
-        if (wantsFastFall && !_isFastFallPriming && !_isFastFalling)
+        bool hasReachedApex = _rb.linearVelocity.y <= 0f;
+        bool canBeginFastFall = hasReachedApex && Time.time >= _jumpStartedTime + minimumRiseTime;
+        _isFastFallPriming = wantsFastFall && !canBeginFastFall;
+        if (wantsFastFall && canBeginFastFall && !_isFastFalling)
         {
             _isFastFalling = true;
-            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x,
-                Mathf.Min(_rb.linearVelocity.y, -_fastFallInitialDownwardSpeed));
+            if (_fastFallInitialDownwardSpeed > 0f)
+            {
+                _rb.linearVelocity = new Vector2(_rb.linearVelocity.x,
+                    Mathf.Min(_rb.linearVelocity.y, -_fastFallInitialDownwardSpeed));
+            }
         }
         if (!wantsFastFall)
             _isFastFalling = false;
@@ -463,9 +509,32 @@ public class PlayerMovement : MonoBehaviour
         if (!CanPerformJump())
             return;
 
+        bool canCarryGroundMomentum = _isGrounded || _groundJumpAvailable;
+        bool shouldBunnyHop = _isGrounded && Time.time <= _fastFallBunnyHopUntilTime;
         ApplyJumpForce();
+        if (shouldBunnyHop)
+            StartFastFallBunnyHopBoost();
+        else if (canCarryGroundMomentum)
+            StartHorizontalJumpBoost(_normalJumpSpeedMultiplier, _normalJumpBoostDuration);
+        _fastFallBunnyHopUntilTime = float.NegativeInfinity;
         ConsumeJump();
         ConsumeBufferedJump();
+    }
+
+    private void StartFastFallBunnyHopBoost()
+    {
+        StartHorizontalJumpBoost(_fastFallBunnyHopSpeedMultiplier, _fastFallBunnyHopBoostDuration);
+    }
+
+    private void StartHorizontalJumpBoost(float speedMultiplier, float duration)
+    {
+        if (Mathf.Abs(_horizontalInput) <= _stopThreshold)
+            return;
+
+        _jumpMomentumBoostDirection = Mathf.Sign(_horizontalInput);
+        _jumpMomentumSpeedMultiplier = Mathf.Max(1f, speedMultiplier);
+        _jumpMomentumBoostEndTime = Time.time + Mathf.Max(0.01f, duration);
+        _hasJumpMomentumBoost = true;
     }
 
     private void ApplyMotionOverride()
@@ -504,7 +573,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void CheckGround()
     {
-        if (_groundCheckPoint == null || _rb.linearVelocity.y > GroundedVerticalVelocityThreshold
+        if (_mainCollider == null || _rb.linearVelocity.y > GroundedVerticalVelocityThreshold
             || Time.time < _jumpStartedTime + Time.fixedDeltaTime)
         {
             _isGrounded = false;
@@ -512,42 +581,38 @@ public class PlayerMovement : MonoBehaviour
         }
 
         int combinedMask = _groundLayer.value | _oneWayPlatformLayer.value;
-
-        Collider2D[] hits = Physics2D.OverlapCircleAll(_groundCheckPoint.position, _groundCheckRadius, combinedMask);
         _isGrounded = false;
-        for (int i = 0; i < hits.Length; i++)
+
+        Bounds bodyBounds = _mainCollider.bounds;
+        float horizontalInset = Mathf.Min(GroundSupportHorizontalInset, bodyBounds.extents.x * 0.5f);
+        float leftX = bodyBounds.min.x + horizontalInset;
+        float rightX = bodyBounds.max.x - horizontalInset;
+        float originY = bodyBounds.min.y + GroundSupportProbeInset;
+        ContactFilter2D groundFilter = new();
+        groundFilter.SetLayerMask(combinedMask);
+        groundFilter.useTriggers = false;
+
+        for (int probeIndex = 0; probeIndex < 3; probeIndex++)
         {
-            Collider2D hit = hits[i];
-            if (hit == null || hit.isTrigger)
-                continue;
-            if (hit.attachedRigidbody == _rb)
-                continue;
-            if (_ignoredPlatformColliders.Contains(hit))
-                continue;
+            float probeX = probeIndex == 0 ? leftX : probeIndex == 1 ? bodyBounds.center.x : rightX;
+            Vector2 origin = new(probeX, originY);
+            int hitCount = Physics2D.Raycast(origin, Vector2.down, groundFilter,
+                _groundSupportHits, GroundSupportProbeDistance);
+            for (int hitIndex = 0; hitIndex < hitCount; hitIndex++)
+            {
+                RaycastHit2D support = _groundSupportHits[hitIndex];
+                Collider2D hit = support.collider;
+                if (hit == null || hit.isTrigger || hit.attachedRigidbody == _rb)
+                    continue;
+                if (_ignoredPlatformColliders.Contains(hit))
+                    continue;
+                if (support.normal.y < OneWayGroundNormalThreshold)
+                    continue;
 
-            bool isOneWayPlatform = ((_oneWayPlatformLayer.value & (1 << hit.gameObject.layer)) != 0);
-            if (isOneWayPlatform && !IsStandingOnOneWayPlatform(hit))
-                continue;
-            if (!isOneWayPlatform && !HasSupportNormal(hit))
-                continue;
-
-            _isGrounded = true;
-            break;
+                _isGrounded = true;
+                return;
+            }
         }
-    }
-
-    private bool HasSupportNormal(Collider2D candidate)
-    {
-        for (int i = -1; i <= 1; i++)
-        {
-            Vector2 origin = (Vector2)_groundCheckPoint.position
-                + new Vector2(i * _groundCheckRadius * 0.8f, OneWayGroundRaycastLift);
-            RaycastHit2D support = Physics2D.Raycast(origin, Vector2.down,
-                _groundCheckRadius + OneWayGroundRaycastLift, _groundLayer);
-            if (support.collider == candidate && support.fraction > 0f && support.normal.y >= OneWayGroundNormalThreshold)
-                return true;
-        }
-        return false;
     }
 
     private bool TryStartDropThrough()
@@ -656,22 +721,6 @@ public class PlayerMovement : MonoBehaviour
             _oneWayPlatformLayer = 1 << oneWayLayer;
     }
 
-    private bool IsStandingOnOneWayPlatform(Collider2D platform)
-    {
-        if (platform == null || _rb == null || _groundCheckPoint == null)
-            return false;
-        if (_rb.linearVelocity.y > GroundedVerticalVelocityThreshold)
-            return false;
-
-        Vector2 origin = (Vector2)_groundCheckPoint.position + Vector2.up * OneWayGroundRaycastLift;
-        float distance = _groundCheckRadius + OneWayGroundProbeDistance;
-        RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, distance, _oneWayPlatformLayer);
-        if (!hit.collider || hit.collider != platform)
-            return false;
-
-        return hit.normal.y >= OneWayGroundNormalThreshold;
-    }
-
     private void RefreshJumpCountIfLanded()
     {
         if (_isGrounded)
@@ -687,6 +736,10 @@ public class PlayerMovement : MonoBehaviour
         }
         if (_isGrounded && !_wasGroundedLastFixedUpdate)
         {
+            bool landedFromFastFall = _isFastFalling && _moveInput.y <= _fastFallInputThreshold;
+            _fastFallBunnyHopUntilTime = landedFromFastFall
+                ? Time.time + Mathf.Max(0.01f, _fastFallBunnyHopWindow)
+                : float.NegativeInfinity;
             _availableJumpCount = Mathf.Max(1, _maxJumpCount);
             GameplayEventBus.Raise(GameplayEventType.Landed, source: gameObject, target: gameObject);
             OnLanded?.Invoke();

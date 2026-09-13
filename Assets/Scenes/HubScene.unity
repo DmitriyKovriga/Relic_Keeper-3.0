@@ -9293,8 +9293,13 @@ MonoBehaviour:
   _dashJumpCarryDuration: 0.1
   _fastFallInputThreshold: -0.6
   _fastFallPrimeDuration: 0.14
-  _fastFallInitialDownwardSpeed: 4.5
-  _fastFallGravityMultiplier: 2.05
+  _fastFallInitialDownwardSpeed: 0
+  _fastFallGravityMultiplier: 2.15
+  _normalJumpSpeedMultiplier: 1.04
+  _normalJumpBoostDuration: 0.1
+  _fastFallBunnyHopWindow: 0.14
+  _fastFallBunnyHopSpeedMultiplier: 1.12
+  _fastFallBunnyHopBoostDuration: 0.18
 --- !u!61 &1563690801
 BoxCollider2D:
   m_ObjectHideFlags: 0
