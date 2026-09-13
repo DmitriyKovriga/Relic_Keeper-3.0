@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -176,7 +176,9 @@ namespace Scripts.Enemies
         [Min(1)] public int ChunkCount = 6;
         [Min(0f)] public float ChunkHorizontalForce = 3.2f;
         [Min(0f)] public float ChunkVerticalForce = 4.8f;
+        [Tooltip("Horizontal range used by the reduced blood drip layout.")]
         [Min(0f)] public float BloodHorizontalSpread = 1.4f;
+        [Tooltip("Reserved for future vertical wall-spatter variation.")]
         [Min(0f)] public float BloodVerticalSpread = 1.8f;
 
         [HideInInspector] public float Lifetime = 30f;

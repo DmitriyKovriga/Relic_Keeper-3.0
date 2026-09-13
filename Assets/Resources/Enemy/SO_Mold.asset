@@ -139,7 +139,7 @@ MonoBehaviour:
     MissRecoveryMultiplier: 1
   DeathEffect:
     Enabled: 1
-    ChunkCount: 6
+    ChunkCount: 4
     ChunkHorizontalForce: 3.4
     ChunkVerticalForce: 5.2
     BloodHorizontalSpread: 0.7

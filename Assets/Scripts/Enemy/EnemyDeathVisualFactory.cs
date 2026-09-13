@@ -15,6 +15,12 @@ namespace Scripts.Enemies
         private static readonly List<Sprite> s_chunkMaskSprites = new List<Sprite>();
         private static readonly List<Sprite> s_goreSprites = new List<Sprite>();
 
+        /// <summary>Build runtime death sprites outside combat to avoid the first-kill hitch.</summary>
+        public static void Prewarm()
+        {
+            EnsureSpritesBuilt();
+        }
+
         public static Sprite GetMaskSprite()
         {
             if (s_maskSprite != null)
@@ -286,26 +292,29 @@ namespace Scripts.Enemies
             Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
             texture.filterMode = FilterMode.Point;
             texture.wrapMode = TextureWrapMode.Clamp;
-
             Color[] pixels = new Color[width * height];
-            for (int i = 0; i < pixels.Length; i++)
-                pixels[i] = Color.clear;
-
             var random = new System.Random(seed);
-            int centerX = width / 2 + random.Next(-1, 2);
-            int top = random.Next(height / 2, height - 3);
-            int dripLength = random.Next(6, height - 4);
-            int startY = Mathf.Clamp(top - dripLength, 1, height - 2);
+            float centerX = width * Mathf.Lerp(0.42f, 0.58f, (float)random.NextDouble());
+            float headY = height * Mathf.Lerp(0.58f, 0.76f, (float)random.NextDouble());
+            float headRadius = width * Mathf.Lerp(0.22f, 0.31f, (float)random.NextDouble());
+            float dripLength = height * Mathf.Lerp(0.34f, 0.64f, (float)random.NextDouble());
 
-            FillEllipse(pixels, width, height, centerX - 2, top - 1, random.Next(4, 7), random.Next(3, 5));
-
-            int currentX = centerX;
-            for (int y = startY; y <= top; y++)
+            for (int y = 1; y < height - 1; y++)
             {
-                currentX = Mathf.Clamp(currentX + random.Next(-1, 2), 1, width - 2);
-                int thickness = y < top - 3 ? 1 : 2;
-                for (int t = 0; t < thickness; t++)
-                    pixels[Mathf.Clamp(currentX + t, 0, width - 1) + y * width] = Color.white;
+                for (int x = 1; x < width - 1; x++)
+                {
+                    float dx = x - centerX;
+                    float dy = y - headY;
+                    bool head = dx * dx / (headRadius * headRadius) + dy * dy / (headRadius * headRadius * 0.72f) <= 1f;
+                    float progress = Mathf.Clamp01((headY - y) / dripLength);
+                    float pathX = centerX + Mathf.Sin(progress * 4.2f + seed * 0.017f) * 1.15f;
+                    float halfWidth = Mathf.Lerp(headRadius * 0.44f, 0.6f, progress);
+                    bool tail = y <= headY && y >= headY - dripLength && Mathf.Abs(x - pathX) <= halfWidth;
+                    if (!head && !tail)
+                        continue;
+                    float highlight = head && dy > -headRadius * 0.15f ? 1.06f : tail ? 0.55f : 0.76f;
+                    pixels[x + y * width] = new Color(highlight, highlight * 0.8f, highlight * 0.8f, 1f);
+                }
             }
 
             texture.SetPixels(pixels);

@@ -77,16 +77,22 @@ public class ExperienceSoulPickup : MonoBehaviour
     private const int SortingOrder = 18;
     private const int TailSegmentCount = 6;
     private const int HistoryCapacity = 26;
+    private const int MaxActivePickupVfx = 80;
+    private const int ReducedTrailThreshold = 36;
+    private const int MinimalTrailThreshold = 64;
     private const float ExperienceSpeedMultiplier = 0.8f;
-    private const float CraftingOrbRelativeSpeedMultiplier = 0.7f;
+    private const float CraftingOrbRelativeSpeedMultiplier = 1f;
     private const float CraftingOrbCoreScale = 1.5f;
     private const float CraftingOrbTrailStrength = 1.2f;
-    private const float CraftingOrbHoverDuration = 0.85f;
-    private const float CraftingOrbFlashDuration = 0.22f;
+    private const float CraftingOrbHoverDuration = 0.42f;
+    private const float CraftingOrbFlashDuration = 0.16f;
+        private const float CraftingOrbCollectRadius = 0.58f;
 
     private static Sprite s_coreSprite;
     private static Sprite s_tailSprite;
     private static Material s_spriteMaterial;
+    private static readonly Stack<ExperienceSoulPickup> s_pool = new();
+    private static int s_activePickupCount;
 
     private enum SoulState
     {
@@ -125,6 +131,8 @@ public class ExperienceSoulPickup : MonoBehaviour
     private Transform _target;
     private SpriteRenderer _coreRenderer;
     private SpriteRenderer _flashRenderer;
+    private int _visibleTailSegmentCount;
+    private bool _isPooled;
     private readonly List<SpriteRenderer> _tailSegments = new();
     private readonly List<Vector3> _history = new();
 
@@ -132,42 +140,58 @@ public class ExperienceSoulPickup : MonoBehaviour
     {
         if (xpAmount <= 0f)
             return;
-
-        GameObject go = new GameObject($"XP Soul ({xpAmount:0})");
-        go.transform.SetParent(parent, true);
-        go.transform.position = SnapToPixelGrid(worldPosition);
-        var soul = go.AddComponent<ExperienceSoulPickup>();
-        soul.Initialize(xpAmount);
+        if (s_activePickupCount >= MaxActivePickupVfx)
+        {
+            FindFirstObjectByType<PlayerStats>()?.AddExperience(xpAmount);
+            return;
+        }
+        GetFromPool($"XP Soul ({xpAmount:0})", worldPosition, parent).Initialize(xpAmount);
     }
 
     public static void SpawnGold(int goldAmount, Vector3 worldPosition, Transform parent)
     {
         if (goldAmount <= 0)
             return;
-
-        GameObject go = new GameObject($"Gold Soul ({goldAmount})");
-        go.transform.SetParent(parent, true);
-        go.transform.position = SnapToPixelGrid(worldPosition);
-        var soul = go.AddComponent<ExperienceSoulPickup>();
-        soul.InitializeGold(goldAmount);
+        if (s_activePickupCount >= MaxActivePickupVfx)
+        {
+            Scripts.Economy.GoldWallet.Add(goldAmount);
+            return;
+        }
+        GetFromPool($"Gold Soul ({goldAmount})", worldPosition, parent).InitializeGold(goldAmount);
     }
 
     public static void SpawnCraftingOrb(CraftingOrbSO orb, Vector3 worldPosition, Transform parent)
     {
         if (orb == null || string.IsNullOrWhiteSpace(orb.ID))
             return;
+        // Currency is rare and should remain visible even when routine XP/gold VFX are capped.
+        GetFromPool($"Crafting Relic Soul ({orb.ID})", worldPosition, parent).Initialize(0f, orb);
+    }
 
-        GameObject go = new GameObject($"Crafting Relic Soul ({orb.ID})");
-        go.transform.SetParent(parent, true);
-        go.transform.position = SnapToPixelGrid(worldPosition);
-        var soul = go.AddComponent<ExperienceSoulPickup>();
-        soul.Initialize(0f, orb);
+    private static ExperienceSoulPickup GetFromPool(string objectName, Vector3 position, Transform parent)
+    {
+        ExperienceSoulPickup soul = null;
+        while (s_pool.Count > 0 && soul == null)
+            soul = s_pool.Pop();
+        if (soul == null)
+        {
+            var go = new GameObject(objectName);
+            soul = go.AddComponent<ExperienceSoulPickup>();
+        }
+
+        soul.name = objectName;
+        soul.transform.SetParent(parent, true);
+        soul.transform.position = SnapToPixelGrid(position);
+        soul.gameObject.SetActive(true);
+        soul._isPooled = false;
+        s_activePickupCount++;
+        return soul;
     }
 
     private void InitializeGold(int goldAmount)
     {
-        _goldAmount = Mathf.Max(0, goldAmount);
         Initialize(0f);
+        _goldAmount = Mathf.Max(0, goldAmount);
         _coreColor = new Color(0.95f, 0.78f, 0.22f, 1f);
         _tailColor = new Color(0.86f, 0.62f, 0.12f, 1f);
         if (_coreRenderer != null)
@@ -184,7 +208,12 @@ public class ExperienceSoulPickup : MonoBehaviour
         EnsureVisualAssetsBuilt();
 
         _xpAmount = xpAmount;
+        _goldAmount = 0;
         _craftingOrb = craftingOrb;
+        _timeAlive = 0f;
+        _historyAccumulator = 0f;
+        _history.Clear();
+        transform.localScale = Vector3.one;
         bool isCraftingOrb = _craftingOrb != null;
         _coreColor = isCraftingOrb
             ? new Color(0.83f, 0.34f, 1f, 1f)
@@ -192,22 +221,25 @@ public class ExperienceSoulPickup : MonoBehaviour
         _tailColor = isCraftingOrb
             ? new Color(0.67f, 0.18f, 0.94f, 1f)
             : new Color(0.52f, 0.88f, 1f, 1f);
+        // Currency retains its reveal animation, but must not enter a slower homing mode than XP/gold.
         float movementSpeedMultiplier = ExperienceSpeedMultiplier *
                                         (isCraftingOrb ? CraftingOrbRelativeSpeedMultiplier : 1f);
         _delayDuration = UnityEngine.Random.Range(0.08f, 0.14f);
         _arcDuration = UnityEngine.Random.Range(0.34f, 0.44f) / movementSpeedMultiplier;
-        _collectRadius = 0.42f;
-        _homingResponsiveness = 18f;
+        _collectRadius = isCraftingOrb ? CraftingOrbCollectRadius : 0.42f;
+        _homingResponsiveness = isCraftingOrb ? 24f : 18f;
         _minHomingSpeed = 7.2f * movementSpeedMultiplier;
         _maxHomingSpeed = 13.5f * movementSpeedMultiplier;
         _velocity = Vector2.zero;
         _tailWidth = 0.7f * (isCraftingOrb ? CraftingOrbTrailStrength : 1f);
+        _visibleTailSegmentCount = ResolveTrailSegmentCount(isCraftingOrb);
         _state = SoulState.Delay;
         _stateTimer = 0f;
 
         gameObject.layer = 0;
 
-        _coreRenderer = gameObject.AddComponent<SpriteRenderer>();
+        if (_coreRenderer == null)
+            _coreRenderer = gameObject.AddComponent<SpriteRenderer>();
         _coreRenderer.sprite = s_coreSprite;
         _coreRenderer.material = s_spriteMaterial;
         _coreRenderer.sortingOrder = SortingOrder;
@@ -216,16 +248,25 @@ public class ExperienceSoulPickup : MonoBehaviour
             ? Vector3.one * CraftingOrbCoreScale
             : Vector3.one;
 
-        for (int i = 0; i < TailSegmentCount; i++)
+        if (_tailSegments.Count == 0)
         {
-            GameObject tail = new GameObject($"Tail_{i}");
-            tail.transform.SetParent(transform, false);
-            var renderer = tail.AddComponent<SpriteRenderer>();
+            for (int i = 0; i < TailSegmentCount; i++)
+            {
+                GameObject tail = new GameObject($"Tail_{i}");
+                tail.transform.SetParent(transform, false);
+                var renderer = tail.AddComponent<SpriteRenderer>();
+                renderer.material = s_spriteMaterial;
+                _tailSegments.Add(renderer);
+            }
+        }
+
+        for (int i = 0; i < _tailSegments.Count; i++)
+        {
+            SpriteRenderer renderer = _tailSegments[i];
             renderer.sprite = s_tailSprite;
-            renderer.material = s_spriteMaterial;
             renderer.sortingOrder = SortingOrder - 1 - i;
             renderer.color = new Color(_tailColor.r, _tailColor.g, _tailColor.b, 0.65f - (i * 0.08f));
-            _tailSegments.Add(renderer);
+            renderer.enabled = i < _visibleTailSegmentCount;
         }
 
         _lastHistoryPosition = transform.position;
@@ -240,7 +281,9 @@ public class ExperienceSoulPickup : MonoBehaviour
         _timeAlive += dt;
         _stateTimer += dt;
 
-        if ((_target == null || !_target.gameObject.activeInHierarchy) && (_timeAlive > 0.1f))
+        // A scene/player initialization race used to leave an orb hovering until the player moved.
+        // Reacquire on a short cadence until a live target is available.
+        if (_target == null || !_target.gameObject.activeInHierarchy)
             ResolvePlayerTarget();
 
         switch (_state)
@@ -400,7 +443,12 @@ public class ExperienceSoulPickup : MonoBehaviour
         if (_target == null)
         {
             ResolvePlayerTarget();
-            return;
+            if (_target == null)
+            {
+                Vector2 fallback = Vector2.Lerp(transform.position, transform.position + Vector3.up * 0.15f, Mathf.Clamp01(dt * 4f));
+                transform.position = SnapToPixelGrid(fallback);
+                return;
+            }
         }
 
         Vector3 targetPosition = GetTargetAnchor();
@@ -431,7 +479,31 @@ public class ExperienceSoulPickup : MonoBehaviour
         else if (_playerStats != null)
             _playerStats.AddExperience(_xpAmount);
 
-        Destroy(gameObject);
+        ReturnToPool();
+    }
+
+    private void ReturnToPool()
+    {
+        if (_isPooled)
+            return;
+        _isPooled = true;
+        s_activePickupCount = Mathf.Max(0, s_activePickupCount - 1);
+        if (_flashRenderer != null)
+            _flashRenderer.enabled = false;
+        gameObject.SetActive(false);
+        transform.SetParent(null, false);
+        s_pool.Push(this);
+    }
+
+    private static int ResolveTrailSegmentCount(bool isCraftingOrb)
+    {
+        if (isCraftingOrb)
+            return TailSegmentCount;
+        if (s_activePickupCount >= MinimalTrailThreshold)
+            return 2;
+        if (s_activePickupCount >= ReducedTrailThreshold)
+            return 4;
+        return TailSegmentCount;
     }
 
     private void ResolvePlayerTarget()
@@ -479,6 +551,11 @@ public class ExperienceSoulPickup : MonoBehaviour
         for (int i = 0; i < _tailSegments.Count; i++)
         {
             var segment = _tailSegments[i];
+            if (i >= _visibleTailSegmentCount)
+            {
+                segment.enabled = false;
+                continue;
+            }
             if (segment == null)
                 continue;
 

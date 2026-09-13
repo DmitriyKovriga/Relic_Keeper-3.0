@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -360,7 +360,7 @@ namespace Scripts.Editor.Enemy
                 return;
 
             config.Enabled = true;
-            config.ChunkCount = 6;
+            config.ChunkCount = 4;
             config.ChunkHorizontalForce = 3.4f;
             config.ChunkVerticalForce = 5.2f;
             config.BloodHorizontalSpread = 0.7f;

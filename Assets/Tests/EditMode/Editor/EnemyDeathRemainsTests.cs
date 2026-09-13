@@ -46,6 +46,39 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void Quality_StaysFullForEveryNewDeath()
+        {
+            var host = new GameObject("RemainsSheet");
+            try
+            {
+                var sheet = host.AddComponent<EnemyDeathRemainsSheet>();
+                for (int i = 0; i < 40; i++)
+                    Assert.That(sheet.GetQuality(), Is.EqualTo(DeathEffectQuality.Full));
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+            }
+        }
+
+        [Test]
+        public void FragmentBudget_StopsAtConfiguredCap()
+        {
+            var host = new GameObject("RemainsSheet");
+            try
+            {
+                var sheet = host.AddComponent<EnemyDeathRemainsSheet>();
+                for (int i = 0; i < 96; i++)
+                    Assert.That(sheet.TryReserveFragment(), Is.True);
+                Assert.That(sheet.ActiveFragments, Is.EqualTo(96));
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+            }
+        }
+
+        [Test]
         public void RemainsSheet_ReusesOneHostPerRoom()
         {
             var room = new GameObject("RoomRoot");
