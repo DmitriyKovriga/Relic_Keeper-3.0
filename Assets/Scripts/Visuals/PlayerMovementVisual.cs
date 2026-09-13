@@ -16,7 +16,7 @@ namespace Scripts.Visuals
 
         private PlayerMovement _movement;
         private PlayerAttackInput _attack;
-        private CapsuleCollider2D _bodyCollider;
+        private Collider2D _bodyCollider;
         private SpriteRenderer _source;
         private SpriteRenderer _display;
         private MaterialPropertyBlock _properties;
@@ -28,7 +28,7 @@ namespace Scripts.Visuals
         {
             _movement = GetComponent<PlayerMovement>();
             _attack = GetComponent<PlayerAttackInput>();
-            _bodyCollider = GetComponent<CapsuleCollider2D>();
+            _bodyCollider = GetComponent<Collider2D>();
             _source = GetComponent<SpriteRenderer>();
             _originalForceRenderingOff = _source.forceRenderingOff;
             var visual = new GameObject("MovementSprite");
@@ -94,7 +94,7 @@ namespace Scripts.Visuals
                 return 0f;
 
             if (_alignFeetToCollider && _bodyCollider == null)
-                _bodyCollider = GetComponent<CapsuleCollider2D>();
+                _bodyCollider = GetComponent<Collider2D>();
 
             // A flipped sprite has its visual bottom on the opposite side of its pivot.
             float spriteFootY = _source.flipY
@@ -105,10 +105,19 @@ namespace Scripts.Visuals
             // frames can have a different height/pivot, so align every frame to the
             // physical body's bottom instead of assuming that both origins already match.
             float targetFootY = _alignFeetToCollider && _bodyCollider != null
-                ? _bodyCollider.offset.y - _bodyCollider.size.y * 0.5f + _feetOffset
+                ? ResolveColliderBottomLocalY(_bodyCollider) + _feetOffset
                 : spriteFootY;
 
             return targetFootY - spriteFootY * scaleY;
+        }
+
+        private static float ResolveColliderBottomLocalY(Collider2D bodyCollider)
+        {
+            float worldScaleY = Mathf.Abs(bodyCollider.transform.lossyScale.y);
+            if (worldScaleY <= 0.0001f)
+                return bodyCollider.offset.y;
+
+            return bodyCollider.offset.y - bodyCollider.bounds.extents.y / worldScaleY;
         }
     }
 }

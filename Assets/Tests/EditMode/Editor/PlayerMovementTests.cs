@@ -206,11 +206,11 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void PresentationSpriteFeetAlignWithCapsuleBottom()
+        public void PresentationSpriteFeetAlignWithBoxBottom()
         {
-            var capsule = _player.AddComponent<CapsuleCollider2D>();
-            capsule.offset = new Vector2(0f, -0.04f);
-            capsule.size = new Vector2(0.51f, 0.92f);
+            var box = _player.AddComponent<BoxCollider2D>();
+            box.offset = new Vector2(0f, -0.04f);
+            box.size = new Vector2(0.51f, 0.92f);
 
             var texture = new Texture2D(28, 28);
             var sprite = Sprite.Create(texture, new Rect(0f, 0f, 28f, 28f), new Vector2(0.5f, 0.5f), 24f);
@@ -234,7 +234,7 @@ namespace RelicKeeper.Tests.EditMode
                     .Invoke(visual, null);
 
                 Assert.That(visual.DisplayRenderer.bounds.min.y,
-                    Is.EqualTo(capsule.bounds.min.y).Within(0.0001f));
+                    Is.EqualTo(box.bounds.min.y).Within(0.0001f));
             }
             finally
             {

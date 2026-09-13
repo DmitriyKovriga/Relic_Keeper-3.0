@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(PlayerStats))]
+[RequireComponent(typeof(BoxCollider2D))]
 [DisallowMultipleComponent]
 public class PlayerMovement : MonoBehaviour
 {

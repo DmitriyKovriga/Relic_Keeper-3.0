@@ -9295,8 +9295,8 @@ MonoBehaviour:
   _fastFallPrimeDuration: 0.14
   _fastFallInitialDownwardSpeed: 4.5
   _fastFallGravityMultiplier: 2.05
---- !u!70 &1563690801
-CapsuleCollider2D:
+--- !u!61 &1563690801
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -9331,7 +9331,6 @@ CapsuleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0.000000059604645, y: -0.042526722}
   m_Size: {x: 0.50969076, y: 0.91494656}
-  m_Direction: 0
 --- !u!50 &1563690802
 Rigidbody2D:
   serializedVersion: 5
