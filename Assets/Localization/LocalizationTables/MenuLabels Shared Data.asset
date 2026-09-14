@@ -1427,6 +1427,38 @@ MonoBehaviour:
     m_Key: inventory.ui.offHandBlocksTwoHanded
     m_Metadata:
       m_Items: []
+  - m_Id: 104628206739382272
+    m_Key: passive.node.SmallEvasion.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104628206781325312
+    m_Key: passive.node.SmallEvasion.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104629229306503168
+    m_Key: passive.node.MediumEvasion.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104629229306503169
+    m_Key: passive.node.MediumEvasion.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104635409122713600
+    m_Key: passive.node.SmallMysticShield.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104635409122713601
+    m_Key: passive.node.SmallMysticShield.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104636124125716480
+    m_Key: passive.node.MediumMysticShield.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104636124125716481
+    m_Key: passive.node.MediumMysticShield.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

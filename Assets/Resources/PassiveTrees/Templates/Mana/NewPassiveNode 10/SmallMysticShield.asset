@@ -10,19 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
-  m_Name: SmallPoison
+  m_Name: SmallMysticShield
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
-  Name: SmallPoison
+  Name: SmallMysticShield
   Description: 
-  Icon: {fileID: 21300000, guid: 007f31abf5fc3e143a0095a6d4267ccc, type: 3}
+  Icon: {fileID: 21300000, guid: d9a9c884cf1abf94dbd190ecce503ad5, type: 3}
   Modifiers:
-  - Stat: 63
-    Value: 10
-    Type: 200
-  - Stat: 62
-    Value: 10
-    Type: 200
-  - Stat: 64
-    Value: 5
-    Type: 200
+  - Stat: 10
+    Value: 1
+    Type: 100
   StatScalingRules: []

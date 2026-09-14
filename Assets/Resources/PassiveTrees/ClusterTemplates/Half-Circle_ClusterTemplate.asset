@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59d1157b86cb69f48850e8aace8f84c0, type: 3}
+  m_Name: Half-Circle_ClusterTemplate
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveClusterTemplateSO
+  NameEN: Half-Circle
+  NameRU: 
+  Cluster:
+    ID: 
+    Name: Half-Circle
+    Center: {x: 0, y: 0}
+    Orbits:
+    - Radius: 40
+      IsPartialArc: 0
+      ArcStartAngle: 0
+      ArcEndAngle: 360
+    EditorColor: {r: 0.7004966, g: 0.43543437, b: 0.95221686, a: 0.4}
+    RoadConnections: []
+  Nodes:
+  - ID: 73678be4-1491-434a-a1dd-19a46596536a
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 180
+    Template: {fileID: 11400000, guid: 9e157c987f604064c864f60f0c2a893d, type: 2}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - 8890fe89-d96d-4582-9cdc-b2e8a7954364
+  - ID: 8890fe89-d96d-4582-9cdc-b2e8a7954364
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 90
+    Template: {fileID: 11400000, guid: 9e157c987f604064c864f60f0c2a893d, type: 2}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - 73678be4-1491-434a-a1dd-19a46596536a
+    - 2104da43-3106-4f40-939b-8ff8a6e8e192
+  - ID: 2104da43-3106-4f40-939b-8ff8a6e8e192
+    NodeType: 1
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: bcd9d809938e4d74abacd416e38ccecf, type: 2}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - 8890fe89-d96d-4582-9cdc-b2e8a7954364

@@ -2388,6 +2388,38 @@ MonoBehaviour:
     m_Localized: The off-hand item prevents equipping this two-handed weapon
     m_Metadata:
       m_Items: []
+  - m_Id: 104628206739382272
+    m_Localized: Small Evasion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104628206781325312
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104629229306503168
+    m_Localized: Evasion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104629229306503169
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104635409122713600
+    m_Localized: Mystic Shield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104635409122713601
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104636124125716480
+    m_Localized: Medium Mystic Shield
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104636124125716481
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

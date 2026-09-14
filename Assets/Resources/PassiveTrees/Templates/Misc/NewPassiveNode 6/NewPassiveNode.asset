@@ -20,7 +20,7 @@ MonoBehaviour:
     Value: 100
     Type: 200
   - Stat: 63
-    Value: 30
+    Value: 40
     Type: 310
   - Stat: 28
     Value: 20
@@ -28,3 +28,4 @@ MonoBehaviour:
   - Stat: 64
     Value: 10
     Type: 100
+  StatScalingRules: []
