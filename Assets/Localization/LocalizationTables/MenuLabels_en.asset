@@ -2328,6 +2328,14 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 104529649697021952
+    m_Localized: Small Bleed And Poison Chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104529649755742208
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

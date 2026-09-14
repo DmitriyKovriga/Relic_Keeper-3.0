@@ -62,12 +62,13 @@ public class GameSaveManager : MonoBehaviour
         if (Keyboard.current.lKey.wasPressedThisFrame) LoadGame(); 
         if (Keyboard.current.deleteKey.wasPressedThisFrame) DeleteSave();
 
-        if (Keyboard.current.f12Key.wasPressedThisFrame)
+        if (Keyboard.current.f11Key.wasPressedThisFrame)
         {
             string path = Application.persistentDataPath;
             Application.OpenURL(path); 
             Debug.Log($"[System] Opening Save Folder: {path}");
         }
+
     }
 
     public void SaveGame()
