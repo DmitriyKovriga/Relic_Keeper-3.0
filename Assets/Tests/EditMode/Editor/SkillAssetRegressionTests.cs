@@ -2,6 +2,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Scripts.Skills;
+using Scripts.Skills.Steps;
 using UnityEngine;
 
 namespace RelicKeeper.Tests.EditMode
@@ -41,6 +42,54 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(runner.SlotIndex, Is.Zero);
             }
             finally { Object.DestroyImmediate(owner); }
+        }
+
+        [Test]
+        public void OneShotSpawnVfxAnimationClips_DoNotLoopInsideSingleCast()
+        {
+            SkillRecipeSO[] recipes = Resources.LoadAll<SkillRecipeSO>("Skills");
+            Assert.That(recipes, Is.Not.Empty);
+
+            foreach (SkillRecipeSO recipe in recipes)
+            {
+                if (recipe == null || recipe.Steps == null)
+                    continue;
+
+                AssertSpawnVfxClipsDoNotLoop(recipe.Steps, recipe.name);
+            }
+        }
+
+        private static void AssertSpawnVfxClipsDoNotLoop(System.Collections.Generic.IEnumerable<StepEntry> steps, string recipeName)
+        {
+            foreach (StepEntry step in steps)
+            {
+                if (step?.StepDefinition == null)
+                    continue;
+
+                if (step.StepDefinition.Id == "SpawnVFX")
+                {
+                    GameObject prefab = step.GetObject<GameObject>("VfxPrefab");
+                    Animator animator = prefab != null ? prefab.GetComponentInChildren<Animator>(true) : null;
+                    AnimationClip[] clips = animator?.runtimeAnimatorController?.animationClips;
+                    if (clips != null)
+                    {
+                        foreach (AnimationClip clip in clips)
+                        {
+                            if (clip == null)
+                                continue;
+
+                            Assert.That(
+                                clip.isLooping,
+                                Is.False,
+                                $"{recipeName}: one-shot SpawnVFX clip '{clip.name}' loops inside a single cast. " +
+                                "Repeated casts are handled by skill input/cooldown and must create fresh VFX instances.");
+                        }
+                    }
+                }
+
+                if (step.SubSteps != null && step.SubSteps.Count > 0)
+                    AssertSpawnVfxClipsDoNotLoop(step.SubSteps, recipeName);
+            }
         }
     }
 }
