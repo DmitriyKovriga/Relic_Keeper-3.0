@@ -158,7 +158,8 @@ namespace RelicKeeper.Tests.EditMode
         public void HeldFastFallDoesNotBecomeDropThroughIntentAtLanding()
         {
             Set("_wasDropThroughInputHeld", true);
-            Set("_dropThroughIntentUntilTime", Time.time - 1f);
+            Set("_lastDropThroughDownPressedTime", Time.time - 1f);
+            Set("_lastDropThroughJumpPressedTime", Time.time);
 
             Call("UpdateDropThroughInputIntent", -1f);
 
@@ -167,16 +168,53 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void RepressingDownNearLandingCreatesForgivingDropThroughIntent()
+        public void RecentDownThenJumpCreatesForgivingDropThroughIntent()
         {
             Set("_wasDropThroughInputHeld", true);
-            Set("_dropThroughIntentUntilTime", Time.time - 1f);
+            Set("_lastDropThroughDownPressedTime", Time.time - 1f);
+            Set("_lastDropThroughJumpPressedTime", Time.time);
 
             Call("UpdateDropThroughInputIntent", 0f);
             Call("UpdateDropThroughInputIntent", -1f);
 
             Assert.That((bool)Call("HasFreshDropThroughIntent"), Is.True,
-                "A fresh Down press should be buffered briefly so input order near landing is forgiving.");
+                "A fresh Down press should combine with a recent Jump press near landing.");
+        }
+
+        [Test]
+        public void RecentJumpThenDownCreatesForgivingDropThroughIntent()
+        {
+            Set("_lastDropThroughJumpPressedTime", Time.time);
+            Set("_wasDropThroughInputHeld", false);
+
+            Call("UpdateDropThroughInputIntent", -1f);
+
+            Assert.That((bool)Call("HasFreshDropThroughIntent"), Is.True,
+                "The same short input window should work regardless of press order.");
+        }
+
+        [Test]
+        public void OldJumpDoesNotCombineWithFreshDownPress()
+        {
+            Set("_dropThroughIntentBufferDuration", 0.3f);
+            Set("_lastDropThroughJumpPressedTime", Time.time - 0.31f);
+            Set("_wasDropThroughInputHeld", false);
+
+            Call("UpdateDropThroughInputIntent", -1f);
+
+            Assert.That((bool)Call("HasFreshDropThroughIntent"), Is.False);
+        }
+
+        [Test]
+        public void PerformedJumpCannotBeReusedForLaterDropThrough()
+        {
+            Set("_lastDropThroughDownPressedTime", Time.time);
+            Set("_lastDropThroughJumpPressedTime", Time.time);
+
+            Call("ApplyJumpForce", 1f, null);
+
+            Assert.That((bool)Call("HasFreshDropThroughIntent"), Is.False,
+                "A completed normal or double jump must consume its drop-through intent.");
         }
 
         [Test]
@@ -247,7 +285,8 @@ namespace RelicKeeper.Tests.EditMode
             Set("_groundCheckPoint", _player.transform);
             Set("_mainCollider", _player.GetComponent<BoxCollider2D>());
             Set("_oneWayPlatformLayer", (LayerMask)(1 << 7));
-            Set("_dropThroughIntentUntilTime", Time.time + 1f);
+            Set("_lastDropThroughDownPressedTime", Time.time);
+            Set("_lastDropThroughJumpPressedTime", Time.time);
             Set("_isGrounded", false);
 
             Assert.That((bool)Call("TryStartDropThrough"), Is.False);

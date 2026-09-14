@@ -39,7 +39,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField, Min(0.01f)] private float _groundCheckRadius = 0.2f;
     [SerializeField, Min(0.05f)] private float _dropThroughDuration = DropThroughFailsafeDuration;
     [SerializeField, Range(-1f, 0f)] private float _dropThroughInputThreshold = -0.5f;
-    [SerializeField, Min(0.01f)] private float _dropThroughIntentBufferDuration = 0.16f;
+    [Tooltip("How long recent Down and Jump presses may be combined into a platform drop, in either order.")]
+    [SerializeField, Min(0.01f)] private float _dropThroughIntentBufferDuration = 0.3f;
 
     [Header("Movement")]
     [Tooltip("Fallback only. Real movement speed is StatType.MoveSpeed after flat/increased/more stat calculation.")]
@@ -95,7 +96,8 @@ public class PlayerMovement : MonoBehaviour
     private bool _wasGroundedLastFixedUpdate;
     private bool _hasQueuedJump;
     private float _dropThroughEndTime = -1f;
-    private float _dropThroughIntentUntilTime = float.NegativeInfinity;
+    private float _lastDropThroughDownPressedTime = float.NegativeInfinity;
+    private float _lastDropThroughJumpPressedTime = float.NegativeInfinity;
     private float _jumpQueuedUntilTime = -1f;
     private bool _wasDropThroughInputHeld;
     private int _availableJumpCount;
@@ -300,7 +302,7 @@ public class PlayerMovement : MonoBehaviour
         if (_hasMotionOverride)
             EndMotionOverride(Vector2.zero);
         _hasQueuedJump = false;
-        _dropThroughIntentUntilTime = float.NegativeInfinity;
+        ClearDropThroughComboIntent();
         _wasDropThroughInputHeld = false;
         _hasHorizontalLaunch = false;
         _isFastFallPriming = false;
@@ -345,6 +347,7 @@ public class PlayerMovement : MonoBehaviour
         // Input callbacks can run between Update and FixedUpdate. Sampling here preserves a
         // freshly pressed Down even when Jump is pressed almost simultaneously before landing.
         SampleMovementInput();
+        _lastDropThroughJumpPressedTime = Time.time;
         _hasQueuedJump = true;
         _jumpQueuedUntilTime = Time.time + Mathf.Max(0.01f, _jumpBufferDuration);
     }
@@ -360,14 +363,34 @@ public class PlayerMovement : MonoBehaviour
     {
         bool isDownHeld = verticalInput <= _dropThroughInputThreshold;
         if (isDownHeld && !_wasDropThroughInputHeld)
-            _dropThroughIntentUntilTime = Time.time + Mathf.Max(0.01f, _dropThroughIntentBufferDuration);
+            _lastDropThroughDownPressedTime = Time.time;
 
         _wasDropThroughInputHeld = isDownHeld;
     }
 
     private bool HasFreshDropThroughIntent()
     {
-        return Time.time <= _dropThroughIntentUntilTime;
+        float bufferDuration = Mathf.Max(0.01f, _dropThroughIntentBufferDuration);
+        return IsRecentPress(_lastDropThroughDownPressedTime, bufferDuration)
+            && IsRecentPress(_lastDropThroughJumpPressedTime, bufferDuration);
+    }
+
+    private static bool IsRecentPress(float pressedTime, float bufferDuration)
+    {
+        float elapsed = Time.time - pressedTime;
+        return elapsed >= 0f && elapsed <= bufferDuration;
+    }
+
+    private void ClearDropThroughComboIntent()
+    {
+        _lastDropThroughDownPressedTime = float.NegativeInfinity;
+        _lastDropThroughJumpPressedTime = float.NegativeInfinity;
+    }
+
+    private void ClearBufferedJump()
+    {
+        _hasQueuedJump = false;
+        _jumpQueuedUntilTime = -1f;
     }
 
     private void ApplyMovement()
@@ -491,6 +514,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void ProcessQueuedJump()
     {
+        if (!_isMovementLocked && !_hasMotionOverride && TryStartDropThrough())
+        {
+            ClearBufferedJump();
+            return;
+        }
+
         if (!HasBufferedJump)
         {
             _hasQueuedJump = false;
@@ -499,12 +528,6 @@ public class PlayerMovement : MonoBehaviour
 
         if (_isMovementLocked || _hasMotionOverride)
             return;
-
-        if (TryStartDropThrough())
-        {
-            ConsumeBufferedJump();
-            return;
-        }
 
         if (!CanPerformJump())
             return;
@@ -555,6 +578,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void ApplyJumpForce(float verticalMultiplier = 1f, float? horizontalOverride = null)
     {
+        // Once a jump actually happens, that press must never be reused by a later Down press.
+        _lastDropThroughJumpPressedTime = float.NegativeInfinity;
         _isFastFallPriming = false;
         _isFastFalling = false;
         _isDashJump = false;
@@ -621,7 +646,7 @@ public class PlayerMovement : MonoBehaviour
             return false;
         if (_oneWayPlatformLayer.value == 0)
             return false;
-        if (!_isGrounded || _moveInput.y > _dropThroughInputThreshold || !HasFreshDropThroughIntent())
+        if (!_isGrounded || !HasFreshDropThroughIntent())
             return false;
 
         if (!TryGetCurrentOneWayPlatform(out Collider2D platform, out float surfaceY))
@@ -634,7 +659,7 @@ public class PlayerMovement : MonoBehaviour
         _ignoredPlatformSurfaceY[platform] = surfaceY;
 
         _isDroppingThroughPlatform = true;
-        _dropThroughIntentUntilTime = float.NegativeInfinity;
+        ClearDropThroughComboIntent();
         _dropThroughEndTime = Time.time + Mathf.Max(DropThroughFailsafeDuration, _dropThroughDuration);
         _isGrounded = false;
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, Mathf.Min(_rb.linearVelocity.y, DefaultDropThroughDownwardVelocity));
