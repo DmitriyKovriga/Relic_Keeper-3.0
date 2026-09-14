@@ -143,7 +143,7 @@ public partial class TavernUI
         switch (result)
         {
             case StarterGearGrantResult.Granted:
-                FindObjectOfType<GameSaveManager>()?.SaveGame();
+                FindObjectOfType<GameSaveManager>()?.RequestSave(GameSaveReason.StarterGearGranted);
                 ShowToast(TavernLocKeys.StarterGearGranted, "Adventurer's Dagger added to your inventory", isError: false);
                 break;
             case StarterGearGrantResult.NoCharacter:

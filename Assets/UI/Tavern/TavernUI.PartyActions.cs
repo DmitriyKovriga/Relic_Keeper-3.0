@@ -16,7 +16,7 @@ public partial class TavernUI
             Debug.LogWarning("[Tavern] Hire: CharacterPartyManager was not found.");
             var saveMgr = FindObjectOfType<GameSaveManager>();
             if (saveMgr != null)
-                saveMgr.SaveGame();
+                saveMgr.RequestSave(GameSaveReason.TavernPartyChanged, "hire fallback");
             return;
         }
 
@@ -38,7 +38,7 @@ public partial class TavernUI
 
         RerollHireChoices();
         CompleteRequiredCharacterSelection();
-        FindObjectOfType<GameSaveManager>()?.SaveGame();
+        FindObjectOfType<GameSaveManager>()?.RequestSave(GameSaveReason.TavernPartyChanged, "character hired");
         Close();
     }
 
@@ -51,7 +51,7 @@ public partial class TavernUI
             return;
 
         CompleteRequiredCharacterSelection();
-        FindObjectOfType<GameSaveManager>()?.SaveGame();
+        FindObjectOfType<GameSaveManager>()?.RequestSave(GameSaveReason.TavernPartyChanged, "active character changed");
         Close();
     }
 
@@ -74,7 +74,7 @@ public partial class TavernUI
 
         var saveMgr = FindObjectOfType<GameSaveManager>();
         if (saveMgr != null)
-            saveMgr.SaveGame();
+            saveMgr.RequestSave(GameSaveReason.TavernPartyChanged, "character removed");
 
         RefreshHostelList();
     }

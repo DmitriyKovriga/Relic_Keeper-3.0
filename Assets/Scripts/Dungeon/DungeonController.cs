@@ -582,7 +582,7 @@ namespace Scripts.Dungeon
         private static void AutoSaveForLocationTransition(string reason)
         {
             GameSaveManager saveManager = FindFirstObjectByType<GameSaveManager>();
-            saveManager?.TryAutoSave(reason);
+            saveManager?.RequestSave(GameSaveReason.LocationTransition, reason);
         }
 
         private void PrepareSharedBackground()

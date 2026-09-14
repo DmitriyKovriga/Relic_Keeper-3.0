@@ -58,7 +58,8 @@ public class GameSaveManager : MonoBehaviour
     {
         if (Keyboard.current == null) return;
 
-        if (Keyboard.current.kKey.wasPressedThisFrame) SaveGame(); 
+        if (Keyboard.current.kKey.wasPressedThisFrame)
+            RequestSave(GameSaveReason.Manual, "keyboard shortcut");
         if (Keyboard.current.lKey.wasPressedThisFrame) LoadGame(); 
         if (Keyboard.current.deleteKey.wasPressedThisFrame) DeleteSave();
 
@@ -71,10 +72,36 @@ public class GameSaveManager : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Compatibility entry point for older callers. New code must use RequestSave
+    /// with an explicit reason. A reasonless call is treated as automatic so it cannot
+    /// silently bypass the Editor playtest policy.
+    /// </summary>
     public void SaveGame()
     {
+        RequestSave(GameSaveReason.LegacyAutomatic, "legacy SaveGame call");
+    }
+
+    public bool RequestSave(GameSaveReason reason, string context = null)
+    {
+        if (!GameSavePolicy.IsAllowed(reason, PlaytestConfiguration.AutoSaveEnabled))
+        {
+            Debug.Log($"[System] Save blocked by playtest configuration. Reason: {FormatSaveReason(reason, context)}.");
+            return false;
+        }
+
+        if (!WriteSaveFile())
+            return false;
+
+        Debug.Log($"[System] Save completed. Reason: {FormatSaveReason(reason, context)}.");
+        return true;
+    }
+
+    private bool WriteSaveFile()
+    {
         Debug.Log("[System] Saving Game...");
-        if (_playerStats == null) return;
+        if (_playerStats == null)
+            return false;
 
         var data = new GameSaveData { SaveVersion = CurrentSaveVersion };
         data.Stash = StashManager.Instance != null ? StashManager.Instance.GetSaveData() : new StashSaveData();
@@ -108,19 +135,19 @@ public class GameSaveManager : MonoBehaviour
         Scripts.Dungeon.DungeonRunUnlocks.WriteToSave(data.DungeonUnlocks);
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(SavePath, json);
-        Debug.Log($"[System] Game Saved.");
+        Debug.Log("[System] Game Saved.");
+        return true;
     }
 
+    /// <summary>Compatibility entry point for location-transition autosaves.</summary>
     public bool TryAutoSave(string reason = null)
     {
-        if (!PlaytestConfiguration.AutoSaveEnabled)
-            return false;
+        return RequestSave(GameSaveReason.LocationTransition, reason);
+    }
 
-        SaveGame();
-        Debug.Log(string.IsNullOrEmpty(reason)
-            ? "[System] Autosave completed."
-            : $"[System] Autosave completed: {reason}.");
-        return true;
+    private static string FormatSaveReason(GameSaveReason reason, string context)
+    {
+        return string.IsNullOrWhiteSpace(context) ? reason.ToString() : $"{reason} ({context})";
     }
 
     public void LoadGame()
@@ -288,7 +315,7 @@ public class GameSaveManager : MonoBehaviour
         if (Scripts.Dungeon.DungeonController.Instance != null)
             Scripts.Dungeon.DungeonController.Instance.ReturnToHub();
 
-        SaveGame();
+        RequestSave(GameSaveReason.CharacterDeath, "active character removed");
         if (_tavernUIForNewGame != null)
             _tavernUIForNewGame.OpenForRequiredCharacterSelection();
         else if (InputManager.InputActions != null)
