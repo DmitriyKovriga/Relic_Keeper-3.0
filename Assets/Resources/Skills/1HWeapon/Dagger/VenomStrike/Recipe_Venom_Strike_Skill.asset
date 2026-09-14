@@ -18,6 +18,7 @@ MonoBehaviour:
     DamageConversions: []
     ScopedStatModifiers: []
     TargetAilmentStackModifiers: []
+    OnHitEffects: []
     StartPercentPipeline: 0
     EndPercentPipeline: 0.35
     SubSteps: []
@@ -26,6 +27,7 @@ MonoBehaviour:
     DamageConversions: []
     ScopedStatModifiers: []
     TargetAilmentStackModifiers: []
+    OnHitEffects: []
     StartPercentPipeline: 0
     EndPercentPipeline: 0.05
     SubSteps: []
@@ -34,6 +36,7 @@ MonoBehaviour:
     DamageConversions: []
     ScopedStatModifiers: []
     TargetAilmentStackModifiers: []
+    OnHitEffects: []
     StartPercentPipeline: 0.05
     EndPercentPipeline: 0.05
     SubSteps: []
@@ -74,9 +77,17 @@ MonoBehaviour:
       BoolVal: 0
       StringVal: 
       ObjectVal: {fileID: 0}
+    - Key: ScaleMultiplier
+      Type: 0
+      FloatVal: 1.5
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
     DamageConversions: []
     ScopedStatModifiers: []
     TargetAilmentStackModifiers: []
+    OnHitEffects: []
     StartPercentPipeline: 0.05
     EndPercentPipeline: 0.35
     SubSteps: []
@@ -85,6 +96,7 @@ MonoBehaviour:
     DamageConversions: []
     ScopedStatModifiers: []
     TargetAilmentStackModifiers: []
+    OnHitEffects: []
     StartPercentPipeline: 0.35
     EndPercentPipeline: 0.45
     SubSteps: []
@@ -115,6 +127,7 @@ MonoBehaviour:
       Type: 100
       ValuePerStack: 10
       MaxStacksCounted: 0
+    OnHitEffects: []
     StartPercentPipeline: 0.05
     EndPercentPipeline: 0.05
     SubSteps: []

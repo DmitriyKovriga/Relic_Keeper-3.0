@@ -37,6 +37,6 @@ MonoBehaviour:
   MaxColdDamage: 0
   MinLightningDamage: 0
   MaxLightningDamage: 0
-  AttacksPerSecond: 1.2
+  AttacksPerSecond: 1.6
   BaseCritChance: 8
   SecondarySkillPool: {fileID: 0}
