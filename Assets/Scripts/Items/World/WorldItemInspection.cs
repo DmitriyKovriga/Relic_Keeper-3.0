@@ -12,9 +12,33 @@ namespace Scripts.Items.World
     public static class WorldItemInspection
     {
         public const float CombatTooltipDelay = 2f;
+        public const float ActiveSkillTooltipBlockDuration = 3f;
         public const float CursorMoveLinger = 0.12f;
         public const float CursorMovePixels = 1f;
         public const float PlayerMoveSpeedSqr = 0.05f;
+
+        private static float _combatTooltipBlockedUntil = float.NegativeInfinity;
+
+        public static bool IsCombatTooltipBlocked =>
+            IsCombatTooltipBlockedAt(Time.unscaledTime, _combatTooltipBlockedUntil);
+
+        public static void ExtendCombatTooltipBlock()
+        {
+            _combatTooltipBlockedUntil = ResolveCombatTooltipBlockedUntil(
+                _combatTooltipBlockedUntil,
+                Time.unscaledTime,
+                ActiveSkillTooltipBlockDuration);
+        }
+
+        public static float ResolveCombatTooltipBlockedUntil(float currentBlockedUntil, float now, float duration)
+        {
+            return Mathf.Max(currentBlockedUntil, now + Mathf.Max(0f, duration));
+        }
+
+        public static bool IsCombatTooltipBlockedAt(float now, float blockedUntil)
+        {
+            return now < blockedUntil;
+        }
 
         public static float ResolveTooltipDelay(float standardDelay, bool roomCleared)
         {

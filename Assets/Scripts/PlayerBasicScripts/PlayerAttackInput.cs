@@ -220,6 +220,7 @@ public class PlayerAttackInput : MonoBehaviour
                 break;
             if (PlayerInteractController.TryHandleCursorPickupClick())
                 break;
+            PlayerInteractController.NotifyActiveSkillInput();
             _skillManager.UseSkill(i);
         }
     }

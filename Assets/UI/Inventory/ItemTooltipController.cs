@@ -484,6 +484,9 @@ public class ItemTooltipController : MonoBehaviour
 
     private static bool ShouldHideWorldItemTooltip()
     {
+        if (WorldItemInspection.IsCombatTooltipBlocked)
+            return true;
+
         var windowManager = Object.FindFirstObjectByType<WindowManager>();
         return windowManager != null && windowManager.HasOpenWindow;
     }

@@ -60,6 +60,12 @@ namespace Scripts.Dungeon
             return _active != null && _active.HandleCursorPickupClick();
         }
 
+        public static void NotifyActiveSkillInput()
+        {
+            WorldItemInspection.ExtendCombatTooltipBlock();
+            _active?.ResetItemInspection();
+        }
+
         private void Update()
         {
             _currentInteractable = FindNearbyInteractable();
@@ -122,6 +128,12 @@ namespace Scripts.Dungeon
 
         private void UpdateItemInspection()
         {
+            if (WorldItemInspection.IsCombatTooltipBlocked)
+            {
+                ResetItemInspection();
+                return;
+            }
+
             if (_windowManager == null)
                 _windowManager = FindFirstObjectByType<WindowManager>();
 

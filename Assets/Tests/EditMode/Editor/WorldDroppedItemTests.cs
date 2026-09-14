@@ -150,6 +150,27 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void ActiveSkillInput_BlocksWorldItemTooltipsForThreeSeconds()
+        {
+            float blockedUntil = WorldItemInspection.ResolveCombatTooltipBlockedUntil(
+                float.NegativeInfinity,
+                now: 10f,
+                WorldItemInspection.ActiveSkillTooltipBlockDuration);
+
+            Assert.That(blockedUntil, Is.EqualTo(13f));
+            Assert.That(WorldItemInspection.IsCombatTooltipBlockedAt(12.999f, blockedUntil), Is.True);
+            Assert.That(WorldItemInspection.IsCombatTooltipBlockedAt(13f, blockedUntil), Is.False);
+        }
+
+        [Test]
+        public void RepeatedActiveSkillInput_ExtendsExistingTooltipBlock()
+        {
+            float blockedUntil = WorldItemInspection.ResolveCombatTooltipBlockedUntil(13f, 12f, 3f);
+
+            Assert.That(blockedUntil, Is.EqualTo(15f));
+        }
+
+        [Test]
         public void InspectSource_PrefersMovingCursorThenMovingPlayer()
         {
             Assert.That(
