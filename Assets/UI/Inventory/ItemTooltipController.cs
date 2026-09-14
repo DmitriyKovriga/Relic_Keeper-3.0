@@ -1305,6 +1305,13 @@ public class ItemTooltipController : MonoBehaviour
     private void LocalizeSkillBody(Label label, SkillDataSO skill)
     {
         label.text = skill.Description; 
+        int skillSlotIndex = _hudSkillSlotIndex;
+        float effectiveCooldown = skill.Cooldown;
+        if (skillSlotIndex >= 0)
+        {
+            PlayerStats player = Object.FindFirstObjectByType<PlayerStats>();
+            effectiveCooldown = SkillCooldownRecovery.Resolve(skill.Cooldown, player, skillSlotIndex);
+        }
 
         var opDesc = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, GetSkillDescriptionKey(skill));
         opDesc.Completed += (hDesc) =>
@@ -1316,10 +1323,10 @@ public class ItemTooltipController : MonoBehaviour
             var opCD = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, "skills.cooldown");
             opCD.Completed += (hCD) =>
             {
-                if (skill.Cooldown > 0)
+                if (effectiveCooldown > 0)
                 {
                     string cdLabel = hCD.Status == AsyncOperationStatus.Succeeded ? hCD.Result : "Cooldown";
-                    sb.Append($"\n\n<color=#aaaaaa>{cdLabel}: {skill.Cooldown}s</color>");
+                    sb.Append($"\n\n<color=#aaaaaa>{cdLabel}: {effectiveCooldown:0.##}s</color>");
                 }
 
                 var opMana = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, "skills.manaCost");

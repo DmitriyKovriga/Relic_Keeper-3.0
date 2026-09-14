@@ -21,7 +21,9 @@ namespace Scripts.Skills
         public SkillDataSO Data => _data;
         public int SlotIndex => _slotIndex;
 
-        public float CooldownDuration => _data != null ? Mathf.Max(0f, _data.Cooldown) : 0f;
+        public float CooldownDuration => _data != null
+            ? SkillCooldownRecovery.Resolve(_data.Cooldown, _ownerStats, _slotIndex)
+            : 0f;
 
         public float CooldownRemaining
         {
@@ -186,7 +188,7 @@ namespace Scripts.Skills
             if (_data == null)
                 return;
 
-            if (Time.time < _lastCastTime + _data.Cooldown)
+            if (Time.time < _lastCastTime + CooldownDuration)
                 return;
 
             if (_ownerStats == null || _ownerStats.Mana == null)

@@ -1375,6 +1375,54 @@ MonoBehaviour:
     m_Key: passive.node.SmallBleedPoisonChance.description
     m_Metadata:
       m_Items: []
+  - m_Id: 104536123106123776
+    m_Key: stats.SkillCooldownRecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104536126033747968
+    m_Key: stats.SpecialSkillCooldownRecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104536126595784704
+    m_Key: stats.HelmetSkillCooldownRecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104536127187181568
+    m_Key: stats.BodyArmorSkillCooldownRecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104536127770189824
+    m_Key: stats.GlovesSkillCooldownRecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104536128390946816
+    m_Key: stats.BootsSkillCooldownRecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104541184473423872
+    m_Key: passive.node.IncCDSpeedFor2DSkill.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104541184502784000
+    m_Key: passive.node.IncCDSpeedFor2DSkill.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104541227355987968
+    m_Key: passive.node.SmallIncCDSpeedFor2DSkill.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104541227355987969
+    m_Key: passive.node.SmallIncCDSpeedFor2DSkill.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104542833866694656
+    m_Key: passive.node.MediumCdTime2DSkill.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104542833866694657
+    m_Key: passive.node.MediumCdTime2DSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -17375,6 +17375,486 @@ MonoBehaviour:
     m_Key: affix_name_maxignitestacks_flat_light
     m_Metadata:
       m_Items: []
+  - m_Id: 90653679445598208
+    m_Key: affix_name_skillcooldownrecovery_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653680016023552
+    m_Key: affix_flat_skillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653680448036864
+    m_Key: affix_name_skillcooldownrecovery_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653680863272960
+    m_Key: affix_name_skillcooldownrecovery_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653681236566016
+    m_Key: affix_name_skillcooldownrecovery_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653681236566017
+    m_Key: affix_increase_skillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653681643413504
+    m_Key: affix_name_skillcooldownrecovery_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653682129952768
+    m_Key: affix_name_skillcooldownrecovery_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653682473885696
+    m_Key: affix_name_skillcooldownrecovery_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653682473885697
+    m_Key: affix_decrease_skillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653682826207232
+    m_Key: affix_name_skillcooldownrecovery_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653683195305984
+    m_Key: affix_name_skillcooldownrecovery_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653683602153472
+    m_Key: affix_name_skillcooldownrecovery_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653683602153473
+    m_Key: affix_more_skillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653684004806656
+    m_Key: affix_name_skillcooldownrecovery_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653684424237056
+    m_Key: affix_name_skillcooldownrecovery_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653684898193408
+    m_Key: affix_name_skillcooldownrecovery_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653684898193409
+    m_Key: affix_less_skillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653685279875072
+    m_Key: affix_name_skillcooldownrecovery_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653685711888384
+    m_Key: affix_name_skillcooldownrecovery_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653686475251712
+    m_Key: affix_name_specialskillcooldownrecovery_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653686475251713
+    m_Key: affix_flat_specialskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653686932430848
+    m_Key: affix_name_specialskillcooldownrecovery_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653687364444160
+    m_Key: affix_name_specialskillcooldownrecovery_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653687762903040
+    m_Key: affix_name_specialskillcooldownrecovery_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653687762903041
+    m_Key: affix_increase_specialskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653688102641664
+    m_Key: affix_name_specialskillcooldownrecovery_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653688501100544
+    m_Key: affix_name_specialskillcooldownrecovery_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653688870199296
+    m_Key: affix_name_specialskillcooldownrecovery_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653688870199297
+    m_Key: affix_decrease_specialskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653689268658176
+    m_Key: affix_name_specialskillcooldownrecovery_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653689717448704
+    m_Key: affix_name_specialskillcooldownrecovery_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653690099130368
+    m_Key: affix_name_specialskillcooldownrecovery_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653690099130369
+    m_Key: affix_more_specialskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653690468229120
+    m_Key: affix_name_specialskillcooldownrecovery_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653690887659520
+    m_Key: affix_name_specialskillcooldownrecovery_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653691294507008
+    m_Key: affix_name_specialskillcooldownrecovery_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653691294507009
+    m_Key: affix_less_specialskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653691873320960
+    m_Key: affix_name_specialskillcooldownrecovery_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653692288557056
+    m_Key: affix_name_specialskillcooldownrecovery_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653693089669120
+    m_Key: affix_name_helmetskillcooldownrecovery_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653693089669121
+    m_Key: affix_flat_helmetskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653693475545088
+    m_Key: affix_name_helmetskillcooldownrecovery_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653693848838144
+    m_Key: affix_name_helmetskillcooldownrecovery_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653694259879936
+    m_Key: affix_name_helmetskillcooldownrecovery_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653694259879937
+    m_Key: affix_increase_helmetskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653694637367296
+    m_Key: affix_name_helmetskillcooldownrecovery_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653695040020480
+    m_Key: affix_name_helmetskillcooldownrecovery_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653695451062272
+    m_Key: affix_name_helmetskillcooldownrecovery_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653695451062273
+    m_Key: affix_decrease_helmetskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653695824355328
+    m_Key: affix_name_helmetskillcooldownrecovery_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653696197648384
+    m_Key: affix_name_helmetskillcooldownrecovery_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653696617078784
+    m_Key: affix_name_helmetskillcooldownrecovery_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653696621273088
+    m_Key: affix_more_helmetskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653697179115520
+    m_Key: affix_name_helmetskillcooldownrecovery_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653697594351616
+    m_Key: affix_name_helmetskillcooldownrecovery_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653698001199104
+    m_Key: affix_name_helmetskillcooldownrecovery_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653698001199105
+    m_Key: affix_less_helmetskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653698458378240
+    m_Key: affix_name_helmetskillcooldownrecovery_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653698869420032
+    m_Key: affix_name_helmetskillcooldownrecovery_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653699708280832
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653699708280833
+    m_Key: affix_flat_bodyarmorskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653700098351104
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653700454866944
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653700849131520
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653700849131521
+    m_Key: affix_increase_bodyarmorskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653701243396096
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653702300360704
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653702703013888
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653702703013889
+    m_Key: affix_decrease_bodyarmorskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653703126638592
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653703625760768
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653704045191168
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653704045191169
+    m_Key: affix_more_bodyarmorskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653704477204480
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653704879857664
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653705274122240
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653705274122241
+    m_Key: affix_less_bodyarmorskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653705685164032
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653706087817216
+    m_Key: affix_name_bodyarmorskillcooldownrecovery_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653708025585664
+    m_Key: affix_name_glovesskillcooldownrecovery_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653708025585665
+    m_Key: affix_flat_glovesskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653708474376192
+    m_Key: affix_name_glovesskillcooldownrecovery_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653708910583808
+    m_Key: affix_name_glovesskillcooldownrecovery_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653709309042688
+    m_Key: affix_name_glovesskillcooldownrecovery_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653709309042689
+    m_Key: affix_increase_glovesskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653709699112960
+    m_Key: affix_name_glovesskillcooldownrecovery_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653710072406016
+    m_Key: affix_name_glovesskillcooldownrecovery_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653710470864896
+    m_Key: affix_name_glovesskillcooldownrecovery_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653710470864897
+    m_Key: affix_decrease_glovesskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653710886100992
+    m_Key: affix_name_glovesskillcooldownrecovery_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653711284559872
+    m_Key: affix_name_glovesskillcooldownrecovery_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653712760954880
+    m_Key: affix_name_glovesskillcooldownrecovery_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653712760954881
+    m_Key: affix_more_glovesskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653713188773888
+    m_Key: affix_name_glovesskillcooldownrecovery_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653713595621376
+    m_Key: affix_name_glovesskillcooldownrecovery_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653713985691648
+    m_Key: affix_name_glovesskillcooldownrecovery_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653713985691649
+    m_Key: affix_less_glovesskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653714350596096
+    m_Key: affix_name_glovesskillcooldownrecovery_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653714728083456
+    m_Key: affix_name_glovesskillcooldownrecovery_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653715508224000
+    m_Key: affix_name_bootsskillcooldownrecovery_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653715508224001
+    m_Key: affix_flat_bootsskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653715885711360
+    m_Key: affix_name_bootsskillcooldownrecovery_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653716288364544
+    m_Key: affix_name_bootsskillcooldownrecovery_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653717949308928
+    m_Key: affix_name_bootsskillcooldownrecovery_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653717949308929
+    m_Key: affix_increase_bootsskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653718377127936
+    m_Key: affix_name_bootsskillcooldownrecovery_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653718775586816
+    m_Key: affix_name_bootsskillcooldownrecovery_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653719182434304
+    m_Key: affix_name_bootsskillcooldownrecovery_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653719182434305
+    m_Key: affix_decrease_bootsskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653719559921664
+    m_Key: affix_name_bootsskillcooldownrecovery_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653719924826112
+    m_Key: affix_name_bootsskillcooldownrecovery_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653720293924864
+    m_Key: affix_name_bootsskillcooldownrecovery_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653720293924865
+    m_Key: affix_more_bootsskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653720700772352
+    m_Key: affix_name_bootsskillcooldownrecovery_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653721204088832
+    m_Key: affix_name_bootsskillcooldownrecovery_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653721627713536
+    m_Key: affix_name_bootsskillcooldownrecovery_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653721627713537
+    m_Key: affix_less_bootsskillcooldownrecovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653722089086976
+    m_Key: affix_name_bootsskillcooldownrecovery_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 90653722466574336
+    m_Key: affix_name_bootsskillcooldownrecovery_less_light
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -251,6 +251,14 @@ namespace Scripts.Items.Affixes
                     return (0.4f, 0.6f, 1.0f, 1.6f);
                 case StatType.MysticShieldRechargeDuration:
                     return (0.2f, 0.4f, 0.8f, 1.2f);
+                case StatType.SkillCooldownRecovery:
+                    return (0.05f, 0.1f, 0.3f, 0.5f);
+                case StatType.SpecialSkillCooldownRecovery:
+                case StatType.HelmetSkillCooldownRecovery:
+                case StatType.BodyArmorSkillCooldownRecovery:
+                case StatType.GlovesSkillCooldownRecovery:
+                case StatType.BootsSkillCooldownRecovery:
+                    return (0.1f, 0.2f, 0.5f, 0.8f);
                 case StatType.BleedDamage:
                 case StatType.PoisonDamage:
                 case StatType.IgniteDamage:
@@ -302,6 +310,12 @@ namespace Scripts.Items.Affixes
                 case StatType.ShockDuration:
                 case StatType.StunDuration:
                 case StatType.MysticShieldRechargeDuration:
+                case StatType.SkillCooldownRecovery:
+                case StatType.SpecialSkillCooldownRecovery:
+                case StatType.HelmetSkillCooldownRecovery:
+                case StatType.BodyArmorSkillCooldownRecovery:
+                case StatType.GlovesSkillCooldownRecovery:
+                case StatType.BootsSkillCooldownRecovery:
                     return 1;
                 default:
                     return 0;

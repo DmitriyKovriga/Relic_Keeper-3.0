@@ -680,8 +680,8 @@ namespace Scripts.Editor.Affixes
             bool isRangeValue = IsRangeValueMode(affix, kind);
             string valueKey = ResolveValueKey(affix, stat, kind);
 
-            SetOrAddEntry(affixesLabels, "en", valueKey, GenerateValueTemplateEn(kind, statNameEn, unit, unitEn, isRangeValue));
-            SetOrAddEntry(affixesLabels, "ru", valueKey, GenerateValueTemplateRu(kind, statNameRu, unit, unitRu, isRangeValue));
+            SetOrAddEntry(affixesLabels, "en", valueKey, GenerateValueTemplateEn(stat, kind, statNameEn, unit, unitEn, isRangeValue));
+            SetOrAddEntry(affixesLabels, "ru", valueKey, GenerateValueTemplateRu(stat, kind, statNameRu, unit, unitRu, isRangeValue));
             affix.TranslationKey = valueKey;
         }
 
@@ -761,11 +761,29 @@ namespace Scripts.Editor.Affixes
             return string.IsNullOrWhiteSpace(localized) ? StatPresentation.GetValueUnitFallback(unit, locale) : localized;
         }
 
-        private static string GenerateValueTemplateEn(StatAffixModifierKind kind, string statName, StatValueUnit unit, string localizedUnit, bool isRangeValue)
+        private static string GenerateValueTemplateEn(StatType stat, StatAffixModifierKind kind, string statName, StatValueUnit unit, string localizedUnit, bool isRangeValue)
         {
             const string SignedValue = "{0:+0.##;-0.##;0}";
             const string SignedRangeMin = "{0:+0.##;-0.##;0}";
             const string SignedRangeMax = "{1:+0.##;-0.##;0}";
+
+            if (StatsDatabaseSO.IsCooldownRecoveryStat(stat))
+            {
+                string target = GetCooldownTargetEn(stat);
+                switch (kind)
+                {
+                    case StatAffixModifierKind.Increase:
+                        return $"{{0}}% increased cooldown recovery for {target}";
+                    case StatAffixModifierKind.Decrease:
+                        return $"{{0}}% reduced cooldown recovery for {target}";
+                    case StatAffixModifierKind.More:
+                        return $"{{0}}% more cooldown recovery for {target}";
+                    case StatAffixModifierKind.Less:
+                        return $"{{0}}% less cooldown recovery for {target}";
+                    default:
+                        return $"{target} recover {{0:0.##}}s sooner";
+                }
+            }
 
             switch (kind)
             {
@@ -803,11 +821,29 @@ namespace Scripts.Editor.Affixes
             }
         }
 
-        private static string GenerateValueTemplateRu(StatAffixModifierKind kind, string statName, StatValueUnit unit, string localizedUnit, bool isRangeValue)
+        private static string GenerateValueTemplateRu(StatType stat, StatAffixModifierKind kind, string statName, StatValueUnit unit, string localizedUnit, bool isRangeValue)
         {
             const string SignedValue = "{0:+0.##;-0.##;0}";
             const string SignedRangeMin = "{0:+0.##;-0.##;0}";
             const string SignedRangeMax = "{1:+0.##;-0.##;0}";
+
+            if (StatsDatabaseSO.IsCooldownRecoveryStat(stat))
+            {
+                string target = GetCooldownTargetRu(stat);
+                switch (kind)
+                {
+                    case StatAffixModifierKind.Increase:
+                        return $"{{0}}% повышение скорости восстановления {target}";
+                    case StatAffixModifierKind.Decrease:
+                        return $"{{0}}% снижение скорости восстановления {target}";
+                    case StatAffixModifierKind.More:
+                        return $"На {{0}}% больше скорости восстановления {target}";
+                    case StatAffixModifierKind.Less:
+                        return $"На {{0}}% меньше скорости восстановления {target}";
+                    default:
+                        return $"Восстановление {target} быстрее на {{0:0.##}} с";
+                }
+            }
 
             switch (kind)
             {
@@ -842,6 +878,44 @@ namespace Scripts.Editor.Affixes
                     return StatPresentation.IsSymbolUnit(unit)
                         ? $"{SignedValue}{localizedUnit} \u043a {statName}"
                         : $"{SignedValue} {localizedUnit} \u043a {statName}";
+            }
+        }
+
+        private static string GetCooldownTargetEn(StatType stat)
+        {
+            switch (stat)
+            {
+                case StatType.SpecialSkillCooldownRecovery:
+                    return "special weapon skills";
+                case StatType.HelmetSkillCooldownRecovery:
+                    return "helmet skills";
+                case StatType.BodyArmorSkillCooldownRecovery:
+                    return "body armour skills";
+                case StatType.GlovesSkillCooldownRecovery:
+                    return "gloves skills";
+                case StatType.BootsSkillCooldownRecovery:
+                    return "boots skills";
+                default:
+                    return "all skills";
+            }
+        }
+
+        private static string GetCooldownTargetRu(StatType stat)
+        {
+            switch (stat)
+            {
+                case StatType.SpecialSkillCooldownRecovery:
+                    return "особого навыка оружия";
+                case StatType.HelmetSkillCooldownRecovery:
+                    return "навыка шлема";
+                case StatType.BodyArmorSkillCooldownRecovery:
+                    return "навыка нательного доспеха";
+                case StatType.GlovesSkillCooldownRecovery:
+                    return "навыка перчаток";
+                case StatType.BootsSkillCooldownRecovery:
+                    return "навыка ботинок";
+                default:
+                    return "всех навыков";
             }
         }
 

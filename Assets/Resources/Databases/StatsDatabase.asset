@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -1248,6 +1248,81 @@ MonoBehaviour:
     ContextTags: 0
     DamageChannels: 0
     AllowedAffixKinds: 1
-
-
-
+  - StatTypeId: SkillCooldownRecovery
+    Category: Speed
+    SemanticKind: 3
+    Format: 2
+    ShowInCharacterWindow: 0
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 4
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
+  - StatTypeId: SpecialSkillCooldownRecovery
+    Category: Speed
+    SemanticKind: 3
+    Format: 2
+    ShowInCharacterWindow: 0
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 4
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
+  - StatTypeId: HelmetSkillCooldownRecovery
+    Category: Speed
+    SemanticKind: 3
+    Format: 2
+    ShowInCharacterWindow: 0
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 4
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
+  - StatTypeId: BodyArmorSkillCooldownRecovery
+    Category: Speed
+    SemanticKind: 3
+    Format: 2
+    ShowInCharacterWindow: 0
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 4
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
+  - StatTypeId: GlovesSkillCooldownRecovery
+    Category: Speed
+    SemanticKind: 3
+    Format: 2
+    ShowInCharacterWindow: 0
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 4
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
+  - StatTypeId: BootsSkillCooldownRecovery
+    Category: Speed
+    SemanticKind: 3
+    Format: 2
+    ShowInCharacterWindow: 0
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 4
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31

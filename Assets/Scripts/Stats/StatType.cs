@@ -146,6 +146,15 @@ namespace Scripts.Stats
         StunDuration,
         StunBuildUp,
         StunThreshold,
-        MaxIgniteStacks
+        MaxIgniteStacks,
+
+        // Cooldown recovery containers. Flat modifiers are seconds removed from the
+        // affected cooldown; percentage modifiers are evaluated by SkillCooldownRecovery.
+        SkillCooldownRecovery,
+        SpecialSkillCooldownRecovery,
+        HelmetSkillCooldownRecovery,
+        BodyArmorSkillCooldownRecovery,
+        GlovesSkillCooldownRecovery,
+        BootsSkillCooldownRecovery
     }
 }

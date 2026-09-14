@@ -250,7 +250,9 @@ namespace Scripts.Stats
                     if (ShouldDisplayPercentWhenFlat(db, type))
                         return $"{displayValue:+0.##;-0.##;0}%";
 
-                    return $"{displayValue:+0.##;-0.##;0}";
+                    string flat = $"{displayValue:+0.##;-0.##;0}";
+                    StatValueUnit unit = db != null ? db.GetValueUnit(type) : StatsDatabaseSO.DefaultValueUnitFor(type);
+                    return unit == StatValueUnit.Seconds ? flat + "s" : flat;
             }
         }
 
@@ -574,6 +576,12 @@ namespace Scripts.Stats
 
                 case StatType.AreaOfEffect:
                 case StatType.CooldownReductionPercent:
+                case StatType.SkillCooldownRecovery:
+                case StatType.SpecialSkillCooldownRecovery:
+                case StatType.HelmetSkillCooldownRecovery:
+                case StatType.BodyArmorSkillCooldownRecovery:
+                case StatType.GlovesSkillCooldownRecovery:
+                case StatType.BootsSkillCooldownRecovery:
                 case StatType.EffectDuration:
                 case StatType.ProjectileSpeed:
                 case StatType.ProjectileCount:
@@ -591,6 +599,7 @@ namespace Scripts.Stats
 
         public static string DefaultCategoryFor(StatType type)
         {
+            if (IsCooldownRecoveryStat(type)) return "Speed";
             string s = type.ToString();
             if (s.Contains("Bleed") || s.Contains("Poison") || s.Contains("Ignite") || s.Contains("Freeze") || s.Contains("Shock")) return "Ailments";
             if (s.Contains("Resist") || s.Contains("Penetration") || s.Contains("Mitigation") || s.Contains("DamageTaken")) return "Resistances";
@@ -610,7 +619,7 @@ namespace Scripts.Stats
 
             if (type == StatType.ShockDuration || type == StatType.FreezeDuration || type == StatType.BleedDuration ||
                 type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.StunDuration ||
-                type == StatType.MysticShieldRechargeDuration)
+                type == StatType.MysticShieldRechargeDuration || IsCooldownRecoveryStat(type))
                 return StatDisplayFormat.Time;
 
             string s = type.ToString();
@@ -628,11 +637,15 @@ namespace Scripts.Stats
 
         public static bool DefaultShowInCharacterWindow(StatType type)
         {
+            if (IsCooldownRecoveryStat(type))
+                return false;
             return type != StatType.HealthRegenPercent && type != StatType.ManaRegenPercent;
         }
 
         public static bool DefaultShowInPrimaryStatsEditor(StatType type)
         {
+            if (IsCooldownRecoveryStat(type))
+                return true;
             return DefaultSemanticKindFor(type) == StatSemanticKind.FinalScalar;
         }
 
@@ -663,7 +676,7 @@ namespace Scripts.Stats
                 return StatValueUnit.MysticShield;
             if (type == StatType.ShockDuration || type == StatType.FreezeDuration || type == StatType.BleedDuration ||
                 type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.StunDuration ||
-                type == StatType.MysticShieldRechargeDuration)
+                type == StatType.MysticShieldRechargeDuration || IsCooldownRecoveryStat(type))
                 return StatValueUnit.Seconds;
             if (type == StatType.MaxBleedStack)
                 return StatValueUnit.Stacks;
@@ -707,6 +720,16 @@ namespace Scripts.Stats
                 default:
                     return false;
             }
+        }
+
+        public static bool IsCooldownRecoveryStat(StatType type)
+        {
+            return type == StatType.SkillCooldownRecovery ||
+                   type == StatType.SpecialSkillCooldownRecovery ||
+                   type == StatType.HelmetSkillCooldownRecovery ||
+                   type == StatType.BodyArmorSkillCooldownRecovery ||
+                   type == StatType.GlovesSkillCooldownRecovery ||
+                   type == StatType.BootsSkillCooldownRecovery;
         }
 
         public static StatContextTagFlags DefaultContextTagsFor(StatType type)

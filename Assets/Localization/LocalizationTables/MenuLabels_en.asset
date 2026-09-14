@@ -2336,6 +2336,54 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 104536123106123776
+    m_Localized: Skill Cooldown Recovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104536126033747968
+    m_Localized: Special Skill Cooldown Recovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104536126595784704
+    m_Localized: Helmet Skill Cooldown Recovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104536127187181568
+    m_Localized: Body Skill Cooldown Recovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104536127770189824
+    m_Localized: Gloves Skill Cooldown Recovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104536128390946816
+    m_Localized: Boots Skill Cooldown Recovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104541184473423872
+    m_Localized: More Poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104541184502784000
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104541227355987968
+    m_Localized: Time to Die
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104541227355987969
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104542833866694656
+    m_Localized: Without Rescue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104542833866694657
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

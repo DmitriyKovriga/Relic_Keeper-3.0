@@ -86,7 +86,7 @@ namespace Scripts.Combat
         public static SkillDpsPreview Build(SkillDataSO skill, IStatsProvider stats, int skillSlot)
         {
             IStatsProvider scopedStats = WeaponHandStatScope.ForSkill(stats, skillSlot) ?? stats;
-            float castsPerSecond = ResolveCastsPerSecond(skill, scopedStats);
+            float castsPerSecond = ResolveCastsPerSecond(skill, scopedStats, skillSlot);
             SkillHitDpsPreview hit = BuildHitPreview(skill, scopedStats, castsPerSecond);
             return new SkillDpsPreview(hit, BuildDotPreviews(scopedStats, hit));
         }
@@ -114,11 +114,13 @@ namespace Scripts.Combat
             return new DamageContext(tags);
         }
 
-        public static float ResolveCastsPerSecond(SkillDataSO skill, IStatsProvider stats)
+        public static float ResolveCastsPerSecond(SkillDataSO skill, IStatsProvider stats, int skillSlot = -1)
         {
             float actionSpeed = ResolveActionSpeed(skill, stats);
             float interval = 1f / Mathf.Max(0.05f, actionSpeed);
-            float cooldown = skill != null ? Mathf.Max(0f, skill.Cooldown) : 0f;
+            float cooldown = skill != null
+                ? SkillCooldownRecovery.Resolve(skill.Cooldown, stats, skillSlot)
+                : 0f;
             if (cooldown > interval)
                 interval = cooldown;
             return 1f / interval;
