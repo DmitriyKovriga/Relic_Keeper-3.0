@@ -2384,6 +2384,10 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 104600000000000000
+    m_Localized: The off-hand item prevents equipping this two-handed weapon
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

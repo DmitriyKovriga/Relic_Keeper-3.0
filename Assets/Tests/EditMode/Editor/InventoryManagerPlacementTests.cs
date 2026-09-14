@@ -118,6 +118,73 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void PlaceItemAt_TwoHandedWeapon_ReplacesOffHandIntoItsBackpackSource()
+        {
+            var twoHandedWeapon = CreateWeapon("two-handed", EquipmentSlot.MainHand, isTwoHanded: true);
+            var offHand = CreateArmor("shield", EquipmentSlot.OffHand);
+            Assert.IsTrue(_manager.AddItem(twoHandedWeapon));
+            Assert.IsTrue(_manager.PlaceItemAt(offHand, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.OffHand, -1));
+
+            InventoryItem heldWeapon = _manager.TakeItemFromSlot(0);
+            bool equipped = _manager.PlaceItemAt(
+                heldWeapon,
+                InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.MainHand,
+                sourceAnchorForSwap: 0);
+
+            Assert.IsTrue(equipped);
+            Assert.AreSame(twoHandedWeapon, _manager.EquipmentItems[(int)EquipmentSlot.MainHand]);
+            Assert.IsNull(_manager.EquipmentItems[(int)EquipmentSlot.OffHand]);
+            Assert.AreSame(offHand, _manager.GetItemAt(0, out int offHandAnchor));
+            Assert.AreEqual(0, offHandAnchor);
+            Assert.AreEqual(InventoryPlacementFailureReason.None, _manager.LastPlacementFailureReason);
+        }
+
+        [Test]
+        public void TryMoveOrSwap_TwoHandedWeapon_ReplacesOffHandAtomically()
+        {
+            var twoHandedWeapon = CreateWeapon("two-handed", EquipmentSlot.MainHand, isTwoHanded: true);
+            var offHand = CreateArmor("shield", EquipmentSlot.OffHand);
+            Assert.IsTrue(_manager.AddItem(twoHandedWeapon));
+            Assert.IsTrue(_manager.PlaceItemAt(offHand, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.OffHand, -1));
+
+            bool equipped = _manager.TryMoveOrSwap(
+                0,
+                InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.MainHand);
+
+            Assert.IsTrue(equipped);
+            Assert.AreSame(twoHandedWeapon, _manager.EquipmentItems[(int)EquipmentSlot.MainHand]);
+            Assert.IsNull(_manager.EquipmentItems[(int)EquipmentSlot.OffHand]);
+            Assert.AreSame(offHand, _manager.GetItemAt(0, out _));
+        }
+
+        [Test]
+        public void PlaceItemAt_TwoHandedWeapon_WhenOffHandCannotFit_LeavesEquipmentUntouchedAndReportsReason()
+        {
+            var twoHandedWeapon = CreateWeapon("two-handed", EquipmentSlot.MainHand, isTwoHanded: true);
+            var blocker = CreateWeapon("blocker", EquipmentSlot.MainHand, isTwoHanded: false);
+            var offHand = CreateArmor("large-shield", EquipmentSlot.OffHand, width: 2, height: 1);
+            Assert.IsTrue(_manager.AddItem(twoHandedWeapon));
+            Assert.IsTrue(_manager.AddItem(blocker));
+            Assert.IsTrue(_manager.PlaceItemAt(offHand, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.OffHand, -1));
+            InventoryPlacementFailureReason reportedReason = InventoryPlacementFailureReason.None;
+            _manager.OnPlacementFailed += reason => reportedReason = reason;
+
+            InventoryItem heldWeapon = _manager.TakeItemFromSlot(0);
+            bool equipped = _manager.PlaceItemAt(
+                heldWeapon,
+                InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.MainHand,
+                sourceAnchorForSwap: 0);
+
+            Assert.IsFalse(equipped);
+            Assert.IsNull(_manager.EquipmentItems[(int)EquipmentSlot.MainHand]);
+            Assert.AreSame(offHand, _manager.EquipmentItems[(int)EquipmentSlot.OffHand]);
+            Assert.AreSame(blocker, _manager.GetItemAt(1, out _));
+            Assert.IsNull(_manager.GetItemAt(0, out _));
+            Assert.AreEqual(InventoryPlacementFailureReason.OffHandBlocksTwoHanded, _manager.LastPlacementFailureReason);
+            Assert.AreEqual(InventoryPlacementFailureReason.OffHandBlocksTwoHanded, reportedReason);
+        }
+
+        [Test]
         public void TryMoveOrSwap_OneHandedWeapon_CanMoveBetweenHands()
         {
             var oneHandedWeapon = CreateWeapon("one-handed", EquipmentSlot.MainHand, isTwoHanded: false);
@@ -157,13 +224,13 @@ namespace RelicKeeper.Tests.EditMode
             return new InventoryItem(so);
         }
 
-        private InventoryItem CreateArmor(string id, EquipmentSlot slot)
+        private InventoryItem CreateArmor(string id, EquipmentSlot slot, int width = 1, int height = 1)
         {
             var so = ScriptableObject.CreateInstance<ArmorItemSO>();
             so.ID = id;
             so.ItemName = id;
-            so.Width = 1;
-            so.Height = 1;
+            so.Width = width;
+            so.Height = height;
             so.Slot = slot;
             _createdObjects.Add(so);
             return new InventoryItem(so);

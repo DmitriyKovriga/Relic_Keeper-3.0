@@ -10,6 +10,8 @@ public sealed class PlayerNoticeBanner : MonoBehaviour
         public const string InventoryFullFallback = "Can't pick up — inventory is full";
         public const string NotEnoughGoldKey = "inventory.ui.notEnoughGold";
         public const string NotEnoughGoldFallback = "Not enough gold";
+        public const string OffHandBlocksTwoHandedKey = "inventory.ui.offHandBlocksTwoHanded";
+        public const string OffHandBlocksTwoHandedFallback = "The off-hand item prevents equipping this two-handed weapon";
 
     public const float SortingOrder = 900f;
     public const int ToastMaxWidth = 236;
@@ -41,6 +43,11 @@ public sealed class PlayerNoticeBanner : MonoBehaviour
     public static void ShowNotEnoughGold()
     {
         Show(NotEnoughGoldKey, NotEnoughGoldFallback);
+    }
+
+    public static void ShowOffHandBlocksTwoHanded()
+    {
+        Show(OffHandBlocksTwoHandedKey, OffHandBlocksTwoHandedFallback);
     }
 
     public static void Show(string key, string fallback)

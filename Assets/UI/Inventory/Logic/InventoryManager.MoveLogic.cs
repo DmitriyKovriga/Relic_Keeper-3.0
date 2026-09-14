@@ -7,6 +7,7 @@ namespace Scripts.Inventory
     {
         public bool TryMoveOrSwap(int fromIndex, int toIndex)
         {
+            ResetPlacementFailure();
             if (fromIndex == toIndex) return true;
 
             InventoryItem itemFrom = GetItemAt(fromIndex, out int fromAnchor);
@@ -58,6 +59,9 @@ namespace Scripts.Inventory
             }
 
             InventoryItem currentEquipped = EquipmentItems[localEquipIndex];
+            if (IsTwoHandedBlockedByOffHand(itemToEquip, localEquipIndex))
+                return TryEquipTwoHandedByReplacingOffHand(itemToEquip, fromAnchor);
+
             if (!CanEquipItemToLocalSlot(itemToEquip, localEquipIndex))
             {
                 Debug.LogWarning($"[Inventory] Item '{itemToEquip.Data.ItemName}' cannot be equipped into slot {localEquipIndex}.");

@@ -8,6 +8,7 @@ namespace Scripts.Inventory
         /// <summary>Поставить уже взятый предмет в слот. sourceAnchorForSwap — куда положить вытесненный предмет при свопе (-1 если не своп).</summary>
         public bool PlaceItemAt(InventoryItem item, int toIndex, int sourceAnchorForSwap = -1)
         {
+            ResetPlacementFailure();
             if (item == null || item.Data == null) return false;
 
             if (sourceAnchorForSwap >= 0 && toIndex == sourceAnchorForSwap)
@@ -40,6 +41,13 @@ namespace Scripts.Inventory
             {
                 int local = toIndex - EQUIP_OFFSET;
                 if (local < 0 || local >= EquipmentItems.Length) return false;
+                if (IsTwoHandedBlockedByOffHand(item, local))
+                {
+                    bool replaced = TryEquipTwoHandedByReplacingOffHand(item, sourceAnchorForSwap);
+                    if (replaced)
+                        TriggerUIUpdate();
+                    return replaced;
+                }
                 if (!CanEquipItemToLocalSlot(item, local)) return false;
 
                 InventoryItem prevEquip = EquipmentItems[local];
@@ -115,6 +123,55 @@ namespace Scripts.Inventory
 
             SyncFromBackpack();
             TriggerUIUpdate();
+            return true;
+        }
+
+        private bool IsTwoHandedBlockedByOffHand(InventoryItem item, int localEquipIndex)
+        {
+            return localEquipIndex == (int)EquipmentSlot.MainHand
+                && EquipmentItems[(int)EquipmentSlot.MainHand] == null
+                && EquipmentItems[(int)EquipmentSlot.OffHand] != null
+                && item?.Data is WeaponItemSO { IsTwoHanded: true };
+        }
+
+        /// <summary>
+        /// Atomically equips a two-handed weapon into an empty main hand and puts the displaced
+        /// off-hand item into the backpack footprint from which the weapon came.
+        /// </summary>
+        private bool TryEquipTwoHandedByReplacingOffHand(InventoryItem twoHanded, int sourceAnchor)
+        {
+            InventoryItem offHand = EquipmentItems[(int)EquipmentSlot.OffHand];
+            if (offHand?.Data == null || sourceAnchor < 0 || sourceAnchor >= (_backpack?.Length ?? 0))
+            {
+                ReportPlacementFailure(InventoryPlacementFailureReason.OffHandBlocksTwoHanded);
+                return false;
+            }
+
+            _backpack.GetItemAt(sourceAnchor, out InventoryItem sourceItem, out int sourceRoot);
+            if (sourceItem != null && sourceItem != twoHanded)
+            {
+                ReportPlacementFailure(InventoryPlacementFailureReason.OffHandBlocksTwoHanded);
+                return false;
+            }
+
+            bool removedIncomingFromBackpack = sourceItem == twoHanded;
+            if (removedIncomingFromBackpack)
+                _backpack.Take(sourceRoot);
+
+            if (!_backpack.CanPlace(offHand, sourceAnchor) || !_backpack.Place(offHand, sourceAnchor))
+            {
+                if (removedIncomingFromBackpack)
+                    _backpack.Place(twoHanded, sourceRoot);
+                SyncFromBackpack();
+                ReportPlacementFailure(InventoryPlacementFailureReason.OffHandBlocksTwoHanded);
+                return false;
+            }
+
+            EquipmentItems[(int)EquipmentSlot.OffHand] = null;
+            EquipmentItems[(int)EquipmentSlot.MainHand] = twoHanded;
+            SyncFromBackpack();
+            OnItemUnequipped?.Invoke(offHand);
+            OnItemEquipped?.Invoke(twoHanded);
             return true;
         }
 

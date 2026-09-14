@@ -6,6 +6,12 @@ using Scripts.Saving;
 
 namespace Scripts.Inventory
 {
+    public enum InventoryPlacementFailureReason
+    {
+        None = 0,
+        OffHandBlocksTwoHanded = 1
+    }
+
     /// <summary>
     /// РРЅРІРµРЅС‚Р°СЂСЊ РІ СЃС‚РёР»Рµ PoE: СЂСЋРєР·Р°Рє вЂ” РѕРґРЅР° СЃРµС‚РєР° (GridContainer), РѕС‚РґРµР»СЊРЅРѕ СЃР»РѕС‚ РєСЂР°С„С‚Р° Рё СЌРєРёРїРёСЂРѕРІРєР°.
     /// РџСЂРµРґРјРµС‚ РІ СЂСѓРєРµ (carried) РЅРµ С…СЂР°РЅРёС‚СЃСЏ РІ РєРѕРЅС‚РµР№РЅРµСЂРµ вЂ” С‚РѕР»СЊРєРѕ РІ UI РїСЂРё РїРµСЂРµС‚Р°СЃРєРёРІР°РЅРёРё.
@@ -37,6 +43,20 @@ namespace Scripts.Inventory
         public event Action OnInventoryChanged;
         public event Action<InventoryItem> OnItemEquipped;
         public event Action<InventoryItem> OnItemUnequipped;
+        public event Action<InventoryPlacementFailureReason> OnPlacementFailed;
+
+        public InventoryPlacementFailureReason LastPlacementFailureReason { get; private set; }
+
+        private void ResetPlacementFailure()
+        {
+            LastPlacementFailureReason = InventoryPlacementFailureReason.None;
+        }
+
+        private void ReportPlacementFailure(InventoryPlacementFailureReason reason)
+        {
+            LastPlacementFailureReason = reason;
+            OnPlacementFailed?.Invoke(reason);
+        }
 
         private void Awake()
         {

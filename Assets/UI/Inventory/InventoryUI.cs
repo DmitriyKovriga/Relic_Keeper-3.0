@@ -164,7 +164,10 @@ public partial class InventoryUI : MonoBehaviour
     private void OnDisable()
     {
         if (InventoryManager.Instance != null)
+        {
             InventoryManager.Instance.OnInventoryChanged -= RefreshInventory;
+            InventoryManager.Instance.OnPlacementFailed -= HandleInventoryPlacementFailed;
+        }
         if (StashManager.Instance != null)
             StashManager.Instance.OnStashChanged -= RefreshStash;
         if (Scripts.Economy.MarketManager.Instance != null)
@@ -295,7 +298,15 @@ public partial class InventoryUI : MonoBehaviour
         if (InventoryManager.Instance == null) return;
         InventoryManager.Instance.OnInventoryChanged -= RefreshInventory;
         InventoryManager.Instance.OnInventoryChanged += RefreshInventory;
+        InventoryManager.Instance.OnPlacementFailed -= HandleInventoryPlacementFailed;
+        InventoryManager.Instance.OnPlacementFailed += HandleInventoryPlacementFailed;
         RefreshInventory();
+    }
+
+    private static void HandleInventoryPlacementFailed(InventoryPlacementFailureReason reason)
+    {
+        if (reason == InventoryPlacementFailureReason.OffHandBlocksTwoHanded)
+            PlayerNoticeBanner.ShowOffHandBlocksTwoHanded();
     }
 
 
