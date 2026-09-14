@@ -1307,7 +1307,9 @@ public class ItemTooltipController : MonoBehaviour
 
     private void LocalizeSkillBody(Label label, SkillDataSO skill)
     {
-        label.text = skill.Description; 
+        if (label == null || skill == null)
+            return;
+
         int skillSlotIndex = _hudSkillSlotIndex;
         float effectiveCooldown = skill.Cooldown;
         if (skillSlotIndex >= 0)
@@ -1316,45 +1318,54 @@ public class ItemTooltipController : MonoBehaviour
             effectiveCooldown = SkillCooldownRecovery.Resolve(skill.Cooldown, player, skillSlotIndex);
         }
 
-        var opDesc = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, GetSkillDescriptionKey(skill));
-        opDesc.Completed += (hDesc) =>
+        string localeCode = LocalizationSettings.SelectedLocale?.Identifier.Code ?? "en";
+        string legacyDescription = null;
+        if (skill.DescriptionMode != SkillDescriptionMode.Automatic)
         {
-            if (label == null) return;
-            StringBuilder sb = new StringBuilder();
-            sb.Append(hDesc.Status == AsyncOperationStatus.Succeeded ? hDesc.Result : skill.Description);
+            legacyDescription = LocalizationSettings.StringDatabase.GetLocalizedString(
+                TABLE_SKILLS,
+                GetSkillDescriptionKey(skill));
+            if (string.IsNullOrWhiteSpace(legacyDescription))
+                legacyDescription = skill.Description;
+        }
 
-            var opCD = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, "skills.cooldown");
-            opCD.Completed += (hCD) =>
+        string body = SkillDescriptionGenerator.Build(
+            skill,
+            localeCode,
+            legacyDescription,
+            stat =>
             {
-                if (effectiveCooldown > 0)
-                {
-                    string cdLabel = hCD.Status == AsyncOperationStatus.Succeeded ? hCD.Result : "Cooldown";
-                    sb.Append($"\n\n<color=#aaaaaa>{cdLabel}: {effectiveCooldown:0.##}s</color>");
-                }
+                string localized = LocalizationSettings.StringDatabase.GetLocalizedString(TABLE_MENU, $"stats.{stat}");
+                return string.IsNullOrWhiteSpace(localized) ? SkillDescriptionGenerator.Humanize(stat.ToString()) : localized;
+            });
 
-                var opMana = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_SKILLS, "skills.manaCost");
-                opMana.Completed += (hMana) =>
-                {
-                    if (skill.ManaCost > 0)
-                    {
-                        string manaLabel = hMana.Status == AsyncOperationStatus.Succeeded ? hMana.Result : "Mana Cost";
-                        sb.Append($"\n<color=#aaaaaa>{manaLabel}: {skill.ManaCost}</color>");
-                    }
+        var sb = new StringBuilder(body);
+        if (effectiveCooldown > 0)
+        {
+            string cooldownLabel = LocalizationSettings.StringDatabase.GetLocalizedString(TABLE_SKILLS, "skills.cooldown");
+            if (string.IsNullOrWhiteSpace(cooldownLabel))
+                cooldownLabel = localeCode.StartsWith("ru", System.StringComparison.OrdinalIgnoreCase) ? "Перезарядка" : "Cooldown";
+            if (sb.Length > 0) sb.Append("\n\n");
+            sb.Append($"<color=#aaaaaa>{cooldownLabel}: {effectiveCooldown:0.##}s</color>");
+        }
 
-                        if (label != null) 
-                    {
-                        label.text = sb.ToString();
-                        if (_root != null)
-                        {
-                            if (_currentHudSkill != null)
-                                _root.schedule.Execute(RecalculateHudSkillPosition).ExecuteLater(1);
-                            else
-                                _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
-                        }
-                    }
-                };
-            };
-        };
+        if (skill.ManaCost > 0)
+        {
+            string manaLabel = LocalizationSettings.StringDatabase.GetLocalizedString(TABLE_SKILLS, "skills.manaCost");
+            if (string.IsNullOrWhiteSpace(manaLabel))
+                manaLabel = localeCode.StartsWith("ru", System.StringComparison.OrdinalIgnoreCase) ? "Расход маны" : "Mana Cost";
+            if (sb.Length > 0) sb.Append('\n');
+            sb.Append($"<color=#aaaaaa>{manaLabel}: {skill.ManaCost:0.##}</color>");
+        }
+
+        label.text = sb.ToString();
+        if (_root != null)
+        {
+            if (_currentHudSkill != null)
+                _root.schedule.Execute(RecalculateHudSkillPosition).ExecuteLater(1);
+            else
+                _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
+        }
     }
 
     private static string GetSkillNameKey(SkillDataSO skill)

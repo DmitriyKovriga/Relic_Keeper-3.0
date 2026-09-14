@@ -36,11 +36,13 @@ namespace Scripts.Editor.Skills
         private SkillPoolSO _skillPoolUsageCacheTarget;
         private List<string> _skillPoolUsageCache = new List<string>();
         private StringTableCollection _skillsLabelsCollection;
+        private StringTableCollection _menuLabelsCollection;
         private string _skillLocNameEn = string.Empty;
         private string _skillLocNameRu = string.Empty;
         private string _skillLocDescEn = string.Empty;
         private string _skillLocDescRu = string.Empty;
         private string _lastLoadedSkillLocalizationState = string.Empty;
+        private bool _showLegacySkillDescription;
         private const float LeftColFraction = 0.30f;
         private const float CenterColFraction = 0.40f;
         private const float RightColFraction = 0.30f;
@@ -68,6 +70,8 @@ namespace Scripts.Editor.Skills
         {
             if (_skillsLabelsCollection == null)
                 _skillsLabelsCollection = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.SkillsLabelsTable);
+            if (_menuLabelsCollection == null)
+                _menuLabelsCollection = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.MenuLabels);
 
             EnsureBuiltInStepDefinitions();
             Refresh();
@@ -520,8 +524,9 @@ namespace Scripts.Editor.Skills
             if (skill.ActionSpeedMode != SkillActionSpeedMode.Attack)
                 parts.Add($"Speed mode: {skill.ActionSpeedMode}");
 
-            if (!string.IsNullOrWhiteSpace(skill.Description))
-                parts.Add(skill.Description);
+            string generated = SkillDescriptionGenerator.BuildAutomatic(skill, "en");
+            if (!string.IsNullOrWhiteSpace(generated))
+                parts.Add(generated);
 
             if (!string.IsNullOrWhiteSpace(path))
                 parts.Add(path);
@@ -808,11 +813,32 @@ namespace Scripts.Editor.Skills
 
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("ID"));
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("SkillName"), new GUIContent("Skill Name"));
-            EditorGUILayout.PropertyField(serializedSkill.FindProperty("Description"));
+            EditorGUILayout.PropertyField(serializedSkill.FindProperty("DescriptionMode"), new GUIContent("Description Mode"));
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("Icon"));
             DrawSkillIconDropArea(skill, serializedSkill);
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("NameKey"));
-            EditorGUILayout.PropertyField(serializedSkill.FindProperty("DescriptionKey"));
+
+            EditorGUILayout.Space(5f);
+            EditorGUILayout.LabelField("Automatic Description Preview", EditorStyles.boldLabel);
+            string previewEn = BuildEditorDescription(skill, "en");
+            string previewRu = BuildEditorDescription(skill, "ru");
+            EditorGUILayout.HelpBox(string.IsNullOrWhiteSpace(previewEn) ? "No describable recipe mechanics." : previewEn, MessageType.None);
+            EditorGUILayout.HelpBox(string.IsNullOrWhiteSpace(previewRu) ? "Нет описываемых механик рецепта." : previewRu, MessageType.None);
+
+            _showLegacySkillDescription = EditorGUILayout.Foldout(
+                _showLegacySkillDescription || skill.DescriptionMode != SkillDescriptionMode.Automatic,
+                "Legacy Description (optional)",
+                true);
+            if (_showLegacySkillDescription)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(serializedSkill.FindProperty("Description"));
+                EditorGUILayout.PropertyField(serializedSkill.FindProperty("DescriptionKey"));
+                EditorGUILayout.HelpBox(
+                    "Preserved for compatibility. It is shown only in Automatic With Legacy or Legacy Only mode.",
+                    MessageType.Info);
+                EditorGUI.indentLevel--;
+            }
 
             EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField("Mechanics", EditorStyles.boldLabel);
@@ -1040,14 +1066,17 @@ namespace Scripts.Editor.Skills
                 _lastLoadedSkillLocalizationState = state;
             }
 
-            EditorGUILayout.HelpBox("RU/EN values are saved into SkillsLabels. The SO fields above stay as safe fallback values for missing localization.", MessageType.None);
+            EditorGUILayout.HelpBox("Names remain localized. Legacy descriptions are preserved but Automatic mode does not display them.", MessageType.None);
 
             _skillLocNameEn = EditorGUILayout.TextField("Name EN", _skillLocNameEn ?? string.Empty);
             _skillLocNameRu = EditorGUILayout.TextField("Name RU", _skillLocNameRu ?? string.Empty);
-            EditorGUILayout.LabelField("Description EN");
-            _skillLocDescEn = EditorGUILayout.TextArea(_skillLocDescEn ?? string.Empty, GUILayout.MinHeight(44f));
-            EditorGUILayout.LabelField("Description RU");
-            _skillLocDescRu = EditorGUILayout.TextArea(_skillLocDescRu ?? string.Empty, GUILayout.MinHeight(44f));
+            if (_showLegacySkillDescription || skill.DescriptionMode != SkillDescriptionMode.Automatic)
+            {
+                EditorGUILayout.LabelField("Legacy Description EN");
+                _skillLocDescEn = EditorGUILayout.TextArea(_skillLocDescEn ?? string.Empty, GUILayout.MinHeight(44f));
+                EditorGUILayout.LabelField("Legacy Description RU");
+                _skillLocDescRu = EditorGUILayout.TextArea(_skillLocDescRu ?? string.Empty, GUILayout.MinHeight(44f));
+            }
 
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Reload from table", GUILayout.Width(130)))
@@ -1175,6 +1204,20 @@ namespace Scripts.Editor.Skills
 
             var entry = table.GetEntry(key);
             return entry?.Value ?? string.Empty;
+        }
+
+        private string BuildEditorDescription(SkillDataSO skill, string locale)
+        {
+            return SkillDescriptionGenerator.BuildAutomatic(
+                skill,
+                locale,
+                stat =>
+                {
+                    string localized = GetLocalizedString(_menuLabelsCollection, $"stats.{stat}", locale);
+                    return string.IsNullOrWhiteSpace(localized)
+                        ? SkillDescriptionGenerator.Humanize(stat.ToString())
+                        : localized;
+                });
         }
 
         private static void SetOrAddEntry(StringTable table, string key, string value)

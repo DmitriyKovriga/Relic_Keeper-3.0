@@ -11,12 +11,22 @@ namespace Scripts.Skills
         Universal = 2
     }
 
+    public enum SkillDescriptionMode
+    {
+        Automatic = 0,
+        AutomaticWithLegacy = 1,
+        LegacyOnly = 2
+    }
+
     [CreateAssetMenu(menuName = "RPG/Skills/Skill Data")]
     public class SkillDataSO : ScriptableObject
     {
         [Header("Identity")]
         public string ID; // Уникальный ID (Fireball_V1)
         public string SkillName;
+        [Tooltip("Automatic reads the recipe and always reflects its current mechanics. Legacy text is preserved below and can be enabled when needed.")]
+        public SkillDescriptionMode DescriptionMode = SkillDescriptionMode.Automatic;
+        [Tooltip("Legacy fallback description. Disabled by default through Description Mode.")]
         [TextArea] public string Description;
         public Sprite Icon;
 
