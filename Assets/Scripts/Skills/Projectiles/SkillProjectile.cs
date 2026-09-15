@@ -319,11 +319,15 @@ namespace Scripts.Skills.Projectiles
             if (_data == null || _collider == null)
                 return;
 
-            Vector2 size = ResolveColliderWorldSize();
-            Collider2D[] hits = Physics2D.OverlapBoxAll(transform.position, size, transform.eulerAngles.z);
+            float radius = Mathf.Max(0.02f, _collider.radius);
+            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, radius);
             for (int i = 0; i < hits.Length; i++)
             {
-                if (TryHandleCollision(hits[i]) || _data == null)
+                Collider2D hit = hits[i];
+                if (hit == null || hit.transform == transform)
+                    continue;
+
+                if (TryHandleCollision(hit) || _data == null)
                     return;
             }
         }
@@ -331,6 +335,9 @@ namespace Scripts.Skills.Projectiles
         private bool TryHandleCollision(Collider2D other)
         {
             if (_data == null || other == null || !other.enabled)
+                return false;
+
+            if (other.transform == transform || other.gameObject == gameObject)
                 return false;
 
             if (IsOwner(other.transform))
@@ -969,47 +976,62 @@ namespace Scripts.Skills.Projectiles
 
         private void ApplyHitbox()
         {
-            Vector2 worldSize = ResolveColliderWorldSize();
-            Vector3 lossy = transform.lossyScale;
-            Vector2 localSize = new Vector2(
-                worldSize.x / Mathf.Max(0.0001f, Mathf.Abs(lossy.x)),
-                worldSize.y / Mathf.Max(0.0001f, Mathf.Abs(lossy.y)));
-
             if (_collider != null)
             {
                 _collider.isTrigger = true;
-                _collider.enabled = false;
-                _collider.radius = 0.5f * Mathf.Max(localSize.x, localSize.y);
+                _collider.enabled = true;
+                _collider.radius = ResolveColliderRadius();
             }
 
+            // Pooled instances may still have a box left over from the AABB hitbox.
+            // A sprite-sized box on a spinning weapon overlaps Ground on spawn and despawns.
             if (_boxCollider == null)
                 _boxCollider = GetComponent<BoxCollider2D>();
-            if (_boxCollider == null)
-                _boxCollider = gameObject.AddComponent<BoxCollider2D>();
-
-            _boxCollider.isTrigger = true;
-            _boxCollider.enabled = true;
-            _boxCollider.size = localSize;
+            if (_boxCollider != null)
+                _boxCollider.enabled = false;
         }
 
-        private Vector2 ResolveColliderWorldSize()
+        private float ResolveColliderRadius()
         {
-            float scale = _data != null ? Mathf.Max(0.02f, _data.HitRadius) : 1f;
-            float hitScaleX = _data != null ? Mathf.Max(0.01f, _data.HitScaleX) : 1f;
-            float hitScaleY = _data != null ? Mathf.Max(0.01f, _data.HitScaleY) : 1f;
-            if (_spriteRenderer == null || _spriteRenderer.sprite == null)
-                return new Vector2(0.36f * scale * hitScaleX, 0.36f * scale * hitScaleY);
+            Bounds bounds = default;
+            bool hasSprite = _spriteRenderer != null && _spriteRenderer.sprite != null;
+            if (hasSprite)
+                bounds = _spriteRenderer.bounds;
 
-            Bounds bounds = _spriteRenderer.bounds;
-            return new Vector2(
-                Mathf.Max(0.04f, bounds.size.x * scale * hitScaleX),
-                Mathf.Max(0.04f, bounds.size.y * scale * hitScaleY));
+            Vector3 lossy = transform.lossyScale;
+            float rootScale = Mathf.Max(Mathf.Abs(lossy.x), Mathf.Abs(lossy.y), 0.0001f);
+            return CalculateLocalRadius(
+                hasSprite ? bounds.size.x : 0f,
+                hasSprite ? bounds.size.y : 0f,
+                rootScale,
+                _data != null ? _data.HitRadius : 1f,
+                _data != null ? _data.HitScaleX : 1f,
+                _data != null ? _data.HitScaleY : 1f);
+        }
+
+        public static float CalculateLocalRadius(
+            float spriteWorldWidth,
+            float spriteWorldHeight,
+            float rootScale,
+            float hitRadius,
+            float hitScaleX,
+            float hitScaleY)
+        {
+            float scale = Mathf.Max(0.02f, hitRadius);
+            float axisX = Mathf.Max(0.01f, hitScaleX);
+            float axisY = Mathf.Max(0.01f, hitScaleY);
+            float worldDiameter = Mathf.Max(spriteWorldWidth * axisX, spriteWorldHeight * axisY);
+            if (worldDiameter <= 0.0001f)
+                return 0.18f * scale * Mathf.Max(axisX, axisY);
+
+            float worldRadius = worldDiameter * 0.5f * scale;
+            float safeRoot = Mathf.Max(0.0001f, Mathf.Abs(rootScale));
+            return Mathf.Max(0.02f, worldRadius / safeRoot);
         }
 
         private float GetHitboxProbeRadius()
         {
-            Vector2 size = ResolveColliderWorldSize();
-            return 0.5f * Mathf.Max(size.x, size.y);
+            return _collider != null ? Mathf.Max(0.02f, _collider.radius) : 0.02f;
         }
 
         private void ApplyFacingRotation()
