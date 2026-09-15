@@ -46,6 +46,11 @@ namespace Scripts.Dungeon
             return Mathf.Max(0, startingDisplayedRoom - 1);
         }
 
+        public static int ResolveNextRoomAfterSegment(int roomsCompletedBeforeSegment, int segmentRoomCount)
+        {
+            return Mathf.Max(0, roomsCompletedBeforeSegment) + Mathf.Max(0, segmentRoomCount) + 1;
+        }
+
         public static List<int> ResolveUnlockedFloorCheckpoints(int highestDisplayedRoom)
         {
             var floors = new List<int>();

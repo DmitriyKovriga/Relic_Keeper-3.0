@@ -302,6 +302,47 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(19), Is.EqualTo(new[] { 10 }));
             Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(20), Is.EqualTo(new[] { 10, 20 }));
             Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(25), Is.EqualTo(new[] { 10, 20 }));
+            Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(29), Is.EqualTo(new[] { 10, 20 }));
+            Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(30), Is.EqualTo(new[] { 10, 20, 30 }));
+        }
+
+        [Test]
+        public void CompletingSegment_UnlocksNextCheckpointWithoutEnteringIt()
+        {
+            Assert.That(DungeonRunProgress.ResolveNextRoomAfterSegment(0, 10), Is.EqualTo(11));
+            Assert.That(
+                DungeonRunProgress.ResolveUnlockedFloorCheckpoints(11),
+                Is.EqualTo(new[] { 10 }));
+
+            int roomsCompletedBeforeSegment = DungeonRunProgress.ResolveStartingRoomsCompleted(20);
+            Assert.That(roomsCompletedBeforeSegment, Is.EqualTo(19));
+            Assert.That(DungeonRunProgress.ResolveDisplayedRoomNumber(roomsCompletedBeforeSegment, 9), Is.EqualTo(29));
+            Assert.That(DungeonRunProgress.ResolveNextRoomAfterSegment(roomsCompletedBeforeSegment, 10), Is.EqualTo(30));
+            Assert.That(
+                DungeonRunProgress.ResolveUnlockedFloorCheckpoints(29),
+                Is.EqualTo(new[] { 10, 20 }));
+            Assert.That(
+                DungeonRunProgress.ResolveUnlockedFloorCheckpoints(
+                    DungeonRunProgress.ResolveNextRoomAfterSegment(roomsCompletedBeforeSegment, 10)),
+                Is.EqualTo(new[] { 10, 20, 30 }));
+
+            DungeonRunUnlocks.Clear();
+            try
+            {
+                DungeonRunUnlocks.RecordReachedRoom("Mortfall", 29);
+                DungeonRunUnlocks.RecordReachedRoom(
+                    "Mortfall",
+                    DungeonRunProgress.ResolveNextRoomAfterSegment(roomsCompletedBeforeSegment, 10));
+                Assert.That(DungeonRunUnlocks.GetHighestDisplayedRoom("Mortfall"), Is.EqualTo(30));
+                Assert.That(
+                    DungeonRunProgress.ResolveUnlockedFloorCheckpoints(
+                        DungeonRunUnlocks.GetHighestDisplayedRoom("Mortfall")),
+                    Is.EqualTo(new[] { 10, 20, 30 }));
+            }
+            finally
+            {
+                DungeonRunUnlocks.Clear();
+            }
         }
 
         [Test]

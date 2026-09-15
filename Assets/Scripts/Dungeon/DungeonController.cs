@@ -158,6 +158,16 @@ namespace Scripts.Dungeon
                 DungeonRunProgress.ResolveDisplayedRoomNumber(_roomsCompletedBeforeSegment, _currentRoomIndex));
         }
 
+        private void RecordCompletedSegmentUnlock()
+        {
+            if (_currentDungeon == null)
+                return;
+
+            DungeonRunUnlocks.RecordReachedRoom(
+                _currentDungeon.ID,
+                DungeonRunProgress.ResolveNextRoomAfterSegment(_roomsCompletedBeforeSegment, _roomSequence.Count));
+        }
+
         private void BeginDungeon(DungeonDataSO dungeon, DungeonModifierSO selectedEntryModifier)
         {
             if (dungeon == null)
@@ -427,6 +437,7 @@ namespace Scripts.Dungeon
             if (_continueChoiceOpen)
                 return;
 
+            RecordCompletedSegmentUnlock();
             _continueChoiceOpen = true;
             DungeonRunContinueUI.GetOrCreate().Show(
                 "Идти дальше или вернуться в поселение?",
