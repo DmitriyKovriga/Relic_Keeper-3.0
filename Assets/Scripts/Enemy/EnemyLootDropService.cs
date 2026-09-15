@@ -256,7 +256,13 @@ namespace Scripts.Enemies
 
         public static InventoryItem CreateGuaranteedItem(int itemLevel, float rarityRoll)
         {
-            ItemDatabaseSO database = Resources.Load<ItemDatabaseSO>(ProjectPaths.ResourcesItemDatabase);
+            return CreateGuaranteedItem(itemLevel, rarityRoll, null);
+        }
+
+        public static InventoryItem CreateGuaranteedItem(int itemLevel, float rarityRoll, ItemDatabaseSO database)
+        {
+            if (database == null)
+                database = Resources.Load<ItemDatabaseSO>(ProjectPaths.ResourcesItemDatabase);
             if (database == null)
                 return null;
 
@@ -270,11 +276,36 @@ namespace Scripts.Enemies
                 database.CommonItemDropChance,
                 database.MagicItemDropChance,
                 database.RareItemDropChance);
-            EquipmentItemSO baseItem = SelectBaseItemForRarity(database, itemLevel, ref rarity, Random.value);
+            float itemRoll = Random.value;
+            EquipmentItemSO baseItem = SelectBaseItemForRarity(database, itemLevel, ref rarity, itemRoll);
             if (baseItem == null)
-                return null;
+            {
+                rarity = EnemyLootRarity.Common;
+                baseItem = SelectBaseItem(database, int.MaxValue, EnemyLootRarity.Common, itemRoll);
+            }
 
-            return ItemGenerator.GenerateRuntime(baseItem, itemLevel, (int)rarity);
+            return baseItem != null ? ItemGenerator.GenerateRuntime(baseItem, itemLevel, (int)rarity) : null;
+        }
+
+        public static void FillGuaranteedItems(
+            System.Collections.Generic.List<InventoryItem> target,
+            int count,
+            int itemLevel,
+            ItemDatabaseSO database = null)
+        {
+            if (target == null)
+                return;
+
+            int needed = Mathf.Max(0, count);
+            int attempts = 0;
+            int maxAttempts = Mathf.Max(8, needed * 8);
+            while (target.Count < needed && attempts < maxAttempts)
+            {
+                attempts++;
+                InventoryItem item = CreateGuaranteedItem(itemLevel, Random.value, database);
+                if (item != null)
+                    target.Add(item);
+            }
         }
 
         public static EquipmentItemSO SelectGuaranteedRareBaseItem(

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using Scripts.Enemies;
+using Scripts.Dungeon;
 using Scripts.Items;
 using Scripts.Items.Affixes;
 using Scripts.Inventory;
@@ -238,6 +239,41 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(save.Affixes, Has.Count.EqualTo(1));
             Assert.That(save.Affixes[0].AffixID, Is.EqualTo("tier_save_affix"));
             Assert.That(save.Affixes[0].Tier, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void FillGuaranteedItems_AlwaysCreatesRequestedCount()
+        {
+            ItemDatabaseSO database = Create<ItemDatabaseSO>();
+            database.AllItems = new List<EquipmentItemSO> { CreateItem("only", 1) };
+
+            var items = new List<InventoryItem>();
+            EnemyLootDropService.FillGuaranteedItems(items, 5, 1, database);
+
+            Assert.That(items, Has.Count.EqualTo(5));
+            Assert.That(items, Has.All.Matches<InventoryItem>(item => item?.Data != null));
+        }
+
+        [Test]
+        public void CreateGuaranteedItem_FallsBackWhenNoItemMatchesDropLevel()
+        {
+            ItemDatabaseSO database = Create<ItemDatabaseSO>();
+            ArmorItemSO highLevelItem = CreateItem("high", 50);
+            database.AllItems = new List<EquipmentItemSO> { highLevelItem };
+
+            InventoryItem item = EnemyLootDropService.CreateGuaranteedItem(1, 0.5f, database);
+
+            Assert.That(item, Is.Not.Null);
+            Assert.That(item.Data, Is.SameAs(highLevelItem));
+        }
+
+        [Test]
+        public void RewardChest_DropCountStaysInsideAdvertisedRange()
+        {
+            for (int i = 0; i < 30; i++)
+                Assert.That(RewardChest.ResolveDropCount(1, 5), Is.InRange(1, 5));
+
+            Assert.That(RewardChest.ResolveDropCount(0, 0), Is.EqualTo(1));
         }
 
         private ArmorItemSO CreateItem(string id, int dropLevel)

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Scripts.Enemies;
 using Scripts.Inventory;
 using Scripts.Items.World;
@@ -102,6 +103,13 @@ namespace Scripts.Dungeon
             Physics2D.SyncTransforms();
         }
 
+        public static int ResolveDropCount(int minimumDrops, int maximumDrops)
+        {
+            int min = Mathf.Max(1, minimumDrops);
+            int max = Mathf.Max(min, maximumDrops);
+            return Random.Range(min, max + 1);
+        }
+
         public string GetPrompt() => "Открыть сундук";
         public bool CanInteract() => !_opened;
 
@@ -111,19 +119,33 @@ namespace Scripts.Dungeon
                 return;
 
             _opened = true;
-            int count = Random.Range(Mathf.Max(1, _minimumDrops), Mathf.Max(_minimumDrops, _maximumDrops) + 1);
-            for (int i = 0; i < count; i++)
-            {
-                InventoryItem item = EnemyLootDropService.CreateGuaranteedItem(_itemLevel, Random.value);
-                if (item == null)
-                    continue;
+            DisableColliders();
 
-                float centeredIndex = i - (count - 1) * 0.5f;
+            int count = ResolveDropCount(_minimumDrops, _maximumDrops);
+            var items = new List<InventoryItem>(count);
+            EnemyLootDropService.FillGuaranteedItems(items, count, _itemLevel);
+
+            Transform dropParent = transform.parent;
+            for (int i = 0; i < items.Count; i++)
+            {
+                float centeredIndex = i - (items.Count - 1) * 0.5f;
                 Vector2 position = (Vector2)transform.position + new Vector2(centeredIndex * 0.32f, 0f);
-                WorldItemDropService.SpawnOnGround(item, position);
+                WorldDroppedItem drop = WorldItemDropService.SpawnOnGround(items[i], position);
+                if (drop != null && dropParent != null)
+                    drop.transform.SetParent(dropParent, true);
             }
 
             Destroy(gameObject);
+        }
+
+        private void DisableColliders()
+        {
+            Collider2D[] colliders = GetComponents<Collider2D>();
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                if (colliders[i] != null)
+                    colliders[i].enabled = false;
+            }
         }
 
         private void EnsurePlaceholderVisual()
