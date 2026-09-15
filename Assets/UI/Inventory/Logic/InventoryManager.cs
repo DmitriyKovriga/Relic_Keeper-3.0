@@ -204,6 +204,58 @@ namespace Scripts.Inventory
             return true;
         }
 
+        public bool TryPickupItem(InventoryItem item)
+        {
+            if (item?.Data == null)
+                return false;
+            if (TryAutoEquipToEmptySlot(item))
+                return true;
+            return AddItem(item);
+        }
+
+        public bool TryAutoEquipToEmptySlot(InventoryItem item)
+        {
+            if (!TryGetEmptyAutoEquipSlot(item, out int localSlot))
+                return false;
+            return PlaceItemAt(item, EQUIP_OFFSET + localSlot, -1);
+        }
+
+        public bool TryGetEmptyAutoEquipSlot(InventoryItem item, out int localSlot)
+        {
+            localSlot = -1;
+            if (item?.Data == null || EquipmentItems == null)
+                return false;
+
+            if (item.IsDefensiveOffHand)
+                return IsEmptyAutoEquipSlot((int)EquipmentSlot.OffHand, item, out localSlot);
+
+            if (item.Data is WeaponItemSO weapon)
+            {
+                if (weapon.IsTwoHanded)
+                    return IsEmptyAutoEquipSlot((int)EquipmentSlot.MainHand, item, out localSlot);
+
+                if (IsEmptyAutoEquipSlot((int)EquipmentSlot.MainHand, item, out localSlot))
+                    return true;
+                return IsEmptyAutoEquipSlot((int)EquipmentSlot.OffHand, item, out localSlot);
+            }
+
+            return IsEmptyAutoEquipSlot((int)item.Data.Slot, item, out localSlot);
+        }
+
+        private bool IsEmptyAutoEquipSlot(int localSlotIndex, InventoryItem item, out int localSlot)
+        {
+            localSlot = -1;
+            if (localSlotIndex < 0 || localSlotIndex >= EquipmentItems.Length)
+                return false;
+            if (EquipmentItems[localSlotIndex] != null)
+                return false;
+            if (!CanEquipItemToLocalSlot(item, localSlotIndex))
+                return false;
+
+            localSlot = localSlotIndex;
+            return true;
+        }
+
         /// <summary>Р—Р°С‰РёС‚РЅР°СЏ РјРµС…Р°РЅРёРєР°: РµСЃР»Рё РїСЂРµРґРјРµС‚ РјРѕРі Р±С‹ Р±С‹С‚СЊ СЂР°Р·СЂСѓС€РµРЅ (РЅРµРєСѓРґР° РїРѕР»РѕР¶РёС‚СЊ), РґРѕР±Р°РІР»СЏРµРј РІ СЂСЋРєР·Р°Рє РёР»Рё РІ СЃРєР»Р°Рґ Рё РїРёС€РµРј РІ Р»РѕРі.</summary>
         /// <returns>true, РµСЃР»Рё РїСЂРµРґРјРµС‚ СѓРґР°Р»РѕСЃСЊ РєСѓРґР°-С‚Рѕ РїРѕР»РѕР¶РёС‚СЊ.</returns>
         public bool RecoverItemToInventory(InventoryItem item)

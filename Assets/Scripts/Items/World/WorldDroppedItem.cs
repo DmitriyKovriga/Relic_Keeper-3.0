@@ -92,7 +92,7 @@ namespace Scripts.Items.World
                 return;
             }
 
-            if (!InventoryManager.Instance.AddItem(_item))
+            if (!InventoryManager.Instance.TryPickupItem(_item))
             {
                 PlayerNoticeBanner.ShowInventoryFull();
                 return;
