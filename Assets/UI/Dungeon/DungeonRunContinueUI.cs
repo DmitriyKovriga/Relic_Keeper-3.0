@@ -10,6 +10,12 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
     public const int ButtonWidth = 96;
     public const int ButtonHeight = 16;
 
+    public static string FormatTitle(int completedDisplayedRoom)
+    {
+        int floor = Mathf.Max(1, completedDisplayedRoom);
+        return $"{floor} этаж пройден.\nИдти дальше или в поселение?";
+    }
+
     private static readonly Color WindowBackground = new Color(0.10f, 0.075f, 0.055f, 0.99f);
     private static readonly Color GoldBorder = new Color(0.48f, 0.37f, 0.21f, 1f);
     private static readonly Color GoldHighlight = new Color(0.78f, 0.61f, 0.32f, 1f);
@@ -66,7 +72,7 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
         _onContinue = onContinue;
         _onReturnToSettlement = onReturnToSettlement;
         _title.text = string.IsNullOrWhiteSpace(title)
-            ? "Идти дальше или вернуться в поселение?"
+            ? FormatTitle(10)
             : title;
 
         if (_document != null && _document.rootVisualElement != null)
@@ -90,12 +96,12 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
         panel.style.backgroundColor = WindowBackground;
         SetSquareBorder(panel, 2f, GoldBorder);
 
-        var title = new Label("Идти дальше или вернуться в поселение?")
+        var title = new Label(FormatTitle(10))
         {
             name = "ContinueTitle",
             pickingMode = PickingMode.Ignore
         };
-        title.style.height = 28;
+        title.style.height = 32;
         title.style.flexShrink = 0;
         title.style.fontSize = 8;
         title.style.unityFontStyleAndWeight = FontStyle.Bold;

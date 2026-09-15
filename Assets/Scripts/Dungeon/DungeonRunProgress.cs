@@ -22,7 +22,18 @@ namespace Scripts.Dungeon
 
         public static int ResolveDisplayedRoomCount(int roomsCompletedBeforeSegment, int segmentRoomCount)
         {
-            return Mathf.Max(0, roomsCompletedBeforeSegment) + Mathf.Max(0, segmentRoomCount);
+            int count = Mathf.Max(0, roomsCompletedBeforeSegment) + Mathf.Max(0, segmentRoomCount);
+            return AlignDisplayedRoomCountToCheckpoint(count);
+        }
+
+        public static int AlignDisplayedRoomCountToCheckpoint(int roomCount)
+        {
+            int count = Mathf.Max(0, roomCount);
+            if (count == 0)
+                return 0;
+
+            int remainder = count % FloorCheckpointSize;
+            return remainder == 0 ? count : count + FloorCheckpointSize - remainder;
         }
 
         public static DungeonModifierValues CreateLocationLevelLootModifier(int locationLevel)
@@ -44,6 +55,16 @@ namespace Scripts.Dungeon
         public static int ResolveStartingRoomsCompleted(int startingDisplayedRoom)
         {
             return Mathf.Max(0, startingDisplayedRoom - 1);
+        }
+
+        public static int ResolveSegmentRoomCount(int roomsCompletedBeforeSegment, int baseRoomCount)
+        {
+            int completed = Mathf.Max(0, roomsCompletedBeforeSegment);
+            int firstRoom = completed + 1;
+            int size = Mathf.Max(1, baseRoomCount);
+            int remainder = firstRoom % size;
+            int nextCheckpoint = remainder == 0 ? firstRoom : firstRoom + (size - remainder);
+            return Mathf.Max(1, nextCheckpoint - completed);
         }
 
         public static int ResolveNextRoomAfterSegment(int roomsCompletedBeforeSegment, int segmentRoomCount)

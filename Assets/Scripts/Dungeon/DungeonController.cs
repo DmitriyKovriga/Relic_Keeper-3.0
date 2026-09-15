@@ -242,11 +242,15 @@ namespace Scripts.Dungeon
         {
             _roomSequence.Clear();
             var normal = _currentDungeon.NormalRoomPrefabPaths;
-            int normalRoomCount = Mathf.Max(0, _currentDungeon.RoomCount - 1);
+            int targetCount = DungeonRunProgress.ResolveSegmentRoomCount(
+                _roomsCompletedBeforeSegment,
+                Mathf.Max(1, _currentDungeon.RoomCount));
+            bool hasBoss = !string.IsNullOrEmpty(_currentDungeon.BossRoomPrefabPath);
+            int normalRoomCount = hasBoss ? Mathf.Max(0, targetCount - 1) : targetCount;
 
             if (normal == null || normal.Count == 0)
             {
-                if (!string.IsNullOrEmpty(_currentDungeon.BossRoomPrefabPath))
+                if (hasBoss)
                     _roomSequence.Add(_currentDungeon.BossRoomPrefabPath);
 
                 return;
@@ -254,7 +258,7 @@ namespace Scripts.Dungeon
 
             AddNormalRoomsWithoutRepeats(normal, normalRoomCount);
 
-            if (!string.IsNullOrEmpty(_currentDungeon.BossRoomPrefabPath))
+            if (hasBoss)
                 _roomSequence.Add(_currentDungeon.BossRoomPrefabPath);
         }
 
@@ -439,8 +443,11 @@ namespace Scripts.Dungeon
 
             RecordCompletedSegmentUnlock();
             _continueChoiceOpen = true;
+            int completedFloor = DungeonRunProgress.ResolveDisplayedRoomNumber(
+                _roomsCompletedBeforeSegment,
+                Mathf.Max(0, _roomSequence.Count - 1));
             DungeonRunContinueUI.GetOrCreate().Show(
-                "Идти дальше или вернуться в поселение?",
+                DungeonRunContinueUI.FormatTitle(completedFloor),
                 ContinueEndlessSegment,
                 AbortDungeonRunFromContinue);
         }

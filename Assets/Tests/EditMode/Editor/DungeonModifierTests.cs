@@ -246,7 +246,32 @@ namespace RelicKeeper.Tests.EditMode
         {
             Assert.That(DungeonRunProgress.ResolveDisplayedRoomNumber(0, 0), Is.EqualTo(1));
             Assert.That(DungeonRunProgress.ResolveDisplayedRoomNumber(10, 0), Is.EqualTo(11));
+            Assert.That(DungeonRunProgress.ResolveDisplayedRoomCount(0, 10), Is.EqualTo(10));
             Assert.That(DungeonRunProgress.ResolveDisplayedRoomCount(10, 10), Is.EqualTo(20));
+        }
+
+        [Test]
+        public void FloorSkip_ContinueChoiceSitsBetweenCheckpointAndNextRoom()
+        {
+            Assert.That(DungeonRunProgress.ResolveSegmentRoomCount(0, 10), Is.EqualTo(10));
+            Assert.That(DungeonRunProgress.ResolveNextRoomAfterSegment(0, 10), Is.EqualTo(11));
+
+            int skipTen = DungeonRunProgress.ResolveStartingRoomsCompleted(10);
+            int skipTenCount = DungeonRunProgress.ResolveSegmentRoomCount(skipTen, 10);
+            Assert.That(skipTenCount, Is.EqualTo(1));
+            Assert.That(DungeonRunProgress.ResolveDisplayedRoomNumber(skipTen, 0), Is.EqualTo(10));
+            Assert.That(DungeonRunProgress.ResolveDisplayedRoomCount(skipTen, skipTenCount), Is.EqualTo(10));
+            Assert.That(DungeonRunProgress.ResolveNextRoomAfterSegment(skipTen, skipTenCount), Is.EqualTo(11));
+            Assert.That(DungeonRunProgress.ResolveSegmentRoomCount(10, 10), Is.EqualTo(10));
+            Assert.That(DungeonRunProgress.ResolveDisplayedRoomNumber(10, 0), Is.EqualTo(11));
+            Assert.That(DungeonRunProgress.ResolveDisplayedRoomCount(10, 10), Is.EqualTo(20));
+
+            int skipTwenty = DungeonRunProgress.ResolveStartingRoomsCompleted(20);
+            int skipTwentyCount = DungeonRunProgress.ResolveSegmentRoomCount(skipTwenty, 10);
+            Assert.That(skipTwentyCount, Is.EqualTo(1));
+            Assert.That(DungeonRunProgress.ResolveDisplayedRoomNumber(skipTwenty, 0), Is.EqualTo(20));
+            Assert.That(DungeonRunProgress.ResolveNextRoomAfterSegment(skipTwenty, skipTwentyCount), Is.EqualTo(21));
+            Assert.That(DungeonRunProgress.ResolveSegmentRoomCount(20, 10), Is.EqualTo(10));
         }
 
         [Test]
@@ -291,6 +316,12 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(continueButton.text, Is.EqualTo("Дальше"));
             Assert.That(returnButton.text, Is.EqualTo("В поселение"));
             Assert.That((DungeonRunContinueUI.ButtonWidth * 2) + 8, Is.LessThanOrEqualTo(DungeonRunContinueUI.WindowWidth));
+            Assert.That(
+                DungeonRunContinueUI.FormatTitle(10),
+                Is.EqualTo("10 этаж пройден.\nИдти дальше или в поселение?"));
+            Assert.That(
+                DungeonRunContinueUI.FormatTitle(20),
+                Is.EqualTo("20 этаж пройден.\nИдти дальше или в поселение?"));
         }
 
         [Test]
@@ -304,45 +335,6 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(25), Is.EqualTo(new[] { 10, 20 }));
             Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(29), Is.EqualTo(new[] { 10, 20 }));
             Assert.That(DungeonRunProgress.ResolveUnlockedFloorCheckpoints(30), Is.EqualTo(new[] { 10, 20, 30 }));
-        }
-
-        [Test]
-        public void CompletingSegment_UnlocksNextCheckpointWithoutEnteringIt()
-        {
-            Assert.That(DungeonRunProgress.ResolveNextRoomAfterSegment(0, 10), Is.EqualTo(11));
-            Assert.That(
-                DungeonRunProgress.ResolveUnlockedFloorCheckpoints(11),
-                Is.EqualTo(new[] { 10 }));
-
-            int roomsCompletedBeforeSegment = DungeonRunProgress.ResolveStartingRoomsCompleted(20);
-            Assert.That(roomsCompletedBeforeSegment, Is.EqualTo(19));
-            Assert.That(DungeonRunProgress.ResolveDisplayedRoomNumber(roomsCompletedBeforeSegment, 9), Is.EqualTo(29));
-            Assert.That(DungeonRunProgress.ResolveNextRoomAfterSegment(roomsCompletedBeforeSegment, 10), Is.EqualTo(30));
-            Assert.That(
-                DungeonRunProgress.ResolveUnlockedFloorCheckpoints(29),
-                Is.EqualTo(new[] { 10, 20 }));
-            Assert.That(
-                DungeonRunProgress.ResolveUnlockedFloorCheckpoints(
-                    DungeonRunProgress.ResolveNextRoomAfterSegment(roomsCompletedBeforeSegment, 10)),
-                Is.EqualTo(new[] { 10, 20, 30 }));
-
-            DungeonRunUnlocks.Clear();
-            try
-            {
-                DungeonRunUnlocks.RecordReachedRoom("Mortfall", 29);
-                DungeonRunUnlocks.RecordReachedRoom(
-                    "Mortfall",
-                    DungeonRunProgress.ResolveNextRoomAfterSegment(roomsCompletedBeforeSegment, 10));
-                Assert.That(DungeonRunUnlocks.GetHighestDisplayedRoom("Mortfall"), Is.EqualTo(30));
-                Assert.That(
-                    DungeonRunProgress.ResolveUnlockedFloorCheckpoints(
-                        DungeonRunUnlocks.GetHighestDisplayedRoom("Mortfall")),
-                    Is.EqualTo(new[] { 10, 20, 30 }));
-            }
-            finally
-            {
-                DungeonRunUnlocks.Clear();
-            }
         }
 
         [Test]
