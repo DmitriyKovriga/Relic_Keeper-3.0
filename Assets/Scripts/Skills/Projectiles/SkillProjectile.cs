@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections;
 using Scripts.Combat;
 using Scripts.Enemies;
+using Scripts.Skills;
 using Scripts.Skills.Modules;
 using Scripts.Skills.Steps;
 using Scripts.Skills.Visuals;
@@ -34,6 +35,8 @@ namespace Scripts.Skills.Projectiles
         public float Speed = 8f;
         public float Lifetime = 4f;
         public float HitRadius = 1f;
+        public float HitScaleX = 1f;
+        public float HitScaleY = 1f;
         public float RotationDegreesPerSecond = 720f;
         public int RemainingForks;
         public int RemainingChains;
@@ -95,6 +98,7 @@ namespace Scripts.Skills.Projectiles
         private bool _defaultFlipX;
         private bool _defaultVisualStateCaptured;
         private CircleCollider2D _collider;
+        private BoxCollider2D _boxCollider;
         private Rigidbody2D _rigidbody;
         private GameObject _template;
         private HashSet<IDamageable> _hitHistory = new HashSet<IDamageable>();
@@ -241,8 +245,7 @@ namespace Scripts.Skills.Projectiles
 
             ApplyVisual();
             WorldRenderSorting.ConfigureAutoSorter(gameObject, RenderDepthCategory.HeroAttackVfx, transform.position.y);
-            _collider.isTrigger = true;
-            _collider.radius = ResolveColliderRadius();
+            ApplyHitbox();
             if (_data.OrbitOwner)
                 UpdateOrbitPosition();
             if (_data.GroundMotion)
@@ -316,8 +319,8 @@ namespace Scripts.Skills.Projectiles
             if (_data == null || _collider == null)
                 return;
 
-            float radius = Mathf.Max(0.02f, _collider.radius);
-            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, radius);
+            Vector2 size = ResolveColliderWorldSize();
+            Collider2D[] hits = Physics2D.OverlapBoxAll(transform.position, size, transform.eulerAngles.z);
             for (int i = 0; i < hits.Length; i++)
             {
                 if (TryHandleCollision(hits[i]) || _data == null)
@@ -463,15 +466,21 @@ namespace Scripts.Skills.Projectiles
             DamageSnapshot sourceSnapshot)
         {
             float lifetime = Mathf.Max(0.01f, rule.Lifetime);
-            float scale = Mathf.Max(0.01f, rule.ScaleMultiplier);
+            float aoeScale = 1f;
+            if (_data.OwnerStats != null)
+                aoeScale = 1f + _data.OwnerStats.GetValue(StatType.AreaOfEffect) / 100f;
+            Vector2 scale = SkillAoeScale.FromAoe(
+                aoeScale,
+                Mathf.Max(0.01f, rule.ScaleMultiplier) * SkillAoeScale.AxisMultiplierOrDefault(rule.ScaleX),
+                Mathf.Max(0.01f, rule.ScaleMultiplier) * SkillAoeScale.AxisMultiplierOrDefault(rule.ScaleY));
             GameObject vfx = null;
             if (rule.VfxPrefab != null)
             {
                 vfx = Instantiate(rule.VfxPrefab, origin, Quaternion.identity);
                 PlayerAttackVfxOpacity.ApplyOnce(vfx);
                 vfx.transform.localScale = new Vector3(
-                    Mathf.Abs(vfx.transform.localScale.x) * scale,
-                    Mathf.Abs(vfx.transform.localScale.y) * scale,
+                    Mathf.Abs(vfx.transform.localScale.x) * scale.x,
+                    Mathf.Abs(vfx.transform.localScale.y) * scale.y,
                     vfx.transform.localScale.z);
 
                 Animator anim = vfx.GetComponentInChildren<Animator>();
@@ -491,8 +500,9 @@ namespace Scripts.Skills.Projectiles
                 yield break;
 
             Vector2 center = vfx != null ? (Vector2)vfx.transform.position : (Vector2)origin;
-            float radius = Mathf.Max(0.01f, rule.Radius) * scale;
-            Collider2D[] hits = Physics2D.OverlapCircleAll(center, radius, _data.TargetLayer);
+            float baseRadius = Mathf.Max(0.01f, rule.Radius);
+            Vector2 size = new Vector2(baseRadius * 2f * scale.x, baseRadius * 2f * scale.y);
+            Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, 0f, _data.TargetLayer);
             DamageSnapshot scaledSnapshot = CloneScaledSnapshot(sourceSnapshot, Mathf.Max(0f, rule.DamageMultiplier));
             var uniqueTargets = new HashSet<IDamageable>();
             for (int i = 0; i < hits.Length; i++)
@@ -594,7 +604,7 @@ namespace Scripts.Skills.Projectiles
             childData.HitHistory = new HashSet<IDamageable>(_hitHistory);
 
             float angle = Mathf.Max(0f, _data.ForkAngle);
-            Vector2 origin = (Vector2)transform.position + _direction * Mathf.Max(0.02f, _collider.radius * 1.5f);
+            Vector2 origin = (Vector2)transform.position + _direction * Mathf.Max(0.02f, GetHitboxProbeRadius() * 1.5f);
             SkillProjectile.Spawn(childData, origin, Rotate(_direction, angle), null);
             SkillProjectile.Spawn(childData, origin, Rotate(_direction, -angle), null);
             Despawn();
@@ -703,7 +713,7 @@ namespace Scripts.Skills.Projectiles
                 return false;
 
             Vector2 direction = _direction.sqrMagnitude > 0.0001f ? _direction.normalized : Vector2.right;
-            float probeDistance = Mathf.Max(0.01f, travelDistance) + Mathf.Max(0.02f, _collider != null ? _collider.radius : 0.02f);
+            float probeDistance = Mathf.Max(0.01f, travelDistance) + Mathf.Max(0.02f, GetHitboxProbeRadius());
             Vector2 origin = TryGetVisualBounds(out Bounds bounds) ? (Vector2)bounds.center : (Vector2)transform.position;
             RaycastHit2D[] hits = Physics2D.RaycastAll(origin, direction, probeDistance, _data.GroundLayer);
             for (int i = 0; i < hits.Length; i++)
@@ -733,8 +743,8 @@ namespace Scripts.Skills.Projectiles
 
             float centerX = TryGetVisualBounds(out bounds) ? bounds.center.x : transform.position.x;
             float forwardProbe = TryGetVisualBounds(out bounds)
-                ? bounds.extents.x + Mathf.Max(0.01f, _collider != null ? _collider.radius * 0.25f : 0.01f)
-                : Mathf.Max(0.02f, _collider != null ? _collider.radius : 0.02f);
+                ? bounds.extents.x + Mathf.Max(0.01f, GetHitboxProbeRadius() * 0.25f)
+                : Mathf.Max(0.02f, GetHitboxProbeRadius());
 
             bool found = false;
             float bestScore = float.MaxValue;
@@ -957,21 +967,49 @@ namespace Scripts.Skills.Projectiles
             _spriteRenderer.flipX = _defaultFlipX;
         }
 
-        private float ResolveColliderRadius()
+        private void ApplyHitbox()
+        {
+            Vector2 worldSize = ResolveColliderWorldSize();
+            Vector3 lossy = transform.lossyScale;
+            Vector2 localSize = new Vector2(
+                worldSize.x / Mathf.Max(0.0001f, Mathf.Abs(lossy.x)),
+                worldSize.y / Mathf.Max(0.0001f, Mathf.Abs(lossy.y)));
+
+            if (_collider != null)
+            {
+                _collider.isTrigger = true;
+                _collider.enabled = false;
+                _collider.radius = 0.5f * Mathf.Max(localSize.x, localSize.y);
+            }
+
+            if (_boxCollider == null)
+                _boxCollider = GetComponent<BoxCollider2D>();
+            if (_boxCollider == null)
+                _boxCollider = gameObject.AddComponent<BoxCollider2D>();
+
+            _boxCollider.isTrigger = true;
+            _boxCollider.enabled = true;
+            _boxCollider.size = localSize;
+        }
+
+        private Vector2 ResolveColliderWorldSize()
         {
             float scale = _data != null ? Mathf.Max(0.02f, _data.HitRadius) : 1f;
+            float hitScaleX = _data != null ? Mathf.Max(0.01f, _data.HitScaleX) : 1f;
+            float hitScaleY = _data != null ? Mathf.Max(0.01f, _data.HitScaleY) : 1f;
             if (_spriteRenderer == null || _spriteRenderer.sprite == null)
-                return 0.18f * scale;
+                return new Vector2(0.36f * scale * hitScaleX, 0.36f * scale * hitScaleY);
 
             Bounds bounds = _spriteRenderer.bounds;
-            float worldDiameter = Mathf.Max(bounds.size.x, bounds.size.y);
-            if (worldDiameter <= 0.0001f)
-                return 0.18f * scale;
+            return new Vector2(
+                Mathf.Max(0.04f, bounds.size.x * scale * hitScaleX),
+                Mathf.Max(0.04f, bounds.size.y * scale * hitScaleY));
+        }
 
-            float worldRadius = worldDiameter * 0.5f * scale;
-            Vector3 lossyScale = transform.lossyScale;
-            float rootScale = Mathf.Max(Mathf.Abs(lossyScale.x), Mathf.Abs(lossyScale.y), 0.0001f);
-            return Mathf.Max(0.02f, worldRadius / rootScale);
+        private float GetHitboxProbeRadius()
+        {
+            Vector2 size = ResolveColliderWorldSize();
+            return 0.5f * Mathf.Max(size.x, size.y);
         }
 
         private void ApplyFacingRotation()
@@ -1004,6 +1042,8 @@ namespace Scripts.Skills.Projectiles
                 _spriteRenderer = GetComponent<SpriteRenderer>() ?? GetComponentInChildren<SpriteRenderer>(true);
             if (_collider == null)
                 _collider = GetComponent<CircleCollider2D>();
+            if (_boxCollider == null)
+                _boxCollider = GetComponent<BoxCollider2D>();
             if (_rigidbody == null)
                 _rigidbody = GetComponent<Rigidbody2D>();
         }

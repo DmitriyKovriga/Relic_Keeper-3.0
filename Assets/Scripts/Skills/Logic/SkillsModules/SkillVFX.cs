@@ -1,6 +1,7 @@
 using UnityEngine;
 using Scripts.Visuals;
 using Scripts.Skills.Visuals;
+using Scripts.Skills;
 
 namespace Scripts.Skills.Modules
 {
@@ -50,6 +51,27 @@ namespace Scripts.Skills.Modules
             float fadeStartAlphaMultiplier,
             out Vector3 spawnPos)
         {
+            return PlayForLifetime(
+                ownerTransform,
+                facingDirection,
+                SkillAoeScale.FromAoe(scaleMultiplier),
+                lifetime,
+                fadeOutEnabled,
+                fadeOutStartLifePercent,
+                fadeStartAlphaMultiplier,
+                out spawnPos);
+        }
+
+        public GameObject PlayForLifetime(
+            Transform ownerTransform,
+            float facingDirection,
+            Vector2 scale,
+            float lifetime,
+            bool fadeOutEnabled,
+            float fadeOutStartLifePercent,
+            float fadeStartAlphaMultiplier,
+            out Vector3 spawnPos)
+        {
             spawnPos = ownerTransform != null
                 ? ownerTransform.position + new Vector3(_offset.x * facingDirection, _offset.y, 0f)
                 : Vector3.zero;
@@ -63,10 +85,10 @@ namespace Scripts.Skills.Modules
             PlayerAttackVfxOpacity.ApplyOnce(vfx);
 
             float finalDir = facingDirection * (_invertFacing ? -1f : 1f);
-            Vector3 scale = vfx.transform.localScale;
-            scale.x = Mathf.Abs(scale.x) * finalDir * scaleMultiplier;
-            scale.y = Mathf.Abs(scale.y) * scaleMultiplier;
-            vfx.transform.localScale = scale;
+            Vector3 localScale = vfx.transform.localScale;
+            localScale.x = Mathf.Abs(localScale.x) * finalDir * Mathf.Max(0.01f, scale.x);
+            localScale.y = Mathf.Abs(localScale.y) * Mathf.Max(0.01f, scale.y);
+            vfx.transform.localScale = localScale;
 
             var sr = vfx.GetComponentInChildren<SpriteRenderer>();
             if (sr != null)

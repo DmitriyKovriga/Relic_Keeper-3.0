@@ -1380,6 +1380,12 @@ namespace Scripts.Editor.Skills
                 float sm = step.GetFloat("ScaleMultiplier", 1f);
                 float nsm = EditorGUILayout.FloatField("Scale multiplier", sm);
                 if (Mathf.Abs(nsm - sm) > 0.001f) { step.SetOverrideFloat("ScaleMultiplier", nsm); EditorUtility.SetDirty(recipe); }
+                float sx = step.GetFloat("ScaleX", 1f);
+                float nsx = EditorGUILayout.FloatField("Scale X", sx);
+                if (Mathf.Abs(nsx - sx) > 0.001f) { step.SetOverrideFloat("ScaleX", nsx); EditorUtility.SetDirty(recipe); }
+                float sy = step.GetFloat("ScaleY", 1f);
+                float nsy = EditorGUILayout.FloatField("Scale Y", sy);
+                if (Mathf.Abs(nsy - sy) > 0.001f) { step.SetOverrideFloat("ScaleY", nsy); EditorUtility.SetDirty(recipe); }
                 float ox = step.GetFloat("OffsetX", 0f);
                 float nox = EditorGUILayout.FloatField("Offset X", ox);
                 if (nox != ox) { step.SetOverrideFloat("OffsetX", nox); EditorUtility.SetDirty(recipe); }
@@ -1461,21 +1467,13 @@ namespace Scripts.Editor.Skills
                 bool persistent = id == "PersistentDamageCircle";
                 EditorGUILayout.HelpBox(persistent
                     ? "Активный хитбокс: живет между Start % и End %, проверяет попадания каждый кадр и наносит урон каждому противнику только один раз за время жизни step-а. Если указан Source step index, круг следует за текущим VFX."
-                    : "Если указан Source step index, круг берёт размер текущего кадра VFX, включая прозрачные пиксели. Size X / Size Y — это мультипликаторы от визуального размера. Если Source step index = -1, используется обычный Radius.",
+                    : "Если указан Source step index, зона берёт размер текущего кадра VFX. Hitbox scale X / Y — множители по осям. Если Source step index = -1, используется Radius. Вертикальный AoE растёт вдвое слабее горизонтального.",
                     MessageType.None);
                 int src = step.GetInt("SourceStepIndex", -1);
                 int nsrc = EditorGUILayout.IntField("Source step index (Spawn VFX, -1 = от игрока)", src);
                 if (nsrc != src) { step.SetOverrideInt("SourceStepIndex", nsrc); EditorUtility.SetDirty(recipe); }
-                if (nsrc >= 0)
-                {
-                    float sx = step.GetFloat("SizeX", 1f);
-                    float nsx = EditorGUILayout.FloatField("Size X multiplier", sx);
-                    if (Mathf.Abs(nsx - sx) > 0.001f) { step.SetOverrideFloat("SizeX", nsx); EditorUtility.SetDirty(recipe); }
-                    float sy = step.GetFloat("SizeY", 1f);
-                    float nsy = EditorGUILayout.FloatField("Size Y multiplier", sy);
-                    if (Mathf.Abs(nsy - sy) > 0.001f) { step.SetOverrideFloat("SizeY", nsy); EditorUtility.SetDirty(recipe); }
-                }
-                else
+                DrawHitboxAxisScaleFields(recipe, step);
+                if (nsrc < 0)
                 {
                     float r = step.GetFloat("Radius", 1.5f);
                     float nr = EditorGUILayout.FloatField("Radius", r);
@@ -1564,20 +1562,12 @@ namespace Scripts.Editor.Skills
             if (id == "ApplyStatusCircle")
             {
                 DrawStatusEffectAssetField(recipe, step);
-                EditorGUILayout.HelpBox("Круговая зона наложения статуса. Если указан Source step index, круг берёт размер текущего кадра VFX; иначе используется обычный Radius.", MessageType.None);
+                EditorGUILayout.HelpBox("Зона наложения статуса. Если указан Source step index, берёт размер текущего кадра VFX; иначе используется Radius. Hitbox scale X / Y работают всегда. Вертикальный AoE растёт вдвое слабее горизонтального.", MessageType.None);
                 int src = step.GetInt("SourceStepIndex", -1);
                 int nsrc = EditorGUILayout.IntField("Source step index (Spawn VFX, -1 = от игрока)", src);
                 if (nsrc != src) { step.SetOverrideInt("SourceStepIndex", nsrc); EditorUtility.SetDirty(recipe); }
-                if (nsrc >= 0)
-                {
-                    float sx = step.GetFloat("SizeX", 1f);
-                    float nsx = EditorGUILayout.FloatField("Size X multiplier", sx);
-                    if (Mathf.Abs(nsx - sx) > 0.001f) { step.SetOverrideFloat("SizeX", nsx); EditorUtility.SetDirty(recipe); }
-                    float sy = step.GetFloat("SizeY", 1f);
-                    float nsy = EditorGUILayout.FloatField("Size Y multiplier", sy);
-                    if (Mathf.Abs(nsy - sy) > 0.001f) { step.SetOverrideFloat("SizeY", nsy); EditorUtility.SetDirty(recipe); }
-                }
-                else
+                DrawHitboxAxisScaleFields(recipe, step);
+                if (nsrc < 0)
                 {
                     float r = step.GetFloat("Radius", 1.5f);
                     float nr = EditorGUILayout.FloatField("Radius", r);
@@ -1798,8 +1788,9 @@ namespace Scripts.Editor.Skills
             if (Mathf.Abs(newLifetime - lifetime) > 0.001f) { step.SetOverrideFloat("Lifetime", newLifetime); EditorUtility.SetDirty(recipe); }
 
             float hitRadius = step.GetFloat("HitRadius", 1f);
-            float newHitRadius = Mathf.Max(0.02f, EditorGUILayout.FloatField(new GUIContent("Hit radius scale", "Множитель от размера спрайта снаряда. 1 = диаметр кругового hitbox равен наибольшей стороне спрайта."), hitRadius));
+            float newHitRadius = Mathf.Max(0.02f, EditorGUILayout.FloatField(new GUIContent("Hit radius scale", "Множитель от размера спрайта снаряда. 1 = hitbox совпадает со спрайтом."), hitRadius));
             if (Mathf.Abs(newHitRadius - hitRadius) > 0.001f) { step.SetOverrideFloat("HitRadius", newHitRadius); EditorUtility.SetDirty(recipe); }
+            DrawHitboxAxisScaleFields(recipe, step);
 
             float offsetX = step.GetFloat("OffsetX", 0.45f);
             float newOffsetX = EditorGUILayout.FloatField("Offset X", offsetX);
@@ -1989,6 +1980,7 @@ namespace Scripts.Editor.Skills
             float hitRadius = step.GetFloat("HitRadius", 1f);
             float newHitRadius = Mathf.Max(0.02f, EditorGUILayout.FloatField("Hit radius scale", hitRadius));
             if (Mathf.Abs(newHitRadius - hitRadius) > 0.001f) { step.SetOverrideFloat("HitRadius", newHitRadius); EditorUtility.SetDirty(recipe); }
+            DrawHitboxAxisScaleFields(recipe, step);
 
             float rotation = step.GetFloat("RotationDegreesPerSecond", newUseWeaponSprite ? 720f : 0f);
             float newRotation = EditorGUILayout.FloatField("Sprite rotation deg/sec", rotation);
@@ -2229,6 +2221,12 @@ namespace Scripts.Editor.Skills
                 float scale = Mathf.Max(0.01f, EditorGUILayout.FloatField("Scale multiplier", rule.ScaleMultiplier));
                 if (Mathf.Abs(scale - rule.ScaleMultiplier) > 0.001f) { rule.ScaleMultiplier = scale; EditorUtility.SetDirty(recipe); }
 
+                float scaleX = Mathf.Max(0.01f, EditorGUILayout.FloatField("Scale X", rule.ScaleX));
+                if (Mathf.Abs(scaleX - rule.ScaleX) > 0.001f) { rule.ScaleX = scaleX; EditorUtility.SetDirty(recipe); }
+
+                float scaleY = Mathf.Max(0.01f, EditorGUILayout.FloatField("Scale Y", rule.ScaleY));
+                if (Mathf.Abs(scaleY - rule.ScaleY) > 0.001f) { rule.ScaleY = scaleY; EditorUtility.SetDirty(recipe); }
+
                 float hitAt = EditorGUILayout.Slider("Damage at VFX life %", rule.HitAtLifePercent, 0f, 1f);
                 if (Mathf.Abs(hitAt - rule.HitAtLifePercent) > 0.001f) { rule.HitAtLifePercent = hitAt; EditorUtility.SetDirty(recipe); }
 
@@ -2466,21 +2464,23 @@ namespace Scripts.Editor.Skills
             if (Mathf.Abs(newDuration - duration) > 0.001f) { step.SetOverrideFloat("QuickStatusDuration", newDuration); EditorUtility.SetDirty(recipe); }
         }
 
+        private void DrawHitboxAxisScaleFields(SkillRecipeSO recipe, StepEntry step)
+        {
+            float sx = step.GetFloat("SizeX", 1f);
+            float nsx = EditorGUILayout.FloatField("Hitbox scale X", sx);
+            if (Mathf.Abs(nsx - sx) > 0.001f) { step.SetOverrideFloat("SizeX", nsx); EditorUtility.SetDirty(recipe); }
+            float sy = step.GetFloat("SizeY", 1f);
+            float nsy = EditorGUILayout.FloatField("Hitbox scale Y", sy);
+            if (Mathf.Abs(nsy - sy) > 0.001f) { step.SetOverrideFloat("SizeY", nsy); EditorUtility.SetDirty(recipe); }
+        }
+
         private void DrawCircleAreaFields(SkillRecipeSO recipe, StepEntry step, string vfxLifeLabel)
         {
             int src = step.GetInt("SourceStepIndex", -1);
             int nsrc = EditorGUILayout.IntField("Source step index (Spawn VFX, -1 = от игрока)", src);
             if (nsrc != src) { step.SetOverrideInt("SourceStepIndex", nsrc); EditorUtility.SetDirty(recipe); }
-            if (nsrc >= 0)
-            {
-                float sx = step.GetFloat("SizeX", 1f);
-                float nsx = EditorGUILayout.FloatField("Size X multiplier", sx);
-                if (Mathf.Abs(nsx - sx) > 0.001f) { step.SetOverrideFloat("SizeX", nsx); EditorUtility.SetDirty(recipe); }
-                float sy = step.GetFloat("SizeY", 1f);
-                float nsy = EditorGUILayout.FloatField("Size Y multiplier", sy);
-                if (Mathf.Abs(nsy - sy) > 0.001f) { step.SetOverrideFloat("SizeY", nsy); EditorUtility.SetDirty(recipe); }
-            }
-            else
+            DrawHitboxAxisScaleFields(recipe, step);
+            if (nsrc < 0)
             {
                 float r = step.GetFloat("Radius", 1.5f);
                 float nr = EditorGUILayout.FloatField("Radius", r);

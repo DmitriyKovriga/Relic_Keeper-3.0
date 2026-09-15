@@ -124,6 +124,8 @@ namespace Scripts.Skills.Steps
         public GameObject VfxPrefab;
         [Min(0.01f)] public float Lifetime = 0.35f;
         [Min(0.01f)] public float ScaleMultiplier = 1f;
+        [Min(0.01f)] public float ScaleX = 1f;
+        [Min(0.01f)] public float ScaleY = 1f;
         [Range(0f, 1f)] public float HitAtLifePercent = 0.5f;
         [Min(0.01f)] public float Radius = 1.2f;
         [Min(0f)] public float DamageMultiplier = 0.5f;

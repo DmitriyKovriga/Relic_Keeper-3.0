@@ -431,7 +431,10 @@ namespace Scripts.Skills
             float offsetX = step.GetFloat("OffsetX", 0f);
             float offsetY = step.GetFloat("OffsetY", 0f);
             float scaleMultiplier = step.GetFloat("ScaleMultiplier", 1f);
-            float effectiveScale = _ctx.AoeScale * scaleMultiplier;
+            float scaleX = Mathf.Max(0.01f, step.GetFloat("ScaleX", 1f));
+            float scaleY = Mathf.Max(0.01f, step.GetFloat("ScaleY", 1f));
+            Vector2 aoeScale = SkillAoeScale.FromAoe(_ctx.AoeScale, scaleMultiplier * scaleX, scaleMultiplier * scaleY);
+            float effectiveScale = Mathf.Max(aoeScale.x, aoeScale.y);
             RenderDepthCategory renderCategory = ResolveRenderDepthCategory(step, RenderDepthCategory.HeroAttackVfx);
             SpawnVfxGrowthMode growthMode = ResolveSpawnVfxGrowthMode(step);
             Vector2 baseOffset = new Vector2(offsetX * _ctx.FacingDirection, offsetY);
@@ -443,7 +446,7 @@ namespace Scripts.Skills
                     GameObject moduleVfx = vfxModule.PlayForLifetime(
                         _ownerStats.transform,
                         _ctx.FacingDirection,
-                        effectiveScale,
+                        aoeScale,
                         lifetime,
                         fadeOutEnabled,
                         fadeOutStartLifePercent,
@@ -451,7 +454,7 @@ namespace Scripts.Skills
                         out var moduleSpawnPos);
                     if (moduleVfx != null)
                     {
-                        moduleSpawnPos = ApplySpawnVfxGrowthAnchor(moduleVfx, moduleSpawnPos, effectiveScale, baseOffset, growthMode);
+                        moduleSpawnPos = ApplySpawnVfxGrowthAnchor(moduleVfx, moduleSpawnPos, aoeScale, baseOffset, growthMode);
                         CacheSpawnVfxStepResult(stepIndex, moduleSpawnPos, effectiveScale, lifetime, moduleVfx);
                     }
                 }
@@ -464,13 +467,13 @@ namespace Scripts.Skills
             PlayerAttackVfxOpacity.ApplyOnce(vfx);
             float finalDir = _ctx.FacingDirection * (invertFacing ? -1f : 1f);
             Vector3 scale = vfx.transform.localScale;
-            scale.x = Mathf.Abs(scale.x) * finalDir * effectiveScale;
-            scale.y = Mathf.Abs(scale.y) * effectiveScale;
+            scale.x = Mathf.Abs(scale.x) * finalDir * aoeScale.x;
+            scale.y = Mathf.Abs(scale.y) * aoeScale.y;
             vfx.transform.localScale = scale;
             var anim = vfx.GetComponentInChildren<Animator>();
             if (anim != null)
                 anim.speed = SkillVFX.GetAnimatorPlaybackDurationAtSpeedOne(anim, lifetime) / lifetime;
-            spawnPos = ApplySpawnVfxGrowthAnchor(vfx, spawnPos, effectiveScale, baseOffset, growthMode);
+            spawnPos = ApplySpawnVfxGrowthAnchor(vfx, spawnPos, aoeScale, baseOffset, growthMode);
             var autoDestroy = AutoDestroyVFX.Ensure(vfx);
             if (autoDestroy != null)
                 autoDestroy.Initialize(lifetime, fadeOutEnabled, fadeOutStartLifePercent, fadeStartAlphaMultiplier);
@@ -572,6 +575,8 @@ namespace Scripts.Skills
                 Speed = baseSpeed * speedMultiplier,
                 Lifetime = Mathf.Max(0.05f, step.GetFloat("Lifetime", 4f)),
                 HitRadius = Mathf.Max(0.02f, step.GetFloat("HitRadius", 1f)),
+                HitScaleX = Mathf.Max(0.01f, step.GetFloat("SizeX", 1f)),
+                HitScaleY = Mathf.Max(0.01f, step.GetFloat("SizeY", 1f)),
                 RotationDegreesPerSecond = step.GetFloat("RotationDegreesPerSecond", useWeaponSprite ? 720f : 0f),
                 RemainingForks = groundMotion ? 0 : Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileFork))),
                 RemainingChains = groundMotion ? 0 : Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileChain))),
@@ -677,6 +682,8 @@ namespace Scripts.Skills
                     Speed = 0f,
                     Lifetime = lifetime,
                     HitRadius = Mathf.Max(0.02f, step.GetFloat("HitRadius", 1f)),
+                    HitScaleX = Mathf.Max(0.01f, step.GetFloat("SizeX", 1f)),
+                    HitScaleY = Mathf.Max(0.01f, step.GetFloat("SizeY", 1f)),
                     RotationDegreesPerSecond = step.GetFloat("RotationDegreesPerSecond", useWeaponSprite ? 720f : 0f),
                     RemainingForks = 0,
                     RemainingChains = 0,
@@ -1047,8 +1054,8 @@ namespace Scripts.Skills
 
         private void ExecuteDealDamageCircle(int stepIndex, StepEntry step)
         {
-            ResolveCircleArea(step, out Vector2 center, out float radius);
-            var targets = GetTargetsInCircle(center, radius);
+            ResolveCircleArea(step, out Vector2 center, out Vector2 size);
+            var targets = GetTargetsInBox(center, size, 0f);
             DealDamageToTargets(stepIndex, step, targets);
         }
 
@@ -1061,8 +1068,8 @@ namespace Scripts.Skills
 
         private void ExecutePersistentDamageCircle(int stepIndex, StepEntry step)
         {
-            ResolveCircleArea(step, out Vector2 center, out float radius);
-            var targets = GetTargetsInCircle(center, radius);
+            ResolveCircleArea(step, out Vector2 center, out Vector2 size);
+            var targets = GetTargetsInBox(center, size, 0f);
             DealDamageToTargets(stepIndex, step, targets, GetPersistentHitSet(stepIndex), appendHitResults: true);
         }
 
@@ -1231,15 +1238,19 @@ namespace Scripts.Skills
             DamageSnapshot sourceSnapshot)
         {
             float lifetime = Mathf.Max(0.01f, rule.Lifetime);
-            float scale = Mathf.Max(0.01f, rule.ScaleMultiplier) * (_ctx != null ? _ctx.AoeScale : 1f);
+            float aoeScale = _ctx != null ? _ctx.AoeScale : 1f;
+            Vector2 scale = SkillAoeScale.FromAoe(
+                aoeScale,
+                Mathf.Max(0.01f, rule.ScaleMultiplier) * SkillAoeScale.AxisMultiplierOrDefault(rule.ScaleX),
+                Mathf.Max(0.01f, rule.ScaleMultiplier) * SkillAoeScale.AxisMultiplierOrDefault(rule.ScaleY));
             GameObject vfx = null;
             if (rule.VfxPrefab != null)
             {
                 vfx = Instantiate(rule.VfxPrefab, origin, Quaternion.identity);
                 PlayerAttackVfxOpacity.ApplyOnce(vfx);
                 vfx.transform.localScale = new Vector3(
-                    Mathf.Abs(vfx.transform.localScale.x) * scale,
-                    Mathf.Abs(vfx.transform.localScale.y) * scale,
+                    Mathf.Abs(vfx.transform.localScale.x) * scale.x,
+                    Mathf.Abs(vfx.transform.localScale.y) * scale.y,
                     vfx.transform.localScale.z);
 
                 var anim = vfx.GetComponentInChildren<Animator>();
@@ -1258,8 +1269,9 @@ namespace Scripts.Skills
                 yield return new WaitForSeconds(delay);
 
             Vector2 hitCenter = vfx != null ? (Vector2)vfx.transform.position : (Vector2)origin;
-            float radius = Mathf.Max(0.01f, rule.Radius) * scale;
-            var targets = GetTargetsInCircle(hitCenter, radius);
+            float baseRadius = Mathf.Max(0.01f, rule.Radius);
+            Vector2 size = new Vector2(baseRadius * 2f * scale.x, baseRadius * 2f * scale.y);
+            var targets = GetTargetsInBox(hitCenter, size, 0f);
             var snapshot = CloneScaledSnapshot(sourceSnapshot, Mathf.Max(0f, rule.DamageMultiplier));
             for (int i = 0; i < targets.Count; i++)
             {
@@ -1406,8 +1418,8 @@ namespace Scripts.Skills
             if (effect == null)
                 return;
 
-            ResolveCircleArea(step, out Vector2 center, out float radius);
-            var targets = GetStatusTargetsInCircle(center, radius);
+            ResolveCircleArea(step, out Vector2 center, out Vector2 size);
+            var targets = GetStatusTargetsInBox(center, size, 0f);
             for (int i = 0; i < targets.Count; i++)
                 targets[i].ApplyStatusEffect(effect, this);
         }
@@ -1445,8 +1457,8 @@ namespace Scripts.Skills
 
         private void ExecuteApplyQuickStatusCircle(int stepIndex, StepEntry step)
         {
-            ResolveCircleArea(step, out Vector2 center, out float radius);
-            var targets = GetStatusTargetsInCircle(center, radius);
+            ResolveCircleArea(step, out Vector2 center, out Vector2 size);
+            var targets = GetStatusTargetsInBox(center, size, 0f);
             for (int i = 0; i < targets.Count; i++)
                 ApplyQuickStatusToController(targets[i], step, 1, "SkillQuickCircle");
         }
@@ -1672,9 +1684,11 @@ namespace Scripts.Skills
                 : SpawnVfxGrowthMode.Centered;
         }
 
-        private Vector3 ApplySpawnVfxGrowthAnchor(GameObject vfx, Vector3 spawnPos, float effectiveScale, Vector2 baseOffset, SpawnVfxGrowthMode growthMode)
+        private Vector3 ApplySpawnVfxGrowthAnchor(GameObject vfx, Vector3 spawnPos, Vector2 scaleFactors, Vector2 baseOffset, SpawnVfxGrowthMode growthMode)
         {
-            if (vfx == null || growthMode == SpawnVfxGrowthMode.Centered || effectiveScale <= 1.0001f)
+            if (vfx == null || growthMode == SpawnVfxGrowthMode.Centered)
+                return spawnPos;
+            if (scaleFactors.x <= 1.0001f && scaleFactors.y <= 1.0001f)
                 return spawnPos;
 
             var spriteRenderer = vfx.GetComponentInChildren<SpriteRenderer>();
@@ -1685,8 +1699,8 @@ namespace Scripts.Skills
             if (finalSize.x <= 0f || finalSize.y <= 0f)
                 return spawnPos;
 
-            float baseWidth = finalSize.x / effectiveScale;
-            float baseHeight = finalSize.y / effectiveScale;
+            float baseWidth = finalSize.x / Mathf.Max(0.01f, scaleFactors.x);
+            float baseHeight = finalSize.y / Mathf.Max(0.01f, scaleFactors.y);
             float extraWidth = Mathf.Max(0f, finalSize.x - baseWidth);
             float extraHeight = Mathf.Max(0f, finalSize.y - baseHeight);
 
@@ -1701,19 +1715,6 @@ namespace Scripts.Skills
 
             vfx.transform.position += shift;
             return spawnPos + shift;
-        }
-
-        private List<IDamageable> GetTargetsInCircle(Vector2 center, float radius)
-        {
-            var list = new List<IDamageable>();
-            var uniqueTargets = new HashSet<IDamageable>();
-            var hits = Physics2D.OverlapCircleAll(center, radius, _targetLayer);
-            foreach (var h in hits)
-            {
-                if (TryResolveValidDamageTarget(h, out IDamageable target) && uniqueTargets.Add(target))
-                    list.Add(target);
-            }
-            return list;
         }
 
         private List<IDamageable> GetTargetsInBox(Vector2 center, Vector2 size, float angleDeg)
@@ -1806,22 +1807,6 @@ namespace Scripts.Skills
             return target == owner || target.IsChildOf(owner) || owner.IsChildOf(target);
         }
 
-        private List<StatusEffectController> GetStatusTargetsInCircle(Vector2 center, float radius)
-        {
-            var uniqueTargets = new HashSet<StatusEffectController>();
-            var hits = Physics2D.OverlapCircleAll(center, radius, _targetLayer);
-            foreach (var hit in hits)
-            {
-                if (hit == null)
-                    continue;
-
-                if (StatusEffectController.TryResolve(hit.transform, out StatusEffectController controller))
-                    uniqueTargets.Add(controller);
-            }
-
-            return new List<StatusEffectController>(uniqueTargets);
-        }
-
         private List<StatusEffectController> GetStatusTargetsInBox(Vector2 center, Vector2 size, float angleDeg)
         {
             var uniqueTargets = new HashSet<StatusEffectController>();
@@ -1838,32 +1823,36 @@ namespace Scripts.Skills
             return new List<StatusEffectController>(uniqueTargets);
         }
 
-        private void ResolveCircleArea(StepEntry step, out Vector2 center, out float radius)
+        private static Vector2 ReadHitboxAxisScale(StepEntry step)
         {
+            return new Vector2(
+                Mathf.Max(0.01f, step.GetFloat("SizeX", 1f)),
+                Mathf.Max(0.01f, step.GetFloat("SizeY", 1f)));
+        }
+
+        private void ResolveCircleArea(StepEntry step, out Vector2 center, out Vector2 size)
+        {
+            Vector2 axisScale = ReadHitboxAxisScale(step);
             int sourceIdx = step.GetInt("SourceStepIndex", -1);
             if (sourceIdx >= 0 && _ctx.TryGetStepResult(sourceIdx, out var res))
             {
                 Vector2 visualSize = GetVisualSizeOrFallback(res);
                 center = GetVisualCenterOrFallback(res);
-                Vector2 sizeMultipliers = new Vector2(
-                    Mathf.Max(0.01f, step.GetFloat("SizeX", 1f)),
-                    Mathf.Max(0.01f, step.GetFloat("SizeY", 1f)));
-                Vector2 scaledSize = Vector2.Scale(visualSize, sizeMultipliers);
-                Vector2 offset = new Vector2(
+                size = Vector2.Scale(visualSize, axisScale);
+                center += new Vector2(
                     step.GetFloat("OffsetX", 0f) * res.Scale * _ctx.FacingDirection,
                     step.GetFloat("OffsetY", 0f) * res.Scale);
-                center += offset;
-                radius = Mathf.Max(scaledSize.x, scaledSize.y) * 0.5f;
                 return;
             }
 
             float offsetX = step.GetFloat("OffsetX", 0f);
             float offsetY = step.GetFloat("OffsetY", 0f);
             float baseRadius = step.GetFloat("Radius", 1.5f);
-            radius = baseRadius * _ctx.AoeScale;
-            float shiftForward = radius - baseRadius;
-            float finalOffsetX = offsetX + shiftForward;
-            center = (Vector2)_ownerStats.transform.position + new Vector2(finalOffsetX * _ctx.FacingDirection, offsetY);
+            Vector2 baseSize = new Vector2(baseRadius * 2f, baseRadius * 2f);
+            size = SkillAoeScale.ScaleSize(baseSize, _ctx.AoeScale, axisScale.x, axisScale.y);
+            float extraWidth = Mathf.Max(0f, size.x - baseSize.x);
+            float shiftForward = extraWidth * 0.5f;
+            center = (Vector2)_ownerStats.transform.position + new Vector2((offsetX + shiftForward) * _ctx.FacingDirection, offsetY);
         }
 
         private void ResolveRectangleArea(StepEntry step, out Vector2 center, out Vector2 size, out float angle)
@@ -1886,7 +1875,9 @@ namespace Scripts.Skills
                 center = (Vector2)_ownerStats.transform.position + new Vector2(
                     step.GetFloat("OffsetX", 0f) * _ctx.FacingDirection,
                     step.GetFloat("OffsetY", 0f));
-                size = new Vector2(step.GetFloat("SizeX", 2f), step.GetFloat("SizeY", 1f)) * _ctx.AoeScale;
+                size = SkillAoeScale.ScaleSize(
+                    new Vector2(step.GetFloat("SizeX", 2f), step.GetFloat("SizeY", 1f)),
+                    _ctx.AoeScale);
             }
 
             angle = step.GetFloat("Angle", 0f);

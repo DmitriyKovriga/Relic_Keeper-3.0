@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Scripts.Skills;
 
 namespace Scripts.Skills.Modules
 {
@@ -13,24 +14,22 @@ namespace Scripts.Skills.Modules
 
         public override List<IDamageable> GetTargets(Vector3 origin, float facingDirection, float scaleMultiplier = 1f)
         {
-            // 1. Расчет геометрии
-            float finalRadius = _radius * scaleMultiplier;
-            float shiftForward = finalRadius - _radius;
+            Vector2 baseSize = new Vector2(_radius * 2f, _radius * 2f);
+            Vector2 size = SkillAoeScale.ScaleSize(baseSize, scaleMultiplier);
+            float extraWidth = Mathf.Max(0f, size.x - baseSize.x);
+            float shiftForward = extraWidth * 0.5f;
             float finalOffsetX = _offset.x + shiftForward;
 
             Vector2 hitCenter = (Vector2)origin + new Vector2(finalOffsetX * facingDirection, _offset.y);
 
-            // 2. Логирование попытки (Где ищем?)
             if (_showDebugLogs)
             {
-                // Рисуем линию в редакторе (будет видна в Scene View 2 секунды)
-                Debug.DrawLine(origin, hitCenter, Color.yellow, 2f); 
-                Debug.DrawRay(hitCenter, Vector3.up * finalRadius, Color.red, 2f);
+                Debug.DrawLine(origin, hitCenter, Color.yellow, 2f);
+                Debug.DrawRay(hitCenter, Vector3.up * (size.y * 0.5f), Color.red, 2f);
             }
 
-            // 3. Поиск
-            Collider2D[] hits = Physics2D.OverlapCircleAll(hitCenter, finalRadius, _targetLayer);
-            
+            Collider2D[] hits = Physics2D.OverlapBoxAll(hitCenter, size, 0f, _targetLayer);
+
             if (_showDebugLogs)
             {
                 Debug.Log($"[Hitbox] FOUND: {hits.Length} colliders.");
