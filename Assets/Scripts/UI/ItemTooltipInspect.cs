@@ -43,41 +43,112 @@ public static class ItemTooltipInspect
         return $"{template} {itemLevel}";
     }
 
-    public static string FormatAffixInspect(AffixInstance affix)
+    public static string FormatTierLabel(AffixInstance affix)
     {
-        if (affix == null)
-            return string.Empty;
-
-        string tierText = affix.Tier > 0 ? $"T{affix.Tier}" : string.Empty;
-        string rangeText = FormatAffixGenerationRange(affix);
-        if (string.IsNullOrEmpty(tierText))
-            return rangeText;
-        if (string.IsNullOrEmpty(rangeText))
-            return tierText;
-        return $"{tierText}  {rangeText}";
+        return affix != null && affix.Tier > 0 ? $"T{affix.Tier}" : string.Empty;
     }
 
-    public static string FormatAffixGenerationRange(AffixInstance affix)
+    public static string FormatPrimaryGenerationRange(AffixInstance affix)
     {
-        if (affix?.Data == null)
+        if (!TryGetAffixStat(affix, out ItemAffixSO.AffixStatData stat))
             return string.Empty;
+        return FormatRange(stat.GetPrimaryRollMin(), stat.GetPrimaryRollMax());
+    }
+
+    public static string FormatSecondaryGenerationRange(AffixInstance affix)
+    {
+        if (!TryGetAffixStat(affix, out ItemAffixSO.AffixStatData stat) || !stat.UsesRangeRoll())
+            return string.Empty;
+        return FormatRange(stat.GetSecondaryRollMin(), stat.GetSecondaryRollMax());
+    }
+
+    public static string ReplaceRolledValuesWithRanges(string localizedText, AffixInstance affix)
+    {
+        if (string.IsNullOrEmpty(localizedText) || affix?.Modifiers == null || affix.Modifiers.Count == 0)
+            return localizedText;
+
+        AffixModifierInstance modifier = affix.Modifiers[0];
+        string result = localizedText;
+        if (modifier.HasRange)
+        {
+            string secondary = FormatSecondaryGenerationRange(affix);
+            if (!string.IsNullOrEmpty(secondary))
+                result = ReplaceRolledNumber(result, modifier.SecondaryMod.Value, WrapRange(secondary));
+        }
+
+        string primary = FormatPrimaryGenerationRange(affix);
+        if (!string.IsNullOrEmpty(primary))
+            result = ReplaceRolledNumber(result, modifier.PrimaryMod.Value, WrapRange(primary));
+        return result;
+    }
+
+    private static bool TryGetAffixStat(AffixInstance affix, out ItemAffixSO.AffixStatData stat)
+    {
+        stat = default;
+        if (affix?.Data == null)
+            return false;
 
         ItemAffixSO.AffixStatData[] stats = affix.Data.GetStatsForTier(affix.Tier);
         if (stats == null || stats.Length == 0)
-            return string.Empty;
+            return false;
 
-        ItemAffixSO.AffixStatData stat = stats[0];
-        if (stat.UsesRangeRoll())
-        {
-            return $"{FormatNumber(stat.GetPrimaryRollMin())}-{FormatNumber(stat.GetPrimaryRollMax())} to " +
-                   $"{FormatNumber(stat.GetSecondaryRollMin())}-{FormatNumber(stat.GetSecondaryRollMax())}";
-        }
+        stat = stats[0];
+        return true;
+    }
 
-        float min = stat.GetPrimaryRollMin();
-        float max = stat.GetPrimaryRollMax();
+    private static string WrapRange(string range)
+    {
+        return $"({range})";
+    }
+
+    private static string FormatRange(float min, float max)
+    {
         if (Mathf.Approximately(min, max))
             return FormatNumber(min);
         return $"{FormatNumber(min)}-{FormatNumber(max)}";
+    }
+
+    private static string ReplaceRolledNumber(string text, float value, string replacement)
+    {
+        string plain = FormatNumber(value);
+        string[] needles = plain[0] == '+' || plain[0] == '-'
+            ? new[] { plain }
+            : new[] { "+" + plain, plain };
+
+        for (int n = 0; n < needles.Length; n++)
+        {
+            int index = IndexOfStandalone(text, needles[n]);
+            if (index >= 0)
+                return text.Substring(0, index) + replacement + text.Substring(index + needles[n].Length);
+        }
+
+        return text;
+    }
+
+    private static int IndexOfStandalone(string text, string needle)
+    {
+        int start = 0;
+        while (start < text.Length)
+        {
+            int index = text.IndexOf(needle, start, System.StringComparison.Ordinal);
+            if (index < 0)
+                return -1;
+
+            bool leftOk = index == 0 || !IsNumberChar(text[index - 1]);
+            int end = index + needle.Length;
+            bool rightOk = end >= text.Length || !IsNumberChar(text[end]);
+            if (leftOk && rightOk)
+                return index;
+
+            start = index + 1;
+        }
+
+        return -1;
+    }
+
+    private static bool IsNumberChar(char c)
+    {
+        return char.IsDigit(c) || c == '.' || c == ',';
     }
 
     private static string FormatNumber(float value)

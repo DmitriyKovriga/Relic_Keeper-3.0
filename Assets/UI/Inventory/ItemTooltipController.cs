@@ -546,14 +546,17 @@ public class ItemTooltipController : MonoBehaviour
         _orbTooltipBox.Add(_orbDescLabel);
         _root.Add(_orbTooltipBox);
 
-        _itemTooltipBox.RegisterCallback<GeometryChangedEvent>(OnItemTooltipGeometryChangedOnce);
+        _itemTooltipBox.RegisterCallback<GeometryChangedEvent>(OnItemTooltipGeometryChanged);
     }
 
-    private void OnItemTooltipGeometryChangedOnce(GeometryChangedEvent evt)
+    private void OnItemTooltipGeometryChanged(GeometryChangedEvent evt)
     {
-        _itemTooltipBox.UnregisterCallback<GeometryChangedEvent>(OnItemTooltipGeometryChangedOnce);
-        if (_itemTooltipBox.style.display == DisplayStyle.Flex && _currentTargetItem != null)
-            RecalculatePosition();
+        if (_itemTooltipBox == null || _itemTooltipBox.style.display != DisplayStyle.Flex || _currentTargetItem == null)
+            return;
+        if (Mathf.Approximately(evt.oldRect.width, evt.newRect.width)
+            && Mathf.Approximately(evt.oldRect.height, evt.newRect.height))
+            return;
+        RecalculatePosition();
     }
 
     private VisualElement CreateContainer(string name, Color bg)
@@ -2074,10 +2077,7 @@ public class ItemTooltipController : MonoBehaviour
                 float minVal = modifier.PrimaryMod.Value;
                 float maxVal = modifier.HasRange ? modifier.SecondaryMod.Value : modifier.PrimaryMod.Value;
                 if (string.IsNullOrEmpty(key)) key = $"stats.{modifier.Type}";
-                string inspectText = _inspectDetailsVisible
-                    ? ItemTooltipInspect.FormatAffixInspect(aff)
-                    : null;
-                AddAffixRow(key, minVal, maxVal, modifier.HasRange, _colAffix, inspectText);
+                AddAffixRow(key, aff, minVal, maxVal, modifier.HasRange, _colAffix);
             }
         }
 
@@ -2173,12 +2173,14 @@ public class ItemTooltipController : MonoBehaviour
             c);
     }
 
-    private void AddAffixRow(string key, float minVal, float maxVal, bool hasRange, Color c, string inspectText)
+    private void AddAffixRow(string key, AffixInstance affix, float minVal, float maxVal, bool hasRange, Color c)
     {
+        bool inspect = _inspectDetailsVisible;
+        string tierText = inspect ? ItemTooltipInspect.FormatTierLabel(affix) : null;
         var lbl = CreateLabel("...", 8, FontStyle.Normal, TextAnchor.MiddleCenter);
         lbl.style.color = new StyleColor(c);
 
-        if (string.IsNullOrEmpty(inspectText))
+        if (string.IsNullOrEmpty(tierText))
         {
             _statsContainer.Add(lbl);
         }
@@ -2189,27 +2191,38 @@ public class ItemTooltipController : MonoBehaviour
             lbl.style.flexShrink = 1;
             lbl.style.minWidth = 0;
 
-            var inspect = CreateLabel(inspectText, 7, FontStyle.Normal, TextAnchor.MiddleRight);
-            inspect.style.color = new StyleColor(_colInspect);
-            inspect.style.flexShrink = 0;
-            inspect.style.marginLeft = 4;
-            inspect.style.whiteSpace = WhiteSpace.NoWrap;
-            inspect.pickingMode = PickingMode.Ignore;
+            var tier = CreateLabel(tierText, 7, FontStyle.Normal, TextAnchor.MiddleRight);
+            tier.style.color = new StyleColor(_colInspect);
+            tier.style.flexShrink = 0;
+            tier.style.marginLeft = 2;
+            tier.style.minWidth = 14;
+            tier.style.whiteSpace = WhiteSpace.NoWrap;
+            tier.pickingMode = PickingMode.Ignore;
 
             var row = new VisualElement { pickingMode = PickingMode.Ignore };
             row.style.flexDirection = FlexDirection.Row;
-            row.style.flexWrap = Wrap.Wrap;
+            row.style.flexWrap = Wrap.NoWrap;
             row.style.justifyContent = Justify.SpaceBetween;
             row.style.alignItems = Align.FlexStart;
             row.style.width = Length.Percent(100);
             row.Add(lbl);
-            row.Add(inspect);
+            row.Add(tier);
             _statsContainer.Add(row);
         }
 
         object[] args = hasRange ? new object[] { minVal, maxVal } : new object[] { minVal };
         var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_AFFIXES, key, args);
-        op.Completed += (h) => { if(lbl!=null) lbl.text = h.Result; };
+        op.Completed += (h) =>
+        {
+            if (lbl == null) return;
+            string text = h.Result;
+            if (inspect)
+            {
+                text = ItemTooltipInspect.ReplaceRolledValuesWithRanges(text, affix);
+                ScheduleItemTooltipRelayout();
+            }
+            lbl.text = text;
+        };
     }
 
     private void UpdateItemInspectOverlay()
@@ -2222,9 +2235,18 @@ public class ItemTooltipController : MonoBehaviour
             return;
 
         FillItemData(_currentTargetItem);
+        ScheduleItemTooltipRelayout();
+    }
+
+    private void ScheduleItemTooltipRelayout()
+    {
+        if (_itemTooltipBox == null || _root == null)
+            return;
+
         _itemTooltipBox.MarkDirtyRepaint();
-        if (_root != null)
-            _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
+        RecalculatePosition();
+        _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
+        _root.schedule.Execute(RecalculatePosition).ExecuteLater(50);
     }
 
     private static bool IsInspectModifierHeld()
@@ -2239,7 +2261,13 @@ public class ItemTooltipController : MonoBehaviour
         _statsContainer.Add(lbl);
         var k = key.Contains(".") ? key : $"stats.{key}";
         var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_MENU, k);
-        op.Completed += (h) => { if(lbl!=null) lbl.text = fmt(h.Status == AsyncOperationStatus.Succeeded ? h.Result : key); };
+        op.Completed += (h) =>
+        {
+            if (lbl == null) return;
+            lbl.text = fmt(h.Status == AsyncOperationStatus.Succeeded ? h.Result : key);
+            if (_inspectDetailsVisible)
+                ScheduleItemTooltipRelayout();
+        };
     }
 
     private void AddDivToContainer()

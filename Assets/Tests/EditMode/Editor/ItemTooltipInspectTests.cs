@@ -3,6 +3,7 @@ using NUnit.Framework;
 using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Items.Affixes;
+using Scripts.Saving;
 using Scripts.Stats;
 using UnityEngine;
 
@@ -61,29 +62,35 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void AffixInspect_ShowsTierAndGenerationRange()
+        public void AffixInspect_ReplacesRolledValueWithGenerationRange()
         {
             ItemAffixSO affix = CreateSingleAffix(3, 20f, 30f);
             InventoryItem item = new InventoryItem(Track(ScriptableObject.CreateInstance<ArmorItemSO>()));
-            var instance = new AffixInstance(affix, 3, item);
+            var instance = new AffixInstance(affix, 3, CreateAffixSave(25f), item);
 
-            string text = ItemTooltipInspect.FormatAffixInspect(instance);
-
-            Assert.That(text, Does.Contain("T3"));
-            Assert.That(text, Does.Contain("20-30"));
+            Assert.That(ItemTooltipInspect.FormatTierLabel(instance), Is.EqualTo("T3"));
+            Assert.That(
+                ItemTooltipInspect.ReplaceRolledValuesWithRanges("Adds 25 to Maximum Health", instance),
+                Is.EqualTo("Adds (20-30) to Maximum Health"));
+            Assert.That(
+                ItemTooltipInspect.ReplaceRolledValuesWithRanges("+25% increased Maximum Health", instance),
+                Is.EqualTo("(20-30)% increased Maximum Health"));
         }
 
         [Test]
-        public void AffixInspect_RangeRoll_ShowsBothGenerationBands()
+        public void AffixInspect_RangeRoll_ReplacesEachBoundWithItsGenerationBand()
         {
             ItemAffixSO affix = CreateRangeAffix(2, 3f, 6f, 7f, 12f);
             InventoryItem item = new InventoryItem(Track(ScriptableObject.CreateInstance<ArmorItemSO>()));
-            var instance = new AffixInstance(affix, 2, item);
+            var instance = new AffixInstance(affix, 2, CreateAffixSave(4f, 9f), item);
 
-            string text = ItemTooltipInspect.FormatAffixInspect(instance);
-
-            Assert.That(text, Does.Contain("T2"));
-            Assert.That(text, Does.Contain("3-6 to 7-12"));
+            Assert.That(ItemTooltipInspect.FormatTierLabel(instance), Is.EqualTo("T2"));
+            Assert.That(
+                ItemTooltipInspect.ReplaceRolledValuesWithRanges("+4-+9 pts to Fire Damage", instance),
+                Is.EqualTo("(3-6)-(7-12) pts to Fire Damage"));
+            Assert.That(
+                ItemTooltipInspect.ReplaceRolledValuesWithRanges("4-9 pts to Fire Damage", instance),
+                Is.EqualTo("(3-6)-(7-12) pts to Fire Damage"));
         }
 
         [Test]
@@ -172,6 +179,11 @@ namespace RelicKeeper.Tests.EditMode
                 }
             };
             return affix;
+        }
+
+        private static AffixSaveData CreateAffixSave(params float[] values)
+        {
+            return new AffixSaveData { Values = new List<float>(values) };
         }
 
         private T Track<T>(T value) where T : Object
