@@ -88,6 +88,8 @@ public class ExperienceSoulPickup : MonoBehaviour
     private const float CraftingOrbFlashDuration = 0.16f;
         private const float CraftingOrbCollectRadius = 0.58f;
 
+    private const float MaxSimulationDelta = 0.05f;
+
     private static Sprite s_coreSprite;
     private static Sprite s_tailSprite;
     private static Material s_spriteMaterial;
@@ -119,6 +121,7 @@ public class ExperienceSoulPickup : MonoBehaviour
     private Color _tailColor;
 
     private Vector2 _velocity;
+    private Vector3 _logicalPosition;
     private Vector3 _lastHistoryPosition;
     private Vector3 _arcStart;
     private Vector3 _arcControl;
@@ -181,7 +184,8 @@ public class ExperienceSoulPickup : MonoBehaviour
 
         soul.name = objectName;
         soul.transform.SetParent(parent, true);
-        soul.transform.position = SnapToPixelGrid(position);
+        soul._logicalPosition = position;
+        soul.ApplyVisualPosition();
         soul.gameObject.SetActive(true);
         soul._isPooled = false;
         s_activePickupCount++;
@@ -269,15 +273,15 @@ public class ExperienceSoulPickup : MonoBehaviour
             renderer.enabled = i < _visibleTailSegmentCount;
         }
 
-        _lastHistoryPosition = transform.position;
-        _history.Add(transform.position);
+        _lastHistoryPosition = _logicalPosition;
+        _history.Add(_logicalPosition);
         ResolvePlayerTarget();
         UpdateTailVisuals();
     }
 
     private void Update()
     {
-        float dt = Time.deltaTime;
+        float dt = Mathf.Min(Time.deltaTime, MaxSimulationDelta);
         _timeAlive += dt;
         _stateTimer += dt;
 
@@ -318,7 +322,7 @@ public class ExperienceSoulPickup : MonoBehaviour
     private void UpdateDelay(float dt)
     {
         float bob = Mathf.Sin((_timeAlive * 10f) + (_xpAmount * 0.1f)) * 0.004f;
-        transform.position = SnapToPixelGrid(transform.position + new Vector3(0f, bob, 0f));
+        ApplyVisualPosition(_logicalPosition + new Vector3(0f, bob, 0f));
 
         if (_stateTimer >= _delayDuration)
         {
@@ -331,7 +335,7 @@ public class ExperienceSoulPickup : MonoBehaviour
     private void BeginArc()
     {
         ResolvePlayerTarget();
-        _arcStart = transform.position;
+        _arcStart = _logicalPosition;
         if (_craftingOrb != null)
         {
             _arcEnd = _arcStart + new Vector3(
@@ -365,7 +369,8 @@ public class ExperienceSoulPickup : MonoBehaviour
         Vector3 p1 = _arcControl;
         Vector3 p2 = _arcEnd;
         Vector3 pos = ((1f - easedT) * (1f - easedT) * p0) + (2f * (1f - easedT) * easedT * p1) + (easedT * easedT * p2);
-        transform.position = SnapToPixelGrid(pos);
+        _logicalPosition = pos;
+        ApplyVisualPosition();
 
         if (t >= 1f)
         {
@@ -386,7 +391,7 @@ public class ExperienceSoulPickup : MonoBehaviour
     private void UpdateHover()
     {
         float bob = Mathf.Sin(_stateTimer * 8f) * PixelStep;
-        transform.position = SnapToPixelGrid(_hoverAnchor + new Vector3(0f, bob, 0f));
+        ApplyVisualPosition(_hoverAnchor + new Vector3(0f, bob, 0f));
         float pulse = 1f + Mathf.Sin(_stateTimer * 10f) * 0.08f;
         transform.localScale = Vector3.one * (CraftingOrbCoreScale * pulse);
 
@@ -417,7 +422,8 @@ public class ExperienceSoulPickup : MonoBehaviour
 
     private void UpdateFlash()
     {
-        transform.position = SnapToPixelGrid(_hoverAnchor);
+        _logicalPosition = _hoverAnchor;
+        ApplyVisualPosition();
         transform.localScale = Vector3.one * CraftingOrbCoreScale;
 
         float t = Mathf.Clamp01(_stateTimer / CraftingOrbFlashDuration);
@@ -445,20 +451,28 @@ public class ExperienceSoulPickup : MonoBehaviour
             ResolvePlayerTarget();
             if (_target == null)
             {
-                Vector2 fallback = Vector2.Lerp(transform.position, transform.position + Vector3.up * 0.15f, Mathf.Clamp01(dt * 4f));
-                transform.position = SnapToPixelGrid(fallback);
+                PickupFlight.IntegrateHoming(
+                    ref _logicalPosition,
+                    ref _velocity,
+                    _logicalPosition + Vector3.up * 0.15f,
+                    _minHomingSpeed,
+                    _maxHomingSpeed,
+                    8f,
+                    dt);
+                ApplyVisualPosition();
                 return;
             }
         }
 
-        Vector3 targetPosition = GetTargetAnchor();
-        Vector2 toTarget = (Vector2)(targetPosition - transform.position);
-        float distance = Mathf.Max(0.001f, toTarget.magnitude);
-
-        Vector2 desiredVelocity = toTarget.normalized * Mathf.Lerp(_minHomingSpeed, _maxHomingSpeed, Mathf.Clamp01(1f - (distance / 8f)));
-        _velocity = Vector2.Lerp(_velocity, desiredVelocity, 1f - Mathf.Exp(-_homingResponsiveness * dt));
-
-        transform.position = SnapToPixelGrid(transform.position + (Vector3)(_velocity * dt));
+        PickupFlight.IntegrateHoming(
+            ref _logicalPosition,
+            ref _velocity,
+            GetTargetAnchor(),
+            _minHomingSpeed,
+            _maxHomingSpeed,
+            _homingResponsiveness,
+            dt);
+        ApplyVisualPosition();
     }
 
     private void Collect()
@@ -515,9 +529,9 @@ public class ExperienceSoulPickup : MonoBehaviour
     private Vector3 GetTargetAnchor()
     {
         if (_target == null)
-            return transform.position;
+            return _logicalPosition;
 
-        return SnapToPixelGrid(_target.position + new Vector3(0f, 0.55f, 0f));
+        return _target.position + new Vector3(0f, 0.55f, 0f);
     }
 
     private void TryCollect()
@@ -525,7 +539,7 @@ public class ExperienceSoulPickup : MonoBehaviour
         if (_target == null)
             return;
 
-        if (Vector2.Distance(transform.position, GetTargetAnchor()) <= _collectRadius)
+        if (Vector2.Distance(_logicalPosition, GetTargetAnchor()) <= _collectRadius)
             Collect();
     }
 
@@ -679,11 +693,50 @@ public class ExperienceSoulPickup : MonoBehaviour
         return Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), PixelsPerUnit, 0, SpriteMeshType.FullRect);
     }
 
+    private void ApplyVisualPosition()
+    {
+        ApplyVisualPosition(_logicalPosition);
+    }
+
+    private void ApplyVisualPosition(Vector3 logical)
+    {
+        transform.position = PickupFlight.SnapToPixelGrid(logical);
+    }
+
     private static Vector3 SnapToPixelGrid(Vector3 position)
+    {
+        return PickupFlight.SnapToPixelGrid(position);
+    }
+}
+
+public static class PickupFlight
+{
+    public const float PixelsPerUnit = 24f;
+    public static float PixelStep => 1f / PixelsPerUnit;
+
+    public static Vector3 SnapToPixelGrid(Vector3 position)
     {
         return new Vector3(
             Mathf.Round(position.x / PixelStep) * PixelStep,
             Mathf.Round(position.y / PixelStep) * PixelStep,
             position.z);
+    }
+
+    public static void IntegrateHoming(
+        ref Vector3 logicalPosition,
+        ref Vector2 velocity,
+        Vector3 target,
+        float minSpeed,
+        float maxSpeed,
+        float responsiveness,
+        float dt)
+    {
+        dt = Mathf.Max(0f, dt);
+        Vector2 toTarget = (Vector2)(target - logicalPosition);
+        float distance = Mathf.Max(0.001f, toTarget.magnitude);
+        Vector2 desiredVelocity = toTarget.normalized * Mathf.Lerp(minSpeed, maxSpeed, Mathf.Clamp01(1f - (distance / 8f)));
+        float blend = 1f - Mathf.Exp(-Mathf.Max(0f, responsiveness) * dt);
+        velocity = Vector2.Lerp(velocity, desiredVelocity, blend);
+        logicalPosition += (Vector3)(velocity * dt);
     }
 }

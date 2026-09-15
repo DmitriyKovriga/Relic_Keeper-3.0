@@ -44,7 +44,6 @@ namespace Scripts.Skills
         {
             if (InventoryManager.Instance != null)
             {
-                InventoryManager.Instance.OnInventoryChanged += RefreshAllSkills;
                 InventoryManager.Instance.OnItemEquipped += HandleEquipmentChanged;
                 InventoryManager.Instance.OnItemUnequipped += HandleEquipmentChanged;
                 RefreshAllSkills();
@@ -63,7 +62,6 @@ namespace Scripts.Skills
 
             if (InventoryManager.Instance != null)
             {
-                InventoryManager.Instance.OnInventoryChanged -= RefreshAllSkills;
                 InventoryManager.Instance.OnItemEquipped -= HandleEquipmentChanged;
                 InventoryManager.Instance.OnItemUnequipped -= HandleEquipmentChanged;
             }
@@ -85,6 +83,8 @@ namespace Scripts.Skills
 
         public void RefreshAllSkills()
         {
+            // Equipment changes only. Inventory UI updates (currency pickup, backpack
+            // reshuffle) must not reset cooldowns or wipe in-flight projectiles.
             SkillProjectile.DespawnAllForOwner(_playerStats);
 
             for (int i = 0; i < SkillSlotCount; i++)
