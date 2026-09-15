@@ -635,7 +635,7 @@ public partial class InventoryUI
             if (overCompanion)
                 placed = market.PlaceItemBack(itemToPlace, stashTab, stashAnchor);
             else if (foundIndex >= 0)
-                placed = market.TryBuy(itemToPlace, market.IsBuybackTab(stashTab));
+                placed = market.TryBuy(itemToPlace, market.IsBuybackTab(stashTab), foundIndex);
         }
         else if (fromStash && StashManager.Instance != null)
         {

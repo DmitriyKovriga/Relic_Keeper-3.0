@@ -184,7 +184,7 @@ namespace Scripts.Economy
             return IsBuybackTab(tabIndex) ? AcceptSoldItem(item) : TryPlaceInStock(item);
         }
 
-        public bool TryBuy(InventoryItem item, bool isBuyback)
+        public bool TryBuy(InventoryItem item, bool isBuyback, int destinationSlotIndex = -1)
         {
             if (item?.Data == null || InventoryManager.Instance == null)
                 return false;
@@ -196,10 +196,29 @@ namespace Scripts.Economy
                 return false;
             }
 
-            if (!InventoryManager.Instance.CanAddItem(item))
+            var inventory = InventoryManager.Instance;
+            if (destinationSlotIndex < 0)
             {
-                PlayerNoticeBanner.ShowInventoryFull();
-                return false;
+                if (!inventory.CanAddItem(item))
+                {
+                    PlayerNoticeBanner.ShowInventoryFull();
+                    return false;
+                }
+
+                if (!GoldWallet.TrySpend(price))
+                {
+                    PlayerNoticeBanner.ShowNotEnoughGold();
+                    return false;
+                }
+
+                if (!inventory.AddItem(item))
+                {
+                    GoldWallet.Add(price);
+                    PlayerNoticeBanner.ShowInventoryFull();
+                    return false;
+                }
+
+                return true;
             }
 
             if (!GoldWallet.TrySpend(price))
@@ -208,14 +227,11 @@ namespace Scripts.Economy
                 return false;
             }
 
-            if (!InventoryManager.Instance.AddItem(item))
-            {
-                GoldWallet.Add(price);
-                PlayerNoticeBanner.ShowInventoryFull();
-                return false;
-            }
+            if (inventory.PlaceItemAt(item, destinationSlotIndex, -1))
+                return true;
 
-            return true;
+            GoldWallet.Add(price);
+            return false;
         }
 
         public bool TrySell(InventoryItem item)

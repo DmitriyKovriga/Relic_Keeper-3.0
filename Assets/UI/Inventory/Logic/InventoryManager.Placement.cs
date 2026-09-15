@@ -54,12 +54,12 @@ namespace Scripts.Inventory
                 int displacedDestination = -1;
                 if (prevEquip != null)
                 {
-                    if (sourceAnchorForSwap < 0)
-                        return false;
-
                     displacedDestination = FindSlotForDisplacedItem(prevEquip, -1, -1, 0, 0, sourceAnchorForSwap);
                     if (displacedDestination < 0)
+                    {
+                        ReportPlacementFailure(InventoryPlacementFailureReason.NoBackpackSpace);
                         return false;
+                    }
 
                     EquipmentItems[local] = null;
                     OnItemUnequipped?.Invoke(prevEquip);
@@ -141,29 +141,42 @@ namespace Scripts.Inventory
         private bool TryEquipTwoHandedByReplacingOffHand(InventoryItem twoHanded, int sourceAnchor)
         {
             InventoryItem offHand = EquipmentItems[(int)EquipmentSlot.OffHand];
-            if (offHand?.Data == null || sourceAnchor < 0 || sourceAnchor >= (_backpack?.Length ?? 0))
+            if (offHand?.Data == null)
             {
                 ReportPlacementFailure(InventoryPlacementFailureReason.OffHandBlocksTwoHanded);
                 return false;
             }
 
-            _backpack.GetItemAt(sourceAnchor, out InventoryItem sourceItem, out int sourceRoot);
-            if (sourceItem != null && sourceItem != twoHanded)
+            bool removedIncomingFromBackpack = false;
+            int sourceRoot = sourceAnchor;
+            if (sourceAnchor >= 0 && sourceAnchor < (_backpack?.Length ?? 0))
             {
-                ReportPlacementFailure(InventoryPlacementFailureReason.OffHandBlocksTwoHanded);
-                return false;
+                _backpack.GetItemAt(sourceAnchor, out InventoryItem sourceItem, out sourceRoot);
+                if (sourceItem != null && sourceItem != twoHanded)
+                {
+                    ReportPlacementFailure(InventoryPlacementFailureReason.OffHandBlocksTwoHanded);
+                    return false;
+                }
+
+                removedIncomingFromBackpack = sourceItem == twoHanded;
+                if (removedIncomingFromBackpack)
+                    _backpack.Take(sourceRoot);
             }
 
-            bool removedIncomingFromBackpack = sourceItem == twoHanded;
-            if (removedIncomingFromBackpack)
-                _backpack.Take(sourceRoot);
+            int destAnchor = -1;
+            if (sourceAnchor >= 0 && sourceAnchor < (_backpack?.Length ?? 0) && _backpack.CanPlace(offHand, sourceAnchor))
+                destAnchor = sourceAnchor;
+            else if (sourceAnchor < 0)
+                destAnchor = _backpack.FindFirstEmptyRoot(offHand, -1);
 
-            if (!_backpack.CanPlace(offHand, sourceAnchor) || !_backpack.Place(offHand, sourceAnchor))
+            if (destAnchor < 0 || !_backpack.Place(offHand, destAnchor))
             {
                 if (removedIncomingFromBackpack)
                     _backpack.Place(twoHanded, sourceRoot);
                 SyncFromBackpack();
-                ReportPlacementFailure(InventoryPlacementFailureReason.OffHandBlocksTwoHanded);
+                ReportPlacementFailure(sourceAnchor < 0
+                    ? InventoryPlacementFailureReason.NoBackpackSpace
+                    : InventoryPlacementFailureReason.OffHandBlocksTwoHanded);
                 return false;
             }
 

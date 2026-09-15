@@ -103,7 +103,7 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void PlaceItemAt_TwoHandedWeapon_FailsWhenOffHandIsOccupied()
+        public void PlaceItemAt_TwoHandedWeapon_UnequipsOffHandIntoBackpackWhenSourceIsUnknown()
         {
             var shield = CreateArmor("shield", EquipmentSlot.OffHand);
             var twoHandedWeapon = CreateWeapon("two-handed", EquipmentSlot.MainHand, isTwoHanded: true);
@@ -112,9 +112,41 @@ namespace RelicKeeper.Tests.EditMode
 
             bool equipped = _manager.PlaceItemAt(twoHandedWeapon, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.MainHand, -1);
 
+            Assert.IsTrue(equipped);
+            Assert.AreSame(twoHandedWeapon, _manager.EquipmentItems[(int)EquipmentSlot.MainHand]);
+            Assert.IsNull(_manager.EquipmentItems[(int)EquipmentSlot.OffHand]);
+            Assert.AreSame(shield, _manager.GetItemAt(0, out _));
+        }
+
+        [Test]
+        public void PlaceItemAt_OccupiedArmor_UnequipsPreviousIntoBackpackWhenSourceIsUnknown()
+        {
+            var oldHelmet = CreateArmor("old-helm", EquipmentSlot.Helmet);
+            var newHelmet = CreateArmor("new-helm", EquipmentSlot.Helmet);
+
+            Assert.IsTrue(_manager.PlaceItemAt(oldHelmet, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.Helmet, -1));
+
+            bool equipped = _manager.PlaceItemAt(newHelmet, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.Helmet, -1);
+
+            Assert.IsTrue(equipped);
+            Assert.AreSame(newHelmet, _manager.EquipmentItems[(int)EquipmentSlot.Helmet]);
+            Assert.AreSame(oldHelmet, _manager.GetItemAt(0, out _));
+        }
+
+        [Test]
+        public void PlaceItemAt_OccupiedArmor_FailsWhenBackpackCannotFitPrevious()
+        {
+            var oldHelmet = CreateArmor("old-helm", EquipmentSlot.Helmet, width: 2, height: 1);
+            var newHelmet = CreateArmor("new-helm", EquipmentSlot.Helmet);
+            FillBackpackWithOneByOneItems(_manager.BackpackSlotCount);
+
+            Assert.IsTrue(_manager.PlaceItemAt(oldHelmet, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.Helmet, -1));
+
+            bool equipped = _manager.PlaceItemAt(newHelmet, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.Helmet, -1);
+
             Assert.IsFalse(equipped);
-            Assert.IsNull(_manager.EquipmentItems[(int)EquipmentSlot.MainHand]);
-            Assert.AreSame(shield, _manager.EquipmentItems[(int)EquipmentSlot.OffHand]);
+            Assert.AreSame(oldHelmet, _manager.EquipmentItems[(int)EquipmentSlot.Helmet]);
+            Assert.AreEqual(InventoryPlacementFailureReason.NoBackpackSpace, _manager.LastPlacementFailureReason);
         }
 
         [Test]
@@ -234,6 +266,12 @@ namespace RelicKeeper.Tests.EditMode
             so.Slot = slot;
             _createdObjects.Add(so);
             return new InventoryItem(so);
+        }
+
+        private void FillBackpackWithOneByOneItems(int count)
+        {
+            for (int i = 0; i < count; i++)
+                Assert.IsTrue(_manager.AddItem(CreateTestItem($"fill-{i}", 1, 1)));
         }
 
         private static void InvokeAwake(InventoryManager manager)

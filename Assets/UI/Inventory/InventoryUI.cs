@@ -307,6 +307,8 @@ public partial class InventoryUI : MonoBehaviour
     {
         if (reason == InventoryPlacementFailureReason.OffHandBlocksTwoHanded)
             PlayerNoticeBanner.ShowOffHandBlocksTwoHanded();
+        else if (reason == InventoryPlacementFailureReason.NoBackpackSpace)
+            PlayerNoticeBanner.ShowInventoryFull();
     }
 
 

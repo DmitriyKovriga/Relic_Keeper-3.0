@@ -9,7 +9,8 @@ namespace Scripts.Inventory
     public enum InventoryPlacementFailureReason
     {
         None = 0,
-        OffHandBlocksTwoHanded = 1
+        OffHandBlocksTwoHanded = 1,
+        NoBackpackSpace = 2
     }
 
     /// <summary>
