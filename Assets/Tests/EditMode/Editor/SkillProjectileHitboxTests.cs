@@ -1,5 +1,7 @@
 using NUnit.Framework;
+using Scripts.Enemies;
 using Scripts.Skills.Projectiles;
+using UnityEngine;
 
 namespace RelicKeeper.Tests.EditMode
 {
@@ -35,7 +37,38 @@ namespace RelicKeeper.Tests.EditMode
         {
             float radius = SkillProjectile.CalculateLocalRadius(0f, 0f, 1f, 1f, 1f, 1f);
 
-            Assert.That(radius, Is.EqualTo(0.18f).Within(0.0001f));
+            Assert.That(radius, Is.EqualTo(SkillProjectile.MinPlayableWorldRadius).Within(0.0001f));
+        }
+
+        [Test]
+        public void TinyVfxSprite_UsesMinimumPlayableRadius()
+        {
+            float radius = SkillProjectile.CalculateLocalRadius(0.333f, 0.292f, 1f, 0.3f, 1f, 1f);
+
+            Assert.That(radius, Is.EqualTo(SkillProjectile.MinPlayableWorldRadius).Within(0.0001f));
+            Assert.That(radius, Is.GreaterThan(0.1f));
+        }
+
+        [Test]
+        public void KnightSizedSprite_IsTallerThanTheOldHeightCap()
+        {
+            EnemyPhysicsFit.CalculateBox(new Vector2(2f, 2f), out Vector2 size, out _);
+
+            Assert.That(size.y, Is.GreaterThan(1.25f));
+            Assert.That(size.y, Is.EqualTo(1.7f).Within(0.0001f));
+        }
+
+        [Test]
+        public void KnightHurtbox_IsReachedByFireballFromOneTileAbove()
+        {
+            float knightTop = EnemyPhysicsFit.WorldTopAfterGroundSnap(new Vector2(2f, 2f));
+            const float playerFeetY = 1f;
+            const float playerColliderHalfHeight = 0.46f;
+            const float fireballOffsetY = 0.25f;
+            float fireballY = playerFeetY + playerColliderHalfHeight + fireballOffsetY;
+            float fireballRadius = SkillProjectile.MinPlayableWorldRadius;
+
+            Assert.That(fireballY - fireballRadius, Is.LessThan(knightTop));
         }
     }
 }

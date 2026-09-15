@@ -82,6 +82,7 @@ namespace Scripts.Skills.Projectiles
         private const string OneWayPlatformLayerName = "OneWayPlatform";
         private const float GroundSurfaceNormalThreshold = 0.55f;
         private const float SameLevelSurfaceTolerance = 3f / 24f;
+        public const float MinPlayableWorldRadius = 0.28f;
 
         private static GameObject _defaultTemplate;
         private static readonly HashSet<SkillProjectile> ActiveProjectiles = new HashSet<SkillProjectile>();
@@ -272,6 +273,7 @@ namespace Scripts.Skills.Projectiles
                 return;
             }
 
+            Vector2 previousPosition = transform.position;
             UpdateReversal();
             UpdateHoming(dt);
             if (_data.OrbitOwner)
@@ -294,7 +296,7 @@ namespace Scripts.Skills.Projectiles
             if (!Mathf.Approximately(spin, 0f))
                 transform.Rotate(0f, 0f, spin * dt, Space.Self);
 
-            ScanImmediateOverlaps();
+            ScanTravel(previousPosition);
         }
 
         private void UpdateOrbitPosition()
@@ -314,12 +316,39 @@ namespace Scripts.Skills.Projectiles
             TryHandleCollision(other);
         }
 
+        private void ScanTravel(Vector2 previousPosition)
+        {
+            if (_data == null)
+                return;
+
+            Vector2 currentPosition = transform.position;
+            Vector2 delta = currentPosition - previousPosition;
+            float distance = delta.magnitude;
+            float radius = GetWorldHitRadius();
+            if (distance > 0.0001f)
+            {
+                RaycastHit2D[] hits = Physics2D.CircleCastAll(previousPosition, radius, delta / distance, distance);
+                System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+                for (int i = 0; i < hits.Length; i++)
+                {
+                    Collider2D hit = hits[i].collider;
+                    if (hit == null || hit.transform == transform)
+                        continue;
+
+                    if (TryHandleCollision(hit) || _data == null)
+                        return;
+                }
+            }
+
+            ScanImmediateOverlaps();
+        }
+
         private void ScanImmediateOverlaps()
         {
             if (_data == null || _collider == null)
                 return;
 
-            float radius = Mathf.Max(0.02f, _collider.radius);
+            float radius = GetWorldHitRadius();
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, radius);
             for (int i = 0; i < hits.Length; i++)
             {
@@ -1021,12 +1050,23 @@ namespace Scripts.Skills.Projectiles
             float axisX = Mathf.Max(0.01f, hitScaleX);
             float axisY = Mathf.Max(0.01f, hitScaleY);
             float worldDiameter = Mathf.Max(spriteWorldWidth * axisX, spriteWorldHeight * axisY);
-            if (worldDiameter <= 0.0001f)
-                return 0.18f * scale * Mathf.Max(axisX, axisY);
-
-            float worldRadius = worldDiameter * 0.5f * scale;
             float safeRoot = Mathf.Max(0.0001f, Mathf.Abs(rootScale));
+            if (worldDiameter <= 0.0001f)
+            {
+                float fallback = Mathf.Max(0.18f * scale * Mathf.Max(axisX, axisY), MinPlayableWorldRadius);
+                return Mathf.Max(0.02f, fallback / safeRoot);
+            }
+
+            float worldRadius = Mathf.Max(worldDiameter * 0.5f * scale, MinPlayableWorldRadius);
             return Mathf.Max(0.02f, worldRadius / safeRoot);
+        }
+
+        private float GetWorldHitRadius()
+        {
+            float local = GetHitboxProbeRadius();
+            Vector3 lossy = transform.lossyScale;
+            float scale = Mathf.Max(Mathf.Abs(lossy.x), Mathf.Abs(lossy.y), 0.0001f);
+            return local * scale;
         }
 
         private float GetHitboxProbeRadius()

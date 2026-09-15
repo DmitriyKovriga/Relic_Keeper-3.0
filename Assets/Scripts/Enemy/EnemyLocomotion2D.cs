@@ -287,14 +287,7 @@ namespace Scripts.Enemies
             if (_spriteRenderer == null || _spriteRenderer.sprite == null)
                 return;
 
-            Vector2 spriteSize = _spriteRenderer.sprite.bounds.size;
-            if (spriteSize.x <= 0.01f || spriteSize.y <= 0.01f)
-                return;
-
-            float width = Mathf.Clamp(spriteSize.x * 0.42f, 0.45f, 0.85f);
-            float height = Mathf.Clamp(spriteSize.y * 0.72f, 0.75f, 1.25f);
-            collider.size = new Vector2(width, height);
-            collider.offset = new Vector2(0f, -(spriteSize.y - height) * 0.32f);
+            EnemyPhysicsFit.Apply(collider, _spriteRenderer.sprite.bounds.size);
         }
 
         private void SnapToGround(BoxCollider2D collider)

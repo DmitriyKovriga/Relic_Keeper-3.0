@@ -228,14 +228,7 @@ namespace Scripts.Enemies
             if (sr == null || sr.sprite == null)
                 return;
 
-            Vector2 spriteSize = sr.sprite.bounds.size;
-            if (spriteSize.x <= 0.01f || spriteSize.y <= 0.01f)
-                return;
-
-            float width = Mathf.Clamp(spriteSize.x * 0.42f, 0.45f, 0.85f);
-            float height = Mathf.Clamp(spriteSize.y * 0.72f, 0.75f, 1.25f);
-            collider.size = new Vector2(width, height);
-            collider.offset = new Vector2(0f, -(spriteSize.y - height) * 0.32f);
+            EnemyPhysicsFit.Apply(collider, sr.sprite.bounds.size);
         }
 
         private void SnapToGround(BoxCollider2D collider)
@@ -330,6 +323,48 @@ namespace Scripts.Enemies
             if (_visualRenderer == null)
                 _visualRenderer = GetComponentInChildren<SpriteRenderer>(true);
             return _visualRenderer;
+        }
+    }
+
+    /// <summary>
+    /// Shared enemy BoxCollider2D sizing. Physics and hurtbox are the same collider,
+    /// so the box must cover the visible body — including shots from one tile above.
+    /// </summary>
+    public static class EnemyPhysicsFit
+    {
+        public const float WidthFactor = 0.42f;
+        public const float HeightFactor = 0.85f;
+        public const float MinWidth = 0.45f;
+        public const float MaxWidth = 0.85f;
+        public const float MinHeight = 0.75f;
+        public const float MaxHeight = 1.85f;
+        public const float FeetInset = 0.02f;
+
+        public static void CalculateBox(Vector2 spriteSize, out Vector2 size, out Vector2 offset)
+        {
+            float width = Mathf.Clamp(spriteSize.x * WidthFactor, MinWidth, MaxWidth);
+            float height = Mathf.Clamp(spriteSize.y * HeightFactor, MinHeight, MaxHeight);
+            float offsetY = -spriteSize.y * 0.5f + height * 0.5f + FeetInset;
+            size = new Vector2(width, height);
+            offset = new Vector2(0f, offsetY);
+        }
+
+        public static void Apply(BoxCollider2D collider, Vector2 spriteSize)
+        {
+            if (collider == null || spriteSize.x <= 0.01f || spriteSize.y <= 0.01f)
+                return;
+
+            CalculateBox(spriteSize, out Vector2 size, out Vector2 offset);
+            collider.size = size;
+            collider.offset = offset;
+        }
+
+        public static float WorldTopAfterGroundSnap(Vector2 spriteSize, float groundY = 0f)
+        {
+            CalculateBox(spriteSize, out Vector2 size, out Vector2 offset);
+            float localBottom = offset.y - size.y * 0.5f;
+            float transformY = groundY + 0.01f - localBottom;
+            return transformY + offset.y + size.y * 0.5f;
         }
     }
 }
