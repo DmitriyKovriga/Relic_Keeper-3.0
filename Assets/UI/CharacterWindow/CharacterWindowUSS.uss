@@ -1,64 +1,322 @@
-/* --- ЗАТЕМНЕНИЕ ФОНА --- */
-.darkener {
-    background-color: rgba(0, 0, 0, 0.7);
+.char-window-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 480px;
+    height: 270px;
+    flex-grow: 0;
 }
 
-/* --- САМО ОКНО --- */
-.panel {
-    background-color: rgb(32, 32, 32);
+.char-window-panel {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 196px;
+    height: 262px;
+    flex-direction: column;
+    background-color: rgb(18, 16, 14);
     border-width: 1px;
-    border-color: rgb(80, 80, 80);
-    padding: 4px;
+    border-color: rgb(92, 78, 58);
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 4px;
+    padding-right: 3px;
+    overflow: hidden;
 }
 
-/* --- ПИКСЕЛЬНЫЙ SCROLLBAR (Более заметный) --- */
+.char-window-frame {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
 
-/* 1. Общий контейнер скроллбара (полоса справа) */
-.unity-scroller--vertical {
-    width: 10px; /* Чуть шире, чтобы было удобнее */
-    border-left-width: 1px;
-    border-left-color: rgb(50, 50, 50);
-    background-color: rgb(20, 20, 20); /* Темный фон трека */
+.char-window-title {
+    height: 12px;
+    min-height: 12px;
+    margin: 0;
+    padding: 0;
+    font-size: 10px;
+    color: rgb(232, 196, 92);
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(70, 58, 42);
+    margin-bottom: 3px;
+}
+
+.char-window-scroll {
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.char-hero-row {
+    flex-direction: row;
+    margin-bottom: 2px;
+}
+
+.char-hero-card {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    min-width: 0;
+    height: 36px;
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    border-width: 1px;
+    background-color: rgb(28, 24, 20);
+}
+
+.char-hero-card--armor {
+    margin-right: 2px;
+    border-color: rgb(150, 142, 128);
+}
+
+.char-hero-card--evasion {
+    border-color: rgb(88, 150, 92);
+}
+
+.char-hero-head {
+    flex-direction: row;
+    align-items: flex-end;
+    height: 16px;
+    min-height: 0;
+}
+
+.char-hero-name {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+    color: rgb(168, 160, 148);
+    height: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.char-hero-value {
+    flex-grow: 0;
+    flex-shrink: 0;
+    color: rgb(240, 220, 140);
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.char-hero-card--evasion .char-hero-value,
+.char-hero-card--evasion .char-hero-percent {
+    color: rgb(170, 220, 150);
+}
+
+.char-hero-percent-row {
+    flex-direction: row;
+    align-items: flex-end;
+    height: 14px;
+    min-height: 0;
+}
+
+.char-hero-percent {
+    flex-grow: 0;
+    flex-shrink: 0;
+    color: rgb(210, 210, 210);
+    -unity-font-style: bold;
+    margin-right: 3px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.char-hero-caption {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+    color: rgb(120, 114, 104);
+    height: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.char-mystic-row {
+    flex-direction: row;
+    height: 30px;
+    margin-bottom: 3px;
+    border-width: 1px;
+    border-color: rgb(92, 72, 132);
+    background-color: rgb(26, 22, 34);
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+.char-mystic-cell {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    min-width: 0;
+    padding-top: 2px;
+    padding-right: 1px;
+}
+
+.char-mystic-name {
+    color: rgb(168, 156, 196);
+    height: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.char-mystic-values {
+    flex-direction: row;
+    align-items: flex-end;
+    height: 16px;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.char-mystic-value {
+    -unity-font-style: bold;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.char-mystic-overcap {
+    color: rgb(128, 128, 128);
+    height: 8px;
     margin-left: 2px;
+    flex-shrink: 0;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
-/* 2. Скрываем стандартные кнопки (стрелки) */
-.unity-scroller__low-button, 
+.char-section {
+    margin-bottom: 3px;
+    width: 100%;
+}
+
+.char-section-title {
+    height: 10px;
+    color: rgb(210, 176, 88);
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(62, 52, 38);
+    margin-bottom: 1px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.char-section-body {
+    flex-direction: column;
+    width: 100%;
+}
+
+.char-grid-2 {
+    flex-direction: column;
+    width: 100%;
+}
+
+.char-grid-line {
+    flex-direction: row;
+    width: 100%;
+    height: 8px;
+}
+
+.char-grid-line > .char-stat-row {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    min-width: 0;
+    width: auto;
+    margin-right: 2px;
+}
+
+.char-stat-row {
+    flex-direction: row;
+    height: 8px;
+    min-height: 8px;
+    width: 100%;
+    align-items: center;
+    padding-left: 1px;
+    padding-right: 1px;
+}
+
+.char-stat-row--alt {
+    background-color: rgb(22, 20, 18);
+}
+
+.char-stat-name {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    min-width: 0;
+    color: rgb(176, 170, 160);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.char-stat-value {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: 44px;
+    min-width: 44px;
+    max-width: 44px;
+    -unity-text-align: middle-right;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.char-label {
+    margin: 0;
+    padding: 0;
+}
+
+.char-window-scroll .unity-scroll-view__content-container {
+    width: 100%;
+    align-items: stretch;
+    padding: 0;
+}
+
+.char-scroll-content {
+    width: 100%;
+    align-items: stretch;
+    padding: 0;
+}
+
+.unity-scroller--vertical {
+    width: 4px;
+    min-width: 4px;
+    max-width: 4px;
+    margin-left: 1px;
+    background-color: rgb(12, 10, 8);
+    border-left-width: 1px;
+    border-left-color: rgb(48, 40, 32);
+}
+
+.unity-scroller__low-button,
 .unity-scroller__high-button {
     display: none;
     width: 0;
     height: 0;
 }
 
-/* 3. Трек слайдера (подложка) */
 .unity-base-slider__tracker {
-    background-color: rgba(0,0,0,0); /* Прозрачный, т.к. фон задан в scroller */
+    background-color: rgba(0, 0, 0, 0);
     border-width: 0;
 }
 
-/* 4. Ползунок (Dragger) */
 .unity-base-slider__dragger {
-    width: 8px; /* Чуть меньше контейнера (10px) */
-    background-color: rgb(140, 140, 140); /* Светло-серый, заметный */
+    width: 3px;
+    background-color: rgb(120, 108, 88);
     border-width: 0;
-    border-radius: 0; /* Квадратный */
-    margin-left: 1px; /* Центрируем в треке */
-    margin-right: 1px;
-    margin-top: 2px;
-    margin-bottom: 2px;
+    border-radius: 0;
+    margin-left: 0;
 }
 
-/* Ползунок при наведении */
-.unity-base-slider__dragger:hover {
-    background-color: rgb(180, 180, 180); /* Белеет */
-}
-
-/* Ползунок при нажатии */
-.unity-base-slider__dragger:active {
-    background-color: rgb(220, 220, 220); /* Почти белый */
-}
-
-/* Горизонтальный скролл убираем */
 .unity-scroller--horizontal {
     display: none;
 }

@@ -1459,6 +1459,46 @@ MonoBehaviour:
     m_Key: passive.node.MediumMysticShield.description
     m_Metadata:
       m_Items: []
+  - m_Id: 104800000000000001
+    m_Key: stats.window.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104800000000000002
+    m_Key: stats.section.resists
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104800000000000003
+    m_Key: stats.section.damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104800000000000004
+    m_Key: stats.section.ailments
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104800000000000005
+    m_Key: stats.section.other
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104800000000000006
+    m_Key: stats.armor.mitigation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104800000000000007
+    m_Key: stats.evasion.chance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104800000000000008
+    m_Key: stats.mystic.layers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104800000000000009
+    m_Key: stats.mystic.absorb
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104800000000000010
+    m_Key: stats.mystic.recharge
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
