@@ -28,31 +28,21 @@ MonoBehaviour:
       Type: 100
       Scope: 1
       ValueMode: 2
-      MinValue: 8
-      MaxValue: 12
-      RangeMinValue: 12
-      RangeMaxValue: 18
+      MinValue: 1
+      MaxValue: 2
+      RangeMinValue: 2
+      RangeMaxValue: 3
   - Tier: 2
     Stats:
     - Stat: 33
       Type: 100
       Scope: 1
       ValueMode: 2
-      MinValue: 6
-      MaxValue: 10
-      RangeMinValue: 10
-      RangeMaxValue: 15
+      MinValue: 2
+      MaxValue: 3
+      RangeMinValue: 4
+      RangeMaxValue: 7
   - Tier: 3
-    Stats:
-    - Stat: 33
-      Type: 100
-      Scope: 1
-      ValueMode: 2
-      MinValue: 4
-      MaxValue: 8
-      RangeMinValue: 8
-      RangeMaxValue: 12
-  - Tier: 4
     Stats:
     - Stat: 33
       Type: 100
@@ -60,18 +50,28 @@ MonoBehaviour:
       ValueMode: 2
       MinValue: 3
       MaxValue: 5
-      RangeMinValue: 5
-      RangeMaxValue: 8
+      RangeMinValue: 7
+      RangeMaxValue: 10
+  - Tier: 4
+    Stats:
+    - Stat: 33
+      Type: 100
+      Scope: 1
+      ValueMode: 2
+      MinValue: 5
+      MaxValue: 7
+      RangeMinValue: 9
+      RangeMaxValue: 14
   - Tier: 5
     Stats:
     - Stat: 33
       Type: 100
       Scope: 1
       ValueMode: 2
-      MinValue: 1
-      MaxValue: 3
-      RangeMinValue: 3
-      RangeMaxValue: 5
+      MinValue: 6
+      MaxValue: 9
+      RangeMinValue: 12
+      RangeMaxValue: 18
   LegacyTierIds:
   - Id: DamageLightning_Flat_Medium_T1
     Tier: 1

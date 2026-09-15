@@ -695,7 +695,7 @@ namespace Scripts.Editor.Affixes
 
             EditorGUILayout.Space(4);
             GUILayout.Label("Tier values", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox("T1 is the strongest tier and T5 is the weakest. Every generated affix stores all five tiers in this single asset.", MessageType.None);
+            EditorGUILayout.HelpBox("T1 is the weakest tier and T5 is the strongest. Every generated affix stores all five tiers in this single asset.", MessageType.None);
             EditorGUILayout.PropertyField(tiersProp, new GUIContent("Tiers (T1–T5)"), true);
         }
 

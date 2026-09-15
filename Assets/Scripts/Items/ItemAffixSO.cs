@@ -96,9 +96,9 @@ namespace Scripts.Items.Affixes
             {
                 AffixTierData weakest = Tiers
                     .Where(entry => entry != null && entry.Stats != null && entry.Stats.Length > 0)
-                    .OrderByDescending(entry => entry.Tier)
+                    .OrderBy(entry => entry.Tier)
                     .FirstOrDefault();
-                return weakest != null ? weakest.Tier : 5;
+                return weakest != null ? weakest.Tier : 1;
             }
 
             return Mathf.Clamp(Tier, 1, 5);

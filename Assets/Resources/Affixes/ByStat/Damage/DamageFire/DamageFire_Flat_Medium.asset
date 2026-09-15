@@ -28,20 +28,20 @@ MonoBehaviour:
       Type: 100
       Scope: 1
       ValueMode: 2
-      MinValue: 8
-      MaxValue: 12
-      RangeMinValue: 12
-      RangeMaxValue: 18
+      MinValue: 1
+      MaxValue: 2
+      RangeMinValue: 2
+      RangeMaxValue: 4
   - Tier: 2
     Stats:
     - Stat: 31
       Type: 100
       Scope: 1
       ValueMode: 2
-      MinValue: 6
-      MaxValue: 10
-      RangeMinValue: 10
-      RangeMaxValue: 15
+      MinValue: 3
+      MaxValue: 4
+      RangeMinValue: 6
+      RangeMaxValue: 9
   - Tier: 3
     Stats:
     - Stat: 31
@@ -49,29 +49,29 @@ MonoBehaviour:
       Scope: 1
       ValueMode: 2
       MinValue: 4
-      MaxValue: 8
-      RangeMinValue: 8
-      RangeMaxValue: 12
+      MaxValue: 7
+      RangeMinValue: 9
+      RangeMaxValue: 14
   - Tier: 4
     Stats:
     - Stat: 31
       Type: 100
       Scope: 1
       ValueMode: 2
-      MinValue: 3
-      MaxValue: 5
-      RangeMinValue: 5
-      RangeMaxValue: 8
+      MinValue: 6
+      MaxValue: 10
+      RangeMinValue: 12
+      RangeMaxValue: 19
   - Tier: 5
     Stats:
     - Stat: 31
       Type: 100
       Scope: 1
       ValueMode: 2
-      MinValue: 1
-      MaxValue: 3
-      RangeMinValue: 3
-      RangeMaxValue: 5
+      MinValue: 8
+      MaxValue: 12
+      RangeMinValue: 16
+      RangeMaxValue: 24
   LegacyTierIds:
   - Id: DamageFire_Flat_Medium_T1
     Tier: 1

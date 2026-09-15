@@ -54,6 +54,12 @@ namespace Scripts.Editor.Affixes
             Debug.Log($"[Affix Content] Missing stat generation complete. Created: {created}.");
         }
 
+        public static void RebalanceAllFromCommandLine()
+        {
+            int updated = RebalanceAllAffixValues();
+            Debug.Log($"[Affix Content] Rebalance complete. Updated: {updated}.");
+        }
+
         [MenuItem(MenuRoot + "Rebalance All Affix Values")]
         public static void RebalanceAllFromMenu()
         {

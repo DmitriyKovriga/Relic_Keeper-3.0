@@ -42,7 +42,7 @@ namespace RelicKeeper.Tests.EditMode
         [Test]
         public void OneWeakestAffix_CostsFiveHundredFifty()
         {
-            InventoryItem item = CreateItemWithAffixTiers(5);
+            InventoryItem item = CreateItemWithAffixTiers(1);
             Assert.That(ItemPriceCalculator.GetVendorPrice(item), Is.EqualTo(550));
             Assert.That(ItemPriceCalculator.GetSellPrice(item), Is.EqualTo(275));
         }
@@ -50,7 +50,7 @@ namespace RelicKeeper.Tests.EditMode
         [Test]
         public void OneStrongestAffix_CostsNineteenHundredFifty()
         {
-            InventoryItem item = CreateItemWithAffixTiers(1);
+            InventoryItem item = CreateItemWithAffixTiers(5);
             Assert.That(ItemPriceCalculator.GetVendorPrice(item), Is.EqualTo(1950));
             Assert.That(ItemPriceCalculator.GetSellPrice(item), Is.EqualTo(975));
         }

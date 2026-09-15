@@ -28,11 +28,31 @@ MonoBehaviour:
       Type: 210
       Scope: 0
       ValueMode: 0
-      MinValue: 13
-      MaxValue: 19
+      MinValue: 4
+      MaxValue: 8
       RangeMinValue: 0
       RangeMaxValue: 0
   - Tier: 2
+    Stats:
+    - Stat: 51
+      Type: 210
+      Scope: 0
+      ValueMode: 0
+      MinValue: 7
+      MaxValue: 10
+      RangeMinValue: 0
+      RangeMaxValue: 0
+  - Tier: 3
+    Stats:
+    - Stat: 51
+      Type: 210
+      Scope: 0
+      ValueMode: 0
+      MinValue: 9
+      MaxValue: 14
+      RangeMinValue: 0
+      RangeMaxValue: 0
+  - Tier: 4
     Stats:
     - Stat: 51
       Type: 210
@@ -42,34 +62,14 @@ MonoBehaviour:
       MaxValue: 16
       RangeMinValue: 0
       RangeMaxValue: 0
-  - Tier: 3
-    Stats:
-    - Stat: 51
-      Type: 210
-      Scope: 0
-      ValueMode: 0
-      MinValue: 8
-      MaxValue: 13
-      RangeMinValue: 0
-      RangeMaxValue: 0
-  - Tier: 4
-    Stats:
-    - Stat: 51
-      Type: 210
-      Scope: 0
-      ValueMode: 0
-      MinValue: 6
-      MaxValue: 10
-      RangeMinValue: 0
-      RangeMaxValue: 0
   - Tier: 5
     Stats:
     - Stat: 51
       Type: 210
       Scope: 0
       ValueMode: 0
-      MinValue: 4
-      MaxValue: 6
+      MinValue: 14
+      MaxValue: 20
       RangeMinValue: 0
       RangeMaxValue: 0
   LegacyTierIds:

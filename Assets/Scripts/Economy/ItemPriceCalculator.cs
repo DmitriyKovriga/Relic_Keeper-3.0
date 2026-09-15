@@ -25,8 +25,8 @@ namespace Scripts.Economy
                     continue;
 
                 price += PricePerAffix;
-                int tier = affix.Tier > 0 ? affix.Tier : affix.Data != null ? affix.Data.GetDefaultTier() : MaxAffixTier;
-                int qualitySteps = MaxAffixTier + 1 - Mathf.Clamp(tier, 1, MaxAffixTier);
+                int tier = affix.Tier > 0 ? affix.Tier : affix.Data != null ? affix.Data.GetDefaultTier() : 1;
+                int qualitySteps = Mathf.Clamp(tier, 1, MaxAffixTier);
                 price += PricePerAffixTier * qualitySteps;
             }
 

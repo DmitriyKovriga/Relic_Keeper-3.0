@@ -29,49 +29,49 @@ MonoBehaviour:
       Scope: 1
       ValueMode: 0
       MinValue: 20
-      MaxValue: 29
-      RangeMinValue: 30
-      RangeMaxValue: 42
+      MaxValue: 30
+      RangeMinValue: 0
+      RangeMaxValue: 0
   - Tier: 2
     Stats:
     - Stat: 30
       Type: 200
       Scope: 1
       ValueMode: 0
-      MinValue: 16
-      MaxValue: 24
-      RangeMinValue: 25
-      RangeMaxValue: 29
+      MinValue: 40
+      MaxValue: 52
+      RangeMinValue: 0
+      RangeMaxValue: 0
   - Tier: 3
     Stats:
     - Stat: 30
       Type: 200
       Scope: 1
       ValueMode: 0
-      MinValue: 13
-      MaxValue: 20
-      RangeMinValue: 20
-      RangeMaxValue: 24
+      MinValue: 60
+      MaxValue: 75
+      RangeMinValue: 0
+      RangeMaxValue: 0
   - Tier: 4
     Stats:
     - Stat: 30
       Type: 200
       Scope: 1
       ValueMode: 0
-      MinValue: 9
-      MaxValue: 15
-      RangeMinValue: 15
-      RangeMaxValue: 19
+      MinValue: 80
+      MaxValue: 98
+      RangeMinValue: 0
+      RangeMaxValue: 0
   - Tier: 5
     Stats:
     - Stat: 30
       Type: 200
       Scope: 1
       ValueMode: 0
-      MinValue: 6
-      MaxValue: 10
-      RangeMinValue: 10
-      RangeMaxValue: 14
+      MinValue: 100
+      MaxValue: 120
+      RangeMinValue: 0
+      RangeMaxValue: 0
   LegacyTierIds:
   - Id: Resources/Affixes/ByStat/Damage/DamagePhysical/Local_DamagePhysical_Increase_Strong_T1
     Tier: 1

@@ -121,7 +121,7 @@ namespace RelicKeeper.Tests.EditMode
                 affix.name = $"craft_affix_{i}";
                 affix.UniqueID = affix.name;
                 affix.GroupID = $"craft_group_{i}";
-                affix.Tier = 5;
+                affix.Tier = 1;
                 data.AffixPool.Affixes.Add(affix);
             }
 
