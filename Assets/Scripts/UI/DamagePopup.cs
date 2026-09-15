@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using TMPro;
 
@@ -43,6 +44,17 @@ public class DamagePopup : MonoBehaviour
         _textMesh.text = Mathf.RoundToInt(damageAmount).ToString();
         _timer = _lifeTime;
         _textMesh.sortingOrder = 50;
+
+        if (string.Equals(damageType, "Evade", StringComparison.OrdinalIgnoreCase))
+        {
+            _textMesh.text = "Evade";
+            _textColor = Color.white;
+            _textMesh.fontSize = 5;
+            transform.localScale = _startScale;
+            _textMesh.color = _textColor;
+            _textMesh.alpha = 1f;
+            return;
+        }
 
         if (isCrit)
         {

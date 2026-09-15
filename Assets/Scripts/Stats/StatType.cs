@@ -76,8 +76,9 @@ namespace Scripts.Stats
         TakeFireAsPhys,
         TakeFireAsCold,
 
-        // --- 8. Крит и Точность ---
-        Accuracy,            // Рейтинг точности
+        // --- 8. Крит ---
+        // Accuracy is unused and kept only so serialized StatType values do not shift.
+        Accuracy,
         CritChance,         
         CritMultiplier,      // Множитель крита (Base: 1.5 = 150%)
         

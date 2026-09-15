@@ -1279,7 +1279,7 @@ MonoBehaviour:
   - ID: 1ca0bb1b-7855-484a-8ea5-1548355e1b42
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 1409.1185, y: 1193.5833}
+    Position: {x: 1409.1185, y: 1191.0833}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -1317,7 +1317,7 @@ MonoBehaviour:
   - ID: 5d9d1383-e23d-405f-8548-fcebff5f6e00
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 1345.1223, y: 1193.4847}
+    Position: {x: 1348.1223, y: 1190.4847}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -1330,7 +1330,7 @@ MonoBehaviour:
   - ID: a03ec02b-30d6-46cb-a8c3-896f5b083a52
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 2213.135, y: 1242.8225}
+    Position: {x: 2209.635, y: 1231.8225}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -1343,7 +1343,7 @@ MonoBehaviour:
   - ID: 7d6bedb9-22bf-4fd3-9ad1-83c79a293616
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 2154.0525, y: 1245.3295}
+    Position: {x: 2150.0525, y: 1232.8295}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -1356,7 +1356,7 @@ MonoBehaviour:
   - ID: d6aeb111-07a4-4d58-a922-6f616c656158
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 2105.8398, y: 1224.283}
+    Position: {x: 2100.3398, y: 1217.283}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -2196,7 +2196,7 @@ MonoBehaviour:
     RoadConnections: []
   - ID: e75b0855-baed-4e41-a42f-3e30b0ae4ada
     Name: Half-Circle
-    Center: {x: 2182.8906, y: 1167.2915}
+    Center: {x: 2179.3906, y: 1156.2915}
     Orbits:
     - Radius: 40
       IsPartialArc: 0
@@ -2206,7 +2206,7 @@ MonoBehaviour:
     RoadConnections: []
   - ID: ce3db26c-9dce-48c5-95ba-89c88af19c6b
     Name: Half-Circle
-    Center: {x: 1376.461, y: 1267.1918}
+    Center: {x: 1379.461, y: 1261.6918}
     Orbits:
     - Radius: 40
       IsPartialArc: 0

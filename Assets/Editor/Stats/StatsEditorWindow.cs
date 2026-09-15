@@ -1327,7 +1327,7 @@ namespace Scripts.Editor.Stats
             if (s.Contains("Resist") || s.Contains("Penetration") || s.Contains("Mitigation") || s.Contains("ReduceDamage")) return "Resistances";
             if (s.Contains("Health") || s.Contains("Mana")) return "Vitals";
             if (s.Contains("Armor") || s.Contains("Evasion") || s.Contains("Block") || s.Contains("MysticShield")) return "Defense";
-            if (s.Contains("Crit") || s.Contains("Accuracy")) return "Critical";
+            if (s.Contains("Crit")) return "Critical";
             if (s.Contains("Speed")) return "Speed";
             if (s.Contains("Damage")) return "Damage";
             if (s.Contains("To") || s.Contains("As")) return "Conversion";

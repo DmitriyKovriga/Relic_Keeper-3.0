@@ -203,7 +203,6 @@ namespace Scripts.Items.Affixes
                     return (1f, 2f, 4f, 7f);
                 case StatType.Armor:
                 case StatType.Evasion:
-                case StatType.Accuracy:
                     return (25f, 45f, 120f, 180f);
                 case StatType.FireResist:
                 case StatType.ColdResist:

@@ -164,6 +164,10 @@ namespace Scripts.Editor.Affixes
 
             foreach (StatType stat in statsToGenerate)
             {
+                if (StatsDatabaseSO.IsRetiredStat(stat) ||
+                    statsDb.GetAllowedAffixKinds(stat) == StatAffixModifierKindFlags.None)
+                    continue;
+
                 StatAffixGenType genType = statsDb.GetAffixGenType(stat);
                 string category = statsDb.GetCategory(stat);
                 string statName = stat.ToString();

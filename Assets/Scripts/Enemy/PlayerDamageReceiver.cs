@@ -21,9 +21,10 @@ namespace Scripts.Enemies
             _mysticShield = GetComponent<MysticShieldController>();
         }
 
-        public void TakeDamage(DamageSnapshot damage)
+        public bool TakeDamage(DamageSnapshot damage)
         {
-            TakeDamageDetailed(damage);
+            DamageResolution result = TakeDamageDetailed(damage);
+            return !result.WasImmune && !result.WasEvaded;
         }
 
         public DamageResolution TakeDamageDetailed(DamageSnapshot damage)
@@ -61,6 +62,14 @@ namespace Scripts.Enemies
                 _stats = GetComponent<PlayerStats>();
             if (_stats == null || _stats.Health == null)
                 return result;
+
+            result.Evasion = Mathf.Max(0f, _stats.GetValue(StatType.Evasion));
+            result.EvadeChance = EvasionMitigation.EvasionToDodgeChance(result.Evasion);
+            if (EvasionMitigation.TryEvade(_stats, damage, gameObject, transform.position))
+            {
+                result.WasEvaded = true;
+                return result;
+            }
 
             result.HealthBefore = _stats.Health.Current;
 
@@ -177,6 +186,9 @@ namespace Scripts.Enemies
         public struct DamageResolution
         {
             public bool WasImmune;
+            public bool WasEvaded;
+            public float Evasion;
+            public float EvadeChance;
             public float RawPhysical;
             public float RawFire;
             public float RawCold;

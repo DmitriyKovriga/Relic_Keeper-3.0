@@ -56,11 +56,14 @@ namespace Scripts.Enemies
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
 
-        public void TakeDamage(DamageSnapshot damage)
+        public bool TakeDamage(DamageSnapshot damage)
         {
-            if (_isDead) return;
+            if (_isDead) return false;
             if (!EnsureReady())
-                return;
+                return false;
+
+            if (EvasionMitigation.TryEvade(_stats, damage, gameObject, transform.position))
+                return false;
 
             float physDmg = damage.Physical;
             float physicalRes = ArmorMitigation.ResolveTotalPhysicalResist(_stats, out _, out _, out _, out _);
@@ -130,6 +133,8 @@ namespace Scripts.Enemies
 
             if (_currentHealth <= 0)
                 Die();
+
+            return true;
         }
 
         public void ApplyPureDamage(float amount, object source, string damageType = "Pure")

@@ -947,9 +947,11 @@ namespace Scripts.Skills
             DamageSnapshot snapshot = DamageCalculator.CreateDamageSnapshot(scopedStats, mult, damageContext, step.DamageConversions);
             snapshot.Source = _ownerStats;
 
-            target.TakeDamage(snapshot);
-            TryApplyAilmentsFromHit(scopedStats, target, snapshot);
-            ExecuteOnHitEffects(step, target, chainTarget.TargetTransform, snapshot);
+            if (target.TakeDamage(snapshot))
+            {
+                TryApplyAilmentsFromHit(scopedStats, target, snapshot);
+                ExecuteOnHitEffects(step, target, chainTarget.TargetTransform, snapshot);
+            }
 
             hitResults?.Add(new SkillStepContext.HitResult
             {
@@ -1096,9 +1098,12 @@ namespace Scripts.Skills
                 IStatsProvider scopedStats = BuildScopedStatsProvider(step, target);
                 var snapshot = DamageCalculator.CreateDamageSnapshot(scopedStats, mult, damageContext, step.DamageConversions);
                 snapshot.Source = _ownerStats;
-                target.TakeDamage(snapshot);
-                TryApplyAilmentsFromHit(scopedStats, target, snapshot);
                 Transform targetTransform = ResolveDamageableTransform(target);
+                if (target.TakeDamage(snapshot))
+                {
+                    TryApplyAilmentsFromHit(scopedStats, target, snapshot);
+                    ExecuteOnHitEffects(step, target, targetTransform, snapshot);
+                }
                 if (hitResults != null)
                 {
                     hitResults.Add(new SkillStepContext.HitResult
@@ -1109,7 +1114,6 @@ namespace Scripts.Skills
                         Snapshot = snapshot
                     });
                 }
-                ExecuteOnHitEffects(step, target, targetTransform, snapshot);
             }
 
             if (hitResults != null && hitResults.Count > 0)

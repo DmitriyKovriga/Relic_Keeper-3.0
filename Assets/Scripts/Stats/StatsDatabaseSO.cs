@@ -339,6 +339,9 @@ namespace Scripts.Stats
 
         public bool ShouldShowInCharacterWindow(StatType type)
         {
+            if (IsRetiredStat(type))
+                return false;
+
             var meta = GetMetadata(type);
             return meta == null || meta.ShowInCharacterWindow;
         }
@@ -381,6 +384,9 @@ namespace Scripts.Stats
 
         public bool ShouldShowInPrimaryStatsEditor(StatType type)
         {
+            if (IsRetiredStat(type))
+                return false;
+
             var meta = GetMetadata(type);
             return meta != null ? meta.ShowInPrimaryStatsEditor : DefaultShowInPrimaryStatsEditor(type);
         }
@@ -405,6 +411,9 @@ namespace Scripts.Stats
 
         public StatAffixModifierKindFlags GetAllowedAffixKinds(StatType type)
         {
+            if (IsRetiredStat(type))
+                return StatAffixModifierKindFlags.None;
+
             var meta = GetMetadata(type);
             if (meta != null)
                 return NormalizeAllowedAffixKinds(meta.AllowedAffixKinds, meta.AffixGenType, type);
@@ -605,7 +614,7 @@ namespace Scripts.Stats
             if (s.Contains("Resist") || s.Contains("Penetration") || s.Contains("Mitigation") || s.Contains("DamageTaken")) return "Resistances";
             if (s.Contains("Health") || s.Contains("Mana")) return "Vitals";
             if (s.Contains("Armor") || s.Contains("Evasion") || s.Contains("Block") || s.Contains("MysticShield")) return "Defense";
-            if (s.Contains("Crit") || s.Contains("Accuracy")) return "Critical";
+            if (s.Contains("Crit")) return "Critical";
             if (s.Contains("Speed")) return "Speed";
             if (s.Contains("Damage") && !s.Contains("Mult") && !s.Contains("Taken")) return "Damage";
             if (s.Contains("To") || s.Contains("As")) return "Conversion";
@@ -635,15 +644,22 @@ namespace Scripts.Stats
             return StatDisplayFormat.Number;
         }
 
+        public static bool IsRetiredStat(StatType type)
+        {
+            return type == StatType.Accuracy;
+        }
+
         public static bool DefaultShowInCharacterWindow(StatType type)
         {
-            if (IsCooldownRecoveryStat(type))
+            if (IsRetiredStat(type) || IsCooldownRecoveryStat(type))
                 return false;
             return type != StatType.HealthRegenPercent && type != StatType.ManaRegenPercent;
         }
 
         public static bool DefaultShowInPrimaryStatsEditor(StatType type)
         {
+            if (IsRetiredStat(type))
+                return false;
             if (IsCooldownRecoveryStat(type))
                 return true;
             return DefaultSemanticKindFor(type) == StatSemanticKind.FinalScalar;
@@ -873,6 +889,8 @@ namespace Scripts.Stats
 
         public static StatAffixModifierKindFlags DefaultAllowedAffixKindsFor(StatType type, StatAffixGenType genType)
         {
+            if (IsRetiredStat(type))
+                return StatAffixModifierKindFlags.None;
             if (type == StatType.CritMultiplier)
                 return StatAffixModifierKindFlags.Flat;
             if (type == StatType.AttackSpeed)
@@ -893,6 +911,9 @@ namespace Scripts.Stats
 
         public static StatAffixModifierKindFlags NormalizeAllowedAffixKinds(StatAffixModifierKindFlags flags, StatAffixGenType genType, StatType type)
         {
+            if (IsRetiredStat(type))
+                return StatAffixModifierKindFlags.None;
+
             if (flags == StatAffixModifierKindFlags.None)
                 flags = DefaultAllowedAffixKindsFor(type, genType);
 

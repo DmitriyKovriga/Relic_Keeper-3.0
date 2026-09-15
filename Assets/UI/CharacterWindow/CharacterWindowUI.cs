@@ -295,6 +295,8 @@ public class CharacterWindowUI : MonoBehaviour
 
     private bool ShouldShowStat(StatType type)
     {
+        if (StatsDatabaseSO.IsRetiredStat(type))
+            return false;
         if (_statsDb != null && _statsDb.GetMetadata(type) != null)
             return _statsDb.ShouldShowInCharacterWindow(type);
         if (type == StatType.HealthRegenPercent || type == StatType.ManaRegenPercent) return false;

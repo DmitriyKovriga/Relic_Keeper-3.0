@@ -489,6 +489,8 @@ namespace Scripts.Inventory
             {
                 foreach (var imp in Data.ImplicitModifiers)
                 {
+                    if (StatsDatabaseSO.IsRetiredStat(imp.Stat))
+                        continue;
                     if (imp.Scope != StatScope.Global && !ShouldPromoteLocalStatToCharacter(imp.Stat))
                         continue;
 
@@ -501,6 +503,8 @@ namespace Scripts.Inventory
             {
                 foreach (var modifier in affix.Modifiers)
                 {
+                    if (StatsDatabaseSO.IsRetiredStat(modifier.Type))
+                        continue;
                     if (modifier.Scope != StatScope.Global && !ShouldPromoteLocalStatToCharacter(modifier.Type))
                         continue;
 

@@ -429,8 +429,8 @@ namespace Scripts.Enemies
             if (TryResolveDamageable(_currentTarget, out var damageable))
             {
                 DamageSnapshot snapshot = CreateDamageSnapshot(config);
-                damageable.TakeDamage(snapshot);
-                AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, _currentTarget, snapshot);
+                if (damageable.TakeDamage(snapshot))
+                    AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, _currentTarget, snapshot);
                 _lastAttackConnected = true;
             }
         }
@@ -587,8 +587,8 @@ namespace Scripts.Enemies
                 return false;
 
             DamageSnapshot snapshot = CreateDamageSnapshot(config);
-            damageable.TakeDamage(snapshot);
-            AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, candidate, snapshot);
+            if (damageable.TakeDamage(snapshot))
+                AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, candidate, snapshot);
             return true;
         }
 
@@ -839,8 +839,8 @@ namespace Scripts.Enemies
 
             if (EnemyAttackController.TryResolveDamageable(other.transform, out var damageable))
             {
-                damageable.TakeDamage(_damageSnapshot);
-                AilmentController.TryApplyHitAilmentsFromSource(_damageSnapshot?.Source, other.transform, _damageSnapshot);
+                if (damageable.TakeDamage(_damageSnapshot))
+                    AilmentController.TryApplyHitAilmentsFromSource(_damageSnapshot?.Source, other.transform, _damageSnapshot);
                 Despawn();
             }
         }

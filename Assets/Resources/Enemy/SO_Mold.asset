@@ -41,6 +41,8 @@ MonoBehaviour:
     Value: 0
   - Type: 24
     Value: 0
+  - Type: 102
+    Value: 56
   Stats:
   - Type: 0
     BaseValue: 80
@@ -71,7 +73,7 @@ MonoBehaviour:
     ScalingMode: 0
     ScalingValue: 0
   - Type: 33
-    BaseValue: 14
+    BaseValue: 12
     ScalingMode: 2
     ScalingValue: 26
   - Type: 18
@@ -90,6 +92,11 @@ MonoBehaviour:
     BaseValue: 0
     ScalingMode: 0
     ScalingValue: 0
+  - Type: 102
+    BaseValue: 56
+    ScalingMode: 2
+    ScalingValue: 22
+  StunThresholdMultiplier: 1
   Perception:
     AggroRange: 11
     LoseTargetRange: 14
@@ -126,6 +133,23 @@ MonoBehaviour:
     ProjectileHitRadius: 0.22
     ProjectileAnimationFps: 10
     ProjectileStopsOnGround: 0
+  ChargeAttack:
+    Enabled: 0
+    TriggerMinDistance: 2.2
+    TriggerMaxDistance: 4.8
+    AttackCooldown: 3
+    DeliveryType: 0
+    DamageType: 0
+    Windup: 0.3
+    ActiveTime: 0.1
+    Recovery: 0.35
+    DamageMultiplier: 1.35
+    HitboxSize: {x: 1.6, y: 0.9}
+    HitboxOffset: {x: 0.95, y: 0}
+    DashSpeed: 5.25
+    DashDuration: 0.22
+    DashOvershootDistance: 0.95
+    IgnoreLedgesDuringDash: 0
   Behaviour:
     DecisionIntervalMin: 0.14
     DecisionIntervalMax: 0.24
@@ -137,6 +161,22 @@ MonoBehaviour:
     TurnDelayMin: 0.02
     TurnDelayMax: 0.05
     MissRecoveryMultiplier: 1
+    IdleWanderEnabled: 1
+    IdleWanderMoveChance: 0.65
+    IdleWanderSpeedMultiplier: 0.45
+    IdleWanderStandMin: 1.2
+    IdleWanderStandMax: 3
+    IdleWanderMoveMin: 0.35
+    IdleWanderMoveMax: 1.1
+  Burrow:
+    Enabled: 0
+    TriggerMinDistance: 1.6
+    Cooldown: 2.2
+    ExitOffsetRadius: 0.35
+    HiddenDelay: 0.04
+    PostExitPause: 0.12
+    DestinationSearchHeight: 3.5
+    DestinationSearchDepth: 6
   DeathEffect:
     Enabled: 1
     ChunkCount: 4
@@ -159,15 +199,31 @@ MonoBehaviour:
     IdleStateName: Idle
     MoveStateName: Walk
     AttackStateName: Attack
+    ChargeStateName: Charge
+    HitStateName: Hit
+    DigInStateName: DigIn
+    DigOutStateName: DigOut
     IdleSpritesResourcePath: Enemy/MoldResources/mold_idle-Sheet
     MoveSpritesResourcePath: Enemy/MoldResources/mold_walk-Sheet
     AttackSpritesResourcePath: Enemy/MoldResources/mold_attack-Sheet
+    ChargeSpritesResourcePath: 
+    HitSpritesResourcePath: 
+    DigInSpritesResourcePath: 
+    DigOutSpritesResourcePath: 
+    VisualLocalOffset: {x: 0, y: 0}
     GroundShadowOffset: {x: 0, y: 0}
     GroundShadowWidthScale: 1.2
+    InvertFacingX: 0
     IdleFps: 6
     MoveFps: 7
     AttackFps: 10
+    ChargeFps: 10
+    HitFps: 10
+    DigInFps: 10
+    DigOutFps: 10
     AttackImpactFrame: -1
+    ChargeImpactFrame: -1
   XPReward: 8.4
+  GoldReward: 0
   LootDropMultiplier: 1
   LegacyGrowthPerLevelPercent: 25

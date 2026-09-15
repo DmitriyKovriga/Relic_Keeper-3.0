@@ -83,7 +83,10 @@ namespace Scripts.Items.Affixes
             }
             foreach (var affix in Affixes)
             {
-                if (affix != null && seenGroups.Add(GetGroupKey(affix)) && GetRuntimeAllowedTiers(affix, itemLevel).Count > 0)
+                if (affix != null &&
+                    seenGroups.Add(GetGroupKey(affix)) &&
+                    !HasRetiredStats(affix) &&
+                    GetRuntimeAllowedTiers(affix, itemLevel).Count > 0)
                     candidates.Add(affix);
             }
 
@@ -99,6 +102,39 @@ namespace Scripts.Items.Affixes
             return affix.name;
         }
 
+        private static bool HasRetiredStats(ItemAffixSO affix)
+        {
+            if (affix == null)
+                return false;
+
+            if (affix.Tiers != null)
+            {
+                for (int i = 0; i < affix.Tiers.Count; i++)
+                {
+                    ItemAffixSO.AffixTierData tier = affix.Tiers[i];
+                    if (tier?.Stats == null)
+                        continue;
+
+                    for (int s = 0; s < tier.Stats.Length; s++)
+                    {
+                        if (StatsDatabaseSO.IsRetiredStat(tier.Stats[s].Stat))
+                            return true;
+                    }
+                }
+            }
+
+            if (affix.Stats != null)
+            {
+                for (int i = 0; i < affix.Stats.Length; i++)
+                {
+                    if (StatsDatabaseSO.IsRetiredStat(affix.Stats[i].Stat))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
         private static List<int> GetRuntimeAllowedTiers(ItemAffixSO affix, int itemLevel)
         {
             var result = new List<int>();
@@ -111,7 +147,8 @@ namespace Scripts.Items.Affixes
                 bool allowed = true;
                 for (int i = 0; i < stats.Length; i++)
                 {
-                    if (stats[i].Stat == StatType.AttackSpeed && stats[i].Type == StatModType.Flat)
+                    if (StatsDatabaseSO.IsRetiredStat(stats[i].Stat) ||
+                        (stats[i].Stat == StatType.AttackSpeed && stats[i].Type == StatModType.Flat))
                     {
                         allowed = false;
                         break;

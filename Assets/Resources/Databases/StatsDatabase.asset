@@ -667,15 +667,15 @@ MonoBehaviour:
     Category: Critical
     SemanticKind: 0
     Format: 0
-    ShowInCharacterWindow: 1
-    ShowInPrimaryStatsEditor: 1
+    ShowInCharacterWindow: 0
+    ShowInPrimaryStatsEditor: 0
     AffixGenType: 0
     ValueUnit: 7
     DisplayAsPercentWhenFlat: 0
     AllowNegativeFlatGeneration: 0
     ContextTags: 0
     DamageChannels: 0
-    AllowedAffixKinds: 31
+    AllowedAffixKinds: 0
   - StatTypeId: CritChance
     Category: Critical
     SemanticKind: 0

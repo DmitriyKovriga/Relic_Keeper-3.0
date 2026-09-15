@@ -344,8 +344,9 @@ namespace Scripts.Skills.Projectiles
                     return false;
 
                 RegisterTargetHit(target);
-                DamageSnapshot snapshot = DealDamage(target);
-                ExecuteOnHitEffects(target, targetTransform, snapshot);
+                DamageSnapshot snapshot = DealDamage(target, out bool connected);
+                if (connected)
+                    ExecuteOnHitEffects(target, targetTransform, snapshot);
 
                 if (TryFork())
                     return true;
@@ -415,8 +416,9 @@ namespace Scripts.Skills.Projectiles
             _nextTargetHitAllowedAt[target] = Time.time + cooldown;
         }
 
-        private DamageSnapshot DealDamage(IDamageable target)
+        private DamageSnapshot DealDamage(IDamageable target, out bool connected)
         {
+            connected = false;
             if (_data == null || target == null || _data.OwnerStats == null || _data.Step == null)
                 return null;
 
@@ -427,8 +429,9 @@ namespace Scripts.Skills.Projectiles
                 _data.DamageContext,
                 _data.Step.DamageConversions);
             snapshot.Source = _data.OwnerStats;
-            target.TakeDamage(snapshot);
-            TryApplyAilmentsFromHit(scopedStats, target, snapshot);
+            connected = target.TakeDamage(snapshot);
+            if (connected)
+                TryApplyAilmentsFromHit(scopedStats, target, snapshot);
             return snapshot;
         }
 

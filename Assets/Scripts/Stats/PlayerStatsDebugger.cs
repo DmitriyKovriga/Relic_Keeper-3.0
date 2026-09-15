@@ -85,7 +85,7 @@ public class PlayerStatsDebugger : MonoBehaviour
             $"Consumed={result.MysticShieldConsumed}, Mitigation={result.MysticShieldMitigationPercent:0.##}%\n" +
             $"Damage Taken: Before={result.TotalBeforeDamageTaken:0.##}, StatMult=x{result.DamageTakenStatMultiplier:0.###}, " +
             $"ShockMult=x{result.DamageTakenShockMultiplier:0.###}, TotalMult=x{result.DamageTakenTotalMultiplier:0.###}, After={result.TotalAfterDamageTaken:0.##}\n" +
-            $"Final damage={result.FinalDamage:0.##}, HP delta={result.FinalHealthDelta:0.##}, HP: {result.HealthBefore:0.##} -> {result.HealthAfter:0.##}, Immune={result.WasImmune}");
+            $"Final damage={result.FinalDamage:0.##}, HP delta={result.FinalHealthDelta:0.##}, HP: {result.HealthBefore:0.##} -> {result.HealthAfter:0.##}, Immune={result.WasImmune}, Evaded={result.WasEvaded}, EvadeChance={result.EvadeChance:0.##}%");
     }
 }
 
