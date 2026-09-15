@@ -1426,6 +1426,13 @@ namespace Scripts.Editor.Skills
                 bool att = step.GetBool("AttachToParent", false);
                 bool natt = EditorGUILayout.Toggle("Attach to parent", att);
                 if (natt != att) { step.SetOverrideBool("AttachToParent", natt); EditorUtility.SetDirty(recipe); }
+                bool snapToGround = step.GetBool("SnapToGround", false);
+                bool newSnapToGround = EditorGUILayout.Toggle(
+                    new GUIContent(
+                        "Snap to ground",
+                        "Ставит низ спрайта на пол, как у ground-снарядов. Attach to parent при этом игнорируется."),
+                    snapToGround);
+                if (newSnapToGround != snapToGround) { step.SetOverrideBool("SnapToGround", newSnapToGround); EditorUtility.SetDirty(recipe); }
                 bool inv = step.GetBool("InvertFacing", false);
                 bool ninv = EditorGUILayout.Toggle("Invert facing", inv);
                 if (ninv != inv) { step.SetOverrideBool("InvertFacing", ninv); EditorUtility.SetDirty(recipe); }

@@ -50,18 +50,29 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void KnightSizedSprite_IsTallerThanTheOldHeightCap()
+        public void KnightPhysicsBox_KeepsTheOriginalStandingHeight()
         {
-            EnemyPhysicsFit.CalculateBox(new Vector2(2f, 2f), out Vector2 size, out _);
+            EnemyPhysicsFit.CalculatePhysicsBox(new Vector2(2f, 2f), out Vector2 size, out _);
 
-            Assert.That(size.y, Is.GreaterThan(1.25f));
-            Assert.That(size.y, Is.EqualTo(1.7f).Within(0.0001f));
+            Assert.That(size.y, Is.EqualTo(1.25f).Within(0.0001f));
+        }
+
+        [Test]
+        public void KnightHurtbox_GrowsUpFromTheSameFeet()
+        {
+            EnemyPhysicsFit.CalculatePhysicsBox(new Vector2(2f, 2f), out Vector2 physicsSize, out Vector2 physicsOffset);
+            EnemyPhysicsFit.CalculateHurtbox(new Vector2(2f, 2f), out Vector2 hurtSize, out Vector2 hurtOffset);
+
+            float physicsBottom = physicsOffset.y - physicsSize.y * 0.5f;
+            float hurtBottom = hurtOffset.y - hurtSize.y * 0.5f;
+            Assert.That(hurtSize.y, Is.GreaterThan(physicsSize.y));
+            Assert.That(hurtBottom, Is.EqualTo(physicsBottom).Within(0.0001f));
         }
 
         [Test]
         public void KnightHurtbox_IsReachedByFireballFromOneTileAbove()
         {
-            float knightTop = EnemyPhysicsFit.WorldTopAfterGroundSnap(new Vector2(2f, 2f));
+            float knightTop = EnemyPhysicsFit.HurtboxWorldTopAfterGroundSnap(new Vector2(2f, 2f));
             const float playerFeetY = 1f;
             const float playerColliderHalfHeight = 0.46f;
             const float fireballOffsetY = 0.25f;

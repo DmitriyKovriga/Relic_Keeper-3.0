@@ -327,26 +327,39 @@ namespace Scripts.Enemies
     }
 
     /// <summary>
-    /// Shared enemy BoxCollider2D sizing. Physics and hurtbox are the same collider,
-    /// so the box must cover the visible body — including shots from one tile above.
+    /// Physics box stays around the visible body so large padded sprites still stand on the floor.
+    /// A child trigger hurtbox grows upward from the same feet so shots from one tile above connect.
     /// </summary>
     public static class EnemyPhysicsFit
     {
+        public const string HurtboxChildName = "Hurtbox";
         public const float WidthFactor = 0.42f;
-        public const float HeightFactor = 0.85f;
+        public const float PhysicsHeightFactor = 0.72f;
         public const float MinWidth = 0.45f;
         public const float MaxWidth = 0.85f;
         public const float MinHeight = 0.75f;
-        public const float MaxHeight = 1.85f;
-        public const float FeetInset = 0.02f;
+        public const float MaxPhysicsHeight = 1.25f;
+        public const float FeetBias = 0.32f;
+        public const float HurtboxHeightFactor = 0.9f;
+        public const float MaxHurtboxHeight = 1.9f;
 
-        public static void CalculateBox(Vector2 spriteSize, out Vector2 size, out Vector2 offset)
+        public static void CalculatePhysicsBox(Vector2 spriteSize, out Vector2 size, out Vector2 offset)
         {
             float width = Mathf.Clamp(spriteSize.x * WidthFactor, MinWidth, MaxWidth);
-            float height = Mathf.Clamp(spriteSize.y * HeightFactor, MinHeight, MaxHeight);
-            float offsetY = -spriteSize.y * 0.5f + height * 0.5f + FeetInset;
+            float height = Mathf.Clamp(spriteSize.y * PhysicsHeightFactor, MinHeight, MaxPhysicsHeight);
             size = new Vector2(width, height);
-            offset = new Vector2(0f, offsetY);
+            offset = new Vector2(0f, -(spriteSize.y - height) * FeetBias);
+        }
+
+        public static void CalculateHurtbox(Vector2 spriteSize, out Vector2 size, out Vector2 offset)
+        {
+            CalculatePhysicsBox(spriteSize, out Vector2 physicsSize, out Vector2 physicsOffset);
+            float physicsBottom = physicsOffset.y - physicsSize.y * 0.5f;
+            float hurtHeight = Mathf.Max(
+                physicsSize.y,
+                Mathf.Clamp(spriteSize.y * HurtboxHeightFactor, MinHeight, MaxHurtboxHeight));
+            size = new Vector2(physicsSize.x, hurtHeight);
+            offset = new Vector2(0f, physicsBottom + hurtHeight * 0.5f);
         }
 
         public static void Apply(BoxCollider2D collider, Vector2 spriteSize)
@@ -354,17 +367,47 @@ namespace Scripts.Enemies
             if (collider == null || spriteSize.x <= 0.01f || spriteSize.y <= 0.01f)
                 return;
 
-            CalculateBox(spriteSize, out Vector2 size, out Vector2 offset);
+            CalculatePhysicsBox(spriteSize, out Vector2 size, out Vector2 offset);
+            collider.isTrigger = false;
             collider.size = size;
             collider.offset = offset;
+            ApplyHurtbox(collider.transform, spriteSize);
         }
 
-        public static float WorldTopAfterGroundSnap(Vector2 spriteSize, float groundY = 0f)
+        public static void ApplyHurtbox(Transform owner, Vector2 spriteSize)
         {
-            CalculateBox(spriteSize, out Vector2 size, out Vector2 offset);
-            float localBottom = offset.y - size.y * 0.5f;
+            if (owner == null || spriteSize.x <= 0.01f || spriteSize.y <= 0.01f)
+                return;
+
+            CalculateHurtbox(spriteSize, out Vector2 size, out Vector2 offset);
+            Transform child = owner.Find(HurtboxChildName);
+            if (child == null)
+            {
+                var hurtboxObject = new GameObject(HurtboxChildName);
+                child = hurtboxObject.transform;
+                child.SetParent(owner, false);
+                child.localPosition = Vector3.zero;
+                child.localRotation = Quaternion.identity;
+                child.localScale = Vector3.one;
+                hurtboxObject.layer = owner.gameObject.layer;
+            }
+
+            var box = child.GetComponent<BoxCollider2D>();
+            if (box == null)
+                box = child.gameObject.AddComponent<BoxCollider2D>();
+
+            box.isTrigger = true;
+            box.size = size;
+            box.offset = offset;
+        }
+
+        public static float HurtboxWorldTopAfterGroundSnap(Vector2 spriteSize, float groundY = 0f)
+        {
+            CalculatePhysicsBox(spriteSize, out Vector2 physicsSize, out Vector2 physicsOffset);
+            CalculateHurtbox(spriteSize, out Vector2 hurtSize, out Vector2 hurtOffset);
+            float localBottom = physicsOffset.y - physicsSize.y * 0.5f;
             float transformY = groundY + 0.01f - localBottom;
-            return transformY + offset.y + size.y * 0.5f;
+            return transformY + hurtOffset.y + hurtSize.y * 0.5f;
         }
     }
 }

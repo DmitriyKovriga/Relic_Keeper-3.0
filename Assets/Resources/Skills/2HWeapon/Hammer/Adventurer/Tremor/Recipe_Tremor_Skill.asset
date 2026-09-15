@@ -67,6 +67,13 @@ MonoBehaviour:
       Type: 2
       FloatVal: 0
       IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SnapToGround
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
       BoolVal: 1
       StringVal: 
       ObjectVal: {fileID: 0}
@@ -95,13 +102,6 @@ MonoBehaviour:
       BoolVal: 0
       StringVal: 
       ObjectVal: {fileID: 0}
-    - Key: VfxLifetimePercent
-      Type: 0
-      FloatVal: 1
-      IntVal: 0
-      BoolVal: 0
-      StringVal: 
-      ObjectVal: {fileID: 0}
     - Key: DamageMultiplier
       Type: 0
       FloatVal: 2.5
@@ -117,7 +117,7 @@ MonoBehaviour:
     TargetAilmentStackModifiers: []
     OnHitEffects: []
     StartPercentPipeline: 0.05
-    EndPercentPipeline: 0.05
+    EndPercentPipeline: 0.75
     SubSteps: []
   IsChanneling: 0
   ChannelLoopStepIndices: 

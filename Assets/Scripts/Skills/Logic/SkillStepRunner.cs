@@ -170,6 +170,8 @@ namespace Scripts.Skills
                                 _moveCtrl.SetLock(true);
                             else if (step.StepDefinition.Id == "SpawnVFX")
                                 ExecuteStepLogic(i, step, 0f, (endP - startP) * _ctx.TotalDuration);
+                            else if (IsPersistentDamageStep(step))
+                                ExecuteStepLogic(i, step, 0f, (endP - startP) * _ctx.TotalDuration);
                         }
                         if (started[i] && T < endP + 0.0001f && step.StepDefinition.Id != "MovementLock" && step.StepDefinition.Id != "SpawnVFX")
                         {
@@ -477,6 +479,12 @@ namespace Scripts.Skills
             var autoDestroy = AutoDestroyVFX.Ensure(vfx);
             if (autoDestroy != null)
                 autoDestroy.Initialize(lifetime, fadeOutEnabled, fadeOutStartLifePercent, fadeStartAlphaMultiplier);
+            bool snapToGround = step.GetBool("SnapToGround", false);
+            if (snapToGround)
+            {
+                spawnPos = SnapSpawnedVfxToGround(vfx, spawnPos, step);
+                attachToParent = false;
+            }
             if (attachToParent) vfx.transform.SetParent(_ownerStats.transform);
             WorldRenderSorting.ConfigureAutoSorter(
                 vfx,
@@ -1040,6 +1048,35 @@ namespace Scripts.Skills
 
             groundedPosition = new Vector2(origin.x, hit.point.y + yOffset);
             return true;
+        }
+
+        private Vector3 SnapSpawnedVfxToGround(GameObject vfx, Vector3 spawnPos, StepEntry step)
+        {
+            if (vfx == null)
+                return spawnPos;
+
+            LayerMask groundLayer = ResolveGroundProjectileSurfaceLayer(step);
+            float snapUp = Mathf.Max(0.01f, step.GetFloat("GroundSnapUp", 0.7f));
+            float snapDown = Mathf.Max(0.01f, step.GetFloat("GroundSnapDown", 2.5f));
+            float yOffset = step.GetFloat("GroundYOffset", 0.06f);
+            if (!TryProjectToGround(spawnPos, groundLayer, snapUp, snapDown, yOffset, out Vector2 groundPoint))
+                return spawnPos;
+
+            var spriteRenderer = vfx.GetComponentInChildren<SpriteRenderer>();
+            float currentBottomY = spriteRenderer != null ? spriteRenderer.bounds.min.y : spawnPos.y;
+            float deltaY = groundPoint.y - currentBottomY;
+            Vector3 snapped = spawnPos + new Vector3(0f, deltaY, 0f);
+            vfx.transform.position = snapped;
+            return snapped;
+        }
+
+        private static bool IsPersistentDamageStep(StepEntry step)
+        {
+            if (step == null || step.StepDefinition == null)
+                return false;
+
+            string id = step.StepDefinition.Id;
+            return id == "PersistentDamageCircle" || id == "PersistentDamageRectangle";
         }
 
         private static LayerMask ResolveGroundProjectileSurfaceLayer(StepEntry step)
