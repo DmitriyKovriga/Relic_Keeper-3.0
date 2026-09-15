@@ -1,6 +1,7 @@
 using Scripts.Inventory;
 using Scripts.Items;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 public partial class InventoryUI
@@ -222,7 +223,7 @@ public partial class InventoryUI
         _suppressNextApplyOrbPointerUp = true;
         _applyOrbOrb = orb;
         _applyOrbSlotHighlight = orbSlotElement;
-        orbSlotElement.AddToClassList("orb-slot-applying");
+        SyncOrbApplyingHighlights();
         _ghostIcon.style.backgroundImage = new StyleBackground(GetOrbDisplayIcon(orb));
         _ghostIcon.style.width = 32;
         _ghostIcon.style.height = 32;
@@ -235,23 +236,29 @@ public partial class InventoryUI
 
     private void ExitApplyOrbMode()
     {
-        if (_capturedPointerId >= 0 && _root != null)
-        {
-            _root.ReleasePointer(_capturedPointerId);
-            _capturedPointerId = -1;
-        }
+        ReleaseApplyOrbPointerCapture();
         _applyOrbMode = false;
         _suppressNextApplyOrbPointerUp = false;
-        if (_applyOrbSlotHighlight != null)
-        {
-            _applyOrbSlotHighlight.RemoveFromClassList("orb-slot-applying");
-            _applyOrbSlotHighlight = null;
-        }
+        _applyOrbSlotHighlight = null;
         _applyOrbOrb = null;
+        SyncOrbApplyingHighlights();
         _ghostIcon.style.display = DisplayStyle.None;
     }
 
-    private bool TryApplyOrbOnPointerUp(Vector2 pointerPosition)
+    private void ReleaseApplyOrbPointerCapture()
+    {
+        if (_capturedPointerId >= 0 && _root != null)
+            _root.ReleasePointer(_capturedPointerId);
+        _capturedPointerId = -1;
+    }
+
+    private void SyncOrbApplyingHighlights()
+    {
+        for (int i = 0; i < _orbSlots.Count; i++)
+            CraftingOrbApplyMode.SetApplying(_orbSlots[i].slot, _applyOrbSlotHighlight, _applyOrbMode);
+    }
+
+    private bool TryApplyOrbOnPointerUp(Vector2 pointerPosition, bool keepSelection)
     {
         if (_applyOrbOrb == null || _craftSlot == null || InventoryManager.Instance == null) return false;
         if (!_craftSlot.worldBound.Contains(pointerPosition)) return false;
@@ -265,7 +272,11 @@ public partial class InventoryUI
             InventoryManager.Instance.AddOrb(_applyOrbOrb.ID, 1);
             return false;
         }
-        ExitApplyOrbMode();
+
+        int remaining = InventoryManager.Instance.GetOrbCount(_applyOrbOrb.ID);
+        if (!CraftingOrbApplyMode.ShouldKeepSelection(keepSelection, remaining))
+            ExitApplyOrbMode();
+
         InventoryManager.Instance.TriggerUIUpdate();
         if (ItemTooltipController.Instance != null)
             ItemTooltipController.Instance.RefreshCurrentItemTooltip();
@@ -301,5 +312,32 @@ public partial class InventoryUI
             ExitApplyOrbMode();
             evt.StopPropagation();
         }
+    }
+
+    private static bool IsShiftHeld()
+    {
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard == null)
+            return false;
+
+        return keyboard.leftShiftKey.isPressed || keyboard.rightShiftKey.isPressed;
+    }
+}
+
+public static class CraftingOrbApplyMode
+{
+    public const string ApplyingClassName = "orb-slot-applying";
+
+    public static bool ShouldKeepSelection(bool shiftHeld, int remainingOrbCount)
+    {
+        return shiftHeld && remainingOrbCount > 0;
+    }
+
+    public static void SetApplying(VisualElement slot, VisualElement selected, bool applyMode)
+    {
+        if (slot == null)
+            return;
+
+        slot.EnableInClassList(ApplyingClassName, applyMode && slot == selected);
     }
 }

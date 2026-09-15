@@ -558,8 +558,12 @@ public partial class InventoryUI
 
             if (evt.button == 0)
             {
-                bool applied = TryApplyOrbOnPointerUp(evt.position);
-                if (!applied) ExitApplyOrbMode();
+                bool keepSelection = evt.shiftKey || IsShiftHeld();
+                bool applied = TryApplyOrbOnPointerUp(evt.position, keepSelection);
+                if (!applied && !keepSelection)
+                    ExitApplyOrbMode();
+                else if (_applyOrbMode)
+                    ReleaseApplyOrbPointerCapture();
             }
             return;
         }

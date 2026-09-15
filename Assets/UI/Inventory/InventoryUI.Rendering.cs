@@ -154,6 +154,7 @@ public partial class InventoryUI
             int count = orb != null ? InventoryManager.Instance.GetOrbCount(orb.ID) : 0;
             iconFrame.style.backgroundImage = orb != null ? new StyleBackground(GetOrbDisplayIcon(orb)) : default;
             slot.EnableInClassList("orb-slot-empty", orb != null && count <= 0);
+            CraftingOrbApplyMode.SetApplying(slot, _applyOrbSlotHighlight, _applyOrbMode);
             countLabel.text = count.ToString();
             countLabel.style.visibility = Visibility.Visible;
         }
