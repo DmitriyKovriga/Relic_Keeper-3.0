@@ -11,6 +11,31 @@ using UnityEngine;
 
 namespace Scripts.Skills
 {
+    public readonly struct SkillDescriptionLine
+    {
+        public string Prefix { get; }
+        public string LinkedName { get; }
+        public StatusEffectSO LinkedEffect { get; }
+        public string Suffix { get; }
+
+        public bool HasLink => LinkedEffect != null && !string.IsNullOrEmpty(LinkedName);
+
+        public string Text => HasLink ? Prefix + LinkedName + Suffix : Prefix ?? string.Empty;
+
+        public SkillDescriptionLine(string prefix, string linkedName, StatusEffectSO linkedEffect, string suffix)
+        {
+            Prefix = prefix ?? string.Empty;
+            LinkedName = linkedName;
+            LinkedEffect = linkedEffect;
+            Suffix = suffix ?? string.Empty;
+        }
+
+        public static SkillDescriptionLine Plain(string text)
+        {
+            return new SkillDescriptionLine(text, null, null, null);
+        }
+    }
+
     /// <summary>Creates player-facing text from the same recipe data used by gameplay.</summary>
     public static class SkillDescriptionGenerator
     {
@@ -67,10 +92,26 @@ namespace Scripts.Skills
             string localeCode,
             Func<StatType, string> statNameResolver = null)
         {
-            if (skill?.Recipe == null) return string.Empty;
+            List<SkillDescriptionLine> lines = BuildAutomaticLines(skill, localeCode, statNameResolver);
+            if (lines.Count == 0)
+                return string.Empty;
+
+            var texts = new string[lines.Count];
+            for (int i = 0; i < lines.Count; i++)
+                texts[i] = lines[i].Text;
+            return string.Join("\n", texts);
+        }
+
+        public static List<SkillDescriptionLine> BuildAutomaticLines(
+            SkillDataSO skill,
+            string localeCode,
+            Func<StatType, string> statNameResolver = null)
+        {
+            var lines = new List<SkillDescriptionLine>();
+            if (skill?.Recipe == null)
+                return lines;
 
             bool ru = IsRussian(localeCode);
-            var lines = new List<string>();
             var unique = new HashSet<string>(StringComparer.Ordinal);
             foreach (StepEntry step in skill.Recipe.Steps)
                 AppendStep(step, ru, statNameResolver, lines, unique);
@@ -80,14 +121,42 @@ namespace Scripts.Skills
                     ? $"Поддерживаемый навык, максимум {N(skill.Recipe.ChannelMaxDuration)} с."
                     : $"Channelled skill, up to {N(skill.Recipe.ChannelMaxDuration)}s.");
 
-            return string.Join("\n", lines);
+            return lines;
+        }
+
+        public static string BuildStatusEffectTooltip(
+            StatusEffectSO effect,
+            string localeCode,
+            Func<StatType, string> statNameResolver = null)
+        {
+            if (effect == null)
+                return string.Empty;
+
+            bool ru = IsRussian(localeCode);
+            var lines = new List<SkillDescriptionLine>();
+            var unique = new HashSet<string>(StringComparer.Ordinal);
+            string authored = effect.GetDescription(ru);
+            if (!string.IsNullOrWhiteSpace(authored))
+                Add(lines, unique, authored);
+
+            AddEffectModifiers(effect.Modifiers, ru ? "Эффект: " : "Effect: ", ru, statNameResolver, lines, unique);
+            AddDerivedModifiers(effect.DerivedModifiers, ru, statNameResolver, lines, unique);
+            AddEventReactions(effect.EventReactions, ru, statNameResolver, lines, unique);
+
+            if (lines.Count == 0)
+                return string.Empty;
+
+            var texts = new string[lines.Count];
+            for (int i = 0; i < lines.Count; i++)
+                texts[i] = lines[i].Text;
+            return string.Join("\n", texts);
         }
 
         private static void AppendStep(
             StepEntry step,
             bool ru,
             Func<StatType, string> resolver,
-            List<string> lines,
+            List<SkillDescriptionLine> lines,
             HashSet<string> unique)
         {
             if (step?.StepDefinition == null) return;
@@ -165,7 +234,7 @@ namespace Scripts.Skills
                 AppendStep(subStep, ru, resolver, lines, unique);
         }
 
-        private static void AddDamage(StepEntry step, bool ru, bool nearby, List<string> lines, HashSet<string> unique)
+        private static void AddDamage(StepEntry step, bool ru, bool nearby, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             string damage = P(step.GetFloat("DamageMultiplier", 1f) * 100f);
             Add(lines, unique, ru
@@ -173,7 +242,7 @@ namespace Scripts.Skills
                 : (nearby ? $"Deals {damage} weapon damage to nearby enemies." : $"Deals {damage} weapon damage to enemies in front."));
         }
 
-        private static void AddProjectile(StepEntry step, bool ru, bool ground, bool orbit, List<string> lines, HashSet<string> unique)
+        private static void AddProjectile(StepEntry step, bool ru, bool ground, bool orbit, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             int count = Mathf.Max(1, step.GetInt("BaseProjectileCount", orbit ? 3 : 1));
             string damage = P(step.GetFloat("DamageMultiplier", 1f) * 100f);
@@ -196,7 +265,7 @@ namespace Scripts.Skills
                 Add(lines, unique, ru ? $"Снаряды меняют направление {reversals} раз." : $"Projectiles reverse direction {reversals} time{(reversals == 1 ? string.Empty : "s")}.");
         }
 
-        private static void AddChain(StepEntry step, bool ru, List<string> lines, HashSet<string> unique)
+        private static void AddChain(StepEntry step, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             int targets = 1 + Mathf.Max(0, step.GetInt("BaseExtraChains", 3));
             bool scales = step.GetBool("UseProjectileChainStat", true);
@@ -205,7 +274,7 @@ namespace Scripts.Skills
                 : $"Chains through up to {targets} targets{(scales ? " plus additional Projectile Chain targets" : string.Empty)}.");
         }
 
-        private static void AddImpulse(StepEntry step, bool ru, List<string> lines, HashSet<string> unique)
+        private static void AddImpulse(StepEntry step, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             bool backwards = step.GetBool("InvertFacing", false) || step.GetFloat("Force", 8f) < 0f;
             Add(lines, unique, ru
@@ -213,7 +282,7 @@ namespace Scripts.Skills
                 : (backwards ? "Propels the character backward." : "Propels the character forward."));
         }
 
-        private static void AddStatus(StepEntry step, string id, bool ru, Func<StatType, string> resolver, List<string> lines, HashSet<string> unique)
+        private static void AddStatus(StepEntry step, string id, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             StatusEffectSO effect = step.GetObject<StatusEffectSO>("StatusEffect");
             if (effect == null) return;
@@ -231,16 +300,26 @@ namespace Scripts.Skills
                 : id.Contains("PerConsumedMysticShield") && minConsumed > 1
                     ? (ru ? $", начиная с {minConsumed} поглощённых зарядов" : $", requiring at least {minConsumed} consumed charges")
                     : string.Empty;
-            Add(lines, unique, ru
-                ? $"Накладывает «{name}» {target} на {N(effect.DurationSeconds)} с{scaling}{condition}."
-                : $"Applies {name} {target} for {N(effect.DurationSeconds)}s{scaling}{condition}.");
+            AddLinked(
+                lines,
+                unique,
+                ru ? "Накладывает «" : "Applies ",
+                name,
+                effect,
+                ru
+                    ? $"» {target} на {N(effect.DurationSeconds)} с{scaling}{condition}."
+                    : $" {target} for {N(effect.DurationSeconds)}s{scaling}{condition}.");
+
+            string authored = effect.GetDescription(ru);
+            if (!string.IsNullOrWhiteSpace(authored))
+                Add(lines, unique, authored);
 
             AddEffectModifiers(effect.Modifiers, ru ? "Эффект: " : "Effect: ", ru, resolver, lines, unique);
             AddDerivedModifiers(effect.DerivedModifiers, ru, resolver, lines, unique);
             AddEventReactions(effect.EventReactions, ru, resolver, lines, unique);
         }
 
-        private static void AddQuickStatus(StepEntry step, string id, bool ru, Func<StatType, string> resolver, List<string> lines, HashSet<string> unique)
+        private static void AddQuickStatus(StepEntry step, string id, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             StatType stat = ResolveStat(step.GetInt("QuickStatusStat", (int)StatType.MoveSpeed), StatType.MoveSpeed);
             StatModType type = (StatModType)step.GetInt("QuickStatusModType", (int)StatModType.PercentAdd);
@@ -259,7 +338,7 @@ namespace Scripts.Skills
                 : $"{target} gains {ModValue(stat, value, type, false)} {StatName(stat, resolver)} for {N(duration)}s{scaling}{condition}.");
         }
 
-        private static void AddStatBased(StepEntry step, bool ru, Func<StatType, string> resolver, List<string> lines, HashSet<string> unique)
+        private static void AddStatBased(StepEntry step, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             StatType source = ResolveStat(step.GetInt("SourceStat", (int)StatType.Armor), StatType.Armor);
             float percent = step.GetFloat("SourcePercent", 25f);
@@ -279,7 +358,7 @@ namespace Scripts.Skills
             }
         }
 
-        private static void AddConsumeShield(StepEntry step, bool ru, List<string> lines, HashSet<string> unique)
+        private static void AddConsumeShield(StepEntry step, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             bool all = step.GetBool("ConsumeAll", false);
             int amount = Mathf.Max(1, step.GetInt("Amount", 1));
@@ -288,7 +367,7 @@ namespace Scripts.Skills
                 : (all ? "Consumes all Mystic Shield charges." : $"Consumes {amount} Mystic Shield charge{(amount == 1 ? string.Empty : "s")}."));
         }
 
-        private static void AddGenerateShield(StepEntry step, bool ru, List<string> lines, HashSet<string> unique)
+        private static void AddGenerateShield(StepEntry step, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             bool fill = step.GetBool("FillToMax", false);
             int amount = Mathf.Max(1, step.GetInt("Amount", 1));
@@ -297,7 +376,7 @@ namespace Scripts.Skills
                 : (fill ? "Restores Mystic Shield charges to maximum." : $"Generates {amount} Mystic Shield charge{(amount == 1 ? string.Empty : "s")}."));
         }
 
-        private static void AddCooldown(StepEntry step, bool ru, List<string> lines, HashSet<string> unique)
+        private static void AddCooldown(StepEntry step, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             float seconds = Mathf.Max(0f, step.GetFloat("Seconds", 1f));
             bool perHit = step.GetBool("ScaleByHitCount", false);
@@ -315,7 +394,7 @@ namespace Scripts.Skills
                 : $"{(add ? "Adds" : "Removes")} {N(seconds)}s {(add ? "to" : "from")} the cooldown of {targetText}{(perHit ? " per enemy hit" : string.Empty)}.");
         }
 
-        private static void AddConversions(StepEntry step, bool ru, List<string> lines, HashSet<string> unique)
+        private static void AddConversions(StepEntry step, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             if (step.DamageConversions == null) return;
             foreach (DamageConversionRule rule in step.DamageConversions)
@@ -327,7 +406,7 @@ namespace Scripts.Skills
             }
         }
 
-        private static void AddScopedModifiers(StepEntry step, bool ru, Func<StatType, string> resolver, List<string> lines, HashSet<string> unique)
+        private static void AddScopedModifiers(StepEntry step, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             if (step.ScopedStatModifiers == null) return;
             foreach (SerializableStatModifier modifier in step.ScopedStatModifiers)
@@ -336,7 +415,7 @@ namespace Scripts.Skills
                     : $"Skill modifier: {ModValue(modifier.Stat, modifier.Value, modifier.Type, false)} {StatName(modifier.Stat, resolver)}.");
         }
 
-        private static void AddStackModifiers(StepEntry step, bool ru, Func<StatType, string> resolver, List<string> lines, HashSet<string> unique)
+        private static void AddStackModifiers(StepEntry step, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             if (step.TargetAilmentStackModifiers == null) return;
             foreach (TargetAilmentStackStatModifierRule rule in step.TargetAilmentStackModifiers)
@@ -350,7 +429,7 @@ namespace Scripts.Skills
             }
         }
 
-        private static void AddOnHitEffects(StepEntry step, bool ru, List<string> lines, HashSet<string> unique)
+        private static void AddOnHitEffects(StepEntry step, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             if (step.OnHitEffects == null) return;
             foreach (SkillOnHitEffectRule rule in step.OnHitEffects)
@@ -364,7 +443,7 @@ namespace Scripts.Skills
             string prefix,
             bool ru,
             Func<StatType, string> resolver,
-            List<string> lines,
+            List<SkillDescriptionLine> lines,
             HashSet<string> unique)
         {
             if (modifiers == null || modifiers.Count == 0) return;
@@ -378,7 +457,7 @@ namespace Scripts.Skills
             List<DerivedStatModifier> modifiers,
             bool ru,
             Func<StatType, string> resolver,
-            List<string> lines,
+            List<SkillDescriptionLine> lines,
             HashSet<string> unique)
         {
             if (modifiers == null) return;
@@ -392,7 +471,7 @@ namespace Scripts.Skills
             List<StatusEventReaction> reactions,
             bool ru,
             Func<StatType, string> resolver,
-            List<string> lines,
+            List<SkillDescriptionLine> lines,
             HashSet<string> unique)
         {
             if (reactions == null) return;
@@ -411,9 +490,19 @@ namespace Scripts.Skills
                         break;
                     case StatusEventReactionAction.ApplyStatusEffect:
                         if (reaction.StatusEffectToApply != null)
-                            Add(lines, unique, ru
-                                ? $"При событии «{trigger}» накладывает «{reaction.StatusEffectToApply.GetDisplayName(true)}»."
-                                : $"When {trigger}, applies {reaction.StatusEffectToApply.GetDisplayName(false)}.");
+                        {
+                            StatusEffectSO nested = reaction.StatusEffectToApply;
+                            AddLinked(
+                                lines,
+                                unique,
+                                ru ? $"При событии «{trigger}» накладывает «" : $"When {trigger}, applies ",
+                                nested.GetDisplayName(ru),
+                                nested,
+                                ru ? "»." : ".");
+                            string nestedDesc = nested.GetDescription(ru);
+                            if (!string.IsNullOrWhiteSpace(nestedDesc))
+                                Add(lines, unique, nestedDesc);
+                        }
                         break;
                     case StatusEventReactionAction.ApplyQuickEffect:
                         AddEffectModifiers(
@@ -524,9 +613,28 @@ namespace Scripts.Skills
         private static string N(float value) => value.ToString("0.##", CultureInfo.InvariantCulture);
         private static bool IsRussian(string code) =>
             !string.IsNullOrWhiteSpace(code) && code.StartsWith("ru", StringComparison.OrdinalIgnoreCase);
-        private static void Add(List<string> lines, HashSet<string> unique, string line)
+        private static void Add(List<SkillDescriptionLine> lines, HashSet<string> unique, string line)
         {
-            if (!string.IsNullOrWhiteSpace(line) && unique.Add(line)) lines.Add(line);
+            if (string.IsNullOrWhiteSpace(line) || !unique.Add(line))
+                return;
+            lines.Add(SkillDescriptionLine.Plain(line));
+        }
+
+        private static void AddLinked(
+            List<SkillDescriptionLine> lines,
+            HashSet<string> unique,
+            string prefix,
+            string name,
+            StatusEffectSO effect,
+            string suffix)
+        {
+            if (effect == null || string.IsNullOrWhiteSpace(name))
+                return;
+
+            var line = new SkillDescriptionLine(prefix, name, effect, suffix);
+            if (!unique.Add(line.Text))
+                return;
+            lines.Add(line);
         }
     }
 }

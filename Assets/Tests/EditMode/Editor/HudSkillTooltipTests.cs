@@ -62,6 +62,52 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void LinkedTextTooltipSitsAboveTheWordWhenThereIsRoom()
+        {
+            Vector2 pos = ItemTooltipController.CalculateLinkedTextTooltipPosition(
+                textMin: new Vector2(200f, 80f),
+                textMax: new Vector2(260f, 92f),
+                tooltipWidth: 140f,
+                tooltipHeight: 40f,
+                screenWidth: 480f,
+                screenHeight: 270f,
+                gap: 2f,
+                padding: 2f);
+
+            Assert.That(pos.x, Is.EqualTo(200f).Within(0.01f));
+            Assert.That(pos.y, Is.EqualTo(38f).Within(0.01f));
+        }
+
+        [Test]
+        public void LinkedTextTooltipSitsBelowTheWordWhenTheTopDoesNotFit()
+        {
+            Vector2 pos = ItemTooltipController.CalculateLinkedTextTooltipPosition(
+                textMin: new Vector2(200f, 8f),
+                textMax: new Vector2(260f, 20f),
+                tooltipWidth: 140f,
+                tooltipHeight: 40f,
+                screenWidth: 480f,
+                screenHeight: 270f,
+                gap: 2f,
+                padding: 2f);
+
+            Assert.That(pos.x, Is.EqualTo(200f).Within(0.01f));
+            Assert.That(pos.y, Is.EqualTo(22f).Within(0.01f));
+        }
+
+        [Test]
+        public void ClusterUnionIncludesTheGapBetweenItemAndSkillTooltips()
+        {
+            var item = new Rect(10f, 10f, 100f, 50f);
+            var skill = new Rect(115f, 10f, 100f, 50f);
+            Rect union = ItemTooltipController.EncapsulateRects(item, skill);
+            union = ItemTooltipController.InflateRect(union, 8f);
+
+            Assert.That(ItemTooltipController.ContainsInclusive(union, new Vector2(112f, 30f)), Is.True);
+            Assert.That(ItemTooltipController.ContainsInclusive(union, new Vector2(50f, 80f)), Is.False);
+        }
+
+        [Test]
         public void SkillSlotRemembersAssignedSkillForHover()
         {
             var slotObject = new GameObject("SkillSlot", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));

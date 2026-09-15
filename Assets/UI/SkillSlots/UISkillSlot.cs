@@ -35,26 +35,21 @@ public class UISkillSlot : MonoBehaviour
     {
         if (IsHudTooltipBlocked())
         {
-            if (_pointerInside || IsHudSkillTooltipVisible())
-                ItemTooltipController.Instance?.HideHudSkillTooltip(this);
+            if (ItemTooltipController.Instance != null && ItemTooltipController.Instance.IsShowingHudSkillTooltip(this))
+                ItemTooltipController.Instance.HideTooltipImmediate();
 
             _pointerInside = false;
             return;
         }
 
-        bool over = IsPointerOverThisSlot();
-        if (over == _pointerInside)
+        if (IsPointerOverThisSlot())
         {
-            if (over && _skill != null && !IsHudSkillTooltipVisible())
-                RefreshHoverTooltip();
+            _pointerInside = true;
+            RefreshHoverTooltip();
             return;
         }
 
-        _pointerInside = over;
-        if (over)
-            RefreshHoverTooltip();
-        else
-            ItemTooltipController.Instance?.HideHudSkillTooltip(this);
+        _pointerInside = false;
     }
 
     private void Awake()
@@ -204,10 +199,6 @@ public class UISkillSlot : MonoBehaviour
         if (HudShortcutBar.IsPointerOverBar())
             return false;
 
-        var tooltip = ItemTooltipController.Instance;
-        if (_skill != null && tooltip != null && tooltip.IsShowingHudSkillTooltip(this) && tooltip.IsPointerOverHudSkillUi())
-            return true;
-
         var rect = transform as RectTransform;
         if (rect == null)
             return false;
@@ -217,12 +208,6 @@ public class UISkillSlot : MonoBehaviour
             ? canvas.worldCamera
             : null;
         return RectTransformUtility.RectangleContainsScreenPoint(rect, Mouse.current.position.ReadValue(), camera);
-    }
-
-    private bool IsHudSkillTooltipVisible()
-    {
-        var tooltip = ItemTooltipController.Instance;
-        return tooltip != null && tooltip.IsShowingHudSkillTooltip(this);
     }
 
     private bool IsHudTooltipBlocked()

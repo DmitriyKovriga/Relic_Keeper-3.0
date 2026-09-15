@@ -214,11 +214,7 @@ public partial class InventoryUI
             ItemTooltipController.Instance.ShowOrbTooltip(orb, slot);
     }
 
-    private void OnOrbSlotPointerOut(PointerOutEvent evt)
-    {
-        if (ItemTooltipController.Instance != null)
-            ItemTooltipController.Instance.HideTooltip();
-    }
+    private void OnOrbSlotPointerOut(PointerOutEvent evt) { }
 
     private void EnterApplyOrbMode(CraftingOrbSO orb, VisualElement orbSlotElement)
     {
@@ -234,7 +230,7 @@ public partial class InventoryUI
         _ghostIcon.style.display = DisplayStyle.Flex;
         // Show the orb ghost immediately under the cursor, without waiting for the next move event.
         UpdateGhostPosition(GetPointerRootLocalFromScreen());
-        if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
+        if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltipImmediate();
     }
 
     private void ExitApplyOrbMode()

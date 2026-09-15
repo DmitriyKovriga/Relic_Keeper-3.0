@@ -95,6 +95,20 @@ namespace Scripts.StatusEffects
             return name;
         }
 
+        public string GetDescription(bool preferRu = true)
+        {
+            if (preferRu && !string.IsNullOrWhiteSpace(DescriptionRu))
+                return DescriptionRu.Trim();
+
+            if (!string.IsNullOrWhiteSpace(DescriptionEn))
+                return DescriptionEn.Trim();
+
+            if (!preferRu && !string.IsNullOrWhiteSpace(DescriptionRu))
+                return DescriptionRu.Trim();
+
+            return string.Empty;
+        }
+
 #if UNITY_EDITOR
         private void OnValidate()
         {

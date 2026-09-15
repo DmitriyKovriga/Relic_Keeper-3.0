@@ -111,6 +111,38 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void StatusAuthoredDescription_AppearsInSkillTextAndTooltip()
+        {
+            SkillDataSO skill = Track(ScriptableObject.CreateInstance<SkillDataSO>());
+            SkillRecipeSO recipe = Track(ScriptableObject.CreateInstance<SkillRecipeSO>());
+            StepDefinitionSO definition = Track(ScriptableObject.CreateInstance<StepDefinitionSO>());
+            StatusEffectSO effect = Track(ScriptableObject.CreateInstance<StatusEffectSO>());
+            definition.Id = "ApplyStatusSelf";
+            effect.NameEn = "Warrior Step";
+            effect.NameRu = "Шаг Воина";
+            effect.DescriptionEn = "Increase movement speed and armor by 30%";
+            effect.DescriptionRu = "Увеличивает скорость передвижения на 30%";
+            effect.BaseDurationSeconds = 10f;
+            var step = new StepEntry { StepDefinition = definition };
+            step.SetOverrideObject("StatusEffect", effect);
+            recipe.Steps.Add(step);
+            skill.Recipe = recipe;
+
+            string en = SkillDescriptionGenerator.BuildAutomatic(skill, "en");
+            string ru = SkillDescriptionGenerator.BuildAutomatic(skill, "ru");
+            Assert.That(en, Does.Contain("Warrior Step"));
+            Assert.That(en, Does.Contain("Increase movement speed and armor by 30%"));
+            Assert.That(ru, Does.Contain("Шаг Воина"));
+            Assert.That(ru, Does.Contain("скорость передвижения"));
+
+            List<SkillDescriptionLine> lines = SkillDescriptionGenerator.BuildAutomaticLines(skill, "en");
+            Assert.That(lines.Exists(line => line.HasLink && line.LinkedEffect == effect), Is.True);
+
+            string tooltip = SkillDescriptionGenerator.BuildStatusEffectTooltip(effect, "en");
+            Assert.That(tooltip, Does.Contain("Increase movement speed and armor by 30%"));
+        }
+
+        [Test]
         public void EveryCurrentActiveSkillRecipe_HasAutomaticDescriptionInBothLocales()
         {
             SkillDataSO[] skills = Resources.LoadAll<SkillDataSO>("Skills");

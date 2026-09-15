@@ -136,10 +136,7 @@ public partial class InventoryUI
             ItemTooltipController.Instance.ShowTooltip(item, icon, ResolveCompanionTooltipPriceMode(tab));
     }
 
-    private void OnPointerOutStashIcon(PointerOutEvent evt)
-    {
-        if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
-    }
+    private void OnPointerOutStashIcon(PointerOutEvent evt) { }
 
     private void OnStashIconPointerDown(PointerDownEvent evt)
     {
@@ -149,7 +146,7 @@ public partial class InventoryUI
         {
             RefreshInventory();
             RefreshStash();
-            if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
+            if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltipImmediate();
             return;
         }
         if (action.Kind != StashPointerActionKind.StartDrag || action.Item == null) return;
@@ -192,7 +189,7 @@ public partial class InventoryUI
         _ghostIcon.style.width = GetStashSpanSize(item.Data.Width);
         _ghostIcon.style.height = GetStashSpanSize(item.Data.Height);
         ShowDraggedItemGhostImmediately();
-        if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
+        if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltipImmediate();
         CaptureDragPointer(pointerId);
     }
 

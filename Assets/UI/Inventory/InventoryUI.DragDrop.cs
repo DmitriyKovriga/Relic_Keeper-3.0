@@ -372,10 +372,7 @@ public partial class InventoryUI
             ItemTooltipController.Instance.ShowTooltip(item, icon, ResolvePlayerTooltipPriceMode());
     }
 
-    private void OnPointerOutBackpackIcon(PointerOutEvent evt)
-    {
-        if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
-    }
+    private void OnPointerOutBackpackIcon(PointerOutEvent evt) { }
 
     private void OnBackpackIconPointerDown(PointerDownEvent evt)
     {
@@ -393,7 +390,7 @@ public partial class InventoryUI
             {
                 RefreshInventory();
                 RefreshStash();
-                if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
+                if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltipImmediate();
                 return;
             }
             InventoryManager.Instance.AddItem(taken);
@@ -418,18 +415,13 @@ public partial class InventoryUI
         _ghostIcon.style.width = takenDrag.Data.Width * InventorySlotSize;
         _ghostIcon.style.height = takenDrag.Data.Height * InventorySlotSize;
         ShowDraggedItemGhostImmediately();
-        if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
+        if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltipImmediate();
         CaptureDragPointer(evt.pointerId);
     }
 
     private void OnPointerOutSlot(PointerOutEvent evt) { }
 
-    private void OnInventoryWindowPointerOut(PointerOutEvent evt)
-    {
-        if (ItemTooltipController.Instance == null) return;
-        if (evt.target != _root) return;
-        ItemTooltipController.Instance.HideTooltip();
-    }
+    private void OnInventoryWindowPointerOut(PointerOutEvent evt) { }
 
     private void OnPointerMove(PointerMoveEvent evt)
     {
@@ -473,7 +465,7 @@ public partial class InventoryUI
             {
                 RefreshInventory();
                 RefreshStash();
-                if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
+                if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltipImmediate();
                 return;
             }
 
@@ -504,7 +496,7 @@ public partial class InventoryUI
         _ghostIcon.style.width = taken.Data.Width * InventorySlotSize;
         _ghostIcon.style.height = taken.Data.Height * InventorySlotSize;
         ShowDraggedItemGhostImmediately();
-        if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltip();
+        if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltipImmediate();
         CaptureDragPointer(evt.pointerId);
     }
 

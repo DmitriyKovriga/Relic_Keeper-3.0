@@ -10,7 +10,7 @@ using Scripts.StatusEffects;
 using Scripts.Items.World;
 using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using System.Text;
+using System.Collections.Generic;
 
 public enum ItemTooltipPriceMode
 {
@@ -34,12 +34,14 @@ public class ItemTooltipController : MonoBehaviour
     [SerializeField] private float _screenPadding = 4f;
     private const float HudSkillTooltipGap = 2f;
     private const float HudSkillTooltipPadding = 2f;
-    private const float HudDpsBreakdownWidth = 88f; 
+    private const float HudDpsBreakdownWidth = 88f;
+    private const float BuffTooltipWidth = 140f; 
     
     [SerializeField, Tooltip("Задержка в миллисекундах перед скрытием тултипа (увеличена против мерцания при наведении на экипировку)")]
     private long _hideDelayMs = 180;
     
-    private const float SLOT_SIZE = 24f; 
+    private const float SLOT_SIZE = 24f;
+    private const float PinBadgeSize = 7f; 
 
     // --- Localization Tables ---
     private const string TABLE_MENU = "MenuLabels";
@@ -64,19 +66,28 @@ public class ItemTooltipController : MonoBehaviour
     private ItemTooltipPriceMode _currentPriceMode;
     private CraftingOrbSO _currentTargetOrb;
     private VisualElement _targetAnchorSlot;
-    private IVisualElementScheduledItem _hideScheduler;
     private VisualElement _worldAnchor;
     private WorldDroppedItem _worldTargetItem;
     private VisualElement _hudDpsBreakdownBox;
+    private VisualElement _buffTooltipBox;
     private VisualElement _hudDpsHoverRow;
     private VisualElement _hudHitHoverRow;
     private VisualElement _hudBreakdownAnchorRow;
+    private VisualElement _buffTooltipAnchor;
+    private StatusEffectSO _hoveredBuff;
+    private readonly List<VisualElement> _buffNameHoverTargets = new List<VisualElement>();
     private bool _hudBreakdownShowPerHit;
     private RectTransform _hudSkillRect;
     private SkillDataSO _currentHudSkill;
     private object _hudSkillSource;
     private int _hudSkillSlotIndex = -1;
     private SkillDpsPreview _hudDpsPreview;
+    private readonly TooltipPinPolicy _pin = new TooltipPinPolicy();
+    private VisualElement _itemPinBadge;
+    private VisualElement _skillPinBadge;
+    private VisualElement _orbPinBadge;
+    private float _pinAnimElapsed = -1f;
+    private int _worldOwnerFrame = -1;
 
     // --- Orb Tooltip ---
     private VisualElement _orbTooltipBox;
@@ -101,7 +112,8 @@ public class ItemTooltipController : MonoBehaviour
     private readonly Color _colColdText = new Color(0.5f, 0.6f, 1f);
     private readonly Color _colLightningText = new Color(1f, 1f, 0.5f);
 
-    private readonly Color _colSkillType = new Color(0.6f, 0.6f, 0.6f); 
+    private readonly Color _colSkillType = new Color(0.6f, 0.6f, 0.6f);
+    private readonly Color _colBuffName = new Color(0.91f, 0.77f, 0.36f); 
 
     private void Awake()
     {
@@ -134,7 +146,279 @@ public class ItemTooltipController : MonoBehaviour
 
     private void LateUpdate()
     {
+        TickTooltipPin();
         UpdateHudDpsBreakdownHover();
+        UpdateBuffTooltipHover();
+    }
+
+    private void TickTooltipPin()
+    {
+        if (!_pin.IsVisible)
+            return;
+
+        bool overOwner = IsPointerOverCurrentOwner();
+        bool overTooltip = IsPointerOverTooltipCluster();
+        bool clickOutside = Mouse.current != null
+            && Mouse.current.leftButton.wasPressedThisFrame
+            && !overTooltip;
+
+        bool hidden = _pin.Tick(Time.unscaledDeltaTime, overOwner, overTooltip, clickOutside);
+        if (hidden)
+        {
+            HideTooltipImmediate();
+            return;
+        }
+
+        if (_pin.JustPinned)
+            _pinAnimElapsed = 0f;
+
+        RefreshPinVisual();
+        SetTooltipClusterPicking(_pin.IsVisible);
+    }
+
+    private bool IsPointerOverCurrentOwner()
+    {
+        if (_currentHudSkill != null && _hudSkillRect != null)
+        {
+            if (Mouse.current == null)
+                return false;
+            Canvas canvas = _hudSkillRect.GetComponentInParent<Canvas>();
+            Camera camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? canvas.worldCamera
+                : null;
+            return RectTransformUtility.RectangleContainsScreenPoint(
+                _hudSkillRect, Mouse.current.position.ReadValue(), camera);
+        }
+
+        if (_worldTargetItem != null)
+            return _worldOwnerFrame >= 0 && Time.frameCount - _worldOwnerFrame <= 1;
+
+        return IsPointerOverElement(_targetAnchorSlot);
+    }
+
+    private bool IsPointerOverTooltipCluster()
+    {
+        if (_root == null || _root.panel == null || Mouse.current == null)
+            return false;
+
+        Vector2 panelPos = GetMousePanelPos();
+        if (IsPanelPointOver(_itemTooltipBox, panelPos)
+            || IsPanelPointOver(_skillTooltipBox, panelPos)
+            || IsPanelPointOver(_orbTooltipBox, panelPos)
+            || IsPanelPointOver(_hudDpsBreakdownBox, panelPos)
+            || IsPanelPointOver(_buffTooltipBox, panelPos))
+            return true;
+
+        return IsPickedTooltipElement(panelPos);
+    }
+
+    private static Rect GetTooltipPanelRect(VisualElement element)
+    {
+        Rect bound = element.worldBound;
+        if (bound.width >= 1f && bound.height >= 1f)
+            return bound;
+
+        float w = element.resolvedStyle.width;
+        float h = element.resolvedStyle.height;
+        if (float.IsNaN(w) || w < 1f || float.IsNaN(h) || h < 1f)
+            return bound;
+
+        Vector2 min = element.LocalToWorld(Vector2.zero);
+        Vector2 max = element.LocalToWorld(new Vector2(w, h));
+        return Rect.MinMaxRect(
+            Mathf.Min(min.x, max.x),
+            Mathf.Min(min.y, max.y),
+            Mathf.Max(min.x, max.x),
+            Mathf.Max(min.y, max.y));
+    }
+
+    public static bool ContainsInclusive(Rect rect, Vector2 point)
+    {
+        return point.x >= rect.xMin && point.x <= rect.xMax
+            && point.y >= rect.yMin && point.y <= rect.yMax;
+    }
+
+    private static bool IsDisplayedTooltip(VisualElement element)
+    {
+        return element != null
+            && element.panel != null
+            && element.style.display == DisplayStyle.Flex;
+    }
+
+    private bool IsPickedTooltipElement(Vector2 panelPos)
+    {
+        if (_root == null || _root.panel == null)
+            return false;
+
+        VisualElement picked = _root.panel.Pick(panelPos);
+        while (picked != null)
+        {
+            if (picked == _itemTooltipBox
+                || picked == _skillTooltipBox
+                || picked == _orbTooltipBox
+                || picked == _hudDpsBreakdownBox
+                || picked == _buffTooltipBox)
+                return true;
+            picked = picked.parent;
+        }
+
+        return false;
+    }
+
+    public static Rect EncapsulateRects(Rect a, Rect b)
+    {
+        float xMin = Mathf.Min(a.xMin, b.xMin);
+        float yMin = Mathf.Min(a.yMin, b.yMin);
+        float xMax = Mathf.Max(a.xMax, b.xMax);
+        float yMax = Mathf.Max(a.yMax, b.yMax);
+        return Rect.MinMaxRect(xMin, yMin, xMax, yMax);
+    }
+
+    public static Rect InflateRect(Rect rect, float amount)
+    {
+        rect.xMin -= amount;
+        rect.yMin -= amount;
+        rect.xMax += amount;
+        rect.yMax += amount;
+        return rect;
+    }
+
+    private void SetTooltipClusterPicking(bool pickable)
+    {
+        PickingMode mode = pickable ? PickingMode.Position : PickingMode.Ignore;
+        if (_itemTooltipBox != null) _itemTooltipBox.pickingMode = mode;
+        if (_skillTooltipBox != null) _skillTooltipBox.pickingMode = mode;
+        if (_orbTooltipBox != null) _orbTooltipBox.pickingMode = mode;
+        if (_hudDpsBreakdownBox != null) _hudDpsBreakdownBox.pickingMode = mode;
+        if (_buffTooltipBox != null) _buffTooltipBox.pickingMode = mode;
+    }
+
+    private VisualElement CreatePinLockBadge(string name)
+    {
+        var badge = new VisualElement { name = name };
+        badge.pickingMode = PickingMode.Ignore;
+        badge.style.position = Position.Absolute;
+        badge.style.width = PinBadgeSize;
+        badge.style.height = 8f;
+        badge.style.display = DisplayStyle.None;
+
+        AddPinRect(badge, "PinBowTop", 1, 0, 4, 1);
+        AddPinRect(badge, "PinBowLeft", 1, 1, 1, 2);
+        AddPinRect(badge, "PinBowRight", 4, 1, 1, 2);
+
+        var body = AddPinRect(badge, "PinBody", 0, 3, 6, 5);
+        body.style.backgroundColor = new StyleColor(new Color(0.12f, 0.1f, 0.06f, 1f));
+        body.style.borderTopWidth = 1;
+        body.style.borderBottomWidth = 1;
+        body.style.borderLeftWidth = 1;
+        body.style.borderRightWidth = 1;
+
+        AddPinRect(badge, "PinFill", 1, 6, 4, 0);
+        return badge;
+    }
+
+    private static VisualElement AddPinRect(VisualElement parent, string name, float left, float top, float width, float height)
+    {
+        var el = new VisualElement { name = name };
+        el.pickingMode = PickingMode.Ignore;
+        el.style.position = Position.Absolute;
+        el.style.left = left;
+        el.style.top = top;
+        el.style.width = width;
+        el.style.height = height;
+        parent.Add(el);
+        return el;
+    }
+
+    private void RefreshPinVisual()
+    {
+        if (!_pin.IsVisible)
+        {
+            HidePinBadges();
+            return;
+        }
+
+        if (_pin.JustPinned)
+            _pinAnimElapsed = 0f;
+        else if (_pinAnimElapsed >= 0f)
+        {
+            _pinAnimElapsed += Time.unscaledDeltaTime;
+            if (_pinAnimElapsed >= 0.18f)
+                _pinAnimElapsed = -1f;
+        }
+
+        int pulseFrame = _pinAnimElapsed < 0f ? 2 : (_pinAnimElapsed < 0.09f ? 0 : 1);
+        PlacePinBadge(_itemPinBadge, _itemTooltipBox, pulseFrame);
+        PlacePinBadge(_skillPinBadge, _skillTooltipBox, pulseFrame);
+        PlacePinBadge(_orbPinBadge, _orbTooltipBox, pulseFrame);
+    }
+
+    private void PlacePinBadge(VisualElement badge, VisualElement host, int pulseFrame)
+    {
+        if (badge == null)
+            return;
+
+        if (!IsDisplayedTooltip(host) || _root == null)
+        {
+            badge.style.display = DisplayStyle.None;
+            return;
+        }
+
+        if (badge.parent != _root)
+            _root.Add(badge);
+
+        Rect bound = host.worldBound;
+        Vector2 local = _root.WorldToLocal(new Vector2(bound.xMin, bound.yMin));
+        badge.style.left = Mathf.Round(local.x + 2f);
+        badge.style.top = Mathf.Round(local.y + 2f);
+        badge.style.display = DisplayStyle.Flex;
+        badge.BringToFront();
+        ApplyPinProgress(badge, _pin.PinProgress, _pin.IsPinned, pulseFrame);
+    }
+
+    private void HidePinBadges()
+    {
+        if (_itemPinBadge != null) _itemPinBadge.style.display = DisplayStyle.None;
+        if (_skillPinBadge != null) _skillPinBadge.style.display = DisplayStyle.None;
+        if (_orbPinBadge != null) _orbPinBadge.style.display = DisplayStyle.None;
+    }
+
+    private void ApplyPinProgress(VisualElement badge, float progress, bool locked, int pulseFrame)
+    {
+        var fill = badge.Q<VisualElement>("PinFill");
+        var body = badge.Q<VisualElement>("PinBody");
+        if (fill == null || body == null)
+            return;
+
+        Color outline = locked
+            ? (pulseFrame == 0 ? new Color(0.98f, 0.93f, 0.72f) : _colBuffName)
+            : new Color(0.52f, 0.42f, 0.2f);
+        Color fillColor = locked
+            ? (pulseFrame == 0 ? new Color(0.98f, 0.93f, 0.72f) : _colBuffName)
+            : new Color(0.78f, 0.64f, 0.28f);
+
+        SetPinPartColor(badge, "PinBowTop", outline);
+        SetPinPartColor(badge, "PinBowLeft", outline);
+        SetPinPartColor(badge, "PinBowRight", outline);
+        body.style.borderTopColor = outline;
+        body.style.borderBottomColor = outline;
+        body.style.borderLeftColor = outline;
+        body.style.borderRightColor = outline;
+
+        const int maxFill = 3;
+        int fillH = locked ? maxFill : Mathf.RoundToInt(progress * maxFill);
+        if (fillH < 0) fillH = 0;
+        if (fillH > maxFill) fillH = maxFill;
+        fill.style.height = fillH;
+        fill.style.top = 7 - fillH;
+        fill.style.backgroundColor = new StyleColor(fillH > 0 ? fillColor : Color.clear);
+    }
+
+    private static void SetPinPartColor(VisualElement badge, string name, Color color)
+    {
+        var part = badge.Q<VisualElement>(name);
+        if (part != null)
+            part.style.backgroundColor = new StyleColor(color);
     }
 
     private void OnLocaleChanged(UnityEngine.Localization.Locale locale)
@@ -182,6 +466,16 @@ public class ItemTooltipController : MonoBehaviour
         if (oldHudAnchor != null) _root.Remove(oldHudAnchor);
         var oldDpsBreakdown = _root.Q<VisualElement>("GlobalHudSkillDpsBreakdown");
         if (oldDpsBreakdown != null) _root.Remove(oldDpsBreakdown);
+        var oldBuffTooltip = _root.Q<VisualElement>("GlobalSkillBuffTooltip");
+        if (oldBuffTooltip != null) _root.Remove(oldBuffTooltip);
+        var oldPinBadge = _root.Q<VisualElement>("TooltipPinBadge");
+        if (oldPinBadge != null) _root.Remove(oldPinBadge);
+        var oldItemPin = _root.Q<VisualElement>("TooltipPinBadgeItem");
+        if (oldItemPin != null) _root.Remove(oldItemPin);
+        var oldSkillPin = _root.Q<VisualElement>("TooltipPinBadgeSkill");
+        if (oldSkillPin != null) _root.Remove(oldSkillPin);
+        var oldOrbPin = _root.Q<VisualElement>("TooltipPinBadgeOrb");
+        if (oldOrbPin != null) _root.Remove(oldOrbPin);
 
         _worldAnchor = new VisualElement { name = "WorldItemTooltipAnchor" };
         _worldAnchor.style.position = Position.Absolute;
@@ -218,6 +512,22 @@ public class ItemTooltipController : MonoBehaviour
         _hudDpsBreakdownBox.style.borderRightColor = new Color(0, 0.5f, 0.5f);
         _hudDpsBreakdownBox.style.alignItems = Align.Stretch;
         _root.Add(_hudDpsBreakdownBox);
+
+        _buffTooltipBox = CreateContainer("GlobalSkillBuffTooltip", _colSkillBg);
+        _buffTooltipBox.style.width = BuffTooltipWidth;
+        _buffTooltipBox.style.borderTopColor = new Color(0.57f, 0.48f, 0.23f);
+        _buffTooltipBox.style.borderBottomColor = new Color(0.57f, 0.48f, 0.23f);
+        _buffTooltipBox.style.borderLeftColor = new Color(0.57f, 0.48f, 0.23f);
+        _buffTooltipBox.style.borderRightColor = new Color(0.57f, 0.48f, 0.23f);
+        _buffTooltipBox.style.alignItems = Align.Stretch;
+        _root.Add(_buffTooltipBox);
+
+        _itemPinBadge = CreatePinLockBadge("TooltipPinBadgeItem");
+        _skillPinBadge = CreatePinLockBadge("TooltipPinBadgeSkill");
+        _orbPinBadge = CreatePinLockBadge("TooltipPinBadgeOrb");
+        _root.Add(_itemPinBadge);
+        _root.Add(_skillPinBadge);
+        _root.Add(_orbPinBadge);
 
         // --- 3. Orb Tooltip (crafting orbs) ---
         _orbTooltipBox = CreateContainer("GlobalOrbTooltip", _colSkillBg);
@@ -260,6 +570,7 @@ public class ItemTooltipController : MonoBehaviour
         
         el.style.visibility = Visibility.Hidden; 
         el.style.display = DisplayStyle.None;
+        el.style.overflow = Overflow.Visible;
         el.pickingMode = PickingMode.Ignore; 
         
         var resolvedFont = _customFont != null
@@ -301,8 +612,14 @@ public class ItemTooltipController : MonoBehaviour
     public void ShowOrbTooltip(CraftingOrbSO orb, VisualElement anchorSlot)
     {
         if (_orbTooltipBox == null || orb == null) return;
-        if (_hideScheduler != null) { _hideScheduler.Pause(); _hideScheduler = null; }
+        if (_currentTargetOrb == orb
+            && _targetAnchorSlot == anchorSlot
+            && _orbTooltipBox.style.display == DisplayStyle.Flex)
+            return;
+        if (_pin.IsPinned)
+            return;
 
+        _pin.Show();
         _currentTargetItem = null;
         _currentTargetOrb = orb;
         _targetAnchorSlot = anchorSlot;
@@ -358,13 +675,13 @@ public class ItemTooltipController : MonoBehaviour
     public void HideWorldTooltip(WorldDroppedItem droppedItem)
     {
         if (_worldTargetItem == droppedItem)
-            HideTooltipImmediate();
+            HideTooltip();
     }
 
     public void HideWorldTooltip()
     {
         if (_worldTargetItem != null)
-            HideTooltipImmediate();
+            HideTooltip();
     }
 
     public void ShowHudSkillTooltip(SkillDataSO skill, RectTransform slotRect, object source)
@@ -380,12 +697,17 @@ public class ItemTooltipController : MonoBehaviour
         if (_skillTooltipBox == null || _root == null || _root.panel == null)
             return;
 
-        if (_hideScheduler != null)
+        if (IsShowingHudSkillTooltip(source) && _currentHudSkill == skill)
         {
-            _hideScheduler.Pause();
-            _hideScheduler = null;
+            _hudSkillRect = slotRect;
+            RecalculateHudSkillPosition();
+            return;
         }
 
+        if (_pin.IsPinned)
+            return;
+
+        _pin.Show();
         _currentTargetItem = null;
         _currentTargetOrb = null;
         _targetAnchorSlot = null;
@@ -414,7 +736,7 @@ public class ItemTooltipController : MonoBehaviour
             return;
         if (source != null && _hudSkillSource != null && !ReferenceEquals(_hudSkillSource, source))
             return;
-        HideTooltipImmediate();
+        HideTooltip();
     }
 
     public bool IsShowingHudSkillTooltip(object source)
@@ -430,25 +752,43 @@ public class ItemTooltipController : MonoBehaviour
         if (_currentHudSkill == null || _root == null || _root.panel == null || Mouse.current == null)
             return false;
 
-        Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(_root.panel, Mouse.current.position.ReadValue());
-        return IsPanelPointOver(_skillTooltipBox, panelPos) || IsPanelPointOver(_hudDpsBreakdownBox, panelPos);
+        Vector2 panelPos = GetMousePanelPos();
+        return IsPanelPointOver(_skillTooltipBox, panelPos)
+            || IsPanelPointOver(_hudDpsBreakdownBox, panelPos)
+            || IsPanelPointOver(_buffTooltipBox, panelPos);
     }
 
     private static bool IsPanelPointOver(VisualElement element, Vector2 panelPos)
     {
-        return element != null
-            && element.panel != null
-            && element.style.display == DisplayStyle.Flex
-            && element.worldBound.Contains(panelPos);
+        return IsDisplayedTooltip(element)
+            && ContainsInclusive(GetTooltipPanelRect(element), panelPos);
     }
 
-    private static bool IsPointerOverElement(VisualElement element)
+    private bool IsPointerOverElement(VisualElement element)
     {
         if (element == null || element.panel == null || Mouse.current == null)
             return false;
 
-        Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(element.panel, Mouse.current.position.ReadValue());
-        return element.worldBound.Contains(panelPos);
+        Vector2 panelPos = MouseToUiToolkitPanel(element.panel);
+        if (element.worldBound.Contains(panelPos))
+            return true;
+
+        var picked = element.panel.Pick(panelPos);
+        return picked != null && (picked == element || element.Contains(picked));
+    }
+
+    private Vector2 GetMousePanelPos()
+    {
+        if (_root == null || _root.panel == null || Mouse.current == null)
+            return Vector2.negativeInfinity;
+        return MouseToUiToolkitPanel(_root.panel);
+    }
+
+    private static Vector2 MouseToUiToolkitPanel(IPanel panel)
+    {
+        Vector2 screen = Mouse.current.position.ReadValue();
+        screen.y = Screen.height - screen.y;
+        return RuntimePanelUtils.ScreenToPanel(panel, screen);
     }
 
     private void UpdateHudDpsBreakdownHover()
@@ -494,12 +834,8 @@ public class ItemTooltipController : MonoBehaviour
     private void ShowTooltipInternal(InventoryItem item, VisualElement anchorSlot, WorldDroppedItem worldTargetItem)
     {
         if (_itemTooltipBox == null || item == null || item.Data == null) return;
-        
-        if (_hideScheduler != null)
-        {
-            _hideScheduler.Pause(); 
-            _hideScheduler = null;
-        }
+        if (_pin.IsPinned && (_currentTargetItem != item || _targetAnchorSlot != anchorSlot))
+            return;
 
         _currentTargetOrb = null;
         if (_orbTooltipBox != null) _orbTooltipBox.style.display = DisplayStyle.None;
@@ -507,9 +843,12 @@ public class ItemTooltipController : MonoBehaviour
         if (_currentTargetItem == item && _targetAnchorSlot == anchorSlot && _itemTooltipBox.style.display == DisplayStyle.Flex)
         {
             _worldTargetItem = worldTargetItem;
+            if (worldTargetItem != null)
+                _worldOwnerFrame = Time.frameCount;
             return;
         }
 
+        _pin.Show();
         _currentTargetItem = item;
         _targetAnchorSlot = anchorSlot;
         _worldTargetItem = worldTargetItem;
@@ -517,6 +856,8 @@ public class ItemTooltipController : MonoBehaviour
 
         FillItemData(item);
         FillSkillData(item);
+        if (worldTargetItem != null)
+            _worldOwnerFrame = Time.frameCount;
 
         _itemTooltipBox.style.display = DisplayStyle.Flex;
         _itemTooltipBox.style.visibility = Visibility.Hidden;
@@ -552,24 +893,16 @@ public class ItemTooltipController : MonoBehaviour
 
     public void HideTooltip()
     {
-        if (_hideScheduler != null) return;
-        if (_root == null || _root.panel == null)
-        {
-            HideTooltipImmediate();
+        if (_pin.IsPinned)
             return;
-        }
-
-        _hideScheduler = _root.schedule.Execute(HideTooltipImmediate);
-        _hideScheduler.ExecuteLater(_hideDelayMs);
+        HideTooltipImmediate();
     }
 
     public void HideTooltipImmediate()
     {
-        if (_hideScheduler != null)
-        {
-            _hideScheduler.Pause();
-            _hideScheduler = null;
-        }
+        _pin.Hide();
+        _pinAnimElapsed = -1f;
+        HidePinBadges();
 
         if (_itemTooltipBox != null)
         {
@@ -587,10 +920,13 @@ public class ItemTooltipController : MonoBehaviour
             _orbTooltipBox.style.visibility = Visibility.Hidden;
         }
         HideHudDpsBreakdown();
+        HideBuffTooltip();
+        SetTooltipClusterPicking(false);
         _currentTargetItem = null;
         _currentTargetOrb = null;
         _targetAnchorSlot = null;
         _worldTargetItem = null;
+        _worldOwnerFrame = -1;
         ClearHudSkillTarget();
     }
 
@@ -916,6 +1252,38 @@ public class ItemTooltipController : MonoBehaviour
         return new Vector2(Mathf.Round(x), Mathf.Round(y));
     }
 
+    /// <summary>
+    /// Places a nested tooltip on the linked word: above if possible, otherwise below, otherwise beside.
+    /// </summary>
+    public static Vector2 CalculateLinkedTextTooltipPosition(
+        Vector2 textMin,
+        Vector2 textMax,
+        float tooltipWidth,
+        float tooltipHeight,
+        float screenWidth,
+        float screenHeight,
+        float gap,
+        float padding)
+    {
+        float x = textMin.x;
+        float y = textMin.y - tooltipHeight - gap;
+        if (y < padding)
+        {
+            y = textMax.y + gap;
+            if (y + tooltipHeight > screenHeight - padding)
+            {
+                y = textMin.y;
+                x = textMax.x + gap;
+                if (x + tooltipWidth + padding > screenWidth)
+                    x = textMin.x - tooltipWidth - gap;
+            }
+        }
+
+        x = Mathf.Clamp(x, padding, Mathf.Max(padding, screenWidth - tooltipWidth - padding));
+        y = Mathf.Clamp(y, padding, Mathf.Max(padding, screenHeight - tooltipHeight - padding));
+        return new Vector2(Mathf.Round(x), Mathf.Round(y));
+    }
+
     private bool TryGetHudSkillSlotRectInRoot(RectTransform slotRect, out Vector2 min, out Vector2 max)
     {
         min = max = Vector2.zero;
@@ -959,6 +1327,8 @@ public class ItemTooltipController : MonoBehaviour
         _hudBreakdownAnchorRow = null;
         _hudDpsPreview = default;
         HideHudDpsBreakdown();
+        HideBuffTooltip();
+        _buffNameHoverTargets.Clear();
     }
 
     // --- Fill Data Logic (SKILLS) - ТВОЙ КОД ---
@@ -1040,11 +1410,7 @@ public class ItemTooltipController : MonoBehaviour
         if (includeDps)
             AddHudSkillDpsBlock(skill);
 
-        var descLabel = CreateLabel("", 8, FontStyle.Normal, TextAnchor.UpperLeft);
-        descLabel.style.marginTop = includeDps ? 2 : 4;
-        descLabel.style.minHeight = 0;
-        _skillTooltipBox.Add(descLabel);
-        LocalizeSkillBody(descLabel, skill);
+        FillSkillDescription(_skillTooltipBox, skill);
     }
 
     private void AddHudSkillDpsBlock(SkillDataSO skill)
@@ -1305,9 +1671,11 @@ public class ItemTooltipController : MonoBehaviour
         }
     }
 
-    private void LocalizeSkillBody(Label label, SkillDataSO skill)
+    private void FillSkillDescription(VisualElement parent, SkillDataSO skill)
     {
-        if (label == null || skill == null)
+        HideBuffTooltip();
+        _buffNameHoverTargets.Clear();
+        if (parent == null || skill == null)
             return;
 
         int skillSlotIndex = _hudSkillSlotIndex;
@@ -1319,6 +1687,12 @@ public class ItemTooltipController : MonoBehaviour
         }
 
         string localeCode = LocalizationSettings.SelectedLocale?.Identifier.Code ?? "en";
+        System.Func<StatType, string> statResolver = stat =>
+        {
+            string localized = LocalizationSettings.StringDatabase.GetLocalizedString(TABLE_MENU, $"stats.{stat}");
+            return string.IsNullOrWhiteSpace(localized) ? SkillDescriptionGenerator.Humanize(stat.ToString()) : localized;
+        };
+
         string legacyDescription = null;
         if (skill.DescriptionMode != SkillDescriptionMode.Automatic)
         {
@@ -1329,36 +1703,51 @@ public class ItemTooltipController : MonoBehaviour
                 legacyDescription = skill.Description;
         }
 
-        string body = SkillDescriptionGenerator.Build(
-            skill,
-            localeCode,
-            legacyDescription,
-            stat =>
+        List<SkillDescriptionLine> lines;
+        if (skill.DescriptionMode == SkillDescriptionMode.LegacyOnly)
+        {
+            lines = new List<SkillDescriptionLine>();
+            if (!string.IsNullOrWhiteSpace(legacyDescription))
+                lines.Add(SkillDescriptionLine.Plain(legacyDescription));
+        }
+        else
+        {
+            lines = SkillDescriptionGenerator.BuildAutomaticLines(skill, localeCode, statResolver);
+            if (skill.DescriptionMode == SkillDescriptionMode.AutomaticWithLegacy
+                && !string.IsNullOrWhiteSpace(legacyDescription))
             {
-                string localized = LocalizationSettings.StringDatabase.GetLocalizedString(TABLE_MENU, $"stats.{stat}");
-                return string.IsNullOrWhiteSpace(localized) ? SkillDescriptionGenerator.Humanize(stat.ToString()) : localized;
-            });
+                lines.Add(SkillDescriptionLine.Plain(string.Empty));
+                lines.Add(SkillDescriptionLine.Plain(legacyDescription));
+            }
+        }
 
-        var sb = new StringBuilder(body);
+        var body = new VisualElement { name = "SkillDescBody" };
+        body.pickingMode = PickingMode.Ignore;
+        body.style.width = Length.Percent(100);
+        body.style.alignItems = Align.Stretch;
+        body.style.marginTop = 2;
+        body.style.minHeight = 0;
+
+        for (int i = 0; i < lines.Count; i++)
+            body.Add(CreateSkillDescriptionLine(lines[i]));
+
         if (effectiveCooldown > 0)
         {
             string cooldownLabel = LocalizationSettings.StringDatabase.GetLocalizedString(TABLE_SKILLS, "skills.cooldown");
-            if (string.IsNullOrWhiteSpace(cooldownLabel))
+            if (string.IsNullOrWhiteSpace(cooldownLabel) || cooldownLabel.IndexOf("translation found", System.StringComparison.OrdinalIgnoreCase) >= 0)
                 cooldownLabel = localeCode.StartsWith("ru", System.StringComparison.OrdinalIgnoreCase) ? "Перезарядка" : "Cooldown";
-            if (sb.Length > 0) sb.Append("\n\n");
-            sb.Append($"<color=#aaaaaa>{cooldownLabel}: {effectiveCooldown:0.##}s</color>");
+            body.Add(CreateSkillMetaLabel($"{cooldownLabel}: {effectiveCooldown:0.##}s", first: lines.Count > 0));
         }
 
         if (skill.ManaCost > 0)
         {
             string manaLabel = LocalizationSettings.StringDatabase.GetLocalizedString(TABLE_SKILLS, "skills.manaCost");
-            if (string.IsNullOrWhiteSpace(manaLabel))
+            if (string.IsNullOrWhiteSpace(manaLabel) || manaLabel.IndexOf("translation found", System.StringComparison.OrdinalIgnoreCase) >= 0)
                 manaLabel = localeCode.StartsWith("ru", System.StringComparison.OrdinalIgnoreCase) ? "Расход маны" : "Mana Cost";
-            if (sb.Length > 0) sb.Append('\n');
-            sb.Append($"<color=#aaaaaa>{manaLabel}: {skill.ManaCost:0.##}</color>");
+            body.Add(CreateSkillMetaLabel($"{manaLabel}: {skill.ManaCost:0.##}", first: lines.Count == 0 && effectiveCooldown <= 0));
         }
 
-        label.text = sb.ToString();
+        parent.Add(body);
         if (_root != null)
         {
             if (_currentHudSkill != null)
@@ -1366,6 +1755,239 @@ public class ItemTooltipController : MonoBehaviour
             else
                 _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
         }
+    }
+
+    private VisualElement CreateSkillDescriptionLine(SkillDescriptionLine line)
+    {
+        if (!line.HasLink)
+        {
+            var plain = CreateLabel(line.Text, 8, FontStyle.Normal, TextAnchor.UpperLeft);
+            plain.pickingMode = PickingMode.Ignore;
+            plain.style.marginTop = 1;
+            plain.style.minHeight = 0;
+            plain.style.width = Length.Percent(100);
+            return plain;
+        }
+
+        var row = new VisualElement();
+        row.pickingMode = PickingMode.Ignore;
+        row.style.flexDirection = FlexDirection.Row;
+        row.style.flexWrap = Wrap.Wrap;
+        row.style.alignItems = Align.Center;
+        row.style.justifyContent = Justify.FlexStart;
+        row.style.width = Length.Percent(100);
+        row.style.marginTop = 1;
+        row.style.minHeight = 12;
+
+        if (!string.IsNullOrEmpty(line.Prefix))
+            row.Add(CreateSkillInlineLabel(line.Prefix, _colNormalText, FontStyle.Normal, hoverable: false));
+
+        var nameHit = CreateBuffNameHit(line.LinkedName, line.LinkedEffect);
+        _buffNameHoverTargets.Add(nameHit);
+        row.Add(nameHit);
+
+        if (!string.IsNullOrEmpty(line.Suffix))
+            row.Add(CreateSkillInlineLabel(line.Suffix, _colNormalText, FontStyle.Normal, hoverable: false));
+
+        return row;
+    }
+
+    private VisualElement CreateBuffNameHit(string text, StatusEffectSO effect)
+    {
+        var hit = new VisualElement { name = "BuffNameHit" };
+        hit.pickingMode = PickingMode.Position;
+        hit.userData = effect;
+        hit.style.flexDirection = FlexDirection.Row;
+        hit.style.alignItems = Align.Center;
+        hit.style.flexGrow = 0;
+        hit.style.flexShrink = 0;
+        hit.style.flexBasis = StyleKeyword.Auto;
+        hit.style.alignSelf = Align.Center;
+        hit.style.width = StyleKeyword.Auto;
+        hit.style.height = StyleKeyword.Auto;
+        hit.style.minHeight = 12;
+        hit.style.paddingLeft = 1;
+        hit.style.paddingRight = 1;
+        hit.style.paddingTop = 1;
+        hit.style.paddingBottom = 1;
+        hit.style.marginTop = 0;
+        hit.style.marginBottom = 0;
+
+        var label = CreateSkillInlineLabel(text, _colBuffName, FontStyle.Bold, hoverable: false);
+        label.pickingMode = PickingMode.Ignore;
+        label.style.whiteSpace = WhiteSpace.NoWrap;
+        label.style.flexGrow = 0;
+        label.style.flexShrink = 0;
+        label.style.width = StyleKeyword.Auto;
+        label.style.minHeight = 12;
+        label.style.unityTextAlign = TextAnchor.MiddleLeft;
+        label.style.paddingTop = 0;
+        label.style.paddingBottom = 0;
+        hit.Add(label);
+        return hit;
+    }
+
+    private Label CreateSkillInlineLabel(string text, Color color, FontStyle style, bool hoverable)
+    {
+        var label = CreateLabel(text, 8, style, TextAnchor.UpperLeft);
+        label.pickingMode = hoverable ? PickingMode.Position : PickingMode.Ignore;
+        label.style.color = new StyleColor(color);
+        label.style.marginTop = 0;
+        label.style.marginBottom = 0;
+        label.style.paddingTop = 0;
+        label.style.paddingBottom = 0;
+        label.style.paddingLeft = 0;
+        label.style.paddingRight = 0;
+        label.style.minHeight = 0;
+        label.style.whiteSpace = WhiteSpace.Normal;
+        return label;
+    }
+
+    private Label CreateSkillMetaLabel(string text, bool first)
+    {
+        var label = CreateLabel(text, 7, FontStyle.Normal, TextAnchor.UpperLeft);
+        label.pickingMode = PickingMode.Ignore;
+        label.style.color = new StyleColor(new Color(0.67f, 0.67f, 0.67f));
+        label.style.marginTop = first ? 4 : 1;
+        label.style.minHeight = 0;
+        label.style.width = Length.Percent(100);
+        return label;
+    }
+
+    private void UpdateBuffTooltipHover()
+    {
+        if (_skillTooltipBox == null || _skillTooltipBox.style.display != DisplayStyle.Flex)
+        {
+            HideBuffTooltip();
+            return;
+        }
+
+        VisualElement anchor = null;
+        StatusEffectSO effect = null;
+        for (int i = 0; i < _buffNameHoverTargets.Count; i++)
+        {
+            VisualElement target = _buffNameHoverTargets[i];
+            if (!IsPointerOverElement(target))
+                continue;
+            anchor = target;
+            effect = target.userData as StatusEffectSO;
+            break;
+        }
+
+        if (effect == null && _hoveredBuff != null && IsPanelPointOver(_buffTooltipBox, GetMousePanelPos()))
+        {
+            effect = _hoveredBuff;
+            anchor = _buffTooltipAnchor;
+        }
+
+        if (effect == null || anchor == null)
+        {
+            HideBuffTooltip();
+            return;
+        }
+
+        if (_hoveredBuff != effect || _buffTooltipAnchor != anchor
+            || _buffTooltipBox == null || _buffTooltipBox.style.display != DisplayStyle.Flex)
+            ShowBuffTooltip(effect, anchor);
+        else
+            RecalculateBuffTooltipPosition();
+    }
+
+    private void ShowBuffTooltip(StatusEffectSO effect, VisualElement anchor)
+    {
+        if (_buffTooltipBox == null || effect == null || anchor == null)
+            return;
+
+        _hoveredBuff = effect;
+        _buffTooltipAnchor = anchor;
+        _buffTooltipBox.Clear();
+
+        bool ru = (LocalizationSettings.SelectedLocale?.Identifier.Code ?? "en")
+            .StartsWith("ru", System.StringComparison.OrdinalIgnoreCase);
+        string localeCode = LocalizationSettings.SelectedLocale?.Identifier.Code ?? "en";
+
+        var title = CreateLabel(effect.GetDisplayName(ru), 8, FontStyle.Bold, TextAnchor.UpperLeft);
+        title.pickingMode = PickingMode.Ignore;
+        title.style.color = new StyleColor(_colBuffName);
+        title.style.width = Length.Percent(100);
+        title.style.minHeight = 0;
+        title.style.marginTop = 0;
+        title.style.paddingBottom = 0;
+        _buffTooltipBox.Add(title);
+
+        string body = SkillDescriptionGenerator.BuildStatusEffectTooltip(
+            effect,
+            localeCode,
+            stat =>
+            {
+                string localized = LocalizationSettings.StringDatabase.GetLocalizedString(TABLE_MENU, $"stats.{stat}");
+                return string.IsNullOrWhiteSpace(localized) ? SkillDescriptionGenerator.Humanize(stat.ToString()) : localized;
+            });
+
+        if (!string.IsNullOrWhiteSpace(body))
+        {
+            var desc = CreateLabel(body, 6, FontStyle.Normal, TextAnchor.UpperLeft);
+            desc.pickingMode = PickingMode.Ignore;
+            desc.style.color = new StyleColor(_colNormalText);
+            desc.style.width = Length.Percent(100);
+            desc.style.minHeight = 0;
+            desc.style.marginTop = 2;
+            desc.style.whiteSpace = WhiteSpace.Normal;
+            _buffTooltipBox.Add(desc);
+        }
+
+        _buffTooltipBox.style.display = DisplayStyle.Flex;
+        _buffTooltipBox.style.visibility = Visibility.Hidden;
+        RecalculateBuffTooltipPosition();
+        if (_root != null)
+            _root.schedule.Execute(RecalculateBuffTooltipPosition).ExecuteLater(1);
+    }
+
+    private void HideBuffTooltip()
+    {
+        _hoveredBuff = null;
+        _buffTooltipAnchor = null;
+        if (_buffTooltipBox == null)
+            return;
+        _buffTooltipBox.style.display = DisplayStyle.None;
+        _buffTooltipBox.style.visibility = Visibility.Hidden;
+    }
+
+    private void RecalculateBuffTooltipPosition()
+    {
+        if (_buffTooltipBox == null || _root == null || _buffTooltipAnchor == null)
+            return;
+        if (_buffTooltipBox.style.display != DisplayStyle.Flex)
+            return;
+
+        float screenW = _root.resolvedStyle.width;
+        float screenH = _root.resolvedStyle.height;
+        VisualElement textAnchor = _buffTooltipAnchor.childCount > 0
+            ? _buffTooltipAnchor[0]
+            : _buffTooltipAnchor;
+        Rect row = textAnchor.worldBound;
+        Vector2 min = _root.WorldToLocal(row.min);
+        Vector2 max = _root.WorldToLocal(row.max);
+
+        float boxW = _buffTooltipBox.resolvedStyle.width;
+        if (float.IsNaN(boxW) || boxW < 10f)
+            boxW = BuffTooltipWidth;
+        float boxH = _buffTooltipBox.resolvedStyle.height;
+        if (float.IsNaN(boxH) || boxH < 8f)
+            boxH = 36f;
+
+        Vector2 pos = CalculateLinkedTextTooltipPosition(
+            min,
+            max,
+            boxW,
+            boxH,
+            screenW,
+            screenH,
+            HudSkillTooltipGap,
+            HudSkillTooltipPadding);
+        _buffTooltipBox.style.left = pos.x;
+        _buffTooltipBox.style.top = pos.y;
+        _buffTooltipBox.style.visibility = Visibility.Visible;
     }
 
     private static string GetSkillNameKey(SkillDataSO skill)
