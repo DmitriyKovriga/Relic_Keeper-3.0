@@ -1842,6 +1842,7 @@ namespace Scripts.Skills
                 center += new Vector2(
                     step.GetFloat("OffsetX", 0f) * res.Scale * _ctx.FacingDirection,
                     step.GetFloat("OffsetY", 0f) * res.Scale);
+                MaybePullHitboxTowardOwner(step, ref center, ref size);
                 return;
             }
 
@@ -1853,6 +1854,7 @@ namespace Scripts.Skills
             float extraWidth = Mathf.Max(0f, size.x - baseSize.x);
             float shiftForward = extraWidth * 0.5f;
             center = (Vector2)_ownerStats.transform.position + new Vector2((offsetX + shiftForward) * _ctx.FacingDirection, offsetY);
+            MaybePullHitboxTowardOwner(step, ref center, ref size);
         }
 
         private void ResolveRectangleArea(StepEntry step, out Vector2 center, out Vector2 size, out float angle)
@@ -1881,6 +1883,15 @@ namespace Scripts.Skills
             }
 
             angle = step.GetFloat("Angle", 0f);
+            MaybePullHitboxTowardOwner(step, ref center, ref size);
+        }
+
+        private void MaybePullHitboxTowardOwner(StepEntry step, ref Vector2 center, ref Vector2 size)
+        {
+            if (step == null || _ownerStats == null || !step.GetBool(SkillHitboxFit.PullTowardOwnerKey, true))
+                return;
+
+            SkillHitboxFit.PullTowardOwner(_ownerStats.transform.position, _ctx.FacingDirection, ref center, ref size);
         }
     }
 }

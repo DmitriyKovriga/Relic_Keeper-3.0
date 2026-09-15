@@ -1493,6 +1493,7 @@ namespace Scripts.Editor.Skills
                 float oy = step.GetFloat("OffsetY", 0f);
                 float noy = EditorGUILayout.FloatField("Offset Y", oy);
                 if (noy != oy) { step.SetOverrideFloat("OffsetY", noy); EditorUtility.SetDirty(recipe); }
+                DrawPullTowardOwnerToggle(recipe, step);
                 float dm = step.GetFloat("DamageMultiplier", 1f);
                 float ndm = EditorGUILayout.FloatField("Damage multiplier", dm);
                 if (ndm != dm) { step.SetOverrideFloat("DamageMultiplier", ndm); EditorUtility.SetDirty(recipe); }
@@ -1535,6 +1536,7 @@ namespace Scripts.Editor.Skills
                 float oy = step.GetFloat("OffsetY", 0f);
                 float noy = EditorGUILayout.FloatField("Offset Y", oy);
                 if (noy != oy) { step.SetOverrideFloat("OffsetY", noy); EditorUtility.SetDirty(recipe); }
+                DrawPullTowardOwnerToggle(recipe, step);
                 float dm = step.GetFloat("DamageMultiplier", 1f);
                 float ndm = EditorGUILayout.FloatField("Damage multiplier", dm);
                 if (ndm != dm) { step.SetOverrideFloat("DamageMultiplier", ndm); EditorUtility.SetDirty(recipe); }
@@ -1584,6 +1586,7 @@ namespace Scripts.Editor.Skills
                 float oy = step.GetFloat("OffsetY", 0f);
                 float noy = EditorGUILayout.FloatField("Offset Y", oy);
                 if (Mathf.Abs(noy - oy) > 0.001f) { step.SetOverrideFloat("OffsetY", noy); EditorUtility.SetDirty(recipe); }
+                DrawPullTowardOwnerToggle(recipe, step);
                 return;
             }
 
@@ -1614,6 +1617,7 @@ namespace Scripts.Editor.Skills
                 float oy = step.GetFloat("OffsetY", 0f);
                 float noy = EditorGUILayout.FloatField("Offset Y", oy);
                 if (Mathf.Abs(noy - oy) > 0.001f) { step.SetOverrideFloat("OffsetY", noy); EditorUtility.SetDirty(recipe); }
+                DrawPullTowardOwnerToggle(recipe, step);
                 return;
             }
 
@@ -2495,6 +2499,7 @@ namespace Scripts.Editor.Skills
             float oy = step.GetFloat("OffsetY", 0f);
             float noy = EditorGUILayout.FloatField("Offset Y", oy);
             if (Mathf.Abs(noy - oy) > 0.001f) { step.SetOverrideFloat("OffsetY", noy); EditorUtility.SetDirty(recipe); }
+            DrawPullTowardOwnerToggle(recipe, step);
         }
 
         private void DrawRectangleAreaFields(SkillRecipeSO recipe, StepEntry step, string vfxLifeLabel)
@@ -2520,6 +2525,22 @@ namespace Scripts.Editor.Skills
             float oy = step.GetFloat("OffsetY", 0f);
             float noy = EditorGUILayout.FloatField("Offset Y", oy);
             if (Mathf.Abs(noy - oy) > 0.001f) { step.SetOverrideFloat("OffsetY", noy); EditorUtility.SetDirty(recipe); }
+            DrawPullTowardOwnerToggle(recipe, step);
+        }
+
+        private void DrawPullTowardOwnerToggle(SkillRecipeSO recipe, StepEntry step)
+        {
+            bool pull = step.GetBool(SkillHitboxFit.PullTowardOwnerKey, true);
+            bool newPull = EditorGUILayout.Toggle(
+                new GUIContent(
+                    "Pull toward owner",
+                    "Автоматически дотягивает ближний край хитбокса до персонажа. Дальняя граница не меняется. Для выстрелов не используется."),
+                pull);
+            if (newPull != pull)
+            {
+                step.SetOverrideBool(SkillHitboxFit.PullTowardOwnerKey, newPull);
+                EditorUtility.SetDirty(recipe);
+            }
         }
 
         private void DrawApplyAtVfxLifetimeField(SkillRecipeSO recipe, StepEntry step, int sourceStepIndex, string label = "Apply at VFX life %")

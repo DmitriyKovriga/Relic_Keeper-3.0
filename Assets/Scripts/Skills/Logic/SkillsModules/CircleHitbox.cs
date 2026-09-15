@@ -21,6 +21,7 @@ namespace Scripts.Skills.Modules
             float finalOffsetX = _offset.x + shiftForward;
 
             Vector2 hitCenter = (Vector2)origin + new Vector2(finalOffsetX * facingDirection, _offset.y);
+            SkillHitboxFit.PullTowardOwner(origin, facingDirection, ref hitCenter, ref size);
 
             if (_showDebugLogs)
             {

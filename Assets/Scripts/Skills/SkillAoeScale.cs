@@ -47,4 +47,32 @@ namespace Scripts.Skills
                 localScale.z);
         }
     }
+
+    /// <summary>
+    /// Front melee boxes are authored on the VFX, so the near edge often sits
+    /// a gap in front of the caster. Pulling extends that edge toward the owner
+    /// without changing far reach.
+    /// </summary>
+    public static class SkillHitboxFit
+    {
+        public const string PullTowardOwnerKey = "PullTowardOwner";
+        public const float OwnerOverlap = 0.2f;
+
+        public static void PullTowardOwner(Vector2 ownerPosition, float facing, ref Vector2 center, ref Vector2 size)
+        {
+            if (size.x <= 0.0001f)
+                return;
+
+            float sign = facing >= 0f ? 1f : -1f;
+            float half = size.x * 0.5f;
+            float centerLocal = (center.x - ownerPosition.x) * sign;
+            float inner = centerLocal - half;
+            float extend = inner + OwnerOverlap;
+            if (extend <= 0.001f)
+                return;
+
+            size.x += extend;
+            center.x -= sign * (extend * 0.5f);
+        }
+    }
 }
