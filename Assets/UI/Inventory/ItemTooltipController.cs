@@ -113,7 +113,9 @@ public class ItemTooltipController : MonoBehaviour
     private readonly Color _colLightningText = new Color(1f, 1f, 0.5f);
 
     private readonly Color _colSkillType = new Color(0.6f, 0.6f, 0.6f);
-    private readonly Color _colBuffName = new Color(0.91f, 0.77f, 0.36f); 
+    private readonly Color _colBuffName = new Color(0.91f, 0.77f, 0.36f);
+    private readonly Color _colInspect = new Color(0.95f, 0.82f, 0.35f);
+    private bool _inspectDetailsVisible; 
 
     private void Awake()
     {
@@ -147,6 +149,7 @@ public class ItemTooltipController : MonoBehaviour
     private void LateUpdate()
     {
         TickTooltipPin();
+        UpdateItemInspectOverlay();
         UpdateHudDpsBreakdownHover();
         UpdateBuffTooltipHover();
     }
@@ -903,6 +906,7 @@ public class ItemTooltipController : MonoBehaviour
         _pin.Hide();
         _pinAnimElapsed = -1f;
         HidePinBadges();
+        _inspectDetailsVisible = false;
 
         if (_itemTooltipBox != null)
         {
@@ -2014,6 +2018,7 @@ public class ItemTooltipController : MonoBehaviour
 
     private void FillItemData(InventoryItem item)
     {
+        _inspectDetailsVisible = IsInspectModifierHeld();
         LocalizeLabel(_headerLabel, TABLE_ITEMS, $"items.{item.Data.ID}", item.Data.ItemName);
         _headerLabel.style.color = new StyleColor(ItemRarity.GetTooltipTitleColor(item));
         
@@ -2022,6 +2027,14 @@ public class ItemTooltipController : MonoBehaviour
         _itemTooltipBox.style.borderLeftColor = borderCol; _itemTooltipBox.style.borderRightColor = borderCol;
 
         _statsContainer.Clear();
+
+        if (ItemTooltipInspect.TryGetWeaponHandedness(item.Data, out bool isTwoHanded))
+        {
+            string handKey = ItemTooltipInspect.GetWeaponHandKey(isTwoHanded);
+            string handFallback = ItemTooltipInspect.GetWeaponHandFallback(isTwoHanded);
+            CreateAsyncLabel(handKey, n =>
+                IsMissingTranslationResult(n) || n == handKey ? handFallback : n, _colSkillType);
+        }
 
         if (item.Data is WeaponItemSO weapon && !weapon.IsDefensiveOffHand)
         {
@@ -2061,8 +2074,30 @@ public class ItemTooltipController : MonoBehaviour
                 float minVal = modifier.PrimaryMod.Value;
                 float maxVal = modifier.HasRange ? modifier.SecondaryMod.Value : modifier.PrimaryMod.Value;
                 if (string.IsNullOrEmpty(key)) key = $"stats.{modifier.Type}";
-                AddAffixRow(key, minVal, maxVal, modifier.HasRange, _colAffix);
+                string inspectText = _inspectDetailsVisible
+                    ? ItemTooltipInspect.FormatAffixInspect(aff)
+                    : null;
+                AddAffixRow(key, minVal, maxVal, modifier.HasRange, _colAffix, inspectText);
             }
+        }
+
+        if (_inspectDetailsVisible)
+        {
+            if (_statsContainer.childCount > 0)
+            {
+                VisualElement last = _statsContainer[_statsContainer.childCount - 1];
+                if (last.name != "TooltipDivider")
+                    AddDivToContainer();
+            }
+            int itemLevel = item.ResolvedItemLevel;
+            CreateAsyncLabel(
+                ItemTooltipInspect.ItemLevelKey,
+                n => ItemTooltipInspect.FormatItemLevel(
+                    itemLevel,
+                    IsMissingTranslationResult(n) || n == ItemTooltipInspect.ItemLevelKey
+                        ? ItemTooltipInspect.ItemLevelFallback
+                        : n),
+                _colInspect);
         }
 
         AppendPriceRow(item);
@@ -2138,14 +2173,63 @@ public class ItemTooltipController : MonoBehaviour
             c);
     }
 
-    private void AddAffixRow(string key, float minVal, float maxVal, bool hasRange, Color c)
+    private void AddAffixRow(string key, float minVal, float maxVal, bool hasRange, Color c, string inspectText)
     {
         var lbl = CreateLabel("...", 8, FontStyle.Normal, TextAnchor.MiddleCenter);
         lbl.style.color = new StyleColor(c);
-        _statsContainer.Add(lbl);
+
+        if (string.IsNullOrEmpty(inspectText))
+        {
+            _statsContainer.Add(lbl);
+        }
+        else
+        {
+            lbl.style.unityTextAlign = TextAnchor.MiddleLeft;
+            lbl.style.flexGrow = 1;
+            lbl.style.flexShrink = 1;
+            lbl.style.minWidth = 0;
+
+            var inspect = CreateLabel(inspectText, 7, FontStyle.Normal, TextAnchor.MiddleRight);
+            inspect.style.color = new StyleColor(_colInspect);
+            inspect.style.flexShrink = 0;
+            inspect.style.marginLeft = 4;
+            inspect.style.whiteSpace = WhiteSpace.NoWrap;
+            inspect.pickingMode = PickingMode.Ignore;
+
+            var row = new VisualElement { pickingMode = PickingMode.Ignore };
+            row.style.flexDirection = FlexDirection.Row;
+            row.style.flexWrap = Wrap.Wrap;
+            row.style.justifyContent = Justify.SpaceBetween;
+            row.style.alignItems = Align.FlexStart;
+            row.style.width = Length.Percent(100);
+            row.Add(lbl);
+            row.Add(inspect);
+            _statsContainer.Add(row);
+        }
+
         object[] args = hasRange ? new object[] { minVal, maxVal } : new object[] { minVal };
         var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(TABLE_AFFIXES, key, args);
         op.Completed += (h) => { if(lbl!=null) lbl.text = h.Result; };
+    }
+
+    private void UpdateItemInspectOverlay()
+    {
+        if (_itemTooltipBox == null || _itemTooltipBox.style.display != DisplayStyle.Flex || _currentTargetItem == null)
+            return;
+
+        bool inspect = IsInspectModifierHeld();
+        if (inspect == _inspectDetailsVisible)
+            return;
+
+        FillItemData(_currentTargetItem);
+        _itemTooltipBox.MarkDirtyRepaint();
+        if (_root != null)
+            _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
+    }
+
+    private static bool IsInspectModifierHeld()
+    {
+        return Keyboard.current != null && Keyboard.current.altKey.isPressed;
     }
 
     private void CreateAsyncLabel(string key, System.Func<string, string> fmt, Color c)
@@ -2160,7 +2244,7 @@ public class ItemTooltipController : MonoBehaviour
 
     private void AddDivToContainer()
     {
-        var d = new VisualElement();
+        var d = new VisualElement { name = "TooltipDivider" };
         d.style.height = 1;
         d.style.width = Length.Percent(100);
         d.style.marginTop = 2; d.style.marginBottom = 2;

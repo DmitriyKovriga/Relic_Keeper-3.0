@@ -21,6 +21,7 @@ public class ItemGenerator : MonoBehaviour
             return null;
 
         var newItem = new InventoryItem(baseItem);
+        newItem.ItemLevel = Mathf.Max(1, itemLevel);
 
         // Affixes are now opt-in per item. Empty AffixPool means no random affixes.
         var pool = baseItem.AffixPool;
@@ -80,7 +81,7 @@ public class ItemGenerator : MonoBehaviour
             return false;
 
         int count = item.Affixes?.Count ?? 0;
-        int itemLevel = Mathf.Max(1, item.Data.DropLevel);
+        int itemLevel = item.ResolvedItemLevel;
         AffixPoolSO pool = item.Data.AffixPool;
         int available = pool != null ? pool.GetAvailableAffixGroupCount(itemLevel) : 0;
         int remaining = pool != null
@@ -112,7 +113,7 @@ public class ItemGenerator : MonoBehaviour
         if (!CanApplyCraftingOrb(item, effectId))
             return false;
 
-        int itemLevel = Mathf.Max(1, item.Data.DropLevel);
+        int itemLevel = item.ResolvedItemLevel;
         AffixPoolSO pool = item.Data.AffixPool;
         int available = pool != null ? pool.GetAvailableAffixGroupCount(itemLevel) : 0;
 
@@ -170,7 +171,7 @@ public class ItemGenerator : MonoBehaviour
         if (item?.Data?.AffixPool == null || count <= 0)
             return 0;
 
-        int itemLevel = Mathf.Max(1, item.Data.DropLevel);
+        int itemLevel = item.ResolvedItemLevel;
         List<AffixRollSelection> selections = item.Data.AffixPool.GetRandomAffixesExcluding(
             count,
             itemLevel,

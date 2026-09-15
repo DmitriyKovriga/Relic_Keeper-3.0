@@ -74,6 +74,22 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void TooltipWorldPosition_DoesNotFollowHoverBob()
+        {
+            WorldDroppedItem droppedItem = CreateDroppedItem(Vector2.zero);
+            Vector3 tooltipBefore = droppedItem.TooltipWorldPosition;
+
+            droppedItem.transform.position += Vector3.up * 0.08f;
+
+            Assert.That(droppedItem.TooltipWorldPosition.x, Is.EqualTo(tooltipBefore.x).Within(0.001f));
+            Assert.That(droppedItem.TooltipWorldPosition.y, Is.EqualTo(tooltipBefore.y).Within(0.001f));
+            Assert.That(droppedItem.TooltipWorldPosition.y, Is.EqualTo(WorldDroppedItem.TooltipWorldHeight).Within(0.001f));
+            Assert.That(
+                Mathf.Abs(droppedItem.TooltipWorldPosition.y - (droppedItem.transform.position.y + WorldDroppedItem.TooltipWorldHeight)),
+                Is.GreaterThan(0.05f));
+        }
+
+        [Test]
         public void InventoryFullNotice_FitsPixelCanvasAndKeepsPickupMeaning()
         {
             Assert.That(PlayerNoticeBanner.InventoryFullKey, Is.EqualTo("inventory.ui.pickupNoSpace"));

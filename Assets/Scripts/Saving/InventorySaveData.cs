@@ -29,6 +29,8 @@ namespace Scripts.Saving
         public string ItemID;       // ID из EquipmentItemSO
         [Tooltip("Индекс слота: рюкзак 0..N, экипировка = InventoryManager.EQUIP_OFFSET + slot, крафт = InventoryManager.CRAFT_SLOT_INDEX.")]
         public int SlotIndex;
+        [Tooltip("Уровень предмета на момент генерации. 0 в старых сейвах означает взять DropLevel базы.")]
+        public int ItemLevel;
         public List<AffixSaveData> Affixes = new List<AffixSaveData>();
         public List<string> RolledSkillIDs = new List<string>();
     }

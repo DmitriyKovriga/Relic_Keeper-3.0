@@ -1499,6 +1499,18 @@ MonoBehaviour:
     m_Key: stats.mystic.recharge
     m_Metadata:
       m_Items: []
+  - m_Id: 104900000000000001
+    m_Key: inventory.ui.weapon.oneHanded
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104900000000000002
+    m_Key: inventory.ui.weapon.twoHanded
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104900000000000003
+    m_Key: inventory.ui.itemLevel
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

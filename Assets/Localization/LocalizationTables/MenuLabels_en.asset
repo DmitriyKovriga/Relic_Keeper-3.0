@@ -2460,6 +2460,18 @@ MonoBehaviour:
     m_Localized: "Recharge"
     m_Metadata:
       m_Items: []
+  - m_Id: 104900000000000001
+    m_Localized: One-Handed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104900000000000002
+    m_Localized: Two-Handed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104900000000000003
+    m_Localized: "Item Level: {0}"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

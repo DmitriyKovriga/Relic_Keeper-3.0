@@ -28,9 +28,18 @@ namespace Scripts.Items.World
         private bool _isInitialized;
         private Vector2 _groundPosition;
 
+        public const float TooltipWorldHeight = 0.48f;
+
         public InventoryItem Item => _item;
         public Vector2 GroundPosition => _isInitialized ? _groundPosition : (Vector2)transform.position;
-        public Vector3 TooltipWorldPosition => transform.position + Vector3.up * 0.48f;
+        public Vector3 TooltipWorldPosition
+        {
+            get
+            {
+                Vector2 ground = GroundPosition;
+                return new Vector3(ground.x, ground.y + TooltipWorldHeight, transform.position.z);
+            }
+        }
 
         public void Initialize(InventoryItem item, float pixelsPerUnit)
         {

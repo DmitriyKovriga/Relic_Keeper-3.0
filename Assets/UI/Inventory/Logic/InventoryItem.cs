@@ -145,12 +145,23 @@ namespace Scripts.Inventory
             || (Data is ArmorItemSO && Data.Slot == EquipmentSlot.OffHand);
 
         public List<SkillDataSO> GrantedSkills = new List<SkillDataSO>();
+        public int ItemLevel;
 
-        // РћР±С‹С‡РЅС‹Р№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
+        public int ResolvedItemLevel
+        {
+            get
+            {
+                if (ItemLevel > 0)
+                    return ItemLevel;
+                return Data != null ? Mathf.Max(1, Data.DropLevel) : 1;
+            }
+        }
+
         public InventoryItem(EquipmentItemSO data)
         {
             InstanceID = Guid.NewGuid().ToString();
             Data = data;
+            ItemLevel = data != null ? Mathf.Max(1, data.DropLevel) : 1;
         }
 
         // --- РњР•РўРћР” РЎРћРҐР РђРќР•РќРРЇ ---
@@ -160,6 +171,7 @@ namespace Scripts.Inventory
             {
                 ItemID = Data.ID,
                 SlotIndex = slotIndex,
+                ItemLevel = ResolvedItemLevel,
                 Affixes = new List<AffixSaveData>(),
                 RolledSkillIDs = new List<string>()
             };
@@ -210,6 +222,7 @@ namespace Scripts.Inventory
             }
 
             var newItem = new InventoryItem(baseItem);
+            newItem.ItemLevel = save.ItemLevel > 0 ? save.ItemLevel : Mathf.Max(1, baseItem.DropLevel);
 
             // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р°С„С„РёРєСЃС‹
             foreach (var afSave in save.Affixes)
