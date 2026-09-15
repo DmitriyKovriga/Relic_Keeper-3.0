@@ -22,6 +22,9 @@ namespace Scripts.Saving
         /// <summary>Золото — общее для всех персонажей.</summary>
         public int Gold;
 
+        /// <summary>Крафт-реликвии — общие для всех персонажей, не сгорают со смертью.</summary>
+        public List<OrbCountEntry> CraftingCurrency = new List<OrbCountEntry>();
+
         /// <summary>Ассортимент торговца и выкуп — общие для всех персонажей.</summary>
         public MarketSaveData Market;
 

@@ -31,13 +31,16 @@ namespace Scripts.Inventory
             if (CraftingSlotItem != null && CraftingSlotItem.Data != null)
                 data.CraftingSlotItem = CraftingSlotItem.GetSaveData(CRAFT_SLOT_INDEX);
 
-            NormalizeCraftingCurrencyCounts();
-            data.OrbCounts = new List<OrbCountEntry>(_orbCounts);
             return data;
         }
 
         public void LoadState(InventorySaveData data, ItemDatabaseSO itemDB, bool applyStatEvents = true)
         {
+            if (data == null)
+                data = new InventorySaveData();
+            if (data.Items == null)
+                data.Items = new List<ItemSaveData>();
+
             // 1) Clear current state.
             for (int i = 0; i < EquipmentItems.Length; i++)
             {
@@ -63,9 +66,6 @@ namespace Scripts.Inventory
 
             SyncFromBackpack();
             CraftingSlotItem = null;
-            _orbCounts.Clear();
-            if (data.OrbCounts != null) _orbCounts.AddRange(data.OrbCounts);
-            NormalizeCraftingCurrencyCounts();
 
             // 2) Restore backpack/equipment.
             var claimedBackpack = new HashSet<int>();

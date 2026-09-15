@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Saving;
+using Scripts.Economy;
 using UnityEngine;
 
 namespace RelicKeeper.Tests.EditMode
@@ -18,6 +19,7 @@ namespace RelicKeeper.Tests.EditMode
         public void SetUp()
         {
             ResetInventoryManagerSingleton();
+            CraftingCurrencyWallet.Clear();
         }
 
         [TearDown]
@@ -38,6 +40,7 @@ namespace RelicKeeper.Tests.EditMode
             _createdObjects.Clear();
 
             ResetInventoryManagerSingleton();
+            CraftingCurrencyWallet.Clear();
         }
 
         [Test]
@@ -98,35 +101,28 @@ namespace RelicKeeper.Tests.EditMode
         [Test]
         public void LoadState_MigratesAndMergesLegacyOrbIds()
         {
-            var itemDb = ScriptableObject.CreateInstance<ItemDatabaseSO>();
-            _createdObjects.Add(itemDb);
-            itemDb.Init();
-
-            var save = new InventorySaveData
+            CraftingCurrencyWallet.LoadFromSave(new List<OrbCountEntry>
             {
-                OrbCounts = new List<OrbCountEntry>
-                {
-                    new OrbCountEntry { OrbId = "CreationOrb", Count = 2 },
-                    new OrbCountEntry { OrbId = "RelicOfMutation", Count = 3 },
-                    new OrbCountEntry { OrbId = "FortuneOrb", Count = 4 }
-                }
-            };
+                new OrbCountEntry { OrbId = "CreationOrb", Count = 2 },
+                new OrbCountEntry { OrbId = "RelicOfMutation", Count = 3 },
+                new OrbCountEntry { OrbId = "FortuneOrb", Count = 4 }
+            });
 
             var manager = CreateManager("mgr-legacy-orbs");
-            manager.LoadState(save, itemDb);
 
             Assert.AreEqual(5, manager.GetOrbCount("RelicOfMutation"));
             Assert.AreEqual(5, manager.GetOrbCount("CreationOrb"), "Legacy callers should resolve to the new currency ID.");
             Assert.AreEqual(4, manager.GetOrbCount("RelicOfFortune"));
 
-            InventorySaveData migratedSave = manager.GetSaveData();
-            Assert.AreEqual(1, migratedSave.OrbCounts.FindAll(x => x.OrbId == "RelicOfMutation").Count);
-            Assert.AreEqual(0, migratedSave.OrbCounts.FindAll(x => x.OrbId == "CreationOrb").Count);
-            Assert.AreEqual(0, migratedSave.OrbCounts.FindAll(x => x.OrbId == "FortuneOrb").Count);
+            var migratedSave = new List<OrbCountEntry>();
+            CraftingCurrencyWallet.WriteToSave(migratedSave);
+            Assert.AreEqual(1, migratedSave.FindAll(x => x.OrbId == "RelicOfMutation").Count);
+            Assert.AreEqual(0, migratedSave.FindAll(x => x.OrbId == "CreationOrb").Count);
+            Assert.AreEqual(0, migratedSave.FindAll(x => x.OrbId == "FortuneOrb").Count);
         }
 
         [Test]
-        public void SaveLoad_RestoresBackpackEquipCraftAndOrbCounts()
+        public void SaveLoad_RestoresBackpackEquipCraftAndKeepsSharedOrbs()
         {
             var itemDb = ScriptableObject.CreateInstance<ItemDatabaseSO>();
             _createdObjects.Add(itemDb);
@@ -147,6 +143,7 @@ namespace RelicKeeper.Tests.EditMode
             source.AddOrb("orb.reroll", 7);
 
             var save = source.GetSaveData();
+            Assert.That(save.OrbCounts, Is.Empty);
 
             ResetInventoryManagerSingleton();
             var target = CreateManager("mgr-save-target");
@@ -156,6 +153,69 @@ namespace RelicKeeper.Tests.EditMode
             Assert.AreEqual("save-equip", target.GetItem(InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.MainHand).Data.ID);
             Assert.AreEqual("save-craft", target.CraftingSlotItem.Data.ID);
             Assert.AreEqual(7, target.GetOrbCount("orb.reroll"));
+        }
+
+        [Test]
+        public void LoadState_ClearsInventoryButKeepsSharedCraftingCurrency()
+        {
+            var manager = CreateManager("mgr-death-orbs");
+            manager.AddOrb("RelicOfMutation", 4);
+
+            var itemDb = ScriptableObject.CreateInstance<ItemDatabaseSO>();
+            _createdObjects.Add(itemDb);
+            itemDb.Init();
+
+            var backpackItem = CreateWeapon("doomed-sword", EquipmentSlot.MainHand);
+            Assert.IsTrue(manager.AddItem(backpackItem));
+
+            manager.LoadState(new InventorySaveData(), itemDb);
+
+            Assert.That(manager.GetItemAt(0, out _), Is.Null);
+            Assert.AreEqual(4, manager.GetOrbCount("RelicOfMutation"));
+        }
+
+        [Test]
+        public void CollectFromLegacySave_MergesOrbsFromEveryCharacter()
+        {
+            var data = new GameSaveData
+            {
+                Inventory = new InventorySaveData
+                {
+                    OrbCounts = new List<OrbCountEntry>
+                    {
+                        new OrbCountEntry { OrbId = "CreationOrb", Count = 1 }
+                    }
+                },
+                Characters = new List<CharacterSaveData>
+                {
+                    new CharacterSaveData("warrior")
+                    {
+                        Inventory = new InventorySaveData
+                        {
+                            OrbCounts = new List<OrbCountEntry>
+                            {
+                                new OrbCountEntry { OrbId = "RelicOfMutation", Count = 2 }
+                            }
+                        }
+                    },
+                    new CharacterSaveData("mage")
+                    {
+                        Inventory = new InventorySaveData
+                        {
+                            OrbCounts = new List<OrbCountEntry>
+                            {
+                                new OrbCountEntry { OrbId = "RelicOfFortune", Count = 3 }
+                            }
+                        }
+                    }
+                }
+            };
+
+            List<OrbCountEntry> merged = CraftingCurrencyWallet.CollectFromLegacySave(data);
+            CraftingCurrencyWallet.LoadFromSave(merged);
+
+            Assert.AreEqual(3, CraftingCurrencyWallet.Get("RelicOfMutation"));
+            Assert.AreEqual(3, CraftingCurrencyWallet.Get("RelicOfFortune"));
         }
 
         [Test]

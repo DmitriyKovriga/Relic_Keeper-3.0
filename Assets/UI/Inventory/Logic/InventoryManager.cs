@@ -39,8 +39,6 @@ namespace Scripts.Inventory
         public const int CRAFT_SLOT_INDEX = 200;
         public InventoryItem CraftingSlotItem { get; private set; }
 
-        private List<OrbCountEntry> _orbCounts = new List<OrbCountEntry>();
-
         public event Action OnInventoryChanged;
         public event Action<InventoryItem> OnItemEquipped;
         public event Action<InventoryItem> OnItemUnequipped;
@@ -71,7 +69,6 @@ namespace Scripts.Inventory
             _backpack = new GridContainer(_cols, _rows);
             if (Items == null || Items.Length != _capacity) Items = new InventoryItem[_capacity];
             if (EquipmentItems == null || EquipmentItems.Length != 6) EquipmentItems = new InventoryItem[6];
-            if (_orbCounts == null) _orbCounts = new List<OrbCountEntry>();
         }
 
         /// <summary>Р Р°Р·РјРµСЂ РїСЂРµРґРјРµС‚Р° РґР»СЏ СЃРµС‚РєРё СЂСЋРєР·Р°РєР°.</summary>

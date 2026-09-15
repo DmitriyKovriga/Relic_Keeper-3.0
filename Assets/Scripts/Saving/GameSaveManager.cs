@@ -9,7 +9,7 @@ using Scripts.Economy;
 
 public class GameSaveManager : MonoBehaviour
 {
-    public const int CurrentSaveVersion = 7;
+    public const int CurrentSaveVersion = 8;
 
     [Header("Core Dependencies")]
     [SerializeField] private PlayerStats _playerStats;
@@ -46,7 +46,8 @@ public class GameSaveManager : MonoBehaviour
             LoadGame();
         else
         {
-            PlayerGoldGrants.GrantNewGameGold();
+                    CraftingCurrencyWallet.Clear();
+                    PlayerGoldGrants.GrantNewGameGold();
             if (_tavernUIForNewGame != null)
                 _tavernUIForNewGame.Open(forNewGame: true);
             else
@@ -106,6 +107,7 @@ public class GameSaveManager : MonoBehaviour
         var data = new GameSaveData { SaveVersion = CurrentSaveVersion };
         data.Stash = StashManager.Instance != null ? StashManager.Instance.GetSaveData() : new StashSaveData();
         data.Gold = GoldWallet.Amount;
+        CraftingCurrencyWallet.WriteToSave(data.CraftingCurrency);
         data.Market = MarketManager.EnsureInstance().GetSaveData();
 
         if (_partyManager != null)
@@ -163,6 +165,8 @@ public class GameSaveManager : MonoBehaviour
                 MigrateSaveData(data);
 
             Scripts.Dungeon.DungeonRunUnlocks.LoadFromSave(data.DungeonUnlocks);
+            GoldWallet.Set(data.Gold);
+            CraftingCurrencyWallet.LoadFromSave(data.CraftingCurrency);
 
             string activeId = !string.IsNullOrEmpty(data.ActiveCharacterID) ? data.ActiveCharacterID : data.CharacterClassID;
             CharacterDataSO characterData = null;
@@ -183,6 +187,7 @@ public class GameSaveManager : MonoBehaviour
                         StashManager.Instance.LoadState(data.Stash ?? new StashSaveData(), _itemDatabase);
 
                     GoldWallet.Set(data.Gold);
+                    CraftingCurrencyWallet.LoadFromSave(data.CraftingCurrency);
                     MarketManager.EnsureInstance().LoadState(data.Market, _itemDatabase);
 
                     _tavernUIForNewGame?.OpenForRequiredCharacterSelection();
@@ -239,6 +244,7 @@ public class GameSaveManager : MonoBehaviour
                     StashManager.Instance.LoadState(data.Stash ?? new StashSaveData(), _itemDatabase);
 
                 GoldWallet.Set(data.Gold);
+                CraftingCurrencyWallet.LoadFromSave(data.CraftingCurrency);
                 MarketManager.EnsureInstance().LoadState(data.Market, _itemDatabase);
 
                 Debug.Log($"[System] Game Loaded.");
@@ -398,11 +404,29 @@ public class GameSaveManager : MonoBehaviour
             data.SaveVersion = 7;
             Debug.Log("[System] Save migrated: 6 -> 7 (account gold and market).");
         }
+        if (data.SaveVersion == 7)
+        {
+            data.CraftingCurrency = CraftingCurrencyWallet.CollectFromLegacySave(data);
+            if (data.Inventory?.OrbCounts != null)
+                data.Inventory.OrbCounts.Clear();
+            if (data.Characters != null)
+            {
+                for (int i = 0; i < data.Characters.Count; i++)
+                {
+                    InventorySaveData inventory = data.Characters[i]?.Inventory;
+                    inventory?.OrbCounts?.Clear();
+                }
+            }
+
+            data.SaveVersion = 8;
+            Debug.Log("[System] Save migrated: 7 -> 8 (account crafting currency).");
+        }
     }
 
     private void StartNewGame()
     {
         Scripts.Dungeon.DungeonRunUnlocks.Clear();
+        CraftingCurrencyWallet.Clear();
         if (_defaultCharacter != null)
         {
             if (_partyManager != null)
