@@ -28,10 +28,6 @@ MonoBehaviour:
     - aa70f5a6-7909-4374-9843-d963db4d1e56
     - 6f9a2853-fc32-4b37-ba24-d09420a6b272
     - 3a02a35f-c200-49db-89eb-155efa0a72ad
-    - 42aa383a-b9e0-41b6-a5dd-9a9bc86ef7f8
-    - bd2796af-bb36-43b4-8e0a-9a37faae4ec0
-    - 286eb070-5f32-4a48-9d56-c85885ed73c5
-    - ddce75e7-d594-4178-b8a1-fb9ce8322a55
   - ID: 7be37f41-b923-4e1d-8078-ca5df63bf074
     NodeType: 0
     PlacementMode: 0
@@ -97,7 +93,6 @@ MonoBehaviour:
     ConnectionIDs:
     - 7be37f41-b923-4e1d-8078-ca5df63bf074
     - 14b8f5eb-3e38-40d7-a8ad-096466a08790
-    - 3936ba18-a709-454e-94fa-a1ae5ea8b6c2
   - ID: aff1112a-f25d-4583-af57-c6d46f9cefd4
     NodeType: 0
     PlacementMode: 0
@@ -111,8 +106,6 @@ MonoBehaviour:
     ConnectionIDs:
     - aa70f5a6-7909-4374-9843-d963db4d1e56
     - 4b33828c-0154-4a61-a1eb-f2b55732c738
-    - e5263514-e174-42d4-9e0c-9aef0a14ec4c
-    - a1adbdbf-22ae-44c3-98a5-647cdaf49de9
   - ID: 26e5cd45-cda6-4b27-aeb7-7ab49006e1e8
     NodeType: 0
     PlacementMode: 0
@@ -126,7 +119,6 @@ MonoBehaviour:
     ConnectionIDs:
     - 6f9a2853-fc32-4b37-ba24-d09420a6b272
     - f6d8fa03-4cba-4869-b41c-f2f4a983bdbf
-    - 673bb86d-0bc9-463a-85dc-8842e0f7c533
   - ID: 0385e138-3ae2-4dd5-9c7a-cdb35e78ee97
     NodeType: 0
     PlacementMode: 0
@@ -140,8 +132,6 @@ MonoBehaviour:
     ConnectionIDs:
     - 3a02a35f-c200-49db-89eb-155efa0a72ad
     - 369c604f-547a-4895-83de-868ebcb10a2c
-    - 5340a609-0fb1-449e-9d01-b1c970a5894e
-    - df224d8d-0cbd-497a-96a3-32f8168b2f2f
   - ID: 2c6b76ab-6bde-4233-abbb-15674acafb19
     NodeType: 0
     PlacementMode: 0
@@ -155,8 +145,6 @@ MonoBehaviour:
     ConnectionIDs:
     - 14b8f5eb-3e38-40d7-a8ad-096466a08790
     - 369c604f-547a-4895-83de-868ebcb10a2c
-    - 47aaba1a-ef6a-47f6-aaf4-8366dfa43f0e
-    - 48a2bd45-4d84-41b9-89bf-a7ac4b0d8723
   - ID: 14b8f5eb-3e38-40d7-a8ad-096466a08790
     NodeType: 0
     PlacementMode: 0
@@ -211,8 +199,6 @@ MonoBehaviour:
     ConnectionIDs:
     - 4b33828c-0154-4a61-a1eb-f2b55732c738
     - f6d8fa03-4cba-4869-b41c-f2f4a983bdbf
-    - c50db0d2-4eca-457f-90ca-6fe840ef1599
-    - f1124554-d5f8-4c7c-891d-6bedb4c40ed6
   - ID: f6d8fa03-4cba-4869-b41c-f2f4a983bdbf
     NodeType: 0
     PlacementMode: 0
@@ -254,10 +240,10 @@ MonoBehaviour:
     - 2c37f9d0-a260-46e1-94d8-846f6c9df7eb
     - 2c6b76ab-6bde-4233-abbb-15674acafb19
     - 0385e138-3ae2-4dd5-9c7a-cdb35e78ee97
-  - ID: 47aaba1a-ef6a-47f6-aaf4-8366dfa43f0e
+  - ID: 3c75ad3c-ec29-4a33-8591-cb76b808b8eb
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 2240, y: 1360}
+    Position: {x: 1980, y: 1120}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -265,12 +251,11 @@ MonoBehaviour:
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
-    - 77c616d1-5068-48fd-b9f3-4bd0ebb00e57
-    - 2c6b76ab-6bde-4233-abbb-15674acafb19
-  - ID: 77c616d1-5068-48fd-b9f3-4bd0ebb00e57
+    - 58ee67ac-0db7-4c85-866f-610715f0f0b8
+  - ID: 58ee67ac-0db7-4c85-866f-610715f0f0b8
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 2160, y: 1360}
+    Position: {x: 1900, y: 1120}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -278,12 +263,12 @@ MonoBehaviour:
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
-    - 47aaba1a-ef6a-47f6-aaf4-8366dfa43f0e
-    - 9906f85a-72a8-45dc-9bcb-4219ccf4cad8
-  - ID: 9906f85a-72a8-45dc-9bcb-4219ccf4cad8
+    - 3c75ad3c-ec29-4a33-8591-cb76b808b8eb
+    - 9d9b931f-2129-47b7-b312-0017fd041d15
+  - ID: 9d9b931f-2129-47b7-b312-0017fd041d15
     NodeType: 1
     PlacementMode: 0
-    Position: {x: 2080, y: 1360}
+    Position: {x: 1820, y: 1120}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -291,11 +276,11 @@ MonoBehaviour:
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
-    - 77c616d1-5068-48fd-b9f3-4bd0ebb00e57
-  - ID: 48a2bd45-4d84-41b9-89bf-a7ac4b0d8723
+    - 58ee67ac-0db7-4c85-866f-610715f0f0b8
+  - ID: 3cfc218e-f30e-4fda-83f8-a07f18cfcb56
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 2240, y: 1440}
+    Position: {x: 1700, y: 1200}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -303,12 +288,11 @@ MonoBehaviour:
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
-    - 776d0727-4fe1-4025-acbe-94b139cd7ddc
-    - 2c6b76ab-6bde-4233-abbb-15674acafb19
-  - ID: 776d0727-4fe1-4025-acbe-94b139cd7ddc
+    - f3ef2606-26c6-4a21-ae26-10f683baba1a
+  - ID: f3ef2606-26c6-4a21-ae26-10f683baba1a
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 2160, y: 1440}
+    Position: {x: 1780, y: 1200}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -316,12 +300,12 @@ MonoBehaviour:
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
-    - 48a2bd45-4d84-41b9-89bf-a7ac4b0d8723
-    - bea3c59e-ef14-4f16-8889-9a47b2b0e572
-  - ID: bea3c59e-ef14-4f16-8889-9a47b2b0e572
+    - 3cfc218e-f30e-4fda-83f8-a07f18cfcb56
+    - 28886c69-c7c3-45f9-b0e1-4a9c713ae440
+  - ID: 28886c69-c7c3-45f9-b0e1-4a9c713ae440
     NodeType: 1
     PlacementMode: 0
-    Position: {x: 2080, y: 1440}
+    Position: {x: 1860, y: 1200}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -329,910 +313,32 @@ MonoBehaviour:
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
-    - 776d0727-4fe1-4025-acbe-94b139cd7ddc
-  - ID: f1124554-d5f8-4c7c-891d-6bedb4c40ed6
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 1360, y: 1360}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 77bd1e4d-b3e8-4dcf-ab58-9b2ca9c3e5bd
-    - c256a3fb-8e3c-4e94-9257-226f53f50a29
-  - ID: 77bd1e4d-b3e8-4dcf-ab58-9b2ca9c3e5bd
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 1440, y: 1360}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - f1124554-d5f8-4c7c-891d-6bedb4c40ed6
-    - fe7ebc35-ebd1-47f2-994d-92fda7a81335
-  - ID: fe7ebc35-ebd1-47f2-994d-92fda7a81335
-    NodeType: 1
-    PlacementMode: 0
-    Position: {x: 1520, y: 1360}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 711d2f51207f3ec4d8ce744dc3dd1913, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 77bd1e4d-b3e8-4dcf-ab58-9b2ca9c3e5bd
-  - ID: c50db0d2-4eca-457f-90ca-6fe840ef1599
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 1360, y: 1440}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 2aade80d-38ae-44de-a5ac-8b1092d2a8d5
-    - c256a3fb-8e3c-4e94-9257-226f53f50a29
-  - ID: 2aade80d-38ae-44de-a5ac-8b1092d2a8d5
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 1440, y: 1440}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 05f587668f3e2e847bf48c9d8dceb845, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - c50db0d2-4eca-457f-90ca-6fe840ef1599
-    - e1ce585c-24d7-4839-b67b-67152950d235
-  - ID: e1ce585c-24d7-4839-b67b-67152950d235
-    NodeType: 1
-    PlacementMode: 0
-    Position: {x: 1520, y: 1440}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 711d2f51207f3ec4d8ce744dc3dd1913, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 2aade80d-38ae-44de-a5ac-8b1092d2a8d5
-  - ID: 5340a609-0fb1-449e-9d01-b1c970a5894e
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: bfeb2024-9298-47c8-91e8-5984cac8edcf
-    OrbitIndex: 0
-    OrbitAngle: 180
-    Template: {fileID: 11400000, guid: 9e157c987f604064c864f60f0c2a893d, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - a789a117-4f44-4dc9-995c-fa23a1e00f51
-    - 0385e138-3ae2-4dd5-9c7a-cdb35e78ee97
-  - ID: a789a117-4f44-4dc9-995c-fa23a1e00f51
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: bfeb2024-9298-47c8-91e8-5984cac8edcf
-    OrbitIndex: 0
-    OrbitAngle: 90
-    Template: {fileID: 11400000, guid: 9e157c987f604064c864f60f0c2a893d, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 5340a609-0fb1-449e-9d01-b1c970a5894e
-    - 7480cc6b-535d-4b4c-ae07-6c1840debc7c
-  - ID: 7480cc6b-535d-4b4c-ae07-6c1840debc7c
-    NodeType: 1
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: bfeb2024-9298-47c8-91e8-5984cac8edcf
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: bcd9d809938e4d74abacd416e38ccecf, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - a789a117-4f44-4dc9-995c-fa23a1e00f51
-  - ID: e5263514-e174-42d4-9e0c-9aef0a14ec4c
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 1bc4b3a6-5eaa-4fbe-b452-834b96fa5dd0
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 9e157c987f604064c864f60f0c2a893d, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - ae81b697-2f0a-4601-9622-c2760240f7a1
-    - aff1112a-f25d-4583-af57-c6d46f9cefd4
-  - ID: ae81b697-2f0a-4601-9622-c2760240f7a1
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 1bc4b3a6-5eaa-4fbe-b452-834b96fa5dd0
-    OrbitIndex: 0
-    OrbitAngle: 270
-    Template: {fileID: 11400000, guid: 9e157c987f604064c864f60f0c2a893d, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - e5263514-e174-42d4-9e0c-9aef0a14ec4c
-    - daeca55b-196b-43b7-870c-c7866be48504
-  - ID: daeca55b-196b-43b7-870c-c7866be48504
-    NodeType: 1
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 1bc4b3a6-5eaa-4fbe-b452-834b96fa5dd0
-    OrbitIndex: 0
-    OrbitAngle: 180
-    Template: {fileID: 11400000, guid: bcd9d809938e4d74abacd416e38ccecf, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - ae81b697-2f0a-4601-9622-c2760240f7a1
-  - ID: 3a84aa82-c21b-4213-9ffb-d3993234bb60
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 5eb4c141-b8ad-4d06-80b6-acfc0766ec81
-    OrbitIndex: 0
-    OrbitAngle: 45
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs: []
-  - ID: 5c5b8cf2-f283-4179-a5ad-4dcd8513684b
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 5eb4c141-b8ad-4d06-80b6-acfc0766ec81
-    OrbitIndex: 0
-    OrbitAngle: 90
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs: []
-  - ID: 3936ba18-a709-454e-94fa-a1ae5ea8b6c2
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 5eb4c141-b8ad-4d06-80b6-acfc0766ec81
-    OrbitIndex: 0
-    OrbitAngle: 135
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 27184df7-a69c-4dd2-bcba-c051ad150a3d
-  - ID: 63fe0c2d-8635-4f27-ae8f-d3b4caa5dab4
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 5eb4c141-b8ad-4d06-80b6-acfc0766ec81
-    OrbitIndex: 0
-    OrbitAngle: 180
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs: []
-  - ID: c89dd05c-b6cb-43a3-b6e0-8f72d7b0ae63
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 5eb4c141-b8ad-4d06-80b6-acfc0766ec81
-    OrbitIndex: 0
-    OrbitAngle: 225
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs: []
-  - ID: a22ad60f-bc94-4266-a9b9-86a14970399b
-    NodeType: 1
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 5eb4c141-b8ad-4d06-80b6-acfc0766ec81
-    OrbitIndex: 0
-    OrbitAngle: 270
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs: []
-  - ID: 8c9fa070-9e90-4b84-8fb5-e53efc7ace89
-    NodeType: 1
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 5eb4c141-b8ad-4d06-80b6-acfc0766ec81
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs: []
-  - ID: 5e6a838a-903e-48f9-852c-e0b1c2baa1c1
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 0f23f335-f51b-4bfa-9128-ffeccc2aa65a
-    OrbitIndex: 0
-    OrbitAngle: 225
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs: []
-  - ID: c1edbba8-a8be-4964-959d-8b9d1ce09f88
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 0f23f335-f51b-4bfa-9128-ffeccc2aa65a
-    OrbitIndex: 0
-    OrbitAngle: 270
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs: []
-  - ID: 673bb86d-0bc9-463a-85dc-8842e0f7c533
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 0f23f335-f51b-4bfa-9128-ffeccc2aa65a
-    OrbitIndex: 0
-    OrbitAngle: 315
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 26e5cd45-cda6-4b27-aeb7-7ab49006e1e8
-  - ID: 8039c8ab-4eb3-4164-9bb2-1679e2356f67
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 0f23f335-f51b-4bfa-9128-ffeccc2aa65a
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs: []
-  - ID: 5c78eb63-a968-4c0a-8622-a3ad02d4ab5f
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 0f23f335-f51b-4bfa-9128-ffeccc2aa65a
-    OrbitIndex: 0
-    OrbitAngle: 45
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs: []
-  - ID: d00ad6ff-13c6-4a50-bd3d-5e4b0d8b7492
-    NodeType: 1
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 0f23f335-f51b-4bfa-9128-ffeccc2aa65a
-    OrbitIndex: 0
-    OrbitAngle: 90
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs: []
-  - ID: f2301e4c-fe1a-4a2c-a200-0e10e16b2f5b
-    NodeType: 1
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 0f23f335-f51b-4bfa-9128-ffeccc2aa65a
-    OrbitIndex: 0
-    OrbitAngle: 180
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs: []
-  - ID: a1adbdbf-22ae-44c3-98a5-647cdaf49de9
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 1575.132, y: 1553.0144}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 9eddf70ace6cb6349a9810aec9b2f247, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 20892ae0-c562-48fd-a384-0ac189117cec
-    - aff1112a-f25d-4583-af57-c6d46f9cefd4
-  - ID: 20892ae0-c562-48fd-a384-0ac189117cec
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 1520.132, y: 1562.7467}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 9eddf70ace6cb6349a9810aec9b2f247, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 93a00efa-dc65-4faa-9df4-7cf94862fbed
-    - a1adbdbf-22ae-44c3-98a5-647cdaf49de9
-  - ID: 93a00efa-dc65-4faa-9df4-7cf94862fbed
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 1500.132, y: 1502.7467}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 9eddf70ace6cb6349a9810aec9b2f247, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 20892ae0-c562-48fd-a384-0ac189117cec
-    - c1e13880-d606-4470-b150-141b12eebe5f
-  - ID: c1e13880-d606-4470-b150-141b12eebe5f
-    NodeType: 1
-    PlacementMode: 0
-    Position: {x: 1440.132, y: 1502.7467}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 4f67440b6b7f48f42a728bdbbeab655e, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 93a00efa-dc65-4faa-9df4-7cf94862fbed
-  - ID: df224d8d-0cbd-497a-96a3-32f8168b2f2f
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 2026.8671, y: 1249.5338}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 9eddf70ace6cb6349a9810aec9b2f247, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 071c14ac-f06d-4128-ae25-cacda5c9f5d3
-    - 0385e138-3ae2-4dd5-9c7a-cdb35e78ee97
-  - ID: 071c14ac-f06d-4128-ae25-cacda5c9f5d3
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 2081.867, y: 1240.5338}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 9eddf70ace6cb6349a9810aec9b2f247, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - ae07eb57-1775-4afa-a42f-6be3c53001d3
-    - df224d8d-0cbd-497a-96a3-32f8168b2f2f
-  - ID: ae07eb57-1775-4afa-a42f-6be3c53001d3
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 2101.867, y: 1300.5338}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 9eddf70ace6cb6349a9810aec9b2f247, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 071c14ac-f06d-4128-ae25-cacda5c9f5d3
-    - f76cf9b4-e7f8-4756-bf26-c975369a140e
-  - ID: f76cf9b4-e7f8-4756-bf26-c975369a140e
-    NodeType: 1
-    PlacementMode: 0
-    Position: {x: 2161.867, y: 1300.5338}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 11400000, guid: 4f67440b6b7f48f42a728bdbbeab655e, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - ae07eb57-1775-4afa-a42f-6be3c53001d3
-  - ID: c81843d7-c656-4e6d-aaaf-e61b836cd363
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 374f7bd4-2b3e-4da0-aaa7-552584496222
-    OrbitIndex: 0
-    OrbitAngle: 40
-    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - f76309b6-5b92-482d-9f33-9024101bb9ad
-    - bd2796af-bb36-43b4-8e0a-9a37faae4ec0
-  - ID: f76309b6-5b92-482d-9f33-9024101bb9ad
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 374f7bd4-2b3e-4da0-aaa7-552584496222
-    OrbitIndex: 0
-    OrbitAngle: 340
-    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - c81843d7-c656-4e6d-aaaf-e61b836cd363
-    - 837b1ee4-fc14-469d-8ff6-331df4e61e4b
-  - ID: f00c0386-32e7-41b7-a081-8e0c8065cfa0
-    NodeType: 1
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 374f7bd4-2b3e-4da0-aaa7-552584496222
-    OrbitIndex: 0
-    OrbitAngle: 220
-    Template: {fileID: 11400000, guid: 14d433e7c8d6086459d92fe12d6f2ee0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 837b1ee4-fc14-469d-8ff6-331df4e61e4b
-  - ID: 837b1ee4-fc14-469d-8ff6-331df4e61e4b
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 374f7bd4-2b3e-4da0-aaa7-552584496222
-    OrbitIndex: 0
-    OrbitAngle: 280
-    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - f76309b6-5b92-482d-9f33-9024101bb9ad
-    - f00c0386-32e7-41b7-a081-8e0c8065cfa0
-  - ID: 33ce3b63-1d43-45fc-92e3-23b59324f9f9
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 668d5a3a-ff53-477f-8297-35e4b18a13fb
-    OrbitIndex: 0
-    OrbitAngle: 320
-    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - d1d9aea7-a148-4642-894b-69c8dc1f4235
-    - 42aa383a-b9e0-41b6-a5dd-9a9bc86ef7f8
-  - ID: d1d9aea7-a148-4642-894b-69c8dc1f4235
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 668d5a3a-ff53-477f-8297-35e4b18a13fb
-    OrbitIndex: 0
-    OrbitAngle: 20
-    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 33ce3b63-1d43-45fc-92e3-23b59324f9f9
-    - 41672788-3400-414d-b459-d06e5891fe7b
-  - ID: f595a56a-15a1-4d93-87a6-f2cb8c53d5ce
-    NodeType: 1
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 668d5a3a-ff53-477f-8297-35e4b18a13fb
-    OrbitIndex: 0
-    OrbitAngle: 140
-    Template: {fileID: 11400000, guid: 14d433e7c8d6086459d92fe12d6f2ee0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 41672788-3400-414d-b459-d06e5891fe7b
-  - ID: 41672788-3400-414d-b459-d06e5891fe7b
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 668d5a3a-ff53-477f-8297-35e4b18a13fb
-    OrbitIndex: 0
-    OrbitAngle: 80
-    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - d1d9aea7-a148-4642-894b-69c8dc1f4235
-    - f595a56a-15a1-4d93-87a6-f2cb8c53d5ce
-  - ID: 42aa383a-b9e0-41b6-a5dd-9a9bc86ef7f8
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 1880, y: 1420}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - rogue-start
-    - 33ce3b63-1d43-45fc-92e3-23b59324f9f9
-  - ID: bd2796af-bb36-43b4-8e0a-9a37faae4ec0
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 1880, y: 1380}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - rogue-start
-    - c81843d7-c656-4e6d-aaaf-e61b836cd363
-  - ID: 286eb070-5f32-4a48-9d56-c85885ed73c5
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 1720, y: 1380}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - rogue-start
-    - 12a67f07-e3ab-4d3b-a086-dd28a2c20fa9
-  - ID: ddce75e7-d594-4178-b8a1-fb9ce8322a55
-    NodeType: 0
-    PlacementMode: 0
-    Position: {x: 1720, y: 1420}
-    ClusterID: 
-    OrbitIndex: 0
-    OrbitAngle: 0
-    Template: {fileID: 0}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - rogue-start
-    - 47493e41-ca9e-486c-bf9f-ce857e9daf35
-  - ID: 12a67f07-e3ab-4d3b-a086-dd28a2c20fa9
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 15565c35-6155-47d5-b938-6972dfcdb524
-    OrbitIndex: 0
-    OrbitAngle: 140
-    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 5dfc70d9-ec18-411a-9253-97dc70e26e60
-    - 286eb070-5f32-4a48-9d56-c85885ed73c5
-  - ID: 5dfc70d9-ec18-411a-9253-97dc70e26e60
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 15565c35-6155-47d5-b938-6972dfcdb524
-    OrbitIndex: 0
-    OrbitAngle: 200
-    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 12a67f07-e3ab-4d3b-a086-dd28a2c20fa9
-    - 82a6d2a7-6970-4103-9a7b-53fb246f846b
-  - ID: 07263001-8db5-43b7-aebc-e89745945ee0
-    NodeType: 1
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 15565c35-6155-47d5-b938-6972dfcdb524
-    OrbitIndex: 0
-    OrbitAngle: 320
-    Template: {fileID: 11400000, guid: 14d433e7c8d6086459d92fe12d6f2ee0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 82a6d2a7-6970-4103-9a7b-53fb246f846b
-  - ID: 82a6d2a7-6970-4103-9a7b-53fb246f846b
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: 15565c35-6155-47d5-b938-6972dfcdb524
-    OrbitIndex: 0
-    OrbitAngle: 260
-    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 5dfc70d9-ec18-411a-9253-97dc70e26e60
-    - 07263001-8db5-43b7-aebc-e89745945ee0
-  - ID: 47493e41-ca9e-486c-bf9f-ce857e9daf35
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: ae133be0-e392-4c42-b54e-f72f70f95afc
-    OrbitIndex: 0
-    OrbitAngle: 220
-    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 778d8529-70e8-43f5-9cdc-2d111820f090
-    - ddce75e7-d594-4178-b8a1-fb9ce8322a55
-  - ID: 778d8529-70e8-43f5-9cdc-2d111820f090
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: ae133be0-e392-4c42-b54e-f72f70f95afc
-    OrbitIndex: 0
-    OrbitAngle: 160
-    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 47493e41-ca9e-486c-bf9f-ce857e9daf35
-    - aec928fa-118c-48c1-8ae8-4f2b84fb1626
-  - ID: 5dd2bbe4-ed1e-4296-9884-5eac52ea53a2
-    NodeType: 1
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: ae133be0-e392-4c42-b54e-f72f70f95afc
-    OrbitIndex: 0
-    OrbitAngle: 40
-    Template: {fileID: 11400000, guid: 14d433e7c8d6086459d92fe12d6f2ee0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - aec928fa-118c-48c1-8ae8-4f2b84fb1626
-  - ID: aec928fa-118c-48c1-8ae8-4f2b84fb1626
-    NodeType: 0
-    PlacementMode: 1
-    Position: {x: 0, y: 0}
-    ClusterID: ae133be0-e392-4c42-b54e-f72f70f95afc
-    OrbitIndex: 0
-    OrbitAngle: 100
-    Template: {fileID: 11400000, guid: c99df1d409e209649a9fe5467610f1b0, type: 2}
-    UniqueModifiers: []
-    UniqueStatScalingRules: []
-    ConnectionIDs:
-    - 778d8529-70e8-43f5-9cdc-2d111820f090
-    - 5dd2bbe4-ed1e-4296-9884-5eac52ea53a2
-  Clusters:
-  - ID: bfeb2024-9298-47c8-91e8-5984cac8edcf
-    Name: Half-Circle
-    Center: {x: 2131.718, y: 1151.6327}
-    Orbits:
-    - Radius: 40
-      IsPartialArc: 0
-      ArcStartAngle: 0
-      ArcEndAngle: 360
-    EditorColor: {r: 0.7004966, g: 0.43543437, b: 0.95221686, a: 0.4}
-    RoadConnections: []
-  - ID: 1bc4b3a6-5eaa-4fbe-b452-834b96fa5dd0
-    Name: Half-Circle
-    Center: {x: 1469.5824, y: 1638.4312}
-    Orbits:
-    - Radius: 40
-      IsPartialArc: 0
-      ArcStartAngle: 0
-      ArcEndAngle: 360
-    EditorColor: {r: 0.7004966, g: 0.43543437, b: 0.95221686, a: 0.4}
-    RoadConnections: []
-  - ID: 5eb4c141-b8ad-4d06-80b6-acfc0766ec81
-    Name: Cluster 14
-    Center: {x: 2120, y: 1540}
-    Orbits:
-    - Radius: 60
-      IsPartialArc: 0
-      ArcStartAngle: 0
-      ArcEndAngle: 360
-    EditorColor: {r: 0.40272516, g: 0.7510576, b: 0.913002, a: 0.4}
-    RoadConnections: []
-  - ID: 0f23f335-f51b-4bfa-9128-ffeccc2aa65a
-    Name: Cluster 14
-    Center: {x: 1480, y: 1260}
-    Orbits:
-    - Radius: 60
-      IsPartialArc: 0
-      ArcStartAngle: 0
-      ArcEndAngle: 360
-    EditorColor: {r: 0.40272516, g: 0.7510576, b: 0.913002, a: 0.4}
-    RoadConnections: []
-  - ID: 374f7bd4-2b3e-4da0-aaa7-552584496222
-    Name: Half-Circle
-    Center: {x: 1980, y: 1360}
-    Orbits:
-    - Radius: 40
-      IsPartialArc: 0
-      ArcStartAngle: 0
-      ArcEndAngle: 360
-    EditorColor: {r: 0.7004966, g: 0.43543437, b: 0.95221686, a: 0.4}
-    RoadConnections: []
-  - ID: 668d5a3a-ff53-477f-8297-35e4b18a13fb
-    Name: Half-Circle
-    Center: {x: 1980, y: 1460}
-    Orbits:
-    - Radius: 40
-      IsPartialArc: 0
-      ArcStartAngle: 0
-      ArcEndAngle: 360
-    EditorColor: {r: 0.7004966, g: 0.43543437, b: 0.95221686, a: 0.4}
-    RoadConnections: []
-  - ID: 15565c35-6155-47d5-b938-6972dfcdb524
-    Name: Half-Circle
-    Center: {x: 1620, y: 1360}
-    Orbits:
-    - Radius: 40
-      IsPartialArc: 0
-      ArcStartAngle: 0
-      ArcEndAngle: 360
-    EditorColor: {r: 0.7004966, g: 0.43543437, b: 0.95221686, a: 0.4}
-    RoadConnections: []
-  - ID: ae133be0-e392-4c42-b54e-f72f70f95afc
-    Name: Half-Circle
-    Center: {x: 1620, y: 1460}
-    Orbits:
-    - Radius: 40
-      IsPartialArc: 0
-      ArcStartAngle: 0
-      ArcEndAngle: 360
-    EditorColor: {r: 0.7004966, g: 0.43543437, b: 0.95221686, a: 0.4}
-    RoadConnections: []
+    - f3ef2606-26c6-4a21-ae26-10f683baba1a
+  Clusters: []
   BezierConnections:
-  - NodeIdA: 47aaba1a-ef6a-47f6-aaf4-8366dfa43f0e
-    NodeIdB: 77c616d1-5068-48fd-b9f3-4bd0ebb00e57
+  - NodeIdA: 3c75ad3c-ec29-4a33-8591-cb76b808b8eb
+    NodeIdB: 58ee67ac-0db7-4c85-866f-610715f0f0b8
     AnchorPercent: 50
     InHandleOffset: {x: 19.17212, y: -20.416992}
     OutHandleOffset: {x: -18.475464, y: -19.767944}
     MirrorHandles: 0
-  - NodeIdA: 77c616d1-5068-48fd-b9f3-4bd0ebb00e57
-    NodeIdB: 9906f85a-72a8-45dc-9bcb-4219ccf4cad8
+  - NodeIdA: 58ee67ac-0db7-4c85-866f-610715f0f0b8
+    NodeIdB: 9d9b931f-2129-47b7-b312-0017fd041d15
     AnchorPercent: 50
     InHandleOffset: {x: 18.194458, y: 24.962036}
     OutHandleOffset: {x: -18.154907, y: 26.260254}
     MirrorHandles: 0
-  - NodeIdA: 48a2bd45-4d84-41b9-89bf-a7ac4b0d8723
-    NodeIdB: 776d0727-4fe1-4025-acbe-94b139cd7ddc
+  - NodeIdA: 3cfc218e-f30e-4fda-83f8-a07f18cfcb56
+    NodeIdB: f3ef2606-26c6-4a21-ae26-10f683baba1a
     AnchorPercent: 50
-    InHandleOffset: {x: 19.17212, y: 20.416992}
-    OutHandleOffset: {x: -18.475464, y: 19.767944}
+    InHandleOffset: {x: -19.17212, y: -20.416992}
+    OutHandleOffset: {x: 18.475464, y: -19.767944}
     MirrorHandles: 0
-  - NodeIdA: 776d0727-4fe1-4025-acbe-94b139cd7ddc
-    NodeIdB: bea3c59e-ef14-4f16-8889-9a47b2b0e572
+  - NodeIdA: 28886c69-c7c3-45f9-b0e1-4a9c713ae440
+    NodeIdB: f3ef2606-26c6-4a21-ae26-10f683baba1a
     AnchorPercent: 50
-    InHandleOffset: {x: 18.194458, y: -24.962036}
-    OutHandleOffset: {x: -18.154907, y: -26.260254}
-    MirrorHandles: 0
-  - NodeIdA: 2c6b76ab-6bde-4233-abbb-15674acafb19
-    NodeIdB: 47aaba1a-ef6a-47f6-aaf4-8366dfa43f0e
-    AnchorPercent: 50
-    InHandleOffset: {x: 8, y: 24.399998}
-    OutHandleOffset: {x: -25.600002, y: 1.9999962}
-    MirrorHandles: 0
-  - NodeIdA: 2c6b76ab-6bde-4233-abbb-15674acafb19
-    NodeIdB: 48a2bd45-4d84-41b9-89bf-a7ac4b0d8723
-    AnchorPercent: 50
-    InHandleOffset: {x: 8.000001, y: -24.399998}
-    OutHandleOffset: {x: -25.599998, y: -1.9999999}
-    MirrorHandles: 0
-  - NodeIdA: 77bd1e4d-b3e8-4dcf-ab58-9b2ca9c3e5bd
-    NodeIdB: f1124554-d5f8-4c7c-891d-6bedb4c40ed6
-    AnchorPercent: 50
-    InHandleOffset: {x: 18.475464, y: -19.767944}
-    OutHandleOffset: {x: -19.17212, y: -20.416992}
-    MirrorHandles: 0
-  - NodeIdA: 77bd1e4d-b3e8-4dcf-ab58-9b2ca9c3e5bd
-    NodeIdB: fe7ebc35-ebd1-47f2-994d-92fda7a81335
-    AnchorPercent: 50
-    InHandleOffset: {x: -18.194458, y: 24.962036}
-    OutHandleOffset: {x: 18.154907, y: 26.260254}
-    MirrorHandles: 0
-  - NodeIdA: 2aade80d-38ae-44de-a5ac-8b1092d2a8d5
-    NodeIdB: c50db0d2-4eca-457f-90ca-6fe840ef1599
-    AnchorPercent: 50
-    InHandleOffset: {x: 18.475464, y: 19.767944}
-    OutHandleOffset: {x: -19.17212, y: 20.416992}
-    MirrorHandles: 0
-  - NodeIdA: 2aade80d-38ae-44de-a5ac-8b1092d2a8d5
-    NodeIdB: e1ce585c-24d7-4839-b67b-67152950d235
-    AnchorPercent: 50
-    InHandleOffset: {x: -18.194458, y: -24.962036}
-    OutHandleOffset: {x: 18.154907, y: -26.260254}
-    MirrorHandles: 0
-  - NodeIdA: c256a3fb-8e3c-4e94-9257-226f53f50a29
-    NodeIdB: c50db0d2-4eca-457f-90ca-6fe840ef1599
-    AnchorPercent: 50
-    InHandleOffset: {x: -8, y: -24.399998}
-    OutHandleOffset: {x: 25.600002, y: -1.9999962}
-    MirrorHandles: 0
-  - NodeIdA: c256a3fb-8e3c-4e94-9257-226f53f50a29
-    NodeIdB: f1124554-d5f8-4c7c-891d-6bedb4c40ed6
-    AnchorPercent: 50
-    InHandleOffset: {x: -8.000001, y: 24.399998}
-    OutHandleOffset: {x: 25.599998, y: 1.9999999}
-    MirrorHandles: 0
-  - NodeIdA: 20892ae0-c562-48fd-a384-0ac189117cec
-    NodeIdB: 93a00efa-dc65-4faa-9df4-7cf94862fbed
-    AnchorPercent: 50
-    InHandleOffset: {x: 14.399999, y: 6.8}
-    OutHandleOffset: {x: 3.1999998, y: -15.599999}
-    MirrorHandles: 0
-  - NodeIdA: 93a00efa-dc65-4faa-9df4-7cf94862fbed
-    NodeIdB: c1e13880-d606-4470-b150-141b12eebe5f
-    AnchorPercent: 50
-    InHandleOffset: {x: 11.2, y: 8.8}
-    OutHandleOffset: {x: -11.2, y: 8.8}
-    MirrorHandles: 0
-  - NodeIdA: 20892ae0-c562-48fd-a384-0ac189117cec
-    NodeIdB: a1adbdbf-22ae-44c3-98a5-647cdaf49de9
-    AnchorPercent: 50
-    InHandleOffset: {x: -15.6, y: 9.540001}
-    OutHandleOffset: {x: 12.960001, y: 12.9}
-    MirrorHandles: 0
-  - NodeIdA: 071c14ac-f06d-4128-ae25-cacda5c9f5d3
-    NodeIdB: ae07eb57-1775-4afa-a42f-6be3c53001d3
-    AnchorPercent: 50
-    InHandleOffset: {x: -14.399999, y: -6.8}
-    OutHandleOffset: {x: -3.1999998, y: 15.599999}
-    MirrorHandles: 0
-  - NodeIdA: ae07eb57-1775-4afa-a42f-6be3c53001d3
-    NodeIdB: f76cf9b4-e7f8-4756-bf26-c975369a140e
-    AnchorPercent: 50
-    InHandleOffset: {x: -11.2, y: -8.8}
-    OutHandleOffset: {x: 11.2, y: -8.8}
-    MirrorHandles: 0
-  - NodeIdA: 071c14ac-f06d-4128-ae25-cacda5c9f5d3
-    NodeIdB: df224d8d-0cbd-497a-96a3-32f8168b2f2f
-    AnchorPercent: 50
-    InHandleOffset: {x: 15.6, y: -9.540001}
-    OutHandleOffset: {x: -12.960001, y: -12.9}
-    MirrorHandles: 0
-  - NodeIdA: 42aa383a-b9e0-41b6-a5dd-9a9bc86ef7f8
-    NodeIdB: rogue-start
-    AnchorPercent: 50
-    InHandleOffset: {x: 17.999996, y: 23.199999}
-    OutHandleOffset: {x: -26.799997, y: 12}
-    MirrorHandles: 0
-  - NodeIdA: bd2796af-bb36-43b4-8e0a-9a37faae4ec0
-    NodeIdB: rogue-start
-    AnchorPercent: 50
-    InHandleOffset: {x: 17.999994, y: -23.199997}
-    OutHandleOffset: {x: -26.799995, y: -12.000001}
-    MirrorHandles: 0
-  - NodeIdA: 33ce3b63-1d43-45fc-92e3-23b59324f9f9
-    NodeIdB: 42aa383a-b9e0-41b6-a5dd-9a9bc86ef7f8
-    AnchorPercent: 50
-    InHandleOffset: {x: 31.147203, y: -22.245996}
-    OutHandleOffset: {x: -28.983618, y: -24.999647}
-    MirrorHandles: 0
-  - NodeIdA: bd2796af-bb36-43b4-8e0a-9a37faae4ec0
-    NodeIdB: c81843d7-c656-4e6d-aaaf-e61b836cd363
-    AnchorPercent: 50
-    InHandleOffset: {x: -31.303576, y: 25.99111}
-    OutHandleOffset: {x: 32.659405, y: 24.265514}
-    MirrorHandles: 0
-  - NodeIdA: 286eb070-5f32-4a48-9d56-c85885ed73c5
-    NodeIdB: rogue-start
-    AnchorPercent: 50
-    InHandleOffset: {x: -23.599995, y: -27.599997}
-    OutHandleOffset: {x: 32.399994, y: -16.4}
-    MirrorHandles: 0
-  - NodeIdA: ddce75e7-d594-4178-b8a1-fb9ce8322a55
-    NodeIdB: rogue-start
-    AnchorPercent: 50
-    InHandleOffset: {x: -23.599998, y: 27.599998}
-    OutHandleOffset: {x: 32.399998, y: 16.399998}
-    MirrorHandles: 0
-  - NodeIdA: 12a67f07-e3ab-4d3b-a086-dd28a2c20fa9
-    NodeIdB: 286eb070-5f32-4a48-9d56-c85885ed73c5
-    AnchorPercent: 50.058727
-    InHandleOffset: {x: -32.25586, y: 26.147583}
-    OutHandleOffset: {x: 33.24414, y: 25.147583}
-    MirrorHandles: 0
-  - NodeIdA: 47493e41-ca9e-486c-bf9f-ce857e9daf35
-    NodeIdB: ddce75e7-d594-4178-b8a1-fb9ce8322a55
-    AnchorPercent: 50
-    InHandleOffset: {x: -38.1792, y: -22.644287}
-    OutHandleOffset: {x: 26.3208, y: -21.644287}
+    InHandleOffset: {x: 18.154907, y: 26.260254}
+    OutHandleOffset: {x: -18.194458, y: 24.962036}
     MirrorHandles: 0
   GridSize: 20
   SnapToGrid: 1

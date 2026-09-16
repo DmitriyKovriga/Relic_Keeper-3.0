@@ -27,6 +27,20 @@ namespace Scripts.Skills
         private PlayerStats _playerStats;
         private bool _suppressSkillUsage;
 
+        public bool IsAnySkillCasting
+        {
+            get
+            {
+                foreach (var pair in _activeSkills)
+                {
+                    if (pair.Value != null && pair.Value.IsCasting)
+                        return true;
+                }
+
+                return false;
+            }
+        }
+
         private void Awake()
         {
             _playerStats = GetComponent<PlayerStats>();

@@ -1,4 +1,6 @@
+using System.Reflection;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace RelicKeeper.Tests.EditMode
 {
@@ -118,6 +120,34 @@ namespace RelicKeeper.Tests.EditMode
             pin.Tick(2f, overOwner: false, overTooltip: false, clickOutsideTooltip: false);
             Assert.That(pin.IsVisible, Is.False);
             Assert.That(pin.BlocksReplacement, Is.False);
+        }
+
+        [Test]
+        public void CraftedItemTooltip_ClearsOldPinBeforeNextHover()
+        {
+            var gameObject = new GameObject("CraftTooltipPinTest");
+            gameObject.SetActive(false);
+            try
+            {
+                var tooltip = gameObject.AddComponent<ItemTooltipController>();
+                var field = typeof(ItemTooltipController).GetField("_pin",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(field, Is.Not.Null);
+                var pin = (TooltipPinPolicy)field.GetValue(tooltip);
+                pin.Show();
+                pin.Tick(TooltipPinPolicy.PinAfterSeconds, overOwner: true,
+                    overTooltip: false, clickOutsideTooltip: false);
+                Assert.That(pin.BlocksReplacement, Is.True);
+
+                tooltip.ShowCraftedItemTooltip(null, null, ItemTooltipPriceMode.None);
+
+                Assert.That(pin.IsVisible, Is.False);
+                Assert.That(pin.BlocksReplacement, Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(gameObject);
+            }
         }
     }
 }

@@ -187,6 +187,28 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void StationaryNearInspectedItem_UsesShorterSkillBlockAndInspectDelay()
+        {
+            float blockedUntil = WorldItemInspection.ResolveCombatTooltipBlockedUntil(
+                float.NegativeInfinity, 10f, WorldItemInspection.ActiveSkillTooltipBlockDuration);
+
+            Assert.That(WorldItemInspection.IsCombatTooltipBlockedAt(10.79f, blockedUntil, 10f, true), Is.True);
+            Assert.That(WorldItemInspection.IsCombatTooltipBlockedAt(10.8f, blockedUntil, 10f, true), Is.False);
+            Assert.That(WorldItemInspection.IsCombatTooltipBlockedAt(10.8f, blockedUntil, 10f, false), Is.True);
+            Assert.That(WorldItemInspection.ResolveTooltipDelay(0.5f, false, true), Is.EqualTo(0.5f));
+            Assert.That(WorldItemInspection.ResolveTooltipDelay(0.5f, false, false), Is.EqualTo(2f));
+        }
+
+        [Test]
+        public void NewSkillInput_RestartsStationaryNearbyBlock()
+        {
+            float blockedUntil = WorldItemInspection.ResolveCombatTooltipBlockedUntil(13f, 11f, 3f);
+
+            Assert.That(WorldItemInspection.IsCombatTooltipBlockedAt(11.5f, blockedUntil, 11f, true), Is.True);
+            Assert.That(WorldItemInspection.IsCombatTooltipBlockedAt(11.8f, blockedUntil, 11f, true), Is.False);
+        }
+
+        [Test]
         public void InspectSource_PrefersMovingCursorThenMovingPlayer()
         {
             Assert.That(

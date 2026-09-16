@@ -279,7 +279,8 @@ public partial class InventoryUI
 
         InventoryManager.Instance.TriggerUIUpdate();
         if (ItemTooltipController.Instance != null)
-            ItemTooltipController.Instance.RefreshCurrentItemTooltip();
+            ItemTooltipController.Instance.ShowCraftedItemTooltip(
+                craftItem, _craftSlot, ResolvePlayerTooltipPriceMode());
         return true;
     }
 

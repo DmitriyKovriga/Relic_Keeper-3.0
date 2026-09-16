@@ -109,7 +109,7 @@ namespace Scripts.StatusEffects
 
             int effectiveStacks = Mathf.Max(1, stackCount);
 
-            ActiveEffectInstance instance = FindInstance(effect);
+            ActiveEffectInstance instance = FindAuthoredInstance(effect);
             bool created = false;
             if (instance == null)
             {
@@ -142,21 +142,41 @@ namespace Scripts.StatusEffects
             if (!CacheOwner())
                 return null;
 
-            var instance = new ActiveEffectInstance
+            string id = string.IsNullOrWhiteSpace(runtimeId) ? "RuntimeStatus" : runtimeId;
+            ActiveEffectInstance instance = durationSeconds > 0f ? FindRuntimeInstance(id) : null;
+            if (instance != null)
             {
-                Effect = null,
-                RuntimeId = string.IsNullOrWhiteSpace(runtimeId) ? "RuntimeStatus" : runtimeId,
-                RuntimeKind = kind,
-                DurationSeconds = durationSeconds,
-                RemainingSeconds = durationSeconds
-            };
+                RemoveInstanceModifiers(instance);
+            }
+            else
+            {
+                instance = new ActiveEffectInstance
+                {
+                    Effect = null,
+                    RuntimeId = id
+                };
+
+                if (durationSeconds > 0f)
+                    _activeEffects.Add(instance);
+            }
+
+            instance.RuntimeId = id;
+            instance.RuntimeKind = kind;
+            instance.DurationSeconds = durationSeconds;
+            instance.RemainingSeconds = durationSeconds;
 
             ApplyRuntimeModifiers(instance, modifiers, source ?? this);
             if (instance.AppliedModifiers.Count == 0)
-                return null;
+            {
+                if (durationSeconds > 0f)
+                {
+                    int index = _activeEffects.IndexOf(instance);
+                    if (index >= 0)
+                        _activeEffects.RemoveAt(index);
+                }
 
-            if (durationSeconds > 0f)
-                _activeEffects.Add(instance);
+                return null;
+            }
 
             NotifyCarrierStatChanges();
             OnActiveEffectsChanged?.Invoke();
@@ -213,12 +233,39 @@ namespace Scripts.StatusEffects
             return false;
         }
 
-        private ActiveEffectInstance FindInstance(StatusEffectSO effect)
+        private ActiveEffectInstance FindAuthoredInstance(StatusEffectSO effect)
         {
+            if (effect == null)
+                return null;
+
             for (int i = 0; i < _activeEffects.Count; i++)
             {
-                if (_activeEffects[i].Effect == effect)
+                StatusEffectSO active = _activeEffects[i].Effect;
+                if (active == effect)
                     return _activeEffects[i];
+
+                if (active != null &&
+                    !string.IsNullOrWhiteSpace(effect.Id) &&
+                    string.Equals(active.Id, effect.Id, StringComparison.Ordinal))
+                    return _activeEffects[i];
+            }
+
+            return null;
+        }
+
+        private ActiveEffectInstance FindRuntimeInstance(string runtimeId)
+        {
+            if (string.IsNullOrWhiteSpace(runtimeId))
+                return null;
+
+            for (int i = 0; i < _activeEffects.Count; i++)
+            {
+                ActiveEffectInstance instance = _activeEffects[i];
+                if (instance.Effect != null)
+                    continue;
+
+                if (string.Equals(instance.RuntimeId, runtimeId, StringComparison.Ordinal))
+                    return instance;
             }
 
             return null;
@@ -358,7 +405,7 @@ namespace Scripts.StatusEffects
                     if (!MatchesSubject(reaction.Subject, context))
                         continue;
 
-                    ExecuteReaction(instance, reaction);
+                    ExecuteReaction(instance, reaction, r);
                     if (!_activeEffects.Contains(instance))
                         break;
                 }
@@ -377,7 +424,7 @@ namespace Scripts.StatusEffects
             };
         }
 
-        private void ExecuteReaction(ActiveEffectInstance instance, StatusEventReaction reaction)
+        private void ExecuteReaction(ActiveEffectInstance instance, StatusEventReaction reaction, int reactionIndex)
         {
             switch (reaction.Action)
             {
@@ -386,7 +433,7 @@ namespace Scripts.StatusEffects
                         ApplyStatusEffect(reaction.StatusEffectToApply, instance.Effect != null ? instance.Effect : this);
                     break;
                 case StatusEventReactionAction.ApplyQuickEffect:
-                    ApplyQuickReactionEffect(reaction, instance);
+                    ApplyQuickReactionEffect(reaction, instance, reactionIndex);
                     break;
                 case StatusEventReactionAction.EndCurrentEffect:
                     RemoveRuntimeInstance(instance);
@@ -397,7 +444,10 @@ namespace Scripts.StatusEffects
             }
         }
 
-        private void ApplyQuickReactionEffect(StatusEventReaction reaction, ActiveEffectInstance sourceInstance)
+        private void ApplyQuickReactionEffect(
+            StatusEventReaction reaction,
+            ActiveEffectInstance sourceInstance,
+            int reactionIndex)
         {
             var modifiers = new List<SerializableStatModifier>();
             if (reaction.QuickModifiers != null)
@@ -416,12 +466,15 @@ namespace Scripts.StatusEffects
                 return;
 
             float duration = Mathf.Max(0.01f, reaction.QuickEffectDurationSeconds);
+            string sourceId = sourceInstance.Effect != null
+                ? (string.IsNullOrWhiteSpace(sourceInstance.Effect.Id) ? sourceInstance.Effect.name : sourceInstance.Effect.Id)
+                : "Runtime";
             ApplyRuntimeStatusEffect(
                 modifiers,
                 duration,
                 reaction.QuickEffectKind,
                 sourceInstance.Effect != null ? sourceInstance.Effect : this,
-                "EventQuickEffect");
+                $"EventQuickEffect:{sourceId}:{reactionIndex}");
         }
 
         private void ExtendInstance(ActiveEffectInstance instance, float seconds)

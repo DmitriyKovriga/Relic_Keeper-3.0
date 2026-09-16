@@ -397,7 +397,7 @@ namespace Scripts.Skills
                     ExecuteApplyQuickStatusSelf(stepIndex, step);
                     break;
                 case "ApplyQuickStatusSelfPerConsumedMysticShield":
-                    ExecuteApplyQuickStatusSelfPerConsumedMysticShield(step);
+                    ExecuteApplyQuickStatusSelfPerConsumedMysticShield(stepIndex, step);
                     break;
                 case "ApplyQuickStatusCircle":
                     ExecuteApplyQuickStatusCircle(stepIndex, step);
@@ -406,7 +406,7 @@ namespace Scripts.Skills
                     ExecuteApplyQuickStatusRectangle(stepIndex, step);
                     break;
                 case "ApplyStatBasedEffectSelf":
-                    ExecuteApplyStatBasedEffectSelf(step);
+                    ExecuteApplyStatBasedEffectSelf(stepIndex, step);
                     break;
                 default:
                     if (!string.IsNullOrEmpty(id)) Debug.Log($"[SkillStepRunner] Step '{id}' not implemented yet.");
@@ -1486,10 +1486,10 @@ namespace Scripts.Skills
         private void ExecuteApplyQuickStatusSelf(int stepIndex, StepEntry step)
         {
             if (StatusEffectController.TryResolve(transform, out StatusEffectController controller))
-                ApplyQuickStatusToController(controller, step, 1, "SkillQuickSelf");
+                ApplyQuickStatusToController(controller, step, 1, BuildRuntimeStatusId("SkillQuickSelf", stepIndex));
         }
 
-        private void ExecuteApplyQuickStatusSelfPerConsumedMysticShield(StepEntry step)
+        private void ExecuteApplyQuickStatusSelfPerConsumedMysticShield(int stepIndex, StepEntry step)
         {
             if (_ctx == null || _ctx.MysticShieldsConsumed <= 0)
                 return;
@@ -1499,7 +1499,7 @@ namespace Scripts.Skills
                 return;
 
             if (StatusEffectController.TryResolve(transform, out StatusEffectController controller))
-                ApplyQuickStatusToController(controller, step, _ctx.MysticShieldsConsumed, "SkillQuickSelfPerShield");
+                ApplyQuickStatusToController(controller, step, _ctx.MysticShieldsConsumed, BuildRuntimeStatusId("SkillQuickSelfPerShield", stepIndex));
         }
 
         private void ExecuteApplyQuickStatusCircle(int stepIndex, StepEntry step)
@@ -1507,7 +1507,7 @@ namespace Scripts.Skills
             ResolveCircleArea(step, out Vector2 center, out Vector2 size);
             var targets = GetStatusTargetsInBox(center, size, 0f);
             for (int i = 0; i < targets.Count; i++)
-                ApplyQuickStatusToController(targets[i], step, 1, "SkillQuickCircle");
+                ApplyQuickStatusToController(targets[i], step, 1, BuildRuntimeStatusId("SkillQuickCircle", stepIndex));
         }
 
         private void ExecuteApplyQuickStatusRectangle(int stepIndex, StepEntry step)
@@ -1515,7 +1515,7 @@ namespace Scripts.Skills
             ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
             var targets = GetStatusTargetsInBox(center, size, angle);
             for (int i = 0; i < targets.Count; i++)
-                ApplyQuickStatusToController(targets[i], step, 1, "SkillQuickRectangle");
+                ApplyQuickStatusToController(targets[i], step, 1, BuildRuntimeStatusId("SkillQuickRectangle", stepIndex));
         }
 
         private void ApplyQuickStatusToController(StatusEffectController controller, StepEntry step, int stackCount, string runtimeId)
@@ -1549,7 +1549,7 @@ namespace Scripts.Skills
                 _ctx?.RegisterCleanup(handle.Dispose);
         }
 
-        private void ExecuteApplyStatBasedEffectSelf(StepEntry step)
+        private void ExecuteApplyStatBasedEffectSelf(int stepIndex, StepEntry step)
         {
             if (_ownerStats == null)
                 return;
@@ -1570,12 +1570,12 @@ namespace Scripts.Skills
                     _ownerStats.Mana?.Increase(value);
                     break;
                 default:
-                    ApplyStatBasedModifier(step, value);
+                    ApplyStatBasedModifier(step, value, stepIndex);
                     break;
             }
         }
 
-        private void ApplyStatBasedModifier(StepEntry step, float value)
+        private void ApplyStatBasedModifier(StepEntry step, float value, int stepIndex)
         {
             if (!StatusEffectController.TryResolve(transform, out StatusEffectController controller))
                 return;
@@ -1602,10 +1602,16 @@ namespace Scripts.Skills
                 duration,
                 kind,
                 this,
-                "SkillStatBasedEffect");
+                BuildRuntimeStatusId("SkillStatBasedEffect", stepIndex));
 
             if (duration <= 0f && handle != null)
                 _ctx?.RegisterCleanup(handle.Dispose);
+        }
+
+        private string BuildRuntimeStatusId(string prefix, int stepIndex)
+        {
+            string skillId = _data != null && !string.IsNullOrWhiteSpace(_data.ID) ? _data.ID : name;
+            return $"{prefix}:{skillId}:{stepIndex}";
         }
 
         private void ExecuteModifyCooldown(StepEntry step)

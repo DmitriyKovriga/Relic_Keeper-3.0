@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Scripts.Items.World;
+using Scripts.Skills;
 
 namespace Scripts.Dungeon
 {
@@ -26,6 +27,7 @@ namespace Scripts.Dungeon
         private WorldItemInspectSource _inspectSource;
         private WindowManager _windowManager;
         private PlayerMovement _playerMovement;
+        private PlayerSkillManager _skillManager;
         private RoomController _cachedRoom;
         private float _inspectionStartedAt;
         private float _lastCursorMoveUnscaledTime = -10f;
@@ -37,6 +39,7 @@ namespace Scripts.Dungeon
             _active = this;
             _windowManager = FindFirstObjectByType<WindowManager>();
             _playerMovement = GetComponent<PlayerMovement>();
+            _skillManager = GetComponent<PlayerSkillManager>();
             if (InputManager.InputActions != null)
             {
                 InputManager.InputActions.Player.Interact.started += OnInteractPerformed;
@@ -51,6 +54,7 @@ namespace Scripts.Dungeon
             if (InputManager.InputActions != null)
                 InputManager.InputActions.Player.Interact.performed -= OnInteractPerformed;
             ResetItemInspection();
+            WorldItemInspection.SetStationaryNearInspectedItem(false);
             if (_active == this)
                 _active = null;
         }
@@ -128,18 +132,24 @@ namespace Scripts.Dungeon
 
         private void UpdateItemInspection()
         {
+            if (_windowManager == null)
+                _windowManager = FindFirstObjectByType<WindowManager>();
+
+            bool windowOpen = _windowManager != null && _windowManager.HasOpenWindow;
+            WorldDroppedItem nearbyItem = windowOpen ? null : FindNearbyDroppedItem();
+            WorldDroppedItem target = windowOpen ? null : ResolveInspectionTarget(nearbyItem);
+            bool stationaryNearInspectedItem = target != null && ReferenceEquals(target, nearbyItem)
+                && !WorldItemInspection.IsPlayerMoving(ReadPlayerVelocity())
+                && (_playerMovement == null || Mathf.Abs(_playerMovement.CurrentMoveInput.x) < 0.1f)
+                && (_skillManager == null || !_skillManager.IsAnySkillCasting);
+            WorldItemInspection.SetStationaryNearInspectedItem(stationaryNearInspectedItem);
+
             if (WorldItemInspection.IsCombatTooltipBlocked)
             {
                 ResetItemInspection();
                 return;
             }
 
-            if (_windowManager == null)
-                _windowManager = FindFirstObjectByType<WindowManager>();
-
-            WorldDroppedItem target = _windowManager != null && _windowManager.HasOpenWindow
-                ? null
-                : ResolveInspectionTarget();
             if (target == null)
                 _inspectSource = WorldItemInspectSource.None;
 
@@ -153,17 +163,19 @@ namespace Scripts.Dungeon
             if (_inspectedWorldItem == null || !_inspectedWorldItem.CanInteract())
                 return;
 
-            float duration = WorldItemInspection.ResolveTooltipDelay(_itemTooltipDelay, IsCurrentRoomCleared());
+            float duration = WorldItemInspection.ResolveTooltipDelay(
+                _itemTooltipDelay, IsCurrentRoomCleared(), stationaryNearInspectedItem);
             float progress = Mathf.Clamp01((Time.time - _inspectionStartedAt) / duration);
             _inspectedWorldItem.SetInspectionProgress(progress, progress < 1f);
 
             if (progress >= 1f && ItemTooltipController.Instance != null)
                 ItemTooltipController.Instance.ShowWorldTooltip(_inspectedWorldItem);
+            else if (progress < 1f)
+                ItemTooltipController.Instance?.HideWorldTooltip(_inspectedWorldItem);
         }
 
-        private WorldDroppedItem ResolveInspectionTarget()
+        private WorldDroppedItem ResolveInspectionTarget(WorldDroppedItem playerItem)
         {
-            WorldDroppedItem playerItem = FindNearbyDroppedItem();
             WorldDroppedItem cursorItem = FindDroppedItemUnderCursor();
             bool cursorMoving = UpdateCursorMoving();
             bool playerMoving = WorldItemInspection.IsPlayerMoving(ReadPlayerVelocity());

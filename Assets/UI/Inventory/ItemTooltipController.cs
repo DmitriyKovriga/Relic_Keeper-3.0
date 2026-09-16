@@ -901,6 +901,17 @@ public class ItemTooltipController : MonoBehaviour
         _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
     }
 
+    /// <summary>
+    /// Crafting changes the contents of the same slot without a new pointer-over event.
+    /// The old tooltip (including its pin) belongs to the pre-craft presentation.
+    /// </summary>
+    public void ShowCraftedItemTooltip(InventoryItem item, VisualElement anchorSlot, ItemTooltipPriceMode priceMode)
+    {
+        HideTooltipImmediate();
+        if (item != null && anchorSlot != null)
+            ShowTooltip(item, anchorSlot, priceMode);
+    }
+
     public void HideTooltip()
     {
         if (_pin.IsPinned)

@@ -13,21 +13,31 @@ namespace Scripts.Items.World
     {
         public const float CombatTooltipDelay = 2f;
         public const float ActiveSkillTooltipBlockDuration = 3f;
+        public const float StationaryNearbySkillBlockDuration = 0.8f;
         public const float CursorMoveLinger = 0.12f;
         public const float CursorMovePixels = 1f;
         public const float PlayerMoveSpeedSqr = 0.05f;
 
         private static float _combatTooltipBlockedUntil = float.NegativeInfinity;
+        private static float _lastActiveSkillInputAt = float.NegativeInfinity;
+        private static bool _stationaryNearInspectedItem;
 
         public static bool IsCombatTooltipBlocked =>
-            IsCombatTooltipBlockedAt(Time.unscaledTime, _combatTooltipBlockedUntil);
+            IsCombatTooltipBlockedAt(Time.unscaledTime, _combatTooltipBlockedUntil,
+                _lastActiveSkillInputAt, _stationaryNearInspectedItem);
 
         public static void ExtendCombatTooltipBlock()
         {
+            _lastActiveSkillInputAt = Time.unscaledTime;
             _combatTooltipBlockedUntil = ResolveCombatTooltipBlockedUntil(
                 _combatTooltipBlockedUntil,
-                Time.unscaledTime,
+                _lastActiveSkillInputAt,
                 ActiveSkillTooltipBlockDuration);
+        }
+
+        public static void SetStationaryNearInspectedItem(bool value)
+        {
+            _stationaryNearInspectedItem = value;
         }
 
         public static float ResolveCombatTooltipBlockedUntil(float currentBlockedUntil, float now, float duration)
@@ -40,9 +50,26 @@ namespace Scripts.Items.World
             return now < blockedUntil;
         }
 
+        public static bool IsCombatTooltipBlockedAt(
+            float now, float blockedUntil, float lastActiveSkillInputAt, bool stationaryNearInspectedItem)
+        {
+            if (stationaryNearInspectedItem)
+                blockedUntil = Mathf.Min(blockedUntil,
+                    lastActiveSkillInputAt + StationaryNearbySkillBlockDuration);
+
+            return IsCombatTooltipBlockedAt(now, blockedUntil);
+        }
+
         public static float ResolveTooltipDelay(float standardDelay, bool roomCleared)
         {
             return roomCleared ? Mathf.Max(0.01f, standardDelay) : CombatTooltipDelay;
+        }
+
+        public static float ResolveTooltipDelay(
+            float standardDelay, bool roomCleared, bool stationaryNearInspectedItem)
+        {
+            float delay = ResolveTooltipDelay(standardDelay, roomCleared);
+            return stationaryNearInspectedItem ? Mathf.Min(delay, Mathf.Max(0.01f, standardDelay)) : delay;
         }
 
         public static WorldItemInspectSource ResolveSource(
