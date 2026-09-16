@@ -47,6 +47,12 @@ namespace Scripts.Inventory
         {
             return GetModifier(useUpperBound)?.Value ?? 0f;
         }
+
+        public void GetRolledRange(out float min, out float max)
+        {
+            min = PrimaryMod != null ? PrimaryMod.Value : 0f;
+            max = HasRange && SecondaryMod != null ? SecondaryMod.Value : min;
+        }
     }
 
     [Serializable]
@@ -315,9 +321,27 @@ namespace Scripts.Inventory
 
         private float GetCalculatedStat(StatType stat, float baseValue, bool useUpperBound)
         {
-            float finalValue = baseValue;
-            float sumPercentAdd = 0f;
-            float multiplier = 1f;
+            CollectLocalStatLayers(stat, useUpperBound, out float localFlat, out float sumPercentAdd, out float multiplier);
+            float combined = baseValue + localFlat;
+            float additiveFactor = Mathf.Max(0f, 1f + (sumPercentAdd / 100f));
+            return (float)Math.Round(combined * additiveFactor * multiplier, 2);
+        }
+
+        /// <summary>
+        /// Local flats and local % stay on their own affix rows. They only combine here,
+        /// on the item's damage/armor/APS stat: (base + local flat) * (1 + local increased) * more.
+        /// </summary>
+        private void CollectLocalStatLayers(
+            StatType stat,
+            bool useUpperBound,
+            out float localFlat,
+            out float sumPercentAdd,
+            out float multiplier)
+        {
+            localFlat = 0f;
+            sumPercentAdd = 0f;
+            multiplier = 1f;
+
             if (Data != null && Data.ImplicitModifiers != null)
             {
                 foreach (var imp in Data.ImplicitModifiers)
@@ -325,26 +349,39 @@ namespace Scripts.Inventory
                     if (imp.Scope != StatScope.Local || imp.Stat != stat)
                         continue;
 
-                    if (imp.Type == StatModType.Flat) finalValue += imp.Value;
-                    else if (imp.Type.IsAdditivePercent()) sumPercentAdd += imp.Type.ToSignedPercent(imp.Value);
-                    else if (imp.Type.IsMultiplicativePercent()) multiplier *= imp.Type.ToMultiplierFactor(imp.Value);
+                    ApplyLocalLayer(imp.Type, imp.Value, ref localFlat, ref sumPercentAdd, ref multiplier);
                 }
             }
+
             foreach (var affix in Affixes)
             {
                 foreach (var modifier in affix.Modifiers)
                 {
-                    if (modifier.Scope == StatScope.Local && modifier.Type == stat)
-                    {
-                        var mod = modifier.GetModifier(useUpperBound);
-                        if (mod.Type == StatModType.Flat) finalValue += mod.Value;
-                        else if (mod.Type.IsAdditivePercent()) sumPercentAdd += mod.Type.ToSignedPercent(mod.Value);
-                        else if (mod.Type.IsMultiplicativePercent()) multiplier *= mod.Type.ToMultiplierFactor(mod.Value);
-                    }
+                    if (modifier.Scope != StatScope.Local || modifier.Type != stat)
+                        continue;
+
+                    var mod = modifier.GetModifier(useUpperBound);
+                    if (mod == null)
+                        continue;
+
+                    ApplyLocalLayer(mod.Type, mod.Value, ref localFlat, ref sumPercentAdd, ref multiplier);
                 }
             }
-            float additiveFactor = Mathf.Max(0f, 1f + (sumPercentAdd / 100f));
-            return (float)Math.Round(finalValue * additiveFactor * multiplier, 2);
+        }
+
+        private static void ApplyLocalLayer(
+            StatModType type,
+            float value,
+            ref float localFlat,
+            ref float sumPercentAdd,
+            ref float multiplier)
+        {
+            if (type == StatModType.Flat)
+                localFlat += value;
+            else if (type.IsAdditivePercent())
+                sumPercentAdd += type.ToSignedPercent(value);
+            else if (type.IsMultiplicativePercent())
+                multiplier *= type.ToMultiplierFactor(value);
         }
 
         public float GetAverageWeaponDamage(StatType type)
@@ -518,12 +555,15 @@ namespace Scripts.Inventory
                 {
                     if (StatsDatabaseSO.IsRetiredStat(modifier.Type))
                         continue;
+                    if (IsBakedLocalWeaponOffense(modifier))
+                        continue;
                     if (modifier.Scope != StatScope.Global && !ShouldPromoteLocalStatToCharacter(modifier.Type))
                         continue;
 
                     if (modifier.HasRange && IsDamageStat(modifier.Type))
                     {
-                        float average = (modifier.PrimaryMod.Value + modifier.SecondaryMod.Value) * 0.5f;
+                        modifier.GetRolledRange(out float rolledMin, out float rolledMax);
+                        float average = (rolledMin + rolledMax) * 0.5f;
                         result.Add((modifier.Type, new StatModifier(average, modifier.PrimaryMod.Type, this)));
                     }
                     else
@@ -533,6 +573,14 @@ namespace Scripts.Inventory
                 }
             }
             return result;
+        }
+
+        private bool IsBakedLocalWeaponOffense(AffixModifierInstance modifier)
+        {
+            return modifier != null
+                && modifier.Scope == StatScope.Local
+                && IsWeaponOffenseStat(modifier.Type)
+                && !IsDefensiveOffHand;
         }
 
         private bool ShouldPromoteLocalStatToCharacter(StatType stat)

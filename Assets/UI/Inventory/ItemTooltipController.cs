@@ -2074,8 +2074,7 @@ public class ItemTooltipController : MonoBehaviour
                 if(aff.Modifiers.Count == 0) continue;
                 string key = aff.Data.GetResolvedTranslationKey();
                 var modifier = aff.Modifiers[0];
-                float minVal = modifier.PrimaryMod.Value;
-                float maxVal = modifier.HasRange ? modifier.SecondaryMod.Value : modifier.PrimaryMod.Value;
+                modifier.GetRolledRange(out float minVal, out float maxVal);
                 if (string.IsNullOrEmpty(key)) key = $"stats.{modifier.Type}";
                 AddAffixRow(key, aff, minVal, maxVal, modifier.HasRange, _colAffix);
             }
