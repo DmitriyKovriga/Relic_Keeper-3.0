@@ -84,7 +84,7 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void StatusWithoutDirectModifiers_StillDescribesEventReactions()
+        public void StatusWithoutDirectModifiers_KeepsReactionsOnHoverTooltip()
         {
             SkillDataSO skill = Track(ScriptableObject.CreateInstance<SkillDataSO>());
             SkillRecipeSO recipe = Track(ScriptableObject.CreateInstance<SkillRecipeSO>());
@@ -106,8 +106,14 @@ namespace RelicKeeper.Tests.EditMode
             string en = SkillDescriptionGenerator.BuildAutomatic(skill, "en");
             string ru = SkillDescriptionGenerator.BuildAutomatic(skill, "ru");
 
-            Assert.That(en, Does.Contain("ends when taking damage"));
-            Assert.That(ru, Does.Contain("получение урона"));
+            Assert.That(en, Does.Contain("Applies"));
+            Assert.That(en, Does.Contain("Focus"));
+            Assert.That(en, Does.Not.Contain("ends when taking damage"));
+            Assert.That(ru, Does.Contain("Концентрация"));
+            Assert.That(ru, Does.Not.Contain("получение урона"));
+
+            string tooltip = SkillDescriptionGenerator.BuildStatusEffectTooltip(effect, "en");
+            Assert.That(tooltip, Does.Contain("ends when taking damage"));
         }
 
         [Test]
@@ -131,7 +137,7 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void StatusAuthoredDescription_AppearsInSkillTextAndTooltip()
+        public void StatusAuthoredDescription_StaysOnHoverTooltipOnly()
         {
             SkillDataSO skill = Track(ScriptableObject.CreateInstance<SkillDataSO>());
             SkillRecipeSO recipe = Track(ScriptableObject.CreateInstance<SkillRecipeSO>());
@@ -142,6 +148,12 @@ namespace RelicKeeper.Tests.EditMode
             effect.NameRu = "Шаг Воина";
             effect.DescriptionEn = "Increase movement speed and armor by 30%";
             effect.DescriptionRu = "Увеличивает скорость передвижения на 30%";
+            effect.Modifiers.Add(new SerializableStatModifier
+            {
+                Stat = StatType.MoveSpeed,
+                Type = StatModType.PercentAdd,
+                Value = 30f
+            });
             effect.BaseDurationSeconds = 10f;
             var step = new StepEntry { StepDefinition = definition };
             step.SetOverrideObject("StatusEffect", effect);
@@ -151,15 +163,19 @@ namespace RelicKeeper.Tests.EditMode
             string en = SkillDescriptionGenerator.BuildAutomatic(skill, "en");
             string ru = SkillDescriptionGenerator.BuildAutomatic(skill, "ru");
             Assert.That(en, Does.Contain("Warrior Step"));
-            Assert.That(en, Does.Contain("Increase movement speed and armor by 30%"));
+            Assert.That(en, Does.Contain("10"));
+            Assert.That(en, Does.Not.Contain("Increase movement speed and armor by 30%"));
+            Assert.That(en, Does.Not.Contain("Effect:"));
             Assert.That(ru, Does.Contain("Шаг Воина"));
-            Assert.That(ru, Does.Contain("скорость передвижения"));
+            Assert.That(ru, Does.Not.Contain("скорость передвижения"));
 
             List<SkillDescriptionLine> lines = SkillDescriptionGenerator.BuildAutomaticLines(skill, "en");
             Assert.That(lines.Exists(line => line.HasLink && line.LinkedEffect == effect), Is.True);
+            Assert.That(en, Does.Contain("Applies Warrior Step to the character"));
 
             string tooltip = SkillDescriptionGenerator.BuildStatusEffectTooltip(effect, "en");
             Assert.That(tooltip, Does.Contain("Increase movement speed and armor by 30%"));
+            Assert.That(tooltip, Does.Contain("+30%"));
         }
 
         [Test]

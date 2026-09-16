@@ -207,7 +207,7 @@ namespace Scripts.Skills
                 case "ApplyStatusSelfPerConsumedMysticShield":
                 case "ApplyStatusCircle":
                 case "ApplyStatusRectangle":
-                    AddStatus(step, id, ru, resolver, lines, unique);
+                    AddStatus(step, id, ru, lines, unique);
                     break;
                 case "ApplyQuickStatusSelf":
                 case "ApplyQuickStatusSelfPerConsumedMysticShield":
@@ -292,7 +292,7 @@ namespace Scripts.Skills
                 : (backwards ? "Propels the character backward." : "Propels the character forward."));
         }
 
-        private static void AddStatus(StepEntry step, string id, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique)
+        private static void AddStatus(StepEntry step, string id, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             StatusEffectSO effect = step.GetObject<StatusEffectSO>("StatusEffect");
             if (effect == null) return;
@@ -313,20 +313,12 @@ namespace Scripts.Skills
             AddLinked(
                 lines,
                 unique,
-                ru ? "Накладывает «" : "Applies ",
+                ru ? "Накладывает " : "Applies ",
                 name,
                 effect,
                 ru
-                    ? $"» {target} на {N(effect.DurationSeconds)} с{scaling}{condition}."
+                    ? $" {target} на {N(effect.DurationSeconds)} с{scaling}{condition}."
                     : $" {target} for {N(effect.DurationSeconds)}s{scaling}{condition}.");
-
-            string authored = effect.GetDescription(ru);
-            if (!string.IsNullOrWhiteSpace(authored))
-                Add(lines, unique, authored);
-
-            AddEffectModifiers(effect.Modifiers, ru ? "Эффект: " : "Effect: ", ru, resolver, lines, unique);
-            AddDerivedModifiers(effect.DerivedModifiers, ru, resolver, lines, unique);
-            AddEventReactions(effect.EventReactions, ru, resolver, lines, unique);
         }
 
         private static void AddQuickStatus(StepEntry step, string id, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique)

@@ -35,7 +35,10 @@ public class ItemTooltipController : MonoBehaviour
     private const float HudSkillTooltipGap = 2f;
     private const float HudSkillTooltipPadding = 2f;
     private const float HudDpsBreakdownWidth = 88f;
-    private const float BuffTooltipWidth = 140f; 
+    private const float BuffTooltipWidth = 140f;
+    private const int SkillDescriptionFontSize = 6;
+    private const int SkillBuffNameFontSize = 7;
+    private const int SkillDescriptionLineMinHeight = 8; 
     
     [SerializeField, Tooltip("Задержка в миллисекундах перед скрытием тултипа (увеличена против мерцания при наведении на экипировку)")]
     private long _hideDelayMs = 180;
@@ -500,6 +503,7 @@ public class ItemTooltipController : MonoBehaviour
 
         // --- 2. Skill Tooltip ---
         _skillTooltipBox = CreateContainer("GlobalSkillTooltip", _colSkillBg);
+        _skillTooltipBox.style.alignItems = Align.Stretch;
         _skillTooltipBox.style.borderTopColor = new Color(0, 0.5f, 0.5f); 
         _skillTooltipBox.style.borderBottomColor = new Color(0, 0.5f, 0.5f);
         _skillTooltipBox.style.borderLeftColor = new Color(0, 0.5f, 0.5f); 
@@ -1393,6 +1397,7 @@ public class ItemTooltipController : MonoBehaviour
         {
             var typeLabel = CreateLabel("", 7, FontStyle.Italic, TextAnchor.UpperLeft);
             typeLabel.style.color = new StyleColor(_colSkillType);
+            typeLabel.style.width = Length.Percent(100);
             _skillTooltipBox.Add(typeLabel);
             LocalizeLabel(typeLabel, TABLE_MENU, typeKey, typeFallback ?? "");
         }
@@ -1400,6 +1405,8 @@ public class ItemTooltipController : MonoBehaviour
         var nameLabel = CreateLabel("", 8, FontStyle.Bold, TextAnchor.MiddleCenter);
         nameLabel.style.color = new StyleColor(Color.cyan);
         nameLabel.style.marginTop = 2;
+        nameLabel.style.width = Length.Percent(100);
+        nameLabel.style.alignSelf = Align.Center;
         _skillTooltipBox.Add(nameLabel);
         LocalizeLabel(nameLabel, TABLE_SKILLS, GetSkillNameKey(skill), skill.SkillName);
 
@@ -1732,11 +1739,11 @@ public class ItemTooltipController : MonoBehaviour
         body.pickingMode = PickingMode.Ignore;
         body.style.width = Length.Percent(100);
         body.style.alignItems = Align.Stretch;
-        body.style.marginTop = 2;
+        body.style.marginTop = 3;
         body.style.minHeight = 0;
 
         for (int i = 0; i < lines.Count; i++)
-            body.Add(CreateSkillDescriptionLine(lines[i]));
+            body.Add(CreateSkillDescriptionLine(lines[i], i == 0));
 
         if (effectiveCooldown > 0)
         {
@@ -1764,39 +1771,43 @@ public class ItemTooltipController : MonoBehaviour
         }
     }
 
-    private VisualElement CreateSkillDescriptionLine(SkillDescriptionLine line)
+    private VisualElement CreateSkillDescriptionLine(SkillDescriptionLine line, bool first)
     {
         if (!line.HasLink)
         {
-            var plain = CreateLabel(line.Text, 8, FontStyle.Normal, TextAnchor.UpperLeft);
-            plain.pickingMode = PickingMode.Ignore;
-            plain.style.marginTop = 1;
-            plain.style.minHeight = 0;
-            plain.style.width = Length.Percent(100);
-            return plain;
+            if (string.IsNullOrWhiteSpace(line.Text))
+            {
+                var spacer = new VisualElement();
+                spacer.pickingMode = PickingMode.Ignore;
+                spacer.style.height = 2;
+                spacer.style.width = Length.Percent(100);
+                return spacer;
+            }
+
+            return CreateSkillRichLabel(line.Text, SkillDescriptionFontSize, FontStyle.Normal, _colNormalText, first);
         }
 
-        var row = new VisualElement();
-        row.pickingMode = PickingMode.Ignore;
-        row.style.flexDirection = FlexDirection.Row;
-        row.style.flexWrap = Wrap.Wrap;
-        row.style.alignItems = Align.Center;
-        row.style.justifyContent = Justify.FlexStart;
-        row.style.width = Length.Percent(100);
-        row.style.marginTop = 1;
-        row.style.minHeight = 12;
+        var block = new VisualElement { name = "SkillBuffLine" };
+        block.pickingMode = PickingMode.Ignore;
+        block.style.flexDirection = FlexDirection.Column;
+        block.style.alignItems = Align.Stretch;
+        block.style.width = Length.Percent(100);
+        block.style.marginTop = first ? 0 : 2;
+        block.style.minHeight = 0;
 
-        if (!string.IsNullOrEmpty(line.Prefix))
-            row.Add(CreateSkillInlineLabel(line.Prefix, _colNormalText, FontStyle.Normal, hoverable: false));
+        string prefix = line.Prefix?.Trim();
+        if (!string.IsNullOrEmpty(prefix))
+            block.Add(CreateSkillRichLabel(prefix, SkillDescriptionFontSize, FontStyle.Normal, _colNormalText, first: true));
 
         var nameHit = CreateBuffNameHit(line.LinkedName, line.LinkedEffect);
         _buffNameHoverTargets.Add(nameHit);
-        row.Add(nameHit);
+        block.Add(nameHit);
 
-        if (!string.IsNullOrEmpty(line.Suffix))
-            row.Add(CreateSkillInlineLabel(line.Suffix, _colNormalText, FontStyle.Normal, hoverable: false));
+        string suffix = line.Suffix?.Trim();
+        if (!string.IsNullOrEmpty(suffix))
+            block.Add(CreateSkillRichLabel(suffix, SkillDescriptionFontSize, FontStyle.Normal, _colNormalText, first: false));
 
-        return row;
+        return block;
     }
 
     private VisualElement CreateBuffNameHit(string text, StatusEffectSO effect)
@@ -1807,26 +1818,25 @@ public class ItemTooltipController : MonoBehaviour
         hit.style.flexDirection = FlexDirection.Row;
         hit.style.alignItems = Align.Center;
         hit.style.flexGrow = 0;
-        hit.style.flexShrink = 0;
-        hit.style.flexBasis = StyleKeyword.Auto;
-        hit.style.alignSelf = Align.Center;
-        hit.style.width = StyleKeyword.Auto;
+        hit.style.flexShrink = 1;
+        hit.style.width = Length.Percent(100);
         hit.style.height = StyleKeyword.Auto;
-        hit.style.minHeight = 12;
-        hit.style.paddingLeft = 1;
-        hit.style.paddingRight = 1;
+        hit.style.minHeight = SkillDescriptionLineMinHeight;
+        hit.style.marginTop = 1;
+        hit.style.marginBottom = 0;
+        hit.style.paddingLeft = 0;
+        hit.style.paddingRight = 0;
         hit.style.paddingTop = 1;
         hit.style.paddingBottom = 1;
-        hit.style.marginTop = 0;
-        hit.style.marginBottom = 0;
 
         var label = CreateSkillInlineLabel(text, _colBuffName, FontStyle.Bold, hoverable: false);
         label.pickingMode = PickingMode.Ignore;
-        label.style.whiteSpace = WhiteSpace.NoWrap;
-        label.style.flexGrow = 0;
-        label.style.flexShrink = 0;
-        label.style.width = StyleKeyword.Auto;
-        label.style.minHeight = 12;
+        label.style.fontSize = SkillBuffNameFontSize;
+        label.style.whiteSpace = WhiteSpace.Normal;
+        label.style.flexGrow = 1;
+        label.style.flexShrink = 1;
+        label.style.width = Length.Percent(100);
+        label.style.minHeight = SkillDescriptionLineMinHeight;
         label.style.unityTextAlign = TextAnchor.MiddleLeft;
         label.style.paddingTop = 0;
         label.style.paddingBottom = 0;
@@ -1834,9 +1844,25 @@ public class ItemTooltipController : MonoBehaviour
         return hit;
     }
 
+    private Label CreateSkillRichLabel(string text, int size, FontStyle style, Color fallbackColor, bool first)
+    {
+        var label = CreateLabel(SkillDescriptionHighlight.Colorize(text), size, style, TextAnchor.UpperLeft);
+        label.enableRichText = true;
+        label.pickingMode = PickingMode.Ignore;
+        label.style.color = new StyleColor(fallbackColor);
+        label.style.marginTop = first ? 0 : 2;
+        label.style.marginBottom = 0;
+        label.style.paddingTop = 0;
+        label.style.paddingBottom = 0;
+        label.style.minHeight = 0;
+        label.style.width = Length.Percent(100);
+        label.style.whiteSpace = WhiteSpace.Normal;
+        return label;
+    }
+
     private Label CreateSkillInlineLabel(string text, Color color, FontStyle style, bool hoverable)
     {
-        var label = CreateLabel(text, 8, style, TextAnchor.UpperLeft);
+        var label = CreateLabel(text, SkillDescriptionFontSize, style, TextAnchor.UpperLeft);
         label.pickingMode = hoverable ? PickingMode.Position : PickingMode.Ignore;
         label.style.color = new StyleColor(color);
         label.style.marginTop = 0;
@@ -1852,7 +1878,8 @@ public class ItemTooltipController : MonoBehaviour
 
     private Label CreateSkillMetaLabel(string text, bool first)
     {
-        var label = CreateLabel(text, 7, FontStyle.Normal, TextAnchor.UpperLeft);
+        var label = CreateLabel(SkillDescriptionHighlight.Colorize(text), 7, FontStyle.Normal, TextAnchor.UpperLeft);
+        label.enableRichText = true;
         label.pickingMode = PickingMode.Ignore;
         label.style.color = new StyleColor(new Color(0.67f, 0.67f, 0.67f));
         label.style.marginTop = first ? 4 : 1;
@@ -1933,7 +1960,8 @@ public class ItemTooltipController : MonoBehaviour
 
         if (!string.IsNullOrWhiteSpace(body))
         {
-            var desc = CreateLabel(body, 6, FontStyle.Normal, TextAnchor.UpperLeft);
+            var desc = CreateLabel(SkillDescriptionHighlight.Colorize(body), 6, FontStyle.Normal, TextAnchor.UpperLeft);
+            desc.enableRichText = true;
             desc.pickingMode = PickingMode.Ignore;
             desc.style.color = new StyleColor(_colNormalText);
             desc.style.width = Length.Percent(100);
