@@ -11,6 +11,7 @@ namespace Scripts.Stats
 
         private CharacterStat _maxStat; // Ссылка на стат (например, MaxHealth)
         private float _currentValue;
+        private float _lastMax;
 
         public float Current => _currentValue;
         public float Max => _maxStat.Value;
@@ -19,12 +20,13 @@ namespace Scripts.Stats
         public StatResource(CharacterStat maxStat)
         {
             _maxStat = maxStat;
-            // При создании сразу заполняем до максимума
-            _currentValue = _maxStat.Value;
+            _lastMax = Mathf.Max(0f, _maxStat.Value);
+            _currentValue = _lastMax;
         }
 
         public void SetCurrent(float value)
         {
+            RememberCurrentMax();
             _currentValue = Mathf.Clamp(value, 0, Max);
             OnValueChanged?.Invoke();
         }
@@ -54,11 +56,31 @@ namespace Scripts.Stats
 
         public void ReevaluateMax()
         {
-            float clamped = Mathf.Clamp(_currentValue, 0f, Max);
-            bool changed = Mathf.Abs(clamped - _currentValue) > 0.001f;
-            _currentValue = clamped;
+            float newMax = Mathf.Max(0f, Max);
+            float next = AdjustCurrentForMaxChange(_currentValue, _lastMax, newMax);
+            _lastMax = newMax;
+            bool changed = Mathf.Abs(next - _currentValue) > 0.001f;
+            _currentValue = next;
             if (changed)
                 OnValueChanged?.Invoke();
+        }
+
+        /// <summary>
+        /// Max up: current rises by the same amount. Max down: only clamp overcap,
+        /// never pull current below the new cap.
+        /// </summary>
+        public static float AdjustCurrentForMaxChange(float current, float oldMax, float newMax)
+        {
+            newMax = Mathf.Max(0f, newMax);
+            float delta = newMax - oldMax;
+            if (delta > 0f)
+                current += delta;
+            return Mathf.Clamp(current, 0f, newMax);
+        }
+
+        private void RememberCurrentMax()
+        {
+            _lastMax = Mathf.Max(0f, Max);
         }
     }
 }

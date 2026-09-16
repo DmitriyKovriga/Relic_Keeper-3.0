@@ -25,6 +25,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
 
     private Dictionary<StatType, CharacterStat> _stats = new Dictionary<StatType, CharacterStat>();
     private float _resourceRegenTimer;
+    private int _statMutationBatchDepth;
 
     public StatResource Health { get; private set; }
     public StatResource Mana { get; private set; }
@@ -248,16 +249,23 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
 
     public void ResyncExternalStatModifiers(InventoryItem[] equipment, PassiveTreeManager passiveTree)
     {
-        ClearAllStatModifiers();
-
-        if (equipment != null)
+        BeginStatMutationBatch();
+        try
         {
-            foreach (var item in equipment)
-                ApplyItemModifiers(item);
-        }
+            ClearAllStatModifiers();
 
-        passiveTree?.ReapplyAllAllocatedNodeStats();
-        RefreshDerivedResourcesAfterExternalStatChange();
+            if (equipment != null)
+            {
+                foreach (var item in equipment)
+                    ApplyItemModifiers(item);
+            }
+
+            passiveTree?.ReapplyAllAllocatedNodeStats();
+        }
+        finally
+        {
+            EndStatMutationBatch();
+        }
     }
 
     private void HandleItemEquipped(InventoryItem item)
@@ -323,16 +331,32 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
             Mana.Increase(manaOnHit);
     }
 
-    public void NotifyChanged() 
-{ 
-    OnAnyStatChanged?.Invoke(); 
-}
+    public void NotifyChanged()
+    {
+        if (_statMutationBatchDepth == 0)
+        {
+            Health?.ReevaluateMax();
+            Mana?.ReevaluateMax();
+        }
+
+        OnAnyStatChanged?.Invoke();
+    }
 
     public void RefreshDerivedResourcesAfterExternalStatChange()
     {
-        Health?.ReevaluateMax();
-        Mana?.ReevaluateMax();
         NotifyChanged();
+    }
+
+    private void BeginStatMutationBatch()
+    {
+        _statMutationBatchDepth++;
+    }
+
+    private void EndStatMutationBatch()
+    {
+        _statMutationBatchDepth = Mathf.Max(0, _statMutationBatchDepth - 1);
+        if (_statMutationBatchDepth == 0)
+            NotifyChanged();
     }
 
     private void TickPassiveResourceRegen()

@@ -243,9 +243,12 @@ namespace Scripts.Enemies
                 return;
 
             float newMaxHealth = Mathf.Max(1f, _stats.GetValue(StatType.MaxHealth));
-            bool changed = Mathf.Abs(newMaxHealth - _maxHealth) > 0.001f;
+            float oldMaxHealth = _maxHealth;
+            float previousCurrent = _currentHealth;
+            _currentHealth = StatResource.AdjustCurrentForMaxChange(_currentHealth, oldMaxHealth, newMaxHealth);
             _maxHealth = newMaxHealth;
-            _currentHealth = Mathf.Clamp(_currentHealth, 0f, _maxHealth);
+            bool changed = Mathf.Abs(newMaxHealth - oldMaxHealth) > 0.001f
+                || Mathf.Abs(_currentHealth - previousCurrent) > 0.001f;
 
             if (changed)
             {
