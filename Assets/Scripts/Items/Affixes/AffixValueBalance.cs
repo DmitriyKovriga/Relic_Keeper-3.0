@@ -339,6 +339,10 @@ namespace Scripts.Items.Affixes
                     return (4f, 6f, 14f, 20f);
                 case StatType.StunBuildUp:
                     return (5f, 8f, 18f, 28f);
+                case StatType.Pushback:
+                    return (20f, 35f, 70f, 120f);
+                case StatType.PushbackResist:
+                    return (4f, 6f, 14f, 22f);
                 case StatType.StunThreshold:
                     return (8f, 12f, 28f, 42f);
                 case StatType.MeleeDamage:

@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using Scripts.Combat;
+using Scripts.Stats;
 
 namespace Scripts.Enemies
 {
@@ -17,6 +19,9 @@ namespace Scripts.Enemies
         private bool _isStunned;
         private bool _isFrozen;
         private float _cachedGravityScale = float.NaN;
+        private float _pushbackInitialVelocity;
+        private float _pushbackDuration;
+        private float _pushbackRemaining;
 
         public bool IsGrounded { get; private set; }
         public bool IsNearWall { get; private set; }
@@ -35,6 +40,7 @@ namespace Scripts.Enemies
             _isStunned = false;
             _isFrozen = false;
             _cachedGravityScale = float.NaN;
+            ClearPushback();
         }
 
         private void FixedUpdate()
@@ -79,6 +85,7 @@ namespace Scripts.Enemies
             _moveInput = 0f;
             _hasForcedHorizontalVelocity = false;
             _forcedHorizontalVelocity = 0f;
+            ClearPushback();
             if (_rb != null)
                 _rb.linearVelocity = Vector2.zero;
         }
@@ -101,6 +108,38 @@ namespace Scripts.Enemies
             _hasForcedHorizontalVelocity = false;
             _forcedHorizontalVelocity = 0f;
             _ignoreLedgeForForcedMotion = false;
+        }
+
+        public bool TryApplyPushbackFromHit(float hitOriginX, float rating)
+        {
+            if (_isFrozen || rating <= 0.001f)
+                return false;
+
+            float resist = _stats != null ? Mathf.Max(0f, _stats.GetValue(StatType.PushbackResist)) : 0f;
+            float effectiveRating = PushbackResolver.ApplyResistance(rating, resist);
+            if (effectiveRating <= 0.001f)
+                return false;
+
+            Bounds bounds = _collider != null
+                ? _collider.bounds
+                : new Bounds(transform.position, Vector3.one);
+            int sign = PushbackResolver.ResolveHorizontalSign(hitOriginX, bounds.center.x, bounds.size.x);
+            if (sign == 0)
+                return false;
+
+            float velocity = PushbackResolver.RatingToInitialVelocity(effectiveRating) * sign;
+            ApplyHorizontalPushback(velocity, PushbackResolver.DurationSeconds);
+            return true;
+        }
+
+        public void ApplyHorizontalPushback(float signedInitialVelocity, float duration)
+        {
+            if (_isFrozen || duration <= 0f || Mathf.Abs(signedInitialVelocity) < 0.01f)
+                return;
+
+            _pushbackInitialVelocity = signedInitialVelocity;
+            _pushbackDuration = duration;
+            _pushbackRemaining = duration;
         }
 
         public void SnapToGroundNow()
@@ -138,6 +177,8 @@ namespace Scripts.Enemies
             _hasForcedHorizontalVelocity = false;
             _forcedHorizontalVelocity = 0f;
             _ignoreLedgeForForcedMotion = false;
+            if (_isFrozen)
+                ClearPushback();
             if (_rb != null)
             {
                 if (_isFrozen)
@@ -160,9 +201,22 @@ namespace Scripts.Enemies
             if (_rb == null || _data == null)
                 return;
 
+            if (_isFrozen)
+            {
+                ClearPushback();
+                _rb.linearVelocity = Vector2.zero;
+                return;
+            }
+
+            if (TryConsumePushbackVelocity(out float pushX))
+            {
+                _rb.linearVelocity = new Vector2(pushX, _rb.linearVelocity.y);
+                return;
+            }
+
             if (IsControlLocked)
             {
-                _rb.linearVelocity = _isFrozen ? Vector2.zero : new Vector2(0f, _rb.linearVelocity.y);
+                _rb.linearVelocity = new Vector2(0f, _rb.linearVelocity.y);
                 return;
             }
 
@@ -200,6 +254,50 @@ namespace Scripts.Enemies
             float currentX = _rb.linearVelocity.x;
             float nextX = Mathf.MoveTowards(currentX, targetSpeed, _data.Movement.Acceleration * Time.fixedDeltaTime);
             _rb.linearVelocity = new Vector2(nextX, _rb.linearVelocity.y);
+        }
+
+        private bool TryConsumePushbackVelocity(out float velocityX)
+        {
+            velocityX = 0f;
+            if (_pushbackRemaining <= 0f)
+                return false;
+
+            float duration = Mathf.Max(0.01f, _pushbackDuration);
+            float t = Mathf.Clamp01(_pushbackRemaining / duration);
+            velocityX = _pushbackInitialVelocity * t;
+            _pushbackRemaining -= Time.fixedDeltaTime;
+
+            int direction = velocityX > 0f ? 1 : velocityX < 0f ? -1 : 0;
+            if (direction != 0 && IsBlockedHorizontally(direction))
+            {
+                ClearPushback();
+                velocityX = 0f;
+            }
+
+            if (_pushbackRemaining <= 0f)
+                ClearPushback();
+
+            return true;
+        }
+
+        private void ClearPushback()
+        {
+            _pushbackInitialVelocity = 0f;
+            _pushbackDuration = 0f;
+            _pushbackRemaining = 0f;
+        }
+
+        private bool IsBlockedHorizontally(int direction)
+        {
+            if (_collider == null || direction == 0)
+                return false;
+
+            Bounds bounds = _collider.bounds;
+            float wallCheckDistance = Mathf.Max(0.05f, _data.Movement.WallCheckDistance);
+            Vector2 wallOrigin = new Vector2(
+                bounds.center.x + direction * (bounds.extents.x + 0.02f),
+                bounds.center.y);
+            return Physics2D.Raycast(wallOrigin, Vector2.right * direction, wallCheckDistance, _groundLayerMask).collider != null;
         }
 
         private float ResolveMoveSpeed()

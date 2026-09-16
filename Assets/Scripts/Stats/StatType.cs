@@ -156,6 +156,12 @@ namespace Scripts.Stats
         HelmetSkillCooldownRecovery,
         BodyArmorSkillCooldownRecovery,
         GlovesSkillCooldownRecovery,
-        BootsSkillCooldownRecovery
+        BootsSkillCooldownRecovery,
+
+        // Knockback rating. 200 is a small nudge, 1000 is clearly noticeable.
+        // Skills opt in with EnablePushback; the skill's PushbackRating is a flat modifier.
+        Pushback,
+        // Percent reduction of incoming knockback. 0 = full, 50 = half, 100 = immune.
+        PushbackResist
     }
 }

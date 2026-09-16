@@ -119,6 +119,7 @@ namespace Scripts.Enemies
                 }
             }
             TryPlayHitReaction(finalDamage);
+            PushbackImpact.TryApply(damage, this);
 
             if (finalDamage > 0f)
                 OnDamageReceived?.Invoke(finalDamage);

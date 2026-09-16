@@ -572,6 +572,7 @@ namespace Scripts.Skills
                 OwnerStats = _ownerStats,
                 OwnerTransform = _ownerStats.transform,
                 SkillSlotIndex = _slotIndex,
+                Skill = _data,
                 Step = step,
                 DamageContext = ResolveProjectileDamageContext(),
                 DamageMultiplier = damageMultiplier,
@@ -679,6 +680,7 @@ namespace Scripts.Skills
                     OwnerStats = _ownerStats,
                     OwnerTransform = _ownerStats.transform,
                     SkillSlotIndex = _slotIndex,
+                    Skill = _data,
                     Step = step,
                     DamageContext = ResolveProjectileDamageContext(),
                     DamageMultiplier = ResolveDamageMultiplier(step),
@@ -920,8 +922,12 @@ namespace Scripts.Skills
             }
 
             var hitResults = new List<SkillStepContext.HitResult>(chainResult.Targets.Count);
+            Vector3 previous = chainResult.StartPosition;
             for (int i = 0; i < chainResult.Targets.Count; i++)
-                DealDamageToChainTarget(step, chainResult.Targets[i], hitResults);
+            {
+                DealDamageToChainTarget(step, chainResult.Targets[i], hitResults, previous);
+                previous = chainResult.Targets[i].Position;
+            }
 
             if (hitResults.Count > 0)
                 _ctx.RegisterHitResults(stepIndex, hitResults);
@@ -930,18 +936,20 @@ namespace Scripts.Skills
         private IEnumerator ExecuteChainDamageDelayed(int stepIndex, StepEntry step, SkillStepContext.ChainResult chainResult, float delayPerSegment)
         {
             var hitResults = new List<SkillStepContext.HitResult>(chainResult.Targets.Count);
+            Vector3 previous = chainResult.StartPosition;
             for (int i = 0; i < chainResult.Targets.Count; i++)
             {
                 if (i > 0)
                     yield return new WaitForSeconds(delayPerSegment);
 
-                DealDamageToChainTarget(step, chainResult.Targets[i], hitResults);
+                DealDamageToChainTarget(step, chainResult.Targets[i], hitResults, previous);
+                previous = chainResult.Targets[i].Position;
                 if (hitResults.Count > 0)
                     _ctx?.RegisterHitResults(stepIndex, hitResults);
             }
         }
 
-        private void DealDamageToChainTarget(StepEntry step, SkillStepContext.ChainTarget chainTarget, List<SkillStepContext.HitResult> hitResults)
+        private void DealDamageToChainTarget(StepEntry step, SkillStepContext.ChainTarget chainTarget, List<SkillStepContext.HitResult> hitResults, Vector3 hitOrigin)
         {
             IDamageable target = chainTarget.Target;
             if (target == null)
@@ -961,6 +969,7 @@ namespace Scripts.Skills
             IStatsProvider scopedStats = BuildScopedStatsProvider(step, target);
             DamageSnapshot snapshot = DamageCalculator.CreateDamageSnapshot(scopedStats, mult, damageContext, step.DamageConversions);
             snapshot.Source = _ownerStats;
+            PushbackResolver.BindToSnapshot(snapshot, SkillPushback.IsEnabled(_data), scopedStats, hitOrigin);
 
             if (target.TakeDamage(snapshot))
             {
@@ -1142,6 +1151,8 @@ namespace Scripts.Skills
                 IStatsProvider scopedStats = BuildScopedStatsProvider(step, target);
                 var snapshot = DamageCalculator.CreateDamageSnapshot(scopedStats, mult, damageContext, step.DamageConversions);
                 snapshot.Source = _ownerStats;
+                Vector2 hitOrigin = _ownerStats != null ? (Vector2)_ownerStats.transform.position : Vector2.zero;
+                PushbackResolver.BindToSnapshot(snapshot, SkillPushback.IsEnabled(_data), scopedStats, hitOrigin);
                 Transform targetTransform = ResolveDamageableTransform(target);
                 if (target.TakeDamage(snapshot))
                 {
@@ -1199,12 +1210,9 @@ namespace Scripts.Skills
         private IStatsProvider BuildScopedStatsProvider(StepEntry step, IDamageable target)
         {
             IStatsProvider weaponStats = ResolveSkillStats();
-            if ((step.ScopedStatModifiers == null || step.ScopedStatModifiers.Count == 0) &&
-                (step.TargetAilmentStackModifiers == null || step.TargetAilmentStackModifiers.Count == 0))
-                return weaponStats;
-
             var modifiers = new List<SerializableStatModifier>();
-            if (step.ScopedStatModifiers != null)
+            SkillPushback.AppendFlatModifier(_data, modifiers);
+            if (step?.ScopedStatModifiers != null)
                 modifiers.AddRange(step.ScopedStatModifiers);
 
             AppendTargetAilmentStackModifiers(step, target, modifiers);
@@ -1334,7 +1342,9 @@ namespace Scripts.Skills
                 Lightning = source.Lightning * multiplier,
                 IsCrit = source.IsCrit,
                 CritMultiplier = source.CritMultiplier,
-                IsDirectHit = source.IsDirectHit
+                IsDirectHit = source.IsDirectHit,
+                PushbackRating = source.PushbackRating,
+                HitOrigin = source.HitOrigin
             };
         }
 

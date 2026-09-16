@@ -113,6 +113,16 @@ namespace Scripts.Skills
 
             bool ru = IsRussian(localeCode);
             var unique = new HashSet<string>(StringComparer.Ordinal);
+            if (skill.EnablePushback)
+            {
+                if (skill.PushbackRating > 0.001f)
+                    Add(lines, unique, ru
+                        ? $"Отталкивает врагов (pushback {N(skill.PushbackRating)})."
+                        : $"Knocks enemies back (pushback {N(skill.PushbackRating)}).");
+                else
+                    Add(lines, unique, ru ? "Отталкивает врагов." : "Knocks enemies back.");
+            }
+
             foreach (StepEntry step in skill.Recipe.Steps)
                 AppendStep(step, ru, statNameResolver, lines, unique);
 

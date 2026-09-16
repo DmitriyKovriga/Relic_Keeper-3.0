@@ -67,6 +67,7 @@ namespace Scripts.Skills.Projectiles
         public float OrbitAngleDegrees;
         public float RehitCooldownSeconds;
         public HashSet<IDamageable> HitHistory;
+        public SkillDataSO Skill;
 
         public SkillProjectileLaunchData Clone()
         {
@@ -468,6 +469,11 @@ namespace Scripts.Skills.Projectiles
                 _data.DamageContext,
                 _data.Step.DamageConversions);
             snapshot.Source = _data.OwnerStats;
+            PushbackResolver.BindToSnapshot(
+                snapshot,
+                SkillPushback.IsEnabled(_data.Skill),
+                scopedStats,
+                transform.position);
             connected = target.TakeDamage(snapshot);
             if (connected)
                 TryApplyAilmentsFromHit(scopedStats, target, snapshot);
@@ -564,12 +570,9 @@ namespace Scripts.Skills.Projectiles
         {
             IStatsProvider weaponStats = WeaponHandStatScope.ForSkill(_data.OwnerStats, _data.SkillSlotIndex);
             StepEntry step = _data.Step;
-            if ((step.ScopedStatModifiers == null || step.ScopedStatModifiers.Count == 0) &&
-                (step.TargetAilmentStackModifiers == null || step.TargetAilmentStackModifiers.Count == 0))
-                return weaponStats;
-
             var modifiers = new List<SerializableStatModifier>();
-            if (step.ScopedStatModifiers != null)
+            SkillPushback.AppendFlatModifier(_data.Skill, modifiers);
+            if (step?.ScopedStatModifiers != null)
                 modifiers.AddRange(step.ScopedStatModifiers);
 
             AppendTargetAilmentStackModifiers(step, target, modifiers);
@@ -968,7 +971,9 @@ namespace Scripts.Skills.Projectiles
                 Lightning = source.Lightning * multiplier,
                 IsCrit = source.IsCrit,
                 CritMultiplier = source.CritMultiplier,
-                IsDirectHit = source.IsDirectHit
+                IsDirectHit = source.IsDirectHit,
+                PushbackRating = source.PushbackRating,
+                HitOrigin = source.HitOrigin
             };
         }
 

@@ -337,6 +337,7 @@ namespace Scripts.Editor.Enemy
                 new() { Type = StatType.ColdResist, Value = 0f },
                 new() { Type = StatType.LightningResist, Value = 0f },
                 new() { Type = StatType.PhysicalResist, Value = 0f },
+                new() { Type = StatType.PushbackResist, Value = 0f },
             };
         }
 
@@ -351,6 +352,7 @@ namespace Scripts.Editor.Enemy
                 new() { Type = StatType.ColdResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
                 new() { Type = StatType.LightningResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
                 new() { Type = StatType.PhysicalResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
+                new() { Type = StatType.PushbackResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
             };
         }
 

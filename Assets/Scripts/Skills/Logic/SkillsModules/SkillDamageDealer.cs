@@ -30,11 +30,21 @@ namespace Scripts.Skills.Modules
 
             // 1. Создаем снапшот урона (один раз на весь удар)
             // Это важно! Крит роллится 1 раз на взмах, а не для каждого врага отдельно (как в PoE).
-            int slotIndex = GetComponent<SkillBehaviour>()?.SlotIndex ?? 0;
+            var behaviour = GetComponent<SkillBehaviour>();
+            int slotIndex = behaviour?.SlotIndex ?? 0;
+            SkillDataSO skill = behaviour != null ? behaviour.Data : null;
+            IStatsProvider stats = WeaponHandStatScope.ForSkill(_ownerStats, slotIndex);
+            var modifiers = new List<SerializableStatModifier>();
+            SkillPushback.AppendFlatModifier(skill, modifiers);
+            if (modifiers.Count > 0)
+                stats = new ScopedStatsProvider(stats, modifiers);
+
             DamageSnapshot damage = DamageCalculator.CreateDamageSnapshot(
-                WeaponHandStatScope.ForSkill(_ownerStats, slotIndex),
+                stats,
                 _damageMultiplier,
                 new DamageContext(StatContextTagFlags.Attack | StatContextTagFlags.Melee));
+            Vector2 hitOrigin = _ownerStats != null ? (Vector2)_ownerStats.transform.position : Vector2.zero;
+            PushbackResolver.BindToSnapshot(damage, SkillPushback.IsEnabled(skill), stats, hitOrigin);
 
             // 2. Раздаем урон
             foreach (var target in targets)

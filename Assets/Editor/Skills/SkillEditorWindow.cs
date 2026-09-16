@@ -853,6 +853,18 @@ namespace Scripts.Editor.Skills
                 new GUIContent("Skill Speed Multiplier", "Applied after normal AttackSpeed/CastSpeed. 1 = normal, 1.5 = 50% faster."));
 
             EditorGUILayout.Space(8f);
+            EditorGUILayout.LabelField("Pushback", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(
+                serializedSkill.FindProperty("EnablePushback"),
+                new GUIContent("Enable Pushback", "When off, this skill never knocks back — even if the attacker has Pushback from gear or the tree."));
+            using (new EditorGUI.DisabledScope(!skill.EnablePushback))
+            {
+                EditorGUILayout.PropertyField(
+                    serializedSkill.FindProperty("PushbackRating"),
+                    new GUIContent("Pushback Rating", "Flat Pushback added on this skill's hits. 200 is a small nudge, 1000 is clearly noticeable."));
+            }
+
+            EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField("Runtime Links", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("DamageContextTags"));
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("SkillPrefab"));

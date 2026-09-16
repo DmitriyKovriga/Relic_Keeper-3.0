@@ -25,6 +25,7 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(CharacterWindowStatCatalog.IsHidden(StatType.TakePhysAsFire), Is.True);
             Assert.That(CharacterWindowStatCatalog.IsHidden(StatType.HelmetSkillCooldownRecovery), Is.True);
             Assert.That(CharacterWindowStatCatalog.IsHidden(StatType.HealthRegenPercent), Is.True);
+            Assert.That(CharacterWindowStatCatalog.IsHidden(StatType.PushbackResist), Is.True);
         }
 
         [Test]
@@ -38,6 +39,7 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(other, Has.No.Member(StatType.FireToCold));
             Assert.That(other, Has.Member(StatType.ChanseToAvoidBleed));
             Assert.That(other, Has.Member(StatType.ExtraTargetsForMeleeHits));
+            Assert.That(other, Has.Member(StatType.Pushback));
         }
 
         [Test]

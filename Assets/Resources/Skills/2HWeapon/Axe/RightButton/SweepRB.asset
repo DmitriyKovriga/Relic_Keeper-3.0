@@ -22,6 +22,8 @@ MonoBehaviour:
   Cooldown: 5
   ManaCost: 10
   DamageContextTags: 21
+  EnablePushback: 1
+  PushbackRating: 200
   SkillPrefab: {fileID: 5488993807411286246, guid: 1956a8ef2cdbc56468c01f2cf31a29fb, type: 3}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: bb5b2ec0b696d9044899a7f34071a1a6, type: 2}

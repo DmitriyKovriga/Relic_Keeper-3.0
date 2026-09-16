@@ -47,6 +47,12 @@ namespace Scripts.Skills
         [Tooltip("Контекст урона для расчета Context Modifier статов. Если оставить None у старых melee-скиллов, рантайм подставит безопасный legacy fallback Attack|Melee.")]
         public StatContextTagFlags DamageContextTags;
 
+        [Header("Pushback")]
+        [Tooltip("When enabled, this skill knocks enemies left or right using Pushback rating. Off by default.")]
+        public bool EnablePushback;
+        [Tooltip("Flat Pushback rating added on this skill's hits. 200 is a small nudge, 1000 is clearly noticeable.")]
+        public float PushbackRating;
+
         [Header("Visuals & Logic")]
         [Tooltip("Префаб логики с компонентом SkillBehaviour на корне. Для навыка с Recipe можно оставить пустым: StepRunner создаётся автоматически. Визуальные эффекты назначаются в шагах рецепта, не здесь.")]
         public GameObject SkillPrefab;

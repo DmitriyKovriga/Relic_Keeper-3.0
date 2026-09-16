@@ -1,4 +1,5 @@
 using System.Text;
+using UnityEngine;
 
 namespace Scripts.Combat
 {
@@ -22,6 +23,11 @@ namespace Scripts.Combat
         public bool IsCrit;
         public float CritMultiplier; // 1.5 = 150%
         public bool IsDirectHit = true;
+
+        // Horizontal knockback. Rating is abstract (200 small, 1000 noticeable).
+        // HitOrigin is the attack/projectile position used to pick left vs right.
+        public float PushbackRating;
+        public Vector2 HitOrigin;
 
         // Хелпер для получения суммы
         public float TotalDamage => Physical + Fire + Cold + Lightning;

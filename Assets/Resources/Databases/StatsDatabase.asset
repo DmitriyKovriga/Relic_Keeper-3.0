@@ -1326,3 +1326,29 @@ MonoBehaviour:
     ContextTags: 0
     DamageChannels: 0
     AllowedAffixKinds: 31
+  - StatTypeId: Pushback
+    Category: Combat
+    SemanticKind: 3
+    Format: 0
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 7
+    DisplayAsPercentWhenFlat: 0
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31
+  - StatTypeId: PushbackResist
+    Category: Resistances
+    SemanticKind: 0
+    Format: 1
+    ShowInCharacterWindow: 0
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 0
+    ValueUnit: 3
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 31

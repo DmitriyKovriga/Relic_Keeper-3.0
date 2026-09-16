@@ -57,6 +57,8 @@ public static class CharacterWindowStatCatalog
             return true;
         if (type == StatType.HealthRegenPercent || type == StatType.ManaRegenPercent)
             return true;
+        if (type == StatType.PushbackResist)
+            return true;
         if (IsConversion(type))
             return true;
         if (type == StatType.MaxFireResist ||

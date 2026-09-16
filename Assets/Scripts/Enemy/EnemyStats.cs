@@ -65,6 +65,7 @@ namespace Scripts.Enemies
             EnsureStat(StatType.MaxPhysicalResist, 90f);
             EnsureStat(StatType.Armor, 100f);
             EnsureStat(StatType.StunThreshold, Mathf.Max(1f, GetValue(StatType.MaxHealth) * 0.7f));
+            EnsureStat(StatType.PushbackResist, 0f);
             EnsureStat(StatType.MaxMysticShield, 0f);
             EnsureStat(StatType.MysticShieldRechargeDuration, 5f);
             EnsureStat(StatType.MysticShieldMitigationPercent, 50f);

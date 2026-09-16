@@ -24,6 +24,8 @@ MonoBehaviour:
   ActionSpeedMode: 0
   SkillSpeedMultiplier: 1.25
   DamageContextTags: 0
+  EnablePushback: 1
+  PushbackRating: 200
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: 96e898cdf1676b24592c133c2046d547, type: 2}

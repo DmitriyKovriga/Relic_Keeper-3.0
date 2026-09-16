@@ -599,6 +599,8 @@ namespace Scripts.Stats
                 case StatType.ProjectilePierce:
                 case StatType.MaxBleedStack:
                 case StatType.ExtraTargetsForMeleeHits:
+                case StatType.Pushback:
+                case StatType.PushbackResist:
                     return StatSemanticKind.Utility;
 
                 default:
@@ -613,6 +615,7 @@ namespace Scripts.Stats
             if (s.Contains("Bleed") || s.Contains("Poison") || s.Contains("Ignite") || s.Contains("Freeze") || s.Contains("Shock")) return "Ailments";
             if (s.Contains("Resist") || s.Contains("Penetration") || s.Contains("Mitigation") || s.Contains("DamageTaken")) return "Resistances";
             if (s.Contains("Health") || s.Contains("Mana")) return "Vitals";
+            if (type == StatType.Pushback) return "Combat";
             if (s.Contains("Armor") || s.Contains("Evasion") || s.Contains("Block") || s.Contains("MysticShield")) return "Defense";
             if (s.Contains("Crit")) return "Critical";
             if (s.Contains("Speed")) return "Speed";
@@ -653,14 +656,16 @@ namespace Scripts.Stats
         {
             if (IsRetiredStat(type) || IsCooldownRecoveryStat(type))
                 return false;
-            return type != StatType.HealthRegenPercent && type != StatType.ManaRegenPercent;
+            if (type == StatType.HealthRegenPercent || type == StatType.ManaRegenPercent || type == StatType.PushbackResist)
+                return false;
+            return true;
         }
 
         public static bool DefaultShowInPrimaryStatsEditor(StatType type)
         {
             if (IsRetiredStat(type))
                 return false;
-            if (IsCooldownRecoveryStat(type))
+            if (IsCooldownRecoveryStat(type) || type == StatType.Pushback || type == StatType.PushbackResist)
                 return true;
             return DefaultSemanticKindFor(type) == StatSemanticKind.FinalScalar;
         }

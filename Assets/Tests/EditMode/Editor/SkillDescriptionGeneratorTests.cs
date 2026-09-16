@@ -111,6 +111,26 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void EnabledPushback_AppearsInAutomaticDescription()
+        {
+            SkillDataSO skill = Track(ScriptableObject.CreateInstance<SkillDataSO>());
+            SkillRecipeSO recipe = Track(ScriptableObject.CreateInstance<SkillRecipeSO>());
+            StepDefinitionSO definition = Track(ScriptableObject.CreateInstance<StepDefinitionSO>());
+            definition.Id = "DealDamageRectangle";
+            recipe.Steps.Add(new StepEntry { StepDefinition = definition });
+            skill.Recipe = recipe;
+            skill.EnablePushback = true;
+            skill.PushbackRating = 200f;
+
+            string en = SkillDescriptionGenerator.BuildAutomatic(skill, "en");
+            string ru = SkillDescriptionGenerator.BuildAutomatic(skill, "ru");
+
+            Assert.That(en, Does.Contain("Knocks enemies back"));
+            Assert.That(en, Does.Contain("200"));
+            Assert.That(ru, Does.Contain("Отталкивает"));
+        }
+
+        [Test]
         public void StatusAuthoredDescription_AppearsInSkillTextAndTooltip()
         {
             SkillDataSO skill = Track(ScriptableObject.CreateInstance<SkillDataSO>());
