@@ -6,12 +6,13 @@ namespace Scripts.Skills.PassiveTree.UI
     public class PassiveTreeViewport
     {
         private readonly VisualElement _viewport;
-        private readonly VisualElement _content; // То, что двигаем (TreeContainer)
+        private readonly VisualElement _content;
 
         private bool _isDragging;
         private Vector2 _dragStartPos;
         private Vector2 _contentStartPos;
-        
+        private Vector2 _contentPos;
+
         private float _currentZoom = 1.0f;
         private const float MinZoom = 0.3f;
         private const float MaxZoom = 2.0f;
@@ -24,11 +25,10 @@ namespace Scripts.Skills.PassiveTree.UI
             _viewport = viewport;
             _content = content;
 
-            // Регистрация событий
             _viewport.RegisterCallback<PointerDownEvent>(OnPointerDown);
             _viewport.RegisterCallback<PointerMoveEvent>(OnPointerMove);
             _viewport.RegisterCallback<PointerUpEvent>(OnPointerUp);
-            _viewport.RegisterCallback<PointerLeaveEvent>(OnPointerUp);
+            _viewport.RegisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
             _viewport.RegisterCallback<WheelEvent>(OnWheel);
         }
 
@@ -37,7 +37,7 @@ namespace Scripts.Skills.PassiveTree.UI
             _viewport.UnregisterCallback<PointerDownEvent>(OnPointerDown);
             _viewport.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
             _viewport.UnregisterCallback<PointerUpEvent>(OnPointerUp);
-            _viewport.UnregisterCallback<PointerLeaveEvent>(OnPointerUp);
+            _viewport.UnregisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
             _viewport.UnregisterCallback<WheelEvent>(OnWheel);
         }
 
@@ -47,8 +47,9 @@ namespace Scripts.Skills.PassiveTree.UI
             float viewHeight = _viewport.resolvedStyle.height;
             if (float.IsNaN(viewWidth)) viewWidth = 0;
             if (float.IsNaN(viewHeight)) viewHeight = 0;
-            _content.style.left = -position.x * _currentZoom + viewWidth / 2f;
-            _content.style.top = -position.y * _currentZoom + viewHeight / 2f;
+            SetContentPos(new Vector2(
+                -position.x * _currentZoom + viewWidth / 2f,
+                -position.y * _currentZoom + viewHeight / 2f));
         }
 
         /// <summary>
@@ -67,31 +68,35 @@ namespace Scripts.Skills.PassiveTree.UI
             _currentZoom = Mathf.Clamp(Mathf.Min(fitZoomX, fitZoomY), MinZoom, MaxZoom);
 
             Vector2 contentCenter = new Vector2(contentRect.x + contentRect.width * 0.5f, contentRect.y + contentRect.height * 0.5f);
-            _content.style.left = vw * 0.5f - contentCenter.x * _currentZoom;
-            _content.style.top = vh * 0.5f - contentCenter.y * _currentZoom;
+            SetContentPos(new Vector2(
+                vw * 0.5f - contentCenter.x * _currentZoom,
+                vh * 0.5f - contentCenter.y * _currentZoom));
             _content.transform.scale = Vector3.one * _currentZoom;
         }
 
         private void OnWheel(WheelEvent evt)
         {
-            float zoomDelta = -evt.delta.y > 0 ? 1 + ZoomSpeed : 1 - ZoomSpeed;
             float oldZoom = _currentZoom;
-            _currentZoom = Mathf.Clamp(_currentZoom * zoomDelta, MinZoom, MaxZoom);
+            _currentZoom = PassiveTreeViewportMath.StepZoom(oldZoom, evt.delta.y, ZoomSpeed, MinZoom, MaxZoom);
+            if (Mathf.Approximately(oldZoom, _currentZoom))
+            {
+                evt.StopPropagation();
+                return;
+            }
 
-            if (Mathf.Approximately(oldZoom, _currentZoom)) return;
-
-            // Математика зума к курсору
-            Vector2 mousePosInViewport = evt.localMousePosition;
-            Vector2 oldContainerPos = new Vector2(_content.resolvedStyle.left, _content.resolvedStyle.top);
-            Vector2 mousePosInContainer = (mousePosInViewport - oldContainerPos) / oldZoom;
+            Vector2 mousePosInViewport = GetWheelPositionInViewport(evt);
+            Vector2 newContainerPos = PassiveTreeViewportMath.ZoomToward(
+                _contentPos,
+                oldZoom,
+                _currentZoom,
+                mousePosInViewport);
 
             _content.transform.scale = Vector3.one * _currentZoom;
-            
-            Vector2 newContainerPos = mousePosInViewport - (mousePosInContainer * _currentZoom);
-            _content.style.left = newContainerPos.x;
-            _content.style.top = newContainerPos.y;
+            SetContentPos(newContainerPos);
+            ResyncDragAfterZoom(evt.mousePosition);
 
             evt.StopPropagation();
+            evt.PreventDefault();
         }
 
         private void OnPointerDown(PointerDownEvent evt)
@@ -100,37 +105,110 @@ namespace Scripts.Skills.PassiveTree.UI
             {
                 _isDragging = true;
                 _dragStartPos = evt.position;
-                _contentStartPos = new Vector2(_content.resolvedStyle.left, _content.resolvedStyle.top);
+                _contentStartPos = _contentPos;
                 _viewport.CapturePointer(evt.pointerId);
             }
         }
 
         private void OnPointerMove(PointerMoveEvent evt)
         {
-            if (_isDragging)
-            {
-                Vector2 delta = (Vector2)evt.position - _dragStartPos;
-                _content.style.left = _contentStartPos.x + delta.x;
-                _content.style.top = _contentStartPos.y + delta.y;
-            }
+            if (!_isDragging)
+                return;
+
+            SetContentPos(PassiveTreeViewportMath.Pan(_contentStartPos, _dragStartPos, evt.position));
         }
 
         private void OnPointerUp(PointerUpEvent evt)
         {
-            if (_isDragging)
-            {
-                _isDragging = false;
-                _viewport.ReleasePointer(evt.pointerId);
-            }
+            EndDrag(evt.pointerId);
         }
-        
-        private void OnPointerUp(PointerLeaveEvent evt)
+
+        private void OnPointerCaptureOut(PointerCaptureOutEvent evt)
         {
-             if (_isDragging)
-             {
-                 _isDragging = false;
-                 _viewport.ReleasePointer(evt.pointerId);
-             }
+            _isDragging = false;
+        }
+
+        private void EndDrag(int pointerId)
+        {
+            if (!_isDragging)
+                return;
+
+            _isDragging = false;
+            if (_viewport.HasPointerCapture(pointerId))
+                _viewport.ReleasePointer(pointerId);
+        }
+
+        private void ResyncDragAfterZoom(Vector2 currentPointerPos)
+        {
+            if (!_isDragging)
+                return;
+
+            _contentStartPos = _contentPos;
+            _dragStartPos = currentPointerPos;
+        }
+
+        private void SetContentPos(Vector2 pos)
+        {
+            _contentPos = pos;
+            _content.style.left = pos.x;
+            _content.style.top = pos.y;
+        }
+
+        private Vector2 GetWheelPositionInViewport(WheelEvent evt)
+        {
+            Vector2 local = evt.localMousePosition;
+            if (IsUsableViewportPosition(local))
+                return local;
+
+            Vector2 world = _viewport.WorldToLocal(evt.mousePosition);
+            if (IsUsableViewportPosition(world))
+                return world;
+
+            return local;
+        }
+
+        private bool IsUsableViewportPosition(Vector2 position)
+        {
+            if (float.IsNaN(position.x) || float.IsNaN(position.y))
+                return false;
+
+            float width = _viewport.resolvedStyle.width;
+            float height = _viewport.resolvedStyle.height;
+            if (width <= 0f || height <= 0f)
+                return true;
+
+            const float tolerance = 64f;
+            return position.x >= -tolerance &&
+                   position.y >= -tolerance &&
+                   position.x <= width + tolerance &&
+                   position.y <= height + tolerance;
+        }
+    }
+
+    /// <summary>
+    /// Pan/zoom math for the passive tree. Keep content position tracked in code;
+    /// do not mix a zoomed position with a pan that still uses the pre-zoom origin.
+    /// </summary>
+    public static class PassiveTreeViewportMath
+    {
+        public static float StepZoom(float currentZoom, float wheelDeltaY, float zoomSpeed, float minZoom, float maxZoom)
+        {
+            float factor = -wheelDeltaY > 0f ? 1f + zoomSpeed : 1f - zoomSpeed;
+            return Mathf.Clamp(currentZoom * factor, minZoom, maxZoom);
+        }
+
+        public static Vector2 ZoomToward(Vector2 contentPos, float oldZoom, float newZoom, Vector2 mousePosInViewport)
+        {
+            if (oldZoom <= 0f || Mathf.Approximately(oldZoom, newZoom))
+                return contentPos;
+
+            Vector2 mouseInContent = (mousePosInViewport - contentPos) / oldZoom;
+            return mousePosInViewport - mouseInContent * newZoom;
+        }
+
+        public static Vector2 Pan(Vector2 contentStartPos, Vector2 dragStartPos, Vector2 currentPointerPos)
+        {
+            return contentStartPos + (currentPointerPos - dragStartPos);
         }
     }
 }

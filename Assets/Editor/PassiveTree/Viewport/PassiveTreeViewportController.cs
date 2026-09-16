@@ -1,3 +1,4 @@
+using Scripts.Skills.PassiveTree.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -20,6 +21,8 @@ namespace Scripts.Editor.PassiveTree
         private bool _isPanning;
         private Vector2 _panStartPos;
         private Vector2 _contentStartPos;
+        private bool _hasContentPos;
+        private Vector2 _contentPos;
 
         public float Zoom => _zoom;
 
@@ -47,7 +50,7 @@ namespace Scripts.Editor.PassiveTree
         /// </summary>
         public Vector2 ViewportToContentPosition(Vector2 viewportPos)
         {
-            Vector2 contentPos = GetContentViewportPosition();
+            Vector2 contentPos = ReadContentPos();
             return (viewportPos - contentPos) / _zoom;
         }
 
@@ -64,16 +67,14 @@ namespace Scripts.Editor.PassiveTree
         {
             _isPanning = true;
             _panStartPos = position;
-            _contentStartPos = new Vector2(_content.resolvedStyle.left, _content.resolvedStyle.top);
+            _contentStartPos = ReadContentPos();
             _viewport.CapturePointer(pointerId);
         }
 
         public void UpdatePan(Vector2 position)
         {
             if (!_isPanning) return;
-            Vector2 delta = position - _panStartPos;
-            _content.style.left = _contentStartPos.x + delta.x;
-            _content.style.top = _contentStartPos.y + delta.y;
+            SetContentPos(PassiveTreeViewportMath.Pan(_contentStartPos, _panStartPos, position));
         }
 
         public void EndPan(int pointerId)
@@ -117,26 +118,36 @@ namespace Scripts.Editor.PassiveTree
             _zoom = Mathf.Clamp(Mathf.Min(fitZoomX, fitZoomY), MinZoom, MaxZoom);
 
             Vector2 contentCenter = new Vector2(contentRect.x + contentRect.width * 0.5f, contentRect.y + contentRect.height * 0.5f);
-            _content.style.left = vw * 0.5f - contentCenter.x * _zoom;
-            _content.style.top = vh * 0.5f - contentCenter.y * _zoom;
+            SetContentPos(new Vector2(
+                vw * 0.5f - contentCenter.x * _zoom,
+                vh * 0.5f - contentCenter.y * _zoom));
             _content.transform.scale = Vector3.one * _zoom;
         }
 
         private void OnWheel(WheelEvent evt)
         {
-            float zoomDelta = -evt.delta.y > 0 ? 1 + ZoomSpeed : 1 - ZoomSpeed;
             float oldZoom = _zoom;
-            _zoom = Mathf.Clamp(_zoom * zoomDelta, MinZoom, MaxZoom);
-            if (Mathf.Approximately(oldZoom, _zoom)) return;
+            _zoom = PassiveTreeViewportMath.StepZoom(oldZoom, evt.delta.y, ZoomSpeed, MinZoom, MaxZoom);
+            if (Mathf.Approximately(oldZoom, _zoom))
+            {
+                evt.StopPropagation();
+                return;
+            }
 
             Vector2 mousePosInViewport = GetWheelPositionInViewport(evt);
-            Vector2 oldContainerPos = GetContentViewportPosition();
-            Vector2 mousePosInContainer = (mousePosInViewport - oldContainerPos) / oldZoom;
+            Vector2 newContainerPos = PassiveTreeViewportMath.ZoomToward(
+                ReadContentPos(),
+                oldZoom,
+                _zoom,
+                mousePosInViewport);
 
             _content.transform.scale = Vector3.one * _zoom;
-            Vector2 newContainerPos = mousePosInViewport - (mousePosInContainer * _zoom);
-            _content.style.left = newContainerPos.x;
-            _content.style.top = newContainerPos.y;
+            SetContentPos(newContainerPos);
+            if (_isPanning)
+            {
+                _contentStartPos = newContainerPos;
+                _panStartPos = evt.mousePosition;
+            }
 
             evt.StopPropagation();
             evt.PreventDefault();
@@ -172,17 +183,29 @@ namespace Scripts.Editor.PassiveTree
                    position.y <= height + tolerance;
         }
 
-        private Vector2 GetContentViewportPosition()
+        private Vector2 ReadContentPos()
         {
+            if (_hasContentPos)
+                return _contentPos;
+
             float left = _content.resolvedStyle.left;
             float top = _content.resolvedStyle.top;
-
             if (float.IsNaN(left))
                 left = _content.layout.x;
             if (float.IsNaN(top))
                 top = _content.layout.y;
 
-            return new Vector2(left, top);
+            _contentPos = new Vector2(left, top);
+            _hasContentPos = true;
+            return _contentPos;
+        }
+
+        private void SetContentPos(Vector2 pos)
+        {
+            _contentPos = pos;
+            _hasContentPos = true;
+            _content.style.left = pos.x;
+            _content.style.top = pos.y;
         }
     }
 }
