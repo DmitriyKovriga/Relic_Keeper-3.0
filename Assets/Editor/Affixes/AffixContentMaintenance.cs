@@ -27,6 +27,13 @@ namespace Scripts.Editor.Affixes
             EditorUtility.DisplayDialog("Affix content", report, "OK");
         }
 
+        [MenuItem(MenuRoot + "Generate Pushback Families")]
+        public static void GeneratePushbackFamiliesFromMenu()
+        {
+            int created = GeneratePushbackFamilies();
+            EditorUtility.DisplayDialog("Affix content", $"Pushback families ready. Created: {created}.", "OK");
+        }
+
         [MenuItem(MenuRoot + "Generate Missing Stat Families")]
         public static void GenerateMissingFromMenu()
         {
@@ -52,6 +59,96 @@ namespace Scripts.Editor.Affixes
         {
             int created = GenerateMissing();
             Debug.Log($"[Affix Content] Missing stat generation complete. Created: {created}.");
+        }
+
+        public static void GeneratePushbackFamiliesFromCommandLine()
+        {
+            int created = GeneratePushbackFamilies();
+            Debug.Log($"[Affix Content] Pushback families generated. Created: {created}.");
+        }
+
+        public static int GeneratePushbackFamilies()
+        {
+            StatsDatabaseSO statsDatabase = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase);
+            AffixTagDatabaseSO tagDatabase = AssetDatabase.LoadAssetAtPath<AffixTagDatabaseSO>(EditorPaths.AffixTagDatabase);
+            StringTableCollection menuLabels = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.MenuLabels);
+            StringTableCollection affixLabels = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.AffixesLabelsTable);
+
+            if (statsDatabase == null)
+                throw new InvalidOperationException($"Stats Database was not found at {EditorPaths.StatsDatabase}.");
+            if (menuLabels == null || affixLabels == null)
+                throw new InvalidOperationException("MenuLabels or AffixesLabels localization collection is missing.");
+
+            var stats = new HashSet<StatType> { StatType.Pushback, StatType.PushbackResist };
+            int created = AffixSetGenerator.GenerateSetsForStats(
+                stats,
+                statsDatabase,
+                tagDatabase,
+                menuLabels,
+                affixLabels,
+                EditorPaths.AffixesBaseFolder);
+
+            AddAffixToPools(
+                $"{EditorPaths.AffixesBaseFolder}/ByStat/{statsDatabase.GetCategory(StatType.Pushback)}/Pushback/Pushback_Flat_Medium.asset",
+                WeaponPoolPaths);
+            AddAffixToPools(
+                $"{EditorPaths.AffixesBaseFolder}/ByStat/{statsDatabase.GetCategory(StatType.Pushback)}/Pushback/Pushback_Increase_Medium.asset",
+                WeaponPoolPaths);
+            AddAffixToPools(
+                $"{EditorPaths.AffixesBaseFolder}/ByStat/{statsDatabase.GetCategory(StatType.PushbackResist)}/PushbackResist/PushbackResist_Flat_Medium.asset",
+                ArmorPoolPaths);
+
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[Affix Content] Pushback families generated. Created: {created}.");
+            return created;
+        }
+
+        private static readonly string[] WeaponPoolPaths =
+        {
+            "Assets/Resources/Affixes/Pools/TwoHandedMelee/Axe/pool/OneHandedGenericPhysAffixPool.asset",
+            "Assets/Resources/Affixes/Pools/TwoHandedMelee/Axe/pool/TwoHandedGenericPhysAffixPool.asset",
+            "Assets/Resources/Affixes/Pools/TwoHandedMelee/Axe/pool/TwoHandedGenericMagicAffixPool.asset",
+            "Assets/Resources/Affixes/Pools/TwoHandedMelee/Axe/pool/TwoHandedAxeAffixPool.asset",
+            "Assets/Resources/Affixes/Pools/TwoHandedMelee/Axe/pool/TwoHandedHammerAffixPool.asset",
+            "Assets/Resources/Affixes/Pools/TwoHandedMelee/Axe/pool/TwoHandedGenericPhysRangedAffixPool.asset",
+            "Assets/Resources/Affixes/Pools/RangedWeapon/RangedWeaponAffixPool.asset"
+        };
+
+        private static readonly string[] ArmorPoolPaths =
+        {
+            "Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/HelmetsArmorePool.asset",
+            "Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/HelmetsEvasionPool.asset",
+            "Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/HelmetsMysticPool.asset",
+            "Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/BodyArmorePool.asset",
+            "Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/BodyEvasionPool.asset",
+            "Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/BodyMysticPool.asset",
+            "Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/GlovesArmorePool.asset",
+            "Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/GlovesEvasionPool.asset",
+            "Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/GlovesMysticPool.asset",
+            "Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/BootsArmorePool.asset",
+            "Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/BootsEvasionPool.asset",
+            "Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/BootsMysticPool.asset"
+        };
+
+        private static void AddAffixToPools(string affixPath, IReadOnlyList<string> poolPaths)
+        {
+            var affix = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(affixPath);
+            if (affix == null)
+                return;
+
+            for (int i = 0; i < poolPaths.Count; i++)
+            {
+                var pool = AssetDatabase.LoadAssetAtPath<AffixPoolSO>(poolPaths[i]);
+                if (pool == null)
+                    continue;
+
+                pool.Affixes ??= new List<ItemAffixSO>();
+                if (pool.Affixes.Contains(affix))
+                    continue;
+
+                pool.Affixes.Add(affix);
+                EditorUtility.SetDirty(pool);
+            }
         }
 
         public static void RebalanceAllFromCommandLine()

@@ -31,3 +31,5 @@ MonoBehaviour:
     NameKey: tag_conversion
   - Id: Vitals
     NameKey: tag_vitals
+  - Id: Combat
+    NameKey: tag_combat

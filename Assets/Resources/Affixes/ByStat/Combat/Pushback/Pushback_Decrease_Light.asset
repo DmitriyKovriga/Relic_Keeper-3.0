@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
+  m_Name: Pushback_Decrease_Light
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Items.Affixes.ItemAffixSO
+  UniqueID: Pushback_Decrease_Light
+  GroupID: Pushback_Decrease_Light
+  Tier: 0
+  NameKey: affix_name_pushback_decrease_light
+  TranslationKey: affix_decrease_pushback
+  LockAutoLocalization: 0
+  TagIds:
+  - Combat
+  Stats: []
+  Tiers:
+  - Tier: 1
+    Stats:
+    - Stat: 110
+      Type: 210
+      Scope: 0
+      ValueMode: 0
+      MinValue: 4
+      MaxValue: 8
+      RangeMinValue: 0
+      RangeMaxValue: 0
+  - Tier: 2
+    Stats:
+    - Stat: 110
+      Type: 210
+      Scope: 0
+      ValueMode: 0
+      MinValue: 8
+      MaxValue: 12
+      RangeMinValue: 0
+      RangeMaxValue: 0
+  - Tier: 3
+    Stats:
+    - Stat: 110
+      Type: 210
+      Scope: 0
+      ValueMode: 0
+      MinValue: 10
+      MaxValue: 16
+      RangeMinValue: 0
+      RangeMaxValue: 0
+  - Tier: 4
+    Stats:
+    - Stat: 110
+      Type: 210
+      Scope: 0
+      ValueMode: 0
+      MinValue: 14
+      MaxValue: 21
+      RangeMinValue: 0
+      RangeMaxValue: 0
+  - Tier: 5
+    Stats:
+    - Stat: 110
+      Type: 210
+      Scope: 0
+      ValueMode: 0
+      MinValue: 16
+      MaxValue: 26
+      RangeMinValue: 0
+      RangeMaxValue: 0
+  LegacyTierIds: []

@@ -17855,6 +17855,166 @@ MonoBehaviour:
     m_Key: affix_name_bootsskillcooldownrecovery_less_light
     m_Metadata:
       m_Items: []
+  - m_Id: 91436524468428800
+    m_Key: affix_name_pushback_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436525122740224
+    m_Key: affix_flat_pushback
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436525609279488
+    m_Key: affix_name_pushback_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436526104207360
+    m_Key: affix_name_pushback_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436526615912448
+    m_Key: affix_name_pushback_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436526615912449
+    m_Key: affix_increase_pushback
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436527039537152
+    m_Key: affix_name_pushback_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436527484133376
+    m_Key: affix_name_pushback_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436527920340992
+    m_Key: affix_name_pushback_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436527920340993
+    m_Key: affix_decrease_pushback
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436528348160000
+    m_Key: affix_name_pushback_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436528822116352
+    m_Key: affix_name_pushback_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436529287684096
+    m_Key: affix_name_pushback_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436529287684097
+    m_Key: affix_more_pushback
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436529686142976
+    m_Key: affix_name_pushback_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436530147516416
+    m_Key: affix_name_pushback_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436530638249984
+    m_Key: affix_name_pushback_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436530638249985
+    m_Key: affix_less_pushback
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436531049291776
+    m_Key: affix_name_pushback_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436531565191168
+    m_Key: affix_name_pushback_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436532546658304
+    m_Key: affix_name_pushbackresist_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436532546658305
+    m_Key: affix_flat_pushbackresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436533049974784
+    m_Key: affix_name_pushbackresist_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436533528125440
+    m_Key: affix_name_pushbackresist_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436534056607744
+    m_Key: affix_name_pushbackresist_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436534056607745
+    m_Key: affix_increase_pushbackresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436534534758400
+    m_Key: affix_name_pushbackresist_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436535021297664
+    m_Key: affix_name_pushbackresist_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436535499448320
+    m_Key: affix_name_pushbackresist_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436535499448321
+    m_Key: affix_decrease_pushbackresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436535956627456
+    m_Key: affix_name_pushbackresist_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436536392835072
+    m_Key: affix_name_pushbackresist_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436536833236992
+    m_Key: affix_name_pushbackresist_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436536833236993
+    m_Key: affix_more_pushbackresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436537319776256
+    m_Key: affix_name_pushbackresist_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436537827287040
+    m_Key: affix_name_pushbackresist_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436538280271872
+    m_Key: affix_name_pushbackresist_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436538280271873
+    m_Key: affix_less_pushbackresist
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436538779394048
+    m_Key: affix_name_pushbackresist_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 91436539257544704
+    m_Key: affix_name_pushbackresist_less_light
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
