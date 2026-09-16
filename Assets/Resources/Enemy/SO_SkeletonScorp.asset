@@ -16,19 +16,6 @@ MonoBehaviour:
   DisplayName: Skeleton Scorpion
   Prefab: {fileID: 3239475662571640954, guid: bb181fe8ba7b4aee96428cec455996ff, type: 3}
   AIType: 1
-  BaseStats:
-  - Type: 0
-    Value: 100
-  - Type: 30
-    Value: 10
-  - Type: 18
-    Value: 0
-  - Type: 20
-    Value: 0
-  - Type: 22
-    Value: 0
-  - Type: 24
-    Value: 0
   Stats:
   - Type: 0
     BaseValue: 100
@@ -51,6 +38,14 @@ MonoBehaviour:
     ScalingMode: 0
     ScalingValue: 0
   - Type: 24
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 102
+    BaseValue: 70
+    ScalingMode: 2
+    ScalingValue: 22
+  - Type: 111
     BaseValue: 0
     ScalingMode: 0
     ScalingValue: 0
@@ -151,4 +146,4 @@ MonoBehaviour:
     AttackImpactFrame: 5
   XPReward: 6.6
   LootDropMultiplier: 1
-  LegacyGrowthPerLevelPercent: 25
+  RewardGrowthPerLevelPercent: 25

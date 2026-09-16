@@ -16,24 +16,47 @@ MonoBehaviour:
   DisplayName: Dummy
   Prefab: {fileID: 3239475662571640954, guid: d3dcec50cd6f0304fbba7a9e8d2e8c0e, type: 3}
   AIType: 2
-  BaseStats:
+  Stats:
   - Type: 0
-    Value: 100
+    BaseValue: 100
+    ScalingMode: 2
+    ScalingValue: 22
   - Type: 14
-    Value: 10
+    BaseValue: 10
+    ScalingMode: 2
+    ScalingValue: 18
   - Type: 18
-    Value: 0
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
   - Type: 20
-    Value: 0
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
   - Type: 22
-    Value: 0
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
   - Type: 24
-    Value: 0
-  Stats: []
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  - Type: 102
+    BaseValue: 100
+    ScalingMode: 2
+    ScalingValue: 0
+  - Type: 111
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
+  StunThresholdMultiplier: 1
   Perception:
     AggroRange: 0
     LoseTargetRange: 0
     RequireLineOfSight: 0
+    AggroMemoryDuration: 2.5
+    AlertLoseTargetRangeMultiplier: 1.35
+    IgnoreLineOfSightWhileAlerted: 1
   Movement:
     MoveSpeed: 0
     StopDistance: 0.85
@@ -56,20 +79,104 @@ MonoBehaviour:
     DamageMultiplier: 1
     HitboxSize: {x: 1.2, y: 0.8}
     HitboxOffset: {x: 0.8, y: 0}
+    ProjectileVisualResourcePath: 
+    ProjectileSpawnOffset: {x: 0, y: 0.15}
+    ProjectileSpeed: 6
+    ProjectileLifetime: 8
+    ProjectileHitRadius: 0.22
+    ProjectileAnimationFps: 10
+    ProjectileStopsOnGround: 1
+  ChargeAttack:
+    Enabled: 0
+    TriggerMinDistance: 2.2
+    TriggerMaxDistance: 4.8
+    AttackCooldown: 3
+    DeliveryType: 0
+    DamageType: 0
+    Windup: 0.3
+    ActiveTime: 0.1
+    Recovery: 0.35
+    DamageMultiplier: 1.35
+    HitboxSize: {x: 1.6, y: 0.9}
+    HitboxOffset: {x: 0.95, y: 0}
+    DashSpeed: 5.25
+    DashDuration: 0.22
+    DashOvershootDistance: 0.95
+    IgnoreLedgesDuringDash: 0
   Behaviour:
     DecisionIntervalMin: 0.03
     DecisionIntervalMax: 0.08
+    ActionHesitationMin: 0.08
+    ActionHesitationMax: 0.18
     PostActionPauseMin: 0.05
     PostActionPauseMax: 0.12
     StopDistanceVariance: 0.1
     TurnDelayMin: 0.04
     TurnDelayMax: 0.1
     MissRecoveryMultiplier: 1.2
+    IdleWanderEnabled: 1
+    IdleWanderMoveChance: 0.65
+    IdleWanderSpeedMultiplier: 0.45
+    IdleWanderStandMin: 1.2
+    IdleWanderStandMax: 3
+    IdleWanderMoveMin: 0.35
+    IdleWanderMoveMax: 1.1
+  Burrow:
+    Enabled: 0
+    TriggerMinDistance: 1.6
+    Cooldown: 2.2
+    ExitOffsetRadius: 0.35
+    HiddenDelay: 0.04
+    PostExitPause: 0.12
+    DestinationSearchHeight: 3.5
+    DestinationSearchDepth: 6
+  DeathEffect:
+    Enabled: 1
+    ChunkCount: 6
+    ChunkHorizontalForce: 3.2
+    ChunkVerticalForce: 4.8
+    BloodHorizontalSpread: 1.4
+    BloodVerticalSpread: 1.8
+    Lifetime: 30
+    FadeDuration: 5
+    GravityScale: 2.8
+    ChunkLinearDamping: 1.35
+    ChunkAngularDamping: 1.1
+    RestCheckDelay: 0.3
+    RestVelocityThreshold: 0.18
+    RestAngularVelocityThreshold: 8
+    BloodColor: {r: 0.45, g: 0.04, b: 0.07, a: 1}
+    GoreColor: {r: 0.26, g: 0.03, b: 0.04, a: 1}
   Animation:
     Controller: {fileID: 0}
     IdleStateName: Idle
     MoveStateName: Walk
     AttackStateName: Attack
+    ChargeStateName: Charge
+    HitStateName: Hit
+    DigInStateName: DigIn
+    DigOutStateName: DigOut
+    IdleSpritesResourcePath: 
+    MoveSpritesResourcePath: 
+    AttackSpritesResourcePath: 
+    ChargeSpritesResourcePath: 
+    HitSpritesResourcePath: 
+    DigInSpritesResourcePath: 
+    DigOutSpritesResourcePath: 
+    VisualLocalOffset: {x: 0, y: 0}
+    GroundShadowOffset: {x: 0, y: 0}
+    GroundShadowWidthScale: 1
+    InvertFacingX: 0
+    IdleFps: 8
+    MoveFps: 8
+    AttackFps: 10
+    ChargeFps: 10
+    HitFps: 10
+    DigInFps: 10
+    DigOutFps: 10
+    AttackImpactFrame: -1
+    ChargeImpactFrame: -1
   XPReward: 0
+  GoldReward: 0
   LootDropMultiplier: 0
-  LegacyGrowthPerLevelPercent: 25
+  RewardGrowthPerLevelPercent: 25

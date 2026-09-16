@@ -187,7 +187,8 @@ namespace Scripts.Editor.Stats
             Rect statRect = new Rect(position.x, position.y + VerticalSpacing, position.width, lineHeight);
             Rect secondRect = new Rect(position.x, statRect.yMax + VerticalSpacing, position.width, lineHeight);
 
-            StatPickerUtility.DrawStatPicker(statRect, statProp, label);
+            var currentStat = StatPickerUtility.ReadStat(statProp);
+            StatPickerUtility.DrawStatPicker(statRect, statProp, new GUIContent(StatPickerUtility.GetDisplayName(currentStat)));
 
             float baseWidth = secondRect.width * 0.28f;
             float modeWidth = secondRect.width * 0.38f;
@@ -242,6 +243,35 @@ namespace Scripts.Editor.Stats
             EditorGUI.PropertyField(valueRect, valueProp, GUIContent.none);
             EditorGUI.PropertyField(typeRect, typeProp, GUIContent.none);
             EditorGUI.PropertyField(scopeRect, scopeProp, GUIContent.none);
+
+            EditorGUI.EndProperty();
+        }
+    }
+
+    [CustomPropertyDrawer(typeof(CharacterDataSO.StatConfig))]
+    public class CharacterStatConfigDrawer : PropertyDrawer
+    {
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return EditorGUIUtility.singleLineHeight + 4f;
+        }
+
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            EditorGUI.BeginProperty(position, label, property);
+            position = EditorGUI.IndentedRect(position);
+            position.y += 2f;
+            position.height = EditorGUIUtility.singleLineHeight;
+
+            SerializedProperty typeProp = property.FindPropertyRelative("Type");
+            SerializedProperty valueProp = property.FindPropertyRelative("Value");
+
+            float valueWidth = 88f;
+            Rect pickerRect = new Rect(position.x, position.y, position.width - valueWidth - 6f, position.height);
+            Rect valueRect = new Rect(pickerRect.xMax + 6f, position.y, valueWidth, position.height);
+
+            StatPickerUtility.DrawStatPicker(pickerRect, typeProp, GUIContent.none);
+            EditorGUI.PropertyField(valueRect, valueProp, GUIContent.none);
 
             EditorGUI.EndProperty();
         }

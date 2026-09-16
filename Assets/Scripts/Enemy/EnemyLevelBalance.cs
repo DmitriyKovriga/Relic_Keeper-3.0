@@ -14,6 +14,7 @@ namespace Scripts.Enemies
     /// Move and attack speed are a hidden Increased modifier: 1%/level to 30, then 0.2%/level.
     /// XPReward is the real level-one reward. Enemy level and dungeon modifiers
     /// are applied from a neutral multiplier of 1.
+    /// Gold is separate from XP: 6.25%/level and a 250 cap so a level-30 Knight drops 250.
     /// </summary>
     public static class EnemyLevelBalance
     {
@@ -33,6 +34,35 @@ namespace Scripts.Enemies
                    type == StatType.DamageFire ||
                    type == StatType.DamageCold ||
                    type == StatType.DamageLightning;
+        }
+
+        public static bool IsDefenseStat(StatType type)
+        {
+            return type == StatType.Armor ||
+                   type == StatType.Evasion ||
+                   type == StatType.MaxMysticShield;
+        }
+
+        public static EnemyStatScalingMode DefaultScalingMode(StatType type)
+        {
+            if (type == StatType.MaxHealth ||
+                type == StatType.StunThreshold ||
+                IsDefenseStat(type) ||
+                IsDamageStat(type))
+                return EnemyStatScalingMode.PercentPerLevel;
+
+            return EnemyStatScalingMode.None;
+        }
+
+        public static float DefaultScalingValue(StatType type)
+        {
+            if (IsDamageStat(type))
+                return DamagePercentPerLevel;
+            if (IsDefenseStat(type))
+                return DefensePercentPerLevel;
+            if (type == StatType.MaxHealth || type == StatType.StunThreshold)
+                return HealthPercentPerLevel;
+            return 0f;
         }
 
         public static float ScaledLevelSteps(int level, bool isDamage)
@@ -77,15 +107,16 @@ namespace Scripts.Enemies
             if (isTrainingDummy || data == null || data.XPReward <= 0f)
                 return 0f;
 
-            float growthPercent = data.LegacyGrowthPerLevelPercent;
+            float growthPercent = data.RewardGrowthPerLevelPercent;
             float dungeonScale = Mathf.Max(0f, dungeonMultiplier);
             return data.XPReward * PercentMultiplier(level, growthPercent) * dungeonScale;
         }
 
-        public const int GoldCapPerKill = 1000;
+        public const int GoldCapPerKill = 250;
         public const float KnightReferenceXp = 15f;
+        public const float GoldPercentPerLevel = 6.25f;
 
-        public static float RecommendedBaseGold(float xpReward, float growthPercent = 25f)
+        public static float RecommendedBaseGold(float xpReward, float growthPercent = GoldPercentPerLevel)
         {
             float xpAtCap = KnightReferenceXp * PercentMultiplier(ReferenceLevel, growthPercent);
             if (xpAtCap <= 0f || xpReward <= 0f)
@@ -98,11 +129,11 @@ namespace Scripts.Enemies
             if (isTrainingDummy || data == null)
                 return 0;
 
-            float baseGold = data.GoldReward > 0f ? data.GoldReward : RecommendedBaseGold(data.XPReward, data.LegacyGrowthPerLevelPercent);
+            float growthPercent = GoldPercentPerLevel;
+            float baseGold = data.GoldReward > 0f ? data.GoldReward : RecommendedBaseGold(data.XPReward, growthPercent);
             if (baseGold <= 0f)
                 return 0;
 
-            float growthPercent = data.LegacyGrowthPerLevelPercent;
             float dungeonScale = Mathf.Max(0f, dungeonMultiplier);
             float amount = baseGold * PercentMultiplier(level, growthPercent) * dungeonScale;
             return Mathf.Clamp(Mathf.RoundToInt(amount), 0, GoldCapPerKill);

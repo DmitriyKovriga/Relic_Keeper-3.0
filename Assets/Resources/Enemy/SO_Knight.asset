@@ -16,23 +16,6 @@ MonoBehaviour:
   DisplayName: Knight
   Prefab: {fileID: 3239475662571640954, guid: 8deacf633519442e9e2de9a1e3aff41a, type: 3}
   AIType: 0
-  BaseStats:
-  - Type: 0
-    Value: 100
-  - Type: 30
-    Value: 10
-  - Type: 18
-    Value: 0
-  - Type: 20
-    Value: 0
-  - Type: 22
-    Value: 0
-  - Type: 24
-    Value: 0
-  - Type: 102
-    Value: 70
-  - Type: 111
-    Value: 70
   Stats:
   - Type: 0
     BaseValue: 200
@@ -195,4 +178,4 @@ MonoBehaviour:
     ChargeImpactFrame: 8
   XPReward: 15
   LootDropMultiplier: 3
-  LegacyGrowthPerLevelPercent: 25
+  RewardGrowthPerLevelPercent: 25

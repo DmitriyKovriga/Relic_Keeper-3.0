@@ -59,12 +59,23 @@ namespace Scripts.Editor.Stats
 
         public static void DrawStatPickerValue(Rect rect, GUIContent label, StatType current, Action<StatType> onSelected)
         {
-            rect = EditorGUI.PrefixLabel(rect, label);
+            if (label != null && label != GUIContent.none)
+                rect = EditorGUI.PrefixLabel(rect, label);
 
+            DrawStatPickerButton(rect, current, onSelected);
+        }
+
+        public static void DrawStatPickerButton(Rect rect, StatType current, Action<StatType> onSelected)
+        {
             string buttonLabel = GetButtonLabel(current);
             string tooltip = GetTooltip(current);
             if (EditorGUI.DropdownButton(rect, new GUIContent(buttonLabel, tooltip), FocusType.Keyboard))
                 ShowPopup(rect, current, onSelected);
+        }
+
+        public static void ShowStatPicker(Rect activatorRect, StatType currentStat, Action<StatType> onSelected)
+        {
+            ShowPopup(activatorRect, currentStat, onSelected);
         }
 
         public static void DrawStatPicker(Rect rect, SerializedProperty statProperty, GUIContent label)
@@ -73,33 +84,36 @@ namespace Scripts.Editor.Stats
                 return;
 
             EditorGUI.BeginProperty(rect, label, statProperty);
-            rect = EditorGUI.PrefixLabel(rect, label);
+            if (label != null && label != GUIContent.none)
+                rect = EditorGUI.PrefixLabel(rect, label);
 
-            var currentStat = (StatType)statProperty.enumValueIndex;
-            string buttonLabel = GetButtonLabel(currentStat);
-            string tooltip = GetTooltip(currentStat);
-
-            if (EditorGUI.DropdownButton(rect, new GUIContent(buttonLabel, tooltip), FocusType.Keyboard))
-            {
-                var serializedObject = statProperty.serializedObject;
-                string propertyPath = statProperty.propertyPath;
-                ShowPopup(rect, currentStat, selected =>
-                {
-                    if (serializedObject == null || serializedObject.targetObject == null)
-                        return;
-
-                    serializedObject.Update();
-                    SerializedProperty refreshedProperty = serializedObject.FindProperty(propertyPath);
-                    if (refreshedProperty == null)
-                        return;
-
-                    refreshedProperty.enumValueIndex = (int)selected;
-                    serializedObject.ApplyModifiedProperties();
-                    EditorUtility.SetDirty(serializedObject.targetObject);
-                });
-            }
-
+            var currentStat = ReadStat(statProperty);
+            DrawStatPickerButton(rect, currentStat, selected => AssignStat(statProperty, selected));
             EditorGUI.EndProperty();
+        }
+
+        public static StatType ReadStat(SerializedProperty statProperty)
+        {
+            return statProperty != null ? (StatType)statProperty.intValue : default;
+        }
+
+        public static void AssignStat(SerializedProperty statProperty, StatType selected)
+        {
+            if (statProperty == null)
+                return;
+
+            SerializedObject serializedObject = statProperty.serializedObject;
+            if (serializedObject == null || serializedObject.targetObject == null)
+                return;
+
+            serializedObject.Update();
+            SerializedProperty refreshedProperty = serializedObject.FindProperty(statProperty.propertyPath);
+            if (refreshedProperty == null)
+                return;
+
+            refreshedProperty.intValue = (int)selected;
+            serializedObject.ApplyModifiedProperties();
+            EditorUtility.SetDirty(serializedObject.targetObject);
         }
 
         public static string GetButtonLabel(StatType stat)

@@ -16,33 +16,6 @@ MonoBehaviour:
   DisplayName: Mold
   Prefab: {fileID: 3239475662571640954, guid: 4f1f71e1c7c24d98876a3f7f5c1c3a91, type: 3}
   AIType: 2
-  BaseStats:
-  - Type: 0
-    Value: 80
-  - Type: 10
-    Value: 0
-  - Type: 14
-    Value: 0
-  - Type: 15
-    Value: 0
-  - Type: 30
-    Value: 0
-  - Type: 31
-    Value: 0
-  - Type: 32
-    Value: 0
-  - Type: 33
-    Value: 14
-  - Type: 18
-    Value: 0
-  - Type: 20
-    Value: 0
-  - Type: 22
-    Value: 0
-  - Type: 24
-    Value: 0
-  - Type: 102
-    Value: 56
   Stats:
   - Type: 0
     BaseValue: 80
@@ -96,6 +69,10 @@ MonoBehaviour:
     BaseValue: 56
     ScalingMode: 2
     ScalingValue: 22
+  - Type: 111
+    BaseValue: 0
+    ScalingMode: 0
+    ScalingValue: 0
   StunThresholdMultiplier: 1
   Perception:
     AggroRange: 11
@@ -226,4 +203,4 @@ MonoBehaviour:
   XPReward: 8.4
   GoldReward: 0
   LootDropMultiplier: 1
-  LegacyGrowthPerLevelPercent: 25
+  RewardGrowthPerLevelPercent: 25

@@ -1,27 +1,48 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Scripts.Enemies;
+using Scripts.Editor.Stats;
 using Scripts.Stats;
 
 namespace Scripts.Editor.Enemy
 {
     public class EnemyEditorWindow : EditorWindow
     {
+        private static readonly string[] StatCategoryOrder =
+        {
+            "Vitals",
+            "Defense",
+            "Resistances",
+            "Damage",
+            "Critical",
+            "Speed",
+            "Conversion",
+            "Ailments",
+            "Misc",
+            "Combat"
+        };
+
+        private static readonly int[] PreviewLevels = { 1, 5, 10, 20 };
+
         private readonly List<EnemyDataSO> _enemies = new List<EnemyDataSO>();
+        private readonly Dictionary<string, bool> _statCategoryFoldouts = new Dictionary<string, bool>();
         private Vector2 _leftScroll;
         private Vector2 _rightScroll;
         private string _search = string.Empty;
+        private string _statSearch = string.Empty;
         private EnemyAIType? _aiFilter;
         private int _selectedIndex = -1;
+        private bool _statsFoldout = true;
 
         [MenuItem("Tools/Enemy Editor")]
         public static void Open()
         {
             var window = GetWindow<EnemyEditorWindow>();
             window.titleContent = new GUIContent("Enemy Editor");
-            window.minSize = new Vector2(980f, 620f);
+            window.minSize = new Vector2(1100f, 620f);
             window.Refresh();
         }
 
@@ -130,11 +151,8 @@ namespace Scripts.Editor.Enemy
             EditorGUILayout.PropertyField(so.FindProperty("AIType"));
             EditorGUILayout.Space(4f);
 
-            EditorGUILayout.LabelField("Stats", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(so.FindProperty("Stats"), true);
-            EditorGUILayout.PropertyField(so.FindProperty("BaseStats"), true);
+            DrawStatsSection(so, enemy);
             EditorGUILayout.PropertyField(so.FindProperty("StunThresholdMultiplier"));
-            EditorGUILayout.PropertyField(so.FindProperty("LegacyGrowthPerLevelPercent"));
             EditorGUILayout.Space(4f);
 
             EditorGUILayout.LabelField("Perception", EditorStyles.boldLabel);
@@ -159,8 +177,10 @@ namespace Scripts.Editor.Enemy
 
             EditorGUILayout.LabelField("Rewards", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(so.FindProperty("XPReward"));
-            EditorGUILayout.PropertyField(so.FindProperty("GoldReward"));
+            EditorGUILayout.PropertyField(so.FindProperty("GoldReward"), new GUIContent("Gold Reward", "0 = вывести из XP так, чтобы рыцарь 30 уровня давал 250."));
+            DrawGoldRewardHint(enemy);
             EditorGUILayout.PropertyField(so.FindProperty("LootDropMultiplier"));
+            EditorGUILayout.PropertyField(so.FindProperty("RewardGrowthPerLevelPercent"), new GUIContent("Reward Growth Per Level %"));
             EditorGUILayout.Space(10f);
 
             DrawValidation(enemy);
@@ -172,6 +192,243 @@ namespace Scripts.Editor.Enemy
             EditorGUILayout.EndScrollView();
             so.ApplyModifiedProperties();
             EditorGUILayout.EndVertical();
+        }
+
+        private void DrawStatsSection(SerializedObject so, EnemyDataSO enemy)
+        {
+            SerializedProperty statsProp = so.FindProperty("Stats");
+
+            EditorGUILayout.BeginHorizontal();
+            _statsFoldout = EditorGUILayout.Foldout(_statsFoldout, "Stats", true, EditorStyles.foldoutHeader);
+            GUILayout.FlexibleSpace();
+            if (_statsFoldout)
+            {
+                if (GUILayout.Button("Ensure Defaults", EditorStyles.miniButton, GUILayout.Width(110f)))
+                    EnsureDefaultStatRows(statsProp);
+
+                Rect addRect = GUILayoutUtility.GetRect(72f, EditorGUIUtility.singleLineHeight, GUILayout.Width(72f));
+                if (GUI.Button(addRect, "Add Stat"))
+                {
+                    EnemyDataSO target = enemy;
+                    StatPickerUtility.ShowStatPicker(addRect, StatType.MaxHealth, selected =>
+                    {
+                        var live = new SerializedObject(target);
+                        AddStatRow(live.FindProperty("Stats"), selected);
+                        live.ApplyModifiedProperties();
+                    });
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+
+            if (!_statsFoldout)
+                return;
+
+            _statSearch = EditorGUILayout.TextField(_statSearch, EditorStyles.toolbarSearchField);
+            DrawGroupedStatRows(statsProp, DrawScaledStatRow);
+        }
+
+        private static void DrawGoldRewardHint(EnemyDataSO enemy)
+        {
+            if (enemy.XPReward <= 0f)
+            {
+                EditorGUILayout.HelpBox("XP = 0, поэтому золота тоже не будет (манекен).", MessageType.None);
+                return;
+            }
+
+            float derivedBase = enemy.GoldReward > 0f
+                ? enemy.GoldReward
+                : EnemyLevelBalance.RecommendedBaseGold(enemy.XPReward);
+            int atOne = EnemyLevelBalance.ResolveGoldReward(enemy, 1, 1f, false);
+            int atThirty = EnemyLevelBalance.ResolveGoldReward(enemy, EnemyLevelBalance.ReferenceLevel, 1f, false);
+            string source = enemy.GoldReward > 0f ? "ручной Gold Reward" : "авто из XP";
+            EditorGUILayout.HelpBox(
+                $"{source}: база {derivedBase:0.##}  →  L1 {atOne}  |  L30 {atThirty} (кап {EnemyLevelBalance.GoldCapPerKill}).",
+                MessageType.None);
+        }
+
+        private void DrawGroupedStatRows(SerializedProperty statsProp, Action<SerializedProperty, int, bool> drawRow)
+        {
+            var rows = new List<(int Index, StatType Type, string Category, string Name)>();
+            string search = (_statSearch ?? string.Empty).Trim();
+            var duplicateTypes = new HashSet<StatType>();
+            var seenTypes = new HashSet<StatType>();
+
+            for (int i = 0; i < statsProp.arraySize; i++)
+            {
+                SerializedProperty element = statsProp.GetArrayElementAtIndex(i);
+                var type = StatPickerUtility.ReadStat(element.FindPropertyRelative("Type"));
+                if (!seenTypes.Add(type))
+                    duplicateTypes.Add(type);
+
+                string displayName = StatPickerUtility.GetDisplayName(type);
+                string category = ResolveStatCategory(type);
+                if (!string.IsNullOrEmpty(search) &&
+                    displayName.IndexOf(search, StringComparison.OrdinalIgnoreCase) < 0 &&
+                    type.ToString().IndexOf(search, StringComparison.OrdinalIgnoreCase) < 0 &&
+                    category.IndexOf(search, StringComparison.OrdinalIgnoreCase) < 0)
+                    continue;
+
+                rows.Add((i, type, category, displayName));
+            }
+
+            foreach (IGrouping<string, (int Index, StatType Type, string Category, string Name)> group in rows
+                .GroupBy(row => row.Category)
+                .OrderBy(group => GetCategorySortIndex(group.Key))
+                .ThenBy(group => group.Key))
+            {
+                bool forceExpand = !string.IsNullOrEmpty(search);
+                bool expanded = forceExpand ||
+                    (_statCategoryFoldouts.TryGetValue(group.Key, out bool saved) ? saved : true);
+                expanded = EditorGUILayout.Foldout(expanded, $"{group.Key} ({group.Count()})", true, EditorStyles.foldoutHeader);
+                if (!forceExpand)
+                    _statCategoryFoldouts[group.Key] = expanded;
+                if (!expanded)
+                    continue;
+
+                foreach (var row in group.OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase))
+                    drawRow(statsProp, row.Index, duplicateTypes.Contains(row.Type));
+            }
+        }
+
+        private void DrawScaledStatRow(SerializedProperty statsProp, int index, bool isDuplicate)
+        {
+            SerializedProperty element = statsProp.GetArrayElementAtIndex(index);
+            SerializedProperty typeProp = element.FindPropertyRelative("Type");
+            SerializedProperty baseValueProp = element.FindPropertyRelative("BaseValue");
+            SerializedProperty scalingModeProp = element.FindPropertyRelative("ScalingMode");
+            SerializedProperty scalingValueProp = element.FindPropertyRelative("ScalingValue");
+            var type = StatPickerUtility.ReadStat(typeProp);
+            var scalingMode = (EnemyStatScalingMode)scalingModeProp.enumValueIndex;
+
+            Color previous = GUI.backgroundColor;
+            if (isDuplicate)
+                GUI.backgroundColor = new Color(0.72f, 0.32f, 0.32f, 1f);
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            GUI.backgroundColor = previous;
+
+            EditorGUILayout.BeginHorizontal();
+            Rect pickerRect = GUILayoutUtility.GetRect(180f, EditorGUIUtility.singleLineHeight, GUILayout.ExpandWidth(true));
+            StatPickerUtility.DrawStatPicker(pickerRect, typeProp, GUIContent.none);
+            EditorGUILayout.LabelField("Base", GUILayout.Width(32f));
+            EditorGUILayout.PropertyField(baseValueProp, GUIContent.none, GUILayout.Width(64f));
+            EditorGUILayout.PropertyField(scalingModeProp, GUIContent.none, GUILayout.Width(128f));
+            using (new EditorGUI.DisabledScope(scalingMode == EnemyStatScalingMode.None))
+            {
+                string scaleLabel = scalingMode == EnemyStatScalingMode.PercentPerLevel ? "%/lvl" : "/lvl";
+                EditorGUILayout.LabelField(scaleLabel, GUILayout.Width(40f));
+                EditorGUILayout.PropertyField(scalingValueProp, GUIContent.none, GUILayout.Width(52f));
+            }
+
+            if (GUILayout.Button("×", GUILayout.Width(22f)))
+            {
+                statsProp.DeleteArrayElementAtIndex(index);
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
+                GUIUtility.ExitGUI();
+            }
+            EditorGUILayout.EndHorizontal();
+
+            if (isDuplicate)
+                EditorGUILayout.HelpBox("Этот стат уже есть в списке. Оставь одну строку.", MessageType.Warning);
+
+            EditorGUILayout.LabelField(BuildLevelPreview(type, baseValueProp.floatValue, scalingMode, scalingValueProp.floatValue),
+                EditorStyles.miniLabel);
+            EditorGUILayout.EndVertical();
+        }
+
+        private static string BuildLevelPreview(StatType type, float baseValue, EnemyStatScalingMode scalingMode, float scalingValue)
+        {
+            var entry = new EnemyStatEntry
+            {
+                Type = type,
+                BaseValue = baseValue,
+                ScalingMode = scalingMode,
+                ScalingValue = scalingValue
+            };
+
+            string[] parts = new string[PreviewLevels.Length];
+            for (int i = 0; i < PreviewLevels.Length; i++)
+            {
+                int level = PreviewLevels[i];
+                parts[i] = $"L{level} {entry.Evaluate(level):0.##}";
+            }
+
+            return string.Join("   ", parts);
+        }
+
+        private static string ResolveStatCategory(StatType type)
+        {
+            var db = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase);
+            if (db != null)
+                return db.GetCategory(type);
+            return StatsDatabaseSO.DefaultCategoryFor(type);
+        }
+
+        private static int GetCategorySortIndex(string category)
+        {
+            int index = Array.IndexOf(StatCategoryOrder, category);
+            return index >= 0 ? index : StatCategoryOrder.Length;
+        }
+
+        private static void AddStatRow(SerializedProperty statsProp, StatType type)
+        {
+            if (statsProp == null)
+                return;
+
+            for (int i = 0; i < statsProp.arraySize; i++)
+            {
+                SerializedProperty existingType = statsProp.GetArrayElementAtIndex(i).FindPropertyRelative("Type");
+                if (StatPickerUtility.ReadStat(existingType) == type)
+                    return;
+            }
+
+            int index = statsProp.arraySize;
+            statsProp.InsertArrayElementAtIndex(index);
+            SerializedProperty element = statsProp.GetArrayElementAtIndex(index);
+            element.FindPropertyRelative("Type").intValue = (int)type;
+            element.FindPropertyRelative("BaseValue").floatValue = DefaultBaseValueFor(type);
+            element.FindPropertyRelative("ScalingMode").enumValueIndex = (int)EnemyLevelBalance.DefaultScalingMode(type);
+            element.FindPropertyRelative("ScalingValue").floatValue = EnemyLevelBalance.DefaultScalingValue(type);
+        }
+
+        private static void EnsureDefaultStatRows(SerializedProperty statsProp)
+        {
+            foreach (EnemyStatEntry entry in CreateDefaultStats())
+            {
+                bool exists = false;
+                for (int i = 0; i < statsProp.arraySize; i++)
+                {
+                    if (StatPickerUtility.ReadStat(statsProp.GetArrayElementAtIndex(i).FindPropertyRelative("Type")) == entry.Type)
+                    {
+                        exists = true;
+                        break;
+                    }
+                }
+
+                if (exists)
+                    continue;
+
+                int index = statsProp.arraySize;
+                statsProp.InsertArrayElementAtIndex(index);
+                SerializedProperty element = statsProp.GetArrayElementAtIndex(index);
+                element.FindPropertyRelative("Type").intValue = (int)entry.Type;
+                element.FindPropertyRelative("BaseValue").floatValue = entry.BaseValue;
+                element.FindPropertyRelative("ScalingMode").enumValueIndex = (int)entry.ScalingMode;
+                element.FindPropertyRelative("ScalingValue").floatValue = entry.ScalingValue;
+            }
+        }
+
+        private static float DefaultBaseValueFor(StatType type)
+        {
+            return type switch
+            {
+                StatType.MaxHealth => 100f,
+                StatType.StunThreshold => 70f,
+                StatType.DamagePhysical => 10f,
+                StatType.PushbackResist => 0f,
+                _ => 0f
+            };
         }
 
         private void DrawValidation(EnemyDataSO enemy)
@@ -212,22 +469,23 @@ namespace Scripts.Editor.Enemy
             int[] levels = { 1, 5, 10, 20 };
             foreach (int level in levels)
             {
-                float hp = EvaluateStat(enemy, StatType.MaxHealth, level);
-                float armor = EvaluateStat(enemy, StatType.Armor, level);
-                float phys = EvaluateStat(enemy, StatType.DamagePhysical, level);
-                float fire = EvaluateStat(enemy, StatType.DamageFire, level);
-                float cold = EvaluateStat(enemy, StatType.DamageCold, level);
-                float light = EvaluateStat(enemy, StatType.DamageLightning, level);
-                float stunThreshold = EvaluateStat(enemy, StatType.StunThreshold, level);
+                float hp = enemy.EvaluateStat(StatType.MaxHealth, level);
+                float armor = enemy.EvaluateStat(StatType.Armor, level);
+                float phys = enemy.EvaluateStat(StatType.DamagePhysical, level);
+                float fire = enemy.EvaluateStat(StatType.DamageFire, level);
+                float cold = enemy.EvaluateStat(StatType.DamageCold, level);
+                float light = enemy.EvaluateStat(StatType.DamageLightning, level);
+                float stunThreshold = enemy.EvaluateStat(StatType.StunThreshold, level);
                 if (stunThreshold <= 0f)
                     stunThreshold = hp * 0.7f;
                 stunThreshold *= Mathf.Max(0.01f, enemy.StunThresholdMultiplier);
-                float physRes = EvaluateStat(enemy, StatType.PhysicalResist, level);
-                float fireRes = EvaluateStat(enemy, StatType.FireResist, level);
-                float coldRes = EvaluateStat(enemy, StatType.ColdResist, level);
-                float lightRes = EvaluateStat(enemy, StatType.LightningResist, level);
+                float physRes = enemy.EvaluateStat(StatType.PhysicalResist, level);
+                float fireRes = enemy.EvaluateStat(StatType.FireResist, level);
+                float coldRes = enemy.EvaluateStat(StatType.ColdResist, level);
+                float lightRes = enemy.EvaluateStat(StatType.LightningResist, level);
+                float pushbackRes = enemy.EvaluateStat(StatType.PushbackResist, level);
                 EditorGUILayout.LabelField($"Lvl {level}: HP {hp:0.#} | Armor {armor:0.#} | Phys {phys:0.#} | Fire {fire:0.#} | Cold {cold:0.#} | Light {light:0.#}");
-                EditorGUILayout.LabelField($"          Stun {stunThreshold:0.#} | Resists: Phys {physRes:0.#}% | Fire {fireRes:0.#}% | Cold {coldRes:0.#}% | Light {lightRes:0.#}%");
+                EditorGUILayout.LabelField($"          Stun {stunThreshold:0.#} | Resists: Phys {physRes:0.#}% | Fire {fireRes:0.#}% | Cold {coldRes:0.#}% | Light {lightRes:0.#}% | Pushback {pushbackRes:0.#}%");
             }
         }
 
@@ -275,37 +533,6 @@ namespace Scripts.Editor.Enemy
             return query.ToList();
         }
 
-        private static float EvaluateStat(EnemyDataSO enemy, StatType type, int level)
-        {
-            if (enemy.Stats != null && enemy.Stats.Count > 0)
-            {
-                for (int i = 0; i < enemy.Stats.Count; i++)
-                {
-                    if (enemy.Stats[i].Type == type)
-                        return enemy.Stats[i].Evaluate(level);
-                }
-                return 0f;
-            }
-
-            float growthPerLevel = enemy.LegacyGrowthPerLevelPercent / 100f;
-            float levelMultiplier = 1f + ((Mathf.Max(1, level) - 1) * growthPerLevel);
-            if (enemy.BaseStats != null)
-            {
-                for (int i = 0; i < enemy.BaseStats.Count; i++)
-                {
-                    if (enemy.BaseStats[i].Type != type)
-                        continue;
-
-                    float value = enemy.BaseStats[i].Value;
-                    if (type == StatType.MaxHealth || type == StatType.Armor || type == StatType.Evasion || type == StatType.MaxMysticShield || type == StatType.DamagePhysical || type == StatType.DamageFire || type == StatType.DamageCold || type == StatType.DamageLightning)
-                        value *= levelMultiplier;
-                    return value;
-                }
-            }
-
-            return 0f;
-        }
-
         private void CreateEnemyAsset()
         {
             string path = EditorUtility.SaveFilePanelInProject("Create Enemy Data", "NewEnemy", "asset", "Выбери путь для нового EnemyDataSO");
@@ -316,7 +543,6 @@ namespace Scripts.Editor.Enemy
             string fileName = System.IO.Path.GetFileNameWithoutExtension(path);
             asset.ID = fileName;
             asset.DisplayName = ObjectNames.NicifyVariableName(fileName);
-            asset.BaseStats = CreateDefaultLegacyBaseStats();
             asset.Stats = CreateDefaultStats();
             ApplyZombieLikeDeathEffectDefaults(asset.DeathEffect);
             AssetDatabase.CreateAsset(asset, path);
@@ -326,33 +552,18 @@ namespace Scripts.Editor.Enemy
             Selection.activeObject = asset;
         }
 
-        private static List<CharacterDataSO.StatConfig> CreateDefaultLegacyBaseStats()
-        {
-            return new List<CharacterDataSO.StatConfig>
-            {
-                new() { Type = StatType.MaxHealth, Value = 100f },
-                new() { Type = StatType.StunThreshold, Value = 70f },
-                new() { Type = StatType.DamagePhysical, Value = 10f },
-                new() { Type = StatType.FireResist, Value = 0f },
-                new() { Type = StatType.ColdResist, Value = 0f },
-                new() { Type = StatType.LightningResist, Value = 0f },
-                new() { Type = StatType.PhysicalResist, Value = 0f },
-                new() { Type = StatType.PushbackResist, Value = 0f },
-            };
-        }
-
         private static List<EnemyStatEntry> CreateDefaultStats()
         {
             return new List<EnemyStatEntry>
             {
-                new() { Type = StatType.MaxHealth, BaseValue = 100f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = EnemyLevelBalance.HealthPercentPerLevel },
-                new() { Type = StatType.StunThreshold, BaseValue = 70f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = EnemyLevelBalance.HealthPercentPerLevel },
-                new() { Type = StatType.DamagePhysical, BaseValue = 10f, ScalingMode = EnemyStatScalingMode.PercentPerLevel, ScalingValue = EnemyLevelBalance.DamagePercentPerLevel },
-                new() { Type = StatType.FireResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
-                new() { Type = StatType.ColdResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
-                new() { Type = StatType.LightningResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
-                new() { Type = StatType.PhysicalResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
-                new() { Type = StatType.PushbackResist, BaseValue = 0f, ScalingMode = EnemyStatScalingMode.None, ScalingValue = 0f },
+                EnemyStatEntry.Create(StatType.MaxHealth, 100f),
+                EnemyStatEntry.Create(StatType.StunThreshold, 70f),
+                EnemyStatEntry.Create(StatType.DamagePhysical, 10f),
+                EnemyStatEntry.Create(StatType.FireResist, 0f),
+                EnemyStatEntry.Create(StatType.ColdResist, 0f),
+                EnemyStatEntry.Create(StatType.LightningResist, 0f),
+                EnemyStatEntry.Create(StatType.PhysicalResist, 0f),
+                EnemyStatEntry.Create(StatType.PushbackResist, 0f),
             };
         }
 

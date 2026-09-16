@@ -125,7 +125,7 @@ namespace RelicKeeper.Tests.EditMode
             try
             {
                 data.XPReward = 9f;
-                data.LegacyGrowthPerLevelPercent = 25f;
+                data.RewardGrowthPerLevelPercent = 25f;
                 Assert.That(EnemyLevelBalance.ResolveExperienceReward(data, 1, 1f, false), Is.EqualTo(9f).Within(0.01f));
                 Assert.That(EnemyLevelBalance.ResolveExperienceReward(data, 1, 1.3f, false), Is.EqualTo(11.7f).Within(0.01f));
                 Assert.That(
@@ -145,7 +145,7 @@ namespace RelicKeeper.Tests.EditMode
             try
             {
                 data.XPReward = 25f;
-                data.LegacyGrowthPerLevelPercent = 25f;
+                data.RewardGrowthPerLevelPercent = 25f;
                 Assert.That(EnemyLevelBalance.ResolveExperienceReward(data, 1, 1.3f, true), Is.Zero);
                 Assert.That(EnemyLevelBalance.ResolveExperienceReward(data, 30, 2f, true), Is.Zero);
 
@@ -159,16 +159,21 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void KnightLevelThirty_GoldRewardCapsAtOneThousand()
+        public void KnightLevelThirty_GoldRewardHitsCap()
         {
             const string knightPath = "Assets/Resources/Enemy/SO_Knight.asset";
             EnemyDataSO knight = AssetDatabase.LoadAssetAtPath<EnemyDataSO>(knightPath);
             Assert.That(knight, Is.Not.Null);
             Assert.That(knight.XPReward, Is.EqualTo(15f));
             Assert.That(knight.GoldReward, Is.EqualTo(0f));
+            Assert.That(EnemyLevelBalance.GoldCapPerKill, Is.EqualTo(250));
+            Assert.That(EnemyLevelBalance.GoldPercentPerLevel, Is.EqualTo(6.25f));
             Assert.That(
                 EnemyLevelBalance.ResolveGoldReward(knight, EnemyLevelBalance.ReferenceLevel, 1f, false),
                 Is.EqualTo(EnemyLevelBalance.GoldCapPerKill));
+            Assert.That(
+                EnemyLevelBalance.ResolveGoldReward(knight, 1, 1f, false),
+                Is.EqualTo(89));
         }
 
         [Test]
@@ -179,7 +184,7 @@ namespace RelicKeeper.Tests.EditMode
             {
                 data.XPReward = 15f;
                 data.GoldReward = 500f;
-                data.LegacyGrowthPerLevelPercent = 25f;
+                data.RewardGrowthPerLevelPercent = 25f;
                 Assert.That(EnemyLevelBalance.ResolveGoldReward(data, 30, 1f, true), Is.Zero);
                 data.XPReward = 0f;
                 data.GoldReward = 0f;

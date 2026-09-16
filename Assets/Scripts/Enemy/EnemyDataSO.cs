@@ -63,6 +63,17 @@ namespace Scripts.Enemies
 
             return value;
         }
+
+        public static EnemyStatEntry Create(StatType type, float baseValue)
+        {
+            return new EnemyStatEntry
+            {
+                Type = type,
+                BaseValue = baseValue,
+                ScalingMode = EnemyLevelBalance.DefaultScalingMode(type),
+                ScalingValue = EnemyLevelBalance.DefaultScalingValue(type)
+            };
+        }
     }
 
     [Serializable]
@@ -245,10 +256,6 @@ namespace Scripts.Enemies
         public EnemyEntity Prefab;
         public EnemyAIType AIType = EnemyAIType.GroundChaser;
 
-        [Header("Legacy Base Stats")]
-        [Tooltip("Старый формат. Оставлен для обратной совместимости. Новые враги должны использовать Stats.")]
-        public List<CharacterDataSO.StatConfig> BaseStats;
-
         [Header("Stats")]
         public List<EnemyStatEntry> Stats = new List<EnemyStatEntry>();
 
@@ -285,15 +292,16 @@ namespace Scripts.Enemies
         [Min(0f)]
         public float XPReward = 3f;
 
-        [Tooltip("Базовое золото за моба 1 уровня. 0 = вывести из опыта так, чтобы рыцарь 30 уровня давал 1000.")]
+        [Tooltip("Базовое золото за моба 1 уровня. 0 = вывести из опыта так, чтобы рыцарь 30 уровня давал 250.")]
         [Min(0f)]
         public float GoldReward = 0f;
 
         [Tooltip("Множитель шанса выпадения предметов и крафт-валюты. 1 = базовый шанс, 0.5 = вдвое реже, 2 = вдвое чаще, 0 = без лута.")]
         [Min(0f)] public float LootDropMultiplier = 1f;
 
-        [Tooltip("Используется только для legacy Base Stats, если новые Stats ещё не заполнены.")]
-        public float LegacyGrowthPerLevelPercent = 25f;
+        [Tooltip("Percent growth per enemy level for XP. Gold uses its own global curve.")]
+        [UnityEngine.Serialization.FormerlySerializedAs("LegacyGrowthPerLevelPercent")]
+        public float RewardGrowthPerLevelPercent = 25f;
 
         public StatType GetAttackDamageStatType()
         {
@@ -318,7 +326,6 @@ namespace Scripts.Enemies
 
         private void OnEnable()
         {
-            BaseStats ??= new List<CharacterDataSO.StatConfig>();
             Stats ??= new List<EnemyStatEntry>();
             Perception ??= new EnemyPerceptionConfig();
             Movement ??= new EnemyMovementConfig();
@@ -328,17 +335,20 @@ namespace Scripts.Enemies
             Burrow ??= new EnemyBurrowConfig();
             DeathEffect ??= new EnemyDeathEffectConfig();
             Animation ??= new EnemyAnimationConfig();
-            EnsureDefaultStunStats();
+            EnsureRequiredStats();
         }
 
-        private void EnsureDefaultStunStats()
+        private void EnsureRequiredStats()
         {
             if (StunThresholdMultiplier <= 0f)
                 StunThresholdMultiplier = 1f;
 
-            if (Stats != null && Stats.Count > 0 && !Stats.Exists(entry => entry.Type == StatType.StunThreshold))
+            if (Stats == null || Stats.Count == 0)
+                return;
+
+            if (!Stats.Exists(entry => entry.Type == StatType.StunThreshold))
             {
-                EnemyStatEntry maxHealth = Stats.Find(entry => entry.Type == StatType.MaxHealth);
+                EnemyStatEntry maxHealth = FindStat(StatType.MaxHealth);
                 float baseValue = maxHealth != null ? Mathf.Max(1f, maxHealth.BaseValue * 0.7f) : 70f;
                 Stats.Add(new EnemyStatEntry
                 {
@@ -349,26 +359,19 @@ namespace Scripts.Enemies
                 });
             }
 
-            if (BaseStats != null && BaseStats.Count > 0 && !BaseStats.Exists(entry => entry.Type == StatType.StunThreshold))
-            {
-                bool hasMaxHealth = false;
-                CharacterDataSO.StatConfig maxHealth = default;
-                for (int i = 0; i < BaseStats.Count; i++)
-                {
-                    if (BaseStats[i].Type != StatType.MaxHealth)
-                        continue;
+            if (!Stats.Exists(entry => entry.Type == StatType.PushbackResist))
+                Stats.Add(EnemyStatEntry.Create(StatType.PushbackResist, 0f));
+        }
 
-                    maxHealth = BaseStats[i];
-                    hasMaxHealth = true;
-                    break;
-                }
+        public EnemyStatEntry FindStat(StatType type)
+        {
+            return Stats?.Find(entry => entry.Type == type);
+        }
 
-                BaseStats.Add(new CharacterDataSO.StatConfig
-                {
-                    Type = StatType.StunThreshold,
-                    Value = hasMaxHealth ? Mathf.Max(1f, maxHealth.Value * 0.7f) : 70f
-                });
-            }
+        public float EvaluateStat(StatType type, int level)
+        {
+            EnemyStatEntry entry = FindStat(type);
+            return entry != null ? entry.Evaluate(level) : 0f;
         }
     }
 }

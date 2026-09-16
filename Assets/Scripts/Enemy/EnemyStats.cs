@@ -18,7 +18,6 @@ namespace Scripts.Enemies
             _stats.Clear();
             Level = Mathf.Clamp(level, 1, 100);
 
-            float growthPercent = data != null ? data.LegacyGrowthPerLevelPercent : 25f;
             float experienceMultiplier = DungeonController.Instance != null && DungeonController.Instance.CurrentModifiers != null
                 ? DungeonController.Instance.CurrentModifiers.ExperienceMultiplier
                 : 1f;
@@ -26,28 +25,10 @@ namespace Scripts.Enemies
             ExperienceReward = EnemyLevelBalance.ResolveExperienceReward(data, Level, experienceMultiplier, isTrainingDummy);
             GoldReward = EnemyLevelBalance.ResolveGoldReward(data, Level, experienceMultiplier, isTrainingDummy);
 
-            if (data != null && data.Stats != null && data.Stats.Count > 0)
+            if (data != null && data.Stats != null)
             {
                 foreach (var entry in data.Stats)
-                {
                     _stats[entry.Type] = new CharacterStat(entry.Evaluate(Level));
-                }
-            }
-            else if (data != null && data.BaseStats != null)
-            {
-                foreach (var config in data.BaseStats)
-                {
-                    float finalValue = config.Value;
-                    if (IsScalableStat(config.Type))
-                    {
-                        finalValue *= EnemyLevelBalance.PercentMultiplier(
-                            Level,
-                            growthPercent,
-                            EnemyLevelBalance.IsDamageStat(config.Type));
-                    }
-
-                    _stats[config.Type] = new CharacterStat(finalValue);
-                }
             }
 
             EnsureStat(StatType.MaxHealth, 100f);
@@ -126,18 +107,6 @@ namespace Scripts.Enemies
             object source = typeof(EnemyLevelBalance);
             AddModifier(StatType.MoveSpeed, new StatModifier(percent, StatModType.PercentAdd, source));
             AddModifier(StatType.AttackSpeed, new StatModifier(percent, StatModType.PercentAdd, source));
-        }
-
-        private static bool IsScalableStat(StatType type)
-        {
-            return type == StatType.MaxHealth ||
-                   type == StatType.Armor ||
-                   type == StatType.Evasion ||
-                   type == StatType.MaxMysticShield ||
-                   type == StatType.DamagePhysical ||
-                   type == StatType.DamageFire ||
-                   type == StatType.DamageCold ||
-                   type == StatType.DamageLightning;
         }
 
         private void EnsureStat(StatType type, float defaultVal)
