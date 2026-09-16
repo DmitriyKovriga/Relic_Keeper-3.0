@@ -17,7 +17,7 @@
 | `MaxMysticShield` | Макс. Мистических Щитов |
 | `MysticShieldRechargeDuration` | Перезарядка Мистического Щита |
 | `MysticShieldMitigationPercent` | Поглощение Мистического Щита |
-| `MaxMysticShieldMitigationPercent` | Максимальное снижение урона от щита (бабл) |
+| `MaxMysticShieldMitigationPercent` | Максимальное снижение урона от мистик шилда |
 | `Armor` | Броня |
 | `Evasion` | Уклонение |
 | `BlockChance` | Шанс Блока |

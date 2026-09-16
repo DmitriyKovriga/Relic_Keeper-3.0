@@ -11,7 +11,7 @@ using UnityEngine.InputSystem;
 [DisallowMultipleComponent]
 public class PlayerMovement : MonoBehaviour
 {
-    private const float DropThroughFailsafeDuration = 0.55f;
+    private const float DropThroughFailsafeDuration = 2f;
     private const float DefaultDropThroughDownwardVelocity = -3f;
     private const float DropThroughStartNudge = 0.16f;
     /// <summary>
@@ -39,7 +39,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField, Min(0.01f)] private float _groundCheckRadius = 0.2f;
     [SerializeField, Min(0.05f)] private float _dropThroughDuration = DropThroughFailsafeDuration;
     [SerializeField, Range(-1f, 0f)] private float _dropThroughInputThreshold = -0.5f;
-    [Tooltip("How long recent Down and Jump presses may be combined into a platform drop, in either order.")]
+    [Tooltip("How long a Jump press may still combine with held or freshly pressed Down to drop through a platform.")]
     [SerializeField, Min(0.01f)] private float _dropThroughIntentBufferDuration = 0.3f;
 
     [Header("Movement")]
@@ -371,8 +371,18 @@ public class PlayerMovement : MonoBehaviour
     private bool HasFreshDropThroughIntent()
     {
         float bufferDuration = Mathf.Max(0.01f, _dropThroughIntentBufferDuration);
-        return IsRecentPress(_lastDropThroughDownPressedTime, bufferDuration)
-            && IsRecentPress(_lastDropThroughJumpPressedTime, bufferDuration);
+        if (!IsRecentPress(_lastDropThroughJumpPressedTime, bufferDuration))
+            return false;
+
+        if (IsDownHeldForDropThrough())
+            return true;
+
+        return IsRecentPress(_lastDropThroughDownPressedTime, bufferDuration);
+    }
+
+    private bool IsDownHeldForDropThrough()
+    {
+        return _wasDropThroughInputHeld || _moveInput.y <= _dropThroughInputThreshold;
     }
 
     private static bool IsRecentPress(float pressedTime, float bufferDuration)

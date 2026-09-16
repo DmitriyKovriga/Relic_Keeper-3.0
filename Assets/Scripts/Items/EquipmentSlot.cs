@@ -44,7 +44,7 @@ namespace Scripts.Items
         Evasion,    // Ловкость -> Уклонение
         [InspectorName("Mystic Shield")]
         MysticShield,    // Интеллект -> Mystic Shield
-        Hybrid      // Смешанный (Броня + Баблы и т.д.)
+        Hybrid      // Смешанный (Броня + мистик шилды и т.д.)
     }
 
     // Область действия стата

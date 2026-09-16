@@ -155,7 +155,7 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void HeldFastFallDoesNotBecomeDropThroughIntentAtLanding()
+        public void HeldDownAndJumpCreatesDropThroughIntent()
         {
             Set("_wasDropThroughInputHeld", true);
             Set("_lastDropThroughDownPressedTime", Time.time - 1f);
@@ -163,8 +163,8 @@ namespace RelicKeeper.Tests.EditMode
 
             Call("UpdateDropThroughInputIntent", -1f);
 
-            Assert.That((bool)Call("HasFreshDropThroughIntent"), Is.False,
-                "Continuing to hold fast fall must not turn a buffered landing jump into drop-through.");
+            Assert.That((bool)Call("HasFreshDropThroughIntent"), Is.True,
+                "Holding Down and pressing Jump on a platform must drop through without a fresh Down tap.");
         }
 
         [Test]
