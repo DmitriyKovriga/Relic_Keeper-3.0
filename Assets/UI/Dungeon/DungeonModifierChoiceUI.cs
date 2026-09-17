@@ -11,6 +11,9 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
     private const float WindowHeight = 244f;
     private const float CardWidth = 138f;
     private const float CardHeight = 196f;
+    // The outer art frame is 128x72; its one-pixel border leaves this exact drawable area.
+    private const float ModifierArtWidth = 126f;
+    private const float ModifierArtHeight = 70f;
     public const int ReturnButtonWidth = 78;
     public const int ReturnButtonHeight = 14;
     public const int ReturnButtonInset = 4;
@@ -152,6 +155,7 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
         imageFrame.style.alignItems = Align.Center;
         imageFrame.style.justifyContent = Justify.Center;
         imageFrame.style.backgroundColor = ImageBackground;
+        imageFrame.style.overflow = Overflow.Hidden;
         SetSquareBorder(imageFrame, 1f, new Color(0.30f, 0.25f, 0.18f, 1f));
         card.Add(imageFrame);
 
@@ -164,11 +168,11 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
             {
                 name = "ModifierIcon",
                 sprite = imageSprite,
-                scaleMode = ScaleMode.ScaleToFit,
+                scaleMode = ScaleMode.StretchToFill,
                 pickingMode = PickingMode.Ignore
             };
-            icon.style.width = 68;
-            icon.style.height = 68;
+            icon.style.width = ModifierArtWidth;
+            icon.style.height = ModifierArtHeight;
             imageFrame.Add(icon);
         }
         else
