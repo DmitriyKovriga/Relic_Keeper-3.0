@@ -21,8 +21,8 @@ MonoBehaviour:
     Type: 200
   - Stat: 62
     Value: 10
-    Type: 200
+    Type: 100
   - Stat: 64
     Value: 5
-    Type: 200
+    Type: 100
   StatScalingRules: []

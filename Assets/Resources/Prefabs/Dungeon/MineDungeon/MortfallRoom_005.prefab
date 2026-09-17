@@ -77100,6 +77100,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _roomLevel: 1
+  _roomModifiers:
+    LootDropChancePercent: 0
+    LootRarityPercent: 0
+    ExperiencePercent: 0
+    EnemyDamageTakenPercent: 0
+    EnemyDamageDealtPercent: 0
+    EnemyCountPercent: 0
+  _builtInModifiers: []
   _playerSpawnPoint: {fileID: 861953363116460975}
   _cameraBoundsSource: {fileID: 7582358796681758721}
   _autoCreateCameraBounds: 0
