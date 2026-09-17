@@ -167,7 +167,7 @@ MonoBehaviour:
     ClusterID: 24665bbd-31aa-4f82-9a69-9e323fdda867
     OrbitIndex: 0
     OrbitAngle: 120
-    Template: {fileID: 0}
+    Template: {fileID: 11400000, guid: 74bc8ab15cfbf2e4bb5ee0278b1151ad, type: 2}
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
@@ -408,7 +408,7 @@ MonoBehaviour:
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
-    Template: {fileID: 0}
+    Template: {fileID: 11400000, guid: b3e077c5e5cc0504f82ccf37497fdab8, type: 2}
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
@@ -422,7 +422,7 @@ MonoBehaviour:
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
-    Template: {fileID: 0}
+    Template: {fileID: 11400000, guid: e8172de5dc7e85f4ebde01bfd060118e, type: 2}
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
@@ -435,7 +435,7 @@ MonoBehaviour:
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
-    Template: {fileID: 0}
+    Template: {fileID: 11400000, guid: e8172de5dc7e85f4ebde01bfd060118e, type: 2}
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
@@ -1163,7 +1163,7 @@ MonoBehaviour:
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
-    Template: {fileID: 0}
+    Template: {fileID: 11400000, guid: 1334b0261f38bbd40bfec8b601182536, type: 2}
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
@@ -1176,7 +1176,7 @@ MonoBehaviour:
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
-    Template: {fileID: 0}
+    Template: {fileID: 11400000, guid: 1334b0261f38bbd40bfec8b601182536, type: 2}
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
@@ -1189,7 +1189,7 @@ MonoBehaviour:
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
-    Template: {fileID: 0}
+    Template: {fileID: 11400000, guid: 1334b0261f38bbd40bfec8b601182536, type: 2}
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
@@ -1202,7 +1202,7 @@ MonoBehaviour:
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
-    Template: {fileID: 0}
+    Template: {fileID: 11400000, guid: 1e646b05192bf3a4997104516b5e1b60, type: 2}
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
@@ -1594,7 +1594,7 @@ MonoBehaviour:
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
-    Template: {fileID: 0}
+    Template: {fileID: 11400000, guid: 74bc8ab15cfbf2e4bb5ee0278b1151ad, type: 2}
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
