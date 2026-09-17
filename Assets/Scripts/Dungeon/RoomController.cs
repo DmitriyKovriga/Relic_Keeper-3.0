@@ -38,6 +38,8 @@ namespace Scripts.Dungeon
         private readonly List<EnemyHealth> _livingEnemies = new List<EnemyHealth>();
         private DungeonModifierContext _activeModifiers;
         private bool _roomClearRewardsSpawned;
+        private int _initialEnemyCount;
+        private bool _nextRoomPortalUnlocked;
 
         public int RoomLevel => _roomLevel;
         public bool IsCleared => _livingEnemies.Count == 0;
@@ -88,6 +90,9 @@ namespace Scripts.Dungeon
             _activeModifiers = modifiers ?? new DungeonModifierContext();
             _livingEnemies.Clear();
             _roomClearRewardsSpawned = false;
+            _initialEnemyCount = 0;
+            _nextRoomPortalUnlocked = false;
+            SetNextRoomPortalsActive(false);
 
             if (_spawners == null)
                 _spawners = GetComponentsInChildren<EnemySpawner>(true);
@@ -144,6 +149,8 @@ namespace Scripts.Dungeon
                 }
             }
 
+            _initialEnemyCount = _livingEnemies.Count;
+            TryUnlockNextRoomPortal(false);
             if (_livingEnemies.Count == 0)
                 SpawnRoomClearRewards();
         }
@@ -161,12 +168,52 @@ namespace Scripts.Dungeon
         {
             if (health != null)
                 health.OnDeath -= OnSpawnedEnemyDeath;
-            _livingEnemies.Remove(health);
+            if (!_livingEnemies.Remove(health))
+                return;
+
+            bool portalUnlocked = TryUnlockNextRoomPortal(true);
             if (_livingEnemies.Count == 0)
             {
-                RoomClearedBanner.Show();
+                if (portalUnlocked)
+                    RoomClearedBanner.ShowClearedAndPortalUnlocked();
+                else
+                    RoomClearedBanner.Show();
                 SpawnRoomClearRewards();
             }
+            else if (portalUnlocked)
+            {
+                RoomClearedBanner.ShowPortalUnlocked();
+            }
+        }
+
+        public static int RequiredPortalKills(int enemyCount)
+        {
+            return Mathf.Max(0, (enemyCount + 1) / 2);
+        }
+
+        private bool TryUnlockNextRoomPortal(bool announce)
+        {
+            if (_nextRoomPortalUnlocked ||
+                _initialEnemyCount - _livingEnemies.Count < RequiredPortalKills(_initialEnemyCount))
+                return false;
+
+            _nextRoomPortalUnlocked = SetNextRoomPortalsActive(true);
+            return announce && _nextRoomPortalUnlocked;
+        }
+
+        private bool SetNextRoomPortalsActive(bool active)
+        {
+            bool found = false;
+            foreach (DungeonPortal portal in GetComponentsInChildren<DungeonPortal>(true))
+            {
+                if (portal == null || portal.Type != PortalType.NextRoom)
+                    continue;
+
+                portal.SetActive(active);
+                found = true;
+            }
+
+            return found;
         }
 
         private void SpawnRoomClearRewards()

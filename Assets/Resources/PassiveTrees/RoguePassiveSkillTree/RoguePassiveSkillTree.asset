@@ -243,7 +243,7 @@ MonoBehaviour:
   - ID: 3c75ad3c-ec29-4a33-8591-cb76b808b8eb
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 1980, y: 1120}
+    Position: {x: 2000, y: 1120}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -255,7 +255,7 @@ MonoBehaviour:
   - ID: 58ee67ac-0db7-4c85-866f-610715f0f0b8
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 1900, y: 1120}
+    Position: {x: 1920, y: 1120}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -268,7 +268,7 @@ MonoBehaviour:
   - ID: 9d9b931f-2129-47b7-b312-0017fd041d15
     NodeType: 1
     PlacementMode: 0
-    Position: {x: 1820, y: 1120}
+    Position: {x: 1840, y: 1120}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -280,7 +280,7 @@ MonoBehaviour:
   - ID: 3cfc218e-f30e-4fda-83f8-a07f18cfcb56
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 1700, y: 1200}
+    Position: {x: 1600, y: 1120}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -292,7 +292,7 @@ MonoBehaviour:
   - ID: f3ef2606-26c6-4a21-ae26-10f683baba1a
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 1780, y: 1200}
+    Position: {x: 1680, y: 1120}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -305,7 +305,7 @@ MonoBehaviour:
   - ID: 28886c69-c7c3-45f9-b0e1-4a9c713ae440
     NodeType: 1
     PlacementMode: 0
-    Position: {x: 1860, y: 1200}
+    Position: {x: 1760, y: 1120}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0

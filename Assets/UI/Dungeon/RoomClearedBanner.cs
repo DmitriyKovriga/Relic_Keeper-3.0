@@ -11,6 +11,10 @@ public sealed class RoomClearedBanner : MonoBehaviour
 {
     public const string LocalizationKey = "dungeon.ui.roomCleared";
     public const string FallbackText = "Room Cleared";
+    public const string PortalUnlockedLocalizationKey = "dungeon.ui.portalUnlocked";
+    public const string PortalUnlockedFallbackText = "Portal Open";
+    public const string ClearedAndPortalUnlockedLocalizationKey = "dungeon.ui.roomClearedPortalUnlocked";
+    public const string ClearedAndPortalUnlockedFallbackText = "Room Cleared — Portal Open";
 
     private const string MenuLabelsTable = "MenuLabels";
     private const float SortingOrder = 800f;
@@ -22,10 +26,21 @@ public sealed class RoomClearedBanner : MonoBehaviour
     private UIDocument _document;
     private Label _label;
     private Coroutine _playRoutine;
+    private int _messageVersion;
 
     public static void Show()
     {
-        GetOrCreate().Play();
+        GetOrCreate().Play(LocalizationKey, FallbackText);
+    }
+
+    public static void ShowPortalUnlocked()
+    {
+        GetOrCreate().Play(PortalUnlockedLocalizationKey, PortalUnlockedFallbackText);
+    }
+
+    public static void ShowClearedAndPortalUnlocked()
+    {
+        GetOrCreate().Play(ClearedAndPortalUnlockedLocalizationKey, ClearedAndPortalUnlockedFallbackText);
     }
 
     public static void Hide()
@@ -57,13 +72,13 @@ public sealed class RoomClearedBanner : MonoBehaviour
             _instance = null;
     }
 
-    private void Play()
+    private void Play(string localizationKey, string fallbackText)
     {
         Build();
         if (_label == null)
             return;
 
-        ApplyLocalizedText();
+        ApplyLocalizedText(localizationKey, fallbackText);
         if (_playRoutine != null)
             StopCoroutine(_playRoutine);
         _playRoutine = StartCoroutine(PlayRoutine());
@@ -71,6 +86,7 @@ public sealed class RoomClearedBanner : MonoBehaviour
 
     private void StopAndHide()
     {
+        _messageVersion++;
         if (_playRoutine != null)
         {
             StopCoroutine(_playRoutine);
@@ -145,16 +161,17 @@ public sealed class RoomClearedBanner : MonoBehaviour
         root.Add(_label);
     }
 
-    private void ApplyLocalizedText()
+    private void ApplyLocalizedText(string localizationKey, string fallbackText)
     {
         if (_label == null)
             return;
 
-        _label.text = FallbackText;
-        var operation = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(MenuLabelsTable, LocalizationKey);
+        int version = ++_messageVersion;
+        _label.text = fallbackText;
+        var operation = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(MenuLabelsTable, localizationKey);
         operation.Completed += _ =>
         {
-            if (_label == null)
+            if (_label == null || version != _messageVersion)
                 return;
             string value = operation.Result;
             if (string.IsNullOrEmpty(value) ||

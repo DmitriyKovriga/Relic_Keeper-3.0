@@ -1519,6 +1519,14 @@ MonoBehaviour:
     m_Key: stats.PushbackResist
     m_Metadata:
       m_Items: []
+  - m_Id: 105000000000000001
+    m_Key: dungeon.ui.portalUnlocked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105000000000000002
+    m_Key: dungeon.ui.roomClearedPortalUnlocked
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -173,6 +173,78 @@ namespace RelicKeeper.Tests.EditMode
         {
             Assert.That(RoomClearedBanner.LocalizationKey, Is.EqualTo("dungeon.ui.roomCleared"));
             Assert.That(RoomClearedBanner.FallbackText, Is.EqualTo("Room Cleared"));
+            Assert.That(RoomClearedBanner.PortalUnlockedLocalizationKey, Is.EqualTo("dungeon.ui.portalUnlocked"));
+            Assert.That(RoomClearedBanner.ClearedAndPortalUnlockedLocalizationKey,
+                Is.EqualTo("dungeon.ui.roomClearedPortalUnlocked"));
+        }
+
+        [TestCase(0, 0)]
+        [TestCase(1, 1)]
+        [TestCase(2, 1)]
+        [TestCase(3, 2)]
+        [TestCase(4, 2)]
+        [TestCase(5, 3)]
+        public void NextRoomPortal_RequiresHalfOfActuallySpawnedEnemiesRoundedUp(int enemies, int kills)
+        {
+            Assert.That(RoomController.RequiredPortalKills(enemies), Is.EqualTo(kills));
+        }
+
+        [Test]
+        public void NextRoomPortal_StaysHiddenUntilKillThreshold_AndDoesNotAffectOtherPortals()
+        {
+            var roomObject = new GameObject("PortalTestRoom");
+            try
+            {
+                RoomController room = roomObject.AddComponent<RoomController>();
+                var nextPortalObject = new GameObject("NextRoomPortal");
+                nextPortalObject.transform.SetParent(roomObject.transform);
+                nextPortalObject.AddComponent<BoxCollider2D>();
+                DungeonPortal nextPortal = nextPortalObject.AddComponent<DungeonPortal>();
+
+                var hubPortalObject = new GameObject("HubPortal");
+                hubPortalObject.transform.SetParent(roomObject.transform);
+                hubPortalObject.AddComponent<BoxCollider2D>();
+                DungeonPortal hubPortal = hubPortalObject.AddComponent<DungeonPortal>();
+                typeof(DungeonPortal).GetField("_portalType", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(hubPortal, PortalType.ReturnToHub);
+
+                var living = (List<EnemyHealth>)typeof(RoomController)
+                    .GetField("_livingEnemies", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .GetValue(room);
+                for (int i = 0; i < 3; i++)
+                {
+                    var enemy = new GameObject("Enemy" + i);
+                    enemy.transform.SetParent(roomObject.transform);
+                    living.Add(enemy.AddComponent<EnemyHealth>());
+                }
+
+                typeof(RoomController).GetField("_initialEnemyCount", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(room, 3);
+                MethodInfo setPortals = typeof(RoomController).GetMethod(
+                    "SetNextRoomPortalsActive", BindingFlags.Instance | BindingFlags.NonPublic);
+                MethodInfo tryUnlock = typeof(RoomController).GetMethod(
+                    "TryUnlockNextRoomPortal", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(setPortals, Is.Not.Null);
+                Assert.That(tryUnlock, Is.Not.Null);
+
+                setPortals.Invoke(room, new object[] { false });
+                Assert.That(nextPortalObject.activeSelf, Is.False);
+                Assert.That(hubPortalObject.activeSelf, Is.True);
+
+                living.RemoveAt(0);
+                Assert.That((bool)tryUnlock.Invoke(room, new object[] { true }), Is.False);
+                Assert.That(nextPortalObject.activeSelf, Is.False);
+
+                living.RemoveAt(0);
+                Assert.That((bool)tryUnlock.Invoke(room, new object[] { true }), Is.True);
+                Assert.That(nextPortalObject.activeSelf, Is.True);
+                Assert.That(hubPortalObject.activeSelf, Is.True);
+                Assert.That((bool)tryUnlock.Invoke(room, new object[] { true }), Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(roomObject);
+            }
         }
 
         [Test]
