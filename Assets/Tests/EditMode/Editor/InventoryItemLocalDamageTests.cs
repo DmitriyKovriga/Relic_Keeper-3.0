@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using Scripts.Combat;
 using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Items.Affixes;
 using Scripts.Saving;
 using Scripts.Stats;
+using UnityEditor;
 using UnityEngine;
 
 namespace RelicKeeper.Tests.EditMode
@@ -126,6 +128,134 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(lightning.Affixes[0].Modifiers[0].PrimaryMod.Value, Is.EqualTo(10f));
         }
 
+        [Test]
+        public void EveryWeaponPool_OnlyOffersLocalFlatAndIncreasedCritChance()
+        {
+            string[] poolGuids = AssetDatabase.FindAssets(
+                "t:AffixPoolSO", new[] { "Assets/Resources/Affixes/Pools" });
+            int weaponPoolCount = 0;
+
+            foreach (string guid in poolGuids)
+            {
+                AffixPoolSO pool = AssetDatabase.LoadAssetAtPath<AffixPoolSO>(AssetDatabase.GUIDToAssetPath(guid));
+                if (pool == null || pool.Slot != EquipmentSlot.MainHand)
+                    continue;
+
+                weaponPoolCount++;
+                bool hasFlat = false;
+                bool hasIncrease = false;
+                foreach (ItemAffixSO affix in pool.Affixes)
+                {
+                    if (affix == null)
+                        continue;
+
+                    foreach (ItemAffixSO.AffixTierData tier in affix.Tiers)
+                    {
+                        if (tier?.Stats == null)
+                            continue;
+
+                        foreach (ItemAffixSO.AffixStatData stat in tier.Stats)
+                        {
+                            if (stat.Stat != StatType.CritChance)
+                                continue;
+
+                            Assert.That(stat.Scope, Is.EqualTo(StatScope.Local),
+                                $"{pool.name}: {affix.name} tier {tier.Tier} must not add global crit chance");
+                            hasFlat |= stat.Type == StatModType.Flat;
+                            hasIncrease |= stat.Type == StatModType.PercentAdd;
+                        }
+                    }
+                }
+
+                Assert.That(hasFlat, Is.True, $"{pool.name} has no local flat crit chance");
+                Assert.That(hasIncrease, Is.True, $"{pool.name} has no local increased crit chance");
+            }
+
+            Assert.That(weaponPoolCount, Is.EqualTo(7));
+        }
+
+        [Test]
+        public void SavedWeaponCritAffixes_BakeFlatAndIncreasedIntoWeaponOnly()
+        {
+            const string folder = "Assets/Resources/Affixes/ByStat/Critical/CritChance/";
+            ItemAffixSO flat = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(folder + "Local_CritChance_Flat_Medium.asset");
+            ItemAffixSO increased = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(folder + "Local_CritChance_Increase_Medium.asset");
+            Assert.That(flat, Is.Not.Null);
+            Assert.That(increased, Is.Not.Null);
+            Assert.That(increased.UniqueID, Is.EqualTo("Local_CritChance_Increase_Medium"));
+
+            WeaponItemSO weapon = Track(ScriptableObject.CreateInstance<WeaponItemSO>());
+            weapon.BaseCritChance = 5f;
+            InventoryItem item = new InventoryItem(weapon);
+            item.Affixes.Add(new AffixInstance(flat, 1, CreateAffixSave(2f), item));
+            item.Affixes.Add(new AffixInstance(increased, 1, CreateAffixSave(10f), item));
+
+            Assert.That(item.Affixes[0].Modifiers[0].Scope, Is.EqualTo(StatScope.Local));
+            Assert.That(item.Affixes[1].Modifiers[0].Scope, Is.EqualTo(StatScope.Local));
+            Assert.That(item.GetCalculatedStat(StatType.CritChance, 5f), Is.EqualTo(7.7f).Within(0.01f));
+
+            var critModifiers = item.GetAllModifiers().FindAll(entry => entry.Item1 == StatType.CritChance);
+            Assert.That(critModifiers, Has.Count.EqualTo(1));
+            Assert.That(critModifiers[0].Item2.Type, Is.EqualTo(StatModType.Flat));
+            Assert.That(critModifiers[0].Item2.Value, Is.EqualTo(7.7f).Within(0.01f));
+        }
+
+        [Test]
+        public void LocalWeaponCritChance_DoesNotLeakFromInactiveDualWieldWeapon()
+        {
+            const string folder = "Assets/Resources/Affixes/ByStat/Critical/CritChance/";
+            ItemAffixSO flat = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(folder + "Local_CritChance_Flat_Medium.asset");
+            ItemAffixSO increased = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(folder + "Local_CritChance_Increase_Medium.asset");
+            Assert.That(flat, Is.Not.Null);
+            Assert.That(increased, Is.Not.Null);
+
+            WeaponItemSO weapon = Track(ScriptableObject.CreateInstance<WeaponItemSO>());
+            weapon.BaseCritChance = 5f;
+            InventoryItem active = new InventoryItem(weapon);
+            InventoryItem inactive = new InventoryItem(weapon);
+            active.Affixes.Add(new AffixInstance(flat, 1, CreateAffixSave(1f), active));
+            active.Affixes.Add(new AffixInstance(increased, 1, CreateAffixSave(20f), active));
+            inactive.Affixes.Add(new AffixInstance(flat, 1, CreateAffixSave(2f), inactive));
+            inactive.Affixes.Add(new AffixInstance(increased, 1, CreateAffixSave(10f), inactive));
+
+            var critStat = new CharacterStat();
+            foreach (var (type, modifier) in active.GetAllModifiers())
+            {
+                if (type == StatType.CritChance)
+                    critStat.AddModifier(modifier);
+            }
+            foreach (var (type, modifier) in inactive.GetAllModifiers())
+            {
+                if (type == StatType.CritChance)
+                    critStat.AddModifier(modifier);
+            }
+
+            IStatsProvider scoped = new WeaponHandStatsProvider(new CritStats(critStat), inactive);
+            Assert.That(scoped.GetValue(StatType.CritChance), Is.EqualTo(7.2f).Within(0.01f));
+        }
+
+        [Test]
+        public void GlobalCritChanceAsset_RemainsGlobalAndDistinctFromWeaponLocalCopy()
+        {
+            const string folder = "Assets/Resources/Affixes/ByStat/Critical/CritChance/";
+            ItemAffixSO global = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(folder + "CritChance_Increase_Medium.asset");
+            ItemAffixSO local = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(folder + "Local_CritChance_Increase_Medium.asset");
+            Assert.That(global, Is.Not.Null);
+            Assert.That(local, Is.Not.Null);
+            Assert.That(global.UniqueID, Is.EqualTo("CritChance_Increase_Medium"));
+            Assert.That(local.UniqueID, Is.EqualTo("Local_CritChance_Increase_Medium"));
+
+            for (int tier = 1; tier <= 5; tier++)
+            {
+                ItemAffixSO.AffixStatData globalStat = global.GetStatsForTier(tier)[0];
+                ItemAffixSO.AffixStatData localStat = local.GetStatsForTier(tier)[0];
+                Assert.That(globalStat.Scope, Is.EqualTo(StatScope.Global));
+                Assert.That(localStat.Scope, Is.EqualTo(StatScope.Local));
+                Assert.That(localStat.MinValue, Is.EqualTo(globalStat.MinValue));
+                Assert.That(localStat.MaxValue, Is.EqualTo(globalStat.MaxValue));
+            }
+        }
+
         private InventoryItem CreateWeaponWithLocalDamage(
             StatType channel,
             float baseMin,
@@ -218,6 +348,27 @@ namespace RelicKeeper.Tests.EditMode
         {
             _created.Add(value);
             return value;
+        }
+
+        private sealed class CritStats : IStatsProvider
+        {
+            private readonly CharacterStat _crit;
+
+            public CritStats(CharacterStat crit)
+            {
+                _crit = crit;
+            }
+
+            public float GetValue(StatType type)
+            {
+                return type == StatType.CritChance ? _crit.Value : 0f;
+            }
+
+            public bool TryGetStat(StatType type, out CharacterStat stat)
+            {
+                stat = type == StatType.CritChance ? _crit : null;
+                return stat != null;
+            }
         }
     }
 }

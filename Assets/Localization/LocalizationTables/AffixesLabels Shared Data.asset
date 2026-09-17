@@ -18015,6 +18015,30 @@ MonoBehaviour:
     m_Key: affix_name_pushbackresist_less_light
     m_Metadata:
       m_Items: []
+  - m_Id: 105100000000000001
+    m_Key: affix_name_local_critchance_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105100000000000002
+    m_Key: affix_name_local_critchance_increase_medium_t1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105100000000000003
+    m_Key: affix_name_local_critchance_increase_medium_t2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105100000000000004
+    m_Key: affix_name_local_critchance_increase_medium_t3
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105100000000000005
+    m_Key: affix_name_local_critchance_increase_medium_t4
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105100000000000006
+    m_Key: affix_name_local_critchance_increase_medium_t5
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

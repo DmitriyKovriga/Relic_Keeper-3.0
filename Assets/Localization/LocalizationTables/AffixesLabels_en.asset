@@ -56738,6 +56738,30 @@ MonoBehaviour:
     m_Localized: Light Pushback Resist less
     m_Metadata:
       m_Items: []
+  - m_Id: 105100000000000001
+    m_Localized: Medium Crit Chance increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105100000000000002
+    m_Localized: Medium Crit Chance increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105100000000000003
+    m_Localized: Medium Crit Chance increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105100000000000004
+    m_Localized: Medium Crit Chance increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105100000000000005
+    m_Localized: Medium Crit Chance increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105100000000000006
+    m_Localized: Medium Crit Chance increase
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
