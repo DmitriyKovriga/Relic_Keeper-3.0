@@ -337,8 +337,9 @@ public class CharacterWindowUI : MonoBehaviour
             return;
 
         IStatsProvider stats = WeaponHandStatScope.ForSkill(_playerStats, WeaponHandStatScope.MainHandSkillSlot);
-        float armor = Mathf.Max(0f, stats.GetValue(StatType.Armor));
-        float evasion = Mathf.Max(0f, stats.GetValue(StatType.Evasion));
+        IStatsProvider defenses = _playerStats;
+        float armor = Mathf.Max(0f, defenses.GetValue(StatType.Armor));
+        float evasion = Mathf.Max(0f, defenses.GetValue(StatType.Evasion));
         SetValue(ArmorRatingId, Mathf.RoundToInt(armor).ToString());
         SetValue(ArmorMitigationId, $"{ArmorMitigation.ArmorToPhysicalResist(armor):0.#}%");
         SetValue(EvasionRatingId, Mathf.RoundToInt(evasion).ToString());
@@ -347,20 +348,20 @@ public class CharacterWindowUI : MonoBehaviour
         if (_mysticShield == null && _playerStats != null)
             _mysticShield = _playerStats.GetComponent<MysticShieldController>();
 
-        int maxShields = Mathf.Max(0, Mathf.RoundToInt(stats.GetValue(StatType.MaxMysticShield)));
+        int maxShields = Mathf.Max(0, Mathf.RoundToInt(defenses.GetValue(StatType.MaxMysticShield)));
         if (_mysticShield != null && _mysticShield.MaxCharges > 0)
             SetValue(MysticLayersId, $"{_mysticShield.CurrentCharges}/{_mysticShield.MaxCharges}");
         else
             SetValue(MysticLayersId, maxShields.ToString());
 
-        float mysticAbsorb = stats.GetValue(StatType.MysticShieldMitigationPercent);
-        float mysticAbsorbCap = stats.GetValue(StatType.MaxMysticShieldMitigationPercent);
+        float mysticAbsorb = defenses.GetValue(StatType.MysticShieldMitigationPercent);
+        float mysticAbsorbCap = defenses.GetValue(StatType.MaxMysticShieldMitigationPercent);
         SetValue(MysticAbsorbId, CharacterWindowStatCatalog.FormatCappedPercent(mysticAbsorb, mysticAbsorbCap, 90f, true));
         SetValue(MysticAbsorbOvercapId, CharacterWindowStatCatalog.FormatOvercap(mysticAbsorb, mysticAbsorbCap, 90f));
-        SetValue(MysticRechargeId, $"{stats.GetValue(StatType.MysticShieldRechargeDuration):0.#}s");
+        SetValue(MysticRechargeId, $"{defenses.GetValue(StatType.MysticShieldRechargeDuration):0.#}s");
 
         foreach (StatType type in CharacterWindowStatCatalog.Resists)
-            SetValue(type.ToString(), FormatResist(stats, type));
+            SetValue(type.ToString(), FormatResist(defenses, type));
 
         foreach (StatType type in CharacterWindowStatCatalog.Damages)
             SetValue(type.ToString(), Mathf.RoundToInt(DamageCalculator.CalculateAverageDamage(stats, type)).ToString());
@@ -383,6 +384,9 @@ public class CharacterWindowUI : MonoBehaviour
 
     private static string FormatResist(IStatsProvider stats, StatType type)
     {
+        if (type == StatType.PhysicalResist)
+            return CharacterWindowStatCatalog.FormatPhysicalResist(stats);
+
         float value = stats.GetValue(type);
         StatType? capType = CharacterWindowStatCatalog.GetResistCap(type);
         if (capType == null)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using Scripts.Combat;
 using Scripts.Stats;
 
 namespace RelicKeeper.Tests.EditMode
@@ -62,11 +63,74 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void PhysicalResist_DisplaysSameArmorAndStatSumAsDamageMitigation()
+        {
+            var stats = new DefenseStats
+            {
+                Armor = 1542f,
+                PhysicalResist = 10f,
+                MaxPhysicalResist = 75f
+            };
+
+            float effective = ArmorMitigation.ResolveTotalPhysicalResist(
+                stats, out _, out float fromArmor, out float fromStat, out float cap);
+
+            Assert.That(fromArmor, Is.GreaterThan(65f));
+            Assert.That(fromStat, Is.EqualTo(10f));
+            Assert.That(effective, Is.EqualTo(75f));
+            Assert.That(cap, Is.EqualTo(75f));
+            Assert.That(CharacterWindowStatCatalog.FormatPhysicalResist(stats), Is.EqualTo("75/75%"));
+
+            stats.PhysicalResist = -10f;
+            Assert.That(CharacterWindowStatCatalog.FormatPhysicalResist(stats), Is.EqualTo("55/75%"));
+
+            stats.Armor = 0f;
+            Assert.That(CharacterWindowStatCatalog.FormatPhysicalResist(stats), Is.EqualTo("-10/75%"));
+        }
+
+        [Test]
+        public void PhysicalResist_UsesCombatCapEvenWhenConfiguredCapIsHigher()
+        {
+            var stats = new DefenseStats
+            {
+                Armor = 10000f,
+                PhysicalResist = 20f,
+                MaxPhysicalResist = 100f
+            };
+
+            Assert.That(CharacterWindowStatCatalog.FormatPhysicalResist(stats), Is.EqualTo("90/90%"));
+        }
+
+        [Test]
         public void SectionOrder_PutsDefensesBeforeDamage()
         {
             Assert.That(CharacterWindowStatCatalog.Resists[0], Is.EqualTo(StatType.FireResist));
             Assert.That(CharacterWindowStatCatalog.Damages[0], Is.EqualTo(StatType.DamagePhysical));
             Assert.That(CharacterWindowStatCatalog.AilmentDamage[0], Is.EqualTo(StatType.BleedDamage));
+        }
+
+        private sealed class DefenseStats : IStatsProvider
+        {
+            public float Armor;
+            public float PhysicalResist;
+            public float MaxPhysicalResist;
+
+            public float GetValue(StatType type)
+            {
+                switch (type)
+                {
+                    case StatType.Armor: return Armor;
+                    case StatType.PhysicalResist: return PhysicalResist;
+                    case StatType.MaxPhysicalResist: return MaxPhysicalResist;
+                    default: return 0f;
+                }
+            }
+
+            public bool TryGetStat(StatType type, out CharacterStat stat)
+            {
+                stat = null;
+                return false;
+            }
         }
     }
 }

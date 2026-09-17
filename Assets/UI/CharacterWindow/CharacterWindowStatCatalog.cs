@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Scripts.Combat;
 using Scripts.Stats;
 using UnityEngine;
 
@@ -124,6 +125,12 @@ public static class CharacterWindowStatCatalog
             cap = defaultCap;
         float shown = clampToCap ? Mathf.Clamp(value, 0f, cap) : value;
         return $"{Mathf.RoundToInt(shown)}/{Mathf.RoundToInt(cap)}%";
+    }
+
+    public static string FormatPhysicalResist(IStatsProvider stats)
+    {
+        float total = ArmorMitigation.ResolveTotalPhysicalResist(stats, out _, out _, out _, out float cap);
+        return $"{Mathf.RoundToInt(total)}/{Mathf.RoundToInt(cap)}%";
     }
 
     public static string FormatOvercap(float value, float cap, float defaultCap)

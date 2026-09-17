@@ -41,7 +41,7 @@ public static class CharacterWindowLoc
     public static string DamageHeader() => Resolve(SectionDamage, "Damage", "Урон");
     public static string AilmentsHeader() => Resolve(SectionAilments, "Ailments", "Доты");
     public static string OtherHeader() => Resolve(SectionOther, "Other", "Прочее");
-    public static string ArmorMitigationLabel() => Resolve(ArmorMitigation, "Phys. reduction", "Снижение физ. урона");
+    public static string ArmorMitigationLabel() => Resolve(ArmorMitigation, "From armor", "От брони");
     public static string EvasionChanceLabel() => Resolve(EvasionChance, "Evade chance", "Шанс уклонения");
     public static string MysticLayersLabel() => Resolve(MysticLayers, "Mystic shields", "Мистические щиты");
     public static string MysticAbsorbLabel() => Resolve(MysticAbsorb, "Absorb", "Поглощение");
