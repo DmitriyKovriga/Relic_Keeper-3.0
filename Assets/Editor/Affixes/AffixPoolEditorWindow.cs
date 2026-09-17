@@ -28,6 +28,7 @@ namespace Scripts.Editor.Affixes
         private readonly Dictionary<string, bool> _affixBucketFoldouts = new Dictionary<string, bool>();
         private readonly Dictionary<string, bool> _statCategoryFoldouts = new Dictionary<string, bool>();
         private readonly Dictionary<string, bool> _poolCategoryFoldouts = new Dictionary<string, bool>();
+        private GUIStyle _parentAffixRowStyle;
         private const float LeftStatWidth = 285f;
         private const float PoolListWidth = 260f;
         private static readonly string[] AffixBucketOrder =
@@ -238,10 +239,6 @@ namespace Scripts.Editor.Affixes
             GUI.backgroundColor = GetBucketColor(bucketName);
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
             expanded = EditorGUILayout.Foldout(expanded, $"{bucketName} ({affixes.Count})", true, EditorStyles.foldoutHeader);
-            GUI.enabled = affixes.Any(affix => pool.Affixes == null || !pool.Affixes.Contains(affix));
-            if (GUILayout.Button("Add section", GUILayout.Width(90)))
-                AddAllVisibleToPool(pool, affixes);
-            GUI.enabled = true;
             EditorGUILayout.EndHorizontal();
             GUI.backgroundColor = previousColor;
             _affixBucketFoldouts[bucketName] = expanded;
@@ -257,22 +254,108 @@ namespace Scripts.Editor.Affixes
                 return;
             }
 
-            foreach (var affix in affixes.OrderBy(value => value.name))
+            foreach (var affix in OrderAffixesForDisplay(affixes))
             {
                 bool isInPool = pool.Affixes != null && pool.Affixes.Contains(affix);
-                EditorGUILayout.BeginHorizontal();
+                bool isLocal = IsLocalAffix(affix);
+                if (isLocal)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Space(22);
+                }
+                else
+                {
+                    _parentAffixRowStyle ??= new GUIStyle(EditorStyles.helpBox)
+                    {
+                        margin = new RectOffset(0, 0, 0, 0),
+                        padding = new RectOffset(4, 2, 0, 0)
+                    };
+                    EditorGUILayout.BeginHorizontal(_parentAffixRowStyle);
+                }
+
                 string tierLabel = affix.UsesEmbeddedTiers ? " [T1–T5]" : $" T{affix.Tier}";
-                EditorGUILayout.LabelField(affix.name + tierLabel, EditorStyles.miniLabel, GUILayout.ExpandWidth(true));
+                string rowLabel = isLocal
+                    ? "↳ Local copy  ·  " + GetParentName(affix) + tierLabel
+                    : affix.name + tierLabel;
+                EditorGUILayout.LabelField(new GUIContent(rowLabel, affix.name),
+                    isLocal ? EditorStyles.miniLabel : EditorStyles.miniBoldLabel,
+                    GUILayout.ExpandWidth(true));
 
                 GUI.backgroundColor = isInPool ? new Color(0.8f, 0.55f, 0.55f) : new Color(0.55f, 0.8f, 0.55f);
                 if (GUILayout.Button(isInPool ? "− Remove" : "+ Add", GUILayout.Width(74)))
                     ToggleAffixInPool(pool, affix);
                 GUI.backgroundColor = previousColor;
 
-                if (GUILayout.Button("Local", GUILayout.Width(44))) CreateLocalCopy(affix);
+                if (isLocal)
+                {
+                    GUILayout.Space(58);
+                }
+                else
+                {
+                    bool canCreate = CanCreateLocalCopy(affix);
+                    GUI.backgroundColor = canCreate ? new Color(0.76f, 0.82f, 0.66f) : new Color(0.62f, 0.62f, 0.62f);
+                    using (new EditorGUI.DisabledScope(!canCreate))
+                    {
+                        string tooltip = canCreate
+                            ? "Create a local copy next to this affix"
+                            : "A local copy already exists next to this affix";
+                        if (GUILayout.Button(new GUIContent(canCreate ? "Local +" : "✓ Local", tooltip), GUILayout.Width(58)))
+                            CreateLocalCopy(affix);
+                    }
+                    GUI.backgroundColor = previousColor;
+                }
                 if (GUILayout.Button("◎", GUILayout.Width(22))) { Selection.activeObject = affix; EditorGUIUtility.PingObject(affix); }
                 EditorGUILayout.EndHorizontal();
             }
+        }
+
+        internal static IEnumerable<ItemAffixSO> OrderAffixesForDisplay(IEnumerable<ItemAffixSO> affixes)
+        {
+            return affixes
+                .Where(affix => affix != null)
+                .OrderBy(affix => GetParentName(affix), System.StringComparer.OrdinalIgnoreCase)
+                .ThenBy(affix => IsLocalCopy(affix) ? 1 : 0)
+                .ThenBy(affix => affix.name, System.StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static string GetParentName(ItemAffixSO affix)
+        {
+            return IsLocalCopy(affix) ? affix.name.Substring("Local_".Length) : affix.name;
+        }
+
+        private static bool IsLocalCopy(ItemAffixSO affix)
+        {
+            return affix != null && affix.name.StartsWith("Local_", System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        internal static bool IsLocalAffix(ItemAffixSO affix)
+        {
+            if (IsLocalCopy(affix))
+                return true;
+
+            var stats = affix != null ? AffixSetGenerator.GetRepresentativeStats(affix) : null;
+            return stats != null && stats.Length > 0 && stats.All(stat => stat.Scope == StatScope.Local);
+        }
+
+        private static string GetLocalCopyPath(ItemAffixSO source)
+        {
+            if (source == null || IsLocalAffix(source))
+                return null;
+
+            string path = AssetDatabase.GetAssetPath(source);
+            if (string.IsNullOrEmpty(path))
+                return null;
+
+            string dir = Path.GetDirectoryName(path).Replace("\\", "/");
+            return dir + "/Local_" + Path.GetFileNameWithoutExtension(path) + ".asset";
+        }
+
+        internal static bool CanCreateLocalCopy(ItemAffixSO source)
+        {
+            string path = GetLocalCopyPath(source);
+            return !string.IsNullOrEmpty(path) &&
+                   AssetDatabase.LoadMainAssetAtPath(path) == null &&
+                   !File.Exists(path);
         }
 
         private static string GetAffixBucket(ItemAffixSO affix)
@@ -495,23 +578,17 @@ namespace Scripts.Editor.Affixes
         /// <summary> Создаёт копию аффикса с приставкой Local: GroupID, имя ассета, Scope = Local. </summary>
         private void CreateLocalCopy(ItemAffixSO source)
         {
-            if (source == null) return;
-            string path = AssetDatabase.GetAssetPath(source);
-            if (string.IsNullOrEmpty(path)) return;
-            string dir = Path.GetDirectoryName(path).Replace("\\", "/");
-            string baseName = Path.GetFileNameWithoutExtension(path);
-            string localName = "Local_" + baseName;
-            string newPath = dir + "/" + localName + ".asset";
-            if (AssetDatabase.LoadAssetAtPath<ItemAffixSO>(newPath) != null)
-            {
-                if (!EditorUtility.DisplayDialog("Exists", $"Asset {localName} already exists. Overwrite?", "Overwrite", "Cancel"))
-                    return;
-            }
+            if (!CanCreateLocalCopy(source)) return;
+            string newPath = GetLocalCopyPath(source);
+            string localName = Path.GetFileNameWithoutExtension(newPath);
+            string baseName = source.name;
 
             ItemAffixSO copy = Object.Instantiate(source);
             copy.name = localName;
             copy.GroupID = "Local_" + (string.IsNullOrEmpty(source.GroupID) ? baseName : source.GroupID);
+            copy.UniqueID = copy.GroupID;
             copy.NameKey = string.IsNullOrEmpty(source.NameKey) ? "" : "affix_name_local_" + source.NameKey.Replace("affix_name_", "");
+            copy.LegacyTierIds = new List<ItemAffixSO.LegacyTierId>();
             if (copy.Tiers != null && copy.Tiers.Count > 0)
             {
                 foreach (var tierData in copy.Tiers)
@@ -535,7 +612,6 @@ namespace Scripts.Editor.Affixes
                 }
             }
             AssetDatabase.CreateAsset(copy, newPath);
-            copy.UniqueID = copy.GroupID;
             EditorUtility.SetDirty(copy);
             AssetDatabase.SaveAssets();
             LoadAll();
