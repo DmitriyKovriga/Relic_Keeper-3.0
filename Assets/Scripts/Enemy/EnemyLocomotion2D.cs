@@ -118,7 +118,16 @@ namespace Scripts.Enemies
             float resist = _stats != null ? Mathf.Max(0f, _stats.GetValue(StatType.PushbackResist)) : 0f;
             float effectiveRating = PushbackResolver.ApplyResistance(rating, resist);
             if (effectiveRating <= 0.001f)
+            {
+                // A previous hit can still have a pending impulse when resistance reaches 100%.
+                if (resist >= 100f && _pushbackRemaining > 0f)
+                {
+                    ClearPushback();
+                    if (_rb != null)
+                        _rb.linearVelocity = new Vector2(0f, _rb.linearVelocity.y);
+                }
                 return false;
+            }
 
             Bounds bounds = _collider != null
                 ? _collider.bounds
@@ -261,6 +270,12 @@ namespace Scripts.Enemies
             velocityX = 0f;
             if (_pushbackRemaining <= 0f)
                 return false;
+
+            if (_stats != null && _stats.GetValue(StatType.PushbackResist) >= 100f)
+            {
+                ClearPushback();
+                return true;
+            }
 
             float duration = Mathf.Max(0.01f, _pushbackDuration);
             float t = Mathf.Clamp01(_pushbackRemaining / duration);

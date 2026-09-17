@@ -34,7 +34,7 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(dummy.EvaluateStat(StatType.MaxHealth, 1), Is.EqualTo(100f).Within(0.01f));
             Assert.That(dummy.EvaluateStat(StatType.Armor, 1), Is.EqualTo(10f).Within(0.01f));
             Assert.That(dummy.FindStat(StatType.MaxHealth).ScalingMode, Is.EqualTo(EnemyStatScalingMode.PercentPerLevel));
-            Assert.That(dummy.FindStat(StatType.PushbackResist).BaseValue, Is.EqualTo(0f));
+            Assert.That(dummy.FindStat(StatType.PushbackResist).BaseValue, Is.EqualTo(100f));
         }
 
         [Test]

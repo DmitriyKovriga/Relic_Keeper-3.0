@@ -46,7 +46,7 @@ MonoBehaviour:
     ScalingMode: 2
     ScalingValue: 0
   - Type: 111
-    BaseValue: 0
+    BaseValue: 100
     ScalingMode: 0
     ScalingValue: 0
   StunThresholdMultiplier: 1

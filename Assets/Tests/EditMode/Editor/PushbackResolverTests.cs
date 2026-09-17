@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using Scripts.Combat;
 using Scripts.Enemies;
@@ -112,6 +113,173 @@ namespace RelicKeeper.Tests.EditMode
             EnemyStatEntry entry = knight.Stats.Find(stat => stat.Type == StatType.PushbackResist);
             Assert.That(entry, Is.Not.Null);
             Assert.That(entry.BaseValue, Is.EqualTo(70f));
+        }
+
+        [TestCase(70f)]
+        [TestCase(100f)]
+        public void VenomStrikeHit_UsesKnightPushbackResistance(float resistance)
+        {
+            SkillDataSO venom = Resources.Load<SkillDataSO>("Skills/1HWeapon/Dagger/VenomStrike/VenomStrikeSkill");
+            EnemyDataSO knight = Resources.Load<EnemyDataSO>("Enemy/SO_Knight");
+            Assert.That(venom, Is.Not.Null);
+            Assert.That(knight, Is.Not.Null);
+
+            var enemy = new GameObject("VenomPushbackTestEnemy");
+            try
+            {
+                enemy.transform.position = new Vector3(2f, 0f, 0f);
+                EnemyStats enemyStats = enemy.AddComponent<EnemyStats>();
+                enemyStats.Initialize(knight, 1);
+                if (resistance > 70f)
+                    enemyStats.AddModifier(StatType.PushbackResist,
+                        new StatModifier(resistance - 70f, StatModType.Flat, this));
+                Assert.That(enemyStats.GetValue(StatType.PushbackResist), Is.EqualTo(resistance));
+                EnemyLocomotion2D locomotion = enemy.AddComponent<EnemyLocomotion2D>();
+                locomotion.Initialize(null, knight);
+                EnemyHealth health = enemy.AddComponent<EnemyHealth>();
+                health.Initialize();
+
+                var modifiers = new List<SerializableStatModifier>();
+                SkillPushback.AppendFlatModifier(venom, modifiers);
+                var attackStats = new ScopedStatsProvider(new FakeStats(), modifiers);
+                var hit = new DamageSnapshot(null) { Physical = 1f };
+                PushbackResolver.BindToSnapshot(hit, SkillPushback.IsEnabled(venom), attackStats, Vector2.zero);
+                Assert.That(health.TakeDamage(hit), Is.True);
+
+                float expectedRating = PushbackResolver.ApplyResistance(venom.PushbackRating, resistance);
+                float expectedVelocity = PushbackResolver.RatingToInitialVelocity(expectedRating);
+                FieldInfo velocityField = typeof(EnemyLocomotion2D).GetField(
+                    "_pushbackInitialVelocity", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(velocityField, Is.Not.Null);
+                Assert.That((float)velocityField.GetValue(locomotion), Is.EqualTo(expectedVelocity).Within(0.001f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(enemy);
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void VenomStrikeHit_StopsPendingPushbackWhenResistanceReachesOneHundred(bool hitAgain)
+        {
+            SkillDataSO venom = Resources.Load<SkillDataSO>("Skills/1HWeapon/Dagger/VenomStrike/VenomStrikeSkill");
+            EnemyDataSO knight = Resources.Load<EnemyDataSO>("Enemy/SO_Knight");
+            var enemy = new GameObject("VenomPushbackResistanceChangeTest");
+            try
+            {
+                enemy.transform.position = new Vector3(2f, 0f, 0f);
+                EnemyStats stats = enemy.AddComponent<EnemyStats>();
+                stats.Initialize(knight, 1);
+                EnemyLocomotion2D locomotion = enemy.AddComponent<EnemyLocomotion2D>();
+                locomotion.Initialize(null, knight);
+
+                Assert.That(locomotion.TryApplyPushbackFromHit(0f, venom.PushbackRating), Is.True);
+                stats.AddModifier(StatType.PushbackResist, new StatModifier(30f, StatModType.Flat, this));
+                Assert.That(stats.GetValue(StatType.PushbackResist), Is.EqualTo(100f));
+
+                if (hitAgain)
+                    Assert.That(locomotion.TryApplyPushbackFromHit(0f, venom.PushbackRating), Is.False);
+                else
+                {
+                    MethodInfo consume = typeof(EnemyLocomotion2D).GetMethod(
+                        "TryConsumePushbackVelocity", BindingFlags.Instance | BindingFlags.NonPublic);
+                    Assert.That(consume, Is.Not.Null);
+                    object[] args = { 0f };
+                    Assert.That(consume.Invoke(locomotion, args), Is.True);
+                    Assert.That((float)args[0], Is.Zero);
+                }
+
+                FieldInfo remaining = typeof(EnemyLocomotion2D).GetField(
+                    "_pushbackRemaining", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(remaining, Is.Not.Null);
+                Assert.That((float)remaining.GetValue(locomotion), Is.Zero);
+            }
+            finally
+            {
+                Object.DestroyImmediate(enemy);
+            }
+        }
+
+        [Test]
+        public void VenomStrikeHit_DoesNotMoveSpawnedKnightWithOneHundredResistance()
+        {
+            SkillDataSO venom = Resources.Load<SkillDataSO>("Skills/1HWeapon/Dagger/VenomStrike/VenomStrikeSkill");
+            EnemyDataSO knight = Resources.Load<EnemyDataSO>("Enemy/SO_Knight");
+            Assert.That(venom, Is.Not.Null);
+            Assert.That(knight, Is.Not.Null);
+            Assert.That(knight.Prefab, Is.Not.Null);
+
+            EnemyDataSO configuredKnight = Object.Instantiate(knight);
+            EnemyEntity enemy = null;
+            try
+            {
+                configuredKnight.FindStat(StatType.PushbackResist).BaseValue = 100f;
+                enemy = Object.Instantiate(knight.Prefab, new Vector3(2f, 0f, 0f), Quaternion.identity);
+                enemy.Setup(configuredKnight, 1);
+                Assert.That(enemy.GetComponent<EnemyStats>().GetValue(StatType.PushbackResist), Is.EqualTo(100f));
+
+                var modifiers = new List<SerializableStatModifier>();
+                SkillPushback.AppendFlatModifier(venom, modifiers);
+                var attackStats = new ScopedStatsProvider(new FakeStats(), modifiers);
+                var hit = new DamageSnapshot(null) { Physical = 1f };
+                PushbackResolver.BindToSnapshot(hit, SkillPushback.IsEnabled(venom), attackStats, Vector2.zero);
+                Assert.That(enemy.GetComponent<EnemyHealth>().TakeDamage(hit), Is.True);
+
+                EnemyLocomotion2D locomotion = enemy.GetComponent<EnemyLocomotion2D>();
+                MethodInfo applyMovement = typeof(EnemyLocomotion2D).GetMethod(
+                    "ApplyMovement", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(applyMovement, Is.Not.Null);
+                applyMovement.Invoke(locomotion, null);
+                Assert.That(enemy.GetComponent<Rigidbody2D>().linearVelocity.x, Is.Zero.Within(0.001f));
+            }
+            finally
+            {
+                if (enemy != null)
+                    Object.DestroyImmediate(enemy.gameObject);
+                Object.DestroyImmediate(configuredKnight);
+            }
+        }
+
+        [TestCase("Skills/1HWeapon/Dagger/VenomStrike/VenomStrikeSkill")]
+        [TestCase("Skills/2HWeapon/Axe/RightButton/SweepRB")]
+        [TestCase("Skills/2HWeapon/Axe/LeftButton/CleaveLB")]
+        public void SkillHit_DoesNotPushTrainingDummyWithOneHundredResistance(string skillPath)
+        {
+            SkillDataSO skill = Resources.Load<SkillDataSO>(skillPath);
+            EnemyDataSO dummy = Resources.Load<EnemyDataSO>("Enemy/SO_Dummy");
+            Assert.That(skill, Is.Not.Null);
+            Assert.That(dummy, Is.Not.Null);
+            Assert.That(dummy.Prefab, Is.Not.Null);
+            Assert.That(dummy.EvaluateStat(StatType.PushbackResist, 1), Is.EqualTo(100f));
+
+            EnemyEntity enemy = null;
+            try
+            {
+                enemy = Object.Instantiate(dummy.Prefab, new Vector3(2f, 0f, 0f), Quaternion.identity);
+                enemy.Setup(dummy, 1);
+                Assert.That(enemy.GetComponent<EnemyStats>().GetValue(StatType.PushbackResist), Is.EqualTo(100f));
+
+                var modifiers = new List<SerializableStatModifier>();
+                SkillPushback.AppendFlatModifier(skill, modifiers);
+                var attackStats = new ScopedStatsProvider(new FakeStats(), modifiers);
+                var hit = new DamageSnapshot(null) { Physical = 1f };
+                PushbackResolver.BindToSnapshot(hit, SkillPushback.IsEnabled(skill), attackStats, Vector2.zero);
+                Assert.That(hit.PushbackRating, Is.GreaterThan(0f));
+                Assert.That(enemy.GetComponent<EnemyHealth>().TakeDamage(hit), Is.True);
+
+                EnemyLocomotion2D locomotion = enemy.GetComponent<EnemyLocomotion2D>();
+                MethodInfo applyMovement = typeof(EnemyLocomotion2D).GetMethod(
+                    "ApplyMovement", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(applyMovement, Is.Not.Null);
+                applyMovement.Invoke(locomotion, null);
+                Assert.That(enemy.GetComponent<Rigidbody2D>().linearVelocity.x, Is.Zero.Within(0.001f));
+            }
+            finally
+            {
+                if (enemy != null)
+                    Object.DestroyImmediate(enemy.gameObject);
+            }
         }
 
         private sealed class FakeStats : IStatsProvider
