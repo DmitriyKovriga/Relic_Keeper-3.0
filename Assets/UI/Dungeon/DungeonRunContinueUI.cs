@@ -6,7 +6,7 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
 {
     public const float SortingOrder = 20000f;
     public const int WindowWidth = 236;
-    public const int WindowHeight = 78;
+    public const int WindowHeight = 96;
     public const int ButtonWidth = 96;
     public const int ButtonHeight = 16;
 
@@ -30,6 +30,7 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
     private GamePauseService.PauseHandle _pauseHandle;
     private Action _onContinue;
     private Action _onReturnToSettlement;
+    private Action _onClose;
     private bool _playerInputWasEnabled;
     private bool _resolved;
 
@@ -59,7 +60,16 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
             _instance.HideInternal();
     }
 
-    public void Show(string title, Action onContinue, Action onReturnToSettlement)
+    public static bool TryCloseVisible()
+    {
+        if (!IsVisible || _instance._onClose == null)
+            return false;
+
+        _instance.CompleteClose();
+        return true;
+    }
+
+    public void Show(string title, Action onContinue, Action onReturnToSettlement, Action onClose = null)
     {
         Build();
         if (_overlay == null)
@@ -71,6 +81,7 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
         _resolved = false;
         _onContinue = onContinue;
         _onReturnToSettlement = onReturnToSettlement;
+        _onClose = onClose;
         _title.text = string.IsNullOrWhiteSpace(title)
             ? FormatTitle(10)
             : title;
@@ -84,6 +95,11 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
     }
 
     public static VisualElement CreateWindow(out Button continueButton, out Button returnButton)
+    {
+        return CreateWindow(out continueButton, out returnButton, out _);
+    }
+
+    public static VisualElement CreateWindow(out Button continueButton, out Button returnButton, out Button closeButton)
     {
         var panel = new VisualElement { name = "DungeonRunContinuePanel" };
         panel.style.width = WindowWidth;
@@ -124,6 +140,11 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
         returnButton.style.marginLeft = 4;
         row.Add(continueButton);
         row.Add(returnButton);
+
+        closeButton = CreateActionButton("CloseContinueChoiceButton", "Закрыть");
+        closeButton.style.alignSelf = Align.Center;
+        closeButton.style.marginTop = 4;
+        panel.Add(closeButton);
         return panel;
     }
 
@@ -151,11 +172,23 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
         _overlay.style.display = DisplayStyle.None;
         root.Add(_overlay);
 
-        VisualElement panel = CreateWindow(out Button continueButton, out Button returnButton);
+        VisualElement panel = CreateWindow(out Button continueButton, out Button returnButton, out Button closeButton);
         _title = panel.Q<Label>("ContinueTitle");
         continueButton.clicked += () => Complete(true);
         returnButton.clicked += () => Complete(false);
+        closeButton.clicked += CompleteClose;
         _overlay.Add(panel);
+    }
+
+    private void CompleteClose()
+    {
+        if (_resolved)
+            return;
+
+        _resolved = true;
+        Action callback = _onClose;
+        HideInternal();
+        callback?.Invoke();
     }
 
     private void Complete(bool continueRun)
@@ -168,6 +201,7 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
         Action onReturn = _onReturnToSettlement;
         _onContinue = null;
         _onReturnToSettlement = null;
+        _onClose = null;
         HideInternal();
         if (continueRun)
             onContinue?.Invoke();
@@ -189,6 +223,7 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
         _playerInputWasEnabled = false;
         _onContinue = null;
         _onReturnToSettlement = null;
+        _onClose = null;
     }
 
     private static Button CreateActionButton(string name, string text)

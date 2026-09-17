@@ -39,6 +39,7 @@ namespace Scripts.Dungeon
         private GameObject _hubCameraBoundsObject;
         private DungeonModifierSO _selectedEntryModifier;
         private DungeonModifierSO _currentRoomModifier;
+        private List<DungeonModifierSO> _pendingRoomChoices;
         private DungeonModifierContext _currentModifiers = new DungeonModifierContext();
         private bool _modifierChoiceOpen;
         private bool _continueChoiceOpen;
@@ -124,6 +125,7 @@ namespace Scripts.Dungeon
                     _modifierChoiceOpen = false;
                     BeginDungeon(dungeon, selected);
                 },
+                CancelPendingDungeonEntry,
                 CancelPendingDungeonEntry);
         }
 
@@ -177,6 +179,7 @@ namespace Scripts.Dungeon
             _currentDungeon = dungeon;
             _selectedEntryModifier = selectedEntryModifier;
             _currentRoomModifier = null;
+            _pendingRoomChoices = null;
             _currentModifiers = new DungeonModifierContext();
             _roomsCompletedBeforeSegment = DungeonRunProgress.ResolveStartingRoomsCompleted(_startingDisplayedRoom);
             _continueChoiceOpen = false;
@@ -222,6 +225,7 @@ namespace Scripts.Dungeon
             _currentDungeon = null;
             _selectedEntryModifier = null;
             _currentRoomModifier = null;
+            _pendingRoomChoices = null;
             _currentModifiers = new DungeonModifierContext();
             _modifierChoiceOpen = false;
             _continueChoiceOpen = false;
@@ -409,9 +413,7 @@ namespace Scripts.Dungeon
                 return;
             }
 
-            List<DungeonModifierSO> choices = PickModifierChoices(
-                _currentDungeon != null ? _currentDungeon.RoomModifierPool : null,
-                _currentDungeon != null ? _currentDungeon.RoomChoiceCount : 3);
+            List<DungeonModifierSO> choices = GetOrCreatePendingRoomChoices();
             if (choices.Count == 0)
             {
                 AdvanceToNextRoom(null);
@@ -427,7 +429,25 @@ namespace Scripts.Dungeon
                     _modifierChoiceOpen = false;
                     AdvanceToNextRoom(selected);
                 },
-                AbortDungeonRunFromChoice);
+                AbortDungeonRunFromChoice,
+                ClosePendingRoomChoice);
+        }
+
+        private List<DungeonModifierSO> GetOrCreatePendingRoomChoices()
+        {
+            if (_pendingRoomChoices == null)
+            {
+                _pendingRoomChoices = PickModifierChoices(
+                    _currentDungeon != null ? _currentDungeon.RoomModifierPool : null,
+                    _currentDungeon != null ? _currentDungeon.RoomChoiceCount : 3);
+            }
+
+            return _pendingRoomChoices;
+        }
+
+        private void ClosePendingRoomChoice()
+        {
+            _modifierChoiceOpen = false;
         }
 
         private void AbortDungeonRunFromChoice()
@@ -449,7 +469,13 @@ namespace Scripts.Dungeon
             DungeonRunContinueUI.GetOrCreate().Show(
                 DungeonRunContinueUI.FormatTitle(completedFloor),
                 ContinueEndlessSegment,
-                AbortDungeonRunFromContinue);
+                AbortDungeonRunFromContinue,
+                CloseContinueChoice);
+        }
+
+        private void CloseContinueChoice()
+        {
+            _continueChoiceOpen = false;
         }
 
         private void AbortDungeonRunFromContinue()
@@ -470,6 +496,7 @@ namespace Scripts.Dungeon
             AutoSaveForLocationTransition("continue dungeon");
             _roomsCompletedBeforeSegment += _roomSequence.Count;
             _currentRoomModifier = null;
+            _pendingRoomChoices = null;
             BuildRoomSequence();
             _currentRoomIndex = 0;
             LoadCurrentRoom();
@@ -485,6 +512,7 @@ namespace Scripts.Dungeon
             }
 
             AutoSaveForLocationTransition("enter next room");
+            _pendingRoomChoices = null;
             _currentRoomModifier = selectedModifier;
             _currentRoomIndex = nextRoomIndex;
             LoadCurrentRoom();

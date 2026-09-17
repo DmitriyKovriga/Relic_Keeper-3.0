@@ -377,9 +377,67 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void ModifierChoiceCloseButton_FitsBottomLeftOfPixelCanvas()
+        {
+            Button button = DungeonModifierChoiceUI.CreateCloseButton();
+
+            Assert.That(button.style.left.value.value, Is.EqualTo(DungeonModifierChoiceUI.ReturnButtonInset));
+            Assert.That(button.style.bottom.value.value, Is.EqualTo(DungeonModifierChoiceUI.ReturnButtonInset));
+            Assert.That(button.style.width.value.value, Is.EqualTo(DungeonModifierChoiceUI.CloseButtonWidth));
+            Assert.That(button.style.height.value.value, Is.EqualTo(DungeonModifierChoiceUI.ReturnButtonHeight));
+            Assert.That(button.text, Is.EqualTo("Закрыть"));
+            Assert.That(DungeonModifierChoiceUI.CloseButtonWidth + DungeonModifierChoiceUI.ReturnButtonInset,
+                Is.LessThanOrEqualTo(480));
+        }
+
+        [Test]
+        public void ClosingRoomChoice_KeepsTheSameThreeModifiersForReopening()
+        {
+            var controllerObject = new GameObject("ChoiceCacheTest");
+            DungeonDataSO dungeon = ScriptableObject.CreateInstance<DungeonDataSO>();
+            var modifiers = new List<DungeonModifierSO>();
+            try
+            {
+                DungeonController controller = controllerObject.AddComponent<DungeonController>();
+                for (int i = 0; i < 4; i++)
+                    modifiers.Add(ScriptableObject.CreateInstance<DungeonModifierSO>());
+
+                typeof(DungeonDataSO).GetField("_roomModifierPool", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(dungeon, modifiers);
+                typeof(DungeonDataSO).GetField("_roomChoiceCount", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(dungeon, 3);
+                typeof(DungeonController).GetField("_currentDungeon", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(controller, dungeon);
+
+                MethodInfo getChoices = typeof(DungeonController).GetMethod(
+                    "GetOrCreatePendingRoomChoices", BindingFlags.Instance | BindingFlags.NonPublic);
+                MethodInfo closeChoice = typeof(DungeonController).GetMethod(
+                    "ClosePendingRoomChoice", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(getChoices, Is.Not.Null);
+                Assert.That(closeChoice, Is.Not.Null);
+
+                var first = (List<DungeonModifierSO>)getChoices.Invoke(controller, null);
+                closeChoice.Invoke(controller, null);
+                var reopened = (List<DungeonModifierSO>)getChoices.Invoke(controller, null);
+
+                Assert.That(first, Has.Count.EqualTo(3));
+                Assert.That(reopened, Is.SameAs(first));
+                Assert.That(reopened, Is.EquivalentTo(first));
+            }
+            finally
+            {
+                Object.DestroyImmediate(controllerObject);
+                Object.DestroyImmediate(dungeon);
+                foreach (DungeonModifierSO modifier in modifiers)
+                    Object.DestroyImmediate(modifier);
+            }
+        }
+
+        [Test]
         public void ContinueRunWindow_FitsPixelCanvasAndExposesBothChoices()
         {
-            VisualElement window = DungeonRunContinueUI.CreateWindow(out Button continueButton, out Button returnButton);
+            VisualElement window = DungeonRunContinueUI.CreateWindow(
+                out Button continueButton, out Button returnButton, out Button closeButton);
 
             Assert.That(window.style.width.value.value, Is.EqualTo(DungeonRunContinueUI.WindowWidth));
             Assert.That(window.style.height.value.value, Is.EqualTo(DungeonRunContinueUI.WindowHeight));
@@ -387,6 +445,7 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(DungeonRunContinueUI.WindowHeight, Is.LessThanOrEqualTo(270));
             Assert.That(continueButton.text, Is.EqualTo("Дальше"));
             Assert.That(returnButton.text, Is.EqualTo("В поселение"));
+            Assert.That(closeButton.text, Is.EqualTo("Закрыть"));
             Assert.That((DungeonRunContinueUI.ButtonWidth * 2) + 8, Is.LessThanOrEqualTo(DungeonRunContinueUI.WindowWidth));
             Assert.That(
                 DungeonRunContinueUI.FormatTitle(10),
