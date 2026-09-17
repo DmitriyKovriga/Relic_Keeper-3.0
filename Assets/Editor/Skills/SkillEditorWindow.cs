@@ -1960,6 +1960,12 @@ namespace Scripts.Editor.Skills
             bool newUseProjectileCountStat = EditorGUILayout.Toggle(new GUIContent("Add ProjectileCount stat", "ProjectileCount добавляет дополнительные снаряды на орбиту."), useProjectileCountStat);
             if (newUseProjectileCountStat != useProjectileCountStat) { step.SetOverrideBool("UseProjectileCountStat", newUseProjectileCountStat); EditorUtility.SetDirty(recipe); }
 
+            int maximumCount = Mathf.Max(0, step.GetInt("MaxProjectileCount", 0));
+            int newMaximumCount = Mathf.Max(0, EditorGUILayout.IntField(
+                new GUIContent("Maximum orbit projectiles", "Максимум снарядов на орбите с учётом Base projectile count и ProjectileCount. 0 — без ограничения."),
+                maximumCount));
+            if (newMaximumCount != maximumCount) { step.SetOverrideInt("MaxProjectileCount", newMaximumCount); EditorUtility.SetDirty(recipe); }
+
             float lifetime = step.GetFloat("Lifetime", 4f);
             float newLifetime = Mathf.Max(0.05f, EditorGUILayout.FloatField("Lifetime", lifetime));
             if (Mathf.Abs(newLifetime - lifetime) > 0.001f) { step.SetOverrideFloat("Lifetime", newLifetime); EditorUtility.SetDirty(recipe); }

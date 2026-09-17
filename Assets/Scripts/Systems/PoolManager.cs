@@ -10,6 +10,7 @@ public class PoolManager : MonoBehaviour
     
     // Папка для порядка в иерархии
     private Transform _poolContainer;
+    private bool _isShuttingDown;
 
     private void Awake()
     {
@@ -24,6 +25,18 @@ public class PoolManager : MonoBehaviour
         GameObject container = new GameObject("--- POOL ---");
         container.transform.SetParent(transform);
         _poolContainer = container.transform;
+    }
+
+    private void OnApplicationQuit()
+    {
+        _isShuttingDown = true;
+    }
+
+    private void OnDestroy()
+    {
+        _isShuttingDown = true;
+        if (Instance == this)
+            Instance = null;
     }
 
     /// <summary>
@@ -78,6 +91,14 @@ public class PoolManager : MonoBehaviour
     /// </summary>
     public void ReturnToPool(GameObject obj)
     {
+        // Scene and application teardown can destroy the container before its users.
+        // Reparenting an object at that point triggers a Unity transform assertion.
+        if (_isShuttingDown || _poolContainer == null)
+        {
+            Destroy(obj);
+            return;
+        }
+
         // Проверяем нашу метку
         var pooledObj = obj.GetComponent<PooledObject>();
         

@@ -69,7 +69,9 @@ namespace Scripts.Skills
 
         private void OnDestroy()
         {
-            SkillProjectile.DespawnAllForOwner(_playerStats);
+            // During owner/scene teardown the pool may also be going away. Destroy
+            // projectiles directly so they are never reparented into a dying pool.
+            SkillProjectile.DespawnAllForOwner(_playerStats, false);
 
             if (CharacterPartyManager.Instance != null)
                 CharacterPartyManager.Instance.OnActiveCharacterChanged -= HandleActiveCharacterChanged;

@@ -61,7 +61,10 @@ namespace Scripts.Skills.Projectiles
         public bool ReturnToOwnerOnReverse = true;
         public bool ClearHitHistoryOnReverse = true;
         public bool OrbitOwner;
+        public bool ShareOrbitAcrossCasts;
         public Vector2 OrbitCenterOffset;
+        public float OrbitBaseRadius = 1.2f;
+        public float MinimumOrbitProjectileSpacing;
         public float OrbitRadius = 1.2f;
         public float OrbitAngularSpeedDegreesPerSecond = 180f;
         public float OrbitAngleDegrees;
@@ -87,12 +90,14 @@ namespace Scripts.Skills.Projectiles
 
         private static GameObject _defaultTemplate;
         private static readonly HashSet<SkillProjectile> ActiveProjectiles = new HashSet<SkillProjectile>();
+        private static int _nextSharedOrbitOrder;
 
         private SkillProjectileLaunchData _data;
         private Vector2 _direction = Vector2.right;
         private float _age;
         private bool _despawning;
         private bool _registeredActive;
+        private int _sharedOrbitOrder;
         private bool _usePool;
         private SpriteRenderer _spriteRenderer;
         private Sprite _defaultSprite;
@@ -125,6 +130,10 @@ namespace Scripts.Skills.Projectiles
                 return;
 
             PrepareRuntimeInstance(instance);
+            // The fallback template is inactive. PoolManager activates its clones; an
+            // ordinary Instantiate must do the same when no pool is available.
+            if (!instance.activeSelf)
+                instance.SetActive(true);
 
             SkillProjectile projectile = instance.GetComponent<SkillProjectile>();
             if (projectile == null)
@@ -172,7 +181,7 @@ namespace Scripts.Skills.Projectiles
             }
         }
 
-        public static void DespawnAllForOwner(PlayerStats owner)
+        public static void DespawnAllForOwner(PlayerStats owner, bool returnToPool = true)
         {
             if (owner == null || ActiveProjectiles.Count == 0)
                 return;
@@ -182,8 +191,59 @@ namespace Scripts.Skills.Projectiles
             {
                 SkillProjectile projectile = active[i];
                 if (projectile != null && projectile._data != null && projectile._data.OwnerStats == owner)
-                    projectile.Despawn();
+                    projectile.Despawn(returnToPool);
             }
+        }
+
+        public static int GetSharedOrbitProjectileCount(PlayerStats owner, SkillDataSO skill, int slotIndex)
+        {
+            if (owner == null || skill == null)
+                return 0;
+
+            int count = 0;
+            foreach (SkillProjectile projectile in ActiveProjectiles)
+            {
+                if (projectile != null && projectile.BelongsToSharedOrbit(owner, skill, slotIndex))
+                    count++;
+            }
+
+            return count;
+        }
+
+        public static void RedistributeSharedOrbit(PlayerStats owner, SkillDataSO skill, int slotIndex)
+        {
+            if (owner == null || skill == null)
+                return;
+
+            var members = new List<SkillProjectile>();
+            foreach (SkillProjectile projectile in ActiveProjectiles)
+            {
+                if (projectile != null && projectile.BelongsToSharedOrbit(owner, skill, slotIndex))
+                    members.Add(projectile);
+            }
+
+            if (members.Count == 0)
+                return;
+
+            members.Sort((a, b) => a._sharedOrbitOrder.CompareTo(b._sharedOrbitOrder));
+            SkillProjectileLaunchData anchor = members[0]._data;
+            float phase = anchor.OrbitAngleDegrees;
+            float radius = SkillStepRunner.ResolveOrbitRadius(
+                anchor.OrbitBaseRadius, members.Count, anchor.MinimumOrbitProjectileSpacing);
+
+            for (int i = 0; i < members.Count; i++)
+            {
+                SkillProjectile member = members[i];
+                member._data.OrbitRadius = radius;
+                member._data.OrbitAngleDegrees = phase + 360f * i / members.Count;
+                member.UpdateOrbitPosition();
+            }
+        }
+
+        private bool BelongsToSharedOrbit(PlayerStats owner, SkillDataSO skill, int slotIndex)
+        {
+            return _data != null && _data.OrbitOwner && _data.ShareOrbitAcrossCasts &&
+                   _data.OwnerStats == owner && _data.Skill == skill && _data.SkillSlotIndex == slotIndex;
         }
 
         private static GameObject GetDefaultTemplate()
@@ -222,6 +282,7 @@ namespace Scripts.Skills.Projectiles
             CaptureDefaultVisualState();
 
             _data = data.Clone();
+            _sharedOrbitOrder = _data.ShareOrbitAcrossCasts ? ++_nextSharedOrbitOrder : 0;
             _template = template;
             _usePool = usePool;
             _age = 0f;
@@ -1159,14 +1220,14 @@ namespace Scripts.Skills.Projectiles
             _registeredActive = false;
         }
 
-        private void Despawn()
+        private void Despawn(bool returnToPool = true)
         {
             if (_despawning)
                 return;
 
             _despawning = true;
 
-            if (_usePool && PoolManager.Instance != null)
+            if (returnToPool && _usePool && PoolManager.Instance != null)
                 PoolManager.Instance.ReturnToPool(gameObject);
             else
                 Destroy(gameObject);
@@ -1174,7 +1235,10 @@ namespace Scripts.Skills.Projectiles
 
         private void OnDisable()
         {
+            SkillProjectileLaunchData previousData = _data;
             UnregisterActive();
+            if (previousData != null && previousData.ShareOrbitAcrossCasts)
+                RedistributeSharedOrbit(previousData.OwnerStats, previousData.Skill, previousData.SkillSlotIndex);
             _data = null;
             _template = null;
             _hitHistory.Clear();

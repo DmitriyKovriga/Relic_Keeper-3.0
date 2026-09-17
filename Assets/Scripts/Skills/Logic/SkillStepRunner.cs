@@ -646,7 +646,17 @@ namespace Scripts.Skills
             bool useProjectileCountStat = step.GetBool("UseProjectileCountStat", true);
             int baseCount = Mathf.Max(1, step.GetInt("BaseProjectileCount", 3));
             int additionalCount = useProjectileCountStat ? Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileCount))) : 0;
-            int totalCount = Mathf.Max(1, baseCount + additionalCount);
+            int maximumCount = Mathf.Max(0, step.GetInt("MaxProjectileCount", 0));
+            int requestedCount = ResolveOrbitProjectileCount(baseCount, additionalCount, maximumCount);
+            bool shareOrbitAcrossCasts = step.GetBool("ShareOrbitAcrossCasts", false);
+            int activeCount = shareOrbitAcrossCasts
+                ? SkillProjectile.GetSharedOrbitProjectileCount(_ownerStats, _data, _slotIndex)
+                : 0;
+            int spawnCount = shareOrbitAcrossCasts
+                ? ResolveSharedOrbitSpawnCount(requestedCount, activeCount, maximumCount)
+                : requestedCount;
+            if (spawnCount == 0)
+                return;
             bool useWeaponSprite = step.GetBool("UseCurrentWeaponSprite", false);
             Sprite projectileSprite = useWeaponSprite ? ResolveCurrentWeaponSprite() : null;
             GameObject projectilePrefab = step.GetObject<GameObject>("ProjectilePrefab");
@@ -657,7 +667,9 @@ namespace Scripts.Skills
                 return;
             }
 
-            float radius = Mathf.Max(0.05f, step.GetFloat("OrbitRadius", 1.2f));
+            float baseRadius = step.GetFloat("OrbitRadius", 1.2f);
+            float minimumSpacing = step.GetFloat("MinimumOrbitProjectileSpacing", 0f);
+            float radius = ResolveOrbitRadius(baseRadius, activeCount + spawnCount, minimumSpacing);
             float angularSpeed = step.GetFloat("OrbitAngularSpeedDegreesPerSecond", 180f);
             if (step.GetBool("Clockwise", false))
                 angularSpeed = -Mathf.Abs(angularSpeed);
@@ -667,9 +679,9 @@ namespace Scripts.Skills
             bool pierceTargets = step.GetBool("PierceTargets", true);
             float rehitCooldown = Mathf.Max(0.01f, step.GetFloat("RehitCooldownSeconds", 0.35f));
 
-            for (int i = 0; i < totalCount; i++)
+            for (int i = 0; i < spawnCount; i++)
             {
-                float angle = startAngle + 360f * i / totalCount;
+                float angle = startAngle + 360f * i / spawnCount;
                 float angleRadians = angle * Mathf.Deg2Rad;
                 Vector2 orbitOffset = new Vector2(Mathf.Cos(angleRadians), Mathf.Sin(angleRadians)) * radius;
                 Vector2 origin = (Vector2)_ownerStats.transform.position + centerOffset + orbitOffset;
@@ -702,7 +714,10 @@ namespace Scripts.Skills
                     IgnoreFork = true,
                     IgnoreChain = true,
                     OrbitOwner = true,
+                    ShareOrbitAcrossCasts = shareOrbitAcrossCasts,
                     OrbitCenterOffset = centerOffset,
+                    OrbitBaseRadius = baseRadius,
+                    MinimumOrbitProjectileSpacing = minimumSpacing,
                     OrbitRadius = radius,
                     OrbitAngularSpeedDegreesPerSecond = angularSpeed,
                     OrbitAngleDegrees = angle,
@@ -711,6 +726,34 @@ namespace Scripts.Skills
 
                 SkillProjectile.Spawn(data, origin, tangent, null);
             }
+
+            if (shareOrbitAcrossCasts)
+                SkillProjectile.RedistributeSharedOrbit(_ownerStats, _data, _slotIndex);
+        }
+
+        public static int ResolveOrbitProjectileCount(int baseCount, int additionalCount, int maximumCount)
+        {
+            int requestedCount = Mathf.Max(1, baseCount) + Mathf.Max(0, additionalCount);
+            return maximumCount > 0 ? Mathf.Min(requestedCount, maximumCount) : requestedCount;
+        }
+
+        public static int ResolveSharedOrbitSpawnCount(int requestedCount, int activeCount, int maximumCount)
+        {
+            int availableSlots = maximumCount > 0 ? Mathf.Max(0, maximumCount - activeCount) : int.MaxValue;
+            return Mathf.Min(Mathf.Max(0, requestedCount), availableSlots);
+        }
+
+        public static float ResolveOrbitRadius(float configuredRadius, int projectileCount, float minimumSpacing)
+        {
+            float radius = Mathf.Max(0.05f, configuredRadius);
+            if (projectileCount < 2 || minimumSpacing <= 0f)
+                return radius;
+
+            // Neighbours are separated by a chord, not by an arc. Expand only when the
+            // requested spacing cannot fit on the configured circle.
+            float halfAngularStep = Mathf.PI / projectileCount;
+            float radiusRequiredForSpacing = minimumSpacing / (2f * Mathf.Sin(halfAngularStep));
+            return Mathf.Max(radius, radiusRequiredForSpacing);
         }
 
         private void ExecuteBuildChainTargets(int stepIndex, StepEntry step)
