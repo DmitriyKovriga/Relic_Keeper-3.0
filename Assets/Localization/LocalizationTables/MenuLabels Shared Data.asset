@@ -1527,6 +1527,14 @@ MonoBehaviour:
     m_Key: dungeon.ui.roomClearedPortalUnlocked
     m_Metadata:
       m_Items: []
+  - m_Id: 105657292219736064
+    m_Key: passive.node.NewSmallNode.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105657292244901888
+    m_Key: passive.node.NewSmallNode.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
