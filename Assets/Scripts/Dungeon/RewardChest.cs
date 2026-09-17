@@ -12,11 +12,13 @@ namespace Scripts.Dungeon
     public sealed class RewardChest : MonoBehaviour, IInteractable
     {
         private const string PrefabResourcePath = "Prefabs/Dungeon/RewardChest";
+        private const string SpriteResourcePath = "Sprites/Dungeon/RewardChest";
         private const int PlaceholderPixels = 24;
         private const int PlayerLayer = 0;
         private const int EnemyLayer = 7;
         private const float GravityScale = 3f;
         private static Sprite _placeholderSprite;
+        private static Sprite _chestSprite;
 
         [SerializeField, Min(1)] private int _minimumDrops = 1;
         [SerializeField, Min(1)] private int _maximumDrops = 5;
@@ -75,7 +77,10 @@ namespace Scripts.Dungeon
             if (box == null)
                 box = gameObject.AddComponent<BoxCollider2D>();
             box.isTrigger = false;
-            if (box.size.x <= 0.01f || box.size.y <= 0.01f)
+            SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+            if (renderer != null && renderer.sprite != null)
+                box.size = renderer.sprite.bounds.size;
+            else if (box.size.x <= 0.01f || box.size.y <= 0.01f)
                 box.size = Vector2.one;
 
             Physics2D.SyncTransforms();
@@ -155,12 +160,23 @@ namespace Scripts.Dungeon
                 renderer = gameObject.AddComponent<SpriteRenderer>();
 
             if (renderer.sprite == null)
-                renderer.sprite = GetPlaceholderSprite();
+                renderer.sprite = GetChestSprite() ?? GetPlaceholderSprite();
             renderer.color = Color.white;
             WorldRenderSorting.ConfigureOneShotRenderer(
                 renderer,
                 RenderDepthCategory.GameplayVfx,
                 transform.position.y);
+        }
+
+        private static Sprite GetChestSprite()
+        {
+            if (_chestSprite != null)
+                return _chestSprite;
+
+            Sprite[] sprites = Resources.LoadAll<Sprite>(SpriteResourcePath);
+            if (sprites != null && sprites.Length > 0)
+                _chestSprite = sprites[0];
+            return _chestSprite;
         }
 
         private static Sprite GetPlaceholderSprite()
