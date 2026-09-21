@@ -10,16 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
-  m_Name: MaxMpHpFlat
+  m_Name: CastSpeedNote
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
-  Name: MaxMpHpFlat
+  Name: CastSpeedNote
   Description: 
-  Icon: {fileID: 21300000, guid: 3f4a17f751969f14a9f97930f6302262, type: 3}
+  Icon: {fileID: 21300000, guid: 20a4609f843092b409e3d57b4396c896, type: 3}
   Modifiers:
-  - Stat: 0
-    Value: 3
-    Type: 100
-  - Stat: 5
-    Value: 2
-    Type: 100
+  - Stat: 29
+    Value: 25
+    Type: 200
   StatScalingRules: []

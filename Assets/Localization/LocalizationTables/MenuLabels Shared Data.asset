@@ -1535,6 +1535,70 @@ MonoBehaviour:
     m_Key: tooltip.lockHint
     m_Metadata:
       m_Items: []
+  - m_Id: 105657292219736064
+    m_Key: passive.node.NewSmallNode.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105657292244901888
+    m_Key: passive.node.NewSmallNode.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105682821140439040
+    m_Key: passive.node.SpellMBColldown.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105682821169799168
+    m_Key: passive.node.SpellMBColldown.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105682874886250496
+    m_Key: passive.node.SpellDamgeSmall.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105682874886250497
+    m_Key: passive.node.SpellDamgeSmall.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105697434875715584
+    m_Key: passive.node.CastSpeed.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105697434875715585
+    m_Key: passive.node.CastSpeed.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105702380283092992
+    m_Key: passive.node.NewNotableNode.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105702380283092993
+    m_Key: passive.node.NewNotableNode.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105707013529395200
+    m_Key: passive.node.CastSpeedNote.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105707013529395201
+    m_Key: passive.node.CastSpeedNote.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105711253840715776
+    m_Key: passive.node.ChainSmall.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105711253840715777
+    m_Key: passive.node.ChainSmall.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105712446050656256
+    m_Key: passive.node.LightningDamage.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105712446050656257
+    m_Key: passive.node.LightningDamage.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
