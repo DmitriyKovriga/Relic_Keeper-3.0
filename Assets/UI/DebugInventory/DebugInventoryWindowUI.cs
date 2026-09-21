@@ -7,6 +7,7 @@ using Scripts.Inventory;
 
 public class DebugInventoryWindowUI : MonoBehaviour
 {
+#if UNITY_EDITOR
     [Header("UI")]
     [SerializeField] private UIDocument _uiDoc;
     [SerializeField] private StyleSheet _styleSheet;
@@ -490,4 +491,10 @@ public class DebugInventoryWindowUI : MonoBehaviour
     {
         return _root != null && _root.style.display != DisplayStyle.None;
     }
+#else
+    private void Awake()
+    {
+        gameObject.SetActive(false);
+    }
+#endif
 }

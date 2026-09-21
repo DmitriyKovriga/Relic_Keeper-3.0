@@ -7,6 +7,7 @@ using Scripts.Stats;        // Р”Р»СЏ StatType
 
 public class InventoryDebugger : MonoBehaviour
 {
+#if UNITY_EDITOR
     [Header("Test Settings")]
     [SerializeField] private EquipmentItemSO _testItemBase;
     [SerializeField] private int _itemLevel = 10;
@@ -105,4 +106,10 @@ public class InventoryDebugger : MonoBehaviour
         if (InventoryManager.Instance == null) return;
         InventoryManager.Instance.ClearAllItemsForDebug();
     }
+#else
+    private void Awake()
+    {
+        enabled = false;
+    }
+#endif
 }

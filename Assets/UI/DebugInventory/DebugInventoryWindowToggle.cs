@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 
 public class DebugInventoryWindowToggle : MonoBehaviour
 {
+#if UNITY_EDITOR
     [SerializeField] private DebugInventoryWindowUI _debugWindow;
     [Tooltip("Player/ToggleDebugInventory (привязка X задаётся в InputRebindSaver).")]
     [SerializeField] private InputActionReference _toggleAction;
@@ -30,4 +31,11 @@ public class DebugInventoryWindowToggle : MonoBehaviour
         if (_debugWindow == null) return;
         _debugWindow.SetVisible(!_debugWindow.IsVisible());
     }
+#else
+    private void Awake()
+    {
+        // Keep the scene reference valid in player builds, but exclude the debug window itself.
+        gameObject.SetActive(false);
+    }
+#endif
 }
