@@ -43,6 +43,7 @@ namespace Scripts.Skills.Modules
                 stats,
                 _damageMultiplier,
                 new DamageContext(StatContextTagFlags.Attack | StatContextTagFlags.Melee));
+            damage.Source = _ownerStats;
             Vector2 hitOrigin = _ownerStats != null ? (Vector2)_ownerStats.transform.position : Vector2.zero;
             PushbackResolver.BindToSnapshot(damage, SkillPushback.IsEnabled(skill), stats, hitOrigin);
 

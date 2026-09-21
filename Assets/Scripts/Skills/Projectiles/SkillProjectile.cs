@@ -86,6 +86,9 @@ namespace Scripts.Skills.Projectiles
         private const string OneWayPlatformLayerName = "OneWayPlatform";
         private const float GroundSurfaceNormalThreshold = 0.55f;
         private const float SameLevelSurfaceTolerance = 3f / 24f;
+        private const float SpawnClearanceStep = 1f / 24f;
+        private const float SpawnClearanceSkin = 1f / 24f;
+        private const int MaxSpawnClearanceSamples = 32;
         public const float MinPlayableWorldRadius = 0.28f;
 
         private static GameObject _defaultTemplate;
@@ -139,6 +142,9 @@ namespace Scripts.Skills.Projectiles
             if (projectile == null)
                 projectile = instance.AddComponent<SkillProjectile>();
 
+            // PoolManager activates an instance before its launch data is refreshed.
+            // Keep the old collider from registering a contact at the raw muzzle point.
+            projectile.SuspendCollisionUntilInitialized();
             projectile.Initialize(data, direction, usePool, template);
         }
 
@@ -308,7 +314,10 @@ namespace Scripts.Skills.Projectiles
 
             ApplyVisual();
             WorldRenderSorting.ConfigureAutoSorter(gameObject, RenderDepthCategory.HeroAttackVfx, transform.position.y);
-            ApplyHitbox();
+            ApplyHitbox(enableCollider: false);
+            ResolveInitialWorldOverlap();
+            if (_collider != null)
+                _collider.enabled = true;
             if (_data.OrbitOwner)
                 UpdateOrbitPosition();
             if (_data.GroundMotion)
@@ -1069,13 +1078,22 @@ namespace Scripts.Skills.Projectiles
             _spriteRenderer.flipX = _defaultFlipX;
         }
 
-        private void ApplyHitbox()
+        private void SuspendCollisionUntilInitialized()
+        {
+            EnsureComponents();
+            if (_collider != null)
+                _collider.enabled = false;
+            if (_boxCollider != null)
+                _boxCollider.enabled = false;
+        }
+
+        private void ApplyHitbox(bool enableCollider)
         {
             if (_collider != null)
             {
                 _collider.isTrigger = true;
-                _collider.enabled = true;
                 _collider.radius = ResolveColliderRadius();
+                _collider.enabled = enableCollider;
             }
 
             // Pooled instances may still have a box left over from the AABB hitbox.
@@ -1084,6 +1102,117 @@ namespace Scripts.Skills.Projectiles
                 _boxCollider = GetComponent<BoxCollider2D>();
             if (_boxCollider != null)
                 _boxCollider.enabled = false;
+        }
+
+        private void ResolveInitialWorldOverlap()
+        {
+            if (_data == null || !_data.StopOnWorld || _data.GroundMotion || _data.OrbitOwner || _data.WorldLayer.value == 0)
+                return;
+
+            Physics2D.SyncTransforms();
+            Vector2 desiredPosition = transform.position;
+            Vector2 ownerCenter = ResolveOwnerColliderCenter(_data.OwnerTransform);
+            Vector2 safePosition = ResolveSafeSpawnPosition(
+                desiredPosition,
+                ownerCenter,
+                GetWorldHitRadius(),
+                _data.WorldLayer,
+                _data.OwnerTransform);
+
+            if ((safePosition - desiredPosition).sqrMagnitude > 0.000001f)
+                transform.position = safePosition;
+        }
+
+        /// <summary>
+        /// Pulls an obstructed muzzle point back toward the owner's physical center.
+        /// This keeps projectiles alive under low ceilings while preserving normal
+        /// collision on the following travel step when the owner is facing a wall.
+        /// </summary>
+        public static Vector2 ResolveSafeSpawnPosition(
+            Vector2 desiredPosition,
+            Vector2 ownerCenter,
+            float worldRadius,
+            LayerMask worldLayer,
+            Transform ownerRoot = null)
+        {
+            float radius = Mathf.Max(0.02f, worldRadius);
+            float clearanceRadius = radius + SpawnClearanceSkin;
+            if (!IsSpawnPositionBlocked(desiredPosition, clearanceRadius, worldLayer, ownerRoot))
+                return desiredPosition;
+
+            Vector2 retreat = ownerCenter - desiredPosition;
+            float retreatDistance = retreat.magnitude;
+            if (retreatDistance <= 0.0001f)
+                return desiredPosition;
+
+            int sampleCount = Mathf.Clamp(
+                Mathf.CeilToInt(retreatDistance / SpawnClearanceStep),
+                1,
+                MaxSpawnClearanceSamples);
+
+            for (int i = 1; i <= sampleCount; i++)
+            {
+                Vector2 candidate = Vector2.Lerp(desiredPosition, ownerCenter, i / (float)sampleCount);
+                if (!IsSpawnPositionBlocked(candidate, clearanceRadius, worldLayer, ownerRoot))
+                    return candidate;
+            }
+
+            // No valid point exists inside the owner silhouette. Keep the original
+            // position so ordinary world collision can reject the shot safely.
+            return desiredPosition;
+        }
+
+        private static bool IsSpawnPositionBlocked(
+            Vector2 position,
+            float radius,
+            LayerMask worldLayer,
+            Transform ownerRoot)
+        {
+            Collider2D[] overlaps = Physics2D.OverlapCircleAll(position, radius, worldLayer);
+            for (int i = 0; i < overlaps.Length; i++)
+            {
+                Collider2D overlap = overlaps[i];
+                if (overlap == null || !overlap.enabled || IsOwnedBy(overlap.transform, ownerRoot))
+                    continue;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private static Vector2 ResolveOwnerColliderCenter(Transform ownerRoot)
+        {
+            if (ownerRoot == null)
+                return Vector2.zero;
+
+            Collider2D[] colliders = ownerRoot.GetComponentsInChildren<Collider2D>();
+            bool hasBounds = false;
+            Bounds combinedBounds = default;
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                Collider2D collider = colliders[i];
+                if (collider == null || !collider.enabled || collider.isTrigger)
+                    continue;
+
+                if (!hasBounds)
+                {
+                    combinedBounds = collider.bounds;
+                    hasBounds = true;
+                }
+                else
+                {
+                    combinedBounds.Encapsulate(collider.bounds);
+                }
+            }
+
+            return hasBounds ? (Vector2)combinedBounds.center : (Vector2)ownerRoot.position;
+        }
+
+        private static bool IsOwnedBy(Transform candidate, Transform ownerRoot)
+        {
+            return candidate != null && ownerRoot != null &&
+                   (candidate == ownerRoot || candidate.IsChildOf(ownerRoot) || ownerRoot.IsChildOf(candidate));
         }
 
         private float ResolveColliderRadius()
@@ -1245,6 +1374,10 @@ namespace Scripts.Skills.Projectiles
             _nextTargetHitAllowedAt.Clear();
             _age = 0f;
             _despawning = false;
+            if (_collider != null)
+                _collider.enabled = false;
+            if (_boxCollider != null)
+                _boxCollider.enabled = false;
             if (_spriteRenderer != null)
                 _spriteRenderer.enabled = false;
         }

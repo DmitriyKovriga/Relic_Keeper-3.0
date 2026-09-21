@@ -759,8 +759,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _uiDoc: {fileID: 146347651}
   _playerStats: {fileID: 1563690799}
-  _containerName: StatsContainer
-  _tableName: MenuLabels
 --- !u!114 &146347650
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6678,6 +6676,7 @@ GameObject:
   - component: {fileID: 519420030}
   - component: {fileID: 519420034}
   - component: {fileID: 519420033}
+  - component: {fileID: 519420035}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -6859,6 +6858,21 @@ MonoBehaviour:
   m_CropFrameX: 0
   m_CropFrameY: 0
   m_StretchFill: 0
+--- !u!114 &519420035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 334b7dde2a59dfc4e9a483859056d0a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.AtmosphereController
+  _profile: {fileID: 11400000, guid: 414d7da7d3ab9f84c9394f6e5289e956, type: 2}
+  _player: {fileID: 1563690798}
+  _worldPlaneZ: 0
 --- !u!1 &539104689
 GameObject:
   m_ObjectHideFlags: 0
@@ -7371,26 +7385,32 @@ MonoBehaviour:
     Data: {fileID: 0}
     Affixes: []
     GrantedSkills: []
+    ItemLevel: 0
   - InstanceID: 
     Data: {fileID: 0}
     Affixes: []
     GrantedSkills: []
+    ItemLevel: 0
   - InstanceID: 
     Data: {fileID: 0}
     Affixes: []
     GrantedSkills: []
+    ItemLevel: 0
   - InstanceID: 
     Data: {fileID: 0}
     Affixes: []
     GrantedSkills: []
+    ItemLevel: 0
   - InstanceID: 
     Data: {fileID: 0}
     Affixes: []
     GrantedSkills: []
+    ItemLevel: 0
   - InstanceID: 
     Data: {fileID: 0}
     Affixes: []
     GrantedSkills: []
+    ItemLevel: 0
 --- !u!114 &635787814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9272,6 +9292,7 @@ MonoBehaviour:
   _groundCheckRadius: 0.2
   _dropThroughDuration: 0.3
   _dropThroughInputThreshold: -0.5
+  _dropThroughIntentBufferDuration: 0.3
   _baseMoveSpeed: 5
   _baseJumpForce: 15
   _stopThreshold: 0.01
@@ -9335,7 +9356,17 @@ BoxCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0.000000059604645, y: -0.042526722}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
   m_Size: {x: 0.50969076, y: 0.91494656}
+  m_EdgeRadius: 0
 --- !u!50 &1563690802
 Rigidbody2D:
   serializedVersion: 5

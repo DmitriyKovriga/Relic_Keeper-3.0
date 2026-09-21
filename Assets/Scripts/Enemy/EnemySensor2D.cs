@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Scripts.Combat;
 using Scripts.Stats;
 using Scripts.Visuals;
 
@@ -16,6 +17,8 @@ namespace Scripts.Enemies
         private PlayerDamageReceiver _playerDamageable;
         private bool _isAlerted;
         private float _targetMemoryUntil;
+        private bool _provokedByDamage;
+        private float _damageAggroUntil;
         private GameObject _detectionAttentionPrefab;
         private GameObject _activeDetectionAttentionVfx;
 
@@ -32,6 +35,8 @@ namespace Scripts.Enemies
             _entity = entity;
             _data = data;
             _isAlerted = false;
+            _provokedByDamage = false;
+            _damageAggroUntil = 0f;
             HasTarget = false;
             DestroyDetectionAttentionVfx();
             ResolvePlayer();
@@ -60,14 +65,9 @@ namespace Scripts.Enemies
                 return;
             }
 
+            UpdateTargetGeometry();
             Vector2 from = transform.position;
             Vector2 to = _playerStats.transform.position;
-            Vector2 delta = to - from;
-
-            DistanceToTarget = delta.magnitude;
-            HorizontalDistance = Mathf.Abs(delta.x);
-            VerticalDistance = Mathf.Abs(delta.y);
-            DirectionToTarget = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.zero;
 
             float acquireRange = Mathf.Max(0f, _data.Perception.AggroRange);
             float loseRange = Mathf.Max(acquireRange, _data.Perception.LoseTargetRange);
@@ -96,7 +96,40 @@ namespace Scripts.Enemies
                 }
             }
 
+            if (_provokedByDamage && Time.time <= _damageAggroUntil)
+            {
+                HasTarget = true;
+                return;
+            }
+
+            _provokedByDamage = false;
             ClearTarget();
+        }
+
+        public bool AlertFromDamage(object source)
+        {
+            if (_data == null || _data.Perception == null || _data.Perception.AggroRange <= 0f)
+                return false;
+
+            PlayerStats attacker = ResolvePlayerAttacker(source);
+            if (attacker == null)
+                return false;
+
+            _playerStats = attacker;
+            ResolvePlayer();
+            UpdateTargetGeometry();
+
+            float loseRange = Mathf.Max(_data.Perception.AggroRange, _data.Perception.LoseTargetRange);
+            loseRange *= Mathf.Max(1f, _data.Perception.AlertLoseTargetRangeMultiplier);
+            float memory = Mathf.Max(0f, _data.Perception.AggroMemoryDuration);
+            float moveSpeed = GetComponent<EnemyStats>()?.ResolveMoveSpeed() ?? _data.Movement.MoveSpeed;
+            float approachTime = moveSpeed > 0.01f
+                ? Mathf.Max(0f, DistanceToTarget - loseRange) / moveSpeed
+                : 0f;
+            _damageAggroUntil = Time.time + memory + approachTime;
+            _provokedByDamage = true;
+            AcquireTarget();
+            return true;
         }
 
         public bool IsTargetWithin(float distance)
@@ -115,6 +148,32 @@ namespace Scripts.Enemies
                 if (_playerDamageable == null)
                     _playerDamageable = _playerStats.gameObject.AddComponent<PlayerDamageReceiver>();
             }
+        }
+
+        private static PlayerStats ResolvePlayerAttacker(object source)
+        {
+            while (source != null)
+            {
+                switch (source)
+                {
+                    case PlayerStats stats:
+                        return stats;
+                    case ScopedStatsProvider scoped:
+                        source = scoped.BaseProvider;
+                        break;
+                    case WeaponHandStatsProvider weapon:
+                        source = weapon.BaseProvider;
+                        break;
+                    case Component component:
+                        return component != null ? component.GetComponentInParent<PlayerStats>() : null;
+                    case GameObject gameObject:
+                        return gameObject != null ? gameObject.GetComponentInParent<PlayerStats>() : null;
+                    default:
+                        return null;
+                }
+            }
+
+            return null;
         }
 
         private static bool IsLineBlocked(Vector2 from, Vector2 to)
@@ -154,8 +213,20 @@ namespace Scripts.Enemies
             DirectionToTarget = Vector2.zero;
         }
 
+        private void UpdateTargetGeometry()
+        {
+            Vector2 delta = (Vector2)_playerStats.transform.position - (Vector2)transform.position;
+            DistanceToTarget = delta.magnitude;
+            HorizontalDistance = Mathf.Abs(delta.x);
+            VerticalDistance = Mathf.Abs(delta.y);
+            DirectionToTarget = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.zero;
+        }
+
         private void SpawnDetectionAttentionVfx()
         {
+            if (!Application.isPlaying)
+                return;
+
             GameObject prefab = ResolveDetectionAttentionPrefab();
             if (prefab == null)
                 return;

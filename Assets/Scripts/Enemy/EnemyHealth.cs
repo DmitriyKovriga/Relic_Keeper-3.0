@@ -18,6 +18,7 @@ namespace Scripts.Enemies
         private EnemyAttackController _attack;
         private EnemyAnimationBridge _animation;
         private EnemyBrain _brain;
+        private EnemySensor2D _sensor;
         private MysticShieldController _mysticShield;
         private EnemyStunController _stun;
         private GameObject _lastDamageSource;
@@ -39,6 +40,7 @@ namespace Scripts.Enemies
             _attack = GetComponent<EnemyAttackController>();
             _animation = GetComponent<EnemyAnimationBridge>();
             _brain = GetComponent<EnemyBrain>();
+            _sensor = GetComponent<EnemySensor2D>();
             _mysticShield = GetComponent<MysticShieldController>();
             _stun = GetComponent<EnemyStunController>();
         }
@@ -121,6 +123,9 @@ namespace Scripts.Enemies
             TryPlayHitReaction(finalDamage);
             PushbackImpact.TryApply(damage, this);
 
+            if (finalDamage > 0f && _currentHealth > 0f)
+                AlertToAttacker(damage.Source);
+
             if (finalDamage > 0f)
                 OnDamageReceived?.Invoke(finalDamage);
 
@@ -163,6 +168,9 @@ namespace Scripts.Enemies
             };
 
             _currentHealth -= finalDamage;
+
+            if (_currentHealth > 0f)
+                AlertToAttacker(source);
 
             GameObject sourceObject = GameplayEventContext.ResolveGameObject(source);
             _lastDamageSource = sourceObject;
@@ -228,6 +236,13 @@ namespace Scripts.Enemies
                 EnemyDeathEffectSpawner.Spawn(entity, spriteRenderer);
                 Destroy(gameObject);
             }
+        }
+
+        private void AlertToAttacker(object source)
+        {
+            if (_sensor == null)
+                _sensor = GetComponent<EnemySensor2D>();
+            _sensor?.AlertFromDamage(source);
         }
 
         public void Resurrect()

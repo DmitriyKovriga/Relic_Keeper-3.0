@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 555b840a49e23314abcb67136ea81dc4, type: 3}
+  m_Name: AtmosphereHub
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.AtmosphereProfileSO
+  intensity: 1
+  darkness: 0.2
+  fogOpacity: 0.12
+  fogTint: {r: 0.15, g: 0.19, b: 0.24, a: 1}
+  vignette: 0.2
+  revealRadius: 8
+  revealSoftness: 5
+  revealIntensity: 1
+  noiseAmount: 0.2
+  noiseScale: 0.4
+  driftSpeed: {x: 0.025, y: 0.01}
+  pulseAmount: 0
+  pulseFrequency: 0.5
+  backgroundMist: 0
+  backgroundTint: {r: 0.25, g: 0.4, b: 0.43, a: 1}
+  wispStrength: 0
+  shafts: 0
+  lantern: 0
+  lanternTint: {r: 1, g: 0.6, b: 0.24, a: 1}
+  lanternRadius: 2.8
+  motes: 0
+  pixelsPerUnit: 24
+  referenceResolution: {x: 480, y: 270}
+  quality: 1
+  dither: 0.35

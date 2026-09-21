@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8527829566795215717}
   - component: {fileID: 3621255342945637092}
   - component: {fileID: 7229729944067015456}
+  - component: {fileID: 3208877604066653816}
   m_Layer: 0
   m_Name: VenomStrikeVFXPrefab
   m_TagString: Untagged
@@ -60,7 +61,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 2717b419fc2cd6c449ec4db857dd0681, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -127,3 +128,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 730ac4f26fffe064a95db1f7edcf0950, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AutoDestroyVFX
+--- !u!114 &3208877604066653816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 676491238417898282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7287075578347514c975d21c8f1576b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.SpriteFX.SpriteFxController

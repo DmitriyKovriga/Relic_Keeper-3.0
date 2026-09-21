@@ -7,6 +7,15 @@ namespace RelicKeeper.Tests.EditMode
 {
     public class SkillProjectileHitboxTests
     {
+        private GameObject _ceiling;
+
+        [TearDown]
+        public void TearDown()
+        {
+            if (_ceiling != null)
+                Object.DestroyImmediate(_ceiling);
+        }
+
         [Test]
         public void SquareSprite_UsesHalfTheLongestSide()
         {
@@ -47,6 +56,51 @@ namespace RelicKeeper.Tests.EditMode
 
             Assert.That(radius, Is.EqualTo(SkillProjectile.MinPlayableWorldRadius).Within(0.0001f));
             Assert.That(radius, Is.GreaterThan(0.1f));
+        }
+
+        [Test]
+        public void ObstructedSpawn_UnderCeiling_RetreatsTowardOwnerUntilClear()
+        {
+            _ceiling = new GameObject("Ceiling");
+            _ceiling.layer = 0;
+            var ceilingCollider = _ceiling.AddComponent<BoxCollider2D>();
+            ceilingCollider.size = new Vector2(4f, 0.5f);
+            _ceiling.transform.position = new Vector2(0f, 1.15f);
+            Physics2D.SyncTransforms();
+
+            Vector2 desired = new Vector2(0.45f, 0.75f);
+            Vector2 resolved = SkillProjectile.ResolveSafeSpawnPosition(
+                desired,
+                Vector2.zero,
+                0.28f,
+                1 << _ceiling.layer);
+
+            Assert.That(resolved.y, Is.LessThan(desired.y));
+            Assert.That(Physics2D.OverlapCircle(resolved, 0.28f, 1 << _ceiling.layer), Is.Null);
+
+            // A merely tangent position can become an overlap on the next physics
+            // update. The resolver must leave one logical pixel of extra clearance.
+            Assert.That(Physics2D.OverlapCircle(resolved, 0.28f + 1f / 24f, 1 << _ceiling.layer), Is.Null);
+        }
+
+        [Test]
+        public void ClearSpawn_DoesNotChangePosition()
+        {
+            _ceiling = new GameObject("DistantCeiling");
+            _ceiling.layer = 0;
+            var ceilingCollider = _ceiling.AddComponent<BoxCollider2D>();
+            ceilingCollider.size = new Vector2(4f, 0.5f);
+            _ceiling.transform.position = new Vector2(0f, 3f);
+            Physics2D.SyncTransforms();
+
+            Vector2 desired = new Vector2(0.45f, 0.35f);
+            Vector2 resolved = SkillProjectile.ResolveSafeSpawnPosition(
+                desired,
+                Vector2.zero,
+                0.28f,
+                1 << _ceiling.layer);
+
+            Assert.That(resolved, Is.EqualTo(desired));
         }
 
         [Test]
