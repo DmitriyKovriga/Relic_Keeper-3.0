@@ -1599,6 +1599,46 @@ MonoBehaviour:
     m_Key: passive.node.LightningDamage.description
     m_Metadata:
       m_Items: []
+  - m_Id: 107231575354105856
+    m_Key: passive.node.LigtningNChain.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107231575379271680
+    m_Key: passive.node.LigtningNChain.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107235025857011712
+    m_Key: passive.node.EffectDuration.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107235025857011713
+    m_Key: passive.node.EffectDuration.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107239893170642944
+    m_Key: passive.node.EDNote.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107239893170642945
+    m_Key: passive.node.EDNote.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107243255458947072
+    m_Key: passive.node.FireDamage.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107243255458947073
+    m_Key: passive.node.FireDamage.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107245649336983552
+    m_Key: passive.node.FireDamageIgnite.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107245649336983553
+    m_Key: passive.node.FireDamageIgnite.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -2489,7 +2489,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 105657292219736064
-    m_Localized: LightningDamage
+    m_Localized: EffectDuration
     m_Metadata:
       m_Items: []
   - m_Id: 105657292244901888
@@ -2521,7 +2521,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 105702380283092992
-    m_Localized: CastSpeedNote
+    m_Localized: FireDamageIgnite
     m_Metadata:
       m_Items: []
   - m_Id: 105702380283092993
@@ -2558,6 +2558,46 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 105100000000000002
     m_Localized: Lock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107231575354105856
+    m_Localized: LigtningAndChain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107231575379271680
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107235025857011712
+    m_Localized: EffectDuration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107235025857011713
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107239893170642944
+    m_Localized: EDNote
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107239893170642945
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107243255458947072
+    m_Localized: FireDamage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107243255458947073
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107245649336983552
+    m_Localized: FireDamageIgnite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 107245649336983553
+    m_Localized: 
     m_Metadata:
       m_Items: []
   references:
