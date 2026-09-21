@@ -90,3 +90,7 @@ MonoBehaviour:
     displayOrder: 18
     showInSettings: 1
     defaultBindingPath: <Keyboard>/1
+  - actionName: TooltipLock
+    displayOrder: 19
+    showInSettings: 1
+    defaultBindingPath: <Keyboard>/leftShift

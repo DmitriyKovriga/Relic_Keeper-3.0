@@ -227,6 +227,9 @@ public class PlayerAttackInput : MonoBehaviour
 
     private void QueueDodge(InputAction.CallbackContext context)
     {
+        if (ItemTooltipController.Instance != null && ItemTooltipController.Instance.IsConsumingTooltipLockInput)
+            return;
+
         _dodgeQueuedUntil = Time.time + _dodgeInputBuffer;
         _queuedDodgeInput = InputManager.InputActions.Player.Move.ReadValue<Vector2>();
     }

@@ -57,6 +57,7 @@ public static class GameInputRuntimeSetup
             return;
 
         EnsureButtonAction(playerMap, "Dodge", "<Keyboard>/leftShift", "<Gamepad>/rightShoulder");
+        EnsureButtonAction(playerMap, "TooltipLock", "<Keyboard>/leftShift");
         EnsureConfiguredButtonActions(playerMap);
     }
 

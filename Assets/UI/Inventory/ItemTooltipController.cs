@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using UnityEngine.UIElements;
 using Scripts.Inventory;
 using Scripts.Items;
@@ -23,6 +24,7 @@ public enum ItemTooltipPriceMode
 public class ItemTooltipController : MonoBehaviour
 {
     public static ItemTooltipController Instance { get; private set; }
+    public bool IsConsumingTooltipLockInput => _pin.IsVisible && IsTooltipLockHeld();
 
     [Header("UI Dependencies")]
     [SerializeField] private UIDocument _uiDoc;
@@ -39,6 +41,9 @@ public class ItemTooltipController : MonoBehaviour
     private const int SkillDescriptionFontSize = 6;
     private const int SkillBuffNameFontSize = 7;
     private const int SkillDescriptionLineMinHeight = 8; 
+    private const int LockHintFontSize = 6;
+    private const string TooltipLockActionName = "TooltipLock";
+    private const string TooltipLockHintKey = "tooltip.lockHint";
     
     [SerializeField, Tooltip("Задержка в миллисекундах перед скрытием тултипа (увеличена против мерцания при наведении на экипировку)")]
     private long _hideDelayMs = 180;
@@ -89,6 +94,11 @@ public class ItemTooltipController : MonoBehaviour
     private VisualElement _itemPinBadge;
     private VisualElement _skillPinBadge;
     private VisualElement _orbPinBadge;
+    private Label _itemLockHint;
+    private Label _skillLockHint;
+    private Label _orbLockHint;
+    private InputAction _tooltipLockAction;
+    private InputAction _tooltipLockReader;
     private float _pinAnimElapsed = -1f;
     private int _worldOwnerFrame = -1;
 
@@ -141,11 +151,15 @@ public class ItemTooltipController : MonoBehaviour
             _root.schedule.Execute(RebuildTooltipStructure).ExecuteLater(50);
 
         LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+        InputRebindSaver.RebindsChanged += OnTooltipLockBindingChanged;
+        ResolveTooltipLockAction();
     }
 
     private void OnDisable()
     {
         LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+        InputRebindSaver.RebindsChanged -= OnTooltipLockBindingChanged;
+        DisposeTooltipLockReader();
         HideTooltipImmediate();
     }
 
@@ -168,7 +182,7 @@ public class ItemTooltipController : MonoBehaviour
             && Mouse.current.leftButton.wasPressedThisFrame
             && !overTooltip;
 
-        bool hidden = _pin.Tick(Time.unscaledDeltaTime, overOwner, overTooltip, clickOutside);
+        bool hidden = _pin.Tick(IsTooltipLockHeld(), overOwner, overTooltip, clickOutside);
         if (hidden)
         {
             HideTooltipImmediate();
@@ -179,7 +193,67 @@ public class ItemTooltipController : MonoBehaviour
             _pinAnimElapsed = 0f;
 
         RefreshPinVisual();
-        SetTooltipClusterPicking(_pin.IsVisible);
+        SetTooltipClusterPicking(_pin.IsPinned);
+    }
+
+    private void ResolveTooltipLockAction()
+    {
+        DisposeTooltipLockReader();
+
+        InputActionAsset asset = InputManager.InputActions?.asset;
+        _tooltipLockAction = asset != null ? asset.FindAction(TooltipLockActionName, false) : null;
+        if (_tooltipLockAction != null)
+        {
+            int bindingIndex = ControlEntry.GetFirstBindableBindingIndex(_tooltipLockAction);
+            if (bindingIndex >= 0)
+            {
+                string effectivePath = _tooltipLockAction.bindings[bindingIndex].effectivePath;
+                if (!string.IsNullOrWhiteSpace(effectivePath))
+                {
+                    // Inventory and modal windows may disable the Player action map. The tooltip
+                    // still needs to read its configured binding while UI is active, so use a
+                    // lightweight independent reader built from the same (possibly rebound) path.
+                    _tooltipLockReader = new InputAction(
+                        "TooltipLockUIReader",
+                        InputActionType.Button,
+                        effectivePath);
+                    _tooltipLockReader.Enable();
+                }
+            }
+        }
+
+        RefreshLockHintText();
+    }
+
+    private void DisposeTooltipLockReader()
+    {
+        if (_tooltipLockReader == null)
+            return;
+
+        _tooltipLockReader.Disable();
+        _tooltipLockReader.Dispose();
+        _tooltipLockReader = null;
+    }
+
+    private void OnTooltipLockBindingChanged()
+    {
+        ResolveTooltipLockAction();
+    }
+
+    private bool IsTooltipLockHeld()
+    {
+        if (_tooltipLockReader == null)
+            return false;
+
+        // Poll the resolved buttons as well as the action phase. Direct polling keeps the lock
+        // responsive even when another map was disabled during the same frame as the UI opened.
+        foreach (InputControl control in _tooltipLockReader.controls)
+        {
+            if (control is ButtonControl button && button.isPressed)
+                return true;
+        }
+
+        return _tooltipLockReader.IsPressed();
     }
 
     private bool IsPointerOverCurrentOwner()
@@ -338,7 +412,8 @@ public class ItemTooltipController : MonoBehaviour
 
     private void RefreshPinVisual()
     {
-        if (!_pin.IsVisible)
+        RefreshLockHintVisibility();
+        if (!_pin.IsPinned)
         {
             HidePinBadges();
             return;
@@ -354,9 +429,13 @@ public class ItemTooltipController : MonoBehaviour
         }
 
         int pulseFrame = _pinAnimElapsed < 0f ? 2 : (_pinAnimElapsed < 0.09f ? 0 : 1);
-        PlacePinBadge(_itemPinBadge, _itemTooltipBox, pulseFrame);
-        PlacePinBadge(_skillPinBadge, _skillTooltipBox, pulseFrame);
-        PlacePinBadge(_orbPinBadge, _orbTooltipBox, pulseFrame);
+        HidePinBadges();
+        if (IsDisplayedTooltip(_itemTooltipBox))
+            PlacePinBadge(_itemPinBadge, _itemTooltipBox, pulseFrame);
+        else if (IsDisplayedTooltip(_skillTooltipBox))
+            PlacePinBadge(_skillPinBadge, _skillTooltipBox, pulseFrame);
+        else if (IsDisplayedTooltip(_orbTooltipBox))
+            PlacePinBadge(_orbPinBadge, _orbTooltipBox, pulseFrame);
     }
 
     private void PlacePinBadge(VisualElement badge, VisualElement host, int pulseFrame)
@@ -379,7 +458,7 @@ public class ItemTooltipController : MonoBehaviour
         badge.style.top = Mathf.Round(local.y + 2f);
         badge.style.display = DisplayStyle.Flex;
         badge.BringToFront();
-        ApplyPinProgress(badge, _pin.PinProgress, _pin.IsPinned, pulseFrame);
+        ApplyPinLockedVisual(badge, pulseFrame);
     }
 
     private void HidePinBadges()
@@ -389,19 +468,15 @@ public class ItemTooltipController : MonoBehaviour
         if (_orbPinBadge != null) _orbPinBadge.style.display = DisplayStyle.None;
     }
 
-    private void ApplyPinProgress(VisualElement badge, float progress, bool locked, int pulseFrame)
+    private void ApplyPinLockedVisual(VisualElement badge, int pulseFrame)
     {
         var fill = badge.Q<VisualElement>("PinFill");
         var body = badge.Q<VisualElement>("PinBody");
         if (fill == null || body == null)
             return;
 
-        Color outline = locked
-            ? (pulseFrame == 0 ? new Color(0.98f, 0.93f, 0.72f) : _colBuffName)
-            : new Color(0.52f, 0.42f, 0.2f);
-        Color fillColor = locked
-            ? (pulseFrame == 0 ? new Color(0.98f, 0.93f, 0.72f) : _colBuffName)
-            : new Color(0.78f, 0.64f, 0.28f);
+        Color outline = pulseFrame == 0 ? new Color(0.98f, 0.93f, 0.72f) : _colBuffName;
+        Color fillColor = outline;
 
         SetPinPartColor(badge, "PinBowTop", outline);
         SetPinPartColor(badge, "PinBowLeft", outline);
@@ -411,13 +486,10 @@ public class ItemTooltipController : MonoBehaviour
         body.style.borderLeftColor = outline;
         body.style.borderRightColor = outline;
 
-        const int maxFill = 3;
-        int fillH = locked ? maxFill : Mathf.RoundToInt(progress * maxFill);
-        if (fillH < 0) fillH = 0;
-        if (fillH > maxFill) fillH = maxFill;
-        fill.style.height = fillH;
-        fill.style.top = 7 - fillH;
-        fill.style.backgroundColor = new StyleColor(fillH > 0 ? fillColor : Color.clear);
+        const int fillHeight = 3;
+        fill.style.height = fillHeight;
+        fill.style.top = 7 - fillHeight;
+        fill.style.backgroundColor = new StyleColor(fillColor);
     }
 
     private static void SetPinPartColor(VisualElement badge, string name, Color color)
@@ -427,8 +499,90 @@ public class ItemTooltipController : MonoBehaviour
             part.style.backgroundColor = new StyleColor(color);
     }
 
+    private Label CreateLockHintLabel(string name)
+    {
+        var label = CreateLabel(string.Empty, LockHintFontSize, FontStyle.Normal, TextAnchor.MiddleCenter);
+        label.name = name;
+        label.pickingMode = PickingMode.Ignore;
+        label.style.width = Length.Percent(100);
+        label.style.height = 7f;
+        label.style.minHeight = 7f;
+        label.style.marginTop = 1f;
+        label.style.marginBottom = 0f;
+        label.style.paddingTop = 0f;
+        label.style.paddingBottom = 0f;
+        label.style.color = new StyleColor(new Color(0.78f, 0.72f, 0.58f, 0.34f));
+        label.style.display = DisplayStyle.None;
+        return label;
+    }
+
+    private void RefreshLockHintVisibility()
+    {
+        bool showHint = _pin.IsVisible && !_pin.IsPinned;
+        bool itemIsPrimary = showHint && IsDisplayedTooltip(_itemTooltipBox);
+        bool skillIsPrimary = showHint && !itemIsPrimary && IsDisplayedTooltip(_skillTooltipBox);
+        bool orbIsPrimary = showHint && !itemIsPrimary && !skillIsPrimary && IsDisplayedTooltip(_orbTooltipBox);
+
+        if (_itemLockHint != null)
+            _itemLockHint.style.display = itemIsPrimary ? DisplayStyle.Flex : DisplayStyle.None;
+        if (_skillLockHint != null)
+            _skillLockHint.style.display = skillIsPrimary ? DisplayStyle.Flex : DisplayStyle.None;
+        if (_orbLockHint != null)
+            _orbLockHint.style.display = orbIsPrimary ? DisplayStyle.Flex : DisplayStyle.None;
+    }
+
+    private void RefreshLockHintText()
+    {
+        string binding = GetTooltipLockBindingLabel();
+        bool russian = (LocalizationSettings.SelectedLocale?.Identifier.Code ?? "en")
+            .StartsWith("ru", System.StringComparison.OrdinalIgnoreCase);
+        SetLockHintText(binding, russian ? "Закрепить" : "Lock");
+
+        AsyncOperationHandle<string> operation = LocalizationSettings.StringDatabase
+            .GetLocalizedStringAsync(TABLE_MENU, TooltipLockHintKey);
+        operation.Completed += handle =>
+        {
+            if (handle.Status != AsyncOperationStatus.Succeeded
+                || string.IsNullOrWhiteSpace(handle.Result)
+                || handle.Result.Contains("No translation found"))
+                return;
+
+            SetLockHintText(GetTooltipLockBindingLabel(), handle.Result);
+        };
+    }
+
+    private void SetLockHintText(string binding, string actionText)
+    {
+        string text = $"[{binding}] {actionText}";
+        if (_itemLockHint != null) _itemLockHint.text = text;
+        if (_skillLockHint != null) _skillLockHint.text = text;
+        if (_orbLockHint != null) _orbLockHint.text = text;
+    }
+
+    private string GetTooltipLockBindingLabel()
+    {
+        if (_tooltipLockAction == null)
+            return "LShift";
+
+        int bindingIndex = ControlEntry.GetFirstBindableBindingIndex(_tooltipLockAction);
+        if (bindingIndex < 0)
+            return "Unbound";
+
+        string display = _tooltipLockAction.GetBindingDisplayString(
+            bindingIndex,
+            InputBinding.DisplayStringOptions.DontIncludeInteractions);
+        if (string.IsNullOrWhiteSpace(display))
+            return "Unbound";
+
+        return display
+            .Replace("Left Shift", "LShift")
+            .Replace("Right Shift", "RShift")
+            .Replace("Control", "Ctrl");
+    }
+
     private void OnLocaleChanged(UnityEngine.Localization.Locale locale)
     {
+        RefreshLockHintText();
         if (_currentTargetItem != null && _itemTooltipBox.style.display == DisplayStyle.Flex)
         {
             FillItemData(_currentTargetItem);
@@ -499,6 +653,8 @@ public class ItemTooltipController : MonoBehaviour
         _itemTooltipBox.Add(_headerLabel);
         _itemTooltipBox.Add(CreateDivider());
         _itemTooltipBox.Add(_statsContainer);
+        _itemLockHint = CreateLockHintLabel("ItemTooltipLockHint");
+        _itemTooltipBox.Add(_itemLockHint);
         _root.Add(_itemTooltipBox);
 
         // --- 2. Skill Tooltip ---
@@ -508,6 +664,7 @@ public class ItemTooltipController : MonoBehaviour
         _skillTooltipBox.style.borderBottomColor = new Color(0, 0.5f, 0.5f);
         _skillTooltipBox.style.borderLeftColor = new Color(0, 0.5f, 0.5f); 
         _skillTooltipBox.style.borderRightColor = new Color(0, 0.5f, 0.5f);
+        _skillLockHint = CreateLockHintLabel("SkillTooltipLockHint");
         
         _root.Add(_skillTooltipBox);
 
@@ -545,12 +702,15 @@ public class ItemTooltipController : MonoBehaviour
         _orbTitleLabel = CreateLabel("", 9, FontStyle.Bold, TextAnchor.MiddleCenter);
         _orbTitleLabel.style.color = new StyleColor(_colTitleRare);
         _orbDescLabel = CreateLabel("", 8, FontStyle.Normal, TextAnchor.MiddleCenter);
+        _orbLockHint = CreateLockHintLabel("OrbTooltipLockHint");
         _orbTooltipBox.Add(_orbTitleLabel);
         _orbTooltipBox.Add(CreateDivider());
         _orbTooltipBox.Add(_orbDescLabel);
+        _orbTooltipBox.Add(_orbLockHint);
         _root.Add(_orbTooltipBox);
 
         _itemTooltipBox.RegisterCallback<GeometryChangedEvent>(OnItemTooltipGeometryChanged);
+        RefreshLockHintText();
     }
 
     private void OnItemTooltipGeometryChanged(GeometryChangedEvent evt)
@@ -1364,6 +1524,7 @@ public class ItemTooltipController : MonoBehaviour
             return;
 
         AddSkillTooltipBlock(skill, typeKey: null, typeFallback: null, addDivider: false, includeDps: true);
+        _skillTooltipBox.Add(_skillLockHint);
     }
 
     private void FillSkillData(InventoryItem item)
@@ -1388,6 +1549,8 @@ public class ItemTooltipController : MonoBehaviour
 
                 AddSkillTooltipBlock(skill, slotKey, i == 0 ? "Primary Action" : "Secondary Action", i > 0);
             }
+
+            _skillTooltipBox.Add(_skillLockHint);
         }
     }
 
