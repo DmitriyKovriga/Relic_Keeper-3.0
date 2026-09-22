@@ -568,10 +568,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""2722ef91-8425-4dc6-abfb-a20e88cdc16c"",
-                    ""path"": ""<Keyboard>/z"",
+                    ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""SecondSkill"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -579,10 +579,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""212e403a-77fb-4d1d-a1e8-bf219d24f2b0"",
-                    ""path"": ""<Keyboard>/q"",
+                    ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""FirstSkill"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -678,10 +678,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""5af5333f-1c7e-4671-b919-ca880930838b"",
-                    ""path"": ""<Keyboard>/r"",
+                    ""path"": ""<Keyboard>/1"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""ThirdSkill"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -689,10 +689,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""95225817-78fe-4d51-b23c-c2ca15150e11"",
-                    ""path"": ""<Keyboard>/v"",
+                    ""path"": ""<Keyboard>/2"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""FourthSkill"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -700,10 +700,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""0c623ce1-0314-41b7-8935-bdea977b0011"",
-                    ""path"": ""<Keyboard>/f"",
+                    ""path"": ""<Keyboard>/3"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""FifthSkill"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -711,10 +711,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""c5cf744f-2d35-4ad5-bcce-f073625708af"",
-                    ""path"": ""<Keyboard>/1"",
+                    ""path"": ""<Keyboard>/4"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""SixthSkill"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false

@@ -16,12 +16,12 @@ public static class InputRebindSaver
 
     private static readonly (string actionName, string path)[] DefaultSkillBindings =
     {
-        ("FirstSkill", "<Keyboard>/q"),
-        ("SecondSkill", "<Keyboard>/z"),
-        ("ThirdSkill", "<Keyboard>/r"),
-        ("FourthSkill", "<Keyboard>/v"),
-        ("FifthSkill", "<Keyboard>/f"),
-        ("SixthSkill", "<Keyboard>/1"),
+        ("FirstSkill", "<Mouse>/leftButton"),
+        ("SecondSkill", "<Mouse>/rightButton"),
+        ("ThirdSkill", "<Keyboard>/1"),
+        ("FourthSkill", "<Keyboard>/2"),
+        ("FifthSkill", "<Keyboard>/3"),
+        ("SixthSkill", "<Keyboard>/4"),
     };
 
     private static string SavePath =>
