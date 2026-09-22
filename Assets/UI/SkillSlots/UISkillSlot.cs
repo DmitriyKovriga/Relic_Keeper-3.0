@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -6,6 +7,8 @@ using Scripts.Skills;
 
 public class UISkillSlot : MonoBehaviour
 {
+    private static readonly List<UISkillSlot> ActiveSlots = new List<UISkillSlot>(6);
+
     [Header("UI References")]
     [SerializeField] private Image _iconImage;
     [SerializeField] private Image _cooldownOverlayImage;
@@ -30,6 +33,20 @@ public class UISkillSlot : MonoBehaviour
 
     public SkillDataSO CurrentSkill => _skill;
     public int SlotIndex { get; private set; } = -1;
+
+    private void OnEnable()
+    {
+        if (!ActiveSlots.Contains(this))
+            ActiveSlots.Add(this);
+    }
+
+    private void OnDisable()
+    {
+        ActiveSlots.Remove(this);
+        if (_pointerInside)
+            ItemTooltipController.Instance?.HideHudSkillTooltip(this);
+        _pointerInside = false;
+    }
 
     private void Update()
     {
@@ -120,8 +137,35 @@ public class UISkillSlot : MonoBehaviour
 
     private void OnDestroy()
     {
+        ActiveSlots.Remove(this);
         if (_pointerInside)
             ItemTooltipController.Instance?.HideHudSkillTooltip(this);
+    }
+
+    /// <summary>
+    /// Checks the live HUD slot rectangles instead of relying on Update order. World item
+    /// inspection can run before or after a slot's Update, so cached hover state is not enough.
+    /// </summary>
+    public static bool IsPointerOverAnySlot()
+    {
+        if (Mouse.current == null)
+            return false;
+
+        Vector2 screenPoint = Mouse.current.position.ReadValue();
+        for (int i = ActiveSlots.Count - 1; i >= 0; i--)
+        {
+            UISkillSlot slot = ActiveSlots[i];
+            if (slot == null)
+            {
+                ActiveSlots.RemoveAt(i);
+                continue;
+            }
+
+            if (slot.isActiveAndEnabled && slot.IsScreenPointOverThisSlot(screenPoint))
+                return true;
+        }
+
+        return false;
     }
 
     public void SetCooldownOverlay(float normalizedRemaining, bool visible)
@@ -199,6 +243,14 @@ public class UISkillSlot : MonoBehaviour
         if (HudShortcutBar.IsPointerOverBar())
             return false;
 
+        return IsScreenPointOverThisSlot(Mouse.current.position.ReadValue());
+    }
+
+    private bool IsScreenPointOverThisSlot(Vector2 screenPoint)
+    {
+        if (HudShortcutBar.IsPointerOverBar())
+            return false;
+
         var rect = transform as RectTransform;
         if (rect == null)
             return false;
@@ -207,7 +259,7 @@ public class UISkillSlot : MonoBehaviour
         Camera camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
             ? canvas.worldCamera
             : null;
-        return RectTransformUtility.RectangleContainsScreenPoint(rect, Mouse.current.position.ReadValue(), camera);
+        return RectTransformUtility.RectangleContainsScreenPoint(rect, screenPoint, camera);
     }
 
     private bool IsHudTooltipBlocked()

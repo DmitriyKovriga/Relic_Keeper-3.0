@@ -77,6 +77,40 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void HudSkillTooltipForRightmostSlotStaysInsidePixelPerfectViewport()
+        {
+            Vector2 pos = ItemTooltipController.CalculateHudSkillTooltipPosition(
+                new Vector2(444f, 220f),
+                new Vector2(478f, 255f),
+                tooltipWidth: 150f,
+                tooltipHeight: 70f,
+                screenWidth: 480f,
+                screenHeight: 270f,
+                gap: 2f,
+                padding: 2f);
+
+            Assert.That(pos.x, Is.EqualTo(328f).Within(0.01f));
+            Assert.That(pos.y, Is.EqualTo(148f).Within(0.01f));
+            Assert.That(pos.x + 150f, Is.LessThanOrEqualTo(478f));
+        }
+
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        [TestCase(true, true)]
+        public void WorldItemTooltipYieldsToHudPointerOwner(bool pointerOverSlot, bool pointerOverTooltip)
+        {
+            Assert.That(
+                ItemTooltipController.ShouldWorldTooltipYieldToHud(pointerOverSlot, pointerOverTooltip),
+                Is.True);
+        }
+
+        [Test]
+        public void WorldItemTooltipCanShowWhenPointerDoesNotOwnHudTooltip()
+        {
+            Assert.That(ItemTooltipController.ShouldWorldTooltipYieldToHud(false, false), Is.False);
+        }
+
+        [Test]
         public void HudSkillTooltipSitsBelowWhenTheSlotIsAtTheTop()
         {
             Vector2 pos = ItemTooltipController.CalculateHudSkillTooltipPosition(

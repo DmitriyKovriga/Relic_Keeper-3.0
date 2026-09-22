@@ -831,6 +831,16 @@ public class ItemTooltipController : MonoBehaviour
         if (ShouldHideWorldItemTooltip())
             return;
 
+        bool pointerOverHudSlot = UISkillSlot.IsPointerOverAnySlot();
+        bool pointerOverHudTooltip = IsPointerOverHudSkillUi();
+        if (ShouldWorldTooltipYieldToHud(pointerOverHudSlot, pointerOverHudTooltip))
+        {
+            // PlayerInteractController requests the nearby ground item every frame. Do not let
+            // that request replace a HUD tooltip just because its Update happened later.
+            HideWorldTooltip(droppedItem);
+            return;
+        }
+
         if (_itemTooltipBox == null || _worldAnchor == null)
             RebuildTooltipStructure();
         if (!UpdateWorldAnchorPosition(droppedItem.TooltipWorldPosition))
@@ -840,6 +850,11 @@ public class ItemTooltipController : MonoBehaviour
         ShowTooltipInternal(droppedItem.Item, _worldAnchor, droppedItem);
         if (_worldTargetItem == droppedItem)
             RecalculatePosition();
+    }
+
+    public static bool ShouldWorldTooltipYieldToHud(bool pointerOverHudSlot, bool pointerOverHudTooltip)
+    {
+        return pointerOverHudSlot || pointerOverHudTooltip;
     }
 
     public void HideWorldTooltip(WorldDroppedItem droppedItem)
