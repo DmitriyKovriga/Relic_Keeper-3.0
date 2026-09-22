@@ -60,6 +60,22 @@ namespace Scripts.Skills.PassiveTree
         private readonly List<(StatType type, StatModifier mod)> _activeStatScalingModifiers = new List<(StatType, StatModifier)>();
         private bool _isRefreshingStatScaling;
 
+        private readonly struct ResourcePercentSnapshot
+        {
+            public readonly float HealthPercent;
+            public readonly float HealthMax;
+            public readonly float ManaPercent;
+            public readonly float ManaMax;
+
+            public ResourcePercentSnapshot(PlayerStats stats)
+            {
+                HealthPercent = stats?.Health != null ? stats.Health.Percent : 0f;
+                HealthMax = stats?.Health != null ? stats.Health.Max : 0f;
+                ManaPercent = stats?.Mana != null ? stats.Mana.Percent : 0f;
+                ManaMax = stats?.Mana != null ? stats.Mana.Max : 0f;
+            }
+        }
+
         public event System.Action OnTreeUpdated; 
 
         private void Awake()
@@ -143,8 +159,10 @@ namespace Scripts.Skills.PassiveTree
 
             if (_playerStats.Leveling.TrySpendPoint(1))
             {
+                ResourcePercentSnapshot resources = CaptureResourcePercentages();
                 _allocatedNodeIDs.Add(nodeID);
                 ApplyNodeStats(nodeID);
+                RestoreResourcePercentagesAfterMaxChange(resources);
                 OnTreeUpdated?.Invoke();
             }
         }
@@ -221,15 +239,34 @@ namespace Scripts.Skills.PassiveTree
             if (!CanRefund(nodeID)) return;
 
             // 1. Убираем из списка
+            ResourcePercentSnapshot resources = CaptureResourcePercentages();
             _allocatedNodeIDs.Remove(nodeID);
 
             // 2. Снимаем статы
             RemoveNodeStats(nodeID);
+            RestoreResourcePercentagesAfterMaxChange(resources);
 
             // 3. Возвращаем очко
             _playerStats?.Leveling?.RefundPoint(1);
 
             OnTreeUpdated?.Invoke();
+        }
+
+        private ResourcePercentSnapshot CaptureResourcePercentages()
+        {
+            return new ResourcePercentSnapshot(_playerStats);
+        }
+
+        private void RestoreResourcePercentagesAfterMaxChange(ResourcePercentSnapshot snapshot)
+        {
+            if (_playerStats == null)
+                return;
+
+            if (_playerStats.Health != null && Mathf.Abs(_playerStats.Health.Max - snapshot.HealthMax) > 0.001f)
+                _playerStats.Health.SetCurrent(_playerStats.Health.Max * Mathf.Clamp01(snapshot.HealthPercent));
+
+            if (_playerStats.Mana != null && Mathf.Abs(_playerStats.Mana.Max - snapshot.ManaMax) > 0.001f)
+                _playerStats.Mana.SetCurrent(_playerStats.Mana.Max * Mathf.Clamp01(snapshot.ManaPercent));
         }
 
         // --- STATS MANAGEMENT ---

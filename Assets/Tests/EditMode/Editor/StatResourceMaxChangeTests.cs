@@ -1,5 +1,9 @@
 using NUnit.Framework;
+using Scripts.Skills.PassiveTree;
 using Scripts.Stats;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
 
 namespace RelicKeeper.Tests.EditMode
 {
@@ -78,6 +82,75 @@ namespace RelicKeeper.Tests.EditMode
 
             Assert.That(resource.Current, Is.EqualTo(100f));
             Assert.That(resource.Max, Is.EqualTo(500f));
+        }
+
+        [Test]
+        public void PassiveMaxResourceNode_CannotHealByRepeatedAllocateAndRefund()
+        {
+            var host = new GameObject("PassiveResourceExploitTest");
+            PassiveSkillTreeSO tree = ScriptableObject.CreateInstance<PassiveSkillTreeSO>();
+            try
+            {
+                PlayerStats stats = host.AddComponent<PlayerStats>();
+                InvokeAwake(stats);
+                stats.GetStat(StatType.MaxHealth).BaseValue = 100f;
+                stats.GetStat(StatType.MaxMana).BaseValue = 100f;
+                stats.NotifyChanged();
+                stats.Health.SetCurrent(40f);
+                stats.Mana.SetCurrent(25f);
+
+                const string startId = "start";
+                const string resourceId = "max-resources";
+                tree.Nodes.Add(new PassiveNodeDefinition
+                {
+                    ID = startId,
+                    NodeType = PassiveNodeType.Start,
+                    ConnectionIDs = new List<string> { resourceId }
+                });
+                tree.Nodes.Add(new PassiveNodeDefinition
+                {
+                    ID = resourceId,
+                    NodeType = PassiveNodeType.Small,
+                    ConnectionIDs = new List<string> { startId },
+                    UniqueModifiers = new List<SerializableStatModifier>
+                    {
+                        new SerializableStatModifier { Stat = StatType.MaxHealth, Value = 100f, Type = StatModType.Flat },
+                        new SerializableStatModifier { Stat = StatType.MaxMana, Value = 100f, Type = StatModType.Flat }
+                    }
+                });
+                tree.InitLookup();
+
+                PassiveTreeManager manager = host.AddComponent<PassiveTreeManager>();
+                InvokeAwake(manager);
+                manager.SetTreeData(tree);
+                manager.LoadState(new List<string> { startId });
+                stats.Leveling.RefundPoint(1);
+
+                manager.AllocateNode(resourceId);
+                Assert.That(stats.Health.Current, Is.EqualTo(80f).Within(0.01f));
+                Assert.That(stats.Mana.Current, Is.EqualTo(50f).Within(0.01f));
+
+                manager.RefundNode(resourceId);
+                Assert.That(stats.Health.Current, Is.EqualTo(40f).Within(0.01f));
+                Assert.That(stats.Mana.Current, Is.EqualTo(25f).Within(0.01f));
+
+                manager.AllocateNode(resourceId);
+                manager.RefundNode(resourceId);
+                Assert.That(stats.Health.Current, Is.EqualTo(40f).Within(0.01f));
+                Assert.That(stats.Mana.Current, Is.EqualTo(25f).Within(0.01f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(host);
+                Object.DestroyImmediate(tree);
+            }
+        }
+
+        private static void InvokeAwake(object target)
+        {
+            MethodInfo awake = target.GetType().GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(awake, Is.Not.Null);
+            awake.Invoke(target, null);
         }
     }
 }
