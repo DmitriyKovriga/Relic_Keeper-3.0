@@ -11,6 +11,7 @@ public class InventoryWindowToggle : MonoBehaviour
     [SerializeField] private InputActionReference _inputAction;
 
     private WindowManager _manager;
+    private readonly IndependentButtonInput _craftInput = new IndependentButtonInput();
 
     private void Start()
     {
@@ -24,15 +25,25 @@ public class InventoryWindowToggle : MonoBehaviour
             _inputAction.action.Enable();
             _inputAction.action.performed += OnToggleInput;
         }
+
+        InputRebindSaver.RebindsChanged += RebindCraftInput;
+        RebindCraftInput();
     }
 
     private void OnDisable()
     {
+        InputRebindSaver.RebindsChanged -= RebindCraftInput;
+        _craftInput.Dispose();
         if (_inputAction != null)
         {
             _inputAction.action.performed -= OnToggleInput;
             _inputAction.action.Disable();
         }
+    }
+
+    private void RebindCraftInput()
+    {
+        _craftInput.Bind(InputManager.InputActions?.asset, "OpenCrafting", ToggleCraft);
     }
 
     private void OnToggleInput(InputAction.CallbackContext ctx)

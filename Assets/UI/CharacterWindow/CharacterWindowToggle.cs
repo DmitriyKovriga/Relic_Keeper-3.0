@@ -1,20 +1,31 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // Используем New Input System
 
 public class CharacterWindowToggle : MonoBehaviour
 {
     [SerializeField] private WindowView _characterWindow;
     private WindowManager _manager;
+    private readonly IndependentButtonInput _characterInput = new IndependentButtonInput();
 
     private void Start()
     {
         _manager = Object.FindFirstObjectByType<WindowManager>();
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        if (Keyboard.current.cKey.wasPressedThisFrame)
-            Toggle();
+        InputRebindSaver.RebindsChanged += RebindCharacterInput;
+        RebindCharacterInput();
+    }
+
+    private void OnDisable()
+    {
+        InputRebindSaver.RebindsChanged -= RebindCharacterInput;
+        _characterInput.Dispose();
+    }
+
+    private void RebindCharacterInput()
+    {
+        _characterInput.Bind(InputManager.InputActions?.asset, "OpenCharacter", Toggle);
     }
 
     public void Toggle()

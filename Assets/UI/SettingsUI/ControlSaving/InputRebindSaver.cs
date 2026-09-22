@@ -142,8 +142,11 @@ public static class InputRebindSaver
         BindIfMissing(map.FindAction("Jump"), "<Keyboard>/space");
 
         BindIfMissing(map.FindAction("OpenInventory"), "<Keyboard>/i");
+        BindIfMissing(map.FindAction("OpenCrafting"), "<Keyboard>/k");
         BindIfMissing(map.FindAction("OpenStash"), "<Keyboard>/b");
         BindIfMissing(map.FindAction("OpenSkillTree"), "<Keyboard>/t");
+        BindIfMissing(map.FindAction("OpenCharacter"), "<Keyboard>/c");
+        BindIfMissing(map.FindAction("PauseMenu"), "<Keyboard>/escape");
     }
 
     private static void ApplyDefaultSkillBindings(InputActionAsset actions)

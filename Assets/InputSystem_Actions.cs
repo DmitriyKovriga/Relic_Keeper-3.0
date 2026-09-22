@@ -271,6 +271,33 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""OpenCrafting"",
+                    ""type"": ""Button"",
+                    ""id"": ""6e1d2b24-4a25-45cb-9a95-73634f15018a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""OpenCharacter"",
+                    ""type"": ""Button"",
+                    ""id"": ""786950d7-793d-4c9a-8587-b569c9146981"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PauseMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""89d02ee4-4a37-4aa1-a5e3-42682723b35f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -700,6 +727,39 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""TooltipLock"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1f6a09e3-b50f-4f61-b3b1-828aa93fdf58"",
+                    ""path"": ""<Keyboard>/k"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""OpenCrafting"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""47a31d07-1f35-452a-b5a4-e66a53a94c52"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""OpenCharacter"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""eb9415b0-b966-481a-b369-2e4ea556aaee"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""PauseMenu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1327,6 +1387,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Player_FifthSkill = m_Player.FindAction("FifthSkill", throwIfNotFound: true);
         m_Player_SixthSkill = m_Player.FindAction("SixthSkill", throwIfNotFound: true);
         m_Player_TooltipLock = m_Player.FindAction("TooltipLock", throwIfNotFound: true);
+        m_Player_OpenCrafting = m_Player.FindAction("OpenCrafting", throwIfNotFound: true);
+        m_Player_OpenCharacter = m_Player.FindAction("OpenCharacter", throwIfNotFound: true);
+        m_Player_PauseMenu = m_Player.FindAction("PauseMenu", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1441,6 +1504,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_FifthSkill;
     private readonly InputAction m_Player_SixthSkill;
     private readonly InputAction m_Player_TooltipLock;
+    private readonly InputAction m_Player_OpenCrafting;
+    private readonly InputAction m_Player_OpenCharacter;
+    private readonly InputAction m_Player_PauseMenu;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1533,6 +1599,18 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @TooltipLock => m_Wrapper.m_Player_TooltipLock;
         /// <summary>
+        /// Provides access to the underlying input action "Player/OpenCrafting".
+        /// </summary>
+        public InputAction @OpenCrafting => m_Wrapper.m_Player_OpenCrafting;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/OpenCharacter".
+        /// </summary>
+        public InputAction @OpenCharacter => m_Wrapper.m_Player_OpenCharacter;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/PauseMenu".
+        /// </summary>
+        public InputAction @PauseMenu => m_Wrapper.m_Player_PauseMenu;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -1618,6 +1696,15 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @TooltipLock.started += instance.OnTooltipLock;
             @TooltipLock.performed += instance.OnTooltipLock;
             @TooltipLock.canceled += instance.OnTooltipLock;
+            @OpenCrafting.started += instance.OnOpenCrafting;
+            @OpenCrafting.performed += instance.OnOpenCrafting;
+            @OpenCrafting.canceled += instance.OnOpenCrafting;
+            @OpenCharacter.started += instance.OnOpenCharacter;
+            @OpenCharacter.performed += instance.OnOpenCharacter;
+            @OpenCharacter.canceled += instance.OnOpenCharacter;
+            @PauseMenu.started += instance.OnPauseMenu;
+            @PauseMenu.performed += instance.OnPauseMenu;
+            @PauseMenu.canceled += instance.OnPauseMenu;
         }
 
         /// <summary>
@@ -1689,6 +1776,15 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @TooltipLock.started -= instance.OnTooltipLock;
             @TooltipLock.performed -= instance.OnTooltipLock;
             @TooltipLock.canceled -= instance.OnTooltipLock;
+            @OpenCrafting.started -= instance.OnOpenCrafting;
+            @OpenCrafting.performed -= instance.OnOpenCrafting;
+            @OpenCrafting.canceled -= instance.OnOpenCrafting;
+            @OpenCharacter.started -= instance.OnOpenCharacter;
+            @OpenCharacter.performed -= instance.OnOpenCharacter;
+            @OpenCharacter.canceled -= instance.OnOpenCharacter;
+            @PauseMenu.started -= instance.OnPauseMenu;
+            @PauseMenu.performed -= instance.OnPauseMenu;
+            @PauseMenu.canceled -= instance.OnPauseMenu;
         }
 
         /// <summary>
@@ -2140,6 +2236,27 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnTooltipLock(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "OpenCrafting" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnOpenCrafting(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "OpenCharacter" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnOpenCharacter(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "PauseMenu" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPauseMenu(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

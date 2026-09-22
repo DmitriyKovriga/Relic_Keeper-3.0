@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace RelicKeeper.Tests.EditMode
@@ -63,6 +64,52 @@ namespace RelicKeeper.Tests.EditMode
         public void GameWindows_RenderAbovePersistentHud()
         {
             Assert.That(WindowManager.WindowSortingOrderBase, Is.GreaterThan(HudShortcutBar.SortingOrder));
+        }
+
+        [TestCase("<Keyboard>/i", "I")]
+        [TestCase("<Keyboard>/k", "K")]
+        [TestCase("<Keyboard>/escape", "Esc")]
+        [TestCase("<Mouse>/leftButton", "M1")]
+        public void GetBindingLabel_UsesCompactInputSymbols(string path, string expected)
+        {
+            var asset = ScriptableObject.CreateInstance<InputActionAsset>();
+            try
+            {
+                InputActionMap map = asset.AddActionMap("Player");
+                map.AddAction("Shortcut", InputActionType.Button).AddBinding(path);
+
+                Assert.That(HudShortcutBar.GetBindingLabel(asset, "Shortcut"), Is.EqualTo(expected));
+            }
+            finally
+            {
+                Object.DestroyImmediate(asset);
+            }
+        }
+
+        [Test]
+        public void ShortcutActions_AreConfiguredAndHaveBindings()
+        {
+            ControlsEditorConfig config = Resources.Load<ControlsEditorConfig>("Controls/ControlsEditorConfig");
+            Assert.That(config, Is.Not.Null);
+
+            string[] actionNames =
+            {
+                "OpenInventory",
+                "OpenCrafting",
+                "OpenSkillTree",
+                "OpenCharacter",
+                "PauseMenu"
+            };
+
+            foreach (string actionName in actionNames)
+            {
+                ControlEntry entry = config.entries.Find(item => item.actionName == actionName);
+                Assert.That(entry, Is.Not.Null, $"Missing controls entry for {actionName}");
+
+                InputAction action = config.inputActionAsset.FindAction(actionName, false);
+                Assert.That(action, Is.Not.Null, $"Missing input action {actionName}");
+                Assert.That(ControlEntry.GetFirstBindableBindingIndex(action), Is.GreaterThanOrEqualTo(0));
+            }
         }
     }
 }

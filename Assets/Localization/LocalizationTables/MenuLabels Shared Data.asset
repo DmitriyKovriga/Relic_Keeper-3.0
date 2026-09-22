@@ -1599,6 +1599,18 @@ MonoBehaviour:
     m_Key: passive.node.LightningDamage.description
     m_Metadata:
       m_Items: []
+  - m_Id: 105800000000000001
+    m_Key: input.OpenCrafting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105800000000000002
+    m_Key: input.OpenCharacter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105800000000000003
+    m_Key: input.PauseMenu
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

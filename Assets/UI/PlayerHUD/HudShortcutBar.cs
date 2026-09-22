@@ -36,9 +36,20 @@ public sealed class HudShortcutBar : MonoBehaviour
     private static Sprite _circleSprite;
 
     private UIDocument _document;
+    private VisualElement _bar;
     private VisualElement _treeBreath;
     private bool _hasUnspentPoints;
     private Icons _icons;
+
+    private void OnEnable()
+    {
+        InputRebindSaver.RebindsChanged += RefreshBindingLabels;
+    }
+
+    private void OnDisable()
+    {
+        InputRebindSaver.RebindsChanged -= RefreshBindingLabels;
+    }
 
     public readonly struct Icons
     {
@@ -166,7 +177,7 @@ public sealed class HudShortcutBar : MonoBehaviour
         AddShortcutButton(bar, "Craft", "K", icons.Craft, false, out _);
         AddShortcutButton(bar, "Passives", "T", icons.PassiveTree, true, out treeBreath);
         AddShortcutButton(bar, "Stats", "C", icons.Stats, false, out _);
-        AddShortcutButton(bar, "Pause", "M", icons.Pause, false, out _);
+        AddShortcutButton(bar, "Pause", "Esc", icons.Pause, false, out _);
         return bar;
     }
 
@@ -184,9 +195,75 @@ public sealed class HudShortcutBar : MonoBehaviour
         root.pickingMode = PickingMode.Ignore;
         root.style.flexGrow = 1;
 
-        VisualElement bar = CreateBarElement(_icons, out _treeBreath);
-        BindClicks(bar);
-        root.Add(bar);
+        _bar = CreateBarElement(_icons, out _treeBreath);
+        BindClicks(_bar);
+        root.Add(_bar);
+        RefreshBindingLabels();
+    }
+
+    private void RefreshBindingLabels()
+    {
+        if (_bar == null)
+            return;
+
+        InputActionAsset asset = InputManager.InputActions?.asset;
+        RefreshBindingLabel(_bar, "Inventory", asset, "OpenInventory", "I");
+        RefreshBindingLabel(_bar, "Craft", asset, "OpenCrafting", "K");
+        RefreshBindingLabel(_bar, "Passives", asset, "OpenSkillTree", "T");
+        RefreshBindingLabel(_bar, "Stats", asset, "OpenCharacter", "C");
+        RefreshBindingLabel(_bar, "Pause", asset, "PauseMenu", "Esc");
+    }
+
+    private static void RefreshBindingLabel(
+        VisualElement bar,
+        string buttonName,
+        InputActionAsset asset,
+        string actionName,
+        string fallback)
+    {
+        VisualElement button = bar.Q<VisualElement>(buttonName);
+        Label label = button?.Q<Label>("Label");
+        if (label == null)
+            return;
+
+        label.text = GetBindingLabel(asset, actionName, fallback);
+        label.style.fontSize = label.text.Length <= 2 ? 6 : 5;
+        label.BringToFront();
+    }
+
+    public static string GetBindingLabel(InputActionAsset asset, string actionName, string fallback = "")
+    {
+        InputAction action = asset != null ? asset.FindAction(actionName, false) : null;
+        int bindingIndex = ControlEntry.GetFirstBindableBindingIndex(action);
+        if (bindingIndex < 0)
+            return fallback;
+
+        InputBinding binding = action.bindings[bindingIndex];
+        string path = !string.IsNullOrWhiteSpace(binding.effectivePath) ? binding.effectivePath : binding.path;
+        if (string.IsNullOrWhiteSpace(path))
+            return fallback;
+
+        int slash = path.LastIndexOf('/');
+        string token = slash >= 0 && slash < path.Length - 1 ? path.Substring(slash + 1) : path;
+        return token switch
+        {
+            "escape" => "Esc",
+            "space" => "Spc",
+            "enter" => "Ent",
+            "tab" => "Tab",
+            "leftShift" => "LS",
+            "rightShift" => "RS",
+            "leftCtrl" => "LC",
+            "rightCtrl" => "RC",
+            "leftAlt" => "LA",
+            "rightAlt" => "RA",
+            "leftButton" => "M1",
+            "rightButton" => "M2",
+            "middleButton" => "M3",
+            _ when token.StartsWith("digit") => token.Substring("digit".Length),
+            _ when token.Length == 1 => token.ToUpperInvariant(),
+            _ => action.GetBindingDisplayString(bindingIndex, InputBinding.DisplayStringOptions.DontIncludeInteractions)
+        };
     }
 
     private void BindClicks(VisualElement bar)
@@ -270,22 +347,20 @@ public sealed class HudShortcutBar : MonoBehaviour
             image.style.bottom = 1;
             button.Add(image);
         }
-        else
-        {
-            var text = new Label(label) { name = "Label", pickingMode = PickingMode.Ignore };
-            ResetBox(text);
-            text.style.position = Position.Absolute;
-            text.style.left = 0;
-            text.style.top = 0;
-            text.style.right = 0;
-            text.style.bottom = 0;
-            text.style.unityTextAlign = TextAnchor.MiddleCenter;
-            text.style.fontSize = 6;
-            text.style.color = LabelColor;
-            text.style.unityFontStyleAndWeight = FontStyle.Bold;
-            text.style.whiteSpace = WhiteSpace.NoWrap;
-            button.Add(text);
-        }
+
+        var text = new Label(label) { name = "Label", pickingMode = PickingMode.Ignore };
+        ResetBox(text);
+        text.style.position = Position.Absolute;
+        text.style.left = 0;
+        text.style.top = 0;
+        text.style.right = 0;
+        text.style.bottom = 0;
+        text.style.unityTextAlign = TextAnchor.MiddleCenter;
+        text.style.fontSize = 6;
+        text.style.color = LabelColor;
+        text.style.unityFontStyleAndWeight = FontStyle.Bold;
+        text.style.whiteSpace = WhiteSpace.NoWrap;
+        button.Add(text);
 
         if (withBreath)
         {

@@ -4,17 +4,28 @@ public class PauseMenuToggle : MonoBehaviour
 {
     public WindowView pauseMenu;
     private WindowManager manager;
+    private readonly IndependentButtonInput _pauseInput = new IndependentButtonInput();
 
     private void Start()
     {
         manager = FindFirstObjectByType<WindowManager>();
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        if (!Input.GetKeyDown(KeyCode.Escape))
-            return;
-        HandleEscape();
+        InputRebindSaver.RebindsChanged += RebindPauseInput;
+        RebindPauseInput();
+    }
+
+    private void OnDisable()
+    {
+        InputRebindSaver.RebindsChanged -= RebindPauseInput;
+        _pauseInput.Dispose();
+    }
+
+    private void RebindPauseInput()
+    {
+        _pauseInput.Bind(InputManager.InputActions?.asset, "PauseMenu", HandleEscape);
     }
 
     public void HandleEscape()

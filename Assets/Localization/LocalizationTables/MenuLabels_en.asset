@@ -2560,6 +2560,18 @@ MonoBehaviour:
     m_Localized: Lock
     m_Metadata:
       m_Items: []
+  - m_Id: 105800000000000001
+    m_Localized: Open Crafting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105800000000000002
+    m_Localized: Open Character
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105800000000000003
+    m_Localized: Pause Menu
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
