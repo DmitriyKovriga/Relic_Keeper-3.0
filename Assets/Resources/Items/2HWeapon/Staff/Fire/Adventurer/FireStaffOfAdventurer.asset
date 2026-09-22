@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c8dfeb579bbf0f148826246799bf1174, type: 3}
-  m_Name: Fire Staff Of Adventurer
+  m_Name: Adventurer's Fire Staff
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Items.WeaponItemSO
   ID: 69520cf2
-  ItemName: FireStaffOfAdventurer
+  ItemName: Adventurer's Fire Staff
   Icon: {fileID: 21300000, guid: 2a03de01595639a4f862a80c270de404, type: 3}
   Width: 2
   Height: 4
