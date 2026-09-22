@@ -552,7 +552,6 @@ namespace Scripts.Skills
             int additionalCount = useProjectileCountStat ? Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileCount))) : 0;
             int totalCount = Mathf.Max(1, baseCount + additionalCount);
             float baseSpeed = Mathf.Max(0.01f, step.GetFloat("BaseSpeed", 8f));
-            float speedMultiplier = Mathf.Max(0f, 1f + _ownerStats.GetValue(StatType.ProjectileSpeed) / 100f);
             float offsetX = step.GetFloat("OffsetX", 0.45f);
             float offsetY = step.GetFloat("OffsetY", 0.35f);
             float damageMultiplier = ResolveDamageMultiplier(step);
@@ -581,7 +580,7 @@ namespace Scripts.Skills
                 StopOnWorld = step.GetBool("StopOnWorld", true),
                 ProjectilePrefab = projectilePrefab,
                 OverrideSprite = projectileSprite,
-                Speed = baseSpeed * speedMultiplier,
+                Speed = ProjectileSpeedResolver.Resolve(baseSpeed, _ownerStats),
                 Lifetime = Mathf.Max(0.05f, step.GetFloat("Lifetime", 4f)),
                 HitRadius = Mathf.Max(0.02f, step.GetFloat("HitRadius", 1f)),
                 HitScaleX = Mathf.Max(0.01f, step.GetFloat("SizeX", 1f)),
@@ -670,7 +669,10 @@ namespace Scripts.Skills
             float baseRadius = step.GetFloat("OrbitRadius", 1.2f);
             float minimumSpacing = step.GetFloat("MinimumOrbitProjectileSpacing", 0f);
             float radius = ResolveOrbitRadius(baseRadius, activeCount + spawnCount, minimumSpacing);
-            float angularSpeed = step.GetFloat("OrbitAngularSpeedDegreesPerSecond", 180f);
+            float configuredAngularSpeed = step.GetFloat("OrbitAngularSpeedDegreesPerSecond", 180f);
+            float angularSpeed = Mathf.Sign(configuredAngularSpeed) * ProjectileSpeedResolver.Resolve(
+                Mathf.Abs(configuredAngularSpeed),
+                _ownerStats);
             if (step.GetBool("Clockwise", false))
                 angularSpeed = -Mathf.Abs(angularSpeed);
             float startAngle = step.GetFloat("StartAngleDegrees", 0f);

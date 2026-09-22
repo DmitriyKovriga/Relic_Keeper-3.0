@@ -479,7 +479,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62208376832
-    m_Localized: '{0:+0.##;-0.##;0}% to Proj. Speed'
+    m_Localized: '{0:+0.##;-0.##;0} to Proj. Speed'
     m_Metadata:
       m_Items: []
   - m_Id: 62212571136

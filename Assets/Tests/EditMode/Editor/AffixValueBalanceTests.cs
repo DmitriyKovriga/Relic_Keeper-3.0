@@ -168,6 +168,18 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void ProjectileSpeed_FlatRollsUseAbsoluteSpeedScale()
+        {
+            var weakest = AffixValueBalance.GetRoll(StatType.ProjectileSpeed, StatAffixModifierKind.Flat, AffixValueBalance.StrengthLight, 1);
+            var strongest = AffixValueBalance.GetRoll(StatType.ProjectileSpeed, StatAffixModifierKind.Flat, AffixValueBalance.StrengthStrong, 5);
+
+            Assert.That(weakest.Min, Is.EqualTo(0.2f));
+            Assert.That(weakest.Max, Is.EqualTo(0.4f));
+            Assert.That(strongest.Min, Is.EqualTo(1.5f));
+            Assert.That(strongest.Max, Is.EqualTo(2f));
+        }
+
+        [Test]
         public void StunDuration_NeverQuantizesToZero()
         {
             float rolled = AffixValueBalance.QuantizeRolled(0.24f, 0.3f, 0.5f, 1);

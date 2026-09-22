@@ -332,8 +332,9 @@ namespace Scripts.Items.Affixes
                 case StatType.AreaOfEffect:
                     return (6f, 10f, 24f, 36f);
                 case StatType.EffectDuration:
-                case StatType.ProjectileSpeed:
                     return (6f, 10f, 22f, 32f);
+                case StatType.ProjectileSpeed:
+                    return (0.3f, 0.5f, 1.2f, 1.6f);
                 case StatType.CooldownReductionPercent:
                 case StatType.DamageTaken:
                     return (4f, 6f, 14f, 20f);
@@ -378,6 +379,7 @@ namespace Scripts.Items.Affixes
                 case StatType.BodyArmorSkillCooldownRecovery:
                 case StatType.GlovesSkillCooldownRecovery:
                 case StatType.BootsSkillCooldownRecovery:
+                case StatType.ProjectileSpeed:
                     return 1;
                 default:
                     return 0;

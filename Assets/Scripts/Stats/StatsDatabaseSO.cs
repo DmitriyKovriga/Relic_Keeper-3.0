@@ -637,7 +637,7 @@ namespace Scripts.Stats
                 return StatDisplayFormat.Time;
 
             string s = type.ToString();
-            if (type == StatType.AreaOfEffect || type == StatType.DamageTaken || type == StatType.ProjectileSpeed || type == StatType.EffectDuration)
+            if (type == StatType.AreaOfEffect || type == StatType.DamageTaken || type == StatType.EffectDuration)
                 return StatDisplayFormat.Percent;
             if (IsOutgoingDamageConversionStat(type))
                 return StatDisplayFormat.Percent;
@@ -681,7 +681,7 @@ namespace Scripts.Stats
                 return StatAffixGenType.ContextModifierStat;
             if (IsOutgoingDamageConversionStat(type))
                 return StatAffixGenType.PercentStat;
-            if (type == StatType.AreaOfEffect || type == StatType.ProjectileSpeed || type == StatType.EffectDuration || type == StatType.DamageTaken)
+            if (type == StatType.AreaOfEffect || type == StatType.EffectDuration || type == StatType.DamageTaken)
                 return StatAffixGenType.PercentStat;
             if (s.Contains("Stack") || s.Contains("ExtraTargets") || s.Contains("MaxBleed") || s.Contains("MaxPoison") || s.Contains("MaxIgnite"))
                 return StatAffixGenType.NOCalcStat;
