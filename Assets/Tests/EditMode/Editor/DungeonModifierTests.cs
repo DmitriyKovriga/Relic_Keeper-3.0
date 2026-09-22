@@ -1,6 +1,8 @@
 using NUnit.Framework;
 using Scripts.Dungeon;
 using Scripts.Enemies;
+using Scripts.Items.World;
+using Scripts.Visuals;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
@@ -120,6 +122,16 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(body.gravityScale, Is.EqualTo(3f));
                 Assert.That(body.freezeRotation, Is.True);
                 Assert.That(box.isTrigger, Is.False);
+
+                MethodInfo ensureVisual = typeof(RewardChest).GetMethod(
+                    "EnsurePlaceholderVisual", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(ensureVisual, Is.Not.Null);
+                ensureVisual.Invoke(chest, null);
+
+                SpriteRenderer renderer = chest.GetComponent<SpriteRenderer>();
+                Assert.That(renderer, Is.Not.Null);
+                Assert.That(renderer.sortingLayerName, Is.EqualTo(WorldRenderSorting.LayerVfx));
+                Assert.That(renderer.sortingOrder, Is.GreaterThan(WorldDroppedItem.TopVisualSortingOrder));
             }
             finally
             {

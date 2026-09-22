@@ -11,9 +11,11 @@ namespace Scripts.Items.World
     public sealed class WorldDroppedItem : MonoBehaviour, IInteractable
     {
         private const int CirclePixels = 18;
-        private const int SortingOrder = 32000;
         private const float HoverAmplitude = 0.08f;
         private const float HoverCyclesPerSecond = 0.8f;
+
+        public const int VisualSortingOrder = 32000;
+        public const int TopVisualSortingOrder = VisualSortingOrder + 2;
 
         private static Sprite _circleSprite;
 
@@ -122,7 +124,7 @@ namespace Scripts.Items.World
             _circleRenderer.sprite = GetCircleSprite();
             _circleRenderer.color = ItemRarity.GetGroundPlateColor(_item);
             _circleRenderer.sortingLayerName = WorldRenderSorting.LayerVfx;
-            _circleRenderer.sortingOrder = SortingOrder;
+            _circleRenderer.sortingOrder = VisualSortingOrder;
 
             Transform iconTransform = transform.Find("Icon");
             if (iconTransform == null)
@@ -139,7 +141,7 @@ namespace Scripts.Items.World
             _iconRenderer.sprite = _item?.Data != null ? _item.Data.Icon : null;
             _iconRenderer.color = Color.white;
             _iconRenderer.sortingLayerName = WorldRenderSorting.LayerVfx;
-            _iconRenderer.sortingOrder = SortingOrder + 1;
+            _iconRenderer.sortingOrder = VisualSortingOrder + 1;
             _iconRenderer.transform.localPosition = new Vector3(0f, 0f, -0.01f);
             FitIconInsideCircle();
         }
@@ -171,7 +173,7 @@ namespace Scripts.Items.World
             _inspectionCanvas.renderMode = RenderMode.WorldSpace;
             _inspectionCanvas.overrideSorting = true;
             _inspectionCanvas.sortingLayerName = WorldRenderSorting.LayerVfx;
-            _inspectionCanvas.sortingOrder = SortingOrder + 2;
+            _inspectionCanvas.sortingOrder = TopVisualSortingOrder;
 
             _inspectionOverlay = progressObject.GetComponent<Image>();
             _inspectionOverlay.sprite = GetCircleSprite();

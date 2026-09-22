@@ -125,6 +125,27 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void InteractionPrioritizesRewardChestOverCloserDroppedItem()
+        {
+            GameObject player = CreateGameObject("Player");
+            PlayerInteractController controller = player.AddComponent<PlayerInteractController>();
+            SetPrivateField(controller, "_interactRadius", 4f);
+
+            WorldDroppedItem nearerItem = CreateDroppedItem(new Vector2(0.4f, 0f));
+            RewardChest fartherChest = RewardChest.Spawn(new Vector3(1.4f, 0f, 0f), 1, null);
+            _createdObjects.Add(fartherChest.gameObject);
+            Physics2D.SyncTransforms();
+
+            MethodInfo findMethod = typeof(PlayerInteractController).GetMethod(
+                "FindNearbyInteractable",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var selected = findMethod.Invoke(controller, null) as IInteractable;
+
+            Assert.That(selected, Is.SameAs(fartherChest));
+            Assert.That(selected, Is.Not.SameAs(nearerItem));
+        }
+
+        [Test]
         public void TryDropAtPlayer_SpawnsNearPlayerEvenIfCursorWouldBeElsewhere()
         {
             GameObject player = CreateGameObject("Player");

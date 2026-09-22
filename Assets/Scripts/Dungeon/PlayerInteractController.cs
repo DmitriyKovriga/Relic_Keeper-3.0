@@ -108,6 +108,7 @@ namespace Scripts.Dungeon
             var cols = Physics2D.OverlapCircleAll((Vector2)transform.position, _interactRadius, _interactLayer);
             IInteractable closest = null;
             float closestSqrDistance = float.PositiveInfinity;
+            int closestPriority = int.MinValue;
             foreach (var col in cols)
             {
                 var interactable = col.GetComponent<IInteractable>() ?? col.GetComponentInParent<IInteractable>();
@@ -119,15 +120,25 @@ namespace Scripts.Dungeon
                     ? interactableComponent.transform.position
                     : col.bounds.center;
                 float sqrDistance = ((Vector2)transform.position - interactablePosition).sqrMagnitude;
+                int priority = GetInteractionPriority(interactable);
                 bool keepCurrentOnTie = ReferenceEquals(interactable, _currentInteractable) &&
+                                        priority == closestPriority &&
                                         sqrDistance <= closestSqrDistance + 0.0001f;
-                if (sqrDistance < closestSqrDistance || keepCurrentOnTie)
+                bool higherPriority = priority > closestPriority;
+                bool closerAtSamePriority = priority == closestPriority && sqrDistance < closestSqrDistance;
+                if (higherPriority || closerAtSamePriority || keepCurrentOnTie)
                 {
                     closest = interactable;
                     closestSqrDistance = sqrDistance;
+                    closestPriority = priority;
                 }
             }
             return closest;
+        }
+
+        private static int GetInteractionPriority(IInteractable interactable)
+        {
+            return interactable is RewardChest ? 1 : 0;
         }
 
         private void UpdateItemInspection()

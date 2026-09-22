@@ -17,6 +17,7 @@ namespace Scripts.Dungeon
         private const int PlayerLayer = 0;
         private const int EnemyLayer = 7;
         private const float GravityScale = 3f;
+        public const int VisualSortingOrder = WorldDroppedItem.TopVisualSortingOrder + 1;
         private static Sprite _placeholderSprite;
         private static Sprite _chestSprite;
 
@@ -162,10 +163,8 @@ namespace Scripts.Dungeon
             if (renderer.sprite == null)
                 renderer.sprite = GetChestSprite() ?? GetPlaceholderSprite();
             renderer.color = Color.white;
-            WorldRenderSorting.ConfigureOneShotRenderer(
-                renderer,
-                RenderDepthCategory.GameplayVfx,
-                transform.position.y);
+            renderer.sortingLayerName = WorldRenderSorting.LayerVfx;
+            renderer.sortingOrder = VisualSortingOrder;
         }
 
         private static Sprite GetChestSprite()
