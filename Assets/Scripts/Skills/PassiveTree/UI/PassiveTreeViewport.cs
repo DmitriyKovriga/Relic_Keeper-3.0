@@ -12,11 +12,14 @@ namespace Scripts.Skills.PassiveTree.UI
         private Vector2 _dragStartPos;
         private Vector2 _contentStartPos;
         private Vector2 _contentPos;
+        private Rect _contentBounds;
+        private bool _hasContentBounds;
 
         private float _currentZoom = 1.0f;
-        private const float MinZoom = 0.3f;
+        private const float MinZoom = 0.14f;
         private const float MaxZoom = 2.0f;
         private const float ZoomSpeed = 0.1f;
+        private const float PanEdgePadding = 48f;
 
         public float CurrentZoom => _currentZoom;
 
@@ -30,6 +33,7 @@ namespace Scripts.Skills.PassiveTree.UI
             _viewport.RegisterCallback<PointerUpEvent>(OnPointerUp);
             _viewport.RegisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
             _viewport.RegisterCallback<WheelEvent>(OnWheel);
+            _viewport.RegisterCallback<GeometryChangedEvent>(OnViewportGeometryChanged);
         }
 
         public void Cleanup()
@@ -39,6 +43,7 @@ namespace Scripts.Skills.PassiveTree.UI
             _viewport.UnregisterCallback<PointerUpEvent>(OnPointerUp);
             _viewport.UnregisterCallback<PointerCaptureOutEvent>(OnPointerCaptureOut);
             _viewport.UnregisterCallback<WheelEvent>(OnWheel);
+            _viewport.UnregisterCallback<GeometryChangedEvent>(OnViewportGeometryChanged);
         }
 
         public void CenterOnPosition(Vector2 position)
@@ -58,14 +63,21 @@ namespace Scripts.Skills.PassiveTree.UI
         /// </summary>
         public void FrameContentRect(UnityEngine.Rect contentRect, float padding = 40f)
         {
+            if (contentRect.width <= 0 || contentRect.height <= 0) return;
+
+            _contentBounds = contentRect;
+            _hasContentBounds = true;
+
             float vw = _viewport.resolvedStyle.width;
             float vh = _viewport.resolvedStyle.height;
             if (float.IsNaN(vw) || vw < 100f || float.IsNaN(vh) || vh < 100f) return;
-            if (contentRect.width <= 0 || contentRect.height <= 0) return;
 
-            float fitZoomX = (vw - padding * 2f) / contentRect.width;
-            float fitZoomY = (vh - padding * 2f) / contentRect.height;
-            _currentZoom = Mathf.Clamp(Mathf.Min(fitZoomX, fitZoomY), MinZoom, MaxZoom);
+            _currentZoom = PassiveTreeViewportMath.CalculateFitZoom(
+                contentRect,
+                new Vector2(vw, vh),
+                padding,
+                MinZoom,
+                MaxZoom);
 
             Vector2 contentCenter = new Vector2(contentRect.x + contentRect.width * 0.5f, contentRect.y + contentRect.height * 0.5f);
             SetContentPos(new Vector2(
@@ -128,6 +140,14 @@ namespace Scripts.Skills.PassiveTree.UI
             _isDragging = false;
         }
 
+        private void OnViewportGeometryChanged(GeometryChangedEvent evt)
+        {
+            if (!_hasContentBounds)
+                return;
+
+            SetContentPos(_contentPos);
+        }
+
         private void EndDrag(int pointerId)
         {
             if (!_isDragging)
@@ -149,6 +169,19 @@ namespace Scripts.Skills.PassiveTree.UI
 
         private void SetContentPos(Vector2 pos)
         {
+            if (_hasContentBounds)
+            {
+                Vector2 viewportSize = new Vector2(
+                    _viewport.resolvedStyle.width,
+                    _viewport.resolvedStyle.height);
+                pos = PassiveTreeViewportMath.ClampPan(
+                    pos,
+                    _contentBounds,
+                    _currentZoom,
+                    viewportSize,
+                    PanEdgePadding);
+            }
+
             _contentPos = pos;
             _content.style.left = pos.x;
             _content.style.top = pos.y;
@@ -197,6 +230,23 @@ namespace Scripts.Skills.PassiveTree.UI
             return Mathf.Clamp(currentZoom * factor, minZoom, maxZoom);
         }
 
+        public static float CalculateFitZoom(
+            Rect contentBounds,
+            Vector2 viewportSize,
+            float padding,
+            float minZoom,
+            float maxZoom)
+        {
+            if (contentBounds.width <= 0f || contentBounds.height <= 0f)
+                return Mathf.Clamp(1f, minZoom, maxZoom);
+
+            float availableWidth = Mathf.Max(1f, viewportSize.x - padding * 2f);
+            float availableHeight = Mathf.Max(1f, viewportSize.y - padding * 2f);
+            float fitZoomX = availableWidth / contentBounds.width;
+            float fitZoomY = availableHeight / contentBounds.height;
+            return Mathf.Clamp(Mathf.Min(fitZoomX, fitZoomY), minZoom, maxZoom);
+        }
+
         public static Vector2 ZoomToward(Vector2 contentPos, float oldZoom, float newZoom, Vector2 mousePosInViewport)
         {
             if (oldZoom <= 0f || Mathf.Approximately(oldZoom, newZoom))
@@ -209,6 +259,48 @@ namespace Scripts.Skills.PassiveTree.UI
         public static Vector2 Pan(Vector2 contentStartPos, Vector2 dragStartPos, Vector2 currentPointerPos)
         {
             return contentStartPos + (currentPointerPos - dragStartPos);
+        }
+
+        public static Vector2 ClampPan(
+            Vector2 contentPos,
+            Rect contentBounds,
+            float zoom,
+            Vector2 viewportSize,
+            float edgePadding)
+        {
+            if (zoom <= 0f
+                || contentBounds.width <= 0f
+                || contentBounds.height <= 0f
+                || float.IsNaN(viewportSize.x)
+                || float.IsNaN(viewportSize.y)
+                || viewportSize.x <= 0f
+                || viewportSize.y <= 0f)
+                return contentPos;
+
+            return new Vector2(
+                ClampPanAxis(contentPos.x, contentBounds.xMin, contentBounds.xMax, zoom, viewportSize.x, edgePadding),
+                ClampPanAxis(contentPos.y, contentBounds.yMin, contentBounds.yMax, zoom, viewportSize.y, edgePadding));
+        }
+
+        private static float ClampPanAxis(
+            float position,
+            float boundsMin,
+            float boundsMax,
+            float zoom,
+            float viewportSize,
+            float edgePadding)
+        {
+            float scaledSize = (boundsMax - boundsMin) * zoom;
+            float usableViewport = Mathf.Max(0f, viewportSize - edgePadding * 2f);
+            if (scaledSize <= usableViewport)
+            {
+                float boundsCenter = (boundsMin + boundsMax) * 0.5f;
+                return viewportSize * 0.5f - boundsCenter * zoom;
+            }
+
+            float minPosition = viewportSize - edgePadding - boundsMax * zoom;
+            float maxPosition = edgePadding - boundsMin * zoom;
+            return Mathf.Clamp(position, minPosition, maxPosition);
         }
     }
 }
