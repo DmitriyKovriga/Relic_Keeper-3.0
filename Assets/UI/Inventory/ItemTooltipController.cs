@@ -2369,10 +2369,13 @@ public class ItemTooltipController : MonoBehaviour
         CreateAsyncLabel(type.ToString(), (n) => $"{n}: {Mathf.Round(fMin)}-{Mathf.Round(fMax)}", c ?? (mod ? _colModifiedText : _colNormalText));
     }
 
-    private void AddSimpleRow(StatType type, InventoryItem item, float baseVal, string fmt = "{0}")
+    private void AddSimpleRow(StatType type, InventoryItem item, float baseVal, string fmt = null)
     {
         float f = item.GetCalculatedStat(type, baseVal);
-        CreateAsyncLabel(type.ToString(), (n) => $"{n}: {string.Format(fmt, f)}", Mathf.Abs(f - baseVal) > 0.01f ? _colModifiedText : _colNormalText);
+        string valueText = string.IsNullOrEmpty(fmt)
+            ? StatPresentation.FormatScalarValue(_statsDb, type, f)
+            : string.Format(fmt, f);
+        CreateAsyncLabel(type.ToString(), (n) => $"{n}: {valueText}", Mathf.Abs(f - baseVal) > 0.01f ? _colModifiedText : _colNormalText);
     }
 
     private void AddModRow(StatType type, float val, StatModType mt, Color c)

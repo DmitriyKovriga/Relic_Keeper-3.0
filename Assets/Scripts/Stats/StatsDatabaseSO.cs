@@ -250,7 +250,9 @@ namespace Scripts.Stats
                     if (ShouldDisplayPercentWhenFlat(db, type))
                         return $"{displayValue:+0.##;-0.##;0}%";
 
-                    string flat = $"{displayValue:+0.##;-0.##;0}";
+                    string flat = type == StatType.Armor || type == StatType.Evasion
+                        ? $"{displayValue:+0;-0;0}"
+                        : $"{displayValue:+0.##;-0.##;0}";
                     StatValueUnit unit = db != null ? db.GetValueUnit(type) : StatsDatabaseSO.DefaultValueUnitFor(type);
                     return unit == StatValueUnit.Seconds ? flat + "s" : flat;
             }

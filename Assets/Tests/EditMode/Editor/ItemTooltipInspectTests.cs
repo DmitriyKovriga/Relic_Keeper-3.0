@@ -100,6 +100,25 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(ItemTooltipInspect.FormatItemLevel(27, null), Is.EqualTo("ilvl 27"));
         }
 
+        [TestCase(StatType.Armor, 123.6f, "+124")]
+        [TestCase(StatType.Evasion, 75.4f, "+75")]
+        [TestCase(StatType.Armor, -12.6f, "-13")]
+        public void FlatArmorAndEvasionAffixes_DisplayWholeNumbers(StatType type, float value, string expected)
+        {
+            Assert.That(
+                StatPresentation.FormatModifierValue(null, type, value, StatModType.Flat),
+                Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ArmorAndEvasionCalculatedRatings_DisplayWholeNumbersWithoutChangingPercentAffixes()
+        {
+            Assert.That(StatPresentation.FormatScalarValue(null, StatType.Armor, 123.6f), Is.EqualTo("124"));
+            Assert.That(StatPresentation.FormatScalarValue(null, StatType.Evasion, 75.4f), Is.EqualTo("75"));
+            string percent = StatPresentation.FormatModifierValue(null, StatType.Armor, 12.5f, StatModType.PercentAdd);
+            Assert.That(percent.Replace(',', '.'), Is.EqualTo("+12.5%"));
+        }
+
         [Test]
         public void GenerateRuntime_StoresItemLevelOnInstance()
         {
