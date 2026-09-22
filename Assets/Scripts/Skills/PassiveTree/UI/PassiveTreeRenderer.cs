@@ -261,7 +261,7 @@ namespace Scripts.Skills.PassiveTree.UI
             });
 
             nodeRoot.RegisterCallback<ClickEvent>(_ => _onNodeClick(node.ID));
-            nodeRoot.RegisterCallback<MouseEnterEvent>(_ => _tooltip.Show(node, nodeRoot.worldBound.center));
+            nodeRoot.RegisterCallback<MouseEnterEvent>(_ => _tooltip.Show(node, nodeRoot.worldBound));
             nodeRoot.RegisterCallback<MouseLeaveEvent>(_ => _tooltip.Hide());
 
             _container.Add(nodeRoot);

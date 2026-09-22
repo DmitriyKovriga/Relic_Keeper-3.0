@@ -11,9 +11,8 @@ namespace Scripts.Skills.PassiveTree.UI
         private const string MenuLabelsTable = "MenuLabels";
         private const float MinTooltipWidth = 112f;
         private const float MaxTooltipWidth = 220f;
-        private const float ScreenPadding = 8f;
-        private const float HorizontalOffset = 20f;
-        private const float VerticalOffset = 20f;
+        private const float ScreenPadding = 2f;
+        private const float AnchorGap = 2f;
         private const float HeaderHorizontalPadding = 16f;
         private const float ContentHorizontalPadding = 12f;
 
@@ -27,7 +26,7 @@ namespace Scripts.Skills.PassiveTree.UI
         private Label _stats;
 
         private PassiveNodeDefinition _currentNode;
-        private Vector2 _lastWorldPosition;
+        private Rect _lastWorldAnchorBounds;
         private readonly StatsDatabaseSO _statsDatabase;
 
         public PassiveTreeTooltip(VisualElement rootContainer)
@@ -39,8 +38,13 @@ namespace Scripts.Skills.PassiveTree.UI
 
         public void Show(PassiveNodeDefinition node, Vector2 worldPosition)
         {
+            Show(node, new Rect(worldPosition, Vector2.zero));
+        }
+
+        public void Show(PassiveNodeDefinition node, Rect worldAnchorBounds)
+        {
             _currentNode = node;
-            _lastWorldPosition = worldPosition;
+            _lastWorldAnchorBounds = worldAnchorBounds;
 
             string nameFallback = node.GetDisplayName();
             string descFallback = node.GetDisplayDescription();
@@ -60,15 +64,15 @@ namespace Scripts.Skills.PassiveTree.UI
 
             RefreshLayout();
             _tooltipBox.style.display = DisplayStyle.Flex;
-            PositionTooltip(worldPosition);
+            PositionTooltip(worldAnchorBounds);
             _tooltipBox.schedule.Execute(() =>
             {
                 if (_currentNode != null && _tooltipBox.style.display == DisplayStyle.Flex)
                 {
                     RefreshLayout();
-                    PositionTooltip(_lastWorldPosition);
+                    PositionTooltip(_lastWorldAnchorBounds);
                 }
-            });
+            }).ExecuteLater(1);
         }
 
         public void Hide()
@@ -80,7 +84,7 @@ namespace Scripts.Skills.PassiveTree.UI
         public void RefreshIfVisible()
         {
             if (_currentNode != null && _tooltipBox.style.display == DisplayStyle.Flex)
-                Show(_currentNode, _lastWorldPosition);
+                Show(_currentNode, _lastWorldAnchorBounds);
         }
 
         private static string ResolveNameKey(PassiveNodeDefinition node)
@@ -225,6 +229,7 @@ namespace Scripts.Skills.PassiveTree.UI
             _tooltipBox.style.borderLeftColor = new Color(0.25f, 0.21f, 0.15f, 0.95f);
             _tooltipBox.style.borderRightColor = new Color(0.25f, 0.21f, 0.15f, 0.95f);
             _tooltipBox.style.width = MinTooltipWidth;
+            _tooltipBox.RegisterCallback<GeometryChangedEvent>(OnTooltipGeometryChanged);
 
             _headerBox = new VisualElement();
             _headerBox.style.backgroundColor = new StyleColor(new Color(0.20f, 0.15f, 0.09f, 0.98f));
@@ -280,7 +285,19 @@ namespace Scripts.Skills.PassiveTree.UI
                 return;
 
             RefreshLayout();
-            PositionTooltip(_lastWorldPosition);
+            PositionTooltip(_lastWorldAnchorBounds);
+        }
+
+        private void OnTooltipGeometryChanged(GeometryChangedEvent evt)
+        {
+            if (_currentNode == null || _tooltipBox.style.display != DisplayStyle.Flex)
+                return;
+
+            if (Mathf.Approximately(evt.oldRect.width, evt.newRect.width)
+                && Mathf.Approximately(evt.oldRect.height, evt.newRect.height))
+                return;
+
+            PositionTooltip(_lastWorldAnchorBounds);
         }
 
         private void RefreshLayout()
@@ -309,28 +326,63 @@ namespace Scripts.Skills.PassiveTree.UI
             _stats.style.maxWidth = contentWidth;
         }
 
-        private void PositionTooltip(Vector2 worldPosition)
+        private void PositionTooltip(Rect worldAnchorBounds)
         {
             if (_tooltipBox == null || _rootContainer == null)
                 return;
 
-            Vector2 localPos = _rootContainer.WorldToLocal(worldPosition);
-            Rect rootRect = _rootContainer.worldBound;
+            Vector2 localMin = _rootContainer.WorldToLocal(worldAnchorBounds.min);
+            Vector2 localMax = _rootContainer.WorldToLocal(worldAnchorBounds.max);
+            Rect localAnchorBounds = Rect.MinMaxRect(
+                Mathf.Min(localMin.x, localMax.x),
+                Mathf.Min(localMin.y, localMax.y),
+                Mathf.Max(localMin.x, localMax.x),
+                Mathf.Max(localMin.y, localMax.y));
 
             float width = GetResolvedOrFallback(_tooltipBox.resolvedStyle.width, _tooltipBox.style.width.value.value, MinTooltipWidth);
             float height = GetResolvedOrFallback(_tooltipBox.resolvedStyle.height, _tooltipBox.worldBound.height, 90f);
+            float screenWidth = GetResolvedOrFallback(_rootContainer.resolvedStyle.width, _rootContainer.contentRect.width, 480f);
+            float screenHeight = GetResolvedOrFallback(_rootContainer.resolvedStyle.height, _rootContainer.contentRect.height, 270f);
 
-            float left = localPos.x + HorizontalOffset;
-            if (left + width > rootRect.width - ScreenPadding)
-                left = localPos.x - width - HorizontalOffset;
+            Vector2 position = CalculateClampedPosition(
+                localAnchorBounds,
+                width,
+                height,
+                screenWidth,
+                screenHeight,
+                AnchorGap,
+                ScreenPadding);
 
-            float top = localPos.y - VerticalOffset;
+            _tooltipBox.style.left = position.x;
+            _tooltipBox.style.top = position.y;
+        }
 
-            left = Mathf.Clamp(left, ScreenPadding, Mathf.Max(ScreenPadding, rootRect.width - width - ScreenPadding));
-            top = Mathf.Clamp(top, ScreenPadding, Mathf.Max(ScreenPadding, rootRect.height - height - ScreenPadding));
+        public static Vector2 CalculateClampedPosition(
+            Rect anchorBounds,
+            float tooltipWidth,
+            float tooltipHeight,
+            float screenWidth,
+            float screenHeight,
+            float gap,
+            float padding)
+        {
+            float right = anchorBounds.xMax + gap;
+            float left = anchorBounds.xMin - tooltipWidth - gap;
+            float maxX = Mathf.Max(padding, screenWidth - tooltipWidth - padding);
+            float maxY = Mathf.Max(padding, screenHeight - tooltipHeight - padding);
 
-            _tooltipBox.style.left = left;
-            _tooltipBox.style.top = top;
+            float x;
+            if (right + tooltipWidth <= screenWidth - padding)
+                x = right;
+            else if (left >= padding)
+                x = left;
+            else
+                x = Mathf.Clamp(right, padding, maxX);
+
+            float y = anchorBounds.center.y - tooltipHeight * 0.5f;
+            x = Mathf.Clamp(x, padding, maxX);
+            y = Mathf.Clamp(y, padding, maxY);
+            return new Vector2(Mathf.Round(x), Mathf.Round(y));
         }
 
         private static float MeasurePreferredWidth(Label label, string text)

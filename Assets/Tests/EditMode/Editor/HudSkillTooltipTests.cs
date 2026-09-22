@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Scripts.Skills;
+using Scripts.Skills.PassiveTree.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +8,38 @@ namespace RelicKeeper.Tests.EditMode
 {
     public class HudSkillTooltipTests
     {
+        [Test]
+        public void PassiveTreeTooltipNearBottomRightFlipsLeftAndClampsVertically()
+        {
+            Vector2 pos = PassiveTreeTooltip.CalculateClampedPosition(
+                new Rect(450f, 248f, 16f, 16f),
+                tooltipWidth: 112f,
+                tooltipHeight: 70f,
+                screenWidth: 480f,
+                screenHeight: 270f,
+                gap: 2f,
+                padding: 2f);
+
+            Assert.That(pos.x, Is.EqualTo(336f));
+            Assert.That(pos.y, Is.EqualTo(198f));
+        }
+
+        [Test]
+        public void PassiveTreeTooltipNearTopLeftStaysInsideScreen()
+        {
+            Vector2 pos = PassiveTreeTooltip.CalculateClampedPosition(
+                new Rect(0f, 0f, 16f, 16f),
+                tooltipWidth: 112f,
+                tooltipHeight: 90f,
+                screenWidth: 480f,
+                screenHeight: 270f,
+                gap: 2f,
+                padding: 2f);
+
+            Assert.That(pos.x, Is.EqualTo(18f));
+            Assert.That(pos.y, Is.EqualTo(2f));
+        }
+
         [Test]
         public void HudSkillTooltipSitsAboveTheSlotAndStaysOnScreen()
         {
