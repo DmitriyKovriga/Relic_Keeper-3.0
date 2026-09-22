@@ -260,14 +260,13 @@ public partial class InventoryUI
 
     private bool TryApplyOrbOnPointerUp(Vector2 pointerPosition, bool keepSelection)
     {
-        if (_applyOrbOrb == null || _craftSlot == null || InventoryManager.Instance == null) return false;
-        if (!_craftSlot.worldBound.Contains(pointerPosition)) return false;
-
-        var craftItem = InventoryManager.Instance.CraftingSlotItem;
-        if (!ItemGenerator.CanApplyCraftingOrb(craftItem, _applyOrbOrb.EffectId)) return false;
+        if (_applyOrbOrb == null || InventoryManager.Instance == null) return false;
+        if (!TryResolveCraftingTarget(pointerPosition, out InventoryItem targetItem, out int targetAnchor))
+            return false;
+        if (!ItemGenerator.CanApplyCraftingOrb(targetItem, _applyOrbOrb.EffectId)) return false;
 
         if (!InventoryManager.Instance.ConsumeOrb(_applyOrbOrb.ID)) return false;
-        if (!ItemGenerator.TryApplyCraftingOrb(craftItem, _applyOrbOrb.EffectId))
+        if (!ItemGenerator.TryApplyCraftingOrb(targetItem, _applyOrbOrb.EffectId))
         {
             InventoryManager.Instance.AddOrb(_applyOrbOrb.ID, 1);
             return false;
@@ -280,8 +279,65 @@ public partial class InventoryUI
         InventoryManager.Instance.TriggerUIUpdate();
         if (ItemTooltipController.Instance != null)
             ItemTooltipController.Instance.ShowCraftedItemTooltip(
-                craftItem, _craftSlot, ResolvePlayerTooltipPriceMode());
+                targetItem, GetCraftingTargetVisual(targetAnchor), ResolvePlayerTooltipPriceMode());
         return true;
+    }
+
+    private bool TryResolveCraftingTarget(
+        Vector2 pointerPosition,
+        out InventoryItem targetItem,
+        out int targetAnchor)
+    {
+        targetItem = null;
+        targetAnchor = -1;
+        InventoryManager inventory = InventoryManager.Instance;
+        if (inventory == null)
+            return false;
+
+        if (_craftSlot != null && _craftSlot.worldBound.Contains(pointerPosition))
+        {
+            return CraftingOrbApplyMode.TryResolveItemTarget(
+                inventory,
+                InventoryManager.CRAFT_SLOT_INDEX,
+                out targetItem,
+                out targetAnchor);
+        }
+
+        if (_inventoryContainer == null || !_inventoryContainer.worldBound.Contains(pointerPosition))
+            return false;
+
+        for (int i = 0; i < _backpackSlots.Count; i++)
+        {
+            VisualElement slot = _backpackSlots[i];
+            if (slot == null || !slot.worldBound.Contains(pointerPosition))
+                continue;
+
+            return CraftingOrbApplyMode.TryResolveItemTarget(
+                inventory,
+                i,
+                out targetItem,
+                out targetAnchor);
+        }
+
+        return false;
+    }
+
+    private VisualElement GetCraftingTargetVisual(int targetAnchor)
+    {
+        if (targetAnchor == InventoryManager.CRAFT_SLOT_INDEX)
+            return _craftSlot;
+
+        if (_itemsLayer != null)
+        {
+            for (int i = 0; i < _itemsLayer.childCount; i++)
+            {
+                VisualElement child = _itemsLayer[i];
+                if (child.userData is int itemAnchor && itemAnchor == targetAnchor)
+                    return child;
+            }
+        }
+
+        return GetSlotVisual(targetAnchor);
     }
 
     private static Sprite GetOrbDisplayIcon(CraftingOrbSO orb)
@@ -332,6 +388,26 @@ public static class CraftingOrbApplyMode
     public static bool ShouldKeepSelection(bool shiftHeld, int remainingOrbCount)
     {
         return shiftHeld && remainingOrbCount > 0;
+    }
+
+    public static bool TryResolveItemTarget(
+        InventoryManager inventory,
+        int slotIndex,
+        out InventoryItem item,
+        out int anchorIndex)
+    {
+        item = null;
+        anchorIndex = -1;
+        if (inventory == null)
+            return false;
+
+        bool isCraftSlot = slotIndex == InventoryManager.CRAFT_SLOT_INDEX;
+        bool isBackpackSlot = slotIndex >= 0 && slotIndex < inventory.BackpackSlotCount;
+        if (!isCraftSlot && !isBackpackSlot)
+            return false;
+
+        item = inventory.GetItemAt(slotIndex, out anchorIndex);
+        return item != null && anchorIndex >= 0;
     }
 
     public static void SetApplying(VisualElement slot, VisualElement selected, bool applyMode)
