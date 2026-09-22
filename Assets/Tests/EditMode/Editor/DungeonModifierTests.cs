@@ -202,6 +202,37 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void EnemyContainment_AllowsMarginAndRejectsEnemiesBeyondRoom()
+        {
+            var bounds = new Bounds(Vector3.zero, new Vector3(10f, 6f, 1f));
+
+            Assert.That(RoomController.IsOutsideRoomBounds(new Vector2(6.9f, 0f), bounds, 2f), Is.False);
+            Assert.That(RoomController.IsOutsideRoomBounds(new Vector2(7.1f, 0f), bounds, 2f), Is.True);
+            Assert.That(RoomController.IsOutsideRoomBounds(new Vector2(0f, -5.1f), bounds, 2f), Is.True);
+            Assert.That(RoomController.IsOutsideRoomBounds(Vector2.zero, bounds, 2f), Is.False);
+        }
+
+        [Test]
+        public void RoomClearState_IgnoresDestroyedOrMissingTrackedEnemies()
+        {
+            var roomObject = new GameObject("MissingEnemyRoom");
+            try
+            {
+                RoomController room = roomObject.AddComponent<RoomController>();
+                var living = (List<EnemyHealth>)typeof(RoomController)
+                    .GetField("_livingEnemies", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .GetValue(room);
+                living.Add(null);
+
+                Assert.That(room.IsCleared, Is.True);
+            }
+            finally
+            {
+                Object.DestroyImmediate(roomObject);
+            }
+        }
+
+        [Test]
         public void NextRoomPortal_StaysHiddenUntilKillThreshold_AndDoesNotAffectOtherPortals()
         {
             var roomObject = new GameObject("PortalTestRoom");

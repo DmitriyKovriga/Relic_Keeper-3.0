@@ -33,6 +33,11 @@ namespace Scripts.Dungeon
         [Tooltip("Extra padding around auto camera bounds.")]
         [SerializeField, Min(0f)] private float _autoCameraBoundsPadding = 1.5f;
 
+        [Header("Enemy Containment")]
+        [Tooltip("How far an enemy may leave the room camera bounds before it is removed as defeated.")]
+        [SerializeField, Min(0f)] private float _enemyOutOfBoundsMargin = 2f;
+        [SerializeField, Min(0.05f)] private float _enemyBoundsCheckInterval = 0.25f;
+
         private EnemySpawner[] _spawners;
         private PolygonCollider2D _runtimeCameraBounds;
         private readonly List<EnemyHealth> _livingEnemies = new List<EnemyHealth>();
@@ -40,9 +45,23 @@ namespace Scripts.Dungeon
         private bool _roomClearRewardsSpawned;
         private int _initialEnemyCount;
         private bool _nextRoomPortalUnlocked;
+        private float _nextEnemyBoundsCheckTime;
 
         public int RoomLevel => _roomLevel;
-        public bool IsCleared => _livingEnemies.Count == 0;
+        public bool IsCleared
+        {
+            get
+            {
+                for (int i = 0; i < _livingEnemies.Count; i++)
+                {
+                    EnemyHealth health = _livingEnemies[i];
+                    if (health != null && !health.IsDead)
+                        return false;
+                }
+
+                return true;
+            }
+        }
         public DungeonModifierValues RoomModifiers => _roomModifiers;
 
         public void SetRuntimeLevel(int level)
@@ -72,6 +91,15 @@ namespace Scripts.Dungeon
             ResolveCameraBounds();
         }
 
+        private void Update()
+        {
+            if (_livingEnemies.Count == 0 || Time.unscaledTime < _nextEnemyBoundsCheckTime)
+                return;
+
+            _nextEnemyBoundsCheckTime = Time.unscaledTime + Mathf.Max(0.05f, _enemyBoundsCheckInterval);
+            AuditLivingEnemies();
+        }
+
         public void OnRoomEntered(Transform playerTransform)
         {
             OnRoomEntered(playerTransform, new DungeonModifierContext());
@@ -92,6 +120,7 @@ namespace Scripts.Dungeon
             _roomClearRewardsSpawned = false;
             _initialEnemyCount = 0;
             _nextRoomPortalUnlocked = false;
+            _nextEnemyBoundsCheckTime = 0f;
             SetNextRoomPortalsActive(false);
 
             if (_spawners == null)
@@ -171,6 +200,11 @@ namespace Scripts.Dungeon
             if (!_livingEnemies.Remove(health))
                 return;
 
+            HandleLivingEnemyCountChanged();
+        }
+
+        private void HandleLivingEnemyCountChanged()
+        {
             bool portalUnlocked = TryUnlockNextRoomPortal(true);
             if (_livingEnemies.Count == 0)
             {
@@ -184,6 +218,54 @@ namespace Scripts.Dungeon
             {
                 RoomClearedBanner.ShowPortalUnlocked();
             }
+        }
+
+        private void AuditLivingEnemies()
+        {
+            if (_livingEnemies.Count == 0)
+                return;
+
+            Collider2D roomBounds = _runtimeCameraBounds != null
+                ? _runtimeCameraBounds
+                : ResolveCameraBounds();
+            bool countChanged = false;
+
+            for (int i = _livingEnemies.Count - 1; i >= 0; i--)
+            {
+                EnemyHealth health = _livingEnemies[i];
+                bool missingOrDead = health == null || health.IsDead;
+                bool outside = !missingOrDead && roomBounds != null && IsOutsideRoomBounds(
+                    health.transform.position,
+                    roomBounds.bounds,
+                    _enemyOutOfBoundsMargin);
+                if (!missingOrDead && !outside)
+                    continue;
+
+                _livingEnemies.RemoveAt(i);
+                countChanged = true;
+
+                if (health == null)
+                    continue;
+
+                health.OnDeath -= OnSpawnedEnemyDeath;
+                if (outside)
+                {
+                    Debug.LogWarning($"[RoomController] Removed enemy '{health.name}' after it left room bounds at {health.transform.position}.");
+                    Destroy(health.gameObject);
+                }
+            }
+
+            if (countChanged)
+                HandleLivingEnemyCountChanged();
+        }
+
+        public static bool IsOutsideRoomBounds(Vector2 position, Bounds roomBounds, float margin)
+        {
+            float safeMargin = Mathf.Max(0f, margin);
+            return position.x < roomBounds.min.x - safeMargin
+                || position.x > roomBounds.max.x + safeMargin
+                || position.y < roomBounds.min.y - safeMargin
+                || position.y > roomBounds.max.y + safeMargin;
         }
 
         public static int RequiredPortalKills(int enemyCount)
