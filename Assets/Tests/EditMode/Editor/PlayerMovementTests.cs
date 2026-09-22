@@ -458,6 +458,26 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void TinyPlatformOverlapAtColliderEdgeStillCountsAsGround()
+        {
+            var floor = new GameObject("EdgeFloor", typeof(BoxCollider2D));
+            try
+            {
+                floor.layer = 6;
+                floor.transform.position = new Vector3(0.99f, -1f, 0f);
+                Set("_groundLayer", (LayerMask)(1 << 6));
+                _body.linearVelocity = Vector2.zero;
+                Physics2D.SyncTransforms();
+
+                Call("CheckGround");
+
+                Assert.That(_movement.IsGrounded, Is.True,
+                    "A player supported by the outer edge of the box collider must still be allowed to jump.");
+            }
+            finally { Object.DestroyImmediate(floor); }
+        }
+
+        [Test]
         public void AirReleaseStopsWithinThreeTenthsOfAUnit()
         {
             _body.linearVelocity = Vector2.right * 5f;

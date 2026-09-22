@@ -27,7 +27,9 @@ public class PlayerMovement : MonoBehaviour
     private const float GroundedVerticalVelocityThreshold = 0.5f;
     private const float GroundSupportProbeInset = 0.04f;
     private const float GroundSupportProbeDistance = 0.1f;
-    private const float GroundSupportHorizontalInset = 0.04f;
+    // Keep the edge probes just inside the body to avoid ambiguous side contacts, but do not
+    // require almost a full pixel of platform overlap before a physically supported player can jump.
+    private const float GroundSupportHorizontalInset = 0.005f;
 
     public event System.Action OnJumpStarted;
     public event System.Action OnLanded;
