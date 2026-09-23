@@ -353,6 +353,7 @@
 .settings-select-option {
     height: 17px;
     min-height: 17px;
+    flex-shrink: 0;
     color: rgb(226, 220, 207);
     background-color: transparent;
     border-width: 0;
@@ -360,7 +361,19 @@
     font-size: 9px;
     padding-left: 4px;
     padding-right: 4px;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
     -unity-text-align: middle-left;
+}
+
+.settings-loot-filter-popup {
+    height: 72px;
+    min-height: 72px;
+    max-height: 72px;
 }
 
 .settings-select-option:hover {

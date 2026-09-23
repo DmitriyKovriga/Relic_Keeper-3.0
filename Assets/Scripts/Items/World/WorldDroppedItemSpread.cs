@@ -14,7 +14,7 @@ namespace Scripts.Items.World
 
         public static void SeparateFromNeighbors(WorldDroppedItem spawned)
         {
-            if (spawned == null)
+            if (spawned == null || !spawned.ParticipatesInWorldLayout)
                 return;
 
             WorldDroppedItem[] all = Object.FindObjectsByType<WorldDroppedItem>(FindObjectsSortMode.None);
@@ -24,7 +24,7 @@ namespace Scripts.Items.World
             for (int i = 0; i < all.Length; i++)
             {
                 WorldDroppedItem item = all[i];
-                if (item == null)
+                if (item == null || !item.ParticipatesInWorldLayout)
                     continue;
                 if ((item.GroundPosition - origin).sqrMagnitude <= neighborRadiusSqr)
                     cluster.Add(item);
@@ -127,7 +127,8 @@ namespace Scripts.Items.World
             float startBX,
             int wallMask)
         {
-            if (itemA == null || itemB == null)
+            if (itemA == null || itemB == null ||
+                !itemA.ParticipatesInWorldLayout || !itemB.ParticipatesInWorldLayout)
                 return false;
 
             GetPairOffsets(itemA.GroundPosition, itemB.GroundPosition, MinSeparation, out float deltaAX, out float deltaBX);

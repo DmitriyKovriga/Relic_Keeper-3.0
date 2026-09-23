@@ -25,7 +25,8 @@ namespace Scripts.Items.World
 
             var dropped = go.AddComponent<WorldDroppedItem>();
             dropped.Initialize(item, PixelsPerUnit);
-            WorldDroppedItemSpread.SeparateFromNeighbors(dropped);
+            if (dropped.ParticipatesInWorldLayout)
+                WorldDroppedItemSpread.SeparateFromNeighbors(dropped);
             return dropped;
         }
 

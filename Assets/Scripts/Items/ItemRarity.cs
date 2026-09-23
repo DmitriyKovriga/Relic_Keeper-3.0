@@ -3,6 +3,13 @@ using UnityEngine;
 
 namespace Scripts.Items
 {
+    public enum ItemRarityTier
+    {
+        Common = 1,
+        Magic = 2,
+        Rare = 3
+    }
+
     /// <summary>
     /// Item rarity is defined by rolled affix count: 1–3 magic, 4–6 rare.
     /// Ground plates and tooltips must use this same rule.
@@ -40,6 +47,15 @@ namespace Scripts.Items
         public static bool IsRare(InventoryItem item)
         {
             return GetAffixCount(item) >= RareAffixMin;
+        }
+
+        public static ItemRarityTier GetTier(InventoryItem item)
+        {
+            if (IsRare(item))
+                return ItemRarityTier.Rare;
+            if (IsMagic(item))
+                return ItemRarityTier.Magic;
+            return ItemRarityTier.Common;
         }
 
         public static Color GetGroundPlateColor(InventoryItem item)

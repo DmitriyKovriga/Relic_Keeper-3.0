@@ -34,6 +34,10 @@
                         <ui:Label text="100%" name="AttackVfxOpacityValue" class="settings-slider-value" />
                     </ui:VisualElement>
                 </ui:VisualElement>
+                <ui:VisualElement name="LootFilterRow" class="settings-presentation-row">
+                    <ui:Label text="Hide items" name="LootFilterLabel" class="settings-presentation-label" />
+                    <ui:Button text="Do not hide" name="LootFilterButton" class="settings-select-button settings-presentation-dropdown" />
+                </ui:VisualElement>
                 <ui:VisualElement name="BindingRowsContainer" class="settings-rows-container" />
             </ui:ScrollView>
             <ui:VisualElement name="LanguagePopup" class="settings-select-popup">
@@ -45,6 +49,12 @@
                 <ui:Button text="100%" name="HudScaleOption100" class="settings-select-option" />
                 <ui:Button text="75%" name="HudScaleOption75" class="settings-select-option" />
                 <ui:Button text="50%" name="HudScaleOption50" class="settings-select-option" />
+            </ui:VisualElement>
+            <ui:VisualElement name="LootFilterPopup" class="settings-select-popup settings-loot-filter-popup">
+                <ui:Button text="Do not hide" name="LootFilterOptionNone" class="settings-select-option" />
+                <ui:Button text="Common only" name="LootFilterOptionCommon" class="settings-select-option" />
+                <ui:Button text="Common and magic" name="LootFilterOptionMagic" class="settings-select-option" />
+                <ui:Button text="Common, magic and rare" name="LootFilterOptionRare" class="settings-select-option" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

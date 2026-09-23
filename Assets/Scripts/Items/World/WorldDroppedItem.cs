@@ -23,16 +23,20 @@ namespace Scripts.Items.World
         private float _pixelsPerUnit = 24f;
         private SpriteRenderer _circleRenderer;
         private SpriteRenderer _iconRenderer;
+        private CircleCollider2D _interactionCollider;
         private Canvas _inspectionCanvas;
         private Image _inspectionOverlay;
         private float _hoverBaseLocalY;
         private float _hoverPhase;
         private bool _isInitialized;
+        private bool _lootFilterHidden;
         private Vector2 _groundPosition;
 
         public const float TooltipWorldHeight = 0.48f;
 
         public InventoryItem Item => _item;
+        public bool IsLootFilterHidden => _lootFilterHidden;
+        public bool ParticipatesInWorldLayout => _isInitialized && !_lootFilterHidden && _item?.Data != null;
         public Vector2 GroundPosition => _isInitialized ? _groundPosition : (Vector2)transform.position;
         public Vector3 TooltipWorldPosition
         {
@@ -54,6 +58,27 @@ namespace Scripts.Items.World
             BuildCollider();
             BuildInspectionProgress();
             _isInitialized = true;
+            SubscribeToLootFilter();
+            RefreshLootFilterState(spreadWhenShown: false);
+        }
+
+        private void OnEnable()
+        {
+            SubscribeToLootFilter();
+            if (_isInitialized)
+                RefreshLootFilterState(spreadWhenShown: false);
+        }
+
+        private void OnDisable()
+        {
+            LootFilterSettings.Changed -= OnLootFilterChanged;
+            ItemTooltipController.Instance?.HideWorldTooltip(this);
+        }
+
+        private void SubscribeToLootFilter()
+        {
+            LootFilterSettings.Changed -= OnLootFilterChanged;
+            LootFilterSettings.Changed += OnLootFilterChanged;
         }
 
         public void SetGroundedWorldPosition(Vector2 worldPosition)
@@ -66,6 +91,8 @@ namespace Scripts.Items.World
         private void Update()
         {
             if (!_isInitialized)
+                return;
+            if (_lootFilterHidden)
                 return;
 
             Vector3 localPosition = transform.localPosition;
@@ -80,7 +107,7 @@ namespace Scripts.Items.World
 
         public bool CanInteract()
         {
-            return _item?.Data != null;
+            return !_lootFilterHidden && _item?.Data != null;
         }
 
         public void Interact()
@@ -111,8 +138,43 @@ namespace Scripts.Items.World
                 return;
 
             float progress = Mathf.Clamp01(normalizedProgress);
-            _inspectionCanvas.enabled = visible && progress < 0.999f;
+            _inspectionCanvas.enabled = !_lootFilterHidden && visible && progress < 0.999f;
             _inspectionOverlay.fillAmount = 1f - progress;
+        }
+
+        private void OnLootFilterChanged()
+        {
+            RefreshLootFilterState(spreadWhenShown: true);
+        }
+
+        private void RefreshLootFilterState(bool spreadWhenShown)
+        {
+            if (!_isInitialized)
+                return;
+
+            bool shouldHide = LootFilterSettings.ShouldHide(_item);
+            bool wasHidden = _lootFilterHidden;
+            _lootFilterHidden = shouldHide;
+
+            if (_circleRenderer != null)
+                _circleRenderer.enabled = !shouldHide;
+            if (_iconRenderer != null)
+                _iconRenderer.enabled = !shouldHide;
+            if (_interactionCollider != null)
+                _interactionCollider.enabled = !shouldHide;
+            if (_inspectionCanvas != null)
+                _inspectionCanvas.enabled = false;
+
+            if (shouldHide)
+            {
+                transform.position = new Vector3(_groundPosition.x, _groundPosition.y, transform.position.z);
+                _hoverBaseLocalY = transform.localPosition.y;
+                ItemTooltipController.Instance?.HideWorldTooltip(this);
+                return;
+            }
+
+            if (wasHidden && spreadWhenShown)
+                WorldDroppedItemSpread.SeparateFromNeighbors(this);
         }
 
         private void BuildVisual()
@@ -148,12 +210,12 @@ namespace Scripts.Items.World
 
         private void BuildCollider()
         {
-            var collider = gameObject.GetComponent<CircleCollider2D>();
-            if (collider == null)
-                collider = gameObject.AddComponent<CircleCollider2D>();
+            _interactionCollider = gameObject.GetComponent<CircleCollider2D>();
+            if (_interactionCollider == null)
+                _interactionCollider = gameObject.AddComponent<CircleCollider2D>();
 
-            collider.isTrigger = true;
-            collider.radius = (CirclePixels / _pixelsPerUnit) * 0.65f;
+            _interactionCollider.isTrigger = true;
+            _interactionCollider.radius = (CirclePixels / _pixelsPerUnit) * 0.65f;
         }
 
         private void BuildInspectionProgress()

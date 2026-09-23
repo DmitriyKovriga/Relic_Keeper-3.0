@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.Localization.Settings;
 using System.Collections.Generic;
+using Scripts.Items.World;
 
 public class LanguageSelector : MonoBehaviour
 {
@@ -38,6 +39,13 @@ public class LanguageSelector : MonoBehaviour
     private Label _attackVfxOpacityValue;
     private EventCallback<ChangeEvent<int>> _hudOpacityChangedCallback;
     private EventCallback<ChangeEvent<int>> _attackVfxOpacityChangedCallback;
+    private Label _lootFilterLabel;
+    private Button _lootFilterButton;
+    private VisualElement _lootFilterPopup;
+    private Button _lootFilterOptionNone;
+    private Button _lootFilterOptionCommon;
+    private Button _lootFilterOptionMagic;
+    private Button _lootFilterOptionRare;
 
     private void OnEnable()
     {
@@ -58,6 +66,7 @@ public class LanguageSelector : MonoBehaviour
         _popup.style.display = DisplayStyle.None;
         if (_displayPopup != null) _displayPopup.style.display = DisplayStyle.None;
         if (_hudScalePopup != null) _hudScalePopup.style.display = DisplayStyle.None;
+        if (_lootFilterPopup != null) _lootFilterPopup.style.display = DisplayStyle.None;
 
         _languageButton.clicked += OnLanguageButtonClick;
         if (_displayButton != null) _displayButton.clicked += OnDisplayButtonClick;
@@ -65,6 +74,11 @@ public class LanguageSelector : MonoBehaviour
         if (_hudScaleOption100 != null) _hudScaleOption100.clicked += OnHudScale100Click;
         if (_hudScaleOption75 != null) _hudScaleOption75.clicked += OnHudScale75Click;
         if (_hudScaleOption50 != null) _hudScaleOption50.clicked += OnHudScale50Click;
+        if (_lootFilterButton != null) _lootFilterButton.clicked += OnLootFilterButtonClick;
+        if (_lootFilterOptionNone != null) _lootFilterOptionNone.clicked += OnLootFilterNoneClick;
+        if (_lootFilterOptionCommon != null) _lootFilterOptionCommon.clicked += OnLootFilterCommonClick;
+        if (_lootFilterOptionMagic != null) _lootFilterOptionMagic.clicked += OnLootFilterMagicClick;
+        if (_lootFilterOptionRare != null) _lootFilterOptionRare.clicked += OnLootFilterRareClick;
         if (_optEnglish != null) _optEnglish.clicked += OnOptEnglishClick;
         if (_optRussian != null) _optRussian.clicked += OnOptRussianClick;
 
@@ -82,6 +96,11 @@ public class LanguageSelector : MonoBehaviour
         if (_hudScaleOption100 != null) _hudScaleOption100.clicked -= OnHudScale100Click;
         if (_hudScaleOption75 != null) _hudScaleOption75.clicked -= OnHudScale75Click;
         if (_hudScaleOption50 != null) _hudScaleOption50.clicked -= OnHudScale50Click;
+        if (_lootFilterButton != null) _lootFilterButton.clicked -= OnLootFilterButtonClick;
+        if (_lootFilterOptionNone != null) _lootFilterOptionNone.clicked -= OnLootFilterNoneClick;
+        if (_lootFilterOptionCommon != null) _lootFilterOptionCommon.clicked -= OnLootFilterCommonClick;
+        if (_lootFilterOptionMagic != null) _lootFilterOptionMagic.clicked -= OnLootFilterMagicClick;
+        if (_lootFilterOptionRare != null) _lootFilterOptionRare.clicked -= OnLootFilterRareClick;
         if (_hudOpacitySlider != null && _hudOpacityChangedCallback != null)
             _hudOpacitySlider.UnregisterValueChangedCallback(_hudOpacityChangedCallback);
         if (_attackVfxOpacitySlider != null && _attackVfxOpacityChangedCallback != null)
@@ -99,12 +118,14 @@ public class LanguageSelector : MonoBehaviour
         ClosePopupFromOutsideClick(_popup, _languageButton, target);
         ClosePopupFromOutsideClick(_displayPopup, _displayButton, target);
         ClosePopupFromOutsideClick(_hudScalePopup, _hudScaleButton, target);
+        ClosePopupFromOutsideClick(_lootFilterPopup, _lootFilterButton, target);
     }
 
     private void OnLanguageButtonClick()
     {
         HidePopup(_displayPopup);
         HidePopup(_hudScalePopup);
+        HidePopup(_lootFilterPopup);
         TogglePopup(_popup, _languageButton);
     }
 
@@ -205,6 +226,13 @@ public class LanguageSelector : MonoBehaviour
         _attackVfxOpacitySlider = root?.Q<SliderInt>("AttackVfxOpacitySlider");
         _hudOpacityValue = root?.Q<Label>("HudOpacityValue");
         _attackVfxOpacityValue = root?.Q<Label>("AttackVfxOpacityValue");
+        _lootFilterLabel = root?.Q<Label>("LootFilterLabel");
+        _lootFilterButton = root?.Q<Button>("LootFilterButton");
+        _lootFilterPopup = root?.Q<VisualElement>("LootFilterPopup");
+        _lootFilterOptionNone = root?.Q<Button>("LootFilterOptionNone");
+        _lootFilterOptionCommon = root?.Q<Button>("LootFilterOptionCommon");
+        _lootFilterOptionMagic = root?.Q<Button>("LootFilterOptionMagic");
+        _lootFilterOptionRare = root?.Q<Button>("LootFilterOptionRare");
 
         if (_hudScaleButton != null)
             RefreshHudScaleChoices();
@@ -245,8 +273,18 @@ public class LanguageSelector : MonoBehaviour
             _hudOpacityLabel.text = russian ? "Прозрачность HUD" : "HUD opacity";
         if (_attackVfxOpacityLabel != null)
             _attackVfxOpacityLabel.text = russian ? "Прозрачность атак" : "Attack VFX opacity";
+        if (_lootFilterLabel != null)
+        {
+            _lootFilterLabel.text = russian ? "Скрывать предметы" : "Hide items";
+            _lootFilterLabel.tooltip = russian
+                ? "Скрывает выбранную редкость и все редкости ниже."
+                : "Hides the selected rarity and every rarity below it.";
+        }
+        if (_lootFilterButton != null)
+            _lootFilterButton.tooltip = _lootFilterLabel?.tooltip;
 
         RefreshHudScaleChoices();
+        RefreshLootFilterChoices();
     }
 
     private void RefreshHudScaleChoices()
@@ -261,6 +299,7 @@ public class LanguageSelector : MonoBehaviour
     {
         HidePopup(_popup);
         HidePopup(_hudScalePopup);
+        HidePopup(_lootFilterPopup);
         TogglePopup(_displayPopup, _displayButton);
     }
 
@@ -268,7 +307,16 @@ public class LanguageSelector : MonoBehaviour
     {
         HidePopup(_popup);
         HidePopup(_displayPopup);
+        HidePopup(_lootFilterPopup);
         TogglePopup(_hudScalePopup, _hudScaleButton);
+    }
+
+    private void OnLootFilterButtonClick()
+    {
+        HidePopup(_popup);
+        HidePopup(_displayPopup);
+        HidePopup(_hudScalePopup);
+        TogglePopup(_lootFilterPopup, _lootFilterButton);
     }
 
     private void OnHudScale100Click() => SelectHudScale(0);
@@ -280,6 +328,33 @@ public class LanguageSelector : MonoBehaviour
         GameplayPresentationSettings.SetHudScale(GameplayPresentationSettings.GetHudScaleForIndex(index));
         _hudScaleButton.text = GetHudScaleText(index);
         _hudScalePopup.style.display = DisplayStyle.None;
+    }
+
+    private void OnLootFilterNoneClick() => SelectLootFilter(LootFilterThreshold.None);
+    private void OnLootFilterCommonClick() => SelectLootFilter(LootFilterThreshold.Common);
+    private void OnLootFilterMagicClick() => SelectLootFilter(LootFilterThreshold.Magic);
+    private void OnLootFilterRareClick() => SelectLootFilter(LootFilterThreshold.Rare);
+
+    private void SelectLootFilter(LootFilterThreshold threshold)
+    {
+        LootFilterSettings.SetThreshold(threshold);
+        RefreshLootFilterChoices();
+        HidePopup(_lootFilterPopup);
+    }
+
+    private void RefreshLootFilterChoices()
+    {
+        bool russian = IsRussianLocale();
+        if (_lootFilterButton != null)
+            _lootFilterButton.text = GetLootFilterText(LootFilterSettings.Threshold, russian);
+        if (_lootFilterOptionNone != null)
+            _lootFilterOptionNone.text = GetLootFilterText(LootFilterThreshold.None, russian);
+        if (_lootFilterOptionCommon != null)
+            _lootFilterOptionCommon.text = GetLootFilterText(LootFilterThreshold.Common, russian);
+        if (_lootFilterOptionMagic != null)
+            _lootFilterOptionMagic.text = GetLootFilterText(LootFilterThreshold.Magic, russian);
+        if (_lootFilterOptionRare != null)
+            _lootFilterOptionRare.text = GetLootFilterText(LootFilterThreshold.Rare, russian);
     }
 
     private void RefreshDisplayChoices()
@@ -328,6 +403,28 @@ public class LanguageSelector : MonoBehaviour
         2 => "50%",
         _ => "75%"
     };
+
+    public static string GetLootFilterText(LootFilterThreshold threshold, bool russian)
+    {
+        if (russian)
+        {
+            return threshold switch
+            {
+                LootFilterThreshold.Common => "Только белые",
+                LootFilterThreshold.Magic => "Белые и волшебные",
+                LootFilterThreshold.Rare => "Белые, волшебные и редкие",
+                _ => "Не скрывать"
+            };
+        }
+
+        return threshold switch
+        {
+            LootFilterThreshold.Common => "Common only",
+            LootFilterThreshold.Magic => "Common and magic",
+            LootFilterThreshold.Rare => "Common, magic and rare",
+            _ => "Do not hide"
+        };
+    }
 
     private static void UpdatePercentLabel(Label label, int value)
     {
