@@ -108,35 +108,37 @@ namespace Scripts.Enemies
 
             var random = new System.Random(seed);
             Vector2 center = new Vector2(
-                Mathf.Lerp(size * 0.34f, size * 0.66f, (float)random.NextDouble()),
-                Mathf.Lerp(size * 0.34f, size * 0.66f, (float)random.NextDouble()));
-            float radius = Mathf.Lerp(size * 0.22f, size * 0.34f, (float)random.NextDouble());
-            int blockSize = random.Next(2, 4);
+                Mathf.Lerp(size * 0.43f, size * 0.57f, (float)random.NextDouble()),
+                Mathf.Lerp(size * 0.43f, size * 0.57f, (float)random.NextDouble()));
+            float radius = Mathf.Lerp(size * 0.31f, size * 0.38f, (float)random.NextDouble());
+            float aspectX = Mathf.Lerp(0.78f, 1.18f, (float)random.NextDouble());
+            float aspectY = Mathf.Lerp(0.78f, 1.18f, (float)random.NextDouble());
+            float phaseA = Mathf.Lerp(0f, Mathf.PI * 2f, (float)random.NextDouble());
+            float phaseB = Mathf.Lerp(0f, Mathf.PI * 2f, (float)random.NextDouble());
 
-            for (int y = 1; y < size - 1; y += blockSize)
+            for (int y = 1; y < size - 1; y++)
             {
-                for (int x = 1; x < size - 1; x += blockSize)
+                for (int x = 1; x < size - 1; x++)
                 {
-                    Vector2 sample = new Vector2(x + blockSize * 0.5f, y + blockSize * 0.5f);
-                    Vector2 delta = sample - center;
+                    Vector2 delta = new Vector2((x - center.x) / aspectX, (y - center.y) / aspectY);
                     float angle = Mathf.Atan2(delta.y, delta.x);
-                    float noisyRadius = radius *
-                        (1f + Mathf.Sin(angle * 2.8f + seed * 0.011f) * 0.16f +
-                         Mathf.Sin(angle * 5.5f + seed * 0.021f) * 0.1f);
-                    float distance = delta.magnitude;
-                    bool inside = distance <= noisyRadius * Mathf.Lerp(0.9f, 1.15f, (float)random.NextDouble());
-                    if (inside && random.NextDouble() > 0.08d)
-                        FillBlock(pixels, size, x, y, blockSize);
+                    float tornRadius = radius *
+                        (1f + Mathf.Sin(angle * 3f + phaseA) * 0.19f +
+                         Mathf.Sin(angle * 5f + phaseB) * 0.13f +
+                         Mathf.Sin(angle * 9f + seed * 0.031f) * 0.07f);
+                    float pixelNoise = Hash01(x, y, seed) * 0.9f - 0.45f;
+                    if (delta.magnitude <= tornRadius + pixelNoise)
+                        pixels[x + y * size] = Color.white;
                 }
             }
 
-            int biteCount = random.Next(1, 3);
+            int biteCount = random.Next(2, 5);
             for (int i = 0; i < biteCount; i++)
             {
-                int bx = random.Next(1, size - 4);
-                int by = random.Next(1, size - 4);
-                int biteSize = random.Next(2, 4);
-                ClearBlock(pixels, size, bx, by, biteSize);
+                float angle = Mathf.Lerp(0f, Mathf.PI * 2f, (float)random.NextDouble());
+                Vector2 biteCenter = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius * Mathf.Lerp(0.72f, 1.02f, (float)random.NextDouble());
+                float biteRadius = Mathf.Lerp(1.1f, 2.2f, (float)random.NextDouble());
+                ClearCircle(pixels, size, biteCenter, biteRadius);
             }
 
             texture.SetPixels(pixels);
@@ -144,6 +146,30 @@ namespace Scripts.Enemies
             Sprite sprite = Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), PixelsPerUnit);
             sprite.name = name;
             return sprite;
+        }
+
+        private static float Hash01(int x, int y, int seed)
+        {
+            uint value = (uint)(x * 374761393 + y * 668265263 + seed * 69069);
+            value = (value ^ (value >> 13)) * 1274126177u;
+            return (value & 0x00FFFFFFu) / 16777215f;
+        }
+
+        private static void ClearCircle(Color[] pixels, int size, Vector2 center, float radius)
+        {
+            float radiusSquared = radius * radius;
+            int minX = Mathf.Max(0, Mathf.FloorToInt(center.x - radius));
+            int maxX = Mathf.Min(size - 1, Mathf.CeilToInt(center.x + radius));
+            int minY = Mathf.Max(0, Mathf.FloorToInt(center.y - radius));
+            int maxY = Mathf.Min(size - 1, Mathf.CeilToInt(center.y + radius));
+            for (int y = minY; y <= maxY; y++)
+            {
+                for (int x = minX; x <= maxX; x++)
+                {
+                    if ((new Vector2(x, y) - center).sqrMagnitude <= radiusSquared)
+                        pixels[x + y * size] = Color.clear;
+                }
+            }
         }
 
         private static Sprite BuildPixelClusterSprite(int size, int seed, string name, int minBlockSize, int maxBlockSize, int minCount, int maxCount)
@@ -186,19 +212,6 @@ namespace Scripts.Enemies
                     int px = Mathf.Clamp(x + ox, 0, size - 1);
                     int py = Mathf.Clamp(y + oy, 0, size - 1);
                     pixels[px + py * size] = Color.white;
-                }
-            }
-        }
-
-        private static void ClearBlock(Color[] pixels, int size, int x, int y, int blockSize)
-        {
-            for (int oy = 0; oy < blockSize; oy++)
-            {
-                for (int ox = 0; ox < blockSize; ox++)
-                {
-                    int px = Mathf.Clamp(x + ox, 0, size - 1);
-                    int py = Mathf.Clamp(y + oy, 0, size - 1);
-                    pixels[px + py * size] = Color.clear;
                 }
             }
         }

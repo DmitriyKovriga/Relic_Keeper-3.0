@@ -185,6 +185,7 @@ namespace Scripts.Enemies
     {
         public bool Enabled = true;
         [Min(1)] public int ChunkCount = 6;
+        [Min(0.1f)] public float ChunkSizeMultiplier = 1f;
         [Min(0f)] public float ChunkHorizontalForce = 3.2f;
         [Min(0f)] public float ChunkVerticalForce = 4.8f;
         [Tooltip("Horizontal range used by the reduced blood drip layout.")]

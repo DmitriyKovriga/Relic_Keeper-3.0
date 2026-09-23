@@ -8,8 +8,8 @@ namespace Scripts.Enemies
         private EnemyDeathRemainsSheet _sheet;
         private Rigidbody2D _rigidbody;
         private Collider2D _collider;
-        private SpriteRenderer _renderer;
-        private Color _baseColor;
+        private SpriteRenderer[] _renderers;
+        private Color[] _baseColors;
         private float _lifetime;
         private float _fadeDuration;
         private float _age;
@@ -35,8 +35,10 @@ namespace Scripts.Enemies
             _returned = false;
             _rigidbody = GetComponent<Rigidbody2D>();
             _collider = GetComponent<Collider2D>();
-            _renderer = GetComponent<SpriteRenderer>();
-            _baseColor = _renderer != null ? _renderer.color : Color.white;
+            _renderers = GetComponentsInChildren<SpriteRenderer>(true);
+            _baseColors = new Color[_renderers.Length];
+            for (int i = 0; i < _renderers.Length; i++)
+                _baseColors[i] = _renderers[i] != null ? _renderers[i].color : Color.white;
         }
 
         private void Update()
@@ -59,11 +61,17 @@ namespace Scripts.Enemies
                     _collider.enabled = false;
             }
 
-            if (_renderer == null || _fadeDuration <= 0f || _age < _lifetime - _fadeDuration)
+            if (_renderers == null || _fadeDuration <= 0f || _age < _lifetime - _fadeDuration)
                 return;
-            Color color = _baseColor;
-            color.a *= 1f - Mathf.InverseLerp(_lifetime - _fadeDuration, _lifetime, _age);
-            _renderer.color = color;
+            float fade = 1f - Mathf.InverseLerp(_lifetime - _fadeDuration, _lifetime, _age);
+            for (int i = 0; i < _renderers.Length; i++)
+            {
+                if (_renderers[i] == null)
+                    continue;
+                Color color = _baseColors[i];
+                color.a *= fade;
+                _renderers[i].color = color;
+            }
         }
 
         public void ForceReturnToPool()

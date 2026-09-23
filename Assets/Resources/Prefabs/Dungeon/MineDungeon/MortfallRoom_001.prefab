@@ -79605,6 +79605,8 @@ MonoBehaviour:
   _cameraBoundsSource: {fileID: 7950369967754950937}
   _autoCreateCameraBounds: 1
   _autoCameraBoundsPadding: 1.5
+  _enemyOutOfBoundsMargin: 2
+  _enemyBoundsCheckInterval: 0.25
 --- !u!1001 &1389285270389388755
 PrefabInstance:
   m_ObjectHideFlags: 0

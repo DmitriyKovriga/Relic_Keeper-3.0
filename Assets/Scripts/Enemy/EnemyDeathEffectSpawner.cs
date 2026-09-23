@@ -8,9 +8,21 @@ namespace Scripts.Enemies
     {
         private const int EnemyLayer = 7;
         private const int GroundLayerMask = 1 << 6;
+        private const float ChunkOutlinePixels = 1f;
+        private const float MaxChunkWorldWidth = 0.62f;
+        private const float MaxChunkWorldHeight = 0.58f;
         // 24 px is one world unit. Large enemies should not create screen-dominating blood pools.
         private const float MaxPuddleWorldWidth = 1.1f;
         private static bool s_collisionRulesConfigured;
+        private static readonly Vector2[][] s_chunkCenters =
+        {
+            new[] { new Vector2(0.5f, 0.54f) },
+            new[] { new Vector2(0.33f, 0.56f), new Vector2(0.67f, 0.44f) },
+            new[] { new Vector2(0.3f, 0.65f), new Vector2(0.7f, 0.65f), new Vector2(0.5f, 0.3f) },
+            new[] { new Vector2(0.3f, 0.7f), new Vector2(0.7f, 0.7f), new Vector2(0.3f, 0.3f), new Vector2(0.7f, 0.3f) },
+            new[] { new Vector2(0.28f, 0.72f), new Vector2(0.72f, 0.72f), new Vector2(0.25f, 0.3f), new Vector2(0.75f, 0.3f), new Vector2(0.5f, 0.5f) },
+            new[] { new Vector2(0.25f, 0.73f), new Vector2(0.5f, 0.73f), new Vector2(0.75f, 0.73f), new Vector2(0.25f, 0.3f), new Vector2(0.5f, 0.3f), new Vector2(0.75f, 0.3f) }
+        };
 
         public static void Spawn(EnemyEntity entity, SpriteRenderer sourceRenderer)
         {
@@ -59,20 +71,75 @@ namespace Scripts.Enemies
         {
             GameObject fragment = sheet.Pool.GetFragment(sheet.transform, "EnemyBodyChunk");
             fragment.layer = EnemyLayer;
-            float t = count <= 1 ? 0.5f : index / (float)(count - 1);
-            Vector2 position = burst + new Vector2(Mathf.Lerp(-0.24f, 0.24f, t), Random.Range(-0.14f, 0.2f));
-            fragment.transform.position = SnapToPixelGrid(position);
-            fragment.transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(-16f, 16f));
-            fragment.transform.localScale = Vector3.one * Random.Range(0.34f, 0.52f);
+            Bounds spriteBounds = source.sprite.bounds;
+            Vector2 normalizedCenter = ResolveChunkCenter(index, count);
+            Vector2 normalizedSize = ResolveChunkSize(count);
+            Vector2 sourceLocalCenter = new Vector2(
+                Mathf.Lerp(spriteBounds.min.x, spriteBounds.max.x, normalizedCenter.x),
+                Mathf.Lerp(spriteBounds.min.y, spriteBounds.max.y, normalizedCenter.y));
+            Vector2 displayedLocalCenter = sourceLocalCenter;
+            if (source.flipX)
+                displayedLocalCenter.x = -displayedLocalCenter.x;
+            if (source.flipY)
+                displayedLocalCenter.y = -displayedLocalCenter.y;
 
-            SpriteRenderer renderer = fragment.GetComponent<SpriteRenderer>();
-            if (renderer == null)
-                renderer = fragment.AddComponent<SpriteRenderer>();
-            renderer.sprite = source.sprite;
-            renderer.sharedMaterial = source.sharedMaterial;
-            renderer.flipX = source.flipX;
-            renderer.color = Color.Lerp(config.GoreColor, source.color, 0.5f);
-            ApplyRemainsRenderer(renderer, sheet.AllocateSpriteOrder());
+            Vector3 worldPosition = source.transform.TransformPoint(displayedLocalCenter);
+            fragment.transform.position = SnapToPixelGrid(worldPosition);
+            fragment.transform.rotation = source.transform.rotation * Quaternion.Euler(0f, 0f, Random.Range(-16f, 16f));
+            Vector3 sourceScale = source.transform.lossyScale;
+            fragment.transform.localScale = new Vector3(Mathf.Abs(sourceScale.x), Mathf.Abs(sourceScale.y), 1f);
+
+            Vector2 localSize = Vector2.Scale(spriteBounds.size, normalizedSize);
+            float sizeMultiplier = config.ChunkSizeMultiplier > 0f ? config.ChunkSizeMultiplier : 1f;
+            localSize.x = Mathf.Min(localSize.x, MaxChunkWorldWidth * sizeMultiplier / Mathf.Max(0.01f, fragment.transform.localScale.x));
+            localSize.y = Mathf.Min(localSize.y, MaxChunkWorldHeight * sizeMultiplier / Mathf.Max(0.01f, fragment.transform.localScale.y));
+            int spriteOrder = sheet.AllocateSpriteOrder();
+            Sprite chunkSprite = EnemyDeathVisualFactory.GetRandomChunkMaskSprite();
+
+            SpriteRenderer legacyRenderer = fragment.GetComponent<SpriteRenderer>();
+            if (legacyRenderer != null)
+                legacyRenderer.enabled = false;
+
+            Transform outlineTransform = GetOrCreateChild(fragment.transform, "ChunkOutline");
+            ConfigureChunkShapeTransform(outlineTransform, chunkSprite, localSize);
+            SpriteRenderer outline = GetOrAdd<SpriteRenderer>(outlineTransform.gameObject);
+            outline.enabled = true;
+            outline.sprite = chunkSprite;
+            outline.sharedMaterial = source.sharedMaterial;
+            outline.flipX = false;
+            outline.flipY = false;
+            outline.maskInteraction = SpriteMaskInteraction.None;
+            outline.color = Color.Lerp(config.GoreColor, Color.black, 0.62f);
+            ApplyRemainsRenderer(outline, spriteOrder);
+
+            Transform maskTransform = GetOrCreateChild(fragment.transform, "ChunkMask");
+            float outlineInset = ChunkOutlinePixels / EnemyDeathVisualFactory.PixelsPerUnit;
+            Vector2 maskedDetailSize = new Vector2(
+                Mathf.Max(0.04f, localSize.x - outlineInset * 2f),
+                Mathf.Max(0.04f, localSize.y - outlineInset * 2f));
+            ConfigureChunkShapeTransform(maskTransform, chunkSprite, maskedDetailSize);
+            SpriteMask mask = GetOrAdd<SpriteMask>(maskTransform.gameObject);
+            mask.enabled = true;
+            mask.sprite = chunkSprite;
+            mask.isCustomRangeActive = true;
+            mask.frontSortingLayerID = SortingLayer.NameToID(WorldRenderSorting.LayerWorld);
+            mask.backSortingLayerID = mask.frontSortingLayerID;
+            mask.frontSortingOrder = EnemyDeathRemainsLayer.MaskFrontOrder(spriteOrder);
+            mask.backSortingOrder = spriteOrder;
+
+            Transform detailTransform = GetOrCreateChild(fragment.transform, "ChunkDetail");
+            detailTransform.localPosition = new Vector3(-displayedLocalCenter.x, -displayedLocalCenter.y, 0f);
+            detailTransform.localRotation = Quaternion.identity;
+            detailTransform.localScale = Vector3.one;
+            SpriteRenderer detail = GetOrAdd<SpriteRenderer>(detailTransform.gameObject);
+            detail.enabled = true;
+            detail.sprite = source.sprite;
+            detail.sharedMaterial = source.sharedMaterial;
+            detail.flipX = source.flipX;
+            detail.flipY = source.flipY;
+            detail.maskInteraction = SpriteMaskInteraction.VisibleInsideMask;
+            detail.color = Color.Lerp(config.GoreColor, source.color, 0.5f);
+            ApplyRemainsRenderer(detail, EnemyDeathRemainsLayer.OverlayOrder(spriteOrder));
 
             Rigidbody2D rb = fragment.GetComponent<Rigidbody2D>();
             if (rb == null)
@@ -88,7 +155,7 @@ namespace Scripts.Enemies
             if (collider == null)
                 collider = fragment.AddComponent<BoxCollider2D>();
             collider.enabled = true;
-            collider.size = source.sprite.bounds.size * 0.45f;
+            collider.size = localSize * 0.78f;
             EnemyDeathFragment controller = fragment.GetComponent<EnemyDeathFragment>();
             if (controller == null)
                 controller = fragment.AddComponent<EnemyDeathFragment>();
@@ -97,6 +164,57 @@ namespace Scripts.Enemies
             Vector2 direction = ((Vector2)fragment.transform.position - burst).normalized;
             if (direction.sqrMagnitude < 0.01f) direction = Random.insideUnitCircle.normalized;
             rb.AddForce(new Vector2(direction.x * config.ChunkHorizontalForce, Mathf.Abs(direction.y) * config.ChunkVerticalForce + config.ChunkVerticalForce * 0.45f), ForceMode2D.Impulse);
+        }
+
+        private static Vector2 ResolveChunkCenter(int index, int count)
+        {
+            Vector2[] centers = s_chunkCenters[Mathf.Clamp(count, 1, s_chunkCenters.Length) - 1];
+            return centers[Mathf.Clamp(index, 0, centers.Length - 1)];
+        }
+
+        private static Vector2 ResolveChunkSize(int count)
+        {
+            return count switch
+            {
+                <= 1 => new Vector2(0.48f, 0.52f),
+                2 => new Vector2(0.48f, 0.56f),
+                3 => new Vector2(0.44f, 0.48f),
+                4 => new Vector2(0.4f, 0.44f),
+                5 => new Vector2(0.36f, 0.4f),
+                _ => new Vector2(0.33f, 0.38f)
+            };
+        }
+
+        private static void ConfigureChunkShapeTransform(Transform target, Sprite shape, Vector2 localSize)
+        {
+            Vector2 shapeSize = shape != null ? shape.bounds.size : Vector2.one;
+            target.localPosition = Vector3.zero;
+            target.localRotation = Quaternion.identity;
+            target.localScale = new Vector3(
+                Mathf.Max(0.01f, localSize.x / Mathf.Max(0.01f, shapeSize.x)),
+                Mathf.Max(0.01f, localSize.y / Mathf.Max(0.01f, shapeSize.y)),
+                1f);
+        }
+
+        private static Transform GetOrCreateChild(Transform parent, string childName)
+        {
+            Transform child = parent.Find(childName);
+            if (child != null)
+            {
+                child.gameObject.SetActive(true);
+                return child;
+            }
+
+            var childObject = new GameObject(childName);
+            childObject.layer = parent.gameObject.layer;
+            childObject.transform.SetParent(parent, false);
+            return childObject.transform;
+        }
+
+        private static T GetOrAdd<T>(GameObject target) where T : Component
+        {
+            T component = target.GetComponent<T>();
+            return component != null ? component : target.AddComponent<T>();
         }
 
         private static void SpawnCompositeRemains(EnemyDeathRemainsSheet sheet, EnemyDeathEffectConfig config, Vector2 position, Vector2 visualSize, DeathEffectQuality quality)
