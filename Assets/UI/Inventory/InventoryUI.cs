@@ -129,6 +129,8 @@ public partial class InventoryUI : MonoBehaviour
         CreateGoldCounter();
         LoadOrbSlotsConfig();
         SetupTabs();
+        InputRebindSaver.RebindsChanged -= UpdateToggleButtonLabel;
+        InputRebindSaver.RebindsChanged += UpdateToggleButtonLabel;
         SetupCraftView();
         RegisterInventoryLocalization();
         ApplyInventoryArtTheme();
@@ -173,6 +175,7 @@ public partial class InventoryUI : MonoBehaviour
         if (Scripts.Economy.MarketManager.Instance != null)
             Scripts.Economy.MarketManager.Instance.OnChanged -= RefreshStash;
         Scripts.Economy.GoldWallet.OnGoldChanged -= RefreshGoldCounter;
+        InputRebindSaver.RebindsChanged -= UpdateToggleButtonLabel;
         if (_windowView != null)
         {
             _windowView.OnClosed -= OnInventoryWindowClosed;

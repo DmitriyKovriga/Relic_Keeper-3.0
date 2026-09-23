@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -109,6 +110,30 @@ namespace RelicKeeper.Tests.EditMode
                 InputAction action = config.inputActionAsset.FindAction(actionName, false);
                 Assert.That(action, Is.Not.Null, $"Missing input action {actionName}");
                 Assert.That(ControlEntry.GetFirstBindableBindingIndex(action), Is.GreaterThanOrEqualTo(0));
+            }
+        }
+
+        [TestCase(0, "Q")]
+        [TestCase(1, "Tab")]
+        public void InventoryModeToggle_UsesBindingForDestinationTab(int currentTab, string expected)
+        {
+            var asset = ScriptableObject.CreateInstance<InputActionAsset>();
+            try
+            {
+                InputActionMap map = asset.AddActionMap("Player");
+                map.AddAction("OpenCrafting", InputActionType.Button).AddBinding("<Keyboard>/q");
+                map.AddAction("OpenInventory", InputActionType.Button).AddBinding("<Keyboard>/tab");
+
+                MethodInfo resolveLabel = typeof(InventoryUI).GetMethod(
+                    "ResolveModeToggleBindingLabel",
+                    BindingFlags.Static | BindingFlags.NonPublic);
+
+                Assert.That(resolveLabel, Is.Not.Null);
+                Assert.That(resolveLabel.Invoke(null, new object[] { asset, currentTab }), Is.EqualTo(expected));
+            }
+            finally
+            {
+                Object.DestroyImmediate(asset);
             }
         }
     }

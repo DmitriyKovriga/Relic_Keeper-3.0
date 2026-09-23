@@ -86,8 +86,18 @@ public partial class InventoryUI
     private void UpdateToggleButtonLabel()
     {
         if (_toggleModeButton == null) return;
-        _toggleModeButton.text = _currentTab == 0 ? "K" : "E";
+        _toggleModeButton.text = ResolveModeToggleBindingLabel(InputManager.InputActions?.asset, _currentTab);
+        _toggleModeButton.style.fontSize = _toggleModeButton.text.Length <= 2 ? 8 : 6;
         _toggleModeButton.tooltip = _currentTab == 0 ? "Craft" : "Equipment";
+    }
+
+    private static string ResolveModeToggleBindingLabel(InputActionAsset asset, int currentTab)
+    {
+        bool opensCraft = currentTab == 0;
+        return HudShortcutBar.GetBindingLabel(
+            asset,
+            opensCraft ? "OpenCrafting" : "OpenInventory",
+            opensCraft ? "K" : "I");
     }
 
     public void SetTab(int tab)
