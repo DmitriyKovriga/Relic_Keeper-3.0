@@ -88,9 +88,9 @@ namespace Scripts.Hub
                 return _label.CurrentText;
             return _service switch
             {
-                HubService.Tavern => "Tavern",
-                HubService.Market => "Market",
-                _ => "Stash"
+                HubService.Tavern => RuntimeLocalization.Resolve(TavernLabelKey, "Tavern", "Таверна"),
+                HubService.Market => RuntimeLocalization.Resolve(MarketLabelKey, "Market", "Рынок"),
+                _ => RuntimeLocalization.Resolve(StashLabelKey, "Stash", "Склад")
             };
         }
 

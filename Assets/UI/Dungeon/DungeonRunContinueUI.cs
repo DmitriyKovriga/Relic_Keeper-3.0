@@ -1,4 +1,5 @@
 using System;
+using Scripts.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,7 +14,9 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
     public static string FormatTitle(int completedDisplayedRoom)
     {
         int floor = Mathf.Max(1, completedDisplayedRoom);
-        return $"{floor} этаж пройден.\nИдти дальше или в поселение?";
+        return RuntimeLocalization.IsRussian
+            ? $"{floor} этаж пройден.\nИдти дальше или в поселение?"
+            : $"Floor {floor} cleared.\nContinue or return to the settlement?";
     }
 
     private static readonly Color WindowBackground = new Color(0.10f, 0.075f, 0.055f, 0.99f);
@@ -27,6 +30,9 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
     private UIDocument _document;
     private VisualElement _overlay;
     private Label _title;
+    private Button _continueButton;
+    private Button _returnButton;
+    private Button _closeButton;
     private GamePauseService.PauseHandle _pauseHandle;
     private Action _onContinue;
     private Action _onReturnToSettlement;
@@ -85,6 +91,10 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
         _title.text = string.IsNullOrWhiteSpace(title)
             ? FormatTitle(10)
             : title;
+        _continueButton.text = RuntimeLocalization.Resolve("dungeon.ui.continue", "Continue", "Дальше");
+        _returnButton.text = RuntimeLocalization.Resolve(
+            "dungeon.ui.returnToSettlement", "Settlement", "В поселение");
+        _closeButton.text = RuntimeLocalization.Resolve("common.close", "Close", "Закрыть");
 
         if (_document != null && _document.rootVisualElement != null)
             _document.rootVisualElement.pickingMode = PickingMode.Position;
@@ -134,14 +144,14 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
         row.style.minHeight = 0;
         panel.Add(row);
 
-        continueButton = CreateActionButton("ContinueRunButton", "Дальше");
-        returnButton = CreateActionButton("ReturnToSettlementButton", "В поселение");
+        continueButton = CreateActionButton("ContinueRunButton", RuntimeLocalization.Resolve("dungeon.ui.continue", "Continue", "Дальше"));
+        returnButton = CreateActionButton("ReturnToSettlementButton", RuntimeLocalization.Resolve("dungeon.ui.returnToSettlement", "Settlement", "В поселение"));
         continueButton.style.marginRight = 4;
         returnButton.style.marginLeft = 4;
         row.Add(continueButton);
         row.Add(returnButton);
 
-        closeButton = CreateActionButton("CloseContinueChoiceButton", "Закрыть");
+        closeButton = CreateActionButton("CloseContinueChoiceButton", RuntimeLocalization.Resolve("common.close", "Close", "Закрыть"));
         closeButton.style.alignSelf = Align.Center;
         closeButton.style.marginTop = 4;
         panel.Add(closeButton);
@@ -173,6 +183,9 @@ public sealed class DungeonRunContinueUI : MonoBehaviour
         root.Add(_overlay);
 
         VisualElement panel = CreateWindow(out Button continueButton, out Button returnButton, out Button closeButton);
+        _continueButton = continueButton;
+        _returnButton = returnButton;
+        _closeButton = closeButton;
         _title = panel.Q<Label>("ContinueTitle");
         continueButton.clicked += () => Complete(true);
         returnButton.clicked += () => Complete(false);

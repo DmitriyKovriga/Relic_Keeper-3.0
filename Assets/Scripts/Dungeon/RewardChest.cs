@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Scripts.Enemies;
 using Scripts.Inventory;
 using Scripts.Items.World;
+using Scripts.UI;
 using Scripts.Visuals;
 using UnityEngine;
 
@@ -116,7 +117,7 @@ namespace Scripts.Dungeon
             return Random.Range(min, max + 1);
         }
 
-        public string GetPrompt() => "Открыть сундук";
+        public string GetPrompt() => RuntimeLocalization.Resolve("dungeon.chest.open", "Open chest", "Открыть сундук");
         public bool CanInteract() => !_opened;
 
         public void Interact()

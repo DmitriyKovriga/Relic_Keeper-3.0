@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using Scripts.UI;
 using Scripts.Skills.PassiveTree;
 using Scripts.Skills.PassiveTree.UI;
 
@@ -64,6 +65,7 @@ public class PassiveTreeUI : MonoBehaviour
     private void OnLocaleChanged(Locale locale)
     {
         _tooltip?.RefreshIfVisible();
+        RefreshSkillPointsLabel();
     }
 
     private void OnViewportGeometryChanged(GeometryChangedEvent evt)
@@ -117,11 +119,12 @@ public class PassiveTreeUI : MonoBehaviour
         _overlayHeader.pickingMode = PickingMode.Ignore;
         _windowRoot.Add(_overlayHeader);
 
-        _pointsLabel = new Label("Skill Points: 0");
+        _pointsLabel = new Label();
         _pointsLabel.style.fontSize = 14;
         _pointsLabel.style.color = new Color(0.75f, 0.72f, 0.68f);
         _pointsLabel.pickingMode = PickingMode.Ignore;
         _overlayHeader.Add(_pointsLabel);
+        RefreshSkillPointsLabel();
     }
 
     private void InitializeSubsystems()
@@ -139,7 +142,7 @@ public class PassiveTreeUI : MonoBehaviour
         if (_overlayHeader != null)
             _overlayHeader.style.display = _treeManager.IsPreviewMode ? DisplayStyle.None : DisplayStyle.Flex;
         if (_pointsLabel != null && !_treeManager.IsPreviewMode)
-            _pointsLabel.text = $"Skill Points: {_treeManager.SkillPoints}";
+            RefreshSkillPointsLabel();
         if (_treeManager.TreeData != _lastBuiltTree)
         {
             _lastBuiltTree = _treeManager.TreeData;
@@ -147,6 +150,16 @@ public class PassiveTreeUI : MonoBehaviour
             _frameAllScheduled = false;
         }
         _renderer.UpdateVisuals(_treeManager);
+    }
+
+    private void RefreshSkillPointsLabel()
+    {
+        if (_pointsLabel == null)
+            return;
+
+        string label = RuntimeLocalization.Resolve("passive.skillPoints", "Skill Points", "Очки навыков");
+        int points = _treeManager != null ? _treeManager.SkillPoints : 0;
+        _pointsLabel.text = $"{label}: {points}";
     }
 
     // Существующий метод (ЛКМ)

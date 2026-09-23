@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: GuaranteedRareWeapon
   m_EditorClassIdentifier: 
   ID: guaranteed_rare_weapon
+  DisplayNameEnglish: Rare Weapon
+  DescriptionEnglish: A rare weapon appears after clearing the room.
   DisplayName: "\u0420\u0435\u0434\u043A\u043E\u0435 \u043E\u0440\u0443\u0436\u0438\u0435"
   Icon: {fileID: 21300000, guid: 898228dbbc3b3fc42be9cfb431838681, type: 3}
   Description: "\u041F\u043E\u0441\u043B\u0435 \u0437\u0430\u0447\u0438\u0441\u0442\u043A\u0438

@@ -112,8 +112,9 @@ namespace Scripts.Enemies
         {
             return string.Format(
                 System.Globalization.CultureInfo.InvariantCulture,
-                "{0:0.0}/с",
-                Mathf.Max(0f, dps));
+                "{0:0.0}/{1}",
+                Mathf.Max(0f, dps),
+                RuntimeLocalization.Resolve("combat.perSecondShort", "s", "с"));
         }
     }
 }

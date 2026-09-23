@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: MutualDamage30
   m_EditorClassIdentifier: 
   ID: mutual_damage_30
+  DisplayNameEnglish: Fragile Fury
+  DescriptionEnglish: Monsters deal and take 30% more damage.
   DisplayName: "\u0425\u0440\u0443\u043F\u043A\u0430\u044F \u044F\u0440\u043E\u0441\u0442\u044C"
   Icon: {fileID: 21300000, guid: 7a67de1677601e64da65833f7afff04e, type: 3}
   Description: "\u041C\u043E\u043D\u0441\u0442\u0440\u044B \u043D\u0430\u043D\u043E\u0441\u044F\u0442

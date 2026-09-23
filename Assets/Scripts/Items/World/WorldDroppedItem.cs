@@ -2,6 +2,7 @@ using Scripts.Dungeon;
 using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Visuals;
+using Scripts.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -102,7 +103,16 @@ namespace Scripts.Items.World
 
         public string GetPrompt()
         {
-            return _item?.Data != null ? $"Pick up {_item.Data.ItemName}" : "Pick up";
+            string action = RuntimeLocalization.Resolve("worldItem.pickUp", "Pick up", "Подобрать");
+            if (_item?.Data == null)
+                return action;
+
+            string itemName = RuntimeLocalization.Resolve(
+                "ItemsLabels",
+                $"items.{_item.Data.ID}",
+                _item.Data.ItemName,
+                _item.Data.ItemName);
+            return $"{action} {itemName}";
         }
 
         public bool CanInteract()

@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using Scripts.UI;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 namespace Scripts.Dungeon
 {
@@ -20,6 +23,8 @@ namespace Scripts.Dungeon
         [Header("Config")]
         [SerializeField] private PortalType _portalType = PortalType.NextRoom;
         [SerializeField] private string _interactPrompt = "Выйти";
+        [SerializeField] private string _interactPromptLocalizationKey;
+        [SerializeField] private string _interactPromptEnglish;
         [SerializeField] private bool _isActive = true;
         [Header("Visuals")]
         [SerializeField] private bool _autoFixSpriteOrder = true;
@@ -72,9 +77,12 @@ namespace Scripts.Dungeon
         public string GetPrompt()
         {
             if (OpensReachedFloorSelect)
-                return "Выбрать этаж";
+                return RuntimeLocalization.Resolve("dungeon.portal.selectFloor", "Select floor", "Выбрать этаж");
 
-            return _interactPrompt;
+            return RuntimeLocalization.Resolve(
+                _interactPromptLocalizationKey,
+                string.IsNullOrWhiteSpace(_interactPromptEnglish) ? GetDefaultEnglishPrompt() : _interactPromptEnglish,
+                _interactPrompt);
         }
         public bool CanInteract() => _isActive;
 
@@ -125,6 +133,21 @@ namespace Scripts.Dungeon
             TrySetupWorldLabel();
         }
 
+        private void OnEnable()
+        {
+            LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+        }
+
+        private void OnDisable()
+        {
+            LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+        }
+
+        private void OnLocaleChanged(Locale _)
+        {
+            TrySetupWorldLabel();
+        }
+
         private void OnValidate()
         {
             ApplyAnimationSpeed();
@@ -165,10 +188,10 @@ namespace Scripts.Dungeon
         public static string ResolveWorldTitle(bool opensReachedFloorSelect, DungeonDataSO dungeon)
         {
             if (opensReachedFloorSelect)
-                return FloorPortal.ObjectName;
+                return RuntimeLocalization.Resolve("dungeon.ui.floors", "Floors", "Этажи");
 
-            if (dungeon != null && !string.IsNullOrWhiteSpace(dungeon.DisplayName))
-                return dungeon.DisplayName;
+            if (dungeon != null)
+                return dungeon.GetLocalizedDisplayName();
 
             return string.Empty;
         }
@@ -212,6 +235,18 @@ namespace Scripts.Dungeon
             var animator = GetComponent<Animator>();
             if (animator != null)
                 animator.speed = Mathf.Max(0f, _portalAnimationSpeed);
+        }
+
+        private string GetDefaultEnglishPrompt()
+        {
+            return _portalType switch
+            {
+                PortalType.EnterDungeon => "Enter",
+                PortalType.NextRoom => "Choose upgrade",
+                PortalType.ReturnToHub => "Exit",
+                PortalType.SelectReachedFloor => "Select floor",
+                _ => "Interact"
+            };
         }
 
         public void Interact()

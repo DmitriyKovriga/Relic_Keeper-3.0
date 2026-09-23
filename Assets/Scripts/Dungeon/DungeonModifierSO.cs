@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Scripts.UI;
 using UnityEngine;
 
 namespace Scripts.Dungeon
@@ -45,12 +46,12 @@ namespace Scripts.Dungeon
             if (target == null)
                 return;
 
-            AddPercent(target, "Шанс выпадения предметов", LootDropChancePercent);
-            AddPercent(target, "Редкость предметов", LootRarityPercent);
-            AddPercent(target, "Опыт с убитых врагов", ExperiencePercent);
-            AddPercent(target, "Получаемый монстрами урон", EnemyDamageTakenPercent);
-            AddPercent(target, "Наносимый монстрами урон", EnemyDamageDealtPercent);
-            AddPercent(target, "Количество монстров", EnemyCountPercent);
+            AddPercent(target, RuntimeLocalization.Resolve("dungeon.effect.lootDropChance", "Item drop chance", "Шанс выпадения предметов"), LootDropChancePercent);
+            AddPercent(target, RuntimeLocalization.Resolve("dungeon.effect.lootRarity", "Item rarity", "Редкость предметов"), LootRarityPercent);
+            AddPercent(target, RuntimeLocalization.Resolve("dungeon.effect.experience", "Experience from slain enemies", "Опыт с убитых врагов"), ExperiencePercent);
+            AddPercent(target, RuntimeLocalization.Resolve("dungeon.effect.enemyDamageTaken", "Damage taken by monsters", "Получаемый монстрами урон"), EnemyDamageTakenPercent);
+            AddPercent(target, RuntimeLocalization.Resolve("dungeon.effect.enemyDamageDealt", "Damage dealt by monsters", "Наносимый монстрами урон"), EnemyDamageDealtPercent);
+            AddPercent(target, RuntimeLocalization.Resolve("dungeon.effect.enemyCount", "Monster count", "Количество монстров"), EnemyCountPercent);
         }
 
         private static void AddPercent(List<string> target, string label, float value)
@@ -66,9 +67,13 @@ namespace Scripts.Dungeon
         [Header("Info")]
         public string ID;
         public string DisplayName;
+        [Tooltip("English fallback used when the localization table has no entry.")]
+        public string DisplayNameEnglish;
         [Tooltip("Изображение для карточки выбора усиления. Можно оставить пустым, пока арт не готов.")]
         public Sprite Icon;
         [TextArea(2, 5)] public string Description;
+        [TextArea(2, 5), Tooltip("English fallback used when the localization table has no entry.")]
+        public string DescriptionEnglish;
 
         [Header("Numeric effects")]
         public DungeonModifierValues Values = new DungeonModifierValues();
@@ -114,20 +119,34 @@ namespace Scripts.Dungeon
             Values?.AddDescriptions(target);
 
             if ((RewardEffects & DungeonRewardEffect.SpawnRewardChests) != 0)
-                target.Add($"Сундуки с наградами: {Mathf.Max(0, MinimumChests)}–{Mathf.Max(MinimumChests, MaximumChests)}");
+                target.Add($"{RuntimeLocalization.Resolve("dungeon.reward.chests", "Reward chests", "Сундуки с наградами")}: {Mathf.Max(0, MinimumChests)}–{Mathf.Max(MinimumChests, MaximumChests)}");
             if ((RewardEffects & DungeonRewardEffect.GuaranteedRareItem) != 0)
-                target.Add("Редкий предмет после зачистки");
+                target.Add(RuntimeLocalization.Resolve("dungeon.reward.rareItem", "Rare item after clearing", "Редкий предмет после зачистки"));
             if ((RewardEffects & DungeonRewardEffect.GuaranteedRareWeapon) != 0)
-                target.Add("Редкое оружие после зачистки");
+                target.Add(RuntimeLocalization.Resolve("dungeon.reward.rareWeapon", "Rare weapon after clearing", "Редкое оружие после зачистки"));
             if ((RewardEffects & DungeonRewardEffect.GuaranteedRareEquipment) != 0)
-                target.Add("Редкое снаряжение после зачистки");
+                target.Add(RuntimeLocalization.Resolve("dungeon.reward.rareEquipment", "Rare equipment after clearing", "Редкое снаряжение после зачистки"));
             if ((RewardEffects & DungeonRewardEffect.SpawnStashAfterClear) != 0)
-                target.Add("Сундук-склад после зачистки");
+                target.Add(RuntimeLocalization.Resolve("dungeon.reward.stash", "Stash chest after clearing", "Сундук-склад после зачистки"));
             if ((RewardEffects & DungeonRewardEffect.SpawnMerchantAfterClear) != 0)
-                target.Add("Торговец после зачистки");
+                target.Add(RuntimeLocalization.Resolve("dungeon.reward.merchant", "Merchant after clearing", "Торговец после зачистки"));
 
             if (target.Count == initialCount)
-                target.Add(string.IsNullOrWhiteSpace(DisplayName) ? name : DisplayName);
+                target.Add(GetLocalizedDisplayName());
+        }
+
+        public string GetLocalizedDisplayName()
+        {
+            string russian = string.IsNullOrWhiteSpace(DisplayName) ? name : DisplayName;
+            string english = string.IsNullOrWhiteSpace(DisplayNameEnglish) ? russian : DisplayNameEnglish;
+            return RuntimeLocalization.Resolve($"dungeon.modifier.{ID}.name", english, russian);
+        }
+
+        public string GetLocalizedDescription()
+        {
+            string russian = Description ?? string.Empty;
+            string english = string.IsNullOrWhiteSpace(DescriptionEnglish) ? russian : DescriptionEnglish;
+            return RuntimeLocalization.Resolve($"dungeon.modifier.{ID}.description", english, russian);
         }
     }
 

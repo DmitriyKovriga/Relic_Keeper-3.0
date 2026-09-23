@@ -223,7 +223,8 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(window.Evaluate(1f), Is.EqualTo(15f).Within(0.001f));
             Assert.That(window.Evaluate(10.01f), Is.EqualTo(5f).Within(0.001f));
             Assert.That(window.Evaluate(11.01f), Is.Zero);
-            Assert.That(DummyDpsMeter.FormatDps(12.4f), Is.EqualTo("12.4/с"));
+            Assert.That(DummyDpsMeter.FormatDps(12.4f), Is.EqualTo(
+                $"12.4/{Scripts.UI.RuntimeLocalization.Resolve("combat.perSecondShort", "s", "с")}"));
         }
     }
 }

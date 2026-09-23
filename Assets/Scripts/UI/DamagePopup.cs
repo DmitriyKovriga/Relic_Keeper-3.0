@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using TMPro;
+using Scripts.UI;
 
 public class DamagePopup : MonoBehaviour
 {
@@ -47,7 +48,7 @@ public class DamagePopup : MonoBehaviour
 
         if (string.Equals(damageType, "Evade", StringComparison.OrdinalIgnoreCase))
         {
-            _textMesh.text = "Evade";
+            _textMesh.text = RuntimeLocalization.Resolve("combat.evade", "Evade", "Уклонение");
             _textColor = Color.white;
             _textMesh.fontSize = 5;
             transform.localScale = _startScale;

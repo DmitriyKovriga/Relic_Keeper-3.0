@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: HighRiskRarity
   m_EditorClassIdentifier: 
   ID: high_risk_rarity
+  DisplayNameEnglish: Deadly Loot
+  DescriptionEnglish: Item rarity +200%, monster damage +100%.
   DisplayName: "\u0421\u043C\u0435\u0440\u0442\u0435\u043B\u044C\u043D\u0430\u044F
     \u0434\u043E\u0431\u044B\u0447\u0430"
   Icon: {fileID: 21300000, guid: b3ac959213547e74fbff2eb3d9dcc04f, type: 3}

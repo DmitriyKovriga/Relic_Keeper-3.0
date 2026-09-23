@@ -592,9 +592,14 @@ namespace RelicKeeper.Tests.EditMode
             var startNode = new PassiveNodeDefinition { NodeType = PassiveNodeType.Start };
             var unknownNode = new PassiveNodeDefinition { NodeType = PassiveNodeType.Small };
 
-            Assert.That(startNode.GetDisplayName(), Is.EqualTo("Стартовый нод"));
-            Assert.That(startNode.GetDisplayDescription(), Is.EqualTo("Начальная точка дерева пассивок."));
-            Assert.That(unknownNode.GetDisplayName(), Is.EqualTo("Unknown Node"));
+            Assert.That(startNode.GetDisplayName(), Is.EqualTo(Scripts.UI.RuntimeLocalization.Resolve(
+                "passive.start.name", "Start Node", "Стартовый нод")));
+            Assert.That(startNode.GetDisplayDescription(), Is.EqualTo(Scripts.UI.RuntimeLocalization.Resolve(
+                "passive.start.description",
+                "Starting point of the passive tree.",
+                "Начальная точка дерева пассивок.")));
+            Assert.That(unknownNode.GetDisplayName(), Is.EqualTo(Scripts.UI.RuntimeLocalization.Resolve(
+                "passive.unknown.name", "Unknown Node", "Неизвестный нод")));
         }
     }
 }

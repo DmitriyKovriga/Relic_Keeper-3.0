@@ -4,6 +4,9 @@ using Unity.Cinemachine;
 using UnityEngine;
 using Scripts.Enemies;
 using Scripts.Skills.Projectiles;
+using Scripts.UI;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 namespace Scripts.Dungeon
 {
@@ -60,6 +63,7 @@ namespace Scripts.Dungeon
             IsHubActive = _hubWorld == null || _hubWorld.activeSelf;
             PrepareSharedBackground();
             PrepareCameraConfiner();
+            LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
         }
 
         private static void SetHubActive(bool active)
@@ -77,8 +81,17 @@ namespace Scripts.Dungeon
 
         private void OnDestroy()
         {
+            LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
             if (Instance == this)
                 Instance = null;
+        }
+
+        private void OnLocaleChanged(Locale _)
+        {
+            if (IsHubActive || _currentRoomInstance == null)
+                return;
+
+            RefreshModifierHud(_currentRoomInstance.GetComponent<RoomController>());
         }
 
         public static void OnPortalUsed(DungeonPortal portal)
@@ -118,7 +131,9 @@ namespace Scripts.Dungeon
 
             _modifierChoiceOpen = true;
             DungeonModifierChoiceUI.GetOrCreate().Show(
-                $"{dungeon.DisplayName}: выберите условие данжа",
+                RuntimeLocalization.IsRussian
+                    ? $"{dungeon.GetLocalizedDisplayName()}: выберите условие данжа"
+                    : $"{dungeon.GetLocalizedDisplayName()}: choose a dungeon condition",
                 choices,
                 selected =>
                 {
@@ -144,7 +159,7 @@ namespace Scripts.Dungeon
             List<int> floors = DungeonRunProgress.ResolveUnlockedFloorCheckpoints(
                 DungeonRunUnlocks.GetHighestDisplayedRoom(dungeon.ID));
             DungeonFloorSelectUI.GetOrCreate().Show(
-                dungeon.DisplayName,
+                dungeon.GetLocalizedDisplayName(),
                 floors,
                 floor => EnterDungeon(dungeon, floor, true),
                 null);
@@ -422,7 +437,10 @@ namespace Scripts.Dungeon
 
             _modifierChoiceOpen = true;
             DungeonModifierChoiceUI.GetOrCreate().Show(
-                "Выберите усиление следующей комнаты",
+                RuntimeLocalization.Resolve(
+                    "dungeon.ui.chooseNextRoomModifier",
+                    "Choose an upgrade for the next room",
+                    "Выберите усиление следующей комнаты"),
                 choices,
                 selected =>
                 {
@@ -558,7 +576,9 @@ namespace Scripts.Dungeon
             AddModifierName(local, _currentRoomModifier);
 
             DungeonModifierHud.GetOrCreate().Show(
-                _currentDungeon != null ? _currentDungeon.DisplayName : "Подземелье",
+                _currentDungeon != null
+                    ? _currentDungeon.GetLocalizedDisplayName()
+                    : RuntimeLocalization.Resolve("dungeon.ui.dungeon", "Dungeon", "Подземелье"),
                 DungeonRunProgress.ResolveDisplayedRoomNumber(_roomsCompletedBeforeSegment, _currentRoomIndex),
                 DungeonRunProgress.ResolveDisplayedRoomCount(_roomsCompletedBeforeSegment, _roomSequence.Count),
                 room != null ? room.RoomLevel : ResolveCurrentLocationLevel(),

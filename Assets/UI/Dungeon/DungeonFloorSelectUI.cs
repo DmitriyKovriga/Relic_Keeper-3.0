@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Scripts.Dungeon;
+using Scripts.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -71,14 +72,24 @@ public sealed class DungeonFloorSelectUI : MonoBehaviour
         _resolved = false;
         _onSelected = onSelected;
         _onCancel = onCancel;
-        string name = string.IsNullOrWhiteSpace(dungeonName) ? "подземелье" : dungeonName;
-        _title.text = $"Этажи {name}";
+        string name = string.IsNullOrWhiteSpace(dungeonName)
+            ? RuntimeLocalization.Resolve("dungeon.ui.dungeonLower", "dungeon", "подземелье")
+            : dungeonName;
+        _title.text = RuntimeLocalization.IsRussian ? $"Этажи {name}" : $"{name} floors";
+        Label subtitle = _overlay.Q<Label>("FloorSelectSubtitle");
+        if (subtitle != null)
+            subtitle.text = $"{RuntimeLocalization.Resolve("dungeon.ui.startingBonus", "Starting bonus", "Стартовый бонус")} +{DungeonRunProgress.FloorSkipBonusPercent:0}%";
+        Button closeButton = _overlay.Q<Button>("FloorSelectCloseButton");
+        if (closeButton != null)
+            closeButton.text = RuntimeLocalization.Resolve("common.close", "Close", "Закрыть");
         _list.Clear();
 
         bool hasFloors = floors != null && floors.Count > 0;
         _emptyLabel.text = hasFloors
             ? string.Empty
-            : $"Пока нет открытых этажей.\nДойдите до {DungeonRunProgress.FloorCheckpointSize} этажа {name}.";
+            : RuntimeLocalization.IsRussian
+                ? $"Пока нет открытых этажей.\nДойдите до {DungeonRunProgress.FloorCheckpointSize} этажа {name}."
+                : $"No floors unlocked yet.\nReach floor {DungeonRunProgress.FloorCheckpointSize} in {name}.";
         _emptyLabel.style.display = hasFloors ? DisplayStyle.None : DisplayStyle.Flex;
         _list.style.display = hasFloors ? DisplayStyle.Flex : DisplayStyle.None;
         if (hasFloors)
@@ -112,7 +123,7 @@ public sealed class DungeonFloorSelectUI : MonoBehaviour
         panel.style.backgroundColor = WindowBackground;
         SetSquareBorder(panel, 2f, GoldBorder);
 
-        title = new Label("Этажи")
+        title = new Label(RuntimeLocalization.Resolve("dungeon.ui.floors", "Floors", "Этажи"))
         {
             name = "FloorSelectTitle",
             pickingMode = PickingMode.Ignore
@@ -125,7 +136,7 @@ public sealed class DungeonFloorSelectUI : MonoBehaviour
         title.style.color = PrimaryText;
         panel.Add(title);
 
-        var subtitle = new Label($"Стартовый бонус +{DungeonRunProgress.FloorSkipBonusPercent:0}%")
+        var subtitle = new Label($"{RuntimeLocalization.Resolve("dungeon.ui.startingBonus", "Starting bonus", "Стартовый бонус")} +{DungeonRunProgress.FloorSkipBonusPercent:0}%")
         {
             name = "FloorSelectSubtitle",
             pickingMode = PickingMode.Ignore
@@ -138,7 +149,10 @@ public sealed class DungeonFloorSelectUI : MonoBehaviour
         subtitle.style.color = SecondaryText;
         panel.Add(subtitle);
 
-        emptyLabel = new Label("Пока нет открытых этажей.\nДойдите до 10 этажа Mortfall.")
+        emptyLabel = new Label(RuntimeLocalization.Resolve(
+            "dungeon.ui.noFloors",
+            "No floors unlocked yet.\nReach floor 10 in Mortfall.",
+            "Пока нет открытых этажей.\nДойдите до 10 этажа Mortfall."))
         {
             name = "FloorSelectEmpty",
             pickingMode = PickingMode.Ignore
@@ -164,7 +178,11 @@ public sealed class DungeonFloorSelectUI : MonoBehaviour
         list.style.display = DisplayStyle.None;
         panel.Add(list);
 
-        closeButton = new Button { name = "FloorSelectCloseButton", text = "Закрыть" };
+        closeButton = new Button
+        {
+            name = "FloorSelectCloseButton",
+            text = RuntimeLocalization.Resolve("common.close", "Close", "Закрыть")
+        };
         closeButton.style.height = ButtonHeight;
         closeButton.style.flexShrink = 0;
         closeButton.style.marginTop = 6;
@@ -187,7 +205,7 @@ public sealed class DungeonFloorSelectUI : MonoBehaviour
         var button = new Button(() => Complete(floor))
         {
             name = $"FloorSelectButton_{floor}",
-            text = $"Этаж {floor}  +{DungeonRunProgress.FloorSkipBonusPercent:0}%"
+            text = $"{RuntimeLocalization.Resolve("dungeon.ui.floor", "Floor", "Этаж")} {floor}  +{DungeonRunProgress.FloorSkipBonusPercent:0}%"
         };
         button.style.width = ButtonWidth;
         button.style.height = ButtonHeight;

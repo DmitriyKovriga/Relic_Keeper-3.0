@@ -1,4 +1,5 @@
 using UnityEngine;
+using Scripts.UI;
 using System.Collections.Generic;
 using System;
 using Scripts.Stats;
@@ -353,7 +354,9 @@ namespace Scripts.Skills.PassiveTree
             if (Template != null && !string.IsNullOrWhiteSpace(Template.Name))
                 return Template.Name;
 
-            return NodeType == PassiveNodeType.Start ? "Стартовый нод" : "Unknown Node";
+            return NodeType == PassiveNodeType.Start
+                ? RuntimeLocalization.Resolve("passive.start.name", "Start Node", "Стартовый нод")
+                : RuntimeLocalization.Resolve("passive.unknown.name", "Unknown Node", "Неизвестный нод");
         }
 
         public string GetDisplayDescription()
@@ -361,7 +364,12 @@ namespace Scripts.Skills.PassiveTree
             if (Template != null && !string.IsNullOrWhiteSpace(Template.Description))
                 return Template.Description;
 
-            return NodeType == PassiveNodeType.Start ? "Начальная точка дерева пассивок." : string.Empty;
+            return NodeType == PassiveNodeType.Start
+                ? RuntimeLocalization.Resolve(
+                    "passive.start.description",
+                    "Starting point of the passive tree.",
+                    "Начальная точка дерева пассивок.")
+                : string.Empty;
         }
         
         // Хелпер для иконки

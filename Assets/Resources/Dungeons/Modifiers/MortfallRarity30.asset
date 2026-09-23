@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: MortfallRarity30
   m_EditorClassIdentifier: 
   ID: mortfall_rarity_30
+  DisplayNameEnglish: Item Rarity +30%
+  DescriptionEnglish: Item rarity is increased by 30%.
   DisplayName: "\u0420\u0435\u0434\u043A\u043E\u0441\u0442\u044C \u043F\u0440\u0435\u0434\u043C\u0435\u0442\u043E\u0432
     +30%"
   Icon: {fileID: 21300000, guid: 7a67de1677601e64da65833f7afff04e, type: 3}

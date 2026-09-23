@@ -433,7 +433,14 @@ internal sealed class StashTabsPresenter
                         currentStash.SetCurrentTab(0);
                         _refreshStash?.Invoke();
                     }
-                }) { text = "x", tooltip = "Close empty tab and switch to first tab." };
+                })
+                {
+                    text = "x",
+                    tooltip = Scripts.UI.RuntimeLocalization.Resolve(
+                        "stash.tab.close",
+                        "Close empty tab and switch to the first tab.",
+                        "Закрыть пустую вкладку и перейти на первую.")
+                };
                 del.AddToClassList("stash-tab-delete");
                 ApplyButtonArt(del, _tabDeleteBackgroundSprite);
                 wrap.Add(del);
@@ -448,7 +455,11 @@ internal sealed class StashTabsPresenter
             {
                 var currentStash = _getGrid?.Invoke();
                 if (currentStash != null) currentStash.AddTab();
-            }) { text = "+", tooltip = "New tab" };
+            })
+            {
+                text = "+",
+                tooltip = Scripts.UI.RuntimeLocalization.Resolve("stash.tab.new", "New tab", "Новая вкладка")
+            };
             addTab.AddToClassList("stash-tab");
             addTab.AddToClassList("stash-tab-add");
             ApplyButtonArt(addTab, _tabBackgroundSprite);

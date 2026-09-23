@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Scripts.Dungeon;
+using Scripts.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -103,15 +104,20 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
         _onClose = onClose;
         if (_returnButton != null)
         {
+            _returnButton.text = RuntimeLocalization.Resolve(
+                "dungeon.ui.returnToSettlement", "Settlement", "В поселение");
             _returnButton.style.display = onReturnToSettlement != null ? DisplayStyle.Flex : DisplayStyle.None;
             _returnButton.BringToFront();
         }
         if (_closeButton != null)
         {
+            _closeButton.text = RuntimeLocalization.Resolve("common.close", "Close", "Закрыть");
             _closeButton.style.display = onClose != null ? DisplayStyle.Flex : DisplayStyle.None;
             _closeButton.BringToFront();
         }
-        _title.text = string.IsNullOrWhiteSpace(title) ? "Выберите модификатор" : title;
+        _title.text = string.IsNullOrWhiteSpace(title)
+            ? RuntimeLocalization.Resolve("dungeon.ui.chooseModifier", "Choose a modifier", "Выберите модификатор")
+            : title;
         _choices.Clear();
 
         for (int i = 0; i < choices.Count; i++)
@@ -177,14 +183,14 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
         }
         else
         {
-            var placeholder = new Label("МЕСТО ПОД АРТ") { pickingMode = PickingMode.Ignore };
+            var placeholder = new Label(RuntimeLocalization.Resolve("dungeon.ui.artPlaceholder", "ART PLACEHOLDER", "МЕСТО ПОД АРТ")) { pickingMode = PickingMode.Ignore };
             placeholder.style.fontSize = 6;
             placeholder.style.color = new Color(0.45f, 0.40f, 0.32f, 1f);
             placeholder.style.unityTextAlign = TextAnchor.MiddleCenter;
             imageFrame.Add(placeholder);
         }
 
-        var title = new Label(string.IsNullOrWhiteSpace(modifier.DisplayName) ? modifier.name : modifier.DisplayName)
+        var title = new Label(modifier.GetLocalizedDisplayName())
         {
             name = "ModifierTitle",
             pickingMode = PickingMode.Ignore
@@ -199,7 +205,7 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
         title.style.color = PrimaryText;
         card.Add(title);
 
-        var description = new Label(modifier.Description ?? string.Empty)
+        var description = new Label(modifier.GetLocalizedDescription())
         {
             name = "ModifierDescription",
             pickingMode = PickingMode.Ignore
@@ -218,7 +224,7 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
         var selectButton = new Button(() => CompleteChoice(modifier))
         {
             name = "SelectModifierButton",
-            text = "ВЫБРАТЬ"
+            text = RuntimeLocalization.Resolve("dungeon.ui.select", "SELECT", "ВЫБРАТЬ")
         };
         selectButton.style.height = 20;
         selectButton.style.flexShrink = 0;
@@ -365,7 +371,11 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
 
     public static Button CreateCloseButton()
     {
-        var button = new Button { name = "CloseModifierChoiceButton", text = "Закрыть" };
+        var button = new Button
+        {
+            name = "CloseModifierChoiceButton",
+            text = RuntimeLocalization.Resolve("common.close", "Close", "Закрыть")
+        };
         button.style.position = Position.Absolute;
         button.style.left = ReturnButtonInset;
         button.style.bottom = ReturnButtonInset;
@@ -391,7 +401,11 @@ public sealed class DungeonModifierChoiceUI : MonoBehaviour
 
     public static Button CreateReturnToSettlementButton()
     {
-        var button = new Button { name = "ReturnToSettlementButton", text = "В поселение" };
+        var button = new Button
+        {
+            name = "ReturnToSettlementButton",
+            text = RuntimeLocalization.Resolve("dungeon.ui.returnToSettlement", "Settlement", "В поселение")
+        };
         button.style.position = Position.Absolute;
         button.style.right = ReturnButtonInset;
         button.style.bottom = ReturnButtonInset;

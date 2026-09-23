@@ -3,6 +3,7 @@ using Scripts.Items;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
+using Scripts.UI;
 
 public partial class InventoryUI
 {
@@ -88,7 +89,9 @@ public partial class InventoryUI
         if (_toggleModeButton == null) return;
         _toggleModeButton.text = ResolveModeToggleBindingLabel(InputManager.InputActions?.asset, _currentTab);
         _toggleModeButton.style.fontSize = _toggleModeButton.text.Length <= 2 ? 8 : 6;
-        _toggleModeButton.tooltip = _currentTab == 0 ? "Craft" : "Equipment";
+        _toggleModeButton.tooltip = _currentTab == 0
+            ? RuntimeLocalization.Resolve("inventory.mode.craft", "Craft", "Крафт")
+            : RuntimeLocalization.Resolve("inventory.mode.equipment", "Equipment", "Снаряжение");
     }
 
     private static string ResolveModeToggleBindingLabel(InputActionAsset asset, int currentTab)

@@ -9,6 +9,7 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Collections;
 using System.Collections.Generic;
+using Scripts.UI;
 
 public class ControlsUI : MonoBehaviour
 {
@@ -247,7 +248,7 @@ public class ControlsUI : MonoBehaviour
 
     private IEnumerator WaitReleaseAndStartRebind(InputAction action, int bindingIndex, Label label, Button button)
     {
-        button.text = "Press a key...";
+        button.text = RuntimeLocalization.Resolve("settings.pressKey", "Press a key...", "Нажмите клавишу...");
         button.SetEnabled(false);
 
         var mouse = Mouse.current;
@@ -278,13 +279,15 @@ public class ControlsUI : MonoBehaviour
 
     private string FormatBindingDisplay(string path)
     {
-        if (string.IsNullOrEmpty(path)) return "Unbound";
+        if (string.IsNullOrEmpty(path))
+            return RuntimeLocalization.Resolve("settings.unbound", "Unbound", "Не назначено");
         if (path.Contains("Mouse"))
         {
             if (path.Contains("leftButton")) return "LMB";
             if (path.Contains("rightButton")) return "RMB";
             if (path.Contains("middleButton")) return "MMB";
-            if (path.Contains("scroll")) return "Mouse Scroll";
+            if (path.Contains("scroll"))
+                return RuntimeLocalization.Resolve("settings.mouseScroll", "Mouse Scroll", "Колесо мыши");
         }
         string human = InputControlPath.ToHumanReadableString(path, InputControlPath.HumanReadableStringOptions.OmitDevice);
         return BeautifyHumanString(human);

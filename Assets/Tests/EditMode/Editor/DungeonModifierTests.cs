@@ -3,8 +3,11 @@ using Scripts.Dungeon;
 using Scripts.Enemies;
 using Scripts.Hub;
 using Scripts.Items.World;
+using Scripts.UI;
 using Scripts.Visuals;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using System.Reflection;
@@ -249,8 +252,10 @@ namespace RelicKeeper.Tests.EditMode
 
                 Assert.That(context.RewardEffects.HasFlag(DungeonRewardEffect.SpawnStashAfterClear), Is.True);
                 Assert.That(context.RewardEffects.HasFlag(DungeonRewardEffect.SpawnMerchantAfterClear), Is.True);
-                Assert.That(descriptions, Does.Contain("Сундук-склад после зачистки"));
-                Assert.That(descriptions, Does.Contain("Торговец после зачистки"));
+                Assert.That(descriptions, Does.Contain(RuntimeLocalization.Resolve(
+                    "dungeon.reward.stash", "Stash chest after clearing", "Сундук-склад после зачистки")));
+                Assert.That(descriptions, Does.Contain(RuntimeLocalization.Resolve(
+                    "dungeon.reward.merchant", "Merchant after clearing", "Торговец после зачистки")));
             }
             finally
             {
@@ -425,9 +430,9 @@ namespace RelicKeeper.Tests.EditMode
             var lines = new List<string>();
             DungeonRunProgress.AddLocationLevelLootDescriptions(lines, 11);
 
-            Assert.That(lines, Does.Contain("Шанс выпадения предметов +11%"));
-            Assert.That(lines, Does.Contain("Редкость предметов +11%"));
-            Assert.That(lines, Does.Contain("Количество монстров +22%"));
+            Assert.That(lines, Does.Contain($"{RuntimeLocalization.Resolve("dungeon.effect.lootDropChance", "Item drop chance", "Шанс выпадения предметов")} +11%"));
+            Assert.That(lines, Does.Contain($"{RuntimeLocalization.Resolve("dungeon.effect.lootRarity", "Item rarity", "Редкость предметов")} +11%"));
+            Assert.That(lines, Does.Contain($"{RuntimeLocalization.Resolve("dungeon.effect.enemyCount", "Monster count", "Количество монстров")} +22%"));
         }
 
         [Test]
@@ -439,17 +444,17 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(DungeonModifierHud.MaxCharactersPerLine * 3, Is.LessThanOrEqualTo(innerWidth + 2));
             Assert.That(DungeonModifierHud.MaxCharactersPerLine, Is.GreaterThan(27));
 
-            string lootLine = "Шанс выпадения предметов +11%";
+            string lootLine = $"{RuntimeLocalization.Resolve("dungeon.effect.lootDropChance", "Item drop chance", "Шанс выпадения предметов")} +11%";
             string wrappedLoot = DungeonModifierHud.WrapForHud(lootLine, out int lootLines);
             Assert.That(lootLines, Is.EqualTo(1));
             Assert.That(wrappedLoot, Does.Not.Contain("\n"));
 
-            string countLine = "Количество монстров +22%";
+            string countLine = $"{RuntimeLocalization.Resolve("dungeon.effect.enemyCount", "Monster count", "Количество монстров")} +22%";
             string wrappedCount = DungeonModifierHud.WrapForHud(countLine, out int countLines);
             Assert.That(countLines, Is.EqualTo(1));
             Assert.That(wrappedCount, Does.Not.Contain("\n"));
 
-            string longLine = "Шанс выпадения предметов +11% и дополнительный эффект на монстров в этой комнате";
+            string longLine = lootLine + " with an additional effect on monsters in this room";
             string wrappedLong = DungeonModifierHud.WrapForHud(longLine, out int longLines);
             Assert.That(longLines, Is.GreaterThan(1));
             Assert.That(wrappedLong, Does.Contain("\n"));
@@ -515,7 +520,8 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(button.style.bottom.value.value, Is.EqualTo(DungeonModifierChoiceUI.ReturnButtonInset));
             Assert.That(button.style.width.value.value, Is.EqualTo(DungeonModifierChoiceUI.ReturnButtonWidth));
             Assert.That(button.style.height.value.value, Is.EqualTo(DungeonModifierChoiceUI.ReturnButtonHeight));
-            Assert.That(button.text, Is.EqualTo("В поселение"));
+            Assert.That(button.text, Is.EqualTo(RuntimeLocalization.Resolve(
+                "dungeon.ui.returnToSettlement", "Settlement", "В поселение")));
         }
 
         [Test]
@@ -527,7 +533,7 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(button.style.bottom.value.value, Is.EqualTo(DungeonModifierChoiceUI.ReturnButtonInset));
             Assert.That(button.style.width.value.value, Is.EqualTo(DungeonModifierChoiceUI.CloseButtonWidth));
             Assert.That(button.style.height.value.value, Is.EqualTo(DungeonModifierChoiceUI.ReturnButtonHeight));
-            Assert.That(button.text, Is.EqualTo("Закрыть"));
+            Assert.That(button.text, Is.EqualTo(RuntimeLocalization.Resolve("common.close", "Close", "Закрыть")));
             Assert.That(DungeonModifierChoiceUI.CloseButtonWidth + DungeonModifierChoiceUI.ReturnButtonInset,
                 Is.LessThanOrEqualTo(480));
         }
@@ -585,16 +591,21 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(window.style.height.value.value, Is.EqualTo(DungeonRunContinueUI.WindowHeight));
             Assert.That(DungeonRunContinueUI.WindowWidth, Is.LessThanOrEqualTo(480));
             Assert.That(DungeonRunContinueUI.WindowHeight, Is.LessThanOrEqualTo(270));
-            Assert.That(continueButton.text, Is.EqualTo("Дальше"));
-            Assert.That(returnButton.text, Is.EqualTo("В поселение"));
-            Assert.That(closeButton.text, Is.EqualTo("Закрыть"));
+            Assert.That(continueButton.text, Is.EqualTo(RuntimeLocalization.Resolve("dungeon.ui.continue", "Continue", "Дальше")));
+            Assert.That(returnButton.text, Is.EqualTo(RuntimeLocalization.Resolve(
+                "dungeon.ui.returnToSettlement", "Settlement", "В поселение")));
+            Assert.That(closeButton.text, Is.EqualTo(RuntimeLocalization.Resolve("common.close", "Close", "Закрыть")));
             Assert.That((DungeonRunContinueUI.ButtonWidth * 2) + 8, Is.LessThanOrEqualTo(DungeonRunContinueUI.WindowWidth));
             Assert.That(
                 DungeonRunContinueUI.FormatTitle(10),
-                Is.EqualTo("10 этаж пройден.\nИдти дальше или в поселение?"));
+                Is.EqualTo(RuntimeLocalization.IsRussian
+                    ? "10 этаж пройден.\nИдти дальше или в поселение?"
+                    : "Floor 10 cleared.\nContinue or return to the settlement?"));
             Assert.That(
                 DungeonRunContinueUI.FormatTitle(20),
-                Is.EqualTo("20 этаж пройден.\nИдти дальше или в поселение?"));
+                Is.EqualTo(RuntimeLocalization.IsRussian
+                    ? "20 этаж пройден.\nИдти дальше или в поселение?"
+                    : "Floor 20 cleared.\nContinue or return to the settlement?"));
         }
 
         [Test]
@@ -641,7 +652,8 @@ namespace RelicKeeper.Tests.EditMode
             {
                 dungeon.DisplayName = "Mortfall";
                 Assert.That(DungeonPortal.ResolveWorldTitle(false, dungeon), Is.EqualTo("Mortfall"));
-                Assert.That(DungeonPortal.ResolveWorldTitle(true, dungeon), Is.EqualTo("FloorPortal"));
+                Assert.That(DungeonPortal.ResolveWorldTitle(true, dungeon), Is.EqualTo(
+                    RuntimeLocalization.Resolve("dungeon.ui.floors", "Floors", "Этажи")));
             }
             finally
             {
@@ -665,7 +677,50 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(title, Is.Not.Null);
             Assert.That(emptyLabel, Is.Not.Null);
             Assert.That(list.style.maxHeight.value.value, Is.EqualTo(DungeonFloorSelectUI.ListMaxHeight));
-            Assert.That(closeButton.text, Is.EqualTo("Закрыть"));
+            Assert.That(closeButton.text, Is.EqualTo(RuntimeLocalization.Resolve("common.close", "Close", "Закрыть")));
+        }
+
+        [Test]
+        public void DungeonModifiers_HaveEnglishFallbacks()
+        {
+            DungeonModifierSO[] modifiers = Resources.LoadAll<DungeonModifierSO>("Dungeons/Modifiers");
+            Assert.That(modifiers, Is.Not.Empty);
+
+            foreach (DungeonModifierSO modifier in modifiers)
+            {
+                Assert.That(modifier.DisplayName, Is.Not.Empty, $"{modifier.name} is missing its Russian name.");
+                Assert.That(modifier.Description, Is.Not.Empty, $"{modifier.name} is missing its Russian description.");
+                Assert.That(modifier.DisplayNameEnglish, Is.Not.Empty, $"{modifier.name} is missing its English name.");
+                Assert.That(modifier.DescriptionEnglish, Is.Not.Empty, $"{modifier.name} is missing its English description.");
+            }
+        }
+
+        [Test]
+        public void DungeonModifierText_UsesSelectedLocaleFallback()
+        {
+            Locale previous = LocalizationSettings.SelectedLocale;
+            var english = Locale.CreateLocale("en");
+            DungeonModifierSO modifier = ScriptableObject.CreateInstance<DungeonModifierSO>();
+            try
+            {
+                LocalizationSettings.SelectedLocale = english;
+                modifier.ID = "localization_test_missing_key";
+                modifier.DisplayName = "Русское имя";
+                modifier.DisplayNameEnglish = "English Name";
+                modifier.Description = "Русское описание";
+                modifier.DescriptionEnglish = "English Description";
+
+                Assert.That(modifier.GetLocalizedDisplayName(), Is.EqualTo("English Name"));
+                Assert.That(modifier.GetLocalizedDescription(), Is.EqualTo("English Description"));
+                var lines = new List<string>();
+                new DungeonModifierValues { LootRarityPercent = 30f }.AddDescriptions(lines);
+                Assert.That(lines, Does.Contain("Item rarity +30%"));
+            }
+            finally
+            {
+                LocalizationSettings.SelectedLocale = previous;
+                Object.DestroyImmediate(modifier);
+            }
         }
 
         [Test]

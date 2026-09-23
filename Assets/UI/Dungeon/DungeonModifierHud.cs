@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Scripts.Dungeon;
+using Scripts.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -55,11 +56,15 @@ public sealed class DungeonModifierHud : MonoBehaviour
         if (_panel == null)
             return;
 
-        _location.text = string.IsNullOrWhiteSpace(locationName) ? "Подземелье" : locationName;
-        _room.text = $"Комната {roomIndex}/{Mathf.Max(roomIndex, roomCount)}  •  Уровень {roomLevel}";
+        _location.text = string.IsNullOrWhiteSpace(locationName)
+            ? RuntimeLocalization.Resolve("dungeon.ui.dungeon", "Dungeon", "Подземелье")
+            : locationName;
+        string room = RuntimeLocalization.Resolve("dungeon.ui.room", "Room", "Комната");
+        string level = RuntimeLocalization.Resolve("dungeon.ui.level", "Level", "Уровень");
+        _room.text = $"{room} {roomIndex}/{Mathf.Max(roomIndex, roomCount)}  •  {level} {roomLevel}";
         _modifierList.Clear();
         AddGroup(null, globalModifiers, true);
-        AddGroup("ЭТА КОМНАТА", localModifiers, false);
+        AddGroup(RuntimeLocalization.Resolve("dungeon.ui.thisRoom", "THIS ROOM", "ЭТА КОМНАТА"), localModifiers, false);
         float contentHeight = 23f + GetGroupHeight(globalModifiers, false) + GetGroupHeight(localModifiers, true);
         _panel.style.height = contentHeight;
         _panel.style.minHeight = contentHeight;

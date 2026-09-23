@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Scripts.UI;
 using UnityEngine;
 
 namespace Scripts.Dungeon
@@ -47,6 +48,12 @@ namespace Scripts.Dungeon
         public IReadOnlyList<DungeonModifierSO> RoomModifierPool => _roomModifierPool;
         public int EntryChoiceCount => Mathf.Max(1, _entryChoiceCount);
         public int RoomChoiceCount => Mathf.Max(1, _roomChoiceCount);
+
+        public string GetLocalizedDisplayName()
+        {
+            string fallback = string.IsNullOrWhiteSpace(DisplayName) ? name : DisplayName;
+            return RuntimeLocalization.Resolve(NameLocalizationKey, fallback, fallback);
+        }
 
         public GameObject LoadRoomPrefab(string path)
         {
