@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Scripts.Dungeon;
 using Scripts.Enemies;
+using Scripts.Hub;
 using Scripts.Items.World;
 using Scripts.Visuals;
 using UnityEngine;
@@ -230,6 +231,104 @@ namespace RelicKeeper.Tests.EditMode
             {
                 Object.DestroyImmediate(roomObject);
             }
+        }
+
+        [Test]
+        public void ServiceModifiers_AddPostClearServicesAndHudDescriptions()
+        {
+            DungeonModifierSO modifier = ScriptableObject.CreateInstance<DungeonModifierSO>();
+            try
+            {
+                modifier.RewardEffects = DungeonRewardEffect.SpawnStashAfterClear |
+                                         DungeonRewardEffect.SpawnMerchantAfterClear;
+                var context = new DungeonModifierContext();
+                var descriptions = new List<string>();
+
+                modifier.ApplyTo(context);
+                modifier.AddHudDescriptions(descriptions);
+
+                Assert.That(context.RewardEffects.HasFlag(DungeonRewardEffect.SpawnStashAfterClear), Is.True);
+                Assert.That(context.RewardEffects.HasFlag(DungeonRewardEffect.SpawnMerchantAfterClear), Is.True);
+                Assert.That(descriptions, Does.Contain("Сундук-склад после зачистки"));
+                Assert.That(descriptions, Does.Contain("Торговец после зачистки"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(modifier);
+            }
+        }
+
+        [Test]
+        public void RoomClearRewards_SpawnStashAndMerchantOnlyOnce()
+        {
+            var roomObject = new GameObject("ServiceRewardRoom");
+            try
+            {
+                RoomController room = roomObject.AddComponent<RoomController>();
+                DungeonModifierSO stashModifier = Resources.Load<DungeonModifierSO>(
+                    "Dungeons/Modifiers/StashAfterClear");
+                DungeonModifierSO merchantModifier = Resources.Load<DungeonModifierSO>(
+                    "Dungeons/Modifiers/MerchantAfterClear");
+                Assert.That(stashModifier, Is.Not.Null);
+                Assert.That(merchantModifier, Is.Not.Null);
+                Assert.That(stashModifier.RoomServicePrefab, Is.Not.Null);
+                Assert.That(merchantModifier.RoomServicePrefab, Is.Not.Null);
+
+                var context = new DungeonModifierContext();
+                stashModifier.ApplyTo(context);
+                merchantModifier.ApplyTo(context);
+                typeof(RoomController).GetField("_activeModifiers", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .SetValue(room, context);
+
+                MethodInfo spawnRewards = typeof(RoomController).GetMethod(
+                    "SpawnRoomClearRewards", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(spawnRewards, Is.Not.Null);
+                spawnRewards.Invoke(room, null);
+                spawnRewards.Invoke(room, null);
+
+                HubServiceNpc[] services = roomObject.GetComponentsInChildren<HubServiceNpc>();
+                Assert.That(services, Has.Length.EqualTo(2));
+                Assert.That(System.Array.Exists(services, service => service.Service == HubService.Stash), Is.True);
+                Assert.That(System.Array.Exists(services, service => service.Service == HubService.Market), Is.True);
+                foreach (HubServiceNpc service in services)
+                {
+                    Assert.That(service.GetComponent<SpriteRenderer>()?.sprite, Is.Not.Null);
+                    Assert.That(service.GetComponent<BoxCollider2D>()?.isTrigger, Is.True);
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(roomObject);
+            }
+        }
+
+        [Test]
+        public void MortfallRoomPool_ContainsStashAndMerchantModifiers()
+        {
+            DungeonDataSO mortfall = Resources.Load<DungeonDataSO>("Dungeons/MortFallDungeonSO");
+            Assert.That(mortfall, Is.Not.Null);
+
+            var ids = new List<string>();
+            DungeonModifierSO stash = null;
+            DungeonModifierSO merchant = null;
+            foreach (DungeonModifierSO modifier in mortfall.RoomModifierPool)
+            {
+                if (modifier == null)
+                    continue;
+
+                ids.Add(modifier.ID);
+                if (modifier.ID == "stash_after_clear")
+                    stash = modifier;
+                else if (modifier.ID == "merchant_after_clear")
+                    merchant = modifier;
+            }
+
+            Assert.That(ids, Does.Contain("stash_after_clear"));
+            Assert.That(ids, Does.Contain("merchant_after_clear"));
+            Assert.That(stash, Is.Not.Null);
+            Assert.That(merchant, Is.Not.Null);
+            Assert.That(stash.RoomServicePrefab, Is.Not.Null);
+            Assert.That(merchant.RoomServicePrefab, Is.Not.Null);
         }
 
         [Test]

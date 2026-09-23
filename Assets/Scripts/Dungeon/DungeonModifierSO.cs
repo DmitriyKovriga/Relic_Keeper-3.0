@@ -11,7 +11,9 @@ namespace Scripts.Dungeon
         SpawnRewardChests = 1 << 0,
         GuaranteedRareItem = 1 << 1,
         GuaranteedRareWeapon = 1 << 2,
-        GuaranteedRareEquipment = 1 << 3
+        GuaranteedRareEquipment = 1 << 3,
+        SpawnStashAfterClear = 1 << 4,
+        SpawnMerchantAfterClear = 1 << 5
     }
 
     [Serializable]
@@ -76,6 +78,10 @@ namespace Scripts.Dungeon
         [Min(0)] public int MinimumChests = 1;
         [Min(0)] public int MaximumChests = 3;
 
+        [Header("Room service")]
+        [Tooltip("Prefab NPC/service spawned after clearing the room. Used by stash and merchant effects.")]
+        public GameObject RoomServicePrefab;
+
         public void ApplyTo(DungeonModifierContext context)
         {
             if (context == null)
@@ -88,6 +94,14 @@ namespace Scripts.Dungeon
             {
                 context.MinimumChests += Mathf.Max(0, MinimumChests);
                 context.MaximumChests += Mathf.Max(MinimumChests, MaximumChests);
+            }
+
+            if (RoomServicePrefab != null)
+            {
+                if ((RewardEffects & DungeonRewardEffect.SpawnStashAfterClear) != 0)
+                    context.StashServicePrefab = RoomServicePrefab;
+                if ((RewardEffects & DungeonRewardEffect.SpawnMerchantAfterClear) != 0)
+                    context.MerchantServicePrefab = RoomServicePrefab;
             }
         }
 
@@ -107,6 +121,10 @@ namespace Scripts.Dungeon
                 target.Add("Редкое оружие после зачистки");
             if ((RewardEffects & DungeonRewardEffect.GuaranteedRareEquipment) != 0)
                 target.Add("Редкое снаряжение после зачистки");
+            if ((RewardEffects & DungeonRewardEffect.SpawnStashAfterClear) != 0)
+                target.Add("Сундук-склад после зачистки");
+            if ((RewardEffects & DungeonRewardEffect.SpawnMerchantAfterClear) != 0)
+                target.Add("Торговец после зачистки");
 
             if (target.Count == initialCount)
                 target.Add(string.IsNullOrWhiteSpace(DisplayName) ? name : DisplayName);
@@ -125,6 +143,8 @@ namespace Scripts.Dungeon
         public DungeonRewardEffect RewardEffects { get; internal set; }
         public int MinimumChests { get; internal set; }
         public int MaximumChests { get; internal set; }
+        public GameObject StashServicePrefab { get; internal set; }
+        public GameObject MerchantServicePrefab { get; internal set; }
 
         public float LootDropChanceMultiplier => ToMultiplier(LootDropChancePercent);
         public float LootRarityMultiplier => ToMultiplier(LootRarityPercent);

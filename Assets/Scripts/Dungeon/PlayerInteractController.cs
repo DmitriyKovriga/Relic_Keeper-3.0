@@ -138,7 +138,11 @@ namespace Scripts.Dungeon
 
         private static int GetInteractionPriority(IInteractable interactable)
         {
-            return interactable is RewardChest ? 1 : 0;
+            if (interactable is RewardChest)
+                return 2;
+            if (interactable is Scripts.Hub.HubServiceNpc)
+                return 1;
+            return 0;
         }
 
         private void UpdateItemInspection()

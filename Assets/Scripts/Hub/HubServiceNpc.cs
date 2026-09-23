@@ -45,8 +45,39 @@ namespace Scripts.Hub
 
         private WorldLocalizedLabel _label;
 
+        public HubService Service => _service;
+
         private void Awake()
         {
+            EnsureTriggerCollider();
+            EnsureLabel();
+        }
+
+        public void ConfigureRuntime(
+            HubService service,
+            Vector2 triggerSize,
+            Vector2 triggerOffset,
+            Vector3 labelLocalPosition)
+        {
+            _service = service;
+            _createTriggerCollider = true;
+            _triggerSize = triggerSize;
+            _triggerOffset = triggerOffset;
+            _showLabel = true;
+            _defaultLabelLocalPosition = labelLocalPosition;
+
+            BoxCollider2D box = GetComponent<BoxCollider2D>();
+            if (box == null)
+                box = gameObject.AddComponent<BoxCollider2D>();
+            box.isTrigger = true;
+            box.size = _triggerSize;
+            box.offset = _triggerOffset;
+            EnsureLabel();
+        }
+
+        public void ConfigureRuntimeService(HubService service)
+        {
+            _service = service;
             EnsureTriggerCollider();
             EnsureLabel();
         }

@@ -312,6 +312,16 @@ namespace Scripts.Dungeon
                 EnemyLootDropService.TrySpawnGuaranteedRare(position + Vector2.right * 0.45f, _roomLevel, GuaranteedLootFilter.Weapon);
             if ((effects & DungeonRewardEffect.GuaranteedRareEquipment) != 0)
                 EnemyLootDropService.TrySpawnGuaranteedRare(position + Vector2.left * 0.45f, _roomLevel, GuaranteedLootFilter.Armor);
+            if ((effects & DungeonRewardEffect.SpawnStashAfterClear) != 0)
+                DungeonRoomServiceSpawner.SpawnStash(
+                    position + Vector2.left * 1.1f,
+                    transform,
+                    _activeModifiers.StashServicePrefab);
+            if ((effects & DungeonRewardEffect.SpawnMerchantAfterClear) != 0)
+                DungeonRoomServiceSpawner.SpawnMerchant(
+                    position + Vector2.right * 1.1f,
+                    transform,
+                    _activeModifiers.MerchantServicePrefab);
         }
 
         private Vector2 ResolveRewardPosition()
