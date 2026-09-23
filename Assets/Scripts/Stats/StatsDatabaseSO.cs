@@ -583,6 +583,7 @@ namespace Scripts.Stats
                     return StatSemanticKind.CombatScalar;
 
                 case StatType.MeleeDamage:
+                case StatType.ReturningProjectileDamage:
                     return StatSemanticKind.ContextModifier;
 
                 case StatType.AreaOfEffect:
@@ -637,7 +638,8 @@ namespace Scripts.Stats
                 return StatDisplayFormat.Time;
 
             string s = type.ToString();
-            if (type == StatType.AreaOfEffect || type == StatType.DamageTaken || type == StatType.EffectDuration)
+            if (type == StatType.AreaOfEffect || type == StatType.DamageTaken || type == StatType.EffectDuration ||
+                type == StatType.ReturningProjectileDamage)
                 return StatDisplayFormat.Percent;
             if (IsOutgoingDamageConversionStat(type))
                 return StatDisplayFormat.Percent;
@@ -667,7 +669,8 @@ namespace Scripts.Stats
         {
             if (IsRetiredStat(type))
                 return false;
-            if (IsCooldownRecoveryStat(type) || type == StatType.Pushback || type == StatType.PushbackResist)
+            if (IsCooldownRecoveryStat(type) || type == StatType.Pushback || type == StatType.PushbackResist ||
+                type == StatType.ReturningProjectileDamage)
                 return true;
             return DefaultSemanticKindFor(type) == StatSemanticKind.FinalScalar;
         }
@@ -679,6 +682,8 @@ namespace Scripts.Stats
                 return StatAffixGenType.PercentStat;
             if (type == StatType.MeleeDamage)
                 return StatAffixGenType.ContextModifierStat;
+            if (type == StatType.ReturningProjectileDamage)
+                return StatAffixGenType.NOCalcStat;
             if (IsOutgoingDamageConversionStat(type))
                 return StatAffixGenType.PercentStat;
             if (type == StatType.AreaOfEffect || type == StatType.EffectDuration || type == StatType.DamageTaken)
@@ -766,6 +771,7 @@ namespace Scripts.Stats
                 case StatType.ProjectileFork:
                 case StatType.ProjectileChain:
                 case StatType.ProjectilePierce:
+                case StatType.ReturningProjectileDamage:
                     return StatContextTagFlags.Projectile;
                 case StatType.AreaOfEffect:
                     return StatContextTagFlags.Area;
@@ -887,6 +893,7 @@ namespace Scripts.Stats
                     return StatDamageChannelFlags.All;
 
                 case StatType.MeleeDamage:
+                case StatType.ReturningProjectileDamage:
                     return StatDamageChannelFlags.All;
 
                 default:
@@ -899,6 +906,8 @@ namespace Scripts.Stats
             if (IsRetiredStat(type))
                 return StatAffixModifierKindFlags.None;
             if (type == StatType.CritMultiplier)
+                return StatAffixModifierKindFlags.Flat;
+            if (type == StatType.ReturningProjectileDamage)
                 return StatAffixModifierKindFlags.Flat;
             if (type == StatType.AttackSpeed)
                 return StatAffixModifierKindFlags.Increase | StatAffixModifierKindFlags.Decrease | StatAffixModifierKindFlags.More | StatAffixModifierKindFlags.Less;

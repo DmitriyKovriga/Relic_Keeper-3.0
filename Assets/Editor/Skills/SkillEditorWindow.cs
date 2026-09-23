@@ -10,6 +10,7 @@ using Scripts.Combat;
 using Scripts.Skills;
 using Scripts.Skills.Steps;
 using Scripts.Skills.Modules;
+using Scripts.Skills.Projectiles;
 using Scripts.StatusEffects;
 using Scripts.Stats;
 
@@ -1923,9 +1924,30 @@ namespace Scripts.Editor.Skills
             float reverseInterval = step.GetFloat("ReverseInterval", 1f);
             float newReverseInterval = Mathf.Max(0.01f, EditorGUILayout.FloatField("Reverse interval sec", reverseInterval));
             if (Mathf.Abs(newReverseInterval - reverseInterval) > 0.001f) { step.SetOverrideFloat("ReverseInterval", newReverseInterval); EditorUtility.SetDirty(recipe); }
-            bool returnToOwner = step.GetBool("ReturnToOwnerOnReverse", true);
-            bool newReturnToOwner = EditorGUILayout.Toggle("Return to owner on reverse", returnToOwner);
-            if (newReturnToOwner != returnToOwner) { step.SetOverrideBool("ReturnToOwnerOnReverse", newReturnToOwner); EditorUtility.SetDirty(recipe); }
+            SkillProjectileReversalMode legacyMode = step.GetBool("ReturnToOwnerOnReverse", true)
+                ? SkillProjectileReversalMode.AimAtOwnerPosition
+                : SkillProjectileReversalMode.ReverseDirection;
+            var reversalMode = (SkillProjectileReversalMode)Mathf.Clamp(
+                step.GetInt("ReversalMode", (int)legacyMode),
+                (int)SkillProjectileReversalMode.ReverseDirection,
+                (int)SkillProjectileReversalMode.HomeToOwner);
+            var newReversalMode = (SkillProjectileReversalMode)EditorGUILayout.EnumPopup(
+                new GUIContent(
+                    "Reverse behavior",
+                    "Reverse Direction — обычный разворот. Aim At Owner Position — летит в точку героя на момент разворота. Home To Owner — постоянно наводится на движущегося героя и исчезает при возврате."),
+                reversalMode);
+            if (newReversalMode != reversalMode) { step.SetOverrideInt("ReversalMode", (int)newReversalMode); EditorUtility.SetDirty(recipe); }
+            float returnDamagePercent = Mathf.Max(
+                0f,
+                step.GetFloat("ReturnDamagePercent", ReturningProjectileDamageResolver.DefaultReturnDamagePercent));
+            float newReturnDamagePercent = Mathf.Max(
+                0f,
+                EditorGUILayout.FloatField(
+                    new GUIContent(
+                        "Return damage percent",
+                        "Базовый процент обычного урона после первого разворота. К нему прибавляются только flat-пункты Returning Projectile Damage. 50 = половина обычного урона."),
+                    returnDamagePercent));
+            if (Mathf.Abs(newReturnDamagePercent - returnDamagePercent) > 0.001f) { step.SetOverrideFloat("ReturnDamagePercent", newReturnDamagePercent); EditorUtility.SetDirty(recipe); }
             bool clearHistory = step.GetBool("ClearHitHistoryOnReverse", true);
             bool newClearHistory = EditorGUILayout.Toggle(new GUIContent("Can hit same targets again", "Очищает историю попаданий при развороте, чтобы диск мог ударить ту же цель на возврате."), clearHistory);
             if (newClearHistory != clearHistory) { step.SetOverrideBool("ClearHitHistoryOnReverse", newClearHistory); EditorUtility.SetDirty(recipe); }

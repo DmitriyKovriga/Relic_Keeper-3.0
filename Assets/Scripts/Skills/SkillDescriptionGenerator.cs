@@ -5,6 +5,7 @@ using System.Text;
 using Scripts.Combat;
 using Scripts.GameplayEvents;
 using Scripts.Skills.Steps;
+using Scripts.Skills.Projectiles;
 using Scripts.Stats;
 using Scripts.StatusEffects;
 using UnityEngine;
@@ -272,7 +273,27 @@ namespace Scripts.Skills
                 Add(lines, unique, ru ? "Снаряды пробивают цели." : "Projectiles pierce targets.");
             int reversals = Mathf.Max(0, step.GetInt("ReversalCount", 0));
             if (reversals > 0)
+            {
                 Add(lines, unique, ru ? $"Снаряды меняют направление {reversals} раз." : $"Projectiles reverse direction {reversals} time{(reversals == 1 ? string.Empty : "s")}.");
+                SkillProjectileReversalMode legacyMode = step.GetBool("ReturnToOwnerOnReverse", true)
+                    ? SkillProjectileReversalMode.AimAtOwnerPosition
+                    : SkillProjectileReversalMode.ReverseDirection;
+                var reversalMode = (SkillProjectileReversalMode)Mathf.Clamp(
+                    step.GetInt("ReversalMode", (int)legacyMode),
+                    (int)SkillProjectileReversalMode.ReverseDirection,
+                    (int)SkillProjectileReversalMode.HomeToOwner);
+                if (reversalMode == SkillProjectileReversalMode.HomeToOwner)
+                    Add(lines, unique, ru ? "После разворота снаряды наводятся обратно на персонажа." : "After reversing, projectiles home back to the character.");
+                else if (reversalMode == SkillProjectileReversalMode.AimAtOwnerPosition)
+                    Add(lines, unique, ru ? "При развороте снаряды летят к текущей позиции персонажа." : "When reversing, projectiles aim at the character's current position.");
+
+                string returnDamage = P(step.GetFloat(
+                    "ReturnDamagePercent",
+                    ReturningProjectileDamageResolver.DefaultReturnDamagePercent));
+                Add(lines, unique, ru
+                    ? $"На возврате снаряды наносят {returnDamage} обычного урона."
+                    : $"Returning projectiles deal {returnDamage} of their normal damage.");
+            }
         }
 
         private static void AddChain(StepEntry step, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)

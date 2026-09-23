@@ -162,6 +162,9 @@ namespace Scripts.Stats
         // Skills opt in with EnablePushback; the skill's PushbackRating is a flat modifier.
         Pushback,
         // Percent reduction of incoming knockback. 0 = full, 50 = half, 100 = immune.
-        PushbackResist
+        PushbackResist,
+
+        // Flat percentage points added to a returning projectile's skill-defined damage percent.
+        ReturningProjectileDamage
     }
 }

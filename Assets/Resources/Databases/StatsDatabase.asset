@@ -1352,3 +1352,16 @@ MonoBehaviour:
     ContextTags: 0
     DamageChannels: 0
     AllowedAffixKinds: 31
+  - StatTypeId: ReturningProjectileDamage
+    Category: Damage
+    SemanticKind: 2
+    Format: 1
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 1
+    AffixGenType: 3
+    ValueUnit: 3
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 8
+    DamageChannels: 15
+    AllowedAffixKinds: 1

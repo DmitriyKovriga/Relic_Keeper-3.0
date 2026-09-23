@@ -2480,6 +2480,10 @@ MonoBehaviour:
     m_Localized: Pushback Resist
     m_Metadata:
       m_Items: []
+  - m_Id: 104910000000000003
+    m_Localized: Returning Projectile Damage
+    m_Metadata:
+      m_Items: []
   - m_Id: 105000000000000001
     m_Localized: Portal Open
     m_Metadata:

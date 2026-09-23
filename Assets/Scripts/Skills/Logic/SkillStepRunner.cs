@@ -606,7 +606,19 @@ namespace Scripts.Skills
                 RemainingReversals = Mathf.Max(0, step.GetInt("ReversalCount", 0)),
                 ReverseInterval = Mathf.Max(0.01f, step.GetFloat("ReverseInterval", 1f)),
                 FirstReverseAtSeconds = Mathf.Max(0.01f, step.GetFloat("FirstReverseAtSeconds", 1f)),
-                ReturnToOwnerOnReverse = step.GetBool("ReturnToOwnerOnReverse", true),
+                ReversalMode = (SkillProjectileReversalMode)Mathf.Clamp(
+                    step.GetInt(
+                        "ReversalMode",
+                        step.GetBool("ReturnToOwnerOnReverse", true)
+                            ? (int)SkillProjectileReversalMode.AimAtOwnerPosition
+                            : (int)SkillProjectileReversalMode.ReverseDirection),
+                    (int)SkillProjectileReversalMode.ReverseDirection,
+                    (int)SkillProjectileReversalMode.HomeToOwner),
+                ReturnDamagePercent = Mathf.Max(
+                    0f,
+                    step.GetFloat(
+                        "ReturnDamagePercent",
+                        ReturningProjectileDamageResolver.DefaultReturnDamagePercent)),
                 ClearHitHistoryOnReverse = step.GetBool("ClearHitHistoryOnReverse", true)
             };
 

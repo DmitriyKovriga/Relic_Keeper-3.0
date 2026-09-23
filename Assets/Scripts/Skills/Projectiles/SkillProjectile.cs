@@ -19,6 +19,13 @@ namespace Scripts.Skills.Projectiles
         ParallelRows = 1
     }
 
+    public enum SkillProjectileReversalMode
+    {
+        ReverseDirection = 0,
+        AimAtOwnerPosition = 1,
+        HomeToOwner = 2
+    }
+
     public sealed class SkillProjectileLaunchData
     {
         public PlayerStats OwnerStats;
@@ -58,7 +65,9 @@ namespace Scripts.Skills.Projectiles
         public int RemainingReversals;
         public float FirstReverseAtSeconds = 1f;
         public float ReverseInterval = 1f;
-        public bool ReturnToOwnerOnReverse = true;
+        public SkillProjectileReversalMode ReversalMode = SkillProjectileReversalMode.AimAtOwnerPosition;
+        public float ReturnDamagePercent = ReturningProjectileDamageResolver.DefaultReturnDamagePercent;
+        public bool ReturnDamageActive;
         public bool ClearHitHistoryOnReverse = true;
         public bool OrbitOwner;
         public bool ShareOrbitAcrossCasts;
@@ -115,6 +124,8 @@ namespace Scripts.Skills.Projectiles
         private readonly Dictionary<IDamageable, float> _nextTargetHitAllowedAt = new Dictionary<IDamageable, float>();
         private Transform _homingTarget;
         private float _nextReverseAt;
+        private bool _returningToOwner;
+        private bool _returnDamageActive;
 
         public static void Spawn(SkillProjectileLaunchData data, Vector2 origin, Vector2 direction, Transform parent = null)
         {
@@ -295,6 +306,8 @@ namespace Scripts.Skills.Projectiles
             _despawning = false;
             _direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
             _nextReverseAt = Mathf.Max(0.01f, _data.FirstReverseAtSeconds);
+            _returningToOwner = false;
+            _returnDamageActive = _data.ReturnDamageActive;
             RegisterActive();
 
             _hitHistory.Clear();
@@ -346,7 +359,9 @@ namespace Scripts.Skills.Projectiles
 
             Vector2 previousPosition = transform.position;
             UpdateReversal();
+            UpdateOwnerReturnHoming();
             UpdateHoming(dt);
+            bool reachedOwner = false;
             if (_data.OrbitOwner)
             {
                 _data.OrbitAngleDegrees += _data.OrbitAngularSpeedDegreesPerSecond * dt;
@@ -358,7 +373,10 @@ namespace Scripts.Skills.Projectiles
                 if (_data.GroundMotion && TryBreakOnGroundObstacle(travelDistance))
                     return;
 
-                transform.position += (Vector3)(_direction * travelDistance);
+                if (_returningToOwner && TryCompleteOwnerReturn(travelDistance))
+                    reachedOwner = true;
+                else
+                    transform.position += (Vector3)(_direction * travelDistance);
                 if (_data.GroundMotion && !SnapToGroundOrDespawn())
                     return;
             }
@@ -368,6 +386,8 @@ namespace Scripts.Skills.Projectiles
                 transform.Rotate(0f, 0f, spin * dt, Space.Self);
 
             ScanTravel(previousPosition);
+            if (reachedOwner && _data != null)
+                Despawn();
         }
 
         private void UpdateOrbitPosition()
@@ -533,9 +553,14 @@ namespace Scripts.Skills.Projectiles
                 return null;
 
             IStatsProvider scopedStats = BuildScopedStatsProvider(target);
+            float damageMultiplier = ReturningProjectileDamageResolver.ResolveDamageMultiplier(
+                _data.DamageMultiplier,
+                _returnDamageActive,
+                _data.ReturnDamagePercent,
+                _data.OwnerStats);
             DamageSnapshot snapshot = DamageCalculator.CreateDamageSnapshot(
                 scopedStats,
-                Mathf.Max(0f, _data.DamageMultiplier),
+                damageMultiplier,
                 _data.DamageContext,
                 _data.Step.DamageConversions);
             snapshot.Source = _data.OwnerStats;
@@ -711,6 +736,7 @@ namespace Scripts.Skills.Projectiles
             SkillProjectileLaunchData childData = _data.Clone();
             childData.RemainingForks = Mathf.Max(0, _data.RemainingForks - 1);
             childData.HitHistory = new HashSet<IDamageable>(_hitHistory);
+            childData.ReturnDamageActive = _returnDamageActive;
 
             float angle = Mathf.Max(0f, _data.ForkAngle);
             Vector2 origin = (Vector2)transform.position + _direction * Mathf.Max(0.02f, GetHitboxProbeRadius() * 1.5f);
@@ -744,18 +770,16 @@ namespace Scripts.Skills.Projectiles
                 return;
 
             _data.RemainingReversals--;
-            if (_data.ReturnToOwnerOnReverse && _data.OwnerTransform != null)
-            {
-                Vector2 toOwner = (Vector2)_data.OwnerTransform.position - (Vector2)transform.position;
-                if (toOwner.sqrMagnitude > 0.0001f)
-                    _direction = toOwner.normalized;
-                else
-                    _direction = -_direction;
-            }
-            else
-            {
-                _direction = -_direction;
-            }
+            _returnDamageActive = true;
+            _data.ReturnDamageActive = true;
+            Vector2 ownerPosition = ResolveOwnerColliderCenter(_data.OwnerTransform);
+            _direction = ResolveReturnDirection(
+                _data.ReversalMode,
+                _direction,
+                transform.position,
+                ownerPosition,
+                isReversalFrame: true);
+            _returningToOwner = _data.ReversalMode == SkillProjectileReversalMode.HomeToOwner;
 
             if (_data.ClearHitHistoryOnReverse)
             {
@@ -764,16 +788,67 @@ namespace Scripts.Skills.Projectiles
             }
 
             _homingTarget = null;
-            if (_data.Homing)
+            if (_data.Homing && !_returningToOwner)
                 AcquireHomingTarget();
 
             _nextReverseAt += Mathf.Max(0.01f, _data.ReverseInterval);
             ApplyFacingRotation();
         }
 
+        private void UpdateOwnerReturnHoming()
+        {
+            if (!_returningToOwner || _data?.OwnerTransform == null)
+                return;
+
+            _direction = ResolveReturnDirection(
+                _data.ReversalMode,
+                _direction,
+                transform.position,
+                ResolveOwnerColliderCenter(_data.OwnerTransform),
+                isReversalFrame: false);
+            ApplyFacingRotation();
+        }
+
+        private bool TryCompleteOwnerReturn(float travelDistance)
+        {
+            if (!_returningToOwner || _data?.OwnerTransform == null)
+                return false;
+
+            Vector2 target = ResolveOwnerColliderCenter(_data.OwnerTransform);
+            Vector2 toOwner = target - (Vector2)transform.position;
+            if (toOwner.sqrMagnitude > travelDistance * travelDistance)
+                return false;
+
+            transform.position = target;
+            return true;
+        }
+
+        public static Vector2 ResolveReturnDirection(
+            SkillProjectileReversalMode mode,
+            Vector2 currentDirection,
+            Vector2 projectilePosition,
+            Vector2 ownerPosition,
+            bool isReversalFrame)
+        {
+            Vector2 fallback = currentDirection.sqrMagnitude > 0.0001f
+                ? currentDirection.normalized
+                : Vector2.right;
+
+            if (!isReversalFrame && mode != SkillProjectileReversalMode.HomeToOwner)
+                return fallback;
+            if (mode == SkillProjectileReversalMode.ReverseDirection)
+                return -fallback;
+
+            Vector2 toOwner = ownerPosition - projectilePosition;
+            if (toOwner.sqrMagnitude > 0.0001f)
+                return toOwner.normalized;
+
+            return isReversalFrame ? -fallback : fallback;
+        }
+
         private void UpdateHoming(float dt)
         {
-            if (_data == null || !_data.Homing)
+            if (_data == null || !_data.Homing || _returningToOwner)
                 return;
 
             if (_homingTarget == null || !IsValidHomingTarget(_homingTarget))
@@ -1373,6 +1448,8 @@ namespace Scripts.Skills.Projectiles
             _hitHistory.Clear();
             _nextTargetHitAllowedAt.Clear();
             _age = 0f;
+            _returningToOwner = false;
+            _returnDamageActive = false;
             _despawning = false;
             if (_collider != null)
                 _collider.enabled = false;

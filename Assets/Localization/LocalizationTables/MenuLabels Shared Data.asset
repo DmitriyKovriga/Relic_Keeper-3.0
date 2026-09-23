@@ -1519,6 +1519,10 @@ MonoBehaviour:
     m_Key: stats.PushbackResist
     m_Metadata:
       m_Items: []
+  - m_Id: 104910000000000003
+    m_Key: stats.ReturningProjectileDamage
+    m_Metadata:
+      m_Items: []
   - m_Id: 105000000000000001
     m_Key: dungeon.ui.portalUnlocked
     m_Metadata:
