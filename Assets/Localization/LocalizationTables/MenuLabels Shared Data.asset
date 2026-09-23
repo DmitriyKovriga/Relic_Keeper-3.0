@@ -1615,6 +1615,14 @@ MonoBehaviour:
     m_Key: input.PauseMenu
     m_Metadata:
       m_Items: []
+  - m_Id: 106000000000000001
+    m_Key: worldLootCache.open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 106000000000000006
+    m_Key: common.close
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

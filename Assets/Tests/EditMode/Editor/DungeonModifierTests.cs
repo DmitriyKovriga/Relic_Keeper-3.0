@@ -724,6 +724,25 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void DungeonModifierText_BeforeLocaleInitialization_UsesEnglishFallbackWithoutException()
+        {
+            Locale previous = LocalizationSettings.SelectedLocale;
+            try
+            {
+                LocalizationSettings.SelectedLocale = null;
+                var lines = new List<string>();
+
+                Assert.DoesNotThrow(() =>
+                    new DungeonModifierValues { LootRarityPercent = 30f }.AddDescriptions(lines));
+                Assert.That(lines, Does.Contain("Item rarity +30%"));
+            }
+            finally
+            {
+                LocalizationSettings.SelectedLocale = previous;
+            }
+        }
+
+        [Test]
         public void DungeonUnlocks_KeepHighestReachedRoomPerDungeon()
         {
             DungeonRunUnlocks.Clear();

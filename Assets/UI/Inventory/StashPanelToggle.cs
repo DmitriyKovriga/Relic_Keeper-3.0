@@ -1,6 +1,7 @@
 using Scripts.Configuration;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Scripts.Items.World;
 
 /// <summary>
 /// Открывает/закрывает панель склада по отдельному бинду (по умолчанию B).
@@ -103,5 +104,20 @@ public class StashPanelToggle : MonoBehaviour
             _manager.OpenWindow(_inventoryWindow);
 
         _inventoryUI.SetMarketPanelVisible(true);
+    }
+
+    /// <summary>Open a world loot cache in the real stash grid.</summary>
+    public void OpenLootCache(WorldLootCache cache)
+    {
+        if (cache == null || !cache.CanInteract()) return;
+        if (_inventoryUI == null) _inventoryUI = GetComponentInChildren<InventoryUI>(true);
+        if (_inventoryUI == null) return;
+        if (_manager == null) _manager = Object.FindFirstObjectByType<WindowManager>();
+        if (_inventoryWindow == null) _inventoryWindow = GetComponentInChildren<WindowView>(true);
+
+        if (_inventoryWindow != null && _manager != null && !_manager.IsOpen(_inventoryWindow))
+            _manager.OpenWindow(_inventoryWindow);
+
+        _inventoryUI.SetLootCachePanelVisible(cache);
     }
 }

@@ -31,9 +31,17 @@ namespace Scripts.UI
             if (string.IsNullOrWhiteSpace(key))
                 return null;
 
+            // GetTable(tableName) falls back to SelectedLocale internally and logs an
+            // exception before our catch can handle it when localization has not been
+            // initialized yet (common during scene validation and editor delay calls).
+            var locale = LocalizationSettings.SelectedLocale;
+            var database = LocalizationSettings.StringDatabase;
+            if (locale == null || database == null)
+                return null;
+
             try
             {
-                var table = LocalizationSettings.StringDatabase?.GetTable(tableName);
+                var table = database.GetTable(tableName, locale);
                 var entry = table?.GetEntry(key);
                 return entry?.GetLocalizedString();
             }

@@ -3,6 +3,7 @@ using UnityEngine.UIElements;
 using System.Collections.Generic;
 using Scripts.Inventory;
 using Scripts.Items;
+using Scripts.Items.World;
 
 public partial class InventoryUI : MonoBehaviour
 {
@@ -68,7 +69,9 @@ public partial class InventoryUI : MonoBehaviour
     /// <summary>Склад открыт отдельно (бинт B). По умолчанию скрыт при открытии инвентаря по I.</summary>
     public bool IsStashVisible { get; private set; }
     public bool IsMarketVisible { get; private set; }
-    public bool IsCompanionPanelVisible => IsStashVisible || IsMarketVisible;
+    public bool IsLootCacheVisible => _lootCache != null;
+    public bool IsCompanionPanelVisible => IsStashVisible || IsMarketVisible || IsLootCacheVisible;
+    private WorldLootCache _lootCache;
 
     private VisualElement _goldCounter;
     private Label _goldAmountLabel;
@@ -90,6 +93,8 @@ public partial class InventoryUI : MonoBehaviour
     private int _draggedSourceAnchor = -1;
     private bool _draggedFromStash;
     private bool _draggedFromMarket;
+    private bool _draggedFromLootCache;
+    private WorldLootCache _draggedLootCache;
     private int _draggedStashTab = -1;
     private int _draggedStashAnchorSlot = -1;
     /// <summary>Смещение курсора от верх-левого угла иконки при захвате (grab offset), в локальных координатах root.</summary>
@@ -188,6 +193,7 @@ public partial class InventoryUI : MonoBehaviour
         ExitApplyOrbMode();
         UnregisterInventoryLocalization();
         UnregisterQuickTransferEndpoints();
+        DetachLootCache();
 
         _root.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
         _root.UnregisterCallback<PointerUpEvent>(OnPointerUp);
@@ -236,8 +242,25 @@ public partial class InventoryUI : MonoBehaviour
 
     private void SetCompanionPanelVisible(bool visible, bool market)
     {
+        DetachLootCache();
         IsStashVisible = visible && !market;
         IsMarketVisible = visible && market;
+        ApplyCompanionPanelVisibility(visible);
+    }
+
+    public void SetLootCachePanelVisible(WorldLootCache cache)
+    {
+        DetachLootCache();
+        IsStashVisible = false;
+        IsMarketVisible = false;
+        _lootCache = cache;
+        if (_lootCache != null)
+            _lootCache.OnChanged += RefreshStash;
+        ApplyCompanionPanelVisibility(_lootCache != null);
+    }
+
+    private void ApplyCompanionPanelVisibility(bool visible)
+    {
         BindCompanionPresenters();
         if (_stashPanel != null)
         {
@@ -423,6 +446,8 @@ public partial class InventoryUI : MonoBehaviour
 
     private ITabbedItemGrid GetCompanionGrid()
     {
+        if (_lootCache != null)
+            return _lootCache;
         if (IsMarketVisible)
             return Scripts.Economy.MarketManager.EnsureInstance();
         return StashManager.Instance;
@@ -437,9 +462,9 @@ public partial class InventoryUI : MonoBehaviour
         _stashWindowController.SourceEndpointId = IsMarketVisible
             ? ItemTransferEndpointIds.MarketCurrentTab
             : ItemTransferEndpointIds.StashCurrentTab;
-        _stashWindowController.TryCtrlTransfer = IsMarketVisible
-            ? TryBuyCompanionItem
-            : null;
+        _stashWindowController.TryCtrlTransfer = IsLootCacheVisible
+            ? TryTransferLootCacheItem
+            : IsMarketVisible ? TryBuyCompanionItem : null;
     }
 
     private bool TryBuyCompanionItem(InventoryItem item, int tab)
@@ -448,5 +473,31 @@ public partial class InventoryUI : MonoBehaviour
         if (market == null || item == null)
             return false;
         return market.TryBuy(item, market.IsBuybackTab(tab));
+    }
+
+    private bool TryTransferLootCacheItem(InventoryItem item, int tab)
+    {
+        if (item == null || InventoryManager.Instance == null)
+            return false;
+        if (!InventoryManager.Instance.TryPickupItem(item))
+        {
+            PlayerNoticeBanner.ShowInventoryFull();
+            return false;
+        }
+
+        WorldLootCache cache = _lootCache;
+        if (cache != null && cache.Count == 0)
+        {
+            SetLootCachePanelVisible(null);
+            cache.CompleteItemTransfer();
+        }
+        return true;
+    }
+
+    private void DetachLootCache()
+    {
+        if (_lootCache != null)
+            _lootCache.OnChanged -= RefreshStash;
+        _lootCache = null;
     }
 }

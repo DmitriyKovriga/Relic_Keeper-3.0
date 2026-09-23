@@ -2576,6 +2576,14 @@ MonoBehaviour:
     m_Localized: Pause Menu
     m_Metadata:
       m_Items: []
+  - m_Id: 106000000000000001
+    m_Localized: Open loot sphere
+    m_Metadata:
+      m_Items: []
+  - m_Id: 106000000000000006
+    m_Localized: Close
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

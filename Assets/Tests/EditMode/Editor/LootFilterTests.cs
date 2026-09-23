@@ -122,6 +122,33 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(LanguageSelector.GetLootFilterText(LootFilterThreshold.None, false), Is.EqualTo("Do not hide"));
         }
 
+        [Test]
+        public void LootCacheHidesWhenAllContainedItemsAreFilteredAndReturnsWhenRevealed()
+        {
+            LootFilterSettings.SetThreshold(LootFilterThreshold.None);
+            for (int i = 0; i < WorldLootCacheCoordinator.RequiredVisibleItems; i++)
+                WorldItemDropService.Spawn(CreateItem(0), new Vector2(i * 0.06f, 0f));
+
+            WorldLootCache cache = Object.FindFirstObjectByType<WorldLootCache>();
+            Assert.That(cache, Is.Not.Null);
+            Assert.That(cache.Count, Is.EqualTo(WorldLootCacheCoordinator.RequiredVisibleItems));
+            Assert.That(cache.CanInteract(), Is.True);
+
+            LootFilterSettings.SetThreshold(LootFilterThreshold.Common);
+
+            Assert.That(cache.VisibleCount, Is.Zero);
+            Assert.That(cache.CanInteract(), Is.False);
+            Assert.That(cache.GetComponent<SpriteRenderer>().enabled, Is.False);
+            Assert.That(cache.GetComponent<CircleCollider2D>().enabled, Is.False);
+
+            LootFilterSettings.SetThreshold(LootFilterThreshold.None);
+
+            Assert.That(cache.VisibleCount, Is.EqualTo(cache.Count));
+            Assert.That(cache.CanInteract(), Is.True);
+            Assert.That(cache.GetComponent<SpriteRenderer>().enabled, Is.True);
+            Assert.That(cache.GetComponent<CircleCollider2D>().enabled, Is.True);
+        }
+
         private InventoryItem CreateItem(int affixCount)
         {
             ArmorItemSO data = ScriptableObject.CreateInstance<ArmorItemSO>();

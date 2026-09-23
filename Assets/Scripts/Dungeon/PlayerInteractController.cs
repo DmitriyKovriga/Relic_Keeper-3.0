@@ -138,6 +138,8 @@ namespace Scripts.Dungeon
 
         private static int GetInteractionPriority(IInteractable interactable)
         {
+            if (interactable is WorldLootCache)
+                return 3;
             if (interactable is RewardChest)
                 return 2;
             if (interactable is Scripts.Hub.HubServiceNpc)

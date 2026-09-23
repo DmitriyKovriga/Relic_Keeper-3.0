@@ -1,4 +1,5 @@
 using Scripts.Inventory;
+using Scripts.Items.World;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -180,8 +181,10 @@ public partial class InventoryUI
         _grabOffsetRootLocal = GetPointerRootLocalFromScreen() - originRoot;
         _isDragging = true;
         _draggedItem = item;
-        _draggedFromStash = !IsMarketVisible;
+        _draggedFromStash = IsStashVisible;
         _draggedFromMarket = IsMarketVisible;
+        _draggedFromLootCache = IsLootCacheVisible;
+        _draggedLootCache = _lootCache;
         _draggedStashTab = tab;
         _draggedStashAnchorSlot = anchorSlot;
         RefreshStash();

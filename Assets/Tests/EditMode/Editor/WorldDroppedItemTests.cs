@@ -16,6 +16,16 @@ namespace RelicKeeper.Tests.EditMode
     public class WorldDroppedItemTests
     {
         private readonly List<Object> _createdObjects = new List<Object>();
+        private bool _hadLootFilterThreshold;
+        private int _savedLootFilterThreshold;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _hadLootFilterThreshold = PlayerPrefs.HasKey(LootFilterSettings.PlayerPrefsKey);
+            _savedLootFilterThreshold = PlayerPrefs.GetInt(LootFilterSettings.PlayerPrefsKey, 0);
+            PlayerPrefs.SetInt(LootFilterSettings.PlayerPrefsKey, (int)LootFilterThreshold.None);
+        }
 
         [TearDown]
         public void TearDown()
@@ -27,6 +37,11 @@ namespace RelicKeeper.Tests.EditMode
             }
 
             _createdObjects.Clear();
+
+            if (_hadLootFilterThreshold)
+                PlayerPrefs.SetInt(LootFilterSettings.PlayerPrefsKey, _savedLootFilterThreshold);
+            else
+                PlayerPrefs.DeleteKey(LootFilterSettings.PlayerPrefsKey);
         }
 
         [Test]
@@ -296,6 +311,71 @@ namespace RelicKeeper.Tests.EditMode
 
             Assert.That(Mathf.Abs(first.GroundPosition.x - second.GroundPosition.x),
                 Is.GreaterThanOrEqualTo(WorldDroppedItemSpread.MinSeparation - 0.02f));
+        }
+
+        [Test]
+        public void FifthVisibleItem_CollapsesClusterIntoLootCache()
+        {
+            bool hadThreshold = PlayerPrefs.HasKey(LootFilterSettings.PlayerPrefsKey);
+            int savedThreshold = PlayerPrefs.GetInt(LootFilterSettings.PlayerPrefsKey, 0);
+            try
+            {
+                LootFilterSettings.SetThreshold(LootFilterThreshold.None);
+                for (int i = 0; i < WorldLootCacheCoordinator.RequiredVisibleItems; i++)
+                    WorldItemDropService.Spawn(CreateInventoryItem(), new Vector2(i * 0.08f, 0f));
+
+                WorldLootCache cache = Object.FindFirstObjectByType<WorldLootCache>();
+                Assert.That(cache, Is.Not.Null);
+                Assert.That(cache.Count, Is.EqualTo(WorldLootCacheCoordinator.RequiredVisibleItems));
+                Assert.That(Object.FindObjectsByType<WorldDroppedItem>(FindObjectsSortMode.None), Is.Empty);
+
+                GameObject root = GameObject.Find("WorldDroppedItems");
+                if (root != null && !_createdObjects.Contains(root))
+                    _createdObjects.Add(root);
+            }
+            finally
+            {
+                if (hadThreshold)
+                    PlayerPrefs.SetInt(LootFilterSettings.PlayerPrefsKey, savedThreshold);
+                else
+                    PlayerPrefs.DeleteKey(LootFilterSettings.PlayerPrefsKey);
+            }
+        }
+
+        [Test]
+        public void LootCacheRangeAndArc_MatchPixelWorldIntent()
+        {
+            Assert.That(WorldLootCacheCoordinator.ShouldCreateCache(4), Is.False);
+            Assert.That(WorldLootCacheCoordinator.ShouldCreateCache(5), Is.True);
+            Assert.That(WorldLootCacheCoordinator.IsWithinAbsorbRange(Vector2.zero, new Vector2(3f, 0f)), Is.True);
+            Assert.That(WorldLootCacheCoordinator.IsWithinAbsorbRange(Vector2.zero, new Vector2(3.01f, 0f)), Is.False);
+
+            Vector3 start = Vector3.zero;
+            Vector3 end = new Vector3(2f, 0f, 0f);
+            Vector3 midpoint = WorldLootCacheFlightVisual.EvaluateArc(start, end, 0.5f, 1f);
+            Assert.That(midpoint.y, Is.GreaterThan(start.y));
+            Assert.That(WorldLootCacheFlightVisual.EvaluateArc(start, end, 0f, 1f), Is.EqualTo(start));
+            Assert.That(WorldLootCacheFlightVisual.EvaluateArc(start, end, 1f, 1f), Is.EqualTo(end));
+        }
+
+        [Test]
+        public void LootCache_UsesRealStashGridAndPreservesMultiCellItems()
+        {
+            GameObject cacheObject = CreateGameObject("LootCacheGrid");
+            WorldLootCache cache = cacheObject.AddComponent<WorldLootCache>();
+            ArmorItemSO data = ScriptableObject.CreateInstance<ArmorItemSO>();
+            data.ID = "multi_cell_cache_item";
+            data.Width = 2;
+            data.Height = 3;
+            _createdObjects.Add(data);
+            InventoryItem item = new InventoryItem(data);
+
+            Assert.That(cache.TryAddItemPreferringTab(item, 0), Is.True);
+            Assert.That(cache.TabCount, Is.EqualTo(1));
+            Assert.That(cache.GetItem(0, 0), Is.SameAs(item));
+            Assert.That(cache.GetItemAt(0, StashManager.STASH_COLS * 2 + 1, out int anchor), Is.SameAs(item));
+            Assert.That(anchor, Is.EqualTo(0));
+            Assert.That(cache.CanAddTab, Is.False);
         }
 
         [Test]

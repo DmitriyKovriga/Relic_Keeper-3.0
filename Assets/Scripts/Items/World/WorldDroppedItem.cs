@@ -142,6 +142,29 @@ namespace Scripts.Items.World
             Destroy(gameObject);
         }
 
+        internal bool TryExtractForLootCache(out InventoryItem item)
+        {
+            item = null;
+            if (!ParticipatesInWorldLayout)
+                return false;
+
+            item = _item;
+            _item = null;
+            _isInitialized = false;
+
+            LootFilterSettings.Changed -= OnLootFilterChanged;
+            ItemTooltipController.Instance?.HideWorldTooltip(this);
+            if (_circleRenderer != null)
+                _circleRenderer.enabled = false;
+            if (_iconRenderer != null)
+                _iconRenderer.enabled = false;
+            if (_interactionCollider != null)
+                _interactionCollider.enabled = false;
+            if (_inspectionCanvas != null)
+                _inspectionCanvas.enabled = false;
+            return item?.Data != null;
+        }
+
         public void SetInspectionProgress(float normalizedProgress, bool visible)
         {
             if (_inspectionOverlay == null)
@@ -183,7 +206,7 @@ namespace Scripts.Items.World
                 return;
             }
 
-            if (wasHidden && spreadWhenShown)
+            if (wasHidden && spreadWhenShown && !WorldLootCacheCoordinator.ProcessVisibleDrop(this))
                 WorldDroppedItemSpread.SeparateFromNeighbors(this);
         }
 

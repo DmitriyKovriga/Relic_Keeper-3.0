@@ -26,6 +26,8 @@ public partial class InventoryUI
         InventoryItem held = _draggedItem;
         bool fromStash = _draggedFromStash;
         bool fromMarket = _draggedFromMarket;
+        bool fromLootCache = _draggedFromLootCache;
+        WorldLootCache lootCache = _draggedLootCache;
         int stashTab = _draggedStashTab;
         int stashAnchor = _draggedStashAnchorSlot;
         int invAnchor = _draggedSourceAnchor;
@@ -36,6 +38,8 @@ public partial class InventoryUI
         _draggedSourceAnchor = -1;
         _draggedFromStash = false;
         _draggedFromMarket = false;
+        _draggedFromLootCache = false;
+        _draggedLootCache = null;
         _draggedStashTab = -1;
         _draggedStashAnchorSlot = -1;
 
@@ -54,6 +58,8 @@ public partial class InventoryUI
         bool returned = false;
         if (fromMarket && Scripts.Economy.MarketManager.Instance != null && stashTab >= 0 && stashAnchor >= 0)
             returned = Scripts.Economy.MarketManager.Instance.PlaceItemBack(held, stashTab, stashAnchor);
+        else if (fromLootCache && lootCache != null)
+            returned = lootCache.TryAddItemPreferringTab(held, stashTab);
         else if (fromStash && StashManager.Instance != null && stashTab >= 0 && stashAnchor >= 0)
             returned = StashManager.Instance.PlaceItemInStash(held, stashTab, stashAnchor, -1, -1, -1);
         else if (!fromStash && !fromMarket && invAnchor >= 0 && InventoryManager.Instance != null)
@@ -408,6 +414,8 @@ public partial class InventoryUI
         _draggedSourceAnchor = anchorIdx;
         _draggedFromStash = false;
         _draggedFromMarket = false;
+        _draggedFromLootCache = false;
+        _draggedLootCache = null;
         _draggedStashTab = -1;
         _draggedStashAnchorSlot = -1;
         RefreshInventory();
@@ -489,6 +497,8 @@ public partial class InventoryUI
         _draggedSourceAnchor = anchorIdx;
         _draggedFromStash = false;
         _draggedFromMarket = false;
+        _draggedFromLootCache = false;
+        _draggedLootCache = null;
         _draggedStashTab = -1;
         _draggedStashAnchorSlot = -1;
         RefreshInventory();
@@ -516,7 +526,7 @@ public partial class InventoryUI
         float h;
         if (_isDragging && _draggedItem?.Data != null)
         {
-            if (_draggedFromStash || _draggedFromMarket)
+            if (_draggedFromStash || _draggedFromMarket || _draggedFromLootCache)
             {
                 w = GetStashSpanSize(_draggedItem.Data.Width);
                 h = GetStashSpanSize(_draggedItem.Data.Height);
@@ -582,6 +592,8 @@ public partial class InventoryUI
         InventoryItem itemToPlace = _draggedItem;
         bool fromStash = _draggedFromStash;
         bool fromMarket = _draggedFromMarket;
+        bool fromLootCache = _draggedFromLootCache;
+        WorldLootCache lootCacheSource = _draggedLootCache;
         int stashTab = _draggedStashTab;
         int stashAnchor = _draggedStashAnchorSlot;
         int invSourceAnchor = _draggedSourceAnchor;
@@ -592,6 +604,8 @@ public partial class InventoryUI
         _draggedSourceAnchor = -1;
         _draggedFromStash = false;
         _draggedFromMarket = false;
+        _draggedFromLootCache = false;
+        _draggedLootCache = null;
         _draggedStashTab = -1;
         _draggedStashAnchorSlot = -1;
         _ghostIcon.style.display = DisplayStyle.None;
@@ -682,6 +696,8 @@ public partial class InventoryUI
             }
             else if (fromStash && StashManager.Instance != null)
                 returned = StashManager.Instance.PlaceItemInStash(itemToPlace, stashTab, stashAnchor, -1, -1, -1);
+            else if (fromLootCache && lootCacheSource != null)
+                returned = lootCacheSource.TryAddItemPreferringTab(itemToPlace, stashTab);
             else if (invSourceAnchor >= 0 && InventoryManager.Instance != null)
                 returned = InventoryManager.Instance.PlaceItemAt(itemToPlace, invSourceAnchor, -1);
             if (!returned && !fromMarket && InventoryManager.Instance != null)
@@ -693,6 +709,11 @@ public partial class InventoryUI
 
         try
         {
+            if (placed && fromLootCache && lootCacheSource != null && lootCacheSource.Count == 0)
+            {
+                SetLootCachePanelVisible(null);
+                lootCacheSource.CompleteItemTransfer();
+            }
             RefreshInventory();
             RefreshStash();
             if (placed && _root != null)
