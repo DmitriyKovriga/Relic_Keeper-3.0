@@ -161,6 +161,26 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void MutationKeepsTenPercentMinimumAtExtremeRarity()
+        {
+            CraftingOrbSO mutation = Create<CraftingOrbSO>();
+            mutation.ID = "RelicOfMutation";
+            CraftingOrbSO rare = Create<CraftingOrbSO>();
+            rare.ID = "rare";
+            rare.UpgradeChance = 0.20f;
+            CraftingOrbSO[] orbs = { mutation, rare };
+            var chances = new Dictionary<CraftingOrbSO, float>();
+
+            EnemyLootDropService.GetCraftingOrbChances(orbs, 100f, chances);
+
+            Assert.That(chances[rare], Is.EqualTo(0.90f).Within(0.0001f));
+            Assert.That(chances[mutation], Is.EqualTo(0.10f).Within(0.0001f));
+            Assert.That(EnemyLootDropService.SelectCraftingOrb(orbs, 0.899f, 100f), Is.SameAs(rare));
+            Assert.That(EnemyLootDropService.SelectCraftingOrb(orbs, 0.90f, 100f), Is.SameAs(mutation));
+            Assert.That(EnemyLootDropService.SelectCraftingOrb(orbs, 0.999f, 100f), Is.SameAs(mutation));
+        }
+
+        [Test]
         public void RuntimeLootSettingsKeepItemChanceCurrencyChanceAndCurrencyTypeSeparate()
         {
             ItemDatabaseSO database = Resources.Load<ItemDatabaseSO>(ProjectPaths.ResourcesItemDatabase);

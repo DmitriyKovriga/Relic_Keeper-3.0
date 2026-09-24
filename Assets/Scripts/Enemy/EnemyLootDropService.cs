@@ -28,6 +28,7 @@ namespace Scripts.Enemies
         public const float DefaultMagicChance = 0.05f;
         public const float DefaultRareChance = 0.02f;
         public const float RepeatDropDecreasePerSuccess = 0.30f;
+        public const float MinimumMutationCurrencyChance = 0.10f;
         private static CraftingOrbSO[] s_craftingOrbs;
 
         public static WorldDroppedItem TrySpawnLoot(EnemyEntity entity)
@@ -265,7 +266,7 @@ namespace Scripts.Enemies
             {
                 CraftingOrbSO orb = upgrades[i];
                 cumulativeChance += Mathf.Max(0f, orb.UpgradeChance) * safeRarityMultiplier;
-                float threshold = Mathf.Clamp01(cumulativeChance);
+                float threshold = Mathf.Min(1f - MinimumMutationCurrencyChance, cumulativeChance);
                 if (safeRoll < threshold)
                     return orb;
             }
@@ -291,19 +292,19 @@ namespace Scripts.Enemies
             if (defaultOrb == null)
                 return;
 
-            float remainingChance = 1f;
+            float remainingUpgradeChance = 1f - MinimumMutationCurrencyChance;
             float safeRarityMultiplier = Mathf.Max(0f, rarityMultiplier);
             for (int i = 0; i < upgrades.Count; i++)
             {
                 CraftingOrbSO orb = upgrades[i];
                 float chance = Mathf.Min(
-                    remainingChance,
+                    remainingUpgradeChance,
                     Mathf.Max(0f, orb.UpgradeChance) * safeRarityMultiplier);
                 result[orb] = chance;
-                remainingChance = Mathf.Max(0f, remainingChance - chance);
+                remainingUpgradeChance = Mathf.Max(0f, remainingUpgradeChance - chance);
             }
 
-            result[defaultOrb] = remainingChance;
+            result[defaultOrb] = MinimumMutationCurrencyChance + remainingUpgradeChance;
         }
 
         private static CraftingOrbSO CollectCraftingOrbUpgrades(
