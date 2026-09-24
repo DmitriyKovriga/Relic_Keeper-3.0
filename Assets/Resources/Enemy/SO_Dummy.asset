@@ -179,4 +179,5 @@ MonoBehaviour:
   XPReward: 0
   GoldReward: 0
   LootDropMultiplier: 0
+  LootQuantityMultiplier: 1
   RewardGrowthPerLevelPercent: 25

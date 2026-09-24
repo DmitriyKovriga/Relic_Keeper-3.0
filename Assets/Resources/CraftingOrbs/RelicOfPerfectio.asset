@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: RelicOfPerfectio
   Icon: {fileID: 21300000, guid: a470d8be21a0e4e4393143329e35a298, type: 3}
-  BaseDropChance: 0.02
+  UpgradeChance: 0.19512195
   NameKey: crafting_relic.RelicOfPerfectio.name
   DescriptionKey: crafting_relic.RelicOfPerfectio.description
   EffectId: upgrade_magic_to_rare

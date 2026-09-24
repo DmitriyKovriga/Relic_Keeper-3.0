@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: RelicOfPurgatio
   Icon: {fileID: 21300000, guid: 8aaa0d6c82649d14fa0a9c0f42fdc427, type: 3}
-  BaseDropChance: 0.015
+  UpgradeChance: 0.14634146
   NameKey: crafting_relic.RelicOfPurgatio.name
   DescriptionKey: crafting_relic.RelicOfPurgatio.description
   EffectId: purge_all

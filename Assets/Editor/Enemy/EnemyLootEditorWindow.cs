@@ -25,7 +25,7 @@ namespace Scripts.Editor.Enemy
         {
             var window = GetWindow<EnemyLootEditorWindow>();
             window.titleContent = new GUIContent("Enemy Loot");
-            window.minSize = new Vector2(940f, 540f);
+            window.minSize = new Vector2(1120f, 540f);
             window.Refresh();
         }
 
@@ -88,7 +88,7 @@ namespace Scripts.Editor.Enemy
         private void DrawBaseChances()
         {
             EditorGUILayout.Space(8f);
-            EditorGUILayout.LabelField("Base drop chances per enemy", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Enemy loot model", EditorStyles.boldLabel);
 
             if (_itemDatabase == null)
             {
@@ -97,23 +97,33 @@ namespace Scripts.Editor.Enemy
             }
 
             EditorGUI.BeginChangeCheck();
-            float common = DrawPercentSlider("Common (white)", _itemDatabase.CommonItemDropChance);
-            float magic = DrawPercentSlider("Magic (blue)", _itemDatabase.MagicItemDropChance);
-            float rare = DrawPercentSlider("Rare", _itemDatabase.RareItemDropChance);
+            float itemChance = DrawPercentSlider("Base item drop chance", _itemDatabase.BaseItemDropChance);
+            float currencyChance = DrawPercentSlider("Base currency drop chance", _itemDatabase.BaseCurrencyDropChance);
+            float magic = DrawPercentSlider("Magic upgrade chance", _itemDatabase.MagicItemDropChance);
+            float rare = DrawPercentSlider("Rare upgrade chance", _itemDatabase.RareItemDropChance);
             if (EditorGUI.EndChangeCheck())
             {
                 Undo.RecordObject(_itemDatabase, "Change enemy loot chances");
-                _itemDatabase.CommonItemDropChance = common;
+                _itemDatabase.BaseItemDropChance = itemChance;
+                _itemDatabase.BaseCurrencyDropChance = currencyChance;
                 _itemDatabase.MagicItemDropChance = magic;
                 _itemDatabase.RareItemDropChance = rare;
                 EditorUtility.SetDirty(_itemDatabase);
             }
 
-            float total = common + magic + rare;
-            EditorGUILayout.LabelField($"Total chance at multiplier 1: {total * 100f:0.##}%", EditorStyles.miniLabel);
-            if (total > 1f)
-                EditorGUILayout.HelpBox("The combined base chance exceeds 100%. Lower-priority common drops can be crowded out.", MessageType.Warning);
+            float rareAtBaseRarity = Mathf.Clamp01(rare);
+            float magicAtBaseRarity = Mathf.Min(1f - rareAtBaseRarity, Mathf.Max(0f, magic));
+            float commonAtBaseRarity = Mathf.Max(0f, 1f - rareAtBaseRarity - magicAtBaseRarity);
+            EditorGUILayout.LabelField(
+                $"After a successful item drop at rarity x1: {commonAtBaseRarity * 100f:0.##}% common, " +
+                $"{magicAtBaseRarity * 100f:0.##}% magic, {rareAtBaseRarity * 100f:0.##}% rare",
+                EditorStyles.miniLabel);
+            if (magic + rare > 1f)
+                EditorGUILayout.HelpBox("Magic and rare upgrade chances fill the entire roll; Common is fully displaced and Rare takes priority.", MessageType.Warning);
 
+            EditorGUILayout.HelpBox(
+                $"Item and currency use separate base chances multiplied by enemy, room and dungeon quantity. After every success another roll is made with a stacking {EnemyLootDropService.RepeatDropDecreasePerSuccess * 100f:0}% decreased penalty. A dropped item starts Common, then Item Rarity multiplies its Magic and Rare upgrade chances.",
+                MessageType.Info);
             EditorGUILayout.HelpBox(
                 "Base XP and Base Gold are rewards for a level 1 enemy. Level scaling and dungeon modifiers apply at runtime; no dungeon modifier means x1. Gold 0 derives from XP so a level-30 knight yields 1000. Dummy stays at 0.",
                 MessageType.Info);
@@ -125,7 +135,7 @@ namespace Scripts.Editor.Enemy
         {
             _showOrbChances = EditorGUILayout.Foldout(
                 _showOrbChances,
-                $"Crafting currency drop chances ({_orbs.Count})",
+                $"Crafting currency upgrades ({_orbs.Count})",
                 true,
                 EditorStyles.foldoutHeader);
             if (!_showOrbChances)
@@ -135,10 +145,9 @@ namespace Scripts.Editor.Enemy
             }
 
             EditorGUILayout.HelpBox(
-                "Each currency rolls independently. Enemy Loot multiplier and the room drop-chance modifier affect these rates.",
+                "Every successful currency drop starts as Relic of Mutation. One rare-first roll can upgrade it to another currency. Item Rarity multiplies these upgrade chances without changing how many currencies drop.",
                 MessageType.Info);
 
-            float combinedChance = 0f;
             foreach (CraftingOrbSO orb in _orbs)
             {
                 if (orb == null)
@@ -157,22 +166,30 @@ namespace Scripts.Editor.Enemy
                     ObjectNames.NicifyVariableName(currencyId).Replace("Relic Of ", "Relic of "),
                     GUILayout.Width(180f));
 
-                EditorGUI.BeginChangeCheck();
-                float chance = EditorGUILayout.Slider(Mathf.Clamp01(orb.BaseDropChance), 0f, 1f);
-                EditorGUILayout.LabelField($"{chance * 100f:0.###}%", GUILayout.Width(70f));
-                if (EditorGUI.EndChangeCheck())
+                bool isDefault = string.Equals(currencyId, "RelicOfMutation", StringComparison.OrdinalIgnoreCase);
+                if (isDefault)
                 {
-                    Undo.RecordObject(orb, "Change crafting currency drop chance");
-                    orb.BaseDropChance = chance;
-                    EditorUtility.SetDirty(orb);
+                    EditorGUILayout.LabelField("Default after drop", EditorStyles.miniLabel, GUILayout.Width(190f));
                 }
-                combinedChance += chance;
+                else
+                {
+                    EditorGUI.BeginChangeCheck();
+                    float upgradeChance = EditorGUILayout.Slider(
+                        Mathf.Clamp01(orb.UpgradeChance),
+                        0f,
+                        1f,
+                        GUILayout.Width(210f));
+                    EditorGUILayout.LabelField($"{upgradeChance * 100f:0.##}% upgrade", GUILayout.Width(100f));
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        Undo.RecordObject(orb, "Change crafting currency upgrade chance");
+                        orb.UpgradeChance = upgradeChance;
+                        EditorUtility.SetDirty(orb);
+                    }
+                }
                 EditorGUILayout.EndHorizontal();
             }
 
-            EditorGUILayout.LabelField(
-                $"Expected currency drops per enemy at multiplier 1: {combinedChance * 100f:0.###}%",
-                EditorStyles.miniLabel);
             EditorGUILayout.Space(8f);
         }
 
@@ -183,9 +200,10 @@ namespace Scripts.Editor.Enemy
             GUILayout.Label("Enemy", EditorStyles.boldLabel, GUILayout.MinWidth(220f));
             GUILayout.Label(new GUIContent("Base XP", "Experience from a level 1 enemy at dungeon multiplier x1."), EditorStyles.boldLabel, GUILayout.Width(90f));
             GUILayout.Label(new GUIContent("Base Gold", "Gold from a level 1 enemy. 0 = derive from Base XP so knight level 30 yields 1000."), EditorStyles.boldLabel, GUILayout.Width(90f));
-            GUILayout.Label("Loot multiplier", EditorStyles.boldLabel, GUILayout.Width(135f));
-            GUILayout.Label(new GUIContent("Item chance", "Chance of any equipment item at room multiplier x1."), EditorStyles.boldLabel, GUILayout.Width(90f));
-            GUILayout.Label(new GUIContent("Currency chance", "Chance of at least one crafting currency at room multiplier x1."), EditorStyles.boldLabel, GUILayout.Width(105f));
+            GUILayout.Label(new GUIContent("Drop multiplier", "Multiplies the first item and currency drop chances."), EditorStyles.boldLabel, GUILayout.Width(110f));
+            GUILayout.Label(new GUIContent("Quantity multiplier", "Multiplies every item and currency roll; each success then adds 30% decreased."), EditorStyles.boldLabel, GUILayout.Width(130f));
+            GUILayout.Label(new GUIContent("First item roll", "Chance of the first equipment item at room quantity x1."), EditorStyles.boldLabel, GUILayout.Width(90f));
+            GUILayout.Label(new GUIContent("First currency roll", "Chance of the first crafting currency at room quantity x1."), EditorStyles.boldLabel, GUILayout.Width(105f));
             EditorGUILayout.EndHorizontal();
 
             string normalizedSearch = _search?.Trim();
@@ -240,7 +258,7 @@ namespace Scripts.Editor.Enemy
             }
 
             EditorGUI.BeginChangeCheck();
-            float multiplier = EditorGUILayout.FloatField(Mathf.Max(0f, enemy.LootDropMultiplier), GUILayout.Width(135f));
+            float multiplier = EditorGUILayout.FloatField(Mathf.Max(0f, enemy.LootDropMultiplier), GUILayout.Width(110f));
             if (EditorGUI.EndChangeCheck())
             {
                 Undo.RecordObject(enemy, "Change enemy loot multiplier");
@@ -248,27 +266,24 @@ namespace Scripts.Editor.Enemy
                 EditorUtility.SetDirty(enemy);
             }
 
-            float totalChance = _itemDatabase != null
-                ? Mathf.Clamp01((_itemDatabase.CommonItemDropChance + _itemDatabase.MagicItemDropChance + _itemDatabase.RareItemDropChance) * Mathf.Max(0f, enemy.LootDropMultiplier))
-                : 0f;
-            EditorGUILayout.LabelField($"{totalChance * 100f:0.##}%", GUILayout.Width(90f));
-            EditorGUILayout.LabelField(
-                $"{CalculateAnyCurrencyChance(enemy.LootDropMultiplier) * 100f:0.##}%",
-                GUILayout.Width(105f));
-            EditorGUILayout.EndHorizontal();
-        }
-
-        private float CalculateAnyCurrencyChance(float lootMultiplier)
-        {
-            float noneChance = 1f;
-            foreach (CraftingOrbSO orb in _orbs)
+            EditorGUI.BeginChangeCheck();
+            float quantityMultiplier = EditorGUILayout.FloatField(Mathf.Max(0f, enemy.LootQuantityMultiplier), GUILayout.Width(130f));
+            if (EditorGUI.EndChangeCheck())
             {
-                if (orb == null)
-                    continue;
-                float chance = Mathf.Clamp01(orb.BaseDropChance * Mathf.Max(0f, lootMultiplier));
-                noneChance *= 1f - chance;
+                Undo.RecordObject(enemy, "Change enemy loot quantity multiplier");
+                enemy.LootQuantityMultiplier = Mathf.Max(0f, quantityMultiplier);
+                EditorUtility.SetDirty(enemy);
             }
-            return 1f - noneChance;
+
+            float itemChance = _itemDatabase != null
+                ? EnemyLootDropService.GetDropChance(_itemDatabase.BaseItemDropChance, enemy.LootDropMultiplier, enemy.LootQuantityMultiplier, 0)
+                : 0f;
+            float currencyChance = _itemDatabase != null
+                ? EnemyLootDropService.GetDropChance(_itemDatabase.BaseCurrencyDropChance, enemy.LootDropMultiplier, enemy.LootQuantityMultiplier, 0)
+                : 0f;
+            EditorGUILayout.LabelField($"{itemChance * 100f:0.##}%", GUILayout.Width(90f));
+            EditorGUILayout.LabelField($"{currencyChance * 100f:0.##}%", GUILayout.Width(105f));
+            EditorGUILayout.EndHorizontal();
         }
 
         private static float DrawPercentSlider(string label, float value)

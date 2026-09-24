@@ -182,4 +182,5 @@ MonoBehaviour:
     ChargeImpactFrame: -1
   XPReward: 7.5
   LootDropMultiplier: 0.5
+  LootQuantityMultiplier: 1
   RewardGrowthPerLevelPercent: 25

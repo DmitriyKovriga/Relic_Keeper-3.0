@@ -26,67 +26,125 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void BaseRarityChancesUseRareMagicCommonBands()
+        public void BaseRarityChancesAreRolledAfterDrop()
         {
             Assert.That(EnemyLootDropService.RollRarity(0.019f, 1f), Is.EqualTo(EnemyLootRarity.Rare));
+            Assert.That(EnemyLootDropService.RollRarity(0.02f, 1f), Is.EqualTo(EnemyLootRarity.Magic));
             Assert.That(EnemyLootDropService.RollRarity(0.069f, 1f), Is.EqualTo(EnemyLootRarity.Magic));
-            Assert.That(EnemyLootDropService.RollRarity(0.169f, 1f), Is.EqualTo(EnemyLootRarity.Common));
-            Assert.That(EnemyLootDropService.RollRarity(0.17f, 1f), Is.EqualTo(EnemyLootRarity.None));
+            Assert.That(EnemyLootDropService.RollRarity(0.07f, 1f), Is.EqualTo(EnemyLootRarity.Common));
+            Assert.That(EnemyLootDropService.RollRarity(0.99f, 1f), Is.EqualTo(EnemyLootRarity.Common));
         }
 
         [Test]
-        public void LootMultiplierScalesEveryRarityChance()
+        public void RarityIncreaseMultipliesMagicAndRareUpgradeChances()
         {
-            Assert.That(EnemyLootDropService.RollRarity(0.009f, 0.5f), Is.EqualTo(EnemyLootRarity.Rare));
-            Assert.That(EnemyLootDropService.RollRarity(0.034f, 0.5f), Is.EqualTo(EnemyLootRarity.Magic));
-            Assert.That(EnemyLootDropService.RollRarity(0.084f, 0.5f), Is.EqualTo(EnemyLootRarity.Common));
-            Assert.That(EnemyLootDropService.RollRarity(0.085f, 0.5f), Is.EqualTo(EnemyLootRarity.None));
-            Assert.That(EnemyLootDropService.RollRarity(0f, 0f), Is.EqualTo(EnemyLootRarity.None));
+            Assert.That(EnemyLootDropService.RollRarity(0.039f, 2f), Is.EqualTo(EnemyLootRarity.Rare));
+            Assert.That(EnemyLootDropService.RollRarity(0.04f, 2f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollRarity(0.139f, 2f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollRarity(0.14f, 2f), Is.EqualTo(EnemyLootRarity.Common));
+            Assert.That(EnemyLootDropService.RollRarity(0f, 0f), Is.EqualTo(EnemyLootRarity.Common));
         }
 
         [Test]
-        public void PositiveDropMultiplierAddsQualityDropsWithoutIncreasingCommonChance()
+        public void QuantityModifiersApplyFromFirstDropRoll()
         {
-            // At 1x the common band is [0.07, 0.17): exactly 10 percentage points.
-            Assert.That(EnemyLootDropService.RollItemOutcome(0.169f, 1f, 1f), Is.EqualTo(EnemyLootRarity.Common));
-            Assert.That(EnemyLootDropService.RollItemOutcome(0.17f, 1f, 1f), Is.EqualTo(EnemyLootRarity.None));
-
-            // At 2x total drops grow to 34%, but common remains the final 10 percentage points.
-            Assert.That(EnemyLootDropService.RollItemOutcome(0.239f, 2f, 1f), Is.EqualTo(EnemyLootRarity.Magic));
-            Assert.That(EnemyLootDropService.RollItemOutcome(0.25f, 2f, 1f), Is.EqualTo(EnemyLootRarity.Common));
-            Assert.That(EnemyLootDropService.RollItemOutcome(0.339f, 2f, 1f), Is.EqualTo(EnemyLootRarity.Common));
-            Assert.That(EnemyLootDropService.RollItemOutcome(0.34f, 2f, 1f), Is.EqualTo(EnemyLootRarity.None));
+            Assert.That(EnemyLootDropService.GetDropChance(0.17f, 1f, 1f, 0), Is.EqualTo(0.17f).Within(0.0001f));
+            Assert.That(EnemyLootDropService.GetDropChance(0.17f, 1f, 2f, 0), Is.EqualTo(0.34f).Within(0.0001f));
+            Assert.That(EnemyLootDropService.GetDropChance(0.17f, 2f, 2f, 0), Is.EqualTo(0.68f).Within(0.0001f));
+            Assert.That(EnemyLootDropService.GetDropChance(0.17f, 1f, 10f, 0), Is.EqualTo(1f));
         }
 
         [Test]
-        public void RarityMultiplierReducesCommonResultsWithoutChangingTotalDropChance()
+        public void RepeatedDropsReceiveStackingThirtyPercentDecrease()
         {
-            Assert.That(EnemyLootDropService.RollItemOutcome(0.10f, 1f, 1f), Is.EqualTo(EnemyLootRarity.Common));
-            Assert.That(EnemyLootDropService.RollItemOutcome(0.10f, 1f, 3f), Is.EqualTo(EnemyLootRarity.Magic));
-            Assert.That(EnemyLootDropService.RollItemOutcome(0.17f, 1f, 3f), Is.EqualTo(EnemyLootRarity.None));
+            Assert.That(EnemyLootDropService.GetDropChance(0.17f, 1f, 1f, 1), Is.EqualTo(0.119f).Within(0.0001f));
+            Assert.That(EnemyLootDropService.GetDropChance(0.17f, 1f, 1f, 2), Is.EqualTo(0.068f).Within(0.0001f));
+            Assert.That(EnemyLootDropService.GetDropChance(0.17f, 1f, 1f, 3), Is.EqualTo(0.017f).Within(0.0001f));
+            Assert.That(EnemyLootDropService.GetDropChance(0.17f, 1f, 1f, 4), Is.Zero);
+
+            Assert.That(EnemyLootDropService.GetDropChance(0.17f, 1f, 2f, 1), Is.EqualTo(0.289f).Within(0.0001f));
         }
 
         [Test]
-        public void RareItemsReplaceMagicAfterCommonChanceIsExhausted()
+        public void RareUpgradeReplacesMagicAfterCommonIsExhausted()
         {
-            // At 3x, magic-or-better has filled the entire 17% drop band.
-            Assert.That(EnemyLootDropService.RollItemOutcome(0.10f, 1f, 3f), Is.EqualTo(EnemyLootRarity.Magic));
-            Assert.That(EnemyLootDropService.RollItemOutcome(0.16f, 1f, 3f), Is.EqualTo(EnemyLootRarity.Magic));
-
-            // Rare-or-better keeps growing after that and eventually occupies the whole band.
-            Assert.That(EnemyLootDropService.RollItemOutcome(0.10f, 1f, 6f), Is.EqualTo(EnemyLootRarity.Rare));
-            Assert.That(EnemyLootDropService.RollItemOutcome(0.16f, 1f, 8.5f), Is.EqualTo(EnemyLootRarity.Rare));
-            Assert.That(EnemyLootDropService.RollItemOutcome(0.17f, 1f, 8.5f), Is.EqualTo(EnemyLootRarity.None));
+            Assert.That(EnemyLootDropService.RollRarity(0.199f, 10f), Is.EqualTo(EnemyLootRarity.Rare));
+            Assert.That(EnemyLootDropService.RollRarity(0.20f, 10f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollRarity(0.699f, 10f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollRarity(0.70f, 10f), Is.EqualTo(EnemyLootRarity.Common));
+            Assert.That(EnemyLootDropService.RollRarity(0.999f, 15f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollRarity(0.999f, 50f), Is.EqualTo(EnemyLootRarity.Rare));
         }
 
         [Test]
-        public void CraftingCurrencyChanceUsesEnemyAndRoomMultiplier()
+        public void CraftingCurrencyFirstRollUsesBaseChanceMultiplier()
         {
             Assert.That(EnemyLootDropService.RollCraftingOrbDrop(0.039f, 0.04f, 1f), Is.True);
             Assert.That(EnemyLootDropService.RollCraftingOrbDrop(0.04f, 0.04f, 1f), Is.False);
             Assert.That(EnemyLootDropService.RollCraftingOrbDrop(0.079f, 0.04f, 2f), Is.True);
             Assert.That(EnemyLootDropService.RollCraftingOrbDrop(0.02f, 0.04f, 0.5f), Is.False);
             Assert.That(EnemyLootDropService.RollCraftingOrbDrop(0f, 0.04f, 0f), Is.False);
+        }
+
+        [Test]
+        public void SuccessfulCurrencyDropStartsAsMutationAndCanUpgrade()
+        {
+            CraftingOrbSO mutation = Create<CraftingOrbSO>();
+            mutation.ID = "RelicOfMutation";
+            CraftingOrbSO rareUpgrade = Create<CraftingOrbSO>();
+            rareUpgrade.ID = "rare";
+            rareUpgrade.UpgradeChance = 0.10f;
+            CraftingOrbSO commonUpgrade = Create<CraftingOrbSO>();
+            commonUpgrade.ID = "common_upgrade";
+            commonUpgrade.UpgradeChance = 0.25f;
+            CraftingOrbSO[] orbs = { mutation, commonUpgrade, rareUpgrade };
+
+            Assert.That(EnemyLootDropService.SelectCraftingOrb(orbs, 0.099f), Is.SameAs(rareUpgrade));
+            Assert.That(EnemyLootDropService.SelectCraftingOrb(orbs, 0.10f), Is.SameAs(commonUpgrade));
+            Assert.That(EnemyLootDropService.SelectCraftingOrb(orbs, 0.349f), Is.SameAs(commonUpgrade));
+            Assert.That(EnemyLootDropService.SelectCraftingOrb(orbs, 0.36f), Is.SameAs(mutation));
+            Assert.That(EnemyLootDropService.SelectCraftingOrb(orbs, 0.99f), Is.SameAs(mutation));
+        }
+
+        [Test]
+        public void CurrencyRarityMultipliesUpgradeChancesWithoutChangingDefault()
+        {
+            CraftingOrbSO mutation = Create<CraftingOrbSO>();
+            mutation.ID = "RelicOfMutation";
+            CraftingOrbSO rare = Create<CraftingOrbSO>();
+            rare.ID = "rare";
+            rare.UpgradeChance = 0.10f;
+            CraftingOrbSO[] orbs = { mutation, rare };
+
+            Assert.That(EnemyLootDropService.SelectCraftingOrb(orbs, 0.15f, 1f), Is.SameAs(mutation));
+            Assert.That(EnemyLootDropService.SelectCraftingOrb(orbs, 0.15f, 2f), Is.SameAs(rare));
+            Assert.That(EnemyLootDropService.SelectCraftingOrb(orbs, 0.01f, 0f), Is.SameAs(mutation));
+        }
+
+        [Test]
+        public void RuntimeLootSettingsKeepItemChanceCurrencyChanceAndCurrencyTypeSeparate()
+        {
+            ItemDatabaseSO database = Resources.Load<ItemDatabaseSO>(ProjectPaths.ResourcesItemDatabase);
+            Assert.That(database, Is.Not.Null);
+            Assert.That(database.BaseItemDropChance, Is.GreaterThan(0f).And.LessThanOrEqualTo(1f));
+            Assert.That(database.BaseCurrencyDropChance, Is.GreaterThan(0f).And.LessThanOrEqualTo(1f));
+
+            CraftingOrbSO[] orbs = Resources.LoadAll<CraftingOrbSO>(ProjectPaths.ResourcesCraftingOrbsFolder);
+            Assert.That(orbs, Is.Not.Empty);
+            CraftingOrbSO mutation = null;
+            float totalUpgradeChance = 0f;
+            foreach (CraftingOrbSO orb in orbs)
+            {
+                if (orb == null)
+                    continue;
+                if (orb.ID == "RelicOfMutation")
+                    mutation = orb;
+                else
+                    totalUpgradeChance += Mathf.Max(0f, orb.UpgradeChance);
+            }
+            Assert.That(mutation, Is.Not.Null);
+            Assert.That(mutation.UpgradeChance, Is.Zero);
+            Assert.That(totalUpgradeChance, Is.GreaterThan(0f).And.LessThan(1f));
         }
 
         [Test]

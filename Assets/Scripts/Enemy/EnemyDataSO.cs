@@ -300,6 +300,9 @@ namespace Scripts.Enemies
         [Tooltip("Множитель шанса выпадения предметов и крафт-валюты. 1 = базовый шанс, 0.5 = вдвое реже, 2 = вдвое чаще, 0 = без лута.")]
         [Min(0f)] public float LootDropMultiplier = 1f;
 
+        [Tooltip("Множитель количества предметов и крафт-валюты с этого моба. Умножает базовый шанс каждого ролла; после каждого успеха дополнительно накапливается 30% decreased.")]
+        [Min(0f)] public float LootQuantityMultiplier = 1f;
+
         [Tooltip("Percent growth per enemy level for XP. Gold uses its own global curve.")]
         [UnityEngine.Serialization.FormerlySerializedAs("LegacyGrowthPerLevelPercent")]
         public float RewardGrowthPerLevelPercent = 25f;

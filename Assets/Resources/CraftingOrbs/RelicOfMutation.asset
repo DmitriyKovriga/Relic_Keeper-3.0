@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: RelicOfMutation
   Icon: {fileID: 21300000, guid: 99071d3251e3e384584c8cfc81d164e4, type: 3}
-  BaseDropChance: 0.04
+  UpgradeChance: 0
   NameKey: crafting_relic.RelicOfMutation.name
   DescriptionKey: crafting_relic.RelicOfMutation.description
   EffectId: create_magic

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: RelicOfElevation
   Icon: {fileID: 21300000, guid: 10411d261e8b2de458b6b92d507e4f17, type: 3}
-  BaseDropChance: 0.005
+  UpgradeChance: 0.04878049
   NameKey: crafting_relic.RelicOfElevation.name
   DescriptionKey: crafting_relic.RelicOfElevation.description
   EffectId: create_rare

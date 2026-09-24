@@ -20,9 +20,10 @@ namespace Scripts.Dungeon
     [Serializable]
     public sealed class DungeonModifierValues
     {
-        [Tooltip("Изменение общего количества выпадений, %. 50 = в 1.5 раза больше. Дополнительные выпадения не увеличивают шанс белых предметов.")]
+        [InspectorName("Loot Quantity Percent")]
+        [Tooltip("Increase/decreased количества предметов и валюты, %. Умножает базовый шанс всех роллов; после каждого успеха дополнительно накапливается 30% decreased.")]
         public float LootDropChancePercent;
-        [Tooltip("Повышение качества без изменения количества: сначала магические и редкие предметы вытесняют белые, затем редкие вытесняют магические, %.")]
+        [Tooltip("Increase к базовым шансам магических и редких предметов, %. Сначала они вытесняют белые, затем редкие вытесняют магические.")]
         public float LootRarityPercent;
         [Tooltip("Изменение опыта с противников, %.")]
         public float ExperiencePercent;
@@ -46,7 +47,7 @@ namespace Scripts.Dungeon
             if (target == null)
                 return;
 
-            AddPercent(target, RuntimeLocalization.Resolve("dungeon.effect.lootDropChance", "Item drop chance", "Шанс выпадения предметов"), LootDropChancePercent);
+            AddPercent(target, RuntimeLocalization.Resolve("dungeon.effect.lootDropChance", "Item quantity", "Количество предметов"), LootDropChancePercent);
             AddPercent(target, RuntimeLocalization.Resolve("dungeon.effect.lootRarity", "Item rarity", "Редкость предметов"), LootRarityPercent);
             AddPercent(target, RuntimeLocalization.Resolve("dungeon.effect.experience", "Experience from slain enemies", "Опыт с убитых врагов"), ExperiencePercent);
             AddPercent(target, RuntimeLocalization.Resolve("dungeon.effect.enemyDamageTaken", "Damage taken by monsters", "Получаемый монстрами урон"), EnemyDamageTakenPercent);
@@ -166,6 +167,7 @@ namespace Scripts.Dungeon
         public GameObject MerchantServicePrefab { get; internal set; }
 
         public float LootDropChanceMultiplier => ToMultiplier(LootDropChancePercent);
+        public float LootQuantityMultiplier => LootDropChanceMultiplier;
         public float LootRarityMultiplier => ToMultiplier(LootRarityPercent);
         public float ExperienceMultiplier => ToMultiplier(ExperiencePercent);
         public float EnemyDamageTakenMultiplier => ToMultiplier(EnemyDamageTakenPercent);

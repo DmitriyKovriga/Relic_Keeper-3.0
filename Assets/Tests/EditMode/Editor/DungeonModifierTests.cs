@@ -52,8 +52,8 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(EnemyLootDropService.RollDrop(0.169f, 1f), Is.True);
             Assert.That(EnemyLootDropService.RollDrop(0.17f, 1f), Is.False);
 
-            EnemyLootRarity normal = EnemyLootDropService.RollDroppedRarity(0.15f, 1f);
-            EnemyLootRarity boosted = EnemyLootDropService.RollDroppedRarity(0.15f, 3f);
+            EnemyLootRarity normal = EnemyLootDropService.RollDroppedRarity(0.05f, 1f);
+            EnemyLootRarity boosted = EnemyLootDropService.RollDroppedRarity(0.05f, 3f);
 
             Assert.That(normal, Is.EqualTo(EnemyLootRarity.Magic));
             Assert.That(boosted, Is.EqualTo(EnemyLootRarity.Rare));
@@ -410,14 +410,14 @@ namespace RelicKeeper.Tests.EditMode
             firstRoom.Add(DungeonRunProgress.CreateLocationLevelLootModifier(1));
             Assert.That(firstRoom.LootDropChancePercent, Is.EqualTo(1f));
             Assert.That(firstRoom.LootRarityPercent, Is.EqualTo(1f));
-            Assert.That(firstRoom.LootDropChanceMultiplier, Is.EqualTo(1.01f).Within(0.0001f));
+            Assert.That(firstRoom.LootQuantityMultiplier, Is.EqualTo(1.01f).Within(0.0001f));
             Assert.That(firstRoom.LootRarityMultiplier, Is.EqualTo(1.01f).Within(0.0001f));
 
             var endlessRoom = new DungeonModifierContext();
             endlessRoom.Add(DungeonRunProgress.CreateLocationLevelLootModifier(11));
             Assert.That(endlessRoom.LootDropChancePercent, Is.EqualTo(11f));
             Assert.That(endlessRoom.LootRarityPercent, Is.EqualTo(11f));
-            Assert.That(endlessRoom.LootDropChanceMultiplier, Is.EqualTo(1.11f).Within(0.0001f));
+            Assert.That(endlessRoom.LootQuantityMultiplier, Is.EqualTo(1.11f).Within(0.0001f));
             Assert.That(endlessRoom.LootRarityMultiplier, Is.EqualTo(1.11f).Within(0.0001f));
             Assert.That(firstRoom.EnemyCountPercent, Is.EqualTo(2f));
             Assert.That(endlessRoom.EnemyCountPercent, Is.EqualTo(22f));
@@ -430,7 +430,7 @@ namespace RelicKeeper.Tests.EditMode
             var lines = new List<string>();
             DungeonRunProgress.AddLocationLevelLootDescriptions(lines, 11);
 
-            Assert.That(lines, Does.Contain($"{RuntimeLocalization.Resolve("dungeon.effect.lootDropChance", "Item drop chance", "Шанс выпадения предметов")} +11%"));
+            Assert.That(lines, Does.Contain($"{RuntimeLocalization.Resolve("dungeon.effect.lootDropChance", "Item quantity", "Количество предметов")} +11%"));
             Assert.That(lines, Does.Contain($"{RuntimeLocalization.Resolve("dungeon.effect.lootRarity", "Item rarity", "Редкость предметов")} +11%"));
             Assert.That(lines, Does.Contain($"{RuntimeLocalization.Resolve("dungeon.effect.enemyCount", "Monster count", "Количество монстров")} +22%"));
         }
@@ -444,7 +444,7 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(DungeonModifierHud.MaxCharactersPerLine * 3, Is.LessThanOrEqualTo(innerWidth + 2));
             Assert.That(DungeonModifierHud.MaxCharactersPerLine, Is.GreaterThan(27));
 
-            string lootLine = $"{RuntimeLocalization.Resolve("dungeon.effect.lootDropChance", "Item drop chance", "Шанс выпадения предметов")} +11%";
+            string lootLine = $"{RuntimeLocalization.Resolve("dungeon.effect.lootDropChance", "Item quantity", "Количество предметов")} +11%";
             string wrappedLoot = DungeonModifierHud.WrapForHud(lootLine, out int lootLines);
             Assert.That(lootLines, Is.EqualTo(1));
             Assert.That(wrappedLoot, Does.Not.Contain("\n"));

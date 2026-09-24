@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Scripts.Items
 {
@@ -28,8 +29,10 @@ namespace Scripts.Items
         public Sprite Icon;
 
         [Header("Drop")]
-        [Tooltip("Базовый шанс выпадения с одного врага при множителе лута 1. Каждая реликвия бросается независимо.")]
-        [Range(0f, 1f)] public float BaseDropChance = 0.01f;
+        [Tooltip("Шанс заменить выпавшую Relic of Mutation этой валютой. Item Rarity умножает шанс апгрейда. Для Relic of Mutation оставь 0: это базовый результат успешного дропа валюты.")]
+        [FormerlySerializedAs("BaseDropChance")]
+        [FormerlySerializedAs("DropWeight")]
+        [Range(0f, 1f)] public float UpgradeChance;
 
         [Header("Localization")]
         [Tooltip("Ключ в String Table для имени реликвии (например crafting_relic.RelicOfFortune.name).")]

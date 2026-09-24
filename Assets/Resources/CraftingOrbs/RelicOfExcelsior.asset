@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: RelicOfExcelsior
   Icon: {fileID: 21300000, guid: e9ae198a6dd908b4ab6521790c46a860, type: 3}
-  BaseDropChance: 0.0025
+  UpgradeChance: 0.024390245
   NameKey: crafting_relic.RelicOfExcelsior.name
   DescriptionKey: crafting_relic.RelicOfExcelsior.description
   EffectId: add_rare_affix
