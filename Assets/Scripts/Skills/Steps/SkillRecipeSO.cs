@@ -12,6 +12,11 @@ namespace Scripts.Skills.Steps
         [Header("Steps (order matters)")]
         public List<StepEntry> Steps = new List<StepEntry>();
 
+        [Header("Combat Feel")]
+        [Range(1, 5)]
+        [Tooltip("Rendered frames frozen on a confirmed melee hit or on the first confirmed projectile hit of the cast.")]
+        public int HitStopFrames = 1;
+
         [Header("Channeling (optional)")]
         [Tooltip("Если true, после начальных степов выполняется цикл ChannelLoopSteps пока кнопка зажата")]
         public bool IsChanneling;

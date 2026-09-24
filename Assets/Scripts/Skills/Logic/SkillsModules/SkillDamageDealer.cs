@@ -46,13 +46,15 @@ namespace Scripts.Skills.Modules
             damage.Source = _ownerStats;
             Vector2 hitOrigin = _ownerStats != null ? (Vector2)_ownerStats.transform.position : Vector2.zero;
             PushbackResolver.BindToSnapshot(damage, SkillPushback.IsEnabled(skill), stats, hitOrigin);
+            var hitStopGate = new SkillHitStopGate(skill?.Recipe != null ? skill.Recipe.HitStopFrames : 3);
 
             // 2. Раздаем урон
             foreach (var target in targets)
             {
                 // Мы передаем ссылку на тот же объект, но Target его не меняет, только читает.
                 // Если нужно, чтобы расчет Mitigation был уникальным (он внутри TakeDamage), все ок.
-                target.TakeDamage(damage);
+                if (target.TakeDamage(damage))
+                    hitStopGate.TryTrigger();
             }
         }
     }

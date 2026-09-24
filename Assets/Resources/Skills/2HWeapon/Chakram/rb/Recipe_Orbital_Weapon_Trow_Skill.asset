@@ -114,6 +114,7 @@ MonoBehaviour:
     StartPercentPipeline: 0.35
     EndPercentPipeline: 0.35
     SubSteps: []
+  HitStopFrames: 1
   IsChanneling: 0
   ChannelLoopStepIndices: 
   ChannelMaxDuration: 5

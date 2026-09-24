@@ -853,6 +853,22 @@ namespace Scripts.Editor.Skills
                 serializedSkill.FindProperty("SkillSpeedMultiplier"),
                 new GUIContent("Skill Speed Multiplier", "Applied after normal AttackSpeed/CastSpeed. 1 = normal, 1.5 = 50% faster."));
 
+            if (skill.Recipe != null)
+            {
+                SerializedObject serializedRecipe = new SerializedObject(skill.Recipe);
+                serializedRecipe.Update();
+                SerializedProperty hitStopFrames = serializedRecipe.FindProperty("HitStopFrames");
+                EditorGUILayout.IntSlider(
+                    hitStopFrames,
+                    HitStopService.MinFrames,
+                    HitStopService.MaxFrames,
+                    new GUIContent(
+                        "Hit-stop Frames",
+                        "Rendered frames frozen on a confirmed melee hit or the first projectile hit of one cast. Melee default: 3. Ranged default: 1."));
+                if (serializedRecipe.ApplyModifiedProperties())
+                    EditorUtility.SetDirty(skill.Recipe);
+            }
+
             EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField("Pushback", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(
@@ -3250,6 +3266,7 @@ namespace Scripts.Editor.Skills
             {
                 recipe = ScriptableObject.CreateInstance<SkillRecipeSO>();
                 recipe.Steps = new List<StepEntry>();
+                recipe.HitStopFrames = 3;
                 AssetDatabase.CreateAsset(recipe, recipePath);
             }
 
@@ -3381,6 +3398,7 @@ namespace Scripts.Editor.Skills
 
             var recipe = ScriptableObject.CreateInstance<SkillRecipeSO>();
             recipe.Steps = new List<StepEntry>();
+            recipe.HitStopFrames = (skill.DamageContextTags & StatContextTagFlags.Melee) != 0 ? 3 : 1;
             AssetDatabase.CreateAsset(recipe, recipePath);
             EditorUtility.SetDirty(recipe);
             return recipe;

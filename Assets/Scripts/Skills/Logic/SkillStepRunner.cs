@@ -45,6 +45,8 @@ namespace Scripts.Skills
         private bool _cancelled;
         private List<(int stepIndex, StepEntry step, int sourceIdx, float pct)> _pendingDamageByVfxLife;
         private readonly Dictionary<int, HashSet<int>> _persistentHitTargetsByStep = new Dictionary<int, HashSet<int>>();
+        private readonly HashSet<int> _persistentHitStopSteps = new HashSet<int>();
+        private SkillHitStopGate _hitStopGate;
 
         public override void Cancel()
         {
@@ -82,6 +84,7 @@ namespace Scripts.Skills
             }
 
             _cancelled = false;
+            _hitStopGate = new SkillHitStopGate(_data.Recipe.HitStopFrames);
             _ctx = new SkillStepContext
             {
                 OwnerStats = _ownerStats,
@@ -105,6 +108,7 @@ namespace Scripts.Skills
             if (_animCtrl != null) _animCtrl.ForceReset();
             if (_moveCtrl != null) _moveCtrl.SetLock(false);
             _persistentHitTargetsByStep.Clear();
+            _persistentHitStopSteps.Clear();
             _isCasting = false;
         }
 
@@ -619,7 +623,8 @@ namespace Scripts.Skills
                     step.GetFloat(
                         "ReturnDamagePercent",
                         ReturningProjectileDamageResolver.DefaultReturnDamagePercent)),
-                ClearHitHistoryOnReverse = step.GetBool("ClearHitHistoryOnReverse", true)
+                ClearHitHistoryOnReverse = step.GetBool("ClearHitHistoryOnReverse", true),
+                HitStopGate = _hitStopGate
             };
 
             Vector2 origin = (Vector2)_ownerStats.transform.position + new Vector2(offsetX * _ctx.FacingDirection, offsetY);
@@ -735,7 +740,8 @@ namespace Scripts.Skills
                     OrbitRadius = radius,
                     OrbitAngularSpeedDegreesPerSecond = angularSpeed,
                     OrbitAngleDegrees = angle,
-                    RehitCooldownSeconds = rehitCooldown
+                    RehitCooldownSeconds = rehitCooldown,
+                    HitStopGate = _hitStopGate
                 };
 
                 SkillProjectile.Spawn(data, origin, tangent, null);
@@ -1030,6 +1036,7 @@ namespace Scripts.Skills
 
             if (target.TakeDamage(snapshot))
             {
+                _hitStopGate?.TryTrigger();
                 TryApplyAilmentsFromHit(scopedStats, target, snapshot);
                 ExecuteOnHitEffects(step, target, chainTarget.TargetTransform, snapshot);
             }
@@ -1196,6 +1203,7 @@ namespace Scripts.Skills
             float mult = ResolveDamageMultiplier(step);
             DamageContext damageContext = ResolveDamageContext();
             var hitResults = stepIndex >= 0 ? new List<SkillStepContext.HitResult>(targets.Count) : null;
+            bool dealtDamage = false;
             for (int i = 0; i < targets.Count; i++)
             {
                 IDamageable target = targets[i];
@@ -1213,6 +1221,7 @@ namespace Scripts.Skills
                 Transform targetTransform = ResolveDamageableTransform(target);
                 if (target.TakeDamage(snapshot))
                 {
+                    dealtDamage = true;
                     TryApplyAilmentsFromHit(scopedStats, target, snapshot);
                     ExecuteOnHitEffects(step, target, targetTransform, snapshot);
                 }
@@ -1227,6 +1236,9 @@ namespace Scripts.Skills
                     });
                 }
             }
+
+            if (dealtDamage && (hitOnceTargets == null || _persistentHitStopSteps.Add(stepIndex)))
+                HitStopService.Request(_data.Recipe.HitStopFrames);
 
             if (hitResults != null && hitResults.Count > 0)
             {

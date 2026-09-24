@@ -80,6 +80,7 @@ namespace Scripts.Skills.Projectiles
         public float RehitCooldownSeconds;
         public HashSet<IDamageable> HitHistory;
         public SkillDataSO Skill;
+        public SkillHitStopGate HitStopGate;
 
         public SkillProjectileLaunchData Clone()
         {
@@ -571,7 +572,10 @@ namespace Scripts.Skills.Projectiles
                 transform.position);
             connected = target.TakeDamage(snapshot);
             if (connected)
+            {
+                _data.HitStopGate?.TryTrigger();
                 TryApplyAilmentsFromHit(scopedStats, target, snapshot);
+            }
             return snapshot;
         }
 
