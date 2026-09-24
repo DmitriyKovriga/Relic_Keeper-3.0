@@ -46,6 +46,23 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void EffectiveRarityBreakdownMatchesRuntimeRollBands()
+        {
+            EnemyLootDropService.GetRarityChances(
+                2f,
+                0.05f,
+                0.02f,
+                out float common,
+                out float magic,
+                out float rare);
+
+            Assert.That(common, Is.EqualTo(0.86f).Within(0.0001f));
+            Assert.That(magic, Is.EqualTo(0.10f).Within(0.0001f));
+            Assert.That(rare, Is.EqualTo(0.04f).Within(0.0001f));
+            Assert.That(common + magic + rare, Is.EqualTo(1f).Within(0.0001f));
+        }
+
+        [Test]
         public void QuantityModifiersApplyFromFirstDropRoll()
         {
             Assert.That(EnemyLootDropService.GetDropChance(0.17f, 1f, 1f, 0), Is.EqualTo(0.17f).Within(0.0001f));
@@ -119,6 +136,28 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(EnemyLootDropService.SelectCraftingOrb(orbs, 0.15f, 1f), Is.SameAs(mutation));
             Assert.That(EnemyLootDropService.SelectCraftingOrb(orbs, 0.15f, 2f), Is.SameAs(rare));
             Assert.That(EnemyLootDropService.SelectCraftingOrb(orbs, 0.01f, 0f), Is.SameAs(mutation));
+        }
+
+        [Test]
+        public void EffectiveCurrencyBreakdownMatchesRuntimeUpgradeBands()
+        {
+            CraftingOrbSO mutation = Create<CraftingOrbSO>();
+            mutation.ID = "RelicOfMutation";
+            CraftingOrbSO rare = Create<CraftingOrbSO>();
+            rare.ID = "rare";
+            rare.UpgradeChance = 0.10f;
+            CraftingOrbSO commonUpgrade = Create<CraftingOrbSO>();
+            commonUpgrade.ID = "common_upgrade";
+            commonUpgrade.UpgradeChance = 0.25f;
+            CraftingOrbSO[] orbs = { mutation, commonUpgrade, rare };
+            var chances = new Dictionary<CraftingOrbSO, float>();
+
+            EnemyLootDropService.GetCraftingOrbChances(orbs, 2f, chances);
+
+            Assert.That(chances[rare], Is.EqualTo(0.20f).Within(0.0001f));
+            Assert.That(chances[commonUpgrade], Is.EqualTo(0.50f).Within(0.0001f));
+            Assert.That(chances[mutation], Is.EqualTo(0.30f).Within(0.0001f));
+            Assert.That(chances[rare] + chances[commonUpgrade] + chances[mutation], Is.EqualTo(1f).Within(0.0001f));
         }
 
         [Test]

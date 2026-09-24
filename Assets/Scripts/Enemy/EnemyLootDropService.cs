@@ -210,10 +210,15 @@ namespace Scripts.Enemies
             float magicChance = DefaultMagicChance,
             float rareChance = DefaultRareChance)
         {
-            float safeMultiplier = Mathf.Max(0f, rarityMultiplier);
-            float rareThreshold = Mathf.Clamp01(Mathf.Max(0f, rareChance) * safeMultiplier);
-            float magicOrBetterThreshold = Mathf.Clamp01(
-                rareThreshold + Mathf.Max(0f, magicChance) * safeMultiplier);
+            GetRarityChances(
+                rarityMultiplier,
+                magicChance,
+                rareChance,
+                out _,
+                out float magicResultChance,
+                out float rareResultChance);
+            float rareThreshold = rareResultChance;
+            float magicOrBetterThreshold = rareResultChance + magicResultChance;
             float safeRoll = Mathf.Clamp01(roll);
 
             if (safeRoll < rareThreshold)
@@ -221,6 +226,23 @@ namespace Scripts.Enemies
             if (safeRoll < magicOrBetterThreshold)
                 return EnemyLootRarity.Magic;
             return EnemyLootRarity.Common;
+        }
+
+        /// <summary>Returns final Common/Magic/Rare shares among successful item drops.</summary>
+        public static void GetRarityChances(
+            float rarityMultiplier,
+            float magicChance,
+            float rareChance,
+            out float commonResultChance,
+            out float magicResultChance,
+            out float rareResultChance)
+        {
+            float safeMultiplier = Mathf.Max(0f, rarityMultiplier);
+            rareResultChance = Mathf.Clamp01(Mathf.Max(0f, rareChance) * safeMultiplier);
+            float magicOrBetterChance = Mathf.Clamp01(
+                rareResultChance + Mathf.Max(0f, magicChance) * safeMultiplier);
+            magicResultChance = Mathf.Max(0f, magicOrBetterChance - rareResultChance);
+            commonResultChance = Mathf.Max(0f, 1f - magicOrBetterChance);
         }
 
         public static CraftingOrbSO SelectCraftingOrb(
@@ -231,8 +253,64 @@ namespace Scripts.Enemies
             if (orbs == null || orbs.Length == 0)
                 return null;
 
-            CraftingOrbSO defaultOrb = null;
             var upgrades = new System.Collections.Generic.List<CraftingOrbSO>(orbs.Length);
+            CraftingOrbSO defaultOrb = CollectCraftingOrbUpgrades(orbs, upgrades);
+            if (defaultOrb == null)
+                return null;
+
+            float safeRoll = Mathf.Clamp01(roll);
+            float safeRarityMultiplier = Mathf.Max(0f, rarityMultiplier);
+            float cumulativeChance = 0f;
+            for (int i = 0; i < upgrades.Count; i++)
+            {
+                CraftingOrbSO orb = upgrades[i];
+                cumulativeChance += Mathf.Max(0f, orb.UpgradeChance) * safeRarityMultiplier;
+                float threshold = Mathf.Clamp01(cumulativeChance);
+                if (safeRoll < threshold)
+                    return orb;
+            }
+
+            return defaultOrb;
+        }
+
+        /// <summary>Returns final shares of every currency among successful currency drops.</summary>
+        public static void GetCraftingOrbChances(
+            CraftingOrbSO[] orbs,
+            float rarityMultiplier,
+            System.Collections.Generic.IDictionary<CraftingOrbSO, float> result)
+        {
+            if (result == null)
+                return;
+
+            result.Clear();
+            if (orbs == null || orbs.Length == 0)
+                return;
+
+            var upgrades = new System.Collections.Generic.List<CraftingOrbSO>(orbs.Length);
+            CraftingOrbSO defaultOrb = CollectCraftingOrbUpgrades(orbs, upgrades);
+            if (defaultOrb == null)
+                return;
+
+            float remainingChance = 1f;
+            float safeRarityMultiplier = Mathf.Max(0f, rarityMultiplier);
+            for (int i = 0; i < upgrades.Count; i++)
+            {
+                CraftingOrbSO orb = upgrades[i];
+                float chance = Mathf.Min(
+                    remainingChance,
+                    Mathf.Max(0f, orb.UpgradeChance) * safeRarityMultiplier);
+                result[orb] = chance;
+                remainingChance = Mathf.Max(0f, remainingChance - chance);
+            }
+
+            result[defaultOrb] = remainingChance;
+        }
+
+        private static CraftingOrbSO CollectCraftingOrbUpgrades(
+            CraftingOrbSO[] orbs,
+            System.Collections.Generic.List<CraftingOrbSO> upgrades)
+        {
+            CraftingOrbSO defaultOrb = null;
             for (int i = 0; i < orbs.Length; i++)
             {
                 CraftingOrbSO orb = orbs[i];
@@ -249,11 +327,6 @@ namespace Scripts.Enemies
                     upgrades.Add(orb);
             }
 
-            if (defaultOrb == null)
-                return null;
-
-            // Every successful currency drop starts as Mutation. A single rare-first roll can
-            // upgrade it; rarity expands those upgrade bands without affecting drop quantity.
             upgrades.Sort((left, right) =>
             {
                 int chanceOrder = left.UpgradeChance.CompareTo(right.UpgradeChance);
@@ -261,19 +334,6 @@ namespace Scripts.Enemies
                     ? chanceOrder
                     : string.Compare(left.ID, right.ID, System.StringComparison.Ordinal);
             });
-
-            float safeRoll = Mathf.Clamp01(roll);
-            float safeRarityMultiplier = Mathf.Max(0f, rarityMultiplier);
-            float cumulativeChance = 0f;
-            for (int i = 0; i < upgrades.Count; i++)
-            {
-                CraftingOrbSO orb = upgrades[i];
-                cumulativeChance += Mathf.Max(0f, orb.UpgradeChance) * safeRarityMultiplier;
-                float threshold = Mathf.Clamp01(cumulativeChance);
-                if (safeRoll < threshold)
-                    return orb;
-            }
-
             return defaultOrb;
         }
 

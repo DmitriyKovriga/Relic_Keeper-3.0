@@ -178,6 +178,7 @@ MonoBehaviour:
     AttackImpactFrame: 8
     ChargeImpactFrame: 8
   XPReward: 15
-  LootDropMultiplier: 3
+  GoldReward: 0
+  LootDropMultiplier: 1.75
   LootQuantityMultiplier: 1
   RewardGrowthPerLevelPercent: 25

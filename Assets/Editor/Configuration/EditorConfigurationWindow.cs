@@ -69,10 +69,16 @@ namespace RelicKeeper.EditorTools
             if (tavernAlwaysAvailable != PlaytestConfiguration.TavernAlwaysAvailable)
                 PlaytestConfiguration.SetEditorTavernAlwaysAvailable(tavernAlwaysAvailable);
 
+            bool showLootChanceInfo = EditorGUILayout.ToggleLeft(
+                "Show loot chance info",
+                PlaytestConfiguration.ShowLootChanceInfo);
+            if (showLootChanceInfo != PlaytestConfiguration.ShowLootChanceInfo)
+                PlaytestConfiguration.SetEditorShowLootChanceInfo(showLootChanceInfo);
+
             EditorGUILayout.Space(6f);
             EditorGUILayout.HelpBox(
-                "Player build: autosave is always ON, immortality is always OFF, and the stash and the tavern " +
-                "can only be opened by interacting with their hub NPCs.",
+                "Player build: autosave is always ON, immortality is always OFF, loot chance info is always hidden, " +
+                "and the stash and the tavern can only be opened by interacting with their hub NPCs.",
                 MessageType.None);
         }
     }
