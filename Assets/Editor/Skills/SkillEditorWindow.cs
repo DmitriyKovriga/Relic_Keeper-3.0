@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using UnityEditor.Localization;
 using UnityEngine.Localization;
@@ -45,6 +45,7 @@ namespace Scripts.Editor.Skills
         private string _lastLoadedSkillLocalizationState = string.Empty;
         private bool _showLegacySkillDescription;
         private readonly WeaponEditorTab _weaponEditor = new WeaponEditorTab();
+        private readonly StanceEditorTab _stanceEditor = new StanceEditorTab();
         private const float LeftColFraction = 0.30f;
         private const float CenterColFraction = 0.40f;
         private const float RightColFraction = 0.30f;
@@ -82,6 +83,7 @@ namespace Scripts.Editor.Skills
             Refresh();
             TrySelectDefaultDebugSwingSkill();
             _weaponEditor.OnEnable();
+            _stanceEditor.OnEnable();
         }
 
         private void Refresh()
@@ -183,7 +185,7 @@ namespace Scripts.Editor.Skills
 
             if (_editorTab == EditorTab.Stance)
             {
-                EditorGUILayout.HelpBox("Stance Editor — next. Hold stances stay on WeaponVisualController + SkillDataSO.HoldStance for now.", MessageType.Info);
+                _stanceEditor.OnGUI();
                 return;
             }
 
@@ -3536,4 +3538,5 @@ namespace Scripts.Editor.Skills
         }
     }
 }
+
 

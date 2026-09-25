@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using Scripts.Combat;
 using Scripts.Inventory;
@@ -11,7 +11,8 @@ namespace Scripts.Visuals
     /// Weapon overlay sprites + idle hold stances.
     /// Body sorting is owned by PlayerMovement (root WorldDepthSort).
     /// Stance is authored on the weapon's active skill #1 (<see cref="SkillDataSO.HoldStance"/>).
-    /// Swing / attack windup stays on HandPivot via SkillHandAnimation вЂ” do not couple to HoldStance.
+    /// Hold poses come from <see cref="WeaponStancePoseTableSO"/> (Stance Editor); code defaults are fallback only.
+    /// Swing / attack windup stays on HandPivot via SkillHandAnimation — do not couple to HoldStance.
     /// </summary>
     public class WeaponVisualController : MonoBehaviour
     {
@@ -35,11 +36,9 @@ namespace Scripts.Visuals
         [Tooltip("Optional. Created at runtime under HandPivot when dual 1H is equipped.")]
         [SerializeField] private SpriteRenderer _offhandWeaponRenderer;
 
-        [Header("Hold stance poses (tunable)")]
-        [Tooltip("Local pose of WeaponHolder relative to HandPivot. Approximates the author sketch; tune in Play Mode.")]
-        [SerializeField] private StancePose[] _stancePoses = CreateDefaultPoseTable();
-
-        [SerializeField, HideInInspector] private int _poseTableVersion;
+        [Header("Hold stance poses")]
+        [Tooltip("Global pose table (Stance Editor). If empty, loads Resources/Visuals/WeaponStancePoseTable.")]
+        [SerializeField] private WeaponStancePoseTableSO _poseTable;
 
         [Header("Dual wield")]
         [Tooltip("Added to offhand local position when two combat 1H weapons are equipped (sideways offset).")]
@@ -53,22 +52,33 @@ namespace Scripts.Visuals
         private WorldDepthSort _offhandDepthSort;
         private Transform _handPivot;
         private PlayerSkillManager _skillManager;
+        private static bool _loggedMissingPoseTable;
 
         private void Awake()
         {
-            EnsureDefaultPoseTable();
+            EnsurePoseTable();
             CacheHandPivot();
             EnsureWeaponDepthSort(_weaponRenderer, ref _weaponDepthSort, behind: false);
         }
 
-        private const int CurrentPoseTableVersion = 7;
-
-        private void EnsureDefaultPoseTable()
+        private void EnsurePoseTable()
         {
-            if (_stancePoses == null || _stancePoses.Length == 0 || _poseTableVersion < CurrentPoseTableVersion)
+            if (_poseTable == null)
+                _poseTable = WeaponStancePoseTableSO.LoadDefault();
+
+            if (_poseTable != null)
             {
-                _stancePoses = CreateDefaultPoseTable();
-                _poseTableVersion = CurrentPoseTableVersion;
+                _poseTable.EnsurePoseArray();
+                return;
+            }
+
+            if (!_loggedMissingPoseTable)
+            {
+                Debug.LogWarning(
+                    "[WeaponVisualController] WeaponStancePoseTableSO missing at Resources/"
+                    + WeaponStancePoseTableSO.DefaultResourcePath
+                    + " — using code defaults. Open Skills Editor → Stance and Save once to create the asset.");
+                _loggedMissingPoseTable = true;
             }
         }
 
@@ -116,7 +126,7 @@ namespace Scripts.Visuals
 
         private void RefreshVisuals()
         {
-            EnsureDefaultPoseTable();
+            EnsurePoseTable();
             if (InventoryManager.Instance == null || _weaponRenderer == null)
                 return;
 
@@ -133,19 +143,21 @@ namespace Scripts.Visuals
                 && offIsCombatOneHand;
 
             WeaponHoldStance mainStance = ResolveHoldStance(mainHandItem);
+            // InHandSpriteLocalOffset: per-weapon handle nudge when sprite.pivot cannot be authored
+            // (shared sheet). Same HandPivot-local space as stance LocalPosition; tilt cancel unchanged.
             ApplyHandVisual(
                 _weaponRenderer,
                 ref _weaponDepthSort,
                 mainIsWeapon ? mainWeapon.InHandSprite : null,
                 mainStance,
-                lateralOffset: Vector2.zero,
+                lateralOffset: mainIsWeapon ? mainWeapon.InHandSpriteLocalOffset : Vector2.zero,
                 spriteTiltZ: mainIsWeapon ? mainWeapon.InHandSpriteTiltZ : 0f);
 
             if (dualOneHand)
             {
                 EnsureOffhandRenderer();
                 WeaponHoldStance offStance = ResolveHoldStance(offHandItem);
-                // Same stance family as main when offhand skill has no explicit stance change вЂ”
+                // Same stance family as main when offhand skill has no explicit stance change —
                 // still read offhand skill #1; offset keeps dual-wield readable.
                 if (offStance == WeaponHoldStance.Default && mainStance != WeaponHoldStance.Default)
                     offStance = mainStance;
@@ -155,7 +167,7 @@ namespace Scripts.Visuals
                     ref _offhandDepthSort,
                     offWeapon.InHandSprite,
                     offStance,
-                    lateralOffset: _dualWieldOffhandOffset,
+                    lateralOffset: _dualWieldOffhandOffset + offWeapon.InHandSpriteLocalOffset,
                     spriteTiltZ: offWeapon.InHandSpriteTiltZ);
             }
             else
@@ -211,14 +223,9 @@ namespace Scripts.Visuals
 
         private StancePose GetPose(WeaponHoldStance stance)
         {
-            if (_stancePoses != null)
-            {
-                for (int i = 0; i < _stancePoses.Length; i++)
-                {
-                    if (_stancePoses[i].Stance == stance)
-                        return _stancePoses[i];
-                }
-            }
+            EnsurePoseTable();
+            if (_poseTable != null)
+                return _poseTable.GetPose(stance);
 
             StancePose[] defaults = CreateDefaultPoseTable();
             for (int i = 0; i < defaults.Length; i++)
@@ -346,7 +353,8 @@ namespace Scripts.Visuals
 
         /// <summary>
         /// Default table approximating the author sketch (units relative to HandPivot).
-        /// Scene baseline Default was WeaponHolder (0.5, 0.083) / 0В°.
+        /// Scene baseline Default was WeaponHolder (0.5, 0.083) / 0°.
+        /// Used to seed WeaponStancePoseTableSO and as runtime fallback when SO is missing.
         /// </summary>
         public static StancePose[] CreateDefaultPoseTable()
         {
@@ -364,7 +372,7 @@ namespace Scripts.Visuals
                 new StancePose
                 {
                     Stance = WeaponHoldStance.Aggressive,
-                    // FlipX; tip-forward horizontal is -90; ~10 deg below => -100. (NOT +90 вЂ” that is tip-back.)
+                    // FlipX; tip-forward horizontal is -90; ~10 deg below => -100. (NOT +90 — that is tip-back.)
                     LocalPosition = new Vector2(0.82f, 0.02f),
                     LocalEulerZ = -100f,
                     SortBehindCharacter = false,
@@ -391,7 +399,6 @@ namespace Scripts.Visuals
                     FlipX = false,
                     FlipY = false
                 },
-
                 new StancePose
                 {
                     Stance = WeaponHoldStance.Shoulder,
@@ -418,16 +425,23 @@ namespace Scripts.Visuals
 #if UNITY_EDITOR
         private void Reset()
         {
-            _stancePoses = CreateDefaultPoseTable();
+            _poseTable = WeaponStancePoseTableSO.LoadDefault();
         }
 
         private void OnValidate()
         {
-            if (_stancePoses == null || _stancePoses.Length == 0 || _poseTableVersion < CurrentPoseTableVersion)
-            {
-                _stancePoses = CreateDefaultPoseTable();
-                _poseTableVersion = CurrentPoseTableVersion;
-            }
+            if (_poseTable == null)
+                _poseTable = WeaponStancePoseTableSO.LoadDefault();
+        }
+
+        /// <summary>Editor: re-bind pose table and refresh visuals after Stance Editor save.</summary>
+        public void EditorReloadPoseTable(WeaponStancePoseTableSO table = null)
+        {
+            if (table != null)
+                _poseTable = table;
+            EnsurePoseTable();
+            if (Application.isPlaying)
+                RefreshVisuals();
         }
 #endif
     }

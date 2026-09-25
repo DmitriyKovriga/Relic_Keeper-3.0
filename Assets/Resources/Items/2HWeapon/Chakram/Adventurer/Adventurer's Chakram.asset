@@ -25,6 +25,8 @@ MonoBehaviour:
   SkillCount: 1
   IsTwoHanded: 1
   InHandSprite: {fileID: 21300000, guid: 883109531723d614aa67442fbb5ec3d9, type: 3}
+  InHandSpriteTiltZ: 0
+  InHandSpriteLocalOffset: {x: 0, y: 0}
   MinPhysicalDamage: 8
   MaxPhysicalDamage: 16
   MinFireDamage: 0

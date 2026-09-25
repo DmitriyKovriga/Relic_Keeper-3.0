@@ -30,6 +30,7 @@ MonoBehaviour:
   IsTwoHanded: 0
   InHandSprite: {fileID: 21300000, guid: 93cf8821dd9561b4abee6ff558df5282, type: 3}
   InHandSpriteTiltZ: -36.8
+  InHandSpriteLocalOffset: {x: 0, y: 0}
   MinPhysicalDamage: 5
   MaxPhysicalDamage: 10
   MinFireDamage: 0
