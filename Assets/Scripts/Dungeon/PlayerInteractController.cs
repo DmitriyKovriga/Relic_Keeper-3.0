@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Scripts.Items.World;
 using Scripts.Skills;
+using Scripts.UI;
 
 namespace Scripts.Dungeon
 {
@@ -33,6 +34,10 @@ namespace Scripts.Dungeon
         private float _lastCursorMoveUnscaledTime = -10f;
         private Vector2 _lastCursorScreenPosition;
         private int _cursorPickupFrame = -1;
+        private InteractPromptPresenter _interactPrompt;
+        private IInteractable _promptCandidate;
+        private float _promptCandidateSince;
+        [SerializeField, Min(0f)] private float _promptShowDelaySeconds = 2f;
 
         private void OnEnable()
         {
@@ -49,11 +54,14 @@ namespace Scripts.Dungeon
 
         private void OnDisable()
         {
+            _promptCandidate = null;
+            _promptCandidateSince = 0f;
             if (InputManager.InputActions != null)
                 InputManager.InputActions.Player.Interact.started -= OnInteractPerformed;
             if (InputManager.InputActions != null)
                 InputManager.InputActions.Player.Interact.performed -= OnInteractPerformed;
             ResetItemInspection();
+            HideInteractPrompt();
             WorldItemInspection.SetStationaryNearInspectedItem(false);
             if (_active == this)
                 _active = null;
@@ -73,6 +81,7 @@ namespace Scripts.Dungeon
         private void Update()
         {
             _currentInteractable = FindNearbyInteractable();
+            UpdateInteractPrompt();
             UpdateItemInspection();
             HandleCursorPickupClick();
 
@@ -212,7 +221,7 @@ namespace Scripts.Dungeon
 
             if (Mouse.current == null || !Mouse.current.leftButton.wasPressedThisFrame)
                 return false;
-            if (InputManager.InputActions?.Player == null || !InputManager.InputActions.Player.Get().enabled)
+            if (InputManager.InputActions == null || !InputManager.InputActions.Player.Get().enabled)
                 return false;
             if (_windowManager != null && _windowManager.HasOpenWindow)
                 return false;
@@ -315,6 +324,52 @@ namespace Scripts.Dungeon
             return _cachedRoom == null || _cachedRoom.IsCleared;
         }
 
+        
+        private void UpdateInteractPrompt()
+        {
+            bool windowOpen = _windowManager != null && _windowManager.HasOpenWindow;
+            bool mapEnabled = InputManager.InputActions != null &&
+                              InputManager.InputActions.Player.Get().enabled;
+
+            bool canShow = !windowOpen && mapEnabled &&
+                           _currentInteractable != null &&
+                           _currentInteractable.CanInteract();
+
+            if (!canShow)
+            {
+                _promptCandidate = null;
+                _promptCandidateSince = 0f;
+                HideInteractPrompt();
+                return;
+            }
+
+            if (!ReferenceEquals(_promptCandidate, _currentInteractable))
+            {
+                // New target: hide immediately and restart the dwell timer.
+                _promptCandidate = _currentInteractable;
+                _promptCandidateSince = Time.time;
+                HideInteractPrompt();
+                return;
+            }
+
+            if (Time.time - _promptCandidateSince >= _promptShowDelaySeconds)
+                EnsureInteractPrompt().Show(_currentInteractable);
+        }
+
+        private void HideInteractPrompt()
+        {
+            if (_interactPrompt != null)
+                _interactPrompt.Hide();
+        }
+
+        private InteractPromptPresenter EnsureInteractPrompt()
+        {
+            if (_interactPrompt == null)
+                _interactPrompt = GetComponent<InteractPromptPresenter>();
+            if (_interactPrompt == null)
+                _interactPrompt = gameObject.AddComponent<InteractPromptPresenter>();
+            return _interactPrompt;
+        }
         private void ResetItemInspection()
         {
             if (_inspectedWorldItem != null)
