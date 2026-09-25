@@ -11,7 +11,10 @@ namespace Scripts.Items
 
         [Header("Visuals")]
         [Tooltip("Спрайт, который отображается в руке персонажа")]
-        public Sprite InHandSprite; 
+        public Sprite InHandSprite;
+
+        [Tooltip("Z tilt painted into InHandSprite vs tip-up. Axe hand art approx -45. finalEuler = poseEuler - tilt.")]
+        public float InHandSpriteTiltZ; 
 
         [Header("Base Offense Stats")]
         public float MinPhysicalDamage;

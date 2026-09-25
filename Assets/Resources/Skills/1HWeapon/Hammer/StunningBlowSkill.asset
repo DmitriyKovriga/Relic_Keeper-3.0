@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
   ID: StunningBlowSkill
   SkillName: Stunning Blow
+  DescriptionMode: 0
   Description: Deal 100% damage with +25% attack speed and cast Shock Wave on hit
   Icon: {fileID: 21300000, guid: 8f462f6067fbc464595c618cd4b05c9a, type: 3}
   NameKey: skills.StunningBlowSkill
@@ -29,3 +30,5 @@ MonoBehaviour:
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: 96e898cdf1676b24592c133c2046d547, type: 2}
+  HoldStance: 2
+  SwingStyle: 0

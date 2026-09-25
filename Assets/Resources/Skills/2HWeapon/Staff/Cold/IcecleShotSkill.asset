@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
   ID: IcecleShotSkill
   SkillName: Icecle Shot
+  DescriptionMode: 0
   Description: Deal 100% of damage and grant additional 25% to freeze enemy
   Icon: {fileID: 21300000, guid: 6cc0203a39f29dc498f12b0d66d1dfb1, type: 3}
   NameKey: skills.IcecleShotSkill
@@ -24,6 +25,10 @@ MonoBehaviour:
   ActionSpeedMode: 1
   SkillSpeedMultiplier: 1
   DamageContextTags: 2
+  EnablePushback: 0
+  PushbackRating: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: 5c512311bfe87564eaaa0481bfb37748, type: 2}
+  HoldStance: 5
+  SwingStyle: 0

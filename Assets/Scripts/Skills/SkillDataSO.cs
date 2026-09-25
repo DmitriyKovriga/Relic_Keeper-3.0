@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Scripts.Skills.Steps;
 using Scripts.Stats;
 
@@ -22,7 +22,7 @@ namespace Scripts.Skills
     public class SkillDataSO : ScriptableObject
     {
         [Header("Identity")]
-        public string ID; // Уникальный ID (Fireball_V1)
+        public string ID; // РЈРЅРёРєР°Р»СЊРЅС‹Р№ ID (Fireball_V1)
         public string SkillName;
         [Tooltip("Automatic reads the recipe and always reflects its current mechanics. Legacy text is preserved below and can be enabled when needed.")]
         public SkillDescriptionMode DescriptionMode = SkillDescriptionMode.Automatic;
@@ -44,7 +44,7 @@ namespace Scripts.Skills
         public SkillActionSpeedMode ActionSpeedMode = SkillActionSpeedMode.Attack;
         [Tooltip("Multiplier applied after normal AttackSpeed/CastSpeed calculation. 1 = normal, 1.5 = 50% faster, 0.75 = 25% slower.")]
         public float SkillSpeedMultiplier = 1f;
-        [Tooltip("Контекст урона для расчета Context Modifier статов. Если оставить None у старых melee-скиллов, рантайм подставит безопасный legacy fallback Attack|Melee.")]
+        [Tooltip("РљРѕРЅС‚РµРєСЃС‚ СѓСЂРѕРЅР° РґР»СЏ СЂР°СЃС‡РµС‚Р° Context Modifier СЃС‚Р°С‚РѕРІ. Р•СЃР»Рё РѕСЃС‚Р°РІРёС‚СЊ None Сѓ СЃС‚Р°СЂС‹С… melee-СЃРєРёР»Р»РѕРІ, СЂР°РЅС‚Р°Р№Рј РїРѕРґСЃС‚Р°РІРёС‚ Р±РµР·РѕРїР°СЃРЅС‹Р№ legacy fallback Attack|Melee.")]
         public StatContextTagFlags DamageContextTags;
 
         [Header("Pushback")]
@@ -54,13 +54,22 @@ namespace Scripts.Skills
         public float PushbackRating;
 
         [Header("Visuals & Logic")]
-        [Tooltip("Префаб логики с компонентом SkillBehaviour на корне. Для навыка с Recipe можно оставить пустым: StepRunner создаётся автоматически. Визуальные эффекты назначаются в шагах рецепта, не здесь.")]
+        [Tooltip("РџСЂРµС„Р°Р± Р»РѕРіРёРєРё СЃ РєРѕРјРїРѕРЅРµРЅС‚РѕРј SkillBehaviour РЅР° РєРѕСЂРЅРµ. Р”Р»СЏ РЅР°РІС‹РєР° СЃ Recipe РјРѕР¶РЅРѕ РѕСЃС‚Р°РІРёС‚СЊ РїСѓСЃС‚С‹Рј: StepRunner СЃРѕР·РґР°С‘С‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё. Р’РёР·СѓР°Р»СЊРЅС‹Рµ СЌС„С„РµРєС‚С‹ РЅР°Р·РЅР°С‡Р°СЋС‚СЃСЏ РІ С€Р°РіР°С… СЂРµС†РµРїС‚Р°, РЅРµ Р·РґРµСЃСЊ.")]
         public GameObject SkillPrefab;
-        [Tooltip("Анимация игрока при касте")]
+        [Tooltip("РђРЅРёРјР°С†РёСЏ РёРіСЂРѕРєР° РїСЂРё РєР°СЃС‚Рµ")]
         public string AnimationTrigger = "Attack";
 
         [Header("Step-based (optional)")]
-        [Tooltip("Рецепт для StepRunner. Если SkillPrefab не задан, исполнитель создаётся автоматически. Иначе префаб должен содержать SkillBehaviour.")]
+        [Tooltip("Р РµС†РµРїС‚ РґР»СЏ StepRunner. Р•СЃР»Рё SkillPrefab РЅРµ Р·Р°РґР°РЅ, РёСЃРїРѕР»РЅРёС‚РµР»СЊ СЃРѕР·РґР°С‘С‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё. РРЅР°С‡Рµ РїСЂРµС„Р°Р± РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ SkillBehaviour.")]
         public SkillRecipeSO Recipe;
+
+        [Header("Weapon Hold (idle pose)")]
+        [Tooltip("Idle hold pose when this skill is a weapon's active skill #1 (auto-attack / primary). Independent of future swing style.")]
+        public WeaponHoldStance HoldStance = WeaponHoldStance.Default;
+
+        // FUTURE: attack swing / windup style — separate from HoldStance so pose is never locked to one swing.
+        // Not applied at runtime yet. SkillHandAnimation / attack steps should read this later.
+        [Tooltip("FUTURE: attack swing style. Independent of HoldStance. Not applied at runtime yet.")]
+        public WeaponSwingStyle SwingStyle = WeaponSwingStyle.None;
     }
 }

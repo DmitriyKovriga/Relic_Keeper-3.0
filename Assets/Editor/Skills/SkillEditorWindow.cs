@@ -882,6 +882,19 @@ namespace Scripts.Editor.Skills
             }
 
             EditorGUILayout.Space(8f);
+            EditorGUILayout.LabelField("Weapon Hold Stance", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(
+                serializedSkill.FindProperty("HoldStance"),
+                new GUIContent(
+                    "Hold Stance",
+                    "Idle weapon pose when this skill is a weapon's active skill #1 (auto-attack). 0 Default, 1 Aggressive, 2 LowGuard, 3 Dagger, 4 Shoulder (sorts behind), 5 Staff. Independent of future swing style."));
+            EditorGUILayout.PropertyField(
+                serializedSkill.FindProperty("SwingStyle"),
+                new GUIContent(
+                    "Swing Style (future)",
+                    "FUTURE extension point — attack swing/windup style. Not applied at runtime yet. Keep independent from Hold Stance."));
+
+            EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField("Runtime Links", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("DamageContextTags"));
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("SkillPrefab"));
