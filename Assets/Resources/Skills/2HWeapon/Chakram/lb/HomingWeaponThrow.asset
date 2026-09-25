@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
   ID: HomingWeaponThrow
   SkillName: Homing Weapon Throw
+  DescriptionMode: 0
   Description: Throw Homing Weapon with 100% damage
   Icon: {fileID: 21300000, guid: 658466fbf230fa34f85a4775d394bd18, type: 3}
   NameKey: skills.HomingWeaponThrow
@@ -24,6 +25,10 @@ MonoBehaviour:
   ActionSpeedMode: 0
   SkillSpeedMultiplier: 1
   DamageContextTags: 9
+  EnablePushback: 0
+  PushbackRating: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: ddec50acd9f2ecc40bc015fd2627ae40, type: 2}
+  HoldStance: 2
+  SwingStyle: 2

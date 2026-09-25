@@ -46,6 +46,7 @@ namespace Scripts.Editor.Skills
         private bool _showLegacySkillDescription;
         private readonly WeaponEditorTab _weaponEditor = new WeaponEditorTab();
         private readonly StanceEditorTab _stanceEditor = new StanceEditorTab();
+        private readonly SwingEditorTab _swingEditor = new SwingEditorTab();
         private const float LeftColFraction = 0.30f;
         private const float CenterColFraction = 0.40f;
         private const float RightColFraction = 0.30f;
@@ -84,6 +85,7 @@ namespace Scripts.Editor.Skills
             TrySelectDefaultDebugSwingSkill();
             _weaponEditor.OnEnable();
             _stanceEditor.OnEnable();
+            _swingEditor.OnEnable();
         }
 
         private void Refresh()
@@ -191,7 +193,7 @@ namespace Scripts.Editor.Skills
 
             if (_editorTab == EditorTab.Swing)
             {
-                EditorGUILayout.HelpBox("Swing Editor — next. WeaponSwingStyle / hand animation stay as today.", MessageType.Info);
+                _swingEditor.OnGUI();
                 return;
             }
 

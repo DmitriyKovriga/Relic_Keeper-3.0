@@ -1,6 +1,7 @@
 using UnityEngine;
 using Scripts.Stats;
 using Scripts.Skills;
+using Scripts.Visuals;
 
 namespace Scripts.Skills.Modules
 {
@@ -8,31 +9,29 @@ namespace Scripts.Skills.Modules
     /// HandPivot windup / strike / recovery for weapon skills.
     /// Hold pose stays on WeaponHolder; this only moves HandPivot.
     /// Style is set once per cast via SetActiveStyle.
+    /// Keyframes come from WeaponSwingStyleTableSO (Resources) with code-constant fallback.
     /// </summary>
     public class SkillHandAnimation : MonoBehaviour
     {
-        // Slash — mostly rotation; tiny windup lift so it is not pure angle-only
+        // Fallback constants (pre-SO SkillHandAnimation values). Do not retune silently —
+        // editor exposes these via WeaponSwingStyleTableSO so designers can fix visually.
         private const float SlashWindupZ = 110f;
         private static readonly Vector2 SlashWindupPos = new Vector2(0.05f, 0.08f);
         private const float SlashImpactZ = -30f;
         private static readonly Vector2 SlashImpactPos = Vector2.zero;
 
-        // LowArc (stance 2 / LowGuard, tip-up space):
-        // Hold tip-back (~+100 WeaponHolder) stays on the pose table -- do not change hold pose.
-        // Effective tip ~= holdLocalEulerZ + HandPivot deltaZ. Quaternion.Slerp takes the SHORT arc.
-        // ImpactZ -150 is tip up-forward (effective ~-50) after hold +100.
-        // WindupZ = 0: position-only pull behind+up; tip keeps LowGuard hold (no windup tilt).
-        // Positions scaled ~0.7 vs prior pull (was too far left/back).
         private const float LowArcWindupZ = 0f;
         private static readonly Vector2 LowArcWindupPos = new Vector2(-0.50f, 0.315f);
-        private const float LowArcImpactZ = -150f; // tip up-forward (effective ~-50) after hold +100
+        private const float LowArcImpactZ = -150f; // tip ABOVE path with LowGuard hold (~+100)
         private static readonly Vector2 LowArcImpactPos = new Vector2(0.35f, -0.056f);
 
-        // OverheadStab (stance 3 / Dagger) — raise high, drive tip down
         private const float StabWindupZ = 45f;
         private static readonly Vector2 StabWindupPos = new Vector2(0.06f, 0.48f);
         private const float StabImpactZ = -125f;
         private static readonly Vector2 StabImpactPos = new Vector2(0.10f, -0.40f);
+
+        [Tooltip("Optional override. If empty, loads Resources/Visuals/WeaponSwingStyleTable.")]
+        [SerializeField] private WeaponSwingStyleTableSO _styleTable;
 
         private Transform _handPivot;
         private SpriteRenderer _weaponRenderer;
@@ -62,6 +61,7 @@ namespace Scripts.Skills.Modules
                 Debug.LogError($"[SkillHandAnimation] HandPivot not found under {stats.name}!");
             }
 
+            EnsureStyleTable();
             ApplyStyleKeyframes(WeaponSwingStyle.Slash);
         }
 
@@ -148,13 +148,47 @@ namespace Scripts.Skills.Modules
             ForceReset();
         }
 
+        private void EnsureStyleTable()
+        {
+            if (_styleTable == null)
+                _styleTable = WeaponSwingStyleTableSO.LoadDefault();
+        }
+
         private void ApplyStyleKeyframes(WeaponSwingStyle style)
         {
+            EnsureStyleTable();
+
             float windupZ;
             float impactZ;
             Vector2 windupOff;
             Vector2 impactOff;
 
+            if (_styleTable != null)
+            {
+                WeaponSwingStyleTableSO.SwingKeyframes kf = _styleTable.Get(style);
+                windupZ = kf.WindupZ;
+                impactZ = kf.ImpactZ;
+                windupOff = kf.WindupLocalPos;
+                impactOff = kf.ImpactLocalPos;
+            }
+            else
+            {
+                ResolveFallbackKeyframes(style, out windupZ, out windupOff, out impactZ, out impactOff);
+            }
+
+            _windupRot = _defaultRot * Quaternion.Euler(0f, 0f, windupZ);
+            _impactRot = _defaultRot * Quaternion.Euler(0f, 0f, impactZ);
+            _windupPos = _defaultPos + new Vector3(windupOff.x, windupOff.y, 0f);
+            _impactPos = _defaultPos + new Vector3(impactOff.x, impactOff.y, 0f);
+        }
+
+        private static void ResolveFallbackKeyframes(
+            WeaponSwingStyle style,
+            out float windupZ,
+            out Vector2 windupOff,
+            out float impactZ,
+            out Vector2 impactOff)
+        {
             switch (style)
             {
                 case WeaponSwingStyle.LowArc:
@@ -177,11 +211,6 @@ namespace Scripts.Skills.Modules
                     impactOff = SlashImpactPos;
                     break;
             }
-
-            _windupRot = _defaultRot * Quaternion.Euler(0f, 0f, windupZ);
-            _impactRot = _defaultRot * Quaternion.Euler(0f, 0f, impactZ);
-            _windupPos = _defaultPos + new Vector3(windupOff.x, windupOff.y, 0f);
-            _impactPos = _defaultPos + new Vector3(impactOff.x, impactOff.y, 0f);
         }
     }
 }

@@ -30,5 +30,5 @@ MonoBehaviour:
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: f31f42e821055b04f92c395f4e5970fa, type: 2}
-  HoldStance: 4
+  HoldStance: 5
   SwingStyle: 0
