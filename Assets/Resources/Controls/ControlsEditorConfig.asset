@@ -94,15 +94,19 @@ MonoBehaviour:
     displayOrder: 19
     showInSettings: 1
     defaultBindingPath: <Keyboard>/leftShift
-  - actionName: OpenCrafting
+  - actionName: ItemCompare
     displayOrder: 20
+    showInSettings: 1
+    defaultBindingPath: <Keyboard>/leftAlt
+  - actionName: OpenCrafting
+    displayOrder: 21
     showInSettings: 1
     defaultBindingPath: <Keyboard>/k
   - actionName: OpenCharacter
-    displayOrder: 21
+    displayOrder: 22
     showInSettings: 1
     defaultBindingPath: <Keyboard>/c
   - actionName: PauseMenu
-    displayOrder: 22
+    displayOrder: 23
     showInSettings: 1
     defaultBindingPath: <Keyboard>/escape

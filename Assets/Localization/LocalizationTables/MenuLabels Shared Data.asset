@@ -1539,6 +1539,14 @@ MonoBehaviour:
     m_Key: tooltip.lockHint
     m_Metadata:
       m_Items: []
+  - m_Id: 105100000000000003
+    m_Key: input.ItemCompare
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105100000000000004
+    m_Key: tooltip.compareHint
+    m_Metadata:
+      m_Items: []
   - m_Id: 105657292219736064
     m_Key: passive.node.NewSmallNode.name
     m_Metadata:

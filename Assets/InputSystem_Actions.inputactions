@@ -187,6 +187,15 @@
                     "initialStateCheck": true
                 },
                 {
+                    "name": "ItemCompare",
+                    "type": "Button",
+                    "id": "b7c2e91a-4d5f-4a18-9e6b-1c8f0a3d2e7b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
                     "name": "OpenCrafting",
                     "type": "Button",
                     "id": "6e1d2b24-4a25-45cb-9a95-73634f15018a",
@@ -641,6 +650,17 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "TooltipLock",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c8d3f02b-5e60-4b29-af7c-2d9e1b4c3f8a",
+                    "path": "<Keyboard>/leftAlt",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "ItemCompare",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

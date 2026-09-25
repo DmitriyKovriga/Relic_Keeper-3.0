@@ -273,6 +273,15 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
+                    ""name"": ""ItemCompare"",
+                    ""type"": ""Button"",
+                    ""id"": ""b7c2e91a-4d5f-4a18-9e6b-1c8f0a3d2e7b"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
                     ""name"": ""OpenCrafting"",
                     ""type"": ""Button"",
                     ""id"": ""6e1d2b24-4a25-45cb-9a95-73634f15018a"",
@@ -727,6 +736,17 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""TooltipLock"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c8d3f02b-5e60-4b29-af7c-2d9e1b4c3f8a"",
+                    ""path"": ""<Keyboard>/leftAlt"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""ItemCompare"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -1387,6 +1407,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Player_FifthSkill = m_Player.FindAction("FifthSkill", throwIfNotFound: true);
         m_Player_SixthSkill = m_Player.FindAction("SixthSkill", throwIfNotFound: true);
         m_Player_TooltipLock = m_Player.FindAction("TooltipLock", throwIfNotFound: true);
+        m_Player_ItemCompare = m_Player.FindAction("ItemCompare", throwIfNotFound: true);
         m_Player_OpenCrafting = m_Player.FindAction("OpenCrafting", throwIfNotFound: true);
         m_Player_OpenCharacter = m_Player.FindAction("OpenCharacter", throwIfNotFound: true);
         m_Player_PauseMenu = m_Player.FindAction("PauseMenu", throwIfNotFound: true);
@@ -1504,6 +1525,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_FifthSkill;
     private readonly InputAction m_Player_SixthSkill;
     private readonly InputAction m_Player_TooltipLock;
+    private readonly InputAction m_Player_ItemCompare;
     private readonly InputAction m_Player_OpenCrafting;
     private readonly InputAction m_Player_OpenCharacter;
     private readonly InputAction m_Player_PauseMenu;
@@ -1598,6 +1620,10 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/TooltipLock".
         /// </summary>
         public InputAction @TooltipLock => m_Wrapper.m_Player_TooltipLock;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ItemCompare".
+        /// </summary>
+        public InputAction @ItemCompare => m_Wrapper.m_Player_ItemCompare;
         /// <summary>
         /// Provides access to the underlying input action "Player/OpenCrafting".
         /// </summary>
@@ -1696,6 +1722,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @TooltipLock.started += instance.OnTooltipLock;
             @TooltipLock.performed += instance.OnTooltipLock;
             @TooltipLock.canceled += instance.OnTooltipLock;
+            @ItemCompare.started += instance.OnItemCompare;
+            @ItemCompare.performed += instance.OnItemCompare;
+            @ItemCompare.canceled += instance.OnItemCompare;
             @OpenCrafting.started += instance.OnOpenCrafting;
             @OpenCrafting.performed += instance.OnOpenCrafting;
             @OpenCrafting.canceled += instance.OnOpenCrafting;
@@ -1776,6 +1805,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @TooltipLock.started -= instance.OnTooltipLock;
             @TooltipLock.performed -= instance.OnTooltipLock;
             @TooltipLock.canceled -= instance.OnTooltipLock;
+            @ItemCompare.started -= instance.OnItemCompare;
+            @ItemCompare.performed -= instance.OnItemCompare;
+            @ItemCompare.canceled -= instance.OnItemCompare;
             @OpenCrafting.started -= instance.OnOpenCrafting;
             @OpenCrafting.performed -= instance.OnOpenCrafting;
             @OpenCrafting.canceled -= instance.OnOpenCrafting;
@@ -2236,6 +2268,13 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnTooltipLock(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ItemCompare" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnItemCompare(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "OpenCrafting" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

@@ -44,6 +44,8 @@ public class ItemTooltipController : MonoBehaviour
     private const int LockHintFontSize = 6;
     private const string TooltipLockActionName = "TooltipLock";
     private const string TooltipLockHintKey = "tooltip.lockHint";
+    private const string ItemCompareActionName = "ItemCompare";
+    private const string ItemCompareHintKey = "tooltip.compareHint";
     
     [SerializeField, Tooltip("Задержка в миллисекундах перед скрытием тултипа (увеличена против мерцания при наведении на экипировку)")]
     private long _hideDelayMs = 180;
@@ -99,6 +101,15 @@ public class ItemTooltipController : MonoBehaviour
     private Label _orbLockHint;
     private InputAction _tooltipLockAction;
     private InputAction _tooltipLockReader;
+    private InputAction _itemCompareAction;
+    private InputAction _itemCompareReader;
+    private VisualElement _compareTooltipBox;
+    private Label _compareHeaderLabel;
+    private VisualElement _compareStatsContainer;
+    private Label _itemCompareHint;
+    private VisualElement _itemHintsRow;
+    private InventoryItem _compareTargetItem;
+    private bool _compareActive;
     private float _pinAnimElapsed = -1f;
     private int _worldOwnerFrame = -1;
 
@@ -153,6 +164,7 @@ public class ItemTooltipController : MonoBehaviour
         LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
         InputRebindSaver.RebindsChanged += OnTooltipLockBindingChanged;
         ResolveTooltipLockAction();
+        ResolveItemCompareAction();
     }
 
     private void OnDisable()
@@ -160,6 +172,7 @@ public class ItemTooltipController : MonoBehaviour
         LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
         InputRebindSaver.RebindsChanged -= OnTooltipLockBindingChanged;
         DisposeTooltipLockReader();
+        DisposeItemCompareReader();
         HideTooltipImmediate();
     }
 
@@ -167,6 +180,7 @@ public class ItemTooltipController : MonoBehaviour
     {
         TickTooltipPin();
         UpdateItemInspectOverlay();
+        UpdateItemCompareOverlay();
         UpdateHudDpsBreakdownHover();
         UpdateBuffTooltipHover();
     }
@@ -238,6 +252,57 @@ public class ItemTooltipController : MonoBehaviour
     private void OnTooltipLockBindingChanged()
     {
         ResolveTooltipLockAction();
+        ResolveItemCompareAction();
+    }
+
+    private void ResolveItemCompareAction()
+    {
+        DisposeItemCompareReader();
+
+        InputActionAsset asset = InputManager.InputActions?.asset;
+        _itemCompareAction = asset != null ? asset.FindAction(ItemCompareActionName, false) : null;
+        if (_itemCompareAction != null)
+        {
+            int bindingIndex = ControlEntry.GetFirstBindableBindingIndex(_itemCompareAction);
+            if (bindingIndex >= 0)
+            {
+                string effectivePath = _itemCompareAction.bindings[bindingIndex].effectivePath;
+                if (!string.IsNullOrWhiteSpace(effectivePath))
+                {
+                    _itemCompareReader = new InputAction(
+                        "ItemCompareUIReader",
+                        InputActionType.Button,
+                        effectivePath);
+                    _itemCompareReader.Enable();
+                }
+            }
+        }
+
+        RefreshLockHintText();
+    }
+
+    private void DisposeItemCompareReader()
+    {
+        if (_itemCompareReader == null)
+            return;
+
+        _itemCompareReader.Disable();
+        _itemCompareReader.Dispose();
+        _itemCompareReader = null;
+    }
+
+    private bool IsItemCompareHeld()
+    {
+        if (_itemCompareReader == null)
+            return false;
+
+        foreach (InputControl control in _itemCompareReader.controls)
+        {
+            if (control is ButtonControl button && button.isPressed)
+                return true;
+        }
+
+        return _itemCompareReader.IsPressed();
     }
 
     private bool IsTooltipLockHeld()
@@ -283,6 +348,7 @@ public class ItemTooltipController : MonoBehaviour
 
         Vector2 panelPos = GetMousePanelPos();
         if (IsPanelPointOver(_itemTooltipBox, panelPos)
+            || IsPanelPointOver(_compareTooltipBox, panelPos)
             || IsPanelPointOver(_skillTooltipBox, panelPos)
             || IsPanelPointOver(_orbTooltipBox, panelPos)
             || IsPanelPointOver(_hudDpsBreakdownBox, panelPos)
@@ -334,6 +400,7 @@ public class ItemTooltipController : MonoBehaviour
         while (picked != null)
         {
             if (picked == _itemTooltipBox
+                || picked == _compareTooltipBox
                 || picked == _skillTooltipBox
                 || picked == _orbTooltipBox
                 || picked == _hudDpsBreakdownBox
@@ -367,6 +434,7 @@ public class ItemTooltipController : MonoBehaviour
     {
         PickingMode mode = pickable ? PickingMode.Position : PickingMode.Ignore;
         if (_itemTooltipBox != null) _itemTooltipBox.pickingMode = mode;
+        if (_compareTooltipBox != null) _compareTooltipBox.pickingMode = mode;
         if (_skillTooltipBox != null) _skillTooltipBox.pickingMode = mode;
         if (_orbTooltipBox != null) _orbTooltipBox.pickingMode = mode;
         if (_hudDpsBreakdownBox != null) _hudDpsBreakdownBox.pickingMode = mode;
@@ -525,6 +593,10 @@ public class ItemTooltipController : MonoBehaviour
 
         if (_itemLockHint != null)
             _itemLockHint.style.display = itemIsPrimary ? DisplayStyle.Flex : DisplayStyle.None;
+        if (_itemCompareHint != null)
+            _itemCompareHint.style.display = itemIsPrimary ? DisplayStyle.Flex : DisplayStyle.None;
+        if (_itemHintsRow != null)
+            _itemHintsRow.style.display = itemIsPrimary ? DisplayStyle.Flex : DisplayStyle.None;
         if (_skillLockHint != null)
             _skillLockHint.style.display = skillIsPrimary ? DisplayStyle.Flex : DisplayStyle.None;
         if (_orbLockHint != null)
@@ -533,14 +605,16 @@ public class ItemTooltipController : MonoBehaviour
 
     private void RefreshLockHintText()
     {
-        string binding = GetTooltipLockBindingLabel();
+        string lockBinding = GetTooltipLockBindingLabel();
+        string compareBinding = GetItemCompareBindingLabel();
         bool russian = (LocalizationSettings.SelectedLocale?.Identifier.Code ?? "en")
             .StartsWith("ru", System.StringComparison.OrdinalIgnoreCase);
-        SetLockHintText(binding, russian ? "Закрепить" : "Lock");
+        SetLockHintText(lockBinding, russian ? "Закрепить" : "Lock");
+        SetCompareHintText(compareBinding, russian ? "Сравнить" : "Compare");
 
-        AsyncOperationHandle<string> operation = LocalizationSettings.StringDatabase
+        AsyncOperationHandle<string> lockOp = LocalizationSettings.StringDatabase
             .GetLocalizedStringAsync(TABLE_MENU, TooltipLockHintKey);
-        operation.Completed += handle =>
+        lockOp.Completed += handle =>
         {
             if (handle.Status != AsyncOperationStatus.Succeeded
                 || string.IsNullOrWhiteSpace(handle.Result)
@@ -548,6 +622,18 @@ public class ItemTooltipController : MonoBehaviour
                 return;
 
             SetLockHintText(GetTooltipLockBindingLabel(), handle.Result);
+        };
+
+        AsyncOperationHandle<string> compareOp = LocalizationSettings.StringDatabase
+            .GetLocalizedStringAsync(TABLE_MENU, ItemCompareHintKey);
+        compareOp.Completed += handle =>
+        {
+            if (handle.Status != AsyncOperationStatus.Succeeded
+                || string.IsNullOrWhiteSpace(handle.Result)
+                || handle.Result.Contains("No translation found"))
+                return;
+
+            SetCompareHintText(GetItemCompareBindingLabel(), handle.Result);
         };
     }
 
@@ -559,16 +645,33 @@ public class ItemTooltipController : MonoBehaviour
         if (_orbLockHint != null) _orbLockHint.text = text;
     }
 
+    private void SetCompareHintText(string binding, string actionText)
+    {
+        if (_itemCompareHint == null)
+            return;
+        _itemCompareHint.text = $"[{binding}] {actionText}";
+    }
+
     private string GetTooltipLockBindingLabel()
     {
-        if (_tooltipLockAction == null)
-            return "LShift";
+        return FormatBindingLabel(_tooltipLockAction, "LShift");
+    }
 
-        int bindingIndex = ControlEntry.GetFirstBindableBindingIndex(_tooltipLockAction);
+    private string GetItemCompareBindingLabel()
+    {
+        return FormatBindingLabel(_itemCompareAction, "Alt");
+    }
+
+    private static string FormatBindingLabel(InputAction action, string fallback)
+    {
+        if (action == null)
+            return fallback;
+
+        int bindingIndex = ControlEntry.GetFirstBindableBindingIndex(action);
         if (bindingIndex < 0)
             return "Unbound";
 
-        string display = _tooltipLockAction.GetBindingDisplayString(
+        string display = action.GetBindingDisplayString(
             bindingIndex,
             InputBinding.DisplayStringOptions.DontIncludeInteractions);
         if (string.IsNullOrWhiteSpace(display))
@@ -577,6 +680,8 @@ public class ItemTooltipController : MonoBehaviour
         return display
             .Replace("Left Shift", "LShift")
             .Replace("Right Shift", "RShift")
+            .Replace("Left Alt", "Alt")
+            .Replace("Right Alt", "RAlt")
             .Replace("Control", "Ctrl");
     }
 
@@ -636,6 +741,8 @@ public class ItemTooltipController : MonoBehaviour
         if (oldSkillPin != null) _root.Remove(oldSkillPin);
         var oldOrbPin = _root.Q<VisualElement>("TooltipPinBadgeOrb");
         if (oldOrbPin != null) _root.Remove(oldOrbPin);
+        var oldCompare = _root.Q<VisualElement>("GlobalCompareItemTooltip");
+        if (oldCompare != null) _root.Remove(oldCompare);
 
         _worldAnchor = new VisualElement { name = "WorldItemTooltipAnchor" };
         _worldAnchor.style.position = Position.Absolute;
@@ -653,9 +760,35 @@ public class ItemTooltipController : MonoBehaviour
         _itemTooltipBox.Add(_headerLabel);
         _itemTooltipBox.Add(CreateDivider());
         _itemTooltipBox.Add(_statsContainer);
+        _itemHintsRow = new VisualElement { name = "ItemTooltipHintsRow" };
+        _itemHintsRow.pickingMode = PickingMode.Ignore;
+        _itemHintsRow.style.flexDirection = FlexDirection.Row;
+        _itemHintsRow.style.justifyContent = Justify.SpaceBetween;
+        _itemHintsRow.style.alignItems = Align.Center;
+        _itemHintsRow.style.width = Length.Percent(100);
+        _itemHintsRow.style.marginTop = 1f;
+        _itemHintsRow.style.display = DisplayStyle.None;
         _itemLockHint = CreateLockHintLabel("ItemTooltipLockHint");
-        _itemTooltipBox.Add(_itemLockHint);
+        _itemLockHint.style.width = StyleKeyword.Auto;
+        _itemLockHint.style.flexGrow = 1;
+        _itemLockHint.style.unityTextAlign = TextAnchor.MiddleLeft;
+        _itemCompareHint = CreateLockHintLabel("ItemTooltipCompareHint");
+        _itemCompareHint.style.width = StyleKeyword.Auto;
+        _itemCompareHint.style.flexGrow = 1;
+        _itemCompareHint.style.unityTextAlign = TextAnchor.MiddleRight;
+        _itemHintsRow.Add(_itemLockHint);
+        _itemHintsRow.Add(_itemCompareHint);
+        _itemTooltipBox.Add(_itemHintsRow);
         _root.Add(_itemTooltipBox);
+
+        _compareTooltipBox = CreateContainer("GlobalCompareItemTooltip", _colBg);
+        _compareHeaderLabel = CreateLabel("", 8, FontStyle.Bold, TextAnchor.MiddleCenter);
+        _compareStatsContainer = new VisualElement { style = { width = Length.Percent(100) } };
+        _compareTooltipBox.Add(_compareHeaderLabel);
+        _compareTooltipBox.Add(CreateDivider());
+        _compareTooltipBox.Add(_compareStatsContainer);
+        _compareTooltipBox.style.display = DisplayStyle.None;
+        _root.Add(_compareTooltipBox);
 
         // --- 2. Skill Tooltip ---
         _skillTooltipBox = CreateContainer("GlobalSkillTooltip", _colSkillBg);
@@ -1047,7 +1180,10 @@ public class ItemTooltipController : MonoBehaviour
         _itemTooltipBox.style.display = DisplayStyle.Flex;
         _itemTooltipBox.style.visibility = Visibility.Hidden;
 
-        bool hasSkill = _skillTooltipBox.userData != null; // userData "true" если есть скиллы
+        InventoryItem equippedNow = null;
+        bool comparingNow = IsItemCompareHeld()
+            && ItemTooltipCompare.TryGetEquippedCounterpart(item, out equippedNow);
+        bool hasSkill = !comparingNow && _skillTooltipBox.userData != null;
         if (hasSkill)
         {
             _skillTooltipBox.style.display = DisplayStyle.Flex;
@@ -1059,8 +1195,14 @@ public class ItemTooltipController : MonoBehaviour
         }
 
         _itemTooltipBox.MarkDirtyRepaint();
-        RecalculatePosition();
-        _root.schedule.Execute(RecalculatePosition).ExecuteLater(50);
+        if (comparingNow)
+            ShowCompareTooltip(equippedNow);
+        else
+        {
+            HideCompareTooltip();
+            RecalculatePosition();
+            _root.schedule.Execute(RecalculatePosition).ExecuteLater(50);
+        }
     }
 
     /// <summary>
@@ -1100,6 +1242,7 @@ public class ItemTooltipController : MonoBehaviour
         _pinAnimElapsed = -1f;
         HidePinBadges();
         _inspectDetailsVisible = false;
+        HideCompareTooltip();
 
         if (_itemTooltipBox != null)
         {
@@ -1238,11 +1381,15 @@ public class ItemTooltipController : MonoBehaviour
         float itemH = _itemTooltipBox.resolvedStyle.height;
         if (float.IsNaN(itemH) || itemH < 10) itemH = 100f;
 
-        bool hasSkill = _skillTooltipBox.style.display == DisplayStyle.Flex;
-        float skillW = hasSkill ? _skillTooltipBox.resolvedStyle.width : 0;
-        if (hasSkill && (float.IsNaN(skillW) || skillW < 10)) skillW = _tooltipWidth;
-        float skillH = hasSkill ? _skillTooltipBox.resolvedStyle.height : 0;
-        if (hasSkill && (float.IsNaN(skillH) || skillH < 10)) skillH = 100f;
+        bool hasCompare = _compareActive && _compareTooltipBox != null && _compareTooltipBox.style.display == DisplayStyle.Flex;
+        bool hasSkill = !hasCompare && _skillTooltipBox != null && _skillTooltipBox.style.display == DisplayStyle.Flex;
+        VisualElement secondaryBox = hasCompare ? _compareTooltipBox : _skillTooltipBox;
+        bool hasSecondary = hasCompare || hasSkill;
+
+        float skillW = hasSecondary ? secondaryBox.resolvedStyle.width : 0;
+        if (hasSecondary && (float.IsNaN(skillW) || skillW < 10)) skillW = _tooltipWidth;
+        float skillH = hasSecondary ? secondaryBox.resolvedStyle.height : 0;
+        if (hasSecondary && (float.IsNaN(skillH) || skillH < 10)) skillH = 100f;
 
         float maxHeight = Mathf.Max(itemH, skillH);
         float finalItemX;
@@ -1255,14 +1402,14 @@ public class ItemTooltipController : MonoBehaviour
             // Экипировка: тултип слева от предмета
             y = pMin.y;
             finalItemX = itemLeft - itemW - _gap;
-            finalSkillX = hasSkill ? (finalItemX - _gap - skillW) : 0;
+            finalSkillX = hasSecondary ? (finalItemX - _gap - skillW) : 0;
         }
         else
         {
             // Рюкзак/склад: сначала пробуем сверху (центр по горизонтали), иначе справа/слева (центр по вертикали)
             float itemTop = pMin.y;
             float itemCenterX = (itemLeft + itemRight) * 0.5f;
-            float totalW = itemW + (hasSkill ? (_gap + skillW) : 0);
+            float totalW = itemW + (hasSecondary ? (_gap + skillW) : 0);
             float yAbove = itemTop - maxHeight - _gap;
 
             if (yAbove >= _screenPadding)
@@ -1270,8 +1417,8 @@ public class ItemTooltipController : MonoBehaviour
                 // Место сверху есть — тултип над предметом, центрирован по горизонтали
                 y = yAbove;
                 finalItemX = Mathf.Clamp(itemCenterX - itemW * 0.5f, _screenPadding, screenW - itemW - _screenPadding);
-                finalSkillX = hasSkill ? Mathf.Clamp(finalItemX + itemW + _gap, _screenPadding, screenW - skillW - _screenPadding) : 0;
-                if (hasSkill && finalSkillX + skillW > screenW - _screenPadding)
+                finalSkillX = hasSecondary ? Mathf.Clamp(finalItemX + itemW + _gap, _screenPadding, screenW - skillW - _screenPadding) : 0;
+                if (hasSecondary && finalSkillX + skillW > screenW - _screenPadding)
                     finalSkillX = Mathf.Clamp(finalItemX - _gap - skillW, _screenPadding, screenW - skillW - _screenPadding);
             }
             else
@@ -1281,17 +1428,17 @@ public class ItemTooltipController : MonoBehaviour
                 if (itemRight + totalW + _screenPadding <= screenW)
                 {
                     finalItemX = itemRight + _gap;
-                    finalSkillX = hasSkill ? (finalItemX + itemW + _gap) : 0;
+                    finalSkillX = hasSecondary ? (finalItemX + itemW + _gap) : 0;
                 }
                 else if (itemLeft - totalW - _screenPadding >= 0)
                 {
                     finalItemX = itemLeft - itemW - _gap;
-                    finalSkillX = hasSkill ? (finalItemX - _gap - skillW) : 0;
+                    finalSkillX = hasSecondary ? (finalItemX - _gap - skillW) : 0;
                 }
                 else
                 {
                     finalItemX = itemRight + _gap;
-                    finalSkillX = hasSkill ? Mathf.Clamp(finalItemX - _gap - skillW, _screenPadding, screenW - skillW - _screenPadding) : 0;
+                    finalSkillX = hasSecondary ? Mathf.Clamp(finalItemX - _gap - skillW, _screenPadding, screenW - skillW - _screenPadding) : 0;
                 }
             }
         }
@@ -1304,7 +1451,7 @@ public class ItemTooltipController : MonoBehaviour
         finalItemX = Mathf.Clamp(finalItemX, _screenPadding, screenW - itemW - _screenPadding);
 
         // Скилл-тултип строго слева или справа: не перекрывать ни тултип предмета, ни иконку предмета (itemLeft..itemRight)
-        if (hasSkill)
+        if (hasSecondary)
         {
             float zoneLeft = Mathf.Min(finalItemX, itemLeft);
             float zoneRight = Mathf.Max(finalItemX + itemW, itemRight);
@@ -1341,7 +1488,13 @@ public class ItemTooltipController : MonoBehaviour
         _itemTooltipBox.style.top = y;
         _itemTooltipBox.style.visibility = Visibility.Visible;
 
-        if (hasSkill)
+        if (hasCompare)
+        {
+            _compareTooltipBox.style.left = finalSkillX;
+            _compareTooltipBox.style.top = y;
+            _compareTooltipBox.style.visibility = Visibility.Visible;
+        }
+        else if (hasSkill)
         {
             _skillTooltipBox.style.left = finalSkillX;
             _skillTooltipBox.style.top = y;
@@ -2454,7 +2607,124 @@ public class ItemTooltipController : MonoBehaviour
             return;
 
         FillItemData(_currentTargetItem);
+        if (_compareActive && _compareTargetItem != null)
+            FillCompareItemData(_compareTargetItem);
         ScheduleItemTooltipRelayout();
+    }
+
+    private void UpdateItemCompareOverlay()
+    {
+        // Skills never participate in inventory item comparison.
+        if (_currentHudSkill != null || _currentTargetItem == null || _itemTooltipBox == null
+            || _itemTooltipBox.style.display != DisplayStyle.Flex)
+        {
+            HideCompareTooltip();
+            return;
+        }
+
+        bool wantCompare = IsItemCompareHeld();
+        if (!wantCompare)
+        {
+            if (_compareActive)
+            {
+                HideCompareTooltip();
+                RestoreSkillTooltipAfterCompare();
+                ScheduleItemTooltipRelayout();
+            }
+            return;
+        }
+
+        if (!ItemTooltipCompare.TryGetEquippedCounterpart(_currentTargetItem, out InventoryItem equipped))
+        {
+            if (_compareActive)
+            {
+                HideCompareTooltip();
+                RestoreSkillTooltipAfterCompare();
+                ScheduleItemTooltipRelayout();
+            }
+            return;
+        }
+
+        bool needFill = !_compareActive || !ReferenceEquals(_compareTargetItem, equipped);
+        if (needFill)
+            ShowCompareTooltip(equipped);
+        else
+            RecalculatePosition();
+    }
+
+    private void ShowCompareTooltip(InventoryItem equipped)
+    {
+        if (_compareTooltipBox == null || equipped == null)
+            return;
+
+        _compareActive = true;
+        _compareTargetItem = equipped;
+
+        // Comparison shows item panels only — never skill tooltips.
+        if (_skillTooltipBox != null)
+        {
+            _skillTooltipBox.style.display = DisplayStyle.None;
+            _skillTooltipBox.style.visibility = Visibility.Hidden;
+        }
+
+        FillCompareItemData(equipped);
+        _compareTooltipBox.style.display = DisplayStyle.Flex;
+        _compareTooltipBox.style.visibility = Visibility.Hidden;
+        _compareTooltipBox.MarkDirtyRepaint();
+        ScheduleItemTooltipRelayout();
+    }
+
+    private void HideCompareTooltip()
+    {
+        _compareActive = false;
+        _compareTargetItem = null;
+        if (_compareTooltipBox == null)
+            return;
+
+        _compareTooltipBox.style.display = DisplayStyle.None;
+        _compareTooltipBox.style.visibility = Visibility.Hidden;
+    }
+
+    private void RestoreSkillTooltipAfterCompare()
+    {
+        if (_currentTargetItem == null || _skillTooltipBox == null)
+            return;
+
+        FillSkillData(_currentTargetItem);
+        bool hasSkill = _skillTooltipBox.userData != null;
+        if (hasSkill)
+        {
+            _skillTooltipBox.style.display = DisplayStyle.Flex;
+            _skillTooltipBox.style.visibility = Visibility.Hidden;
+        }
+        else
+        {
+            _skillTooltipBox.style.display = DisplayStyle.None;
+            _skillTooltipBox.style.visibility = Visibility.Hidden;
+        }
+    }
+
+    private void FillCompareItemData(InventoryItem item)
+    {
+        if (item == null || _compareTooltipBox == null)
+            return;
+
+        Label prevHeader = _headerLabel;
+        VisualElement prevStats = _statsContainer;
+        VisualElement prevBox = _itemTooltipBox;
+        _headerLabel = _compareHeaderLabel;
+        _statsContainer = _compareStatsContainer;
+        _itemTooltipBox = _compareTooltipBox;
+        try
+        {
+            FillItemData(item);
+        }
+        finally
+        {
+            _headerLabel = prevHeader;
+            _statsContainer = prevStats;
+            _itemTooltipBox = prevBox;
+        }
     }
 
     private void ScheduleItemTooltipRelayout()
@@ -2468,9 +2738,10 @@ public class ItemTooltipController : MonoBehaviour
         _root.schedule.Execute(RecalculatePosition).ExecuteLater(50);
     }
 
-    private static bool IsInspectModifierHeld()
+    private bool IsInspectModifierHeld()
     {
-        return Keyboard.current != null && Keyboard.current.altKey.isPressed;
+        // Advanced affix inspect shares the ItemCompare bind (default Alt).
+        return IsItemCompareHeld();
     }
 
     private void CreateAsyncLabel(string key, System.Func<string, string> fmt, Color c)
