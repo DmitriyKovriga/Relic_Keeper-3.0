@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Scripts.Skills.Steps;
 using Scripts.Stats;
 using Scripts.Visuals;
@@ -17,6 +17,19 @@ namespace Scripts.Skills
         Automatic = 0,
         AutomaticWithLegacy = 1,
         LegacyOnly = 2
+    }
+
+    /// <summary>
+    /// How this skill uses weapon Hold Stance / Swing Style.
+    /// MainHand = primary weapon skill (stance-filtered swings).
+    /// Special = 2H secondary skill (any swing; hold still used for idle).
+    /// Equipment = item skill (no hold/swing UI or requirement).
+    /// </summary>
+    public enum SkillWeaponRole
+    {
+        MainHand = 0,
+        Special = 1,
+        Equipment = 2
     }
 
     [CreateAssetMenu(menuName = "RPG/Skills/Skill Data")]
@@ -64,6 +77,10 @@ namespace Scripts.Skills
         [Tooltip("Р В Р ВµРЎвЂ Р ВµР С—РЎвЂљ Р Т‘Р В»РЎРЏ StepRunner. Р вЂўРЎРѓР В»Р С‘ SkillPrefab Р Р…Р Вµ Р В·Р В°Р Т‘Р В°Р Р…, Р С‘РЎРѓР С—Р С•Р В»Р Р…Р С‘РЎвЂљР ВµР В»РЎРЉ РЎРѓР С•Р В·Р Т‘Р В°РЎвЂРЎвЂљРЎРѓРЎРЏ Р В°Р Р†РЎвЂљР С•Р СР В°РЎвЂљР С‘РЎвЂЎР ВµРЎРѓР С”Р С‘. Р ВР Р…Р В°РЎвЂЎР Вµ Р С—РЎР‚Р ВµРЎвЂћР В°Р В± Р Т‘Р С•Р В»Р В¶Р ВµР Р… РЎРѓР С•Р Т‘Р ВµРЎР‚Р В¶Р В°РЎвЂљРЎРЉ SkillBehaviour.")]
         public SkillRecipeSO Recipe;
 
+        [Header("Weapon Role")]
+        [Tooltip("MainHand: swing filtered by Allowed Stances. Special: any swing (2H secondary / RB). Equipment: hide Hold/Swing (armor/boots/gloves/helmet skills).")]
+        public SkillWeaponRole WeaponRole = SkillWeaponRole.MainHand;
+
         [Header("Weapon Hold (idle pose)")]
         [Tooltip("Idle pose number when this skill is a weapon's active skill #1 (auto-attack / primary). 0 Default, 1 Aggressive, 2 LowGuard, 3 Dagger, 4 Shoulder, 5 Staff. Swing Style dropdown is filtered to swings allowed for this stance.")]
         public WeaponHoldStance HoldStance = WeaponHoldStance.Default;
@@ -83,6 +100,14 @@ namespace Scripts.Skills
 
         private void OnValidate()
         {
+            // Equipment skills never animate hold/swing — leave stored values alone.
+            if (WeaponRole == SkillWeaponRole.Equipment)
+                return;
+
+            // Special (2H secondary): any swing is valid; do not clamp to Allowed Stances.
+            if (WeaponRole == SkillWeaponRole.Special)
+                return;
+
             string stanceId = !string.IsNullOrEmpty(HoldStanceId)
                 ? HoldStanceId
                 : WeaponStancePoseTableSO.CanonicalId(HoldStance);

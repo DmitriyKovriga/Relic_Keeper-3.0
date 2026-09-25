@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
   ID: MysticConsumeSkill
   SkillName: Mystic Consume
+  DescriptionMode: 0
   Description: Consume 1 Mystic Shield to gain More Spell Damage for 5 sec
   Icon: {fileID: 21300000, guid: 2856f5adc766e3c48b3cdd275a017d52, type: 3}
   NameKey: skills.MysticConsumeSkill
@@ -21,7 +22,16 @@ MonoBehaviour:
   IsActive: 1
   Cooldown: 5
   ManaCost: 10
+  ActionSpeedMode: 0
+  SkillSpeedMultiplier: 1
   DamageContextTags: 0
+  EnablePushback: 0
+  PushbackRating: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: 0d44226728c8b444caccebc6927717b1, type: 2}
+  WeaponRole: 2
+  HoldStance: 0
+  HoldStanceId: 
+  SwingStyle: 0
+  SwingStyleId: 

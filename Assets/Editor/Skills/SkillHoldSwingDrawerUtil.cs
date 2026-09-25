@@ -52,6 +52,22 @@ namespace Scripts.Editor.Skills
             return property.serializedObject.FindProperty(siblingName);
         }
 
+
+        public static SkillWeaponRole ResolveWeaponRole(SerializedProperty property)
+        {
+            SerializedProperty roleProp = FindSibling(property, "WeaponRole");
+            if (roleProp != null && roleProp.propertyType == SerializedPropertyType.Enum)
+                return (SkillWeaponRole)roleProp.enumValueIndex;
+            return SkillWeaponRole.MainHand;
+        }
+
+        public static bool ShowsHoldSwing(SkillWeaponRole role) =>
+            role != SkillWeaponRole.Equipment;
+
+        public static bool FiltersSwingByStance(SkillWeaponRole role) =>
+            role == SkillWeaponRole.MainHand;
+
+
         public static string ResolveStanceId(SerializedProperty holdStanceProp, SerializedProperty holdStanceIdProp)
         {
             if (holdStanceIdProp != null && !string.IsNullOrEmpty(holdStanceIdProp.stringValue))
@@ -74,8 +90,12 @@ namespace Scripts.Editor.Skills
         public static void ClampSwingToStance(
             SerializedProperty swingStyleProp,
             SerializedProperty swingStyleIdProp,
-            string stanceId)
+            string stanceId,
+            bool filterByStance = true)
         {
+            if (!filterByStance)
+                return;
+
             if (swingStyleIdProp != null && !string.IsNullOrEmpty(swingStyleIdProp.stringValue))
             {
                 if (!WeaponSwingStyleResolver.IsStyleIdAllowedForStanceId(stanceId, swingStyleIdProp.stringValue))
@@ -174,7 +194,8 @@ namespace Scripts.Editor.Skills
             GUIContent label,
             SerializedProperty swingStyleProp,
             SerializedProperty swingStyleIdProp,
-            string stanceId)
+            string stanceId,
+            bool filterByStance = true)
         {
             WeaponSwingStyleTableSO table = LoadSwingTable();
             var styles = table != null ? table.Styles : null;
@@ -188,7 +209,7 @@ namespace Scripts.Editor.Skills
                 {
                     if (string.IsNullOrEmpty(styles[i].Id))
                         continue;
-                    if (table != null && !table.AllowsStance(styles[i], stanceId))
+                    if (filterByStance && table != null && !table.AllowsStance(styles[i], stanceId))
                         continue;
 
                     optionIds.Add(styles[i].Id);

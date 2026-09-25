@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
   ID: LungeSlashSkill
   SkillName: Lunge Slash
+  DescriptionMode: 0
   Description: Deal 250% damage and move forward
   Icon: {fileID: 21300000, guid: b87578f880548434f86948864443d387, type: 3}
   NameKey: skills.LungeSlashSkill
@@ -29,3 +30,8 @@ MonoBehaviour:
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: bfe5c6ad2298e324e978911f070d684a, type: 2}
+  WeaponRole: 1
+  HoldStance: 0
+  HoldStanceId: 
+  SwingStyle: 2
+  SwingStyleId: low_arc

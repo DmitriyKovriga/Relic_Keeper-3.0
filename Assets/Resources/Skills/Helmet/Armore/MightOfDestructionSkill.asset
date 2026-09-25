@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
   ID: MightOfDestructionSkill
   SkillName: Might Of Destruction
+  DescriptionMode: 0
   Description: Increase 50% Skill Area Effect by 8 sec
   Icon: {fileID: 21300000, guid: 81c88c84aba6240489738ac982034d6d, type: 3}
   NameKey: skills.MightOfDestructionSkill
@@ -24,6 +25,13 @@ MonoBehaviour:
   ActionSpeedMode: 0
   SkillSpeedMultiplier: 1
   DamageContextTags: 0
+  EnablePushback: 0
+  PushbackRating: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: 90bcf65d8b3f99f4e9d1fee62ef2fcf1, type: 2}
+  WeaponRole: 2
+  HoldStance: 0
+  HoldStanceId: 
+  SwingStyle: 0
+  SwingStyleId: 

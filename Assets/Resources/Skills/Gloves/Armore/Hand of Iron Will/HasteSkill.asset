@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: Haste
   SkillName: Haste
+  DescriptionMode: 0
   Description: Increase attack speed by 30% and movement speed by 10%
   Icon: {fileID: 21300000, guid: a5b60b1aa1e55024d80635d1dea91c2b, type: 3}
   NameKey: skills.Haste
@@ -24,6 +25,13 @@ MonoBehaviour:
   ActionSpeedMode: 0
   SkillSpeedMultiplier: 1
   DamageContextTags: 0
+  EnablePushback: 0
+  PushbackRating: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: b1864e1ed9ae0bf48904814a9a78bd6a, type: 2}
+  WeaponRole: 2
+  HoldStance: 0
+  HoldStanceId: 
+  SwingStyle: 0
+  SwingStyleId: 

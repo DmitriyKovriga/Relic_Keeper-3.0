@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
   ID: OrbitalWeaponThrowSkill
   SkillName: Orbital Weapon Throw
+  DescriptionMode: 0
   Description: Throw Weapon to fly around hero and deal 350% damage on hit
   Icon: {fileID: 21300000, guid: a5c6bef6b24677346837f66573b6b001, type: 3}
   NameKey: skills.OrbitalWeaponTrowSkill
@@ -24,6 +25,13 @@ MonoBehaviour:
   ActionSpeedMode: 0
   SkillSpeedMultiplier: 1
   DamageContextTags: 8
+  EnablePushback: 0
+  PushbackRating: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: 41c33ae6a6effdd4d953d8b2828fa7ec, type: 2}
+  WeaponRole: 1
+  HoldStance: 2
+  HoldStanceId: low_guard
+  SwingStyle: 2
+  SwingStyleId: low_arc

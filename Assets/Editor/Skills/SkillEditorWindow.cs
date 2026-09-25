@@ -911,18 +911,45 @@ namespace Scripts.Editor.Skills
             }
 
             EditorGUILayout.Space(8f);
-            EditorGUILayout.LabelField("Weapon Hold Stance", EditorStyles.boldLabel);
-            // Dynamic popups from WeaponStancePoseTableSO / WeaponSwingStyleTableSO (see WeaponHoldStanceDrawer / WeaponSwingStyleDrawer).
-            EditorGUILayout.PropertyField(
-                serializedSkill.FindProperty("HoldStance"),
-                new GUIContent(
-                    "Hold Stance",
-                    "Idle pose from Weapon Stance Pose Table (DisplayName). Writes HoldStanceId; syncs legacy enum for seeded rows."));
-            EditorGUILayout.PropertyField(
-                serializedSkill.FindProperty("SwingStyle"),
-                new GUIContent(
-                    "Swing Style",
-                    "From Stance = use Hold Stance default swing. Lists swings allowed for the selected stance Id. Writes SwingStyleId."));
+            SerializedProperty weaponRoleProp = serializedSkill.FindProperty("WeaponRole");
+            SkillWeaponRole weaponRole = weaponRoleProp != null
+                ? (SkillWeaponRole)weaponRoleProp.enumValueIndex
+                : SkillWeaponRole.MainHand;
+            if (weaponRoleProp != null)
+            {
+                string[] roleLabels = { "Основная", "Special", "Предмет" };
+                EditorGUI.BeginChangeCheck();
+                int roleIndex = EditorGUILayout.Popup(
+                    new GUIContent(
+                        "Назначение",
+                        "Основная (MainHand): свинг фильтруется Allowed Stances. Special: любой свинг (2H secondary / RB). Предмет (Equipment): секция Hold/Swing скрыта."),
+                    (int)weaponRole,
+                    roleLabels);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    weaponRoleProp.enumValueIndex = roleIndex;
+                    weaponRole = (SkillWeaponRole)roleIndex;
+                }
+            }
+
+            if (weaponRole != SkillWeaponRole.Equipment)
+            {
+                EditorGUILayout.Space(4f);
+                EditorGUILayout.LabelField("Weapon Hold Stance", EditorStyles.boldLabel);
+                // Dynamic popups from WeaponStancePoseTableSO / WeaponSwingStyleTableSO (see WeaponHoldStanceDrawer / WeaponSwingStyleDrawer).
+                EditorGUILayout.PropertyField(
+                    serializedSkill.FindProperty("HoldStance"),
+                    new GUIContent(
+                        "Hold Stance",
+                        "Idle pose from Weapon Stance Pose Table (DisplayName). Writes HoldStanceId; syncs legacy enum for seeded rows."));
+                EditorGUILayout.PropertyField(
+                    serializedSkill.FindProperty("SwingStyle"),
+                    new GUIContent(
+                        "Swing Style",
+                        weaponRole == SkillWeaponRole.Special
+                            ? "Special: From Stance + every swing in WeaponSwingStyleTable (no Allowed Stance filter). Writes SwingStyleId."
+                            : "From Stance = use Hold Stance default swing. Lists swings allowed for the selected stance Id. Writes SwingStyleId."));
+            }
 
             EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField("Runtime Links", EditorStyles.boldLabel);
