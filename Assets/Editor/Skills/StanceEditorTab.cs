@@ -25,6 +25,11 @@ namespace Scripts.Editor.Skills
 
         private WeaponStancePoseTableSO _table;
         private WeaponHoldStance _selectedStance = WeaponHoldStance.Default;
+        private int _selectedIndex;
+        private string _createName = "";
+        private string _draftId = "";
+        private string _draftDisplayName = "";
+        private string _draftDefaultSwingId = "slash";
         private WeaponItemSO _previewWeapon;
         private List<WeaponItemSO> _weapons = new List<WeaponItemSO>();
         private Vector2 _listScroll;
@@ -84,26 +89,38 @@ namespace Scripts.Editor.Skills
             GUILayout.Label("Hold Stance", EditorStyles.boldLabel);
 
             _listScroll = EditorGUILayout.BeginScrollView(_listScroll, GUILayout.ExpandHeight(true));
-            foreach (WeaponHoldStance stance in Enum.GetValues(typeof(WeaponHoldStance)))
+            var poses = _table.Poses;
+            if (poses != null)
             {
-                bool sel = _selectedStance == stance;
-                GUI.backgroundColor = sel ? new Color(0.5f, 0.7f, 1f) : Color.white;
-                WeaponVisualController.StancePose pose = _table.GetPose(stance);
-                string label = $"{stance}\n  ({pose.LocalPosition.x:0.##}, {pose.LocalPosition.y:0.##})  {pose.LocalEulerZ:0.#}°";
-                if (GUILayout.Button(label, GUILayout.Height(40)))
+                for (int i = 0; i < poses.Length; i++)
                 {
-                    if (!ConfirmDiscardOrSave())
+                    var pose = poses[i];
+                    bool sel = _selectedIndex == i;
+                    GUI.backgroundColor = sel ? new Color(0.5f, 0.7f, 1f) : Color.white;
+                    string title = string.IsNullOrEmpty(pose.DisplayName) ? (pose.Id ?? pose.Stance.ToString()) : pose.DisplayName;
+                    string seed = WeaponStancePoseTableSO.IsSeededRow(pose) ? " [seed]" : "";
+                    string label = string.Format("{0}{1}\n  ({2:0.##}, {3:0.##})  {4:0.#} deg", title, seed, pose.LocalPosition.x, pose.LocalPosition.y, pose.LocalEulerZ);
+                    if (GUILayout.Button(label, GUILayout.Height(44)))
                     {
-                        GUI.backgroundColor = Color.white;
-                        continue;
+                        if (!ConfirmDiscardOrSave())
+                        {
+                            GUI.backgroundColor = Color.white;
+                            continue;
+                        }
+                        _selectedIndex = i;
+                        _selectedStance = pose.Stance;
+                        LoadDraftFromTable();
                     }
-
-                    _selectedStance = stance;
-                    LoadDraftFromTable();
+                    GUI.backgroundColor = Color.white;
                 }
-
-                GUI.backgroundColor = Color.white;
             }
+
+            EditorGUILayout.Space(6);
+            _createName = EditorGUILayout.TextField("New name", _createName);
+            EditorGUI.BeginDisabledGroup(string.IsNullOrWhiteSpace(_createName));
+            if (GUILayout.Button("Create Stance"))
+                CreateNamedStance(_createName.Trim());
+            EditorGUI.EndDisabledGroup();
 
             EditorGUILayout.EndScrollView();
 
@@ -117,7 +134,13 @@ namespace Scripts.Editor.Skills
         {
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
 
-            GUILayout.Label($"Stance: {_selectedStance}", EditorStyles.boldLabel);
+            GUILayout.Label($"Stance: {_draftDisplayName}", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Id", _draftId);
+            EditorGUI.BeginChangeCheck();
+            _draftDisplayName = EditorGUILayout.TextField("Display Name", _draftDisplayName);
+            _draftDefaultSwingId = EditorGUILayout.TextField("Default Swing Id", _draftDefaultSwingId);
+            if (EditorGUI.EndChangeCheck())
+                _dirty = true;
 
             EditorGUI.BeginChangeCheck();
             _previewWeapon = (WeaponItemSO)EditorGUILayout.ObjectField(
@@ -387,6 +410,63 @@ namespace Scripts.Editor.Skills
             return new Rect(tr.x / tw, tr.y / th, tr.width / tw, tr.height / th);
         }
 
+
+        private void CreateNamedStance(string displayName)
+        {
+            EnsureTable();
+            string baseId = Slugify(displayName);
+            if (string.IsNullOrEmpty(baseId)) baseId = "stance";
+            string id = baseId;
+            int n = 2;
+            while (_table.IndexOfId(id) >= 0)
+            {
+                id = baseId + "_" + n;
+                n++;
+            }
+
+            var seed = FindDefaultPose(WeaponHoldStance.Default);
+            var pose = new WeaponVisualController.StancePose
+            {
+                Stance = WeaponHoldStance.Default,
+                Id = id,
+                DisplayName = displayName,
+                DefaultSwingId = "slash",
+                LocalPosition = seed.LocalPosition,
+                LocalEulerZ = seed.LocalEulerZ,
+                FlipX = seed.FlipX,
+                FlipY = seed.FlipY,
+                SortBehindCharacter = seed.SortBehindCharacter
+            };
+
+            Undo.RecordObject(_table, "Create Stance");
+            if (!_table.AddPose(pose))
+            {
+                EditorUtility.DisplayDialog("Create Stance", "Failed to add stance.", "OK");
+                return;
+            }
+            EditorUtility.SetDirty(_table);
+            AssetDatabase.SaveAssets();
+            _selectedIndex = _table.IndexOfId(id);
+            _selectedStance = pose.Stance;
+            _createName = "";
+            LoadDraftFromTable();
+            _dirty = false;
+        }
+
+        private static string Slugify(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return "";
+            var sb = new System.Text.StringBuilder();
+            foreach (char c in name.Trim().ToLowerInvariant())
+            {
+                if (char.IsLetterOrDigit(c)) sb.Append(c);
+                else if ((c == ' ' || c == '-' || c == '_') && sb.Length > 0 && sb[sb.Length - 1] != '_')
+                    sb.Append('_');
+            }
+            while (sb.Length > 0 && sb[sb.Length - 1] == '_') sb.Length--;
+            return sb.ToString();
+        }
+
         private void EnsureTable()
         {
             if (_table != null) return;
@@ -456,13 +536,21 @@ namespace Scripts.Editor.Skills
         private void LoadDraftFromTable()
         {
             if (_table == null) return;
-            WeaponVisualController.StancePose pose = _table.GetPose(_selectedStance);
+            if (_table.Poses == null || _table.Poses.Length == 0)
+                _table.EnsurePoseArray();
+            if (_selectedIndex < 0 || _selectedIndex >= _table.Poses.Length)
+                _selectedIndex = 0;
+            WeaponVisualController.StancePose pose = _table.Poses[_selectedIndex];
+            _selectedStance = pose.Stance;
             ApplyDraft(pose);
             _dirty = false;
         }
 
         private void ApplyDraft(WeaponVisualController.StancePose pose)
         {
+            _draftId = pose.Id ?? "";
+            _draftDisplayName = string.IsNullOrEmpty(pose.DisplayName) ? (pose.Id ?? pose.Stance.ToString()) : pose.DisplayName;
+            _draftDefaultSwingId = string.IsNullOrEmpty(pose.DefaultSwingId) ? "slash" : pose.DefaultSwingId;
             _draftPos = pose.LocalPosition;
             _draftEuler = pose.LocalEulerZ;
             _draftFlipX = pose.FlipX;
@@ -509,9 +597,13 @@ namespace Scripts.Editor.Skills
         {
             if (_table == null) return;
 
+            var existing = _table.Poses[_selectedIndex];
             var pose = new WeaponVisualController.StancePose
             {
-                Stance = _selectedStance,
+                Stance = existing.Stance,
+                Id = string.IsNullOrEmpty(_draftId) ? existing.Id : _draftId,
+                DisplayName = string.IsNullOrEmpty(_draftDisplayName) ? existing.DisplayName : _draftDisplayName,
+                DefaultSwingId = _draftDefaultSwingId,
                 LocalPosition = _draftPos,
                 LocalEulerZ = _draftEuler,
                 FlipX = _draftFlipX,
@@ -520,7 +612,7 @@ namespace Scripts.Editor.Skills
             };
 
             Undo.RecordObject(_table, "Edit Stance Pose");
-            _table.SetPose(pose);
+            _table.SetPoseAt(_selectedIndex, pose);
             EditorUtility.SetDirty(_table);
             AssetDatabase.SaveAssets();
             _dirty = false;

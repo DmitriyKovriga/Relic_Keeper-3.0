@@ -912,44 +912,17 @@ namespace Scripts.Editor.Skills
 
             EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField("Weapon Hold Stance", EditorStyles.boldLabel);
-            SerializedProperty holdStanceProp = serializedSkill.FindProperty("HoldStance");
-            SerializedProperty swingStyleProp = serializedSkill.FindProperty("SwingStyle");
-            EditorGUI.BeginChangeCheck();
+            // Dynamic popups from WeaponStancePoseTableSO / WeaponSwingStyleTableSO (see WeaponHoldStanceDrawer / WeaponSwingStyleDrawer).
             EditorGUILayout.PropertyField(
-                holdStanceProp,
+                serializedSkill.FindProperty("HoldStance"),
                 new GUIContent(
                     "Hold Stance",
-                    "Idle pose number (weapon's active skill #1). 0 Default, 1 Aggressive, 2 LowGuard, 3 Dagger, 4 Shoulder, 5 Staff. Swing Style list is filtered to swings allowed for this stance."));
-            bool holdStanceChanged = EditorGUI.EndChangeCheck();
-
-            WeaponHoldStance holdStance = (WeaponHoldStance)holdStanceProp.enumValueIndex;
-            WeaponSwingStyle[] allowedStyles = WeaponSwingStyleResolver.GetAllowedStyles(holdStance);
-            if (holdStanceChanged || !WeaponSwingStyleResolver.IsAllowed(holdStance, (WeaponSwingStyle)swingStyleProp.enumValueIndex))
-            {
-                swingStyleProp.enumValueIndex = (int)WeaponSwingStyleResolver.ClampToAllowed(
-                    holdStance,
-                    (WeaponSwingStyle)swingStyleProp.enumValueIndex);
-            }
-
-            string[] swingLabels = new string[allowedStyles.Length];
-            int selectedSwing = 0;
-            int currentSwing = swingStyleProp.enumValueIndex;
-            for (int i = 0; i < allowedStyles.Length; i++)
-            {
-                swingLabels[i] = GetWeaponSwingStyleDisplayName(allowedStyles[i]);
-                if ((int)allowedStyles[i] == currentSwing)
-                    selectedSwing = i;
-            }
-
-            EditorGUI.BeginChangeCheck();
-            int newSwingIndex = EditorGUILayout.Popup(
+                    "Idle pose from Weapon Stance Pose Table (DisplayName). Writes HoldStanceId; syncs legacy enum for seeded rows."));
+            EditorGUILayout.PropertyField(
+                serializedSkill.FindProperty("SwingStyle"),
                 new GUIContent(
                     "Swing Style",
-                    "FromStance = use Hold Stance's default swing. Only swings allowed for the selected Hold Stance are listed."),
-                selectedSwing,
-                swingLabels);
-            if (EditorGUI.EndChangeCheck() && newSwingIndex >= 0 && newSwingIndex < allowedStyles.Length)
-                swingStyleProp.enumValueIndex = (int)allowedStyles[newSwingIndex];
+                    "From Stance = use Hold Stance default swing. Lists swings allowed for the selected stance Id. Writes SwingStyleId."));
 
             EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField("Runtime Links", EditorStyles.boldLabel);
@@ -3525,18 +3498,6 @@ namespace Scripts.Editor.Skills
                 return false;
             return value.IndexOf("DebugSwing", System.StringComparison.OrdinalIgnoreCase) >= 0
                 || value.IndexOf("Debug Swing", System.StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        private static string GetWeaponSwingStyleDisplayName(WeaponSwingStyle style)
-        {
-            switch (style)
-            {
-                case WeaponSwingStyle.FromStance: return "From Stance";
-                case WeaponSwingStyle.Slash: return "Slash";
-                case WeaponSwingStyle.LowArc: return "Low Arc";
-                case WeaponSwingStyle.OverheadStab: return "Overhead Stab";
-                default: return ObjectNames.NicifyVariableName(style.ToString());
-            }
         }
     }
 }

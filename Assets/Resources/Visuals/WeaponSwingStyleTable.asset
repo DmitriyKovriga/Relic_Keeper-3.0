@@ -12,20 +12,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 300014c5d877a80498f626d1ad5b5443, type: 3}
   m_Name: WeaponSwingStyleTable
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.WeaponSwingStyleTableSO
-  _version: 1
+  _version: 2
   _styles:
   - Style: 1
     WindupZ: 110
     WindupLocalPos: {x: 0.05, y: 0.08}
     ImpactZ: -30
     ImpactLocalPos: {x: 0, y: 0}
+    Id: slash
+    DisplayName: Slash
+    AllowedStanceIds:
+    - default
+    - aggressive
+    - shoulder
+    - staff
   - Style: 2
     WindupZ: -25.9
     WindupLocalPos: {x: -0.20833305, y: -0.094722345}
     ImpactZ: 8.4
     ImpactLocalPos: {x: 0.36388886, y: 0.069}
+    Id: low_arc
+    DisplayName: Low Arc
+    AllowedStanceIds:
+    - low_guard
   - Style: 3
     WindupZ: 45
     WindupLocalPos: {x: 0.004444446, y: 0.34805548}
     ImpactZ: -178.1
     ImpactLocalPos: {x: 0.7180549, y: -0.7124993}
+    Id: overhead_stab
+    DisplayName: Overhead Stab
+    AllowedStanceIds:
+    - dagger
+  - Style: 1
+    WindupZ: 31.3
+    WindupLocalPos: {x: 0.10555558, y: 0.5175001}
+    ImpactZ: -81.8
+    ImpactLocalPos: {x: 0.60416645, y: -0.29861122}
+    Id: overhead
+    DisplayName: OverHead
+    AllowedStanceIds:
+    - shoulder

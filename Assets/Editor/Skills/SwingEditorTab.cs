@@ -41,6 +41,11 @@ namespace Scripts.Editor.Skills
         private WeaponStancePoseTableSO _poseTable;
         private WeaponHoldStance _previewStance = WeaponHoldStance.LowGuard;
         private WeaponSwingStyle _selectedStyle = WeaponSwingStyle.LowArc;
+        private int _selectedIndex;
+        private string _createName = "";
+        private string _draftId = "";
+        private string _draftDisplayName = "";
+        private System.Collections.Generic.List<string> _draftAllowedStanceIds = new System.Collections.Generic.List<string>();
         private PreviewKey _previewKey = PreviewKey.Windup;
         private WeaponItemSO _previewWeapon;
         private List<WeaponItemSO> _weapons = new List<WeaponItemSO>();
@@ -113,29 +118,40 @@ namespace Scripts.Editor.Skills
             GUILayout.Label("Swing Style", EditorStyles.boldLabel);
 
             _listScroll = EditorGUILayout.BeginScrollView(_listScroll, GUILayout.ExpandHeight(true));
-            for (int i = 0; i < EditableStyles.Length; i++)
+            var styles = _table.Styles;
+            if (styles != null)
             {
-                WeaponSwingStyle style = EditableStyles[i];
-                bool sel = _selectedStyle == style;
-                GUI.backgroundColor = sel ? new Color(0.5f, 0.7f, 1f) : Color.white;
-                WeaponSwingStyleTableSO.SwingKeyframes kf = _table.Get(style);
-                string label =
-                    $"{StyleLabel(style)}\n  W {kf.WindupZ:0.#}°  ({kf.WindupLocalPos.x:0.##},{kf.WindupLocalPos.y:0.##})\n  I {kf.ImpactZ:0.#}°  ({kf.ImpactLocalPos.x:0.##},{kf.ImpactLocalPos.y:0.##})";
-                if (GUILayout.Button(label, GUILayout.Height(56)))
+                for (int i = 0; i < styles.Length; i++)
                 {
-                    if (!ConfirmDiscardOrSave())
+                    var kf = styles[i];
+                    bool sel = _selectedIndex == i;
+                    GUI.backgroundColor = sel ? new Color(0.5f, 0.7f, 1f) : Color.white;
+                    string title = string.IsNullOrEmpty(kf.DisplayName) ? (kf.Id ?? kf.Style.ToString()) : kf.DisplayName;
+                    string seed = WeaponSwingStyleTableSO.IsSeededRow(kf) ? " [seed]" : "";
+                    string label = string.Format("{0}{1}\n  W {2:0.#}  ({3:0.##},{4:0.##})\n  I {5:0.#}  ({6:0.##},{7:0.##})",
+                        title, seed, kf.WindupZ, kf.WindupLocalPos.x, kf.WindupLocalPos.y, kf.ImpactZ, kf.ImpactLocalPos.x, kf.ImpactLocalPos.y);
+                    if (GUILayout.Button(label, GUILayout.Height(56)))
                     {
-                        GUI.backgroundColor = Color.white;
-                        continue;
+                        if (!ConfirmDiscardOrSave())
+                        {
+                            GUI.backgroundColor = Color.white;
+                            continue;
+                        }
+                        _selectedIndex = i;
+                        _selectedStyle = kf.Style;
+                        LoadDraftFromTable();
+                        StopPlay();
                     }
-
-                    _selectedStyle = style;
-                    LoadDraftFromTable();
-                    StopPlay();
+                    GUI.backgroundColor = Color.white;
                 }
-
-                GUI.backgroundColor = Color.white;
             }
+
+            EditorGUILayout.Space(6);
+            _createName = EditorGUILayout.TextField("New name", _createName);
+            EditorGUI.BeginDisabledGroup(string.IsNullOrWhiteSpace(_createName));
+            if (GUILayout.Button("Create Swing"))
+                CreateNamedSwing(_createName.Trim());
+            EditorGUI.EndDisabledGroup();
 
             EditorGUILayout.EndScrollView();
 
@@ -152,7 +168,13 @@ namespace Scripts.Editor.Skills
         {
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
 
-            GUILayout.Label($"Style: {StyleLabel(_selectedStyle)}", EditorStyles.boldLabel);
+            GUILayout.Label($"Style: {_draftDisplayName}", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Id", _draftId);
+            EditorGUI.BeginChangeCheck();
+            _draftDisplayName = EditorGUILayout.TextField("Display Name", _draftDisplayName);
+            DrawAllowedStances();
+            if (EditorGUI.EndChangeCheck())
+                _dirty = true;
 
             EditorGUI.BeginChangeCheck();
             _previewStance = (WeaponHoldStance)EditorGUILayout.EnumPopup(
@@ -595,6 +617,86 @@ namespace Scripts.Editor.Skills
             return new Rect(tr.x / tw, tr.y / th, tr.width / tw, tr.height / th);
         }
 
+
+        private void DrawAllowedStances()
+        {
+            EnsureTables();
+            EditorGUILayout.LabelField("Allowed Stances", EditorStyles.boldLabel);
+            var poses = _poseTable != null ? _poseTable.Poses : null;
+            if (poses == null || poses.Length == 0)
+            {
+                EditorGUILayout.HelpBox("No stances in pose table.", MessageType.Info);
+                return;
+            }
+
+            for (int i = 0; i < poses.Length; i++)
+            {
+                string sid = poses[i].Id;
+                if (string.IsNullOrEmpty(sid)) continue;
+                string label = string.IsNullOrEmpty(poses[i].DisplayName) ? sid : poses[i].DisplayName;
+                bool on = _draftAllowedStanceIds.Contains(sid);
+                bool next = EditorGUILayout.ToggleLeft(label + " (" + sid + ")", on);
+                if (next && !on) _draftAllowedStanceIds.Add(sid);
+                if (!next && on) _draftAllowedStanceIds.Remove(sid);
+            }
+        }
+
+        private void CreateNamedSwing(string displayName)
+        {
+            EnsureTables();
+            string baseId = SlugifySwing(displayName);
+            if (string.IsNullOrEmpty(baseId)) baseId = "swing";
+            string id = baseId;
+            int n = 2;
+            while (_table.IndexOfId(id) >= 0)
+            {
+                id = baseId + "_" + n;
+                n++;
+            }
+
+            var seed = FindDefault(WeaponSwingStyle.Slash);
+            var kf = new WeaponSwingStyleTableSO.SwingKeyframes
+            {
+                Style = WeaponSwingStyle.Slash,
+                Id = id,
+                DisplayName = displayName,
+                AllowedStanceIds = new string[0],
+                WindupZ = seed.WindupZ,
+                WindupLocalPos = seed.WindupLocalPos,
+                ImpactZ = seed.ImpactZ,
+                ImpactLocalPos = seed.ImpactLocalPos
+            };
+
+            Undo.RecordObject(_table, "Create Swing");
+            if (!_table.Add(kf))
+            {
+                EditorUtility.DisplayDialog("Create Swing", "Failed to add swing.", "OK");
+                return;
+            }
+            EditorUtility.SetDirty(_table);
+            AssetDatabase.SaveAssets();
+            _selectedIndex = _table.IndexOfId(id);
+            _selectedStyle = kf.Style;
+            _createName = "";
+            LoadDraftFromTable();
+            StopPlay();
+            _dirty = false;
+        }
+
+        private static string SlugifySwing(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return "";
+            var sb = new System.Text.StringBuilder();
+            foreach (char c in name.Trim().ToLowerInvariant())
+            {
+                if (char.IsLetterOrDigit(c)) sb.Append(c);
+                else if ((c == ' ' || c == '-' || c == '_') && sb.Length > 0 && sb[sb.Length - 1] != '_')
+                    sb.Append('_');
+            }
+            while (sb.Length > 0 && sb[sb.Length - 1] == '_') sb.Length--;
+            return sb.ToString();
+        }
+
         private void EnsureTables()
         {
             if (_table == null)
@@ -672,12 +774,23 @@ namespace Scripts.Editor.Skills
         private void LoadDraftFromTable()
         {
             if (_table == null) return;
-            ApplyDraft(_table.Get(_selectedStyle));
+            if (_table.Styles == null || _table.Styles.Length == 0)
+                _table.EnsureStyleArray();
+            if (_selectedIndex < 0 || _selectedIndex >= _table.Styles.Length)
+                _selectedIndex = 0;
+            var kf = _table.Styles[_selectedIndex];
+            _selectedStyle = kf.Style;
+            ApplyDraft(kf);
             _dirty = false;
         }
 
         private void ApplyDraft(WeaponSwingStyleTableSO.SwingKeyframes kf)
         {
+            _draftId = kf.Id ?? "";
+            _draftDisplayName = string.IsNullOrEmpty(kf.DisplayName) ? (kf.Id ?? kf.Style.ToString()) : kf.DisplayName;
+            _draftAllowedStanceIds = new System.Collections.Generic.List<string>();
+            if (kf.AllowedStanceIds != null)
+                _draftAllowedStanceIds.AddRange(kf.AllowedStanceIds);
             _draftWindupZ = kf.WindupZ;
             _draftWindupPos = kf.WindupLocalPos;
             _draftImpactZ = kf.ImpactZ;
@@ -749,9 +862,13 @@ namespace Scripts.Editor.Skills
         {
             if (_table == null) return;
 
+            var existing = _table.Styles[_selectedIndex];
             var kf = new WeaponSwingStyleTableSO.SwingKeyframes
             {
-                Style = _selectedStyle,
+                Style = existing.Style,
+                Id = string.IsNullOrEmpty(_draftId) ? existing.Id : _draftId,
+                DisplayName = string.IsNullOrEmpty(_draftDisplayName) ? existing.DisplayName : _draftDisplayName,
+                AllowedStanceIds = _draftAllowedStanceIds.ToArray(),
                 WindupZ = _draftWindupZ,
                 WindupLocalPos = _draftWindupPos,
                 ImpactZ = _draftImpactZ,
@@ -759,7 +876,7 @@ namespace Scripts.Editor.Skills
             };
 
             Undo.RecordObject(_table, "Edit Swing Style");
-            _table.Set(kf);
+            _table.SetAt(_selectedIndex, kf);
             EditorUtility.SetDirty(_table);
             AssetDatabase.SaveAssets();
             _dirty = false;

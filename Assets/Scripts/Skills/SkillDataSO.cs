@@ -1,6 +1,7 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Scripts.Skills.Steps;
 using Scripts.Stats;
+using Scripts.Visuals;
 
 namespace Scripts.Skills
 {
@@ -22,7 +23,7 @@ namespace Scripts.Skills
     public class SkillDataSO : ScriptableObject
     {
         [Header("Identity")]
-        public string ID; // РЈРЅРёРєР°Р»СЊРЅС‹Р№ ID (Fireball_V1)
+        public string ID; // Р Р€Р Р…Р С‘Р С”Р В°Р В»РЎРЉР Р…РЎвЂ№Р в„– ID (Fireball_V1)
         public string SkillName;
         [Tooltip("Automatic reads the recipe and always reflects its current mechanics. Legacy text is preserved below and can be enabled when needed.")]
         public SkillDescriptionMode DescriptionMode = SkillDescriptionMode.Automatic;
@@ -44,7 +45,7 @@ namespace Scripts.Skills
         public SkillActionSpeedMode ActionSpeedMode = SkillActionSpeedMode.Attack;
         [Tooltip("Multiplier applied after normal AttackSpeed/CastSpeed calculation. 1 = normal, 1.5 = 50% faster, 0.75 = 25% slower.")]
         public float SkillSpeedMultiplier = 1f;
-        [Tooltip("РљРѕРЅС‚РµРєСЃС‚ СѓСЂРѕРЅР° РґР»СЏ СЂР°СЃС‡РµС‚Р° Context Modifier СЃС‚Р°С‚РѕРІ. Р•СЃР»Рё РѕСЃС‚Р°РІРёС‚СЊ None Сѓ СЃС‚Р°СЂС‹С… melee-СЃРєРёР»Р»РѕРІ, СЂР°РЅС‚Р°Р№Рј РїРѕРґСЃС‚Р°РІРёС‚ Р±РµР·РѕРїР°СЃРЅС‹Р№ legacy fallback Attack|Melee.")]
+        [Tooltip("Р С™Р С•Р Р…РЎвЂљР ВµР С”РЎРѓРЎвЂљ РЎС“РЎР‚Р С•Р Р…Р В° Р Т‘Р В»РЎРЏ РЎР‚Р В°РЎРѓРЎвЂЎР ВµРЎвЂљР В° Context Modifier РЎРѓРЎвЂљР В°РЎвЂљР С•Р Р†. Р вЂўРЎРѓР В»Р С‘ Р С•РЎРѓРЎвЂљР В°Р Р†Р С‘РЎвЂљРЎРЉ None РЎС“ РЎРѓРЎвЂљР В°РЎР‚РЎвЂ№РЎвЂ¦ melee-РЎРѓР С”Р С‘Р В»Р В»Р С•Р Р†, РЎР‚Р В°Р Р…РЎвЂљР В°Р в„–Р С Р С—Р С•Р Т‘РЎРѓРЎвЂљР В°Р Р†Р С‘РЎвЂљ Р В±Р ВµР В·Р С•Р С—Р В°РЎРѓР Р…РЎвЂ№Р в„– legacy fallback Attack|Melee.")]
         public StatContextTagFlags DamageContextTags;
 
         [Header("Pushback")]
@@ -54,29 +55,50 @@ namespace Scripts.Skills
         public float PushbackRating;
 
         [Header("Visuals & Logic")]
-        [Tooltip("РџСЂРµС„Р°Р± Р»РѕРіРёРєРё СЃ РєРѕРјРїРѕРЅРµРЅС‚РѕРј SkillBehaviour РЅР° РєРѕСЂРЅРµ. Р”Р»СЏ РЅР°РІС‹РєР° СЃ Recipe РјРѕР¶РЅРѕ РѕСЃС‚Р°РІРёС‚СЊ РїСѓСЃС‚С‹Рј: StepRunner СЃРѕР·РґР°С‘С‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё. Р’РёР·СѓР°Р»СЊРЅС‹Рµ СЌС„С„РµРєС‚С‹ РЅР°Р·РЅР°С‡Р°СЋС‚СЃСЏ РІ С€Р°РіР°С… СЂРµС†РµРїС‚Р°, РЅРµ Р·РґРµСЃСЊ.")]
+        [Tooltip("Р СџРЎР‚Р ВµРЎвЂћР В°Р В± Р В»Р С•Р С–Р С‘Р С”Р С‘ РЎРѓ Р С”Р С•Р СР С—Р С•Р Р…Р ВµР Р…РЎвЂљР С•Р С SkillBehaviour Р Р…Р В° Р С”Р С•РЎР‚Р Р…Р Вµ. Р вЂќР В»РЎРЏ Р Р…Р В°Р Р†РЎвЂ№Р С”Р В° РЎРѓ Recipe Р СР С•Р В¶Р Р…Р С• Р С•РЎРѓРЎвЂљР В°Р Р†Р С‘РЎвЂљРЎРЉ Р С—РЎС“РЎРѓРЎвЂљРЎвЂ№Р С: StepRunner РЎРѓР С•Р В·Р Т‘Р В°РЎвЂРЎвЂљРЎРѓРЎРЏ Р В°Р Р†РЎвЂљР С•Р СР В°РЎвЂљР С‘РЎвЂЎР ВµРЎРѓР С”Р С‘. Р вЂ™Р С‘Р В·РЎС“Р В°Р В»РЎРЉР Р…РЎвЂ№Р Вµ РЎРЊРЎвЂћРЎвЂћР ВµР С”РЎвЂљРЎвЂ№ Р Р…Р В°Р В·Р Р…Р В°РЎвЂЎР В°РЎР‹РЎвЂљРЎРѓРЎРЏ Р Р† РЎв‚¬Р В°Р С–Р В°РЎвЂ¦ РЎР‚Р ВµРЎвЂ Р ВµР С—РЎвЂљР В°, Р Р…Р Вµ Р В·Р Т‘Р ВµРЎРѓРЎРЉ.")]
         public GameObject SkillPrefab;
-        [Tooltip("РђРЅРёРјР°С†РёСЏ РёРіСЂРѕРєР° РїСЂРё РєР°СЃС‚Рµ")]
+        [Tooltip("Р С’Р Р…Р С‘Р СР В°РЎвЂ Р С‘РЎРЏ Р С‘Р С–РЎР‚Р С•Р С”Р В° Р С—РЎР‚Р С‘ Р С”Р В°РЎРѓРЎвЂљР Вµ")]
         public string AnimationTrigger = "Attack";
 
         [Header("Step-based (optional)")]
-        [Tooltip("Р РµС†РµРїС‚ РґР»СЏ StepRunner. Р•СЃР»Рё SkillPrefab РЅРµ Р·Р°РґР°РЅ, РёСЃРїРѕР»РЅРёС‚РµР»СЊ СЃРѕР·РґР°С‘С‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё. РРЅР°С‡Рµ РїСЂРµС„Р°Р± РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ SkillBehaviour.")]
+        [Tooltip("Р В Р ВµРЎвЂ Р ВµР С—РЎвЂљ Р Т‘Р В»РЎРЏ StepRunner. Р вЂўРЎРѓР В»Р С‘ SkillPrefab Р Р…Р Вµ Р В·Р В°Р Т‘Р В°Р Р…, Р С‘РЎРѓР С—Р С•Р В»Р Р…Р С‘РЎвЂљР ВµР В»РЎРЉ РЎРѓР С•Р В·Р Т‘Р В°РЎвЂРЎвЂљРЎРѓРЎРЏ Р В°Р Р†РЎвЂљР С•Р СР В°РЎвЂљР С‘РЎвЂЎР ВµРЎРѓР С”Р С‘. Р ВР Р…Р В°РЎвЂЎР Вµ Р С—РЎР‚Р ВµРЎвЂћР В°Р В± Р Т‘Р С•Р В»Р В¶Р ВµР Р… РЎРѓР С•Р Т‘Р ВµРЎР‚Р В¶Р В°РЎвЂљРЎРЉ SkillBehaviour.")]
         public SkillRecipeSO Recipe;
 
         [Header("Weapon Hold (idle pose)")]
         [Tooltip("Idle pose number when this skill is a weapon's active skill #1 (auto-attack / primary). 0 Default, 1 Aggressive, 2 LowGuard, 3 Dagger, 4 Shoulder, 5 Staff. Swing Style dropdown is filtered to swings allowed for this stance.")]
         public WeaponHoldStance HoldStance = WeaponHoldStance.Default;
 
+        [HideInInspector]
+        [Tooltip("Named stance Id from WeaponStancePoseTable. Source of truth when non-empty; Hold Stance dropdown writes this.")]
+        public string HoldStanceId;
+
         // Attack swing / windup style - separate from HoldStance so pose is never locked to one swing.
         // FromStance (0) = use that stance's default swing; only stance-allowed overrides appear in the UI.
         [Tooltip("FromStance = use this skill's HoldStance default swing. Dropdown lists only swings allowed for the selected Hold Stance.")]
         public WeaponSwingStyle SwingStyle = WeaponSwingStyle.FromStance;
 
+        [HideInInspector]
+        [Tooltip("Named swing Id from WeaponSwingStyleTable. Source of truth when non-empty; Swing Style dropdown writes this.")]
+        public string SwingStyleId;
+
         private void OnValidate()
         {
-            WeaponSwingStyle clamped = WeaponSwingStyleResolver.ClampToAllowed(HoldStance, SwingStyle);
-            if (clamped != SwingStyle)
-                SwingStyle = clamped;
+            string stanceId = !string.IsNullOrEmpty(HoldStanceId)
+                ? HoldStanceId
+                : WeaponStancePoseTableSO.CanonicalId(HoldStance);
+
+            if (!string.IsNullOrEmpty(SwingStyleId))
+            {
+                if (!WeaponSwingStyleResolver.IsStyleIdAllowedForStanceId(stanceId, SwingStyleId))
+                {
+                    SwingStyleId = string.Empty;
+                    SwingStyle = WeaponSwingStyle.FromStance;
+                }
+                return;
+            }
+
+            if (!WeaponSwingStyleResolver.IsAllowedForStanceId(stanceId, SwingStyle))
+                SwingStyle = WeaponSwingStyle.FromStance;
         }
     }
 }

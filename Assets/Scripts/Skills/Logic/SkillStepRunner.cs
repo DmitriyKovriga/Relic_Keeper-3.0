@@ -85,7 +85,7 @@ namespace Scripts.Skills
 
             _cancelled = false;
             if (_animCtrl != null)
-                _animCtrl.SetActiveStyle(WeaponSwingStyleResolver.Resolve(_data));
+                _animCtrl.SetActiveStyleId(WeaponSwingStyleResolver.ResolveStyleId(_data));
             _hitStopGate = new SkillHitStopGate(_data.Recipe.HitStopFrames);
             _ctx = new SkillStepContext
             {

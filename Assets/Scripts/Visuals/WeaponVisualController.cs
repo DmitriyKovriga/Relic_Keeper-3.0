@@ -28,6 +28,12 @@ namespace Scripts.Visuals
             public bool SortBehindCharacter;
             public bool FlipX;
             public bool FlipY;
+            [Tooltip("Stable string id (e.g. low_guard). Seeded rows use canonical ids.")]
+            public string Id;
+            [Tooltip("Editor display name.")]
+            public string DisplayName;
+            [Tooltip("Default swing row Id used when skill SwingStyle is FromStance.")]
+            public string DefaultSwingId;
         }
 
         [Header("Components")]
@@ -142,31 +148,50 @@ namespace Scripts.Visuals
                 && !mainWeapon.IsTwoHanded
                 && offIsCombatOneHand;
 
-            WeaponHoldStance mainStance = ResolveHoldStance(mainHandItem);
+            StancePose mainPose = ResolvePoseForItem(mainHandItem);
             // InHandSpriteLocalOffset: per-weapon handle nudge when sprite.pivot cannot be authored
             // (shared sheet). Same HandPivot-local space as stance LocalPosition; tilt cancel unchanged.
             ApplyHandVisual(
                 _weaponRenderer,
                 ref _weaponDepthSort,
                 mainIsWeapon ? mainWeapon.InHandSprite : null,
-                mainStance,
+                mainPose,
                 lateralOffset: mainIsWeapon ? mainWeapon.InHandSpriteLocalOffset : Vector2.zero,
                 spriteTiltZ: mainIsWeapon ? mainWeapon.InHandSpriteTiltZ : 0f);
 
             if (dualOneHand)
             {
                 EnsureOffhandRenderer();
-                WeaponHoldStance offStance = ResolveHoldStance(offHandItem);
-                // Same stance family as main when offhand skill has no explicit stance change —
+                StancePose offPose = ResolvePoseForItem(offHandItem);
+                // Same stance family as main when offhand skill has no explicit stance / id —
                 // still read offhand skill #1; offset keeps dual-wield readable.
-                if (offStance == WeaponHoldStance.Default && mainStance != WeaponHoldStance.Default)
-                    offStance = mainStance;
+                SkillDataSO offPrimary = GetPrimarySkill(offHandItem);
+                bool offUsesId = offPrimary != null && !string.IsNullOrEmpty(offPrimary.HoldStanceId);
+                if (!offUsesId
+                    && offPrimary != null
+                    && offPrimary.HoldStance == WeaponHoldStance.Default
+                    && mainPose.Stance != WeaponHoldStance.Default
+                    && string.IsNullOrEmpty(mainPose.Id) == false)
+                {
+                    // Prefer main pose when offhand is Default without Id override
+                    SkillDataSO mainPrimary = GetPrimarySkill(mainHandItem);
+                    if (mainPrimary == null || string.IsNullOrEmpty(mainPrimary.HoldStanceId))
+                        offPose = mainPose;
+                }
+                else if (!offUsesId
+                    && offPrimary != null
+                    && offPrimary.HoldStance == WeaponHoldStance.Default)
+                {
+                    WeaponHoldStance mainStance = ResolveHoldStance(mainHandItem);
+                    if (mainStance != WeaponHoldStance.Default)
+                        offPose = GetPose(mainStance);
+                }
 
                 ApplyHandVisual(
                     _offhandWeaponRenderer,
                     ref _offhandDepthSort,
                     offWeapon.InHandSprite,
-                    offStance,
+                    offPose,
                     lateralOffset: _dualWieldOffhandOffset + offWeapon.InHandSpriteLocalOffset,
                     spriteTiltZ: offWeapon.InHandSpriteTiltZ);
             }
@@ -180,7 +205,7 @@ namespace Scripts.Visuals
             SpriteRenderer renderer,
             ref WorldDepthSort depthSort,
             Sprite sprite,
-            WeaponHoldStance stance,
+            StancePose pose,
             Vector2 lateralOffset,
             float spriteTiltZ)
         {
@@ -198,8 +223,6 @@ namespace Scripts.Visuals
                 renderer.enabled = false;
                 return;
             }
-
-            StancePose pose = GetPose(stance);
             Transform t = renderer.transform;
             t.localPosition = new Vector3(
                 pose.LocalPosition.x + lateralOffset.x,
@@ -237,14 +260,30 @@ namespace Scripts.Visuals
             return defaults[0];
         }
 
-        private static WeaponHoldStance ResolveHoldStance(InventoryItem item)
+        private static SkillDataSO GetPrimarySkill(InventoryItem item)
         {
             if (item?.GrantedSkills == null || item.GrantedSkills.Count == 0)
-                return WeaponHoldStance.Default;
+                return null;
+            return item.GrantedSkills[0];
+        }
 
-            // Active skill #1 = GrantedSkills[0] (not the 2H secondary special).
-            SkillDataSO primary = item.GrantedSkills[0];
+        private static WeaponHoldStance ResolveHoldStance(InventoryItem item)
+        {
+            SkillDataSO primary = GetPrimarySkill(item);
             return primary != null ? primary.HoldStance : WeaponHoldStance.Default;
+        }
+
+        private StancePose ResolvePoseForItem(InventoryItem item)
+        {
+            SkillDataSO primary = GetPrimarySkill(item);
+            if (primary != null && !string.IsNullOrEmpty(primary.HoldStanceId))
+            {
+                EnsurePoseTable();
+                if (_poseTable != null && _poseTable.TryGetById(primary.HoldStanceId, out StancePose byId))
+                    return byId;
+            }
+
+            return GetPose(primary != null ? primary.HoldStance : WeaponHoldStance.Default);
         }
 
         private void EnsureOffhandRenderer()
@@ -367,7 +406,10 @@ namespace Scripts.Visuals
                     LocalEulerZ = 0f,
                     SortBehindCharacter = false,
                     FlipX = false,
-                    FlipY = false
+                    FlipY = false,
+                    Id = "default",
+                    DisplayName = "Default",
+                    DefaultSwingId = "slash"
                 },
                 new StancePose
                 {
@@ -377,7 +419,10 @@ namespace Scripts.Visuals
                     LocalEulerZ = -100f,
                     SortBehindCharacter = false,
                     FlipX = true,
-                    FlipY = false
+                    FlipY = false,
+                    Id = "aggressive",
+                    DisplayName = "Aggressive",
+                    DefaultSwingId = "slash"
                 },
                 new StancePose
                 {
@@ -386,7 +431,10 @@ namespace Scripts.Visuals
                     LocalEulerZ = 100f,
                     SortBehindCharacter = false,
                     FlipX = false,
-                    FlipY = false
+                    FlipY = false,
+                    Id = "low_guard",
+                    DisplayName = "Low Guard",
+                    DefaultSwingId = "low_arc"
                 },
                 new StancePose
                 {
@@ -397,7 +445,10 @@ namespace Scripts.Visuals
                     LocalEulerZ = 180f,
                     SortBehindCharacter = false,
                     FlipX = false,
-                    FlipY = false
+                    FlipY = false,
+                    Id = "dagger",
+                    DisplayName = "Dagger",
+                    DefaultSwingId = "overhead_stab"
                 },
                 new StancePose
                 {
@@ -407,7 +458,10 @@ namespace Scripts.Visuals
                     LocalEulerZ = -120f,
                     SortBehindCharacter = true,
                     FlipX = true,
-                    FlipY = true
+                    FlipY = true,
+                    Id = "shoulder",
+                    DisplayName = "Shoulder",
+                    DefaultSwingId = "slash"
                 },
                 new StancePose
                 {
@@ -417,7 +471,10 @@ namespace Scripts.Visuals
                     LocalEulerZ = -90f,
                     SortBehindCharacter = false,
                     FlipX = false,
-                    FlipY = false
+                    FlipY = false,
+                    Id = "staff",
+                    DisplayName = "Staff",
+                    DefaultSwingId = "slash"
                 }
             };
         }

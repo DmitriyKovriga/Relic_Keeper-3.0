@@ -40,6 +40,7 @@ namespace Scripts.Skills.Modules
         private Quaternion _defaultRot = Quaternion.identity;
 
         private WeaponSwingStyle _activeStyle = WeaponSwingStyle.Slash;
+        private string _activeStyleId = "slash";
 
         private Quaternion _windupRot;
         private Vector3 _windupPos;
@@ -73,10 +74,21 @@ namespace Scripts.Skills.Modules
             if (style == WeaponSwingStyle.FromStance)
                 style = WeaponSwingStyle.Slash;
             _activeStyle = style;
+            _activeStyleId = WeaponSwingStyleTableSO.CanonicalId(style);
             ApplyStyleKeyframes(style);
         }
 
+        public void SetActiveStyleId(string styleId)
+        {
+            if (string.IsNullOrEmpty(styleId))
+                styleId = "slash";
+            _activeStyleId = styleId;
+            _activeStyle = WeaponSwingStyleResolver.StyleIdToEnum(styleId);
+            ApplyStyleKeyframesById(styleId);
+        }
+
         public WeaponSwingStyle ActiveStyle => _activeStyle;
+        public string ActiveStyleId => _activeStyleId;
 
         // --- Generic API ---
 
@@ -156,6 +168,11 @@ namespace Scripts.Skills.Modules
 
         private void ApplyStyleKeyframes(WeaponSwingStyle style)
         {
+            ApplyStyleKeyframesById(WeaponSwingStyleTableSO.CanonicalId(style));
+        }
+
+        private void ApplyStyleKeyframesById(string styleId)
+        {
             EnsureStyleTable();
 
             float windupZ;
@@ -163,17 +180,24 @@ namespace Scripts.Skills.Modules
             Vector2 windupOff;
             Vector2 impactOff;
 
-            if (_styleTable != null)
+            if (_styleTable != null && _styleTable.TryGetById(styleId, out WeaponSwingStyleTableSO.SwingKeyframes kf))
             {
-                WeaponSwingStyleTableSO.SwingKeyframes kf = _styleTable.Get(style);
                 windupZ = kf.WindupZ;
                 impactZ = kf.ImpactZ;
                 windupOff = kf.WindupLocalPos;
                 impactOff = kf.ImpactLocalPos;
             }
+            else if (_styleTable != null)
+            {
+                WeaponSwingStyleTableSO.SwingKeyframes byEnum = _styleTable.Get(WeaponSwingStyleResolver.StyleIdToEnum(styleId));
+                windupZ = byEnum.WindupZ;
+                impactZ = byEnum.ImpactZ;
+                windupOff = byEnum.WindupLocalPos;
+                impactOff = byEnum.ImpactLocalPos;
+            }
             else
             {
-                ResolveFallbackKeyframes(style, out windupZ, out windupOff, out impactZ, out impactOff);
+                ResolveFallbackKeyframes(WeaponSwingStyleResolver.StyleIdToEnum(styleId), out windupZ, out windupOff, out impactZ, out impactOff);
             }
 
             _windupRot = _defaultRot * Quaternion.Euler(0f, 0f, windupZ);

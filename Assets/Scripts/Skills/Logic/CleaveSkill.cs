@@ -73,7 +73,7 @@ namespace Scripts.Skills
 
             try
             {
-                _animCtrl.SetActiveStyle(WeaponSwingStyleResolver.Resolve(_data));
+                _animCtrl.SetActiveStyleId(WeaponSwingStyleResolver.ResolveStyleId(_data));
                 CalculateSkillStats();
                 yield return StartCoroutine(PhaseWindup());
                 if (_cancelRequested)

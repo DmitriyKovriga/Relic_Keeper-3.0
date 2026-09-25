@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
   ID: VenomStrikeSkill
   SkillName: Venom Strike
+  DescriptionMode: 0
   Description: 'Have 50% chanse to apply Poison
 
     Deal +10 flat physical damage
@@ -32,3 +33,7 @@ MonoBehaviour:
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: 44a710f291bef5845b458e72d304cc50, type: 2}
+  HoldStance: 3
+  HoldStanceId: dagger
+  SwingStyle: 3
+  SwingStyleId: overhead_stab

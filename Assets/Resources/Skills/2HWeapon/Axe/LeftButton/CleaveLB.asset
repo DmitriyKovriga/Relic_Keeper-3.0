@@ -31,4 +31,6 @@ MonoBehaviour:
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: 630fdd70c00c8cb459b9a0b4bdc19e29, type: 2}
   HoldStance: 4
+  HoldStanceId: 
   SwingStyle: 0
+  SwingStyleId: overhead
