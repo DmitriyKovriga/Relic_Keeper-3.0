@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
   m_Name: SpecialSkillCooldownRecovery_More_Light
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Items.Affixes.ItemAffixSO
-  UniqueID: SpecialSkillCooldownRecovery_More_Light
+  UniqueID: Resources/Affixes/ByStat/Speed/SpecialSkillCooldownRecovery/SpecialSkillCooldownRecovery_More_Light
   GroupID: SpecialSkillCooldownRecovery_More_Light
   Tier: 0
   NameKey: affix_name_specialskillcooldownrecovery_more_light

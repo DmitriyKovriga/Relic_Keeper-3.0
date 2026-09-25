@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
   m_Name: Evasion_More_Light
   m_EditorClassIdentifier: 
-  UniqueID: Evasion_More_Light
+  UniqueID: Resources/Affixes/ByStat/Defense/Evasion/Evasion_More_Light
   GroupID: Evasion_More_Light
   Tier: 0
   NameKey: affix_name_evasion_more_light

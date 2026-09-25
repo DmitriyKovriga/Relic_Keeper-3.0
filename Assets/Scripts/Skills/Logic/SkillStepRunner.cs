@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using Scripts.Stats;
@@ -84,6 +84,8 @@ namespace Scripts.Skills
             }
 
             _cancelled = false;
+            if (_animCtrl != null)
+                _animCtrl.SetActiveStyle(WeaponSwingStyleResolver.Resolve(_data));
             _hitStopGate = new SkillHitStopGate(_data.Recipe.HitStopFrames);
             _ctx = new SkillStepContext
             {
@@ -326,14 +328,14 @@ namespace Scripts.Skills
                     ExecutePlayerImpulse(step);
                     break;
                 case "WeaponWindup":
-                    _animCtrl.LerpSlashWindup(phaseT);
+                    _animCtrl.LerpWindup(phaseT);
                     break;
                 case "WeaponStrike":
                     _animCtrl.SetWeaponVisible(false);
-                    _animCtrl.SnapToSlashImpact();
+                    _animCtrl.SnapImpact();
                     break;
                 case "WeaponRecovery":
-                    _animCtrl.LerpSlashRecovery(phaseT);
+                    _animCtrl.LerpRecovery(phaseT);
                     break;
                 case "Wait":
                     break;

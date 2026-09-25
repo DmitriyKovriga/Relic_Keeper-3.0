@@ -66,6 +66,11 @@ namespace Scripts.Visuals
 
         private void LateUpdate()
         {
+            if (_source == null || _display == null)
+                return;
+            if (_properties == null)
+                _properties = new MaterialPropertyBlock();
+
             _display.enabled = _source.enabled && !_originalForceRenderingOff;
             _display.sprite = _source.sprite;
             _display.color = _source.color;

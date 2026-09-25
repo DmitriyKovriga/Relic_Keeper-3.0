@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
   m_Name: BleedDamage_Less_Strong
   m_EditorClassIdentifier: 
-  UniqueID: BleedDamage_Less_Strong
+  UniqueID: Resources/Affixes/ByStat/Ailments/BleedDamage/BleedDamage_Less_Strong
   GroupID: BleedDamage_Less_Strong
   Tier: 0
   NameKey: affix_name_bleeddamage_less_strong

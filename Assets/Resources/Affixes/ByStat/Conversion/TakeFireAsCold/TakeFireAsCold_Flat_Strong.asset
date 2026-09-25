@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
   m_Name: TakeFireAsCold_Flat_Strong
   m_EditorClassIdentifier: 
-  UniqueID: TakeFireAsCold_Flat_Strong
+  UniqueID: Resources/Affixes/ByStat/Conversion/TakeFireAsCold/TakeFireAsCold_Flat_Strong
   GroupID: TakeFireAsCold_Flat_Strong
   Tier: 0
   NameKey: affix_name_takefireascold_flat_strong

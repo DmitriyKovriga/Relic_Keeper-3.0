@@ -15,18 +15,30 @@ MonoBehaviour:
   Steps:
   - StepDefinition: {fileID: 11400000, guid: 4a09dbc08d2314b46873162258f8a044, type: 2}
     Overrides: []
-    StartPercentPipeline: 0.1
-    EndPercentPipeline: 0.25
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.6
+    EndPercentPipeline: 0.7
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: e6d99185f818c7840be2327fe444fbc3, type: 2}
     Overrides: []
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
     StartPercentPipeline: 0
-    EndPercentPipeline: 0.2
+    EndPercentPipeline: 0.6
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: f52618a1da9473f489fc1d7569c9977b, type: 2}
     Overrides: []
-    StartPercentPipeline: 0.2
-    EndPercentPipeline: 0.2
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.6
+    EndPercentPipeline: 0.6
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: 42eb5f18fe84bc0428a2a5c38ca3570d, type: 2}
     Overrides:
@@ -100,8 +112,12 @@ MonoBehaviour:
       BoolVal: 1
       StringVal: 
       ObjectVal: {fileID: 0}
-    StartPercentPipeline: 0.2
-    EndPercentPipeline: 0.5
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.62
+    EndPercentPipeline: 0.7
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: 339d36ebcc275fe4592eba937ce39bbc, type: 2}
     Overrides:
@@ -147,13 +163,21 @@ MonoBehaviour:
       BoolVal: 0
       StringVal: 
       ObjectVal: {fileID: 0}
-    StartPercentPipeline: 0.2
-    EndPercentPipeline: 0.2
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.62
+    EndPercentPipeline: 0.62
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: 6250a752a1e0b2a418e03bcc5c86278d, type: 2}
     Overrides: []
-    StartPercentPipeline: 0.5
-    EndPercentPipeline: 0.5
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.7
+    EndPercentPipeline: 1
     SubSteps: []
   HitStopFrames: 3
   IsChanneling: 0

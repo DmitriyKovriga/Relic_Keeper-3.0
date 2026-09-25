@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
   m_Name: ShockDuration_Less_Light
   m_EditorClassIdentifier: 
-  UniqueID: ShockDuration_Less_Light
+  UniqueID: Resources/Affixes/ByStat/Ailments/ShockDuration/ShockDuration_Less_Light
   GroupID: ShockDuration_Less_Light
   Tier: 0
   NameKey: affix_name_shockduration_less_light

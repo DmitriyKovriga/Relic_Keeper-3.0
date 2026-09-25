@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
   m_Name: EffectDuration_Increase_Medium
   m_EditorClassIdentifier: 
-  UniqueID: EffectDuration_Increase_Medium
+  UniqueID: Resources/Affixes/ByStat/Misc/EffectDuration/EffectDuration_Increase_Medium
   GroupID: EffectDuration_Increase_Medium
   Tier: 0
   NameKey: affix_name_effectduration_increase_medium

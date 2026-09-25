@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
   m_Name: CritChance_Less_Strong
   m_EditorClassIdentifier: 
-  UniqueID: CritChance_Less_Strong
+  UniqueID: Resources/Affixes/ByStat/Critical/CritChance/CritChance_Less_Strong
   GroupID: CritChance_Less_Strong
   Tier: 0
   NameKey: affix_name_critchance_less_strong

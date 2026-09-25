@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
   m_Name: HelmetSkillCooldownRecovery_Increase_Light
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Items.Affixes.ItemAffixSO
-  UniqueID: HelmetSkillCooldownRecovery_Increase_Light
+  UniqueID: Resources/Affixes/ByStat/Speed/HelmetSkillCooldownRecovery/HelmetSkillCooldownRecovery_Increase_Light
   GroupID: HelmetSkillCooldownRecovery_Increase_Light
   Tier: 0
   NameKey: affix_name_helmetskillcooldownrecovery_increase_light

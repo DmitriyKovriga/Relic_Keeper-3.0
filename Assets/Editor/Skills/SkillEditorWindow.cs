@@ -44,6 +44,7 @@ namespace Scripts.Editor.Skills
         private string _skillLocDescRu = string.Empty;
         private string _lastLoadedSkillLocalizationState = string.Empty;
         private bool _showLegacySkillDescription;
+        private readonly WeaponEditorTab _weaponEditor = new WeaponEditorTab();
         private const float LeftColFraction = 0.30f;
         private const float CenterColFraction = 0.40f;
         private const float RightColFraction = 0.30f;
@@ -57,14 +58,17 @@ namespace Scripts.Editor.Skills
         private enum EditorTab
         {
             Skills,
-            SkillPools
+            SkillPools,
+            Weapon,
+            Stance,
+            Swing
         }
 
         [MenuItem("Tools/Skill Editor")]
         public static void Open()
         {
             var w = GetWindow<SkillEditorWindow>();
-            w.titleContent = new GUIContent("Skill Editor");
+            w.titleContent = new GUIContent("Skills Editor");
         }
 
         private void OnEnable()
@@ -76,6 +80,8 @@ namespace Scripts.Editor.Skills
 
             EnsureBuiltInStepDefinitions();
             Refresh();
+            TrySelectDefaultDebugSwingSkill();
+            _weaponEditor.OnEnable();
         }
 
         private void Refresh()
@@ -159,8 +165,8 @@ namespace Scripts.Editor.Skills
 
         private void OnGUI()
         {
-            int tab = GUILayout.Toolbar(_editorTab == EditorTab.Skills ? 0 : 1, new[] { "Skills", "Skill Pools" });
-            _editorTab = tab == 0 ? EditorTab.Skills : EditorTab.SkillPools;
+            int tab = GUILayout.Toolbar((int)_editorTab, new[] { "Skill", "Skill Pools", "Weapon", "Stance", "Swing" });
+            _editorTab = (EditorTab)tab;
             EditorGUILayout.Space(2);
 
             if (_editorTab == EditorTab.SkillPools)
@@ -168,6 +174,25 @@ namespace Scripts.Editor.Skills
                 DrawSkillPoolsTab();
                 return;
             }
+
+            if (_editorTab == EditorTab.Weapon)
+            {
+                _weaponEditor.OnGUI();
+                return;
+            }
+
+            if (_editorTab == EditorTab.Stance)
+            {
+                EditorGUILayout.HelpBox("Stance Editor — next. Hold stances stay on WeaponVisualController + SkillDataSO.HoldStance for now.", MessageType.Info);
+                return;
+            }
+
+            if (_editorTab == EditorTab.Swing)
+            {
+                EditorGUILayout.HelpBox("Swing Editor — next. WeaponSwingStyle / hand animation stay as today.", MessageType.Info);
+                return;
+            }
+
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Skill", GUILayout.Width(36));
@@ -883,16 +908,44 @@ namespace Scripts.Editor.Skills
 
             EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField("Weapon Hold Stance", EditorStyles.boldLabel);
+            SerializedProperty holdStanceProp = serializedSkill.FindProperty("HoldStance");
+            SerializedProperty swingStyleProp = serializedSkill.FindProperty("SwingStyle");
+            EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(
-                serializedSkill.FindProperty("HoldStance"),
+                holdStanceProp,
                 new GUIContent(
                     "Hold Stance",
-                    "Idle weapon pose when this skill is a weapon's active skill #1 (auto-attack). 0 Default, 1 Aggressive, 2 LowGuard, 3 Dagger, 4 Shoulder (sorts behind), 5 Staff. Independent of future swing style."));
-            EditorGUILayout.PropertyField(
-                serializedSkill.FindProperty("SwingStyle"),
+                    "Idle pose number (weapon's active skill #1). 0 Default, 1 Aggressive, 2 LowGuard, 3 Dagger, 4 Shoulder, 5 Staff. Swing Style list is filtered to swings allowed for this stance."));
+            bool holdStanceChanged = EditorGUI.EndChangeCheck();
+
+            WeaponHoldStance holdStance = (WeaponHoldStance)holdStanceProp.enumValueIndex;
+            WeaponSwingStyle[] allowedStyles = WeaponSwingStyleResolver.GetAllowedStyles(holdStance);
+            if (holdStanceChanged || !WeaponSwingStyleResolver.IsAllowed(holdStance, (WeaponSwingStyle)swingStyleProp.enumValueIndex))
+            {
+                swingStyleProp.enumValueIndex = (int)WeaponSwingStyleResolver.ClampToAllowed(
+                    holdStance,
+                    (WeaponSwingStyle)swingStyleProp.enumValueIndex);
+            }
+
+            string[] swingLabels = new string[allowedStyles.Length];
+            int selectedSwing = 0;
+            int currentSwing = swingStyleProp.enumValueIndex;
+            for (int i = 0; i < allowedStyles.Length; i++)
+            {
+                swingLabels[i] = GetWeaponSwingStyleDisplayName(allowedStyles[i]);
+                if ((int)allowedStyles[i] == currentSwing)
+                    selectedSwing = i;
+            }
+
+            EditorGUI.BeginChangeCheck();
+            int newSwingIndex = EditorGUILayout.Popup(
                 new GUIContent(
-                    "Swing Style (future)",
-                    "FUTURE extension point — attack swing/windup style. Not applied at runtime yet. Keep independent from Hold Stance."));
+                    "Swing Style",
+                    "FromStance = use Hold Stance's default swing. Only swings allowed for the selected Hold Stance are listed."),
+                selectedSwing,
+                swingLabels);
+            if (EditorGUI.EndChangeCheck() && newSwingIndex >= 0 && newSwingIndex < allowedStyles.Length)
+                swingStyleProp.enumValueIndex = (int)allowedStyles[newSwingIndex];
 
             EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField("Runtime Links", EditorStyles.boldLabel);
@@ -2729,6 +2782,7 @@ namespace Scripts.Editor.Skills
         {
             EnsureBuiltInStepDefinitions();
             Refresh();
+
         }
 
         private void EnsureBuiltInStepDefinitions()
@@ -3429,5 +3483,57 @@ namespace Scripts.Editor.Skills
 
             return new string(chars).Replace(' ', '_');
         }
+        /// <summary>
+        /// Prefer Debug Swing as the Skill Editor's opening selection (asset name/ID).
+        /// Safe no-op if the debug skill asset is missing — keeps clamped index.
+        /// </summary>
+        private void TrySelectDefaultDebugSwingSkill()
+        {
+            if (_skills == null || _skills.Count == 0)
+                return;
+
+            int debugIndex = -1;
+            for (int i = 0; i < _skills.Count; i++)
+            {
+                SkillDataSO skill = _skills[i];
+                if (skill == null)
+                    continue;
+
+                string assetName = skill.name ?? string.Empty;
+                string id = skill.ID ?? string.Empty;
+                string displayName = skill.SkillName ?? string.Empty;
+                if (ContainsDebugSwingToken(assetName) || ContainsDebugSwingToken(id) || ContainsDebugSwingToken(displayName))
+                {
+                    debugIndex = i;
+                    break;
+                }
+            }
+
+            if (debugIndex < 0)
+                return;
+
+            SelectSkill(debugIndex);
+        }
+
+        private static bool ContainsDebugSwingToken(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return false;
+            return value.IndexOf("DebugSwing", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || value.IndexOf("Debug Swing", System.StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static string GetWeaponSwingStyleDisplayName(WeaponSwingStyle style)
+        {
+            switch (style)
+            {
+                case WeaponSwingStyle.FromStance: return "From Stance";
+                case WeaponSwingStyle.Slash: return "Slash";
+                case WeaponSwingStyle.LowArc: return "Low Arc";
+                case WeaponSwingStyle.OverheadStab: return "Overhead Stab";
+                default: return ObjectNames.NicifyVariableName(style.ToString());
+            }
+        }
     }
 }
+

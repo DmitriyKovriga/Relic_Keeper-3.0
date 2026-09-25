@@ -73,6 +73,7 @@ namespace Scripts.Skills
 
             try
             {
+                _animCtrl.SetActiveStyle(WeaponSwingStyleResolver.Resolve(_data));
                 CalculateSkillStats();
                 yield return StartCoroutine(PhaseWindup());
                 if (_cancelRequested)
@@ -118,7 +119,7 @@ namespace Scripts.Skills
                     locked = true;
                 }
 
-                _animCtrl.LerpSlashWindup(phaseProgress);
+                _animCtrl.LerpWindup(phaseProgress);
                 timer += Time.deltaTime;
                 yield return null;
             }
@@ -130,7 +131,7 @@ namespace Scripts.Skills
         private void PerformImpact()
         {
             _animCtrl.SetWeaponVisible(false);
-            _animCtrl.SnapToSlashImpact();
+            _animCtrl.SnapImpact();
 
             float dir = _ownerStats.transform.localScale.x > 0f ? 1f : -1f;
             _vfx.Play(_ownerStats.transform, dir, _currentAoe, _currentAps);
@@ -160,7 +161,7 @@ namespace Scripts.Skills
                     unlocked = true;
                 }
 
-                _animCtrl.LerpSlashRecovery(phaseProgress);
+                _animCtrl.LerpRecovery(phaseProgress);
                 timer += Time.deltaTime;
                 yield return null;
             }

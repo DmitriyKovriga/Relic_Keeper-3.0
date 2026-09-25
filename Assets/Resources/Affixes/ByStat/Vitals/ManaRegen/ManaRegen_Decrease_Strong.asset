@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
   m_Name: ManaRegen_Decrease_Strong
   m_EditorClassIdentifier: 
-  UniqueID: ManaRegen_Decrease_Strong
+  UniqueID: Resources/Affixes/ByStat/Vitals/ManaRegen/ManaRegen_Decrease_Strong
   GroupID: ManaRegen_Decrease_Strong
   Tier: 0
   NameKey: affix_name_manaregen_decrease_strong

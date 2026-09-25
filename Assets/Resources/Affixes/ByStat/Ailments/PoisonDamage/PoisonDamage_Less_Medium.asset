@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
   m_Name: PoisonDamage_Less_Medium
   m_EditorClassIdentifier: 
-  UniqueID: PoisonDamage_Less_Medium
+  UniqueID: Resources/Affixes/ByStat/Ailments/PoisonDamage/PoisonDamage_Less_Medium
   GroupID: PoisonDamage_Less_Medium
   Tier: 0
   NameKey: affix_name_poisondamage_less_medium

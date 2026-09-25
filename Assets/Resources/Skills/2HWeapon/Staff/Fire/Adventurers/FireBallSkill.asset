@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
   ID: FireBallSkill
   SkillName: Fire Ball
+  DescriptionMode: 0
   Description: Fire Ball is projectile that deal 100% damage
   Icon: {fileID: 21300000, guid: 8549e788f8c6e8b4dba107de29d0f078, type: 3}
   NameKey: skills.FireBallSkill
@@ -24,6 +25,10 @@ MonoBehaviour:
   ActionSpeedMode: 1
   SkillSpeedMultiplier: 1
   DamageContextTags: 10
+  EnablePushback: 0
+  PushbackRating: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: 4378d6eae7c31f546ad1cb252bf632ae, type: 2}
+  HoldStance: 3
+  SwingStyle: 0

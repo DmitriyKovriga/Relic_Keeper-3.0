@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
   m_Name: ChanseToAvoidIgnite_Flat_Medium
   m_EditorClassIdentifier: 
-  UniqueID: ChanseToAvoidIgnite_Flat_Medium
+  UniqueID: Resources/Affixes/ByStat/Ailments/ChanseToAvoidIgnite/ChanseToAvoidIgnite_Flat_Medium
   GroupID: ChanseToAvoidIgnite_Flat_Medium
   Tier: 0
   NameKey: affix_name_chansetoavoidignite_flat_medium

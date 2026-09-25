@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Scripts.Skills.Steps;
 using Scripts.Stats;
 
@@ -64,12 +64,19 @@ namespace Scripts.Skills
         public SkillRecipeSO Recipe;
 
         [Header("Weapon Hold (idle pose)")]
-        [Tooltip("Idle hold pose when this skill is a weapon's active skill #1 (auto-attack / primary). Independent of future swing style.")]
+        [Tooltip("Idle pose number when this skill is a weapon's active skill #1 (auto-attack / primary). 0 Default, 1 Aggressive, 2 LowGuard, 3 Dagger, 4 Shoulder, 5 Staff. Swing Style dropdown is filtered to swings allowed for this stance.")]
         public WeaponHoldStance HoldStance = WeaponHoldStance.Default;
 
-        // FUTURE: attack swing / windup style — separate from HoldStance so pose is never locked to one swing.
-        // Not applied at runtime yet. SkillHandAnimation / attack steps should read this later.
-        [Tooltip("FUTURE: attack swing style. Independent of HoldStance. Not applied at runtime yet.")]
-        public WeaponSwingStyle SwingStyle = WeaponSwingStyle.None;
+        // Attack swing / windup style - separate from HoldStance so pose is never locked to one swing.
+        // FromStance (0) = use that stance's default swing; only stance-allowed overrides appear in the UI.
+        [Tooltip("FromStance = use this skill's HoldStance default swing. Dropdown lists only swings allowed for the selected Hold Stance.")]
+        public WeaponSwingStyle SwingStyle = WeaponSwingStyle.FromStance;
+
+        private void OnValidate()
+        {
+            WeaponSwingStyle clamped = WeaponSwingStyleResolver.ClampToAllowed(HoldStance, SwingStyle);
+            if (clamped != SwingStyle)
+                SwingStyle = clamped;
+        }
     }
 }

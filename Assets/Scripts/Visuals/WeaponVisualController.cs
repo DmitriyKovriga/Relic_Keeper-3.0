@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using Scripts.Combat;
 using Scripts.Inventory;
@@ -61,7 +61,7 @@ namespace Scripts.Visuals
             EnsureWeaponDepthSort(_weaponRenderer, ref _weaponDepthSort, behind: false);
         }
 
-        private const int CurrentPoseTableVersion = 6;
+        private const int CurrentPoseTableVersion = 7;
 
         private void EnsureDefaultPoseTable()
         {
@@ -382,6 +382,8 @@ namespace Scripts.Visuals
                 },
                 new StancePose
                 {
+                    // Tip-down reverse-grip (tip-up art). EulerZ 180 = tip straight down.
+                    // Not tip-up like Default (0). Clear flips. Bump pose table version on change.
                     Stance = WeaponHoldStance.Dagger,
                     LocalPosition = new Vector2(0.28f, -0.12f),
                     LocalEulerZ = 180f,
@@ -389,6 +391,7 @@ namespace Scripts.Visuals
                     FlipX = false,
                     FlipY = false
                 },
+
                 new StancePose
                 {
                     Stance = WeaponHoldStance.Shoulder,
