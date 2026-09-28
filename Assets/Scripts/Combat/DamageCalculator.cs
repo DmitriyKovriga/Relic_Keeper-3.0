@@ -29,6 +29,9 @@ public readonly struct DamageContext
 public static class DamageCalculator
 {
     private static StatsDatabaseSO _statsDatabase;
+    private static StatType[] _allStatTypes;
+    private static StatsDatabaseSO _contextIndexDatabase;
+    private static StatType[] _contextModifierStats = System.Array.Empty<StatType>();
 
     private readonly struct DamageModifierLayers
     {
@@ -457,11 +460,34 @@ public static class DamageCalculator
 
     private static DamageModifierLayers GetDamageChannelLayers(IStatsProvider statsProvider, StatType damageType)
     {
-        if (statsProvider != null && statsProvider.TryGetStat(damageType, out CharacterStat stat) && stat != null)
-            return new DamageModifierLayers(stat.GetRawFlatValue(), stat.GetTotalPercentAdd(), stat.GetTotalMultiplier());
+        if (TryReadLayers(statsProvider, damageType, out float flat, out float additivePercent, out float multiplicativeFactor))
+            return new DamageModifierLayers(flat, additivePercent, multiplicativeFactor);
 
         float legacyValue = statsProvider != null ? statsProvider.GetValue(damageType) : 0f;
         return new DamageModifierLayers(legacyValue, 0f, 1f);
+    }
+
+    private static bool TryReadLayers(
+        IStatsProvider statsProvider,
+        StatType type,
+        out float flat,
+        out float additivePercent,
+        out float multiplicativeFactor)
+    {
+        if (statsProvider is IStatLayerSource source &&
+            source.TryGetLayers(type, out flat, out additivePercent, out multiplicativeFactor))
+            return true;
+
+        if (statsProvider != null && statsProvider.TryGetStat(type, out CharacterStat stat) && stat != null)
+        {
+            StatLayerMath.Read(stat, out flat, out additivePercent, out multiplicativeFactor);
+            return true;
+        }
+
+        flat = 0f;
+        additivePercent = 0f;
+        multiplicativeFactor = 1f;
+        return false;
     }
 
     private static DamageModifierLayers GetContextModifierLayers(IStatsProvider attackerStats, StatType damageType, DamageContext damageContext)
@@ -481,11 +507,10 @@ public static class DamageCalculator
         float additivePercent = 0f;
         float multiplicativeFactor = 1f;
 
-        foreach (StatType statType in System.Enum.GetValues(typeof(StatType)))
+        StatType[] contextStats = GetContextModifierStats(statsDatabase);
+        for (int i = 0; i < contextStats.Length; i++)
         {
-            if (statsDatabase.GetSemanticKind(statType) != StatSemanticKind.ContextModifier)
-                continue;
-
+            StatType statType = contextStats[i];
             StatContextTagFlags requiredTags = statsDatabase.GetContextTags(statType);
             if (!damageContext.HasAll(requiredTags))
                 continue;
@@ -508,11 +533,11 @@ public static class DamageCalculator
         ref float additivePercent,
         ref float multiplicativeFactor)
     {
-        if (statsProvider != null && statsProvider.TryGetStat(contextModifierStat, out CharacterStat stat) && stat != null)
+        if (TryReadLayers(statsProvider, contextModifierStat, out float statFlat, out float statAdditivePercent, out float statMultiplicativeFactor))
         {
-            flat += stat.GetRawFlatValue();
-            additivePercent += stat.GetTotalPercentAdd();
-            multiplicativeFactor *= stat.GetTotalMultiplier();
+            flat += statFlat;
+            additivePercent += statAdditivePercent;
+            multiplicativeFactor *= statMultiplicativeFactor;
             return;
         }
 
@@ -532,5 +557,49 @@ public static class DamageCalculator
             _statsDatabase = Resources.Load<StatsDatabaseSO>(ProjectPaths.ResourcesStatsDatabase);
 
         return _statsDatabase;
+    }
+
+    private static StatType[] GetContextModifierStats(StatsDatabaseSO database)
+    {
+        if (ReferenceEquals(database, _contextIndexDatabase))
+            return _contextModifierStats;
+
+        _contextIndexDatabase = database;
+        if (database == null)
+        {
+            _contextModifierStats = System.Array.Empty<StatType>();
+            return _contextModifierStats;
+        }
+
+        StatType[] all = AllStatTypes;
+        var packed = new StatType[all.Length];
+        int count = 0;
+        for (int i = 0; i < all.Length; i++)
+        {
+            if (database.GetSemanticKind(all[i]) == StatSemanticKind.ContextModifier)
+                packed[count++] = all[i];
+        }
+
+        if (count == all.Length)
+        {
+            _contextModifierStats = packed;
+            return _contextModifierStats;
+        }
+
+        var trimmed = new StatType[count];
+        System.Array.Copy(packed, trimmed, count);
+        _contextModifierStats = trimmed;
+        return _contextModifierStats;
+    }
+
+    private static StatType[] AllStatTypes
+    {
+        get
+        {
+            if (_allStatTypes == null)
+                _allStatTypes = (StatType[])System.Enum.GetValues(typeof(StatType));
+
+            return _allStatTypes;
+        }
     }
 }

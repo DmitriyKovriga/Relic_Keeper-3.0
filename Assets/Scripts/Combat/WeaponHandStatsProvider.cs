@@ -8,7 +8,7 @@ namespace Scripts.Combat
     /// Player stats with the inactive dual-wield weapon's local combat stats stripped.
     /// Global affixes from that weapon remain.
     /// </summary>
-    public sealed class WeaponHandStatsProvider : IStatsProvider
+    public sealed class WeaponHandStatsProvider : IStatsProvider, IStatLayerSource
     {
         private readonly IStatsProvider _baseProvider;
         private readonly InventoryItem _inactiveWeapon;
@@ -25,9 +25,30 @@ namespace Scripts.Combat
 
         public float GetValue(StatType type)
         {
-            return TryGetStat(type, out CharacterStat stat) && stat != null
-                ? stat.Value
+            return TryGetLayers(type, out float flat, out float additivePercent, out float multiplicativeFactor)
+                ? StatLayerMath.Evaluate(flat, additivePercent, multiplicativeFactor)
                 : 0f;
+        }
+
+        public bool TryGetLayers(StatType type, out float flat, out float additivePercent, out float multiplicativeFactor)
+        {
+            flat = 0f;
+            additivePercent = 0f;
+            multiplicativeFactor = 1f;
+            if (_baseProvider == null || !_baseProvider.TryGetStat(type, out CharacterStat baseStat) || baseStat == null)
+                return false;
+
+            flat = baseStat.BaseValue;
+            for (int i = 0; i < baseStat.Modifiers.Count; i++)
+            {
+                StatModifier modifier = baseStat.Modifiers[i];
+                if (IsLocalStatFromWeapon(modifier.Source, _inactiveWeapon))
+                    continue;
+
+                StatLayerMath.Apply(modifier.Type, modifier.Value, ref flat, ref additivePercent, ref multiplicativeFactor);
+            }
+
+            return true;
         }
 
         public bool TryGetStat(StatType type, out CharacterStat stat)

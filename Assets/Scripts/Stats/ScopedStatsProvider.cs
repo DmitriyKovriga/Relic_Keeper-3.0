@@ -2,7 +2,12 @@ using System.Collections.Generic;
 
 namespace Scripts.Stats
 {
-    public sealed class ScopedStatsProvider : IStatsProvider
+    /// <summary>
+    /// Attacker stats plus modifiers that exist only for one hit.
+    /// Layers are combined in place. <see cref="TryGetStat"/> still materialises a
+    /// <see cref="CharacterStat"/> for callers that walk the modifier list.
+    /// </summary>
+    public sealed class ScopedStatsProvider : IStatsProvider, IStatLayerSource
     {
         private readonly IStatsProvider _baseProvider;
         private readonly List<SerializableStatModifier> _modifiers = new List<SerializableStatModifier>();
@@ -25,9 +30,46 @@ namespace Scripts.Stats
 
         public float GetValue(StatType type)
         {
-            return TryGetStat(type, out CharacterStat stat) && stat != null
-                ? stat.Value
+            return TryGetLayers(type, out float flat, out float additivePercent, out float multiplicativeFactor)
+                ? StatLayerMath.Evaluate(flat, additivePercent, multiplicativeFactor)
                 : 0f;
+        }
+
+        public bool TryGetLayers(StatType type, out float flat, out float additivePercent, out float multiplicativeFactor)
+        {
+            flat = 0f;
+            additivePercent = 0f;
+            multiplicativeFactor = 1f;
+            bool hasBase = false;
+
+            if (_baseProvider is IStatLayerSource layeredBase &&
+                layeredBase.TryGetLayers(type, out flat, out additivePercent, out multiplicativeFactor))
+            {
+                hasBase = true;
+            }
+            else if (_baseProvider != null && _baseProvider.TryGetStat(type, out CharacterStat baseStat) && baseStat != null)
+            {
+                StatLayerMath.Read(baseStat, out flat, out additivePercent, out multiplicativeFactor);
+                hasBase = true;
+            }
+            else if (_baseProvider != null)
+            {
+                flat = _baseProvider.GetValue(type);
+                hasBase = true;
+            }
+
+            bool hasOverlay = false;
+            for (int i = 0; i < _modifiers.Count; i++)
+            {
+                SerializableStatModifier modifier = _modifiers[i];
+                if (modifier.Stat != type)
+                    continue;
+
+                hasOverlay = true;
+                StatLayerMath.Apply(modifier.Type, modifier.Value, ref flat, ref additivePercent, ref multiplicativeFactor);
+            }
+
+            return hasBase || hasOverlay;
         }
 
         public bool TryGetStat(StatType type, out CharacterStat stat)
@@ -37,8 +79,8 @@ namespace Scripts.Stats
 
             CharacterStat baseStat = null;
             bool hasBaseStat = _baseProvider != null && _baseProvider.TryGetStat(type, out baseStat) && baseStat != null;
-            bool hasScopedModifiers = HasScopedModifiers(type);
-            if (!hasBaseStat && !hasScopedModifiers && _baseProvider == null)
+            bool hasOverlay = HasOverlay(type);
+            if (!hasBaseStat && !hasOverlay && _baseProvider == null)
             {
                 stat = null;
                 _statCache[type] = null;
@@ -60,7 +102,7 @@ namespace Scripts.Stats
             return true;
         }
 
-        private bool HasScopedModifiers(StatType type)
+        private bool HasOverlay(StatType type)
         {
             for (int i = 0; i < _modifiers.Count; i++)
             {
