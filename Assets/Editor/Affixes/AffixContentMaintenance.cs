@@ -103,6 +103,122 @@ namespace Scripts.Editor.Affixes
             return created;
         }
 
+        [MenuItem(MenuRoot + "Convert MoveSpeed Flat To Increase")]
+        public static void ConvertMoveSpeedFlatToIncreaseFromMenu()
+        {
+            if (!EditorUtility.DisplayDialog(
+                    "MoveSpeed: Flat -> Increase",
+                    "Restrict MoveSpeed affixes to Increase, generate MoveSpeed_Increase_Light/Medium/Strong, move pool and ItemDatabase references off the Flat family and delete the Flat assets.",
+                    "Convert",
+                    "Cancel"))
+                return;
+
+            var report = ConvertMoveSpeedFlatToIncrease();
+            EditorUtility.DisplayDialog("Affix content", report.ToSummaryString(), "OK");
+        }
+
+        public static void ConvertMoveSpeedFlatToIncreaseFromCommandLine()
+        {
+            var report = ConvertMoveSpeedFlatToIncrease();
+            Debug.Log("[Affix Content] MoveSpeed Flat -> Increase complete.\n" + report.ToSummaryString());
+        }
+
+        /// <summary>
+        /// MoveSpeed rolls as "% increased" only. Uses the regular family rebuild so pools are remapped
+        /// Flat -> Increase (same strength) and the obsolete Flat assets are deleted.
+        /// </summary>
+        public static AffixSetGenerator.AffixRebuildReport ConvertMoveSpeedFlatToIncrease()
+        {
+            const StatType stat = StatType.MoveSpeed;
+            StatsDatabaseSO statsDatabase = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase);
+            AffixTagDatabaseSO tagDatabase = AssetDatabase.LoadAssetAtPath<AffixTagDatabaseSO>(EditorPaths.AffixTagDatabase);
+            StringTableCollection menuLabels = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.MenuLabels);
+            StringTableCollection affixLabels = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.AffixesLabelsTable);
+            ItemDatabaseSO itemDatabase = AssetDatabase.LoadAssetAtPath<ItemDatabaseSO>(EditorPaths.ItemDatabase);
+
+            if (statsDatabase == null)
+                throw new InvalidOperationException($"Stats Database was not found at {EditorPaths.StatsDatabase}.");
+            if (menuLabels == null || affixLabels == null)
+                throw new InvalidOperationException("MenuLabels or AffixesLabels localization collection is missing.");
+
+            StatMetadataEntry meta = statsDatabase.GetMetadata(stat);
+            if (meta == null)
+                throw new InvalidOperationException($"No Stats Database metadata for {stat}.");
+            if (meta.AllowedAffixKinds != StatAffixModifierKindFlags.Increase)
+            {
+                meta.AllowedAffixKinds = StatAffixModifierKindFlags.Increase;
+                EditorUtility.SetDirty(statsDatabase);
+            }
+
+            // Remember ItemDatabase slots of the Flat family; the rebuild only remaps pools.
+            var flatSlots = new List<(int index, string strength)>();
+            if (itemDatabase != null && itemDatabase.AllAffixes != null)
+            {
+                for (int i = 0; i < itemDatabase.AllAffixes.Count; i++)
+                {
+                    ItemAffixSO affix = itemDatabase.AllAffixes[i];
+                    var stats = AffixSetGenerator.GetRepresentativeStats(affix);
+                    if (affix != null && stats.Length > 0 && stats[0].Stat == stat && stats[0].Type == StatModType.Flat)
+                        flatSlots.Add((i, AffixValueBalance.ResolveStrength(affix.GroupID)));
+                }
+            }
+
+            var report = AffixSetGenerator.RebuildGeneratedAffixesForStat(
+                stat,
+                statsDatabase,
+                tagDatabase,
+                menuLabels,
+                affixLabels,
+                EditorPaths.AffixesBaseFolder,
+                removeObsolete: true);
+
+            string folder = AffixSetGenerator.GetGeneratedFolderPath(statsDatabase, stat, EditorPaths.AffixesBaseFolder);
+            string kindName = StatPresentation.GetModifierKindDisplayName(StatAffixModifierKind.Increase);
+            var successors = new Dictionary<string, ItemAffixSO>(StringComparer.OrdinalIgnoreCase);
+            foreach (string strength in new[] { AffixValueBalance.StrengthStrong, AffixValueBalance.StrengthMedium, AffixValueBalance.StrengthLight })
+            {
+                string path = $"{folder}/{stat}_{kindName}_{strength}.asset";
+                var affix = AssetDatabase.LoadAssetAtPath<ItemAffixSO>(path);
+                if (affix == null)
+                    throw new InvalidOperationException($"Expected generated affix at {path}.");
+
+                // Same UniqueID convention as ItemDatabase "Auto-Find" (path under Assets/, no extension).
+                string uniqueId = path.Replace("Assets/", "").Replace(".asset", "");
+                if (affix.UniqueID != uniqueId)
+                {
+                    affix.UniqueID = uniqueId;
+                    EditorUtility.SetDirty(affix);
+                }
+
+                successors[strength] = affix;
+            }
+
+            if (itemDatabase != null)
+            {
+                itemDatabase.AllAffixes ??= new List<ItemAffixSO>();
+                for (int s = flatSlots.Count - 1; s >= 0; s--)
+                {
+                    var (index, strength) = flatSlots[s];
+                    ItemAffixSO successor = successors[strength];
+                    if (itemDatabase.AllAffixes.Contains(successor))
+                        itemDatabase.AllAffixes.RemoveAt(index);
+                    else
+                        itemDatabase.AllAffixes[index] = successor;
+                }
+
+                foreach (ItemAffixSO successor in successors.Values)
+                {
+                    if (!itemDatabase.AllAffixes.Contains(successor))
+                        itemDatabase.AllAffixes.Add(successor);
+                }
+
+                EditorUtility.SetDirty(itemDatabase);
+            }
+
+            AssetDatabase.SaveAssets();
+            return report;
+        }
+
         private static readonly string[] WeaponPoolPaths =
         {
             "Assets/Resources/Affixes/Pools/TwoHandedMelee/Axe/pool/OneHandedGenericPhysAffixPool.asset",

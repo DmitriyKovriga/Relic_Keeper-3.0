@@ -56762,6 +56762,18 @@ MonoBehaviour:
     m_Localized: Medium Crit Chance increase
     m_Metadata:
       m_Items: []
+  - m_Id: 95352873775230976
+    m_Localized: Strong Move Speed increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 95352874874138624
+    m_Localized: Medium Move Speed increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 95352875377455104
+    m_Localized: Light Move Speed increase
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

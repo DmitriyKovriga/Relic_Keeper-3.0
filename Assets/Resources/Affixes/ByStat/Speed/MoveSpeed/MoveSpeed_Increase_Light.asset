@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0f9cdb25a6a156449b7948cce6cb40a6, type: 3}
-  m_Name: MoveSpeed_Flat_Strong
-  m_EditorClassIdentifier: 
-  UniqueID: Resources/Affixes/ByStat/Speed/MoveSpeed/MoveSpeed_Flat_Strong
-  GroupID: MoveSpeed_Flat_Strong
+  m_Name: MoveSpeed_Increase_Light
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Items.Affixes.ItemAffixSO
+  UniqueID: Resources/Affixes/ByStat/Speed/MoveSpeed/MoveSpeed_Increase_Light
+  GroupID: MoveSpeed_Increase_Light
   Tier: 0
-  NameKey: affix_name_movespeed_flat_strong
-  TranslationKey: affix_flat_movespeed
+  NameKey: affix_name_movespeed_increase_light
+  TranslationKey: affix_increase_movespeed
   LockAutoLocalization: 0
   TagIds:
   - Speed
@@ -25,61 +25,51 @@ MonoBehaviour:
   - Tier: 1
     Stats:
     - Stat: 26
-      Type: 100
+      Type: 200
       Scope: 0
       ValueMode: 0
-      MinValue: 0.5
-      MaxValue: 0.8
+      MinValue: 3
+      MaxValue: 4
       RangeMinValue: 0
       RangeMaxValue: 0
   - Tier: 2
     Stats:
     - Stat: 26
-      Type: 100
+      Type: 200
       Scope: 0
       ValueMode: 0
-      MinValue: 0.8
-      MaxValue: 1.2
+      MinValue: 5
+      MaxValue: 6
       RangeMinValue: 0
       RangeMaxValue: 0
   - Tier: 3
     Stats:
     - Stat: 26
-      Type: 100
+      Type: 200
       Scope: 0
       ValueMode: 0
-      MinValue: 1.1
-      MaxValue: 1.6
+      MinValue: 6
+      MaxValue: 8
       RangeMinValue: 0
       RangeMaxValue: 0
   - Tier: 4
     Stats:
     - Stat: 26
-      Type: 100
+      Type: 200
       Scope: 0
       ValueMode: 0
-      MinValue: 1.4
-      MaxValue: 2.1
+      MinValue: 8
+      MaxValue: 10
       RangeMinValue: 0
       RangeMaxValue: 0
   - Tier: 5
     Stats:
     - Stat: 26
-      Type: 100
+      Type: 200
       Scope: 0
       ValueMode: 0
-      MinValue: 1.8
-      MaxValue: 2.5
+      MinValue: 10
+      MaxValue: 12
       RangeMinValue: 0
       RangeMaxValue: 0
-  LegacyTierIds:
-  - Id: MoveSpeed_Flat_Strong_T1
-    Tier: 1
-  - Id: MoveSpeed_Flat_Strong_T2
-    Tier: 2
-  - Id: MoveSpeed_Flat_Strong_T3
-    Tier: 3
-  - Id: MoveSpeed_Flat_Strong_T4
-    Tier: 4
-  - Id: MoveSpeed_Flat_Strong_T5
-    Tier: 5
+  LegacyTierIds: []

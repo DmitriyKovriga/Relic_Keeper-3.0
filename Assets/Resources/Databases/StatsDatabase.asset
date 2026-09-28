@@ -363,7 +363,7 @@ MonoBehaviour:
     AllowNegativeFlatGeneration: 0
     ContextTags: 0
     DamageChannels: 0
-    AllowedAffixKinds: 31
+    AllowedAffixKinds: 2
   - StatTypeId: JumpForce
     Category: Misc
     SemanticKind: 0

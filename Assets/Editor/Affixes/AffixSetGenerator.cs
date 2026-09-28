@@ -1075,6 +1075,14 @@ namespace Scripts.Editor.Affixes
             string kindDisplayName = GetGeneratedKindDisplayName(replacementKind, negativeFlat);
             string replacementPath = $"{folder}/{stat}_{kindDisplayName}_{strength}.asset";
 
+            if (!desiredByPath.ContainsKey(replacementPath) && replacementKind == StatAffixModifierKind.Flat)
+            {
+                // Flat family retired for this stat (e.g. MoveSpeed Flat -> Increase):
+                // hand its pool slots to the additive-percent variant of the same strength.
+                StatAffixModifierKind percentKind = negativeFlat ? StatAffixModifierKind.Decrease : StatAffixModifierKind.Increase;
+                replacementPath = $"{folder}/{stat}_{GetGeneratedKindDisplayName(percentKind, false)}_{strength}.asset";
+            }
+
             if (!desiredByPath.ContainsKey(replacementPath))
                 return null;
 

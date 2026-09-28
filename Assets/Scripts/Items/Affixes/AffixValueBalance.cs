@@ -200,7 +200,8 @@ namespace Scripts.Items.Affixes
                 case StatType.MaxMana:
                     return (4f, 6f, 12f, 18f);
                 case StatType.MoveSpeed:
-                    return (4f, 6f, 16f, 24f);
+                    // Light T1 3-4% .. Strong T5 16-20% increased movement speed.
+                    return (4f, 6f, 13f, 16f);
                 case StatType.CritChance:
                     return scope == StatScope.Local
                         ? (8f, 12f, 28f, 38f)

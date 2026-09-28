@@ -18039,6 +18039,18 @@ MonoBehaviour:
     m_Key: affix_name_local_critchance_increase_medium_t5
     m_Metadata:
       m_Items: []
+  - m_Id: 95352873775230976
+    m_Key: affix_name_movespeed_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 95352874874138624
+    m_Key: affix_name_movespeed_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 95352875377455104
+    m_Key: affix_name_movespeed_increase_light
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
