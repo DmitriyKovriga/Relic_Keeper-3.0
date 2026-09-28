@@ -159,7 +159,7 @@ public static class DamageCalculator
     {
         float basePhys = stats.GetValue(StatType.DamagePhysical);
         float efficiency = stats.GetValue(StatType.BleedDamageMult);
-        if (efficiency <= 0) efficiency = 70f;
+        if (efficiency <= 0) efficiency = 50f;
 
         float baseBleed = basePhys * (efficiency / 100f);
         float bleedInc = stats.GetValue(StatType.BleedDamage);
@@ -171,7 +171,7 @@ public static class DamageCalculator
     {
         float baseDmg = stats.GetValue(StatType.DamagePhysical);
         float efficiency = stats.GetValue(StatType.PoisonDamageMult);
-        if (efficiency <= 0) efficiency = 20f;
+        if (efficiency <= 0) efficiency = 10f;
 
         float basePoison = baseDmg * (efficiency / 100f);
         float poisonInc = stats.GetValue(StatType.PoisonDamage);

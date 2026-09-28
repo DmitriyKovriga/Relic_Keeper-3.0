@@ -10,10 +10,10 @@ namespace Scripts.StatusEffects
     [DisallowMultipleComponent]
     public sealed class AilmentController : MonoBehaviour
     {
-        private const float DefaultPoisonDuration = 4f;
-        private const float DefaultPoisonDamageMult = 20f;
-        private const float DefaultBleedDuration = 4f;
-        private const float DefaultBleedDamageMult = 70f;
+        private const float DefaultPoisonDuration = 2f;
+        private const float DefaultPoisonDamageMult = 10f;
+        private const float DefaultBleedDuration = 6f;
+        private const float DefaultBleedDamageMult = 50f;
         private const float DefaultIgniteChance = 25f;
         private const float DefaultIgniteDuration = 4f;
         private const float DefaultIgniteDamageMult = 20f;
@@ -25,8 +25,12 @@ namespace Scripts.StatusEffects
         private const float ShockDamageTakenMoreMultiplier = 1.5f;
         private const float TickInterval = 1f;
 
-        private readonly List<PoisonStack> _poisonStacks = new List<PoisonStack>();
         private readonly List<BleedStack> _bleedStacks = new List<BleedStack>();
+        private float _poisonRemainingSeconds;
+        private float _poisonTotalTickDamage;
+        private int _poisonStackCount;
+        private object _poisonSource;
+        private float _poisonStrongestTick;
         private readonly List<IgniteStack> _igniteStacks = new List<IgniteStack>();
         private float _poisonTickTimer = TickInterval;
         private float _bleedTickTimer = TickInterval;
@@ -65,7 +69,7 @@ namespace Scripts.StatusEffects
         {
             return ailmentType switch
             {
-                AilmentType.Poison => _poisonStacks.Count,
+                AilmentType.Poison => _poisonStackCount,
                 AilmentType.Bleed => _bleedStacks.Count,
                 AilmentType.Ignite => _igniteStacks.Count,
                 AilmentType.Freeze => _enemyFreeze != null && _enemyFreeze.IsFrozen ? 1 : 0,
@@ -214,12 +218,14 @@ namespace Scripts.StatusEffects
             if (duration <= 0f)
                 duration = DefaultPoisonDuration;
 
-            _poisonStacks.Add(new PoisonStack
+            _poisonRemainingSeconds = duration;
+            _poisonTotalTickDamage += tickDamage;
+            _poisonStackCount++;
+            if (tickDamage > _poisonStrongestTick)
             {
-                Source = source,
-                TickDamage = tickDamage,
-                RemainingSeconds = duration
-            });
+                _poisonStrongestTick = tickDamage;
+                _poisonSource = source;
+            }
 
             OnAilmentsChanged?.Invoke();
             return true;
@@ -465,7 +471,7 @@ namespace Scripts.StatusEffects
 
         private void UpdatePoison(float dt)
         {
-            if (_poisonStacks.Count == 0)
+            if (_poisonStackCount <= 0)
             {
                 _poisonTickTimer = TickInterval;
                 return;
@@ -475,31 +481,29 @@ namespace Scripts.StatusEffects
                 return;
 
             _poisonTickTimer -= dt;
-            bool changed = false;
-            for (int i = _poisonStacks.Count - 1; i >= 0; i--)
-            {
-                PoisonStack stack = _poisonStacks[i];
-                stack.RemainingSeconds -= dt;
+            _poisonRemainingSeconds -= dt;
+            bool expired = _poisonRemainingSeconds <= 0f;
+            if (expired)
+                ClearPoison();
 
-                if (stack.RemainingSeconds <= 0f)
-                {
-                    _poisonStacks.RemoveAt(i);
-                    changed = true;
-                }
-                else
-                {
-                    _poisonStacks[i] = stack;
-                }
-            }
-
-            while (_poisonTickTimer <= 0f && _poisonStacks.Count > 0)
+            while (!expired && _poisonTickTimer <= 0f && _poisonStackCount > 0)
             {
                 _poisonTickTimer += TickInterval;
-                ApplyCombinedPoisonTick();
+                ApplyPurePoisonTick(_poisonTotalTickDamage, _poisonSource);
             }
 
-            if (changed)
+            if (expired)
                 OnAilmentsChanged?.Invoke();
+        }
+
+        private void ClearPoison()
+        {
+            _poisonRemainingSeconds = 0f;
+            _poisonTotalTickDamage = 0f;
+            _poisonStackCount = 0;
+            _poisonSource = null;
+            _poisonStrongestTick = 0f;
+            _poisonTickTimer = TickInterval;
         }
 
         private void UpdateBleed(float dt)
@@ -595,32 +599,6 @@ namespace Scripts.StatusEffects
             _shockRemainingSeconds = 0f;
             _shockVisual?.Stop();
             OnAilmentsChanged?.Invoke();
-        }
-
-        private void ApplyCombinedPoisonTick()
-        {
-            float totalDamage = 0f;
-            object source = null;
-            float sourceDamage = float.MinValue;
-
-            for (int i = 0; i < _poisonStacks.Count; i++)
-            {
-                PoisonStack stack = _poisonStacks[i];
-                if (stack.RemainingSeconds <= 0f || stack.TickDamage <= 0f)
-                    continue;
-
-                totalDamage += stack.TickDamage;
-                if (stack.TickDamage > sourceDamage)
-                {
-                    sourceDamage = stack.TickDamage;
-                    source = stack.Source;
-                }
-            }
-
-            if (totalDamage <= 0f)
-                return;
-
-            ApplyPurePoisonTick(totalDamage, source);
         }
 
         private void ApplyCombinedBleedTick()
@@ -761,13 +739,6 @@ namespace Scripts.StatusEffects
 
             statsProvider = sourceObject.GetComponent<IStatsProvider>() ?? sourceObject.GetComponentInParent<IStatsProvider>();
             return statsProvider != null;
-        }
-
-        private struct PoisonStack
-        {
-            public object Source;
-            public float TickDamage;
-            public float RemainingSeconds;
         }
 
         private struct BleedStack
