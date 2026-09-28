@@ -19,3 +19,7 @@ MonoBehaviour:
   - Stat: 59
     Value: 10
     Type: 100
+  - Stat: 60
+    Value: 1
+    Type: 100
+  StatScalingRules: []

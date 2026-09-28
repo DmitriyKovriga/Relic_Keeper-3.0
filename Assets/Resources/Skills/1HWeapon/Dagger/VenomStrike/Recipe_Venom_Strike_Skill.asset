@@ -126,9 +126,9 @@ MonoBehaviour:
       Type: 100
     TargetAilmentStackModifiers:
     - Ailment: 0
-      Stat: 30
+      Stat: 64
       Type: 100
-      ValuePerStack: 15
+      ValuePerStack: 1
       MaxStacksCounted: 0
     OnHitEffects: []
     StartPercentPipeline: 0.05

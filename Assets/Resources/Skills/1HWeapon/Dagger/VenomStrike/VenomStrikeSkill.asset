@@ -17,8 +17,8 @@ MonoBehaviour:
   DescriptionMode: 0
   Description: 'Have 50% chanse to apply Poison
 
-    Deal +10 flat physical damage
-    for every Posion stack on enemy.'
+    Deal +1% to Poisun mult for
+    every Posion stack on enemy.'
   Icon: {fileID: 21300000, guid: e947a49320c006b47b2888d2c374979e, type: 3}
   NameKey: skills.VenomStrikeSkill
   DescriptionKey: skills.VenomStrikeSkill.description
@@ -33,6 +33,7 @@ MonoBehaviour:
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: 44a710f291bef5845b458e72d304cc50, type: 2}
+  WeaponRole: 0
   HoldStance: 3
   HoldStanceId: dagger
   SwingStyle: 3

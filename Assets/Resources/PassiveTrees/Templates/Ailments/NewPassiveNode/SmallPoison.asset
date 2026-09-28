@@ -23,6 +23,6 @@ MonoBehaviour:
     Value: 10
     Type: 100
   - Stat: 64
-    Value: 5
+    Value: 2
     Type: 100
   StatScalingRules: []
