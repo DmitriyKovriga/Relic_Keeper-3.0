@@ -108,6 +108,9 @@ namespace Scripts.Editor.Stats
             SerializedProperty statProp = property.FindPropertyRelative("Stat");
             SerializedProperty valueProp = property.FindPropertyRelative("Value");
             SerializedProperty typeProp = property.FindPropertyRelative("Type");
+            // A zeroed struct (new list element) has Type 0, which is not a StatModType value.
+            if (typeProp.intValue == 0)
+                typeProp.intValue = (int)StatModType.Flat;
 
             float lineHeight = EditorGUIUtility.singleLineHeight;
             Rect statRect = new Rect(position.x, position.y + VerticalSpacing, position.width, lineHeight);

@@ -12,8 +12,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
   m_Name: NewPassiveNode
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
-  Name: NewPassiveNode
+  Name: PoisonHitToCD
   Description: 
   Icon: {fileID: 21300000, guid: 1a5d1367013d284459bd878860ecfd96, type: 3}
   Modifiers: []
   StatScalingRules: []
+  ConditionalModifiers: []
+  TriggeredEffects:
+  - Trigger:
+      Event: 2
+      Subject: 1
+      DirectHit: 0
+      Crit: 0
+      RequireOtherAilment: 1
+      OtherAilment: 0
+      MinAilmentStacks: 1
+    ChancePercent: 100
+    InternalCooldownSeconds: 0
+    Action: 2
+    CooldownSeconds: 1
+    CooldownTarget: 0
+    SkillSlot: 0
+    BuffDurationSeconds: 5
+    BuffModifiers: []
+    StatusEffect: {fileID: 0}
+    Stacking: 0
+    MaxStacks: 1
+    Resource: 0
+    RestoreAmount: 5
+    RestoreAsPercentOfMax: 0
+  HitScalingRules: []

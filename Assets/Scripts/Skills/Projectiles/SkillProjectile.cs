@@ -4,6 +4,7 @@ using Scripts.Combat;
 using Scripts.Enemies;
 using Scripts.Skills;
 using Scripts.Skills.Modules;
+using Scripts.Skills.PassiveTree;
 using Scripts.Skills.Steps;
 using Scripts.Skills.Visuals;
 using Scripts.Stats;
@@ -108,6 +109,7 @@ namespace Scripts.Skills.Projectiles
         private SkillProjectileLaunchData _data;
         private Vector2 _direction = Vector2.right;
         private float _age;
+        private float _travelledDistance;
         private bool _despawning;
         private bool _registeredActive;
         private int _sharedOrbitOrder;
@@ -304,6 +306,7 @@ namespace Scripts.Skills.Projectiles
             _template = template;
             _usePool = usePool;
             _age = 0f;
+            _travelledDistance = 0f;
             _despawning = false;
             _direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
             _nextReverseAt = Mathf.Max(0.01f, _data.FirstReverseAtSeconds);
@@ -386,6 +389,7 @@ namespace Scripts.Skills.Projectiles
             if (!Mathf.Approximately(spin, 0f))
                 transform.Rotate(0f, 0f, spin * dt, Space.Self);
 
+            _travelledDistance += ((Vector2)transform.position - previousPosition).magnitude;
             ScanTravel(previousPosition);
             if (reachedOwner && _data != null)
                 Despawn();
@@ -675,6 +679,10 @@ namespace Scripts.Skills.Projectiles
                 modifiers.AddRange(step.ScopedStatModifiers);
 
             AppendTargetAilmentStackModifiers(step, target, modifiers);
+            PassiveEffectRuntime.AppendHitModifiers(
+                _data.OwnerStats,
+                PassiveHitContext.Projectile(_age, _travelledDistance),
+                modifiers);
             return modifiers.Count > 0 ? new ScopedStatsProvider(weaponStats, modifiers) : weaponStats;
         }
 
@@ -1452,6 +1460,7 @@ namespace Scripts.Skills.Projectiles
             _hitHistory.Clear();
             _nextTargetHitAllowedAt.Clear();
             _age = 0f;
+            _travelledDistance = 0f;
             _returningToOwner = false;
             _returnDamageActive = false;
             _despawning = false;

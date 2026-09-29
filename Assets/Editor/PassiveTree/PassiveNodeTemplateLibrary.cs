@@ -67,7 +67,7 @@ namespace Scripts.Editor.PassiveTree
             if (template == null)
                 return "No template selected.";
 
-            return BuildModifierSummary(template.Modifiers, template.StatScalingRules, maxModifiers, template.Description);
+            return BuildModifierSummary(template.Modifiers, template.StatScalingRules, template, maxModifiers, template.Description);
         }
 
         internal static string GetNodeSummary(PassiveNodeDefinition node, int maxModifiers = 3)
@@ -78,6 +78,7 @@ namespace Scripts.Editor.PassiveTree
             string summary = BuildModifierSummary(
                 node.GetFinalModifiers(),
                 node.GetFinalStatScalingRules(),
+                node.Template,
                 maxModifiers,
                 node.Template != null ? node.Template.Description : string.Empty);
             return string.IsNullOrWhiteSpace(summary) ? "No modifiers." : summary;
@@ -249,6 +250,8 @@ namespace Scripts.Editor.PassiveTree
                 stat = template.Modifiers[0].Stat.ToString().ToLowerInvariant();
             else if (template.StatScalingRules != null && template.StatScalingRules.Count > 0 && template.StatScalingRules[0] != null)
                 stat = template.StatScalingRules[0].TargetStat.ToString().ToLowerInvariant();
+            else if (TryGetFirstEffectStat(template, out StatType effectStat))
+                stat = effectStat.ToString().ToLowerInvariant();
             else
                 return "Misc";
             if (stat.Contains("health") || stat.Contains("life")) return "Life";
@@ -264,6 +267,28 @@ namespace Scripts.Editor.PassiveTree
                 return "Utility";
 
             return "Misc";
+        }
+
+        private static bool TryGetFirstEffectStat(PassiveNodeTemplateSO template, out StatType stat)
+        {
+            stat = default;
+            foreach (PassiveConditionalModifiers group in template.ConditionalModifiers ?? new List<PassiveConditionalModifiers>())
+            {
+                if (group?.Modifiers != null && group.Modifiers.Count > 0) { stat = group.Modifiers[0].Stat; return true; }
+            }
+
+            foreach (PassiveTriggeredEffect effect in template.TriggeredEffects ?? new List<PassiveTriggeredEffect>())
+            {
+                if (effect?.BuffModifiers != null && effect.Action == PassiveTriggerAction.ApplyBuff && effect.BuffModifiers.Count > 0) { stat = effect.BuffModifiers[0].Stat; return true; }
+                if (effect != null && effect.Action == PassiveTriggerAction.ReduceSkillCooldown) { stat = StatType.SkillCooldownRecovery; return true; }
+            }
+
+            foreach (PassiveHitScalingRule rule in template.HitScalingRules ?? new List<PassiveHitScalingRule>())
+            {
+                if (rule?.ModifiersPerStep != null && rule.ModifiersPerStep.Count > 0) { stat = rule.ModifiersPerStep[0].Stat; return true; }
+            }
+
+            return false;
         }
 
         internal static string SanitizeAssetName(string value)
@@ -284,12 +309,20 @@ namespace Scripts.Editor.PassiveTree
         private static string BuildModifierSummary(
             IReadOnlyList<SerializableStatModifier> modifiers,
             IReadOnlyList<PassiveStatScalingRule> scalingRules,
+            PassiveNodeTemplateSO effectsSource,
             int maxModifiers,
             string fallbackDescription)
         {
+            var effectLines = new List<string>();
+            PassiveEffectDescriber.AppendAll(
+                effectsSource,
+                false,
+                PassiveEffectDescriber.DefaultModifierFormatter(stat => ObjectNames.NicifyVariableName(stat.ToString())),
+                effectLines);
+
             int modifierCount = modifiers?.Count ?? 0;
             int scalingCount = scalingRules?.Count ?? 0;
-            int totalCount = modifierCount + scalingCount;
+            int totalCount = modifierCount + scalingCount + effectLines.Count;
             if (totalCount > 0)
             {
                 var parts = new List<string>();
@@ -298,6 +331,8 @@ namespace Scripts.Editor.PassiveTree
                     parts.Add(FormatModifier(modifiers[i]));
                 for (int i = 0; i < scalingCount && parts.Count < limit; i++)
                     parts.Add(FormatScalingRule(scalingRules[i]));
+                for (int i = 0; i < effectLines.Count && parts.Count < limit; i++)
+                    parts.Add(effectLines[i].Replace("\n  ", " ").Replace('\n', ' '));
 
                 if (totalCount > parts.Count)
                     parts.Add($"+{totalCount - parts.Count} more");

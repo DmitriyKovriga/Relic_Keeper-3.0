@@ -12,8 +12,11 @@ namespace Scripts.Skills
 
         protected PlayerStats _ownerStats;
         protected SkillDataSO _data;
-        protected float _lastCastTime;
         protected bool _isCasting;
+        // Recovery accumulates at the rate of the current cooldown duration, so a recovery
+        // bonus that turns on or off mid-cooldown speeds up the rest instead of rewriting the past.
+        private float _cooldownProgress = 1f;
+        private float _cooldownSampleTime;
         protected PlayerSkillManager _skillManager;
         protected int _slotIndex = -1;
 
@@ -33,7 +36,8 @@ namespace Scripts.Skills
                 if (duration <= 0f)
                     return 0f;
 
-                return Mathf.Max(0f, (_lastCastTime + duration) - Time.time);
+                AdvanceCooldown(duration);
+                return Mathf.Max(0f, (1f - _cooldownProgress) * duration);
             }
         }
 
@@ -45,8 +49,28 @@ namespace Scripts.Skills
                 if (duration <= 0f)
                     return 0f;
 
-                return Mathf.Clamp01(CooldownRemaining / duration);
+                AdvanceCooldown(duration);
+                return Mathf.Clamp01(1f - _cooldownProgress);
             }
+        }
+
+        protected virtual float CurrentTime => Time.time;
+
+        private void AdvanceCooldown(float duration)
+        {
+            float now = CurrentTime;
+            float elapsed = now - _cooldownSampleTime;
+            _cooldownSampleTime = now;
+            if (_cooldownProgress >= 1f || elapsed <= 0f)
+                return;
+
+            _cooldownProgress = duration <= 0f ? 1f : Mathf.Min(1f, _cooldownProgress + elapsed / duration);
+        }
+
+        private void StartCooldown()
+        {
+            _cooldownProgress = 0f;
+            _cooldownSampleTime = CurrentTime;
         }
 
         public virtual void Cancel() { }
@@ -65,24 +89,26 @@ namespace Scripts.Skills
 
         public void ReduceCooldownRemaining(float seconds)
         {
-            if (seconds <= 0f || CooldownDuration <= 0f)
+            float duration = CooldownDuration;
+            if (seconds <= 0f || duration <= 0f)
                 return;
 
-            float remaining = CooldownRemaining;
-            if (remaining <= 0f)
+            AdvanceCooldown(duration);
+            if (_cooldownProgress >= 1f)
                 return;
 
-            float newRemaining = Mathf.Max(0f, remaining - seconds);
-            _lastCastTime = Time.time + newRemaining - CooldownDuration;
+            _cooldownProgress = Mathf.Min(1f, _cooldownProgress + seconds / duration);
         }
 
         public void AddCooldownRemaining(float seconds)
         {
-            if (seconds <= 0f || CooldownDuration <= 0f)
+            float duration = CooldownDuration;
+            if (seconds <= 0f || duration <= 0f)
                 return;
 
-            float remaining = Mathf.Min(CooldownDuration, CooldownRemaining + seconds);
-            _lastCastTime = Time.time + remaining - CooldownDuration;
+            AdvanceCooldown(duration);
+            float remaining = Mathf.Min(duration, (1f - _cooldownProgress) * duration + seconds);
+            _cooldownProgress = 1f - remaining / duration;
         }
 
         protected DamageContext ResolveDamageContext()
@@ -188,7 +214,7 @@ namespace Scripts.Skills
             if (_data == null)
                 return;
 
-            if (Time.time < _lastCastTime + CooldownDuration)
+            if (CooldownRemaining > 0f)
                 return;
 
             if (_ownerStats == null || _ownerStats.Mana == null)
@@ -198,7 +224,7 @@ namespace Scripts.Skills
                 return;
 
             _ownerStats.Mana.Decrease(_data.ManaCost);
-            _lastCastTime = Time.time;
+            StartCooldown();
             Execute();
         }
 

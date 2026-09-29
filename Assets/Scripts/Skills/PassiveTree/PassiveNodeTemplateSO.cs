@@ -59,5 +59,22 @@ namespace Scripts.Skills.PassiveTree
         [Header("Special Stat Scaling")]
         [Tooltip("Dynamic modifiers calculated from another final stat, for example +10 flat physical damage per 100 Armor.")]
         public List<PassiveStatScalingRule> StatScalingRules = new List<PassiveStatScalingRule>();
+
+        [Header("Conditional Stats")]
+        [Tooltip("Modifiers active only while a condition holds, e.g. More crit chance if you have not taken damage recently.")]
+        public List<PassiveConditionalModifiers> ConditionalModifiers = new List<PassiveConditionalModifiers>();
+
+        [Header("Triggered Effects")]
+        [Tooltip("When an event happens, do something: reduce a cooldown, apply a timed buff, restore a resource.")]
+        public List<PassiveTriggeredEffect> TriggeredEffects = new List<PassiveTriggeredEffect>();
+
+        [Header("Hit Scaling")]
+        [Tooltip("Per-hit modifiers that grow with a property of the hit, e.g. projectile flight time.")]
+        public List<PassiveHitScalingRule> HitScalingRules = new List<PassiveHitScalingRule>();
+
+        public bool HasRuntimeEffects =>
+            (ConditionalModifiers != null && ConditionalModifiers.Count > 0) ||
+            (TriggeredEffects != null && TriggeredEffects.Count > 0) ||
+            (HitScalingRules != null && HitScalingRules.Count > 0);
     }
 }

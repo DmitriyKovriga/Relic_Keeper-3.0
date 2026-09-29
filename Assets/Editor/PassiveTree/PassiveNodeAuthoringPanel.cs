@@ -133,15 +133,8 @@ namespace Scripts.Editor.PassiveTree
             EditorGUILayout.PropertyField(_serialized.FindProperty("Name"));
             EditorGUILayout.PropertyField(_serialized.FindProperty("Description"));
             EditorGUILayout.PropertyField(_serialized.FindProperty("Icon"));
-            EditorGUILayout.Space(3f);
-            EditorGUILayout.LabelField("Stats", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(_serialized.FindProperty("Modifiers"), true);
-            EditorGUILayout.Space(3f);
-            EditorGUILayout.LabelField("Special Stat Scaling", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox(
-                "Example: Grant +10 flat Phys Damage per 100 Armor.",
-                MessageType.None);
-            EditorGUILayout.PropertyField(_serialized.FindProperty("StatScalingRules"), true);
+            PassiveNodeEffectsGUI.DrawBaseStats(_serialized);
+            PassiveNodeEffectsGUI.Draw(_serialized, _selected);
             if (EditorGUI.EndChangeCheck())
             {
                 _serialized.ApplyModifiedProperties();

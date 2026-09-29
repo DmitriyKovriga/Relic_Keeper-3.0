@@ -132,9 +132,22 @@ namespace Scripts.Skills.PassiveTree.UI
         {
             var mods = node.GetFinalModifiers();
             var scalingRules = node.GetFinalStatScalingRules();
-            int modifierCount = mods?.Count ?? 0;
-            int scalingCount = scalingRules?.Count ?? 0;
-            if (modifierCount == 0 && scalingCount == 0)
+            var results = new System.Collections.Generic.List<string>();
+            if (mods != null)
+            {
+                foreach (var mod in mods)
+                    results.Add(FormatModifier(mod));
+            }
+
+            if (scalingRules != null)
+            {
+                foreach (var rule in scalingRules)
+                    results.Add(FormatScalingRule(rule));
+            }
+
+            PassiveEffectDescriber.AppendAll(node.Template, IsRussian(), FormatModifier, results);
+
+            if (results.Count == 0)
             {
                 _stats.text = "";
                 _stats.style.display = DisplayStyle.None;
@@ -143,24 +156,25 @@ namespace Scripts.Skills.PassiveTree.UI
             }
 
             _stats.style.display = DisplayStyle.Flex;
-            var results = new string[modifierCount + scalingCount];
-            for (int i = 0; i < modifierCount; i++)
-            {
-                var mod = mods[i];
-                results[i] = StatPresentation.FormatModifierLine(
-                    _statsDatabase,
-                    mod.Stat,
-                    GetLocalizedStatName(mod.Stat),
-                    mod.Value,
-                    mod.Type,
-                    StatPresentation.ModifierLineStyle.StatThenValue);
-            }
-
-            for (int i = 0; i < scalingCount; i++)
-                results[modifierCount + i] = FormatScalingRule(scalingRules[i]);
-
             _stats.text = string.Join("\n", results);
             RefreshLayoutIfVisible();
+        }
+
+        private string FormatModifier(SerializableStatModifier mod)
+        {
+            return StatPresentation.FormatModifierLine(
+                _statsDatabase,
+                mod.Stat,
+                GetLocalizedStatName(mod.Stat),
+                mod.Value,
+                mod.Type,
+                StatPresentation.ModifierLineStyle.StatThenValue);
+        }
+
+        private static bool IsRussian()
+        {
+            return LocalizationSettings.SelectedLocale != null &&
+                   LocalizationSettings.SelectedLocale.Identifier.Code.StartsWith("ru", System.StringComparison.OrdinalIgnoreCase);
         }
 
         private string FormatScalingRule(PassiveStatScalingRule rule)
@@ -168,8 +182,7 @@ namespace Scripts.Skills.PassiveTree.UI
             if (rule == null)
                 return string.Empty;
 
-            bool russian = LocalizationSettings.SelectedLocale != null &&
-                           LocalizationSettings.SelectedLocale.Identifier.Code.StartsWith("ru", System.StringComparison.OrdinalIgnoreCase);
+            bool russian = IsRussian();
             string sign = rule.TargetValuePerStep >= 0f ? "+" : string.Empty;
             string suffix = rule.TargetModifierType == StatModType.Flat ? string.Empty : "%";
             string value = $"{sign}{rule.TargetValuePerStep:0.##}{suffix}";

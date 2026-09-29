@@ -41,6 +41,7 @@ namespace Scripts.Skills.PassiveTree
             _activeModifiers.Clear();
             _treeData = newTree;
             if (_treeData != null) _treeData.InitLookup();
+            RebuildEffects();
             OnTreeUpdated?.Invoke();
         }
 
@@ -59,6 +60,9 @@ namespace Scripts.Skills.PassiveTree
         private Dictionary<string, List<(StatType type, StatModifier mod)>> _activeModifiers = new Dictionary<string, List<(StatType, StatModifier)>>();
         private readonly List<(StatType type, StatModifier mod)> _activeStatScalingModifiers = new List<(StatType, StatModifier)>();
         private bool _isRefreshingStatScaling;
+        private PassiveEffectRuntime _effects;
+
+        public PassiveEffectRuntime Effects => _effects;
 
         private readonly struct ResourcePercentSnapshot
         {
@@ -98,11 +102,21 @@ namespace Scripts.Skills.PassiveTree
                 _playerStats.OnLevelingInitialized += RefreshLevelingSubscription;
                 _playerStats.OnAnyStatChanged += HandleAnyStatChanged;
                 RefreshLevelingSubscription();
+                _effects ??= new PassiveEffectRuntime(_playerStats);
+                RebuildEffects();
             }
+        }
+
+        private void Update()
+        {
+            _effects?.Tick();
         }
 
         private void OnDisable()
         {
+            _effects?.Dispose();
+            _effects = null;
+
             if (_playerStats != null)
             {
                 _playerStats.OnLevelingInitialized -= RefreshLevelingSubscription;
@@ -162,6 +176,7 @@ namespace Scripts.Skills.PassiveTree
                 ResourcePercentSnapshot resources = CaptureResourcePercentages();
                 _allocatedNodeIDs.Add(nodeID);
                 ApplyNodeStats(nodeID);
+                RebuildEffects();
                 RestoreResourcePercentagesAfterMaxChange(resources);
                 OnTreeUpdated?.Invoke();
             }
@@ -244,6 +259,7 @@ namespace Scripts.Skills.PassiveTree
 
             // 2. Снимаем статы
             RemoveNodeStats(nodeID);
+            RebuildEffects();
             RestoreResourcePercentagesAfterMaxChange(resources);
 
             // 3. Возвращаем очко
@@ -423,6 +439,29 @@ namespace Scripts.Skills.PassiveTree
                 ApplyNodeStats(id);
 
             EnsureStartNodesAllocated();
+            RebuildEffects();
+        }
+
+        private void RebuildEffects()
+        {
+            if (_effects == null)
+                return;
+
+            if (IsPreviewMode || _treeData == null)
+            {
+                _effects.Clear();
+                return;
+            }
+
+            var nodes = new List<PassiveNodeDefinition>(_allocatedNodeIDs.Count);
+            foreach (string id in _allocatedNodeIDs)
+            {
+                PassiveNodeDefinition node = _treeData.GetNode(id);
+                if (node != null)
+                    nodes.Add(node);
+            }
+
+            _effects.Rebuild(nodes);
         }
 
         public void LoadState(List<string> savedIDs)
@@ -458,6 +497,7 @@ namespace Scripts.Skills.PassiveTree
             }
              
             EnsureStartNodesAllocated();
+            RebuildEffects();
             OnTreeUpdated?.Invoke();
         }
 
@@ -487,7 +527,10 @@ namespace Scripts.Skills.PassiveTree
             }
 
             if (changed)
+            {
+                RebuildEffects();
                 OnTreeUpdated?.Invoke();
+            }
         }
     }
 }

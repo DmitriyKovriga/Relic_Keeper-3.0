@@ -4,11 +4,12 @@ using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Stats;
 using Scripts.Skills.Modules;
+using Scripts.Skills.PassiveTree;
 using Scripts.Skills.Projectiles;
 
 namespace Scripts.Skills
 {
-    public class PlayerSkillManager : MonoBehaviour
+    public class PlayerSkillManager : MonoBehaviour, IPassiveSkillCooldowns
     {
         private const int SkillSlotCount = 6;
         private const int MainHandSkillSlot = 0;
@@ -213,6 +214,27 @@ namespace Scripts.Skills
 
             if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)
                 skillBehaviour.ReduceCooldownRemaining(seconds);
+        }
+
+        /// <summary>Reduces the remaining cooldown of one random skill that is currently recovering.</summary>
+        public bool ReduceRandomSkillCooldown(float seconds, System.Func<int, int> pickIndex)
+        {
+            if (seconds <= 0f)
+                return false;
+
+            var recovering = new List<SkillBehaviour>(_activeSkills.Count);
+            foreach (var pair in _activeSkills)
+            {
+                if (pair.Value != null && pair.Value.CooldownRemaining > 0f)
+                    recovering.Add(pair.Value);
+            }
+
+            if (recovering.Count == 0)
+                return false;
+
+            int index = pickIndex != null ? pickIndex(recovering.Count) : Random.Range(0, recovering.Count);
+            recovering[Mathf.Clamp(index, 0, recovering.Count - 1)].ReduceCooldownRemaining(seconds);
+            return true;
         }
 
         public void AddSkillCooldown(int slotIndex, float seconds)
