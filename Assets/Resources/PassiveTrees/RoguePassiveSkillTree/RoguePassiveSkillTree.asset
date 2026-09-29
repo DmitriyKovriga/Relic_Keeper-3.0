@@ -31,7 +31,7 @@ MonoBehaviour:
   - ID: 6f9a2853-fc32-4b37-ba24-d09420a6b272
     NodeType: 0
     PlacementMode: 1
-    Position: {x: 1679.7918, y: 1279.7918}
+    Position: {x: 1679.7917, y: 1279.7917}
     ClusterID: 329578fc-6e29-532a-a08c-286bc270bc9f
     OrbitIndex: 1
     OrbitAngle: 225
@@ -94,7 +94,7 @@ MonoBehaviour:
   - ID: 3a02a35f-c200-49db-89eb-155efa0a72ad
     NodeType: 0
     PlacementMode: 1
-    Position: {x: 1920.2082, y: 1279.7918}
+    Position: {x: 1920.2083, y: 1279.7917}
     ClusterID: 329578fc-6e29-532a-a08c-286bc270bc9f
     OrbitIndex: 1
     OrbitAngle: 315
@@ -157,7 +157,7 @@ MonoBehaviour:
   - ID: 7be37f41-b923-4e1d-8078-ca5df63bf074
     NodeType: 0
     PlacementMode: 1
-    Position: {x: 1920.2082, y: 1520.2082}
+    Position: {x: 1920.2083, y: 1520.2083}
     ClusterID: 329578fc-6e29-532a-a08c-286bc270bc9f
     OrbitIndex: 1
     OrbitAngle: 45
@@ -220,7 +220,7 @@ MonoBehaviour:
   - ID: aa70f5a6-7909-4374-9843-d963db4d1e56
     NodeType: 0
     PlacementMode: 1
-    Position: {x: 1679.7918, y: 1520.2082}
+    Position: {x: 1679.7917, y: 1520.2083}
     ClusterID: 329578fc-6e29-532a-a08c-286bc270bc9f
     OrbitIndex: 1
     OrbitAngle: 135
@@ -525,7 +525,7 @@ MonoBehaviour:
   - ID: b5fcf9b3-b7d7-5109-8d20-53fbbbf45311
     NodeType: 1
     PlacementMode: 1
-    Position: {x: 1773.6977, y: 1046.0724}
+    Position: {x: 1773.6978, y: 1046.0724}
     ClusterID: 3433b555-86fe-57a9-aeaf-ec450df04584
     OrbitIndex: 0
     OrbitAngle: 244
@@ -563,7 +563,7 @@ MonoBehaviour:
   - ID: 01250377-6139-5b6b-9d75-742b6565e323
     NodeType: 1
     PlacementMode: 1
-    Position: {x: 1826.3023, y: 1046.0724}
+    Position: {x: 1826.3022, y: 1046.0724}
     ClusterID: 3433b555-86fe-57a9-aeaf-ec450df04584
     OrbitIndex: 0
     OrbitAngle: 296
@@ -588,7 +588,7 @@ MonoBehaviour:
   - ID: 063dd10d-130c-5728-ab80-e6bdf2a05829
     NodeType: 0
     PlacementMode: 1
-    Position: {x: 1656.3731, y: 1019}
+    Position: {x: 1656.373, y: 1019}
     ClusterID: d61690eb-546f-5bdf-98c3-4e2cfbed3e11
     OrbitIndex: 0
     OrbitAngle: 330
@@ -601,7 +601,7 @@ MonoBehaviour:
   - ID: 2d7fa5db-d5fc-5e26-9c55-a9ab2a8c44b3
     NodeType: 1
     PlacementMode: 1
-    Position: {x: 1646.9971, y: 1072.1739}
+    Position: {x: 1646.9971, y: 1072.174}
     ClusterID: d61690eb-546f-5bdf-98c3-4e2cfbed3e11
     OrbitIndex: 0
     OrbitAngle: 50
@@ -613,7 +613,7 @@ MonoBehaviour:
   - ID: 5e278fb4-24e9-5b38-a60c-641b8cd95a6e
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 1535.8004, y: 1024.2276}
+    Position: {x: 1535.8004, y: 1024.2275}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -653,7 +653,7 @@ MonoBehaviour:
   - ID: f095acd0-5172-5f7f-8095-1d4afc243a53
     NodeType: 0
     PlacementMode: 1
-    Position: {x: 2006.0794, y: 1018.7181}
+    Position: {x: 2006.0793, y: 1018.7181}
     ClusterID: f38b0b89-a3b5-5138-8be0-3e5286801d07
     OrbitIndex: 0
     OrbitAngle: 247.7646
@@ -666,7 +666,7 @@ MonoBehaviour:
   - ID: 1af16225-0425-56c4-9715-3ede08443375
     NodeType: 1
     PlacementMode: 1
-    Position: {x: 2063.1699, y: 1032.7036}
+    Position: {x: 2063.17, y: 1032.7036}
     ClusterID: f38b0b89-a3b5-5138-8be0-3e5286801d07
     OrbitIndex: 0
     OrbitAngle: 319.7646
@@ -771,7 +771,7 @@ MonoBehaviour:
   - ID: 5fea0027-a9c3-5a29-8764-3166366e2c75
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 2221.8627, y: 1458.7894}
+    Position: {x: 2221.8628, y: 1458.7894}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -876,7 +876,7 @@ MonoBehaviour:
   - ID: 712ec1a4-f412-5f32-bad2-cdbf3c9df753
     NodeType: 0
     PlacementMode: 1
-    Position: {x: 2192.9447, y: 1209.5151}
+    Position: {x: 2192.9446, y: 1209.5151}
     ClusterID: 9a9f56e3-08e4-574a-81c2-a34108150a1d
     OrbitIndex: 0
     OrbitAngle: 339
@@ -889,7 +889,7 @@ MonoBehaviour:
   - ID: dc8ee68a-2384-5b7f-b60e-64063704284b
     NodeType: 0
     PlacementMode: 1
-    Position: {x: 2179.5682, y: 1261.238}
+    Position: {x: 2179.568, y: 1261.238}
     ClusterID: 9a9f56e3-08e4-574a-81c2-a34108150a1d
     OrbitIndex: 0
     OrbitAngle: 50
@@ -915,7 +915,7 @@ MonoBehaviour:
   - ID: 0436c690-54cd-5ce0-9ba2-3cef8bc0acdf
     NodeType: 0
     PlacementMode: 1
-    Position: {x: 2104.6988, y: 1218.0122}
+    Position: {x: 2104.6987, y: 1218.0122}
     ClusterID: 9a9f56e3-08e4-574a-81c2-a34108150a1d
     OrbitIndex: 0
     OrbitAngle: 190
@@ -940,7 +940,7 @@ MonoBehaviour:
   - ID: 78c79dba-6bcd-5e30-9795-7482a83ebd0b
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 2175.7724, y: 1135.8004}
+    Position: {x: 2175.7725, y: 1135.8004}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -953,7 +953,7 @@ MonoBehaviour:
   - ID: 3ca977d8-850e-5f96-a786-dc2a9606f89a
     NodeType: 0
     PlacementMode: 1
-    Position: {x: 2085.0472, y: 1622.8281}
+    Position: {x: 2085.047, y: 1622.8281}
     ClusterID: 55ffda65-8ec8-580b-8b35-5235158a63ae
     OrbitIndex: 0
     OrbitAngle: 182.4896
@@ -967,7 +967,7 @@ MonoBehaviour:
   - ID: 08269b32-e5f3-5874-87e9-e0d2c1d2d624
     NodeType: 0
     PlacementMode: 1
-    Position: {x: 2131.3073, y: 1575.1365}
+    Position: {x: 2131.3074, y: 1575.1365}
     ClusterID: 55ffda65-8ec8-580b-8b35-5235158a63ae
     OrbitIndex: 0
     OrbitAngle: 265.7646
@@ -1166,7 +1166,7 @@ MonoBehaviour:
   - ID: 01b4191c-03e1-53d4-8a70-a100cce6d10a
     NodeType: 1
     PlacementMode: 1
-    Position: {x: 1826.3023, y: 1753.9276}
+    Position: {x: 1826.3022, y: 1753.9276}
     ClusterID: 8c4e8804-1454-5f61-af43-8421fd23a9c8
     OrbitIndex: 0
     OrbitAngle: 64
@@ -1204,7 +1204,7 @@ MonoBehaviour:
   - ID: 03faee48-2b58-5299-8d60-f32859973507
     NodeType: 1
     PlacementMode: 1
-    Position: {x: 1773.6977, y: 1753.9276}
+    Position: {x: 1773.6978, y: 1753.9276}
     ClusterID: 8c4e8804-1454-5f61-af43-8421fd23a9c8
     OrbitIndex: 0
     OrbitAngle: 116
@@ -1229,7 +1229,7 @@ MonoBehaviour:
   - ID: 02a23055-3cc6-5feb-ba83-2e0cc8b87114
     NodeType: 0
     PlacementMode: 1
-    Position: {x: 1943.6269, y: 1781}
+    Position: {x: 1943.627, y: 1781}
     ClusterID: fe17e636-5d6a-5c23-8c93-5dce44c51afd
     OrbitIndex: 0
     OrbitAngle: 150
@@ -1242,7 +1242,7 @@ MonoBehaviour:
   - ID: 90ddd7fa-6303-521a-8384-d0ff7f6b18e0
     NodeType: 1
     PlacementMode: 1
-    Position: {x: 1953.0029, y: 1727.8261}
+    Position: {x: 1953.0029, y: 1727.826}
     ClusterID: fe17e636-5d6a-5c23-8c93-5dce44c51afd
     OrbitIndex: 0
     OrbitAngle: 230
@@ -1254,7 +1254,7 @@ MonoBehaviour:
   - ID: 27797f51-f99b-502a-a875-36d266027f41
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 2064.1996, y: 1775.7724}
+    Position: {x: 2064.1997, y: 1775.7725}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -1294,7 +1294,7 @@ MonoBehaviour:
   - ID: 7886a2d5-c243-5131-96f8-cd276087d55a
     NodeType: 0
     PlacementMode: 1
-    Position: {x: 1593.9206, y: 1781.2819}
+    Position: {x: 1593.9207, y: 1781.2819}
     ClusterID: 44dfdba6-af0f-53e2-a459-129337c8bc38
     OrbitIndex: 0
     OrbitAngle: 67.7646
@@ -1556,7 +1556,7 @@ MonoBehaviour:
   - ID: 1492a3a0-c061-5fb7-9090-a2e34c81e6f4
     NodeType: 0
     PlacementMode: 1
-    Position: {x: 1495.3012, y: 1581.9878}
+    Position: {x: 1495.3011, y: 1581.9878}
     ClusterID: eff21d55-7317-57b9-adca-f40a3cdc6416
     OrbitIndex: 0
     OrbitAngle: 10
@@ -1581,7 +1581,7 @@ MonoBehaviour:
   - ID: dff76f40-2c2c-5d56-a808-24cbc826abbb
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 1424.2276, y: 1664.1996}
+    Position: {x: 1424.2275, y: 1664.1996}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
