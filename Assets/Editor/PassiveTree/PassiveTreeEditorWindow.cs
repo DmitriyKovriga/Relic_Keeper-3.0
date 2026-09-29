@@ -130,6 +130,7 @@ namespace Scripts.Editor.PassiveTree
             _canvas.OnBezierSelected = HandleBezierSelectionChanged;
             _canvas.OnSelectionCleared = HandleSelectionCleared;
             _canvas.OnTreeGeometryChanged = RefreshInspector;
+            _canvas.OnLayoutLockChanged = RefreshInspector;
             _canvas.OnBackgroundClicked = HandleCanvasBackgroundClicked;
             splitView.Add(_canvas);
 
@@ -317,6 +318,8 @@ namespace Scripts.Editor.PassiveTree
                 _snapToggle.SetValueWithoutNotify(_currentTree != null && _currentTree.SnapToGrid);
         }
 
+        private bool IsLayoutLocked => _canvas != null && _canvas.IsLayoutLocked;
+
         private static string FormatTreeChoice(PassiveSkillTreeSO tree)
         {
             return tree == null ? "Select Tree" : tree.name;
@@ -338,14 +341,14 @@ namespace Scripts.Editor.PassiveTree
 
             if ((evt.ctrlKey || evt.commandKey) && !evt.altKey)
             {
-                if (evt.shiftKey && evt.keyCode == KeyCode.H && MirrorSelectedGeometry(true))
+                if (!IsLayoutLocked && evt.shiftKey && evt.keyCode == KeyCode.H && MirrorSelectedGeometry(true))
                 {
                     evt.StopPropagation();
                     evt.PreventDefault();
                     return;
                 }
 
-                if (evt.shiftKey && evt.keyCode == KeyCode.V && MirrorSelectedGeometry(false))
+                if (!IsLayoutLocked && evt.shiftKey && evt.keyCode == KeyCode.V && MirrorSelectedGeometry(false))
                 {
                     evt.StopPropagation();
                     evt.PreventDefault();
@@ -647,11 +650,18 @@ namespace Scripts.Editor.PassiveTree
                     MessageType.Info);
 
                 EditorGUI.BeginChangeCheck();
-                float percent = EditorGUILayout.Slider("Anchor %", connection.AnchorPercent, 0f, 100f);
-                Vector2 inOffset = EditorGUILayout.Vector2Field("In Handle", connection.InHandleOffset);
-                Vector2 outOffset = EditorGUILayout.Vector2Field("Out Handle", connection.OutHandleOffset);
-                bool mirrorHandles = EditorGUILayout.Toggle("Mirror Handles", connection.MirrorHandles);
-                if (EditorGUI.EndChangeCheck())
+                float percent;
+                Vector2 inOffset;
+                Vector2 outOffset;
+                bool mirrorHandles;
+                using (new EditorGUI.DisabledScope(IsLayoutLocked))
+                {
+                    percent = EditorGUILayout.Slider("Anchor %", connection.AnchorPercent, 0f, 100f);
+                    inOffset = EditorGUILayout.Vector2Field("In Handle", connection.InHandleOffset);
+                    outOffset = EditorGUILayout.Vector2Field("Out Handle", connection.OutHandleOffset);
+                    mirrorHandles = EditorGUILayout.Toggle("Mirror Handles", connection.MirrorHandles);
+                }
+                if (!IsLayoutLocked && EditorGUI.EndChangeCheck())
                 {
                     Undo.RecordObject(_currentTree, "Edit Bezier Connection");
                     connection.AnchorPercent = percent;
@@ -665,6 +675,7 @@ namespace Scripts.Editor.PassiveTree
                 }
 
                 EditorGUILayout.Space(6f);
+                using (new EditorGUI.DisabledScope(IsLayoutLocked))
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     if (GUILayout.Button("Flip Side (M)"))
@@ -681,6 +692,7 @@ namespace Scripts.Editor.PassiveTree
                     }
                 }
 
+                using (new EditorGUI.DisabledScope(IsLayoutLocked))
                 if (GUILayout.Button("Reset Handles"))
                 {
                     _canvas?.Commands.ResetBezierHandles(connection);
@@ -735,7 +747,9 @@ namespace Scripts.Editor.PassiveTree
                 EditorGUILayout.LabelField("Selected Nodes", selectedNodeCount.ToString());
                 EditorGUILayout.LabelField("Selected Clusters", selectedClusterCount.ToString());
                 EditorGUILayout.HelpBox(
-                    "Drag a selected node or cluster to move the whole mixed selection. Alt+click cycles through overlapping nodes. Delete or Backspace removes the whole selection. Escape clears selection.",
+                    IsLayoutLocked
+                        ? "Раскладка заблокирована. Ноды, кластеры и связи нельзя сдвинуть. Выбор, Pick node и правка содержимого остаются."
+                        : "Drag a selected node or cluster to move the whole mixed selection. Alt+click cycles through overlapping nodes. Delete or Backspace removes the whole selection. Escape clears selection.",
                     MessageType.Info);
 
                 using (new EditorGUILayout.HorizontalScope())
@@ -758,15 +772,18 @@ namespace Scripts.Editor.PassiveTree
                 {
                     EditorGUILayout.Space(6f);
                     EditorGUILayout.LabelField("Selection Tools", EditorStyles.boldLabel);
-                    using (new EditorGUILayout.HorizontalScope())
+                    using (new EditorGUI.DisabledScope(IsLayoutLocked))
                     {
-                        if (GUILayout.Button("Mirror Horizontal"))
-                            MirrorSelectedGeometry(true);
-                        if (GUILayout.Button("Mirror Vertical"))
-                            MirrorSelectedGeometry(false);
+                        using (new EditorGUILayout.HorizontalScope())
+                        {
+                            if (GUILayout.Button("Mirror Horizontal"))
+                                MirrorSelectedGeometry(true);
+                            if (GUILayout.Button("Mirror Vertical"))
+                                MirrorSelectedGeometry(false);
+                        }
+                        EditorGUILayout.LabelField("Shortcuts: Ctrl/Cmd+Shift+H / V", EditorStyles.miniLabel);
+                        DrawRotationControls();
                     }
-                    EditorGUILayout.LabelField("Shortcuts: Ctrl/Cmd+Shift+H / V", EditorStyles.miniLabel);
-                    DrawRotationControls();
                     if (selectedNodeCount > 0)
                         EditorGUILayout.HelpBox("При зеркалировании ноды с орбит переводятся в FREE, чтобы точно сохранить общую симметрию выделения.", MessageType.None);
                     if (selectedNodeCount > 0 && GUILayout.Button("Save Selection As Node Group Template"))
@@ -800,18 +817,21 @@ namespace Scripts.Editor.PassiveTree
             EditorGUI.BeginChangeCheck();
 
             EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("NodeType"));
-            EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("PlacementMode"));
+            using (new EditorGUI.DisabledScope(IsLayoutLocked))
+            {
+                EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("PlacementMode"));
 
-            var placementMode = (NodePlacementMode)nodeProp.FindPropertyRelative("PlacementMode").enumValueIndex;
-            if (placementMode == NodePlacementMode.Free)
-            {
-                EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("Position"));
-            }
-            else
-            {
-                EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("ClusterID"));
-                EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("OrbitIndex"));
-                EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("OrbitAngle"));
+                var placementMode = (NodePlacementMode)nodeProp.FindPropertyRelative("PlacementMode").enumValueIndex;
+                if (placementMode == NodePlacementMode.Free)
+                {
+                    EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("Position"));
+                }
+                else
+                {
+                    EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("ClusterID"));
+                    EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("OrbitIndex"));
+                    EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("OrbitAngle"));
+                }
             }
 
             EditorGUILayout.Space(6f);
@@ -848,20 +868,24 @@ namespace Scripts.Editor.PassiveTree
             SerializedProperty orbitProp = clusterProp.FindPropertyRelative("Orbits");
 
             DrawClusterHeader(clusterProp, orbitProp.arraySize);
-            using (new EditorGUILayout.HorizontalScope())
+            using (new EditorGUI.DisabledScope(IsLayoutLocked))
             {
-                if (GUILayout.Button("Mirror Horizontal"))
-                    MirrorSelectedGeometry(true);
-                if (GUILayout.Button("Mirror Vertical"))
-                    MirrorSelectedGeometry(false);
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("Mirror Horizontal"))
+                        MirrorSelectedGeometry(true);
+                    if (GUILayout.Button("Mirror Vertical"))
+                        MirrorSelectedGeometry(false);
+                }
+                EditorGUILayout.LabelField("Shortcuts: Ctrl/Cmd+Shift+H / V", EditorStyles.miniLabel);
+                DrawRotationControls();
             }
-            EditorGUILayout.LabelField("Shortcuts: Ctrl/Cmd+Shift+H / V", EditorStyles.miniLabel);
-            DrawRotationControls();
             DrawClusterTemplateSection();
             EditorGUI.BeginChangeCheck();
 
             EditorGUILayout.PropertyField(clusterProp.FindPropertyRelative("Name"));
-            EditorGUILayout.PropertyField(clusterProp.FindPropertyRelative("Center"));
+            using (new EditorGUI.DisabledScope(IsLayoutLocked))
+                EditorGUILayout.PropertyField(clusterProp.FindPropertyRelative("Center"));
             EditorGUILayout.PropertyField(clusterProp.FindPropertyRelative("EditorColor"));
 
             EditorGUILayout.Space(6f);
@@ -909,8 +933,11 @@ namespace Scripts.Editor.PassiveTree
                     RefreshAvailableClusterTemplates();
                 }
 
-                if (GUILayout.Button("Apply Layout"))
-                    ShowClusterTemplateMenu();
+                using (new EditorGUI.DisabledScope(IsLayoutLocked))
+                {
+                    if (GUILayout.Button("Apply Layout"))
+                        ShowClusterTemplateMenu();
+                }
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.BeginHorizontal();
@@ -940,7 +967,7 @@ namespace Scripts.Editor.PassiveTree
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField($"Orbit {i + 1}", EditorStyles.boldLabel);
                     GUILayout.FlexibleSpace();
-                    using (new EditorGUI.DisabledScope(orbitsProp.arraySize <= 1))
+                    using (new EditorGUI.DisabledScope(IsLayoutLocked || orbitsProp.arraySize <= 1))
                     {
                         if (GUILayout.Button("Remove", GUILayout.Width(72f)))
                         {
@@ -950,34 +977,40 @@ namespace Scripts.Editor.PassiveTree
                     }
                     EditorGUILayout.EndHorizontal();
 
-                    EditorGUILayout.PropertyField(orbitProp.FindPropertyRelative("Radius"));
-                    EditorGUILayout.PropertyField(orbitProp.FindPropertyRelative("IsPartialArc"));
-                    if (orbitProp.FindPropertyRelative("IsPartialArc").boolValue)
+                    using (new EditorGUI.DisabledScope(IsLayoutLocked))
                     {
-                        EditorGUILayout.PropertyField(orbitProp.FindPropertyRelative("ArcStartAngle"));
-                        EditorGUILayout.PropertyField(orbitProp.FindPropertyRelative("ArcEndAngle"));
+                        EditorGUILayout.PropertyField(orbitProp.FindPropertyRelative("Radius"));
+                        EditorGUILayout.PropertyField(orbitProp.FindPropertyRelative("IsPartialArc"));
+                        if (orbitProp.FindPropertyRelative("IsPartialArc").boolValue)
+                        {
+                            EditorGUILayout.PropertyField(orbitProp.FindPropertyRelative("ArcStartAngle"));
+                            EditorGUILayout.PropertyField(orbitProp.FindPropertyRelative("ArcEndAngle"));
+                        }
                     }
                 }
             }
 
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Add Orbit"))
+            using (new EditorGUI.DisabledScope(IsLayoutLocked))
             {
-                int insertIndex = orbitsProp.arraySize;
-                orbitsProp.InsertArrayElementAtIndex(insertIndex);
-                SerializedProperty newOrbit = orbitsProp.GetArrayElementAtIndex(insertIndex);
-                float previousRadius = insertIndex > 0
-                    ? orbitsProp.GetArrayElementAtIndex(insertIndex - 1).FindPropertyRelative("Radius").floatValue
-                    : 40f;
-                newOrbit.FindPropertyRelative("Radius").floatValue = previousRadius + 40f;
-                newOrbit.FindPropertyRelative("IsPartialArc").boolValue = false;
-                newOrbit.FindPropertyRelative("ArcStartAngle").floatValue = 0f;
-                newOrbit.FindPropertyRelative("ArcEndAngle").floatValue = 360f;
-            }
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Add Orbit"))
+                {
+                    int insertIndex = orbitsProp.arraySize;
+                    orbitsProp.InsertArrayElementAtIndex(insertIndex);
+                    SerializedProperty newOrbit = orbitsProp.GetArrayElementAtIndex(insertIndex);
+                    float previousRadius = insertIndex > 0
+                        ? orbitsProp.GetArrayElementAtIndex(insertIndex - 1).FindPropertyRelative("Radius").floatValue
+                        : 40f;
+                    newOrbit.FindPropertyRelative("Radius").floatValue = previousRadius + 40f;
+                    newOrbit.FindPropertyRelative("IsPartialArc").boolValue = false;
+                    newOrbit.FindPropertyRelative("ArcStartAngle").floatValue = 0f;
+                    newOrbit.FindPropertyRelative("ArcEndAngle").floatValue = 360f;
+                }
 
-            if (GUILayout.Button("Normalize Spacing"))
-                NormalizeOrbitSpacing(orbitsProp);
-            EditorGUILayout.EndHorizontal();
+                if (GUILayout.Button("Normalize Spacing"))
+                    NormalizeOrbitSpacing(orbitsProp);
+                EditorGUILayout.EndHorizontal();
+            }
         }
 
         private void DrawNodeHeader(PassiveNodeTemplateSO currentTemplate)

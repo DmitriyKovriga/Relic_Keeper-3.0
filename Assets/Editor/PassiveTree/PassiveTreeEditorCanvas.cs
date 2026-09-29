@@ -19,6 +19,9 @@ namespace Scripts.Editor.PassiveTree
         public Action OnSelectionCleared;
         public Action OnTreeGeometryChanged;
         public Action<Vector2> OnBackgroundClicked;
+        public Action OnLayoutLockChanged;
+
+        private const string LayoutLockPrefKey = "RelicKeeper.PassiveTreeEditor.LayoutLocked";
 
         private PassiveSkillTreeSO _tree;
         private VisualElement _viewport;
@@ -60,7 +63,11 @@ namespace Scripts.Editor.PassiveTree
         private Vector2 _lastMousePosInViewport;
         private readonly Dictionary<PassiveTreeEditorNode, Vector2> _selectedNodeDragStartPositions = new Dictionary<PassiveTreeEditorNode, Vector2>();
         private readonly Dictionary<PassiveTreeClusterView, Vector2> _selectedClusterDragStartPositions = new Dictionary<PassiveTreeClusterView, Vector2>();
+        private Button _layoutLockButton;
+        private Image _layoutLockIcon;
         private bool _pendingBackgroundClick;
+        public bool IsLayoutLocked { get; private set; }
+
         private bool _isMarqueeSelecting;
         private bool _marqueeAdditiveSelection;
         private int _marqueePointerId = -1;
@@ -118,6 +125,7 @@ namespace Scripts.Editor.PassiveTree
             CreateHoverTooltip();
             CreateMarqueeSelectionBox();
             Add(_viewport);
+            CreateLayoutLockButton();
 
             _viewportController = new PassiveTreeViewportController(_viewport, _content);
             _viewportController.RegisterWheelZoom();
@@ -230,6 +238,69 @@ namespace Scripts.Editor.PassiveTree
         private void OnTreeModified()
         {
             PopulateView(_tree);
+        }
+
+        private void CreateLayoutLockButton()
+        {
+            IsLayoutLocked = EditorPrefs.GetBool(LayoutLockPrefKey, false);
+            _layoutLockIcon = new Image { pickingMode = PickingMode.Ignore };
+            _layoutLockButton = new Button(ToggleLayoutLock) { name = "LayoutLockButton" };
+            _layoutLockButton.style.position = Position.Absolute;
+            _layoutLockButton.style.top = 8;
+            _layoutLockButton.style.right = 8;
+            _layoutLockButton.style.width = 28;
+            _layoutLockButton.style.height = 28;
+            _layoutLockButton.style.paddingLeft = 2;
+            _layoutLockButton.style.paddingRight = 2;
+            _layoutLockButton.style.paddingTop = 2;
+            _layoutLockButton.style.paddingBottom = 2;
+            _layoutLockButton.Add(_layoutLockIcon);
+            Add(_layoutLockButton);
+            RefreshLayoutLockButton();
+        }
+
+        private void ToggleLayoutLock()
+        {
+            SetLayoutLocked(!IsLayoutLocked);
+        }
+
+        private void SetLayoutLocked(bool locked)
+        {
+            IsLayoutLocked = locked;
+            EditorPrefs.SetBool(LayoutLockPrefKey, locked);
+            if (locked)
+            {
+                _draggedNode = null;
+                _selectedNodeDragStartPositions.Clear();
+                _draggedCluster = null;
+                _selectedClusterDragStartPositions.Clear();
+                _resizingCluster = null;
+                _resizingOrbitIndex = -1;
+                HideBezierHandles();
+            }
+            else if (_selection?.SelectedBezier != null)
+            {
+                ShowBezierHandles(_selection.SelectedBezier);
+            }
+
+            RefreshLayoutLockButton();
+            OnLayoutLockChanged?.Invoke();
+        }
+
+        private void RefreshLayoutLockButton()
+        {
+            if (_layoutLockButton == null)
+                return;
+
+            Texture icon = EditorGUIUtility.IconContent(IsLayoutLocked ? "LockIcon-On" : "LockIcon").image;
+            _layoutLockIcon.image = icon;
+            _layoutLockButton.text = icon == null ? (IsLayoutLocked ? "On" : "Off") : string.Empty;
+            _layoutLockButton.tooltip = IsLayoutLocked
+                ? "Раскладка заблокирована. Ноды, кластеры и связи нельзя сдвинуть."
+                : "Заблокировать раскладку, чтобы случайный клик не сдвинул ноды, кластеры и связи.";
+            _layoutLockButton.style.backgroundColor = IsLayoutLocked
+                ? new Color(0.42f, 0.30f, 0.12f, 1f)
+                : new Color(0.22f, 0.22f, 0.22f, 0.92f);
         }
 
         private void CreateHoverTooltip()
@@ -539,9 +610,9 @@ namespace Scripts.Editor.PassiveTree
         {
             _lastMousePosInViewport = PanelToViewportPosition((Vector2)evt.position);
 
-            if (_draggedNode != null) { OnNodePointerMove(evt); return; }
-            if (_resizingCluster != null) { OnOrbitResizePointerMove(evt); return; }
-            if (_draggedCluster != null) { OnClusterPointerMove(evt); return; }
+            if (!IsLayoutLocked && _draggedNode != null) { OnNodePointerMove(evt); return; }
+            if (!IsLayoutLocked && _resizingCluster != null) { OnOrbitResizePointerMove(evt); return; }
+            if (!IsLayoutLocked && _draggedCluster != null) { OnClusterPointerMove(evt); return; }
             if (_pendingBackgroundClick || _isMarqueeSelecting) { OnBackgroundPointerMove(evt); return; }
             if (_viewportController.IsPanning)
                 _viewportController.UpdatePan((Vector2)evt.position);
@@ -618,6 +689,12 @@ namespace Scripts.Editor.PassiveTree
                                      _selection.TotalSelectionCount > 1;
             if (!keepExistingGroup)
                 _selection.SelectNode(nodeView, addToSelection);
+
+            if (IsLayoutLocked)
+            {
+                evt.StopPropagation();
+                return;
+            }
 
             _draggedNode = nodeView;
             // Keep the carried construction above stationary nodes while it is being moved.
@@ -709,6 +786,12 @@ namespace Scripts.Editor.PassiveTree
             bool addToSelection = evt.ctrlKey || evt.commandKey;
             _selection.SelectCluster(clusterView, addToSelection);
 
+            if (IsLayoutLocked)
+            {
+                evt.StopPropagation();
+                return;
+            }
+
             _draggedCluster = clusterView;
             _clusterDragStartPos = clusterView.Data.Center;
             _pointerDragStartPos = (Vector2)evt.position;
@@ -777,7 +860,7 @@ namespace Scripts.Editor.PassiveTree
             bool addToSelection = evt.ctrlKey || evt.commandKey;
             _selection.SelectCluster(clusterView, addToSelection);
 
-            if (evt.clickCount >= 2)
+            if (!IsLayoutLocked && evt.clickCount >= 2)
             {
                 StartOrbitResize(clusterView, evt);
             }
@@ -1106,7 +1189,7 @@ namespace Scripts.Editor.PassiveTree
         public bool TryHandleBezierKey(KeyDownEvent evt)
         {
             var connection = _selection.SelectedBezier;
-            if (connection == null || _tree == null || evt == null)
+            if (IsLayoutLocked || connection == null || _tree == null || evt == null)
                 return false;
 
             if (evt.keyCode == KeyCode.R)
@@ -1161,7 +1244,7 @@ namespace Scripts.Editor.PassiveTree
             _bezierElements.AddRange(PassiveTreeConnectionLines.Refresh(_tree, _linesContainer, _bezierPickContainer));
             ApplyBezierSelectionVisuals();
 
-            if (_selection.SelectedBezier != null)
+            if (_selection.SelectedBezier != null && !IsLayoutLocked)
                 ShowBezierHandles(_selection.SelectedBezier);
             else
                 HideBezierHandles();
@@ -1181,7 +1264,7 @@ namespace Scripts.Editor.PassiveTree
 
         private void ShowBezierHandles(PassiveBezierConnection connection)
         {
-            if (connection == null || _bezierHandlesContainer == null)
+            if (IsLayoutLocked || connection == null || _bezierHandlesContainer == null)
                 return;
 
             if (_bezierHandleOverlay == null)
