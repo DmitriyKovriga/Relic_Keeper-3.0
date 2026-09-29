@@ -1631,6 +1631,38 @@ MonoBehaviour:
     m_Key: common.close
     m_Metadata:
       m_Items: []
+  - m_Id: 110129872343392256
+    m_Key: passive.node.smallPosinAttackSpeed.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110129872389529600
+    m_Key: passive.node.smallPosinAttackSpeed.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110132100382842880
+    m_Key: passive.node.transportRogue.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110132100382842881
+    m_Key: passive.node.transportRogue.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110133215736356864
+    m_Key: passive.node.smallPoisonAttackSpeed.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110133215736356865
+    m_Key: passive.node.smallPoisonAttackSpeed.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110134967298678784
+    m_Key: passive.node.middlePoisonAttackSpeed.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110134967298678785
+    m_Key: passive.node.middlePoisonAttackSpeed.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

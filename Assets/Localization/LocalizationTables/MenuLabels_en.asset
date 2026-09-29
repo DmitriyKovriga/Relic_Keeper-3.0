@@ -1645,7 +1645,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43348985866346496
-    m_Localized: More Poison
+    m_Localized: Poison Hit To CD
     m_Metadata:
       m_Items: []
   - m_Id: 43348985899900928
@@ -2590,6 +2590,38 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 106000000000000006
     m_Localized: Close
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110129872343392256
+    m_Localized: Small Poison Attack Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110129872389529600
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110132100382842880
+    m_Localized: Transport Node Evasion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110132100382842881
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110133215736356864
+    m_Localized: Small Poison Attack Speed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110133215736356865
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110134967298678784
+    m_Localized: More Poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110134967298678785
+    m_Localized: 
     m_Metadata:
       m_Items: []
   references:
