@@ -70,11 +70,8 @@ namespace Scripts.Editor.PassiveTree
 
                 Rect body = EditorGUI.IndentedRect(rect);
                 body.width -= removeWidth + 4f;
-                float labelWidth = EditorGUIUtility.labelWidth;
-                EditorGUIUtility.labelWidth = 44f;
                 using (new PassiveEffectFields.ZeroIndent())
                     EditorGUI.PropertyField(body, element, GUIContent.none, true);
-                EditorGUIUtility.labelWidth = labelWidth;
 
                 Rect remove = new Rect(rect.xMax - removeWidth, rect.y + 2f, removeWidth, EditorGUIUtility.singleLineHeight);
                 if (GUI.Button(remove, PassiveEffectStyles.RemoveIcon, EditorStyles.iconButton))

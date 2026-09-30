@@ -39,6 +39,8 @@ public sealed class HudShortcutBar : MonoBehaviour
     private VisualElement _bar;
     private VisualElement _treeBreath;
     private bool _hasUnspentPoints;
+    private bool _breathVisible;
+    private float _appliedBreathAlpha = -1f;
     private Icons _icons;
 
     private void OnEnable()
@@ -98,7 +100,8 @@ public sealed class HudShortcutBar : MonoBehaviour
         if (!hasPoints)
         {
             _treeBreath.style.display = DisplayStyle.None;
-            _treeBreath.style.opacity = 0f;
+            _breathVisible = false;
+            return;
         }
     }
 
@@ -109,13 +112,26 @@ public sealed class HudShortcutBar : MonoBehaviour
 
         if (!_hasUnspentPoints)
         {
-            _treeBreath.style.display = DisplayStyle.None;
+            if (_breathVisible)
+            {
+                _treeBreath.style.display = DisplayStyle.None;
+                _breathVisible = false;
+            }
             return;
         }
 
         float alpha = EvaluateBreathAlpha(unscaledTime);
-        _treeBreath.style.opacity = alpha;
-        _treeBreath.style.display = DisplayStyle.Flex;
+        if (!Mathf.Approximately(_appliedBreathAlpha, alpha))
+        {
+            _appliedBreathAlpha = alpha;
+            _treeBreath.style.opacity = alpha;
+        }
+
+        if (!_breathVisible)
+        {
+            _treeBreath.style.display = DisplayStyle.Flex;
+            _breathVisible = true;
+        }
     }
 
     public static float EvaluateBreathAlpha(float unscaledTime, float period = 1.6f)
@@ -134,16 +150,11 @@ public sealed class HudShortcutBar : MonoBehaviour
         if (panel == null)
             return false;
 
-        Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(panel, Mouse.current.position.ReadValue());
-        VisualElement picked = panel.Pick(panelPos);
-        while (picked != null)
-        {
-            if (picked.name == "HudShortcutStrip")
-                return true;
-            picked = picked.parent;
-        }
+        if (_instance._bar == null)
+            return false;
 
-        return false;
+        Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(panel, Mouse.current.position.ReadValue());
+        return UiPointerUtility.ContainsPanelPoint(_instance._bar, panelPos);
     }
 
     public static VisualElement CreateBarElement(Icons icons, out VisualElement treeBreath)

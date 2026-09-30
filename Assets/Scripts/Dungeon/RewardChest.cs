@@ -97,16 +97,20 @@ namespace Scripts.Dungeon
             if (oneWayPlatformLayer >= 0)
                 groundMask |= 1 << oneWayPlatformLayer;
 
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 6f, groundMask);
+            // Start above the collider so a chest buried in the floor still finds the surface
+            // instead of being ejected into the air by the physics solver.
+            Vector2 from = new Vector2(box.bounds.center.x, box.bounds.max.y + 1.5f);
+            RaycastHit2D hit = Physics2D.Raycast(from, Vector2.down, 30f, groundMask);
             if (hit.collider == null || hit.normal.y < 0.55f)
                 return;
 
-            float deltaY = hit.point.y + 0.01f - box.bounds.min.y;
-            if (deltaY >= -0.001f)
-                return;
+            float deltaY = hit.point.y + 0.02f - box.bounds.min.y;
+            if (Mathf.Abs(deltaY) > 0.001f)
+                transform.position += Vector3.up * deltaY;
 
-            transform.position += Vector3.up * deltaY;
+            body.position = transform.position;
             body.linearVelocity = Vector2.zero;
+            body.angularVelocity = 0f;
             Physics2D.SyncTransforms();
         }
 
@@ -138,8 +142,12 @@ namespace Scripts.Dungeon
                 float centeredIndex = i - (items.Count - 1) * 0.5f;
                 Vector2 position = (Vector2)transform.position + new Vector2(centeredIndex * 0.32f, 0f);
                 WorldDroppedItem drop = WorldItemDropService.SpawnOnGround(items[i], position);
-                if (drop != null && dropParent != null)
+                if (drop == null)
+                    continue;
+
+                if (dropParent != null)
                     drop.transform.SetParent(dropParent, true);
+                drop.SetGroundedWorldPosition(drop.GroundPosition);
             }
 
             Destroy(gameObject);

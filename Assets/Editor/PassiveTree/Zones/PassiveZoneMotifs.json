@@ -1,0 +1,7984 @@
+{
+  "schema": 1,
+  "sourceUrl": "https://www.pathofexile.com/passive-skill-tree",
+  "sourceSha256": "fdd6ecaf7f77d62273cccf23420ba9f4fba44b38c9681d9f26570fd6175551e1",
+  "sourceGroups": 341,
+  "sourceComponents": 349,
+  "motifs": [
+    {
+      "id": "06f42a45ec881f38",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "736",
+          "names": [
+            "Soul Thief"
+          ]
+        },
+        {
+          "group": "737",
+          "names": [
+            "Clever Thief"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1ba36c8cba677ef2",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 135,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 225,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "667",
+          "names": [
+            "Toxic Strikes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1bb25b098da4418f",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "97",
+          "names": [
+            "As The Thunder"
+          ]
+        },
+        {
+          "group": "147",
+          "names": [
+            "Hearty"
+          ]
+        },
+        {
+          "group": "165",
+          "names": [
+            "Inexorable"
+          ]
+        },
+        {
+          "group": "167",
+          "names": [
+            "As The Mountain"
+          ]
+        },
+        {
+          "group": "180",
+          "names": [
+            "Lust for Carnage"
+          ]
+        },
+        {
+          "group": "222",
+          "names": [
+            "Cauterisation"
+          ]
+        },
+        {
+          "group": "223",
+          "names": [
+            "Harvester of Foes"
+          ]
+        },
+        {
+          "group": "228",
+          "names": [
+            "Trial of the Faith"
+          ]
+        },
+        {
+          "group": "240",
+          "names": [
+            "Fending"
+          ]
+        },
+        {
+          "group": "264",
+          "names": [
+            "Soul of Steel"
+          ]
+        },
+        {
+          "group": "267",
+          "names": [
+            "Unfaltering"
+          ]
+        },
+        {
+          "group": "291",
+          "names": [
+            "Savage Intensity"
+          ]
+        },
+        {
+          "group": "317",
+          "names": [
+            "Eagle Eye"
+          ]
+        },
+        {
+          "group": "321",
+          "names": [
+            "Acrimony"
+          ]
+        },
+        {
+          "group": "379",
+          "names": [
+            "Mental Rapidity"
+          ]
+        },
+        {
+          "group": "403",
+          "names": [
+            "Decay Ward"
+          ]
+        },
+        {
+          "group": "417",
+          "names": [
+            "Totemic Zeal"
+          ]
+        },
+        {
+          "group": "476",
+          "names": [
+            "Titanic Impacts"
+          ]
+        },
+        {
+          "group": "482",
+          "names": [
+            "Assured Strike"
+          ]
+        },
+        {
+          "group": "551",
+          "names": [
+            "Light Eater"
+          ]
+        },
+        {
+          "group": "568",
+          "names": [
+            "Dazzling Strikes"
+          ]
+        },
+        {
+          "group": "570",
+          "names": [
+            "Throatseeker"
+          ]
+        },
+        {
+          "group": "600",
+          "names": [
+            "Wasting"
+          ]
+        },
+        {
+          "group": "601",
+          "names": [
+            "Dire Torment"
+          ]
+        },
+        {
+          "group": "604",
+          "names": [
+            "Conjured Barrier"
+          ]
+        },
+        {
+          "group": "612",
+          "names": [
+            "Efficient Explosives"
+          ]
+        },
+        {
+          "group": "636",
+          "names": [
+            "Excess Sustenance"
+          ]
+        },
+        {
+          "group": "640",
+          "names": [
+            "Taste for Blood"
+          ]
+        },
+        {
+          "group": "681",
+          "names": [
+            "Life Raker"
+          ]
+        },
+        {
+          "group": "750",
+          "names": [
+            "Careful Conservationist"
+          ]
+        },
+        {
+          "group": "774",
+          "names": [
+            "Mark the Prey"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2c44240dcab104ae",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -45,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "672",
+          "names": [
+            "Expert Hunter"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "34b09cf07f0755c9",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "370",
+          "names": [
+            "Command of Steel"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "37c4d0d0bcdc5dd3",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "149",
+          "names": [
+            "Awe and Terror"
+          ]
+        },
+        {
+          "group": "186",
+          "names": [
+            "Arcane Potency"
+          ]
+        },
+        {
+          "group": "233",
+          "names": [
+            "Brink of Death"
+          ]
+        },
+        {
+          "group": "350",
+          "names": [
+            "Essence Extraction"
+          ]
+        },
+        {
+          "group": "352",
+          "names": [
+            "Inspiring Bond"
+          ]
+        },
+        {
+          "group": "355",
+          "names": [
+            "Crackling Speed"
+          ]
+        },
+        {
+          "group": "356",
+          "names": [
+            "Wicked Blade"
+          ]
+        },
+        {
+          "group": "357",
+          "names": [
+            "Admonisher"
+          ]
+        },
+        {
+          "group": "369",
+          "names": [
+            "Enduring Bond"
+          ]
+        },
+        {
+          "group": "483",
+          "names": [
+            "Wandslinger"
+          ]
+        },
+        {
+          "group": "496",
+          "names": [
+            "Golem Commander"
+          ]
+        },
+        {
+          "group": "507",
+          "names": [
+            "Grave Intentions"
+          ]
+        },
+        {
+          "group": "508",
+          "names": [
+            "Vampirism"
+          ]
+        },
+        {
+          "group": "512",
+          "names": [
+            "True Strike"
+          ]
+        },
+        {
+          "group": "518",
+          "names": [
+            "Static Blows"
+          ]
+        },
+        {
+          "group": "525",
+          "names": [
+            "Essence Surge"
+          ]
+        },
+        {
+          "group": "526",
+          "names": [
+            "Nimbleness"
+          ]
+        },
+        {
+          "group": "528",
+          "names": [
+            "Master Sapper"
+          ]
+        },
+        {
+          "group": "529",
+          "names": [
+            "Overcharged"
+          ]
+        },
+        {
+          "group": "534",
+          "names": [
+            "Steeped in the Profane"
+          ]
+        },
+        {
+          "group": "614",
+          "names": [
+            "Blast Waves"
+          ]
+        },
+        {
+          "group": "646",
+          "names": [
+            "High Voltage"
+          ]
+        },
+        {
+          "group": "647",
+          "names": [
+            "Perfected Formula"
+          ]
+        },
+        {
+          "group": "655",
+          "names": [
+            "Colloidal Mixture"
+          ]
+        },
+        {
+          "group": "719",
+          "names": [
+            "Perfectionist"
+          ]
+        },
+        {
+          "group": "720",
+          "names": [
+            "Forces of Nature"
+          ]
+        },
+        {
+          "group": "742",
+          "names": [
+            "Arcing Blows"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "5237015e3c1e6583",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 225,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "513",
+          "names": [
+            "Arcane Conservation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "5d2361e97e3c959e",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "148",
+          "names": [
+            "Juggernaut"
+          ]
+        },
+        {
+          "group": "150",
+          "names": [
+            "Barbarism"
+          ]
+        },
+        {
+          "group": "247",
+          "names": [
+            "Precision"
+          ]
+        },
+        {
+          "group": "390",
+          "names": [
+            "Cruel Preparation"
+          ]
+        },
+        {
+          "group": "405",
+          "names": [
+            "Deep Thoughts"
+          ]
+        },
+        {
+          "group": "739",
+          "names": [
+            "Mind Drinker"
+          ]
+        },
+        {
+          "group": "741",
+          "names": [
+            "Blood Drinker"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "659e2e884ba91d47",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "242",
+          "names": [
+            "Contemplative Meditation"
+          ]
+        },
+        {
+          "group": "353",
+          "names": [
+            "Dynamo"
+          ]
+        },
+        {
+          "group": "471",
+          "names": [
+            "Thrill Killer"
+          ]
+        },
+        {
+          "group": "771",
+          "names": [
+            "Thrill of Battle"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "67df0a45c0504514",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "110",
+          "names": [
+            "Indiscriminate Revenge"
+          ]
+        },
+        {
+          "group": "134",
+          "names": [
+            "Surge of Vigour"
+          ]
+        },
+        {
+          "group": "135",
+          "names": [
+            "Powerful Bond"
+          ]
+        },
+        {
+          "group": "140",
+          "names": [
+            "Harpooner"
+          ]
+        },
+        {
+          "group": "423",
+          "names": [
+            "Infused Flesh"
+          ]
+        },
+        {
+          "group": "461",
+          "names": [
+            "Window of Opportunity"
+          ]
+        },
+        {
+          "group": "461",
+          "names": [
+            "Exceptional Performance"
+          ]
+        },
+        {
+          "group": "573",
+          "names": [
+            "Winter's Embrace"
+          ]
+        },
+        {
+          "group": "573",
+          "names": [
+            "Glacial Cage"
+          ]
+        },
+        {
+          "group": "752",
+          "names": [
+            "Heartseeker"
+          ]
+        },
+        {
+          "group": "753",
+          "names": [
+            "Acuity"
+          ]
+        },
+        {
+          "group": "757",
+          "names": [
+            "Circle of Life"
+          ]
+        },
+        {
+          "group": "758",
+          "names": [
+            "Depth Perception"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "722afb3acde481ef",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 45,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "161",
+          "names": [
+            "Cannibalistic Rite"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "944d34c2f55d1ce8",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 45,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "712",
+          "names": [
+            "Expeditious Munitions"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "a5024f82d2fc1903",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "485",
+          "names": [
+            "Forceful Skewering"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c81f1079e451aebe",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "188",
+          "names": [
+            "Utmost Might"
+          ]
+        },
+        {
+          "group": "284",
+          "names": [
+            "Defiled Forces"
+          ]
+        },
+        {
+          "group": "297",
+          "names": [
+            "Champion of the Cause"
+          ]
+        },
+        {
+          "group": "309",
+          "names": [
+            "Asylum"
+          ]
+        },
+        {
+          "group": "316",
+          "names": [
+            "Brinkmanship"
+          ]
+        },
+        {
+          "group": "322",
+          "names": [
+            "Bastion Breaker"
+          ]
+        },
+        {
+          "group": "328",
+          "names": [
+            "Explosive Runes"
+          ]
+        },
+        {
+          "group": "340",
+          "names": [
+            "Quick Recovery"
+          ]
+        },
+        {
+          "group": "348",
+          "names": [
+            "Essence Infusion"
+          ]
+        },
+        {
+          "group": "354",
+          "names": [
+            "Rallying Icon"
+          ]
+        },
+        {
+          "group": "384",
+          "names": [
+            "Ash, Frost and Storm"
+          ]
+        },
+        {
+          "group": "388",
+          "names": [
+            "Berserking"
+          ]
+        },
+        {
+          "group": "407",
+          "names": [
+            "Potency of Will"
+          ]
+        },
+        {
+          "group": "420",
+          "names": [
+            "Adamant"
+          ]
+        },
+        {
+          "group": "455",
+          "names": [
+            "Dirty Techniques"
+          ]
+        },
+        {
+          "group": "469",
+          "names": [
+            "Potent Connections"
+          ]
+        },
+        {
+          "group": "488",
+          "names": [
+            "Hired Killer"
+          ]
+        },
+        {
+          "group": "491",
+          "names": [
+            "Profane Chemistry"
+          ]
+        },
+        {
+          "group": "493",
+          "names": [
+            "Leadership"
+          ]
+        },
+        {
+          "group": "532",
+          "names": [
+            "Savage Skewering"
+          ]
+        },
+        {
+          "group": "540",
+          "names": [
+            "Utmost Intellect"
+          ]
+        },
+        {
+          "group": "563",
+          "names": [
+            "Weathered Hunter"
+          ]
+        },
+        {
+          "group": "577",
+          "names": [
+            "Arcane Expanse"
+          ]
+        },
+        {
+          "group": "586",
+          "names": [
+            "Leader of the Pack"
+          ]
+        },
+        {
+          "group": "587",
+          "names": [
+            "Bladedancer"
+          ]
+        },
+        {
+          "group": "591",
+          "names": [
+            "Charisma"
+          ]
+        },
+        {
+          "group": "598",
+          "names": [
+            "Marked for Death"
+          ]
+        },
+        {
+          "group": "615",
+          "names": [
+            "Fangs of Frost"
+          ]
+        },
+        {
+          "group": "649",
+          "names": [
+            "Utmost Swiftness"
+          ]
+        },
+        {
+          "group": "663",
+          "names": [
+            "Influence"
+          ]
+        },
+        {
+          "group": "671",
+          "names": [
+            "Instinct"
+          ]
+        },
+        {
+          "group": "714",
+          "names": [
+            "Overprepared"
+          ]
+        },
+        {
+          "group": "717",
+          "names": [
+            "Master of Blades"
+          ]
+        },
+        {
+          "group": "734",
+          "names": [
+            "Herbalism"
+          ]
+        },
+        {
+          "group": "754",
+          "names": [
+            "From the Shadows"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d4f1cd294a146d80",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "154",
+          "names": [
+            "Faith and Steel"
+          ]
+        },
+        {
+          "group": "155",
+          "names": [
+            "Devotion"
+          ]
+        },
+        {
+          "group": "399",
+          "names": [
+            "Golem's Blood"
+          ]
+        },
+        {
+          "group": "419",
+          "names": [
+            "Cloth and Chain"
+          ]
+        },
+        {
+          "group": "459",
+          "names": [
+            "Revelry"
+          ]
+        },
+        {
+          "group": "621",
+          "names": [
+            "Druidic Rite"
+          ]
+        },
+        {
+          "group": "643",
+          "names": [
+            "Field Medicine"
+          ]
+        },
+        {
+          "group": "733",
+          "names": [
+            "Survivalist"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "e5d6a137dd9e7c65",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "151",
+          "names": [
+            "Stamina"
+          ]
+        },
+        {
+          "group": "247",
+          "names": [
+            "Discipline and Training"
+          ]
+        },
+        {
+          "group": "253",
+          "names": [
+            "Heart of the Warrior"
+          ]
+        },
+        {
+          "group": "253",
+          "names": [
+            "Versatility"
+          ]
+        },
+        {
+          "group": "429",
+          "names": [
+            "Instability"
+          ]
+        },
+        {
+          "group": "438",
+          "names": [
+            "Bravery"
+          ]
+        },
+        {
+          "group": "438",
+          "names": [
+            "Mana Flows"
+          ]
+        },
+        {
+          "group": "627",
+          "names": [
+            "Primal Spirit"
+          ]
+        },
+        {
+          "group": "627",
+          "names": [
+            "Heart of Oak"
+          ]
+        },
+        {
+          "group": "659",
+          "names": [
+            "Quickstep"
+          ]
+        },
+        {
+          "group": "659",
+          "names": [
+            "One With Nature"
+          ]
+        },
+        {
+          "group": "732",
+          "names": [
+            "Fervour"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "e63d59b6f76666c2",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "323",
+          "names": [
+            "Hasty Demise"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f1f8ced3f2f0bc96",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "221",
+          "names": [
+            "Arcane Retaliation"
+          ]
+        },
+        {
+          "group": "581",
+          "names": [
+            "Freedom of Movement"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fe5d58656c4842f9",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": true,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "230",
+          "names": [
+            "Amplify"
+          ]
+        },
+        {
+          "group": "231",
+          "names": [
+            "Righteous Decree"
+          ]
+        },
+        {
+          "group": "376",
+          "names": [
+            "Spirit of War"
+          ]
+        },
+        {
+          "group": "412",
+          "names": [
+            "Battle Rouse"
+          ]
+        },
+        {
+          "group": "467",
+          "names": [
+            "Arcane Chemistry"
+          ]
+        },
+        {
+          "group": "678",
+          "names": [
+            "Wild Hunger"
+          ]
+        },
+        {
+          "group": "687",
+          "names": [
+            "Weapon Artistry"
+          ]
+        },
+        {
+          "group": "707",
+          "names": [
+            "Essence Sap"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "0dede6cdb785b349",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "217",
+          "names": [
+            "Sanctuary"
+          ]
+        },
+        {
+          "group": "220",
+          "names": [
+            "Blacksmith's Clout"
+          ]
+        },
+        {
+          "group": "239",
+          "names": [
+            "Combat Stamina"
+          ]
+        },
+        {
+          "group": "360",
+          "names": [
+            "Brand Equity"
+          ]
+        },
+        {
+          "group": "502",
+          "names": [
+            "Seasoned Swordplay"
+          ]
+        },
+        {
+          "group": "515",
+          "names": [
+            "Harsh Lessons"
+          ]
+        },
+        {
+          "group": "523",
+          "names": [
+            "Indomitable Army"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "11893fe1fc0463f3",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "183",
+          "names": [
+            "Careful Counterattack"
+          ]
+        },
+        {
+          "group": "260",
+          "names": [
+            "Storm Weaver"
+          ]
+        },
+        {
+          "group": "519",
+          "names": [
+            "Gladiator's Perseverance"
+          ]
+        },
+        {
+          "group": "638",
+          "names": [
+            "Adder's Touch"
+          ]
+        },
+        {
+          "group": "639",
+          "names": [
+            "Replenishing Remedies"
+          ]
+        },
+        {
+          "group": "645",
+          "names": [
+            "Nightstalker"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "143669e5cfd1ae21",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "650",
+          "names": [
+            "Snowforged"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "162832c4c136b1be",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "723",
+          "names": [
+            "Natural Remedies"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "18316d77d5328df5",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -45,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 135,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "275",
+          "names": [
+            "Glory of Command"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3106f3462c7a7d30",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "174",
+          "names": [
+            "Purity of Flesh"
+          ]
+        },
+        {
+          "group": "179",
+          "names": [
+            "Tireless"
+          ]
+        },
+        {
+          "group": "227",
+          "names": [
+            "Empowered Bond"
+          ]
+        },
+        {
+          "group": "235",
+          "names": [
+            "Bloodless"
+          ]
+        },
+        {
+          "group": "236",
+          "names": [
+            "Righteous Fury"
+          ]
+        },
+        {
+          "group": "543",
+          "names": [
+            "Melding"
+          ]
+        },
+        {
+          "group": "609",
+          "names": [
+            "Thick Skin"
+          ]
+        },
+        {
+          "group": "656",
+          "names": [
+            "Entrench"
+          ]
+        },
+        {
+          "group": "711",
+          "names": [
+            "Written in Blood"
+          ]
+        },
+        {
+          "group": "756",
+          "names": [
+            "Multishot"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "31c0a860949582d3",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "262",
+          "names": [
+            "Tribal Fury"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "58e3bfabfd8033a9",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "500",
+          "names": [
+            "Feline Swiftness"
+          ]
+        },
+        {
+          "group": "536",
+          "names": [
+            "Hatchet Master"
+          ]
+        },
+        {
+          "group": "560",
+          "names": [
+            "Surveillance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "608f4fc848898bdf",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "704",
+          "names": [
+            "Fleetfoot"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "6d3a5332c2d75873",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "339",
+          "names": [
+            "Dismembering"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "7161a1dc7f4b0788",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 135,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -45,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "138",
+          "names": [
+            "Shining Justice"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "7661e3168264dc69",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "276",
+          "names": [
+            "Serpent Stance"
+          ]
+        },
+        {
+          "group": "279",
+          "names": [
+            "Gravepact"
+          ]
+        },
+        {
+          "group": "359",
+          "names": [
+            "Disciple of the Forbidden"
+          ]
+        },
+        {
+          "group": "520",
+          "names": [
+            "Ravenous Horde"
+          ]
+        },
+        {
+          "group": "726",
+          "names": [
+            "Atrophy"
+          ]
+        },
+        {
+          "group": "743",
+          "names": [
+            "Force Shaper"
+          ]
+        },
+        {
+          "group": "745",
+          "names": [
+            "Inveterate"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "76d117aaedb6ab1a",
+      "radii": [
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 1,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": 60,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        }
+      ],
+      "sources": [
+        {
+          "group": "449",
+          "names": [
+            "Disciple of the Slaughter"
+          ]
+        },
+        {
+          "group": "449",
+          "names": [
+            "Disciple of the Unyielding"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9e13a355be42946d",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "358",
+          "names": [
+            "Brutal Skewering"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c09e367371913ee7",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "128",
+          "names": [
+            "Aggressive Bastion"
+          ]
+        },
+        {
+          "group": "146",
+          "names": [
+            "Arcane Capacitor"
+          ]
+        },
+        {
+          "group": "162",
+          "names": [
+            "Holy Fire"
+          ]
+        },
+        {
+          "group": "168",
+          "names": [
+            "Measured Fury"
+          ]
+        },
+        {
+          "group": "199",
+          "names": [
+            "Wall of Steel"
+          ]
+        },
+        {
+          "group": "203",
+          "names": [
+            "Explosive Impact"
+          ]
+        },
+        {
+          "group": "206",
+          "names": [
+            "Spinecruncher"
+          ]
+        },
+        {
+          "group": "342",
+          "names": [
+            "Last Rites"
+          ]
+        },
+        {
+          "group": "366",
+          "names": [
+            "Vengeance"
+          ]
+        },
+        {
+          "group": "424",
+          "names": [
+            "Enigmatic Defence"
+          ]
+        },
+        {
+          "group": "494",
+          "names": [
+            "Destructive Apparatus"
+          ]
+        },
+        {
+          "group": "670",
+          "names": [
+            "Successive Detonations"
+          ]
+        },
+        {
+          "group": "689",
+          "names": [
+            "Poisonous Fangs"
+          ]
+        },
+        {
+          "group": "748",
+          "names": [
+            "Season of Ice"
+          ]
+        },
+        {
+          "group": "749",
+          "names": [
+            "Relentless Pursuit"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c2aaed8407cbfbdf",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "685",
+          "names": [
+            "Twin Terrors"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d76e229698edd0ff",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "139",
+          "names": [
+            "Savage Wounds"
+          ]
+        },
+        {
+          "group": "538",
+          "names": [
+            "Fingers of Frost"
+          ]
+        },
+        {
+          "group": "550",
+          "names": [
+            "Searing Heat"
+          ]
+        },
+        {
+          "group": "675",
+          "names": [
+            "Claws of the Falcon"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dc5c60e75b40392b",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "300",
+          "names": [
+            "Insightfulness"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fd7cdfc44cf541bc",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "559",
+          "names": [
+            "Dance of Blades"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "06c7a73cf3154711",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "530",
+          "names": [
+            "Spirit Void",
+            "Vitality Void"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "09752eb3bfad61d8",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "163",
+          "names": [
+            "Sovereignty"
+          ]
+        },
+        {
+          "group": "189",
+          "names": [
+            "Safeguard"
+          ]
+        },
+        {
+          "group": "337",
+          "names": [
+            "Unnatural Calm"
+          ]
+        },
+        {
+          "group": "378",
+          "names": [
+            "Hematophagy"
+          ]
+        },
+        {
+          "group": "692",
+          "names": [
+            "Lethality"
+          ]
+        },
+        {
+          "group": "772",
+          "names": [
+            "Practised Reapplication"
+          ]
+        },
+        {
+          "group": "777",
+          "names": [
+            "Fatal Toxins"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1da15283651777f7",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 3,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "153",
+          "names": [
+            "Sanctum of Thought"
+          ]
+        },
+        {
+          "group": "664",
+          "names": [
+            "Void Barrier"
+          ]
+        },
+        {
+          "group": "674",
+          "names": [
+            "Revenge of the Hunted"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1e49b94ea4715485",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 135,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "142",
+          "names": [
+            "Shamanistic Fury",
+            "Ironwood"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "22994d23c98e28fe",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 0,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "556",
+          "names": [
+            "Dark Arts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "4964d3e105d5f711",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "368",
+          "names": [
+            "Relentless",
+            "Veteran Soldier"
+          ]
+        },
+        {
+          "group": "383",
+          "names": [
+            "Dreamer",
+            "Forethought"
+          ]
+        },
+        {
+          "group": "457",
+          "names": [
+            "Prodigal Perfection",
+            "Mystic Bulwark"
+          ]
+        },
+        {
+          "group": "509",
+          "names": [
+            "Deflection",
+            "Swagger"
+          ]
+        },
+        {
+          "group": "724",
+          "names": [
+            "Flash Freeze",
+            "Winter Spirit"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "4fda3bb6331362d4",
+      "radii": [
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": -90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 3
+        },
+        {
+          "a": 3,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "299",
+          "names": [
+            "Anointed Flesh"
+          ]
+        },
+        {
+          "group": "313",
+          "names": [
+            "Prismatic Skin"
+          ]
+        },
+        {
+          "group": "578",
+          "names": [
+            "Tolerance"
+          ]
+        },
+        {
+          "group": "582",
+          "names": [
+            "Crystal Skin"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "544c2de4daa88894",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 4
+        },
+        {
+          "a": 3,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "216",
+          "names": [
+            "Steelwood Stance"
+          ]
+        },
+        {
+          "group": "229",
+          "names": [
+            "Spiritual Command"
+          ]
+        },
+        {
+          "group": "298",
+          "names": [
+            "Enigmatic Reach"
+          ]
+        },
+        {
+          "group": "377",
+          "names": [
+            "Arcane Sanctuary"
+          ]
+        },
+        {
+          "group": "690",
+          "names": [
+            "Serpentine Spellslinger"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "6757029464dae501",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 45,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 3,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "209",
+          "names": [
+            "Fearsome Force"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "818ad9d297eb55ab",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 3,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "164",
+          "names": [
+            "Crushing Reply"
+          ]
+        },
+        {
+          "group": "208",
+          "names": [
+            "Master of Wounds"
+          ]
+        },
+        {
+          "group": "238",
+          "names": [
+            "Deep Breaths"
+          ]
+        },
+        {
+          "group": "259",
+          "names": [
+            "Arcane Guarding"
+          ]
+        },
+        {
+          "group": "271",
+          "names": [
+            "Kinetic Impacts"
+          ]
+        },
+        {
+          "group": "372",
+          "names": [
+            "Prepared Response"
+          ]
+        },
+        {
+          "group": "382",
+          "names": [
+            "Ribcage Crusher"
+          ]
+        },
+        {
+          "group": "391",
+          "names": [
+            "Roaring Challenge"
+          ]
+        },
+        {
+          "group": "479",
+          "names": [
+            "Malicious Intent"
+          ]
+        },
+        {
+          "group": "527",
+          "names": [
+            "Burning Brutality"
+          ]
+        },
+        {
+          "group": "662",
+          "names": [
+            "Cornered Prey"
+          ]
+        },
+        {
+          "group": "710",
+          "names": [
+            "Growth and Decay"
+          ]
+        },
+        {
+          "group": "718",
+          "names": [
+            "Hunter's Gambit"
+          ]
+        },
+        {
+          "group": "744",
+          "names": [
+            "Swift Venoms"
+          ]
+        },
+        {
+          "group": "751",
+          "names": [
+            "Burst of Energy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "93a55113bec81db1",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 0,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "261",
+          "names": [
+            "Sacrifice"
+          ]
+        },
+        {
+          "group": "409",
+          "names": [
+            "Destroyer"
+          ]
+        },
+        {
+          "group": "425",
+          "names": [
+            "Defiance"
+          ]
+        },
+        {
+          "group": "451",
+          "names": [
+            "Dervish"
+          ]
+        },
+        {
+          "group": "470",
+          "names": [
+            "Fury Bolts"
+          ]
+        },
+        {
+          "group": "731",
+          "names": [
+            "Ethereal Feast"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9585654f0d366180",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "234",
+          "names": [
+            "Goliath"
+          ]
+        },
+        {
+          "group": "283",
+          "names": [
+            "Defiant Stand"
+          ]
+        },
+        {
+          "group": "338",
+          "names": [
+            "Martial Experience"
+          ]
+        },
+        {
+          "group": "603",
+          "names": [
+            "Farsight"
+          ]
+        },
+        {
+          "group": "725",
+          "names": [
+            "Silent Steps"
+          ]
+        },
+        {
+          "group": "730",
+          "names": [
+            "Doom Cast"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9c34bf52ff519f68",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "144",
+          "names": [
+            "Disemboweling"
+          ]
+        },
+        {
+          "group": "280",
+          "names": [
+            "Invigorating Blaze"
+          ]
+        },
+        {
+          "group": "292",
+          "names": [
+            "Blade of Cunning"
+          ]
+        },
+        {
+          "group": "315",
+          "names": [
+            "Feller of Foes"
+          ]
+        },
+        {
+          "group": "363",
+          "names": [
+            "Shaman's Dominion"
+          ]
+        },
+        {
+          "group": "373",
+          "names": [
+            "Rampart"
+          ]
+        },
+        {
+          "group": "564",
+          "names": [
+            "Undertaker"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "a9b1d661fbad852c",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "sources": [
+        {
+          "group": "219",
+          "names": [
+            "Arsonist",
+            "Magmatic Strikes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ae14f8b7d60a157e",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "693",
+          "names": [
+            "Longshot",
+            "Adjacent Animosity"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d2c5b5df0d00aa75",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 135,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 45,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "143",
+          "names": [
+            "Battle Trance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "18fdeb7aba1caf93",
+      "radii": [
+        0.0,
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 2,
+          "angle": 30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 180,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 2,
+          "angle": -30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -90.0,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 2,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 5
+        },
+        {
+          "a": 3,
+          "b": 5
+        }
+      ],
+      "sources": [
+        {
+          "group": "654",
+          "names": [
+            "Aspect of the Eagle"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "7ae040a1b8c0db82",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 5
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 5
+        },
+        {
+          "a": 3,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "145",
+          "names": [
+            "Primal Manifestation"
+          ]
+        },
+        {
+          "group": "156",
+          "names": [
+            "Vanquisher"
+          ]
+        },
+        {
+          "group": "171",
+          "names": [
+            "Runesmith"
+          ]
+        },
+        {
+          "group": "182",
+          "names": [
+            "Veteran's Wrath"
+          ]
+        },
+        {
+          "group": "232",
+          "names": [
+            "Steadfast"
+          ]
+        },
+        {
+          "group": "310",
+          "names": [
+            "Death Attunement"
+          ]
+        },
+        {
+          "group": "320",
+          "names": [
+            "Prism Weave"
+          ]
+        },
+        {
+          "group": "344",
+          "names": [
+            "Bloodletting"
+          ]
+        },
+        {
+          "group": "346",
+          "names": [
+            "Merciless Skewering"
+          ]
+        },
+        {
+          "group": "393",
+          "names": [
+            "Skittering Runes"
+          ]
+        },
+        {
+          "group": "535",
+          "names": [
+            "Avatar of the Hunt"
+          ]
+        },
+        {
+          "group": "552",
+          "names": [
+            "Tempest Blast"
+          ]
+        },
+        {
+          "group": "562",
+          "names": [
+            "Nature's Concoction"
+          ]
+        },
+        {
+          "group": "648",
+          "names": [
+            "Mysticism"
+          ]
+        },
+        {
+          "group": "727",
+          "names": [
+            "Primeval Force"
+          ]
+        },
+        {
+          "group": "767",
+          "names": [
+            "Watchtowers"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ac52aaf334f1ab4b",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 2,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 4
+        },
+        {
+          "a": 3,
+          "b": 5
+        }
+      ],
+      "sources": [
+        {
+          "group": "450",
+          "names": [
+            "Vigour",
+            "Savagery"
+          ]
+        },
+        {
+          "group": "740",
+          "names": [
+            "Infused",
+            "Frenetic"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ae87c447fd474d54",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 5
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 3
+        },
+        {
+          "a": 4,
+          "b": 5
+        }
+      ],
+      "sources": [
+        {
+          "group": "456",
+          "names": [
+            "Discord Artisan",
+            "Presage"
+          ]
+        },
+        {
+          "group": "542",
+          "names": [
+            "Graceful Assault",
+            "Courage"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "be9d92419640142d",
+      "radii": [
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 0,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 0,
+          "b": 5
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 2,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "501",
+          "names": [
+            "Heavy Draw",
+            "Deadly Draw"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "eec0a85422669534",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 5
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 3,
+          "b": 4
+        },
+        {
+          "a": 4,
+          "b": 5
+        }
+      ],
+      "sources": [
+        {
+          "group": "152",
+          "names": [
+            "Endurance",
+            "Overcharge"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "42aed2ac1fb9bfb8",
+      "radii": [
+        0.3286,
+        0.679513,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 1,
+          "angle": 210,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 2,
+          "angle": 90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": -30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 2,
+          "b": 5
+        },
+        {
+          "a": 2,
+          "b": 6
+        },
+        {
+          "a": 3,
+          "b": 6
+        },
+        {
+          "a": 4,
+          "b": 5
+        }
+      ],
+      "sources": [
+        {
+          "group": "173",
+          "names": [
+            "Nomadic Teachings"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "780eee3b6c882c4b",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 5
+        },
+        {
+          "a": 0,
+          "b": 6
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 6
+        },
+        {
+          "a": 2,
+          "b": 4
+        },
+        {
+          "a": 3,
+          "b": 4
+        }
+      ],
+      "sources": [
+        {
+          "group": "334",
+          "names": [
+            "Executioner",
+            "Wrecking Ball"
+          ]
+        },
+        {
+          "group": "411",
+          "names": [
+            "Retaliation",
+            "Testudo"
+          ]
+        },
+        {
+          "group": "460",
+          "names": [
+            "Ambidexterity",
+            "Blade Barrier"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9387125b2b16f48b",
+      "radii": [
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 1,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": -60,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 2,
+          "b": 6
+        },
+        {
+          "a": 3,
+          "b": 5
+        },
+        {
+          "a": 3,
+          "b": 6
+        }
+      ],
+      "sources": [
+        {
+          "group": "341",
+          "names": [
+            "Corruption",
+            "Heart of Darkness"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bd58262d07219be0",
+      "radii": [
+        0.0,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 1,
+          "angle": 150,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": 210,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90.0,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": -30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": -90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 30,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 2,
+          "b": 6
+        },
+        {
+          "a": 3,
+          "b": 4
+        },
+        {
+          "a": 3,
+          "b": 6
+        },
+        {
+          "a": 4,
+          "b": 5
+        }
+      ],
+      "sources": [
+        {
+          "group": "218",
+          "names": [
+            "Divine Fervour",
+            "Holy Dominion",
+            "Light of Divinity"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ea843bafe0b47b98",
+      "radii": [
+        0.3286,
+        0.679513,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 2,
+          "angle": 170,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 2,
+          "angle": 190,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 6
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 5
+        },
+        {
+          "a": 3,
+          "b": 6
+        },
+        {
+          "a": 4,
+          "b": 5
+        }
+      ],
+      "sources": [
+        {
+          "group": "87",
+          "names": [
+            "Blade Master",
+            "Razor's Edge"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "22adf77dd8852f0a",
+      "radii": [
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 210,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": -30,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 0,
+          "b": 7
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 6
+        },
+        {
+          "a": 2,
+          "b": 5
+        },
+        {
+          "a": 2,
+          "b": 6
+        },
+        {
+          "a": 5,
+          "b": 7
+        }
+      ],
+      "sources": [
+        {
+          "group": "176",
+          "names": [
+            "One with the River",
+            "Blunt Trauma"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3fa05adb4338870a",
+      "radii": [
+        0.0,
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 2,
+          "angle": 90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 2,
+          "angle": -90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -90.0,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 2,
+          "angle": 180,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 2,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 2,
+          "angle": 0,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 2,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 0,
+          "b": 5
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 6
+        },
+        {
+          "a": 1,
+          "b": 7
+        },
+        {
+          "a": 2,
+          "b": 7
+        },
+        {
+          "a": 3,
+          "b": 6
+        },
+        {
+          "a": 4,
+          "b": 5
+        }
+      ],
+      "sources": [
+        {
+          "group": "397",
+          "names": [
+            "Lightning Walker",
+            "Fire Walker",
+            "Frost Walker"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "a460964e243fd31b",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": true,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 7
+        },
+        {
+          "a": 2,
+          "b": 5
+        },
+        {
+          "a": 3,
+          "b": 7
+        },
+        {
+          "a": 4,
+          "b": 6
+        },
+        {
+          "a": 5,
+          "b": 6
+        }
+      ],
+      "sources": [
+        {
+          "group": "386",
+          "names": [
+            "Path of the Warrior",
+            "Constitution"
+          ]
+        },
+        {
+          "group": "443",
+          "names": [
+            "Foresight",
+            "Path of the Savant"
+          ]
+        },
+        {
+          "group": "481",
+          "names": [
+            "Arcane Will",
+            "Arcane Focus"
+          ]
+        },
+        {
+          "group": "492",
+          "names": [
+            "Path of the Hunter",
+            "Reflexes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d63dbabbc702c81d",
+      "radii": [
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 1,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": -90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 3,
+          "b": 6
+        },
+        {
+          "a": 3,
+          "b": 7
+        },
+        {
+          "a": 4,
+          "b": 7
+        }
+      ],
+      "sources": [
+        {
+          "group": "137",
+          "names": [
+            "Pain Forger",
+            "Galvanic Hammer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3811032aeed2f552",
+      "radii": [
+        0.679513,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 1,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 6
+        },
+        {
+          "a": 0,
+          "b": 7
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 1,
+          "b": 7
+        },
+        {
+          "a": 2,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 6
+        },
+        {
+          "a": 3,
+          "b": 5
+        },
+        {
+          "a": 4,
+          "b": 8
+        }
+      ],
+      "sources": [
+        {
+          "group": "111",
+          "names": [
+            "Spiritual Aid",
+            "Redemption",
+            "Righteous Army"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "41a5d53a8e2523e5",
+      "radii": [
+        0.0,
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 1,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 2,
+          "angle": -30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 2,
+          "angle": 150,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 2,
+          "angle": -90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 2,
+          "angle": 210,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 2,
+          "angle": 30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 2,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90.0,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 4
+        },
+        {
+          "a": 0,
+          "b": 7
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 8
+        },
+        {
+          "a": 2,
+          "b": 6
+        },
+        {
+          "a": 3,
+          "b": 4
+        },
+        {
+          "a": 5,
+          "b": 6
+        },
+        {
+          "a": 5,
+          "b": 8
+        },
+        {
+          "a": 7,
+          "b": 8
+        }
+      ],
+      "sources": [
+        {
+          "group": "668",
+          "names": [
+            "Assassination",
+            "Elemental Focus",
+            "Saboteur"
+          ]
+        },
+        {
+          "group": "669",
+          "names": [
+            "Will of Blades",
+            "Entropy",
+            "Sleight of Hand"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "43758bddf704a720",
+      "radii": [
+        0.0,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 1,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": -90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 180,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90.0,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 5
+        },
+        {
+          "a": 0,
+          "b": 8
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 1,
+          "b": 8
+        },
+        {
+          "a": 2,
+          "b": 7
+        },
+        {
+          "a": 3,
+          "b": 6
+        },
+        {
+          "a": 3,
+          "b": 7
+        },
+        {
+          "a": 3,
+          "b": 8
+        },
+        {
+          "a": 4,
+          "b": 6
+        }
+      ],
+      "sources": [
+        {
+          "group": "213",
+          "names": [
+            "Butchery",
+            "Strong Arm",
+            "Warrior Training"
+          ]
+        },
+        {
+          "group": "214",
+          "names": [
+            "Spiked Bulwark",
+            "Robust",
+            "Diamond Skin"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "46c14d1cd4168611",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 2,
+          "b": 7
+        },
+        {
+          "a": 2,
+          "b": 8
+        },
+        {
+          "a": 3,
+          "b": 4
+        },
+        {
+          "a": 4,
+          "b": 8
+        },
+        {
+          "a": 5,
+          "b": 6
+        },
+        {
+          "a": 6,
+          "b": 7
+        }
+      ],
+      "sources": [
+        {
+          "group": "775",
+          "names": [
+            "Backstabbing",
+            "Flaying"
+          ]
+        },
+        {
+          "group": "776",
+          "names": [
+            "Claws of the Hawk",
+            "Claws of the Magpie"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "55d677703a7f8938",
+      "radii": [
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 1,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 120,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 3,
+          "b": 5
+        },
+        {
+          "a": 3,
+          "b": 8
+        },
+        {
+          "a": 4,
+          "b": 6
+        },
+        {
+          "a": 6,
+          "b": 7
+        },
+        {
+          "a": 7,
+          "b": 8
+        }
+      ],
+      "sources": [
+        {
+          "group": "88",
+          "names": [
+            "Cleaving",
+            "Slaughter"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "58a63d7d48c5a7f3",
+      "radii": [
+        0.3286,
+        0.679513,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 150,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 2,
+          "angle": 190,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 210,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 2,
+          "angle": 170,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 7
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 6
+        },
+        {
+          "a": 2,
+          "b": 8
+        },
+        {
+          "a": 3,
+          "b": 4
+        },
+        {
+          "a": 3,
+          "b": 7
+        },
+        {
+          "a": 5,
+          "b": 6
+        },
+        {
+          "a": 5,
+          "b": 8
+        }
+      ],
+      "sources": [
+        {
+          "group": "98",
+          "names": [
+            "Skull Cracking",
+            "Bone Breaker"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9d6a124df57546a6",
+      "radii": [
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 180,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": -90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 8
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 2,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 5
+        },
+        {
+          "a": 2,
+          "b": 6
+        },
+        {
+          "a": 3,
+          "b": 4
+        },
+        {
+          "a": 5,
+          "b": 8
+        },
+        {
+          "a": 6,
+          "b": 7
+        }
+      ],
+      "sources": [
+        {
+          "group": "781",
+          "names": [
+            "Split Shot",
+            "Piercing Shots",
+            "Trick Shot"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cbe1c09aa1b4b175",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 7
+        },
+        {
+          "a": 3,
+          "b": 8
+        },
+        {
+          "a": 4,
+          "b": 8
+        },
+        {
+          "a": 5,
+          "b": 6
+        },
+        {
+          "a": 5,
+          "b": 7
+        }
+      ],
+      "sources": [
+        {
+          "group": "428",
+          "names": [
+            "Breath of Lightning",
+            "Heart of Thunder"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d1c572357eef9aec",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 2
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 3,
+          "b": 5
+        },
+        {
+          "a": 3,
+          "b": 7
+        },
+        {
+          "a": 4,
+          "b": 6
+        },
+        {
+          "a": 5,
+          "b": 6
+        },
+        {
+          "a": 7,
+          "b": 8
+        }
+      ],
+      "sources": [
+        {
+          "group": "779",
+          "names": [
+            "Fatal Blade",
+            "Brutal Blade"
+          ]
+        },
+        {
+          "group": "782",
+          "names": [
+            "King of the Hill",
+            "Master Fletcher"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d56b8f14f96b3ff3",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 6
+        },
+        {
+          "a": 0,
+          "b": 7
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 1,
+          "b": 6
+        },
+        {
+          "a": 2,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 8
+        },
+        {
+          "a": 3,
+          "b": 4
+        },
+        {
+          "a": 3,
+          "b": 7
+        },
+        {
+          "a": 5,
+          "b": 8
+        }
+      ],
+      "sources": [
+        {
+          "group": "172",
+          "names": [
+            "Natural Authority",
+            "Escalation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "e5fb1ce7c1f7b570",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 0,
+          "b": 7
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 1,
+          "b": 6
+        },
+        {
+          "a": 2,
+          "b": 5
+        },
+        {
+          "a": 2,
+          "b": 8
+        },
+        {
+          "a": 3,
+          "b": 8
+        },
+        {
+          "a": 4,
+          "b": 6
+        },
+        {
+          "a": 4,
+          "b": 7
+        }
+      ],
+      "sources": [
+        {
+          "group": "225",
+          "names": [
+            "Cruel Retort",
+            "Flow of Battle"
+          ]
+        },
+        {
+          "group": "511",
+          "names": [
+            "Renowned Deeds",
+            "Bannerman"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "12dcb72e38c00301",
+      "radii": [
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 1,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 180,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 30,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": -30,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 5
+        },
+        {
+          "a": 0,
+          "b": 9
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 2,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 9
+        },
+        {
+          "a": 3,
+          "b": 7
+        },
+        {
+          "a": 4,
+          "b": 8
+        },
+        {
+          "a": 6,
+          "b": 7
+        },
+        {
+          "a": 6,
+          "b": 8
+        }
+      ],
+      "sources": [
+        {
+          "group": "768",
+          "names": [
+            "Volatile Mines",
+            "Devastating Devices",
+            "Explosive Elements"
+          ]
+        },
+        {
+          "group": "778",
+          "names": [
+            "High Explosives",
+            "Clever Construction",
+            "Unstable Munitions"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "160972d75fafdaab",
+      "radii": [
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 1,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 180,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 5
+        },
+        {
+          "a": 1,
+          "b": 6
+        },
+        {
+          "a": 2,
+          "b": 6
+        },
+        {
+          "a": 2,
+          "b": 7
+        },
+        {
+          "a": 3,
+          "b": 4
+        },
+        {
+          "a": 3,
+          "b": 9
+        },
+        {
+          "a": 4,
+          "b": 5
+        },
+        {
+          "a": 7,
+          "b": 8
+        },
+        {
+          "a": 8,
+          "b": 9
+        }
+      ],
+      "sources": [
+        {
+          "group": "141",
+          "names": [
+            "Concussive Force",
+            "Lava Lash",
+            "Settling Ash"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "affa2cfa7beddcf4",
+      "radii": [
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 120,
+          "notable": false,
+          "port": true
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 3
+        },
+        {
+          "a": 0,
+          "b": 7
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 1,
+          "b": 8
+        },
+        {
+          "a": 2,
+          "b": 6
+        },
+        {
+          "a": 2,
+          "b": 7
+        },
+        {
+          "a": 3,
+          "b": 6
+        },
+        {
+          "a": 3,
+          "b": 9
+        },
+        {
+          "a": 4,
+          "b": 5
+        },
+        {
+          "a": 4,
+          "b": 9
+        }
+      ],
+      "sources": [
+        {
+          "group": "408",
+          "names": [
+            "Breath of Flames",
+            "Heart of Flame"
+          ]
+        },
+        {
+          "group": "468",
+          "names": [
+            "Heart of Ice",
+            "Breath of Rime"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cc59df0f4769019f",
+      "radii": [
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 1,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 210,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 0,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 150,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 4
+        },
+        {
+          "a": 0,
+          "b": 5
+        },
+        {
+          "a": 1,
+          "b": 3
+        },
+        {
+          "a": 1,
+          "b": 9
+        },
+        {
+          "a": 2,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 8
+        },
+        {
+          "a": 3,
+          "b": 7
+        },
+        {
+          "a": 5,
+          "b": 6
+        },
+        {
+          "a": 5,
+          "b": 9
+        },
+        {
+          "a": 6,
+          "b": 8
+        },
+        {
+          "a": 7,
+          "b": 9
+        }
+      ],
+      "sources": [
+        {
+          "group": "86",
+          "names": [
+            "Divine Judgement",
+            "Divine Wrath",
+            "Divine Fury"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "7576654cdeaad4af",
+      "radii": [
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 1,
+          "angle": -30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 4
+        },
+        {
+          "a": 0,
+          "b": 7
+        },
+        {
+          "a": 1,
+          "b": 7
+        },
+        {
+          "a": 1,
+          "b": 10
+        },
+        {
+          "a": 2,
+          "b": 3
+        },
+        {
+          "a": 2,
+          "b": 6
+        },
+        {
+          "a": 3,
+          "b": 5
+        },
+        {
+          "a": 4,
+          "b": 6
+        },
+        {
+          "a": 5,
+          "b": 7
+        },
+        {
+          "a": 5,
+          "b": 9
+        },
+        {
+          "a": 6,
+          "b": 8
+        },
+        {
+          "a": 6,
+          "b": 10
+        },
+        {
+          "a": 8,
+          "b": 9
+        }
+      ],
+      "sources": [
+        {
+          "group": "676",
+          "names": [
+            "Whispers of Doom"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "e7c979a2c096728f",
+      "radii": [
+        0.483582,
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 180,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 120,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 1,
+          "angle": 210,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 1,
+          "angle": 240,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 2
+        },
+        {
+          "a": 0,
+          "b": 9
+        },
+        {
+          "a": 1,
+          "b": 4
+        },
+        {
+          "a": 1,
+          "b": 5
+        },
+        {
+          "a": 2,
+          "b": 5
+        },
+        {
+          "a": 3,
+          "b": 8
+        },
+        {
+          "a": 3,
+          "b": 10
+        },
+        {
+          "a": 4,
+          "b": 7
+        },
+        {
+          "a": 6,
+          "b": 10
+        },
+        {
+          "a": 7,
+          "b": 8
+        }
+      ],
+      "sources": [
+        {
+          "group": "95",
+          "names": [
+            "Counterweight",
+            "Whirling Barrier",
+            "Smashing Strikes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3a60f4ffa3c531ce",
+      "radii": [
+        1.0
+      ],
+      "nodes": [
+        {
+          "orbit": 0,
+          "angle": -30,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 150,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 90,
+          "notable": false,
+          "port": true
+        },
+        {
+          "orbit": 0,
+          "angle": 180,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 210,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 0,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 120,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 60,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 30,
+          "notable": false,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": -90,
+          "notable": true,
+          "port": false
+        },
+        {
+          "orbit": 0,
+          "angle": 240,
+          "notable": false,
+          "port": false
+        }
+      ],
+      "edges": [
+        {
+          "a": 0,
+          "b": 1
+        },
+        {
+          "a": 0,
+          "b": 6
+        },
+        {
+          "a": 1,
+          "b": 10
+        },
+        {
+          "a": 2,
+          "b": 4
+        },
+        {
+          "a": 2,
+          "b": 7
+        },
+        {
+          "a": 3,
+          "b": 7
+        },
+        {
+          "a": 3,
+          "b": 8
+        },
+        {
+          "a": 4,
+          "b": 5
+        },
+        {
+          "a": 5,
+          "b": 11
+        },
+        {
+          "a": 6,
+          "b": 9
+        },
+        {
+          "a": 8,
+          "b": 9
+        },
+        {
+          "a": 10,
+          "b": 11
+        }
+      ],
+      "sources": [
+        {
+          "group": "572",
+          "names": [
+            "Fusillade",
+            "Elder Power",
+            "Disintegration"
+          ]
+        }
+      ]
+    }
+  ]
+}

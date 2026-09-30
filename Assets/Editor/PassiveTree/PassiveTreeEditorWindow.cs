@@ -129,7 +129,8 @@ namespace Scripts.Editor.PassiveTree
             _canvas.OnClusterSelected = HandleClusterSelectionChanged;
             _canvas.OnBezierSelected = HandleBezierSelectionChanged;
             _canvas.OnSelectionCleared = HandleSelectionCleared;
-            _canvas.OnTreeGeometryChanged = RefreshInspector;
+            _canvas.OnTreeGeometryChanged = HandleZoneGeometryChanged;
+            _canvas.OnZoneStructureChanged = HandleZoneStructureChanged;
             _canvas.OnLayoutLockChanged = RefreshInspector;
             _canvas.OnBackgroundClicked = HandleCanvasBackgroundClicked;
             splitView.Add(_canvas);
@@ -275,6 +276,27 @@ namespace Scripts.Editor.PassiveTree
                 EditorPrefs.SetString(LastTreePathPrefKey, path);
         }
 
+        public static PassiveSkillTreeSO FindOpenTree()
+        {
+            PassiveTreeEditorWindow[] windows = Resources.FindObjectsOfTypeAll<PassiveTreeEditorWindow>();
+            for (int i = 0; i < windows.Length; i++)
+            {
+                if (windows[i] != null && windows[i]._currentTree != null)
+                    return windows[i]._currentTree;
+            }
+            return null;
+        }
+
+        public static void ReloadOpenEditors()
+        {
+            PassiveTreeEditorWindow[] windows = Resources.FindObjectsOfTypeAll<PassiveTreeEditorWindow>();
+            for (int i = 0; i < windows.Length; i++)
+            {
+                if (windows[i] != null && windows[i]._currentTree != null)
+                    windows[i].LoadTree(windows[i]._currentTree, false);
+            }
+        }
+
         private void LoadTree(PassiveSkillTreeSO tree, bool remember = true)
         {
             _currentTree = tree;
@@ -318,7 +340,15 @@ namespace Scripts.Editor.PassiveTree
                 _snapToggle.SetValueWithoutNotify(_currentTree != null && _currentTree.SnapToGrid);
         }
 
+        private bool _zoneTab;
+
         private bool IsLayoutLocked => _canvas != null && _canvas.IsLayoutLocked;
+
+        private bool IsBackboneLocked(PassiveNodeDefinition node)
+        {
+            return node != null && node.IsBackbone && _currentTree != null &&
+                   _currentTree.ZoneToolsEnabled && _currentTree.LockBackbone;
+        }
 
         private static string FormatTreeChoice(PassiveSkillTreeSO tree)
         {
@@ -548,6 +578,14 @@ namespace Scripts.Editor.PassiveTree
 
         private void DrawInspectorGUI()
         {
+            int tab = GUILayout.Toolbar(_zoneTab ? 1 : 0, new[] { "Инспектор", "Зоны" });
+            _zoneTab = tab == 1;
+            if (_zoneTab)
+            {
+                PassiveZoneToolsPanel.Draw(_currentTree, _canvas, RefreshInspector);
+                return;
+            }
+
             GUILayout.Label("Tree Inspector", EditorStyles.boldLabel);
             EditorGUILayout.Space(4f);
 
@@ -614,6 +652,9 @@ namespace Scripts.Editor.PassiveTree
 
                 if (GUILayout.Button("Generate Backbone"))
                     GenerateBackbone();
+
+                if (GUILayout.Button("Import Backbone"))
+                    BackboneImport.ImportInto(_currentTree);
             }
 
             EditorGUILayout.Space(8f);
@@ -817,7 +858,7 @@ namespace Scripts.Editor.PassiveTree
             EditorGUI.BeginChangeCheck();
 
             EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("NodeType"));
-            using (new EditorGUI.DisabledScope(IsLayoutLocked))
+            using (new EditorGUI.DisabledScope(IsLayoutLocked || IsBackboneLocked(_selectedNode)))
             {
                 EditorGUILayout.PropertyField(nodeProp.FindPropertyRelative("PlacementMode"));
 
@@ -1597,6 +1638,22 @@ namespace Scripts.Editor.PassiveTree
             RefreshAvailableTrees();
             LoadTree(tree);
             ShowNotification(new GUIContent($"Created {folderName}"));
+        }
+
+        private void HandleZoneGeometryChanged()
+        {
+            if (_currentTree != null && _canvas != null && _canvas.IsDragging)
+            {
+                PassiveZoneOps.SyncPositions(_currentTree);
+                _canvas.RefreshGeometryViews();
+            }
+            RefreshInspector();
+        }
+
+        private void HandleZoneStructureChanged()
+        {
+            if (_currentTree != null)
+                PassiveZoneOps.SyncStructure(_currentTree);
         }
 
         private void GenerateBackbone()

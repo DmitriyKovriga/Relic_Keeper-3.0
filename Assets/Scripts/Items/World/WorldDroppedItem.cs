@@ -96,9 +96,10 @@ namespace Scripts.Items.World
             if (_lootFilterHidden)
                 return;
 
-            Vector3 localPosition = transform.localPosition;
-            localPosition.y = _hoverBaseLocalY + Mathf.Sin((Time.time + _hoverPhase) * Mathf.PI * 2f * HoverCyclesPerSecond) * HoverAmplitude;
-            transform.localPosition = localPosition;
+            Vector3 world = transform.position;
+            world.x = _groundPosition.x;
+            world.y = _groundPosition.y + Mathf.Sin((Time.time + _hoverPhase) * Mathf.PI * 2f * HoverCyclesPerSecond) * HoverAmplitude;
+            transform.position = world;
         }
 
         public string GetPrompt()

@@ -27,6 +27,7 @@ namespace Scripts.Skills.PassiveTree.UI
 
         private PassiveNodeDefinition _currentNode;
         private Rect _lastWorldAnchorBounds;
+        private bool _tooltipPositionScheduled;
         private readonly StatsDatabaseSO _statsDatabase;
 
         public PassiveTreeTooltip(VisualElement rootContainer)
@@ -64,15 +65,7 @@ namespace Scripts.Skills.PassiveTree.UI
 
             RefreshLayout();
             _tooltipBox.style.display = DisplayStyle.Flex;
-            PositionTooltip(worldAnchorBounds);
-            _tooltipBox.schedule.Execute(() =>
-            {
-                if (_currentNode != null && _tooltipBox.style.display == DisplayStyle.Flex)
-                {
-                    RefreshLayout();
-                    PositionTooltip(_lastWorldAnchorBounds);
-                }
-            }).ExecuteLater(1);
+            SchedulePosition();
         }
 
         public void Hide()
@@ -298,7 +291,21 @@ namespace Scripts.Skills.PassiveTree.UI
                 return;
 
             RefreshLayout();
-            PositionTooltip(_lastWorldAnchorBounds);
+            SchedulePosition();
+        }
+
+        private void SchedulePosition()
+        {
+            if (_tooltipPositionScheduled || _rootContainer == null)
+                return;
+
+            _tooltipPositionScheduled = true;
+            _rootContainer.schedule.Execute(() =>
+            {
+                _tooltipPositionScheduled = false;
+                if (_currentNode != null && _tooltipBox.style.display == DisplayStyle.Flex)
+                    PositionTooltip(_lastWorldAnchorBounds);
+            });
         }
 
         private void OnTooltipGeometryChanged(GeometryChangedEvent evt)
@@ -310,7 +317,7 @@ namespace Scripts.Skills.PassiveTree.UI
                 && Mathf.Approximately(evt.oldRect.height, evt.newRect.height))
                 return;
 
-            PositionTooltip(_lastWorldAnchorBounds);
+            SchedulePosition();
         }
 
         private void RefreshLayout()

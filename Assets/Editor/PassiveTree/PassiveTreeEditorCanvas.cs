@@ -18,6 +18,7 @@ namespace Scripts.Editor.PassiveTree
         public Action<PassiveBezierConnection> OnBezierSelected;
         public Action OnSelectionCleared;
         public Action OnTreeGeometryChanged;
+        public Action OnZoneStructureChanged;
         public Action<Vector2> OnBackgroundClicked;
         public Action OnLayoutLockChanged;
 
@@ -67,6 +68,7 @@ namespace Scripts.Editor.PassiveTree
         private Image _layoutLockIcon;
         private bool _pendingBackgroundClick;
         public bool IsLayoutLocked { get; private set; }
+        public bool IsDragging => _draggedNode != null || _draggedCluster != null;
 
         private bool _isMarqueeSelecting;
         private bool _marqueeAdditiveSelection;
@@ -237,6 +239,7 @@ namespace Scripts.Editor.PassiveTree
 
         private void OnTreeModified()
         {
+            OnZoneStructureChanged?.Invoke();
             PopulateView(_tree);
         }
 
@@ -690,7 +693,7 @@ namespace Scripts.Editor.PassiveTree
             if (!keepExistingGroup)
                 _selection.SelectNode(nodeView, addToSelection);
 
-            if (IsLayoutLocked)
+            if (IsLayoutLocked || IsBackboneDragBlocked(nodeView))
             {
                 evt.StopPropagation();
                 return;
@@ -735,6 +738,8 @@ namespace Scripts.Editor.PassiveTree
             foreach (var entry in _selectedNodeDragStartPositions)
             {
                 var data = entry.Key.Data;
+                if (IsBackboneDragBlocked(entry.Key))
+                    continue;
 
                 if (data.PlacementMode == NodePlacementMode.OnOrbit &&
                     !string.IsNullOrWhiteSpace(data.ClusterID) &&
@@ -1593,7 +1598,11 @@ namespace Scripts.Editor.PassiveTree
 
             var nodeDataToDelete = new List<PassiveNodeDefinition>();
             foreach (var nodeView in selectedNodeViews)
+            {
+                if (nodeView?.Data != null && IsBackboneDragBlocked(nodeView))
+                    continue;
                 nodeDataToDelete.Add(nodeView.Data);
+            }
 
             var clustersToDelete = new List<PassiveClusterDefinition>();
             foreach (var clusterView in selectedClusterViews)
@@ -1607,6 +1616,23 @@ namespace Scripts.Editor.PassiveTree
 
             OnTreeModified();
             return true;
+        }
+
+        public void RefreshGeometryViews()
+        {
+            if (_tree == null)
+                return;
+            foreach (var nodeView in _nodeViews.Values)
+                nodeView?.UpdatePosition(_tree);
+            foreach (var clusterView in _clusterViews.Values)
+                clusterView?.UpdatePosition();
+            RefreshConnectionVisuals();
+        }
+
+        bool IsBackboneDragBlocked(PassiveTreeEditorNode nodeView)
+        {
+            return _tree != null && _tree.ZoneToolsEnabled && _tree.LockBackbone &&
+                   nodeView?.Data != null && nodeView.Data.IsBackbone;
         }
     }
 }

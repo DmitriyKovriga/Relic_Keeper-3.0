@@ -146,9 +146,19 @@ namespace Scripts.Editor.PassiveTree
                 AddConnectionBidirectional(spokeOuterNodes[i], innerRing[innerSpokeIndices[i]]);
             }
 
+            startNode.IsBackbone = true;
+            for (int i = 0; i < spokeInnerNodes.Count; i++)
+            {
+                spokeInnerNodes[i].IsBackbone = true;
+                spokeOuterNodes[i].IsBackbone = true;
+            }
+            for (int i = 0; i < innerRing.Count; i++)
+                innerRing[i].IsBackbone = true;
+
             int createdNodes = spokeInnerNodes.Count + spokeOuterNodes.Count + innerRing.Count;
 
             _tree.InitLookup();
+            PassiveZoneOps.CaptureBackboneEdges(_tree);
             PassiveTreeAssetPersistence.SaveAssets(_tree);
             return createdNodes;
         }

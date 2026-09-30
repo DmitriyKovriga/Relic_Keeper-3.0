@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Relic Keeper — каркас дерева</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #2a2a2a; color: #eee; font: 14px Segoe UI, sans-serif; }
+  body { display: flex; flex-direction: column; }
+  header { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px 10px; background: #1e1e1e; border-bottom: 1px solid #444; }
+  button, label.file { background: #3a3a3a; color: #eee; border: 1px solid #666; border-radius: 4px; padding: 6px 10px; cursor: pointer; }
+  button:hover, label.file:hover { background: #4a4a4a; }
+  button:disabled { opacity: 0.4; cursor: default; }
+  label.file input { display: none; }
+  .spacer { flex: 1; }
+  #hint { color: #bbb; font-size: 12px; }
+  canvas { flex: 1; min-width: 0; height: 100%; display: block; }
+  #workspace { flex: 1; display: flex; min-height: 0; }
+  #inspector { width: 320px; overflow: auto; background: #242424; border-left: 1px solid #444; padding: 12px; }
+  #inspector h2 { margin: 0 0 8px; font-size: 15px; }
+  #inspector h3 { margin: 12px 0 6px; font-size: 13px; color: #ddd; }
+  #inspector label { display: block; margin: 8px 0 2px; color: #aaa; font-size: 12px; }
+  #inspector input, #inspector select { width: 100%; background: #333; color: #eee; border: 1px solid #555; padding: 4px 6px; }
+  #inspector .row { display: flex; gap: 8px; }
+  #inspector .row > div { flex: 1; }
+  #inspector .check { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+  #inspector .check input { width: auto; }
+  #inspector button { width: 100%; margin-top: 6px; }
+  #inspector .conn { display: flex; gap: 4px; align-items: center; margin-top: 4px; }
+  #inspector .conn span { flex: 1; font-size: 12px; }
+  #inspector .conn button { width: auto; margin: 0; padding: 4px 6px; }
+  #inspector .help { color: #9ab; font-size: 12px; line-height: 1.45; }
+  canvas.grabbing { cursor: grabbing; }
+  #menu { position: fixed; z-index: 5; display: none; min-width: 240px; padding: 4px 0; background: #2c2c2c; border: 1px solid #777; box-shadow: 0 10px 28px #000a; }
+  #menu button { display: block; width: 100%; text-align: left; background: none; border: 0; border-radius: 0; }
+  #menu button:hover:not(:disabled) { background: #505050; }
+  #menu hr { border: 0; border-top: 1px solid #555; margin: 4px 0; }
+</style>
+</head>
+<body>
+<header>
+  <button id="backbone">Каркас</button>
+  <button id="undo" disabled>Отмена</button>
+  <label><input id="snap" type="checkbox" checked> Сетка</label>
+  <span class="spacer"></span>
+  <label class="file">Открыть<input id="open" type="file" accept="application/json,.json"></label>
+  <button id="save">Сохранить</button>
+  <span id="hint">ПКМ — меню. Shift на орбите — шаг 15°. [ ] M L R — кривая</span>
+</header>
+<div id="workspace">
+<canvas id="view"></canvas>
+<aside id="inspector"></aside>
+</div>
+<div id="menu"></div>
+<script>
+const canvas = document.getElementById("view");
+const ctx = canvas.getContext("2d");
+const menu = document.getElementById("menu");
+const R = { start: 20, small: 14, notable: 20, keystone: 26 };
+const COL = { start: "#328c32", small: "#d7d7d7", notable: "#28505a", keystone: "#784614" };
+const COLORS = ["rgba(120,140,190,0.35)", "rgba(180,120,70,0.35)", "rgba(80,150,120,0.35)", "rgba(150,90,150,0.35)"];
+
+let nodes = [];
+let clusters = [];
+let curves = [];
+let nextId = 1;
+let selected = [];
+let selectedCluster = null;
+let selectedOrbit = -1;
+let selectedCurve = null;
+let cam = { x: 0, y: 0, z: 1 };
+let drag = null;
+let pan = null;
+let space = false;
+let undo = [];
+let snap = true;
+
+function uid(prefix) { return prefix + (nextId++); }
+function nodeById(id) { return nodes.find(n => n.id === id); }
+function clusterById(id) { return clusters.find(c => c.id === id); }
+function isSel(n) { return selected.includes(n); }
+
+function snapshot() { return JSON.stringify({ nodes, clusters, curves, nextId }); }
+function pushUndo() {
+  undo.push(snapshot());
+  if (undo.length > 60) undo.shift();
+  document.getElementById("undo").disabled = false;
+}
+function restore() {
+  if (!undo.length) return;
+  const data = JSON.parse(undo.pop());
+  nodes = data.nodes; clusters = data.clusters; curves = data.curves; nextId = data.nextId;
+  selected = []; selectedCluster = null; selectedCurve = null;
+  document.getElementById("undo").disabled = undo.length === 0;
+  hideMenu();
+  draw();
+}
+
+function polar(r, deg) {
+  const a = deg * Math.PI / 180;
+  return { x: Math.cos(a) * r, y: Math.sin(a) * r };
+}
+function pos(n) {
+  if (!n.cluster) return { x: n.x, y: n.y };
+  const c = clusterById(n.cluster);
+  if (!c) return { x: n.x, y: n.y };
+  const radius = c.orbits[n.orbit] ?? c.orbits[0];
+  const p = polar(radius, n.angle);
+  return { x: c.x + p.x, y: c.y + p.y };
+}
+function angleOf(center, p) {
+  let a = Math.atan2(p.y - center.y, p.x - center.x) * 180 / Math.PI;
+  return a < 0 ? a + 360 : a;
+}
+function link(a, b) {
+  if (!a || !b || a === b) return;
+  if (!a.links.includes(b.id)) a.links.push(b.id);
+  if (!b.links.includes(a.id)) b.links.push(a.id);
+}
+function unlink(a, b) {
+  a.links = a.links.filter(id => id !== b.id);
+  b.links = b.links.filter(id => id !== a.id);
+  curves = curves.filter(c => !((c.a === a.id && c.b === b.id) || (c.a === b.id && c.b === a.id)));
+}
+function curveOf(a, b) {
+  return curves.find(c => (c.a === a.id && c.b === b.id) || (c.a === b.id && c.b === a.id));
+}
+function makeNode(type, x, y, extra) {
+  return Object.assign({ id: uid("n"), type, x, y, links: [], cluster: "", orbit: 0, angle: 0, backbone: false }, extra);
+}
+function snapPoint(p) {
+  if (!snap) return p;
+  return { x: Math.round(p.x / 20) * 20, y: Math.round(p.y / 20) * 20 };
+}
+
+function generateBackbone() {
+  if (nodes.length && !confirm("Заменить текущий каркас новым? Кластеры тоже сотрутся.")) return;
+  if (nodes.length) pushUndo();
+  nodes = []; clusters = []; curves = []; nextId = 1;
+  const start = makeNode("start", 0, 0, { id: "start", backbone: true });
+  nodes.push(start);
+  const ring = [];
+  for (let i = 0; i < 8; i++) {
+    const p = polar(500, i * 45);
+    const n = makeNode("small", p.x, p.y, { backbone: true });
+    nodes.push(n);
+    ring.push(n);
+  }
+  for (let i = 0; i < 8; i++) link(ring[i], ring[(i + 1) % 8]);
+  for (let i = 0; i < 4; i++) {
+    const inner = polar(180, 45 + i * 90);
+    const outer = polar(320, 45 + i * 90);
+    const a = makeNode("small", inner.x, inner.y, { backbone: true });
+    const b = makeNode("small", outer.x, outer.y, { backbone: true });
+    nodes.push(a, b);
+    link(start, a); link(a, b); link(b, ring[i * 2 + 1]);
+  }
+  selected = []; selectedCluster = null; selectedCurve = null;
+  draw();
+}
+
+function resize() {
+  canvas.width = canvas.clientWidth * devicePixelRatio;
+  canvas.height = canvas.clientHeight * devicePixelRatio;
+  draw();
+}
+function toScreen(p) {
+  return { x: (p.x - cam.x) * cam.z + canvas.width / 2, y: (p.y - cam.y) * cam.z + canvas.height / 2 };
+}
+function toWorld(sx, sy) {
+  return { x: (sx - canvas.width / 2) / cam.z + cam.x, y: (sy - canvas.height / 2) / cam.z + cam.y };
+}
+function pointer(ev) {
+  const rect = canvas.getBoundingClientRect();
+  return { x: (ev.clientX - rect.left) * devicePixelRatio, y: (ev.clientY - rect.top) * devicePixelRatio };
+}
+
+function cubic(p0, p1, p2, p3, t) {
+  const u = 1 - t;
+  return {
+    x: u*u*u*p0.x + 3*u*u*t*p1.x + 3*u*t*t*p2.x + t*t*t*p3.x,
+    y: u*u*u*p0.y + 3*u*u*t*p1.y + 3*u*t*t*p2.y + t*t*t*p3.y
+  };
+}
+function curveGeometry(curve) {
+  const a = nodeById(curve.a), b = nodeById(curve.b);
+  if (!a || !b) return null;
+  const pa = pos(a), pb = pos(b);
+  const anchor = { x: pa.x + (pb.x - pa.x) * curve.anchor / 100, y: pa.y + (pb.y - pa.y) * curve.anchor / 100 };
+  return { a, b, pa, pb, anchor, c1: { x: anchor.x + curve.inX, y: anchor.y + curve.inY }, c2: { x: anchor.x + curve.outX, y: anchor.y + curve.outY } };
+}
+function sameOrbit(a, b) {
+  return a.cluster && a.cluster === b.cluster && a.orbit === b.orbit && clusterById(a.cluster);
+}
+function shortSweep(a0, a1) {
+  let s = (a1 - a0) % 360;
+  if (s < 0) s += 360;
+  if (s > 180) return { a: a1, s: 360 - s };
+  return { a: a0, s };
+}
+
+function draw() {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#3a3a3a";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const g = 20 * cam.z;
+  if (g > 8) {
+    ctx.strokeStyle = "rgba(255,255,255,0.045)";
+    ctx.lineWidth = 1;
+    const origin = toScreen({ x: 0, y: 0 });
+    ctx.beginPath();
+    for (let x = origin.x % g; x < canvas.width; x += g) { ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); }
+    for (let y = origin.y % g; y < canvas.height; y += g) { ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); }
+    ctx.stroke();
+  }
+  clusters.forEach((c, i) => {
+    const s = toScreen(c);
+    c.orbits.forEach(radius => {
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, radius * cam.z, 0, Math.PI * 2);
+      ctx.strokeStyle = c === selectedCluster ? "rgba(230,190,60,0.9)" : COLORS[i % COLORS.length];
+      ctx.lineWidth = c === selectedCluster ? 2 : 1;
+      ctx.stroke();
+    });
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, 7, 0, Math.PI * 2);
+    ctx.fillStyle = c === selectedCluster ? "#e6be3c" : "#9ab";
+    ctx.fill();
+  });
+  const seen = new Set();
+  nodes.forEach(n => n.links.forEach(id => {
+    const key = n.id < id ? n.id + "|" + id : id + "|" + n.id;
+    if (seen.has(key)) return;
+    seen.add(key);
+    const other = nodeById(id);
+    if (!other) return;
+    const curve = curveOf(n, other);
+    ctx.strokeStyle = curve === selectedCurve ? "#fff" : "#e6be3c";
+    ctx.lineWidth = Math.max(2, 3 * cam.z);
+    ctx.beginPath();
+    if (curve) {
+      const g = curveGeometry(curve);
+      if (!g) return;
+      ctx.moveTo(toScreen(g.pa).x, toScreen(g.pa).y);
+      for (let t = 1; t <= 24; t++) {
+        const p = toScreen(cubic(g.pa, g.c1, g.c2, g.pb, t / 24));
+        ctx.lineTo(p.x, p.y);
+      }
+    } else if (sameOrbit(n, other)) {
+      const c = clusterById(n.cluster);
+      const radius = c.orbits[n.orbit];
+      const sw = shortSweep(n.angle, other.angle);
+      if (sw.s < 170) {
+        for (let i = 0; i <= 16; i++) {
+          const p = toScreen({ x: c.x + Math.cos((sw.a + sw.s * i / 16) * Math.PI / 180) * radius, y: c.y + Math.sin((sw.a + sw.s * i / 16) * Math.PI / 180) * radius });
+          if (i === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        }
+      } else {
+        const a = toScreen(pos(n)), b = toScreen(pos(other));
+        ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+      }
+    } else {
+      const a = toScreen(pos(n)), b = toScreen(pos(other));
+      ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+    }
+    ctx.stroke();
+  }));
+  if (selectedCurve) {
+    const g = curveGeometry(selectedCurve);
+    if (g) {
+      ctx.strokeStyle = "#7ec8ff";
+      ctx.lineWidth = 1;
+      [[g.c1, g.anchor], [g.c2, g.anchor]].forEach(([h, a]) => {
+        const hs = toScreen(h), as = toScreen(a);
+        ctx.beginPath(); ctx.moveTo(hs.x, hs.y); ctx.lineTo(as.x, as.y); ctx.stroke();
+        ctx.beginPath(); ctx.arc(hs.x, hs.y, 6, 0, Math.PI * 2); ctx.fillStyle = "#7ec8ff"; ctx.fill();
+      });
+      const as = toScreen(g.anchor);
+      ctx.save();
+      ctx.translate(as.x, as.y);
+      ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = "#e6be3c";
+      ctx.fillRect(-5, -5, 10, 10);
+      ctx.restore();
+    }
+  }
+  if (selectedCluster) {
+    const s = toScreen(selectedCluster);
+    selectedCluster.orbits.forEach(radius => {
+      const h = toScreen({ x: selectedCluster.x + radius, y: selectedCluster.y });
+      ctx.beginPath(); ctx.arc(h.x, h.y, 6, 0, Math.PI * 2); ctx.fillStyle = "#e6be3c"; ctx.fill();
+    });
+    ctx.beginPath(); ctx.arc(s.x, s.y, 8, 0, Math.PI * 2); ctx.strokeStyle = "#fff"; ctx.stroke();
+  }
+  nodes.forEach(n => {
+    const s = toScreen(pos(n));
+    const r = R[n.type] * cam.z;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = COL[n.type];
+    ctx.fill();
+    ctx.lineWidth = isSel(n) ? 4 : 3;
+    ctx.strokeStyle = "#fff";
+    ctx.stroke();
+  });
+  syncInspector();
+}
+
+function hitNode(sx, sy) {
+  for (let i = nodes.length - 1; i >= 0; i--) {
+    const s = toScreen(pos(nodes[i]));
+    const r = R[nodes[i].type] * cam.z + 4;
+    if ((s.x - sx) ** 2 + (s.y - sy) ** 2 <= r * r) return nodes[i];
+  }
+  return null;
+}
+function hitHandle(sx, sy) {
+  if (selectedCurve) {
+    const g = curveGeometry(selectedCurve);
+    if (g) {
+      for (const [name, p] of [["in", g.c1], ["out", g.c2], ["anchor", g.anchor]]) {
+        const s = toScreen(p);
+        const hit = name === "anchor" ? 12 : 10;
+        if (Math.abs(s.x - sx) <= hit && Math.abs(s.y - sy) <= hit) return { kind: "bezier", name };
+      }
+    }
+  }
+  if (selectedCluster) {
+    for (let i = 0; i < selectedCluster.orbits.length; i++) {
+      const s = toScreen({ x: selectedCluster.x + selectedCluster.orbits[i], y: selectedCluster.y });
+      if ((s.x - sx) ** 2 + (s.y - sy) ** 2 <= 100) return { kind: "radius", index: i };
+    }
+  }
+  return null;
+}
+function hitCluster(sx, sy) {
+  const world = toWorld(sx, sy);
+  for (let i = clusters.length - 1; i >= 0; i--) {
+    const c = clusters[i];
+    if (Math.hypot(world.x - c.x, world.y - c.y) * cam.z <= 12) return { cluster: c, orbit: -1 };
+    for (let o = 0; o < c.orbits.length; o++) {
+      const d = Math.abs(Math.hypot(world.x - c.x, world.y - c.y) - c.orbits[o]);
+      if (d * cam.z < 8) return { cluster: c, orbit: o };
+    }
+  }
+  return null;
+}
+function hitCurve(sx, sy) {
+  const world = toWorld(sx, sy);
+  let best = null, bestD = 10 / cam.z;
+  curves.forEach(curve => {
+    const g = curveGeometry(curve);
+    if (!g) return;
+    for (let t = 0; t <= 20; t++) {
+      const p = cubic(g.pa, g.c1, g.c2, g.pb, t / 20);
+      const d = Math.hypot(p.x - world.x, p.y - world.y);
+      if (d < bestD) { bestD = d; best = curve; }
+    }
+  });
+  return best;
+}
+
+function hideMenu() { menu.style.display = "none"; menu.innerHTML = ""; }
+function showMenu(x, y, items) {
+  menu.innerHTML = "";
+  items.forEach(item => {
+    if (item === "-") { menu.appendChild(document.createElement("hr")); return; }
+    const b = document.createElement("button");
+    b.textContent = item.label;
+    b.disabled = !!item.disabled;
+    b.onclick = () => { hideMenu(); item.run(); };
+    menu.appendChild(b);
+  });
+  menu.style.display = "block";
+  menu.style.left = Math.min(x, window.innerWidth - menu.offsetWidth - 8) + "px";
+  menu.style.top = Math.min(y, window.innerHeight - menu.offsetHeight - 8) + "px";
+}
+
+function selectNode(node, add) {
+  selectedCurve = null;
+  selectedCluster = null;
+  if (!node) { selected = []; return; }
+  if (add) {
+    selected = isSel(node) ? selected.filter(n => n !== node) : selected.concat(node);
+  } else selected = [node];
+}
+function twoSelected() { return selected.length === 2 ? selected : null; }
+
+function defaultCurve(a, b) {
+  const pa = pos(a), pb = pos(b);
+  const dx = pb.x - pa.x, dy = pb.y - pa.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  const dir = { x: dx / dist, y: dy / dist };
+  const perp = { x: -dir.y, y: dir.x };
+  const c1 = { x: pa.x + dir.x * dist * 0.35 + perp.x * dist * 0.35, y: pa.y + dir.y * dist * 0.35 + perp.y * dist * 0.35 };
+  const c2 = { x: pb.x - dir.x * dist * 0.35 + perp.x * dist * 0.35, y: pb.y - dir.y * dist * 0.35 + perp.y * dist * 0.35 };
+  const anchor = { x: (pa.x + pb.x) / 2, y: (pa.y + pb.y) / 2 };
+  return { a: a.id, b: b.id, anchor: 50, inX: c1.x - anchor.x, inY: c1.y - anchor.y, outX: c2.x - anchor.x, outY: c2.y - anchor.y, mirror: false };
+}
+function connectDirect(a, b) {
+  pushUndo();
+  curves = curves.filter(c => !((c.a === a.id && c.b === b.id) || (c.a === b.id && c.b === a.id)));
+  link(a, b);
+  draw();
+}
+function connectFree(a, b) {
+  pushUndo();
+  link(a, b);
+  curves = curves.filter(c => !((c.a === a.id && c.b === b.id) || (c.a === b.id && c.b === a.id)));
+  curves.push(defaultCurve(a, b));
+  selectedCurve = curves[curves.length - 1];
+  draw();
+}
+function disconnect(a, b) { pushUndo(); unlink(a, b); selectedCurve = null; draw(); }
+
+function createNode(type, world) {
+  pushUndo();
+  const p = snapPoint(world);
+  const n = makeNode(type, p.x, p.y);
+  nodes.push(n);
+  selectNode(n, false);
+  draw();
+}
+function createCluster(world) {
+  pushUndo();
+  const p = snapPoint(world);
+  const c = { id: uid("c"), name: "Cluster", x: p.x, y: p.y, orbits: [80] };
+  clusters.push(c);
+  selected = []; selectedCluster = c; selectedOrbit = 0; selectedCurve = null;
+  draw();
+}
+function addOrbit(c) {
+  pushUndo();
+  c.orbits.push((c.orbits[c.orbits.length - 1] || 40) + 40);
+  draw();
+}
+function addOnOrbit(c, orbit, type, world) {
+  pushUndo();
+  const n = makeNode(type, 0, 0, { cluster: c.id, orbit, angle: angleOf(c, world) });
+  const p = pos(n); n.x = p.x; n.y = p.y;
+  nodes.push(n);
+  selectNode(n, false);
+  draw();
+}
+function placeOnCluster(n, c) {
+  pushUndo();
+  let orbit = 0, best = Infinity;
+  const p = pos(n);
+  c.orbits.forEach((radius, i) => {
+    const d = Math.abs(Math.hypot(p.x - c.x, p.y - c.y) - radius);
+    if (d < best) { best = d; orbit = i; }
+  });
+  n.cluster = c.id;
+  n.orbit = orbit;
+  n.angle = angleOf(c, p);
+  n.backbone = false;
+  const w = pos(n); n.x = w.x; n.y = w.y;
+  draw();
+}
+function toFree(n) {
+  pushUndo();
+  const p = pos(n);
+  n.x = p.x; n.y = p.y; n.cluster = "";
+  draw();
+}
+function deleteNode(n) {
+  if (!n || n.type === "start") return;
+  pushUndo();
+  nodes.forEach(other => { other.links = other.links.filter(id => id !== n.id); });
+  curves = curves.filter(c => c.a !== n.id && c.b !== n.id);
+  nodes = nodes.filter(other => other !== n);
+  selected = selected.filter(other => other !== n);
+  draw();
+}
+function deleteCluster(c) {
+  pushUndo();
+  nodes.forEach(n => {
+    if (n.cluster !== c.id) return;
+    const p = pos(n);
+    n.x = p.x; n.y = p.y; n.cluster = "";
+  });
+  clusters = clusters.filter(other => other !== c);
+  selectedCluster = null;
+  draw();
+}
+function setType(n, type) { pushUndo(); n.type = type; draw(); }
+
+function menuForEmpty(world) {
+  const items = [
+    { label: "Малый нод", run: () => createNode("small", world) },
+    { label: "Средний нод", run: () => createNode("notable", world) },
+    { label: "Кейстоун", run: () => createNode("keystone", world) },
+    "-",
+    { label: "Создать кластер", run: () => createCluster(world) }
+  ];
+  if (selectedCluster) {
+    items.push("-", { label: "Добавить орбиту", run: () => addOrbit(selectedCluster) });
+    selectedCluster.orbits.forEach((_, i) => items.push({ label: "Нод на орбиту " + i, run: () => addOnOrbit(selectedCluster, i, "small", world) }));
+  }
+  const pair = twoSelected();
+  if (pair) items.push("-", ...connectItems(pair[0], pair[1]));
+  return items;
+}
+function connectItems(a, b) {
+  return [
+    { label: "Прямая связь", run: () => connectDirect(a, b) },
+    { label: "Кривая связь", run: () => connectFree(a, b) },
+    { label: "Разорвать", run: () => disconnect(a, b), disabled: !a.links.includes(b.id) }
+  ];
+}
+function menuForNode(n, world) {
+  const items = [];
+  const pair = twoSelected();
+  if (pair) items.push(...connectItems(pair[0], pair[1]), "-");
+  if (n.cluster) items.push({ label: "Снять с орбиты", run: () => toFree(n) });
+  else if (selectedCluster) items.push({ label: "Посадить на " + selectedCluster.name, run: () => placeOnCluster(n, selectedCluster) });
+  if (n.type !== "start") {
+    items.push("-",
+      { label: "Малый", run: () => setType(n, "small") },
+      { label: "Средний", run: () => setType(n, "notable") },
+      { label: "Кейстоун", run: () => setType(n, "keystone") },
+      "-",
+      { label: "Удалить нод", run: () => deleteNode(n) });
+  }
+  if (!items.length) items.push({ label: "Стартовый нод", disabled: true });
+  return items;
+}
+function menuForCluster(c, orbit, world) {
+  const items = [];
+  if (orbit >= 0) {
+    items.push(
+      { label: "Малый нод на эту орбиту", run: () => addOnOrbit(c, orbit, "small", world) },
+      { label: "Средний нод на эту орбиту", run: () => addOnOrbit(c, orbit, "notable", world) },
+      { label: "Кейстоун на эту орбиту", run: () => addOnOrbit(c, orbit, "keystone", world) },
+      "-"
+    );
+  }
+  items.push({ label: "Добавить орбиту", run: () => addOrbit(c) });
+  c.orbits.forEach((_, i) => { if (orbit < 0) items.push({ label: "Нод на орбиту " + i, run: () => addOnOrbit(c, i, "small", world) }); });
+  items.push("-", { label: "Удалить кластер", run: () => deleteCluster(c) });
+  return items;
+}
+function menuForCurve(curve) {
+  return [
+    { label: "Сделать прямой", run: () => { pushUndo(); curves = curves.filter(c => c !== curve); selectedCurve = null; draw(); } },
+    { label: "Перевернуть сторону (M)", run: () => flipCurve(curve) },
+    { label: "Сбросить ручки", run: () => {
+      pushUndo();
+      const fresh = defaultCurve(nodeById(curve.a), nodeById(curve.b));
+      Object.assign(curve, fresh);
+      draw();
+    } },
+    { label: "Разорвать", run: () => disconnect(nodeById(curve.a), nodeById(curve.b)) }
+  ];
+}
+
+canvas.addEventListener("contextmenu", ev => {
+  ev.preventDefault();
+  const p = pointer(ev);
+  const world = toWorld(p.x, p.y);
+  const node = hitNode(p.x, p.y);
+  const clusterHit = node ? null : hitCluster(p.x, p.y);
+  const curve = node || clusterHit ? null : hitCurve(p.x, p.y);
+  let items;
+  if (node) {
+    if (!isSel(node)) selectNode(node, false);
+    items = menuForNode(node, world);
+  } else if (clusterHit) {
+    selectedCluster = clusterHit.cluster;
+    selectedOrbit = clusterHit.orbit;
+    selected = []; selectedCurve = null;
+    items = menuForCluster(clusterHit.cluster, clusterHit.orbit, world);
+  } else if (curve) {
+    selectedCurve = curve; selected = []; selectedCluster = null;
+    items = menuForCurve(curve);
+  } else items = menuForEmpty(world);
+  draw();
+  showMenu(ev.clientX, ev.clientY, items);
+});
+document.addEventListener("pointerdown", ev => { if (!menu.contains(ev.target)) hideMenu(); });
+
+canvas.addEventListener("pointerdown", ev => {
+  if (ev.button === 2) return;
+  hideMenu();
+  const p = pointer(ev);
+  if (ev.button === 1 || space) {
+    pan = { sx: p.x, sy: p.y, x: cam.x, y: cam.y };
+    canvas.classList.add("grabbing");
+    canvas.setPointerCapture(ev.pointerId);
+    return;
+  }
+  if (ev.button !== 0) return;
+  const handle = hitHandle(p.x, p.y);
+  const node = handle ? null : hitNode(p.x, p.y);
+  const clusterHit = handle || node ? null : hitCluster(p.x, p.y);
+  const curve = handle || node || clusterHit ? null : hitCurve(p.x, p.y);
+  const world = toWorld(p.x, p.y);
+  if (handle) {
+    drag = { kind: handle.kind, name: handle.name, index: handle.index, moved: false, curve: selectedCurve, startIn: selectedCurve && { x: selectedCurve.inX, y: selectedCurve.inY }, startOut: selectedCurve && { x: selectedCurve.outX, y: selectedCurve.outY } };
+    canvas.setPointerCapture(ev.pointerId);
+    return;
+  }
+  if (node) {
+    selectNode(node, ev.shiftKey);
+    const w = pos(node);
+    drag = { kind: node.cluster ? "orbit" : "node", node, dx: w.x - world.x, dy: w.y - world.y, moved: false, startX: w.x, startY: w.y, group: selected.filter(n => !n.cluster).map(n => ({ n, x: n.x, y: n.y })) };
+    canvas.setPointerCapture(ev.pointerId);
+    draw();
+    return;
+  }
+  if (clusterHit && clusterHit.orbit < 0) {
+    selectedCluster = clusterHit.cluster; selectedOrbit = -1; selected = []; selectedCurve = null;
+    drag = { kind: "cluster", cluster: clusterHit.cluster, dx: clusterHit.cluster.x - world.x, dy: clusterHit.cluster.y - world.y, moved: false };
+    canvas.setPointerCapture(ev.pointerId);
+    draw();
+    return;
+  }
+  if (clusterHit) {
+    selectedCluster = clusterHit.cluster; selectedOrbit = clusterHit.orbit; selected = []; selectedCurve = null;
+    draw();
+    return;
+  }
+  if (curve) { selectedCurve = curve; selected = []; selectedCluster = null; draw(); return; }
+  selected = []; selectedCluster = null; selectedCurve = null;
+  draw();
+});
+canvas.addEventListener("pointermove", ev => {
+  const p = pointer(ev);
+  if (pan) {
+    cam.x = pan.x - (p.x - pan.sx) / cam.z;
+    cam.y = pan.y - (p.y - pan.sy) / cam.z;
+    draw();
+    return;
+  }
+  if (!drag) return;
+  const world = toWorld(p.x, p.y);
+  if (!drag.moved) { pushUndo(); drag.moved = true; }
+  if (drag.kind === "node") {
+    const target = snapPoint({ x: world.x + drag.dx, y: world.y + drag.dy });
+    const delta = { x: target.x - drag.startX, y: target.y - drag.startY };
+    drag.group.forEach(item => {
+      const p = snapPoint({ x: item.x + delta.x, y: item.y + delta.y });
+      item.n.x = p.x;
+      item.n.y = p.y;
+    });
+  } else if (drag.kind === "orbit") {
+    const c = clusterById(drag.node.cluster);
+    if (c) {
+      let angle = angleOf(c, world);
+      if (ev.shiftKey) angle = Math.round(angle / 15) * 15;
+      drag.node.angle = (angle + 360) % 360;
+    }
+    const w = pos(drag.node); drag.node.x = w.x; drag.node.y = w.y;
+  } else if (drag.kind === "cluster") {
+    const target = snapPoint({ x: world.x + drag.dx, y: world.y + drag.dy });
+    drag.cluster.x = target.x; drag.cluster.y = target.y;
+  } else if (drag.kind === "radius") {
+    const c = selectedCluster;
+    let radius = Math.max(30, Math.hypot(world.x - c.x, world.y - c.y));
+    if (ev.shiftKey) radius = Math.round(radius / 10) * 10;
+    c.orbits[drag.index] = radius;
+  } else if (drag.kind === "bezier") {
+    applyBezierDrag(world, ev.altKey, ev.shiftKey, ev.ctrlKey || ev.metaKey);
+  }
+  draw();
+});
+function endPointer() { drag = null; pan = null; canvas.classList.remove("grabbing"); }
+canvas.addEventListener("pointerup", endPointer);
+canvas.addEventListener("pointercancel", endPointer);
+canvas.addEventListener("wheel", ev => {
+  ev.preventDefault();
+  const p = pointer(ev);
+  const before = toWorld(p.x, p.y);
+  cam.z = Math.min(4, Math.max(0.2, cam.z * (ev.deltaY < 0 ? 1.1 : 0.9)));
+  const after = toWorld(p.x, p.y);
+  cam.x += before.x - after.x;
+  cam.y += before.y - after.y;
+  draw();
+}, { passive: false });
+
+function exportFile() {
+  const data = {
+    version: 2,
+    nodes: nodes.map(n => { const p = pos(n); return { id: n.id, type: n.type, x: p.x, y: p.y, links: n.links, cluster: n.cluster || "", orbit: n.orbit || 0, angle: n.angle || 0, backbone: !!n.backbone }; }),
+    clusters: clusters.map(c => ({ id: c.id, name: c.name, x: c.x, y: c.y, orbits: c.orbits })),
+    curves: curves.map(c => ({ a: c.a, b: c.b, anchor: c.anchor, inX: c.inX, inY: c.inY, outX: c.outX, outY: c.outY, mirror: !!c.mirror }))
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "backbone.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importText(text) {
+  const data = JSON.parse(text);
+  if (!data || !Array.isArray(data.nodes) || !data.nodes.some(n => n.type === "start"))
+    throw new Error("В файле нет стартового нода.");
+  pushUndo();
+  clusters = (data.clusters || []).map(c => ({ id: String(c.id), name: c.name || "Cluster", x: +c.x || 0, y: +c.y || 0, orbits: (c.orbits || [80]).map(Number) }));
+  nodes = data.nodes.map(n => ({
+    id: String(n.id), type: ["start", "small", "notable", "keystone"].includes(n.type) ? n.type : "small",
+    x: +n.x || 0, y: +n.y || 0, links: (n.links || []).map(String),
+    cluster: n.cluster || "", orbit: n.orbit || 0, angle: n.angle || 0, backbone: data.version < 2 ? !n.cluster : !!n.backbone
+  }));
+  curves = (data.curves || []).map(c => ({ a: String(c.a), b: String(c.b), anchor: +c.anchor || 50, inX: +c.inX || 0, inY: +c.inY || 0, outX: +c.outX || 0, outY: +c.outY || 0, mirror: !!c.mirror }));
+  nextId = nodes.reduce((m, n) => Math.max(m, parseInt(String(n.id).replace(/\D/g, ""), 10) || 0), 0) + 1;
+  selected = []; selectedCluster = null; selectedCurve = null;
+  draw();
+}
+
+function vec(x, y) { return { x, y }; }
+function vlen(v) { return Math.hypot(v.x, v.y); }
+function mirrorVec(v) { return { x: -v.x, y: -v.y }; }
+function alignOpposite(offset, length) {
+  const m = vlen(offset) || 1;
+  return { x: -offset.x / m * length, y: -offset.y / m * length };
+}
+function constrain45(offset) {
+  const ang = Math.atan2(offset.y, offset.x);
+  const snapped = Math.round(ang / (Math.PI / 4)) * (Math.PI / 4);
+  const len = vlen(offset);
+  return { x: Math.cos(snapped) * len, y: Math.sin(snapped) * len };
+}
+function rotVec(v, deg) {
+  const a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a);
+  return { x: v.x * c - v.y * s, y: v.x * s + v.y * c };
+}
+function reflectAcross(v, axis) {
+  const m = vlen(axis) || 1;
+  const ux = axis.x / m, uy = axis.y / m;
+  const dot = v.x * ux + v.y * uy;
+  return { x: 2 * dot * ux - v.x, y: 2 * dot * uy - v.y };
+}
+function percentAlong(a, b, p) {
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx * dx + dy * dy || 1);
+  return Math.max(0, Math.min(1, t)) * 100;
+}
+function applyBezierDrag(world, alt, shift, ctrl) {
+  const curve = selectedCurve;
+  const g = curveGeometry(curve);
+  if (!g) return;
+  if (drag.name === "anchor") {
+    let percent = percentAlong(g.pa, g.pb, world);
+    if (shift) percent = Math.round(percent / 5) * 5;
+    const oldAnchor = g.anchor;
+    curve.anchor = percent;
+    if (alt) {
+      const moved = curveGeometry(curve).anchor;
+      curve.inX += oldAnchor.x - moved.x;
+      curve.inY += oldAnchor.y - moved.y;
+      curve.outX += oldAnchor.x - moved.x;
+      curve.outY += oldAnchor.y - moved.y;
+    }
+    return;
+  }
+  const live = curveGeometry(curve).anchor;
+  let offset = { x: world.x - live.x, y: world.y - live.y };
+  if (shift) offset = constrain45(offset);
+  const editingIn = drag.name === "in";
+  if (alt && curve.mirror) curve.mirror = false;
+  if (ctrl || (curve.mirror && !alt)) {
+    curve.inX = (editingIn ? offset : mirrorVec(offset)).x;
+    curve.inY = (editingIn ? offset : mirrorVec(offset)).y;
+    const out = editingIn ? mirrorVec(offset) : offset;
+    curve.outX = out.x; curve.outY = out.y;
+    return;
+  }
+  if (editingIn) { curve.inX = offset.x; curve.inY = offset.y; }
+  else { curve.outX = offset.x; curve.outY = offset.y; }
+  if (alt) return;
+  const other = editingIn ? drag.startOut : drag.startIn;
+  const aligned = alignOpposite(offset, vlen(other || offset));
+  if (editingIn) { curve.outX = aligned.x; curve.outY = aligned.y; }
+  else { curve.inX = aligned.x; curve.inY = aligned.y; }
+}
+function flipCurve(curve) {
+  pushUndo();
+  const a = pos(nodeById(curve.a)), b = pos(nodeById(curve.b));
+  const axis = { x: b.x - a.x, y: b.y - a.y };
+  const inn = reflectAcross({ x: curve.inX, y: curve.inY }, axis);
+  const out = reflectAcross({ x: curve.outX, y: curve.outY }, axis);
+  curve.inX = inn.x; curve.inY = inn.y; curve.outX = out.x; curve.outY = out.y;
+  draw();
+}
+function resetCurve(curve) {
+  pushUndo();
+  const fresh = defaultCurve(nodeById(curve.a), nodeById(curve.b));
+  const mirror = curve.mirror;
+  Object.assign(curve, fresh, { mirror });
+  if (mirror) { curve.outX = -curve.inX; curve.outY = -curve.inY; }
+  draw();
+}
+function rotateHandles(curve, deg) {
+  pushUndo();
+  const inn = rotVec({ x: curve.inX, y: curve.inY }, deg);
+  const out = rotVec({ x: curve.outX, y: curve.outY }, deg);
+  curve.inX = inn.x; curve.inY = inn.y; curve.outX = out.x; curve.outY = out.y;
+  draw();
+}
+function mirrorSelection(horizontal) {
+  const items = selected.map(pos);
+  if (selectedCluster) items.push(selectedCluster);
+  if (!items.length) return;
+  pushUndo();
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  selected.forEach(n => { const p = pos(n); minX = Math.min(minX, p.x); minY = Math.min(minY, p.y); maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y); });
+  if (selectedCluster) { minX = Math.min(minX, selectedCluster.x); minY = Math.min(minY, selectedCluster.y); maxX = Math.max(maxX, selectedCluster.x); maxY = Math.max(maxY, selectedCluster.y); }
+  const px = (minX + maxX) / 2, py = (minY + maxY) / 2;
+  selected.forEach(n => {
+    if (n.cluster) {
+      const c = clusterById(n.cluster);
+      const p = pos(n);
+      const nx = horizontal ? px - (p.x - px) : p.x;
+      const ny = horizontal ? p.y : py - (p.y - py);
+      n.angle = angleOf(c, { x: nx, y: ny });
+    } else {
+      if (horizontal) n.x = px - (n.x - px);
+      else n.y = py - (n.y - py);
+    }
+  });
+  if (selectedCluster) {
+    if (horizontal) selectedCluster.x = px - (selectedCluster.x - px);
+    else selectedCluster.y = py - (selectedCluster.y - py);
+  }
+  draw();
+}
+function distributeOrbit(c, orbit) {
+  const list = nodes.filter(n => n.cluster === c.id && n.orbit === orbit).sort((a, b) => a.angle - b.angle);
+  if (list.length < 2) return;
+  pushUndo();
+  const step = 360 / list.length;
+  list.forEach((n, i) => { n.angle = step * i; const p = pos(n); n.x = p.x; n.y = p.y; });
+  draw();
+}
+
+let inspectorKey = "";
+function selectionKey() {
+  return [selected.map(n => n.id).join(","), selectedCluster && selectedCluster.id, selectedCurve && selectedCurve.a + selectedCurve.b, selectedOrbit].join("|");
+}
+function syncInspector() {
+  const key = selectionKey();
+  const box = document.getElementById("inspector");
+  const typing = box.contains(document.activeElement) && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "SELECT");
+  if (key !== inspectorKey) {
+    if (typing) return;
+    inspectorKey = key;
+    renderInspector();
+    return;
+  }
+  refreshLiveFields();
+}
+function refreshLiveFields() {
+  const box = document.getElementById("inspector");
+  box.querySelectorAll("input[data-live]").forEach(input => {
+    if (input === document.activeElement) return;
+    const next = liveValue(input.dataset.live);
+    if (next == null) return;
+    const text = typeof next === "number" ? String(Math.round(next * 10) / 10) : String(next);
+    if (input.value !== text) input.value = text;
+  });
+}
+function liveValue(key) {
+  if (selected.length === 1) {
+    const n = selected[0];
+    const p = pos(n);
+    if (key === "x") return p.x;
+    if (key === "y") return p.y;
+    if (key === "angle") return n.angle;
+    if (key === "orbit") return n.orbit;
+  }
+  if (selectedCluster) {
+    if (key === "cx") return selectedCluster.x;
+    if (key === "cy") return selectedCluster.y;
+    if (key.startsWith("radius")) return selectedCluster.orbits[Number(key.slice(6))];
+  }
+  if (selectedCurve) {
+    if (key === "anchor") return selectedCurve.anchor;
+    if (key === "inX") return selectedCurve.inX;
+    if (key === "inY") return selectedCurve.inY;
+    if (key === "outX") return selectedCurve.outX;
+    if (key === "outY") return selectedCurve.outY;
+  }
+  return null;
+}
+function field(label, value, oninput, live) {
+  const wrap = document.createElement("div");
+  const l = document.createElement("label");
+  l.textContent = label;
+  const input = document.createElement("input");
+  input.value = value;
+  if (live) input.dataset.live = live;
+  input.oninput = () => oninput(input.value);
+  wrap.append(l, input);
+  return wrap;
+}
+function button(label, run) {
+  const b = document.createElement("button");
+  b.textContent = label;
+  b.onclick = run;
+  return b;
+}
+function renderInspector() {
+  const box = document.getElementById("inspector");
+  box.innerHTML = "";
+  if (selectedCurve) { renderCurve(box); return; }
+  if (selected.length === 1) { renderNode(box, selected[0]); return; }
+  if (selectedCluster) { renderCluster(box, selectedCluster); return; }
+  if (selected.length > 1) { renderMulti(box); return; }
+  box.innerHTML = "<h2>Каркас</h2><p class='help'>Нодов " + nodes.length + ", кластеров " + clusters.length + ", кривых " + curves.length + ".</p>" +
+    "<h3>Клавиши</h3><p class='help'>Shift при движении нода по орбите — шаг 15°.<br>Shift при радиусе — шаг 10.<br>Два нода: Shift+клик, затем ПКМ — прямая или кривая.<br>[ ] поворот усиков на 15° (Shift — 45°).<br>M — сторона кривой, L — зеркало усиков, R — сброс.<br>Alt+усик — только один, Ctrl+усик — симметрия.<br>Shift+якорь — шаг 5%, Alt+якорь — усики на месте.<br>Ctrl+Shift+H / V — отразить выделение.<br>Delete, Ctrl+Z, Ctrl+S.</p>";
+}
+function renderNode(box, n) {
+  box.innerHTML = "<h2>Нод</h2>";
+  const type = document.createElement("select");
+  ["small", "notable", "keystone", "start"].forEach(t => {
+    const o = document.createElement("option");
+    o.value = t; o.textContent = t; if (n.type === t) o.selected = true;
+    type.appendChild(o);
+  });
+  type.disabled = n.type === "start";
+  type.onchange = () => { if (n.type !== "start") { pushUndo(); n.type = type.value; draw(); } };
+  const tl = document.createElement("label"); tl.textContent = "Тип";
+  box.append(tl, type);
+  const p = pos(n);
+  const row = document.createElement("div"); row.className = "row";
+  row.append(field("X", p.x.toFixed(1), v => { if (n.cluster) return; pushUndo(); n.x = parseFloat(v) || 0; inspectorKey = ""; draw(); }, "x"));
+  row.append(field("Y", p.y.toFixed(1), v => { if (n.cluster) return; pushUndo(); n.y = parseFloat(v) || 0; inspectorKey = ""; draw(); }, "y"));
+  box.append(row);
+  if (n.cluster) {
+    box.append(field("Орбита", n.orbit, v => { pushUndo(); n.orbit = Math.max(0, parseInt(v, 10) || 0); inspectorKey = ""; draw(); }, "orbit"));
+    box.append(field("Угол", n.angle.toFixed(1), v => {
+      pushUndo();
+      let a = parseFloat(v) || 0;
+      n.angle = (a % 360 + 360) % 360;
+      const w = pos(n); n.x = w.x; n.y = w.y;
+      inspectorKey = "";
+      draw();
+    }, "angle"));
+    box.append(button("Снять с орбиты", () => toFree(n)));
+  }
+  const h = document.createElement("h3"); h.textContent = "Связи";
+  box.append(h);
+  n.links.forEach(id => {
+    const other = nodeById(id);
+    if (!other) return;
+    const line = document.createElement("div"); line.className = "conn";
+    const span = document.createElement("span");
+    const curved = curveOf(n, other);
+    span.textContent = other.type + " " + other.id + (curved ? " · кривая" : " · direct");
+    line.append(span,
+      button(curved ? "Direct" : "Безье", () => curved ? (pushUndo(), curves = curves.filter(c => c !== curved), selectedCurve = null, inspectorKey = "", draw()) : connectFree(n, other)),
+      button("×", () => disconnect(n, other)));
+    box.append(line);
+  });
+}
+function renderCluster(box, c) {
+  box.innerHTML = "<h2>Кластер</h2>";
+  box.append(field("Имя", c.name, v => { c.name = v; }));
+  const row = document.createElement("div"); row.className = "row";
+  row.append(field("Центр X", c.x.toFixed(1), v => { pushUndo(); c.x = parseFloat(v) || 0; inspectorKey = ""; draw(); }, "cx"));
+  row.append(field("Центр Y", c.y.toFixed(1), v => { pushUndo(); c.y = parseFloat(v) || 0; inspectorKey = ""; draw(); }, "cy"));
+  box.append(row);
+  c.orbits.forEach((radius, i) => {
+    const h = document.createElement("h3"); h.textContent = "Орбита " + i;
+    box.append(h);
+    box.append(field("Радиус", radius.toFixed(1), v => { c.orbits[i] = Math.max(20, parseFloat(v) || 20); inspectorKey = ""; draw(); }, "radius" + i));
+    box.append(button("Ровно разложить ноды", () => distributeOrbit(c, i)));
+    box.append(button("Удалить орбиту", () => {
+      if (c.orbits.length <= 1) return;
+      pushUndo();
+      c.orbits.splice(i, 1);
+      nodes.forEach(n => { if (n.cluster === c.id && n.orbit > i) n.orbit--; });
+      inspectorKey = "";
+      draw();
+    }));
+  });
+  box.append(button("Добавить орбиту", () => addOrbit(c)));
+  box.append(button("Нормализовать радиусы", () => {
+    pushUndo();
+    c.orbits = c.orbits.map((_, i) => 80 + i * 40);
+    inspectorKey = "";
+    draw();
+  }));
+}
+function renderCurve(box) {
+  const curve = selectedCurve;
+  const a = nodeById(curve.a), b = nodeById(curve.b);
+  box.innerHTML = "<h2>Кривая Безье</h2><p class='help'>" + (a ? a.id : "?") + " → " + (b ? b.id : "?") + "</p>";
+  box.append(field("Якорь %", curve.anchor, v => { curve.anchor = Math.max(0, Math.min(100, parseFloat(v) || 0)); inspectorKey = ""; draw(); }, "anchor"));
+  const inn = document.createElement("div"); inn.className = "row";
+  inn.append(field("In X", curve.inX.toFixed(1), v => { curve.inX = parseFloat(v) || 0; if (curve.mirror) { curve.outX = -curve.inX; curve.outY = -curve.inY; } inspectorKey = ""; draw(); }, "inX"));
+  inn.append(field("In Y", curve.inY.toFixed(1), v => { curve.inY = parseFloat(v) || 0; if (curve.mirror) { curve.outX = -curve.inX; curve.outY = -curve.inY; } inspectorKey = ""; draw(); }, "inY"));
+  box.append(inn);
+  const out = document.createElement("div"); out.className = "row";
+  out.append(field("Out X", curve.outX.toFixed(1), v => { curve.outX = parseFloat(v) || 0; inspectorKey = ""; draw(); }, "outX"));
+  out.append(field("Out Y", curve.outY.toFixed(1), v => { curve.outY = parseFloat(v) || 0; inspectorKey = ""; draw(); }, "outY"));
+  box.append(out);
+  const check = document.createElement("label"); check.className = "check";
+  const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!curve.mirror;
+  cb.onchange = () => { pushUndo(); curve.mirror = cb.checked; if (cb.checked) { curve.outX = -curve.inX; curve.outY = -curve.inY; } inspectorKey = ""; draw(); };
+  check.append(cb, document.createTextNode("Зеркалить усики (L)"));
+  box.append(check);
+  box.append(button("Перевернуть сторону (M)", () => flipCurve(curve)));
+  box.append(button("Сбросить усики (R)", () => resetCurve(curve)));
+  box.append(button("Сделать direct", () => { pushUndo(); curves = curves.filter(c => c !== curve); selectedCurve = null; inspectorKey = ""; draw(); }));
+  box.append(button("Разорвать", () => disconnect(a, b)));
+  const help = document.createElement("p"); help.className = "help";
+  help.innerHTML = "Alt+усик — один handle. Ctrl — симметрия. Shift — 45°. Shift+якорь — 5%. [ ] — поворот.";
+  box.append(help);
+}
+function renderMulti(box) {
+  box.innerHTML = "<h2>Выделение</h2><p class='help'>Нодов: " + selected.length + "</p>";
+  box.append(button("Прямая связь", () => { const p = twoSelected(); if (p) connectDirect(p[0], p[1]); }));
+  box.append(button("Кривая Безье", () => { const p = twoSelected(); if (p) connectFree(p[0], p[1]); }));
+  box.append(button("Разорвать", () => { const p = twoSelected(); if (p) disconnect(p[0], p[1]); }));
+  box.append(button("Отразить по горизонтали", () => mirrorSelection(true)));
+  box.append(button("Отразить по вертикали", () => mirrorSelection(false)));
+}
+
+document.getElementById("backbone").onclick = generateBackbone;
+document.getElementById("undo").onclick = restore;
+document.getElementById("snap").onchange = ev => { snap = ev.target.checked; };
+document.getElementById("save").onclick = exportFile;
+document.getElementById("open").onchange = ev => {
+  const file = ev.target.files[0];
+  if (!file) return;
+  file.text().then(importText).catch(err => alert(err.message || "Не удалось открыть файл"));
+  ev.target.value = "";
+};
+window.addEventListener("keydown", ev => {
+  if (ev.target && (ev.target.tagName === "INPUT" || ev.target.tagName === "SELECT")) {
+    if (ev.key === "Escape") ev.target.blur();
+    return;
+  }
+  if (ev.code === "Space") { space = true; ev.preventDefault(); }
+  if (ev.key === "Escape") { selected = []; selectedCluster = null; selectedCurve = null; hideMenu(); draw(); }
+  if ((ev.ctrlKey || ev.metaKey) && ev.shiftKey && (ev.key === "H" || ev.key === "h")) { ev.preventDefault(); mirrorSelection(true); }
+  if ((ev.ctrlKey || ev.metaKey) && ev.shiftKey && (ev.key === "V" || ev.key === "v")) { ev.preventDefault(); mirrorSelection(false); }
+  if ((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && ev.key === "z") { ev.preventDefault(); restore(); }
+  if ((ev.ctrlKey || ev.metaKey) && ev.key === "s") { ev.preventDefault(); exportFile(); }
+  if (selectedCurve && !ev.ctrlKey && !ev.metaKey) {
+    if (ev.key === "m" || ev.key === "M") { ev.preventDefault(); flipCurve(selectedCurve); }
+    if (ev.key === "l" || ev.key === "L") { ev.preventDefault(); pushUndo(); selectedCurve.mirror = !selectedCurve.mirror; if (selectedCurve.mirror) { selectedCurve.outX = -selectedCurve.inX; selectedCurve.outY = -selectedCurve.inY; } inspectorKey = ""; draw(); }
+    if (ev.key === "r" || ev.key === "R") { ev.preventDefault(); resetCurve(selectedCurve); }
+    if (ev.key === "[" || ev.key === "]") { ev.preventDefault(); rotateHandles(selectedCurve, (ev.key === "]" ? 1 : -1) * (ev.shiftKey ? 45 : 15)); }
+  }
+  if (ev.key === "Delete" || ev.key === "Backspace") {
+    if (selected.length === 1) deleteNode(selected[0]);
+    else if (selectedCluster) deleteCluster(selectedCluster);
+    else if (selectedCurve) { const a = nodeById(selectedCurve.a), b = nodeById(selectedCurve.b); if (a && b) disconnect(a, b); }
+  }
+});
+window.addEventListener("keyup", ev => { if (ev.code === "Space") space = false; });
+window.addEventListener("resize", resize);
+generateBackbone();
+resize();
+</script>
+</body>
+</html>

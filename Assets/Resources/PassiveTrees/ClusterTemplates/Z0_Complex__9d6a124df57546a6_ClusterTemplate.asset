@@ -1,0 +1,167 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59d1157b86cb69f48850e8aace8f84c0, type: 3}
+  m_Name: Z0_Complex__9d6a124df57546a6_ClusterTemplate
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveClusterTemplateSO
+  NameEN: Z0 Complex / 9d6a124df57546a6
+  NameRU: 
+  Cluster:
+    ID: 
+    Name: Z0 Complex / 9d6a124df57546a6
+    Center: {x: 0, y: 0}
+    Orbits:
+    - Radius: 59.29129
+      IsPartialArc: 0
+      ArcStartAngle: 0
+      ArcEndAngle: 360
+    - Radius: 111.82144
+      IsPartialArc: 0
+      ArcStartAngle: 0
+      ArcEndAngle: 360
+    EditorColor: {r: 0.44, g: 0.51, b: 0.68, a: 0.3}
+    RoadConnections: []
+  Nodes:
+  - ID: 7f77586c8e2ad43029c66c9c5a6b4942
+    NodeType: 1
+    PlacementMode: 1
+    Position: {x: 1978.6349, y: 1247.6565}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 28.571623
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - c875dbd1ce3447812b7aceaf21ccb53a
+    - e64853763647672ddf6fe2269ac233e7
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: c875dbd1ce3447812b7aceaf21ccb53a
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 1949.2539, y: 1164.5221}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 292.5
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - 7f77586c8e2ad43029c66c9c5a6b4942
+    - 7c640de64fbf08514bdf372b8e1bd86e
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: a43c59a4d5ff9ef1d73714300b7d8988
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 1828.3602, y: 1165.8207}
+    ClusterID: 
+    OrbitIndex: 1
+    OrbitAngle: 208.57162
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - 6dc1bf5e735e877b72f328979013e865
+    - 7c640de64fbf08514bdf372b8e1bd86e
+    - 2dc98d1492dd2be5a933566ead3b7167
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: 4705393d12d6954d4e5874f72103addd
+    NodeType: 1
+    PlacementMode: 1
+    Position: {x: 1969.3563, y: 1115.9905}
+    ClusterID: 
+    OrbitIndex: 1
+    OrbitAngle: 292.5
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - 6dc1bf5e735e877b72f328979013e865
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: 6dc1bf5e735e877b72f328979013e865
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 1913.9724, y: 1108.1898}
+    ClusterID: 
+    OrbitIndex: 1
+    OrbitAngle: 263.5345
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - a43c59a4d5ff9ef1d73714300b7d8988
+    - 4705393d12d6954d4e5874f72103addd
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: 7c640de64fbf08514bdf372b8e1bd86e
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 1874.4933, y: 1190.9436}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 208.57162
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - c875dbd1ce3447812b7aceaf21ccb53a
+    - a43c59a4d5ff9ef1d73714300b7d8988
+    - e64853763647672ddf6fe2269ac233e7
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: 2dc98d1492dd2be5a933566ead3b7167
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 1835.527, y: 1284.233}
+    ClusterID: 
+    OrbitIndex: 1
+    OrbitAngle: 144.50133
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - a43c59a4d5ff9ef1d73714300b7d8988
+    - 498c4ca3171baf2e9d43b31273d03904
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: 498c4ca3171baf2e9d43b31273d03904
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 1883.7719, y: 1322.6096}
+    ClusterID: 
+    OrbitIndex: 1
+    OrbitAngle: 112.5
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - 2dc98d1492dd2be5a933566ead3b7167
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: e64853763647672ddf6fe2269ac233e7
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 1903.8743, y: 1274.078}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 112.5
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - 7f77586c8e2ad43029c66c9c5a6b4942
+    - 7c640de64fbf08514bdf372b8e1bd86e
+    IsBackbone: 0
+    ZoneTwinId: 

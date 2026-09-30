@@ -1703,6 +1703,38 @@ MonoBehaviour:
     m_Key: passive.node.FireDamageIgnite.description
     m_Metadata:
       m_Items: []
+  - m_Id: 110311859645571072
+    m_Key: passive.node.poisonchanceAndDuration.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110311859683319808
+    m_Key: passive.node.poisonchanceAndDuration.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110313867236597760
+    m_Key: passive.node.smallPoisonchanceAndDuration.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110313867278540800
+    m_Key: passive.node.smallPoisonchanceAndDuration.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110314429906673664
+    m_Key: passive.node.mediumPoisonCrit.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110314429906673665
+    m_Key: passive.node.mediumPoisonCrit.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110317259635810304
+    m_Key: passive.node.armoredKnight.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110317259635810305
+    m_Key: passive.node.armoredKnight.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

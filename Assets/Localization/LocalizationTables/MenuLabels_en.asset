@@ -1645,7 +1645,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43348985866346496
-    m_Localized: Poison Hit To CD
+    m_Localized: The Flower Knight
     m_Metadata:
       m_Items: []
   - m_Id: 43348985899900928
@@ -2661,6 +2661,38 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 107245649336983553
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110311859645571072
+    m_Localized: Poison Chance And Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110311859683319808
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110313867236597760
+    m_Localized: Poison Chance And Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110313867278540800
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110314429906673664
+    m_Localized: Posion Chance And Crit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110314429906673665
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110317259635810304
+    m_Localized: Medium Armor
+    m_Metadata:
+      m_Items: []
+  - m_Id: 110317259635810305
     m_Localized: 
     m_Metadata:
       m_Items: []

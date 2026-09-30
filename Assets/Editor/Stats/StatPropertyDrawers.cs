@@ -118,11 +118,23 @@ namespace Scripts.Editor.Stats
 
             StatPickerUtility.DrawStatPicker(statRect, statProp, label);
 
-            Rect valueRect = new Rect(secondRect.x, secondRect.y, secondRect.width * 0.45f, secondRect.height);
-            Rect typeRect = new Rect(valueRect.xMax + 6f, secondRect.y, secondRect.width - valueRect.width - 6f, secondRect.height);
+            // Own label widths: the global labelWidth of a narrow panel would squeeze both fields to nothing.
+            const float valueLabelWidth = 40f;
+            const float typeLabelWidth = 34f;
+            const float gap = 6f;
+            float fieldsWidth = Mathf.Max(0f, secondRect.width - valueLabelWidth - typeLabelWidth - gap);
+            Rect valueLabelRect = new Rect(secondRect.x, secondRect.y, valueLabelWidth, lineHeight);
+            Rect valueRect = new Rect(valueLabelRect.xMax, secondRect.y, fieldsWidth * 0.45f, lineHeight);
+            Rect typeLabelRect = new Rect(valueRect.xMax + gap, secondRect.y, typeLabelWidth, lineHeight);
+            Rect typeRect = new Rect(typeLabelRect.xMax, secondRect.y, secondRect.xMax - typeLabelRect.xMax, lineHeight);
 
-            EditorGUI.PropertyField(valueRect, valueProp);
-            EditorGUI.PropertyField(typeRect, typeProp);
+            int indent = EditorGUI.indentLevel;
+            EditorGUI.indentLevel = 0;
+            EditorGUI.LabelField(valueLabelRect, "Value");
+            EditorGUI.PropertyField(valueRect, valueProp, GUIContent.none);
+            EditorGUI.LabelField(typeLabelRect, "Type");
+            EditorGUI.PropertyField(typeRect, typeProp, GUIContent.none);
+            EditorGUI.indentLevel = indent;
 
             EditorGUI.EndProperty();
         }

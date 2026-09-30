@@ -608,6 +608,7 @@ namespace Scripts.Skills.PassiveTree.UI
         {
             private readonly VisualElement _innerLine;
             private readonly float _thickness;
+            private float _appliedInnerScale = -1f;
 
             public TrackLineElement(float length, float thickness, float innerThicknessScale, Color outerColor, Color innerColor)
             {
@@ -642,14 +643,19 @@ namespace Scripts.Skills.PassiveTree.UI
             public void SetStyle(Color outerColor, Color innerColor, float innerThicknessScale)
             {
                 style.backgroundColor = outerColor;
-                float innerThickness = _thickness * Mathf.Clamp(innerThicknessScale, 0.1f, 0.95f);
+                _innerLine.style.backgroundColor = innerColor;
+                float clampedScale = Mathf.Clamp(innerThicknessScale, 0.1f, 0.95f);
+                if (Mathf.Approximately(_appliedInnerScale, clampedScale))
+                    return;
+
+                _appliedInnerScale = clampedScale;
+                float innerThickness = _thickness * clampedScale;
                 _innerLine.style.height = innerThickness;
                 _innerLine.style.top = (_thickness - innerThickness) * 0.5f;
                 _innerLine.style.borderTopLeftRadius = innerThickness * 0.5f;
                 _innerLine.style.borderTopRightRadius = innerThickness * 0.5f;
                 _innerLine.style.borderBottomLeftRadius = innerThickness * 0.5f;
                 _innerLine.style.borderBottomRightRadius = innerThickness * 0.5f;
-                _innerLine.style.backgroundColor = innerColor;
             }
         }
 

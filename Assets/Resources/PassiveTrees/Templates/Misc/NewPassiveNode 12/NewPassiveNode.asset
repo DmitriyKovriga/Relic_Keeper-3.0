@@ -22,16 +22,16 @@ MonoBehaviour:
   - Trigger:
       Event: 2
       Subject: 1
-      DirectHit: 0
+      DirectHit: 1
       Crit: 0
       RequireOtherAilment: 1
       OtherAilment: 0
       MinAilmentStacks: 1
-    ChancePercent: 100
+    ChancePercent: 50
     InternalCooldownSeconds: 0
-    Action: 2
+    Action: 0
     CooldownSeconds: 1
-    CooldownTarget: 0
+    CooldownTarget: 1
     SkillSlot: 0
     BuffDurationSeconds: 5
     BuffModifiers: []

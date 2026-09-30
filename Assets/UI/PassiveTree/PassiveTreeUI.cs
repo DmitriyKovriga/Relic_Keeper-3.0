@@ -70,12 +70,13 @@ public class PassiveTreeUI : MonoBehaviour
 
     private void OnViewportGeometryChanged(GeometryChangedEvent evt)
     {
-        if (_frameAllScheduled) return;
-        float w = _contentViewport.resolvedStyle.width;
-        float h = _contentViewport.resolvedStyle.height;
-        if (float.IsNaN(w) || float.IsNaN(h) || w < 100f || h < 100f) return;
+        if (_frameAllScheduled)
+            return;
+        if (evt.newRect.width < 100f || evt.newRect.height < 100f)
+            return;
+
         _frameAllScheduled = true;
-        FrameAll();
+        _contentViewport.schedule.Execute(FrameAll);
     }
 
     private void BuildUI()

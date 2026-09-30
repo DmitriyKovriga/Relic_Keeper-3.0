@@ -111,7 +111,16 @@ public class ItemTooltipController : MonoBehaviour
     private InventoryItem _compareTargetItem;
     private bool _compareActive;
     private float _pinAnimElapsed = -1f;
+    private bool _tooltipRelayoutScheduled;
+    private bool _tooltipPickingInitialized;
+    private bool _tooltipPickingEnabled;
+    private VisualElement _placedPinHost;
+    private int _placedPinFrame = int.MinValue;
+    private Vector2 _placedPinPos;
     private int _worldOwnerFrame = -1;
+    private bool _hasWorldAnchorPos;
+    private bool _worldAnchorMoved;
+    private Vector2 _worldAnchorPos;
 
     // --- Orb Tooltip ---
     private VisualElement _orbTooltipBox;
@@ -355,27 +364,12 @@ public class ItemTooltipController : MonoBehaviour
             || IsPanelPointOver(_buffTooltipBox, panelPos))
             return true;
 
-        return IsPickedTooltipElement(panelPos);
+        return false;
     }
 
     private static Rect GetTooltipPanelRect(VisualElement element)
     {
-        Rect bound = element.worldBound;
-        if (bound.width >= 1f && bound.height >= 1f)
-            return bound;
-
-        float w = element.resolvedStyle.width;
-        float h = element.resolvedStyle.height;
-        if (float.IsNaN(w) || w < 1f || float.IsNaN(h) || h < 1f)
-            return bound;
-
-        Vector2 min = element.LocalToWorld(Vector2.zero);
-        Vector2 max = element.LocalToWorld(new Vector2(w, h));
-        return Rect.MinMaxRect(
-            Mathf.Min(min.x, max.x),
-            Mathf.Min(min.y, max.y),
-            Mathf.Max(min.x, max.x),
-            Mathf.Max(min.y, max.y));
+        return UiPointerUtility.RectInAncestor(element, null);
     }
 
     public static bool ContainsInclusive(Rect rect, Vector2 point)
@@ -389,27 +383,6 @@ public class ItemTooltipController : MonoBehaviour
         return element != null
             && element.panel != null
             && element.style.display == DisplayStyle.Flex;
-    }
-
-    private bool IsPickedTooltipElement(Vector2 panelPos)
-    {
-        if (_root == null || _root.panel == null)
-            return false;
-
-        VisualElement picked = _root.panel.Pick(panelPos);
-        while (picked != null)
-        {
-            if (picked == _itemTooltipBox
-                || picked == _compareTooltipBox
-                || picked == _skillTooltipBox
-                || picked == _orbTooltipBox
-                || picked == _hudDpsBreakdownBox
-                || picked == _buffTooltipBox)
-                return true;
-            picked = picked.parent;
-        }
-
-        return false;
     }
 
     public static Rect EncapsulateRects(Rect a, Rect b)
@@ -432,6 +405,11 @@ public class ItemTooltipController : MonoBehaviour
 
     private void SetTooltipClusterPicking(bool pickable)
     {
+        if (_tooltipPickingInitialized && _tooltipPickingEnabled == pickable)
+            return;
+
+        _tooltipPickingInitialized = true;
+        _tooltipPickingEnabled = pickable;
         PickingMode mode = pickable ? PickingMode.Position : PickingMode.Ignore;
         if (_itemTooltipBox != null) _itemTooltipBox.pickingMode = mode;
         if (_compareTooltipBox != null) _compareTooltipBox.pickingMode = mode;
@@ -497,13 +475,26 @@ public class ItemTooltipController : MonoBehaviour
         }
 
         int pulseFrame = _pinAnimElapsed < 0f ? 2 : (_pinAnimElapsed < 0.09f ? 0 : 1);
-        HidePinBadges();
         if (IsDisplayedTooltip(_itemTooltipBox))
+        {
+            HidePinBadge(_skillPinBadge);
+            HidePinBadge(_orbPinBadge);
             PlacePinBadge(_itemPinBadge, _itemTooltipBox, pulseFrame);
+        }
         else if (IsDisplayedTooltip(_skillTooltipBox))
+        {
+            HidePinBadge(_itemPinBadge);
+            HidePinBadge(_orbPinBadge);
             PlacePinBadge(_skillPinBadge, _skillTooltipBox, pulseFrame);
+        }
         else if (IsDisplayedTooltip(_orbTooltipBox))
+        {
+            HidePinBadge(_itemPinBadge);
+            HidePinBadge(_skillPinBadge);
             PlacePinBadge(_orbPinBadge, _orbTooltipBox, pulseFrame);
+        }
+        else
+            HidePinBadges();
     }
 
     private void PlacePinBadge(VisualElement badge, VisualElement host, int pulseFrame)
@@ -520,20 +511,41 @@ public class ItemTooltipController : MonoBehaviour
         if (badge.parent != _root)
             _root.Add(badge);
 
-        Rect bound = host.worldBound;
-        Vector2 local = _root.WorldToLocal(new Vector2(bound.xMin, bound.yMin));
-        badge.style.left = Mathf.Round(local.x + 2f);
-        badge.style.top = Mathf.Round(local.y + 2f);
+        Rect bound = UiPointerUtility.RectInAncestor(host, _root);
+        float left = Mathf.Round(bound.xMin + 2f);
+        float top = Mathf.Round(bound.yMin + 2f);
+        if (badge.style.display == DisplayStyle.Flex
+            && _placedPinHost == host
+            && _placedPinFrame == pulseFrame
+            && Mathf.Approximately(_placedPinPos.x, left)
+            && Mathf.Approximately(_placedPinPos.y, top))
+            return;
+
+        if (badge.parent != _root)
+            _root.Add(badge);
+
+        badge.style.left = left;
+        badge.style.top = top;
         badge.style.display = DisplayStyle.Flex;
         badge.BringToFront();
         ApplyPinLockedVisual(badge, pulseFrame);
+        _placedPinHost = host;
+        _placedPinFrame = pulseFrame;
+        _placedPinPos = new Vector2(left, top);
     }
 
     private void HidePinBadges()
     {
-        if (_itemPinBadge != null) _itemPinBadge.style.display = DisplayStyle.None;
-        if (_skillPinBadge != null) _skillPinBadge.style.display = DisplayStyle.None;
-        if (_orbPinBadge != null) _orbPinBadge.style.display = DisplayStyle.None;
+        HidePinBadge(_itemPinBadge);
+        HidePinBadge(_skillPinBadge);
+        HidePinBadge(_orbPinBadge);
+        _placedPinHost = null;
+    }
+
+    private static void HidePinBadge(VisualElement badge)
+    {
+        if (badge != null && badge.style.display != DisplayStyle.None)
+            badge.style.display = DisplayStyle.None;
     }
 
     private void ApplyPinLockedVisual(VisualElement badge, int pulseFrame)
@@ -853,7 +865,10 @@ public class ItemTooltipController : MonoBehaviour
         if (Mathf.Approximately(evt.oldRect.width, evt.newRect.width)
             && Mathf.Approximately(evt.oldRect.height, evt.newRect.height))
             return;
-        RecalculatePosition();
+
+        // GeometryChanged runs inside the layout pass. Positioning reads bounds and writes
+        // left/top, so it has to wait until this pass finishes or the panel relayouts forever.
+        ScheduleItemTooltipRelayout();
     }
 
     private VisualElement CreateContainer(string name, Color bg)
@@ -981,8 +996,8 @@ public class ItemTooltipController : MonoBehaviour
 
         _currentPriceMode = ItemTooltipPriceMode.None;
         ShowTooltipInternal(droppedItem.Item, _worldAnchor, droppedItem);
-        if (_worldTargetItem == droppedItem)
-            RecalculatePosition();
+        if (_worldTargetItem == droppedItem && _worldAnchorMoved)
+            ScheduleItemTooltipRelayout();
     }
 
     public static bool ShouldWorldTooltipYieldToHud(bool pointerOverHudSlot, bool pointerOverHudTooltip)
@@ -1088,11 +1103,7 @@ public class ItemTooltipController : MonoBehaviour
             return false;
 
         Vector2 panelPos = MouseToUiToolkitPanel(element.panel);
-        if (element.worldBound.Contains(panelPos))
-            return true;
-
-        var picked = element.panel.Pick(panelPos);
-        return picked != null && (picked == element || element.Contains(picked));
+        return UiPointerUtility.ContainsPanelPoint(element, panelPos);
     }
 
     private Vector2 GetMousePanelPos()
@@ -1314,8 +1325,18 @@ public class ItemTooltipController : MonoBehaviour
             return false;
 
         Vector2 rootPoint = ScreenToTooltipRootLocal(screenPoint);
-        _worldAnchor.style.left = rootPoint.x - 9f;
-        _worldAnchor.style.top = rootPoint.y - 9f;
+        float left = rootPoint.x - 9f;
+        float top = rootPoint.y - 9f;
+        _worldAnchorMoved = !_hasWorldAnchorPos
+            || !Mathf.Approximately(_worldAnchorPos.x, left)
+            || !Mathf.Approximately(_worldAnchorPos.y, top);
+        if (!_worldAnchorMoved)
+            return true;
+
+        _hasWorldAnchorPos = true;
+        _worldAnchorPos = new Vector2(left, top);
+        _worldAnchor.style.left = left;
+        _worldAnchor.style.top = top;
         return true;
     }
 
@@ -1484,22 +1505,36 @@ public class ItemTooltipController : MonoBehaviour
             }
         }
 
-        _itemTooltipBox.style.left = finalItemX;
-        _itemTooltipBox.style.top = y;
-        _itemTooltipBox.style.visibility = Visibility.Visible;
+        PlaceTooltip(hasCompare ? _compareTooltipBox : null, hasSkill ? _skillTooltipBox : null, finalItemX, finalSkillX, y);
+    }
 
-        if (hasCompare)
-        {
-            _compareTooltipBox.style.left = finalSkillX;
-            _compareTooltipBox.style.top = y;
-            _compareTooltipBox.style.visibility = Visibility.Visible;
-        }
-        else if (hasSkill)
-        {
-            _skillTooltipBox.style.left = finalSkillX;
-            _skillTooltipBox.style.top = y;
-            _skillTooltipBox.style.visibility = Visibility.Visible;
-        }
+    private void PlaceTooltip(VisualElement secondary, VisualElement skill, float itemX, float secondaryX, float y)
+    {
+        AssignPosition(_itemTooltipBox, itemX, y);
+        if (secondary != null)
+            AssignPosition(secondary, secondaryX, y);
+        else if (skill != null)
+            AssignPosition(skill, secondaryX, y);
+    }
+
+    private static void AssignPosition(VisualElement element, float left, float top)
+    {
+        if (element == null)
+            return;
+
+        StyleLength styleLeft = element.style.left;
+        StyleLength styleTop = element.style.top;
+        bool same = styleLeft.keyword == StyleKeyword.Undefined
+            && styleTop.keyword == StyleKeyword.Undefined
+            && Mathf.Approximately(styleLeft.value.value, left)
+            && Mathf.Approximately(styleTop.value.value, top)
+            && element.style.visibility == Visibility.Visible;
+        if (same)
+            return;
+
+        element.style.left = left;
+        element.style.top = top;
+        element.style.visibility = Visibility.Visible;
     }
 
     private void RecalculateOrbPosition()
@@ -2729,13 +2764,15 @@ public class ItemTooltipController : MonoBehaviour
 
     private void ScheduleItemTooltipRelayout()
     {
-        if (_itemTooltipBox == null || _root == null)
+        if (_itemTooltipBox == null || _root == null || _tooltipRelayoutScheduled)
             return;
 
-        _itemTooltipBox.MarkDirtyRepaint();
-        RecalculatePosition();
-        _root.schedule.Execute(RecalculatePosition).ExecuteLater(1);
-        _root.schedule.Execute(RecalculatePosition).ExecuteLater(50);
+        _tooltipRelayoutScheduled = true;
+        _root.schedule.Execute(() =>
+        {
+            _tooltipRelayoutScheduled = false;
+            RecalculatePosition();
+        });
     }
 
     private bool IsInspectModifierHeld()

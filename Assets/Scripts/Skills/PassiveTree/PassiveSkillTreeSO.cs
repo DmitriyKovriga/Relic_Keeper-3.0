@@ -64,6 +64,17 @@ namespace Scripts.Skills.PassiveTree
         public List<string> RoadConnections = new List<string>();
     }
 
+    /// <summary>
+    /// One zone drives the opposite zone. 0 north, 1 east, 2 south, 3 west.
+    /// </summary>
+    [Serializable]
+    public class PassiveZoneLink
+    {
+        public int SourceZone;
+        public int TargetZone;
+        public bool Enabled;
+    }
+
     [CreateAssetMenu(menuName = "RPG/Passive Tree/Skill Tree Definition")]
     public class PassiveSkillTreeSO : ScriptableObject
     {
@@ -82,6 +93,15 @@ namespace Scripts.Skills.PassiveTree
         public float GridSize = 20f;
         [Tooltip("Привязывать ноды к сетке при перемещении.")]
         public bool SnapToGrid = true;
+
+        [Header("Zone Tools")]
+        [Tooltip("Вкладка зон в редакторе. Без каркаса инструменты зон ничего не меняют.")]
+        public bool ZoneToolsEnabled;
+        [Tooltip("Пока инструменты зон включены, ноды каркаса нельзя двигать и удалять, а связи между ними восстанавливаются.")]
+        public bool LockBackbone = true;
+        public List<PassiveZoneLink> ZoneLinks = new List<PassiveZoneLink>();
+        public List<string> BackboneEdgeA = new List<string>();
+        public List<string> BackboneEdgeB = new List<string>();
 
         // Быстрый поиск нода по ID (инициализируется в Runtime)
         private Dictionary<string, PassiveNodeDefinition> _lookup;
@@ -295,6 +315,9 @@ namespace Scripts.Skills.PassiveTree
 
         [Header("Graph Connections")]
         public List<string> ConnectionIDs = new List<string>(); // ID соседей
+
+        [HideInInspector] public bool IsBackbone;
+        [HideInInspector] public string ZoneTwinId;
 
         /// <summary>
         /// Возвращает мировую позицию нода (для отрисовки и расчёта связей).

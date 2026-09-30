@@ -182,6 +182,48 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void ProjectToGroundUnder_FindsFloorFarBelowInsteadOfStayingInTheAir()
+        {
+            GameObject floor = CreateGameObject("Floor");
+            int groundLayer = LayerMask.NameToLayer("Ground");
+            floor.layer = groundLayer >= 0 ? groundLayer : 6;
+            BoxCollider2D box = floor.AddComponent<BoxCollider2D>();
+            box.size = new Vector2(4f, 1f);
+            floor.transform.position = new Vector3(30f, 0f, 0f);
+            Physics2D.SyncTransforms();
+
+            MethodInfo method = typeof(WorldItemDropService).GetMethod(
+                "ProjectToGroundUnder",
+                BindingFlags.Static | BindingFlags.NonPublic);
+            Vector2 result = (Vector2)method.Invoke(null, new object[] { new Vector2(30f, 28f) });
+
+            Assert.That(result.y, Is.LessThan(3f));
+            Assert.That(result.x, Is.EqualTo(30f).Within(0.01f));
+        }
+
+        [Test]
+        public void RewardChest_BuriedInFloor_IsLiftedOntoTheSurface()
+        {
+            GameObject floor = CreateGameObject("ChestFloor");
+            int groundLayer = LayerMask.NameToLayer("Ground");
+            floor.layer = groundLayer >= 0 ? groundLayer : 6;
+            BoxCollider2D floorBox = floor.AddComponent<BoxCollider2D>();
+            floorBox.size = new Vector2(6f, 1f);
+            floor.transform.position = new Vector3(12f, 0f, 0f);
+            Physics2D.SyncTransforms();
+
+            RewardChest chest = RewardChest.Spawn(new Vector3(12f, 0.1f, 0f), 1, null);
+            _createdObjects.Add(chest.gameObject);
+            MethodInfo configurePhysics = typeof(RewardChest).GetMethod(
+                "ConfigurePhysics", BindingFlags.Instance | BindingFlags.NonPublic);
+            configurePhysics.Invoke(chest, null);
+
+            BoxCollider2D chestBox = chest.GetComponent<BoxCollider2D>();
+            Assert.That(chestBox.bounds.min.y, Is.GreaterThan(0.45f));
+            Assert.That(chest.GetComponent<Rigidbody2D>().linearVelocity.sqrMagnitude, Is.EqualTo(0f).Within(0.001f));
+        }
+
+        [Test]
         public void ProjectToGroundUnder_WithoutCollider_LiftsFromOrigin()
         {
             MethodInfo method = typeof(WorldItemDropService).GetMethod(

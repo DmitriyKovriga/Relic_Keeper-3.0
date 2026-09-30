@@ -140,12 +140,20 @@ namespace Scripts.Skills.PassiveTree.UI
             _isDragging = false;
         }
 
+        private bool _clampScheduled;
+
         private void OnViewportGeometryChanged(GeometryChangedEvent evt)
         {
-            if (!_hasContentBounds)
+            if (!_hasContentBounds || _clampScheduled)
                 return;
 
-            SetContentPos(_contentPos);
+            _clampScheduled = true;
+            Vector2 viewportSize = evt.newRect.size;
+            _viewport.schedule.Execute(() =>
+            {
+                _clampScheduled = false;
+                SetContentPos(_contentPos, viewportSize);
+            });
         }
 
         private void EndDrag(int pointerId)
@@ -169,11 +177,14 @@ namespace Scripts.Skills.PassiveTree.UI
 
         private void SetContentPos(Vector2 pos)
         {
-            if (_hasContentBounds)
+            Vector2 viewportSize = new Vector2(_viewport.resolvedStyle.width, _viewport.resolvedStyle.height);
+            SetContentPos(pos, viewportSize);
+        }
+
+        private void SetContentPos(Vector2 pos, Vector2 viewportSize)
+        {
+            if (_hasContentBounds && viewportSize.x > 0f && viewportSize.y > 0f)
             {
-                Vector2 viewportSize = new Vector2(
-                    _viewport.resolvedStyle.width,
-                    _viewport.resolvedStyle.height);
                 pos = PassiveTreeViewportMath.ClampPan(
                     pos,
                     _contentBounds,
@@ -181,6 +192,9 @@ namespace Scripts.Skills.PassiveTree.UI
                     viewportSize,
                     PanEdgePadding);
             }
+
+            if (Mathf.Approximately(_contentPos.x, pos.x) && Mathf.Approximately(_contentPos.y, pos.y))
+                return;
 
             _contentPos = pos;
             _content.style.left = pos.x;
