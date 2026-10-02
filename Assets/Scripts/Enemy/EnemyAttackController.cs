@@ -152,6 +152,7 @@ namespace Scripts.Enemies
         private float _chargeDashDistanceRemaining;
         private Vector2 _lastChargeHitboxCenter;
         private bool _hasChargeHitboxSample;
+        private bool _chargeCoversBody;
         private bool _isStunned;
         private bool _isFrozen;
 
@@ -253,6 +254,25 @@ namespace Scripts.Enemies
             return TryStartAttackInternal(target, AttackVariant.Charge);
         }
 
+        public bool TryStartBodyCharge(Transform target)
+        {
+            if (!TryStartAttackInternal(target, AttackVariant.Charge))
+                return false;
+
+            _chargeCoversBody = true;
+            return true;
+        }
+
+        public static void EncapsulateHitbox(ref Vector2 center, ref Vector2 size, Bounds body)
+        {
+            Vector2 min = center - size * 0.5f;
+            Vector2 max = center + size * 0.5f;
+            min = Vector2.Min(min, body.min);
+            max = Vector2.Max(max, body.max);
+            center = (min + max) * 0.5f;
+            size = max - min;
+        }
+
         private bool TryStartAttackInternal(Transform target, AttackVariant variant)
         {
             if (IsControlLocked || _data == null || target == null || IsBusy)
@@ -272,6 +292,7 @@ namespace Scripts.Enemies
             _hasAppliedHit = false;
             _lastAttackConnected = false;
             SetAttackRenderBoost(true);
+            _chargeCoversBody = false;
             _chargeDashDirection = ResolveAttackDirection(target);
             _chargeDashTimeRemaining = 0f;
             _chargeDashDistanceRemaining = 0f;
@@ -551,6 +572,8 @@ namespace Scripts.Enemies
 
             _lastChargeHitboxCenter = center;
             _hasChargeHitboxSample = true;
+            if (_chargeCoversBody && _entity != null && _entity.TryGetBodyBounds(out Bounds body))
+                EncapsulateHitbox(ref queryCenter, ref querySize, body);
 
             Collider2D[] hits = Physics2D.OverlapBoxAll(queryCenter, querySize, 0f, DefaultTargetMask);
             for (int i = 0; i < hits.Length; i++)

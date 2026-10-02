@@ -266,6 +266,45 @@ namespace Scripts.Enemies
             return sr != null ? sr.bounds : new Bounds(transform.position, Vector3.zero);
         }
 
+        public bool OverlapsBody(Transform target)
+        {
+            if (target == null || !TryGetBodyBounds(out Bounds body))
+                return false;
+
+            Collider2D targetCollider = target.GetComponent<Collider2D>();
+            if (targetCollider == null)
+                targetCollider = target.GetComponentInChildren<Collider2D>();
+
+            if (targetCollider != null && targetCollider.enabled)
+                return body.Intersects(targetCollider.bounds);
+
+            return body.Contains(target.position);
+        }
+
+        public bool TryGetBodyBounds(out Bounds bounds)
+        {
+            bounds = default;
+            bool any = false;
+            var bodyCollider = GetComponent<Collider2D>();
+            if (bodyCollider != null && bodyCollider.enabled)
+            {
+                bounds = bodyCollider.bounds;
+                any = true;
+            }
+
+            Transform hurtbox = transform.Find(EnemyPhysicsFit.HurtboxChildName);
+            if (hurtbox != null && hurtbox.TryGetComponent<Collider2D>(out Collider2D hurtCollider) && hurtCollider.enabled)
+            {
+                if (!any)
+                    bounds = hurtCollider.bounds;
+                else
+                    bounds.Encapsulate(hurtCollider.bounds);
+                any = true;
+            }
+
+            return any;
+        }
+
         private Transform EnsureVisualRoot(EnemyDataSO data)
         {
             bool wantsChildVisual = data != null && data.Animation != null && data.Animation.UsesSpriteSheets;

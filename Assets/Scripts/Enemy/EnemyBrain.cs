@@ -171,6 +171,13 @@ namespace Scripts.Enemies
 
         private void UpdateGroundChaser()
         {
+            if (ShouldBodyCharge() && _entity != null && _entity.OverlapsBody(_sensor.TargetTransform))
+            {
+                _locomotion.Stop();
+                _attack.TryStartBodyCharge(_sensor.TargetTransform);
+                return;
+            }
+
             if (_sensor.IsTargetWithin(_data.Attack.AttackRange))
             {
                 _locomotion.Stop();
@@ -189,6 +196,11 @@ namespace Scripts.Enemies
 
             float dir = Mathf.Sign(_sensor.TargetTransform.position.x - transform.position.x);
             ApplyMoveIntent(dir);
+        }
+
+        private bool ShouldBodyCharge()
+        {
+            return _data?.ChargeAttack != null && _data.ChargeAttack.Enabled && _sensor.TargetTransform != null;
         }
 
         private bool TryStartChargeAttack()
