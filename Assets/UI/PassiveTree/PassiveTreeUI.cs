@@ -27,7 +27,9 @@ public class PassiveTreeUI : MonoBehaviour
     private VisualElement _contentViewport;
     private VisualElement _overlayHeader;
     private Label _pointsLabel;
-    private bool _frameAllScheduled;
+    private bool _frameQueued;
+    private Vector2 _pendingFrameSize;
+    private Vector2 _appliedFrameSize;
     private PassiveSkillTreeSO _lastBuiltTree;
 
     private void OnEnable()
@@ -47,7 +49,7 @@ public class PassiveTreeUI : MonoBehaviour
 
         _lastBuiltTree = _treeManager.TreeData;
         _renderer.BuildGraph(_treeManager.TreeData);
-        _frameAllScheduled = false;
+        _appliedFrameSize = default;
         _contentViewport.RegisterCallback<GeometryChangedEvent>(OnViewportGeometryChanged);
         OnTreeUpdated();
     }
@@ -70,13 +72,32 @@ public class PassiveTreeUI : MonoBehaviour
 
     private void OnViewportGeometryChanged(GeometryChangedEvent evt)
     {
-        if (_frameAllScheduled)
-            return;
-        if (evt.newRect.width < 100f || evt.newRect.height < 100f)
+        if (_viewport != null && _viewport.UserNavigated)
             return;
 
-        _frameAllScheduled = true;
-        _contentViewport.schedule.Execute(FrameAll);
+        Vector2 size = evt.newRect.size;
+        if (size.x < 100f || size.y < 100f)
+            return;
+        if (Mathf.Abs(_appliedFrameSize.x - size.x) < 1f && Mathf.Abs(_appliedFrameSize.y - size.y) < 1f)
+            return;
+
+        _pendingFrameSize = size;
+        if (_frameQueued)
+            return;
+
+        _frameQueued = true;
+        _contentViewport.schedule.Execute(ApplyPendingFrame);
+    }
+
+    private void ApplyPendingFrame()
+    {
+        _frameQueued = false;
+        if (_viewport != null && _viewport.UserNavigated)
+            return;
+        if (!FrameAll(_pendingFrameSize))
+            return;
+
+        _appliedFrameSize = _pendingFrameSize;
     }
 
     private void BuildUI()
@@ -148,7 +169,8 @@ public class PassiveTreeUI : MonoBehaviour
         {
             _lastBuiltTree = _treeManager.TreeData;
             _renderer.BuildGraph(_treeManager.TreeData);
-            _frameAllScheduled = false;
+            _appliedFrameSize = default;
+            _viewport?.ResetNavigation();
         }
         _renderer.UpdateVisuals(_treeManager);
     }
@@ -177,11 +199,13 @@ private void OnNodeRightClick(string id)
     /// <summary>
     /// Подогнать вид так, чтобы всё дерево было в кадре (как Frame All в редакторе).
     /// </summary>
-    private void FrameAll()
+    private bool FrameAll(Vector2 viewportSize)
     {
-        if (_treeManager?.TreeData == null) return;
+        if (_treeManager?.TreeData == null || _viewport == null)
+            return false;
         var bounds = _treeManager.TreeData.GetTreeContentBounds(80f);
-        if (bounds.width > 0 && bounds.height > 0)
-            _viewport.FrameContentRect(bounds, 40f);
+        if (bounds.width <= 0f || bounds.height <= 0f)
+            return false;
+        return _viewport.FrameContentRect(bounds, viewportSize, 40f);
     }
 }

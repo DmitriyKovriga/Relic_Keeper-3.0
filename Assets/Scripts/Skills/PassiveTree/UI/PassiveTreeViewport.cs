@@ -15,6 +15,17 @@ namespace Scripts.Skills.PassiveTree.UI
         private Rect _contentBounds;
         private bool _hasContentBounds;
 
+        private Vector2 _framedViewportSize;
+        private bool _userNavigated;
+
+        public bool UserNavigated => _userNavigated;
+
+        public void ResetNavigation()
+        {
+            _userNavigated = false;
+            _framedViewportSize = default;
+        }
+
         private float _currentZoom = 1.0f;
         private const float MinZoom = 0.14f;
         private const float MaxZoom = 2.0f;
@@ -61,29 +72,37 @@ namespace Scripts.Skills.PassiveTree.UI
         /// Подогнать вид так, чтобы заданный rect в координатах дерева был виден целиком (как Frame All в редакторе).
         /// Вызывать только когда у viewport уже есть реальные размеры (например, по GeometryChangedEvent).
         /// </summary>
-        public void FrameContentRect(UnityEngine.Rect contentRect, float padding = 40f)
+        public bool FrameContentRect(UnityEngine.Rect contentRect, float padding = 40f)
         {
-            if (contentRect.width <= 0 || contentRect.height <= 0) return;
+            Vector2 viewportSize = new Vector2(_viewport.resolvedStyle.width, _viewport.resolvedStyle.height);
+            return FrameContentRect(contentRect, viewportSize, padding);
+        }
+
+        public bool FrameContentRect(UnityEngine.Rect contentRect, Vector2 viewportSize, float padding = 40f)
+        {
+            if (contentRect.width <= 0 || contentRect.height <= 0)
+                return false;
+            if (float.IsNaN(viewportSize.x) || viewportSize.x < 100f || float.IsNaN(viewportSize.y) || viewportSize.y < 100f)
+                return false;
 
             _contentBounds = contentRect;
             _hasContentBounds = true;
-
-            float vw = _viewport.resolvedStyle.width;
-            float vh = _viewport.resolvedStyle.height;
-            if (float.IsNaN(vw) || vw < 100f || float.IsNaN(vh) || vh < 100f) return;
+            _framedViewportSize = viewportSize;
 
             _currentZoom = PassiveTreeViewportMath.CalculateFitZoom(
                 contentRect,
-                new Vector2(vw, vh),
+                viewportSize,
                 padding,
                 MinZoom,
                 MaxZoom);
 
             Vector2 contentCenter = new Vector2(contentRect.x + contentRect.width * 0.5f, contentRect.y + contentRect.height * 0.5f);
-            SetContentPos(new Vector2(
-                vw * 0.5f - contentCenter.x * _currentZoom,
-                vh * 0.5f - contentCenter.y * _currentZoom));
             _content.transform.scale = Vector3.one * _currentZoom;
+            SetContentPos(new Vector2(
+                viewportSize.x * 0.5f - contentCenter.x * _currentZoom,
+                viewportSize.y * 0.5f - contentCenter.y * _currentZoom),
+                viewportSize);
+            return true;
         }
 
         private void OnWheel(WheelEvent evt)
@@ -95,6 +114,8 @@ namespace Scripts.Skills.PassiveTree.UI
                 evt.StopPropagation();
                 return;
             }
+
+            _userNavigated = true;
 
             Vector2 mousePosInViewport = GetWheelPositionInViewport(evt);
             Vector2 newContainerPos = PassiveTreeViewportMath.ZoomToward(
@@ -127,6 +148,10 @@ namespace Scripts.Skills.PassiveTree.UI
             if (!_isDragging)
                 return;
 
+            Vector2 pointer = evt.position;
+            if ((pointer - _dragStartPos).sqrMagnitude > 16f)
+                _userNavigated = true;
+
             SetContentPos(PassiveTreeViewportMath.Pan(_contentStartPos, _dragStartPos, evt.position));
         }
 
@@ -144,7 +169,9 @@ namespace Scripts.Skills.PassiveTree.UI
 
         private void OnViewportGeometryChanged(GeometryChangedEvent evt)
         {
-            if (!_hasContentBounds || _clampScheduled)
+            if (!_hasContentBounds || _clampScheduled || !_userNavigated)
+                return;
+            if (ApproximatelySize(evt.newRect.size, _framedViewportSize))
                 return;
 
             _clampScheduled = true;
@@ -154,6 +181,11 @@ namespace Scripts.Skills.PassiveTree.UI
                 _clampScheduled = false;
                 SetContentPos(_contentPos, viewportSize);
             });
+        }
+
+        private static bool ApproximatelySize(Vector2 a, Vector2 b)
+        {
+            return Mathf.Abs(a.x - b.x) < 1f && Mathf.Abs(a.y - b.y) < 1f;
         }
 
         private void EndDrag(int pointerId)
