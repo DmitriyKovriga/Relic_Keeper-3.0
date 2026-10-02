@@ -116,6 +116,33 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.Boots], Is.SameAs(boots));
         }
 
+        [Test]
+        public void WeaponPreset_SwapMovesActiveWeaponsOutOfStatsAndBack()
+        {
+            InventoryItem axe = CreateWeapon("axe", twoHanded: true);
+            InventoryItem blade = CreateWeapon("blade", twoHanded: false);
+            InventoryItem dagger = CreateWeapon("dagger", twoHanded: false, EquipmentSlot.OffHand);
+            Assert.That(_manager.TryPickupItem(axe), Is.True);
+            Assert.That(_manager.SwapWeaponPreset(), Is.True);
+            Assert.That(_manager.ActiveWeaponPreset, Is.EqualTo(1));
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.MainHand], Is.Null);
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.OffHand], Is.Null);
+
+            Assert.That(_manager.TryPickupItem(blade), Is.True);
+            Assert.That(_manager.TryPickupItem(dagger), Is.True);
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.MainHand], Is.SameAs(blade));
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.OffHand], Is.SameAs(dagger));
+
+            _manager.SetActiveWeaponPreset(0);
+            Assert.That(_manager.ActiveWeaponPreset, Is.EqualTo(0));
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.MainHand], Is.SameAs(axe));
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.OffHand], Is.Null);
+
+            _manager.SetActiveWeaponPreset(1);
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.MainHand], Is.SameAs(blade));
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.OffHand], Is.SameAs(dagger));
+        }
+
         private InventoryItem CreateArmor(string id, EquipmentSlot slot)
         {
             ArmorItemSO data = Track(ScriptableObject.CreateInstance<ArmorItemSO>());

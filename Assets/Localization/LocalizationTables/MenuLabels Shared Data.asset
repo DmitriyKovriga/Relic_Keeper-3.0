@@ -1623,6 +1623,18 @@ MonoBehaviour:
     m_Key: input.PauseMenu
     m_Metadata:
       m_Items: []
+  - m_Id: 105800000000000004
+    m_Key: input.WeaponSwap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105800000000000005
+    m_Key: inventory.weaponPreset.1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105800000000000006
+    m_Key: inventory.weaponPreset.2
+    m_Metadata:
+      m_Items: []
   - m_Id: 106000000000000001
     m_Key: worldLootCache.open
     m_Metadata:

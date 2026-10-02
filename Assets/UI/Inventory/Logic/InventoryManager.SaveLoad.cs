@@ -31,6 +31,12 @@ namespace Scripts.Inventory
             if (CraftingSlotItem != null && CraftingSlotItem.Data != null)
                 data.CraftingSlotItem = CraftingSlotItem.GetSaveData(CRAFT_SLOT_INDEX);
 
+            data.ActiveWeaponPreset = ActiveWeaponPreset;
+            if (_storedMainHand != null && _storedMainHand.Data != null)
+                data.InactiveWeaponMain = _storedMainHand.GetSaveData(0);
+            if (_storedOffHand != null && _storedOffHand.Data != null)
+                data.InactiveWeaponOff = _storedOffHand.GetSaveData(1);
+
             return data;
         }
 
@@ -66,6 +72,7 @@ namespace Scripts.Inventory
 
             SyncFromBackpack();
             CraftingSlotItem = null;
+            ClearStoredWeaponPreset();
 
             // 2) Restore backpack/equipment.
             var claimedBackpack = new HashSet<int>();
@@ -121,6 +128,10 @@ namespace Scripts.Inventory
                 var craftItem = InventoryItem.LoadFromSave(data.CraftingSlotItem, itemDB);
                 if (craftItem != null) CraftingSlotItem = craftItem;
             }
+
+            ActiveWeaponPreset = data.ActiveWeaponPreset == 1 ? 1 : 0;
+            _storedMainHand = InventoryItem.LoadFromSave(data.InactiveWeaponMain, itemDB);
+            _storedOffHand = InventoryItem.LoadFromSave(data.InactiveWeaponOff, itemDB);
 
             TriggerUIUpdate();
         }

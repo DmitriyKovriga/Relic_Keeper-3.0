@@ -12,6 +12,12 @@ namespace Scripts.Saving
         [Tooltip("Предмет в слоте крафта (один слот сверху в режиме крафта).")]
         public ItemSaveData CraftingSlotItem;
 
+        [Tooltip("0 или 1. Оружие второго набора лежит в InactiveWeaponMain/Off и не даёт статов.")]
+        public int ActiveWeaponPreset;
+
+        public ItemSaveData InactiveWeaponMain;
+        public ItemSaveData InactiveWeaponOff;
+
         [Tooltip("Количество крафтовых реликвий по OrbId. Сериализуется как список пар.")]
         public List<OrbCountEntry> OrbCounts = new List<OrbCountEntry>();
     }

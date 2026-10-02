@@ -8,6 +8,8 @@ using Scripts.UI;
 public partial class InventoryUI
 {
     private Button _toggleModeButton;
+    private VisualElement _weaponPresetRow;
+    private readonly Button[] _weaponPresetButtons = new Button[InventoryManager.WeaponPresetCount];
     private static Sprite _orbPlaceholderIcon;
 
     private void OnRootPointerDown(PointerDownEvent evt)
@@ -69,12 +71,77 @@ public partial class InventoryUI
         if (_craftView != null) _craftView.RemoveFromClassList("visible");
         _currentTab = 0;
         if (_equipmentView != null) _equipmentView.RemoveFromClassList("hidden");
+        EnsureWeaponPresetTabs();
 
         if (_toggleModeButton != null)
         {
             _toggleModeButton.clicked += OnToggleModeClicked;
             UpdateToggleButtonLabel();
         }
+    }
+
+    private void EnsureWeaponPresetTabs()
+    {
+        if (_equipmentView == null || _weaponPresetRow != null)
+            return;
+
+        _weaponPresetRow = new VisualElement { name = "WeaponPresetTabs" };
+        _weaponPresetRow.AddToClassList("weapon-preset-row");
+        for (int i = 0; i < _weaponPresetButtons.Length; i++)
+        {
+            int preset = i;
+            string fallbackEn = preset == 0 ? "Weapon set I" : "Weapon set II";
+            string fallbackRu = preset == 0 ? "Набор оружия I" : "Набор оружия II";
+            var button = new Button(() => InventoryManager.Instance?.SetActiveWeaponPreset(preset))
+            {
+                text = (preset + 1).ToString(),
+                tooltip = RuntimeLocalization.Resolve("inventory.weaponPreset." + (preset + 1), fallbackEn, fallbackRu)
+            };
+            button.AddToClassList("weapon-preset-tab");
+            button.style.marginTop = 0;
+            button.style.marginBottom = 0;
+            button.style.marginLeft = 0;
+            button.style.marginRight = i == _weaponPresetButtons.Length - 1 ? 0 : 1;
+            button.style.paddingTop = 0;
+            button.style.paddingBottom = 0;
+            button.style.paddingLeft = 0;
+            button.style.paddingRight = 0;
+            button.style.width = 14;
+            button.style.minWidth = 14;
+            button.style.maxWidth = 14;
+            button.style.height = 12;
+            button.style.flexGrow = 0;
+            button.style.flexShrink = 0;
+            _weaponPresetButtons[i] = button;
+            _weaponPresetRow.Add(button);
+        }
+
+        var doll = _equipmentView.Q(className: "equipment-doll-container");
+        if (doll != null)
+        {
+            doll.style.position = Position.Relative;
+            doll.style.overflow = Overflow.Visible;
+            doll.Add(_weaponPresetRow);
+        }
+        else
+            _equipmentView.Add(_weaponPresetRow);
+        _weaponPresetRow.style.position = Position.Absolute;
+        _weaponPresetRow.style.top = -4;
+        _weaponPresetRow.style.left = -49;
+        _weaponPresetRow.style.width = 29;
+        _weaponPresetRow.style.height = 12;
+        _weaponPresetRow.style.flexDirection = FlexDirection.Row;
+        RefreshWeaponPresetTabs();
+    }
+
+    private void RefreshWeaponPresetTabs()
+    {
+        if (_weaponPresetButtons[0] == null || InventoryManager.Instance == null)
+            return;
+
+        int active = InventoryManager.Instance.ActiveWeaponPreset;
+        for (int i = 0; i < _weaponPresetButtons.Length; i++)
+            _weaponPresetButtons[i].EnableInClassList("active", i == active);
     }
 
     public int CurrentTab => _currentTab;

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Scripts.Inventory;
+using Scripts.Items;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -112,18 +113,38 @@ public partial class InventoryUI
             if (slot != null && item != null && item.Data != null)
             {
                 var icon = CreateItemIcon(item, null, null, EquipmentIconCellSize, receivePointerEvents: false, showFrame: false);
-                float iconW = item.Data.Width * EquipmentIconCellSize;
-                float iconH = item.Data.Height * EquipmentIconCellSize;
-                float slotW = i < EquipmentSlotSizes.Length ? EquipmentSlotSizes[i].w : 48f;
-                float slotH = i < EquipmentSlotSizes.Length ? EquipmentSlotSizes[i].h : 48f;
-                icon.style.left = (slotW - iconW) * 0.5f;
-                icon.style.top = (slotH - iconH) * 0.5f;
-                icon.style.right = StyleKeyword.Null;
-                icon.style.bottom = StyleKeyword.Null;
+                PlaceEquipmentIcon(icon, item, i);
                 slot.Add(icon);
                 SetEquipmentSlotLabelVisible(slot, false);
             }
+            else if (slot != null && i == (int)EquipmentSlot.OffHand)
+            {
+                InventoryItem main = equipItems[(int)EquipmentSlot.MainHand];
+                if (main?.Data is WeaponItemSO { IsTwoHanded: true })
+                {
+                    var ghost = CreateItemIcon(main, null, null, EquipmentIconCellSize, receivePointerEvents: false, showFrame: false);
+                    ghost.style.opacity = 0.4f;
+                    ghost.pickingMode = PickingMode.Ignore;
+                    ghost.AddToClassList("two-hand-offhand-ghost");
+                    PlaceEquipmentIcon(ghost, main, i);
+                    slot.Add(ghost);
+                    SetEquipmentSlotLabelVisible(slot, false);
+                }
+            }
         }
+        RefreshWeaponPresetTabs();
+    }
+
+    private void PlaceEquipmentIcon(VisualElement icon, InventoryItem item, int slotIndex)
+    {
+        float iconW = item.Data.Width * EquipmentIconCellSize;
+        float iconH = item.Data.Height * EquipmentIconCellSize;
+        float slotW = slotIndex < EquipmentSlotSizes.Length ? EquipmentSlotSizes[slotIndex].w : 48f;
+        float slotH = slotIndex < EquipmentSlotSizes.Length ? EquipmentSlotSizes[slotIndex].h : 48f;
+        icon.style.left = (slotW - iconW) * 0.5f;
+        icon.style.top = (slotH - iconH) * 0.5f;
+        icon.style.right = StyleKeyword.Null;
+        icon.style.bottom = StyleKeyword.Null;
     }
 
     private void DrawCraftSlotIcon()

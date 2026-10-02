@@ -110,3 +110,7 @@ MonoBehaviour:
     displayOrder: 23
     showInSettings: 1
     defaultBindingPath: <Keyboard>/escape
+  - actionName: WeaponSwap
+    displayOrder: 24
+    showInSettings: 1
+    defaultBindingPath: <Keyboard>/q
