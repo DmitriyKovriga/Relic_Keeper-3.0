@@ -57,6 +57,7 @@ public class GameSaveManager : MonoBehaviour
 
     private void Update()
     {
+#if UNITY_EDITOR
         if (Keyboard.current == null) return;
 
         if (Keyboard.current.kKey.wasPressedThisFrame)
@@ -70,7 +71,7 @@ public class GameSaveManager : MonoBehaviour
             Application.OpenURL(path); 
             Debug.Log($"[System] Opening Save Folder: {path}");
         }
-
+#endif
     }
 
     /// <summary>

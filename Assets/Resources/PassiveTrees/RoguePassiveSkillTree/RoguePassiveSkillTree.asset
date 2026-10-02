@@ -807,9 +807,9 @@ MonoBehaviour:
     InHandleOffset: {x: 33.795437, y: -40.5892}
     OutHandleOffset: {x: -47.43259, y: -23.232822}
     MirrorHandles: 0
-    UseSpanPath: 0
-    StartOutOffset: {x: 0, y: 0}
-    EndInOffset: {x: 0, y: 0}
+    UseSpanPath: 1
+    StartOutOffset: {x: -23.32666, y: 82.68005}
+    EndInOffset: {x: 28.122559, y: -85.3053}
     Knots: []
   GridSize: 20
   SnapToGrid: 0

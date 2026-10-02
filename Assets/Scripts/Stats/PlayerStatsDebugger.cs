@@ -16,14 +16,22 @@ public class PlayerStatsDebugger : MonoBehaviour
 
     private void Awake()
     {
+#if !UNITY_EDITOR
+        enabled = false;
+        return;
+#else
         _stats = GetComponent<PlayerStats>();
         _damageReceiver = GetComponent<PlayerDamageReceiver>();
         if (_damageReceiver == null)
             _damageReceiver = gameObject.AddComponent<PlayerDamageReceiver>();
+#endif
     }
 
     private void Update()
     {
+#if !UNITY_EDITOR
+        return;
+#else
         if (!_isDebugActive || Keyboard.current == null) return;
 
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
@@ -54,6 +62,7 @@ public class PlayerStatsDebugger : MonoBehaviour
              _stats.Leveling.AddXP(_xpChange);
              Debug.Log($"[Debug] XP +{_xpChange}");
         }
+#endif
     }
 
     private void ApplyDebugPhysicalDamage()
