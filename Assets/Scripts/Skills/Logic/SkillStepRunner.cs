@@ -808,7 +808,7 @@ namespace Scripts.Skills
                 IsFizzle = true
             };
 
-            if (!TryFindFirstChainTarget(start, firstBoxLength, firstBoxHeight, requireLineOfSight, worldLayerMask, out var firstTarget))
+            if (!TryFindFirstChainTarget(ownerPosition, start, firstBoxLength, firstBoxHeight, requireLineOfSight, worldLayerMask, out var firstTarget))
             {
                 _ctx.RegisterChainResult(stepIndex, result);
                 return;
@@ -844,6 +844,7 @@ namespace Scripts.Skills
         }
 
         private bool TryFindFirstChainTarget(
+            Vector3 ownerPosition,
             Vector3 start,
             float length,
             float height,
@@ -852,8 +853,8 @@ namespace Scripts.Skills
             out SkillStepContext.ChainTarget target)
         {
             target = default;
-            Vector2 center = (Vector2)start + new Vector2(_ctx.FacingDirection * length * 0.5f, 0f);
-            Collider2D[] hits = Physics2D.OverlapBoxAll(center, new Vector2(length, height), 0f, _targetLayer);
+            ResolveFirstChainTargetBox(ownerPosition, start, _ctx.FacingDirection, length, height, out Vector2 center, out Vector2 size);
+            Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, 0f, _targetLayer);
             float bestDistance = float.MaxValue;
 
             for (int i = 0; i < hits.Length; i++)
@@ -870,7 +871,7 @@ namespace Scripts.Skills
                 if (!IsStrictlyInFront(start, targetPosition))
                     continue;
 
-                if (requireLineOfSight && IsLineBlocked(start, targetPosition, worldLayer))
+                if (requireLineOfSight && !HasFirstTargetLineOfSight(start, targetPosition, worldLayer))
                     continue;
 
                 float distance = Mathf.Abs(targetPosition.x - start.x);
@@ -1870,6 +1871,34 @@ namespace Scripts.Skills
                 return false;
 
             return true;
+        }
+
+        /// <summary>
+        /// The bolt starts above the caster, so a box centered on that point reaches farther up than down.
+        /// Keep the upper edge and drop the lower edge by the same distance from the caster.
+        /// </summary>
+        public static void ResolveFirstChainTargetBox(
+            Vector2 ownerPosition,
+            Vector2 start,
+            float facingDirection,
+            float length,
+            float height,
+            out Vector2 center,
+            out Vector2 size)
+        {
+            float upwardReach = height * 0.5f + Mathf.Abs(start.y - ownerPosition.y);
+            center = new Vector2(start.x + facingDirection * length * 0.5f, ownerPosition.y);
+            size = new Vector2(length, upwardReach * 2f);
+        }
+
+        private bool HasFirstTargetLineOfSight(Vector3 start, Vector3 targetPosition, LayerMask worldLayer)
+        {
+            if (targetPosition.y >= start.y - 0.01f)
+                return !IsLineBlocked(start, targetPosition, worldLayer);
+
+            Vector3 dropCorner = new Vector3(targetPosition.x, start.y, start.z);
+            return !IsLineBlocked(start, dropCorner, worldLayer)
+                   && !IsLineBlocked(dropCorner, targetPosition, worldLayer);
         }
 
         private bool IsStrictlyInFront(Vector3 start, Vector3 targetPosition)

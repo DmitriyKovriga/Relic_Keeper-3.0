@@ -2233,7 +2233,7 @@ namespace Scripts.Editor.Skills
             if (Mathf.Abs(newFirstLength - firstLength) > 0.001f) { step.SetOverrideFloat("FirstBoxLength", newFirstLength); EditorUtility.SetDirty(recipe); }
 
             float firstHeight = Mathf.Max(0.1f, step.GetFloat("FirstBoxHeight", 2f));
-            float newFirstHeight = Mathf.Max(0.1f, EditorGUILayout.FloatField(new GUIContent("First target box height", "Высота зоны поиска первой цели."), firstHeight));
+            float newFirstHeight = Mathf.Max(0.1f, EditorGUILayout.FloatField(new GUIContent("First target box height", "Высота зоны вокруг персонажа. Насколько старт поднят над героем, настолько же зона дополнительно уходит вниз."), firstHeight));
             if (Mathf.Abs(newFirstHeight - firstHeight) > 0.001f) { step.SetOverrideFloat("FirstBoxHeight", newFirstHeight); EditorUtility.SetDirty(recipe); }
 
             float chainRadius = Mathf.Max(0.1f, step.GetFloat("ChainSearchRadius", 7f));
