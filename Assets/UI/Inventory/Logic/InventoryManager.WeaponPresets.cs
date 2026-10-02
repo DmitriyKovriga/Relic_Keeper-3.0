@@ -28,8 +28,7 @@ namespace Scripts.Inventory
         public bool SwapWeaponPreset()
         {
             var skills = FindFirstObjectByType<PlayerSkillManager>();
-            if (skills != null && skills.IsAnySkillCasting)
-                return false;
+            skills?.CancelAllSkills();
 
             int main = (int)EquipmentSlot.MainHand;
             int off = (int)EquipmentSlot.OffHand;
