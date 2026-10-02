@@ -548,18 +548,29 @@ function selectNode(node, add) {
 }
 function groupSize() { return selected.length + selectedClusters.length; }
 function clearScaleSession() { scaleSession = null; }
+function ownedClusters() {
+  const map = new Map();
+  selectedClusters.forEach(c => map.set(c.id, c));
+  if (selectedCluster) map.set(selectedCluster.id, selectedCluster);
+  selected.forEach(n => {
+    if (!n.cluster) return;
+    const cluster = clusterById(n.cluster);
+    if (cluster) map.set(cluster.id, cluster);
+  });
+  return [...map.values()];
+}
 function beginGroupDrag(world) {
-  const clusterIds = new Set(selectedClusters.map(c => c.id));
+  const movingClusters = ownedClusters();
   return {
     kind: "group",
     startX: world.x,
     startY: world.y,
     moved: false,
-    nodes: selected.filter(n => !n.cluster || !clusterIds.has(n.cluster)).map(n => {
+    nodes: selected.filter(n => !n.cluster).map(n => {
       const p = pos(n);
-      return { n, x: p.x, y: p.y, hadCluster: !!n.cluster };
+      return { n, x: p.x, y: p.y };
     }),
-    clusters: selectedClusters.map(c => ({ c, x: c.x, y: c.y }))
+    clusters: movingClusters.map(c => ({ c, x: c.x, y: c.y }))
   };
 }
 function applyGroupDrag(world) {
@@ -574,16 +585,11 @@ function applyGroupDrag(world) {
     item.c.y = item.y + dy;
   });
   drag.nodes.forEach(item => {
-    if (item.hadCluster) {
-      item.n.cluster = "";
-      item.n.orbit = 0;
-    }
     item.n.x = item.x + dx;
     item.n.y = item.y + dy;
   });
-  const clusterIds = new Set(selectedClusters.map(c => c.id));
   selected.forEach(n => {
-    if (!n.cluster || !clusterIds.has(n.cluster)) return;
+    if (!n.cluster) return;
     const p = pos(n);
     n.x = p.x;
     n.y = p.y;
@@ -859,6 +865,7 @@ canvas.addEventListener("contextmenu", ev => {
 document.addEventListener("pointerdown", ev => { if (!menu.contains(ev.target)) hideMenu(); });
 
 canvas.addEventListener("pointerdown", ev => {
+  rememberCursor(ev);
   if (ev.button === 2) return;
   hideMenu();
   const p = pointer(ev);
@@ -946,6 +953,7 @@ canvas.addEventListener("pointerdown", ev => {
   canvas.setPointerCapture(ev.pointerId);
 });
 canvas.addEventListener("pointermove", ev => {
+  rememberCursor(ev);
   const p = pointer(ev);
   if (pan) {
     cam.x = pan.x - (p.x - pan.sx) / cam.z;
@@ -1194,23 +1202,17 @@ function mirrorSelection(horizontal) {
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   points.forEach(p => { minX = Math.min(minX, p.x); minY = Math.min(minY, p.y); maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y); });
   const px = (minX + maxX) / 2, py = (minY + maxY) / 2;
-  const movedClusters = new Set(selectedClusters.map(c => c.id));
-  if (selectedCluster) movedClusters.add(selectedCluster.id);
+  const movedClusters = new Set(ownedClusters().map(c => c.id));
   const originals = selected.map(n => ({ n, p: pos(n) }));
   const mirrorPoint = p => ({
     x: horizontal ? px - (p.x - px) : p.x,
     y: horizontal ? p.y : py - (p.y - py)
   });
-  selectedClusters.forEach(c => {
+  ownedClusters().forEach(c => {
     const next = mirrorPoint(c);
     c.x = next.x;
     c.y = next.y;
   });
-  if (selectedCluster && !selectedClusters.includes(selectedCluster)) {
-    const next = mirrorPoint(selectedCluster);
-    selectedCluster.x = next.x;
-    selectedCluster.y = next.y;
-  }
   originals.forEach(({ n, p }) => {
     const next = mirrorPoint(p);
     if (n.cluster && movedClusters.has(n.cluster)) {
@@ -1220,7 +1222,6 @@ function mirrorSelection(horizontal) {
       n.y = placed.y;
       return;
     }
-    if (n.cluster) n.cluster = "";
     n.x = next.x;
     n.y = next.y;
   });
@@ -1310,7 +1311,7 @@ function renderInspector() {
   if (selectedCluster) { renderCluster(box, selectedCluster); return; }
   if (selectedClusters.length === 1) { renderCluster(box, selectedClusters[0]); return; }
   box.innerHTML = "<h2>Каркас</h2><p class='help'>Нодов " + nodes.length + ", кластеров " + clusters.length + ", кривых " + curves.length + ".</p>" +
-    "<h3>Клавиши</h3><p class='help'>Зажать ЛКМ на пустом месте — рамка выделения. Shift добавляет к уже выбранному.<br>Выделенную группу можно тащить целиком.<br>Масштаб группы — поле в инспекторе, от центра выделения.<br>Shift при движении нода по орбите — шаг 15°.<br>Shift при радиусе — шаг 10.<br>Два нода: Shift+клик, затем ПКМ — прямая или кривая.<br>[ ] поворот усиков на 15° (Shift — 45°).<br>M — сторона кривой, L — зеркало усиков, R — сброс.<br>Alt+усик — только один, Ctrl+усик — симметрия.<br>Shift+якорь — шаг 5%, Alt+якорь — усики на месте.<br>Ctrl+Shift+H / V — отразить выделение.<br>Ctrl+клик по кривой — точка с усиками. Delete на точке убирает её.<br>Delete, Ctrl+Z, Ctrl+S.</p>";
+    "<h3>Клавиши</h3><p class='help'>Зажать ЛКМ на пустом месте — рамка выделения. Shift добавляет к уже выбранному.<br>Выделенную группу можно тащить целиком.<br>Масштаб группы — поле в инспекторе, от центра выделения.<br>Shift при движении нода по орбите — шаг 15°.<br>Shift при радиусе — шаг 10.<br>Два нода: Shift+клик, затем ПКМ — прямая или кривая.<br>[ ] поворот усиков на 15° (Shift — 45°).<br>M — сторона кривой, L — зеркало усиков, R — сброс.<br>Alt+усик — только один, Ctrl+усик — симметрия.<br>Shift+якорь — шаг 5%, Alt+якорь — усики на месте.<br>Ctrl+C / Ctrl+V — копировать и вставить выделение.<br>Ctrl+Shift+H / V — отразить выделение.<br>Ctrl+клик по кривой — точка с усиками. Delete на точке убирает её.<br>Delete, Ctrl+Z, Ctrl+S.</p>";
 }
 function renderNode(box, n) {
   box.innerHTML = "<h2>Нод</h2>";
@@ -1448,10 +1449,11 @@ function renderMulti(box) {
   box.append(button("Удалить выделенное", () => deleteSelection()));
 }
 function captureScaleBasis() {
-  const clusterIds = new Set(selectedClusters.map(c => c.id));
+  const movingClusters = ownedClusters();
+  const clusterIds = new Set(movingClusters.map(c => c.id));
   const points = [];
   selected.forEach(n => points.push(pos(n)));
-  selectedClusters.forEach(c => points.push(c));
+  movingClusters.forEach(c => points.push(c));
   let cx = 0, cy = 0;
   points.forEach(p => { cx += p.x; cy += p.y; });
   cx /= points.length || 1;
@@ -1459,11 +1461,11 @@ function captureScaleBasis() {
   const affected = node => selected.includes(node) || (node.cluster && clusterIds.has(node.cluster));
   return {
     cx, cy,
-    nodes: selected.filter(n => !n.cluster || !clusterIds.has(n.cluster)).map(n => {
+    nodes: selected.filter(n => !n.cluster).map(n => {
       const p = pos(n);
-      return { n, x: p.x, y: p.y, hadCluster: !!n.cluster };
+      return { n, x: p.x, y: p.y };
     }),
-    clusters: selectedClusters.map(c => ({ c, x: c.x, y: c.y, orbits: c.orbits.slice() })),
+    clusters: movingClusters.map(c => ({ c, x: c.x, y: c.y, orbits: c.orbits.slice() })),
     curves: curves.filter(curve => {
       const a = nodeById(curve.a), b = nodeById(curve.b);
       return a && b && affected(a) && affected(b);
@@ -1477,16 +1479,11 @@ function applyScale(session, factor) {
     item.c.orbits = item.orbits.map(radius => Math.max(20, radius * factor));
   });
   session.nodes.forEach(item => {
-    if (item.hadCluster) {
-      item.n.cluster = "";
-      item.n.orbit = 0;
-    }
     item.n.x = session.cx + (item.x - session.cx) * factor;
     item.n.y = session.cy + (item.y - session.cy) * factor;
   });
-  const clusterIds = new Set(selectedClusters.map(c => c.id));
   selected.forEach(n => {
-    if (!n.cluster || !clusterIds.has(n.cluster)) return;
+    if (!n.cluster) return;
     const p = pos(n);
     n.x = p.x;
     n.y = p.y;
@@ -1509,6 +1506,95 @@ function applyScaleInput(raw) {
   draw();
 }
 
+function cloneCurve(curve, idA, idB, dx = 0, dy = 0) {
+  return {
+    a: idA, b: idB, anchor: curve.anchor, inX: curve.inX, inY: curve.inY, outX: curve.outX, outY: curve.outY, mirror: !!curve.mirror,
+    span: !!curve.span, startOutX: curve.startOutX || 0, startOutY: curve.startOutY || 0, endInX: curve.endInX || 0, endInY: curve.endInY || 0,
+    knots: (curve.knots || []).map(k => ({ x: k.x + dx, y: k.y + dy, inX: k.inX, inY: k.inY, outX: k.outX, outY: k.outY, mirror: k.mirror !== false }))
+  };
+}
+let clipboard = null;
+let cursorWorld = null;
+function rememberCursor(ev) {
+  const p = pointer(ev);
+  cursorWorld = toWorld(p.x, p.y);
+}
+function copySelection() {
+  const explicit = new Set(selectedClusters.map(c => c.id));
+  if (selectedCluster) explicit.add(selectedCluster.id);
+  const nodeMap = new Map();
+  selected.forEach(n => { if (n && n.type !== "start") nodeMap.set(n.id, n); });
+  explicit.forEach(id => nodes.forEach(n => { if (n.cluster === id && n.type !== "start") nodeMap.set(n.id, n); }));
+  const clusterMap = new Map();
+  explicit.forEach(id => { const cluster = clusterById(id); if (cluster) clusterMap.set(id, cluster); });
+  nodeMap.forEach(n => {
+    if (!n.cluster) return;
+    const cluster = clusterById(n.cluster);
+    if (cluster) clusterMap.set(cluster.id, cluster);
+  });
+  if (!nodeMap.size && !clusterMap.size) return;
+  const ids = new Set(nodeMap.keys());
+  clipboard = {
+    pasteIndex: 0,
+    nodes: [...nodeMap.values()].map(n => ({
+      id: n.id, type: n.type, x: pos(n).x, y: pos(n).y, cluster: n.cluster || "", orbit: n.orbit || 0, angle: n.angle || 0,
+      links: (n.links || []).filter(id => ids.has(id))
+    })),
+    clusters: [...clusterMap.values()].map(c => ({ id: c.id, name: c.name, x: c.x, y: c.y, orbits: c.orbits.slice() })),
+    curves: curves.filter(c => ids.has(c.a) && ids.has(c.b)).map(c => cloneCurve(c, c.a, c.b))
+  };
+}
+function pasteSelection() {
+  if (!clipboard || (!clipboard.nodes.length && !clipboard.clusters.length)) return;
+  const anchor = cursorWorld || toWorld(canvas.width / 2, canvas.height / 2);
+  const points = clipboard.nodes.map(n => ({ x: n.x, y: n.y })).concat(clipboard.clusters.map(c => ({ x: c.x, y: c.y })));
+  const center = points.reduce((sum, p) => ({ x: sum.x + p.x, y: sum.y + p.y }), { x: 0, y: 0 });
+  center.x /= points.length;
+  center.y /= points.length;
+  const dx = anchor.x - center.x;
+  const dy = anchor.y - center.y;
+  pushUndo();
+  const idMap = {};
+  const newClusters = [];
+  const newNodes = [];
+  clipboard.clusters.forEach(c => {
+    const copy = { id: uid("c"), name: c.name, x: c.x + dx, y: c.y + dy, orbits: c.orbits.slice() };
+    idMap[c.id] = copy.id;
+    clusters.push(copy);
+    newClusters.push(copy);
+  });
+  clipboard.nodes.forEach(n => {
+    const cluster = n.cluster && idMap[n.cluster] ? idMap[n.cluster] : "";
+    const copy = makeNode(n.type === "start" ? "small" : n.type, n.x + dx, n.y + dy, {
+      cluster, orbit: cluster ? n.orbit : 0, angle: cluster ? n.angle : 0, backbone: false, links: []
+    });
+    if (cluster) {
+      const placed = pos(copy);
+      copy.x = placed.x;
+      copy.y = placed.y;
+    }
+    idMap[n.id] = copy.id;
+    nodes.push(copy);
+    newNodes.push(copy);
+  });
+  clipboard.nodes.forEach(n => {
+    const copy = nodeById(idMap[n.id]);
+    (n.links || []).forEach(id => { if (idMap[id]) link(copy, nodeById(idMap[id])); });
+  });
+  clipboard.curves.forEach(c => {
+    if (!idMap[c.a] || !idMap[c.b]) return;
+    curves.push(cloneCurve(c, idMap[c.a], idMap[c.b], dx, dy));
+  });
+  selected = newNodes;
+  selectedClusters = newClusters;
+  selectedCluster = newClusters.length === 1 && !newNodes.length ? newClusters[0] : null;
+  selectedCurve = null;
+  selectedKnot = -1;
+  clearScaleSession();
+  inspectorKey = "";
+  draw();
+}
+
 document.getElementById("backbone").onclick = generateBackbone;
 document.getElementById("undo").onclick = restore;
 document.getElementById("snap").onchange = ev => { snap = ev.target.checked; };
@@ -1519,11 +1605,19 @@ document.getElementById("open").onchange = ev => {
   file.text().then(importText).catch(err => alert(err.message || "Не удалось открыть файл"));
   ev.target.value = "";
 };
+function isTextField(target) {
+  if (!target) return false;
+  const tag = target.tagName;
+  if (tag === "TEXTAREA" || tag === "SELECT") return true;
+  return tag === "INPUT" && target.type !== "range" && target.type !== "checkbox";
+}
 window.addEventListener("keydown", ev => {
-  if (ev.target && (ev.target.tagName === "INPUT" || ev.target.tagName === "SELECT")) {
+  if (isTextField(ev.target)) {
     if (ev.key === "Escape") ev.target.blur();
     return;
   }
+  if ((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && ev.code === "KeyC") { ev.preventDefault(); copySelection(); return; }
+  if ((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && ev.code === "KeyV") { ev.preventDefault(); pasteSelection(); return; }
   if (ev.code === "Space") { space = true; ev.preventDefault(); }
   if (ev.key === "Escape") { selected = []; selectedClusters = []; selectedCluster = null; selectedCurve = null; clearScaleSession(); hideMenu(); draw(); }
   if ((ev.ctrlKey || ev.metaKey) && ev.shiftKey && (ev.key === "H" || ev.key === "h")) { ev.preventDefault(); mirrorSelection(true); }
