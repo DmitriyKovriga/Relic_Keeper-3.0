@@ -1735,6 +1735,10 @@ MonoBehaviour:
     m_Key: passive.node.armoredKnight.description
     m_Metadata:
       m_Items: []
+  - m_Id: 120000000000000001
+    m_Key: player.levelUp
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

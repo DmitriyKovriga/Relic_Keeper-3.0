@@ -120,6 +120,7 @@ public sealed class PlayerNoticeBanner : MonoBehaviour
         if (_panel == null || _label == null)
             return;
 
+        _label.style.color = ErrorText;
         ApplyLocalizedText(key, fallback);
         if (_playRoutine != null)
             StopCoroutine(_playRoutine);

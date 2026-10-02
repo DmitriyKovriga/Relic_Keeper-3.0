@@ -7,6 +7,7 @@ using Scripts.Saving;
 using Scripts.StatusEffects;
 using Scripts.Skills.PassiveTree;
 using Scripts.GameplayEvents;
+using Scripts.Visuals;
 
 public class PlayerStats : MonoBehaviour, IStatsProvider
 {
@@ -299,7 +300,17 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         Leveling.AddXP(xpAmount);
     }
 
-    private void HandleLevelUp() { if (_restoreStateOnLevelUp) { Health.RestoreFull(); Mana.RestoreFull(); } NotifyChanged(); }
+    private void HandleLevelUp()
+    {
+        if (_restoreStateOnLevelUp)
+        {
+            Health.RestoreFull();
+            Mana.RestoreFull();
+        }
+
+        NotifyChanged();
+        PlayerLevelUpFeedback.Play(this);
+    }
     private void HandleDeath()
     {
         Debug.Log("YOU DIED");

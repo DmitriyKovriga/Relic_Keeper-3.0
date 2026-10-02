@@ -15,6 +15,8 @@ public sealed class RoomClearedBanner : MonoBehaviour
     public const string PortalUnlockedFallbackText = "Portal Open";
     public const string ClearedAndPortalUnlockedLocalizationKey = "dungeon.ui.roomClearedPortalUnlocked";
     public const string ClearedAndPortalUnlockedFallbackText = "Room Cleared — Portal Open";
+    public const string CharacterLevelUpKey = "player.levelUp";
+    public const string CharacterLevelUpFallback = "Character Level Up";
 
     private const string MenuLabelsTable = "MenuLabels";
     private const float SortingOrder = 800f;
@@ -41,6 +43,11 @@ public sealed class RoomClearedBanner : MonoBehaviour
     public static void ShowClearedAndPortalUnlocked()
     {
         GetOrCreate().Play(ClearedAndPortalUnlockedLocalizationKey, ClearedAndPortalUnlockedFallbackText);
+    }
+
+    public static void ShowCharacterLevelUp()
+    {
+        GetOrCreate().Play(CharacterLevelUpKey, CharacterLevelUpFallback);
     }
 
     public static void Hide()

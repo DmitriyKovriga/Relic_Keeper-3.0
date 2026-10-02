@@ -2696,6 +2696,10 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 120000000000000001
+    m_Localized: Character Level Up
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
