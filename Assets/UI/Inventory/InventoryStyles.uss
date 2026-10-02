@@ -238,10 +238,11 @@
     margin-right: 1px;
     padding-left: 4px;
     padding-right: 4px;
-    border-width: 0;
+    border-width: 1px;
     border-color: transparent;
     background-color: rgba(0, 0, 0, 0);
-    color: rgba(255, 255, 255, 0.9);
+    -unity-background-image-tint-color: rgba(150, 140, 120, 0.72);
+    color: rgba(255, 255, 255, 0.72);
     font-size: 9px;
     -unity-text-align: middle-center;
 }
@@ -249,11 +250,21 @@
 .stash-tab:hover {
     border-color: transparent;
     background-color: rgba(255, 255, 255, 0.08);
+    -unity-background-image-tint-color: rgba(210, 190, 150, 0.9);
+    color: rgba(255, 255, 255, 0.92);
 }
 
 .stash-tab.active {
-    border-color: transparent;
-    background-color: rgba(180, 140, 70, 0.2);
+    border-color: rgb(232, 184, 74);
+    background-color: rgba(180, 140, 70, 0.55);
+    -unity-background-image-tint-color: rgb(255, 206, 110);
+    color: rgb(255, 236, 190);
+}
+
+.stash-tab.active:hover {
+    border-color: rgb(255, 214, 120);
+    -unity-background-image-tint-color: rgb(255, 224, 150);
+    color: rgb(255, 244, 214);
 }
 
 .stash-tab-add {
