@@ -1635,6 +1635,10 @@ MonoBehaviour:
     m_Key: inventory.weaponPreset.2
     m_Metadata:
       m_Items: []
+  - m_Id: 105800000000000007
+    m_Key: passive.search
+    m_Metadata:
+      m_Items: []
   - m_Id: 106000000000000001
     m_Key: worldLootCache.open
     m_Metadata:

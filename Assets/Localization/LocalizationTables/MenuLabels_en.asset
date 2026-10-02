@@ -2596,6 +2596,10 @@ MonoBehaviour:
     m_Localized: Weapon set II
     m_Metadata:
       m_Items: []
+  - m_Id: 105800000000000007
+    m_Localized: Search
+    m_Metadata:
+      m_Items: []
   - m_Id: 106000000000000001
     m_Localized: Open loot sphere
     m_Metadata:

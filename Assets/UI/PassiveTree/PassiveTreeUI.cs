@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using Scripts.UI;
 using Scripts.Skills.PassiveTree;
 using Scripts.Skills.PassiveTree.UI;
@@ -27,10 +28,15 @@ public class PassiveTreeUI : MonoBehaviour
     private VisualElement _contentViewport;
     private VisualElement _overlayHeader;
     private Label _pointsLabel;
+    private Label _searchHint;
+    private TextField _searchField;
+    private WindowView _windowView;
+    private bool _waitingForLocalizationInit;
     private bool _frameQueued;
     private Vector2 _pendingFrameSize;
     private Vector2 _appliedFrameSize;
     private PassiveSkillTreeSO _lastBuiltTree;
+    private bool _searchHeldPlayerMap;
 
     private void OnEnable()
     {
@@ -46,6 +52,14 @@ public class PassiveTreeUI : MonoBehaviour
 
         _treeManager.OnTreeUpdated += OnTreeUpdated;
         LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+        _windowView = GetComponent<WindowView>()
+            ?? GetComponentInParent<WindowView>()
+            ?? GetComponentInChildren<WindowView>(true);
+        if (_windowView != null)
+            _windowView.OnOpened += OnTreeWindowOpened;
+        RefreshSearchHint();
+        if (LocalizationSettings.SelectedLocale == null)
+            RefreshSearchHintWhenReady();
 
         _lastBuiltTree = _treeManager.TreeData;
         _renderer.BuildGraph(_treeManager.TreeData);
@@ -57,17 +71,66 @@ public class PassiveTreeUI : MonoBehaviour
     private void OnDisable()
     {
         LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+        if (_windowView != null)
+            _windowView.OnOpened -= OnTreeWindowOpened;
+        UnsubscribeLocalizationInit();
         if (_treeManager != null)
             _treeManager.OnTreeUpdated -= OnTreeUpdated;
         if (_contentViewport != null)
             _contentViewport.UnregisterCallback<GeometryChangedEvent>(OnViewportGeometryChanged);
         _viewport?.Cleanup();
+        ReleasePlayerInputForSearch();
     }
 
     private void OnLocaleChanged(Locale locale)
     {
         _tooltip?.RefreshIfVisible();
         RefreshSkillPointsLabel();
+        RefreshSearchHint();
+        _renderer?.InvalidateSearchText();
+    }
+
+    private void RefreshSearchHint()
+    {
+        if (_searchHint == null)
+            return;
+
+        _searchHint.text = RuntimeLocalization.Resolve("passive.search", "Search", "Поиск");
+    }
+
+    private void RefreshSearchHintWhenReady()
+    {
+        if (LocalizationSettings.SelectedLocale != null)
+        {
+            RefreshSearchHint();
+            return;
+        }
+
+        AsyncOperationHandle<LocalizationSettings> init = LocalizationSettings.InitializationOperation;
+        if (init.IsDone || _waitingForLocalizationInit)
+            return;
+
+        _waitingForLocalizationInit = true;
+        init.Completed += OnLocalizationInitialized;
+    }
+
+    private void OnLocalizationInitialized(AsyncOperationHandle<LocalizationSettings> handle)
+    {
+        handle.Completed -= OnLocalizationInitialized;
+        _waitingForLocalizationInit = false;
+        if (!isActiveAndEnabled)
+            return;
+
+        RefreshSearchHint();
+    }
+
+    private void UnsubscribeLocalizationInit()
+    {
+        if (!_waitingForLocalizationInit)
+            return;
+
+        _waitingForLocalizationInit = false;
+        LocalizationSettings.InitializationOperation.Completed -= OnLocalizationInitialized;
     }
 
     private void OnViewportGeometryChanged(GeometryChangedEvent evt)
@@ -141,12 +204,193 @@ public class PassiveTreeUI : MonoBehaviour
         _overlayHeader.pickingMode = PickingMode.Ignore;
         _windowRoot.Add(_overlayHeader);
 
+        var search = new TextField { name = "PassiveTreeSearch" };
+        _searchField = search;
+        search.focusable = false;
+        search.style.position = Position.Absolute;
+        search.style.left = 4;
+        search.style.top = 8;
+        search.style.width = 108;
+        search.style.minWidth = 108;
+        search.style.maxWidth = 108;
+        search.style.height = 14;
+        search.style.minHeight = 14;
+        search.style.maxHeight = 14;
+        search.style.flexGrow = 0;
+        search.style.flexShrink = 0;
+        search.style.fontSize = 8;
+        search.style.marginTop = 0;
+        search.style.marginBottom = 0;
+        search.style.paddingTop = 0;
+        search.style.paddingBottom = 0;
+        search.style.paddingLeft = 3;
+        search.style.paddingRight = 3;
+        search.style.backgroundColor = new StyleColor(new Color(0.08f, 0.07f, 0.05f, 0.94f));
+        search.style.borderTopWidth = 1;
+        search.style.borderBottomWidth = 1;
+        search.style.borderLeftWidth = 1;
+        search.style.borderRightWidth = 1;
+        search.style.borderTopColor = new Color(0.55f, 0.44f, 0.22f, 1f);
+        search.style.borderBottomColor = new Color(0.55f, 0.44f, 0.22f, 1f);
+        search.style.borderLeftColor = new Color(0.55f, 0.44f, 0.22f, 1f);
+        search.style.borderRightColor = new Color(0.55f, 0.44f, 0.22f, 1f);
+        search.style.color = new Color(0.93f, 0.86f, 0.68f, 1f);
+        search.pickingMode = PickingMode.Position;
+        search.RegisterCallback<AttachToPanelEvent>(_ =>
+        {
+            StyleSearchField(search);
+            search.schedule.Execute(() => StyleSearchField(search));
+        });
+        search.RegisterCallback<PointerDownEvent>(_ => ArmSearchField());
+        search.RegisterCallback<FocusInEvent>(_ => HoldPlayerInputForSearch());
+        search.RegisterCallback<FocusOutEvent>(_ => ReleasePlayerInputForSearch());
+        search.RegisterCallback<KeyDownEvent>(evt =>
+        {
+            if (evt.keyCode == KeyCode.Escape)
+            {
+                search.Blur();
+                evt.StopPropagation();
+            }
+        });
+        _searchHint = new Label
+        {
+            name = "PassiveTreeSearchHint",
+            pickingMode = PickingMode.Ignore
+        };
+        _searchHint.style.position = Position.Absolute;
+        _searchHint.style.left = 3;
+        _searchHint.style.right = 2;
+        _searchHint.style.top = 0;
+        _searchHint.style.bottom = 0;
+        _searchHint.style.minHeight = 0;
+        _searchHint.style.marginTop = 0;
+        _searchHint.style.marginRight = 0;
+        _searchHint.style.marginBottom = 0;
+        _searchHint.style.marginLeft = 0;
+        _searchHint.style.paddingTop = 0;
+        _searchHint.style.paddingRight = 0;
+        _searchHint.style.paddingBottom = 0;
+        _searchHint.style.paddingLeft = 0;
+        _searchHint.style.fontSize = 8;
+        _searchHint.style.color = new Color(0.7f, 0.62f, 0.45f, 0.75f);
+        _searchHint.style.unityTextAlign = TextAnchor.MiddleLeft;
+        RefreshSearchHint();
+        search.RegisterValueChangedCallback(evt =>
+        {
+            _renderer?.SetSearch(evt.newValue);
+            _searchHint.style.display = string.IsNullOrEmpty(evt.newValue) ? DisplayStyle.Flex : DisplayStyle.None;
+        });
+        search.Add(_searchHint);
+        _overlayHeader.Add(search);
+
         _pointsLabel = new Label();
         _pointsLabel.style.fontSize = 14;
         _pointsLabel.style.color = new Color(0.75f, 0.72f, 0.68f);
         _pointsLabel.pickingMode = PickingMode.Ignore;
         _overlayHeader.Add(_pointsLabel);
         RefreshSkillPointsLabel();
+    }
+
+    private static void StyleSearchField(TextField field)
+    {
+        var ink = new Color(0.93f, 0.86f, 0.68f, 1f);
+        var paper = new Color(0.08f, 0.07f, 0.05f, 1f);
+        var gold = new Color(0.55f, 0.44f, 0.22f, 1f);
+        PaintSearchSurface(field, paper, ink, gold, 1);
+        field.Query().ForEach(element =>
+        {
+            if (element == field
+                || element.name == "PassiveTreeSearchHint"
+                || element.ClassListContains("unity-base-field__label"))
+                return;
+            PaintSearchSurface(element, paper, ink, gold, 0);
+            element.style.paddingTop = 0;
+            element.style.paddingRight = 0;
+            element.style.paddingBottom = 0;
+            element.style.paddingLeft = 0;
+            element.focusable = false;
+        });
+        field.focusable = false;
+    }
+
+    private static void PaintSearchSurface(VisualElement element, Color paper, Color ink, Color gold, int border)
+    {
+        element.style.backgroundImage = new StyleBackground(StyleKeyword.None);
+        element.style.backgroundColor = paper;
+        element.style.unityBackgroundImageTintColor = paper;
+        element.style.color = ink;
+        element.style.fontSize = 8;
+        element.style.marginTop = 0;
+        element.style.marginRight = 0;
+        element.style.marginBottom = 0;
+        element.style.marginLeft = 0;
+        element.style.paddingTop = 1;
+        element.style.paddingRight = 2;
+        element.style.paddingBottom = 0;
+        element.style.paddingLeft = 2;
+        element.style.borderTopWidth = border;
+        element.style.borderRightWidth = border;
+        element.style.borderBottomWidth = border;
+        element.style.borderLeftWidth = border;
+        element.style.borderTopColor = gold;
+        element.style.borderRightColor = gold;
+        element.style.borderBottomColor = gold;
+        element.style.borderLeftColor = gold;
+        element.style.unityTextAlign = TextAnchor.MiddleLeft;
+    }
+
+    private void OnTreeWindowOpened()
+    {
+        DeactivateSearch();
+    }
+
+    private void ArmSearchField()
+    {
+        SetSearchFocusable(true);
+        _searchField?.Focus();
+    }
+
+    private void DeactivateSearch()
+    {
+        if (_searchField == null)
+            return;
+
+        SetSearchFocusable(false);
+        _searchField.SetValueWithoutNotify(string.Empty);
+        if (_searchHint != null)
+            _searchHint.style.display = DisplayStyle.Flex;
+        _renderer?.SetSearch(string.Empty);
+        _searchField.Blur();
+    }
+
+    private void SetSearchFocusable(bool focusable)
+    {
+        if (_searchField == null)
+            return;
+
+        _searchField.focusable = focusable;
+        _searchField.Query().ForEach(element => element.focusable = focusable);
+    }
+
+    private void HoldPlayerInputForSearch()
+    {
+        UiTypingGate.IsTyping = true;
+        var map = InputManager.InputActions?.Player.Get();
+        if (map == null || !map.enabled || _searchHeldPlayerMap)
+            return;
+
+        _searchHeldPlayerMap = true;
+        map.Disable();
+    }
+
+    private void ReleasePlayerInputForSearch()
+    {
+        UiTypingGate.IsTyping = false;
+        if (!_searchHeldPlayerMap)
+            return;
+
+        _searchHeldPlayerMap = false;
+        InputManager.InputActions?.Player.Get()?.Enable();
     }
 
     private void InitializeSubsystems()

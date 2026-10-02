@@ -48,6 +48,8 @@ public class InventoryWindowToggle : MonoBehaviour
 
     private void OnToggleInput(InputAction.CallbackContext ctx)
     {
+        if (UiTypingGate.IsTyping)
+            return;
         if (Keyboard.current != null && Keyboard.current.ctrlKey.isPressed && Keyboard.current.altKey.isPressed)
             return;
         Toggle();

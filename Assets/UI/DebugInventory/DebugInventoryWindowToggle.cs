@@ -28,7 +28,7 @@ public class DebugInventoryWindowToggle : MonoBehaviour
 
     private void OnTogglePerformed(InputAction.CallbackContext ctx)
     {
-        if (_debugWindow == null) return;
+        if (UiTypingGate.IsTyping || _debugWindow == null) return;
         _debugWindow.SetVisible(!_debugWindow.IsVisible());
     }
 #else

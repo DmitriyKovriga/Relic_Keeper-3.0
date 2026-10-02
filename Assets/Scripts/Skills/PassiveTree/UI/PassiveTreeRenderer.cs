@@ -18,6 +18,11 @@ namespace Scripts.Skills.PassiveTree.UI
 
         private readonly Dictionary<string, VisualElement> _nodeVisuals = new Dictionary<string, VisualElement>();
         private readonly List<(string id1, string id2, VisualElement line)> _connections = new List<(string, string, VisualElement)>();
+        private readonly Dictionary<string, string> _searchText = new Dictionary<string, string>();
+        private PassiveSkillTreeSO _tree;
+        private string _searchQuery = string.Empty;
+
+        private static readonly Color SearchRingColor = new Color(1f, 0.86f, 0.35f, 1f);
 
         public PassiveTreeRenderer(
             VisualElement container,
@@ -38,6 +43,8 @@ namespace Scripts.Skills.PassiveTree.UI
             _container.Clear();
             _nodeVisuals.Clear();
             _connections.Clear();
+            _searchText.Clear();
+            _tree = treeData;
             EnsurePulseTicker();
 
             if (treeData == null)
@@ -68,6 +75,8 @@ namespace Scripts.Skills.PassiveTree.UI
 
             foreach (var node in treeData.Nodes)
                 CreateNode(treeData, node);
+
+            ApplySearch();
         }
 
         public void ApplyPreviewStyle()
@@ -156,6 +165,61 @@ namespace Scripts.Skills.PassiveTree.UI
                 conn.line.userData = new ConnectionVisualState(outerColor, innerColor, innerThicknessScale, isPath);
                 SetConnectionStyle(conn.line, outerColor, innerColor, innerThicknessScale);
             }
+
+            ApplySearch();
+        }
+
+        public void SetSearch(string query)
+        {
+            _searchQuery = query ?? string.Empty;
+            ApplySearch();
+        }
+
+        public void InvalidateSearchText()
+        {
+            _searchText.Clear();
+            ApplySearch();
+        }
+
+        private void ApplySearch()
+        {
+            bool searching = !string.IsNullOrWhiteSpace(_searchQuery);
+            HashSet<string> matches = null;
+            if (searching && _tree?.Nodes != null)
+            {
+                matches = new HashSet<string>();
+                for (int i = 0; i < _tree.Nodes.Count; i++)
+                {
+                    PassiveNodeDefinition node = _tree.Nodes[i];
+                    if (node == null || string.IsNullOrEmpty(node.ID))
+                        continue;
+                    if (!_searchText.TryGetValue(node.ID, out string text))
+                    {
+                        text = PassiveTreeSearch.BuildSearchText(node);
+                        _searchText[node.ID] = text;
+                    }
+
+                    if (PassiveTreeSearch.Matches(text, _searchQuery))
+                        matches.Add(node.ID);
+                }
+            }
+
+            foreach (var kvp in _nodeVisuals)
+            {
+                bool match = !searching || (matches != null && matches.Contains(kvp.Key));
+                kvp.Value.style.opacity = match ? 1f : 0.16f;
+                VisualElement ring = kvp.Value.Q("SearchRing");
+                if (ring != null)
+                    ring.style.display = searching && match ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+
+            foreach (var conn in _connections)
+            {
+                if (conn.line == null)
+                    continue;
+                bool match = !searching || (matches != null && matches.Contains(conn.id1) && matches.Contains(conn.id2));
+                conn.line.style.opacity = match ? 1f : 0.08f;
+            }
         }
 
         private static void SetNodeFill(VisualElement element, Color background)
@@ -188,6 +252,29 @@ namespace Scripts.Skills.PassiveTree.UI
             glowAura.style.display = DisplayStyle.None;
             glowAura.pickingMode = PickingMode.Ignore;
             nodeRoot.Add(glowAura);
+
+            var searchRing = new VisualElement { name = "SearchRing" };
+            searchRing.pickingMode = PickingMode.Ignore;
+            searchRing.style.position = Position.Absolute;
+            searchRing.style.left = -3f;
+            searchRing.style.top = -3f;
+            searchRing.style.width = size + 6f;
+            searchRing.style.height = size + 6f;
+            float ringRadius = (size + 6f) * 0.5f;
+            searchRing.style.borderTopLeftRadius = ringRadius;
+            searchRing.style.borderTopRightRadius = ringRadius;
+            searchRing.style.borderBottomLeftRadius = ringRadius;
+            searchRing.style.borderBottomRightRadius = ringRadius;
+            searchRing.style.borderTopWidth = 2f;
+            searchRing.style.borderBottomWidth = 2f;
+            searchRing.style.borderLeftWidth = 2f;
+            searchRing.style.borderRightWidth = 2f;
+            searchRing.style.borderTopColor = SearchRingColor;
+            searchRing.style.borderBottomColor = SearchRingColor;
+            searchRing.style.borderLeftColor = SearchRingColor;
+            searchRing.style.borderRightColor = SearchRingColor;
+            searchRing.style.display = DisplayStyle.None;
+            nodeRoot.Add(searchRing);
 
             Sprite frameSprite = GetFrameSprite(node.NodeType);
             var circle = new VisualElement { name = "Circle" };

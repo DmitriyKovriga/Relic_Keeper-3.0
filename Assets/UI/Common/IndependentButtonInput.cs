@@ -46,6 +46,9 @@ public sealed class IndependentButtonInput : IDisposable
 
     private void OnPerformed(InputAction.CallbackContext context)
     {
+        if (UiTypingGate.IsTyping)
+            return;
+
         _performed?.Invoke();
     }
 }

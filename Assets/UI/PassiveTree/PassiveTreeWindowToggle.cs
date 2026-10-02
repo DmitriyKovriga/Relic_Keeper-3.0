@@ -40,6 +40,8 @@ public class PassiveTreeWindowToggle : MonoBehaviour
 
     private void OnToggleInput(InputAction.CallbackContext context)
     {
+        if (UiTypingGate.IsTyping)
+            return;
         Toggle();
     }
 

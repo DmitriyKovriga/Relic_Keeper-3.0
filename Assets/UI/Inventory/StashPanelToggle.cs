@@ -62,6 +62,8 @@ public class StashPanelToggle : MonoBehaviour
 
     private void TryToggleStash()
     {
+        if (UiTypingGate.IsTyping)
+            return;
         if (_inventoryUI == null) _inventoryUI = GetComponentInChildren<InventoryUI>(true);
         if (_inventoryUI == null) return;
 

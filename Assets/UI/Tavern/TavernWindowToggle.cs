@@ -20,6 +20,8 @@ public class TavernWindowToggle : MonoBehaviour
 
     private void Update()
     {
+        if (UiTypingGate.IsTyping)
+            return;
         if (Keyboard.current == null || _tavernUI == null) return;
         if (Keyboard.current[_tavernKey].wasPressedThisFrame)
         {
