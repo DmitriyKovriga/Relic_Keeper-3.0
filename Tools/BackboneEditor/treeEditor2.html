@@ -193,6 +193,109 @@ function curveGeometry(curve) {
   const anchor = { x: pa.x + (pb.x - pa.x) * curve.anchor / 100, y: pa.y + (pb.y - pa.y) * curve.anchor / 100 };
   return { a, b, pa, pb, anchor, c1: { x: anchor.x + curve.inX, y: anchor.y + curve.inY }, c2: { x: anchor.x + curve.outX, y: anchor.y + curve.outY } };
 }
+function lerp2(a, b, t) { return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }; }
+function splitCubic(p0, p1, p2, p3, t) {
+  const q0 = lerp2(p0, p1, t), q1 = lerp2(p1, p2, t), q2 = lerp2(p2, p3, t);
+  const r0 = lerp2(q0, q1, t), r1 = lerp2(q1, q2, t), s = lerp2(r0, r1, t);
+  return { left: [p0, q0, r0, s], right: [s, r1, q2, p3] };
+}
+function curveSpans(curve) {
+  const g = curveGeometry(curve);
+  if (!g) return [];
+  if (!curve.span) return [{ p0: g.pa, c1: g.c1, c2: g.c2, p3: g.pb }];
+  const knots = curve.knots || [];
+  const spans = [];
+  let start = g.pa;
+  let out = { x: curve.startOutX || 0, y: curve.startOutY || 0 };
+  knots.forEach(knot => {
+    const end = { x: knot.x, y: knot.y };
+    spans.push({
+      p0: start,
+      c1: { x: start.x + out.x, y: start.y + out.y },
+      c2: { x: end.x + (knot.inX || 0), y: end.y + (knot.inY || 0) },
+      p3: end
+    });
+    start = end;
+    out = { x: knot.outX || 0, y: knot.outY || 0 };
+  });
+  spans.push({
+    p0: start,
+    c1: { x: start.x + out.x, y: start.y + out.y },
+    c2: { x: g.pb.x + (curve.endInX || 0), y: g.pb.y + (curve.endInY || 0) },
+    p3: g.pb
+  });
+  return spans;
+}
+function closestOnCubic(p0, p1, p2, p3, point) {
+  let best = { t: 0, d: Math.hypot(point.x - p0.x, point.y - p0.y) };
+  let prev = p0, prevT = 0;
+  for (let i = 1; i <= 32; i++) {
+    const t = i / 32;
+    const cur = cubic(p0, p1, p2, p3, t);
+    const abx = cur.x - prev.x, aby = cur.y - prev.y;
+    const len = abx * abx + aby * aby;
+    const seg = len < 0.0001 ? 0 : Math.max(0, Math.min(1, ((point.x - prev.x) * abx + (point.y - prev.y) * aby) / len));
+    const px = prev.x + abx * seg, py = prev.y + aby * seg;
+    const d = Math.hypot(point.x - px, point.y - py);
+    if (d < best.d) best = { t: prevT + (t - prevT) * seg, d };
+    prev = cur;
+    prevT = t;
+  }
+  return best;
+}
+function insertKnot(curve, world) {
+  const spans = curveSpans(curve);
+  let best = null;
+  spans.forEach((span, index) => {
+    const hit = closestOnCubic(span.p0, span.c1, span.c2, span.p3, world);
+    if (!best || hit.d < best.d) best = { d: hit.d, t: hit.t, index, span };
+  });
+  if (!best || best.d > 12 || best.t < 0.06 || best.t > 0.94) return false;
+  const parts = splitCubic(best.span.p0, best.span.c1, best.span.c2, best.span.p3, best.t);
+  const s = parts.left[3];
+  const knot = {
+    x: s.x, y: s.y,
+    inX: parts.left[2].x - s.x, inY: parts.left[2].y - s.y,
+    outX: parts.right[1].x - s.x, outY: parts.right[1].y - s.y,
+    mirror: true
+  };
+  if (!curve.span) {
+    curve.span = true;
+    curve.startOutX = parts.left[1].x - parts.left[0].x;
+    curve.startOutY = parts.left[1].y - parts.left[0].y;
+    curve.endInX = parts.right[2].x - parts.right[3].x;
+    curve.endInY = parts.right[2].y - parts.right[3].y;
+    curve.knots = [knot];
+    selectedKnot = 0;
+    return true;
+  }
+  curve.knots = curve.knots || [];
+  if (best.index === 0) {
+    curve.startOutX = parts.left[1].x - parts.left[0].x;
+    curve.startOutY = parts.left[1].y - parts.left[0].y;
+  } else {
+    curve.knots[best.index - 1].outX = parts.left[1].x - parts.left[0].x;
+    curve.knots[best.index - 1].outY = parts.left[1].y - parts.left[0].y;
+  }
+  if (best.index >= curve.knots.length) {
+    curve.endInX = parts.right[2].x - parts.right[3].x;
+    curve.endInY = parts.right[2].y - parts.right[3].y;
+  } else {
+    curve.knots[best.index].inX = parts.right[2].x - parts.right[3].x;
+    curve.knots[best.index].inY = parts.right[2].y - parts.right[3].y;
+  }
+  curve.knots.splice(best.index, 0, knot);
+  selectedKnot = best.index;
+  return true;
+}
+function removeSelectedKnot() {
+  if (!selectedCurve || !selectedCurve.knots || selectedKnot < 0 || selectedKnot >= selectedCurve.knots.length) return;
+  pushUndo();
+  selectedCurve.knots.splice(selectedKnot, 1);
+  selectedKnot = -1;
+  draw();
+}
+let selectedKnot = -1;
 function sameOrbit(a, b) {
   return a.cluster && a.cluster === b.cluster && a.orbit === b.orbit && clusterById(a.cluster);
 }
@@ -244,13 +347,15 @@ function draw() {
     ctx.lineWidth = Math.max(2, 3 * cam.z);
     ctx.beginPath();
     if (curve) {
-      const g = curveGeometry(curve);
-      if (!g) return;
-      ctx.moveTo(toScreen(g.pa).x, toScreen(g.pa).y);
-      for (let t = 1; t <= 24; t++) {
-        const p = toScreen(cubic(g.pa, g.c1, g.c2, g.pb, t / 24));
-        ctx.lineTo(p.x, p.y);
-      }
+      const spans = curveSpans(curve);
+      if (!spans.length) return;
+      spans.forEach(span => {
+        ctx.moveTo(toScreen(span.p0).x, toScreen(span.p0).y);
+        for (let t = 1; t <= 16; t++) {
+          const p = toScreen(cubic(span.p0, span.c1, span.c2, span.p3, t / 16));
+          ctx.lineTo(p.x, p.y);
+        }
+      });
     } else if (sameOrbit(n, other)) {
       const c = clusterById(n.cluster);
       const radius = c.orbits[n.orbit];
@@ -273,7 +378,29 @@ function draw() {
   }));
   if (selectedCurve) {
     const g = curveGeometry(selectedCurve);
-    if (g) {
+    if (g && selectedCurve.span) {
+      ctx.strokeStyle = "#7ec8ff";
+      ctx.lineWidth = 1;
+      const drawWhisker = (from, to) => {
+        const a = toScreen(from), b = toScreen(to);
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        ctx.beginPath(); ctx.arc(b.x, b.y, 6, 0, Math.PI * 2); ctx.fillStyle = "#7ec8ff"; ctx.fill();
+      };
+      drawWhisker(g.pa, { x: g.pa.x + (selectedCurve.startOutX || 0), y: g.pa.y + (selectedCurve.startOutY || 0) });
+      (selectedCurve.knots || []).forEach((knot, index) => {
+        const at = { x: knot.x, y: knot.y };
+        drawWhisker(at, { x: at.x + (knot.inX || 0), y: at.y + (knot.inY || 0) });
+        drawWhisker(at, { x: at.x + (knot.outX || 0), y: at.y + (knot.outY || 0) });
+        const s = toScreen(at);
+        ctx.save();
+        ctx.translate(s.x, s.y);
+        ctx.rotate(Math.PI / 4);
+        ctx.fillStyle = index === selectedKnot ? "#fff" : "#e6be3c";
+        ctx.fillRect(-5, -5, 10, 10);
+        ctx.restore();
+      });
+      drawWhisker(g.pb, { x: g.pb.x + (selectedCurve.endInX || 0), y: g.pb.y + (selectedCurve.endInY || 0) });
+    } else if (g) {
       ctx.strokeStyle = "#7ec8ff";
       ctx.lineWidth = 1;
       [[g.c1, g.anchor], [g.c2, g.anchor]].forEach(([h, a]) => {
@@ -334,11 +461,25 @@ function hitNode(sx, sy) {
 function hitHandle(sx, sy) {
   if (selectedCurve) {
     const g = curveGeometry(selectedCurve);
-    if (g) {
+    if (g && selectedCurve.span) {
+      const hits = [[{ x: g.pa.x + (selectedCurve.startOutX || 0), y: g.pa.y + (selectedCurve.startOutY || 0) }, "out", -1]];
+      (selectedCurve.knots || []).forEach((knot, index) => {
+        const at = { x: knot.x, y: knot.y };
+        hits.push([at, "anchor", index]);
+        hits.push([{ x: at.x + (knot.inX || 0), y: at.y + (knot.inY || 0) }, "in", index]);
+        hits.push([{ x: at.x + (knot.outX || 0), y: at.y + (knot.outY || 0) }, "out", index]);
+      });
+      hits.push([{ x: g.pb.x + (selectedCurve.endInX || 0), y: g.pb.y + (selectedCurve.endInY || 0) }, "in", -2]);
+      for (const [p, name, knot] of hits) {
+        const s = toScreen(p);
+        const hit = name === "anchor" ? 12 : 10;
+        if (Math.abs(s.x - sx) <= hit && Math.abs(s.y - sy) <= hit) return { kind: "bezier", name, knot };
+      }
+    } else if (g) {
       for (const [name, p] of [["in", g.c1], ["out", g.c2], ["anchor", g.anchor]]) {
         const s = toScreen(p);
         const hit = name === "anchor" ? 12 : 10;
-        if (Math.abs(s.x - sx) <= hit && Math.abs(s.y - sy) <= hit) return { kind: "bezier", name };
+        if (Math.abs(s.x - sx) <= hit && Math.abs(s.y - sy) <= hit) return { kind: "bezier", name, knot: null };
       }
     }
   }
@@ -366,13 +507,13 @@ function hitCurve(sx, sy) {
   const world = toWorld(sx, sy);
   let best = null, bestD = 10 / cam.z;
   curves.forEach(curve => {
-    const g = curveGeometry(curve);
-    if (!g) return;
-    for (let t = 0; t <= 20; t++) {
-      const p = cubic(g.pa, g.c1, g.c2, g.pb, t / 20);
-      const d = Math.hypot(p.x - world.x, p.y - world.y);
-      if (d < bestD) { bestD = d; best = curve; }
-    }
+    curveSpans(curve).forEach(span => {
+      for (let t = 0; t <= 16; t++) {
+        const p = cubic(span.p0, span.c1, span.c2, span.p3, t / 16);
+        const d = Math.hypot(p.x - world.x, p.y - world.y);
+        if (d < bestD) { bestD = d; best = curve; }
+      }
+    });
   });
   return best;
 }
@@ -734,7 +875,8 @@ canvas.addEventListener("pointerdown", ev => {
   const curve = handle || node || clusterHit ? null : hitCurve(p.x, p.y);
   const world = toWorld(p.x, p.y);
   if (handle) {
-    drag = { kind: handle.kind, name: handle.name, index: handle.index, moved: false, curve: selectedCurve, startIn: selectedCurve && { x: selectedCurve.inX, y: selectedCurve.inY }, startOut: selectedCurve && { x: selectedCurve.outX, y: selectedCurve.outY } };
+    if (handle.knot >= 0) selectedKnot = handle.knot;
+    drag = { kind: handle.kind, name: handle.name, knot: handle.knot, index: handle.index, moved: false, curve: selectedCurve, startIn: selectedCurve && { x: selectedCurve.inX, y: selectedCurve.inY }, startOut: selectedCurve && { x: selectedCurve.outX, y: selectedCurve.outY } };
     canvas.setPointerCapture(ev.pointerId);
     return;
   }
@@ -785,7 +927,21 @@ canvas.addEventListener("pointerdown", ev => {
     draw();
     return;
   }
-  if (curve) { selectedCurve = curve; selected = []; selectedClusters = []; selectedCluster = null; clearScaleSession(); draw(); return; }
+  if (curve) {
+    if (ev.ctrlKey || ev.metaKey) {
+      pushUndo();
+      if (!insertKnot(curve, world)) undo.pop();
+      selectedCurve = curve;
+      selected = [];
+      selectedClusters = [];
+      selectedCluster = null;
+      clearScaleSession();
+      inspectorKey = "";
+      draw();
+      return;
+    }
+    selectedCurve = curve; selectedKnot = -1; selected = []; selectedClusters = []; selectedCluster = null; clearScaleSession(); draw(); return;
+  }
   marquee = { x0: p.x, y0: p.y, x1: p.x, y1: p.y, add: ev.shiftKey, moved: false };
   canvas.setPointerCapture(ev.pointerId);
 });
@@ -873,7 +1029,7 @@ function exportFile() {
     version: 2,
     nodes: nodes.map(n => { const p = pos(n); return { id: n.id, type: n.type, x: p.x, y: p.y, links: n.links, cluster: n.cluster || "", orbit: n.orbit || 0, angle: n.angle || 0, backbone: !!n.backbone }; }),
     clusters: clusters.map(c => ({ id: c.id, name: c.name, x: c.x, y: c.y, orbits: c.orbits })),
-    curves: curves.map(c => ({ a: c.a, b: c.b, anchor: c.anchor, inX: c.inX, inY: c.inY, outX: c.outX, outY: c.outY, mirror: !!c.mirror }))
+    curves: curves.map(c => ({ a: c.a, b: c.b, anchor: c.anchor, inX: c.inX, inY: c.inY, outX: c.outX, outY: c.outY, mirror: !!c.mirror, span: !!c.span, startOutX: c.startOutX || 0, startOutY: c.startOutY || 0, endInX: c.endInX || 0, endInY: c.endInY || 0, knots: (c.knots || []).map(k => ({ x: k.x, y: k.y, inX: k.inX, inY: k.inY, outX: k.outX, outY: k.outY, mirror: !!k.mirror })) }))
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
@@ -893,7 +1049,7 @@ function importText(text) {
     x: +n.x || 0, y: +n.y || 0, links: (n.links || []).map(String),
     cluster: n.cluster || "", orbit: n.orbit || 0, angle: n.angle || 0, backbone: data.version < 2 ? !n.cluster : !!n.backbone
   }));
-  curves = (data.curves || []).map(c => ({ a: String(c.a), b: String(c.b), anchor: +c.anchor || 50, inX: +c.inX || 0, inY: +c.inY || 0, outX: +c.outX || 0, outY: +c.outY || 0, mirror: !!c.mirror }));
+  curves = (data.curves || []).map(c => ({ a: String(c.a), b: String(c.b), anchor: +c.anchor || 50, inX: +c.inX || 0, inY: +c.inY || 0, outX: +c.outX || 0, outY: +c.outY || 0, mirror: !!c.mirror, span: !!c.span, startOutX: +c.startOutX || 0, startOutY: +c.startOutY || 0, endInX: +c.endInX || 0, endInY: +c.endInY || 0, knots: (c.knots || []).map(k => ({ x: +k.x || 0, y: +k.y || 0, inX: +k.inX || 0, inY: +k.inY || 0, outX: +k.outX || 0, outY: +k.outY || 0, mirror: k.mirror !== false })) }));
   nextId = nodes.reduce((m, n) => Math.max(m, parseInt(String(n.id).replace(/\D/g, ""), 10) || 0), 0) + 1;
   selected = []; selectedClusters = []; selectedCluster = null; selectedCurve = null;
   draw();
@@ -931,6 +1087,46 @@ function applyBezierDrag(world, alt, shift, ctrl) {
   const curve = selectedCurve;
   const g = curveGeometry(curve);
   if (!g) return;
+  if (curve.span && drag.knot !== null && drag.knot !== undefined) {
+    if (drag.knot === -1) {
+      curve.startOutX = world.x - g.pa.x;
+      curve.startOutY = world.y - g.pa.y;
+      return;
+    }
+    if (drag.knot === -2) {
+      curve.endInX = world.x - g.pb.x;
+      curve.endInY = world.y - g.pb.y;
+      return;
+    }
+    const knot = curve.knots[drag.knot];
+    if (!knot) return;
+    if (drag.name === "anchor") {
+      if (alt) {
+        knot.inX += knot.x - world.x;
+        knot.inY += knot.y - world.y;
+        knot.outX += knot.x - world.x;
+        knot.outY += knot.y - world.y;
+      }
+      knot.x = world.x;
+      knot.y = world.y;
+      return;
+    }
+    let offset = { x: world.x - knot.x, y: world.y - knot.y };
+    if (shift) offset = constrain45(offset);
+    const editingIn = drag.name === "in";
+    if (alt) knot.mirror = false;
+    if (ctrl || (knot.mirror && !alt)) {
+      const mirrored = mirrorVec(offset);
+      knot.inX = (editingIn ? offset : mirrored).x;
+      knot.inY = (editingIn ? offset : mirrored).y;
+      knot.outX = (editingIn ? mirrored : offset).x;
+      knot.outY = (editingIn ? mirrored : offset).y;
+      return;
+    }
+    if (editingIn) { knot.inX = offset.x; knot.inY = offset.y; }
+    else { knot.outX = offset.x; knot.outY = offset.y; }
+    return;
+  }
   if (drag.name === "anchor") {
     let percent = percentAlong(g.pa, g.pb, world);
     if (shift) percent = Math.round(percent / 5) * 5;
@@ -1114,7 +1310,7 @@ function renderInspector() {
   if (selectedCluster) { renderCluster(box, selectedCluster); return; }
   if (selectedClusters.length === 1) { renderCluster(box, selectedClusters[0]); return; }
   box.innerHTML = "<h2>Каркас</h2><p class='help'>Нодов " + nodes.length + ", кластеров " + clusters.length + ", кривых " + curves.length + ".</p>" +
-    "<h3>Клавиши</h3><p class='help'>Зажать ЛКМ на пустом месте — рамка выделения. Shift добавляет к уже выбранному.<br>Выделенную группу можно тащить целиком.<br>Масштаб группы — поле в инспекторе, от центра выделения.<br>Shift при движении нода по орбите — шаг 15°.<br>Shift при радиусе — шаг 10.<br>Два нода: Shift+клик, затем ПКМ — прямая или кривая.<br>[ ] поворот усиков на 15° (Shift — 45°).<br>M — сторона кривой, L — зеркало усиков, R — сброс.<br>Alt+усик — только один, Ctrl+усик — симметрия.<br>Shift+якорь — шаг 5%, Alt+якорь — усики на месте.<br>Ctrl+Shift+H / V — отразить выделение.<br>Delete, Ctrl+Z, Ctrl+S.</p>";
+    "<h3>Клавиши</h3><p class='help'>Зажать ЛКМ на пустом месте — рамка выделения. Shift добавляет к уже выбранному.<br>Выделенную группу можно тащить целиком.<br>Масштаб группы — поле в инспекторе, от центра выделения.<br>Shift при движении нода по орбите — шаг 15°.<br>Shift при радиусе — шаг 10.<br>Два нода: Shift+клик, затем ПКМ — прямая или кривая.<br>[ ] поворот усиков на 15° (Shift — 45°).<br>M — сторона кривой, L — зеркало усиков, R — сброс.<br>Alt+усик — только один, Ctrl+усик — симметрия.<br>Shift+якорь — шаг 5%, Alt+якорь — усики на месте.<br>Ctrl+Shift+H / V — отразить выделение.<br>Ctrl+клик по кривой — точка с усиками. Delete на точке убирает её.<br>Delete, Ctrl+Z, Ctrl+S.</p>";
 }
 function renderNode(box, n) {
   box.innerHTML = "<h2>Нод</h2>";
@@ -1341,6 +1537,7 @@ window.addEventListener("keydown", ev => {
     if (ev.key === "[" || ev.key === "]") { ev.preventDefault(); rotateHandles(selectedCurve, (ev.key === "]" ? 1 : -1) * (ev.shiftKey ? 45 : 15)); }
   }
   if (ev.key === "Delete" || ev.key === "Backspace") {
+    if (selectedCurve && selectedKnot >= 0) { ev.preventDefault(); removeSelectedKnot(); return; }
     ev.preventDefault();
     deleteSelection();
   }

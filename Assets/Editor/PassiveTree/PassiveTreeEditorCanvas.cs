@@ -397,6 +397,8 @@ namespace Scripts.Editor.PassiveTree
                 if (evt.button == 0)
                 {
                     Focus();
+                    if ((evt.ctrlKey || evt.commandKey) && !IsLayoutLocked)
+                        TryInsertBezierKnot(bezierElement.Connection, (Vector2)evt.position);
                     _selection.SelectBezier(bezierElement.Connection);
                     evt.StopPropagation();
                 }
@@ -586,14 +588,10 @@ namespace Scripts.Editor.PassiveTree
                 if (nodeA == null || nodeB == null)
                     continue;
 
-                element.Connection.GetCubicPoints(
+                float distance = element.Connection.DistanceToPoint(
                     nodeA.GetWorldPosition(_tree),
                     nodeB.GetWorldPosition(_tree),
-                    out Vector2 p0,
-                    out Vector2 c1,
-                    out Vector2 c2,
-                    out Vector2 p3);
-                float distance = PassiveBezierMath.DistanceToCubic(p0, c1, c2, p3, content);
+                    content);
                 if (distance < best)
                 {
                     best = distance;
@@ -1197,6 +1195,22 @@ namespace Scripts.Editor.PassiveTree
             if (IsLayoutLocked || connection == null || _tree == null || evt == null)
                 return false;
 
+            if ((evt.keyCode == KeyCode.Delete || evt.keyCode == KeyCode.Backspace)
+                && _bezierHandleOverlay != null
+                && connection.UseSpanPath
+                && _bezierHandleOverlay.SelectedKnotIndex >= 0)
+            {
+                UnityEditor.Undo.RecordObject(_tree, "Remove Bezier Knot");
+                if (connection.RemoveKnot(_bezierHandleOverlay.SelectedKnotIndex))
+                {
+                    PassiveTreeAssetPersistence.SetDirty(_tree);
+                    RefreshBezierVisuals();
+                    _selection.SelectBezier(connection);
+                    OnTreeGeometryChanged?.Invoke();
+                }
+                return true;
+            }
+
             if (evt.keyCode == KeyCode.R)
             {
                 _commands.ResetBezierHandles(connection);
@@ -1234,6 +1248,19 @@ namespace Scripts.Editor.PassiveTree
             UnityEditor.Undo.RecordObject(_tree, "Rotate Bezier Handles");
             connection.InHandleOffset = PassiveBezierMath.RotateOffset(connection.InHandleOffset, degrees);
             connection.OutHandleOffset = PassiveBezierMath.RotateOffset(connection.OutHandleOffset, degrees);
+            if (connection.UseSpanPath && connection.Knots != null)
+            {
+                connection.StartOutOffset = PassiveBezierMath.RotateOffset(connection.StartOutOffset, degrees);
+                connection.EndInOffset = PassiveBezierMath.RotateOffset(connection.EndInOffset, degrees);
+                for (int i = 0; i < connection.Knots.Count; i++)
+                {
+                    PassiveBezierKnot knot = connection.Knots[i];
+                    if (knot == null)
+                        continue;
+                    knot.InHandleOffset = PassiveBezierMath.RotateOffset(knot.InHandleOffset, degrees);
+                    knot.OutHandleOffset = PassiveBezierMath.RotateOffset(knot.OutHandleOffset, degrees);
+                }
+            }
             PassiveTreeAssetPersistence.SetDirty(_tree);
             RefreshSelectedBezierGeometry();
             OnTreeGeometryChanged?.Invoke();
@@ -1265,6 +1292,28 @@ namespace Scripts.Editor.PassiveTree
                     && element.Connection.Matches(selected.NodeIdA, selected.NodeIdB);
                 element.SetSelected(isSelected);
             }
+        }
+
+        private void TryInsertBezierKnot(PassiveBezierConnection connection, Vector2 panelPosition)
+        {
+            if (_tree == null || connection == null)
+                return;
+
+            var nodeA = _tree.GetNode(connection.NodeIdA);
+            var nodeB = _tree.GetNode(connection.NodeIdB);
+            if (nodeA == null || nodeB == null)
+                return;
+
+            Vector2 content = GetContentPointerPosition(panelPosition);
+            UnityEditor.Undo.RecordObject(_tree, "Insert Bezier Knot");
+            if (!connection.TryInsertKnot(nodeA.GetWorldPosition(_tree), nodeB.GetWorldPosition(_tree), content, 14f, out int knotIndex))
+                return;
+
+            PassiveTreeAssetPersistence.SetDirty(_tree);
+            RefreshBezierVisuals();
+            if (_bezierHandleOverlay != null)
+                _bezierHandleOverlay.SelectedKnotIndex = knotIndex;
+            OnTreeGeometryChanged?.Invoke();
         }
 
         private void ShowBezierHandles(PassiveBezierConnection connection)

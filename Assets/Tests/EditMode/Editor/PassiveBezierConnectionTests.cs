@@ -133,6 +133,26 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void InsertKnot_SplitsTheCurveAndKeepsTheClickedPointOnIt()
+        {
+            var connection = PassiveBezierConnection.CreateDefault("a", "b", Vector2.zero, Vector2.right * 100f);
+            connection.GetCubicPoints(Vector2.zero, Vector2.right * 100f, out Vector2 p0, out Vector2 c1, out Vector2 c2, out Vector2 p3);
+            Vector2 click = PassiveBezierMath.EvaluateCubic(p0, c1, c2, p3, 0.5f);
+
+            Assert.That(connection.TryInsertKnot(Vector2.zero, Vector2.right * 100f, click, 8f, out int index), Is.True);
+            Assert.That(index, Is.EqualTo(0));
+            Assert.That(connection.UseSpanPath, Is.True);
+            Assert.That(connection.Knots.Count, Is.EqualTo(1));
+            Assert.That(Vector2.Distance(connection.Knots[0].Position, click), Is.LessThan(1.5f));
+            Assert.That(connection.DistanceToPoint(Vector2.zero, Vector2.right * 100f, click), Is.LessThan(1.5f));
+
+            Vector2 second = PassiveBezierMath.EvaluateCubic(p0, c1, c2, p3, 0.75f);
+            Assert.That(connection.TryInsertKnot(Vector2.zero, Vector2.right * 100f, second, 12f, out int secondIndex), Is.True);
+            Assert.That(connection.Knots.Count, Is.EqualTo(2));
+            Assert.That(secondIndex, Is.GreaterThanOrEqualTo(0));
+        }
+
+        [Test]
         public void TreeHelpers_FindAndRemoveBezierByEitherIdOrder()
         {
             var tree = ScriptableObject.CreateInstance<PassiveSkillTreeSO>();

@@ -328,6 +328,16 @@ namespace Scripts.Editor.PassiveTree
                 PassiveNodeDefinition dstB = tree.GetNode(idMap[bezier.NodeIdB]);
                 if (srcA == null || srcB == null || dstA == null || dstB == null)
                     continue;
+                if (bezier.UseSpanPath)
+                {
+                    PassiveBezierConnection spanned = bezier.Clone();
+                    spanned.NodeIdA = dstA.ID;
+                    spanned.NodeIdB = dstB.ID;
+                    spanned.MapAffine(point => PassiveZoneMath.Rotate(origin, point, 2));
+                    spanned.NormalizeIds();
+                    tree.BezierConnections.Add(spanned);
+                    continue;
+                }
                 bezier.GetCubicPoints(srcA.GetWorldPosition(tree), srcB.GetWorldPosition(tree), out _, out Vector2 c1, out Vector2 c2, out _);
                 var clone = new PassiveBezierConnection
                 {
@@ -402,6 +412,22 @@ namespace Scripts.Editor.PassiveTree
                 PassiveBezierConnection twin = dstA != null && dstB != null ? tree.FindBezierConnection(dstA.ID, dstB.ID) : null;
                 if (twin == null)
                     continue;
+                if (bezier.UseSpanPath)
+                {
+                    PassiveBezierConnection mapped = bezier.Clone();
+                    mapped.MapAffine(point => PassiveZoneMath.Rotate(origin, point, 2));
+                    mapped.NodeIdA = twin.NodeIdA;
+                    mapped.NodeIdB = twin.NodeIdB;
+                    mapped.NormalizeIds();
+                    twin.UseSpanPath = mapped.UseSpanPath;
+                    twin.StartOutOffset = mapped.StartOutOffset;
+                    twin.EndInOffset = mapped.EndInOffset;
+                    twin.Knots = mapped.Knots;
+                    twin.AnchorPercent = mapped.AnchorPercent;
+                    twin.InHandleOffset = mapped.InHandleOffset;
+                    twin.OutHandleOffset = mapped.OutHandleOffset;
+                    continue;
+                }
                 bezier.GetCubicPoints(srcA.GetWorldPosition(tree), srcB.GetWorldPosition(tree), out _, out Vector2 c1, out Vector2 c2, out _);
                 Vector2 rc1 = PassiveZoneMath.Rotate(origin, c1, 2);
                 Vector2 rc2 = PassiveZoneMath.Rotate(origin, c2, 2);
@@ -433,6 +459,11 @@ namespace Scripts.Editor.PassiveTree
                 PassiveNodeDefinition b = nodes[index[bezier.NodeIdB]];
                 Vector2 preA = previousWorld[index[bezier.NodeIdA]];
                 Vector2 preB = previousWorld[index[bezier.NodeIdB]];
+                if (bezier.UseSpanPath)
+                {
+                    bezier.MapAffine(point => PassiveZoneMath.Flip(origin, point, horizontal));
+                    continue;
+                }
                 bezier.GetCubicPoints(preA, preB, out _, out Vector2 c1, out Vector2 c2, out _);
                 WriteHandles(
                     bezier,

@@ -131,6 +131,16 @@ namespace Scripts.Editor.PassiveTree
                 _onTreeModified?.Invoke();
                 _onSelectBezierConnection?.Invoke(connection.NodeIdA, connection.NodeIdB);
             });
+            menu.AppendAction("Insert Knot (Ctrl+Click)", _ => { }, DropdownMenuAction.AlwaysDisabled);
+            if (connection.UseSpanPath && connection.Knots != null && connection.Knots.Count > 0)
+            {
+                menu.AppendAction("Remove Last Knot", _ =>
+                {
+                    _commands.RemoveLastBezierKnot(connection);
+                    _onTreeModified?.Invoke();
+                    _onSelectBezierConnection?.Invoke(connection.NodeIdA, connection.NodeIdB);
+                });
+            }
             menu.AppendAction("Reset Handles", _ =>
             {
                 _commands.ResetBezierHandles(connection);

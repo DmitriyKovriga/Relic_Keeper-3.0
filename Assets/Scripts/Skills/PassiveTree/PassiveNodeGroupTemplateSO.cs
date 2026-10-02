@@ -172,15 +172,7 @@ namespace Scripts.Skills.PassiveTree
 
         private static PassiveBezierConnection CloneBezier(PassiveBezierConnection source)
         {
-            return new PassiveBezierConnection
-            {
-                NodeIdA = source.NodeIdA,
-                NodeIdB = source.NodeIdB,
-                AnchorPercent = source.AnchorPercent,
-                InHandleOffset = source.InHandleOffset,
-                OutHandleOffset = source.OutHandleOffset,
-                MirrorHandles = source.MirrorHandles
-            };
+            return source.Clone();
         }
     }
 }

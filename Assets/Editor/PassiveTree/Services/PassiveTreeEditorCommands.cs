@@ -293,6 +293,16 @@ namespace Scripts.Editor.PassiveTree
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
 
+        public void RemoveLastBezierKnot(PassiveBezierConnection connection)
+        {
+            if (_tree == null || connection == null || connection.Knots == null || connection.Knots.Count == 0)
+                return;
+
+            RecordTree("Remove Bezier Knot");
+            connection.RemoveKnot(connection.Knots.Count - 1);
+            PassiveTreeAssetPersistence.SaveAssets(_tree);
+        }
+
         public void ResetBezierHandles(PassiveBezierConnection connection)
         {
             if (_tree == null || connection == null)
@@ -312,6 +322,8 @@ namespace Scripts.Editor.PassiveTree
             connection.AnchorPercent = defaults.AnchorPercent;
             connection.InHandleOffset = defaults.InHandleOffset;
             connection.OutHandleOffset = defaults.OutHandleOffset;
+            connection.UseSpanPath = false;
+            connection.Knots?.Clear();
             if (connection.MirrorHandles)
                 connection.OutHandleOffset = PassiveBezierMath.MirrorHandle(connection.InHandleOffset);
             PassiveTreeAssetPersistence.SaveAssets(_tree);
@@ -340,9 +352,7 @@ namespace Scripts.Editor.PassiveTree
                 return;
 
             RecordTree("Flip Bezier Side");
-            Vector2 axis = nodeB.GetWorldPosition(_tree) - nodeA.GetWorldPosition(_tree);
-            connection.InHandleOffset = PassiveBezierMath.ReflectAcrossAxis(connection.InHandleOffset, axis);
-            connection.OutHandleOffset = PassiveBezierMath.ReflectAcrossAxis(connection.OutHandleOffset, axis);
+            connection.ReflectAcrossChord(nodeA.GetWorldPosition(_tree), nodeB.GetWorldPosition(_tree));
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
 
@@ -518,7 +528,7 @@ namespace Scripts.Editor.PassiveTree
                 node.OrbitAngle = 0f;
             }
 
-            RotateInternalBezierHandles(selectedIds, degrees);
+            RotateInternalBezierHandles(selectedIds, pivot, degrees);
             _tree.InitLookup();
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
@@ -570,12 +580,12 @@ namespace Scripts.Editor.PassiveTree
                 }
             }
 
-            RotateInternalBezierHandles(rotatedNodeIds, degrees);
+            RotateInternalBezierHandles(rotatedNodeIds, pivot, degrees);
             _tree.InitLookup();
             PassiveTreeAssetPersistence.SaveAssets(_tree);
         }
 
-        private void RotateInternalBezierHandles(HashSet<string> selectedNodeIds, float degrees)
+        private void RotateInternalBezierHandles(HashSet<string> selectedNodeIds, Vector2 pivot, float degrees)
         {
             if (_tree?.BezierConnections == null || selectedNodeIds == null || selectedNodeIds.Count == 0)
                 return;
@@ -586,6 +596,19 @@ namespace Scripts.Editor.PassiveTree
                     continue;
                 connection.InHandleOffset = RotateVector(connection.InHandleOffset, degrees);
                 connection.OutHandleOffset = RotateVector(connection.OutHandleOffset, degrees);
+                connection.StartOutOffset = RotateVector(connection.StartOutOffset, degrees);
+                connection.EndInOffset = RotateVector(connection.EndInOffset, degrees);
+                if (connection.Knots == null)
+                    continue;
+                for (int i = 0; i < connection.Knots.Count; i++)
+                {
+                    PassiveBezierKnot knot = connection.Knots[i];
+                    if (knot == null)
+                        continue;
+                    knot.Position = RotatePoint(knot.Position, pivot, degrees);
+                    knot.InHandleOffset = RotateVector(knot.InHandleOffset, degrees);
+                    knot.OutHandleOffset = RotateVector(knot.OutHandleOffset, degrees);
+                }
             }
         }
 

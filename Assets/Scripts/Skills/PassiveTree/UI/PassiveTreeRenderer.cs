@@ -445,13 +445,11 @@ namespace Scripts.Skills.PassiveTree.UI
             var storedB = treeData.GetNode(bezier.NodeIdB) ?? nodeB;
             Vector2 posA = storedA.GetWorldPosition(treeData);
             Vector2 posB = storedB.GetWorldPosition(treeData);
-            bezier.GetCubicPoints(posA, posB, out Vector2 p0, out Vector2 c1, out Vector2 c2, out Vector2 p3);
+            var spanPoints = new System.Collections.Generic.List<Vector2>();
+            bezier.CopySpans(posA, posB, spanPoints);
 
             var bezierLine = new BezierLineElement(
-                p0,
-                c1,
-                c2,
-                p3,
+                spanPoints,
                 _theme.LineThickness,
                 _theme.LineLockedInnerThicknessScale,
                 _theme.LineLockedOuter,
@@ -728,20 +726,14 @@ namespace Scripts.Skills.PassiveTree.UI
 
         private sealed class BezierLineElement : VisualElement
         {
-            private readonly Vector2 _localP0;
-            private readonly Vector2 _localC1;
-            private readonly Vector2 _localC2;
-            private readonly Vector2 _localP3;
+            private readonly List<Vector2> _localPoints = new List<Vector2>();
             private readonly float _thickness;
             private float _innerThicknessScale;
             private Color _outerStrokeColor;
             private Color _innerStrokeColor;
 
             public BezierLineElement(
-                Vector2 p0,
-                Vector2 c1,
-                Vector2 c2,
-                Vector2 p3,
+                List<Vector2> spanPoints,
                 float thickness,
                 float innerThicknessScale,
                 Color outerStrokeColor,
@@ -753,12 +745,19 @@ namespace Scripts.Skills.PassiveTree.UI
                 _innerStrokeColor = innerStrokeColor;
 
                 float padding = thickness * 2f;
-                Rect bounds = PassiveBezierMath.Bounds(p0, c1, c2, p3, padding);
+                Rect bounds = new Rect(spanPoints.Count > 0 ? spanPoints[0] : Vector2.zero, Vector2.zero);
+                for (int i = 0; i + 3 < spanPoints.Count; i += 4)
+                {
+                    Rect span = PassiveBezierMath.Bounds(spanPoints[i], spanPoints[i + 1], spanPoints[i + 2], spanPoints[i + 3], padding);
+                    bounds = Rect.MinMaxRect(
+                        Mathf.Min(bounds.xMin, span.xMin),
+                        Mathf.Min(bounds.yMin, span.yMin),
+                        Mathf.Max(bounds.xMax, span.xMax),
+                        Mathf.Max(bounds.yMax, span.yMax));
+                }
                 Vector2 origin = new Vector2(bounds.xMin, bounds.yMin);
-                _localP0 = p0 - origin;
-                _localC1 = c1 - origin;
-                _localC2 = c2 - origin;
-                _localP3 = p3 - origin;
+                for (int i = 0; i < spanPoints.Count; i++)
+                    _localPoints.Add(spanPoints[i] - origin);
 
                 style.position = Position.Absolute;
                 style.left = bounds.xMin;
@@ -789,16 +788,23 @@ namespace Scripts.Skills.PassiveTree.UI
 
                 painter.lineWidth = _thickness;
                 painter.strokeColor = _outerStrokeColor;
-                painter.BeginPath();
-                painter.MoveTo(_localP0);
-                painter.BezierCurveTo(_localC1, _localC2, _localP3);
-                painter.Stroke();
+                StrokeSpans(painter);
 
                 painter.lineWidth = _thickness * _innerThicknessScale;
                 painter.strokeColor = _innerStrokeColor;
+                StrokeSpans(painter);
+            }
+
+            private void StrokeSpans(Painter2D painter)
+            {
+                if (_localPoints.Count < 4)
+                    return;
                 painter.BeginPath();
-                painter.MoveTo(_localP0);
-                painter.BezierCurveTo(_localC1, _localC2, _localP3);
+                for (int i = 0; i + 3 < _localPoints.Count; i += 4)
+                {
+                    painter.MoveTo(_localPoints[i]);
+                    painter.BezierCurveTo(_localPoints[i + 1], _localPoints[i + 2], _localPoints[i + 3]);
+                }
                 painter.Stroke();
             }
         }

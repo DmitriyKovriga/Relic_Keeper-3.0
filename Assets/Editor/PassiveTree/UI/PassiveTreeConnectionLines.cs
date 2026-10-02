@@ -169,10 +169,7 @@ namespace Scripts.Editor.PassiveTree
         private readonly Color _idleColor;
         private readonly Color _selectedColor;
         private readonly float _lineWidth;
-        private Vector2 _localP0;
-        private Vector2 _localC1;
-        private Vector2 _localC2;
-        private Vector2 _localP3;
+        private readonly List<Vector2> _localPoints = new List<Vector2>();
         private bool _selected;
 
         public PassiveBezierConnection Connection { get; }
@@ -194,19 +191,30 @@ namespace Scripts.Editor.PassiveTree
             if (Connection == null)
                 return;
 
-            Connection.GetCubicPoints(posA, posB, out Vector2 p0, out Vector2 c1, out Vector2 c2, out Vector2 p3);
-            Rect bounds = PassiveBezierMath.Bounds(p0, c1, c2, p3, BoundsPadding);
+            var world = new List<Vector2>();
+            Connection.CopySpans(posA, posB, world);
+            Rect bounds = Rect.MinMaxRect(posA.x, posA.y, posA.x, posA.y);
+            for (int i = 0; i + 3 < world.Count; i += 4)
+                bounds = Encapsulate(bounds, PassiveBezierMath.Bounds(world[i], world[i + 1], world[i + 2], world[i + 3], BoundsPadding));
             style.left = bounds.xMin;
             style.top = bounds.yMin;
             style.width = Mathf.Max(1f, bounds.width);
             style.height = Mathf.Max(1f, bounds.height);
 
             Vector2 origin = new Vector2(bounds.xMin, bounds.yMin);
-            _localP0 = p0 - origin;
-            _localC1 = c1 - origin;
-            _localC2 = c2 - origin;
-            _localP3 = p3 - origin;
+            _localPoints.Clear();
+            for (int i = 0; i < world.Count; i++)
+                _localPoints.Add(world[i] - origin);
             MarkDirtyRepaint();
+        }
+
+        private static Rect Encapsulate(Rect a, Rect b)
+        {
+            return Rect.MinMaxRect(
+                Mathf.Min(a.xMin, b.xMin),
+                Mathf.Min(a.yMin, b.yMin),
+                Mathf.Max(a.xMax, b.xMax),
+                Mathf.Max(a.yMax, b.yMax));
         }
 
         public void SetSelected(bool selected)
@@ -220,19 +228,31 @@ namespace Scripts.Editor.PassiveTree
 
         public override bool ContainsPoint(Vector2 localPoint)
         {
-            return PassiveBezierMath.DistanceToCubic(_localP0, _localC1, _localC2, _localP3, localPoint) <= HitThreshold;
+            for (int i = 0; i + 3 < _localPoints.Count; i += 4)
+            {
+                if (PassiveBezierMath.DistanceToCubic(_localPoints[i], _localPoints[i + 1], _localPoints[i + 2], _localPoints[i + 3], localPoint) <= HitThreshold)
+                    return true;
+            }
+
+            return false;
         }
 
         private void OnGenerateVisualContent(MeshGenerationContext ctx)
         {
+            if (_localPoints.Count < 4)
+                return;
+
             var painter = ctx.painter2D;
             painter.lineWidth = _selected ? _lineWidth + 1.5f : _lineWidth;
             painter.strokeColor = _selected ? _selectedColor : _idleColor;
             painter.lineCap = LineCap.Round;
             painter.lineJoin = LineJoin.Round;
             painter.BeginPath();
-            painter.MoveTo(_localP0);
-            painter.BezierCurveTo(_localC1, _localC2, _localP3);
+            for (int i = 0; i + 3 < _localPoints.Count; i += 4)
+            {
+                painter.MoveTo(_localPoints[i]);
+                painter.BezierCurveTo(_localPoints[i + 1], _localPoints[i + 2], _localPoints[i + 3]);
+            }
             painter.Stroke();
         }
     }

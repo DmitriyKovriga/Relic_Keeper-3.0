@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Scripts.Skills.PassiveTree
@@ -26,6 +27,21 @@ namespace Scripts.Skills.PassiveTree
         [Tooltip("When enabled, dragging either handle keeps the other handle exactly mirrored around the anchor.")]
         public bool MirrorHandles;
 
+        [Tooltip("When enabled, the curve is a chain of cubics through Knots instead of the single anchor curve.")]
+        public bool UseSpanPath;
+
+        [Tooltip("Outgoing handle offset from node A. Used when UseSpanPath is set.")]
+        public Vector2 StartOutOffset;
+
+        [Tooltip("Incoming handle offset from node B. Used when UseSpanPath is set.")]
+        public Vector2 EndInOffset;
+
+        public List<PassiveBezierKnot> Knots = new List<PassiveBezierKnot>();
+
+        public bool HasKnots => Knots != null && Knots.Count > 0;
+
+        public int SpanCount => UseSpanPath ? (Knots?.Count ?? 0) + 1 : 1;
+
         public bool Matches(string nodeIdA, string nodeIdB)
         {
             SortIds(ref nodeIdA, ref nodeIdB);
@@ -40,6 +56,21 @@ namespace Scripts.Skills.PassiveTree
             (NodeIdA, NodeIdB) = (NodeIdB, NodeIdA);
             (InHandleOffset, OutHandleOffset) = (OutHandleOffset, InHandleOffset);
             AnchorPercent = 100f - AnchorPercent;
+            if (!UseSpanPath)
+                return;
+
+            (StartOutOffset, EndInOffset) = (EndInOffset, StartOutOffset);
+            if (Knots == null)
+                return;
+
+            Knots.Reverse();
+            for (int i = 0; i < Knots.Count; i++)
+            {
+                PassiveBezierKnot knot = Knots[i];
+                if (knot == null)
+                    continue;
+                (knot.InHandleOffset, knot.OutHandleOffset) = (knot.OutHandleOffset, knot.InHandleOffset);
+            }
         }
 
         public Vector2 GetAnchor(Vector2 posA, Vector2 posB)
@@ -91,6 +122,224 @@ namespace Scripts.Skills.PassiveTree
             (idA, idB) = (idB, idA);
             (posA, posB) = (posB, posA);
         }
+
+        public void CopySpans(Vector2 posA, Vector2 posB, List<Vector2> points)
+        {
+            points?.Clear();
+            if (points == null)
+                return;
+
+            int count = SpanCount;
+            for (int i = 0; i < count; i++)
+            {
+                GetSpan(posA, posB, i, out Vector2 p0, out Vector2 c1, out Vector2 c2, out Vector2 p3);
+                points.Add(p0);
+                points.Add(c1);
+                points.Add(c2);
+                points.Add(p3);
+            }
+        }
+
+        public void GetSpan(Vector2 posA, Vector2 posB, int index, out Vector2 p0, out Vector2 c1, out Vector2 c2, out Vector2 p3)
+        {
+            if (!UseSpanPath)
+            {
+                GetCubicPoints(posA, posB, out p0, out c1, out c2, out p3);
+                return;
+            }
+
+            int knots = Knots?.Count ?? 0;
+            index = Mathf.Clamp(index, 0, knots);
+            Vector2 start = index == 0 ? posA : Knots[index - 1].Position;
+            Vector2 end = index >= knots ? posB : Knots[index].Position;
+            Vector2 outOffset = index == 0 ? StartOutOffset : Knots[index - 1].OutHandleOffset;
+            Vector2 inOffset = index >= knots ? EndInOffset : Knots[index].InHandleOffset;
+            p0 = start;
+            p3 = end;
+            c1 = start + outOffset;
+            c2 = end + inOffset;
+        }
+
+        public float DistanceToPoint(Vector2 posA, Vector2 posB, Vector2 point)
+        {
+            float best = float.MaxValue;
+            int count = SpanCount;
+            for (int i = 0; i < count; i++)
+            {
+                GetSpan(posA, posB, i, out Vector2 p0, out Vector2 c1, out Vector2 c2, out Vector2 p3);
+                best = Mathf.Min(best, PassiveBezierMath.DistanceToCubic(p0, c1, c2, p3, point));
+            }
+
+            return best;
+        }
+
+        public bool TryInsertKnot(Vector2 posA, Vector2 posB, Vector2 click, float maxDistance, out int knotIndex)
+        {
+            knotIndex = -1;
+            int count = SpanCount;
+            int bestSpan = -1;
+            float bestT = 0f;
+            float bestDistance = maxDistance;
+            for (int i = 0; i < count; i++)
+            {
+                GetSpan(posA, posB, i, out Vector2 p0, out Vector2 c1, out Vector2 c2, out Vector2 p3);
+                if (!PassiveBezierMath.TryClosestOnCubic(p0, c1, c2, p3, click, out float t, out _, out float distance))
+                    continue;
+                if (distance >= bestDistance)
+                    continue;
+                bestDistance = distance;
+                bestSpan = i;
+                bestT = t;
+            }
+
+            if (bestSpan < 0 || bestT < 0.06f || bestT > 0.94f)
+                return false;
+
+            GetSpan(posA, posB, bestSpan, out Vector2 span0, out Vector2 span1, out Vector2 span2, out Vector2 span3);
+            PassiveBezierMath.SplitCubic(span0, span1, span2, span3, bestT,
+                out Vector2 left0, out Vector2 left1, out Vector2 left2, out Vector2 left3,
+                out _, out Vector2 right1, out Vector2 right2, out Vector2 right3);
+
+            Knots ??= new List<PassiveBezierKnot>();
+            var knot = new PassiveBezierKnot
+            {
+                Position = left3,
+                InHandleOffset = left2 - left3,
+                OutHandleOffset = right1 - left3,
+                MirrorHandles = true
+            };
+
+            if (!UseSpanPath)
+            {
+                StartOutOffset = left1 - left0;
+                EndInOffset = right2 - right3;
+                Knots.Clear();
+                Knots.Add(knot);
+                UseSpanPath = true;
+                knotIndex = 0;
+                return true;
+            }
+
+            if (bestSpan == 0)
+                StartOutOffset = left1 - left0;
+            else if (Knots[bestSpan - 1] != null)
+                Knots[bestSpan - 1].OutHandleOffset = left1 - left0;
+
+            if (bestSpan >= Knots.Count)
+                EndInOffset = right2 - right3;
+            else if (Knots[bestSpan] != null)
+                Knots[bestSpan].InHandleOffset = right2 - right3;
+
+            Knots.Insert(bestSpan, knot);
+            knotIndex = bestSpan;
+            return true;
+        }
+
+        public bool RemoveKnot(int index)
+        {
+            if (!UseSpanPath || Knots == null || index < 0 || index >= Knots.Count)
+                return false;
+
+            Knots.RemoveAt(index);
+            return true;
+        }
+
+        public void ReflectAcrossChord(Vector2 posA, Vector2 posB)
+        {
+            Vector2 axis = posB - posA;
+            InHandleOffset = PassiveBezierMath.ReflectAcrossAxis(InHandleOffset, axis);
+            OutHandleOffset = PassiveBezierMath.ReflectAcrossAxis(OutHandleOffset, axis);
+            if (!UseSpanPath)
+                return;
+
+            StartOutOffset = PassiveBezierMath.ReflectAcrossAxis(StartOutOffset, axis);
+            EndInOffset = PassiveBezierMath.ReflectAcrossAxis(EndInOffset, axis);
+            if (Knots == null)
+                return;
+
+            for (int i = 0; i < Knots.Count; i++)
+            {
+                PassiveBezierKnot knot = Knots[i];
+                if (knot == null)
+                    continue;
+                knot.Position = posA + PassiveBezierMath.ReflectAcrossAxis(knot.Position - posA, axis);
+                knot.InHandleOffset = PassiveBezierMath.ReflectAcrossAxis(knot.InHandleOffset, axis);
+                knot.OutHandleOffset = PassiveBezierMath.ReflectAcrossAxis(knot.OutHandleOffset, axis);
+            }
+        }
+
+        public PassiveBezierConnection Clone()
+        {
+            var copy = new PassiveBezierConnection
+            {
+                NodeIdA = NodeIdA,
+                NodeIdB = NodeIdB,
+                AnchorPercent = AnchorPercent,
+                InHandleOffset = InHandleOffset,
+                OutHandleOffset = OutHandleOffset,
+                MirrorHandles = MirrorHandles,
+                UseSpanPath = UseSpanPath,
+                StartOutOffset = StartOutOffset,
+                EndInOffset = EndInOffset,
+                Knots = new List<PassiveBezierKnot>()
+            };
+            if (Knots == null)
+                return copy;
+
+            for (int i = 0; i < Knots.Count; i++)
+            {
+                PassiveBezierKnot knot = Knots[i];
+                if (knot == null)
+                    continue;
+                copy.Knots.Add(knot.Clone());
+            }
+
+            return copy;
+        }
+
+        public void MapAffine(Func<Vector2, Vector2> mapPoint)
+        {
+            if (mapPoint == null)
+                return;
+
+            Vector2 MapVector(Vector2 value) => mapPoint(value) - mapPoint(Vector2.zero);
+            InHandleOffset = MapVector(InHandleOffset);
+            OutHandleOffset = MapVector(OutHandleOffset);
+            StartOutOffset = MapVector(StartOutOffset);
+            EndInOffset = MapVector(EndInOffset);
+            if (Knots == null)
+                return;
+
+            for (int i = 0; i < Knots.Count; i++)
+            {
+                PassiveBezierKnot knot = Knots[i];
+                if (knot == null)
+                    continue;
+                knot.Position = mapPoint(knot.Position);
+                knot.InHandleOffset = MapVector(knot.InHandleOffset);
+                knot.OutHandleOffset = MapVector(knot.OutHandleOffset);
+            }
+        }
+    }
+
+    [Serializable]
+    public class PassiveBezierKnot
+    {
+        public Vector2 Position;
+        public Vector2 InHandleOffset;
+        public Vector2 OutHandleOffset;
+        public bool MirrorHandles = true;
+
+        public PassiveBezierKnot Clone()
+        {
+            return new PassiveBezierKnot
+            {
+                Position = Position,
+                InHandleOffset = InHandleOffset,
+                OutHandleOffset = OutHandleOffset,
+                MirrorHandles = MirrorHandles
+            };
+        }
     }
 
     public static class PassiveBezierMath
@@ -102,6 +351,61 @@ namespace Scripts.Skills.PassiveTree
             float uu = u * u;
             float tt = t * t;
             return (uu * u * p0) + (3f * uu * t * p1) + (3f * u * tt * p2) + (tt * t * p3);
+        }
+
+        public static void SplitCubic(
+            Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float t,
+            out Vector2 left0, out Vector2 left1, out Vector2 left2, out Vector2 left3,
+            out Vector2 right0, out Vector2 right1, out Vector2 right2, out Vector2 right3)
+        {
+            t = Mathf.Clamp(t, 0.001f, 0.999f);
+            Vector2 q0 = Vector2.Lerp(p0, p1, t);
+            Vector2 q1 = Vector2.Lerp(p1, p2, t);
+            Vector2 q2 = Vector2.Lerp(p2, p3, t);
+            Vector2 r0 = Vector2.Lerp(q0, q1, t);
+            Vector2 r1 = Vector2.Lerp(q1, q2, t);
+            Vector2 point = Vector2.Lerp(r0, r1, t);
+            left0 = p0;
+            left1 = q0;
+            left2 = r0;
+            left3 = point;
+            right0 = point;
+            right1 = r1;
+            right2 = q2;
+            right3 = p3;
+        }
+
+        public static bool TryClosestOnCubic(
+            Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, Vector2 point,
+            out float t, out Vector2 closest, out float distance, int samples = 32)
+        {
+            samples = Mathf.Max(8, samples);
+            t = 0f;
+            closest = p0;
+            distance = Vector2.Distance(point, p0);
+            Vector2 previous = p0;
+            float previousT = 0f;
+            for (int i = 1; i <= samples; i++)
+            {
+                float currentT = i / (float)samples;
+                Vector2 current = EvaluateCubic(p0, p1, p2, p3, currentT);
+                Vector2 ab = current - previous;
+                float lengthSq = ab.sqrMagnitude;
+                float segmentT = lengthSq < 0.0001f ? 0f : Mathf.Clamp01(Vector2.Dot(point - previous, ab) / lengthSq);
+                Vector2 projected = previous + ab * segmentT;
+                float candidate = Vector2.Distance(point, projected);
+                if (candidate < distance)
+                {
+                    distance = candidate;
+                    closest = projected;
+                    t = Mathf.Lerp(previousT, currentT, segmentT);
+                }
+
+                previous = current;
+                previousT = currentT;
+            }
+
+            return true;
         }
 
         public static float DistanceToCubic(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, Vector2 point, int samples = 32)

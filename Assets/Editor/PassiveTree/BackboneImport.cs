@@ -164,15 +164,36 @@ namespace Scripts.Editor.PassiveTree
                     if (src == null || !created.ContainsKey(src.a) || !created.ContainsKey(src.b))
                         continue;
                     AddLink(created[src.a], created[src.b]);
-                    tree.BezierConnections.Add(new PassiveBezierConnection
+                    var imported = new PassiveBezierConnection
                     {
                         NodeIdA = src.a,
                         NodeIdB = src.b,
                         AnchorPercent = src.anchor <= 0f ? 50f : src.anchor,
                         InHandleOffset = new Vector2(src.inX, src.inY),
                         OutHandleOffset = new Vector2(src.outX, src.outY),
-                        MirrorHandles = src.mirror
-                    });
+                        MirrorHandles = src.mirror,
+                        UseSpanPath = src.span,
+                        StartOutOffset = new Vector2(src.startOutX, src.startOutY),
+                        EndInOffset = new Vector2(src.endInX, src.endInY),
+                        Knots = new System.Collections.Generic.List<PassiveBezierKnot>()
+                    };
+                    if (src.knots != null)
+                    {
+                        for (int k = 0; k < src.knots.Length; k++)
+                        {
+                            BackboneKnot knot = src.knots[k];
+                            if (knot == null)
+                                continue;
+                            imported.Knots.Add(new PassiveBezierKnot
+                            {
+                                Position = new Vector2(knot.x, knot.y),
+                                InHandleOffset = new Vector2(knot.inX, knot.inY),
+                                OutHandleOffset = new Vector2(knot.outX, knot.outY),
+                                MirrorHandles = knot.mirror
+                            });
+                        }
+                    }
+                    tree.BezierConnections.Add(imported);
                     tree.BezierConnections[tree.BezierConnections.Count - 1].NormalizeIds();
                 }
             }
@@ -242,6 +263,24 @@ namespace Scripts.Editor.PassiveTree
             public string a;
             public string b;
             public float anchor;
+            public float inX;
+            public float inY;
+            public float outX;
+            public float outY;
+            public bool mirror;
+            public bool span;
+            public float startOutX;
+            public float startOutY;
+            public float endInX;
+            public float endInY;
+            public BackboneKnot[] knots;
+        }
+
+        [Serializable]
+        class BackboneKnot
+        {
+            public float x;
+            public float y;
             public float inX;
             public float inY;
             public float outX;

@@ -109,8 +109,17 @@ namespace Scripts.Editor.PassiveTree
                     {
                         Vector2 ca = tree.GetNode(curve.NodeIdA).GetWorldPosition(tree);
                         Vector2 cb = tree.GetNode(curve.NodeIdB).GetWorldPosition(tree);
-                        curve.GetCubicPoints(ca, cb, out _, out Vector2 c1, out Vector2 c2, out _);
-                        result.Edges.Add(new Edge(curve.NodeIdA, curve.NodeIdB, Cubic(ca, c1, c2, cb)));
+                        var spanPoints = new List<Vector2>();
+                        curve.CopySpans(ca, cb, spanPoints);
+                        var sampled = new List<Vector2>();
+                        for (int s = 0; s + 3 < spanPoints.Count; s += 4)
+                        {
+                            Vector2[] cubic = Cubic(spanPoints[s], spanPoints[s + 1], spanPoints[s + 2], spanPoints[s + 3]);
+                            if (sampled.Count > 0)
+                                sampled.RemoveAt(sampled.Count - 1);
+                            sampled.AddRange(cubic);
+                        }
+                        result.Edges.Add(new Edge(curve.NodeIdA, curve.NodeIdB, sampled.ToArray()));
                         continue;
                     }
                     if (n.PlacementMode == NodePlacementMode.OnOrbit && other.PlacementMode == NodePlacementMode.OnOrbit &&

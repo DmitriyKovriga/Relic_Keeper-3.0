@@ -717,6 +717,34 @@ MonoBehaviour:
     - 84c06faf6e3257a1c6cbb531e63b7d4f
     IsBackbone: 0
     ZoneTwinId: 
+  - ID: f89cc726-3d78-4d3a-a2f9-a952f9d9b872
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 2177.3828, y: 1475.0587}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - 9d13d50b-60f1-43d6-a10f-78dd8ce58a60
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: 9d13d50b-60f1-43d6-a10f-78dd8ce58a60
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 2322.4329, y: 1444.0652}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 0}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - f89cc726-3d78-4d3a-a2f9-a952f9d9b872
+    IsBackbone: 0
+    ZoneTwinId: 
   Clusters:
   - ID: e4b6477e706ca2adfbe4f60eb10f04db
     Name: Z0 Large / 46c14d1cd4168611
@@ -772,7 +800,17 @@ MonoBehaviour:
       ArcEndAngle: 360
     EditorColor: {r: 0.44, g: 0.51, b: 0.68, a: 0.3}
     RoadConnections: []
-  BezierConnections: []
+  BezierConnections:
+  - NodeIdA: 9d13d50b-60f1-43d6-a10f-78dd8ce58a60
+    NodeIdB: f89cc726-3d78-4d3a-a2f9-a952f9d9b872
+    AnchorPercent: 50
+    InHandleOffset: {x: 33.795437, y: -40.5892}
+    OutHandleOffset: {x: -47.43259, y: -23.232822}
+    MirrorHandles: 0
+    UseSpanPath: 0
+    StartOutOffset: {x: 0, y: 0}
+    EndInOffset: {x: 0, y: 0}
+    Knots: []
   GridSize: 20
   SnapToGrid: 0
   ZoneToolsEnabled: 1
