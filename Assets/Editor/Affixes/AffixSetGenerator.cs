@@ -798,8 +798,7 @@ namespace Scripts.Editor.Affixes
         private static string GenerateValueTemplateEn(StatType stat, StatAffixModifierKind kind, string statName, StatValueUnit unit, string localizedUnit, bool isRangeValue)
         {
             const string SignedValue = "{0:+0.##;-0.##;0}";
-            const string SignedRangeMin = "{0:+0.##;-0.##;0}";
-            const string SignedRangeMax = "{1:+0.##;-0.##;0}";
+            const string PositiveRange = "+{0:0.##}-{1:0.##}";
 
             if (StatsDatabaseSO.IsCooldownRecoveryStat(stat))
                 return StatPresentation.CooldownRecoveryAffixTemplate(stat, kind, false);
@@ -821,14 +820,14 @@ namespace Scripts.Editor.Affixes
                     if (isRangeValue)
                     {
                         if (unit == StatValueUnit.Percent)
-                            return $"{SignedRangeMin}-{SignedRangeMax}% to {statName}";
+                            return $"{PositiveRange}% to {statName}";
 
                         if (string.IsNullOrEmpty(localizedUnit))
-                            return $"{SignedRangeMin}-{SignedRangeMax} to {statName}";
+                            return $"{PositiveRange} to {statName}";
 
                         return StatPresentation.IsSymbolUnit(unit)
-                            ? $"{SignedRangeMin}-{SignedRangeMax}{localizedUnit} to {statName}"
-                            : $"{SignedRangeMin}-{SignedRangeMax} {localizedUnit} to {statName}";
+                            ? $"{PositiveRange}{localizedUnit} to {statName}"
+                            : $"{PositiveRange} {localizedUnit} to {statName}";
                     }
 
                     if (unit == StatValueUnit.Percent)
@@ -846,8 +845,7 @@ namespace Scripts.Editor.Affixes
         private static string GenerateValueTemplateRu(StatType stat, StatAffixModifierKind kind, string statName, StatValueUnit unit, string localizedUnit, bool isRangeValue)
         {
             const string SignedValue = "{0:+0.##;-0.##;0}";
-            const string SignedRangeMin = "{0:+0.##;-0.##;0}";
-            const string SignedRangeMax = "{1:+0.##;-0.##;0}";
+            const string PositiveRange = "+{0:0.##}-{1:0.##}";
 
             if (StatsDatabaseSO.IsCooldownRecoveryStat(stat))
                 return StatPresentation.CooldownRecoveryAffixTemplate(stat, kind, true);
@@ -869,14 +867,14 @@ namespace Scripts.Editor.Affixes
                     if (isRangeValue)
                     {
                         if (unit == StatValueUnit.Percent)
-                            return $"{SignedRangeMin}-{SignedRangeMax}% \u043a {statName}";
+                            return $"{PositiveRange}% \u043a {statName}";
 
                         if (string.IsNullOrEmpty(localizedUnit))
-                            return $"{SignedRangeMin}-{SignedRangeMax} \u043a {statName}";
+                            return $"{PositiveRange} \u043a {statName}";
 
                         return StatPresentation.IsSymbolUnit(unit)
-                            ? $"{SignedRangeMin}-{SignedRangeMax}{localizedUnit} \u043a {statName}"
-                            : $"{SignedRangeMin}-{SignedRangeMax} {localizedUnit} \u043a {statName}";
+                            ? $"{PositiveRange}{localizedUnit} \u043a {statName}"
+                            : $"{PositiveRange} {localizedUnit} \u043a {statName}";
                     }
 
                     if (unit == StatValueUnit.Percent)
