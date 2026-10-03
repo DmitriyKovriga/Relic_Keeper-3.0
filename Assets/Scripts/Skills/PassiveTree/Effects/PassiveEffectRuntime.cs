@@ -377,7 +377,13 @@ namespace Scripts.Skills.PassiveTree
             if (id == null)
                 return false;
 
-            return controller.ApplyRuntimeStatusEffect(effect.BuffModifiers, effect.BuffDurationSeconds, StatusEffectKind.Buff, entry, id) != null;
+            return controller.ApplyRuntimeStatusEffect(
+                effect.BuffModifiers,
+                effect.BuffDurationSeconds,
+                StatusEffectKind.Buff,
+                entry,
+                id,
+                effect.BuffAuraColor) != null;
         }
 
         private static string ResolveBuffInstanceId(StatusEffectController controller, TriggerEntry entry)

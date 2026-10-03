@@ -2177,6 +2177,41 @@ namespace Scripts.Editor.Skills
             float duration = Mathf.Max(0f, step.GetFloat("Duration", 0f));
             float newDuration = Mathf.Max(0f, EditorGUILayout.FloatField("Duration seconds (0 = skill only)", duration));
             if (Mathf.Abs(newDuration - duration) > 0.001f) { step.SetOverrideFloat("Duration", newDuration); EditorUtility.SetDirty(recipe); }
+
+            DrawAuraFields(recipe, step);
+        }
+
+        private void DrawAuraFields(SkillRecipeSO recipe, StepEntry step)
+        {
+            bool specified = false;
+            if (step.Overrides != null)
+            {
+                for (int i = 0; i < step.Overrides.Count; i++)
+                {
+                    if (step.Overrides[i] != null && step.Overrides[i].Key == "AuraColor")
+                    {
+                        specified = true;
+                        break;
+                    }
+                }
+            }
+
+            int aura = specified
+                ? Mathf.Clamp(step.GetInt("AuraColor", (int)StatusAuraColor.Green), 0, (int)StatusAuraColor.Purple)
+                : (int)StatusAuraColor.Green;
+            int newAura = EditorGUILayout.Popup(
+                new GUIContent("Aura", "Свечение на персонаже, пока бафф действует. По умолчанию слабый зелёный. None выключает."),
+                aura,
+                new[] { "None", "Red", "Green", "Blue", "Purple" });
+            if (newAura != aura)
+            {
+                step.SetOverrideInt("AuraColor", newAura);
+                EditorUtility.SetDirty(recipe);
+            }
+
+            GameObject vfx = step.GetObject<GameObject>("AuraVfxPrefab");
+            GameObject newVfx = (GameObject)EditorGUILayout.ObjectField("Aura VFX", vfx, typeof(GameObject), false);
+            if (newVfx != vfx) { step.SetOverrideObject("AuraVfxPrefab", newVfx); EditorUtility.SetDirty(recipe); }
         }
 
         private void DrawModifyCooldownFields(SkillRecipeSO recipe, StepEntry step)
@@ -2599,6 +2634,8 @@ namespace Scripts.Editor.Skills
             float duration = Mathf.Max(0f, step.GetFloat("QuickStatusDuration", 0f));
             float newDuration = Mathf.Max(0f, EditorGUILayout.FloatField("Duration seconds (0 = skill only)", duration));
             if (Mathf.Abs(newDuration - duration) > 0.001f) { step.SetOverrideFloat("QuickStatusDuration", newDuration); EditorUtility.SetDirty(recipe); }
+
+            DrawAuraFields(recipe, step);
         }
 
         private void DrawHitboxAxisScaleFields(SkillRecipeSO recipe, StepEntry step)

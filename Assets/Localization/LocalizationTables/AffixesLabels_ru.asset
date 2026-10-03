@@ -621,101 +621,83 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62216765440
-    m_Localized: "{0:+0.##;-0.##;0} HP \u043A \u0417\u0434\u043E\u0440\u043E\u0432\u044C\u0435
-      \u0437\u0430 \u0431\u043B\u043E\u043A"
+    m_Localized: "{0:0.##} здоровья за блок"
     m_Metadata:
       m_Items: []
   - m_Id: 62216765441
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
-      \u0417\u0434\u043E\u0440\u043E\u0432\u044C\u0435 \u043F\u0440\u0438 \u0411\u043B\u043E\u043A\u0435"
+    m_Localized: "{0}% увеличение здоровья за блок"
     m_Metadata:
       m_Items: []
   - m_Id: 62220959744
-    m_Localized: "{0}% \u0431\u043E\u043B\u044C\u0448\u0435 \u0417\u0434\u043E\u0440\u043E\u0432\u044C\u0435
-      \u043F\u0440\u0438 \u0411\u043B\u043E\u043A\u0435"
+    m_Localized: "{0}% Больше здоровья за блок"
     m_Metadata:
       m_Items: []
   - m_Id: 62220959745
-    m_Localized: "{0:+0.##;-0.##;0} HP \u043A \u0417\u0434\u043E\u0440\u043E\u0432\u044C\u0435
-      \u0437\u0430 \u0443\u0434\u0430\u0440"
+    m_Localized: "{0:0.##} здоровья за удар"
     m_Metadata:
       m_Items: []
   - m_Id: 62229348352
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
-      \u0417\u0434\u043E\u0440\u043E\u0432\u044C\u0435 \u0437\u0430 \u0423\u0434\u0430\u0440"
+    m_Localized: "{0}% увеличение здоровья за удар"
     m_Metadata:
       m_Items: []
   - m_Id: 62229348353
-    m_Localized: "{0}% \u0431\u043E\u043B\u044C\u0448\u0435 \u0417\u0434\u043E\u0440\u043E\u0432\u044C\u0435
-      \u0437\u0430 \u0423\u0434\u0430\u0440"
+    m_Localized: "{0}% Больше здоровья за удар"
     m_Metadata:
       m_Items: []
   - m_Id: 62233542656
-    m_Localized: "{0:+0.##;-0.##;0} HP \u043A \u0420\u0435\u0433\u0435\u043D. \u0417\u0434\u043E\u0440\u043E\u0432\u044C\u044F"
+    m_Localized: "Восстановление {0:0.##} здоровья в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 62237736960
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
-      \u0420\u0435\u0433\u0435\u043D. \u0417\u0434\u043E\u0440\u043E\u0432\u044C\u044F"
+    m_Localized: "{0}% увеличение здоровья в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 62241931264
-    m_Localized: "{0}% \u0431\u043E\u043B\u044C\u0448\u0435 \u0420\u0435\u0433\u0435\u043D.
-      \u0417\u0434\u043E\u0440\u043E\u0432\u044C\u044F"
+    m_Localized: "{0}% Больше здоровья в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 62241931265
-    m_Localized: "{0:+0.##;-0.##;0}% \u043A \u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435
-      % \u0437\u0434\u043E\u0440\u043E\u0432\u044C\u044F \u0432 \u0441\u0435\u043A\u0443\u043D\u0434\u0443"
+    m_Localized: "Восстановление {0:0.##}% здоровья в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 62246125568
-    m_Localized: "{0:+0.##;-0.##;0} MP \u043A \u041C\u0430\u043D\u0430 \u0437\u0430
-      \u0431\u043B\u043E\u043A"
+    m_Localized: "{0:0.##} маны за блок"
     m_Metadata:
       m_Items: []
   - m_Id: 62250319872
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
-      \u041C\u0430\u043D\u0430 \u043F\u0440\u0438 \u0411\u043B\u043E\u043A\u0435"
+    m_Localized: "{0}% увеличение маны за блок"
     m_Metadata:
       m_Items: []
   - m_Id: 62250319873
-    m_Localized: "{0}% \u0431\u043E\u043B\u044C\u0448\u0435 \u041C\u0430\u043D\u0430
-      \u043F\u0440\u0438 \u0411\u043B\u043E\u043A\u0435"
+    m_Localized: "{0}% Больше маны за блок"
     m_Metadata:
       m_Items: []
   - m_Id: 62254514176
-    m_Localized: "{0:+0.##;-0.##;0} MP \u043A \u041C\u0430\u043D\u0430 \u0437\u0430
-      \u0443\u0434\u0430\u0440"
+    m_Localized: "{0:0.##} маны за удар"
     m_Metadata:
       m_Items: []
   - m_Id: 62258708480
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
-      \u041C\u0430\u043D\u0430 \u0437\u0430 \u0423\u0434\u0430\u0440"
+    m_Localized: "{0}% увеличение маны за удар"
     m_Metadata:
       m_Items: []
   - m_Id: 62262902784
-    m_Localized: "{0}% \u0431\u043E\u043B\u044C\u0448\u0435 \u041C\u0430\u043D\u0430
-      \u0437\u0430 \u0423\u0434\u0430\u0440"
+    m_Localized: "{0}% Больше маны за удар"
     m_Metadata:
       m_Items: []
   - m_Id: 62262902785
-    m_Localized: "{0:+0.##;-0.##;0} MP \u043A \u0420\u0435\u0433\u0435\u043D. \u041C\u0430\u043D\u044B"
+    m_Localized: "Восстановление {0:0.##} маны в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 62267097088
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
-      \u0420\u0435\u0433\u0435\u043D. \u041C\u0430\u043D\u044B"
+    m_Localized: "{0}% увеличение маны в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 62271291392
-    m_Localized: "{0}% \u0431\u043E\u043B\u044C\u0448\u0435 \u0420\u0435\u0433\u0435\u043D.
-      \u041C\u0430\u043D\u044B"
+    m_Localized: "{0}% Больше маны в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 62275485696
-    m_Localized: "{0:+0.##;-0.##;0}% \u043A \u0420\u0435\u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u044F
-      \u043C\u0430\u043D\u044B %"
+    m_Localized: "Восстановление {0:0.##}% маны в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 62279680000
@@ -58779,8 +58761,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025451775688705
-    m_Localized: "{0}% \u0443\u043C\u0435\u043D\u044C\u0448\u0435\u043D\u0438\u0435
-      \u0420\u0435\u0433\u0435\u043D. \u0417\u0434\u043E\u0440\u043E\u0432\u044C\u044F"
+    m_Localized: "{0}% уменьшение здоровья в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 24025451939266560
@@ -58859,8 +58840,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025454455848961
-    m_Localized: "{0}% \u043C\u0435\u043D\u044C\u0448\u0435 \u0420\u0435\u0433\u0435\u043D.
-      \u0417\u0434\u043E\u0440\u043E\u0432\u044C\u044F"
+    m_Localized: "{0}% Меньше здоровья в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 24025454652981248
@@ -58940,9 +58920,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025457203118081
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
-      \u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435
-      % \u0437\u0434\u043E\u0440\u043E\u0432\u044C\u044F \u0432 \u0441\u0435\u043A\u0443\u043D\u0434\u0443"
+    m_Localized: "{0}% увеличение процента здоровья в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 24025457370890240
@@ -59036,9 +59014,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025459862306817
-    m_Localized: "{0}% \u0443\u043C\u0435\u043D\u044C\u0448\u0435\u043D\u0438\u0435
-      \u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435
-      % \u0437\u0434\u043E\u0440\u043E\u0432\u044C\u044F \u0432 \u0441\u0435\u043A\u0443\u043D\u0434\u0443"
+    m_Localized: "{0}% уменьшение процента здоровья в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 24025460038467584
@@ -59291,8 +59267,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025468171223041
-    m_Localized: "{0}% \u0443\u043C\u0435\u043D\u044C\u0448\u0435\u043D\u0438\u0435
-      \u0420\u0435\u0433\u0435\u043D. \u041C\u0430\u043D\u044B"
+    m_Localized: "{0}% уменьшение маны в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 24025468343189504
@@ -59371,8 +59346,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025470830411777
-    m_Localized: "{0}% \u043C\u0435\u043D\u044C\u0448\u0435 \u0420\u0435\u0433\u0435\u043D.
-      \u041C\u0430\u043D\u044B"
+    m_Localized: "{0}% Меньше маны в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 24025471006572544
@@ -59451,9 +59425,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025473514766337
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
-      \u0420\u0435\u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u044F \u043C\u0430\u043D\u044B
-      %"
+    m_Localized: "{0}% увеличение процента маны в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 24025473690927104
@@ -59532,9 +59504,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025476182343681
-    m_Localized: "{0}% \u0443\u043C\u0435\u043D\u044C\u0448\u0435\u043D\u0438\u0435
-      \u0420\u0435\u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u044F \u043C\u0430\u043D\u044B
-      %"
+    m_Localized: "{0}% уменьшение процента маны в сек"
     m_Metadata:
       m_Items: []
   - m_Id: 24025476354310144

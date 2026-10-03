@@ -27,7 +27,11 @@ public sealed class UIStatusEffectSlot : MonoBehaviour
 
         if (_iconImage != null)
         {
-            Sprite icon = effect != null && effect.Effect != null ? effect.Effect.Icon : null;
+            Sprite icon = effect != null
+                ? effect.HudIcon != null
+                    ? effect.HudIcon
+                    : effect.Effect != null ? effect.Effect.Icon : null
+                : null;
             _iconImage.sprite = icon;
             _iconImage.enabled = icon != null;
             _iconImage.color = Color.white;
@@ -87,8 +91,8 @@ public sealed class UIStatusEffectSlot : MonoBehaviour
             rect.SetParent(transform, false);
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
+            rect.offsetMin = Vector2.one;
+            rect.offsetMax = new Vector2(-1f, -1f);
 
             _iconImage = iconGo.GetComponent<Image>();
             _iconImage.raycastTarget = false;

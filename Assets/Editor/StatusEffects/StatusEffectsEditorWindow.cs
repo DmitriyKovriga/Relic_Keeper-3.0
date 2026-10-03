@@ -146,6 +146,8 @@ namespace Scripts.Editor.StatusEffects
             EditorGUILayout.PropertyField(so.FindProperty("DescriptionRu"));
             EditorGUILayout.PropertyField(so.FindProperty("Icon"));
             EditorGUILayout.PropertyField(so.FindProperty("ShowInHud"));
+            EditorGUILayout.PropertyField(so.FindProperty("AuraColor"), new GUIContent("Aura color"));
+            EditorGUILayout.PropertyField(so.FindProperty("AuraVfxPrefab"), new GUIContent("Aura VFX"));
             EditorGUILayout.Space(4f);
 
             EditorGUILayout.LabelField("Runtime", EditorStyles.boldLabel);
@@ -181,12 +183,15 @@ namespace Scripts.Editor.StatusEffects
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(settingsSo.FindProperty("IconSizePixels"), new GUIContent("Icon Size (px)"));
             EditorGUILayout.PropertyField(settingsSo.FindProperty("IconSpacingPixels"), new GUIContent("Icon Spacing (px)"));
+            EditorGUILayout.PropertyField(settingsSo.FindProperty("IconColumns"), new GUIContent("Columns"));
+            EditorGUILayout.PropertyField(settingsSo.FindProperty("AuraSpriteMaterial"), new GUIContent("Player glow material"));
 
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Reset to 5x5"))
+            if (GUILayout.Button("Reset to 16px"))
             {
-                settingsSo.FindProperty("IconSizePixels").floatValue = 5f;
-                settingsSo.FindProperty("IconSpacingPixels").floatValue = 0f;
+                settingsSo.FindProperty("IconSizePixels").floatValue = 16f;
+                settingsSo.FindProperty("IconSpacingPixels").floatValue = 1f;
+                settingsSo.FindProperty("IconColumns").intValue = 4;
             }
 
             if (GUILayout.Button("Ping HUD Settings"))
@@ -375,8 +380,9 @@ namespace Scripts.Editor.StatusEffects
             EnsureFolder(EditorPaths.StatusEffectsFolder);
 
             _hudSettings = CreateInstance<StatusEffectsHudSettingsSO>();
-            _hudSettings.IconSizePixels = 5f;
-            _hudSettings.IconSpacingPixels = 0f;
+            _hudSettings.IconSizePixels = 16f;
+            _hudSettings.IconSpacingPixels = 1f;
+            _hudSettings.IconColumns = 4;
             AssetDatabase.CreateAsset(_hudSettings, EditorPaths.StatusEffectsHudSettingsAsset);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

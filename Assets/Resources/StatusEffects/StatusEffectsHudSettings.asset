@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b1630c23b884034d8a3de27547b90f0, type: 3}
   m_Name: StatusEffectsHudSettings
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.StatusEffects.StatusEffectsHudSettingsSO
-  IconSizePixels: 5
-  IconSpacingPixels: 0
+  IconSizePixels: 16
+  IconSpacingPixels: 1
+  IconColumns: 4
+  AuraSpriteMaterial: {fileID: 2100000, guid: 454d7f4f5eab708419ade2d91a3d5f7c, type: 2}

@@ -273,6 +273,9 @@ namespace Scripts.Stats
             if (StatsDatabaseSO.IsCooldownRecoveryStat(type))
                 return FormatCooldownRecoveryLine(type, value, modifierType, RuntimeLocalization.IsRussian);
 
+            if (IsResourceGainStat(type))
+                return FormatResourceGainLine(type, value, modifierType, RuntimeLocalization.IsRussian);
+
             string valueText = FormatModifierValue(db, type, value, modifierType, russian: RuntimeLocalization.IsRussian);
             switch (lineStyle)
             {
@@ -364,6 +367,174 @@ namespace Scripts.Stats
                 _ => "faster"
             };
             return $"{signedAmount} {word} {label}";
+        }
+
+        public static bool IsResourceGainStat(StatType type)
+        {
+            switch (type)
+            {
+                case StatType.HealthRegen:
+                case StatType.HealthRegenPercent:
+                case StatType.ManaRegen:
+                case StatType.ManaRegenPercent:
+                case StatType.HealthOnHit:
+                case StatType.HealthOnBlock:
+                case StatType.ManaOnHit:
+                case StatType.ManaOnBlock:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static string FormatResourceGainLine(StatType type, float value, StatModType modifierType, bool russian)
+        {
+            string template = ResourceGainAffixTemplate(type, ResourceGainKind(modifierType), range: false, russian);
+            return string.Format(russian ? RussianCulture : CultureInfo.InvariantCulture, template, value);
+        }
+
+        public static string ResourceGainAffixTemplate(StatType type, StatAffixModifierKind kind, bool range, bool russian)
+        {
+            string amount = range ? "{0:0.##}-{1:0.##}" : "{0:0.##}";
+            if (russian)
+            {
+                switch (kind)
+                {
+                    case StatAffixModifierKind.Increase:
+                        return "{0}% увеличение " + ResourceGainPhrase(type, russian);
+                    case StatAffixModifierKind.Decrease:
+                        return "{0}% уменьшение " + ResourceGainPhrase(type, russian);
+                    case StatAffixModifierKind.More:
+                        return "{0}% Больше " + ResourceGainPhrase(type, russian);
+                    case StatAffixModifierKind.Less:
+                        return "{0}% Меньше " + ResourceGainPhrase(type, russian);
+                    default:
+                        return ResourceGainFlat(type, amount, russian);
+                }
+            }
+
+            switch (kind)
+            {
+                case StatAffixModifierKind.Increase:
+                    return "{0}% increased " + ResourceGainPhrase(type, russian);
+                case StatAffixModifierKind.Decrease:
+                    return "{0}% reduced " + ResourceGainPhrase(type, russian);
+                case StatAffixModifierKind.More:
+                    return "{0}% more " + ResourceGainPhrase(type, russian);
+                case StatAffixModifierKind.Less:
+                    return "{0}% less " + ResourceGainPhrase(type, russian);
+                default:
+                    return ResourceGainFlat(type, amount, russian);
+            }
+        }
+
+        private static StatAffixModifierKind ResourceGainKind(StatModType modifierType)
+        {
+            switch (modifierType)
+            {
+                case StatModType.PercentAdd:
+                    return StatAffixModifierKind.Increase;
+                case StatModType.PercentSub:
+                    return StatAffixModifierKind.Decrease;
+                case StatModType.PercentMult:
+                    return StatAffixModifierKind.More;
+                case StatModType.PercentLess:
+                    return StatAffixModifierKind.Less;
+                default:
+                    return StatAffixModifierKind.Flat;
+            }
+        }
+
+        private static string ResourceGainFlat(StatType type, string amount, bool russian)
+        {
+            if (russian)
+            {
+                switch (type)
+                {
+                    case StatType.HealthRegenPercent:
+                        return $"Восстановление {amount}% здоровья в сек";
+                    case StatType.ManaRegenPercent:
+                        return $"Восстановление {amount}% маны в сек";
+                    case StatType.HealthRegen:
+                        return $"Восстановление {amount} здоровья в сек";
+                    case StatType.ManaRegen:
+                        return $"Восстановление {amount} маны в сек";
+                    case StatType.HealthOnHit:
+                        return $"{amount} здоровья за удар";
+                    case StatType.HealthOnBlock:
+                        return $"{amount} здоровья за блок";
+                    case StatType.ManaOnHit:
+                        return $"{amount} маны за удар";
+                    default:
+                        return $"{amount} маны за блок";
+                }
+            }
+
+            switch (type)
+            {
+                case StatType.HealthRegenPercent:
+                    return $"Regenerate {amount}% Health per second";
+                case StatType.ManaRegenPercent:
+                    return $"Regenerate {amount}% Mana per second";
+                case StatType.HealthRegen:
+                    return $"Regenerate {amount} Health per second";
+                case StatType.ManaRegen:
+                    return $"Regenerate {amount} Mana per second";
+                case StatType.HealthOnHit:
+                    return $"{amount} Health on hit";
+                case StatType.HealthOnBlock:
+                    return $"{amount} Health on block";
+                case StatType.ManaOnHit:
+                    return $"{amount} Mana on hit";
+                default:
+                    return $"{amount} Mana on block";
+            }
+        }
+
+        private static string ResourceGainPhrase(StatType type, bool russian)
+        {
+            if (russian)
+            {
+                switch (type)
+                {
+                    case StatType.HealthRegenPercent:
+                        return "процента здоровья в сек";
+                    case StatType.ManaRegenPercent:
+                        return "процента маны в сек";
+                    case StatType.HealthRegen:
+                        return "здоровья в сек";
+                    case StatType.ManaRegen:
+                        return "маны в сек";
+                    case StatType.HealthOnHit:
+                        return "здоровья за удар";
+                    case StatType.HealthOnBlock:
+                        return "здоровья за блок";
+                    case StatType.ManaOnHit:
+                        return "маны за удар";
+                    default:
+                        return "маны за блок";
+                }
+            }
+
+            switch (type)
+            {
+                case StatType.HealthRegenPercent:
+                    return "percent Health per second";
+                case StatType.ManaRegenPercent:
+                    return "percent Mana per second";
+                case StatType.HealthRegen:
+                    return "Health per second";
+                case StatType.ManaRegen:
+                    return "Mana per second";
+                case StatType.HealthOnHit:
+                    return "Health on hit";
+                case StatType.HealthOnBlock:
+                    return "Health on block";
+                case StatType.ManaOnHit:
+                    return "Mana on hit";
+                default:
+                    return "Mana on block";
+            }
         }
 
         public static string FormatScalarValue(StatsDatabaseSO db, StatType type, float value)

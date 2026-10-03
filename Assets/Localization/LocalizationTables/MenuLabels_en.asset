@@ -79,7 +79,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13040720791764992
-    m_Localized: Health Regen
+    m_Localized: "Health per second"
     m_Metadata:
       m_Items: []
   - m_Id: 13040745169059840
@@ -95,7 +95,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13040799086837760
-    m_Localized: Mana Regen
+    m_Localized: "Mana per second"
     m_Metadata:
       m_Items: []
   - m_Id: 13040816262512640
@@ -1577,7 +1577,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 37686302508351488
-    m_Localized: Health Regen % per second
+    m_Localized: "Health restored per second"
     m_Metadata:
       m_Items: []
   - m_Id: 37907537213292544
@@ -1613,7 +1613,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 37907715366354944
-    m_Localized: Mana Regen %
+    m_Localized: "Mana restored per second"
     m_Metadata:
       m_Items: []
   - m_Id: 40798052820746240

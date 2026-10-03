@@ -511,83 +511,83 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 62216765440
-    m_Localized: '{0:+0.##;-0.##;0} HP to Health on Block'
+    m_Localized: "{0:0.##} Health on block"
     m_Metadata:
       m_Items: []
   - m_Id: 62216765441
-    m_Localized: '{0}% increased Health On Block'
+    m_Localized: "{0}% increased Health on block"
     m_Metadata:
       m_Items: []
   - m_Id: 62220959744
-    m_Localized: '{0}% more Health On Block'
+    m_Localized: "{0}% more Health on block"
     m_Metadata:
       m_Items: []
   - m_Id: 62220959745
-    m_Localized: '{0:+0.##;-0.##;0} HP to Health on Hit'
+    m_Localized: "{0:0.##} Health on hit"
     m_Metadata:
       m_Items: []
   - m_Id: 62229348352
-    m_Localized: '{0}% increased Health On Hit'
+    m_Localized: "{0}% increased Health on hit"
     m_Metadata:
       m_Items: []
   - m_Id: 62229348353
-    m_Localized: '{0}% more Health On Hit'
+    m_Localized: "{0}% more Health on hit"
     m_Metadata:
       m_Items: []
   - m_Id: 62233542656
-    m_Localized: '{0:+0.##;-0.##;0} HP to Health Regen'
+    m_Localized: "Regenerate {0:0.##} Health per second"
     m_Metadata:
       m_Items: []
   - m_Id: 62237736960
-    m_Localized: '{0}% increased Health Regen'
+    m_Localized: "{0}% increased Health per second"
     m_Metadata:
       m_Items: []
   - m_Id: 62241931264
-    m_Localized: '{0}% more Health Regen'
+    m_Localized: "{0}% more Health per second"
     m_Metadata:
       m_Items: []
   - m_Id: 62241931265
-    m_Localized: '{0:+0.##;-0.##;0}% to Health Regen % per second'
+    m_Localized: "Regenerate {0:0.##}% Health per second"
     m_Metadata:
       m_Items: []
   - m_Id: 62246125568
-    m_Localized: '{0:+0.##;-0.##;0} MP to Mana on Block'
+    m_Localized: "{0:0.##} Mana on block"
     m_Metadata:
       m_Items: []
   - m_Id: 62250319872
-    m_Localized: '{0}% increased Mana On Block'
+    m_Localized: "{0}% increased Mana on block"
     m_Metadata:
       m_Items: []
   - m_Id: 62250319873
-    m_Localized: '{0}% more Mana On Block'
+    m_Localized: "{0}% more Mana on block"
     m_Metadata:
       m_Items: []
   - m_Id: 62254514176
-    m_Localized: '{0:+0.##;-0.##;0} MP to Mana on Hit'
+    m_Localized: "{0:0.##} Mana on hit"
     m_Metadata:
       m_Items: []
   - m_Id: 62258708480
-    m_Localized: '{0}% increased Mana On Hit'
+    m_Localized: "{0}% increased Mana on hit"
     m_Metadata:
       m_Items: []
   - m_Id: 62262902784
-    m_Localized: '{0}% more Mana On Hit'
+    m_Localized: "{0}% more Mana on hit"
     m_Metadata:
       m_Items: []
   - m_Id: 62262902785
-    m_Localized: '{0:+0.##;-0.##;0} MP to Mana Regen'
+    m_Localized: "Regenerate {0:0.##} Mana per second"
     m_Metadata:
       m_Items: []
   - m_Id: 62267097088
-    m_Localized: '{0}% increased Mana Regen'
+    m_Localized: "{0}% increased Mana per second"
     m_Metadata:
       m_Items: []
   - m_Id: 62271291392
-    m_Localized: '{0}% more Mana Regen'
+    m_Localized: "{0}% more Mana per second"
     m_Metadata:
       m_Items: []
   - m_Id: 62275485696
-    m_Localized: '{0:+0.##;-0.##;0}% to Mana Regen %'
+    m_Localized: "Regenerate {0:0.##}% Mana per second"
     m_Metadata:
       m_Items: []
   - m_Id: 62279680000
@@ -46715,7 +46715,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025451775688705
-    m_Localized: '{0}% reduced Health Regen'
+    m_Localized: "{0}% reduced Health per second"
     m_Metadata:
       m_Items: []
   - m_Id: 24025451939266560
@@ -46779,7 +46779,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025454455848961
-    m_Localized: '{0}% less Health Regen'
+    m_Localized: "{0}% less Health per second"
     m_Metadata:
       m_Items: []
   - m_Id: 24025454652981248
@@ -46843,7 +46843,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025457203118081
-    m_Localized: '{0}% increased Health Regen % per second'
+    m_Localized: "{0}% increased percent Health per second"
     m_Metadata:
       m_Items: []
   - m_Id: 24025457370890240
@@ -46907,7 +46907,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025459862306817
-    m_Localized: '{0}% reduced Health Regen % per second'
+    m_Localized: "{0}% reduced percent Health per second"
     m_Metadata:
       m_Items: []
   - m_Id: 24025460038467584
@@ -47099,7 +47099,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025468171223041
-    m_Localized: '{0}% reduced Mana Regen'
+    m_Localized: "{0}% reduced Mana per second"
     m_Metadata:
       m_Items: []
   - m_Id: 24025468343189504
@@ -47163,7 +47163,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025470830411777
-    m_Localized: '{0}% less Mana Regen'
+    m_Localized: "{0}% less Mana per second"
     m_Metadata:
       m_Items: []
   - m_Id: 24025471006572544
@@ -47227,7 +47227,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025473514766337
-    m_Localized: '{0}% increased Mana Regen %'
+    m_Localized: "{0}% increased percent Mana per second"
     m_Metadata:
       m_Items: []
   - m_Id: 24025473690927104
@@ -47291,7 +47291,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 24025476182343681
-    m_Localized: '{0}% reduced Mana Regen %'
+    m_Localized: "{0}% reduced percent Mana per second"
     m_Metadata:
       m_Items: []
   - m_Id: 24025476354310144

@@ -5,6 +5,15 @@ using UnityEngine;
 
 namespace Scripts.StatusEffects
 {
+    public enum StatusAuraColor
+    {
+        None = 0,
+        Red = 1,
+        Green = 2,
+        Blue = 3,
+        Purple = 4
+    }
+
     public enum StatusEffectKind
     {
         Buff,
@@ -55,6 +64,8 @@ namespace Scripts.StatusEffects
         [Min(0f)] public float QuickEffectDurationSeconds = 3f;
         public List<SerializableStatModifier> QuickModifiers = new List<SerializableStatModifier>();
         public List<DerivedStatModifier> QuickDerivedModifiers = new List<DerivedStatModifier>();
+        [Tooltip("Свечение безымянного эффекта. None выключает подсветку.")]
+        public StatusAuraColor QuickAuraColor = StatusAuraColor.Green;
         [Min(0f)] public float ExtendSeconds = 1f;
     }
 
@@ -72,6 +83,9 @@ namespace Scripts.StatusEffects
         [TextArea(2, 4)] public string DescriptionRu;
         public Sprite Icon;
         public bool ShowInHud = true;
+        public StatusAuraColor AuraColor = StatusAuraColor.None;
+        [Tooltip("Будущий эффект вокруг персонажа, пока бафф действует.")]
+        public GameObject AuraVfxPrefab;
 
         [Header("Runtime")]
         [Min(0.05f)] public float BaseDurationSeconds = 5f;

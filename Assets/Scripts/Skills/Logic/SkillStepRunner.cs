@@ -1615,7 +1615,9 @@ namespace Scripts.Skills
                 duration,
                 kind,
                 this,
-                runtimeId);
+                runtimeId,
+                StatusEffectPresentation.ResolveStepAura(step),
+                step.GetObject<GameObject>("AuraVfxPrefab"));
 
             if (duration <= 0f && handle != null)
                 _ctx?.RegisterCleanup(handle.Dispose);
@@ -1674,7 +1676,9 @@ namespace Scripts.Skills
                 duration,
                 kind,
                 this,
-                BuildRuntimeStatusId("SkillStatBasedEffect", stepIndex));
+                BuildRuntimeStatusId("SkillStatBasedEffect", stepIndex),
+                StatusEffectPresentation.ResolveStepAura(step),
+                step.GetObject<GameObject>("AuraVfxPrefab"));
 
             if (duration <= 0f && handle != null)
                 _ctx?.RegisterCleanup(handle.Dispose);

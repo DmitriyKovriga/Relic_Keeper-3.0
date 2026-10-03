@@ -738,7 +738,9 @@ namespace Scripts.Editor.PassiveTree
                     {
                         PassiveEffectFields.ValueWithUnit(layout, property.FindPropertyRelative("BuffDurationSeconds"), "Duration", "s");
                         layout.List(property.FindPropertyRelative("BuffModifiers"), new GUIContent("Modifiers"));
-                        layout.Hint("Inline buffs have no HUD icon.");
+                        layout.Field(property.FindPropertyRelative("BuffAuraColor"), new GUIContent("Aura color",
+                            "Glow on the character while this unnamed buff lasts. Green is the default. None turns it off."));
+                        layout.Hint("Inline buffs have no HUD icon. The aura color still lights the character.");
                     }
                     PassiveEffectFields.Stacking(layout, property, inline);
                     break;

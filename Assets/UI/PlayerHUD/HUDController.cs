@@ -53,9 +53,9 @@ public class HUDController : MonoBehaviour
     [SerializeField] private UISkillSlot[] _skillSlots;
 
     [Header("Status Effects HUD")]
-    [SerializeField, Min(1f)] private float _statusEffectSlotSize = 5f;
-    [SerializeField, Min(0f)] private float _statusEffectSpacing = 0f;
-    [SerializeField, Min(1)] private int _statusEffectColumns = 10;
+    [SerializeField, Min(1f)] private float _statusEffectSlotSize = 16f;
+    [SerializeField, Min(0f)] private float _statusEffectSpacing = 1f;
+    [SerializeField, Min(1)] private int _statusEffectColumns = 4;
     [SerializeField, Min(0f)] private float _statusEffectsOffsetX = 8f;
     [SerializeField] private float _statusEffectsOffsetY = -1f;
     [SerializeField] private Color _buffFrameColor = new Color(0.95f, 0.72f, 0.18f, 0.95f);
@@ -532,23 +532,29 @@ public class HUDController : MonoBehaviour
         LoadStatusEffectHudSettings();
         if (_statusEffectsHudSettings == null)
         {
-            float fallbackSize = 5f;
-            float fallbackSpacing = 0f;
+            float fallbackSize = 16f;
+            float fallbackSpacing = 1f;
+            int fallbackColumns = 4;
             bool fallbackChanged = !Mathf.Approximately(_statusEffectSlotSize, fallbackSize) ||
-                                   !Mathf.Approximately(_statusEffectSpacing, fallbackSpacing);
+                                   !Mathf.Approximately(_statusEffectSpacing, fallbackSpacing) ||
+                                   _statusEffectColumns != fallbackColumns;
 
             _statusEffectSlotSize = fallbackSize;
             _statusEffectSpacing = fallbackSpacing;
+            _statusEffectColumns = fallbackColumns;
             return fallbackChanged;
         }
 
         float targetSize = Mathf.Max(1f, Mathf.Round(_statusEffectsHudSettings.IconSizePixels));
         float targetSpacing = Mathf.Max(0f, Mathf.Round(_statusEffectsHudSettings.IconSpacingPixels));
+        int targetColumns = Mathf.Max(1, _statusEffectsHudSettings.IconColumns);
         bool changed = !Mathf.Approximately(_statusEffectSlotSize, targetSize) ||
-                       !Mathf.Approximately(_statusEffectSpacing, targetSpacing);
+                       !Mathf.Approximately(_statusEffectSpacing, targetSpacing) ||
+                       _statusEffectColumns != targetColumns;
 
         _statusEffectSlotSize = targetSize;
         _statusEffectSpacing = targetSpacing;
+        _statusEffectColumns = targetColumns;
         return changed;
     }
 
@@ -595,9 +601,13 @@ public class HUDController : MonoBehaviour
             if (i < effects.Count)
             {
                 StatusEffectController.ActiveEffectInstance effect = effects[i];
-                Color frameColor = effect.Effect != null && effect.Effect.Kind == StatusEffectKind.Debuff
-                    ? _debuffFrameColor
-                    : _buffFrameColor;
+                Color frameColor = effect.AuraColor != StatusAuraColor.None
+                    ? StatusEffectPresentation.AuraTint(effect.AuraColor)
+                    : effect.Effect != null && effect.Effect.Kind == StatusEffectKind.Debuff
+                        ? _debuffFrameColor
+                        : effect.RuntimeKind == StatusEffectKind.Debuff
+                            ? _debuffFrameColor
+                            : _buffFrameColor;
                 _statusEffectSlots[i].Bind(effect, frameColor);
             }
             else
@@ -661,10 +671,16 @@ public class HUDController : MonoBehaviour
         for (int i = 0; i < _statusEffectController.ActiveEffects.Count; i++)
         {
             StatusEffectController.ActiveEffectInstance effect = _statusEffectController.ActiveEffects[i];
-            if (effect == null || effect.Effect == null)
+            if (effect == null)
                 continue;
 
-            if (!effect.Effect.ShowInHud || effect.Effect.Icon == null)
+            if (effect.Effect != null && !effect.Effect.ShowInHud)
+                continue;
+
+            Sprite icon = effect.HudIcon != null
+                ? effect.HudIcon
+                : effect.Effect != null ? effect.Effect.Icon : null;
+            if (icon == null)
                 continue;
 
             results.Add(effect);

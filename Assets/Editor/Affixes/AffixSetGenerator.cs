@@ -803,6 +803,9 @@ namespace Scripts.Editor.Affixes
             if (StatsDatabaseSO.IsCooldownRecoveryStat(stat))
                 return StatPresentation.CooldownRecoveryAffixTemplate(stat, kind, false);
 
+            if (StatPresentation.IsResourceGainStat(stat))
+                return StatPresentation.ResourceGainAffixTemplate(stat, kind, isRangeValue, false);
+
             if (stat == StatType.CritChance)
                 return CritChanceTemplate(kind, weapon: false, russian: false);
 
@@ -849,6 +852,9 @@ namespace Scripts.Editor.Affixes
 
             if (StatsDatabaseSO.IsCooldownRecoveryStat(stat))
                 return StatPresentation.CooldownRecoveryAffixTemplate(stat, kind, true);
+
+            if (StatPresentation.IsResourceGainStat(stat))
+                return StatPresentation.ResourceGainAffixTemplate(stat, kind, isRangeValue, true);
 
             if (stat == StatType.CritChance)
                 return CritChanceTemplate(kind, weapon: false, russian: true);

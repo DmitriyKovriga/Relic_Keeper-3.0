@@ -658,6 +658,8 @@ public class PlayerAttackInput : MonoBehaviour
                 SpriteRenderer childRenderer = childRenderers[i];
                 if (movementVisual != null && childRenderer == movementVisual.DisplayRenderer)
                     continue;
+                if (childRenderer.transform.parent != null && childRenderer.transform.parent.name == "StatusAuraOutline")
+                    continue;
                 if (childRenderer != null && seen.Add(childRenderer))
                     renderers.Add(childRenderer);
             }

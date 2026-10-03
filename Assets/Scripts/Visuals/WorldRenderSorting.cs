@@ -169,6 +169,9 @@ namespace Scripts.Visuals
             if (respectNestedSorters && current != root && current.GetComponent<WorldDepthSort>() != null)
                 return;
 
+            if (current.name == "StatusAuraOutline")
+                return;
+
             SpriteRenderer spriteRenderer = current.GetComponent<SpriteRenderer>();
             if (spriteRenderer != null)
             {

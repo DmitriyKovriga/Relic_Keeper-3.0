@@ -17,6 +17,9 @@ namespace Scripts.StatusEffects
             public StatusEffectSO Effect { get; internal set; }
             public string RuntimeId { get; internal set; }
             public StatusEffectKind RuntimeKind { get; internal set; }
+            public Sprite HudIcon { get; internal set; }
+            public StatusAuraColor AuraColor { get; internal set; }
+            public GameObject AuraVfxPrefab { get; internal set; }
             public float DurationSeconds { get; internal set; }
             public float RemainingSeconds { get; internal set; }
             public float RemainingNormalized => DurationSeconds > 0.0001f ? Mathf.Clamp01(RemainingSeconds / DurationSeconds) : 0f;
@@ -66,6 +69,8 @@ namespace Scripts.StatusEffects
         {
             CacheOwner();
             GameplayEventBus.EventRaised += HandleGameplayEvent;
+            if (_playerStats != null && GetComponent<StatusAuraPresenter>() == null)
+                gameObject.AddComponent<StatusAuraPresenter>();
         }
 
         private void Update()
@@ -121,6 +126,7 @@ namespace Scripts.StatusEffects
             instance.Effect = effect;
             instance.DurationSeconds = effect.DurationSeconds;
             instance.RemainingSeconds = effect.DurationSeconds;
+            CapturePresentation(instance, effect, source, effect.AuraColor, effect.AuraVfxPrefab);
 
             RemoveInstanceModifiers(instance);
             ApplyInstanceModifiers(instance, source ?? this, effectiveStacks);
@@ -134,7 +140,9 @@ namespace Scripts.StatusEffects
             float durationSeconds,
             StatusEffectKind kind,
             object source = null,
-            string runtimeId = null)
+            string runtimeId = null,
+            StatusAuraColor auraColor = StatusAuraColor.None,
+            GameObject auraVfxPrefab = null)
         {
             if (modifiers == null || modifiers.Count == 0)
                 return null;
@@ -164,6 +172,7 @@ namespace Scripts.StatusEffects
             instance.RuntimeKind = kind;
             instance.DurationSeconds = durationSeconds;
             instance.RemainingSeconds = durationSeconds;
+            CapturePresentation(instance, null, source, auraColor, auraVfxPrefab);
 
             ApplyRuntimeModifiers(instance, modifiers, source ?? this);
             if (instance.AppliedModifiers.Count == 0)
@@ -181,6 +190,21 @@ namespace Scripts.StatusEffects
             NotifyCarrierStatChanges();
             OnActiveEffectsChanged?.Invoke();
             return new RuntimeStatusHandle(this, instance);
+        }
+
+        private static void CapturePresentation(
+            ActiveEffectInstance instance,
+            StatusEffectSO effect,
+            object source,
+            StatusAuraColor auraColor,
+            GameObject auraVfxPrefab)
+        {
+            if (instance == null)
+                return;
+
+            instance.HudIcon = StatusEffectPresentation.ResolveHudIcon(effect, source);
+            instance.AuraColor = auraColor;
+            instance.AuraVfxPrefab = auraVfxPrefab;
         }
 
         public void ResetAll()
@@ -474,7 +498,8 @@ namespace Scripts.StatusEffects
                 duration,
                 reaction.QuickEffectKind,
                 sourceInstance.Effect != null ? sourceInstance.Effect : this,
-                $"EventQuickEffect:{sourceId}:{reactionIndex}");
+                $"EventQuickEffect:{sourceId}:{reactionIndex}",
+                reaction.QuickAuraColor);
         }
 
         private void ExtendInstance(ActiveEffectInstance instance, float seconds)

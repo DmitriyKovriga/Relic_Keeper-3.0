@@ -179,6 +179,8 @@ namespace Scripts.Skills.PassiveTree
 
         [Min(0.05f)] public float BuffDurationSeconds = 5f;
         public List<SerializableStatModifier> BuffModifiers = new List<SerializableStatModifier>();
+        [Tooltip("Свечение безымянного бафа. None выключает подсветку.")]
+        public StatusAuraColor BuffAuraColor = StatusAuraColor.Green;
         [Tooltip("Optional authored effect with an icon for the HUD. When set, it is applied instead of the inline modifiers.")]
         public StatusEffectSO StatusEffect;
         public PassiveBuffStacking Stacking = PassiveBuffStacking.Refresh;
