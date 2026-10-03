@@ -56119,7 +56119,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653681236566017
-    m_Localized: '+{0}% faster Skill Recovery'
+    m_Localized: +{0}% faster Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653681643413504
@@ -56135,7 +56135,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653682473885697
-    m_Localized: '+{0}% slower Skill Recovery'
+    m_Localized: +{0}% slower Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653682826207232
@@ -56151,7 +56151,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653683602153473
-    m_Localized: '+{0}% more Skill Recovery'
+    m_Localized: +{0}% more Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653684004806656
@@ -56167,7 +56167,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653684898193409
-    m_Localized: '+{0}% slower Skill Recovery'
+    m_Localized: +{0}% slower Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653685279875072
@@ -56199,7 +56199,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653687762903041
-    m_Localized: '+{0}% faster Special Skill Recovery'
+    m_Localized: +{0}% faster Special Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653688102641664
@@ -56215,7 +56215,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653688870199297
-    m_Localized: '+{0}% slower Special Skill Recovery'
+    m_Localized: +{0}% slower Special Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653689268658176
@@ -56231,7 +56231,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653690099130369
-    m_Localized: '+{0}% more Special Skill Recovery'
+    m_Localized: +{0}% more Special Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653690468229120
@@ -56247,7 +56247,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653691294507009
-    m_Localized: '+{0}% slower Special Skill Recovery'
+    m_Localized: +{0}% slower Special Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653691873320960
@@ -56279,7 +56279,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653694259879937
-    m_Localized: '+{0}% faster Helmet Skill Recovery'
+    m_Localized: +{0}% faster Helmet Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653694637367296
@@ -56295,7 +56295,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653695451062273
-    m_Localized: '+{0}% slower Helmet Skill Recovery'
+    m_Localized: +{0}% slower Helmet Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653695824355328
@@ -56311,7 +56311,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653696621273088
-    m_Localized: '+{0}% more Helmet Skill Recovery'
+    m_Localized: +{0}% more Helmet Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653697179115520
@@ -56327,7 +56327,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653698001199105
-    m_Localized: '+{0}% slower Helmet Skill Recovery'
+    m_Localized: +{0}% slower Helmet Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653698458378240
@@ -56359,7 +56359,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653700849131521
-    m_Localized: '+{0}% faster Body Skill Recovery'
+    m_Localized: +{0}% faster Body Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653701243396096
@@ -56375,7 +56375,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653702703013889
-    m_Localized: '+{0}% slower Body Skill Recovery'
+    m_Localized: +{0}% slower Body Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653703126638592
@@ -56391,7 +56391,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653704045191169
-    m_Localized: '+{0}% more Body Skill Recovery'
+    m_Localized: +{0}% more Body Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653704477204480
@@ -56407,7 +56407,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653705274122241
-    m_Localized: '+{0}% slower Body Skill Recovery'
+    m_Localized: +{0}% slower Body Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653705685164032
@@ -56439,7 +56439,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653709309042689
-    m_Localized: '+{0}% faster Gloves Skill Recovery'
+    m_Localized: +{0}% faster Gloves Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653709699112960
@@ -56455,7 +56455,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653710470864897
-    m_Localized: '+{0}% slower Gloves Skill Recovery'
+    m_Localized: +{0}% slower Gloves Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653710886100992
@@ -56471,7 +56471,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653712760954881
-    m_Localized: '+{0}% more Gloves Skill Recovery'
+    m_Localized: +{0}% more Gloves Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653713188773888
@@ -56487,7 +56487,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653713985691649
-    m_Localized: '+{0}% slower Gloves Skill Recovery'
+    m_Localized: +{0}% slower Gloves Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653714350596096
@@ -56519,7 +56519,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653717949308929
-    m_Localized: '+{0}% faster Boots Skill Recovery'
+    m_Localized: +{0}% faster Boots Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653718377127936
@@ -56535,7 +56535,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653719182434305
-    m_Localized: '+{0}% slower Boots Skill Recovery'
+    m_Localized: +{0}% slower Boots Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653719559921664
@@ -56551,7 +56551,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653720293924865
-    m_Localized: '+{0}% more Boots Skill Recovery'
+    m_Localized: +{0}% more Boots Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653720700772352
@@ -56567,7 +56567,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 90653721627713537
-    m_Localized: '+{0}% slower Boots Skill Recovery'
+    m_Localized: +{0}% slower Boots Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 90653722089086976
@@ -56772,6 +56772,134 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 95352875377455104
     m_Localized: Light Move Speed increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535612716834816
+    m_Localized: Strong Elemental Damage increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535612913967104
+    m_Localized: '{0}% increased Elemental Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535613295648768
+    m_Localized: Medium Elemental Damage increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535613769605120
+    m_Localized: Light Elemental Damage increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535614256144384
+    m_Localized: Strong Elemental Damage decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535614256144385
+    m_Localized: '{0}% reduced Elemental Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535614671380480
+    m_Localized: Medium Elemental Damage decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535615090810880
+    m_Localized: Light Elemental Damage decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535615493464064
+    m_Localized: Strong Elemental Damage more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535615493464065
+    m_Localized: '{0}% more Elemental Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535615879340032
+    m_Localized: Medium Elemental Damage more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535616269410304
+    m_Localized: Light Elemental Damage more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535616684646400
+    m_Localized: Strong Elemental Damage less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535616684646401
+    m_Localized: '{0}% less Elemental Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535617083105280
+    m_Localized: Medium Elemental Damage less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535617502535680
+    m_Localized: Light Elemental Damage less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535618421088256
+    m_Localized: Strong Range Damage increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535618421088257
+    m_Localized: '{0}% increased Range Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535618844712960
+    m_Localized: Medium Range Damage increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535619322863616
+    m_Localized: Light Range Damage increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535619847151616
+    m_Localized: Strong Range Damage decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535619847151617
+    m_Localized: '{0}% reduced Range Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535620321107968
+    m_Localized: Medium Range Damage decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535620761509888
+    m_Localized: Light Range Damage decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535621239660544
+    m_Localized: Strong Range Damage more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535621239660545
+    m_Localized: '{0}% more Range Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535621692645376
+    m_Localized: Medium Range Damage more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535622128852992
+    m_Localized: Light Range Damage more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535622523117568
+    m_Localized: Strong Range Damage less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535622523117569
+    m_Localized: '{0}% less Range Damage'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535622955130880
+    m_Localized: Medium Range Damage less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97535623450058752
+    m_Localized: Light Range Damage less
     m_Metadata:
       m_Items: []
   references:

@@ -492,9 +492,6 @@ public static class DamageCalculator
 
     private static DamageModifierLayers GetContextModifierLayers(IStatsProvider attackerStats, StatType damageType, DamageContext damageContext)
     {
-        if (damageContext.Tags == StatContextTagFlags.None)
-            return new DamageModifierLayers(0f, 0f, 1f);
-
         StatsDatabaseSO statsDatabase = GetStatsDatabase();
         if (statsDatabase == null)
             return new DamageModifierLayers(0f, 0f, 1f);

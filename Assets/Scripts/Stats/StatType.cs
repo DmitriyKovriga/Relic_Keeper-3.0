@@ -165,6 +165,11 @@ namespace Scripts.Stats
         PushbackResist,
 
         // Flat percentage points added to a returning projectile's skill-defined damage percent.
-        ReturningProjectileDamage
+        ReturningProjectileDamage,
+
+        // Context modifier for Fire, Cold and Lightning. No skill tag is required.
+        ElementalDamage,
+        // Context modifier for skills marked DamageContextTags.Range.
+        RangeDamage
     }
 }

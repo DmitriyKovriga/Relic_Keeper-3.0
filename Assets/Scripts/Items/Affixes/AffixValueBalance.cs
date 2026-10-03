@@ -190,6 +190,8 @@ namespace Scripts.Items.Affixes
                         : (4f, 6f, 12f, 16f);
                 case StatType.MeleeDamage:
                 case StatType.SpellDamage:
+                case StatType.ElementalDamage:
+                case StatType.RangeDamage:
                     return (8f, 12f, 32f, 44f);
                 case StatType.Armor:
                 case StatType.Evasion:
@@ -227,7 +229,8 @@ namespace Scripts.Items.Affixes
 
         private static (float t1min, float t1max, float t5min, float t5max) GetMoreCurve(StatType stat)
         {
-            if (IsWeaponDamageStat(stat) || stat == StatType.MeleeDamage || stat == StatType.SpellDamage)
+            if (IsWeaponDamageStat(stat) || stat == StatType.MeleeDamage || stat == StatType.SpellDamage ||
+                stat == StatType.ElementalDamage || stat == StatType.RangeDamage)
                 return (5f, 8f, 16f, 24f);
             if (stat == StatType.AttackSpeed)
                 return (3f, 5f, 10f, 14f);
@@ -351,6 +354,8 @@ namespace Scripts.Items.Affixes
                     return (8f, 12f, 28f, 42f);
                 case StatType.MeleeDamage:
                 case StatType.SpellDamage:
+                case StatType.ElementalDamage:
+                case StatType.RangeDamage:
                     return (5f, 8f, 22f, 32f);
                 default:
                     if (IsConversion(stat))

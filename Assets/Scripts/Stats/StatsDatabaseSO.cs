@@ -38,7 +38,8 @@ namespace Scripts.Stats
         Projectile = 1 << 3,
         Area = 1 << 4,
         DamageOverTime = 1 << 5,
-        Ailment = 1 << 6
+        Ailment = 1 << 6,
+        Range = 1 << 7
     }
 
     [Flags]
@@ -670,6 +671,9 @@ namespace Scripts.Stats
                     return StatSemanticKind.CombatScalar;
 
                 case StatType.MeleeDamage:
+                case StatType.SpellDamage:
+                case StatType.ElementalDamage:
+                case StatType.RangeDamage:
                 case StatType.ReturningProjectileDamage:
                     return StatSemanticKind.ContextModifier;
 
@@ -767,7 +771,8 @@ namespace Scripts.Stats
             string s = type.ToString();
             if (type == StatType.CritMultiplier)
                 return StatAffixGenType.PercentStat;
-            if (type == StatType.MeleeDamage)
+            if (type == StatType.MeleeDamage || type == StatType.SpellDamage ||
+                type == StatType.ElementalDamage || type == StatType.RangeDamage)
                 return StatAffixGenType.ContextModifierStat;
             if (type == StatType.ReturningProjectileDamage)
                 return StatAffixGenType.NOCalcStat;
@@ -853,6 +858,12 @@ namespace Scripts.Stats
             {
                 case StatType.MeleeDamage:
                     return StatContextTagFlags.Melee;
+                case StatType.SpellDamage:
+                    return StatContextTagFlags.Spell;
+                case StatType.ElementalDamage:
+                    return StatContextTagFlags.None;
+                case StatType.RangeDamage:
+                    return StatContextTagFlags.Range;
                 case StatType.ProjectileSpeed:
                 case StatType.ProjectileCount:
                 case StatType.ProjectileFork:
@@ -980,8 +991,13 @@ namespace Scripts.Stats
                     return StatDamageChannelFlags.All;
 
                 case StatType.MeleeDamage:
+                case StatType.RangeDamage:
                 case StatType.ReturningProjectileDamage:
                     return StatDamageChannelFlags.All;
+
+                case StatType.SpellDamage:
+                case StatType.ElementalDamage:
+                    return StatDamageChannelFlags.Fire | StatDamageChannelFlags.Cold | StatDamageChannelFlags.Lightning;
 
                 default:
                     return StatDamageChannelFlags.None;

@@ -2600,6 +2600,14 @@ MonoBehaviour:
     m_Localized: Search
     m_Metadata:
       m_Items: []
+  - m_Id: 105800000000000008
+    m_Localized: Elemental Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105800000000000009
+    m_Localized: Range Damage
+    m_Metadata:
+      m_Items: []
   - m_Id: 106000000000000001
     m_Localized: Open loot sphere
     m_Metadata:

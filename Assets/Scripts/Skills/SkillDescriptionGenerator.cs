@@ -870,6 +870,8 @@ namespace Scripts.Skills
                 case StatType.DamageLightning:
                 case StatType.MeleeDamage:
                 case StatType.SpellDamage:
+                case StatType.ElementalDamage:
+                case StatType.RangeDamage:
                 case StatType.AttackSpeed:
                 case StatType.CastSpeed:
                 case StatType.CritChance:

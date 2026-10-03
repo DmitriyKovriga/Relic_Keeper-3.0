@@ -61,6 +61,12 @@ namespace Scripts.Editor.Affixes
             Debug.Log($"[Affix Content] Missing stat generation complete. Created: {created}.");
         }
 
+        public static void GenerateElementalAndRangeFamiliesFromCommandLine()
+        {
+            int created = GenerateFamilies(new HashSet<StatType> { StatType.ElementalDamage, StatType.RangeDamage });
+            Debug.Log($"[Affix Content] Elemental and Range families generated. Created: {created}.");
+        }
+
         public static void GeneratePushbackFamiliesFromCommandLine()
         {
             int created = GeneratePushbackFamilies();
@@ -68,6 +74,11 @@ namespace Scripts.Editor.Affixes
         }
 
         public static int GeneratePushbackFamilies()
+        {
+            return GenerateFamilies(new HashSet<StatType> { StatType.Pushback, StatType.PushbackResist }, assignPushbackPools: true);
+        }
+
+        private static int GenerateFamilies(HashSet<StatType> stats, bool assignPushbackPools = false)
         {
             StatsDatabaseSO statsDatabase = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase);
             AffixTagDatabaseSO tagDatabase = AssetDatabase.LoadAssetAtPath<AffixTagDatabaseSO>(EditorPaths.AffixTagDatabase);
@@ -79,7 +90,6 @@ namespace Scripts.Editor.Affixes
             if (menuLabels == null || affixLabels == null)
                 throw new InvalidOperationException("MenuLabels or AffixesLabels localization collection is missing.");
 
-            var stats = new HashSet<StatType> { StatType.Pushback, StatType.PushbackResist };
             int created = AffixSetGenerator.GenerateSetsForStats(
                 stats,
                 statsDatabase,
@@ -88,18 +98,21 @@ namespace Scripts.Editor.Affixes
                 affixLabels,
                 EditorPaths.AffixesBaseFolder);
 
-            AddAffixToPools(
-                $"{EditorPaths.AffixesBaseFolder}/ByStat/{statsDatabase.GetCategory(StatType.Pushback)}/Pushback/Pushback_Flat_Medium.asset",
-                WeaponPoolPaths);
-            AddAffixToPools(
-                $"{EditorPaths.AffixesBaseFolder}/ByStat/{statsDatabase.GetCategory(StatType.Pushback)}/Pushback/Pushback_Increase_Medium.asset",
-                WeaponPoolPaths);
-            AddAffixToPools(
-                $"{EditorPaths.AffixesBaseFolder}/ByStat/{statsDatabase.GetCategory(StatType.PushbackResist)}/PushbackResist/PushbackResist_Flat_Medium.asset",
-                ArmorPoolPaths);
+            if (assignPushbackPools)
+            {
+                AddAffixToPools(
+                    $"{EditorPaths.AffixesBaseFolder}/ByStat/{statsDatabase.GetCategory(StatType.Pushback)}/Pushback/Pushback_Flat_Medium.asset",
+                    WeaponPoolPaths);
+                AddAffixToPools(
+                    $"{EditorPaths.AffixesBaseFolder}/ByStat/{statsDatabase.GetCategory(StatType.Pushback)}/Pushback/Pushback_Increase_Medium.asset",
+                    WeaponPoolPaths);
+                AddAffixToPools(
+                    $"{EditorPaths.AffixesBaseFolder}/ByStat/{statsDatabase.GetCategory(StatType.PushbackResist)}/PushbackResist/PushbackResist_Flat_Medium.asset",
+                    ArmorPoolPaths);
+            }
 
             AssetDatabase.SaveAssets();
-            Debug.Log($"[Affix Content] Pushback families generated. Created: {created}.");
+            Debug.Log($"[Affix Content] Families generated. Created: {created}.");
             return created;
         }
 
