@@ -626,6 +626,15 @@ namespace Scripts.Skills
                         "ReturnDamagePercent",
                         ReturningProjectileDamageResolver.DefaultReturnDamagePercent)),
                 ClearHitHistoryOnReverse = step.GetBool("ClearHitHistoryOnReverse", true),
+                IgnoreDirectHits = step.GetBool("IgnoreDirectHits", false),
+                PulseInterval = Mathf.Max(0f, step.GetFloat("PulseInterval", 0f)),
+                PulseInitialDelay = Mathf.Max(0f, step.GetFloat("PulseInitialDelay", 0f)),
+                PulseRadius = Mathf.Max(0f, step.GetFloat("PulseRadius", 0f)),
+                UseElementalSpellDamage = step.GetBool("UseElementalSpellDamage", false),
+                ElementalSpellTarget = (DamageChannel)Mathf.Clamp(
+                    step.GetInt("ElementalSpellTarget", (int)DamageChannel.Fire),
+                    (int)DamageChannel.Fire,
+                    (int)DamageChannel.Lightning),
                 HitStopGate = _hitStopGate
             };
 

@@ -142,11 +142,22 @@ namespace Scripts.Combat
                 if (isProjectile)
                     context = new DamageContext(context.Tags | StatContextTagFlags.Projectile);
 
-                DamageSnapshot snapshot = DamageCalculator.CreatePreviewSnapshot(
-                    stepStats,
-                    Mathf.Max(0f, step.GetFloat("DamageMultiplier", 1f)),
-                    context,
-                    step.DamageConversions);
+                bool elementalSpell = isProjectile && step.GetBool("UseElementalSpellDamage", false);
+                DamageSnapshot snapshot = elementalSpell
+                    ? DamageCalculator.CreateElementalSpellSnapshot(
+                        stepStats,
+                        Mathf.Max(0f, step.GetFloat("DamageMultiplier", 1f)),
+                        context,
+                        (DamageChannel)Mathf.Clamp(
+                            step.GetInt("ElementalSpellTarget", (int)DamageChannel.Fire),
+                            (int)DamageChannel.Fire,
+                            (int)DamageChannel.Lightning),
+                        preview: true)
+                    : DamageCalculator.CreatePreviewSnapshot(
+                        stepStats,
+                        Mathf.Max(0f, step.GetFloat("DamageMultiplier", 1f)),
+                        context,
+                        step.DamageConversions);
                 physical += snapshot.Physical;
                 fire += snapshot.Fire;
                 cold += snapshot.Cold;

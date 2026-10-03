@@ -79,6 +79,12 @@ namespace Scripts.Skills.Projectiles
         public float OrbitAngularSpeedDegreesPerSecond = 180f;
         public float OrbitAngleDegrees;
         public float RehitCooldownSeconds;
+        public bool IgnoreDirectHits;
+        public float PulseInterval;
+        public float PulseInitialDelay;
+        public float PulseRadius;
+        public bool UseElementalSpellDamage;
+        public DamageChannel ElementalSpellTarget = DamageChannel.Fire;
         public HashSet<IDamageable> HitHistory;
         public SkillDataSO Skill;
         public SkillHitStopGate HitStopGate;
@@ -129,6 +135,7 @@ namespace Scripts.Skills.Projectiles
         private float _nextReverseAt;
         private bool _returningToOwner;
         private bool _returnDamageActive;
+        private float _nextPulseAt;
 
         public static void Spawn(SkillProjectileLaunchData data, Vector2 origin, Vector2 direction, Transform parent = null)
         {
@@ -312,6 +319,7 @@ namespace Scripts.Skills.Projectiles
             _nextReverseAt = Mathf.Max(0.01f, _data.FirstReverseAtSeconds);
             _returningToOwner = false;
             _returnDamageActive = _data.ReturnDamageActive;
+            _nextPulseAt = Mathf.Max(0f, _data.PulseInitialDelay);
             RegisterActive();
 
             _hitHistory.Clear();
@@ -330,6 +338,7 @@ namespace Scripts.Skills.Projectiles
             _nextTargetHitAllowedAt.Clear();
 
             ApplyVisual();
+            ConfigureElementalPulseVisual();
             WorldRenderSorting.ConfigureAutoSorter(gameObject, RenderDepthCategory.HeroAttackVfx, transform.position.y);
             ApplyHitbox(enableCollider: false);
             ResolveInitialWorldOverlap();
@@ -391,6 +400,7 @@ namespace Scripts.Skills.Projectiles
 
             _travelledDistance += ((Vector2)transform.position - previousPosition).magnitude;
             ScanTravel(previousPosition);
+            TryPulseDamage();
             if (reachedOwner && _data != null)
                 Despawn();
         }
@@ -473,6 +483,9 @@ namespace Scripts.Skills.Projectiles
             if (TryResolveDamageable(other.transform, out IDamageable target, out Transform targetTransform))
             {
                 if (!IsAllowedTargetLayer(other, targetTransform))
+                    return false;
+
+                if (_data.IgnoreDirectHits)
                     return false;
 
                 if (target == null || IsTargetHitBlocked(target))
@@ -563,11 +576,18 @@ namespace Scripts.Skills.Projectiles
                 _returnDamageActive,
                 _data.ReturnDamagePercent,
                 _data.OwnerStats);
-            DamageSnapshot snapshot = DamageCalculator.CreateDamageSnapshot(
-                scopedStats,
-                damageMultiplier,
-                _data.DamageContext,
-                _data.Step.DamageConversions);
+            DamageSnapshot snapshot = _data.UseElementalSpellDamage
+                ? DamageCalculator.CreateElementalSpellSnapshot(
+                    scopedStats,
+                    damageMultiplier,
+                    _data.DamageContext,
+                    _data.ElementalSpellTarget,
+                    preview: false)
+                : DamageCalculator.CreateDamageSnapshot(
+                    scopedStats,
+                    damageMultiplier,
+                    _data.DamageContext,
+                    _data.Step.DamageConversions);
             snapshot.Source = _data.OwnerStats;
             PushbackResolver.BindToSnapshot(
                 snapshot,
@@ -581,6 +601,38 @@ namespace Scripts.Skills.Projectiles
                 TryApplyAilmentsFromHit(scopedStats, target, snapshot);
             }
             return snapshot;
+        }
+
+        private void TryPulseDamage()
+        {
+            if (_data == null || _data.PulseInterval <= 0f || _age + 0.0001f < _nextPulseAt)
+                return;
+
+            float interval = Mathf.Max(0.01f, _data.PulseInterval);
+            _nextPulseAt += interval;
+            if (_nextPulseAt <= _age)
+                _nextPulseAt = _age + interval;
+
+            float aoeScale = 1f + _data.OwnerStats.GetValue(StatType.AreaOfEffect) / 100f;
+            float radius = Mathf.Max(0.05f, _data.PulseRadius * Mathf.Max(0.01f, aoeScale));
+            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, radius, _data.TargetLayer);
+            var targets = new HashSet<IDamageable>();
+            for (int i = 0; i < hits.Length; i++)
+            {
+                Collider2D hit = hits[i];
+                if (hit == null || IsOwner(hit.transform))
+                    continue;
+
+                if (!TryResolveDamageable(hit.transform, out IDamageable target, out Transform targetTransform) ||
+                    target == null ||
+                    !IsAllowedTargetLayer(hit, targetTransform) ||
+                    !targets.Add(target))
+                {
+                    continue;
+                }
+
+                DealDamage(target, out _);
+            }
         }
 
         private void ExecuteOnHitEffects(IDamageable primaryTarget, Transform primaryTransform, DamageSnapshot sourceSnapshot)
@@ -1163,6 +1215,14 @@ namespace Scripts.Skills.Projectiles
             _spriteRenderer.color = PlayerAttackVfxOpacity.MultiplyAlpha(_defaultColor);
             _spriteRenderer.enabled = _spriteRenderer.sprite != null;
             _spriteRenderer.flipX = _defaultFlipX;
+        }
+
+        private void ConfigureElementalPulseVisual()
+        {
+            if (_data == null || !TryGetComponent(out ElementalPulseBallVisual visual))
+                return;
+
+            visual.Configure(_data.ElementalSpellTarget, _data.PulseInterval);
         }
 
         private void SuspendCollisionUntilInitialized()

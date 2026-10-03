@@ -69,6 +69,29 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(StatsDatabaseSO.DefaultDamageChannelsFor(StatType.RangeDamage), Is.EqualTo(StatDamageChannelFlags.All));
         }
 
+        [Test]
+        public void ElementalSpell_ConvertsAllElementalDamageAndIgnoresPhysical()
+        {
+            var stats = new TestStats();
+            stats.Add(StatType.DamagePhysical, 90f, StatModType.Flat);
+            stats.Add(StatType.DamageFire, 20f, StatModType.Flat);
+            stats.Add(StatType.DamageCold, 30f, StatModType.Flat);
+            stats.Add(StatType.DamageLightning, 40f, StatModType.Flat);
+            stats.Add(StatType.SpellDamage, 50f, StatModType.PercentAdd);
+
+            DamageSnapshot hit = DamageCalculator.CreateElementalSpellSnapshot(
+                stats,
+                1f,
+                new DamageContext(StatContextTagFlags.Spell | StatContextTagFlags.Projectile),
+                DamageChannel.Lightning,
+                preview: true);
+
+            Assert.That(hit.Physical, Is.EqualTo(0f).Within(0.001f));
+            Assert.That(hit.Fire, Is.EqualTo(0f).Within(0.001f));
+            Assert.That(hit.Cold, Is.EqualTo(0f).Within(0.001f));
+            Assert.That(hit.Lightning, Is.EqualTo(135f).Within(0.001f));
+        }
+
         private static TestStats Stats(float fire, float physical)
         {
             var stats = new TestStats();

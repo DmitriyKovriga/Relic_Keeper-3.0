@@ -142,6 +142,33 @@ public static class DamageCalculator
         return snapshot;
     }
 
+    /// <summary>
+    /// Builds a spell hit from elemental channels only, then converts every elemental
+    /// channel into <paramref name="targetElement"/>. Physical weapon damage never
+    /// enters this pool, so a staff's attack roll cannot scale a spell projectile.
+    /// </summary>
+    public static DamageSnapshot CreateElementalSpellSnapshot(
+        IStatsProvider attackerStats,
+        float skillMultiplier,
+        DamageContext damageContext,
+        DamageChannel targetElement,
+        bool preview)
+    {
+        var snapshot = new DamageSnapshot(attackerStats);
+        DamagePool pool = BuildElementalSpellDamagePool(attackerStats);
+        ConvertAllElementalDamage(ref pool, targetElement);
+        ApplyElementalDamageModifiers(attackerStats, ref pool, damageContext);
+        pool.Multiply(Mathf.Max(0f, skillMultiplier));
+
+        if (preview)
+            pool.Multiply(GetExpectedCritFactor(attackerStats));
+        else
+            ApplyRandomCrit(attackerStats, ref pool, snapshot);
+
+        AssignSnapshot(snapshot, pool);
+        return snapshot;
+    }
+
     public static float GetExpectedCritFactor(IStatsProvider stats)
     {
         if (stats == null)
@@ -256,6 +283,17 @@ public static class DamageCalculator
         };
     }
 
+    private static DamagePool BuildElementalSpellDamagePool(IStatsProvider attackerStats)
+    {
+        return new DamagePool
+        {
+            Physical = 0f,
+            Fire = GetAverageFlatDamage(attackerStats, StatType.DamageFire),
+            Cold = GetAverageFlatDamage(attackerStats, StatType.DamageCold),
+            Lightning = GetAverageFlatDamage(attackerStats, StatType.DamageLightning)
+        };
+    }
+
     private static float GetAverageFlatDamage(IStatsProvider attackerStats, StatType damageType)
     {
         return Mathf.Max(0f, GetDamageChannelLayers(attackerStats, damageType).Flat);
@@ -267,6 +305,15 @@ public static class DamageCalculator
         ApplyDamageModifierForChannel(attackerStats, StatType.DamageFire, damageContext, ref pool.Fire);
         ApplyDamageModifierForChannel(attackerStats, StatType.DamageCold, damageContext, ref pool.Cold);
         ApplyDamageModifierForChannel(attackerStats, StatType.DamageLightning, damageContext, ref pool.Lightning);
+        pool.ClampNonNegative();
+    }
+
+    private static void ApplyElementalDamageModifiers(IStatsProvider attackerStats, ref DamagePool pool, DamageContext damageContext)
+    {
+        ApplyDamageModifierForChannel(attackerStats, StatType.DamageFire, damageContext, ref pool.Fire);
+        ApplyDamageModifierForChannel(attackerStats, StatType.DamageCold, damageContext, ref pool.Cold);
+        ApplyDamageModifierForChannel(attackerStats, StatType.DamageLightning, damageContext, ref pool.Lightning);
+        pool.Physical = 0f;
         pool.ClampNonNegative();
     }
 
@@ -409,6 +456,23 @@ public static class DamageCalculator
         pool.Cold += additions.Cold - removals.Cold;
         pool.Lightning += additions.Lightning - removals.Lightning;
         pool.ClampNonNegative();
+    }
+
+    private static void ConvertAllElementalDamage(ref DamagePool pool, DamageChannel targetElement)
+    {
+        if (targetElement != DamageChannel.Fire &&
+            targetElement != DamageChannel.Cold &&
+            targetElement != DamageChannel.Lightning)
+        {
+            return;
+        }
+
+        float elementalTotal = pool.Fire + pool.Cold + pool.Lightning;
+        pool.Fire = 0f;
+        pool.Cold = 0f;
+        pool.Lightning = 0f;
+        pool.Add(targetElement, elementalTotal);
+        pool.Physical = 0f;
     }
 
     private static List<DamageConversionRule> BuildStatConversionRules(IStatsProvider stats)
