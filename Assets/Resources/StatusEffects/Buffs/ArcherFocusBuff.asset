@@ -16,12 +16,8 @@ MonoBehaviour:
   Kind: 0
   NameEn: Archer Focus
   NameRu: Archer Focus
-  DescriptionEn: Increase 50% to Projectile damage. End effect when take damage
-  DescriptionRu: "\u0423\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435 50%
-    \u043A \u0423\u0440\u043E\u043D\u0443 \u0421\u043D\u0430\u0440\u044F\u0434\u043E\u0432
-    \u043D\u043E \u0437\u0430\u043A\u0430\u043D\u0447\u0438\u0432\u0430\u0432\u0435\u0442
-    \u044D\u0444\u0444\u0435\u043A\u0442 \u043F\u0440\u0438 \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u0438
-    \u0443\u0440\u043E\u043D\u0430"
+  DescriptionEn: +50% Projectile Damage.
+  DescriptionRu: "+50% к урону снарядов."
   Icon: {fileID: 0}
   ShowInHud: 1
   BaseDurationSeconds: 12

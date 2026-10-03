@@ -925,6 +925,15 @@ public class ItemTooltipController : MonoBehaviour
         return d;
     }
 
+    private VisualElement CreateSkillSectionDivider()
+    {
+        var line = CreateDivider();
+        line.style.marginTop = 3;
+        line.style.marginBottom = 3;
+        line.pickingMode = PickingMode.Ignore;
+        return line;
+    }
+
     // --- Public API ---
 
     public void ShowOrbTooltip(CraftingOrbSO orb, VisualElement anchorSlot)
@@ -2119,8 +2128,27 @@ public class ItemTooltipController : MonoBehaviour
         body.style.marginTop = 3;
         body.style.minHeight = 0;
 
+        SkillDescriptionSection? previousSection = null;
+
         for (int i = 0; i < lines.Count; i++)
-            body.Add(CreateSkillDescriptionLine(lines[i], i == 0));
+        {
+            bool hasText = !string.IsNullOrWhiteSpace(lines[i].Text);
+            if (hasText && previousSection.HasValue && lines[i].Section != previousSection.Value)
+                body.Add(CreateSkillSectionDivider());
+            body.Add(CreateSkillDescriptionLine(lines[i], i == 0 && !previousSection.HasValue));
+            if (hasText)
+                previousSection = lines[i].Section;
+        }
+
+        bool hasDescription = previousSection.HasValue;
+        if (parent.Q("HudSkillDpsBlock") != null && (hasDescription || effectiveCooldown > 0 || skill.ManaCost > 0))
+            body.Insert(0, CreateSkillSectionDivider());
+
+        if (effectiveCooldown > 0 || skill.ManaCost > 0)
+        {
+            if (hasDescription)
+                body.Add(CreateSkillSectionDivider());
+        }
 
         if (effectiveCooldown > 0)
         {

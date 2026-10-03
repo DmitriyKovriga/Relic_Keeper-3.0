@@ -12,28 +12,36 @@ using UnityEngine;
 
 namespace Scripts.Skills
 {
+    public enum SkillDescriptionSection
+    {
+        Attack = 0,
+        Other = 1
+    }
+
     public readonly struct SkillDescriptionLine
     {
         public string Prefix { get; }
         public string LinkedName { get; }
         public StatusEffectSO LinkedEffect { get; }
         public string Suffix { get; }
+        public SkillDescriptionSection Section { get; }
 
         public bool HasLink => LinkedEffect != null && !string.IsNullOrEmpty(LinkedName);
 
         public string Text => HasLink ? Prefix + LinkedName + Suffix : Prefix ?? string.Empty;
 
-        public SkillDescriptionLine(string prefix, string linkedName, StatusEffectSO linkedEffect, string suffix)
+        public SkillDescriptionLine(string prefix, string linkedName, StatusEffectSO linkedEffect, string suffix, SkillDescriptionSection section)
         {
             Prefix = prefix ?? string.Empty;
             LinkedName = linkedName;
             LinkedEffect = linkedEffect;
             Suffix = suffix ?? string.Empty;
+            Section = section;
         }
 
-        public static SkillDescriptionLine Plain(string text)
+        public static SkillDescriptionLine Plain(string text, SkillDescriptionSection section = SkillDescriptionSection.Other)
         {
-            return new SkillDescriptionLine(text, null, null, null);
+            return new SkillDescriptionLine(text, null, null, null, section);
         }
     }
 
@@ -114,24 +122,28 @@ namespace Scripts.Skills
 
             bool ru = IsRussian(localeCode);
             var unique = new HashSet<string>(StringComparer.Ordinal);
+            var quickNotes = new List<QuickStatusNote>();
             if (skill.EnablePushback)
             {
                 if (skill.PushbackRating > 0.001f)
                     Add(lines, unique, ru
                         ? $"Отталкивает врагов (pushback {N(skill.PushbackRating)})."
-                        : $"Knocks enemies back (pushback {N(skill.PushbackRating)}).");
+                        : $"Knocks enemies back (pushback {N(skill.PushbackRating)}).", SkillDescriptionSection.Attack);
                 else
-                    Add(lines, unique, ru ? "Отталкивает врагов." : "Knocks enemies back.");
+                    Add(lines, unique, ru ? "Отталкивает врагов." : "Knocks enemies back.", SkillDescriptionSection.Attack);
             }
 
             foreach (StepEntry step in skill.Recipe.Steps)
-                AppendStep(step, ru, statNameResolver, lines, unique);
+                AppendStep(step, ru, statNameResolver, lines, unique, quickNotes);
+
+            FlushQuickNotes(quickNotes, ru, statNameResolver, lines, unique);
 
             if (skill.Recipe.IsChanneling)
                 Add(lines, unique, ru
                     ? $"Поддерживаемый навык, максимум {N(skill.Recipe.ChannelMaxDuration)} с."
                     : $"Channelled skill, up to {N(skill.Recipe.ChannelMaxDuration)}s.");
 
+            OrderSections(lines);
             return lines;
         }
 
@@ -146,8 +158,9 @@ namespace Scripts.Skills
             bool ru = IsRussian(localeCode);
             var lines = new List<SkillDescriptionLine>();
             var unique = new HashSet<string>(StringComparer.Ordinal);
+            bool hasStatLines = HasStatLines(effect);
             string authored = effect.GetDescription(ru);
-            if (!string.IsNullOrWhiteSpace(authored))
+            if (!hasStatLines && !string.IsNullOrWhiteSpace(authored))
                 Add(lines, unique, authored);
 
             AddEffectModifiers(effect.Modifiers, ru ? "Эффект: " : "Effect: ", ru, statNameResolver, lines, unique);
@@ -168,7 +181,8 @@ namespace Scripts.Skills
             bool ru,
             Func<StatType, string> resolver,
             List<SkillDescriptionLine> lines,
-            HashSet<string> unique)
+            HashSet<string> unique,
+            List<QuickStatusNote> quickNotes)
         {
             if (step?.StepDefinition == null) return;
             string id = step.StepDefinition.Id ?? string.Empty;
@@ -198,7 +212,7 @@ namespace Scripts.Skills
                 case "ChainDamage":
                     Add(lines, unique, ru
                         ? $"Каждая цель цепи получает {P(step.GetFloat("DamageMultiplier", 1f) * 100f)} урона оружия."
-                        : $"Each chained target takes {P(step.GetFloat("DamageMultiplier", 1f) * 100f)} weapon damage.");
+                        : $"Each chained target takes {P(step.GetFloat("DamageMultiplier", 1f) * 100f)} weapon damage.", SkillDescriptionSection.Attack);
                     break;
                 case "PlayerImpulse":
                     AddImpulse(step, ru, lines, unique);
@@ -214,7 +228,7 @@ namespace Scripts.Skills
                 case "ApplyQuickStatusSelfPerConsumedMysticShield":
                 case "ApplyQuickStatusCircle":
                 case "ApplyQuickStatusRectangle":
-                    AddQuickStatus(step, id, ru, resolver, lines, unique);
+                    RecordQuickStatus(step, id, quickNotes);
                     break;
                 case "ApplyStatBasedEffectSelf":
                     AddStatBased(step, ru, resolver, lines, unique);
@@ -227,8 +241,8 @@ namespace Scripts.Skills
                     break;
                 case "MysticShieldDamageBoost":
                     Add(lines, unique, ru
-                        ? $"Наносит на {N(step.GetFloat("BonusPercentPerConsumedShield", 50f))}% больше урона за каждый поглощённый заряд Мистического щита."
-                        : $"Deals {N(step.GetFloat("BonusPercentPerConsumedShield", 50f))}% more damage per consumed Mystic Shield charge.");
+                        ? $"+{N(step.GetFloat("BonusPercentPerConsumedShield", 50f))}% урона за заряд щита."
+                        : $"+{N(step.GetFloat("BonusPercentPerConsumedShield", 50f))}% damage per shield charge.", SkillDescriptionSection.Attack);
                     break;
                 case "ModifyCooldown":
                     AddCooldown(step, ru, lines, unique);
@@ -242,7 +256,7 @@ namespace Scripts.Skills
 
             if (step.SubSteps == null) return;
             foreach (StepEntry subStep in step.SubSteps)
-                AppendStep(subStep, ru, resolver, lines, unique);
+                AppendStep(subStep, ru, resolver, lines, unique, quickNotes);
         }
 
         private static void AddDamage(StepEntry step, bool ru, bool nearby, List<SkillDescriptionLine> lines, HashSet<string> unique)
@@ -250,7 +264,7 @@ namespace Scripts.Skills
             string damage = P(step.GetFloat("DamageMultiplier", 1f) * 100f);
             Add(lines, unique, ru
                 ? (nearby ? $"Наносит ближайшим врагам {damage} урона оружия." : $"Наносит врагам перед персонажем {damage} урона оружия.")
-                : (nearby ? $"Deals {damage} weapon damage to nearby enemies." : $"Deals {damage} weapon damage to enemies in front."));
+                : (nearby ? $"Deals {damage} weapon damage to nearby enemies." : $"Deals {damage} weapon damage to enemies in front."), SkillDescriptionSection.Attack);
         }
 
         private static void AddProjectile(StepEntry step, bool ru, bool ground, bool orbit, List<SkillDescriptionLine> lines, HashSet<string> unique)
@@ -261,20 +275,20 @@ namespace Scripts.Skills
             string extra = usesCountStat ? (ru ? " плюс дополнительные снаряды" : " plus additional projectiles") : string.Empty;
 
             if (ground)
-                Add(lines, unique, ru ? $"Выпускает наземную волну, наносящую {damage} урона оружия." : $"Releases a ground wave dealing {damage} weapon damage.");
+                Add(lines, unique, ru ? $"Выпускает наземную волну, наносящую {damage} урона оружия." : $"Releases a ground wave dealing {damage} weapon damage.", SkillDescriptionSection.Attack);
             else if (orbit)
-                Add(lines, unique, ru ? $"Создаёт {count} вращающихся снаряда{extra}, каждый наносит {damage} урона оружия." : $"Creates {count} orbiting projectiles{extra}; each deals {damage} weapon damage.");
+                Add(lines, unique, ru ? $"Создаёт {count} вращающихся снаряда{extra}, каждый наносит {damage} урона оружия." : $"Creates {count} orbiting projectiles{extra}; each deals {damage} weapon damage.", SkillDescriptionSection.Attack);
             else
-                Add(lines, unique, ru ? $"Выпускает {count} снаряд{extra}, наносящий {damage} урона оружия." : $"Fires {count} projectile{(count == 1 ? string.Empty : "s")}{extra}, dealing {damage} weapon damage.");
+                Add(lines, unique, ru ? $"Выпускает {count} снаряд{extra}, наносящий {damage} урона оружия." : $"Fires {count} projectile{(count == 1 ? string.Empty : "s")}{extra}, dealing {damage} weapon damage.", SkillDescriptionSection.Attack);
 
             if (step.GetBool("Homing", false))
-                Add(lines, unique, ru ? "Снаряды наводятся на врагов." : "Projectiles home in on enemies.");
+                Add(lines, unique, ru ? "Снаряды наводятся на врагов." : "Projectiles home in on enemies.", SkillDescriptionSection.Attack);
             if (step.GetBool("InfinitePierce", false) || (orbit && step.GetBool("PierceTargets", true)))
-                Add(lines, unique, ru ? "Снаряды пробивают цели." : "Projectiles pierce targets.");
+                Add(lines, unique, ru ? "Снаряды пробивают цели." : "Projectiles pierce targets.", SkillDescriptionSection.Attack);
             int reversals = Mathf.Max(0, step.GetInt("ReversalCount", 0));
             if (reversals > 0)
             {
-                Add(lines, unique, ru ? $"Снаряды меняют направление {reversals} раз." : $"Projectiles reverse direction {reversals} time{(reversals == 1 ? string.Empty : "s")}.");
+                Add(lines, unique, ru ? $"Снаряды меняют направление {reversals} раз." : $"Projectiles reverse direction {reversals} time{(reversals == 1 ? string.Empty : "s")}.", SkillDescriptionSection.Attack);
                 SkillProjectileReversalMode legacyMode = step.GetBool("ReturnToOwnerOnReverse", true)
                     ? SkillProjectileReversalMode.AimAtOwnerPosition
                     : SkillProjectileReversalMode.ReverseDirection;
@@ -283,16 +297,16 @@ namespace Scripts.Skills
                     (int)SkillProjectileReversalMode.ReverseDirection,
                     (int)SkillProjectileReversalMode.HomeToOwner);
                 if (reversalMode == SkillProjectileReversalMode.HomeToOwner)
-                    Add(lines, unique, ru ? "После разворота снаряды наводятся обратно на персонажа." : "After reversing, projectiles home back to the character.");
+                    Add(lines, unique, ru ? "После разворота снаряды наводятся обратно на персонажа." : "After reversing, projectiles home back to the character.", SkillDescriptionSection.Attack);
                 else if (reversalMode == SkillProjectileReversalMode.AimAtOwnerPosition)
-                    Add(lines, unique, ru ? "При развороте снаряды летят к текущей позиции персонажа." : "When reversing, projectiles aim at the character's current position.");
+                    Add(lines, unique, ru ? "При развороте снаряды летят к текущей позиции персонажа." : "When reversing, projectiles aim at the character's current position.", SkillDescriptionSection.Attack);
 
                 string returnDamage = P(step.GetFloat(
                     "ReturnDamagePercent",
                     ReturningProjectileDamageResolver.DefaultReturnDamagePercent));
                 Add(lines, unique, ru
                     ? $"На возврате снаряды наносят {returnDamage} обычного урона."
-                    : $"Returning projectiles deal {returnDamage} of their normal damage.");
+                    : $"Returning projectiles deal {returnDamage} of their normal damage.", SkillDescriptionSection.Attack);
             }
         }
 
@@ -302,7 +316,7 @@ namespace Scripts.Skills
             bool scales = step.GetBool("UseProjectileChainStat", true);
             Add(lines, unique, ru
                 ? $"Цепь поражает до {targets} целей{(scales ? " плюс дополнительные цели от цепи снарядов" : string.Empty)}."
-                : $"Chains through up to {targets} targets{(scales ? " plus additional Projectile Chain targets" : string.Empty)}.");
+                : $"Chains through up to {targets} targets{(scales ? " plus additional Projectile Chain targets" : string.Empty)}.", SkillDescriptionSection.Attack);
         }
 
         private static void AddImpulse(StepEntry step, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)
@@ -319,46 +333,129 @@ namespace Scripts.Skills
             if (effect == null) return;
 
             string name = effect.GetDisplayName(ru);
-            string target = id.Contains("Self") ? (ru ? "на персонажа" : "to the character") : (ru ? "на поражённых врагов" : "to affected enemies");
+            bool self = id.Contains("Self");
             string scaling = id.Contains("PerConsumedMysticShield")
-                ? (ru ? " за каждый поглощённый заряд Мистического щита" : " per consumed Mystic Shield charge")
+                ? (ru ? " за заряд щита" : " per shield charge")
                 : string.Empty;
             int minConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1));
-            string condition = id == "ApplyStatusSelfIfMysticShieldConsumed"
-                ? (ru
-                    ? $", если поглощено не менее {minConsumed} зарядов Мистического щита"
-                    : $" if at least {minConsumed} Mystic Shield charge{(minConsumed == 1 ? string.Empty : "s")} was consumed")
-                : id.Contains("PerConsumedMysticShield") && minConsumed > 1
-                    ? (ru ? $", начиная с {minConsumed} поглощённых зарядов" : $", requiring at least {minConsumed} consumed charges")
-                    : string.Empty;
-            AddLinked(
-                lines,
-                unique,
-                ru ? "Накладывает " : "Applies ",
-                name,
-                effect,
-                ru
-                    ? $" {target} на {N(effect.DurationSeconds)} с{scaling}{condition}."
-                    : $" {target} for {N(effect.DurationSeconds)}s{scaling}{condition}.");
+            if (id == "ApplyStatusSelfIfMysticShieldConsumed" || (id.Contains("PerConsumedMysticShield") && minConsumed > 1))
+                scaling += ru ? $", от {minConsumed} зарядов" : $", from {minConsumed} charges";
+            string duration = $"{N(effect.DurationSeconds)}{(ru ? " с" : "s")}";
+            string suffix = self
+                ? $" {duration}{scaling}."
+                : (ru ? $" на врагов, {duration}{scaling}." : $" on enemies, {duration}{scaling}.");
+            AddLinked(lines, unique, string.Empty, name, effect, suffix, StatusSection(effect));
         }
 
-        private static void AddQuickStatus(StepEntry step, string id, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique)
+        private static void RecordQuickStatus(StepEntry step, string id, List<QuickStatusNote> notes)
         {
-            StatType stat = ResolveStat(step.GetInt("QuickStatusStat", (int)StatType.MoveSpeed), StatType.MoveSpeed);
-            StatModType type = (StatModType)step.GetInt("QuickStatusModType", (int)StatModType.PercentAdd);
-            float value = step.GetFloat("QuickStatusValue", 0f);
-            float duration = Mathf.Max(0f, step.GetFloat("QuickStatusDuration", 0f));
-            string target = id.Contains("Self") ? (ru ? "Персонаж" : "The character") : (ru ? "Поражённые враги" : "Affected enemies");
-            string scaling = id.Contains("PerConsumedMysticShield")
-                ? (ru ? " за каждый поглощённый заряд Мистического щита" : " per consumed Mystic Shield charge")
+            if (notes == null)
+                return;
+
+            notes.Add(new QuickStatusNote
+            {
+                Stat = ResolveStat(step.GetInt("QuickStatusStat", (int)StatType.MoveSpeed), StatType.MoveSpeed),
+                Type = (StatModType)step.GetInt("QuickStatusModType", (int)StatModType.PercentAdd),
+                Value = step.GetFloat("QuickStatusValue", 0f),
+                Duration = Mathf.Max(0f, step.GetFloat("QuickStatusDuration", 0f)),
+                PerCharge = id.Contains("PerConsumedMysticShield"),
+                Self = id.Contains("Self"),
+                MinConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1))
+            });
+        }
+
+        private static void FlushQuickNotes(
+            List<QuickStatusNote> notes,
+            bool ru,
+            Func<StatType, string> resolver,
+            List<SkillDescriptionLine> lines,
+            HashSet<string> unique)
+        {
+            if (notes == null || notes.Count == 0)
+                return;
+
+            int index = 0;
+            while (index < notes.Count)
+            {
+                QuickStatusNote first = notes[index];
+                int end = index + 1;
+                while (end < notes.Count && SameQuickGroup(first, notes[end]))
+                    end++;
+
+                var group = notes.GetRange(index, end - index);
+                bool offensive = true;
+                for (int i = 0; i < group.Count; i++)
+                    offensive &= IsOffensiveStat(group[i].Stat);
+                SkillDescriptionSection section = offensive ? SkillDescriptionSection.Attack : SkillDescriptionSection.Other;
+
+                if (group.Count == 1)
+                {
+                    Add(lines, unique, SingleQuickLine(group[0], ru, resolver), section);
+                }
+                else
+                {
+                    Add(lines, unique, QuickHeader(first, ru), section);
+                    for (int i = 0; i < group.Count; i++)
+                        Add(lines, unique, StatChip(group[i].Stat, group[i].Value, group[i].Type, ru, resolver), section);
+                }
+
+                index = end;
+            }
+        }
+
+        private static bool SameQuickGroup(QuickStatusNote a, QuickStatusNote b)
+        {
+            return a.PerCharge == b.PerCharge
+                && a.Self == b.Self
+                && a.MinConsumed == b.MinConsumed
+                && Mathf.Abs(a.Duration - b.Duration) < 0.01f
+                && IsOffensiveStat(a.Stat) == IsOffensiveStat(b.Stat);
+        }
+
+        private static string SingleQuickLine(QuickStatusNote note, bool ru, Func<StatType, string> resolver)
+        {
+            string chip = StatChip(note.Stat, note.Value, note.Type, ru, resolver);
+            string tail = QuickTail(note, ru);
+            return string.IsNullOrEmpty(tail) ? chip + "." : $"{chip}, {tail}.";
+        }
+
+        private static string QuickHeader(QuickStatusNote note, bool ru)
+        {
+            string tail = QuickTail(note, ru);
+            if (string.IsNullOrEmpty(tail))
+                return ru ? "Эффект:" : "Effect:";
+            return char.ToUpper(tail[0]) + tail.Substring(1) + ":";
+        }
+
+        private static string QuickTail(QuickStatusNote note, bool ru)
+        {
+            string duration = note.Duration > 0f ? $"{N(note.Duration)}{(ru ? " с" : "s")}" : string.Empty;
+            string charge = note.PerCharge ? (ru ? "за заряд щита" : "per shield charge") : string.Empty;
+            string minimum = note.PerCharge && note.MinConsumed > 1
+                ? (ru ? $"от {note.MinConsumed}" : $"from {note.MinConsumed}")
                 : string.Empty;
-            int minConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1));
-            string condition = id.Contains("PerConsumedMysticShield") && minConsumed > 1
-                ? (ru ? $", начиная с {minConsumed} поглощённых зарядов" : $", requiring at least {minConsumed} consumed charges")
-                : string.Empty;
-            Add(lines, unique, ru
-                ? $"{target} получает {ModValue(stat, value, type, true)} к параметру «{StatName(stat, resolver)}» на {N(duration)} с{scaling}{condition}."
-                : $"{target} gains {ModValue(stat, value, type, false)} {StatName(stat, resolver)} for {N(duration)}s{scaling}{condition}.");
+            if (duration.Length == 0 && charge.Length == 0)
+                return string.Empty;
+            if (duration.Length == 0)
+                return string.IsNullOrEmpty(minimum) ? charge : $"{charge}, {minimum}";
+            if (charge.Length == 0)
+                return duration;
+            string combined = string.IsNullOrEmpty(minimum) ? $"{charge}, {duration}" : $"{charge}, {minimum}, {duration}";
+            return combined;
+        }
+
+        private static string StatChip(StatType stat, float value, StatModType type, bool ru, Func<StatType, string> resolver)
+        {
+            string name = StatName(stat, resolver);
+            float magnitude = Mathf.Abs(value);
+            return type switch
+            {
+                StatModType.PercentAdd => $"+{N(magnitude)}% {name}",
+                StatModType.PercentSub => $"-{N(magnitude)}% {name}",
+                StatModType.PercentMult => ru ? $"{N(magnitude)}% больше {name}" : $"{N(magnitude)}% more {name}",
+                StatModType.PercentLess => ru ? $"{N(magnitude)}% меньше {name}" : $"{N(magnitude)}% less {name}",
+                _ => $"{(value >= 0f ? "+" : string.Empty)}{N(value)}{(StatsDatabaseSO.DefaultDisplayAsPercentWhenFlat(stat) ? "%" : string.Empty)} {name}"
+            };
         }
 
         private static void AddStatBased(StepEntry step, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique)
@@ -375,9 +472,11 @@ namespace Scripts.Skills
             {
                 StatType target = ResolveStat(step.GetInt("TargetStat", (int)StatType.HealthRegen), StatType.HealthRegen);
                 float duration = Mathf.Max(0f, step.GetFloat("Duration", 0f));
+                string durationText = duration > 0f ? (ru ? $", {N(duration)} с" : $", {N(duration)}s") : string.Empty;
                 Add(lines, unique, ru
-                    ? $"Даёт параметр «{StatName(target, resolver)}» в размере {P(percent)} от параметра «{sourceName}»{Duration(duration, true)}."
-                    : $"Grants {StatName(target, resolver)} equal to {P(percent)} of {sourceName}{Duration(duration, false)}.");
+                    ? $"{P(percent)} от «{sourceName}» к «{StatName(target, resolver)}»{durationText}."
+                    : $"{P(percent)} of {sourceName} as {StatName(target, resolver)}{durationText}.",
+                    IsOffensiveStat(target) ? SkillDescriptionSection.Attack : SkillDescriptionSection.Other);
             }
         }
 
@@ -419,23 +518,69 @@ namespace Scripts.Skills
 
         private static void AddConversions(StepEntry step, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
-            if (step.DamageConversions == null) return;
+            if (step.DamageConversions == null || step.DamageConversions.Count == 0)
+                return;
+
+            var pending = new List<DamageConversionRule>();
             foreach (DamageConversionRule rule in step.DamageConversions)
             {
-                if (!rule.IsValid) continue;
+                if (!rule.IsValid)
+                    continue;
+                if (pending.Count > 0 && (Mathf.Abs(pending[0].Percent - rule.Percent) > 0.01f || pending[0].Target != rule.Target))
+                {
+                    AddConversionGroup(pending, ru, lines, unique);
+                    pending.Clear();
+                }
+                pending.Add(rule);
+            }
+
+            AddConversionGroup(pending, ru, lines, unique);
+        }
+
+        private static void AddConversionGroup(List<DamageConversionRule> rules, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)
+        {
+            if (rules == null || rules.Count == 0)
+                return;
+
+            if (rules.Count == 1)
+            {
+                DamageConversionRule rule = rules[0];
                 Add(lines, unique, ru
                     ? $"Конвертирует {P(rule.Percent)} урона: {DamageName(rule.Source, true)} → {DamageName(rule.Target, true)}."
-                    : $"Converts {P(rule.Percent)} of {DamageName(rule.Source, false)} Damage to {DamageName(rule.Target, false)} Damage.");
+                    : $"Converts {P(rule.Percent)} of {DamageName(rule.Source, false)} Damage to {DamageName(rule.Target, false)} Damage.", SkillDescriptionSection.Attack);
+                return;
             }
+
+            var sources = new List<string>();
+            for (int i = 0; i < rules.Count; i++)
+                sources.Add(DamageName(rules[i].Source, ru));
+            string joined = JoinNames(sources, ru);
+            Add(lines, unique, ru
+                ? $"Конвертирует {P(rules[0].Percent)} урона в {DamageName(rules[0].Target, true, accusative: true)}: {joined}."
+                : $"Converts {P(rules[0].Percent)} of {joined} Damage to {DamageName(rules[0].Target, false)}.", SkillDescriptionSection.Attack);
+        }
+
+        private static string JoinNames(List<string> names, bool ru)
+        {
+            if (names.Count == 1)
+                return names[0];
+            if (names.Count == 2)
+                return ru ? $"{names[0]} и {names[1]}" : $"{names[0]} and {names[1]}";
+            var head = new List<string>();
+            for (int i = 0; i < names.Count - 1; i++)
+                head.Add(names[i]);
+            string last = names[names.Count - 1];
+            return ru ? $"{string.Join(", ", head)} и {last}" : $"{string.Join(", ", head)} and {last}";
         }
 
         private static void AddScopedModifiers(StepEntry step, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             if (step.ScopedStatModifiers == null) return;
             foreach (SerializableStatModifier modifier in step.ScopedStatModifiers)
-                Add(lines, unique, ru
-                    ? $"Модификатор навыка: {ModValue(modifier.Stat, modifier.Value, modifier.Type, true)} к параметру «{StatName(modifier.Stat, resolver)}»."
-                    : $"Skill modifier: {ModValue(modifier.Stat, modifier.Value, modifier.Type, false)} {StatName(modifier.Stat, resolver)}.");
+            {
+                SkillDescriptionSection section = IsOffensiveStat(modifier.Stat) ? SkillDescriptionSection.Attack : SkillDescriptionSection.Other;
+                Add(lines, unique, StatChip(modifier.Stat, modifier.Value, modifier.Type, ru, resolver) + ".", section);
+            }
         }
 
         private static void AddStackModifiers(StepEntry step, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique)
@@ -447,8 +592,9 @@ namespace Scripts.Skills
                     ? (ru ? $", максимум {rule.MaxStacksCounted} стаков" : $", up to {rule.MaxStacksCounted} stacks")
                     : string.Empty;
                 Add(lines, unique, ru
-                    ? $"Даёт {ModValue(rule.Stat, rule.ValuePerStack, rule.Type, true)} к параметру «{StatName(rule.Stat, resolver)}» за каждый стак {AilmentName(rule.Ailment, true, true)} на цели{cap}."
-                    : $"Grants {ModValue(rule.Stat, rule.ValuePerStack, rule.Type, false)} {StatName(rule.Stat, resolver)} per {AilmentName(rule.Ailment, false, false)} stack on the target{cap}.");
+                    ? $"{StatChip(rule.Stat, rule.ValuePerStack, rule.Type, true, resolver)} за стак {AilmentName(rule.Ailment, true, true)}{cap}."
+                    : $"{StatChip(rule.Stat, rule.ValuePerStack, rule.Type, false, resolver)} per {AilmentName(rule.Ailment, false, false)} stack{cap}.",
+                    IsOffensiveStat(rule.Stat) ? SkillDescriptionSection.Attack : SkillDescriptionSection.Other);
             }
         }
 
@@ -457,8 +603,8 @@ namespace Scripts.Skills
             if (step.OnHitEffects == null) return;
             foreach (SkillOnHitEffectRule rule in step.OnHitEffects)
                 Add(lines, unique, ru
-                    ? $"При попадании создаёт область, наносящую {P(rule.DamageMultiplier * 100f)} урона оружия."
-                    : $"On hit, creates an area dealing {P(rule.DamageMultiplier * 100f)} weapon damage.");
+                    ? $"При попадании: область, {P(rule.DamageMultiplier * 100f)} урона оружия."
+                    : $"On hit: an area for {P(rule.DamageMultiplier * 100f)} weapon damage.", SkillDescriptionSection.Attack);
         }
 
         private static void AddEffectModifiers(
@@ -504,7 +650,7 @@ namespace Scripts.Skills
                 switch (reaction.Action)
                 {
                     case StatusEventReactionAction.EndCurrentEffect:
-                        Add(lines, unique, ru ? $"Эффект заканчивается при событии «{trigger}»." : $"The effect ends when {trigger}.");
+                        Add(lines, unique, ru ? $"Заканчивается при {trigger}." : $"Ends when {trigger}.");
                         break;
                     case StatusEventReactionAction.ExtendCurrentEffect:
                         Add(lines, unique, ru
@@ -518,24 +664,29 @@ namespace Scripts.Skills
                             AddLinked(
                                 lines,
                                 unique,
-                                ru ? $"При событии «{trigger}» накладывает «" : $"When {trigger}, applies ",
+                                ru ? $"При {trigger}: " : $"On {trigger}: ",
                                 nested.GetDisplayName(ru),
                                 nested,
-                                ru ? "»." : ".");
-                            string nestedDesc = nested.GetDescription(ru);
-                            if (!string.IsNullOrWhiteSpace(nestedDesc))
-                                Add(lines, unique, nestedDesc);
+                                ".",
+                                StatusSection(nested));
+                            if (!HasStatLines(nested))
+                            {
+                                string nestedDesc = nested.GetDescription(ru);
+                                if (!string.IsNullOrWhiteSpace(nestedDesc))
+                                    Add(lines, unique, nestedDesc);
+                            }
                         }
                         break;
                     case StatusEventReactionAction.ApplyQuickEffect:
-                        AddEffectModifiers(
-                            reaction.QuickModifiers,
-                            ru ? $"При событии «{trigger}» на {N(reaction.QuickEffectDurationSeconds)} с: " : $"When {trigger}, for {N(reaction.QuickEffectDurationSeconds)}s: ",
-                            ru,
-                            resolver,
-                            lines,
-                            unique);
-                        AddDerivedModifiers(reaction.QuickDerivedModifiers, ru, resolver, lines, unique);
+                        string chips = QuickReactionChips(reaction, ru, resolver);
+                        if (string.IsNullOrEmpty(chips))
+                            break;
+                        string duration = reaction.QuickEffectDurationSeconds > 0f
+                            ? (ru ? $", {N(reaction.QuickEffectDurationSeconds)} с" : $", {N(reaction.QuickEffectDurationSeconds)}s")
+                            : string.Empty;
+                        Add(lines, unique, ru
+                            ? $"При {trigger}{duration}: {chips}."
+                            : $"On {trigger}{duration}: {chips}.");
                         break;
                 }
             }
@@ -576,11 +727,11 @@ namespace Scripts.Skills
         private static StatType ResolveStat(int raw, StatType fallback) =>
             Enum.IsDefined(typeof(StatType), raw) ? (StatType)raw : fallback;
 
-        private static string DamageName(DamageChannel channel, bool ru) => channel switch
+        private static string DamageName(DamageChannel channel, bool ru, bool accusative = false) => channel switch
         {
             DamageChannel.Fire => ru ? "огонь" : "Fire",
             DamageChannel.Cold => ru ? "холод" : "Cold",
-            DamageChannel.Lightning => ru ? "молния" : "Lightning",
+            DamageChannel.Lightning => ru ? (accusative ? "молнию" : "молния") : "Lightning",
             _ => ru ? "физический" : "Physical"
         };
 
@@ -618,14 +769,14 @@ namespace Scripts.Skills
 
             return type switch
             {
-                GameplayEventType.DamageTaken => "получение урона",
-                GameplayEventType.Evaded => "уклонение от атаки",
-                GameplayEventType.DamageDealt => "нанесение урона",
-                GameplayEventType.Landed => "приземление",
-                GameplayEventType.Jumped => "прыжок",
-                GameplayEventType.Dodged => "рывок",
-                GameplayEventType.EnemyKilled => "убийство врага",
-                GameplayEventType.MysticShieldConsumed => "поглощение Мистического щита",
+                GameplayEventType.DamageTaken => "получении урона",
+                GameplayEventType.Evaded => "уклонении от атаки",
+                GameplayEventType.DamageDealt => "нанесении урона",
+                GameplayEventType.Landed => "приземлении",
+                GameplayEventType.Jumped => "прыжке",
+                GameplayEventType.Dodged => "рывке",
+                GameplayEventType.EnemyKilled => "убийстве врага",
+                GameplayEventType.MysticShieldConsumed => "поглощении Мистического щита",
                 _ => type.ToString()
             };
         }
@@ -636,11 +787,11 @@ namespace Scripts.Skills
         private static string N(float value) => value.ToString("0.##", CultureInfo.InvariantCulture);
         private static bool IsRussian(string code) =>
             !string.IsNullOrWhiteSpace(code) && code.StartsWith("ru", StringComparison.OrdinalIgnoreCase);
-        private static void Add(List<SkillDescriptionLine> lines, HashSet<string> unique, string line)
+        private static void Add(List<SkillDescriptionLine> lines, HashSet<string> unique, string line, SkillDescriptionSection section = SkillDescriptionSection.Other)
         {
             if (string.IsNullOrWhiteSpace(line) || !unique.Add(line))
                 return;
-            lines.Add(SkillDescriptionLine.Plain(line));
+            lines.Add(SkillDescriptionLine.Plain(line, section));
         }
 
         private static void AddLinked(
@@ -649,15 +800,137 @@ namespace Scripts.Skills
             string prefix,
             string name,
             StatusEffectSO effect,
-            string suffix)
+            string suffix,
+            SkillDescriptionSection section)
         {
             if (effect == null || string.IsNullOrWhiteSpace(name))
                 return;
 
-            var line = new SkillDescriptionLine(prefix, name, effect, suffix);
+            var line = new SkillDescriptionLine(prefix, name, effect, suffix, section);
             if (!unique.Add(line.Text))
                 return;
             lines.Add(line);
+        }
+
+        private struct QuickStatusNote
+        {
+            public StatType Stat;
+            public StatModType Type;
+            public float Value;
+            public float Duration;
+            public bool PerCharge;
+            public bool Self;
+            public int MinConsumed;
+        }
+
+        private static bool HasStatLines(StatusEffectSO effect)
+        {
+            if (effect == null)
+                return false;
+            if (effect.Modifiers != null && effect.Modifiers.Count > 0)
+                return true;
+            if (effect.DerivedModifiers != null && effect.DerivedModifiers.Count > 0)
+                return true;
+            if (effect.EventReactions == null)
+                return false;
+            for (int i = 0; i < effect.EventReactions.Count; i++)
+            {
+                StatusEventReaction reaction = effect.EventReactions[i];
+                if (reaction == null)
+                    continue;
+                if (reaction.QuickModifiers != null && reaction.QuickModifiers.Count > 0)
+                    return true;
+                if (reaction.QuickDerivedModifiers != null && reaction.QuickDerivedModifiers.Count > 0)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static SkillDescriptionSection StatusSection(StatusEffectSO effect)
+        {
+            if (effect?.Modifiers == null)
+                return SkillDescriptionSection.Other;
+            for (int i = 0; i < effect.Modifiers.Count; i++)
+            {
+                if (IsOffensiveStat(effect.Modifiers[i].Stat))
+                    return SkillDescriptionSection.Attack;
+            }
+
+            return SkillDescriptionSection.Other;
+        }
+
+        private static bool IsOffensiveStat(StatType stat)
+        {
+            switch (stat)
+            {
+                case StatType.DamagePhysical:
+                case StatType.DamageFire:
+                case StatType.DamageCold:
+                case StatType.DamageLightning:
+                case StatType.MeleeDamage:
+                case StatType.SpellDamage:
+                case StatType.AttackSpeed:
+                case StatType.CastSpeed:
+                case StatType.CritChance:
+                case StatType.CritMultiplier:
+                case StatType.PenetrationPhysical:
+                case StatType.PenetrationFire:
+                case StatType.PenetrationCold:
+                case StatType.PenetrationLightning:
+                case StatType.AreaOfEffect:
+                case StatType.ProjectileSpeed:
+                case StatType.ProjectileCount:
+                case StatType.ProjectileFork:
+                case StatType.ProjectileChain:
+                case StatType.ProjectilePierce:
+                case StatType.ReturningProjectileDamage:
+                case StatType.ExtraTargetsForMeleeHits:
+                case StatType.BleedChance:
+                case StatType.BleedDamage:
+                case StatType.BleedDamageMult:
+                case StatType.PoisonChance:
+                case StatType.PoisonDamage:
+                case StatType.PoisonDamageMult:
+                case StatType.IgniteChance:
+                case StatType.IgniteDamage:
+                case StatType.IgniteDamageMult:
+                case StatType.FreezeChance:
+                case StatType.ShockChance:
+                case StatType.StunBuildUp:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private static string QuickReactionChips(StatusEventReaction reaction, bool ru, Func<StatType, string> resolver)
+        {
+            if (reaction?.QuickModifiers == null || reaction.QuickModifiers.Count == 0)
+                return string.Empty;
+            var chips = new List<string>();
+            foreach (SerializableStatModifier modifier in reaction.QuickModifiers)
+                chips.Add(StatChip(modifier.Stat, modifier.Value, modifier.Type, ru, resolver));
+            return string.Join(", ", chips);
+        }
+
+        private static void OrderSections(List<SkillDescriptionLine> lines)
+        {
+            if (lines == null || lines.Count < 2)
+                return;
+            var attack = new List<SkillDescriptionLine>();
+            var other = new List<SkillDescriptionLine>();
+            for (int i = 0; i < lines.Count; i++)
+            {
+                if (lines[i].Section == SkillDescriptionSection.Attack)
+                    attack.Add(lines[i]);
+                else
+                    other.Add(lines[i]);
+            }
+
+            lines.Clear();
+            lines.AddRange(attack);
+            lines.AddRange(other);
         }
     }
 }

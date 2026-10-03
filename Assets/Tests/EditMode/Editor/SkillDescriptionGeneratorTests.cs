@@ -29,11 +29,11 @@ namespace RelicKeeper.Tests.EditMode
             string en = SkillDescriptionGenerator.Build(skill, "en", "OUTDATED LEGACY DESCRIPTION");
             string ru = SkillDescriptionGenerator.Build(skill, "ru", "УСТАРЕВШЕЕ ОПИСАНИЕ");
 
-            Assert.That(en, Does.Contain("15"));
             Assert.That(en, Does.Contain("Poison stack"));
             Assert.That(en, Does.Contain("50%"));
+            Assert.That(en, Does.Contain("+10%"));
             Assert.That(en, Does.Not.Contain("OUTDATED"));
-            Assert.That(ru, Does.Contain("15"));
+            Assert.That(ru, Does.Contain("10%"));
             Assert.That(ru, Does.Contain("яда"));
             Assert.That(ru, Does.Not.Contain("УСТАРЕВШЕЕ"));
         }
@@ -106,14 +106,13 @@ namespace RelicKeeper.Tests.EditMode
             string en = SkillDescriptionGenerator.BuildAutomatic(skill, "en");
             string ru = SkillDescriptionGenerator.BuildAutomatic(skill, "ru");
 
-            Assert.That(en, Does.Contain("Applies"));
             Assert.That(en, Does.Contain("Focus"));
-            Assert.That(en, Does.Not.Contain("ends when taking damage"));
+            Assert.That(en, Does.Not.Contain("Ends when"));
             Assert.That(ru, Does.Contain("Концентрация"));
-            Assert.That(ru, Does.Not.Contain("получение урона"));
+            Assert.That(ru, Does.Not.Contain("получении урона"));
 
             string tooltip = SkillDescriptionGenerator.BuildStatusEffectTooltip(effect, "en");
-            Assert.That(tooltip, Does.Contain("ends when taking damage"));
+            Assert.That(tooltip, Does.Contain("Ends when taking damage"));
         }
 
         [Test]
@@ -163,7 +162,7 @@ namespace RelicKeeper.Tests.EditMode
             string en = SkillDescriptionGenerator.BuildAutomatic(skill, "en");
             string ru = SkillDescriptionGenerator.BuildAutomatic(skill, "ru");
             Assert.That(en, Does.Contain("Warrior Step"));
-            Assert.That(en, Does.Contain("10"));
+            Assert.That(en, Does.Contain("10s"));
             Assert.That(en, Does.Not.Contain("Increase movement speed and armor by 30%"));
             Assert.That(en, Does.Not.Contain("Effect:"));
             Assert.That(ru, Does.Contain("Шаг Воина"));
@@ -171,11 +170,50 @@ namespace RelicKeeper.Tests.EditMode
 
             List<SkillDescriptionLine> lines = SkillDescriptionGenerator.BuildAutomaticLines(skill, "en");
             Assert.That(lines.Exists(line => line.HasLink && line.LinkedEffect == effect), Is.True);
-            Assert.That(en, Does.Contain("Applies Warrior Step to the character"));
 
             string tooltip = SkillDescriptionGenerator.BuildStatusEffectTooltip(effect, "en");
-            Assert.That(tooltip, Does.Contain("Increase movement speed and armor by 30%"));
+            Assert.That(tooltip, Does.Not.Contain("Increase movement speed and armor by 30%"));
             Assert.That(tooltip, Does.Contain("+30%"));
+        }
+
+        [Test]
+        public void MysticHaste_StatesSharedChargeOnce()
+        {
+            SkillDataSO skill = Resources.Load<SkillDataSO>("Skills/Boots/Mystic/MysticHasteSkill");
+
+            string ru = SkillDescriptionGenerator.BuildAutomatic(skill, "ru");
+
+            Assert.That(ru, Does.Not.Contain("параметру"));
+            Assert.That(ru, Does.Not.Contain("каждый поглощённый"));
+            Assert.That(ru, Does.Contain("За заряд щита, 20 с:"));
+            Assert.That(ru, Does.Contain("30% больше"));
+            Assert.That(ru, Does.Contain("50% больше"));
+        }
+
+        [Test]
+        public void MysticImpulse_SeparatesAttackFromOtherAndDropsZeroDuration()
+        {
+            SkillDataSO skill = Resources.Load<SkillDataSO>("Skills/Helmet/Mystic/MysticImpulseSkill");
+
+            string ru = SkillDescriptionGenerator.BuildAutomatic(skill, "ru");
+            List<SkillDescriptionLine> lines = SkillDescriptionGenerator.BuildAutomaticLines(skill, "ru");
+
+            Assert.That(ru, Does.Not.Contain("на 0"));
+            Assert.That(ru, Does.Not.Contain("параметру"));
+            Assert.That(ru, Does.Contain("молнию"));
+            int lastAttack = -1;
+            int firstOther = int.MaxValue;
+            for (int i = 0; i < lines.Count; i++)
+            {
+                if (lines[i].Section == SkillDescriptionSection.Attack)
+                    lastAttack = i;
+                else if (firstOther == int.MaxValue)
+                    firstOther = i;
+            }
+
+            Assert.That(lastAttack, Is.GreaterThanOrEqualTo(0));
+            Assert.That(firstOther, Is.LessThan(lines.Count));
+            Assert.That(lastAttack, Is.LessThan(firstOther));
         }
 
         [Test]
