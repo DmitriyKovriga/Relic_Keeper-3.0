@@ -267,21 +267,40 @@ namespace Scripts.Dungeon
             bool hasBoss = !string.IsNullOrEmpty(_currentDungeon.BossRoomPrefabPath);
             int normalRoomCount = hasBoss ? Mathf.Max(0, targetCount - 1) : targetCount;
 
-            if (normal == null || normal.Count == 0)
+            int openingCount = DungeonDataSO.AppendOpeningRooms(
+                _currentDungeon.OpeningRoomPrefabPaths,
+                _roomsCompletedBeforeSegment,
+                normalRoomCount,
+                _roomSequence);
+
+            int randomCount = normalRoomCount - openingCount;
+            if (randomCount > 0 && normal != null && normal.Count > 0)
             {
-                if (hasBoss)
-                    _roomSequence.Add(_currentDungeon.BossRoomPrefabPath);
-
-                return;
+                int lastOpeningIndex = openingCount > 0
+                    ? IndexOfRoom(normal, _roomSequence[_roomSequence.Count - 1])
+                    : -1;
+                AddNormalRoomsWithoutRepeats(normal, randomCount, lastOpeningIndex);
             }
-
-            AddNormalRoomsWithoutRepeats(normal, normalRoomCount);
 
             if (hasBoss)
                 _roomSequence.Add(_currentDungeon.BossRoomPrefabPath);
         }
 
-        private void AddNormalRoomsWithoutRepeats(IReadOnlyList<string> normalRooms, int count)
+        private static int IndexOfRoom(IReadOnlyList<string> rooms, string path)
+        {
+            if (rooms == null || string.IsNullOrEmpty(path))
+                return -1;
+
+            for (int i = 0; i < rooms.Count; i++)
+            {
+                if (rooms[i] == path)
+                    return i;
+            }
+
+            return -1;
+        }
+
+        private void AddNormalRoomsWithoutRepeats(IReadOnlyList<string> normalRooms, int count, int lastRoomIndex)
         {
             if (normalRooms == null || normalRooms.Count == 0 || count <= 0)
                 return;
@@ -297,7 +316,6 @@ namespace Scripts.Dungeon
                 return;
 
             var bag = new List<int>(validRoomIndices.Count);
-            int lastRoomIndex = -1;
 
             for (int i = 0; i < count; i++)
             {

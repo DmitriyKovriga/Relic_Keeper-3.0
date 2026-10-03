@@ -23,7 +23,7 @@ namespace Scripts.Dungeon.Editor
                 EditorGUILayout.Space(5);
                 EditorGUILayout.HelpBox(
                     "Доступные префабы в Resources:\n" + string.Join("\n", _roomPrefabPaths) +
-                    "\n\nСкопируй нужный путь в Normal Room Prefab Paths.",
+                    "\n\nOpening Room Prefab Paths — первые комнаты забега, сверху вниз. Normal Room Prefab Paths — случайный пул для остальных.",
                     MessageType.Info);
             }
         }

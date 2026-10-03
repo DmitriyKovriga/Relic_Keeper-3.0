@@ -21,6 +21,8 @@ namespace Scripts.Dungeon
 
         [Header("Rooms")]
         [Min(1)] public int RoomCount = 10;
+        [Tooltip("Эти комнаты идут первыми при входе с начала данжа, сверху вниз. Пустые строки пропускаются. Если игрок начинает с более поздней комнаты, уже пройденные из этого списка не повторяются.")]
+        [SerializeField] private List<string> _openingRoomPrefabPaths = new List<string>();
         [Tooltip("Room prefab paths in Resources. Example: Prefabs/Dungeon/MineDungeon/MineRoom_001")]
         [SerializeField] private List<string> _normalRoomPrefabPaths = new List<string>();
         [Tooltip("Boss room prefab path in Resources.")]
@@ -40,6 +42,7 @@ namespace Scripts.Dungeon
         [Tooltip("Background sprite path in Resources. Example: Sprites/WallAndGrounds/MortfallDungeon/MortFallAssets/Mortfall-background")]
         [SerializeField] private string _backgroundSpriteResourcePath;
 
+        public IReadOnlyList<string> OpeningRoomPrefabPaths => _openingRoomPrefabPaths;
         public IReadOnlyList<string> NormalRoomPrefabPaths => _normalRoomPrefabPaths;
         public string BossRoomPrefabPath => _bossRoomPrefabPath;
         public string BackgroundSpriteResourcePath => _backgroundSpriteResourcePath;
@@ -48,6 +51,35 @@ namespace Scripts.Dungeon
         public IReadOnlyList<DungeonModifierSO> RoomModifierPool => _roomModifierPool;
         public int EntryChoiceCount => Mathf.Max(1, _entryChoiceCount);
         public int RoomChoiceCount => Mathf.Max(1, _roomChoiceCount);
+
+        public static int AppendOpeningRooms(
+            IReadOnlyList<string> openingRooms,
+            int roomsCompletedBeforeSegment,
+            int slots,
+            List<string> sequence)
+        {
+            if (openingRooms == null || sequence == null || slots <= 0)
+                return 0;
+
+            int completed = Mathf.Max(0, roomsCompletedBeforeSegment);
+            int placed = 0;
+            int openingIndex = 0;
+            for (int i = 0; i < openingRooms.Count && placed < slots; i++)
+            {
+                if (string.IsNullOrEmpty(openingRooms[i]))
+                    continue;
+
+                if (openingIndex >= completed)
+                {
+                    sequence.Add(openingRooms[i]);
+                    placed++;
+                }
+
+                openingIndex++;
+            }
+
+            return placed;
+        }
 
         public string GetLocalizedDisplayName()
         {
