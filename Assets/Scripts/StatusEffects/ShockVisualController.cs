@@ -99,20 +99,33 @@ namespace Scripts.StatusEffects
             _restoredWhileFrozen = false;
         }
 
+        public bool IsActive => _active;
+
         private void RebuildRendererCache()
         {
             _renderers.Clear();
             GetComponentsInChildren(true, _renderers);
             _baseColors.Clear();
-            for (int i = 0; i < _renderers.Count; i++)
+            for (int i = _renderers.Count - 1; i >= 0; i--)
             {
                 SpriteRenderer renderer = _renderers[i];
-                if (renderer != null && !_baseColors.ContainsKey(renderer))
+                if (renderer == null || IsIgniteFlame(renderer))
+                {
+                    _renderers.RemoveAt(i);
+                    continue;
+                }
+
+                if (!_baseColors.ContainsKey(renderer))
                     _baseColors.Add(renderer, renderer.color);
             }
 
             if (_freeze == null)
                 _freeze = GetComponent<EnemyFreezeController>() ?? GetComponentInParent<EnemyFreezeController>();
+        }
+
+        private static bool IsIgniteFlame(SpriteRenderer renderer)
+        {
+            return renderer != null && renderer.transform.parent != null && renderer.transform.parent.name == "IgniteFlames";
         }
 
         private void RestoreBaseColors()

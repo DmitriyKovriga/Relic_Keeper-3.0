@@ -895,7 +895,8 @@ namespace Scripts.Stats
                 return StatDisplayFormat.Damage;
 
             if (type == StatType.ShockDuration || type == StatType.FreezeDuration || type == StatType.BleedDuration ||
-                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.StunDuration ||
+                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.IgniteSpreadDuration ||
+                type == StatType.StunDuration ||
                 type == StatType.MysticShieldRechargeDuration || IsCooldownRecoveryStat(type))
                 return StatDisplayFormat.Time;
 
@@ -966,7 +967,8 @@ namespace Scripts.Stats
             if (type == StatType.MaxMysticShield)
                 return StatValueUnit.MysticShield;
             if (type == StatType.ShockDuration || type == StatType.FreezeDuration || type == StatType.BleedDuration ||
-                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.StunDuration ||
+                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.IgniteSpreadDuration ||
+                type == StatType.StunDuration ||
                 type == StatType.MysticShieldRechargeDuration || IsCooldownRecoveryStat(type))
                 return StatValueUnit.Seconds;
             if (type == StatType.MaxBleedStack)
@@ -1056,6 +1058,7 @@ namespace Scripts.Stats
                 case StatType.IgniteDamage:
                 case StatType.IgniteDamageMult:
                 case StatType.IgniteDuration:
+                case StatType.IgniteSpreadDuration:
                 case StatType.FreezeChance:
                 case StatType.FreezeDuration:
                 case StatType.ShockChance:
@@ -1089,6 +1092,7 @@ namespace Scripts.Stats
                 case StatType.IgniteDamage:
                 case StatType.IgniteDamageMult:
                 case StatType.IgniteDuration:
+                case StatType.IgniteSpreadDuration:
                 case StatType.ChanseToAvoidIgnite:
                     return StatDamageChannelFlags.Fire;
 

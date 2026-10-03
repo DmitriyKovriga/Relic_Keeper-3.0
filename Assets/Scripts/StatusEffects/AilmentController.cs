@@ -16,6 +16,8 @@ namespace Scripts.StatusEffects
         private const float DefaultBleedDamageMult = 50f;
         private const float DefaultIgniteChance = 25f;
         private const float DefaultIgniteDuration = 4f;
+        private const float DefaultIgniteSpreadDuration = 2f;
+        private const float IgniteSpreadRadius = 2.5f;
         private const float DefaultIgniteDamageMult = 20f;
         private const float IgniteFireDamageShareThreshold = 0.3f;
         private const float DefaultFreezeDuration = 1f;
@@ -35,12 +37,14 @@ namespace Scripts.StatusEffects
         private float _poisonTickTimer = TickInterval;
         private float _bleedTickTimer = TickInterval;
         private float _igniteTickTimer = TickInterval;
+        private float _igniteSpreadTimer;
         private float _shockRemainingSeconds;
 
         private IStatsProvider _statsProvider;
         private EnemyHealth _enemyHealth;
         private EnemyFreezeController _enemyFreeze;
         private ShockVisualController _shockVisual;
+        private IgniteVisualController _igniteVisual;
         private PlayerDamageReceiver _playerDamageReceiver;
 
         public event Action OnAilmentsChanged;
@@ -316,25 +320,93 @@ namespace Scripts.StatusEffects
             if (duration <= 0f)
                 duration = DefaultIgniteDuration;
 
-            int maxStacks = Mathf.Max(1, Mathf.FloorToInt(sourceStats.GetValue(StatType.MaxIgniteStacks)));
+            return AddOrRefreshIgnite(source, sourceStats, tickDamage, duration);
+        }
+
+        public struct IgniteSpreadCandidate
+        {
+            public int StackCount;
+            public int MaxStacks;
+            public float DistanceSqr;
+        }
+
+        public static int SelectIgniteSpreadTarget(IReadOnlyList<IgniteSpreadCandidate> candidates)
+        {
+            int best = -1;
+            int bestTier = int.MaxValue;
+            float bestDistance = float.MaxValue;
+            if (candidates == null)
+                return -1;
+
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                IgniteSpreadCandidate candidate = candidates[i];
+                int maxStacks = Mathf.Max(1, candidate.MaxStacks);
+                int tier = candidate.StackCount <= 0 ? 0 : candidate.StackCount < maxStacks ? 1 : 2;
+                if (tier > bestTier)
+                    continue;
+                if (tier == bestTier && candidate.DistanceSqr >= bestDistance)
+                    continue;
+
+                best = i;
+                bestTier = tier;
+                bestDistance = candidate.DistanceSqr;
+            }
+
+            return best;
+        }
+
+        private bool AddOrRefreshIgnite(object source, IStatsProvider sourceStats, float tickDamage, float duration)
+        {
+            if (tickDamage <= 0f || duration <= 0f)
+                return false;
+
+            bool wasBurning = _igniteStacks.Count > 0;
+            int maxStacks = ResolveMaxIgniteStacks(sourceStats);
             if (_igniteStacks.Count >= maxStacks)
             {
-                int weakestIndex = FindWeakestIgniteStackIndex();
-                if (weakestIndex < 0 || _igniteStacks[weakestIndex].TickDamage > tickDamage)
+                int refreshIndex = FindIgniteStackToRefresh();
+                if (refreshIndex < 0)
                     return false;
 
-                _igniteStacks.RemoveAt(weakestIndex);
+                IgniteStack stack = _igniteStacks[refreshIndex];
+                stack.RemainingSeconds = duration;
+                if (tickDamage >= stack.TickDamage)
+                {
+                    stack.Source = source;
+                    stack.TickDamage = tickDamage;
+                    stack.DurationSeconds = duration;
+                }
+
+                _igniteStacks[refreshIndex] = stack;
+                SyncIgniteVisual();
+                OnAilmentsChanged?.Invoke();
+                return true;
             }
 
             _igniteStacks.Add(new IgniteStack
             {
                 Source = source,
                 TickDamage = tickDamage,
-                RemainingSeconds = duration
+                RemainingSeconds = duration,
+                DurationSeconds = duration
             });
 
+            if (!wasBurning)
+                _igniteSpreadTimer = ResolveIgniteSpreadSeconds(sourceStats);
+
+            SyncIgniteVisual();
             OnAilmentsChanged?.Invoke();
             return true;
+        }
+
+        public void ReceiveSpreadIgnite(object source, IStatsProvider sourceStats, float tickDamage, float duration)
+        {
+            CacheOwner();
+            if (_enemyHealth != null && _enemyHealth.IsDead)
+                return;
+
+            AddOrRefreshIgnite(source, sourceStats, tickDamage, duration);
         }
 
         public bool TryApplyFreeze(IStatsProvider sourceStats, object source, DamageSnapshot hitSnapshot)
@@ -469,6 +541,18 @@ namespace Scripts.StatusEffects
                 _shockVisual = gameObject.AddComponent<ShockVisualController>();
         }
 
+        private void SyncIgniteVisual()
+        {
+            bool burning = _igniteStacks.Count > 0;
+            if (!burning && _igniteVisual == null)
+                return;
+
+            if (_igniteVisual == null)
+                _igniteVisual = GetComponent<IgniteVisualController>() ?? gameObject.AddComponent<IgniteVisualController>();
+
+            _igniteVisual.SetBurning(burning);
+        }
+
         private void UpdatePoison(float dt)
         {
             if (_poisonStackCount <= 0)
@@ -550,6 +634,8 @@ namespace Scripts.StatusEffects
             if (_igniteStacks.Count == 0)
             {
                 _igniteTickTimer = TickInterval;
+                _igniteSpreadTimer = 0f;
+                SyncIgniteVisual();
                 return;
             }
 
@@ -580,6 +666,21 @@ namespace Scripts.StatusEffects
                 ApplyCombinedIgniteTick();
             }
 
+            if (_igniteStacks.Count == 0 || _enemyHealth == null || _enemyHealth.IsDead)
+            {
+                _igniteSpreadTimer = 0f;
+            }
+            else
+            {
+                _igniteSpreadTimer -= dt;
+                if (_igniteSpreadTimer <= 0f)
+                {
+                    TrySpreadIgnite();
+                    _igniteSpreadTimer = ResolveCurrentIgniteSpreadSeconds();
+                }
+            }
+
+            SyncIgniteVisual();
             if (changed)
                 OnAilmentsChanged?.Invoke();
         }
@@ -705,20 +806,125 @@ namespace Scripts.StatusEffects
             return weakestIndex;
         }
 
-        private int FindWeakestIgniteStackIndex()
+        private int FindIgniteStackToRefresh()
         {
-            int weakestIndex = -1;
-            float weakestDamage = float.MaxValue;
+            int bestIndex = -1;
+            float bestRemaining = float.MaxValue;
+            float bestDamage = float.MaxValue;
             for (int i = 0; i < _igniteStacks.Count; i++)
             {
-                if (_igniteStacks[i].TickDamage >= weakestDamage)
+                IgniteStack stack = _igniteStacks[i];
+                if (stack.RemainingSeconds > bestRemaining)
+                    continue;
+                if (Mathf.Approximately(stack.RemainingSeconds, bestRemaining) && stack.TickDamage >= bestDamage)
                     continue;
 
-                weakestDamage = _igniteStacks[i].TickDamage;
-                weakestIndex = i;
+                bestRemaining = stack.RemainingSeconds;
+                bestDamage = stack.TickDamage;
+                bestIndex = i;
             }
 
-            return weakestIndex;
+            return bestIndex;
+        }
+
+        private void TrySpreadIgnite()
+        {
+            if (_igniteStacks.Count == 0 || _enemyHealth == null || _enemyHealth.IsDead)
+                return;
+
+            int strongest = FindStrongestIgniteStackIndex();
+            if (strongest < 0)
+                return;
+
+            IgniteStack stack = _igniteStacks[strongest];
+            TryResolveStatsProvider(stack.Source, out IStatsProvider sourceStats);
+            int maxStacks = ResolveMaxIgniteStacks(sourceStats);
+            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, IgniteSpreadRadius);
+            if (hits == null || hits.Length == 0)
+                return;
+
+            var options = new List<SpreadOption>(hits.Length);
+            for (int i = 0; i < hits.Length; i++)
+            {
+                Collider2D hit = hits[i];
+                if (hit == null)
+                    continue;
+
+                EnemyHealth health = hit.GetComponent<EnemyHealth>() ?? hit.GetComponentInParent<EnemyHealth>();
+                if (health == null || health.IsDead || health.gameObject == gameObject)
+                    continue;
+
+                if (!TryResolve(health.transform, out AilmentController other) || other == null || other == this)
+                    continue;
+
+                options.Add(new SpreadOption
+                {
+                    Controller = other,
+                    Candidate = new IgniteSpreadCandidate
+                    {
+                        StackCount = other.GetStackCount(AilmentType.Ignite),
+                        MaxStacks = maxStacks,
+                        DistanceSqr = (other.transform.position - transform.position).sqrMagnitude
+                    }
+                });
+            }
+
+            if (options.Count == 0)
+                return;
+
+            var candidates = new IgniteSpreadCandidate[options.Count];
+            for (int i = 0; i < options.Count; i++)
+                candidates[i] = options[i].Candidate;
+
+            int selected = SelectIgniteSpreadTarget(candidates);
+            if (selected < 0)
+                return;
+
+            float duration = stack.DurationSeconds > 0f ? stack.DurationSeconds : DefaultIgniteDuration;
+            options[selected].Controller.ReceiveSpreadIgnite(stack.Source, sourceStats, stack.TickDamage, duration);
+        }
+
+        private float ResolveCurrentIgniteSpreadSeconds()
+        {
+            int strongest = FindStrongestIgniteStackIndex();
+            if (strongest < 0)
+                return DefaultIgniteSpreadDuration;
+
+            TryResolveStatsProvider(_igniteStacks[strongest].Source, out IStatsProvider sourceStats);
+            return ResolveIgniteSpreadSeconds(sourceStats);
+        }
+
+        private static float ResolveIgniteSpreadSeconds(IStatsProvider sourceStats)
+        {
+            if (sourceStats == null)
+                return DefaultIgniteSpreadDuration;
+
+            float seconds = sourceStats.GetValue(StatType.IgniteSpreadDuration);
+            return seconds > 0f ? seconds : DefaultIgniteSpreadDuration;
+        }
+
+        private static int ResolveMaxIgniteStacks(IStatsProvider sourceStats)
+        {
+            if (sourceStats == null)
+                return 1;
+
+            return Mathf.Max(1, Mathf.FloorToInt(sourceStats.GetValue(StatType.MaxIgniteStacks)));
+        }
+
+        private int FindStrongestIgniteStackIndex()
+        {
+            int strongestIndex = -1;
+            float strongestDamage = float.MinValue;
+            for (int i = 0; i < _igniteStacks.Count; i++)
+            {
+                if (_igniteStacks[i].TickDamage <= strongestDamage)
+                    continue;
+
+                strongestDamage = _igniteStacks[i].TickDamage;
+                strongestIndex = i;
+            }
+
+            return strongestIndex;
         }
 
         private static bool TryResolveStatsProvider(object source, out IStatsProvider statsProvider)
@@ -753,6 +959,13 @@ namespace Scripts.StatusEffects
             public object Source;
             public float TickDamage;
             public float RemainingSeconds;
+            public float DurationSeconds;
+        }
+
+        private struct SpreadOption
+        {
+            public AilmentController Controller;
+            public IgniteSpreadCandidate Candidate;
         }
     }
 }

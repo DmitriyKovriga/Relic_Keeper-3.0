@@ -170,6 +170,9 @@ namespace Scripts.Stats
         // Context modifier for Fire, Cold and Lightning. No skill tag is required.
         ElementalDamage,
         // Context modifier for skills marked DamageContextTags.Range.
-        RangeDamage
+        RangeDamage,
+
+        // Seconds between ignite jumps to a nearby enemy. Base is 2 seconds.
+        IgniteSpreadDuration
     }
 }

@@ -1763,6 +1763,10 @@ MonoBehaviour:
     m_Key: player.levelUp
     m_Metadata:
       m_Items: []
+  - m_Id: 120000000000000010
+    m_Key: stats.IgniteSpreadDuration
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
