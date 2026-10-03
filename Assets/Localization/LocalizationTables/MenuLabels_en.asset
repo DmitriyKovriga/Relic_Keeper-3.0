@@ -2289,7 +2289,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 104241224381095936
-    m_Localized: TransportHpMp
+    m_Localized: Improvement
     m_Metadata:
       m_Items: []
   - m_Id: 104241224406261760
@@ -2493,7 +2493,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 105657292219736064
-    m_Localized: EffectDuration
+    m_Localized: Conductivity
     m_Metadata:
       m_Items: []
   - m_Id: 105657292244901888
@@ -2501,23 +2501,23 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 105682821140439040
-    m_Localized: Spell DamageSmall
+    m_Localized: Acceleration
     m_Metadata:
       m_Items: []
   - m_Id: 105682821169799168
-    m_Localized: SpellMBCooldown
+    m_Localized: 
     m_Metadata:
       m_Items: []
   - m_Id: 105682874886250496
-    m_Localized: Spell DamageSmall
+    m_Localized: Might of Magic
     m_Metadata:
       m_Items: []
   - m_Id: 105682874886250497
-    m_Localized: SpellMBCooldown
+    m_Localized: 
     m_Metadata:
       m_Items: []
   - m_Id: 105697434875715584
-    m_Localized: CastSpeed
+    m_Localized: Sleight of Hand
     m_Metadata:
       m_Items: []
   - m_Id: 105697434875715585
@@ -2525,7 +2525,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 105702380283092992
-    m_Localized: FireDamageIgnite
+    m_Localized: Distancing
     m_Metadata:
       m_Items: []
   - m_Id: 105702380283092993
@@ -2533,7 +2533,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 105707013529395200
-    m_Localized: CastSpeedNote
+    m_Localized: Sleight of Magus
     m_Metadata:
       m_Items: []
   - m_Id: 105707013529395201
@@ -2541,7 +2541,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 105711253840715776
-    m_Localized: ChainSmall
+    m_Localized: Chain
     m_Metadata:
       m_Items: []
   - m_Id: 105711253840715777
@@ -2549,7 +2549,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 105712446050656256
-    m_Localized: LightningDamage
+    m_Localized: Might of Lightning
     m_Metadata:
       m_Items: []
   - m_Id: 105712446050656257
@@ -2649,7 +2649,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 107231575354105856
-    m_Localized: LightningAndChain
+    m_Localized: Chain 'n Lightning
     m_Metadata:
       m_Items: []
   - m_Id: 107231575379271680
@@ -2657,7 +2657,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 107235025857011712
-    m_Localized: EffectDuration
+    m_Localized: Might of Curse
     m_Metadata:
       m_Items: []
   - m_Id: 107235025857011713
@@ -2665,7 +2665,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 107239893170642944
-    m_Localized: EDNote
+    m_Localized: Malefice
     m_Metadata:
       m_Items: []
   - m_Id: 107239893170642945
@@ -2673,7 +2673,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 107243255458947072
-    m_Localized: FireDamage
+    m_Localized: Might of Fire
     m_Metadata:
       m_Items: []
   - m_Id: 107243255458947073
@@ -2681,7 +2681,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 107245649336983552
-    m_Localized: FireDamageIgnite
+    m_Localized: Ignition
     m_Metadata:
       m_Items: []
   - m_Id: 107245649336983553
@@ -2726,6 +2726,70 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 120000000000000010
     m_Localized: Ignite Spread
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111508801381720064
+    m_Localized: Pushing Force
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111508801406885888
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111508941278535680
+    m_Localized: Distancing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111508941278535681
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111508983439679488
+    m_Localized: Heightened Voltage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111508983439679489
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509210460577792
+    m_Localized: Conductivity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509210460577793
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509279800811520
+    m_Localized: Might of Ice
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509279800811521
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509441365401600
+    m_Localized: Spellcaster
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509441365401601
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509648312360960
+    m_Localized: 'Deep Freeze '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509648312360961
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509777517895680
+    m_Localized: Sorcery Amplifier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509777517895681
+    m_Localized: 
     m_Metadata:
       m_Items: []
   references:

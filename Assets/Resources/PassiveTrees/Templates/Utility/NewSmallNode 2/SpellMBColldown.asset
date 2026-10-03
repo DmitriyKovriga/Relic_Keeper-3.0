@@ -23,3 +23,6 @@ MonoBehaviour:
     Value: 10
     Type: 210
   StatScalingRules: []
+  ConditionalModifiers: []
+  TriggeredEffects: []
+  HitScalingRules: []
