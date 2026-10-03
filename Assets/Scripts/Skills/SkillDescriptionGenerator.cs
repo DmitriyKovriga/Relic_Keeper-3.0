@@ -452,8 +452,8 @@ namespace Scripts.Skills
             {
                 StatModType.PercentAdd => $"+{N(magnitude)}% {name}",
                 StatModType.PercentSub => $"-{N(magnitude)}% {name}",
-                StatModType.PercentMult => ru ? $"{N(magnitude)}% больше {name}" : $"{N(magnitude)}% more {name}",
-                StatModType.PercentLess => ru ? $"{N(magnitude)}% меньше {name}" : $"{N(magnitude)}% less {name}",
+                StatModType.PercentMult => ru ? $"{N(magnitude)}% Больше {name}" : $"{N(magnitude)}% more {name}",
+                StatModType.PercentLess => ru ? $"{N(magnitude)}% Меньше {name}" : $"{N(magnitude)}% less {name}",
                 _ => $"{(value >= 0f ? "+" : string.Empty)}{N(value)}{(StatsDatabaseSO.DefaultDisplayAsPercentWhenFlat(stat) ? "%" : string.Empty)} {name}"
             };
         }
@@ -699,8 +699,8 @@ namespace Scripts.Skills
             {
                 StatModType.PercentAdd => $"+{N(magnitude)}%",
                 StatModType.PercentSub => $"-{N(magnitude)}%",
-                StatModType.PercentMult => ru ? $"на {N(magnitude)}% больше" : $"{N(magnitude)}% more",
-                StatModType.PercentLess => ru ? $"на {N(magnitude)}% меньше" : $"{N(magnitude)}% less",
+                StatModType.PercentMult => ru ? $"на {N(magnitude)}% Больше" : $"{N(magnitude)}% more",
+                StatModType.PercentLess => ru ? $"на {N(magnitude)}% Меньше" : $"{N(magnitude)}% less",
                 _ => $"{(value >= 0f ? "+" : string.Empty)}{N(value)}{(StatsDatabaseSO.DefaultDisplayAsPercentWhenFlat(stat) ? "%" : string.Empty)}"
             };
         }

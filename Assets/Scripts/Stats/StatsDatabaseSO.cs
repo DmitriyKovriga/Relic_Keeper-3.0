@@ -231,10 +231,11 @@ namespace Scripts.Stats
             return StatsDatabaseSO.DefaultDisplayAsPercentWhenFlat(type);
         }
 
-        public static string FormatModifierValue(StatsDatabaseSO db, StatType type, float value, StatModType modifierType, bool absoluteValue = false)
+        public static string FormatModifierValue(StatsDatabaseSO db, StatType type, float value, StatModType modifierType, bool absoluteValue = false, bool? russian = null)
         {
             float displayValue = absoluteValue ? Mathf.Abs(value) : value;
             float magnitude = Mathf.Abs(displayValue);
+            bool isRussian = russian ?? RuntimeLocalization.IsRussian;
 
             switch (modifierType)
             {
@@ -243,10 +244,10 @@ namespace Scripts.Stats
                     return $"{modifierType.GetDisplayPrefix(displayValue)}{magnitude:0.##}%";
 
                 case StatModType.PercentMult:
-                    return $"{magnitude:0.##}% more";
+                    return $"{magnitude:0.##}% {(isRussian ? "Больше" : "more")}";
 
                 case StatModType.PercentLess:
-                    return $"{magnitude:0.##}% less";
+                    return $"{magnitude:0.##}% {(isRussian ? "Меньше" : "less")}";
 
                 default:
                     if (ShouldDisplayPercentWhenFlat(db, type))
@@ -271,7 +272,7 @@ namespace Scripts.Stats
             if (StatsDatabaseSO.IsCooldownRecoveryStat(type))
                 return FormatCooldownRecoveryLine(type, value, modifierType, RuntimeLocalization.IsRussian);
 
-            string valueText = FormatModifierValue(db, type, value, modifierType);
+            string valueText = FormatModifierValue(db, type, value, modifierType, russian: RuntimeLocalization.IsRussian);
             switch (lineStyle)
             {
                 case ModifierLineStyle.ValueThenStat:

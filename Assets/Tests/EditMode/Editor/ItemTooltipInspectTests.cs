@@ -120,6 +120,20 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void MoreAndLess_UseRussianWordsInRussian()
+        {
+            Assert.That(
+                StatPresentation.FormatModifierValue(null, StatType.BleedDamage, 50f, StatModType.PercentMult, russian: true),
+                Is.EqualTo("50% Больше"));
+            Assert.That(
+                StatPresentation.FormatModifierValue(null, StatType.BleedDamage, 50f, StatModType.PercentLess, russian: true),
+                Is.EqualTo("50% Меньше"));
+            Assert.That(
+                StatPresentation.FormatModifierValue(null, StatType.BleedDamage, 50f, StatModType.PercentLess, russian: false),
+                Is.EqualTo("50% less"));
+        }
+
+        [Test]
         public void GenerateRuntime_StoresItemLevelOnInstance()
         {
             ArmorItemSO data = Track(ScriptableObject.CreateInstance<ArmorItemSO>());

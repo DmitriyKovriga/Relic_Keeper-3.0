@@ -186,8 +186,8 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(ru, Does.Not.Contain("параметру"));
             Assert.That(ru, Does.Not.Contain("каждый поглощённый"));
             Assert.That(ru, Does.Contain("За заряд щита, 20 с:"));
-            Assert.That(ru, Does.Contain("30% больше"));
-            Assert.That(ru, Does.Contain("50% больше"));
+            Assert.That(ru, Does.Contain("30% Больше"));
+            Assert.That(ru, Does.Contain("50% Больше"));
         }
 
         [Test]
