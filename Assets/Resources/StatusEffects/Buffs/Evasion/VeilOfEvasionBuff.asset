@@ -25,6 +25,8 @@ MonoBehaviour:
     \u0438 \u043C\u0430\u043D\u044B \u043D\u0430 10 \u0441\u0435\u043A"
   Icon: {fileID: 0}
   ShowInHud: 1
+  AuraColor: 4
+  AuraVfxPrefab: {fileID: 0}
   BaseDurationSeconds: 12
   Modifiers: []
   DerivedModifiers: []
@@ -43,4 +45,5 @@ MonoBehaviour:
       Value: 5
       Type: 100
     QuickDerivedModifiers: []
+    QuickAuraColor: 2
     ExtendSeconds: 1

@@ -61,6 +61,12 @@ namespace Scripts.Editor.Affixes
             Debug.Log($"[Affix Content] Missing stat generation complete. Created: {created}.");
         }
 
+        public static void GenerateIgniteSpreadFamiliesFromCommandLine()
+        {
+            int created = GenerateFamilies(new HashSet<StatType> { StatType.IgniteSpreadDuration });
+            Debug.Log($"[Affix Content] Ignite spread families generated. Created: {created}.");
+        }
+
         public static void GenerateElementalAndRangeFamiliesFromCommandLine()
         {
             int created = GenerateFamilies(new HashSet<StatType> { StatType.ElementalDamage, StatType.RangeDamage });

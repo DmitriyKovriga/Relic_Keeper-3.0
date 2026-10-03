@@ -307,6 +307,7 @@ namespace Scripts.Items.Affixes
                 case StatType.BleedDuration:
                 case StatType.PoisonDuration:
                 case StatType.IgniteDuration:
+                case StatType.IgniteSpreadDuration:
                 case StatType.FreezeDuration:
                 case StatType.ShockDuration:
                 case StatType.StunDuration:
@@ -377,6 +378,7 @@ namespace Scripts.Items.Affixes
                 case StatType.BleedDuration:
                 case StatType.PoisonDuration:
                 case StatType.IgniteDuration:
+                case StatType.IgniteSpreadDuration:
                 case StatType.FreezeDuration:
                 case StatType.ShockDuration:
                 case StatType.StunDuration:

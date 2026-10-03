@@ -271,7 +271,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13040799086837760
-    m_Localized: "Мана в сек"
+    m_Localized: "\u041C\u0430\u043D\u0430 \u0432 \u0441\u0435\u043A"
     m_Metadata:
       m_Items: []
   - m_Id: 13040782506754048
@@ -287,7 +287,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13040720791764992
-    m_Localized: "Здоровье в сек"
+    m_Localized: "\u0417\u0434\u043E\u0440\u043E\u0432\u044C\u0435 \u0432 \u0441\u0435\u043A"
     m_Metadata:
       m_Items: []
   - m_Id: 13040696682905600
@@ -481,11 +481,13 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13848919430168576
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidBleed"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
+      ChanceToAvoidBleed"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919434362880
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435 ChanceToAvoidBleed"
+    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
+      ChanceToAvoidBleed"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919434362881
@@ -493,11 +495,13 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13848919438557184
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidBleedIgnite"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
+      ChanceToAvoidBleedIgnite"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919442751488
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435 ChanceToAvoidBleedIgnite"
+    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
+      ChanceToAvoidBleedIgnite"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919446945792
@@ -505,11 +509,13 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13848919446945793
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidBleedPoison"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
+      ChanceToAvoidBleedPoison"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919451140096
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435 ChanceToAvoidBleedPoison"
+    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
+      ChanceToAvoidBleedPoison"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919455334400
@@ -517,11 +523,13 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13848919455334401
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidBleedShock"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
+      ChanceToAvoidBleedShock"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919463723008
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435 ChanceToAvoidBleedShock"
+    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
+      ChanceToAvoidBleedShock"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919463723009
@@ -1392,7 +1400,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14173998705836032
-    m_Localized: "\u0428\u0430\u043D\u0441 \u0438\u0437\u0431\u0435\u0436\u0430\u0442\u044C \u0448\u043E\u043A\u0430"
+    m_Localized: "\u0428\u0430\u043D\u0441 \u0438\u0437\u0431\u0435\u0436\u0430\u0442\u044C
+      \u0448\u043E\u043A\u0430"
     m_Metadata:
       m_Items: []
   - m_Id: 14173980770992128
@@ -1406,7 +1415,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14173932993675264
-    m_Localized: "\u0414\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C \u0437\u0430\u043C\u043E\u0440\u043E\u0437\u043A\u0438"
+    m_Localized: "\u0414\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C
+      \u0437\u0430\u043C\u043E\u0440\u043E\u0437\u043A\u0438"
     m_Metadata:
       m_Items: []
   - m_Id: 14173910927441920
@@ -1419,7 +1429,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14173866111303680
-    m_Localized: "\u0428\u0430\u043D\u0441 \u0438\u0437\u0431\u0435\u0436\u0430\u0442\u044C \u044F\u0434\u0430"
+    m_Localized: "\u0428\u0430\u043D\u0441 \u0438\u0437\u0431\u0435\u0436\u0430\u0442\u044C
+      \u044F\u0434\u0430"
     m_Metadata:
       m_Items: []
   - m_Id: 14173848981766144
@@ -1820,7 +1831,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 37686302508351488
-    m_Localized: "Восстановление здоровья в сек"
+    m_Localized: "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435
+      \u0437\u0434\u043E\u0440\u043E\u0432\u044C\u044F \u0432 \u0441\u0435\u043A"
     m_Metadata:
       m_Items: []
   - m_Id: 37907537213292544
@@ -1856,7 +1868,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 37907715366354944
-    m_Localized: "Восстановление маны в сек"
+    m_Localized: "\u0412\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435
+      \u043C\u0430\u043D\u044B \u0432 \u0441\u0435\u043A"
     m_Metadata:
       m_Items: []
   - m_Id: 40798052820746240
@@ -3057,7 +3070,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 120000000000000010
-    m_Localized: "\u0420\u0430\u0441\u043F\u0440\u043E\u0441\u0442\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u043F\u043E\u0434\u0436\u043E\u0433\u0430"
+    m_Localized: "\u0420\u0430\u0441\u043F\u0440\u043E\u0441\u0442\u0440\u0430\u043D\u0435\u043D\u0438\u0435
+      \u043F\u043E\u0434\u0436\u043E\u0433\u0430"
     m_Metadata:
       m_Items: []
   references:

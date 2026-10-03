@@ -79,7 +79,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13040720791764992
-    m_Localized: "Health per second"
+    m_Localized: Health per second
     m_Metadata:
       m_Items: []
   - m_Id: 13040745169059840
@@ -95,7 +95,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13040799086837760
-    m_Localized: "Mana per second"
+    m_Localized: Mana per second
     m_Metadata:
       m_Items: []
   - m_Id: 13040816262512640
@@ -443,51 +443,51 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13848919430168576
-    m_Localized: "Adds {0} to Chance To Avoid Bleed"
+    m_Localized: Adds {0} to Chance To Avoid Bleed
     m_Metadata:
       m_Items: []
   - m_Id: 13848919434362880
-    m_Localized: "{0}% increased Chance To Avoid Bleed"
+    m_Localized: '{0}% increased Chance To Avoid Bleed'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919434362881
-    m_Localized: "{0}% more Chance To Avoid Bleed"
+    m_Localized: '{0}% more Chance To Avoid Bleed'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919438557184
-    m_Localized: "Adds {0} to Chance To Avoid Bleed Ignite"
+    m_Localized: Adds {0} to Chance To Avoid Bleed Ignite
     m_Metadata:
       m_Items: []
   - m_Id: 13848919442751488
-    m_Localized: "{0}% increased Chance To Avoid Bleed Ignite"
+    m_Localized: '{0}% increased Chance To Avoid Bleed Ignite'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919446945792
-    m_Localized: "{0}% more Chance To Avoid Bleed Ignite"
+    m_Localized: '{0}% more Chance To Avoid Bleed Ignite'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919446945793
-    m_Localized: "Adds {0} to Chance To Avoid Bleed Poison"
+    m_Localized: Adds {0} to Chance To Avoid Bleed Poison
     m_Metadata:
       m_Items: []
   - m_Id: 13848919451140096
-    m_Localized: "{0}% increased Chance To Avoid Bleed Poison"
+    m_Localized: '{0}% increased Chance To Avoid Bleed Poison'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919455334400
-    m_Localized: "{0}% more Chance To Avoid Bleed Poison"
+    m_Localized: '{0}% more Chance To Avoid Bleed Poison'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919455334401
-    m_Localized: "Adds {0} to Chance To Avoid Bleed Shock"
+    m_Localized: Adds {0} to Chance To Avoid Bleed Shock
     m_Metadata:
       m_Items: []
   - m_Id: 13848919463723008
-    m_Localized: "{0}% increased Chance To Avoid Bleed Shock"
+    m_Localized: '{0}% increased Chance To Avoid Bleed Shock'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919463723009
-    m_Localized: "{0}% more Chance To Avoid Bleed Shock"
+    m_Localized: '{0}% more Chance To Avoid Bleed Shock'
     m_Metadata:
       m_Items: []
   - m_Id: 13848919467917312
@@ -1279,7 +1279,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14173829134319616
-    m_Localized: "Chance To Avoid Bleed"
+    m_Localized: Chance To Avoid Bleed
     m_Metadata:
       m_Items: []
   - m_Id: 14173848981766144
@@ -1287,7 +1287,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14173866111303680
-    m_Localized: "Chance To Avoid Poison"
+    m_Localized: Chance To Avoid Poison
     m_Metadata:
       m_Items: []
   - m_Id: 14173890853502976
@@ -1295,7 +1295,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14173910927441920
-    m_Localized: "Chance To Avoid Ignite"
+    m_Localized: Chance To Avoid Ignite
     m_Metadata:
       m_Items: []
   - m_Id: 14173932993675264
@@ -1303,7 +1303,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14173950655889408
-    m_Localized: "Chance To Avoid Freeze"
+    m_Localized: Chance To Avoid Freeze
     m_Metadata:
       m_Items: []
   - m_Id: 14173980770992128
@@ -1311,7 +1311,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14173998705836032
-    m_Localized: "Chance To Avoid Shock"
+    m_Localized: Chance To Avoid Shock
     m_Metadata:
       m_Items: []
   - m_Id: 14174021153751040
@@ -1577,7 +1577,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 37686302508351488
-    m_Localized: "Health restored per second"
+    m_Localized: Health restored per second
     m_Metadata:
       m_Items: []
   - m_Id: 37907537213292544
@@ -1613,7 +1613,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 37907715366354944
-    m_Localized: "Mana restored per second"
+    m_Localized: Mana restored per second
     m_Metadata:
       m_Items: []
   - m_Id: 40798052820746240
@@ -2121,7 +2121,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 103788322591961088
-    m_Localized: "Small Regen And Armor"
+    m_Localized: Small Regen And Armor
     m_Metadata:
       m_Items: []
   - m_Id: 103788322591961089
@@ -2269,7 +2269,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 103878974633897985
-    m_Localized: "Every 100 Armor grants 10 flat Phys Damage"
+    m_Localized: Every 100 Armor grants 10 flat Phys Damage
     m_Metadata:
       m_Items: []
   - m_Id: 103885121533210624
@@ -2305,7 +2305,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 104290178934075392
-    m_Localized: "Medium Bleed and Poison"
+    m_Localized: Medium Bleed and Poison
     m_Metadata:
       m_Items: []
   - m_Id: 104290178934075393
@@ -2501,19 +2501,19 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 105682821140439040
-    m_Localized: "Spell DamageSmall"
+    m_Localized: Spell DamageSmall
     m_Metadata:
       m_Items: []
   - m_Id: 105682821169799168
-    m_Localized: "SpellMBCooldown"
+    m_Localized: SpellMBCooldown
     m_Metadata:
       m_Items: []
   - m_Id: 105682874886250496
-    m_Localized: "Spell DamageSmall"
+    m_Localized: Spell DamageSmall
     m_Metadata:
       m_Items: []
   - m_Id: 105682874886250497
-    m_Localized: "SpellMBCooldown"
+    m_Localized: SpellMBCooldown
     m_Metadata:
       m_Items: []
   - m_Id: 105697434875715584
@@ -2649,7 +2649,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 107231575354105856
-    m_Localized: "LightningAndChain"
+    m_Localized: LightningAndChain
     m_Metadata:
       m_Items: []
   - m_Id: 107231575379271680
@@ -2705,7 +2705,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 110314429906673664
-    m_Localized: "Poison Chance And Crit"
+    m_Localized: Poison Chance And Crit
     m_Metadata:
       m_Items: []
   - m_Id: 110314429906673665

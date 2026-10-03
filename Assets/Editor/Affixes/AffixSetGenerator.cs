@@ -200,7 +200,7 @@ namespace Scripts.Editor.Affixes
 
                             var affix = CreateTieredAffix(stat, modType, kind, strength, genType, negativeFlat);
                             AssetDatabase.CreateAsset(affix, path);
-                            affix.UniqueID = affix.GroupID;
+                            affix.UniqueID = path.Replace("Assets/", "").Replace(".asset", "");
                             WriteLocalization(affix, stat, kind, strength, menuLabels, affixesLabels, statsDb);
                             SyncTagFromCategory(affix, statsDb, stat, tagDatabase);
                             EditorUtility.SetDirty(affix);

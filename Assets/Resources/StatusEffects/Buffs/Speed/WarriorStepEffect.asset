@@ -22,6 +22,8 @@ MonoBehaviour:
     \u043D\u0430 30%"
   Icon: {fileID: 21300000, guid: bf4a56ef265053f408f74d66b1f919dd, type: 3}
   ShowInHud: 1
+  AuraColor: 1
+  AuraVfxPrefab: {fileID: 0}
   BaseDurationSeconds: 10
   Modifiers:
   - Stat: 26
@@ -30,3 +32,5 @@ MonoBehaviour:
   - Stat: 14
     Value: 30
     Type: 200
+  DerivedModifiers: []
+  EventReactions: []

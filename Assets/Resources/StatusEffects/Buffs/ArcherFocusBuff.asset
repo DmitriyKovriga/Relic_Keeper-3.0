@@ -17,9 +17,11 @@ MonoBehaviour:
   NameEn: Archer Focus
   NameRu: Archer Focus
   DescriptionEn: +50% Projectile Damage.
-  DescriptionRu: "+50% к урону снарядов."
+  DescriptionRu: "+50% \u043A \u0443\u0440\u043E\u043D\u0443 \u0441\u043D\u0430\u0440\u044F\u0434\u043E\u0432."
   Icon: {fileID: 0}
   ShowInHud: 1
+  AuraColor: 2
+  AuraVfxPrefab: {fileID: 0}
   BaseDurationSeconds: 12
   Modifiers: []
   DerivedModifiers: []
@@ -32,4 +34,5 @@ MonoBehaviour:
     QuickEffectDurationSeconds: 3
     QuickModifiers: []
     QuickDerivedModifiers: []
+    QuickAuraColor: 2
     ExtendSeconds: 1

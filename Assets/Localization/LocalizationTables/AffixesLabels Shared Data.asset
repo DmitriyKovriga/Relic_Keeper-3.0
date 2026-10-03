@@ -18199,6 +18199,86 @@ MonoBehaviour:
     m_Key: affix_name_rangedamage_less_light
     m_Metadata:
       m_Items: []
+  - m_Id: 97644452451966976
+    m_Key: affix_name_ignitespreadduration_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644453047558144
+    m_Key: affix_flat_ignitespreadduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644453475377152
+    m_Key: affix_name_ignitespreadduration_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644453894807552
+    m_Key: affix_name_ignitespreadduration_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644454276489216
+    m_Key: affix_name_ignitespreadduration_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644454276489217
+    m_Key: affix_increase_ignitespreadduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644454666559488
+    m_Key: affix_name_ignitespreadduration_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644455069212672
+    m_Key: affix_name_ignitespreadduration_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644455438311424
+    m_Key: affix_name_ignitespreadduration_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644455438311425
+    m_Key: affix_decrease_ignitespreadduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644455786438656
+    m_Key: affix_name_ignitespreadduration_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644456155537408
+    m_Key: affix_name_ignitespreadduration_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644456528830464
+    m_Key: affix_name_ignitespreadduration_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644456533024768
+    m_Key: affix_more_ignitespreadduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644456918900736
+    m_Key: affix_name_ignitespreadduration_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644457317359616
+    m_Key: affix_name_ignitespreadduration_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644457694846976
+    m_Key: affix_name_ignitespreadduration_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644457694846977
+    m_Key: affix_less_ignitespreadduration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644458084917248
+    m_Key: affix_name_ignitespreadduration_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97644458428850176
+    m_Key: affix_name_ignitespreadduration_less_light
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
