@@ -23,7 +23,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 91648196608
-    m_Localized: Gain 30% of all damage reduction for 5 second
+    m_Localized: "Gain 30% of all damage reduction for 5 seconds"
     m_Metadata:
       m_Items: []
   - m_Id: 1742131986432
@@ -39,7 +39,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 30834269126656
-    m_Localized: Deal 100% damage in a front of character
+    m_Localized: "Deal 100% damage in front of the character"
     m_Metadata:
       m_Items: []
   - m_Id: 31169817640960
@@ -63,7 +63,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 43884353245708289
-    m_Localized: Increase movespeed and armore
+    m_Localized: "Increase movement speed and armor"
     m_Metadata:
       m_Items: []
   - m_Id: 44078985015492608
@@ -87,16 +87,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 44089621984346112
-    m_Localized: Consume 1 Mystic Shield to grant 30% More Movement Speed and 50%
-      More Manna Regeneration for 29 sec
+    m_Localized: "Consume 1 Mystic Shield to grant 30% More Movement Speed and 50% More Mana Regeneration for 29 sec"
     m_Metadata:
       m_Items: []
   - m_Id: 44091253375664128
-    m_Localized: Evasionary
+    m_Localized: "Evasion"
     m_Metadata:
       m_Items: []
   - m_Id: 44091253375664129
-    m_Localized: 'Grant 100% Increase Evasion for 8 sec '
+    m_Localized: "Grant 100% Increase Evasion for 8 sec"
     m_Metadata:
       m_Items: []
   - m_Id: 44092771675963392
@@ -112,21 +111,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 44122424427970560
-    m_Localized: 'Grant Archer Focus Buff for 12 sec
-
-      Archer Focus - Increase
-      Prjijectile Damage by 50% but end effect when take damage'
+    m_Localized: "Grant Archer Focus Buff for 12 sec. Archer Focus - Increase Projectile Damage by 50% but end effect when take damage"
     m_Metadata:
       m_Items: []
   - m_Id: 44125566913773568
-    m_Localized: Vail Of Evasion
+    m_Localized: "Veil of Evasion"
     m_Metadata:
       m_Items: []
   - m_Id: 44125566913773569
-    m_Localized: 'Grant Vail Of Evasion Buff
-
-      Vail Of Evasion - grant +5% regeneration
-      life and mana per second for every Evade'
+    m_Localized: "Grant Veil of Evasion Buff Veil of Evasion - grant +5% regeneration life and mana per second for every Evade"
     m_Metadata:
       m_Items: []
   - m_Id: 44131521147731968
@@ -134,7 +127,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 44131521147731969
-    m_Localized: Instant resoring life in 25% of current Armore
+    m_Localized: "Instant restoring life in 25% of current Armor"
     m_Metadata:
       m_Items: []
   - m_Id: 44132878743273472
@@ -162,10 +155,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 44617556449329152
-    m_Localized: 'Have 50% chanse to apply Poison
-
-      Deal +10 flat physical damage
-      for every Posion stack on enemy.'
+    m_Localized: "Have a 50% chance to apply Poison. Deal +10 flat physical damage for every Poison stack on the enemy."
     m_Metadata:
       m_Items: []
   - m_Id: 44859357152182272
@@ -181,8 +171,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 46458832174440448
-    m_Localized: Deal 100% damage with 50% More Attack Speed and 100% Increase Crit
-      Chanse, move forward
+    m_Localized: "Deal 100% damage with 50% More Attack Speed and 100% Increase Crit Chance, move forward"
     m_Metadata:
       m_Items: []
   - m_Id: 47456163879444480
@@ -190,11 +179,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 47456163908804608
-    m_Localized: Fire Ball is projectile that deal 100% damage
+    m_Localized: "Fire Ball is a projectile that deals 100% damage"
     m_Metadata:
       m_Items: []
   - m_Id: 48250520601616384
-    m_Localized: Icecle Shot
+    m_Localized: "Icicle Shot"
     m_Metadata:
       m_Items: []
   - m_Id: 48250520618393600
@@ -222,7 +211,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 48649166644043776
-    m_Localized: Cast Wave of Shaking in front with 100% damage and pierce all target
+    m_Localized: "Cast Wave of Shaking in front with 100% damage and pierce all targets"
     m_Metadata:
       m_Items: []
   - m_Id: 54130829566140416
@@ -230,8 +219,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 54130829603889152
-    m_Localized: Hit the fround and spawn wave taht deal 250% damage and deal 250%
-      damage to stun
+    m_Localized: "Hit the ground and spawn a wave that deals 250% damage and deals 250% damage to stun"
     m_Metadata:
       m_Items: []
   - m_Id: 54282813623492608

@@ -481,59 +481,51 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 13848919430168576
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
-      ChanseToAvoidBleed"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidBleed"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919434362880
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
-      ChanseToAvoidBleed"
+    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435 ChanceToAvoidBleed"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919434362881
-    m_Localized: "{0}% \u0431\u043E\u043B\u044C\u0448\u0435 ChanseToAvoidBleed"
+    m_Localized: "{0}% \u0431\u043E\u043B\u044C\u0448\u0435 ChanceToAvoidBleed"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919438557184
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
-      ChanseToAvoidBleedIgnite"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidBleedIgnite"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919442751488
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
-      ChanseToAvoidBleedIgnite"
+    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435 ChanceToAvoidBleedIgnite"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919446945792
-    m_Localized: "{0}% \u0431\u043E\u043B\u044C\u0448\u0435 ChanseToAvoidBleedIgnite"
+    m_Localized: "{0}% \u0431\u043E\u043B\u044C\u0448\u0435 ChanceToAvoidBleedIgnite"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919446945793
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
-      ChanseToAvoidBleedPoison"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidBleedPoison"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919451140096
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
-      ChanseToAvoidBleedPoison"
+    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435 ChanceToAvoidBleedPoison"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919455334400
-    m_Localized: "{0}% \u0431\u043E\u043B\u044C\u0448\u0435 ChanseToAvoidBleedPoison"
+    m_Localized: "{0}% \u0431\u043E\u043B\u044C\u0448\u0435 ChanceToAvoidBleedPoison"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919455334401
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
-      ChanseToAvoidBleedShock"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidBleedShock"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919463723008
-    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435
-      ChanseToAvoidBleedShock"
+    m_Localized: "{0}% \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D\u0438\u0435 ChanceToAvoidBleedShock"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919463723009
-    m_Localized: "{0}% \u0431\u043E\u043B\u044C\u0448\u0435 ChanseToAvoidBleedShock"
+    m_Localized: "{0}% \u0431\u043E\u043B\u044C\u0448\u0435 ChanceToAvoidBleedShock"
     m_Metadata:
       m_Items: []
   - m_Id: 13848919467917312
@@ -1400,8 +1392,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14173998705836032
-    m_Localized: "\u0428\u0430\u043D\u0441 \u0438\u0437\u0431\u0435\u0436\u0430\u0442\u044C
-      \u0448\u043E\u043A"
+    m_Localized: "\u0428\u0430\u043D\u0441 \u0438\u0437\u0431\u0435\u0436\u0430\u0442\u044C \u0448\u043E\u043A\u0430"
     m_Metadata:
       m_Items: []
   - m_Id: 14173980770992128
@@ -1415,8 +1406,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14173932993675264
-    m_Localized: "\u0414\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C
-      \u0437\u0430\u043C\u0430\u0440\u043E\u0437\u043A\u0438"
+    m_Localized: "\u0414\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C \u0437\u0430\u043C\u043E\u0440\u043E\u0437\u043A\u0438"
     m_Metadata:
       m_Items: []
   - m_Id: 14173910927441920
@@ -1429,8 +1419,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14173866111303680
-    m_Localized: "\u0428\u0430\u043D\u0441 \u0438\u0437\u0431\u0435\u0436\u0430\u0442\u044C
-      \u044F\u0434"
+    m_Localized: "\u0428\u0430\u043D\u0441 \u0438\u0437\u0431\u0435\u0436\u0430\u0442\u044C \u044F\u0434\u0430"
     m_Metadata:
       m_Items: []
   - m_Id: 14173848981766144

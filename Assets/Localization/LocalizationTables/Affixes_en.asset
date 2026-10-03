@@ -47,15 +47,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14018855600134
-    m_Localized: Adds {0} to Chanse To Avoid Bleed
+    m_Localized: "Adds {0} to Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 14018855600135
-    m_Localized: Adds {0} to Chanse To Avoid Ignite
+    m_Localized: "Adds {0} to Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 14018859794432
-    m_Localized: Adds {0} to Chanse To Avoid Poison
+    m_Localized: "Adds {0} to Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 14018859794433
@@ -267,7 +267,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14018868183048
-    m_Localized: Adds {0} to Chanse To Avoid Shock
+    m_Localized: "Adds {0} to Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 14018868183049
@@ -567,15 +567,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 22479781789696
-    m_Localized: Adds {0} to Chanse To Avoid Bleed
+    m_Localized: "Adds {0} to Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 22479785984000
-    m_Localized: Adds {0} to Chanse To Avoid Ignite
+    m_Localized: "Adds {0} to Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 22479785984001
-    m_Localized: Adds {0} to Chanse To Avoid Poison
+    m_Localized: "Adds {0} to Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 22479790178304
@@ -635,7 +635,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 22479840509952
-    m_Localized: Adds {0} to Chanse To Avoid Shock
+    m_Localized: "Adds {0} to Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 22479840509953
@@ -1143,15 +1143,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 29700380983296
-    m_Localized: Adds {0} to Chanse To Avoid Bleed
+    m_Localized: "Adds {0} to Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 29700385177600
-    m_Localized: Adds {0} to Chanse To Avoid Ignite
+    m_Localized: "Adds {0} to Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 29700389371904
-    m_Localized: Adds {0} to Chanse To Avoid Poison
+    m_Localized: "Adds {0} to Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 29700393566208
@@ -1211,7 +1211,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 29700439703552
-    m_Localized: Adds {0} to Chanse To Avoid Shock
+    m_Localized: "Adds {0} to Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 29700439703553

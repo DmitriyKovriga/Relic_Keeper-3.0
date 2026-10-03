@@ -58,13 +58,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14018855600135
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
-      ChanseToAvoidIgnite"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidIgnite"
     m_Metadata:
       m_Items: []
   - m_Id: 14018859794432
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
-      ChanseToAvoidPoison"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidPoison"
     m_Metadata:
       m_Items: []
   - m_Id: 14018859794433
@@ -324,8 +322,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14018868183048
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
-      ChanseToAvoidShock"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidShock"
     m_Metadata:
       m_Items: []
   - m_Id: 14018868183049
@@ -695,13 +692,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 22479785984000
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
-      ChanseToAvoidIgnite"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidIgnite"
     m_Metadata:
       m_Items: []
   - m_Id: 22479785984001
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
-      ChanseToAvoidPoison"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidPoison"
     m_Metadata:
       m_Items: []
   - m_Id: 22479790178304
@@ -773,8 +768,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 22479840509952
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
-      ChanseToAvoidShock"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidShock"
     m_Metadata:
       m_Items: []
   - m_Id: 22479840509953
@@ -1402,13 +1396,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 29700385177600
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
-      ChanseToAvoidIgnite"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidIgnite"
     m_Metadata:
       m_Items: []
   - m_Id: 29700389371904
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
-      ChanseToAvoidPoison"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidPoison"
     m_Metadata:
       m_Items: []
   - m_Id: 29700393566208
@@ -1480,8 +1472,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 29700439703552
-    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A
-      ChanseToAvoidShock"
+    m_Localized: "\u0414\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 {0} \u043A ChanceToAvoidShock"
     m_Metadata:
       m_Items: []
   - m_Id: 29700439703553

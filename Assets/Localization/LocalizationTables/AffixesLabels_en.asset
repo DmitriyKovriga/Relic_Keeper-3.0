@@ -47,15 +47,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 61809917952
-    m_Localized: '{0:+0.##;-0.##;0} pts to Chanse To Avoid Bleed'
+    m_Localized: "{0:+0.##;-0.##;0} pts to Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 61814112256
-    m_Localized: '{0:+0.##;-0.##;0} pts to Chanse To Avoid Ignite'
+    m_Localized: "{0:+0.##;-0.##;0} pts to Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 61818306560
-    m_Localized: '{0:+0.##;-0.##;0} pts to Chanse To Avoid Poison'
+    m_Localized: "{0:+0.##;-0.##;0} pts to Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 61818306561
@@ -115,7 +115,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 61864443904
-    m_Localized: '{0:+0.##;-0.##;0} pts to Chanse To Avoid Shock'
+    m_Localized: "{0:+0.##;-0.##;0} pts to Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 61868638208
@@ -1095,63 +1095,63 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151524
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151525
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151526
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151527
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151528
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151529
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151530
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151531
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151532
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151533
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151534
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151535
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151536
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151537
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151538
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948210151539
@@ -3163,43 +3163,43 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11469948226928702
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948226928703
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948226928704
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948226928705
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948226928706
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948226928707
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948226928708
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948226928709
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948226928710
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948226928711
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11469948226928712
@@ -8615,63 +8615,63 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11479096171724800
-    m_Localized: Strong Chanse To Avoid Bleed flat
+    m_Localized: "Strong Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479096385634304
-    m_Localized: Strong Chanse To Avoid Bleed flat
+    m_Localized: "Strong Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479096616321024
-    m_Localized: Strong Chanse To Avoid Bleed flat
+    m_Localized: "Strong Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479096855396352
-    m_Localized: Strong Chanse To Avoid Bleed flat
+    m_Localized: "Strong Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479097077694464
-    m_Localized: Strong Chanse To Avoid Bleed flat
+    m_Localized: "Strong Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479097304186880
-    m_Localized: Medium Chanse To Avoid Bleed flat
+    m_Localized: "Medium Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479097505513472
-    m_Localized: Medium Chanse To Avoid Bleed flat
+    m_Localized: "Medium Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479097727811584
-    m_Localized: Medium Chanse To Avoid Bleed flat
+    m_Localized: "Medium Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479097945915392
-    m_Localized: Medium Chanse To Avoid Bleed flat
+    m_Localized: "Medium Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479098151436288
-    m_Localized: Medium Chanse To Avoid Bleed flat
+    m_Localized: "Medium Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479098390511616
-    m_Localized: Light Chanse To Avoid Bleed flat
+    m_Localized: "Light Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479098625392640
-    m_Localized: Light Chanse To Avoid Bleed flat
+    m_Localized: "Light Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479098877050880
-    m_Localized: Light Chanse To Avoid Bleed flat
+    m_Localized: "Light Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479099128709120
-    m_Localized: Light Chanse To Avoid Bleed flat
+    m_Localized: "Light Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479099376173056
-    m_Localized: Light Chanse To Avoid Bleed flat
+    m_Localized: "Light Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479099845935104
@@ -9039,63 +9039,63 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11479121467572224
-    m_Localized: Strong Chanse To Avoid Poison flat
+    m_Localized: "Strong Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479121685676032
-    m_Localized: Strong Chanse To Avoid Poison flat
+    m_Localized: "Strong Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479121924751360
-    m_Localized: Strong Chanse To Avoid Poison flat
+    m_Localized: "Strong Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479122134466560
-    m_Localized: Strong Chanse To Avoid Poison flat
+    m_Localized: "Strong Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479122360958976
-    m_Localized: Strong Chanse To Avoid Poison flat
+    m_Localized: "Strong Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479122595840000
-    m_Localized: Medium Chanse To Avoid Poison flat
+    m_Localized: "Medium Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479122826526720
-    m_Localized: Medium Chanse To Avoid Poison flat
+    m_Localized: "Medium Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479123048824832
-    m_Localized: Medium Chanse To Avoid Poison flat
+    m_Localized: "Medium Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479123279511552
-    m_Localized: Medium Chanse To Avoid Poison flat
+    m_Localized: "Medium Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479123522781184
-    m_Localized: Medium Chanse To Avoid Poison flat
+    m_Localized: "Medium Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479123770245120
-    m_Localized: Light Chanse To Avoid Poison flat
+    m_Localized: "Light Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479124005126144
-    m_Localized: Light Chanse To Avoid Poison flat
+    m_Localized: "Light Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479124244201472
-    m_Localized: Light Chanse To Avoid Poison flat
+    m_Localized: "Light Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479124495859712
-    m_Localized: Light Chanse To Avoid Poison flat
+    m_Localized: "Light Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479124734935040
-    m_Localized: Light Chanse To Avoid Poison flat
+    m_Localized: "Light Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479125250834432
@@ -9463,63 +9463,63 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11479147489034240
-    m_Localized: Strong Chanse To Avoid Ignite flat
+    m_Localized: "Strong Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479147715526656
-    m_Localized: Strong Chanse To Avoid Ignite flat
+    m_Localized: "Strong Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479147954601984
-    m_Localized: Strong Chanse To Avoid Ignite flat
+    m_Localized: "Strong Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479148185288704
-    m_Localized: Strong Chanse To Avoid Ignite flat
+    m_Localized: "Strong Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479148424364032
-    m_Localized: Strong Chanse To Avoid Ignite flat
+    m_Localized: "Strong Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479148655050752
-    m_Localized: Medium Chanse To Avoid Ignite flat
+    m_Localized: "Medium Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479148868960256
-    m_Localized: Medium Chanse To Avoid Ignite flat
+    m_Localized: "Medium Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479149087064064
-    m_Localized: Medium Chanse To Avoid Ignite flat
+    m_Localized: "Medium Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479149296779264
-    m_Localized: Medium Chanse To Avoid Ignite flat
+    m_Localized: "Medium Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479149514883072
-    m_Localized: Medium Chanse To Avoid Ignite flat
+    m_Localized: "Medium Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479149745569792
-    m_Localized: Light Chanse To Avoid Ignite flat
+    m_Localized: "Light Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479149984645120
-    m_Localized: Light Chanse To Avoid Ignite flat
+    m_Localized: "Light Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479150232109056
-    m_Localized: Light Chanse To Avoid Ignite flat
+    m_Localized: "Light Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479150462795776
-    m_Localized: Light Chanse To Avoid Ignite flat
+    m_Localized: "Light Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479150701871104
-    m_Localized: Light Chanse To Avoid Ignite flat
+    m_Localized: "Light Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479151175827456
@@ -9643,67 +9643,67 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11479158658465792
-    m_Localized: Strong Chanse To Avoid Freeze flat
+    m_Localized: "Strong Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479158658465793
-    m_Localized: Adds {0} to Chanse To Avoid Freeze
+    m_Localized: "Adds {0} to Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 11479158901735424
-    m_Localized: Strong Chanse To Avoid Freeze flat
+    m_Localized: "Strong Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479159191142400
-    m_Localized: Strong Chanse To Avoid Freeze flat
+    m_Localized: "Strong Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479159438606336
-    m_Localized: Strong Chanse To Avoid Freeze flat
+    m_Localized: "Strong Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479159690264576
-    m_Localized: Strong Chanse To Avoid Freeze flat
+    m_Localized: "Strong Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479159933534208
-    m_Localized: Medium Chanse To Avoid Freeze flat
+    m_Localized: "Medium Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479160155832320
-    m_Localized: Medium Chanse To Avoid Freeze flat
+    m_Localized: "Medium Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479160382324736
-    m_Localized: Medium Chanse To Avoid Freeze flat
+    m_Localized: "Medium Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479160617205760
-    m_Localized: Medium Chanse To Avoid Freeze flat
+    m_Localized: "Medium Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479160843698176
-    m_Localized: Medium Chanse To Avoid Freeze flat
+    m_Localized: "Medium Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479161065996288
-    m_Localized: Light Chanse To Avoid Freeze flat
+    m_Localized: "Light Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479161300877312
-    m_Localized: Light Chanse To Avoid Freeze flat
+    m_Localized: "Light Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479161527369728
-    m_Localized: Light Chanse To Avoid Freeze flat
+    m_Localized: "Light Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479161770639360
-    m_Localized: Light Chanse To Avoid Freeze flat
+    m_Localized: "Light Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479161997131776
-    m_Localized: Light Chanse To Avoid Freeze flat
+    m_Localized: "Light Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479162466893824
@@ -9827,63 +9827,63 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11479169794342912
-    m_Localized: Strong Chanse To Avoid Shock flat
+    m_Localized: "Strong Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479170037612544
-    m_Localized: Strong Chanse To Avoid Shock flat
+    m_Localized: "Strong Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479170264104960
-    m_Localized: Strong Chanse To Avoid Shock flat
+    m_Localized: "Strong Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479170498985984
-    m_Localized: Strong Chanse To Avoid Shock flat
+    m_Localized: "Strong Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479170721284096
-    m_Localized: Strong Chanse To Avoid Shock flat
+    m_Localized: "Strong Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479170935193600
-    m_Localized: Medium Chanse To Avoid Shock flat
+    m_Localized: "Medium Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479171174268928
-    m_Localized: Medium Chanse To Avoid Shock flat
+    m_Localized: "Medium Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479171392372736
-    m_Localized: Medium Chanse To Avoid Shock flat
+    m_Localized: "Medium Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479171623059456
-    m_Localized: Medium Chanse To Avoid Shock flat
+    m_Localized: "Medium Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479171845357568
-    m_Localized: Medium Chanse To Avoid Shock flat
+    m_Localized: "Medium Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479172084432896
-    m_Localized: Light Chanse To Avoid Shock flat
+    m_Localized: "Light Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479172298342400
-    m_Localized: Light Chanse To Avoid Shock flat
+    m_Localized: "Light Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479172537417728
-    m_Localized: Light Chanse To Avoid Shock flat
+    m_Localized: "Light Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479172780687360
-    m_Localized: Light Chanse To Avoid Shock flat
+    m_Localized: "Light Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479173028151296
-    m_Localized: Light Chanse To Avoid Shock flat
+    m_Localized: "Light Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11479173497913344
@@ -11591,303 +11591,303 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033564
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060870033565
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227712
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227713
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227714
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227715
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227716
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227717
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227718
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227719
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227720
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227721
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227722
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227723
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227724
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227725
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227726
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227727
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227728
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227729
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227730
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227731
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227732
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227733
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227734
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227735
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227736
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227737
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227738
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227739
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227740
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227741
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227742
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227743
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227744
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227745
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227746
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227747
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227748
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227749
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227750
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227751
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227752
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227753
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227754
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227755
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227756
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227757
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227758
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227759
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227760
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227761
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227762
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227763
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227764
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227765
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227766
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227767
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227768
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227769
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227770
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227771
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227772
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227773
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227774
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227775
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227776
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227777
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227778
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227779
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227780
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227781
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227782
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227783
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227784
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 11480060874227785
@@ -18687,307 +18687,307 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378421
-    m_Localized: Light Chanse To Avoid Bleed flat
+    m_Localized: "Light Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378422
-    m_Localized: Light Chanse To Avoid Bleed flat
+    m_Localized: "Light Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378423
-    m_Localized: Light Chanse To Avoid Bleed flat
+    m_Localized: "Light Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378424
-    m_Localized: Light Chanse To Avoid Bleed flat
+    m_Localized: "Light Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378425
-    m_Localized: Light Chanse To Avoid Bleed flat
+    m_Localized: "Light Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378426
-    m_Localized: Medium Chanse To Avoid Bleed flat
+    m_Localized: "Medium Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378427
-    m_Localized: Medium Chanse To Avoid Bleed flat
+    m_Localized: "Medium Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378428
-    m_Localized: Medium Chanse To Avoid Bleed flat
+    m_Localized: "Medium Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378429
-    m_Localized: Medium Chanse To Avoid Bleed flat
+    m_Localized: "Medium Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378430
-    m_Localized: Medium Chanse To Avoid Bleed flat
+    m_Localized: "Medium Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378431
-    m_Localized: Strong Chanse To Avoid Bleed flat
+    m_Localized: "Strong Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378432
-    m_Localized: Strong Chanse To Avoid Bleed flat
+    m_Localized: "Strong Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378433
-    m_Localized: Strong Chanse To Avoid Bleed flat
+    m_Localized: "Strong Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378434
-    m_Localized: Strong Chanse To Avoid Bleed flat
+    m_Localized: "Strong Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378435
-    m_Localized: Strong Chanse To Avoid Bleed flat
+    m_Localized: "Strong Chance To Avoid Bleed flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378436
-    m_Localized: Light Chanse To Avoid Freeze flat
+    m_Localized: "Light Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378437
-    m_Localized: Adds {0} to Chanse To Avoid Freeze
+    m_Localized: "Adds {0} to Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378438
-    m_Localized: Light Chanse To Avoid Freeze flat
+    m_Localized: "Light Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378439
-    m_Localized: Light Chanse To Avoid Freeze flat
+    m_Localized: "Light Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378440
-    m_Localized: Light Chanse To Avoid Freeze flat
+    m_Localized: "Light Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378441
-    m_Localized: Light Chanse To Avoid Freeze flat
+    m_Localized: "Light Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378442
-    m_Localized: Medium Chanse To Avoid Freeze flat
+    m_Localized: "Medium Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378443
-    m_Localized: Medium Chanse To Avoid Freeze flat
+    m_Localized: "Medium Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378444
-    m_Localized: Medium Chanse To Avoid Freeze flat
+    m_Localized: "Medium Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378445
-    m_Localized: Medium Chanse To Avoid Freeze flat
+    m_Localized: "Medium Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378446
-    m_Localized: Medium Chanse To Avoid Freeze flat
+    m_Localized: "Medium Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378447
-    m_Localized: Strong Chanse To Avoid Freeze flat
+    m_Localized: "Strong Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378448
-    m_Localized: Strong Chanse To Avoid Freeze flat
+    m_Localized: "Strong Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378449
-    m_Localized: Strong Chanse To Avoid Freeze flat
+    m_Localized: "Strong Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378450
-    m_Localized: Strong Chanse To Avoid Freeze flat
+    m_Localized: "Strong Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378451
-    m_Localized: Strong Chanse To Avoid Freeze flat
+    m_Localized: "Strong Chance To Avoid Freeze flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378452
-    m_Localized: Light Chanse To Avoid Ignite flat
+    m_Localized: "Light Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378453
-    m_Localized: Light Chanse To Avoid Ignite flat
+    m_Localized: "Light Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378454
-    m_Localized: Light Chanse To Avoid Ignite flat
+    m_Localized: "Light Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378455
-    m_Localized: Light Chanse To Avoid Ignite flat
+    m_Localized: "Light Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378456
-    m_Localized: Light Chanse To Avoid Ignite flat
+    m_Localized: "Light Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378457
-    m_Localized: Medium Chanse To Avoid Ignite flat
+    m_Localized: "Medium Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378458
-    m_Localized: Medium Chanse To Avoid Ignite flat
+    m_Localized: "Medium Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378459
-    m_Localized: Medium Chanse To Avoid Ignite flat
+    m_Localized: "Medium Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378460
-    m_Localized: Medium Chanse To Avoid Ignite flat
+    m_Localized: "Medium Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378461
-    m_Localized: Medium Chanse To Avoid Ignite flat
+    m_Localized: "Medium Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378462
-    m_Localized: Strong Chanse To Avoid Ignite flat
+    m_Localized: "Strong Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378463
-    m_Localized: Strong Chanse To Avoid Ignite flat
+    m_Localized: "Strong Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378464
-    m_Localized: Strong Chanse To Avoid Ignite flat
+    m_Localized: "Strong Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378465
-    m_Localized: Strong Chanse To Avoid Ignite flat
+    m_Localized: "Strong Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081633378466
-    m_Localized: Strong Chanse To Avoid Ignite flat
+    m_Localized: "Strong Chance To Avoid Ignite flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572608
-    m_Localized: Light Chanse To Avoid Poison flat
+    m_Localized: "Light Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572609
-    m_Localized: Light Chanse To Avoid Poison flat
+    m_Localized: "Light Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572610
-    m_Localized: Light Chanse To Avoid Poison flat
+    m_Localized: "Light Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572611
-    m_Localized: Light Chanse To Avoid Poison flat
+    m_Localized: "Light Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572612
-    m_Localized: Light Chanse To Avoid Poison flat
+    m_Localized: "Light Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572613
-    m_Localized: Medium Chanse To Avoid Poison flat
+    m_Localized: "Medium Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572614
-    m_Localized: Medium Chanse To Avoid Poison flat
+    m_Localized: "Medium Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572615
-    m_Localized: Medium Chanse To Avoid Poison flat
+    m_Localized: "Medium Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572616
-    m_Localized: Medium Chanse To Avoid Poison flat
+    m_Localized: "Medium Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572617
-    m_Localized: Medium Chanse To Avoid Poison flat
+    m_Localized: "Medium Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572618
-    m_Localized: Strong Chanse To Avoid Poison flat
+    m_Localized: "Strong Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572619
-    m_Localized: Strong Chanse To Avoid Poison flat
+    m_Localized: "Strong Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572620
-    m_Localized: Strong Chanse To Avoid Poison flat
+    m_Localized: "Strong Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572621
-    m_Localized: Strong Chanse To Avoid Poison flat
+    m_Localized: "Strong Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572622
-    m_Localized: Strong Chanse To Avoid Poison flat
+    m_Localized: "Strong Chance To Avoid Poison flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572623
-    m_Localized: Light Chanse To Avoid Shock flat
+    m_Localized: "Light Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572624
-    m_Localized: Light Chanse To Avoid Shock flat
+    m_Localized: "Light Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572625
-    m_Localized: Light Chanse To Avoid Shock flat
+    m_Localized: "Light Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572626
-    m_Localized: Light Chanse To Avoid Shock flat
+    m_Localized: "Light Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572627
-    m_Localized: Light Chanse To Avoid Shock flat
+    m_Localized: "Light Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572628
-    m_Localized: Medium Chanse To Avoid Shock flat
+    m_Localized: "Medium Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572629
-    m_Localized: Medium Chanse To Avoid Shock flat
+    m_Localized: "Medium Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572630
-    m_Localized: Medium Chanse To Avoid Shock flat
+    m_Localized: "Medium Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572631
-    m_Localized: Medium Chanse To Avoid Shock flat
+    m_Localized: "Medium Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572632
-    m_Localized: Medium Chanse To Avoid Shock flat
+    m_Localized: "Medium Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572633
-    m_Localized: Strong Chanse To Avoid Shock flat
+    m_Localized: "Strong Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572634
-    m_Localized: Strong Chanse To Avoid Shock flat
+    m_Localized: "Strong Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572635
-    m_Localized: Strong Chanse To Avoid Shock flat
+    m_Localized: "Strong Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572636
-    m_Localized: Strong Chanse To Avoid Shock flat
+    m_Localized: "Strong Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572637
-    m_Localized: Strong Chanse To Avoid Shock flat
+    m_Localized: "Strong Chance To Avoid Shock flat"
     m_Metadata:
       m_Items: []
   - m_Id: 11488081637572638
@@ -25799,303 +25799,303 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872929
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872930
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872931
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872932
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872933
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872934
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872935
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872936
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872937
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872938
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872939
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872940
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872941
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872942
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872943
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872944
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872945
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872946
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872947
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872948
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872949
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872950
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872951
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872952
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872953
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872954
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872955
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872956
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872957
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872958
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872959
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872960
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872961
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872962
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872963
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872964
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872965
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872966
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872967
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872968
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872969
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872970
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872971
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872972
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872973
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872974
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872975
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872976
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872977
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872978
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872979
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872980
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872981
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872982
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872983
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872984
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872985
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872986
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872987
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872988
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872989
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872990
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872991
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872992
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872993
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872994
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872995
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872996
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872997
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872998
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316872999
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316873000
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316873001
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316873002
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316873003
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17249956316873004
@@ -32055,7 +32055,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17250069860876292
-    m_Localized: Adds {0} to Chanse To Avoid Freeze
+    m_Localized: "Adds {0} to Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17250069869264896
@@ -32079,7 +32079,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17250069869264901
-    m_Localized: Adds {0} to  Maximum bleeding stacks
+    m_Localized: "Adds {0} to Maximum bleeding stacks"
     m_Metadata:
       m_Items: []
   - m_Id: 17250069869264902
@@ -33047,303 +33047,303 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346975
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346976
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346977
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346978
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346979
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346980
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346981
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346982
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346983
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346984
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346985
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346986
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346987
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346988
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346989
-    m_Localized: Chanse To Avoid Bleed Flat Global
+    m_Localized: "Chance To Avoid Bleed Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346990
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346991
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346992
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346993
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346994
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346995
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346996
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346997
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346998
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589346999
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347000
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347001
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347002
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347003
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347004
-    m_Localized: Chanse To Avoid Freeze Flat Global
+    m_Localized: "Chance To Avoid Freeze Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347005
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347006
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347007
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347008
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347009
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347010
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347011
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347012
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347013
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347014
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347015
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347016
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347017
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347018
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347019
-    m_Localized: Chanse To Avoid Ignite Flat Global
+    m_Localized: "Chance To Avoid Ignite Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324589347020
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541120
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541121
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541122
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541123
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541124
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541125
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541126
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541127
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541128
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541129
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541130
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541131
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541132
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541133
-    m_Localized: Chanse To Avoid Poison Flat Global
+    m_Localized: "Chance To Avoid Poison Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541134
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541135
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541136
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541137
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541138
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541139
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541140
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541141
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541142
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541143
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541144
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541145
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541146
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541147
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541148
-    m_Localized: Chanse To Avoid Shock Flat Global
+    m_Localized: "Chance To Avoid Shock Flat Global"
     m_Metadata:
       m_Items: []
   - m_Id: 17250324593541149
@@ -39303,7 +39303,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17250386644074500
-    m_Localized: Adds {0} to Chanse To Avoid Freeze
+    m_Localized: "Adds {0} to Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17250386644074501
@@ -40295,303 +40295,303 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671838
-    m_Localized: Light Chanse To Avoid Bleed
+    m_Localized: "Light Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671839
-    m_Localized: Light Chanse To Avoid Bleed
+    m_Localized: "Light Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671840
-    m_Localized: Light Chanse To Avoid Bleed
+    m_Localized: "Light Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671841
-    m_Localized: Light Chanse To Avoid Bleed
+    m_Localized: "Light Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671842
-    m_Localized: Light Chanse To Avoid Bleed
+    m_Localized: "Light Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671843
-    m_Localized: Medium Chanse To Avoid Bleed
+    m_Localized: "Medium Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671844
-    m_Localized: Medium Chanse To Avoid Bleed
+    m_Localized: "Medium Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671845
-    m_Localized: Medium Chanse To Avoid Bleed
+    m_Localized: "Medium Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671846
-    m_Localized: Medium Chanse To Avoid Bleed
+    m_Localized: "Medium Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671847
-    m_Localized: Medium Chanse To Avoid Bleed
+    m_Localized: "Medium Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671848
-    m_Localized: Strong Chanse To Avoid Bleed
+    m_Localized: "Strong Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671849
-    m_Localized: Strong Chanse To Avoid Bleed
+    m_Localized: "Strong Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671850
-    m_Localized: Strong Chanse To Avoid Bleed
+    m_Localized: "Strong Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671851
-    m_Localized: Strong Chanse To Avoid Bleed
+    m_Localized: "Strong Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671852
-    m_Localized: Strong Chanse To Avoid Bleed
+    m_Localized: "Strong Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671853
-    m_Localized: Light Chanse To Avoid Freeze
+    m_Localized: "Light Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671854
-    m_Localized: Light Chanse To Avoid Freeze
+    m_Localized: "Light Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671855
-    m_Localized: Light Chanse To Avoid Freeze
+    m_Localized: "Light Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671856
-    m_Localized: Light Chanse To Avoid Freeze
+    m_Localized: "Light Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671857
-    m_Localized: Light Chanse To Avoid Freeze
+    m_Localized: "Light Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671858
-    m_Localized: Medium Chanse To Avoid Freeze
+    m_Localized: "Medium Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671859
-    m_Localized: Medium Chanse To Avoid Freeze
+    m_Localized: "Medium Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671860
-    m_Localized: Medium Chanse To Avoid Freeze
+    m_Localized: "Medium Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671861
-    m_Localized: Medium Chanse To Avoid Freeze
+    m_Localized: "Medium Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671862
-    m_Localized: Medium Chanse To Avoid Freeze
+    m_Localized: "Medium Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671863
-    m_Localized: Strong Chanse To Avoid Freeze
+    m_Localized: "Strong Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671864
-    m_Localized: Strong Chanse To Avoid Freeze
+    m_Localized: "Strong Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671865
-    m_Localized: Strong Chanse To Avoid Freeze
+    m_Localized: "Strong Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671866
-    m_Localized: Strong Chanse To Avoid Freeze
+    m_Localized: "Strong Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671867
-    m_Localized: Strong Chanse To Avoid Freeze
+    m_Localized: "Strong Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671868
-    m_Localized: Light Chanse To Avoid Ignite
+    m_Localized: "Light Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671869
-    m_Localized: Light Chanse To Avoid Ignite
+    m_Localized: "Light Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671870
-    m_Localized: Light Chanse To Avoid Ignite
+    m_Localized: "Light Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671871
-    m_Localized: Light Chanse To Avoid Ignite
+    m_Localized: "Light Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671872
-    m_Localized: Light Chanse To Avoid Ignite
+    m_Localized: "Light Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671873
-    m_Localized: Medium Chanse To Avoid Ignite
+    m_Localized: "Medium Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671874
-    m_Localized: Medium Chanse To Avoid Ignite
+    m_Localized: "Medium Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671875
-    m_Localized: Medium Chanse To Avoid Ignite
+    m_Localized: "Medium Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671876
-    m_Localized: Medium Chanse To Avoid Ignite
+    m_Localized: "Medium Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671877
-    m_Localized: Medium Chanse To Avoid Ignite
+    m_Localized: "Medium Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671878
-    m_Localized: Strong Chanse To Avoid Ignite
+    m_Localized: "Strong Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671879
-    m_Localized: Strong Chanse To Avoid Ignite
+    m_Localized: "Strong Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671880
-    m_Localized: Strong Chanse To Avoid Ignite
+    m_Localized: "Strong Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671881
-    m_Localized: Strong Chanse To Avoid Ignite
+    m_Localized: "Strong Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671882
-    m_Localized: Strong Chanse To Avoid Ignite
+    m_Localized: "Strong Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671883
-    m_Localized: Light Chanse To Avoid Poison
+    m_Localized: "Light Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671884
-    m_Localized: Light Chanse To Avoid Poison
+    m_Localized: "Light Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671885
-    m_Localized: Light Chanse To Avoid Poison
+    m_Localized: "Light Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671886
-    m_Localized: Light Chanse To Avoid Poison
+    m_Localized: "Light Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671887
-    m_Localized: Light Chanse To Avoid Poison
+    m_Localized: "Light Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671888
-    m_Localized: Medium Chanse To Avoid Poison
+    m_Localized: "Medium Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671889
-    m_Localized: Medium Chanse To Avoid Poison
+    m_Localized: "Medium Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671890
-    m_Localized: Medium Chanse To Avoid Poison
+    m_Localized: "Medium Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671891
-    m_Localized: Medium Chanse To Avoid Poison
+    m_Localized: "Medium Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671892
-    m_Localized: Medium Chanse To Avoid Poison
+    m_Localized: "Medium Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671893
-    m_Localized: Strong Chanse To Avoid Poison
+    m_Localized: "Strong Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671894
-    m_Localized: Strong Chanse To Avoid Poison
+    m_Localized: "Strong Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671895
-    m_Localized: Strong Chanse To Avoid Poison
+    m_Localized: "Strong Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671896
-    m_Localized: Strong Chanse To Avoid Poison
+    m_Localized: "Strong Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671897
-    m_Localized: Strong Chanse To Avoid Poison
+    m_Localized: "Strong Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671898
-    m_Localized: Light Chanse To Avoid Shock
+    m_Localized: "Light Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671899
-    m_Localized: Light Chanse To Avoid Shock
+    m_Localized: "Light Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671900
-    m_Localized: Light Chanse To Avoid Shock
+    m_Localized: "Light Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671901
-    m_Localized: Light Chanse To Avoid Shock
+    m_Localized: "Light Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671902
-    m_Localized: Light Chanse To Avoid Shock
+    m_Localized: "Light Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671903
-    m_Localized: Medium Chanse To Avoid Shock
+    m_Localized: "Medium Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671904
-    m_Localized: Medium Chanse To Avoid Shock
+    m_Localized: "Medium Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671905
-    m_Localized: Medium Chanse To Avoid Shock
+    m_Localized: "Medium Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671906
-    m_Localized: Medium Chanse To Avoid Shock
+    m_Localized: "Medium Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671907
-    m_Localized: Medium Chanse To Avoid Shock
+    m_Localized: "Medium Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671908
-    m_Localized: Strong Chanse To Avoid Shock
+    m_Localized: "Strong Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671909
-    m_Localized: Strong Chanse To Avoid Shock
+    m_Localized: "Strong Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671910
-    m_Localized: Strong Chanse To Avoid Shock
+    m_Localized: "Strong Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671911
-    m_Localized: Strong Chanse To Avoid Shock
+    m_Localized: "Strong Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671912
-    m_Localized: Strong Chanse To Avoid Shock
+    m_Localized: "Strong Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 17252782023671913
@@ -46551,7 +46551,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 17252827724808196
-    m_Localized: '{0:+0.##;-0.##;0} pts to Chanse To Avoid Freeze'
+    m_Localized: "{0:+0.##;-0.##;0} pts to Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 17252827724808197
@@ -52963,63 +52963,63 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167063
-    m_Localized: Light Chanse To Avoid Bleed
+    m_Localized: "Light Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167064
-    m_Localized: Medium Chanse To Avoid Bleed
+    m_Localized: "Medium Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167065
-    m_Localized: Strong Chanse To Avoid Bleed
+    m_Localized: "Strong Chance To Avoid Bleed"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167066
-    m_Localized: Light Chanse To Avoid Freeze
+    m_Localized: "Light Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167067
-    m_Localized: Medium Chanse To Avoid Freeze
+    m_Localized: "Medium Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167068
-    m_Localized: Strong Chanse To Avoid Freeze
+    m_Localized: "Strong Chance To Avoid Freeze"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167069
-    m_Localized: Light Chanse To Avoid Ignite
+    m_Localized: "Light Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167070
-    m_Localized: Medium Chanse To Avoid Ignite
+    m_Localized: "Medium Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167071
-    m_Localized: Strong Chanse To Avoid Ignite
+    m_Localized: "Strong Chance To Avoid Ignite"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167072
-    m_Localized: Light Chanse To Avoid Poison
+    m_Localized: "Light Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167073
-    m_Localized: Medium Chanse To Avoid Poison
+    m_Localized: "Medium Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167074
-    m_Localized: Strong Chanse To Avoid Poison
+    m_Localized: "Strong Chance To Avoid Poison"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167075
-    m_Localized: Light Chanse To Avoid Shock
+    m_Localized: "Light Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167076
-    m_Localized: Medium Chanse To Avoid Shock
+    m_Localized: "Medium Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167077
-    m_Localized: Strong Chanse To Avoid Shock
+    m_Localized: "Strong Chance To Avoid Shock"
     m_Metadata:
       m_Items: []
   - m_Id: 88537090206167078
