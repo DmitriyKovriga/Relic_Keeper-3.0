@@ -217,6 +217,98 @@ namespace Scripts.Inventory
             return PlaceItemAt(item, EQUIP_OFFSET + localSlot, -1);
         }
 
+        public bool TryCtrlEquipFromBackpack(int slotIndex)
+        {
+            ResetPlacementFailure();
+            InventoryItem item = GetItemAt(slotIndex, out int anchor);
+            if (item?.Data == null || _backpack == null)
+                return false;
+            if (anchor < 0 || anchor >= _backpack.Length)
+                return false;
+            if (!TryResolveCtrlEquipSlot(item, out int localSlot))
+                return false;
+
+            if (IsTwoHandedBlockedByOffHand(item, localSlot))
+            {
+                bool replaced = TryEquipTwoHandedByReplacingOffHand(item, anchor, reportFailure: false);
+                if (replaced)
+                    TriggerUIUpdate();
+                return replaced;
+            }
+
+            bool equipped = TryEquipItem(anchor, EQUIP_OFFSET + localSlot, item, logFailures: false);
+            if (equipped)
+                TriggerUIUpdate();
+            return equipped;
+        }
+
+        public bool TryCtrlUnequip(int equipGlobalIndex)
+        {
+            ResetPlacementFailure();
+            if (equipGlobalIndex < EQUIP_OFFSET)
+                return false;
+
+            int local = equipGlobalIndex - EQUIP_OFFSET;
+            if (local < 0 || local >= EquipmentItems.Length)
+                return false;
+
+            InventoryItem item = EquipmentItems[local];
+            if (item == null)
+                return false;
+
+            if (FindFreeBackpackAnchor(item) < 0)
+            {
+                ReportPlacementFailure(InventoryPlacementFailureReason.NoBackpackSpace);
+                return false;
+            }
+
+            return UnequipToBackpack(local);
+        }
+
+        private bool TryResolveCtrlEquipSlot(InventoryItem item, out int localSlot)
+        {
+            if (TryGetEmptyAutoEquipSlot(item, out localSlot))
+                return true;
+
+            if (item.IsDefensiveOffHand)
+                return IsOccupiedAutoEquipSlot((int)EquipmentSlot.OffHand, item, out localSlot);
+
+            if (item.Data is WeaponItemSO weapon)
+            {
+                if (weapon.IsTwoHanded)
+                {
+                    int main = (int)EquipmentSlot.MainHand;
+                    if (IsTwoHandedBlockedByOffHand(item, main))
+                    {
+                        localSlot = main;
+                        return true;
+                    }
+
+                    return IsOccupiedAutoEquipSlot(main, item, out localSlot);
+                }
+
+                if (IsOccupiedAutoEquipSlot((int)EquipmentSlot.MainHand, item, out localSlot))
+                    return true;
+                return IsOccupiedAutoEquipSlot((int)EquipmentSlot.OffHand, item, out localSlot);
+            }
+
+            return IsOccupiedAutoEquipSlot((int)item.Data.Slot, item, out localSlot);
+        }
+
+        private bool IsOccupiedAutoEquipSlot(int localSlotIndex, InventoryItem item, out int localSlot)
+        {
+            localSlot = -1;
+            if (localSlotIndex < 0 || localSlotIndex >= EquipmentItems.Length)
+                return false;
+            if (EquipmentItems[localSlotIndex] == null)
+                return false;
+            if (!CanEquipItemToLocalSlot(item, localSlotIndex))
+                return false;
+
+            localSlot = localSlotIndex;
+            return true;
+        }
+
         public bool TryGetEmptyAutoEquipSlot(InventoryItem item, out int localSlot)
         {
             localSlot = -1;

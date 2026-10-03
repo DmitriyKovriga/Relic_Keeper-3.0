@@ -143,6 +143,93 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.OffHand], Is.SameAs(dagger));
         }
 
+        [Test]
+        public void CtrlClick_EmptyArmorSlot_EquipsFromBackpack()
+        {
+            InventoryItem helmet = CreateArmor("helm", EquipmentSlot.Helmet);
+            Assert.That(_manager.AddItem(helmet), Is.True);
+
+            Assert.That(_manager.TryCtrlEquipFromBackpack(0), Is.True);
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.Helmet], Is.SameAs(helmet));
+            Assert.That(_manager.GetItemAt(0, out _), Is.Null);
+        }
+
+        [Test]
+        public void CtrlClick_OccupiedArmorSlot_SwapsIntoTheSameBackpackCell()
+        {
+            InventoryItem worn = CreateArmor("worn-helm", EquipmentSlot.Helmet);
+            InventoryItem spare = CreateArmor("spare-helm", EquipmentSlot.Helmet);
+            Assert.That(_manager.PlaceItemAt(worn, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.Helmet, -1), Is.True);
+            Assert.That(_manager.AddItem(spare), Is.True);
+
+            Assert.That(_manager.TryCtrlEquipFromBackpack(0), Is.True);
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.Helmet], Is.SameAs(spare));
+            Assert.That(_manager.GetItemAt(0, out _), Is.SameAs(worn));
+        }
+
+        [Test]
+        public void CtrlClick_WhenDisplacedItemDoesNotFit_LeavesEverything()
+        {
+            InventoryItem worn = CreateArmor("bulky-helm", EquipmentSlot.Helmet);
+            worn.Data.Width = 2;
+            worn.Data.Height = 2;
+            InventoryItem spare = CreateArmor("small-helm", EquipmentSlot.Helmet);
+            Assert.That(_manager.PlaceItemAt(worn, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.Helmet, -1), Is.True);
+            Assert.That(_manager.AddItem(spare), Is.True);
+            for (int i = 1; i < _manager.BackpackSlotCount; i++)
+            {
+                ArmorItemSO data = Track(ScriptableObject.CreateInstance<ArmorItemSO>());
+                data.ID = $"block-{i}";
+                data.Width = 1;
+                data.Height = 1;
+                data.Slot = EquipmentSlot.Boots;
+                Assert.That(_manager.AddItem(new InventoryItem(data)), Is.True);
+            }
+
+            Assert.That(_manager.TryCtrlEquipFromBackpack(0), Is.False);
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.Helmet], Is.SameAs(worn));
+            Assert.That(_manager.GetItemAt(0, out _), Is.SameAs(spare));
+        }
+
+        [Test]
+        public void CtrlClick_TwoHandedWhileBothHandsAreFull_DoesNothing()
+        {
+            InventoryItem sword = CreateWeapon("sword", twoHanded: false);
+            InventoryItem shield = CreateWeapon("shield", twoHanded: false, EquipmentSlot.OffHand);
+            InventoryItem greatsword = CreateWeapon("greatsword", twoHanded: true);
+            Assert.That(_manager.PlaceItemAt(sword, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.MainHand, -1), Is.True);
+            Assert.That(_manager.PlaceItemAt(shield, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.OffHand, -1), Is.True);
+            Assert.That(_manager.AddItem(greatsword), Is.True);
+
+            Assert.That(_manager.TryCtrlEquipFromBackpack(0), Is.False);
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.MainHand], Is.SameAs(sword));
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.OffHand], Is.SameAs(shield));
+            Assert.That(_manager.GetItemAt(0, out _), Is.SameAs(greatsword));
+        }
+
+        [Test]
+        public void CtrlClick_EquippedItem_MovesIntoBackpack()
+        {
+            InventoryItem helmet = CreateArmor("helm", EquipmentSlot.Helmet);
+            Assert.That(_manager.PlaceItemAt(helmet, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.Helmet, -1), Is.True);
+
+            Assert.That(_manager.TryCtrlUnequip(InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.Helmet), Is.True);
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.Helmet], Is.Null);
+            Assert.That(_manager.GetItemAt(0, out _), Is.SameAs(helmet));
+        }
+
+        [Test]
+        public void CtrlClick_EquippedItem_FullBackpack_StaysEquippedAndReportsNoSpace()
+        {
+            InventoryItem helmet = CreateArmor("helm", EquipmentSlot.Helmet);
+            Assert.That(_manager.PlaceItemAt(helmet, InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.Helmet, -1), Is.True);
+            FillBackpack();
+
+            Assert.That(_manager.TryCtrlUnequip(InventoryManager.EQUIP_OFFSET + (int)EquipmentSlot.Helmet), Is.False);
+            Assert.That(_manager.LastPlacementFailureReason, Is.EqualTo(InventoryPlacementFailureReason.NoBackpackSpace));
+            Assert.That(_manager.EquipmentItems[(int)EquipmentSlot.Helmet], Is.SameAs(helmet));
+        }
+
         private InventoryItem CreateArmor(string id, EquipmentSlot slot)
         {
             ArmorItemSO data = Track(ScriptableObject.CreateInstance<ArmorItemSO>());

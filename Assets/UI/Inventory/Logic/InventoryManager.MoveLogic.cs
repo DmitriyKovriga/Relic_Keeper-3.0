@@ -49,22 +49,24 @@ namespace Scripts.Inventory
             return success;
         }
 
-        private bool TryEquipItem(int fromAnchor, int equipGlobalIndex, InventoryItem itemToEquip)
+        private bool TryEquipItem(int fromAnchor, int equipGlobalIndex, InventoryItem itemToEquip, bool logFailures = true)
         {
             int localEquipIndex = equipGlobalIndex - EQUIP_OFFSET;
             if (localEquipIndex < 0 || localEquipIndex >= EquipmentItems.Length)
             {
-                Debug.LogWarning($"[Inventory] Invalid equip slot: {equipGlobalIndex}");
+                if (logFailures)
+                    Debug.LogWarning($"[Inventory] Invalid equip slot: {equipGlobalIndex}");
                 return false;
             }
 
             InventoryItem currentEquipped = EquipmentItems[localEquipIndex];
             if (IsTwoHandedBlockedByOffHand(itemToEquip, localEquipIndex))
-                return TryEquipTwoHandedByReplacingOffHand(itemToEquip, fromAnchor);
+                return TryEquipTwoHandedByReplacingOffHand(itemToEquip, fromAnchor, logFailures);
 
             if (!CanEquipItemToLocalSlot(itemToEquip, localEquipIndex))
             {
-                Debug.LogWarning($"[Inventory] Item '{itemToEquip.Data.ItemName}' cannot be equipped into slot {localEquipIndex}.");
+                if (logFailures)
+                    Debug.LogWarning($"[Inventory] Item '{itemToEquip.Data.ItemName}' cannot be equipped into slot {localEquipIndex}.");
                 return false;
             }
 
@@ -79,7 +81,8 @@ namespace Scripts.Inventory
                 }
                 else
                 {
-                    Debug.LogWarning("[Inventory] Swap failed (no space). Reverting.");
+                    if (logFailures)
+                        Debug.LogWarning("[Inventory] Swap failed (no space). Reverting.");
                     PlaceItemAtAnchor(fromAnchor, itemToEquip);
                     return false;
                 }

@@ -390,6 +390,16 @@ public partial class InventoryUI
         if (evt.ctrlKey)
         {
             evt.StopPropagation();
+            if (!IsCompanionPanelVisible)
+            {
+                if (InventoryManager.Instance.TryCtrlEquipFromBackpack(anchorIdx))
+                {
+                    RefreshInventory();
+                    if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltipImmediate();
+                }
+                return;
+            }
+
             InventoryItem taken = InventoryManager.Instance.TakeItemFromSlot(anchorIdx);
             if (taken == null) return;
             if (ItemQuickTransferService.TryQuickTransfer(ItemTransferEndpointIds.InventoryBackpack, taken, isShortcut: true))
@@ -462,6 +472,28 @@ public partial class InventoryUI
         if (evt.ctrlKey)
         {
             evt.StopPropagation();
+            if (!IsCompanionPanelVisible
+                && idx >= InventoryManager.EQUIP_OFFSET
+                && idx < InventoryManager.EQUIP_OFFSET + InventoryManager.Instance.EquipmentItems.Length)
+            {
+                if (InventoryManager.Instance.TryCtrlUnequip(idx))
+                {
+                    RefreshInventory();
+                    if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltipImmediate();
+                }
+                return;
+            }
+
+            if (anchorIdx >= 0 && anchorIdx < InventoryManager.Instance.BackpackSlotCount && !IsCompanionPanelVisible)
+            {
+                if (InventoryManager.Instance.TryCtrlEquipFromBackpack(anchorIdx))
+                {
+                    RefreshInventory();
+                    if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltipImmediate();
+                }
+                return;
+            }
+
             InventoryItem takenCtrl = InventoryManager.Instance.TakeItemFromSlot(anchorIdx);
             if (takenCtrl == null) return;
 

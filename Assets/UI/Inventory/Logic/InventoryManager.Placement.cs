@@ -138,12 +138,13 @@ namespace Scripts.Inventory
         /// Atomically equips a two-handed weapon into an empty main hand and puts the displaced
         /// off-hand item into the backpack footprint from which the weapon came.
         /// </summary>
-        private bool TryEquipTwoHandedByReplacingOffHand(InventoryItem twoHanded, int sourceAnchor)
+        private bool TryEquipTwoHandedByReplacingOffHand(InventoryItem twoHanded, int sourceAnchor, bool reportFailure = true)
         {
             InventoryItem offHand = EquipmentItems[(int)EquipmentSlot.OffHand];
             if (offHand?.Data == null)
             {
-                ReportPlacementFailure(InventoryPlacementFailureReason.OffHandBlocksTwoHanded);
+                if (reportFailure)
+                    ReportPlacementFailure(InventoryPlacementFailureReason.OffHandBlocksTwoHanded);
                 return false;
             }
 
@@ -154,7 +155,8 @@ namespace Scripts.Inventory
                 _backpack.GetItemAt(sourceAnchor, out InventoryItem sourceItem, out sourceRoot);
                 if (sourceItem != null && sourceItem != twoHanded)
                 {
-                    ReportPlacementFailure(InventoryPlacementFailureReason.OffHandBlocksTwoHanded);
+                    if (reportFailure)
+                        ReportPlacementFailure(InventoryPlacementFailureReason.OffHandBlocksTwoHanded);
                     return false;
                 }
 
@@ -174,9 +176,12 @@ namespace Scripts.Inventory
                 if (removedIncomingFromBackpack)
                     _backpack.Place(twoHanded, sourceRoot);
                 SyncFromBackpack();
-                ReportPlacementFailure(sourceAnchor < 0
-                    ? InventoryPlacementFailureReason.NoBackpackSpace
-                    : InventoryPlacementFailureReason.OffHandBlocksTwoHanded);
+                if (reportFailure)
+                {
+                    ReportPlacementFailure(sourceAnchor < 0
+                        ? InventoryPlacementFailureReason.NoBackpackSpace
+                        : InventoryPlacementFailureReason.OffHandBlocksTwoHanded);
+                }
                 return false;
             }
 
