@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using Scripts.UI;
 using UnityEngine;
 
 namespace Scripts.Stats
@@ -266,6 +268,9 @@ namespace Scripts.Stats
             StatModType modifierType,
             ModifierLineStyle lineStyle)
         {
+            if (StatsDatabaseSO.IsCooldownRecoveryStat(type))
+                return FormatCooldownRecoveryLine(type, value, modifierType, RuntimeLocalization.IsRussian);
+
             string valueText = FormatModifierValue(db, type, value, modifierType);
             switch (lineStyle)
             {
@@ -276,6 +281,87 @@ namespace Scripts.Stats
                 default:
                     return $"{statName}: {valueText}";
             }
+        }
+
+        public static string FormatCooldownRecoveryLine(StatType type, float value, StatModType modifierType, bool russian)
+        {
+            string number = Mathf.Abs(value).ToString("0.##", russian ? RussianCulture : CultureInfo.InvariantCulture);
+            return ComposeCooldownRecovery(type, number, RecoveryPace(value, modifierType), modifierType == StatModType.Flat, russian);
+        }
+
+        public static string CooldownRecoveryAffixTemplate(StatType type, StatAffixModifierKind kind, bool russian)
+        {
+            string number = kind == StatAffixModifierKind.Flat ? "{0:0.##}" : "{0}";
+            RecoveryWording pace = kind switch
+            {
+                StatAffixModifierKind.Decrease => RecoveryWording.Slower,
+                StatAffixModifierKind.Less => RecoveryWording.Slower,
+                StatAffixModifierKind.More => RecoveryWording.More,
+                _ => RecoveryWording.Faster
+            };
+            return ComposeCooldownRecovery(type, number, pace, kind == StatAffixModifierKind.Flat, russian);
+        }
+
+        private static readonly CultureInfo RussianCulture = CultureInfo.GetCultureInfo("ru-RU");
+
+        private enum RecoveryWording
+        {
+            Faster,
+            Slower,
+            More
+        }
+
+        private static RecoveryWording RecoveryPace(float value, StatModType modifierType)
+        {
+            switch (modifierType)
+            {
+                case StatModType.PercentSub:
+                case StatModType.PercentLess:
+                    return RecoveryWording.Slower;
+                case StatModType.PercentMult:
+                    return value < 0f ? RecoveryWording.Slower : RecoveryWording.More;
+                default:
+                    return value < 0f ? RecoveryWording.Slower : RecoveryWording.Faster;
+            }
+        }
+
+        private static string ComposeCooldownRecovery(StatType type, string number, RecoveryWording pace, bool seconds, bool russian)
+        {
+            if (russian)
+            {
+                string subject = type switch
+                {
+                    StatType.SpecialSkillCooldownRecovery => "Особый навык восстанавливается",
+                    StatType.HelmetSkillCooldownRecovery => "Навык шлема восстанавливается",
+                    StatType.BodyArmorSkillCooldownRecovery => "Навык доспеха восстанавливается",
+                    StatType.GlovesSkillCooldownRecovery => "Навык перчаток восстанавливается",
+                    StatType.BootsSkillCooldownRecovery => "Навык ботинок восстанавливается",
+                    _ => "Навыки восстанавливаются"
+                };
+                string unit = seconds ? "с" : "%";
+                string amount = seconds ? $"{number} {unit}" : $"{number}{unit}";
+                string speed = pace == RecoveryWording.Slower ? "медленнее" : "быстрее";
+                string extra = pace == RecoveryWording.More ? "ещё " : "";
+                return $"{subject} {extra}на {amount} {speed}";
+            }
+
+            string label = type switch
+            {
+                StatType.SpecialSkillCooldownRecovery => "Special Skill Recovery",
+                StatType.HelmetSkillCooldownRecovery => "Helmet Skill Recovery",
+                StatType.BodyArmorSkillCooldownRecovery => "Body Skill Recovery",
+                StatType.GlovesSkillCooldownRecovery => "Gloves Skill Recovery",
+                StatType.BootsSkillCooldownRecovery => "Boots Skill Recovery",
+                _ => "Skill Recovery"
+            };
+            string signedAmount = seconds ? $"+{number}s" : $"+{number}%";
+            string word = pace switch
+            {
+                RecoveryWording.Slower => "slower",
+                RecoveryWording.More => "more",
+                _ => "faster"
+            };
+            return $"{signedAmount} {word} {label}";
         }
 
         public static string FormatScalarValue(StatsDatabaseSO db, StatType type, float value)

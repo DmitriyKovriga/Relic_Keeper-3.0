@@ -61,6 +61,9 @@ MonoBehaviour:
     - Stat: 72
       Value: 25
       Type: 100
+    - Stat: 99
+      Value: 4
+      Type: 100
     TargetAilmentStackModifiers: []
     OnHitEffects: []
     StartPercentPipeline: 0.05

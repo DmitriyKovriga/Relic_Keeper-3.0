@@ -2337,27 +2337,27 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 104536123106123776
-    m_Localized: Skill Cooldown Recovery
+    m_Localized: Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 104536126033747968
-    m_Localized: Special Skill Cooldown Recovery
+    m_Localized: Special Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 104536126595784704
-    m_Localized: Helmet Skill Cooldown Recovery
+    m_Localized: Helmet Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 104536127187181568
-    m_Localized: Body Skill Cooldown Recovery
+    m_Localized: Body Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 104536127770189824
-    m_Localized: Gloves Skill Cooldown Recovery
+    m_Localized: Gloves Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 104536128390946816
-    m_Localized: Boots Skill Cooldown Recovery
+    m_Localized: Boots Skill Recovery
     m_Metadata:
       m_Items: []
   - m_Id: 104541184473423872
