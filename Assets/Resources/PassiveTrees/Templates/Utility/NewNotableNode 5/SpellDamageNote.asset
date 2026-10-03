@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
-  m_Name: LightningDamage
+  m_Name: SpellDamageNote
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
-  Name: LightningDamage
+  Name: SpellDamageNote
   Description: 
-  Icon: {fileID: 21300000, guid: ad4e0dcce1c0767428e2fa44491edb9a, type: 3}
+  Icon: {fileID: 21300000, guid: 732c39472f5662746909b1335be937f9, type: 3}
   Modifiers:
-  - Stat: 33
-    Value: 15
+  - Stat: 89
+    Value: 45
     Type: 200
   StatScalingRules: []
   ConditionalModifiers: []

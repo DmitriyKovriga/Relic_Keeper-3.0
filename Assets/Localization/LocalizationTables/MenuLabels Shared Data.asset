@@ -1763,6 +1763,70 @@ MonoBehaviour:
     m_Key: player.levelUp
     m_Metadata:
       m_Items: []
+  - m_Id: 111508801381720064
+    m_Key: passive.node.PushbackSmall.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111508801406885888
+    m_Key: passive.node.PushbackSmall.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111508941278535680
+    m_Key: passive.node.PushbackNote.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111508941278535681
+    m_Key: passive.node.PushbackNote.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111508983439679488
+    m_Key: passive.node.ShockNote.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111508983439679489
+    m_Key: passive.node.ShockNote.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509210460577792
+    m_Key: passive.node.ShockSmall.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509210460577793
+    m_Key: passive.node.ShockSmall.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509279800811520
+    m_Key: passive.node.ColdDamage.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509279800811521
+    m_Key: passive.node.ColdDamage.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509441365401600
+    m_Key: passive.node.WasteSpellsNote.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509441365401601
+    m_Key: passive.node.WasteSpellsNote.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509648312360960
+    m_Key: passive.node.DeepFrezee.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509648312360961
+    m_Key: passive.node.DeepFrezee.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509777517895680
+    m_Key: passive.node.SpellDamageNote.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 111509777517895681
+    m_Key: passive.node.SpellDamageNote.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
