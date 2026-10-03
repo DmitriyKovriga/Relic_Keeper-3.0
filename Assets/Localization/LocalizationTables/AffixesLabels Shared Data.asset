@@ -203,6 +203,26 @@ MonoBehaviour:
     m_Key: affix_more_critchance
     m_Metadata:
       m_Items: []
+  - m_Id: 105900000000000011
+    m_Key: affix_flat_critchance_local
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105900000000000012
+    m_Key: affix_increase_critchance_local
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105900000000000013
+    m_Key: affix_decrease_critchance_local
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105900000000000014
+    m_Key: affix_more_critchance_local
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105900000000000015
+    m_Key: affix_less_critchance_local
+    m_Metadata:
+      m_Items: []
   - m_Id: 61931552769
     m_Key: affix_flat_critmultiplier
     m_Metadata:

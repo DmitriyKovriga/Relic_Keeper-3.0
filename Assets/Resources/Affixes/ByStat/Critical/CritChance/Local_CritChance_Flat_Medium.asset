@@ -16,7 +16,7 @@ MonoBehaviour:
   GroupID: Local_CritChance_Flat_Medium
   Tier: 0
   NameKey: affix_name_local_critchance_flat_medium
-  TranslationKey: affix_flat_critchance
+  TranslationKey: affix_flat_critchance_local
   LockAutoLocalization: 0
   TagIds:
   - Critical

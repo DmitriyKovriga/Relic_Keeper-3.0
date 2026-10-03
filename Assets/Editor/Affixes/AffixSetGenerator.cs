@@ -708,6 +708,36 @@ namespace Scripts.Editor.Affixes
             }
         }
 
+        private static string CritChanceTemplate(StatAffixModifierKind kind, bool weapon, bool russian)
+        {
+            const string Signed = "{0:+0.##;-0.##;0}";
+            if (russian)
+            {
+                string target = weapon ? "шансу крита оружия" : "шансу крита";
+                string increased = weapon ? "шанса крита оружия" : "шанса крита";
+                return kind switch
+                {
+                    StatAffixModifierKind.Increase => $"{{0}}% увеличение {increased}",
+                    StatAffixModifierKind.Decrease => $"{{0}}% уменьшение {increased}",
+                    StatAffixModifierKind.More => $"{{0}}% Больше к {target}",
+                    StatAffixModifierKind.Less => $"{{0}}% Меньше к {target}",
+                    _ => $"{Signed}% к базовому {target}"
+                };
+            }
+
+            string weaponTail = weapon ? " with this weapon" : string.Empty;
+            return kind switch
+            {
+                StatAffixModifierKind.Increase => $"{{0}}% increased Crit Chance{weaponTail}",
+                StatAffixModifierKind.Decrease => $"{{0}}% reduced Crit Chance{weaponTail}",
+                StatAffixModifierKind.More => $"{{0}}% more Crit Chance{weaponTail}",
+                StatAffixModifierKind.Less => $"{{0}}% less Crit Chance{weaponTail}",
+                _ => weapon
+                    ? $"{Signed}% to the weapon's base Crit Chance"
+                    : $"{Signed}% to base Crit Chance"
+            };
+        }
+
         private static string BuildValueKey(StatType stat, StatAffixModifierKind kind, AffixValueMode valueMode)
         {
             string key = $"affix_{StatPresentation.GetModifierKindId(kind)}_{stat.ToString().ToLowerInvariant()}";
@@ -774,6 +804,9 @@ namespace Scripts.Editor.Affixes
             if (StatsDatabaseSO.IsCooldownRecoveryStat(stat))
                 return StatPresentation.CooldownRecoveryAffixTemplate(stat, kind, false);
 
+            if (stat == StatType.CritChance)
+                return CritChanceTemplate(kind, weapon: false, russian: false);
+
             switch (kind)
             {
                 case StatAffixModifierKind.Increase:
@@ -818,6 +851,9 @@ namespace Scripts.Editor.Affixes
 
             if (StatsDatabaseSO.IsCooldownRecoveryStat(stat))
                 return StatPresentation.CooldownRecoveryAffixTemplate(stat, kind, true);
+
+            if (stat == StatType.CritChance)
+                return CritChanceTemplate(kind, weapon: false, russian: true);
 
             switch (kind)
             {

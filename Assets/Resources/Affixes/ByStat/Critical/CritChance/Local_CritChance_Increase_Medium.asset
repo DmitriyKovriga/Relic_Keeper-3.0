@@ -16,7 +16,7 @@ MonoBehaviour:
   GroupID: Local_CritChance_Increase_Medium
   Tier: 0
   NameKey: affix_name_local_critchance_increase_medium
-  TranslationKey: affix_increase_critchance
+  TranslationKey: affix_increase_critchance_local
   LockAutoLocalization: 0
   TagIds:
   - Critical

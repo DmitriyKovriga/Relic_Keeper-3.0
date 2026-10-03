@@ -195,7 +195,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 61927358464
-    m_Localized: '{0:+0.##;-0.##;0}% to Crit Chance'
+    m_Localized: '{0:+0.##;-0.##;0}% to base Crit Chance'
     m_Metadata:
       m_Items: []
   - m_Id: 61927358465
@@ -204,6 +204,26 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 61931552768
     m_Localized: '{0}% more Crit Chance'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105900000000000011
+    m_Localized: '{0:+0.##;-0.##;0}% to the weapon''s base Crit Chance'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105900000000000012
+    m_Localized: '{0}% increased Crit Chance with this weapon'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105900000000000013
+    m_Localized: '{0}% reduced Crit Chance with this weapon'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105900000000000014
+    m_Localized: '{0}% more Crit Chance with this weapon'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 105900000000000015
+    m_Localized: '{0}% less Crit Chance with this weapon'
     m_Metadata:
       m_Items: []
   - m_Id: 61931552769

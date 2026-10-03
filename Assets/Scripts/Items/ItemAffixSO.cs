@@ -113,6 +113,8 @@ namespace Scripts.Items.Affixes
             var statData = resolvedStats[0];
             var kind = StatPresentation.FromStatModType(statData.Type);
             string preferredKey = BuildAutoTranslationKey(statData.Stat, kind, statData.GetEffectiveValueMode());
+            if (statData.Stat == StatType.CritChance && statData.Scope == StatScope.Local)
+                preferredKey += "_local";
 
             if (string.IsNullOrEmpty(TranslationKey) || IsAutoTranslationKey(TranslationKey, statData.Stat, kind))
                 return preferredKey;
