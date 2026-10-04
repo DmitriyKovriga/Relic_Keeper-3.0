@@ -47,7 +47,7 @@ namespace RelicKeeper.Tests.EditMode
             try
             {
                 ElementalPulseBallVisual visual = gameObject.AddComponent<ElementalPulseBallVisual>();
-                visual.Configure(DamageChannel.Fire, 0.35f);
+                visual.Configure(DamageChannel.Lightning, 0.35f);
                 SpriteRenderer renderer = gameObject.GetComponent<SpriteRenderer>();
 
                 Assert.That(renderer, Is.Not.Null);
@@ -61,6 +61,29 @@ namespace RelicKeeper.Tests.EditMode
                 SpriteRenderer pulse = gameObject.transform.Find("PulseBallWave").GetComponent<SpriteRenderer>();
                 Assert.That(pulse.sprite.texture.GetPixel(24, 24).a, Is.EqualTo(0f));
                 Assert.That(pulse.sprite.texture.GetPixel(24, 3).a, Is.GreaterThan(0.5f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(gameObject);
+            }
+        }
+
+        [Test]
+        public void Visual_FireBallPlaysTheAuthoredSpriteSheet()
+        {
+            var gameObject = new GameObject("BigFireBallAuthoredVfxTest");
+            try
+            {
+                ElementalPulseBallVisual visual = gameObject.AddComponent<ElementalPulseBallVisual>();
+                visual.Configure(DamageChannel.Fire, 0.35f);
+                SpriteRenderer renderer = gameObject.GetComponent<SpriteRenderer>();
+
+                Assert.That(renderer.sprite, Is.Not.Null);
+                Assert.That(renderer.sprite.name, Is.EqualTo("BigFireBall_00"));
+                Assert.That(renderer.sprite.rect.width, Is.EqualTo(48f));
+                Assert.That(renderer.sprite.rect.height, Is.EqualTo(48f));
+                Assert.That(renderer.sprite.texture.filterMode, Is.EqualTo(FilterMode.Point));
+                Assert.That(gameObject.transform.Find("PulseBallMotif_0").GetComponent<SpriteRenderer>().enabled, Is.False);
             }
             finally
             {
