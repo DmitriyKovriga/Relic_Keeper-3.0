@@ -16,7 +16,7 @@ MonoBehaviour:
   SkillName: Seeker Skill
   DescriptionMode: 0
   Description: 
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 8d9b2c80fe1ae764283cfd4e68e5984f, type: 3}
   NameKey: skills.SeekerSkill
   DescriptionKey: skills.SeekerSkill.description
   IsActive: 1
