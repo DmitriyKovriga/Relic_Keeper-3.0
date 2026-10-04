@@ -24,19 +24,35 @@
     bottom: 0;
 }
 
+.main-menu-background {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgb(22, 24, 26);
+    -unity-background-scale-mode: stretch-to-fill;
+}
+
 .main-menu-panel {
     position: absolute;
-    left: 16px;
-    bottom: 14px;
-    width: 192px;
-    height: 189px;
+    left: 12px;
+    bottom: 16px;
+    width: 148px;
+    height: 78px;
     flex-direction: column;
     justify-content: flex-end;
     align-items: flex-start;
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 14px;
+    padding-right: 14px;
     padding-top: 8px;
-    padding-bottom: 12px;
+    padding-bottom: 10px;
+    background-color: rgb(22, 24, 26);
+    border-left-color: rgb(58, 62, 56);
+    border-right-color: rgb(58, 62, 56);
+    border-top-color: rgb(90, 92, 78);
+    border-bottom-color: rgb(58, 62, 56);
+    -unity-background-image-tint-color: rgb(22, 24, 26);
 }
 
 .pause-menu-overlay {
@@ -76,6 +92,31 @@
     font-size: 8px;
     flex-grow: 0;
     flex-shrink: 0;
+}
+
+.main-menu-root .main-menu-button {
+    width: 116px;
+    height: 16px;
+    min-height: 16px;
+    max-height: 16px;
+    background-color: rgb(32, 34, 32);
+    color: rgb(220, 216, 196);
+    border-left-color: rgb(140, 138, 112);
+    border-right-color: rgb(72, 74, 64);
+    border-top-color: rgb(168, 164, 132);
+    border-bottom-color: rgb(48, 50, 44);
+}
+
+.main-menu-root .main-menu-button:hover {
+    background-color: rgb(48, 52, 44);
+    color: rgb(244, 240, 214);
+    border-top-color: rgb(210, 204, 164);
+}
+
+.main-menu-root .main-menu-button:active {
+    background-color: rgb(18, 20, 18);
+    border-top-color: rgb(72, 74, 64);
+    border-bottom-color: rgb(140, 138, 112);
 }
 
 .hide {
