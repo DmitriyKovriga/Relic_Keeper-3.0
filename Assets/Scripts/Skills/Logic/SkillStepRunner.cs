@@ -608,6 +608,8 @@ namespace Scripts.Skills
                 GroundYOffset = step.GetFloat("GroundYOffset", 0.06f),
                 Homing = step.GetBool("Homing", false),
                 HomingSearchRadius = Mathf.Max(0.1f, step.GetFloat("HomingSearchRadius", 14f)),
+                HomingDeadZone = Mathf.Max(0f, step.GetFloat("HomingDeadZone", 0f)),
+                HomingStrength = Mathf.Clamp01(step.GetFloat("HomingStrength", 0.4f)),
                 HomingTurnSpeedDegreesPerSecond = Mathf.Max(0f, step.GetFloat("HomingTurnSpeedDegreesPerSecond", 0f)),
                 RemainingReversals = Mathf.Max(0, step.GetInt("ReversalCount", 0)),
                 ReverseInterval = Mathf.Max(0.01f, step.GetFloat("ReverseInterval", 1f)),

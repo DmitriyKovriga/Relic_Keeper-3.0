@@ -1993,8 +1993,14 @@ namespace Scripts.Editor.Skills
             float homingRadius = step.GetFloat("HomingSearchRadius", 14f);
             float newHomingRadius = Mathf.Max(0.1f, EditorGUILayout.FloatField("Homing search radius", homingRadius));
             if (Mathf.Abs(newHomingRadius - homingRadius) > 0.001f) { step.SetOverrideFloat("HomingSearchRadius", newHomingRadius); EditorUtility.SetDirty(recipe); }
+            float deadZone = step.GetFloat("HomingDeadZone", 0f);
+            float newDeadZone = Mathf.Max(0f, EditorGUILayout.FloatField(new GUIContent("Homing dead zone", "Дистанция прямого полёта перед тем, как снаряд начнёт заворачивать к цели."), deadZone));
+            if (Mathf.Abs(newDeadZone - deadZone) > 0.001f) { step.SetOverrideFloat("HomingDeadZone", newDeadZone); EditorUtility.SetDirty(recipe); }
+            float strength = step.GetFloat("HomingStrength", 0.4f);
+            float newStrength = Mathf.Clamp01(EditorGUILayout.Slider(new GUIContent("Homing strength", "0 — широкая дуга, 1 — более крутой заворот. Траектория не ломается сразу в цель."), strength, 0f, 1f));
+            if (Mathf.Abs(newStrength - strength) > 0.001f) { step.SetOverrideFloat("HomingStrength", newStrength); EditorUtility.SetDirty(recipe); }
             float turnSpeed = step.GetFloat("HomingTurnSpeedDegreesPerSecond", 0f);
-            float newTurnSpeed = Mathf.Max(0f, EditorGUILayout.FloatField(new GUIContent("Turn speed deg/sec", "0 = мгновенно поворачивает на цель."), turnSpeed));
+            float newTurnSpeed = Mathf.Max(0f, EditorGUILayout.FloatField(new GUIContent("Turn speed deg/sec", "0 = использовать Homing strength. Больше нуля задаёт свою скорость заворота."), turnSpeed));
             if (Mathf.Abs(newTurnSpeed - turnSpeed) > 0.001f) { step.SetOverrideFloat("HomingTurnSpeedDegreesPerSecond", newTurnSpeed); EditorUtility.SetDirty(recipe); }
             EditorGUI.EndDisabledGroup();
 

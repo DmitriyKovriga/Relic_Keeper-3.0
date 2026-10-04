@@ -62,6 +62,8 @@ namespace Scripts.Skills.Projectiles
         public float GroundYOffset = 0.06f;
         public bool Homing;
         public float HomingSearchRadius = 14f;
+        public float HomingDeadZone;
+        public float HomingStrength = 0.4f;
         public float HomingTurnSpeedDegreesPerSecond;
         public int RemainingReversals;
         public float FirstReverseAtSeconds = 1f;
@@ -915,6 +917,9 @@ namespace Scripts.Skills.Projectiles
             if (_data == null || !_data.Homing || _returningToOwner)
                 return;
 
+            if (IsWithinHomingDeadZone(_travelledDistance, _data.HomingDeadZone))
+                return;
+
             if (_homingTarget == null || !IsValidHomingTarget(_homingTarget))
                 AcquireHomingTarget();
 
@@ -925,19 +930,36 @@ namespace Scripts.Skills.Projectiles
             if (desired.sqrMagnitude <= 0.0001f)
                 return;
 
-            desired.Normalize();
-            float turnSpeed = _data.HomingTurnSpeedDegreesPerSecond;
-            if (turnSpeed <= 0f)
-            {
-                _direction = desired;
-            }
-            else
-            {
-                float maxRadians = turnSpeed * Mathf.Deg2Rad * dt;
-                _direction = Vector3.RotateTowards(_direction, desired, maxRadians, 0f).normalized;
-            }
-
+            _direction = SteerHoming(_direction, desired, _data.HomingStrength, _data.HomingTurnSpeedDegreesPerSecond, dt);
             ApplyFacingRotation();
+        }
+
+        public static bool IsWithinHomingDeadZone(float travelledDistance, float deadZone)
+        {
+            return travelledDistance < Mathf.Max(0f, deadZone);
+        }
+
+        /// <summary>
+        /// Turns toward the target at a limited rate so the path is an arc.
+        /// Strength 0 is a wide curve and 1 is tighter. An explicit turn speed overrides strength.
+        /// </summary>
+        public static Vector2 SteerHoming(
+            Vector2 direction,
+            Vector2 desiredDirection,
+            float strength,
+            float turnSpeedDegreesPerSecond,
+            float dt)
+        {
+            Vector2 fallback = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
+            if (desiredDirection.sqrMagnitude <= 0.0001f)
+                return fallback;
+
+            desiredDirection.Normalize();
+            float turnSpeed = turnSpeedDegreesPerSecond > 0f
+                ? turnSpeedDegreesPerSecond
+                : Mathf.Lerp(90f, 260f, Mathf.Clamp01(strength));
+            float maxRadians = turnSpeed * Mathf.Deg2Rad * Mathf.Max(0f, dt);
+            return Vector3.RotateTowards(fallback, desiredDirection, maxRadians, 0f).normalized;
         }
 
         private bool SnapToGroundOrDespawn()
