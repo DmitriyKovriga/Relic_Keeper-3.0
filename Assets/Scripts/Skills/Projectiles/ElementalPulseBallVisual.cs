@@ -16,11 +16,13 @@ namespace Scripts.Skills.Projectiles
         private const int GeneratedSpriteVersion = 2;
         private const string FireAnimationResourcePath = "VFX/BigFireBall";
         private const string ColdAnimationResourcePath = "VFX/BigColdBall";
+        private const string LightningAnimationResourcePath = "VFX/BigLightningBall";
         private const float AuthoredFrameSeconds = 1f / 12f;
 
         private static readonly Dictionary<DamageChannel, Sprite> SpriteCache = new();
         private static Sprite[] _fireFrames;
         private static Sprite[] _coldFrames;
+        private static Sprite[] _lightningFrames;
         private static Sprite _pulseRingSprite;
         private static int _spriteCacheVersion;
 
@@ -88,7 +90,7 @@ namespace Scripts.Skills.Projectiles
             }
 
             UpdateMotifs(phase, wave);
-            if (_element == DamageChannel.Lightning && Time.time >= _nextArcUpdate)
+            if (!_usesAuthoredFrames && _element == DamageChannel.Lightning && Time.time >= _nextArcUpdate)
             {
                 _nextArcUpdate = Time.time + 0.055f;
                 UpdateLightningArc();
@@ -175,7 +177,7 @@ namespace Scripts.Skills.Projectiles
             _trail.colorGradient = CreateGradient(WithAlpha(_accent, 0.72f), WithAlpha(_edge, 0f));
             _trail.emitting = !_usesAuthoredFrames;
             _trail.enabled = !_usesAuthoredFrames;
-            _lightningArc.enabled = _element == DamageChannel.Lightning;
+            _lightningArc.enabled = _element == DamageChannel.Lightning && !_usesAuthoredFrames;
             if (_element == DamageChannel.Lightning)
                 UpdateLightningArc();
         }
@@ -251,6 +253,8 @@ namespace Scripts.Skills.Projectiles
                 return LoadFrames(FireAnimationResourcePath, ref _fireFrames);
             if (element == DamageChannel.Cold)
                 return LoadFrames(ColdAnimationResourcePath, ref _coldFrames);
+            if (element == DamageChannel.Lightning)
+                return LoadFrames(LightningAnimationResourcePath, ref _lightningFrames);
             return null;
         }
 

@@ -48,17 +48,11 @@ namespace RelicKeeper.Tests.EditMode
             {
                 ElementalPulseBallVisual visual = gameObject.AddComponent<ElementalPulseBallVisual>();
                 visual.Configure(DamageChannel.Lightning, 0.35f);
-                SpriteRenderer renderer = gameObject.GetComponent<SpriteRenderer>();
-
-                Assert.That(renderer, Is.Not.Null);
-                Assert.That(renderer.sprite, Is.Not.Null);
-                Assert.That(renderer.sprite.texture.width, Is.EqualTo(ElementalPulseBallVisual.SpriteSizePixels));
-                Assert.That(renderer.sprite.texture.height, Is.EqualTo(ElementalPulseBallVisual.SpriteSizePixels));
-                Assert.That(renderer.sprite.texture.filterMode, Is.EqualTo(FilterMode.Point));
-                Assert.That(renderer.sprite.texture.GetPixel(0, 0).a, Is.EqualTo(0f));
-                Assert.That(renderer.sprite.texture.GetPixel(24, 24).a, Is.GreaterThan(0.9f));
-
                 SpriteRenderer pulse = gameObject.transform.Find("PulseBallWave").GetComponent<SpriteRenderer>();
+                Assert.That(pulse.sprite, Is.Not.Null);
+                Assert.That(pulse.sprite.texture.width, Is.EqualTo(ElementalPulseBallVisual.SpriteSizePixels));
+                Assert.That(pulse.sprite.texture.height, Is.EqualTo(ElementalPulseBallVisual.SpriteSizePixels));
+                Assert.That(pulse.sprite.texture.filterMode, Is.EqualTo(FilterMode.Point));
                 Assert.That(pulse.sprite.texture.GetPixel(24, 24).a, Is.EqualTo(0f));
                 Assert.That(pulse.sprite.texture.GetPixel(24, 3).a, Is.GreaterThan(0.5f));
             }
@@ -107,6 +101,30 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(renderer.sprite.rect.height, Is.EqualTo(48f));
                 Assert.That(renderer.sprite.texture.filterMode, Is.EqualTo(FilterMode.Point));
                 Assert.That(gameObject.transform.Find("PulseBallMotif_0").GetComponent<SpriteRenderer>().enabled, Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(gameObject);
+            }
+        }
+
+        [Test]
+        public void Visual_LightningBallPlaysTheAuthoredSpriteSheet()
+        {
+            var gameObject = new GameObject("BigLightningBallAuthoredVfxTest");
+            try
+            {
+                ElementalPulseBallVisual visual = gameObject.AddComponent<ElementalPulseBallVisual>();
+                visual.Configure(DamageChannel.Lightning, 0.35f);
+                SpriteRenderer renderer = gameObject.GetComponent<SpriteRenderer>();
+
+                Assert.That(renderer.sprite, Is.Not.Null);
+                Assert.That(renderer.sprite.name, Is.EqualTo("BigLightningBall_00"));
+                Assert.That(renderer.sprite.rect.width, Is.EqualTo(48f));
+                Assert.That(renderer.sprite.rect.height, Is.EqualTo(48f));
+                Assert.That(renderer.sprite.texture.filterMode, Is.EqualTo(FilterMode.Point));
+                Assert.That(gameObject.transform.Find("PulseBallMotif_0").GetComponent<SpriteRenderer>().enabled, Is.False);
+                Assert.That(gameObject.transform.Find("PulseBallLightningArc").GetComponent<LineRenderer>().enabled, Is.False);
             }
             finally
             {
