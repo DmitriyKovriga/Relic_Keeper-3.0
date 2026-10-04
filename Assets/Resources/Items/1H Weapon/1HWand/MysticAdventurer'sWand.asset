@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8dfeb579bbf0f148826246799bf1174, type: 3}
+  m_Name: MysticAdventurer'sWand
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Items.WeaponItemSO
+  ID: 6d21502e
+  ItemName: Mystic Adventurer's Wand
+  Icon: {fileID: 21300000, guid: ca228fb2c1e503a4faa330fe5044c985, type: 3}
+  Width: 1
+  Height: 2
+  Slot: 2
+  DropLevel: 1
+  ImplicitModifiers:
+  - Stat: 10
+    Value: 1
+    Type: 100
+    Scope: 0
+  AffixPool: {fileID: 0}
+  SkillPool: {fileID: 0}
+  SkillCount: 1
+  IsTwoHanded: 0
+  InHandSprite: {fileID: 21300000, guid: 89515ff8acc6e4845a47f4a0e8f844ff, type: 3}
+  InHandSpriteTiltZ: 0
+  InHandSpriteLocalOffset: {x: 0, y: 0}
+  MinPhysicalDamage: 0
+  MaxPhysicalDamage: 0
+  MinFireDamage: 2
+  MaxFireDamage: 4
+  MinColdDamage: 2
+  MaxColdDamage: 4
+  MinLightningDamage: 2
+  MaxLightningDamage: 4
+  AttacksPerSecond: 1
+  BaseCritChance: 5
+  SecondarySkillPool: {fileID: 0}

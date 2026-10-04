@@ -44,6 +44,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3401406108836234fa7698c5882a3659, type: 2}
   - {fileID: 11400000, guid: 211bd93d3f02b224e8d7dc6e548cdc96, type: 2}
   - {fileID: 11400000, guid: 802327eb71519cd4d96a2e9cc8fd189a, type: 2}
+  - {fileID: 11400000, guid: d15b498a0893c69448edc31348007dae, type: 2}
   AllAffixes:
   - {fileID: 11400000, guid: aa528cde099a24d409b2edf24a0b6212, type: 2}
   - {fileID: 11400000, guid: 10edb8d5ca776514d868b7689d3e8af6, type: 2}

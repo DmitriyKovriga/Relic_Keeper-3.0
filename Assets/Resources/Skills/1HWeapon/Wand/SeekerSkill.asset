@@ -10,28 +10,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 037112ba607a5b2409ab1b0826944402, type: 3}
-  m_Name: BigColdBallSkill
+  m_Name: SeekerSkill
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
-  ID: BigColdBallSkill
-  SkillName: Big Cold Ball
+  ID: SeekerSkill
+  SkillName: Seeker Skill
   DescriptionMode: 0
-  Description: A slow cold orb that pulses through enemies.
-  Icon: {fileID: 21300000, guid: 708f260152411dc4b81a0fdfb270de60, type: 3}
-  NameKey: skills.BigColdBallSkill
-  DescriptionKey: skills.BigColdBallSkill.description
+  Description: 
+  Icon: {fileID: 0}
+  NameKey: skills.SeekerSkill
+  DescriptionKey: skills.SeekerSkill.description
   IsActive: 1
-  Cooldown: 7
-  ManaCost: 50
+  Cooldown: 0
+  ManaCost: 0
   ActionSpeedMode: 1
   SkillSpeedMultiplier: 1
-  DamageContextTags: 10
+  DamageContextTags: 138
   EnablePushback: 0
   PushbackRating: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
-  Recipe: {fileID: 11400000, guid: c1f200a1225e4a8c9d5ffcd5001b1002, type: 2}
+  Recipe: {fileID: 11400000, guid: 6ef1d1b25fcd14c44b326997fbda8e79, type: 2}
   WeaponRole: 0
-  HoldStance: 5
-  HoldStanceId: staff
+  HoldStance: 0
+  HoldStanceId: 
   SwingStyle: 0
   SwingStyleId: 

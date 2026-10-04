@@ -16,7 +16,7 @@ MonoBehaviour:
   SkillName: Big Lightning Ball
   DescriptionMode: 0
   Description: A slow lightning orb that pulses through enemies.
-  Icon: {fileID: 21300000, guid: 3e2d428596726e34cb72d4cf075693f8, type: 3}
+  Icon: {fileID: 21300000, guid: 9448ded0a7d33f344931e4f1e2fe0fe4, type: 3}
   NameKey: skills.BigLightningBallSkill
   DescriptionKey: skills.BigLightningBallSkill.description
   IsActive: 1

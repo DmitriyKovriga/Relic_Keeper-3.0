@@ -142,6 +142,10 @@ MonoBehaviour:
     m_Localized: Adventurer's Chakram
     m_Metadata:
       m_Items: []
+  - m_Id: 97337649365245952
+    m_Localized: Mystic Adventurer's Wand
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

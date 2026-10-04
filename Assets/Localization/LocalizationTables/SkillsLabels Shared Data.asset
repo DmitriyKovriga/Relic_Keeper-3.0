@@ -315,6 +315,14 @@ MonoBehaviour:
     m_Key: skills.hit_damage
     m_Metadata:
       m_Items: []
+  - m_Id: 97341693974536192
+    m_Key: skills.SeekerSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 97341694008090624
+    m_Key: skills.SeekerSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
