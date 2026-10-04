@@ -14,8 +14,11 @@ namespace Scripts.Skills.Projectiles
         public const int SpriteSizePixels = 48;
         private const float PixelsPerUnit = 24f;
         private const int GeneratedSpriteVersion = 2;
+        private const string ColdAnimationResourcePath = "VFX/BigColdBall";
+        private const float ColdFrameSeconds = 1f / 12f;
 
         private static readonly Dictionary<DamageChannel, Sprite> SpriteCache = new();
+        private static Sprite[] _coldFrames;
         private static Sprite _pulseRingSprite;
         private static int _spriteCacheVersion;
 
@@ -32,6 +35,7 @@ namespace Scripts.Skills.Projectiles
         private Color _core;
         private Color _edge;
         private Color _accent;
+        private bool _usesAuthoredColdFrames;
 
         private void Awake()
         {
@@ -63,7 +67,11 @@ namespace Scripts.Skills.Projectiles
             float wave = Mathf.Sin(phase * Mathf.PI * 2f) * 0.5f + 0.5f;
 
             if (_main != null)
+            {
                 _main.transform.localScale = Vector3.one * Mathf.Lerp(0.94f, 1.08f, wave);
+                if (_usesAuthoredColdFrames)
+                    ApplyColdFrame();
+            }
             if (_halo != null)
             {
                 _halo.transform.localScale = Vector3.one * Mathf.Lerp(1.08f, 1.18f, wave);
@@ -89,6 +97,8 @@ namespace Scripts.Skills.Projectiles
             _main = GetComponent<SpriteRenderer>();
             if (_main == null)
                 _main = gameObject.AddComponent<SpriteRenderer>();
+            if (_main.sharedMaterial == null)
+                _main.sharedMaterial = CreateSpriteMaterial();
 
             _halo = GetChildRenderer("PulseBallHalo", -2);
             _pulse = GetChildRenderer("PulseBallWave", -3);
@@ -140,7 +150,9 @@ namespace Scripts.Skills.Projectiles
                     new Color(1f, 0.48f, 0.05f, 1f))
             };
 
-            Sprite sprite = GetElementSprite(_element, _core, _edge);
+            Sprite[] coldFrames = _element == DamageChannel.Cold ? GetColdFrames() : null;
+            _usesAuthoredColdFrames = coldFrames != null && coldFrames.Length > 0;
+            Sprite sprite = _usesAuthoredColdFrames ? coldFrames[0] : GetElementSprite(_element, _core, _edge);
             _main.sprite = sprite;
             _main.color = Color.white;
             _main.sortingOrder = 0;
@@ -154,9 +166,12 @@ namespace Scripts.Skills.Projectiles
                 _motifs[i].sprite = sprite;
                 _motifs[i].color = WithAlpha(_accent, _element == DamageChannel.Lightning ? 0.72f : 0.50f);
                 _motifs[i].transform.localScale = Vector3.one * 0.13f;
+                _motifs[i].enabled = !_usesAuthoredColdFrames && _element != DamageChannel.Lightning;
             }
 
             _trail.colorGradient = CreateGradient(WithAlpha(_accent, 0.72f), WithAlpha(_edge, 0f));
+            _trail.emitting = !_usesAuthoredColdFrames;
+            _trail.enabled = !_usesAuthoredColdFrames;
             _lightningArc.enabled = _element == DamageChannel.Lightning;
             if (_element == DamageChannel.Lightning)
                 UpdateLightningArc();
@@ -178,7 +193,7 @@ namespace Scripts.Skills.Projectiles
                     : _element == DamageChannel.Cold ? 0.72f : 0.60f;
                 _motifs[i].transform.localPosition = new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0f);
                 _motifs[i].transform.localScale = Vector3.one * Mathf.Lerp(0.09f, 0.17f, wave);
-                _motifs[i].enabled = _element != DamageChannel.Lightning;
+                _motifs[i].enabled = !_usesAuthoredColdFrames && _element != DamageChannel.Lightning;
             }
         }
 
@@ -215,6 +230,31 @@ namespace Scripts.Skills.Projectiles
                 renderer = child.gameObject.AddComponent<SpriteRenderer>();
             renderer.sortingOrder = sortingOrder;
             return renderer;
+        }
+
+        private void ApplyColdFrame()
+        {
+            Sprite[] frames = GetColdFrames();
+            if (frames == null || frames.Length == 0 || _main == null)
+                return;
+
+            int index = Mathf.FloorToInt(_age / ColdFrameSeconds) % frames.Length;
+            if (_main.sprite != frames[index])
+                _main.sprite = frames[index];
+        }
+
+        private static Sprite[] GetColdFrames()
+        {
+            if (_coldFrames != null && _coldFrames.Length > 0)
+                return _coldFrames;
+
+            Sprite[] loaded = Resources.LoadAll<Sprite>(ColdAnimationResourcePath);
+            if (loaded == null || loaded.Length == 0)
+                return null;
+
+            System.Array.Sort(loaded, (a, b) => string.CompareOrdinal(a.name, b.name));
+            _coldFrames = loaded;
+            return _coldFrames;
         }
 
         private static Sprite GetElementSprite(DamageChannel element, Color core, Color edge)
