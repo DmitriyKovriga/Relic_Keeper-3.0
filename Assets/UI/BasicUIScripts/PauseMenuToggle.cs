@@ -40,7 +40,7 @@ public class PauseMenuToggle : MonoBehaviour
 
         if (manager.HasOpenWindow)
             manager.CloseTop();
-        else
+        else if (FindFirstObjectByType<MainMenuUI>() == null)
             pauseMenu.Open();
     }
 }

@@ -34,8 +34,14 @@ public class ControlsUI : MonoBehaviour
     private void OnEnable()
     {
         LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+        if (config == null)
+            config = Resources.Load<ControlsEditorConfig>("Controls/ControlsEditorConfig");
+        if (bindingRowTemplate == null)
+            bindingRowTemplate = Resources.Load<VisualTreeAsset>("Controls/BindingRowTemplate");
         if (InputManager.InputActions != null && InputManager.InputActions.asset != null)
             actions = InputManager.InputActions.asset;
+        if (actions == null && config != null)
+            actions = config.inputActionAsset;
         if (actions == null) return;
         InputRebindSaver.Load(actions, config);
         root = ui?.rootVisualElement;

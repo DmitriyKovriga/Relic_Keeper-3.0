@@ -16,6 +16,7 @@ public class MainMenuUI : MonoBehaviour
     private Sprite[] _frames = Array.Empty<Sprite>();
     private int _frameIndex;
     private float _frameTimer;
+    private bool _skipStartupFrame;
 
     public WindowView settingsWindow;
 
@@ -45,11 +46,18 @@ public class MainMenuUI : MonoBehaviour
         if (_background == null || _frames.Length == 0)
             return;
 
+        if (_skipStartupFrame)
+        {
+            _skipStartupFrame = false;
+            _frameTimer = 0f;
+            return;
+        }
+
         _frameTimer += Time.unscaledDeltaTime;
         if (_frameTimer < FrameSeconds)
             return;
 
-        _frameTimer -= FrameSeconds;
+        _frameTimer = 0f;
         _frameIndex = (_frameIndex + 1) % _frames.Length;
         _background.style.backgroundImage = new StyleBackground(_frames[_frameIndex]);
     }
@@ -67,6 +75,7 @@ public class MainMenuUI : MonoBehaviour
         _frames = loaded;
         _frameIndex = 0;
         _frameTimer = 0f;
+        _skipStartupFrame = true;
         if (_background != null)
             _background.style.backgroundImage = new StyleBackground(_frames[0]);
     }
