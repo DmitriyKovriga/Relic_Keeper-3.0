@@ -200,7 +200,7 @@ namespace Scripts.Editor.PassiveTree
             new GUIContent("Poison"), new GUIContent("Bleed"), new GUIContent("Ignite"), new GUIContent("Freeze"), new GUIContent("Shock")
         };
 
-        private static readonly GUIContent[] ConditionKindOptions = { new GUIContent("Event timing"), new GUIContent("Resource level") };
+        private static readonly GUIContent[] ConditionKindOptions = { new GUIContent("Event timing"), new GUIContent("Resource level"), new GUIContent("Distance to enemy") };
         private static readonly GUIContent[] RecencyOptions = { new GUIContent("Has not happened"), new GUIContent("Has happened") };
         private static readonly GUIContent[] ResourceOptions = { new GUIContent("Health"), new GUIContent("Mana") };
         private static readonly GUIContent[] ComparisonOptions = { new GUIContent("at least"), new GUIContent("at most") };
@@ -402,6 +402,13 @@ namespace Scripts.Editor.PassiveTree
         {
             SerializedProperty kind = condition.FindPropertyRelative("Kind");
             Popup(layout, kind, "Condition", ConditionKindOptions);
+
+            if (kind.enumValueIndex == (int)PassiveConditionKind.TargetDistance)
+            {
+                Popup(layout, condition.FindPropertyRelative("Comparison"), "Distance", ComparisonOptions);
+                ValueWithUnit(layout, condition.FindPropertyRelative("DistanceUnits"), "From Player", "cells");
+                return;
+            }
 
             if (kind.enumValueIndex == (int)PassiveConditionKind.ResourceThreshold)
             {
@@ -702,6 +709,7 @@ namespace Scripts.Editor.PassiveTree
             layout.Section("While");
             PassiveEffectFields.Condition(layout, property.FindPropertyRelative("Condition"));
             layout.Section("Grant");
+            layout.Field(property.FindPropertyRelative("Destination"), new GUIContent("Apply to"));
             layout.List(property.FindPropertyRelative("Modifiers"), new GUIContent("Modifiers"));
         }
 

@@ -18,7 +18,7 @@ namespace Scripts.Editor.PassiveTree
 
         internal static string Summarize(PassiveConditionalModifiers group)
         {
-            return group == null ? string.Empty : $"{Condition(group.Condition)}  →  {Modifiers(group.Modifiers)}";
+            return group == null ? string.Empty : $"{Condition(group.Condition)}  →  {(group.Destination == PassiveConditionalDestination.EnemyDamageTaken ? "enemy: " : string.Empty)}{Modifiers(group.Modifiers)}";
         }
 
         internal static string Summarize(PassiveTriggeredEffect effect)
@@ -50,6 +50,9 @@ namespace Scripts.Editor.PassiveTree
         {
             if (condition == null)
                 return "No condition";
+
+            if (condition.Kind == PassiveConditionKind.TargetDistance)
+                return $"Enemy distance {(condition.Comparison == PassiveComparison.AtLeast ? "≥" : "≤")} {N(condition.DistanceUnits)} cells (24 px)";
 
             if (condition.Kind == PassiveConditionKind.ResourceThreshold)
             {
@@ -221,6 +224,17 @@ namespace Scripts.Editor.PassiveTree
                 return;
             if (group.Modifiers == null || group.Modifiers.Count == 0)
                 issues.Add("Add at least one modifier, otherwise the condition changes nothing.");
+            if (group.Condition?.Kind == PassiveConditionKind.TargetDistance)
+            {
+                if (group.Destination != PassiveConditionalDestination.EnemyDamageTaken)
+                    issues.Add("Distance to enemy requires Apply to: Enemy.");
+                if (group.Condition.DistanceUnits < 0f || float.IsNaN(group.Condition.DistanceUnits) || float.IsInfinity(group.Condition.DistanceUnits))
+                    issues.Add("Distance must be a finite non-negative number of 24-pixel cells.");
+            }
+            if (group.Destination == PassiveConditionalDestination.EnemyDamageTaken && group.Modifiers != null)
+                foreach (SerializableStatModifier modifier in group.Modifiers)
+                    if (modifier.Stat != StatType.DamageTaken)
+                        issues.Add("Only DamageTaken modifiers are currently supported for Enemy.");
             if (group.Condition != null && group.Condition.Kind == PassiveConditionKind.EventRecency)
                 ValidateFilter(group.Condition.Event, issues);
         }

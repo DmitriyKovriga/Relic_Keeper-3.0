@@ -2026,7 +2026,7 @@ namespace Scripts.Editor.Skills
             var newReversalMode = (SkillProjectileReversalMode)EditorGUILayout.EnumPopup(
                 new GUIContent(
                     "Reverse behavior",
-                    "Reverse Direction — обычный разворот. Aim At Owner Position — летит в точку героя на момент разворота. Home To Owner — постоянно наводится на движущегося героя и исчезает при возврате."),
+                    "Reverse Direction — обычный разворот. Aim At Player Position — летит в точку героя на момент разворота. Home To Player — постоянно наводится на движущегося героя и исчезает при возврате."),
                 reversalMode);
             if (newReversalMode != reversalMode) { step.SetOverrideInt("ReversalMode", (int)newReversalMode); EditorUtility.SetDirty(recipe); }
             float returnDamagePercent = Mathf.Max(
@@ -2709,7 +2709,7 @@ namespace Scripts.Editor.Skills
             bool pull = step.GetBool(SkillHitboxFit.PullTowardOwnerKey, true);
             bool newPull = EditorGUILayout.Toggle(
                 new GUIContent(
-                    "Pull toward owner",
+                    "Pull toward Player",
                     "Автоматически дотягивает ближний край хитбокса до персонажа. Дальняя граница не меняется. Для выстрелов не используется."),
                 pull);
             if (newPull != pull)

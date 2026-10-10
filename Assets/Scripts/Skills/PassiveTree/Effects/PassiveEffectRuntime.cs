@@ -87,6 +87,44 @@ namespace Scripts.Skills.PassiveTree
                 runtime.CollectHitModifiers(context, into);
         }
 
+        public static void ApplyEnemyDamageTakenLayers(object source, Transform target,
+            ref float flatPercent, ref float additivePercent, ref float moreMultiplier)
+        {
+            GameObject sourceObject = GameplayEventContext.ResolveGameObject(source);
+            PlayerStats owner = source as PlayerStats;
+            if (owner == null && sourceObject != null)
+                owner = sourceObject.GetComponent<PlayerStats>() ?? sourceObject.GetComponentInParent<PlayerStats>();
+            if (target == null || target.GetComponentInParent<Scripts.Enemies.EnemyHealth>() == null ||
+                !TryGet(owner, out PassiveEffectRuntime runtime) || runtime._disposed)
+                return;
+            float now = runtime.Clock();
+            foreach (ConditionalEntry entry in runtime._conditionals)
+            {
+                if (entry.Data.Destination != PassiveConditionalDestination.EnemyDamageTaken ||
+                    !runtime.IsTargetConditionMet(entry.Data.Condition, target, now))
+                    continue;
+                foreach (SerializableStatModifier modifier in entry.Data.Modifiers)
+                {
+                    if (modifier.Stat == StatType.DamageTaken)
+                        StatLayerMath.Apply(modifier.Type, modifier.Value, ref flatPercent, ref additivePercent, ref moreMultiplier);
+                }
+            }
+        }
+
+        private bool IsTargetConditionMet(PassiveCondition condition, Transform target, float now)
+        {
+            if (condition?.Kind != PassiveConditionKind.TargetDistance)
+                return IsConditionMet(condition, now);
+            if (_ownerObject == null || target == null || condition.DistanceUnits < 0f ||
+                float.IsNaN(condition.DistanceUnits) || float.IsInfinity(condition.DistanceUnits))
+                return false;
+            float distanceSquared = ((Vector2)target.position - (Vector2)_ownerObject.transform.position).sqrMagnitude;
+            float thresholdSquared = condition.DistanceInWorldUnits * condition.DistanceInWorldUnits;
+            return condition.Comparison == PassiveComparison.AtLeast
+                ? distanceSquared >= thresholdSquared
+                : distanceSquared <= thresholdSquared;
+        }
+
         public void Dispose()
         {
             if (_disposed)
@@ -225,6 +263,8 @@ namespace Scripts.Skills.PassiveTree
             for (int i = 0; i < _conditionals.Count; i++)
             {
                 ConditionalEntry entry = _conditionals[i];
+                if (entry.Data.Destination != PassiveConditionalDestination.Owner)
+                    continue;
                 bool shouldBeActive = IsConditionMet(entry.Data.Condition, now);
                 if (shouldBeActive == entry.Active)
                     continue;

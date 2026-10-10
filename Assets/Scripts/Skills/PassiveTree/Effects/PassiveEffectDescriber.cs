@@ -52,6 +52,8 @@ namespace Scripts.Skills.PassiveTree
         public static string Describe(PassiveConditionalModifiers group, bool ru, Func<SerializableStatModifier, string> formatModifier)
         {
             string header = Capitalize(DescribeCondition(group.Condition, ru)) + ":";
+            if (group.Destination == PassiveConditionalDestination.EnemyDamageTaken)
+                header += ru ? " враг" : " Enemy";
             return header + FormatModifierBlock(group.Modifiers, formatModifier);
         }
 
@@ -103,6 +105,15 @@ namespace Scripts.Skills.PassiveTree
         {
             if (condition == null)
                 return string.Empty;
+
+            if (condition.Kind == PassiveConditionKind.TargetDistance)
+            {
+                string comparison = condition.Comparison == PassiveComparison.AtLeast
+                    ? (ru ? "не меньше" : "at least") : (ru ? "не больше" : "at most");
+                return ru
+                    ? $"если враг находится на расстоянии {comparison} {N(condition.DistanceUnits, ru)} клеток от вас"
+                    : $"if the enemy is {comparison} {N(condition.DistanceUnits, ru)} cells away from you";
+            }
 
             if (condition.Kind == PassiveConditionKind.ResourceThreshold)
             {

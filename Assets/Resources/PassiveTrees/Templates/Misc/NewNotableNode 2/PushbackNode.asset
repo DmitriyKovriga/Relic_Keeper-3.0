@@ -10,18 +10,37 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
-  m_Name: PushbackNote
+  m_Name: PushbackNode
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
-  Name: PushbackNote
-  Description: "+100 \u0444\u043B\u0430\u0442 \u043E\u0442\u0442\u0430\u043B\u043A\u0438\u0432\u0430\u043D\u0438\u0435.\n\u0412\u0440\u0430\u0433\u0438
-    \u043D\u0430 \u0434\u0438\u0441\u0442\u0430\u043D\u0446\u0438\u0438 \u043F\u043E\u043B\u0443\u0447\u0430\u044E\u0442
-    +60% \u0443\u0440\u043E\u043D\u0430."
+  Name: PushbackNode
+  Description: 
   Icon: {fileID: 21300000, guid: 8079ef922e51c1d42b9098771ed9e62a, type: 3}
   Modifiers:
   - Stat: 110
     Value: 100
     Type: 100
   StatScalingRules: []
-  ConditionalModifiers: []
+  ConditionalModifiers:
+  - Destination: 1
+    Condition:
+      Kind: 2
+      Recency: 0
+      Event:
+        Event: 1
+        Subject: 1
+        DirectHit: 0
+        Crit: 0
+        RequireOtherAilment: 0
+        OtherAilment: 1
+        MinAilmentStacks: 1
+      WindowSeconds: 4
+      Resource: 0
+      Comparison: 0
+      ThresholdPercent: 100
+      DistanceUnits: 8
+    Modifiers:
+    - Stat: 78
+      Value: 25
+      Type: 200
   TriggeredEffects: []
   HitScalingRules: []

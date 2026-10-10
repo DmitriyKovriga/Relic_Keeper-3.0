@@ -22,7 +22,7 @@ namespace Scripts.Skills.PassiveTree
     public class PassiveEventFilter
     {
         public GameplayEventType Event = GameplayEventType.DamageDealt;
-        [Tooltip("Owner = the character that allocated the node.")]
+        [Tooltip("Player = the character that allocated the node.")]
         public StatusEventSubject Subject = StatusEventSubject.CarrierAsSource;
         [Tooltip("Direct hit = damage from an attack or projectile, not damage over time.")]
         public PassiveTriState DirectHit = PassiveTriState.Any;
@@ -80,7 +80,9 @@ namespace Scripts.Skills.PassiveTree
         [InspectorName("Event timing")]
         EventRecency,
         [InspectorName("Resource level")]
-        ResourceThreshold
+        ResourceThreshold,
+        [InspectorName("Distance to enemy")]
+        TargetDistance
     }
 
     public enum PassiveRecencyMode
@@ -121,12 +123,28 @@ namespace Scripts.Skills.PassiveTree
         public PassiveResource Resource = PassiveResource.Health;
         public PassiveComparison Comparison = PassiveComparison.AtLeast;
         [Range(0f, 100f)] public float ThresholdPercent = 100f;
+        // Hub grid: 24 pixels per unit, so one 24-pixel cell is one world unit.
+        public const int DistanceCellPixels = 24;
+        public const float DistanceCellWorldSize = 1f;
+        [Min(0f), InspectorName("Distance (cells)")]
+        [Tooltip("Distance in 24-pixel cells. At the game's 24 PPU, one cell equals one world unit.")]
+        public float DistanceUnits = 8f;
+        public float DistanceInWorldUnits => DistanceUnits * DistanceCellWorldSize;
+    }
+
+    public enum PassiveConditionalDestination
+    {
+        [InspectorName("Player")]
+        Owner,
+        [InspectorName("Enemy")]
+        EnemyDamageTaken
     }
 
     /// <summary>Stat modifiers that exist only while the condition holds.</summary>
     [Serializable]
     public class PassiveConditionalModifiers
     {
+        public PassiveConditionalDestination Destination;
         public PassiveCondition Condition = new PassiveCondition();
         public List<SerializableStatModifier> Modifiers = new List<SerializableStatModifier>();
     }

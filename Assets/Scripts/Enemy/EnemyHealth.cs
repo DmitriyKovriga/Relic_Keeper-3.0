@@ -97,7 +97,8 @@ namespace Scripts.Enemies
                 transform,
                 out _,
                 out _,
-                out _);
+                out _,
+                damage.Source);
             if (DungeonController.Instance != null && DungeonController.Instance.CurrentModifiers != null)
                 finalDamage *= DungeonController.Instance.CurrentModifiers.EnemyDamageTakenMultiplier;
 
@@ -157,7 +158,8 @@ namespace Scripts.Enemies
                 transform,
                 out _,
                 out _,
-                out _);
+                out _,
+                source);
             if (DungeonController.Instance != null && DungeonController.Instance.CurrentModifiers != null)
                 finalDamage *= DungeonController.Instance.CurrentModifiers.EnemyDamageTakenMultiplier;
             if (finalDamage <= 0f)

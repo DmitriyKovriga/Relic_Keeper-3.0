@@ -23,7 +23,9 @@ namespace Scripts.Skills.Projectiles
     public enum SkillProjectileReversalMode
     {
         ReverseDirection = 0,
+        [InspectorName("Aim At Player Position")]
         AimAtOwnerPosition = 1,
+        [InspectorName("Home To Player")]
         HomeToOwner = 2
     }
 
