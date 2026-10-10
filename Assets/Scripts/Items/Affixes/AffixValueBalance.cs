@@ -219,6 +219,8 @@ namespace Scripts.Items.Affixes
                 case StatType.BleedDamageMult:
                 case StatType.PoisonDamageMult:
                 case StatType.IgniteDamageMult:
+                case StatType.ShockApplicationEffectiveness:
+                case StatType.ShockEffectMagnitude:
                     return (8f, 12f, 28f, 42f);
                 default:
                     if (IsConversion(stat))

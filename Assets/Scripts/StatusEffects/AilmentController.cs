@@ -23,8 +23,7 @@ namespace Scripts.StatusEffects
         private const float DefaultFreezeDuration = 1f;
         private const float FreezeColdDamageShareThreshold = 0.3f;
         private const float DefaultShockDuration = 2f;
-        private const float ShockLightningDamageShareThreshold = 0.3f;
-        private const float ShockDamageTakenMoreMultiplier = 1.5f;
+        private const float ShockMaxHealthThresholdFraction = 0.3f;
         private const float TickInterval = 1f;
 
         private readonly List<BleedStack> _bleedStacks = new List<BleedStack>();
@@ -39,6 +38,8 @@ namespace Scripts.StatusEffects
         private float _igniteTickTimer = TickInterval;
         private float _igniteSpreadTimer;
         private float _shockRemainingSeconds;
+        private float _shockThresholdDamage;
+        private float _shockEffectMagnitude;
 
         private IStatsProvider _statsProvider;
         private EnemyHealth _enemyHealth;
@@ -49,7 +50,8 @@ namespace Scripts.StatusEffects
 
         public event Action OnAilmentsChanged;
         public bool IsShocked => _shockRemainingSeconds > 0f;
-        public float DamageTakenMoreMultiplier => IsShocked ? ShockDamageTakenMoreMultiplier : 1f;
+        public float DamageTakenMoreMultiplier => 1f + ShockIncreasedDamageTaken / 100f;
+        public float ShockIncreasedDamageTaken => IsShocked ? _shockEffectMagnitude : 0f;
 
         private void Awake()
         {
@@ -59,6 +61,22 @@ namespace Scripts.StatusEffects
         private void OnEnable()
         {
             CacheOwner();
+        }
+
+        private void OnDisable()
+        {
+            ResetShock();
+        }
+
+        public void ResetShock()
+        {
+            bool wasShocked = IsShocked;
+            _shockRemainingSeconds = 0f;
+            _shockThresholdDamage = 0f;
+            _shockEffectMagnitude = 0f;
+            _shockVisual?.Stop();
+            if (wasShocked)
+                OnAilmentsChanged?.Invoke();
         }
 
         private void Update()
@@ -447,11 +465,9 @@ namespace Scripts.StatusEffects
             if (sourceStats == null || hitSnapshot == null || hitSnapshot.Lightning <= 0f || hitSnapshot.TotalDamage <= 0f)
                 return false;
 
-            float lightningShare = hitSnapshot.Lightning / hitSnapshot.TotalDamage;
-            if (lightningShare < ShockLightningDamageShareThreshold)
-                return false;
-
             CacheOwner();
+            if (_enemyHealth != null && _enemyHealth.IsDead)
+                return false;
 
             float chance = Mathf.Max(0f, sourceStats.GetValue(StatType.ShockChance));
             if (chance <= 0f)
@@ -459,14 +475,36 @@ namespace Scripts.StatusEffects
 
             float avoid = _statsProvider != null ? Mathf.Clamp(_statsProvider.GetValue(StatType.ChanseToAvoidShock), 0f, 100f) : 0f;
             float finalChance = Mathf.Clamp(chance * (1f - avoid / 100f), 0f, 100f);
-            if (UnityEngine.Random.value > finalChance / 100f)
+            if (finalChance <= 0f || UnityEngine.Random.value > finalChance / 100f)
                 return false;
+
+            float effectiveness = ResolveShockStat(sourceStats, StatType.ShockApplicationEffectiveness, 100f);
+            if (effectiveness <= 0f)
+                return false;
+
+            // Only successful lightning procs build up the enemy's hidden threshold.
+            // DamageSnapshot contains the lightning damage of the hit before mitigation.
+            if (_enemyHealth != null && !IsShocked)
+            {
+                float maxHealth = _enemyHealth.MaxHealth;
+                if (maxHealth <= 0f)
+                    maxHealth = _statsProvider != null ? _statsProvider.GetValue(StatType.MaxHealth) : 0f;
+                if (maxHealth <= 0f)
+                    return false;
+                _shockThresholdDamage += hitSnapshot.Lightning * effectiveness / 100f;
+                float threshold = maxHealth * ShockMaxHealthThresholdFraction;
+                if (_shockThresholdDamage < threshold && !Mathf.Approximately(_shockThresholdDamage, threshold))
+                    return false;
+            }
 
             float duration = sourceStats.GetValue(StatType.ShockDuration);
             if (duration <= 0f)
                 duration = DefaultShockDuration;
 
             bool wasShocked = IsShocked;
+            float magnitude = ResolveShockStat(sourceStats, StatType.ShockEffectMagnitude, 50f);
+            // Refresh duration without replacing a stronger active shock with a weaker one.
+            _shockEffectMagnitude = wasShocked ? Mathf.Max(_shockEffectMagnitude, magnitude) : magnitude;
             _shockRemainingSeconds = Mathf.Max(_shockRemainingSeconds, duration);
             EnsureShockVisual();
             _shockVisual?.Play(duration);
@@ -475,6 +513,13 @@ namespace Scripts.StatusEffects
                 OnAilmentsChanged?.Invoke();
 
             return true;
+        }
+
+        private static float ResolveShockStat(IStatsProvider stats, StatType type, float defaultValue)
+        {
+            return stats.TryGetStat(type, out CharacterStat stat) && stat != null
+                ? Mathf.Max(0f, stat.Value)
+                : defaultValue;
         }
 
         public static float ResolveDamageTakenMoreMultiplier(Transform target)
@@ -698,6 +743,8 @@ namespace Scripts.StatusEffects
                 return;
 
             _shockRemainingSeconds = 0f;
+            _shockThresholdDamage = 0f;
+            _shockEffectMagnitude = 0f;
             _shockVisual?.Stop();
             OnAilmentsChanged?.Invoke();
         }

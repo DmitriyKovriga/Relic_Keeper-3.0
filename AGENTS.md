@@ -42,3 +42,20 @@ Keep bridge output small: always pass `--limit`, `--filter`, or a test `--filter
 - Gameplay numbers and balance live in data or tests, not hardcoded in `Update()`.
 - After a change run the narrowest relevant EditMode filter; a green suite is the
   definition of done.
+
+## ECC Unity workflows
+
+The curated `ecc-unity` Codex plugin lives in `.agents/plugins/ecc-unity/`.
+For substantial features use its research/planning guidance, for gameplay logic
+use meaningful regression tests, and review/verify the actual change before
+handoff. Select only relevant skills; routine small edits do not need the full
+workflow. Existing project instructions and the user's task remain authoritative.
+
+Available skills: `ecc-unity-research`, `ecc-unity-plan`, `ecc-unity-tests`,
+`ecc-unity-review`, `ecc-unity-verify`, and `unity-bridge`. Runtime UI still uses
+the existing `relic-keeper-pixel-ui` skill (the `pixel-ui` workflow above).
+If the plugin has not loaded, the source skills remain readable in its `skills/`
+directory. Setup, version pin, tradeoffs and removal are in `Docs/ECC_Unity_Setup.md`.
+This integration has no automatic learning, memory writes or runtime hooks.
+For skill/plugin/documentation-only edits, validate configuration and discovery;
+Unity compile/tests are required when Unity-imported assets or code change.

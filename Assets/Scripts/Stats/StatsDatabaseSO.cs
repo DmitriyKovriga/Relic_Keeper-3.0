@@ -837,6 +837,8 @@ namespace Scripts.Stats
                 case StatType.FreezeDuration:
                 case StatType.ChanseToAvoidFreeze:
                 case StatType.ShockChance:
+                case StatType.ShockApplicationEffectiveness:
+                case StatType.ShockEffectMagnitude:
                 case StatType.ShockDuration:
                 case StatType.ChanseToAvoidShock:
                     return StatSemanticKind.CombatScalar;
@@ -902,7 +904,8 @@ namespace Scripts.Stats
 
             string s = type.ToString();
             if (type == StatType.AreaOfEffect || type == StatType.DamageTaken || type == StatType.EffectDuration ||
-                type == StatType.ReturningProjectileDamage)
+                type == StatType.ReturningProjectileDamage || type == StatType.ShockApplicationEffectiveness ||
+                type == StatType.ShockEffectMagnitude)
                 return StatDisplayFormat.Percent;
             if (IsOutgoingDamageConversionStat(type))
                 return StatDisplayFormat.Percent;
@@ -1062,6 +1065,8 @@ namespace Scripts.Stats
                 case StatType.FreezeChance:
                 case StatType.FreezeDuration:
                 case StatType.ShockChance:
+                case StatType.ShockApplicationEffectiveness:
+                case StatType.ShockEffectMagnitude:
                 case StatType.ShockDuration:
                     return StatContextTagFlags.Ailment;
                 default:
@@ -1110,6 +1115,8 @@ namespace Scripts.Stats
                 case StatType.MaxLightningResist:
                 case StatType.PenetrationLightning:
                 case StatType.ShockChance:
+                case StatType.ShockApplicationEffectiveness:
+                case StatType.ShockEffectMagnitude:
                 case StatType.ShockDuration:
                 case StatType.ChanseToAvoidShock:
                     return StatDamageChannelFlags.Lightning;

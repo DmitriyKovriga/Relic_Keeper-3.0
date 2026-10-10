@@ -1,0 +1,19 @@
+{
+  "name": "ecc-unity",
+  "version": "2.2.3-unity.1",
+  "description": "A curated ECC adaptation for Relic Keeper: Unity 6 research, planning, NUnit testing, review, verification, and the existing Unity Bridge CLI.",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ECC for Relic Keeper",
+    "shortDescription": "Unity 6 workflows adapted from ECC 2.2.3",
+    "longDescription": "Six focused skills for Relic Keeper's Unity 6.3 2D action RPG. Uses the existing Unity Bridge CLI and pixel UI skill. Skills only: no bundled hooks, MCP servers, model overrides, or automatic learning.",
+    "category": "Coding",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": [
+      "Use $ecc-unity-plan to plan this Relic Keeper feature.",
+      "Use $ecc-unity-review to review this Unity change.",
+      "Use $ecc-unity-verify to validate this change with Unity Bridge."
+    ]
+  }
+}

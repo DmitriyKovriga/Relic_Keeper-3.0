@@ -2521,7 +2521,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 105697434875715585
-    m_Localized: CastSpeed
+    m_Localized: 
     m_Metadata:
       m_Items: []
   - m_Id: 105702380283092992
@@ -2790,6 +2790,14 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 111509777517895681
     m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 113989308518490112
+    m_Localized: Shock Application Effectiveness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 113989308568821760
+    m_Localized: Shock Effect Magnitude
     m_Metadata:
       m_Items: []
   references:

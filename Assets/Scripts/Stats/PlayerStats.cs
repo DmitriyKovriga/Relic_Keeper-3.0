@@ -42,7 +42,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         foreach (StatType type in Enum.GetValues(typeof(StatType)))
         {
             if (!_stats.ContainsKey(type))
-                _stats[type] = new CharacterStat(0);
+                GetStat(type);
         }
 
         Health = new StatResource(GetStat(StatType.MaxHealth));
@@ -128,7 +128,8 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     public CharacterStat GetStat(StatType type)
     {
         if (_stats.TryGetValue(type, out CharacterStat stat)) return stat;
-        var newStat = new CharacterStat(0);
+        var newStat = new CharacterStat(type == StatType.ShockApplicationEffectiveness ? 100f :
+            type == StatType.ShockEffectMagnitude ? 50f : 0f);
         _stats[type] = newStat;
         return newStat;
     }
@@ -156,6 +157,8 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
             stat.ClearAllModifiers();
         }
 
+        GetStat(StatType.ShockApplicationEffectiveness).BaseValue = 100f;
+        GetStat(StatType.ShockEffectMagnitude).BaseValue = 50f;
         var globalBaseStats = ResolveGlobalBaseStats();
         if (globalBaseStats != null && globalBaseStats.BaseStats != null)
         {

@@ -17,7 +17,10 @@ MonoBehaviour:
     \u043D\u0430 \u0434\u0438\u0441\u0442\u0430\u043D\u0446\u0438\u0438 \u043F\u043E\u043B\u0443\u0447\u0430\u044E\u0442
     +60% \u0443\u0440\u043E\u043D\u0430."
   Icon: {fileID: 21300000, guid: 8079ef922e51c1d42b9098771ed9e62a, type: 3}
-  Modifiers: []
+  Modifiers:
+  - Stat: 110
+    Value: 100
+    Type: 100
   StatScalingRules: []
   ConditionalModifiers: []
   TriggeredEffects: []

@@ -79,3 +79,7 @@ MonoBehaviour:
     Value: 1
   - Type: 115
     Value: 2
+  - Type: 116
+    Value: 100
+  - Type: 117
+    Value: 50

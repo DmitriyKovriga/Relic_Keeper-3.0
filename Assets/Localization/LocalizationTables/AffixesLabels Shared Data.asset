@@ -18279,6 +18279,166 @@ MonoBehaviour:
     m_Key: affix_name_ignitespreadduration_less_light
     m_Metadata:
       m_Items: []
+  - m_Id: 100106858830749696
+    m_Key: affix_name_shockapplicationeffectiveness_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106859019493376
+    m_Key: affix_flat_shockapplicationeffectiveness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106859258568704
+    m_Key: affix_name_shockapplicationeffectiveness_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106859573141504
+    m_Key: affix_name_shockapplicationeffectiveness_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106859799633920
+    m_Key: affix_name_shockapplicationeffectiveness_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106859799633921
+    m_Key: affix_increase_shockapplicationeffectiveness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106860017737728
+    m_Key: affix_name_shockapplicationeffectiveness_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106860265201664
+    m_Key: affix_name_shockapplicationeffectiveness_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106860487499776
+    m_Key: affix_name_shockapplicationeffectiveness_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106860491694080
+    m_Key: affix_decrease_shockapplicationeffectiveness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106860739158016
+    m_Key: affix_name_shockapplicationeffectiveness_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106860965650432
+    m_Key: affix_name_shockapplicationeffectiveness_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106861192142848
+    m_Key: affix_name_shockapplicationeffectiveness_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106861192142849
+    m_Key: affix_more_shockapplicationeffectiveness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106861410246656
+    m_Key: affix_name_shockapplicationeffectiveness_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106861661904896
+    m_Key: affix_name_shockapplicationeffectiveness_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106861926146048
+    m_Key: affix_name_shockapplicationeffectiveness_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106861926146049
+    m_Key: affix_less_shockapplicationeffectiveness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106862177804288
+    m_Key: affix_name_shockapplicationeffectiveness_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106862425268224
+    m_Key: affix_name_shockapplicationeffectiveness_less_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106862928584704
+    m_Key: affix_name_shockeffectmagnitude_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106862928584705
+    m_Key: affix_flat_shockeffectmagnitude
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106863171854336
+    m_Key: affix_name_shockeffectmagnitude_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106863469649920
+    m_Key: affix_name_shockeffectmagnitude_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106863670976512
+    m_Key: affix_name_shockeffectmagnitude_increase_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106863670976513
+    m_Key: affix_increase_shockeffectmagnitude
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106863914246144
+    m_Key: affix_name_shockeffectmagnitude_increase_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106864153321472
+    m_Key: affix_name_shockeffectmagnitude_increase_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106864430145536
+    m_Key: affix_name_shockeffectmagnitude_decrease_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106864430145537
+    m_Key: affix_decrease_shockeffectmagnitude
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106864648249344
+    m_Key: affix_name_shockeffectmagnitude_decrease_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106864862158848
+    m_Key: affix_name_shockeffectmagnitude_decrease_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106865084456960
+    m_Key: affix_name_shockeffectmagnitude_more_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106865084456961
+    m_Key: affix_more_shockeffectmagnitude
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106865331920896
+    m_Key: affix_name_shockeffectmagnitude_more_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106865600356352
+    m_Key: affix_name_shockeffectmagnitude_more_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106865906540544
+    m_Key: affix_name_shockeffectmagnitude_less_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106865906540545
+    m_Key: affix_less_shockeffectmagnitude
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106866225307648
+    m_Key: affix_name_shockeffectmagnitude_less_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106866485354496
+    m_Key: affix_name_shockeffectmagnitude_less_light
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -173,6 +173,10 @@ namespace Scripts.Stats
         RangeDamage,
 
         // Seconds between ignite jumps to a nearby enemy. Base is 2 seconds.
-        IgniteSpreadDuration
+        IgniteSpreadDuration,
+
+        // Percentage scalars. Appended to preserve serialized enum values.
+        ShockApplicationEffectiveness,
+        ShockEffectMagnitude
     }
 }

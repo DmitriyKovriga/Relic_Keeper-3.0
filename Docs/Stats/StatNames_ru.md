@@ -81,6 +81,8 @@
 | `ChanseToAvoidFreeze` | Шанс избежать заморозки |
 | `ShockChance` | Шанс Шока |
 | `ShockDuration` | Длительность шока |
+| `ShockApplicationEffectiveness` | Эффективность наложения шока |
+| `ShockEffectMagnitude` | Сила эффекта шока |
 | `ChanseToAvoidShock` | Шанс избежать шок |
 | `ReduceDamageTaken` | Входящий урон |
 | `AreaOfEffect` | Радиус (AoE) |

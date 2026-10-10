@@ -16,22 +16,27 @@ namespace Scripts.Combat
         {
             statMultiplier = ResolveStatMultiplier(targetStats);
             shockMultiplier = AilmentController.ResolveDamageTakenMoreMultiplier(targetTransform);
-            totalMultiplier = Mathf.Max(0f, statMultiplier * shockMultiplier);
+            totalMultiplier = ResolveStatMultiplier(targetStats, (shockMultiplier - 1f) * 100f);
             return Mathf.Max(0f, damage * totalMultiplier);
         }
 
         public static float ResolveStatMultiplier(IStatsProvider targetStats)
         {
+            return ResolveStatMultiplier(targetStats, 0f);
+        }
+
+        private static float ResolveStatMultiplier(IStatsProvider targetStats, float shockIncreasedPercent)
+        {
             if (targetStats == null)
-                return 1f;
+                return Mathf.Max(0f, 1f + shockIncreasedPercent / 100f);
 
             if (!targetStats.TryGetStat(StatType.DamageTaken, out CharacterStat stat) || stat == null)
-                return 1f;
+                return Mathf.Max(0f, 1f + shockIncreasedPercent / 100f);
 
             float flatPercent = stat.GetRawFlatValue();
             float additivePercent = stat.GetTotalPercentAdd();
             float moreMultiplier = stat.GetTotalMultiplier();
-            float additiveMultiplier = Mathf.Max(0f, 1f + (flatPercent + additivePercent) / 100f);
+            float additiveMultiplier = Mathf.Max(0f, 1f + (flatPercent + additivePercent + shockIncreasedPercent) / 100f);
             return Mathf.Max(0f, additiveMultiplier * moreMultiplier);
         }
     }

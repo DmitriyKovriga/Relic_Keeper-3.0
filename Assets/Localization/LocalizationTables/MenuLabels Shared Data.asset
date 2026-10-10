@@ -1831,6 +1831,14 @@ MonoBehaviour:
     m_Key: passive.node.SpellDamageNote.description
     m_Metadata:
       m_Items: []
+  - m_Id: 113989308518490112
+    m_Key: stats.ShockApplicationEffectiveness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 113989308568821760
+    m_Key: stats.ShockEffectMagnitude
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

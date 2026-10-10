@@ -3,6 +3,7 @@ using Scripts.Combat;
 using Scripts.GameplayEvents;
 using Scripts.Stats;
 using Scripts.Dungeon;
+using Scripts.StatusEffects;
 
 namespace Scripts.Enemies
 {
@@ -55,6 +56,7 @@ namespace Scripts.Enemies
                 _maxHealth = 1f;
             _currentHealth = _maxHealth;
             _isDead = false;
+            GetComponent<AilmentController>()?.ResetShock();
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
 

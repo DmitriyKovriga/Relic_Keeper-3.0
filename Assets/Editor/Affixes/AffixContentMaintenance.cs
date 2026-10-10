@@ -67,6 +67,45 @@ namespace Scripts.Editor.Affixes
             Debug.Log($"[Affix Content] Ignite spread families generated. Created: {created}.");
         }
 
+        public static void GenerateShockFamiliesFromCommandLine()
+        {
+            var stats = new HashSet<StatType> { StatType.ShockApplicationEffectiveness, StatType.ShockEffectMagnitude };
+            var database = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase);
+            var labels = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.MenuLabels);
+            var baseStats = Resources.Load<GlobalBaseStatsSO>(GlobalBaseStatsSO.DefaultResourcesPath);
+            foreach (StatType stat in stats)
+            {
+                database.GetOrCreateEntry(stat);
+                if (!baseStats.TryGetValue(stat, out _))
+                    baseStats.SetValue(stat, stat == StatType.ShockApplicationEffectiveness ? 100f : 50f);
+                string en = stat == StatType.ShockApplicationEffectiveness ? "Shock Application Effectiveness" : "Shock Effect Magnitude";
+                string ru = stat == StatType.ShockApplicationEffectiveness ? "Эффективность наложения шока" : "Сила эффекта шока";
+                foreach (string locale in new[] { "en", "ru" })
+                {
+                    var table = labels.GetTable(locale) as UnityEngine.Localization.Tables.StringTable;
+                    table.AddEntry("stats." + stat, locale == "en" ? en : ru);
+                    EditorUtility.SetDirty(table);
+                }
+            }
+            EditorUtility.SetDirty(labels.SharedData);
+            EditorUtility.SetDirty(database);
+            EditorUtility.SetDirty(baseStats);
+            int created = GenerateFamilies(stats);
+            // Put the ordinary positive variants alongside existing shock chance rolls.
+            string chanceFolder = $"{EditorPaths.AffixesBaseFolder}/ByStat/Ailments/ShockChance";
+            var chanceAffixes = AssetDatabase.FindAssets("t:ItemAffixSO", new[] { chanceFolder })
+                .Select(guid => AssetDatabase.LoadAssetAtPath<ItemAffixSO>(AssetDatabase.GUIDToAssetPath(guid))).ToHashSet();
+            var poolPaths = AssetDatabase.FindAssets("t:AffixPoolSO")
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Where(path => AssetDatabase.LoadAssetAtPath<AffixPoolSO>(path).Affixes?.Any(chanceAffixes.Contains) == true)
+                .ToArray();
+            foreach (StatType stat in stats)
+                foreach (string kind in new[] { "Flat", "Increase" })
+                    AddAffixToPools($"{EditorPaths.AffixesBaseFolder}/ByStat/Ailments/{stat}/{stat}_{kind}_Medium.asset", poolPaths);
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[Affix Content] Shock families generated. Created: {created}; pools: {poolPaths.Length}.");
+        }
+
         public static void GenerateElementalAndRangeFamiliesFromCommandLine()
         {
             int created = GenerateFamilies(new HashSet<StatType> { StatType.ElementalDamage, StatType.RangeDamage });

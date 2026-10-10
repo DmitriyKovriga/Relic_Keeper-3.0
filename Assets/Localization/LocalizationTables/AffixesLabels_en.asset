@@ -57002,6 +57002,166 @@ MonoBehaviour:
     m_Localized: Light Ignite Spread less
     m_Metadata:
       m_Items: []
+  - m_Id: 100106858830749696
+    m_Localized: Strong Shock Application Effectiveness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106859019493376
+    m_Localized: '{0:+0.##;-0.##;0}% to Shock Application Effectiveness'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106859258568704
+    m_Localized: Medium Shock Application Effectiveness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106859573141504
+    m_Localized: Light Shock Application Effectiveness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106859799633920
+    m_Localized: Strong Shock Application Effectiveness increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106859799633921
+    m_Localized: '{0}% increased Shock Application Effectiveness'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106860017737728
+    m_Localized: Medium Shock Application Effectiveness increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106860265201664
+    m_Localized: Light Shock Application Effectiveness increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106860487499776
+    m_Localized: Strong Shock Application Effectiveness decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106860491694080
+    m_Localized: '{0}% reduced Shock Application Effectiveness'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106860739158016
+    m_Localized: Medium Shock Application Effectiveness decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106860965650432
+    m_Localized: Light Shock Application Effectiveness decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106861192142848
+    m_Localized: Strong Shock Application Effectiveness more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106861192142849
+    m_Localized: '{0}% more Shock Application Effectiveness'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106861410246656
+    m_Localized: Medium Shock Application Effectiveness more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106861661904896
+    m_Localized: Light Shock Application Effectiveness more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106861926146048
+    m_Localized: Strong Shock Application Effectiveness less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106861926146049
+    m_Localized: '{0}% less Shock Application Effectiveness'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106862177804288
+    m_Localized: Medium Shock Application Effectiveness less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106862425268224
+    m_Localized: Light Shock Application Effectiveness less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106862928584704
+    m_Localized: Strong Shock Effect Magnitude
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106862928584705
+    m_Localized: '{0:+0.##;-0.##;0}% to Shock Effect Magnitude'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106863171854336
+    m_Localized: Medium Shock Effect Magnitude
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106863469649920
+    m_Localized: Light Shock Effect Magnitude
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106863670976512
+    m_Localized: Strong Shock Effect Magnitude increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106863670976513
+    m_Localized: '{0}% increased Shock Effect Magnitude'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106863914246144
+    m_Localized: Medium Shock Effect Magnitude increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106864153321472
+    m_Localized: Light Shock Effect Magnitude increase
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106864430145536
+    m_Localized: Strong Shock Effect Magnitude decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106864430145537
+    m_Localized: '{0}% reduced Shock Effect Magnitude'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106864648249344
+    m_Localized: Medium Shock Effect Magnitude decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106864862158848
+    m_Localized: Light Shock Effect Magnitude decrease
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106865084456960
+    m_Localized: Strong Shock Effect Magnitude more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106865084456961
+    m_Localized: '{0}% more Shock Effect Magnitude'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106865331920896
+    m_Localized: Medium Shock Effect Magnitude more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106865600356352
+    m_Localized: Light Shock Effect Magnitude more
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106865906540544
+    m_Localized: Strong Shock Effect Magnitude less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106865906540545
+    m_Localized: '{0}% less Shock Effect Magnitude'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106866225307648
+    m_Localized: Medium Shock Effect Magnitude less
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100106866485354496
+    m_Localized: Light Shock Effect Magnitude less
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
