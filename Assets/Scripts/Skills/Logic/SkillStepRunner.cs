@@ -1440,7 +1440,7 @@ namespace Scripts.Skills
         {
             float baseMultiplier = step.GetFloat("DamageMultiplier", 1f);
             float shieldMultiplier = _ctx != null ? _ctx.MysticShieldDamageMultiplier : 1f;
-            return Mathf.Max(0f, baseMultiplier * Mathf.Max(0f, shieldMultiplier));
+            return Mathf.Max(0f, baseMultiplier * Mathf.Max(0f, shieldMultiplier) * (_ctx?.MysticShieldEffectivenessMultiplier ?? 1f));
         }
 
         private void ExecuteConsumeMysticShield(StepEntry step)
@@ -1494,7 +1494,7 @@ namespace Scripts.Skills
                 return;
 
             float bonusPercentPerShield = step.GetFloat("BonusPercentPerConsumedShield", 50f);
-            float multiplier = 1f + Mathf.Max(0f, bonusPercentPerShield) * _ctx.MysticShieldsConsumed / 100f;
+            float multiplier = 1f + Mathf.Max(0f, bonusPercentPerShield) * _ctx.MysticShieldEffectivenessMultiplier * _ctx.MysticShieldsConsumed / 100f;
             _ctx.MultiplyDamageFromMysticShield(multiplier);
         }
 
@@ -1512,7 +1512,7 @@ namespace Scripts.Skills
                 return;
 
             if (StatusEffectController.TryResolve(transform, out StatusEffectController controller))
-                controller.ApplyStatusEffect(effect, this, _ownerStats);
+                controller.ApplyStatusEffect(effect, this, _ownerStats, _ctx?.MysticShieldEffectivenessMultiplier ?? 1f);
         }
 
         private void ExecuteApplyStatusSelfPerConsumedMysticShield(StepEntry step)
@@ -1529,7 +1529,7 @@ namespace Scripts.Skills
                 return;
 
             if (StatusEffectController.TryResolve(transform, out StatusEffectController controller))
-                controller.ApplyStatusEffectScaled(effect, _ctx.MysticShieldsConsumed, this, _ownerStats);
+                controller.ApplyStatusEffectScaled(effect, _ctx.MysticShieldsConsumed, this, _ownerStats, _ctx.MysticShieldEffectivenessMultiplier);
         }
 
         private void ExecuteApplyStatusSelf(int stepIndex, StepEntry step)
@@ -1539,7 +1539,7 @@ namespace Scripts.Skills
                 return;
 
             if (StatusEffectController.TryResolve(transform, out StatusEffectController controller))
-                controller.ApplyStatusEffect(effect, this, _ownerStats);
+                controller.ApplyStatusEffect(effect, this, _ownerStats, _ctx?.MysticShieldEffectivenessMultiplier ?? 1f);
         }
 
         private void ExecuteApplyStatusCircle(int stepIndex, StepEntry step)
@@ -1551,7 +1551,7 @@ namespace Scripts.Skills
             ResolveCircleArea(step, out Vector2 center, out Vector2 size);
             var targets = GetStatusTargetsInBox(center, size, 0f);
             for (int i = 0; i < targets.Count; i++)
-                targets[i].ApplyStatusEffect(effect, this, _ownerStats);
+                targets[i].ApplyStatusEffect(effect, this, _ownerStats, _ctx?.MysticShieldEffectivenessMultiplier ?? 1f);
         }
 
         private void ExecuteApplyStatusRectangle(int stepIndex, StepEntry step)
@@ -1563,7 +1563,7 @@ namespace Scripts.Skills
             ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
             var targets = GetStatusTargetsInBox(center, size, angle);
             for (int i = 0; i < targets.Count; i++)
-                targets[i].ApplyStatusEffect(effect, this, _ownerStats);
+                targets[i].ApplyStatusEffect(effect, this, _ownerStats, _ctx?.MysticShieldEffectivenessMultiplier ?? 1f);
         }
 
         private void ExecuteApplyQuickStatusSelf(int stepIndex, StepEntry step)
@@ -1629,7 +1629,8 @@ namespace Scripts.Skills
                 runtimeId,
                 StatusEffectPresentation.ResolveStepAura(step),
                 step.GetObject<GameObject>("AuraVfxPrefab"),
-                durationStats: _ownerStats);
+                durationStats: _ownerStats,
+                effectiveness: _ctx?.MysticShieldEffectivenessMultiplier ?? 1f);
 
             if (duration <= 0f && handle != null)
                 _ctx?.RegisterCleanup(handle.Dispose);
@@ -1691,7 +1692,8 @@ namespace Scripts.Skills
                 BuildRuntimeStatusId("SkillStatBasedEffect", stepIndex),
                 StatusEffectPresentation.ResolveStepAura(step),
                 step.GetObject<GameObject>("AuraVfxPrefab"),
-                durationStats: _ownerStats);
+                durationStats: _ownerStats,
+                effectiveness: _ctx?.MysticShieldEffectivenessMultiplier ?? 1f);
 
             if (duration <= 0f && handle != null)
                 _ctx?.RegisterCleanup(handle.Dispose);

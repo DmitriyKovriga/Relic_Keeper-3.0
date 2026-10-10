@@ -539,6 +539,8 @@ namespace Scripts.Stats
 
         public static string FormatScalarValue(StatsDatabaseSO db, StatType type, float value)
         {
+            if (type == StatType.MysticShieldSkillEffectiveness)
+                return "×" + value.ToString("0.##", CultureInfo.InvariantCulture);
             StatDisplayFormat format = db != null ? db.GetFormat(type) ?? StatsDatabaseSO.DefaultFormatFor(type) : StatsDatabaseSO.DefaultFormatFor(type);
             switch (format)
             {
@@ -850,6 +852,7 @@ namespace Scripts.Stats
                 case StatType.ReturningProjectileDamage:
                     return StatSemanticKind.ContextModifier;
 
+                case StatType.MysticShieldSkillEffectiveness:
                 case StatType.AreaOfEffect:
                 case StatType.CooldownReductionPercent:
                 case StatType.SkillCooldownRecovery:
@@ -878,6 +881,7 @@ namespace Scripts.Stats
         public static string DefaultCategoryFor(StatType type)
         {
             if (IsCooldownRecoveryStat(type)) return "Speed";
+            if (type == StatType.MysticShieldSkillEffectiveness) return "Combat";
             string s = type.ToString();
             if (s.Contains("Bleed") || s.Contains("Poison") || s.Contains("Ignite") || s.Contains("Freeze") || s.Contains("Shock")) return "Ailments";
             if (s.Contains("Resist") || s.Contains("Penetration") || s.Contains("Mitigation") || s.Contains("DamageTaken")) return "Resistances";

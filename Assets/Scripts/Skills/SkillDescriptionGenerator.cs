@@ -25,18 +25,20 @@ namespace Scripts.Skills
         public StatusEffectSO LinkedEffect { get; }
         public string Suffix { get; }
         public SkillDescriptionSection Section { get; }
+        public float Effectiveness { get; }
 
         public bool HasLink => LinkedEffect != null && !string.IsNullOrEmpty(LinkedName);
 
         public string Text => HasLink ? Prefix + LinkedName + Suffix : Prefix ?? string.Empty;
 
-        public SkillDescriptionLine(string prefix, string linkedName, StatusEffectSO linkedEffect, string suffix, SkillDescriptionSection section)
+        public SkillDescriptionLine(string prefix, string linkedName, StatusEffectSO linkedEffect, string suffix, SkillDescriptionSection section, float effectiveness = 1f)
         {
             Prefix = prefix ?? string.Empty;
             LinkedName = linkedName;
             LinkedEffect = linkedEffect;
             Suffix = suffix ?? string.Empty;
             Section = section;
+            Effectiveness = effectiveness;
         }
 
         public static SkillDescriptionLine Plain(string text, SkillDescriptionSection section = SkillDescriptionSection.Other)
@@ -136,8 +138,13 @@ namespace Scripts.Skills
                     Add(lines, unique, ru ? "Отталкивает врагов." : "Knocks enemies back.", SkillDescriptionSection.Attack);
             }
 
+            float shieldEffectiveness = 1f;
             foreach (StepEntry step in skill.Recipe.Steps)
-                AppendStep(step, ru, statNameResolver, lines, unique, quickNotes, durationStats);
+                AppendStep(step, ru, statNameResolver, lines, unique, quickNotes, durationStats, ref shieldEffectiveness);
+            if (!Mathf.Approximately(shieldEffectiveness, 1f))
+                Add(lines, unique, ru
+                    ? "Усиленные значения действуют после успешного использования Мистического щита."
+                    : "Enhanced values apply after successfully using Mystic Shield.");
 
             FlushQuickNotes(quickNotes, ru, statNameResolver, lines, unique);
 
@@ -154,8 +161,9 @@ namespace Scripts.Skills
             StatusEffectSO effect,
             string localeCode,
             Func<StatType, string> statNameResolver = null,
-            IStatsProvider durationStats = null)
+            IStatsProvider durationStats = null, float effectiveness = 1f)
         {
+            effectiveness = Mathf.Max(0f, effectiveness);
             if (effect == null)
                 return string.Empty;
 
@@ -167,11 +175,11 @@ namespace Scripts.Skills
             if (!hasStatLines && !string.IsNullOrWhiteSpace(authored))
                 Add(lines, unique, authored);
 
-            float duration = EffectDurationCalculator.Resolve(effect.DurationSeconds, durationStats);
+            float duration = EffectDurationCalculator.Resolve(effect.DurationSeconds * effectiveness, durationStats);
             Add(lines, unique, ru ? $"Длительность: {N(duration)} с." : $"Duration: {N(duration)}s.");
 
-            AddEffectModifiers(effect.Modifiers, ru ? "Эффект: " : "Effect: ", ru, statNameResolver, lines, unique);
-            AddDerivedModifiers(effect.DerivedModifiers, ru, statNameResolver, lines, unique);
+            AddEffectModifiers(effect.Modifiers, ru ? "Эффект: " : "Effect: ", ru, statNameResolver, lines, unique, effectiveness);
+            AddDerivedModifiers(effect.DerivedModifiers, ru, statNameResolver, lines, unique, effectiveness);
             AddEventReactions(effect.EventReactions, ru, statNameResolver, lines, unique, durationStats);
 
             if (lines.Count == 0)
@@ -190,37 +198,39 @@ namespace Scripts.Skills
             List<SkillDescriptionLine> lines,
             HashSet<string> unique,
             List<QuickStatusNote> quickNotes,
-            IStatsProvider durationStats)
+            IStatsProvider durationStats, ref float effectiveness)
         {
             if (step?.StepDefinition == null) return;
             string id = step.StepDefinition.Id ?? string.Empty;
+            if (id == "ConsumeMysticShield" || id == "GenerateMysticShield")
+                effectiveness = MysticShieldSkillEffectiveness.Resolve(durationStats);
 
             switch (id)
             {
                 case "DealDamageRectangle":
                 case "PersistentDamageRectangle":
-                    AddDamage(step, ru, nearby: false, lines, unique);
+                    AddDamage(step, ru, nearby: false, lines, unique, effectiveness);
                     break;
                 case "DealDamageCircle":
                 case "PersistentDamageCircle":
-                    AddDamage(step, ru, nearby: true, lines, unique);
+                    AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
                     break;
                 case "SpawnProjectile":
-                    AddProjectile(step, ru, ground: false, orbit: false, lines, unique);
+                    AddProjectile(step, ru, ground: false, orbit: false, lines, unique, effectiveness);
                     break;
                 case "SpawnGroundProjectile":
-                    AddProjectile(step, ru, ground: true, orbit: false, lines, unique);
+                    AddProjectile(step, ru, ground: true, orbit: false, lines, unique, effectiveness);
                     break;
                 case "SpawnOrbitProjectiles":
-                    AddProjectile(step, ru, ground: false, orbit: true, lines, unique);
+                    AddProjectile(step, ru, ground: false, orbit: true, lines, unique, effectiveness);
                     break;
                 case "BuildChainTargets":
                     AddChain(step, ru, lines, unique);
                     break;
                 case "ChainDamage":
                     Add(lines, unique, ru
-                        ? $"Каждая цель цепи получает {P(step.GetFloat("DamageMultiplier", 1f) * 100f)} урона оружия."
-                        : $"Each chained target takes {P(step.GetFloat("DamageMultiplier", 1f) * 100f)} weapon damage.", SkillDescriptionSection.Attack);
+                        ? $"Каждая цель цепи получает {P(step.GetFloat("DamageMultiplier", 1f) * effectiveness * 100f)} урона оружия."
+                        : $"Each chained target takes {P(step.GetFloat("DamageMultiplier", 1f) * effectiveness * 100f)} weapon damage.", SkillDescriptionSection.Attack);
                     break;
                 case "PlayerImpulse":
                     AddImpulse(step, ru, lines, unique);
@@ -230,16 +240,16 @@ namespace Scripts.Skills
                 case "ApplyStatusSelfPerConsumedMysticShield":
                 case "ApplyStatusCircle":
                 case "ApplyStatusRectangle":
-                    AddStatus(step, id, ru, lines, unique, durationStats);
+                    AddStatus(step, id, ru, lines, unique, durationStats, effectiveness);
                     break;
                 case "ApplyQuickStatusSelf":
                 case "ApplyQuickStatusSelfPerConsumedMysticShield":
                 case "ApplyQuickStatusCircle":
                 case "ApplyQuickStatusRectangle":
-                    RecordQuickStatus(step, id, quickNotes, durationStats);
+                    RecordQuickStatus(step, id, quickNotes, durationStats, effectiveness);
                     break;
                 case "ApplyStatBasedEffectSelf":
-                    AddStatBased(step, ru, resolver, lines, unique, durationStats);
+                    AddStatBased(step, ru, resolver, lines, unique, durationStats, effectiveness);
                     break;
                 case "ConsumeMysticShield":
                     AddConsumeShield(step, ru, lines, unique);
@@ -249,8 +259,8 @@ namespace Scripts.Skills
                     break;
                 case "MysticShieldDamageBoost":
                     Add(lines, unique, ru
-                        ? $"+{N(step.GetFloat("BonusPercentPerConsumedShield", 50f))}% урона за заряд щита."
-                        : $"+{N(step.GetFloat("BonusPercentPerConsumedShield", 50f))}% damage per shield charge.", SkillDescriptionSection.Attack);
+                        ? $"+{N(step.GetFloat("BonusPercentPerConsumedShield", 50f) * effectiveness)}% урона за заряд щита."
+                        : $"+{N(step.GetFloat("BonusPercentPerConsumedShield", 50f) * effectiveness)}% damage per shield charge.", SkillDescriptionSection.Attack);
                     break;
                 case "ModifyCooldown":
                     AddCooldown(step, ru, lines, unique);
@@ -264,21 +274,21 @@ namespace Scripts.Skills
 
             if (step.SubSteps == null) return;
             foreach (StepEntry subStep in step.SubSteps)
-                AppendStep(subStep, ru, resolver, lines, unique, quickNotes, durationStats);
+                AppendStep(subStep, ru, resolver, lines, unique, quickNotes, durationStats, ref effectiveness);
         }
 
-        private static void AddDamage(StepEntry step, bool ru, bool nearby, List<SkillDescriptionLine> lines, HashSet<string> unique)
+        private static void AddDamage(StepEntry step, bool ru, bool nearby, List<SkillDescriptionLine> lines, HashSet<string> unique, float effectiveness)
         {
-            string damage = P(step.GetFloat("DamageMultiplier", 1f) * 100f);
+            string damage = P(step.GetFloat("DamageMultiplier", 1f) * effectiveness * 100f);
             Add(lines, unique, ru
                 ? (nearby ? $"Наносит ближайшим врагам {damage} урона оружия." : $"Наносит врагам перед персонажем {damage} урона оружия.")
                 : (nearby ? $"Deals {damage} weapon damage to nearby enemies." : $"Deals {damage} weapon damage to enemies in front."), SkillDescriptionSection.Attack);
         }
 
-        private static void AddProjectile(StepEntry step, bool ru, bool ground, bool orbit, List<SkillDescriptionLine> lines, HashSet<string> unique)
+        private static void AddProjectile(StepEntry step, bool ru, bool ground, bool orbit, List<SkillDescriptionLine> lines, HashSet<string> unique, float effectiveness)
         {
             int count = Mathf.Max(1, step.GetInt("BaseProjectileCount", orbit ? 3 : 1));
-            string damage = P(step.GetFloat("DamageMultiplier", 1f) * 100f);
+            string damage = P(step.GetFloat("DamageMultiplier", 1f) * effectiveness * 100f);
             bool usesCountStat = !ground && step.GetBool("UseProjectileCountStat", true);
             string extra = usesCountStat ? (ru ? " плюс дополнительные снаряды" : " plus additional projectiles") : string.Empty;
 
@@ -335,7 +345,7 @@ namespace Scripts.Skills
                 : (backwards ? "Propels the character backward." : "Propels the character forward."));
         }
 
-        private static void AddStatus(StepEntry step, string id, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique, IStatsProvider durationStats)
+        private static void AddStatus(StepEntry step, string id, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique, IStatsProvider durationStats, float effectiveness)
         {
             StatusEffectSO effect = step.GetObject<StatusEffectSO>("StatusEffect");
             if (effect == null) return;
@@ -348,24 +358,26 @@ namespace Scripts.Skills
             int minConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1));
             if (id == "ApplyStatusSelfIfMysticShieldConsumed" || (id.Contains("PerConsumedMysticShield") && minConsumed > 1))
                 scaling += ru ? $", от {minConsumed} зарядов" : $", from {minConsumed} charges";
-            string duration = $"{N(EffectDurationCalculator.Resolve(effect.DurationSeconds, durationStats))}{(ru ? " с" : "s")}";
+            string duration = $"{N(EffectDurationCalculator.Resolve(effect.DurationSeconds * effectiveness, durationStats))}{(ru ? " с" : "s")}";
             string suffix = self
                 ? $" {duration}{scaling}."
                 : (ru ? $" на врагов, {duration}{scaling}." : $" on enemies, {duration}{scaling}.");
-            AddLinked(lines, unique, string.Empty, name, effect, suffix, StatusSection(effect));
+            AddLinked(lines, unique, string.Empty, name, effect, suffix, StatusSection(effect), effectiveness);
         }
 
-        private static void RecordQuickStatus(StepEntry step, string id, List<QuickStatusNote> notes, IStatsProvider durationStats)
+        private static void RecordQuickStatus(StepEntry step, string id, List<QuickStatusNote> notes, IStatsProvider durationStats, float effectiveness)
         {
             if (notes == null)
                 return;
 
+            float duration = Mathf.Max(0f, step.GetFloat("QuickStatusDuration", 0f));
+            float scale = duration > 0f ? effectiveness : 1f;
             notes.Add(new QuickStatusNote
             {
                 Stat = ResolveStat(step.GetInt("QuickStatusStat", (int)StatType.MoveSpeed), StatType.MoveSpeed),
                 Type = (StatModType)step.GetInt("QuickStatusModType", (int)StatModType.PercentAdd),
-                Value = step.GetFloat("QuickStatusValue", 0f),
-                Duration = EffectDurationCalculator.Resolve(Mathf.Max(0f, step.GetFloat("QuickStatusDuration", 0f)), durationStats),
+                Value = step.GetFloat("QuickStatusValue", 0f) * scale,
+                Duration = EffectDurationCalculator.Resolve(duration * scale, durationStats),
                 PerCharge = id.Contains("PerConsumedMysticShield"),
                 Self = id.Contains("Self"),
                 MinConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1))
@@ -466,7 +478,7 @@ namespace Scripts.Skills
             };
         }
 
-        private static void AddStatBased(StepEntry step, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique, IStatsProvider durationStats)
+        private static void AddStatBased(StepEntry step, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique, IStatsProvider durationStats, float effectiveness)
         {
             StatType source = ResolveStat(step.GetInt("SourceStat", (int)StatType.Armor), StatType.Armor);
             float percent = step.GetFloat("SourcePercent", 25f);
@@ -479,7 +491,10 @@ namespace Scripts.Skills
             else
             {
                 StatType target = ResolveStat(step.GetInt("TargetStat", (int)StatType.HealthRegen), StatType.HealthRegen);
-                float duration = EffectDurationCalculator.Resolve(Mathf.Max(0f, step.GetFloat("Duration", 0f)), durationStats);
+                float rawDuration = Mathf.Max(0f, step.GetFloat("Duration", 0f));
+                float scale = rawDuration > 0f ? effectiveness : 1f;
+                percent *= scale;
+                float duration = EffectDurationCalculator.Resolve(rawDuration * scale, durationStats);
                 string durationText = duration > 0f ? (ru ? $", {N(duration)} с" : $", {N(duration)}s") : string.Empty;
                 Add(lines, unique, ru
                     ? $"{P(percent)} от «{sourceName}» к «{StatName(target, resolver)}»{durationText}."
@@ -621,12 +636,12 @@ namespace Scripts.Skills
             bool ru,
             Func<StatType, string> resolver,
             List<SkillDescriptionLine> lines,
-            HashSet<string> unique)
+            HashSet<string> unique, float effectiveness = 1f)
         {
             if (modifiers == null || modifiers.Count == 0) return;
             var values = new List<string>();
             foreach (SerializableStatModifier modifier in modifiers)
-                values.Add($"{ModValue(modifier.Stat, modifier.Value, modifier.Type, ru)} {StatName(modifier.Stat, resolver)}");
+                values.Add($"{ModValue(modifier.Stat, modifier.Value * effectiveness, modifier.Type, ru)} {StatName(modifier.Stat, resolver)}");
             Add(lines, unique, prefix + string.Join(", ", values) + ".");
         }
 
@@ -635,13 +650,13 @@ namespace Scripts.Skills
             bool ru,
             Func<StatType, string> resolver,
             List<SkillDescriptionLine> lines,
-            HashSet<string> unique)
+            HashSet<string> unique, float effectiveness = 1f)
         {
             if (modifiers == null) return;
             foreach (DerivedStatModifier modifier in modifiers)
                 Add(lines, unique, ru
-                    ? $"Эффект даёт параметр «{StatName(modifier.TargetStat, resolver)}» в размере {P(modifier.SourcePercent)} от параметра «{StatName(modifier.SourceStat, resolver)}»."
-                    : $"Effect grants {StatName(modifier.TargetStat, resolver)} equal to {P(modifier.SourcePercent)} of {StatName(modifier.SourceStat, resolver)}.");
+                    ? $"Эффект даёт параметр «{StatName(modifier.TargetStat, resolver)}» в размере {P(modifier.SourcePercent * effectiveness)} от параметра «{StatName(modifier.SourceStat, resolver)}»."
+                    : $"Effect grants {StatName(modifier.TargetStat, resolver)} equal to {P(modifier.SourcePercent * effectiveness)} of {StatName(modifier.SourceStat, resolver)}.");
         }
 
         private static void AddEventReactions(
@@ -809,12 +824,12 @@ namespace Scripts.Skills
             string name,
             StatusEffectSO effect,
             string suffix,
-            SkillDescriptionSection section)
+            SkillDescriptionSection section, float effectiveness = 1f)
         {
             if (effect == null || string.IsNullOrWhiteSpace(name))
                 return;
 
-            var line = new SkillDescriptionLine(prefix, name, effect, suffix, section);
+            var line = new SkillDescriptionLine(prefix, name, effect, suffix, section, effectiveness);
             if (!unique.Add(line.Text))
                 return;
             lines.Add(line);

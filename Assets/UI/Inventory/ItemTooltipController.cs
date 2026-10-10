@@ -2204,7 +2204,7 @@ public class ItemTooltipController : MonoBehaviour
         if (!string.IsNullOrEmpty(prefix))
             block.Add(CreateSkillRichLabel(prefix, SkillDescriptionFontSize, FontStyle.Normal, _colNormalText, first: true));
 
-        var nameHit = CreateBuffNameHit(line.LinkedName, line.LinkedEffect);
+        var nameHit = CreateBuffNameHit(line.LinkedName, line.LinkedEffect, line.Effectiveness);
         _buffNameHoverTargets.Add(nameHit);
         block.Add(nameHit);
 
@@ -2215,11 +2215,11 @@ public class ItemTooltipController : MonoBehaviour
         return block;
     }
 
-    private VisualElement CreateBuffNameHit(string text, StatusEffectSO effect)
+    private VisualElement CreateBuffNameHit(string text, StatusEffectSO effect, float effectiveness = 1f)
     {
         var hit = new VisualElement { name = "BuffNameHit" };
         hit.pickingMode = PickingMode.Position;
-        hit.userData = effect;
+        hit.userData = (effect, effectiveness);
         hit.style.flexDirection = FlexDirection.Row;
         hit.style.alignItems = Align.Center;
         hit.style.flexGrow = 0;
@@ -2309,7 +2309,8 @@ public class ItemTooltipController : MonoBehaviour
             if (!IsPointerOverElement(target))
                 continue;
             anchor = target;
-            effect = target.userData as StatusEffectSO;
+            if (target.userData is System.ValueTuple<StatusEffectSO, float> preview)
+                effect = preview.Item1;
             break;
         }
 
@@ -2362,7 +2363,8 @@ public class ItemTooltipController : MonoBehaviour
                 string localized = LocalizationSettings.StringDatabase.GetLocalizedString(TABLE_MENU, $"stats.{stat}");
                 return string.IsNullOrWhiteSpace(localized) ? SkillDescriptionGenerator.Humanize(stat.ToString()) : localized;
             },
-            Object.FindFirstObjectByType<PlayerStats>());
+            Object.FindFirstObjectByType<PlayerStats>(),
+            anchor.userData is System.ValueTuple<StatusEffectSO, float> preview ? preview.Item2 : 1f);
 
         if (!string.IsNullOrWhiteSpace(body))
         {

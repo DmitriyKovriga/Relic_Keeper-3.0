@@ -2816,6 +2816,10 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 114008382371782656
+    m_Localized: Mystic Shield Skill Effectiveness
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

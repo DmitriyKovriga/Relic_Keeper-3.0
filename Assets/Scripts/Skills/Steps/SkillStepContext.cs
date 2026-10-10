@@ -22,6 +22,17 @@ namespace Scripts.Skills.Steps
         private readonly List<Action> _cleanupActions = new List<Action>();
         private bool _cleanupRan;
 
+        private bool _shieldEffectivenessCaptured;
+        private float _shieldEffectiveness = 1f;
+        public float MysticShieldEffectivenessMultiplier => _shieldEffectiveness;
+
+        private void CaptureShieldEffectiveness()
+        {
+            if (_shieldEffectivenessCaptured) return;
+            _shieldEffectiveness = MysticShieldSkillEffectiveness.Resolve(OwnerStats);
+            _shieldEffectivenessCaptured = true;
+        }
+
         public bool HasConsumedMysticShield => MysticShieldsConsumed > 0;
 
         public void RegisterMysticShieldConsumption(int consumed)
@@ -29,6 +40,7 @@ namespace Scripts.Skills.Steps
             if (consumed <= 0)
                 return;
 
+            CaptureShieldEffectiveness();
             MysticShieldsConsumed += consumed;
         }
 
@@ -37,6 +49,7 @@ namespace Scripts.Skills.Steps
             if (generated <= 0)
                 return;
 
+            CaptureShieldEffectiveness();
             MysticShieldsGenerated += generated;
         }
 

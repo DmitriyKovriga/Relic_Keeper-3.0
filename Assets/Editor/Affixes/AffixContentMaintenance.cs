@@ -67,6 +67,27 @@ namespace Scripts.Editor.Affixes
             Debug.Log($"[Affix Content] Ignite spread families generated. Created: {created}.");
         }
 
+        public static void ConfigureMysticShieldSkillEffectivenessFromCommandLine()
+        {
+            const StatType stat = StatType.MysticShieldSkillEffectiveness;
+            var database = AssetDatabase.LoadAssetAtPath<StatsDatabaseSO>(EditorPaths.StatsDatabase);
+            var labels = AssetDatabase.LoadAssetAtPath<StringTableCollection>(EditorPaths.MenuLabels);
+            var baseStats = Resources.Load<GlobalBaseStatsSO>(GlobalBaseStatsSO.DefaultResourcesPath);
+            database.GetOrCreateEntry(stat);
+            if (!baseStats.TryGetValue(stat, out _)) baseStats.SetValue(stat, 1f);
+            foreach (string locale in new[] { "en", "ru" })
+            {
+                var table = labels.GetTable(locale) as UnityEngine.Localization.Tables.StringTable;
+                table.AddEntry("stats." + stat, locale == "en"
+                    ? "Mystic Shield Skill Effectiveness" : "Эффективность навыков Мистического щита");
+                EditorUtility.SetDirty(table);
+            }
+            EditorUtility.SetDirty(labels.SharedData);
+            EditorUtility.SetDirty(database);
+            EditorUtility.SetDirty(baseStats);
+            AssetDatabase.SaveAssets();
+        }
+
         public static void GenerateShockFamiliesFromCommandLine()
         {
             var stats = new HashSet<StatType> { StatType.ShockApplicationEffectiveness, StatType.ShockEffectMagnitude };

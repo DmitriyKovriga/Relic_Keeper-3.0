@@ -177,6 +177,7 @@ namespace Scripts.Stats
 
         // Percentage scalars. Appended to preserve serialized enum values.
         ShockApplicationEffectiveness,
-        ShockEffectMagnitude
+        ShockEffectMagnitude,
+        MysticShieldSkillEffectiveness
     }
 }

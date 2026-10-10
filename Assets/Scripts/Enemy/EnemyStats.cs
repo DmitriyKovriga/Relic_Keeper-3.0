@@ -34,6 +34,7 @@ namespace Scripts.Enemies
             EnsureStat(StatType.MaxHealth, 100f);
             EnsureStat(StatType.ShockApplicationEffectiveness, 100f);
             EnsureStat(StatType.ShockEffectMagnitude, 50f);
+            EnsureStat(StatType.MysticShieldSkillEffectiveness, 1f);
             EnsureStat(StatType.DamagePhysical, 0f);
             EnsureStat(StatType.DamageFire, 0f);
             EnsureStat(StatType.DamageCold, 0f);

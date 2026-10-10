@@ -1855,6 +1855,10 @@ MonoBehaviour:
     m_Key: passive.node.PushbackNode.description
     m_Metadata:
       m_Items: []
+  - m_Id: 114008382371782656
+    m_Key: stats.MysticShieldSkillEffectiveness
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

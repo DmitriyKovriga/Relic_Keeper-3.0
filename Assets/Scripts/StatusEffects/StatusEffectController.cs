@@ -99,12 +99,12 @@ namespace Scripts.StatusEffects
             ResetAll();
         }
 
-        public bool ApplyStatusEffect(StatusEffectSO effect, object source = null, IStatsProvider durationStats = null)
+        public bool ApplyStatusEffect(StatusEffectSO effect, object source = null, IStatsProvider durationStats = null, float effectiveness = 1f)
         {
-            return ApplyStatusEffectScaled(effect, 1, source, durationStats);
+            return ApplyStatusEffectScaled(effect, 1, source, durationStats, effectiveness);
         }
 
-        public bool ApplyStatusEffectScaled(StatusEffectSO effect, int stackCount, object source = null, IStatsProvider durationStats = null)
+        public bool ApplyStatusEffectScaled(StatusEffectSO effect, int stackCount, object source = null, IStatsProvider durationStats = null, float effectiveness = 1f)
         {
             if (effect == null)
                 return false;
@@ -113,9 +113,10 @@ namespace Scripts.StatusEffects
                 return false;
 
             int effectiveStacks = Mathf.Max(1, stackCount);
+            effectiveness = Mathf.Max(0f, effectiveness);
 
             ActiveEffectInstance instance = FindAuthoredInstance(effect);
-            float duration = EffectDurationCalculator.Resolve(effect.DurationSeconds,
+            float duration = EffectDurationCalculator.Resolve(effect.DurationSeconds * effectiveness,
                 durationStats ?? EffectDurationCalculator.ResolveSource(source, _statsProvider));
             if (duration <= 0f)
             {
@@ -138,7 +139,7 @@ namespace Scripts.StatusEffects
             CapturePresentation(instance, effect, source, effect.AuraColor, effect.AuraVfxPrefab);
 
             RemoveInstanceModifiers(instance);
-            ApplyInstanceModifiers(instance, source ?? this, effectiveStacks);
+            ApplyInstanceModifiers(instance, source ?? this, effectiveStacks, effectiveness);
             NotifyCarrierStatChanges();
             OnActiveEffectsChanged?.Invoke();
             return created || instance.AppliedModifiers.Count > 0 || effect.ShowInHud;
@@ -152,7 +153,7 @@ namespace Scripts.StatusEffects
             string runtimeId = null,
             StatusAuraColor auraColor = StatusAuraColor.None,
             GameObject auraVfxPrefab = null,
-            IStatsProvider durationStats = null)
+            IStatsProvider durationStats = null, float effectiveness = 1f)
         {
             if (modifiers == null || modifiers.Count == 0)
                 return null;
@@ -160,9 +161,10 @@ namespace Scripts.StatusEffects
             if (!CacheOwner())
                 return null;
 
+            effectiveness = durationSeconds > 0f ? Mathf.Max(0f, effectiveness) : 1f;
             string id = string.IsNullOrWhiteSpace(runtimeId) ? "RuntimeStatus" : runtimeId;
             ActiveEffectInstance instance = durationSeconds > 0f ? FindRuntimeInstance(id) : null;
-            float duration = EffectDurationCalculator.Resolve(durationSeconds,
+            float duration = EffectDurationCalculator.Resolve(durationSeconds * effectiveness,
                 durationStats ?? EffectDurationCalculator.ResolveSource(source, _statsProvider));
             if (durationSeconds > 0f && duration <= 0f)
             {
@@ -191,7 +193,7 @@ namespace Scripts.StatusEffects
             instance.RemainingSeconds = duration;
             CapturePresentation(instance, null, source, auraColor, auraVfxPrefab);
 
-            ApplyRuntimeModifiers(instance, modifiers, source ?? this);
+            ApplyRuntimeModifiers(instance, modifiers, source ?? this, effectiveness);
             if (instance.AppliedModifiers.Count == 0)
             {
                 if (durationSeconds > 0f)
@@ -338,7 +340,7 @@ namespace Scripts.StatusEffects
             OnActiveEffectsChanged?.Invoke();
         }
 
-        private void ApplyInstanceModifiers(ActiveEffectInstance instance, object source, int stackCount = 1)
+        private void ApplyInstanceModifiers(ActiveEffectInstance instance, object source, int stackCount = 1, float effectiveness = 1f)
         {
             instance.AppliedModifiers.Clear();
             if (instance.Effect == null)
@@ -350,7 +352,7 @@ namespace Scripts.StatusEffects
                 for (int i = 0; i < instance.Effect.Modifiers.Count; i++)
                 {
                     SerializableStatModifier modifierData = instance.Effect.Modifiers[i];
-                    modifierData.Value *= effectiveStacks;
+                    modifierData.Value *= effectiveStacks * effectiveness;
                     ApplySingleModifier(instance, modifierData, source ?? instance);
                 }
             }
@@ -360,7 +362,10 @@ namespace Scripts.StatusEffects
                 for (int i = 0; i < instance.Effect.DerivedModifiers.Count; i++)
                 {
                     if (TryBuildDerivedModifier(instance.Effect.DerivedModifiers[i], effectiveStacks, out SerializableStatModifier modifierData))
+                    {
+                        modifierData.Value *= effectiveness;
                         ApplySingleModifier(instance, modifierData, source ?? instance);
+                    }
                 }
             }
         }
@@ -368,12 +373,13 @@ namespace Scripts.StatusEffects
         private void ApplyRuntimeModifiers(
             ActiveEffectInstance instance,
             IReadOnlyList<SerializableStatModifier> modifiers,
-            object source)
+            object source, float effectiveness = 1f)
         {
             instance.AppliedModifiers.Clear();
             for (int i = 0; i < modifiers.Count; i++)
             {
                 SerializableStatModifier modifierData = modifiers[i];
+                modifierData.Value *= effectiveness;
                 ApplySingleModifier(instance, modifierData, source ?? instance);
             }
         }
