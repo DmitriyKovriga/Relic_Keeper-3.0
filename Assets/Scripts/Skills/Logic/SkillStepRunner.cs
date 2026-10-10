@@ -1512,7 +1512,7 @@ namespace Scripts.Skills
                 return;
 
             if (StatusEffectController.TryResolve(transform, out StatusEffectController controller))
-                controller.ApplyStatusEffect(effect, this);
+                controller.ApplyStatusEffect(effect, this, _ownerStats);
         }
 
         private void ExecuteApplyStatusSelfPerConsumedMysticShield(StepEntry step)
@@ -1529,7 +1529,7 @@ namespace Scripts.Skills
                 return;
 
             if (StatusEffectController.TryResolve(transform, out StatusEffectController controller))
-                controller.ApplyStatusEffectScaled(effect, _ctx.MysticShieldsConsumed, this);
+                controller.ApplyStatusEffectScaled(effect, _ctx.MysticShieldsConsumed, this, _ownerStats);
         }
 
         private void ExecuteApplyStatusSelf(int stepIndex, StepEntry step)
@@ -1539,7 +1539,7 @@ namespace Scripts.Skills
                 return;
 
             if (StatusEffectController.TryResolve(transform, out StatusEffectController controller))
-                controller.ApplyStatusEffect(effect, this);
+                controller.ApplyStatusEffect(effect, this, _ownerStats);
         }
 
         private void ExecuteApplyStatusCircle(int stepIndex, StepEntry step)
@@ -1551,7 +1551,7 @@ namespace Scripts.Skills
             ResolveCircleArea(step, out Vector2 center, out Vector2 size);
             var targets = GetStatusTargetsInBox(center, size, 0f);
             for (int i = 0; i < targets.Count; i++)
-                targets[i].ApplyStatusEffect(effect, this);
+                targets[i].ApplyStatusEffect(effect, this, _ownerStats);
         }
 
         private void ExecuteApplyStatusRectangle(int stepIndex, StepEntry step)
@@ -1563,7 +1563,7 @@ namespace Scripts.Skills
             ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
             var targets = GetStatusTargetsInBox(center, size, angle);
             for (int i = 0; i < targets.Count; i++)
-                targets[i].ApplyStatusEffect(effect, this);
+                targets[i].ApplyStatusEffect(effect, this, _ownerStats);
         }
 
         private void ExecuteApplyQuickStatusSelf(int stepIndex, StepEntry step)
@@ -1628,7 +1628,8 @@ namespace Scripts.Skills
                 this,
                 runtimeId,
                 StatusEffectPresentation.ResolveStepAura(step),
-                step.GetObject<GameObject>("AuraVfxPrefab"));
+                step.GetObject<GameObject>("AuraVfxPrefab"),
+                durationStats: _ownerStats);
 
             if (duration <= 0f && handle != null)
                 _ctx?.RegisterCleanup(handle.Dispose);
@@ -1689,7 +1690,8 @@ namespace Scripts.Skills
                 this,
                 BuildRuntimeStatusId("SkillStatBasedEffect", stepIndex),
                 StatusEffectPresentation.ResolveStepAura(step),
-                step.GetObject<GameObject>("AuraVfxPrefab"));
+                step.GetObject<GameObject>("AuraVfxPrefab"),
+                durationStats: _ownerStats);
 
             if (duration <= 0f && handle != null)
                 _ctx?.RegisterCleanup(handle.Dispose);

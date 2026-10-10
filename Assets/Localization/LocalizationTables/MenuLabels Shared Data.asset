@@ -1839,6 +1839,14 @@ MonoBehaviour:
     m_Key: stats.ShockEffectMagnitude
     m_Metadata:
       m_Items: []
+  - m_Id: 113993253705998336
+    m_Key: passive.node.EDNode.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 113993253747941376
+    m_Key: passive.node.EDNode.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

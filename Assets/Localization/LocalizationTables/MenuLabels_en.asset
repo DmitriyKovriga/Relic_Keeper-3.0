@@ -2800,6 +2800,14 @@ MonoBehaviour:
     m_Localized: Shock Effect Magnitude
     m_Metadata:
       m_Items: []
+  - m_Id: 113993253705998336
+    m_Localized: Malefice
+    m_Metadata:
+      m_Items: []
+  - m_Id: 113993253747941376
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

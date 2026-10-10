@@ -122,7 +122,7 @@ namespace Scripts.Stats
         // --- 11. Утилиты ---
         AreaOfEffect,             // Множитель радиуса (Base: 1.0)
         CooldownReductionPercent, // % Снижение КД
-        EffectDuration,           // Множитель длительности эффектов
+        EffectDuration,           // Per-effect duration container: Flat seconds, then increased and More/Less.
 
         ProjectileSpeed,           // Скорость полета снарядов
         ProjectileCount, 

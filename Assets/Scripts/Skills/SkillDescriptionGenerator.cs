@@ -77,11 +77,12 @@ namespace Scripts.Skills
             SkillDataSO skill,
             string localeCode,
             string localizedLegacyDescription = null,
-            Func<StatType, string> statNameResolver = null)
+            Func<StatType, string> statNameResolver = null,
+            IStatsProvider durationStats = null)
         {
             if (skill == null) return string.Empty;
 
-            string automatic = BuildAutomatic(skill, localeCode, statNameResolver);
+            string automatic = BuildAutomatic(skill, localeCode, statNameResolver, durationStats);
             string legacy = string.IsNullOrWhiteSpace(localizedLegacyDescription)
                 ? skill.Description?.Trim()
                 : localizedLegacyDescription.Trim();
@@ -99,9 +100,10 @@ namespace Scripts.Skills
         public static string BuildAutomatic(
             SkillDataSO skill,
             string localeCode,
-            Func<StatType, string> statNameResolver = null)
+            Func<StatType, string> statNameResolver = null,
+            IStatsProvider durationStats = null)
         {
-            List<SkillDescriptionLine> lines = BuildAutomaticLines(skill, localeCode, statNameResolver);
+            List<SkillDescriptionLine> lines = BuildAutomaticLines(skill, localeCode, statNameResolver, durationStats);
             if (lines.Count == 0)
                 return string.Empty;
 
@@ -114,7 +116,8 @@ namespace Scripts.Skills
         public static List<SkillDescriptionLine> BuildAutomaticLines(
             SkillDataSO skill,
             string localeCode,
-            Func<StatType, string> statNameResolver = null)
+            Func<StatType, string> statNameResolver = null,
+            IStatsProvider durationStats = null)
         {
             var lines = new List<SkillDescriptionLine>();
             if (skill?.Recipe == null)
@@ -134,7 +137,7 @@ namespace Scripts.Skills
             }
 
             foreach (StepEntry step in skill.Recipe.Steps)
-                AppendStep(step, ru, statNameResolver, lines, unique, quickNotes);
+                AppendStep(step, ru, statNameResolver, lines, unique, quickNotes, durationStats);
 
             FlushQuickNotes(quickNotes, ru, statNameResolver, lines, unique);
 
@@ -150,7 +153,8 @@ namespace Scripts.Skills
         public static string BuildStatusEffectTooltip(
             StatusEffectSO effect,
             string localeCode,
-            Func<StatType, string> statNameResolver = null)
+            Func<StatType, string> statNameResolver = null,
+            IStatsProvider durationStats = null)
         {
             if (effect == null)
                 return string.Empty;
@@ -163,9 +167,12 @@ namespace Scripts.Skills
             if (!hasStatLines && !string.IsNullOrWhiteSpace(authored))
                 Add(lines, unique, authored);
 
+            float duration = EffectDurationCalculator.Resolve(effect.DurationSeconds, durationStats);
+            Add(lines, unique, ru ? $"Длительность: {N(duration)} с." : $"Duration: {N(duration)}s.");
+
             AddEffectModifiers(effect.Modifiers, ru ? "Эффект: " : "Effect: ", ru, statNameResolver, lines, unique);
             AddDerivedModifiers(effect.DerivedModifiers, ru, statNameResolver, lines, unique);
-            AddEventReactions(effect.EventReactions, ru, statNameResolver, lines, unique);
+            AddEventReactions(effect.EventReactions, ru, statNameResolver, lines, unique, durationStats);
 
             if (lines.Count == 0)
                 return string.Empty;
@@ -182,7 +189,8 @@ namespace Scripts.Skills
             Func<StatType, string> resolver,
             List<SkillDescriptionLine> lines,
             HashSet<string> unique,
-            List<QuickStatusNote> quickNotes)
+            List<QuickStatusNote> quickNotes,
+            IStatsProvider durationStats)
         {
             if (step?.StepDefinition == null) return;
             string id = step.StepDefinition.Id ?? string.Empty;
@@ -222,16 +230,16 @@ namespace Scripts.Skills
                 case "ApplyStatusSelfPerConsumedMysticShield":
                 case "ApplyStatusCircle":
                 case "ApplyStatusRectangle":
-                    AddStatus(step, id, ru, lines, unique);
+                    AddStatus(step, id, ru, lines, unique, durationStats);
                     break;
                 case "ApplyQuickStatusSelf":
                 case "ApplyQuickStatusSelfPerConsumedMysticShield":
                 case "ApplyQuickStatusCircle":
                 case "ApplyQuickStatusRectangle":
-                    RecordQuickStatus(step, id, quickNotes);
+                    RecordQuickStatus(step, id, quickNotes, durationStats);
                     break;
                 case "ApplyStatBasedEffectSelf":
-                    AddStatBased(step, ru, resolver, lines, unique);
+                    AddStatBased(step, ru, resolver, lines, unique, durationStats);
                     break;
                 case "ConsumeMysticShield":
                     AddConsumeShield(step, ru, lines, unique);
@@ -256,7 +264,7 @@ namespace Scripts.Skills
 
             if (step.SubSteps == null) return;
             foreach (StepEntry subStep in step.SubSteps)
-                AppendStep(subStep, ru, resolver, lines, unique, quickNotes);
+                AppendStep(subStep, ru, resolver, lines, unique, quickNotes, durationStats);
         }
 
         private static void AddDamage(StepEntry step, bool ru, bool nearby, List<SkillDescriptionLine> lines, HashSet<string> unique)
@@ -327,7 +335,7 @@ namespace Scripts.Skills
                 : (backwards ? "Propels the character backward." : "Propels the character forward."));
         }
 
-        private static void AddStatus(StepEntry step, string id, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)
+        private static void AddStatus(StepEntry step, string id, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique, IStatsProvider durationStats)
         {
             StatusEffectSO effect = step.GetObject<StatusEffectSO>("StatusEffect");
             if (effect == null) return;
@@ -340,14 +348,14 @@ namespace Scripts.Skills
             int minConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1));
             if (id == "ApplyStatusSelfIfMysticShieldConsumed" || (id.Contains("PerConsumedMysticShield") && minConsumed > 1))
                 scaling += ru ? $", от {minConsumed} зарядов" : $", from {minConsumed} charges";
-            string duration = $"{N(effect.DurationSeconds)}{(ru ? " с" : "s")}";
+            string duration = $"{N(EffectDurationCalculator.Resolve(effect.DurationSeconds, durationStats))}{(ru ? " с" : "s")}";
             string suffix = self
                 ? $" {duration}{scaling}."
                 : (ru ? $" на врагов, {duration}{scaling}." : $" on enemies, {duration}{scaling}.");
             AddLinked(lines, unique, string.Empty, name, effect, suffix, StatusSection(effect));
         }
 
-        private static void RecordQuickStatus(StepEntry step, string id, List<QuickStatusNote> notes)
+        private static void RecordQuickStatus(StepEntry step, string id, List<QuickStatusNote> notes, IStatsProvider durationStats)
         {
             if (notes == null)
                 return;
@@ -357,7 +365,7 @@ namespace Scripts.Skills
                 Stat = ResolveStat(step.GetInt("QuickStatusStat", (int)StatType.MoveSpeed), StatType.MoveSpeed),
                 Type = (StatModType)step.GetInt("QuickStatusModType", (int)StatModType.PercentAdd),
                 Value = step.GetFloat("QuickStatusValue", 0f),
-                Duration = Mathf.Max(0f, step.GetFloat("QuickStatusDuration", 0f)),
+                Duration = EffectDurationCalculator.Resolve(Mathf.Max(0f, step.GetFloat("QuickStatusDuration", 0f)), durationStats),
                 PerCharge = id.Contains("PerConsumedMysticShield"),
                 Self = id.Contains("Self"),
                 MinConsumed = Mathf.Max(1, step.GetInt("MinConsumed", 1))
@@ -458,7 +466,7 @@ namespace Scripts.Skills
             };
         }
 
-        private static void AddStatBased(StepEntry step, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique)
+        private static void AddStatBased(StepEntry step, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique, IStatsProvider durationStats)
         {
             StatType source = ResolveStat(step.GetInt("SourceStat", (int)StatType.Armor), StatType.Armor);
             float percent = step.GetFloat("SourcePercent", 25f);
@@ -471,7 +479,7 @@ namespace Scripts.Skills
             else
             {
                 StatType target = ResolveStat(step.GetInt("TargetStat", (int)StatType.HealthRegen), StatType.HealthRegen);
-                float duration = Mathf.Max(0f, step.GetFloat("Duration", 0f));
+                float duration = EffectDurationCalculator.Resolve(Mathf.Max(0f, step.GetFloat("Duration", 0f)), durationStats);
                 string durationText = duration > 0f ? (ru ? $", {N(duration)} с" : $", {N(duration)}s") : string.Empty;
                 Add(lines, unique, ru
                     ? $"{P(percent)} от «{sourceName}» к «{StatName(target, resolver)}»{durationText}."
@@ -641,7 +649,7 @@ namespace Scripts.Skills
             bool ru,
             Func<StatType, string> resolver,
             List<SkillDescriptionLine> lines,
-            HashSet<string> unique)
+            HashSet<string> unique, IStatsProvider durationStats)
         {
             if (reactions == null) return;
             foreach (StatusEventReaction reaction in reactions)
@@ -682,7 +690,7 @@ namespace Scripts.Skills
                         if (string.IsNullOrEmpty(chips))
                             break;
                         string duration = reaction.QuickEffectDurationSeconds > 0f
-                            ? (ru ? $", {N(reaction.QuickEffectDurationSeconds)} с" : $", {N(reaction.QuickEffectDurationSeconds)}s")
+                            ? (ru ? $", {N(EffectDurationCalculator.Resolve(Mathf.Max(0.01f, reaction.QuickEffectDurationSeconds), durationStats))} с" : $", {N(EffectDurationCalculator.Resolve(Mathf.Max(0.01f, reaction.QuickEffectDurationSeconds), durationStats))}s")
                             : string.Empty;
                         Add(lines, unique, ru
                             ? $"При {trigger}{duration}: {chips}."

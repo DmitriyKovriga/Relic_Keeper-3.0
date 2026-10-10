@@ -2112,7 +2112,7 @@ public class ItemTooltipController : MonoBehaviour
         }
         else
         {
-            lines = SkillDescriptionGenerator.BuildAutomaticLines(skill, localeCode, statResolver);
+            lines = SkillDescriptionGenerator.BuildAutomaticLines(skill, localeCode, statResolver, Object.FindFirstObjectByType<PlayerStats>());
             if (skill.DescriptionMode == SkillDescriptionMode.AutomaticWithLegacy
                 && !string.IsNullOrWhiteSpace(legacyDescription))
             {
@@ -2361,7 +2361,8 @@ public class ItemTooltipController : MonoBehaviour
             {
                 string localized = LocalizationSettings.StringDatabase.GetLocalizedString(TABLE_MENU, $"stats.{stat}");
                 return string.IsNullOrWhiteSpace(localized) ? SkillDescriptionGenerator.Humanize(stat.ToString()) : localized;
-            });
+            },
+            Object.FindFirstObjectByType<PlayerStats>());
 
         if (!string.IsNullOrWhiteSpace(body))
         {

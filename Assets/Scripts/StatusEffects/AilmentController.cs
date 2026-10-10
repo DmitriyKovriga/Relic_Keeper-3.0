@@ -239,6 +239,9 @@ namespace Scripts.StatusEffects
             float duration = sourceStats.GetValue(StatType.PoisonDuration);
             if (duration <= 0f)
                 duration = DefaultPoisonDuration;
+            duration = EffectDurationCalculator.Resolve(duration, sourceStats);
+            if (duration <= 0f)
+                return false;
 
             _poisonRemainingSeconds = duration;
             _poisonTotalTickDamage += tickDamage;
@@ -281,6 +284,9 @@ namespace Scripts.StatusEffects
             float duration = sourceStats.GetValue(StatType.BleedDuration);
             if (duration <= 0f)
                 duration = DefaultBleedDuration;
+            duration = EffectDurationCalculator.Resolve(duration, sourceStats);
+            if (duration <= 0f)
+                return false;
 
             int maxStacks = 1 + Mathf.Max(0, Mathf.FloorToInt(sourceStats.GetValue(StatType.MaxBleedStack)));
 
@@ -337,6 +343,9 @@ namespace Scripts.StatusEffects
             float duration = sourceStats.GetValue(StatType.IgniteDuration);
             if (duration <= 0f)
                 duration = DefaultIgniteDuration;
+            duration = EffectDurationCalculator.Resolve(duration, sourceStats);
+            if (duration <= 0f)
+                return false;
 
             return AddOrRefreshIgnite(source, sourceStats, tickDamage, duration);
         }
@@ -452,6 +461,9 @@ namespace Scripts.StatusEffects
             float duration = sourceStats.GetValue(StatType.FreezeDuration);
             if (duration <= 0f)
                 duration = DefaultFreezeDuration;
+            duration = EffectDurationCalculator.Resolve(duration, sourceStats);
+            if (duration <= 0f)
+                return false;
 
             bool applied = _enemyFreeze.TryApplyFreeze(duration);
             if (applied)
@@ -500,6 +512,9 @@ namespace Scripts.StatusEffects
             float duration = sourceStats.GetValue(StatType.ShockDuration);
             if (duration <= 0f)
                 duration = DefaultShockDuration;
+            duration = EffectDurationCalculator.Resolve(duration, sourceStats);
+            if (duration <= 0f)
+                return false;
 
             bool wasShocked = IsShocked;
             float magnitude = ResolveShockStat(sourceStats, StatType.ShockEffectMagnitude, 50f);

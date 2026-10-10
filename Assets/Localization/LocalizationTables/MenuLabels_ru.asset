@@ -3148,6 +3148,14 @@ MonoBehaviour:
       \u0448\u043E\u043A\u0430"
     m_Metadata:
       m_Items: []
+  - m_Id: 113993253705998336
+    m_Localized: "\u0421\u0433\u043B\u0430\u0437"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 113993253747941376
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

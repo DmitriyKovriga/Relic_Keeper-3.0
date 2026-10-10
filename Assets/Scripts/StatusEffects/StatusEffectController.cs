@@ -99,12 +99,12 @@ namespace Scripts.StatusEffects
             ResetAll();
         }
 
-        public bool ApplyStatusEffect(StatusEffectSO effect, object source = null)
+        public bool ApplyStatusEffect(StatusEffectSO effect, object source = null, IStatsProvider durationStats = null)
         {
-            return ApplyStatusEffectScaled(effect, 1, source);
+            return ApplyStatusEffectScaled(effect, 1, source, durationStats);
         }
 
-        public bool ApplyStatusEffectScaled(StatusEffectSO effect, int stackCount, object source = null)
+        public bool ApplyStatusEffectScaled(StatusEffectSO effect, int stackCount, object source = null, IStatsProvider durationStats = null)
         {
             if (effect == null)
                 return false;
@@ -115,6 +115,15 @@ namespace Scripts.StatusEffects
             int effectiveStacks = Mathf.Max(1, stackCount);
 
             ActiveEffectInstance instance = FindAuthoredInstance(effect);
+            float duration = EffectDurationCalculator.Resolve(effect.DurationSeconds,
+                durationStats ?? EffectDurationCalculator.ResolveSource(source, _statsProvider));
+            if (duration <= 0f)
+            {
+                if (instance != null)
+                    RemoveRuntimeInstance(instance);
+                NotifyCarrierStatChanges();
+                return false;
+            }
             bool created = false;
             if (instance == null)
             {
@@ -124,8 +133,8 @@ namespace Scripts.StatusEffects
             }
 
             instance.Effect = effect;
-            instance.DurationSeconds = effect.DurationSeconds;
-            instance.RemainingSeconds = effect.DurationSeconds;
+            instance.DurationSeconds = duration;
+            instance.RemainingSeconds = duration;
             CapturePresentation(instance, effect, source, effect.AuraColor, effect.AuraVfxPrefab);
 
             RemoveInstanceModifiers(instance);
@@ -142,7 +151,8 @@ namespace Scripts.StatusEffects
             object source = null,
             string runtimeId = null,
             StatusAuraColor auraColor = StatusAuraColor.None,
-            GameObject auraVfxPrefab = null)
+            GameObject auraVfxPrefab = null,
+            IStatsProvider durationStats = null)
         {
             if (modifiers == null || modifiers.Count == 0)
                 return null;
@@ -152,11 +162,18 @@ namespace Scripts.StatusEffects
 
             string id = string.IsNullOrWhiteSpace(runtimeId) ? "RuntimeStatus" : runtimeId;
             ActiveEffectInstance instance = durationSeconds > 0f ? FindRuntimeInstance(id) : null;
-            if (instance != null)
+            float duration = EffectDurationCalculator.Resolve(durationSeconds,
+                durationStats ?? EffectDurationCalculator.ResolveSource(source, _statsProvider));
+            if (durationSeconds > 0f && duration <= 0f)
             {
-                RemoveInstanceModifiers(instance);
+                if (instance != null)
+                    RemoveRuntimeInstance(instance);
+                NotifyCarrierStatChanges();
+                return null;
             }
-            else
+            if (instance != null)
+                RemoveInstanceModifiers(instance);
+            if (instance == null)
             {
                 instance = new ActiveEffectInstance
                 {
@@ -170,8 +187,8 @@ namespace Scripts.StatusEffects
 
             instance.RuntimeId = id;
             instance.RuntimeKind = kind;
-            instance.DurationSeconds = durationSeconds;
-            instance.RemainingSeconds = durationSeconds;
+            instance.DurationSeconds = duration;
+            instance.RemainingSeconds = duration;
             CapturePresentation(instance, null, source, auraColor, auraVfxPrefab);
 
             ApplyRuntimeModifiers(instance, modifiers, source ?? this);
