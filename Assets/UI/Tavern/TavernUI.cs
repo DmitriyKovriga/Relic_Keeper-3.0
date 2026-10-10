@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Scripts.Skills.PassiveTree;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UIElements;
 
 public partial class TavernUI : MonoBehaviour
@@ -65,6 +67,7 @@ public partial class TavernUI : MonoBehaviour
         if (_characterDB != null) _characterDB.Init();
         if (_windowView == null) _windowView = GetComponent<WindowView>();
         BuildUI();
+        LocalizationSettings.SelectedLocaleChanged += OnTavernLocaleChanged;
         if (_windowView != null)
             _windowView.OnClosed += OnTavernWindowClosed;
     }
@@ -72,8 +75,18 @@ public partial class TavernUI : MonoBehaviour
     private void OnDisable()
     {
         HideToast();
+        LocalizationSettings.SelectedLocaleChanged -= OnTavernLocaleChanged;
         if (_windowView != null)
             _windowView.OnClosed -= OnTavernWindowClosed;
+    }
+
+    private void OnTavernLocaleChanged(Locale _)
+    {
+        if (!IsOpen)
+            return;
+
+        RefreshHostelList();
+        PopulateHireChoices();
     }
 
     private void OnTavernWindowClosed() => OnClosed?.Invoke();

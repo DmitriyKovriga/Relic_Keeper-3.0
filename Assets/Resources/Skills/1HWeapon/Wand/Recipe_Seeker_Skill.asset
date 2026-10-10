@@ -72,7 +72,7 @@ MonoBehaviour:
       ObjectVal: {fileID: 0}
     - Key: HomingStrength
       Type: 0
-      FloatVal: 0.4
+      FloatVal: 0.8
       IntVal: 0
       BoolVal: 0
       StringVal: 

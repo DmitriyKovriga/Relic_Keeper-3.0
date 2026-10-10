@@ -148,6 +148,50 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void RewardChest_OpenAnimationStopsBeforeTheCloseAndStaysBehindLoot()
+        {
+            Assert.That(RewardChest.ResolveOpenFrameCount(17), Is.EqualTo(10));
+            Assert.That(RewardChest.ResolveOpenFrameCount(0), Is.EqualTo(0));
+
+            var created = new List<Object>();
+            try
+            {
+                RewardChest chest = RewardChest.Spawn(new Vector3(4f, 2f, 0f), 1, null);
+                created.Add(chest.gameObject);
+                MethodInfo ensureVisual = typeof(RewardChest).GetMethod(
+                    "EnsurePlaceholderVisual", BindingFlags.Instance | BindingFlags.NonPublic);
+                ensureVisual.Invoke(chest, null);
+
+                chest.Interact();
+                Assert.That(chest.CanInteract(), Is.False);
+                Assert.That(chest.gameObject, Is.Not.Null);
+
+                MethodInfo settle = typeof(RewardChest).GetMethod(
+                    "SettleOpenedChest", BindingFlags.Instance | BindingFlags.NonPublic);
+                settle.Invoke(chest, null);
+
+                SpriteRenderer renderer = chest.GetComponent<SpriteRenderer>();
+                Assert.That(renderer.sortingLayerName, Is.EqualTo(WorldRenderSorting.LayerBackground));
+                Assert.That(renderer.sprite.name, Is.EqualTo("RewardChestAnim_09"));
+
+                WorldDroppedItem[] drops = Object.FindObjectsByType<WorldDroppedItem>(FindObjectsSortMode.None);
+                for (int i = 0; i < drops.Length; i++)
+                {
+                    if (drops[i] != null)
+                        created.Add(drops[i].gameObject);
+                }
+            }
+            finally
+            {
+                for (int i = created.Count - 1; i >= 0; i--)
+                {
+                    if (created[i] != null)
+                        Object.DestroyImmediate(created[i]);
+                }
+            }
+        }
+
+        [Test]
         public void ResolveRewardPosition_UsesPlayerCoordinatesNotPortal()
         {
             var created = new List<Object>();

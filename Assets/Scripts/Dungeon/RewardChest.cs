@@ -14,6 +14,9 @@ namespace Scripts.Dungeon
     {
         private const string PrefabResourcePath = "Prefabs/Dungeon/RewardChest";
         private const string SpriteResourcePath = "Sprites/Dungeon/RewardChest";
+        private const string AnimationResourcePath = "Sprites/Dungeon/RewardChestAnim";
+        private const int OpenFrameCount = 10;
+        private const float OpenFrameSeconds = 0.13f;
         private const int PlaceholderPixels = 24;
         private const int PlayerLayer = 0;
         private const int EnemyLayer = 7;
@@ -21,12 +24,18 @@ namespace Scripts.Dungeon
         public const int VisualSortingOrder = WorldDroppedItem.TopVisualSortingOrder + 1;
         private static Sprite _placeholderSprite;
         private static Sprite _chestSprite;
+        private static Sprite[] _animationFrames;
 
         [SerializeField, Min(1)] private int _minimumDrops = 1;
         [SerializeField, Min(1)] private int _maximumDrops = 5;
 
         private int _itemLevel = 1;
         private bool _opened;
+        private bool _playingOpen;
+        private bool _lootDropped;
+        private int _openFrameIndex;
+        private float _openFrameTimer;
+        private SpriteRenderer _renderer;
 
         public static RewardChest Spawn(Vector3 position, int itemLevel, Transform parent)
         {
@@ -124,14 +133,91 @@ namespace Scripts.Dungeon
         public string GetPrompt() => RuntimeLocalization.Resolve("dungeon.chest.open", "Open chest", "Открыть сундук");
         public bool CanInteract() => !_opened;
 
+        public static int ResolveOpenFrameCount(int availableFrames)
+        {
+            if (availableFrames <= 0)
+                return 0;
+            return Mathf.Min(OpenFrameCount, availableFrames);
+        }
+
         public void Interact()
         {
             if (_opened)
                 return;
 
             _opened = true;
-            DisableColliders();
+            Sprite[] frames = GetAnimationFrames();
+            int openFrames = ResolveOpenFrameCount(frames?.Length ?? 0);
+            if (openFrames <= 1)
+            {
+                SettleOpenedChest();
+                return;
+            }
 
+            _playingOpen = true;
+            _openFrameIndex = 0;
+            _openFrameTimer = 0f;
+            SetSprite(frames[0]);
+        }
+
+        private void Update()
+        {
+            if (!_playingOpen)
+                return;
+
+            _openFrameTimer += Time.deltaTime;
+            if (_openFrameTimer < OpenFrameSeconds)
+                return;
+
+            _openFrameTimer = 0f;
+            Sprite[] frames = GetAnimationFrames();
+            int openFrames = ResolveOpenFrameCount(frames?.Length ?? 0);
+            _openFrameIndex++;
+            if (_openFrameIndex >= openFrames)
+            {
+                _playingOpen = false;
+                if (openFrames > 0)
+                    SetSprite(frames[openFrames - 1]);
+                SettleOpenedChest();
+                return;
+            }
+
+            SetSprite(frames[_openFrameIndex]);
+        }
+
+        private void SettleOpenedChest()
+        {
+            Sprite[] frames = GetAnimationFrames();
+            int openFrames = ResolveOpenFrameCount(frames?.Length ?? 0);
+            if (openFrames > 0)
+                SetSprite(frames[openFrames - 1]);
+
+            if (_renderer == null)
+                _renderer = GetComponent<SpriteRenderer>();
+            if (_renderer != null)
+            {
+                WorldRenderSorting.ConfigureOneShotRenderer(
+                    _renderer,
+                    RenderDepthCategory.Environment,
+                    transform.position.y);
+            }
+
+            Rigidbody2D body = GetComponent<Rigidbody2D>();
+            if (body != null)
+            {
+                body.linearVelocity = Vector2.zero;
+                body.bodyType = RigidbodyType2D.Kinematic;
+            }
+
+            DropLoot();
+        }
+
+        private void DropLoot()
+        {
+            if (_lootDropped)
+                return;
+
+            _lootDropped = true;
             int count = ResolveDropCount(_minimumDrops, _maximumDrops);
             var items = new List<InventoryItem>(count);
             EnemyLootDropService.FillGuaranteedItems(items, count, _itemLevel);
@@ -149,31 +235,46 @@ namespace Scripts.Dungeon
                     drop.transform.SetParent(dropParent, true);
                 drop.SetGroundedWorldPosition(drop.GroundPosition);
             }
-
-            Destroy(gameObject);
-        }
-
-        private void DisableColliders()
-        {
-            Collider2D[] colliders = GetComponents<Collider2D>();
-            for (int i = 0; i < colliders.Length; i++)
-            {
-                if (colliders[i] != null)
-                    colliders[i].enabled = false;
-            }
         }
 
         private void EnsurePlaceholderVisual()
         {
-            SpriteRenderer renderer = GetComponent<SpriteRenderer>();
-            if (renderer == null)
-                renderer = gameObject.AddComponent<SpriteRenderer>();
+            _renderer = GetComponent<SpriteRenderer>();
+            if (_renderer == null)
+                _renderer = gameObject.AddComponent<SpriteRenderer>();
 
-            if (renderer.sprite == null)
-                renderer.sprite = GetChestSprite() ?? GetPlaceholderSprite();
-            renderer.color = Color.white;
-            renderer.sortingLayerName = WorldRenderSorting.LayerVfx;
-            renderer.sortingOrder = VisualSortingOrder;
+            if (_renderer.sprite == null)
+            {
+                Sprite[] frames = GetAnimationFrames();
+                _renderer.sprite = frames != null && frames.Length > 0
+                    ? frames[0]
+                    : GetChestSprite() ?? GetPlaceholderSprite();
+            }
+            _renderer.color = Color.white;
+            _renderer.sortingLayerName = WorldRenderSorting.LayerVfx;
+            _renderer.sortingOrder = VisualSortingOrder;
+        }
+
+        private void SetSprite(Sprite sprite)
+        {
+            if (_renderer == null)
+                _renderer = GetComponent<SpriteRenderer>();
+            if (_renderer != null && sprite != null)
+                _renderer.sprite = sprite;
+        }
+
+        private static Sprite[] GetAnimationFrames()
+        {
+            if (_animationFrames != null && _animationFrames.Length > 0)
+                return _animationFrames;
+
+            Sprite[] loaded = Resources.LoadAll<Sprite>(AnimationResourcePath);
+            if (loaded == null || loaded.Length == 0)
+                return null;
+
+            System.Array.Sort(loaded, (a, b) => string.CompareOrdinal(a.name, b.name));
+            _animationFrames = loaded;
+            return _animationFrames;
         }
 
         private static Sprite GetChestSprite()

@@ -36,27 +36,32 @@ public partial class TavernUI
         };
     }
 
-    private static string FormatStatName(StatType type)
-    {
-        var s = type.ToString();
-        if (string.IsNullOrEmpty(s)) return s;
-        var sb = new System.Text.StringBuilder();
-        for (int i = 0; i < s.Length; i++)
-        {
-            if (i > 0 && char.IsUpper(s[i]))
-                sb.Append(' ');
-            sb.Append(s[i]);
-        }
-        return sb.ToString();
-    }
-
     private IEnumerable<string> FormatStartingStatsLines(CharacterDataSO ch)
     {
-        if (ch.StartingStats == null || ch.StartingStats.Count == 0) yield break;
-        foreach (var s in ch.StartingStats)
+        GlobalBaseStatsSO bases = Resources.Load<GlobalBaseStatsSO>(GlobalBaseStatsSO.DefaultResourcesPath);
+        return FormatStartingStatDeltaLines(ch != null ? ch.StartingStats : null, bases);
+    }
+
+    public static IEnumerable<string> FormatStartingStatDeltaLines(
+        IReadOnlyList<CharacterDataSO.StatConfig> starting,
+        GlobalBaseStatsSO bases)
+    {
+        if (starting == null)
+            yield break;
+
+        foreach (CharacterDataSO.StatConfig stat in starting)
         {
-            string name = FormatStatName(s.Type);
-            yield return $"{name}: {s.Value}";
+            float baseValue = 0f;
+            if (bases != null)
+                bases.TryGetValue(stat.Type, out baseValue);
+
+            float delta = stat.Value - baseValue;
+            if (Mathf.Abs(delta) < 0.001f)
+                continue;
+
+            string valueText = StatPresentation.FormatModifierValue(null, stat.Type, delta, StatModType.Flat);
+            string name = CharacterWindowLoc.StatName(stat.Type);
+            yield return $"{valueText} {name}";
         }
     }
 
