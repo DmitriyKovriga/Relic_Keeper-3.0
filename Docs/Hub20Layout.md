@@ -17,6 +17,13 @@ placement and animation. Buildings and trees/plants are composite artwork layers
 edit their individual placements in the Aseprite document, then rebuild. The
 standalone asset sources remain available for further Unity placement work.
 
+Fog has a separate runtime loop: 8 times slower (17.28 seconds), with smooth
+crossfades between the original frames and 40% of the source opacity. Its dedicated
+material softens edges over 1.5 source pixels and fades from world Y=0 to completely
+transparent at Y=6.5. Other artwork keeps its original animation speed and material.
+The builder regenerates a clip override excluding Fog, so the imported animator
+cannot overwrite this independent loop. The Aseprite source remains unchanged.
+
 Coordinate conversion is:
 
 ```

@@ -1,0 +1,13 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: HubEnvironmentAnimation
+  m_Controller: {fileID: 4571822952942139920, guid: fb8be5d6e8513e8418dcf2d02b6662b7, type: 3}
+  m_Clips:
+  - m_OriginalClip: {fileID: 1346784255503120905, guid: fb8be5d6e8513e8418dcf2d02b6662b7, type: 3}
+    m_OverrideClip: {fileID: 7400000, guid: b7696fb874852174b8d9f628ed3efbf8, type: 2}

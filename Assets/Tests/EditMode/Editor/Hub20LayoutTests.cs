@@ -81,10 +81,12 @@ namespace RelicKeeper.Tests.EditMode
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Hub20Builder.EnvironmentPath);
             Assert.That(prefab, Is.Not.Null);
-            var renderers = prefab.GetComponentsInChildren<SpriteRenderer>(true);
+            var renderers = prefab.GetComponentsInChildren<SpriteRenderer>(true).Where(x => x.name != "FogBlend").ToArray();
             Assert.That(renderers.Length, Is.EqualTo(9));
             Assert.That(renderers.Select(x => x.name), Is.EquivalentTo(new[] { "Sky", "Mountains", "Castle", "DistantForest", "Fog", "Forest", "Ground", "Buildings", "TreesAndPlants" }));
-            Assert.That(renderers.All(x => x.sharedMaterial.shader.name == "Universal Render Pipeline/2D/Sprite-Unlit-Default"), Is.True);
+            Assert.That(renderers.Where(x => x.name != "Fog").All(x => x.sharedMaterial.shader.name == "Universal Render Pipeline/2D/Sprite-Unlit-Default"), Is.True);
+            Assert.That(renderers.Single(x => x.name == "Fog").sharedMaterial.shader.name, Is.EqualTo("RelicKeeper/Hub Fog"));
+            Assert.That(prefab.GetComponentInChildren<HubFogVisual>(), Is.Not.Null);
             var animator = prefab.GetComponentInChildren<Animator>();
             Assert.That(animator.runtimeAnimatorController, Is.Not.Null);
             AnimationClip clip = animator.runtimeAnimatorController.animationClips.First();

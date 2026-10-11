@@ -196,6 +196,7 @@ namespace RelicKeeper.Editor.Hub
                     renderer.sharedMaterial = material;
                     renderer.sortingLayerName = "Background";
                 }
+                ConfigureFog(imported);
                 // Replace the baked mannequin silhouette with the live training
                 // actor. A SpriteMask preserves the supplied artwork/source pixels.
                 var buildings = imported.GetComponentsInChildren<SpriteRenderer>().Single(x => x.name == "Buildings");
@@ -245,6 +246,56 @@ namespace RelicKeeper.Editor.Hub
             SceneManager.MoveGameObjectToScene(child, parent.gameObject.scene);
             child.transform.SetParent(parent, false);
             return child;
+        }
+
+        private static void ConfigureFog(GameObject imported)
+        {
+            var animator = imported.GetComponentInChildren<Animator>();
+            var fog = imported.GetComponentsInChildren<SpriteRenderer>().Single(x => x.name == "Fog");
+            string path = AnimationUtility.CalculateTransformPath(fog.transform, animator.transform);
+            AnimationClip original = animator.runtimeAnimatorController.animationClips.First();
+            var binding = AnimationUtility.GetObjectReferenceCurveBindings(original)
+                .Single(x => x.path == path && x.propertyName == "m_Sprite");
+            var keys = AnimationUtility.GetObjectReferenceCurve(original, binding).OrderBy(x => x.time).ToList();
+            float duration = original.length;
+            // The importer appends a repeated sprite at the loop endpoint; it is
+            // a closure key, not an extra frame that should pause the fog.
+            if (keys.Count > 1 && keys.Last().time >= original.length - 0.04f &&
+                (keys.Last().value == keys[0].value || keys.Last().value == keys[keys.Count - 2].value))
+            {
+                keys.RemoveAt(keys.Count - 1);
+            }
+            Sprite[] frames = keys.Select(x => (Sprite)x.value).ToArray();
+            if (frames.Length == 0) throw new Exception("Hub fog has no animation frames.");
+
+            string clipPath = ArtRoot + "/HubEnvironmentAnimation.anim";
+            var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
+            if (clip == null) { clip = new AnimationClip(); AssetDatabase.CreateAsset(clip, clipPath); }
+            EditorUtility.CopySerialized(original, clip);
+            clip.name = "HubEnvironmentAnimation";
+            foreach (var curve in AnimationUtility.GetObjectReferenceCurveBindings(clip).Where(x => x.path == path))
+                AnimationUtility.SetObjectReferenceCurve(clip, curve, null);
+            foreach (var curve in AnimationUtility.GetCurveBindings(clip).Where(x => x.path == path))
+                AnimationUtility.SetEditorCurve(clip, curve, null);
+            EditorUtility.SetDirty(clip);
+
+            string controllerPath = ArtRoot + "/HubEnvironmentAnimation.overrideController";
+            var controller = AssetDatabase.LoadAssetAtPath<AnimatorOverrideController>(controllerPath);
+            if (controller == null) { controller = new AnimatorOverrideController(); AssetDatabase.CreateAsset(controller, controllerPath); }
+            controller.runtimeAnimatorController = animator.runtimeAnimatorController;
+            controller[original.name] = clip;
+            EditorUtility.SetDirty(controller);
+            animator.runtimeAnimatorController = controller;
+
+            string materialPath = ArtRoot + "/HubFog.mat";
+            var material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+            if (material == null) { material = new Material(Shader.Find("RelicKeeper/Hub Fog")); AssetDatabase.CreateAsset(material, materialPath); }
+            fog.sharedMaterial = material;
+            var next = NewChild(fog.transform, "FogBlend").AddComponent<SpriteRenderer>();
+            next.sharedMaterial = material;
+            next.sortingLayerID = fog.sortingLayerID;
+            next.sortingOrder = fog.sortingOrder;
+            fog.gameObject.AddComponent<HubFogVisual>().Configure(fog, next, frames, duration / frames.Length * 8f);
         }
 
         public static void CaptureEnvironment()
