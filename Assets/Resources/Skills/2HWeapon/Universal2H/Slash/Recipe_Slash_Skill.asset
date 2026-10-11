@@ -47,6 +47,34 @@ MonoBehaviour:
       BoolVal: 1
       StringVal: 
       ObjectVal: {fileID: 0}
+    - Key: VfxPrefab
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 4894166466157249370, guid: da237fee68887654c89188830dfb9412, type: 3}
+    - Key: FadeOutEnabled
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: ScaleY
+      Type: 0
+      FloatVal: 1
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: OffsetX
+      Type: 0
+      FloatVal: 1.2
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
     DamageConversions: []
     ScopedStatModifiers: []
     TargetAilmentStackModifiers: []

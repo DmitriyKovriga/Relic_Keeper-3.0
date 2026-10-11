@@ -16,7 +16,7 @@ MonoBehaviour:
   SkillName: Cold Slash
   DescriptionMode: 0
   Description: 
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: f37b853fea492424cacbcb658dc7006e, type: 3}
   NameKey: skills.SlashSkill
   DescriptionKey: skills.SlashSkill.description
   IsActive: 1
@@ -25,8 +25,8 @@ MonoBehaviour:
   ActionSpeedMode: 0
   SkillSpeedMultiplier: 1.5
   DamageContextTags: 21
-  EnablePushback: 1
-  PushbackRating: 50
+  EnablePushback: 0
+  PushbackRating: 0
   SkillPrefab: {fileID: 0}
   AnimationTrigger: Attack
   Recipe: {fileID: 11400000, guid: 85612a74c1160d64e90cd938893b7151, type: 2}
