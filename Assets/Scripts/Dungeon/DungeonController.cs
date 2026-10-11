@@ -713,7 +713,11 @@ namespace Scripts.Dungeon
                 return;
 
             Sprite dungeonBackground = dungeon.LoadBackgroundSprite();
+            // The new hub keeps this renderer empty until dungeon entry. Unity
+            // resets its tiled size to the sprite's native dimensions on first assignment.
+            Vector2 backgroundSize = _sharedBackgroundRenderer.size;
             _sharedBackgroundRenderer.sprite = dungeonBackground != null ? dungeonBackground : _defaultHubBackgroundSprite;
+            _sharedBackgroundRenderer.size = backgroundSize;
             _sharedBackgroundRenderer.enabled = _sharedBackgroundRenderer.sprite != null;
         }
 

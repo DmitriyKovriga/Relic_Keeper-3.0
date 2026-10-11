@@ -427,8 +427,10 @@ namespace RelicKeeper.Editor.Hub
             var restore = typeof(DungeonController).GetMethod("RestoreHubBackground", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             try
             {
+                Vector2 tiledSize = shared.size;
                 apply.Invoke(controller, new object[] { dungeon });
                 if (!shared.enabled || shared.sprite != dungeon.LoadBackgroundSprite()) throw new Exception("Dungeon background failed to switch.");
+                if (shared.size != tiledSize) throw new Exception("Dungeon background lost its configured tiled area.");
             }
             finally { restore.Invoke(controller, null); }
             if (shared.enabled || shared.sprite != null || !environment.activeInHierarchy) throw new Exception("Hub background restoration failed.");
