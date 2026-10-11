@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: WasteSpellsNote
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
   Name: WasteSpellsNote
-  Description: "\u042D\u0444\u0444\u0435\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u044C
-    \u0441\u043F\u043E\u0441\u043E\u0431\u043D\u043E\u0441\u0442\u0435\u0439 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0449\u0438\u0445
-    \u043C\u0438\u0441\u0442. \u0431\u0430\u0440\u044C\u0435\u0440 +30%\n(\u041A\u0430\u043A
-    \u0443\u0440\u043E\u043D \u0442\u0430\u043A \u0438 \u0431\u0430\u0444\u0444)"
+  Description: 
   Icon: {fileID: 21300000, guid: 166aed910ffb277479bac281b7dac73e, type: 3}
-  Modifiers: []
+  Modifiers:
+  - Stat: 118
+    Value: 30
+    Type: 200
   StatScalingRules: []
   ConditionalModifiers: []
   TriggeredEffects: []

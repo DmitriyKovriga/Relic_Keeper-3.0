@@ -323,6 +323,14 @@ MonoBehaviour:
     m_Key: skills.SeekerSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 99827794492514304
+    m_Key: skills.SlashSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 99827794534457344
+    m_Key: skills.SlashSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

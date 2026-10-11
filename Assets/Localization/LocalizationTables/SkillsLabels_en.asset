@@ -336,6 +336,14 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 99827794492514304
+    m_Localized: Cold Slash
+    m_Metadata:
+      m_Items: []
+  - m_Id: 99827794534457344
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
