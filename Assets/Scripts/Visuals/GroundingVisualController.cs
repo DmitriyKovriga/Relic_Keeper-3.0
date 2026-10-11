@@ -31,6 +31,7 @@ namespace Scripts.Visuals
         [SerializeField] private ShadowPreset _shadowPreset = ShadowPreset.Auto;
         [SerializeField, Range(-0.2f, 0.2f)] private float _shadowLift = -0.015f;
         [SerializeField, Range(0.5f, 1.5f)] private float _shadowWidthMultiplier = 1f;
+        [Tooltip("How many shadow sprite pixels may overlap below the ground surface.")]
         [SerializeField, Range(0f, 6f)] private float _shadowContactOverlapPixels = 1.5f;
         [SerializeField] private int _shadowOrderOffset = -1;
 
@@ -220,7 +221,7 @@ namespace Scripts.Visuals
             float targetWidth = ResolveShadowFootprintWidth() * Mathf.Max(0.5f, _shadowWidthMultiplier);
             float spriteWidth = Mathf.Max(0.01f, shadowSprite.bounds.size.x);
             float scale = targetWidth / spriteWidth;
-            float topAnchorOffset = ResolveShadowTopAnchorOffset(shadowSprite, scale);
+            float bottomAnchorOffset = ResolveShadowBottomAnchorOffset(shadowSprite, scale);
             float contactOverlap = ResolveShadowContactOverlapWorld(shadowSprite, scale);
 
             _shadowRenderer.enabled = true;
@@ -231,7 +232,9 @@ namespace Scripts.Visuals
 
             _shadowObject.transform.rotation = Quaternion.identity;
             _shadowObject.transform.localScale = new Vector3(scale, scale, 1f);
-            _shadowObject.transform.position = new Vector3(groundAnchor.x, groundAnchor.y + _shadowLift - topAnchorOffset + contactOverlap, 0f);
+            // Keep the oval on the walking surface, with only its contact overlap
+            // below it, rather than hanging the entire shadow from its top edge.
+            _shadowObject.transform.position = new Vector3(groundAnchor.x, groundAnchor.y + _shadowLift - bottomAnchorOffset - contactOverlap, 0f);
         }
 
         private void UpdateGroundingEffects()
@@ -468,23 +471,21 @@ namespace Scripts.Visuals
             Vector2 shadowOffset = ResolveShadowOffset();
             float x = ResolveShadowAnchorX() + shadowOffset.x;
 
-            if (ResolveGroundedState())
-            {
-                float groundedY = bounds.min.y;
-                if (TryResolveOpaqueGroundY(out float opaqueGroundY))
-                    groundedY = opaqueGroundY;
-
-                anchor = new Vector2(x, groundedY + shadowOffset.y);
-                heightAboveGround = 0f;
-                return true;
-            }
-
-            Vector2 origin = new(x, bounds.max.y + 0.1f);
+            // Animation outlines are not ground geometry. Cast from the feet so
+            // padding/poses cannot move a grounded shadow or select a ceiling.
+            Vector2 origin = new(x, bounds.min.y + 0.1f);
             RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, 8f, _groundMask);
             if (hit.collider != null)
             {
                 anchor = new Vector2(x, hit.point.y + shadowOffset.y);
                 heightAboveGround = Mathf.Max(0f, bounds.min.y - hit.point.y);
+                return true;
+            }
+
+            if (ResolveGroundedState())
+            {
+                anchor = new Vector2(x, bounds.min.y + shadowOffset.y);
+                heightAboveGround = 0f;
                 return true;
             }
 
@@ -597,37 +598,16 @@ namespace Scripts.Visuals
             return true;
         }
 
-        private bool TryResolveOpaqueGroundY(out float groundY)
-        {
-            groundY = 0f;
-
-            if (_primaryRenderer == null || _primaryRenderer.sprite == null)
-                return false;
-
-            if (!TryCollectSpriteShapeWorldPoints(_primaryRenderer, _shapeBuffer) || _shapeBuffer.Count == 0)
-                return false;
-
-            float minY = float.PositiveInfinity;
-            for (int i = 0; i < _shapeBuffer.Count; i++)
-                minY = Mathf.Min(minY, _shapeBuffer[i].y);
-
-            if (!float.IsFinite(minY))
-                return false;
-
-            groundY = minY;
-            return true;
-        }
-
-        private float ResolveShadowTopAnchorOffset(Sprite shadowSprite, float scale)
+        private float ResolveShadowBottomAnchorOffset(Sprite shadowSprite, float scale)
         {
             if (shadowSprite == null)
                 return 0f;
 
-            float topY = shadowSprite.bounds.max.y;
-            if (TryResolveSpriteLocalVerticalExtents(shadowSprite, _localShapeBuffer, out _, out float opaqueTopY))
-                topY = opaqueTopY;
+            float bottomY = shadowSprite.bounds.min.y;
+            if (TryResolveSpriteLocalVerticalExtents(shadowSprite, _localShapeBuffer, out float opaqueBottomY, out _))
+                bottomY = opaqueBottomY;
 
-            return topY * scale;
+            return bottomY * scale;
         }
 
         private float ResolveShadowContactOverlapWorld(Sprite shadowSprite, float scale)
