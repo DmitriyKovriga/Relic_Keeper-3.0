@@ -30,6 +30,7 @@ namespace Scripts.Dungeon
 
         [Header("Runtime Placement")]
         [SerializeField] private float _roomWorldZ = 0f;
+        [SerializeField, Min(0.1f)] private float _dungeonCameraOrthographicSize = 7.5f;
 
         private DungeonDataSO _currentDungeon;
         private readonly List<string> _roomSequence = new List<string>();
@@ -40,6 +41,8 @@ namespace Scripts.Dungeon
         private bool _backgroundPrepared;
         private Collider2D _hubCameraBounds;
         private GameObject _hubCameraBoundsObject;
+        private CinemachineCamera _locationCamera;
+        private float _hubCameraOrthographicSize;
         private DungeonModifierSO _selectedEntryModifier;
         private DungeonModifierSO _currentRoomModifier;
         private List<DungeonModifierSO> _pendingRoomChoices;
@@ -736,6 +739,13 @@ namespace Scripts.Dungeon
             if (_cameraConfiner == null)
                 _cameraConfiner = FindFirstObjectByType<CinemachineConfiner2D>();
 
+            if (_locationCamera == null && _cameraConfiner != null)
+            {
+                _locationCamera = _cameraConfiner.GetComponent<CinemachineCamera>();
+                if (_locationCamera != null)
+                    _hubCameraOrthographicSize = _locationCamera.Lens.OrthographicSize;
+            }
+
             if (_cameraConfiner != null && _hubCameraBounds == null)
             {
                 _hubCameraBounds = _cameraConfiner.BoundingShape2D;
@@ -750,8 +760,33 @@ namespace Scripts.Dungeon
                 return;
 
             _cameraConfiner.BoundingShape2D = room.CameraBounds;
+            if (_locationCamera != null)
+                _locationCamera.Lens.OrthographicSize = _dungeonCameraOrthographicSize;
             _cameraConfiner.InvalidateBoundingShapeCache();
+            _cameraConfiner.InvalidateLensCache();
             SetHubCameraBoundsActive(false);
+            AlignDungeonBackground(room.CameraBounds.bounds.center);
+        }
+
+        private void AlignDungeonBackground(Vector3 roomCenter)
+        {
+            if (_sharedBackgroundRenderer == null || _sharedBackgroundRenderer.sprite == null)
+                return;
+
+            var background = _sharedBackgroundRenderer;
+            if (background.drawMode == SpriteDrawMode.Tiled)
+            {
+                Vector2 tile = background.sprite.rect.size / background.sprite.pixelsPerUnit;
+                // An odd number of whole tiles puts the artwork's center at the
+                // room center, rather than changing its phase with the coverage size.
+                int columns = Mathf.Max(1, Mathf.CeilToInt(background.size.x / tile.x - 0.0001f)) | 1;
+                int rows = Mathf.Max(1, Mathf.CeilToInt(background.size.y / tile.y - 0.0001f)) | 1;
+                background.size = new Vector2(columns * tile.x, rows * tile.y);
+            }
+            Vector3 position = new Vector3(roomCenter.x, roomCenter.y, background.transform.position.z);
+            var parallax = background.GetComponent<ParallaxEffect>();
+            if (parallax != null) parallax.ResetAnchor(position, roomCenter);
+            else background.transform.position = position;
         }
 
         private void RestoreHubCameraBounds()
@@ -762,7 +797,10 @@ namespace Scripts.Dungeon
 
             SetHubCameraBoundsActive(true);
             _cameraConfiner.BoundingShape2D = _hubCameraBounds;
+            if (_locationCamera != null)
+                _locationCamera.Lens.OrthographicSize = _hubCameraOrthographicSize;
             _cameraConfiner.InvalidateBoundingShapeCache();
+            _cameraConfiner.InvalidateLensCache();
         }
 
         private void SetHubCameraBoundsActive(bool active)

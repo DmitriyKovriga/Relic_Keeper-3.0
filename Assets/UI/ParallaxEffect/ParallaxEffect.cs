@@ -12,13 +12,22 @@ public class ParallaxEffect : MonoBehaviour
 
     private Transform _cameraTransform;
     private Vector3 _lastCameraPosition;
+    private bool _hasExplicitAnchor;
+
+    public void ResetAnchor(Vector3 backgroundPosition, Vector3 cameraReferencePosition)
+    {
+        transform.position = backgroundPosition;
+        _lastCameraPosition = cameraReferencePosition;
+        _hasExplicitAnchor = true;
+        if (Camera.main != null) _cameraTransform = Camera.main.transform;
+    }
 
     private void Start()
     {
         if (Camera.main != null)
         {
             _cameraTransform = Camera.main.transform;
-            _lastCameraPosition = _cameraTransform.position;
+            if (!_hasExplicitAnchor) _lastCameraPosition = _cameraTransform.position;
         }
         else
         {

@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Scripts.Dungeon;
+using Unity.Cinemachine;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -13,6 +14,84 @@ namespace RelicKeeper.Tests.EditMode
 {
     public class DungeonBackgroundTests
     {
+        [Test]
+        public void RoomAlignmentCentersTheSourceArtworkWithoutStretchingIt()
+        {
+            using (var view = new BackgroundView())
+            {
+                view.Apply();
+                Vector3 center = new Vector3(12, 8, 0);
+                view.Align(center);
+                Vector2 alignedSize = view.Renderer.size;
+                view.Camera.transform.position = center + new Vector3(0, 0, -10);
+                Texture2D aligned = view.Capture();
+                Texture2D reference = null;
+                try
+                {
+                    view.Renderer.size = view.Renderer.sprite.rect.size / view.Renderer.sprite.pixelsPerUnit;
+                    reference = view.Capture();
+                    Assert.That(aligned.GetPixels32(), Is.EqualTo(reference.GetPixels32()),
+                        "The center of a large tiled backdrop must match one unscaled copy of the source artwork.");
+                    view.Renderer.size = alignedSize;
+                    view.Align(center);
+                    Vector2 size = view.Renderer.size;
+                    view.Align(center);
+                    Assert.That(view.Renderer.size, Is.EqualTo(size), "Room re-entry must not grow the tiled area.");
+                }
+                finally
+                {
+                    Object.DestroyImmediate(aligned);
+                    if (reference != null) Object.DestroyImmediate(reference);
+                }
+            }
+        }
+
+        [Test]
+        public void DungeonZoomIsIndependentOfHubZoomAndRestoresOnReturn()
+        {
+            using (var view = new BackgroundView())
+            {
+                var cameraObject = view.NewObject("Location camera");
+                var camera = cameraObject.AddComponent<CinemachineCamera>();
+                camera.Lens.OrthographicSize = 5.625f;
+                var confiner = cameraObject.AddComponent<CinemachineConfiner2D>();
+                var hubBounds = view.NewObject("Hub camera bounds").AddComponent<BoxCollider2D>();
+                hubBounds.size = new Vector2(65, 14.5f);
+                confiner.BoundingShape2D = hubBounds;
+                view.SetField("_cameraConfiner", confiner);
+                var room = view.NewObject("Room").AddComponent<RoomController>();
+                var roomBounds = view.NewObject("Room camera bounds").AddComponent<BoxCollider2D>();
+                roomBounds.transform.SetParent(room.transform);
+                roomBounds.size = new Vector2(32, 24);
+                typeof(RoomController).GetField("_cameraBoundsSource", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(room, roomBounds);
+                view.Call("ApplyRoomCameraBounds", room);
+                Assert.That(camera.Lens.OrthographicSize, Is.EqualTo(7.5f));
+                view.Call("RestoreHubCameraBounds");
+                Assert.That(camera.Lens.OrthographicSize, Is.EqualTo(5.625f));
+                Assert.That(confiner.BoundingShape2D, Is.SameAs(hubBounds));
+            }
+        }
+
+        [Test]
+        public void ParallaxAfterRoomEntryUsesRoomAnchorInsteadOfPreviousHubCamera()
+        {
+            using (var view = new BackgroundView())
+            {
+                var parallax = view.Renderer.gameObject.AddComponent<ParallaxEffect>();
+                Vector3 center = new Vector3(12, 8, 0);
+                view.Renderer.transform.position = new Vector3(-70, 90, 10);
+                view.Camera.transform.position = new Vector3(-25, 40, -10);
+                parallax.ResetAnchor(center + new Vector3(0, 0, 10), center);
+                const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                typeof(ParallaxEffect).GetField("_cameraTransform", flags).SetValue(parallax, view.Camera.transform);
+                view.Camera.transform.position = center + new Vector3(4, -2, -10);
+                typeof(ParallaxEffect).GetMethod("LateUpdate", flags).Invoke(parallax, null);
+                Assert.That(parallax.transform.position.x, Is.EqualTo(15.6f).Within(0.001f));
+                Assert.That(parallax.transform.position.y, Is.EqualTo(6.2f).Within(0.001f));
+                Assert.That(parallax.transform.position.z, Is.EqualTo(10f));
+            }
+        }
+
         [Test]
         public void BottomLeftPivotBackgroundIsCenteredAndRestoresHiddenHubBackdrop()
         {
@@ -98,7 +177,7 @@ namespace RelicKeeper.Tests.EditMode
                 Camera.GetUniversalAdditionalCameraData().volumeLayerMask = 0;
             }
 
-            private GameObject NewObject(string name)
+            public GameObject NewObject(string name)
             {
                 var go = new GameObject(name);
                 SceneManager.MoveGameObjectToScene(go, _scene);
@@ -107,6 +186,9 @@ namespace RelicKeeper.Tests.EditMode
 
             public void Apply() => typeof(DungeonController).GetMethod("ApplyDungeonBackground", Private).Invoke(_controller, new object[] { Dungeon });
             public void Restore() => typeof(DungeonController).GetMethod("RestoreHubBackground", Private).Invoke(_controller, null);
+            public void Align(Vector3 center) => Call("AlignDungeonBackground", center);
+            public void SetField(string name, object value) => typeof(DungeonController).GetField(name, Private).SetValue(_controller, value);
+            public void Call(string name, params object[] args) => typeof(DungeonController).GetMethod(name, Private).Invoke(_controller, args);
 
             public Texture2D Capture()
             {
