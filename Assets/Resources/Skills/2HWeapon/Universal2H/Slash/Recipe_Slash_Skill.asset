@@ -80,7 +80,7 @@ MonoBehaviour:
     TargetAilmentStackModifiers: []
     OnHitEffects: []
     StartPercentPipeline: 0.15
-    EndPercentPipeline: 0.3
+    EndPercentPipeline: 0.5
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: be86aa20acfead645a1a781755a28a0f, type: 2}
     Overrides:
@@ -131,8 +131,8 @@ MonoBehaviour:
     ScopedStatModifiers: []
     TargetAilmentStackModifiers: []
     OnHitEffects: []
-    StartPercentPipeline: 0.3
-    EndPercentPipeline: 0.5
+    StartPercentPipeline: 0.5
+    EndPercentPipeline: 0.8
     SubSteps: []
   HitStopFrames: 3
   IsChanneling: 0

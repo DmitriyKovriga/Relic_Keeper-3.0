@@ -23,7 +23,7 @@ MonoBehaviour:
   Cooldown: 0
   ManaCost: 0
   ActionSpeedMode: 0
-  SkillSpeedMultiplier: 1.5
+  SkillSpeedMultiplier: 1
   DamageContextTags: 21
   EnablePushback: 0
   PushbackRating: 0
