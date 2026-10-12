@@ -73,7 +73,9 @@ namespace RelicKeeper.Editor.VFX
         }
 
         public static void CaptureRuntimeClip(string prefabPath, string clipPath, string folderName,
-            string name, int frameCount, float fps, float lifetime, bool fadeOut)
+            string name, int frameCount, float fps, float lifetime, bool fadeOut,
+            float offsetX = 1.2f, float fadeOutStart = 0.5f, float fadeStartAlpha = 0.5f,
+            float previewSeparation = 0f)
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
             var root = new GameObject("Temporary " + name + " verification");
@@ -96,11 +98,22 @@ namespace RelicKeeper.Editor.VFX
                 var module = root.AddComponent<SkillVFX>();
                 var serialized = new SerializedObject(module);
                 serialized.FindProperty("_vfxPrefab").objectReferenceValue = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
-                serialized.FindProperty("_offset").vector2Value = new Vector2(1.2f, 0);
+                serialized.FindProperty("_offset").vector2Value = new Vector2(offsetX, 0);
                 serialized.FindProperty("_attachToParent").boolValue = true;
                 serialized.ApplyModifiedPropertiesWithoutUndo();
-                var right = module.PlayForLifetime(root.transform, 1, Vector2.one, lifetime, fadeOut, 0.5f, 0.5f, out _);
-                var left = module.PlayForLifetime(root.transform, -1, Vector2.one, lifetime, fadeOut, 0.5f, 0.5f, out _);
+                Transform rightOwner = root.transform;
+                Transform leftOwner = root.transform;
+                if (previewSeparation > 0)
+                {
+                    rightOwner = new GameObject("Right-facing preview owner").transform;
+                    leftOwner = new GameObject("Left-facing preview owner").transform;
+                    rightOwner.SetParent(root.transform, false);
+                    leftOwner.SetParent(root.transform, false);
+                    rightOwner.localPosition = Vector3.right * previewSeparation;
+                    leftOwner.localPosition = Vector3.left * previewSeparation;
+                }
+                var right = module.PlayForLifetime(rightOwner, 1, Vector2.one, lifetime, fadeOut, fadeOutStart, fadeStartAlpha, out _);
+                var left = module.PlayForLifetime(leftOwner, -1, Vector2.one, lifetime, fadeOut, fadeOutStart, fadeStartAlpha, out _);
                 var actors = new[] { right, left };
                 var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
                 foreach (var actor in actors)
