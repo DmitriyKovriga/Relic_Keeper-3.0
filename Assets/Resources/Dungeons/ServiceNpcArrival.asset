@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 867c140a30ccf0c4ea036f74e59cd6a0, type: 3}
+  m_Name: ServiceNpcArrival
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Dungeon.DungeonServiceArrivalSettings
+  PortalSprite: {fileID: 5937169864769486495, guid: 4e1b917f43294b44ca91116d541e0da3, type: 3}
+  PortalController: {fileID: 9100000, guid: 842c0925cee9df04e955febe23dcb362, type: 2}
+  SpriteMaterial: {fileID: 2100000, guid: 3b9d1480deea7ff4ab9f25c1278d7b72, type: 2}
+  MarketWalk:
+  - {fileID: 5305492164466594207, guid: c917e76352c5f0b49863d2988a80cf82, type: 3}
+  - {fileID: 7395987892585890914, guid: c917e76352c5f0b49863d2988a80cf82, type: 3}
+  - {fileID: 4485616655545162217, guid: c917e76352c5f0b49863d2988a80cf82, type: 3}
+  - {fileID: 6492529370628080239, guid: c917e76352c5f0b49863d2988a80cf82, type: 3}
+  - {fileID: 3919856124344702321, guid: c917e76352c5f0b49863d2988a80cf82, type: 3}
+  - {fileID: 1885500363887586242, guid: c917e76352c5f0b49863d2988a80cf82, type: 3}
+  - {fileID: 4966042579236828324, guid: c917e76352c5f0b49863d2988a80cf82, type: 3}
+  - {fileID: -3091804022325054620, guid: c917e76352c5f0b49863d2988a80cf82, type: 3}
+  - {fileID: -5739418740612045782, guid: c917e76352c5f0b49863d2988a80cf82, type: 3}
+  StashWalk:
+  - {fileID: -2045986123579383559, guid: 6f4edeea47944cf46a76725d528efea6, type: 3}
+  - {fileID: 2570314514740754098, guid: 6f4edeea47944cf46a76725d528efea6, type: 3}
+  - {fileID: -996353997431417576, guid: 6f4edeea47944cf46a76725d528efea6, type: 3}
+  - {fileID: 1269721389080866749, guid: 6f4edeea47944cf46a76725d528efea6, type: 3}
+  - {fileID: 1031307803708801414, guid: 6f4edeea47944cf46a76725d528efea6, type: 3}
+  - {fileID: 462572957856034111, guid: 6f4edeea47944cf46a76725d528efea6, type: 3}
+  - {fileID: 2904225698823010740, guid: 6f4edeea47944cf46a76725d528efea6, type: 3}
+  - {fileID: -5050128324675904788, guid: 6f4edeea47944cf46a76725d528efea6, type: 3}
+  - {fileID: -3544058073698593262, guid: 6f4edeea47944cf46a76725d528efea6, type: 3}
+  NpcRootHeight: 0.5
+  WalkDistance: 1
+  WalkDuration: 1.2
+  WalkFrameDuration: 0.12
+  PortalOpenDuration: 0.3
+  PortalCloseDuration: 0.3
+  MaximumFloorStep: 0.1

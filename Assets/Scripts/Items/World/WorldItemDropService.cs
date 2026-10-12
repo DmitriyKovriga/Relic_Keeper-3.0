@@ -65,7 +65,7 @@ namespace Scripts.Items.World
             return origin + Vector2.up * GroundLift;
         }
 
-        internal static bool TrySnapToGround(Vector2 origin, out Vector2 grounded)
+        internal static bool TrySnapToGround(Vector2 origin, out Vector2 grounded, float groundLift = GroundLift)
         {
             int mask = BuildGroundMask();
             Vector2 rayOrigin = origin + Vector2.up * PlayerRaycastLift;
@@ -86,7 +86,7 @@ namespace Scripts.Items.World
                     continue;
 
                 bestDistance = hit.distance;
-                grounded = hit.point + Vector2.up * GroundLift;
+                grounded = hit.point + Vector2.up * groundLift;
                 found = true;
             }
 

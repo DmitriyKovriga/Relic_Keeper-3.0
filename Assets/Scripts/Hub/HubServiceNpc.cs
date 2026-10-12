@@ -44,8 +44,11 @@ namespace Scripts.Hub
         [SerializeField] private StashPanelToggle _stashPanel;
 
         private WorldLocalizedLabel _label;
+        private bool _arrivalInProgress;
 
         public HubService Service => _service;
+        public bool IsArriving => _arrivalInProgress;
+        public void SetArrivalInProgress(bool value) => _arrivalInProgress = value;
 
         private void Awake()
         {
@@ -96,6 +99,7 @@ namespace Scripts.Hub
 
         public bool CanInteract()
         {
+            if (_arrivalInProgress) return false;
             return _service switch
             {
                 HubService.Tavern => ResolveTavern() != null,
@@ -106,6 +110,7 @@ namespace Scripts.Hub
 
         public void Interact()
         {
+            if (_arrivalInProgress) return;
             switch (_service)
             {
                 case HubService.Tavern:

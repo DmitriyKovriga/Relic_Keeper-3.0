@@ -33,7 +33,9 @@ namespace Scripts.Dungeon
 
             GameObject host = Object.Instantiate(prefab, parent);
             host.name = objectName;
-            host.transform.position = WorldItemDropService.ProjectToGroundUnder(position);
+            var settings = Resources.Load<DungeonServiceArrivalSettings>(DungeonServiceArrivalSettings.ResourcePath);
+            Vector2 ground = WorldItemDropService.TrySnapToGround(position, out Vector2 surface, 0) ? surface : position;
+            host.transform.position = ground + Vector2.up * (settings != null ? settings.NpcRootHeight : 0.5f);
 
             HubServiceNpc interactable = host.GetComponent<HubServiceNpc>();
             if (interactable == null)
@@ -48,10 +50,17 @@ namespace Scripts.Dungeon
 
             WorldRenderSorting.ConfigureSorter(
                 host,
-                RenderDepthCategory.Environment,
+                RenderDepthCategory.Enemy,
                 host.transform.position.y,
                 localOffset: 2,
                 staticAnchor: true);
+            if (settings != null)
+            {
+                var renderer = host.GetComponent<SpriteRenderer>();
+                if (renderer != null && settings.SpriteMaterial != null) renderer.sharedMaterial = settings.SpriteMaterial;
+                if (renderer != null && settings.PortalSprite != null)
+                    host.AddComponent<DungeonServiceArrival>().Initialize(interactable, settings, host.transform.position);
+            }
             return interactable;
         }
     }
