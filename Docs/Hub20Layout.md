@@ -69,3 +69,17 @@ animation loop, actor identities/positions, scene references and an actual GPU
 capture. Live Play Mode validation checks player containment, running animation,
 and the dungeon-background switch/restore without beginning a dungeon run or
 changing saved progression.
+
+The warehouse/stash NPC uses `Characters/WarehouseNpcIdle.png`: nine 28×28
+frames at 24 PPU, 200 ms per frame, looping over 1.8 seconds. It replaces only
+the visual on `StashNPC.prefab`; the storage service, label and scene position
+remain unchanged. Reapply with **Tools → Hub → Apply Warehouse NPC Animation**.
+The center pivot keeps the opaque feet at floor height for the existing y=0.5 root.
+
+This idle was generated through the official PixelLab MCP `animate_image` tool
+from the supplied `warehouseNPC.png`, with the same sprite pinned as the end
+pose: job `100506e7-cb67-4a13-952c-c65a8f3995f9`, seed 1210, eight generated
+frames plus the original first frame, one generation charged. The first result
+was accepted after reviewing every frame: gentle upper-body breathing with
+fixed lower four pixel rows and no redesign. All nine delivered frames are
+included without scaling or repainting. The Animator changes only the sprite.

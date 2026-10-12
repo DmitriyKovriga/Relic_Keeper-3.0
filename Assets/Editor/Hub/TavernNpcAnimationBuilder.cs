@@ -15,8 +15,14 @@ namespace RelicKeeper.Editor.Hub
         [MenuItem("Tools/Hub/Apply Tavern NPC Animation")]
         public static void Apply()
         {
-            AssetDatabase.ImportAsset(ArtPath, ImportAssetOptions.ForceSynchronousImport);
-            var importer = (TextureImporter)AssetImporter.GetAtPath(ArtPath);
+            ApplyIdle(ArtPath, ClipPath, ControllerPath, PrefabPath, "TavernNpcIdle", 29, 0.13f);
+        }
+
+        public static void ApplyIdle(string artPath, string clipPath, string controllerPath,
+            string prefabPath, string frameName, int frameCount, float frameDuration)
+        {
+            AssetDatabase.ImportAsset(artPath, ImportAssetOptions.ForceSynchronousImport);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(artPath);
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Multiple;
             importer.spritePixelsPerUnit = 24;
@@ -29,32 +35,32 @@ namespace RelicKeeper.Editor.Hub
             settings.spriteMeshType = SpriteMeshType.FullRect;
             importer.SetTextureSettings(settings);
             // The canvas center places the opaque feet 12 pixels below the existing NPC root.
-            importer.spritesheet = Enumerable.Range(0, 29).Select(i => new SpriteMetaData
+            importer.spritesheet = Enumerable.Range(0, frameCount).Select(i => new SpriteMetaData
             {
-                name = "TavernNpcIdle_" + i.ToString("D2"),
+                name = frameName + "_" + i.ToString("D2"),
                 rect = new Rect(i * 28, 0, 28, 28), alignment = (int)SpriteAlignment.Center,
                 pivot = new Vector2(0.5f, 0.5f)
             }).ToArray();
             importer.SaveAndReimport();
-            Sprite[] frames = AssetDatabase.LoadAllAssetsAtPath(ArtPath).OfType<Sprite>().OrderBy(x => x.name).ToArray();
-            var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(ClipPath);
-            if (clip == null) { clip = new AnimationClip(); AssetDatabase.CreateAsset(clip, ClipPath); }
-            clip.frameRate = 1000f / 130f;
-            var keys = frames.Select((sprite, i) => new ObjectReferenceKeyframe { time = i * 0.13f, value = sprite }).ToList();
+            Sprite[] frames = AssetDatabase.LoadAllAssetsAtPath(artPath).OfType<Sprite>().OrderBy(x => x.name).ToArray();
+            var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
+            if (clip == null) { clip = new AnimationClip(); AssetDatabase.CreateAsset(clip, clipPath); }
+            clip.frameRate = 1f / frameDuration;
+            var keys = frames.Select((sprite, i) => new ObjectReferenceKeyframe { time = i * frameDuration, value = sprite }).ToList();
             AnimationUtility.SetObjectReferenceCurve(clip, EditorCurveBinding.PPtrCurve("", typeof(SpriteRenderer), "m_Sprite"), keys.ToArray());
             var clipSettings = AnimationUtility.GetAnimationClipSettings(clip);
             clipSettings.loopTime = true;
             AnimationUtility.SetAnimationClipSettings(clip, clipSettings);
             EditorUtility.SetDirty(clip);
-            var controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath);
-            if (controller == null) controller = AnimatorController.CreateAnimatorControllerAtPath(ControllerPath);
+            var controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath);
+            if (controller == null) controller = AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
             var machine = controller.layers[0].stateMachine;
             var state = machine.states.FirstOrDefault(x => x.state.name == "Idle").state;
             if (state == null) state = machine.AddState("Idle");
             state.motion = clip;
             machine.defaultState = state;
             EditorUtility.SetDirty(controller);
-            var prefab = PrefabUtility.LoadPrefabContents(PrefabPath);
+            var prefab = PrefabUtility.LoadPrefabContents(prefabPath);
             try
             {
                 prefab.GetComponent<SpriteRenderer>().sprite = frames[0];
@@ -62,11 +68,11 @@ namespace RelicKeeper.Editor.Hub
                 if (animator == null) animator = prefab.AddComponent<Animator>();
                 animator.runtimeAnimatorController = controller;
                 animator.applyRootMotion = false;
-                PrefabUtility.SaveAsPrefabAsset(prefab, PrefabPath);
+                PrefabUtility.SaveAsPrefabAsset(prefab, prefabPath);
             }
             finally { PrefabUtility.UnloadPrefabContents(prefab); }
             AssetDatabase.SaveAssets();
-            Debug.Log("Tavern NPC animation applied: 29 frames, 130 ms each, looping.");
+            Debug.Log($"{frameName} applied: {frames.Length} frames, {frameDuration * 1000} ms each, looping.");
         }
     }
 }
