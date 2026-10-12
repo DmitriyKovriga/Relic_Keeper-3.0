@@ -75,7 +75,7 @@ namespace RelicKeeper.Editor.VFX
         public static void CaptureRuntimeClip(string prefabPath, string clipPath, string folderName,
             string name, int frameCount, float fps, float lifetime, bool fadeOut,
             float offsetX = 1.2f, float fadeOutStart = 0.5f, float fadeStartAlpha = 0.5f,
-            float previewSeparation = 0f, bool attachToParent = true)
+            float previewSeparation = 0f, bool attachToParent = true, string groundRecipePath = null)
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
             var root = new GameObject("Temporary " + name + " verification");
@@ -94,6 +94,8 @@ namespace RelicKeeper.Editor.VFX
             var texture = new Texture2D(480, 270, TextureFormat.RGBA32, false);
             var previous = RenderTexture.active;
             GameObject[] actors = Array.Empty<GameObject>();
+            Sprite floorSprite = null;
+            var clouds = new System.Collections.Generic.List<Scripts.Skills.Projectiles.GroundProjectileDebris>();
             try
             {
                 var module = root.AddComponent<SkillVFX>();
@@ -125,15 +127,49 @@ namespace RelicKeeper.Editor.VFX
                         throw new InvalidOperationException(name + " does not fit the skill's VFX lifetime.");
                     animator.enabled = false;
                 }
+                if (groundRecipePath != null)
+                {
+                    var floor = new GameObject("Isolated floor");
+                    floor.transform.SetParent(root.transform, false);
+                    floor.layer = LayerMask.NameToLayer("Ground");
+                    floor.transform.localPosition = new Vector3(0, -0.1f, 0);
+                    floor.AddComponent<BoxCollider2D>().size = new Vector2(30, 0.2f);
+                    var visual = floor.AddComponent<SpriteRenderer>();
+                    floorSprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 1, 1), Vector2.one * 0.5f, 1);
+                    visual.sprite = floorSprite;
+                    visual.drawMode = SpriteDrawMode.Sliced;
+                    visual.size = new Vector2(30, 0.2f);
+                    visual.color = new Color(0.28f, 0.3f, 0.25f);
+                    Physics2D.SyncTransforms();
+                    var runnerRoot = new GameObject("Inactive ground snap verifier");
+                    runnerRoot.SetActive(false);
+                    runnerRoot.transform.SetParent(root.transform, false);
+                    var runner = runnerRoot.AddComponent<Scripts.Skills.SkillStepRunner>();
+                    var recipe = AssetDatabase.LoadAssetAtPath<Scripts.Skills.Steps.SkillRecipeSO>(groundRecipePath);
+                    var step = recipe.Steps.Single(entry => entry.GetObject<GameObject>("VfxPrefab") != null);
+                    var snap = typeof(Scripts.Skills.SkillStepRunner).GetMethod("SnapSpawnedVfxToGround",
+                        BindingFlags.Instance | BindingFlags.NonPublic);
+                    foreach (var actor in actors)
+                    {
+                        snap.Invoke(runner, new object[] { actor, actor.transform.position, step });
+                        if (Mathf.Abs(actor.GetComponent<SpriteRenderer>().bounds.min.y) > 0.001f)
+                            throw new InvalidOperationException(name + " floats above the floor.");
+                        var debris = actor.GetComponent<Scripts.Skills.Projectiles.GroundProjectileDebris>();
+                        debris.EmitAfterMovement();
+                        if (debris.RuntimeParticles == null) throw new InvalidOperationException(name + " emitted no ground debris.");
+                        clouds.Add(debris);
+                    }
+                }
                 target.Create();
                 string folder = Path.Combine(Path.GetTempPath(), folderName);
                 Directory.CreateDirectory(folder);
-                for (int i = 0; i < frameCount; i++)
+                for (int i = 0; i < (groundRecipePath != null ? frameCount + 19 : frameCount); i++)
                 {
                     foreach (var actor in actors)
                     {
-                        clip.SampleAnimation(actor, i / fps);
-                        if (fadeOut)
+                        clip.SampleAnimation(actor, Mathf.Min(i / fps, clip.length));
+                        if (groundRecipePath != null && i >= frameCount) actor.GetComponent<SpriteRenderer>().enabled = false;
+                        if (fadeOut && (groundRecipePath == null || i < frameCount))
                         {
                             // Exercise the actual lifetime fade without waiting in the editor.
                             var destroy = actor.GetComponent<AutoDestroyVFX>();
@@ -143,6 +179,8 @@ namespace RelicKeeper.Editor.VFX
                             typeof(AutoDestroyVFX).GetMethod("LateUpdate", flags).Invoke(destroy, null);
                         }
                     }
+                    foreach (var debris in clouds)
+                        if (debris.RuntimeParticles != null) debris.RuntimeParticles.Simulate(lifetime / clip.length / fps, true, false, true);
                     RenderPipeline.SubmitRenderRequest(camera, new RenderPipeline.StandardRequest { destination = target });
                     RenderTexture.active = target;
                     texture.ReadPixels(new Rect(0, 0, 480, 270), 0, 0);
@@ -158,8 +196,11 @@ namespace RelicKeeper.Editor.VFX
                 Object.DestroyImmediate(target);
                 Object.DestroyImmediate(texture);
                 Object.DestroyImmediate(camera.gameObject);
+                foreach (var debris in clouds)
+                    if (debris != null && debris.RuntimeParticles != null) Object.DestroyImmediate(debris.RuntimeParticles.gameObject);
                 foreach (var actor in actors)
                     if (actor != null) Object.DestroyImmediate(actor);
+                if (floorSprite != null) Object.DestroyImmediate(floorSprite);
                 Object.DestroyImmediate(root);
             }
         }

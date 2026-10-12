@@ -8,6 +8,7 @@ namespace Scripts.Skills.Projectiles
     public sealed class GroundProjectileDebris : MonoBehaviour
     {
         [SerializeField] private Material _particleMaterial;
+        [SerializeField] private bool _stationaryImpact;
         [SerializeField] private LayerMask _groundLayer = 1 << 6;
         [SerializeField, Min(0.05f)] private float _spacing = 0.4f;
         [SerializeField, Range(1, 16)] private int _burstCount = 6;
@@ -43,6 +44,20 @@ namespace Scripts.Skills.Projectiles
             if (!isActiveAndEnabled || _source == null || !_source.enabled) return;
             int facing = _source.flipX ? -1 : 1;
             Bounds bounds = _source.bounds;
+            if (_stationaryImpact)
+            {
+                if (_hasContact) return;
+                float spacing = Mathf.Max(0.05f, _spacing);
+                for (float x = bounds.min.x + spacing * 0.5f; x < bounds.max.x; x += spacing)
+                {
+                    Vector2 surface = new Vector2(x, bounds.min.y);
+                    if (!TrySurface(surface, out _)) continue;
+                    // Throw earth away from the centre of a stationary hammer impact.
+                    EmitAt(surface, x < bounds.center.x ? 1 : -1);
+                    _hasContact = true;
+                }
+                return;
+            }
             Vector2 contact = new Vector2(bounds.center.x + facing * bounds.extents.x * 0.85f, bounds.min.y);
             if (!TrySurface(contact, out _))
             {
@@ -110,7 +125,7 @@ namespace Scripts.Skills.Projectiles
         {
             if (_particles != null) return;
             // Independent world object: moving/pooling the projectile cannot drag its debris.
-            var root = new GameObject("Ground Shake world debris");
+            var root = new GameObject("Ground impact world debris");
             _particles = root.AddComponent<ParticleSystem>();
             _particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             var main = _particles.main;

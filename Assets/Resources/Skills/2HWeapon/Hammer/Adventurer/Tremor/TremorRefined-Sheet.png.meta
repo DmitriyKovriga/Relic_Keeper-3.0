@@ -1,0 +1,513 @@
+fileFormatVersion: 2
+guid: 057e6834146371c4785e29a44c4aa0b8
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 8379055030188910934
+    second: TremorRefined-Sheet_0
+  - first:
+      213: -1510964431131184682
+    second: TremorRefined-Sheet_1
+  - first:
+      213: -8039688610884190507
+    second: TremorRefined-Sheet_2
+  - first:
+      213: -473717765859418925
+    second: TremorRefined-Sheet_3
+  - first:
+      213: -7268929599928821119
+    second: TremorRefined-Sheet_4
+  - first:
+      213: -3745614637952822165
+    second: TremorRefined-Sheet_5
+  - first:
+      213: -5066592416010642992
+    second: TremorRefined-Sheet_6
+  - first:
+      213: 3238065506968441464
+    second: TremorRefined-Sheet_7
+  - first:
+      213: -2181962612637366440
+    second: TremorRefined_00
+  - first:
+      213: -3837844796395069870
+    second: TremorRefined_01
+  - first:
+      213: 972244589477141267
+    second: TremorRefined_02
+  - first:
+      213: 8361515997615190312
+    second: TremorRefined_03
+  - first:
+      213: -9181630760995614663
+    second: TremorRefined_04
+  - first:
+      213: -8130498529053096572
+    second: TremorRefined_05
+  - first:
+      213: -2333909976278449448
+    second: TremorRefined_06
+  - first:
+      213: -8660130049074576529
+    second: TremorRefined_07
+  - first:
+      213: 4037633122639655510
+    second: TremorRefined_08
+  - first:
+      213: -7784827645006278706
+    second: TremorRefined_09
+  - first:
+      213: -9056113871302972842
+    second: TremorRefined_10
+  - first:
+      213: -2417416481855903399
+    second: TremorRefined_11
+  - first:
+      213: -4541408713285234685
+    second: TremorRefined_12
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 24
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: TremorRefined_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 57
+        width: 85
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8570198709c18b1e0800000000000000
+      internalID: -2181962612637366440
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TremorRefined_01
+      rect:
+        serializedVersion: 2
+        x: 85
+        y: 57
+        width: 85
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25e5acfcd7c3dbac0800000000000000
+      internalID: -3837844796395069870
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TremorRefined_02
+      rect:
+        serializedVersion: 2
+        x: 170
+        y: 57
+        width: 85
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31b949e8d4b1e7d00800000000000000
+      internalID: 972244589477141267
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TremorRefined_03
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 57
+        width: 85
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8217995af721a0470800000000000000
+      internalID: 8361515997615190312
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TremorRefined_04
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 38
+        width: 85
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9309e00287b449080800000000000000
+      internalID: -9181630760995614663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TremorRefined_05
+      rect:
+        serializedVersion: 2
+        x: 85
+        y: 38
+        width: 85
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48544f04aaaaa2f80800000000000000
+      internalID: -8130498529053096572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TremorRefined_06
+      rect:
+        serializedVersion: 2
+        x: 170
+        y: 38
+        width: 85
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d2ce2efd394c9fd0800000000000000
+      internalID: -2333909976278449448
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TremorRefined_07
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 38
+        width: 85
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f63493c8a9901d780800000000000000
+      internalID: -8660130049074576529
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TremorRefined_08
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 19
+        width: 85
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 652b948ceed880830800000000000000
+      internalID: 4037633122639655510
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TremorRefined_09
+      rect:
+        serializedVersion: 2
+        x: 85
+        y: 19
+        width: 85
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ecf82cda08cb6f390800000000000000
+      internalID: -7784827645006278706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TremorRefined_10
+      rect:
+        serializedVersion: 2
+        x: 170
+        y: 19
+        width: 85
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65aaf775a68325280800000000000000
+      internalID: -9056113871302972842
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TremorRefined_11
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 19
+        width: 85
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 959edcc848c937ed0800000000000000
+      internalID: -2417416481855903399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TremorRefined_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 85
+        height: 19
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30015c036dca9f0c0800000000000000
+      internalID: -4541408713285234685
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      TremorRefined-Sheet_0: 8379055030188910934
+      TremorRefined-Sheet_1: -1510964431131184682
+      TremorRefined-Sheet_2: -8039688610884190507
+      TremorRefined-Sheet_3: -473717765859418925
+      TremorRefined-Sheet_4: -7268929599928821119
+      TremorRefined-Sheet_5: -3745614637952822165
+      TremorRefined-Sheet_6: -5066592416010642992
+      TremorRefined-Sheet_7: 3238065506968441464
+      TremorRefined_00: -2181962612637366440
+      TremorRefined_01: -3837844796395069870
+      TremorRefined_02: 972244589477141267
+      TremorRefined_03: 8361515997615190312
+      TremorRefined_04: -9181630760995614663
+      TremorRefined_05: -8130498529053096572
+      TremorRefined_06: -2333909976278449448
+      TremorRefined_07: -8660130049074576529
+      TremorRefined_08: 4037633122639655510
+      TremorRefined_09: -7784827645006278706
+      TremorRefined_10: -9056113871302972842
+      TremorRefined_11: -2417416481855903399
+      TremorRefined_12: -4541408713285234685
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

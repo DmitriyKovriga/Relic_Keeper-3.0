@@ -82,6 +82,30 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void StationaryImpact_EmitsOnceAndThrowsEarthToBothSides()
+        {
+            CreateFloor();
+            var settings = new UnityEditor.SerializedObject(_debris);
+            settings.FindProperty("_stationaryImpact").boolValue = true;
+            settings.ApplyModifiedPropertiesWithoutUndo();
+            _debris.EmitAfterMovement();
+            var system = _debris.RuntimeParticles;
+            Assert.That(system, Is.Not.Null);
+            var particles = new ParticleSystem.Particle[256];
+            int count = system.GetParticles(particles);
+            Assert.That(count, Is.GreaterThan(6));
+            bool left = false, right = false;
+            for (int i = 0; i < count; i++)
+            {
+                if (particles[i].position.x < 0) { left = true; Assert.That(particles[i].velocity.x, Is.LessThan(0)); }
+                else { right = true; Assert.That(particles[i].velocity.x, Is.GreaterThan(0)); }
+            }
+            Assert.That(left && right, Is.True);
+            _debris.EmitAfterMovement();
+            Assert.That(system.particleCount, Is.EqualTo(count), "A stationary effect must not continuously emit.");
+        }
+
+        [Test]
         public void ReenabledProjectile_StartsFreshCloudAtNewGroundContact()
         {
             CreateFloor();
