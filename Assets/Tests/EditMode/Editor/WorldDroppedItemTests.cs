@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Scripts.Dungeon;
+using Scripts.Hub;
 using Scripts.Inventory;
 using Scripts.Items;
 using Scripts.Items.Affixes;
@@ -158,6 +159,41 @@ namespace RelicKeeper.Tests.EditMode
 
             Assert.That(selected, Is.SameAs(fartherChest));
             Assert.That(selected, Is.Not.SameAs(nearerItem));
+        }
+
+        [TestCase(HubService.Market, false)]
+        [TestCase(HubService.Stash, false)]
+        [TestCase(HubService.Market, true)]
+        [TestCase(HubService.Stash, true)]
+        public void OverlappingLootCanBeSelectedBeforeNpcAndNpcRemainsAccessible(HubService service, bool cacheLoot)
+        {
+            var player = CreateGameObject("Player");
+            player.transform.position = new Vector3(1000, 0, 0);
+            var controller = player.AddComponent<PlayerInteractController>();
+            var panelHost = CreateGameObject("Service panel");
+            panelHost.SetActive(false);
+            var panel = panelHost.AddComponent<StashPanelToggle>();
+            var npc = CreateGameObject("Overlapping service NPC").AddComponent<HubServiceNpc>();
+            npc.transform.position = player.transform.position;
+            npc.ConfigureRuntime(service, Vector2.one, Vector2.zero, Vector3.up);
+            SetPrivateField(npc, "_stashPanel", panel);
+            Assert.That(npc.CanInteract(), Is.True);
+
+            var drop = CreateDroppedItem(new Vector2(1000.1f, 0));
+            Component loot = drop;
+            if (cacheLoot)
+            {
+                var cache = WorldLootCache.Create(drop.transform.position, null);
+                _createdObjects.Add(cache.gameObject);
+                Assert.That(cache.Absorb(drop), Is.True);
+                loot = cache;
+            }
+            Physics2D.SyncTransforms();
+            var find = typeof(PlayerInteractController).GetMethod("FindNearbyInteractable", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(find.Invoke(controller, null), Is.SameAs(loot), "NPC must not block overlapping loot.");
+            loot.gameObject.SetActive(false);
+            Physics2D.SyncTransforms();
+            Assert.That(find.Invoke(controller, null), Is.SameAs(npc), "The service must remain accessible after loot is gone.");
         }
 
         [Test]

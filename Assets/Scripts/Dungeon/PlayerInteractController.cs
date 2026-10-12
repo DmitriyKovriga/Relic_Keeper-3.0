@@ -148,8 +148,11 @@ namespace Scripts.Dungeon
         private static int GetInteractionPriority(IInteractable interactable)
         {
             if (interactable is WorldLootCache)
-                return 3;
+                return 4;
             if (interactable is RewardChest)
+                return 3;
+            // Match the visible loot overlay: an NPC underneath must not steal pickup input.
+            if (interactable is WorldDroppedItem)
                 return 2;
             if (interactable is Scripts.Hub.HubServiceNpc)
                 return 1;
