@@ -1,0 +1,525 @@
+fileFormatVersion: 2
+guid: 272997849a8a4f248832b26131740f76
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 7503427017148329891
+    second: LungeSlashRefined-Sheet_0
+  - first:
+      213: -8071450741518435858
+    second: LungeSlashRefined-Sheet_1
+  - first:
+      213: -5391983796890888308
+    second: LungeSlashRefined-Sheet_2
+  - first:
+      213: 4523359900174220625
+    second: LungeSlashRefined-Sheet_3
+  - first:
+      213: 7593691927205529797
+    second: LungeSlashRefined-Sheet_4
+  - first:
+      213: -532250733784109940
+    second: LungeSlashRefined-Sheet_5
+  - first:
+      213: -621502276985724936
+    second: LungeSlashRefined-Sheet_6
+  - first:
+      213: -8112786881608665627
+    second: LungeSlashRefined-Sheet_7
+  - first:
+      213: 2734255891195222892
+    second: LungeSlashRefined-Sheet_8
+  - first:
+      213: -2236339640837539882
+    second: LungeSlashRefined-Sheet_9
+  - first:
+      213: -7156177885014044118
+    second: LungeSlashRefined-Sheet_10
+  - first:
+      213: 5616387494638884081
+    second: LungeSlashRefined_00
+  - first:
+      213: -7696266799065912668
+    second: LungeSlashRefined_01
+  - first:
+      213: -8916312999430280029
+    second: LungeSlashRefined_02
+  - first:
+      213: 1280490547236695346
+    second: LungeSlashRefined_03
+  - first:
+      213: 80062241656630422
+    second: LungeSlashRefined_04
+  - first:
+      213: -8207918497496451294
+    second: LungeSlashRefined_05
+  - first:
+      213: -5322139880264564685
+    second: LungeSlashRefined_06
+  - first:
+      213: -2891904542787166779
+    second: LungeSlashRefined_07
+  - first:
+      213: -3124637327632225728
+    second: LungeSlashRefined_08
+  - first:
+      213: -5635653562151652894
+    second: LungeSlashRefined_09
+  - first:
+      213: 376093640711898564
+    second: LungeSlashRefined_10
+  - first:
+      213: 6186036920698055255
+    second: LungeSlashRefined_11
+  - first:
+      213: 4182613994386937417
+    second: LungeSlashRefined_12
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 24
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: LungeSlashRefined_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 75
+        width: 108
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f495e26baa61fd40800000000000000
+      internalID: 5616387494638884081
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LungeSlashRefined_01
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 75
+        width: 108
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4aa2b017f1e513590800000000000000
+      internalID: -7696266799065912668
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LungeSlashRefined_02
+      rect:
+        serializedVersion: 2
+        x: 216
+        y: 75
+        width: 108
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3aca2c25194e24480800000000000000
+      internalID: -8916312999430280029
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LungeSlashRefined_03
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 75
+        width: 108
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23de94e4e5735c110800000000000000
+      internalID: 1280490547236695346
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LungeSlashRefined_04
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 50
+        width: 108
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69c6dd14f207c1100800000000000000
+      internalID: 80062241656630422
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LungeSlashRefined_05
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 50
+        width: 108
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 227bd5b2d9d971e80800000000000000
+      internalID: -8207918497496451294
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LungeSlashRefined_06
+      rect:
+        serializedVersion: 2
+        x: 216
+        y: 50
+        width: 108
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33004ef0af5f326b0800000000000000
+      internalID: -5322139880264564685
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LungeSlashRefined_07
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 50
+        width: 108
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5cd15dae324edd7d0800000000000000
+      internalID: -2891904542787166779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LungeSlashRefined_08
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 25
+        width: 108
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04a2e82d7ee03a4d0800000000000000
+      internalID: -3124637327632225728
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LungeSlashRefined_09
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 25
+        width: 108
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e139c6b1f22ac1b0800000000000000
+      internalID: -5635653562151652894
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LungeSlashRefined_10
+      rect:
+        serializedVersion: 2
+        x: 216
+        y: 25
+        width: 108
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c58ae07c27283500800000000000000
+      internalID: 376093640711898564
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LungeSlashRefined_11
+      rect:
+        serializedVersion: 2
+        x: 324
+        y: 25
+        width: 108
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 75aa8a9edc739d550800000000000000
+      internalID: 6186036920698055255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LungeSlashRefined_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 108
+        height: 25
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 946d2087441ab0a30800000000000000
+      internalID: 4182613994386937417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      LungeSlashRefined-Sheet_0: 7503427017148329891
+      LungeSlashRefined-Sheet_1: -8071450741518435858
+      LungeSlashRefined-Sheet_10: -7156177885014044118
+      LungeSlashRefined-Sheet_2: -5391983796890888308
+      LungeSlashRefined-Sheet_3: 4523359900174220625
+      LungeSlashRefined-Sheet_4: 7593691927205529797
+      LungeSlashRefined-Sheet_5: -532250733784109940
+      LungeSlashRefined-Sheet_6: -621502276985724936
+      LungeSlashRefined-Sheet_7: -8112786881608665627
+      LungeSlashRefined-Sheet_8: 2734255891195222892
+      LungeSlashRefined-Sheet_9: -2236339640837539882
+      LungeSlashRefined_00: 5616387494638884081
+      LungeSlashRefined_01: -7696266799065912668
+      LungeSlashRefined_02: -8916312999430280029
+      LungeSlashRefined_03: 1280490547236695346
+      LungeSlashRefined_04: 80062241656630422
+      LungeSlashRefined_05: -8207918497496451294
+      LungeSlashRefined_06: -5322139880264564685
+      LungeSlashRefined_07: -2891904542787166779
+      LungeSlashRefined_08: -3124637327632225728
+      LungeSlashRefined_09: -5635653562151652894
+      LungeSlashRefined_10: 376093640711898564
+      LungeSlashRefined_11: 6186036920698055255
+      LungeSlashRefined_12: 4182613994386937417
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

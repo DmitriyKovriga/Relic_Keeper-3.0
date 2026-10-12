@@ -75,7 +75,7 @@ namespace RelicKeeper.Editor.VFX
         public static void CaptureRuntimeClip(string prefabPath, string clipPath, string folderName,
             string name, int frameCount, float fps, float lifetime, bool fadeOut,
             float offsetX = 1.2f, float fadeOutStart = 0.5f, float fadeStartAlpha = 0.5f,
-            float previewSeparation = 0f)
+            float previewSeparation = 0f, bool attachToParent = true)
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
             var root = new GameObject("Temporary " + name + " verification");
@@ -93,13 +93,14 @@ namespace RelicKeeper.Editor.VFX
             var target = new RenderTexture(480, 270, 24);
             var texture = new Texture2D(480, 270, TextureFormat.RGBA32, false);
             var previous = RenderTexture.active;
+            GameObject[] actors = Array.Empty<GameObject>();
             try
             {
                 var module = root.AddComponent<SkillVFX>();
                 var serialized = new SerializedObject(module);
                 serialized.FindProperty("_vfxPrefab").objectReferenceValue = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
                 serialized.FindProperty("_offset").vector2Value = new Vector2(offsetX, 0);
-                serialized.FindProperty("_attachToParent").boolValue = true;
+                serialized.FindProperty("_attachToParent").boolValue = attachToParent;
                 serialized.ApplyModifiedPropertiesWithoutUndo();
                 Transform rightOwner = root.transform;
                 Transform leftOwner = root.transform;
@@ -114,7 +115,7 @@ namespace RelicKeeper.Editor.VFX
                 }
                 var right = module.PlayForLifetime(rightOwner, 1, Vector2.one, lifetime, fadeOut, fadeOutStart, fadeStartAlpha, out _);
                 var left = module.PlayForLifetime(leftOwner, -1, Vector2.one, lifetime, fadeOut, fadeOutStart, fadeStartAlpha, out _);
-                var actors = new[] { right, left };
+                actors = new[] { right, left };
                 var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
                 foreach (var actor in actors)
                 {
@@ -157,6 +158,8 @@ namespace RelicKeeper.Editor.VFX
                 Object.DestroyImmediate(target);
                 Object.DestroyImmediate(texture);
                 Object.DestroyImmediate(camera.gameObject);
+                foreach (var actor in actors)
+                    if (actor != null) Object.DestroyImmediate(actor);
                 Object.DestroyImmediate(root);
             }
         }
