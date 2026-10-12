@@ -17,6 +17,18 @@ placement and animation. Buildings and trees/plants are composite artwork layers
 edit their individual placements in the Aseprite document, then rebuild. The
 standalone asset sources remain available for further Unity placement work.
 
+The Buildings layer uses `HubBuildingWind.mat` for subtle straw-roof and wall-leaf
+sway on the tavern and warehouse. A six-second cycle shifts yellow-green texture
+patches by at most one source pixel, with different phases across each roof.
+Only matching adjacent foliage colors are sampled, keeping the silhouette,
+timber, masonry, doors and signs fixed. Other buildings and the original tree
+frame animations are unaffected. Tools → Hub → Apply Roof and Wall Foliage Sway
+updates the environment prefab; rebuilding the layout also preserves this setup.
+The material exposes period and amplitude for tuning. The rectangular masks use
+the existing hub world coordinates, so moving the entire environment requires
+updating those bounds. Native 480×270 Play Mode captures confirmed movement on
+both roofs and wall foliage, with the sampled timber region unchanged.
+
 Fog has a separate runtime loop: 8 times slower (17.28 seconds), with smooth
 crossfades between the original frames and 40% of the source opacity. Its dedicated
 material softens edges over 1.5 source pixels and fades from world Y=0 to completely

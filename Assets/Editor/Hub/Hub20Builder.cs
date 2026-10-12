@@ -197,6 +197,7 @@ namespace RelicKeeper.Editor.Hub
                     renderer.sortingLayerName = "Background";
                 }
                 ConfigureFog(imported);
+                HubBuildingWindBuilder.Configure(imported);
                 // Replace the baked mannequin silhouette with the live training
                 // actor. A SpriteMask preserves the supplied artwork/source pixels.
                 var buildings = imported.GetComponentsInChildren<SpriteRenderer>().Single(x => x.name == "Buildings");
