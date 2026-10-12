@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Scripts.Skills.Modules;
 using UnityEditor;
 using UnityEngine;
@@ -67,10 +68,17 @@ namespace RelicKeeper.Editor.VFX
 
         public static void CaptureRuntimeViews()
         {
+            CaptureRuntimeClip(Root + "ColdSlashVFX.prefab", Root + "ColdSlashVFX.anim",
+                "codex-cold-slash-refresh", "ColdSlash", FrameCount, Fps, 0.35f, false);
+        }
+
+        public static void CaptureRuntimeClip(string prefabPath, string clipPath, string folderName,
+            string name, int frameCount, float fps, float lifetime, bool fadeOut)
+        {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
-            var root = new GameObject("Temporary Cold Slash verification");
+            var root = new GameObject("Temporary " + name + " verification");
             root.transform.position = new Vector3(2000, 0, 0);
-            var camera = new GameObject("Cold Slash verification camera").AddComponent<Camera>();
+            var camera = new GameObject(name + " verification camera").AddComponent<Camera>();
             camera.enabled = false;
             camera.orthographic = true;
             camera.orthographicSize = 270f / 48;
@@ -87,36 +95,47 @@ namespace RelicKeeper.Editor.VFX
             {
                 var module = root.AddComponent<SkillVFX>();
                 var serialized = new SerializedObject(module);
-                serialized.FindProperty("_vfxPrefab").objectReferenceValue = AssetDatabase.LoadAssetAtPath<GameObject>(Root + "ColdSlashVFX.prefab");
+                serialized.FindProperty("_vfxPrefab").objectReferenceValue = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
                 serialized.FindProperty("_offset").vector2Value = new Vector2(1.2f, 0);
                 serialized.FindProperty("_attachToParent").boolValue = true;
                 serialized.ApplyModifiedPropertiesWithoutUndo();
-                const float lifetime = 0.35f;
-                var right = module.PlayForLifetime(root.transform, 1, Vector2.one, lifetime, false, 0.5f, 0.5f, out _);
-                var left = module.PlayForLifetime(root.transform, -1, Vector2.one, lifetime, false, 0.5f, 0.5f, out _);
+                var right = module.PlayForLifetime(root.transform, 1, Vector2.one, lifetime, fadeOut, 0.5f, 0.5f, out _);
+                var left = module.PlayForLifetime(root.transform, -1, Vector2.one, lifetime, fadeOut, 0.5f, 0.5f, out _);
                 var actors = new[] { right, left };
-                var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(Root + "ColdSlashVFX.anim");
+                var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
                 foreach (var actor in actors)
                 {
                     actor.GetComponent<AutoDestroyVFX>().enabled = false;
                     var animator = actor.GetComponent<Animator>();
                     if (Mathf.Abs(animator.speed * lifetime - clip.length) > 0.001f)
-                        throw new InvalidOperationException("Cold Slash does not fit the skill's VFX lifetime.");
+                        throw new InvalidOperationException(name + " does not fit the skill's VFX lifetime.");
                     animator.enabled = false;
                 }
                 target.Create();
-                string folder = Path.Combine(Path.GetTempPath(), "codex-cold-slash-refresh");
+                string folder = Path.Combine(Path.GetTempPath(), folderName);
                 Directory.CreateDirectory(folder);
-                for (int i = 0; i < FrameCount; i++)
+                for (int i = 0; i < frameCount; i++)
                 {
-                    foreach (var actor in actors) clip.SampleAnimation(actor, i / Fps);
+                    foreach (var actor in actors)
+                    {
+                        clip.SampleAnimation(actor, i / fps);
+                        if (fadeOut)
+                        {
+                            // Exercise the actual lifetime fade without waiting in the editor.
+                            var destroy = actor.GetComponent<AutoDestroyVFX>();
+                            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                            typeof(AutoDestroyVFX).GetField("_timer", flags).SetValue(destroy,
+                                (i / fps / clip.length) * lifetime - Time.deltaTime);
+                            typeof(AutoDestroyVFX).GetMethod("LateUpdate", flags).Invoke(destroy, null);
+                        }
+                    }
                     RenderPipeline.SubmitRenderRequest(camera, new RenderPipeline.StandardRequest { destination = target });
                     RenderTexture.active = target;
                     texture.ReadPixels(new Rect(0, 0, 480, 270), 0, 0);
                     texture.Apply();
-                    File.WriteAllBytes(Path.Combine(folder, "ColdSlash-" + i.ToString("D2") + ".png"), texture.EncodeToPNG());
+                    File.WriteAllBytes(Path.Combine(folder, name + "-" + i.ToString("D2") + ".png"), texture.EncodeToPNG());
                 }
-                Debug.Log("Cold Slash runtime renders captured, both facing directions and fitted lifetime: " + folder);
+                Debug.Log(name + " runtime renders captured, both facing directions and fitted lifetime: " + folder);
             }
             finally
             {

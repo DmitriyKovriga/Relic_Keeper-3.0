@@ -70,7 +70,7 @@ MonoBehaviour:
       ObjectVal: {fileID: 0}
     - Key: OffsetX
       Type: 0
-      FloatVal: 1.2
+      FloatVal: 0.5
       IntVal: 0
       BoolVal: 0
       StringVal: 
