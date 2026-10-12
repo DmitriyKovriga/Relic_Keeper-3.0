@@ -8,7 +8,7 @@ Tremor now breaks the ground from the centre outward: stone slabs lift, surround
 - Source export image ID: f8e3ca31-6989-43f2-a32b-acf50927022d; editable step: 53890363-c3ec-4662-a576-dc4dd5375908.
 - `TremorRefined-Sheet.png`: thirteen 85 x 19 poses, 24 PPU, FullRect, point filtering, no compression/mipmaps.
 - Existing clip, animator controller, prefab and recipe identities remain. Native one-shot duration remains 7/12 seconds; runtime still fits playback to the skill pipeline.
-- Recipe impact window remains 0.05-0.75. GroundYOffset is now zero to put the effect directly against the floor.
+- Recipe impact window remains 0.05-0.75. GroundYOffset is -2/24 world units (two native pixels): one compensates for the transparent bottom row in the opening poses, and one overlaps the floor edge to prevent a visible seam.
 - `GroundProjectileDebris` has an opt-in stationary-impact mode. Ground Shake retains the default travelling mode.
 - Damage, stun, mana, cooldown and effect footprint are unchanged.
 

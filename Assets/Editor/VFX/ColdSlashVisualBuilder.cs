@@ -152,7 +152,7 @@ namespace RelicKeeper.Editor.VFX
                     foreach (var actor in actors)
                     {
                         snap.Invoke(runner, new object[] { actor, actor.transform.position, step });
-                        if (Mathf.Abs(actor.GetComponent<SpriteRenderer>().bounds.min.y) > 0.001f)
+                        if (Mathf.Abs(actor.GetComponent<SpriteRenderer>().bounds.min.y - step.GetFloat("GroundYOffset", 0.06f)) > 0.001f)
                             throw new InvalidOperationException(name + " floats above the floor.");
                         var debris = actor.GetComponent<Scripts.Skills.Projectiles.GroundProjectileDebris>();
                         debris.EmitAfterMovement();

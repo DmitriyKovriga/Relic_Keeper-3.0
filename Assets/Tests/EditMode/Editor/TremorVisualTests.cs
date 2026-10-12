@@ -32,7 +32,8 @@ namespace RelicKeeper.Tests.EditMode
             var recipe = AssetDatabase.LoadAssetAtPath<SkillRecipeSO>(Root + "Recipe_Tremor_Skill.asset");
             var step = recipe.Steps.Single(entry => entry.GetObject<GameObject>("VfxPrefab") != null);
             Assert.That(step.GetBool("SnapToGround", false), Is.True);
-            Assert.That(step.GetFloat("GroundYOffset", 0.06f), Is.Zero);
+            // Cover opening-pose padding and overlap the floor edge by one native pixel.
+            Assert.That(step.GetFloat("GroundYOffset", 0.06f), Is.EqualTo(-2f / 24).Within(0.000001f));
             Assert.That(step.StartPercentPipeline, Is.EqualTo(0.05f));
             Assert.That(step.EndPercentPipeline, Is.EqualTo(0.75f));
             var prefab = step.GetObject<GameObject>("VfxPrefab");
