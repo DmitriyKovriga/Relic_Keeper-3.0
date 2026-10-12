@@ -157,6 +157,7 @@ MonoBehaviour:
   DeathEffect:
     Enabled: 1
     ChunkCount: 4
+    ChunkSizeMultiplier: 1
     ChunkHorizontalForce: 3.4
     ChunkVerticalForce: 5.2
     BloodHorizontalSpread: 0.7
@@ -180,25 +181,25 @@ MonoBehaviour:
     HitStateName: Hit
     DigInStateName: DigIn
     DigOutStateName: DigOut
-    IdleSpritesResourcePath: Enemy/MoldResources/mold_idle-Sheet
-    MoveSpritesResourcePath: Enemy/MoldResources/mold_walk-Sheet
-    AttackSpritesResourcePath: Enemy/MoldResources/mold_attack-Sheet
+    IdleSpritesResourcePath: Enemy/MoldResources/Refined/MoldIdle
+    MoveSpritesResourcePath: Enemy/MoldResources/Refined/MoldWalk
+    AttackSpritesResourcePath: Enemy/MoldResources/Refined/MoldAttack
     ChargeSpritesResourcePath: 
-    HitSpritesResourcePath: 
+    HitSpritesResourcePath: Enemy/MoldResources/Refined/MoldHit
     DigInSpritesResourcePath: 
     DigOutSpritesResourcePath: 
     VisualLocalOffset: {x: 0, y: 0}
     GroundShadowOffset: {x: 0, y: 0}
     GroundShadowWidthScale: 1.2
     InvertFacingX: 0
-    IdleFps: 6
-    MoveFps: 7
-    AttackFps: 10
+    IdleFps: 5
+    MoveFps: 8
+    AttackFps: 14
     ChargeFps: 10
-    HitFps: 10
+    HitFps: 12.5
     DigInFps: 10
     DigOutFps: 10
-    AttackImpactFrame: -1
+    AttackImpactFrame: 8
     ChargeImpactFrame: -1
   XPReward: 8.4
   GoldReward: 0
