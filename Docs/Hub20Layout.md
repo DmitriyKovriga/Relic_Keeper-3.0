@@ -83,3 +83,24 @@ frames plus the original first frame, one generation charged. The first result
 was accepted after reviewing every frame: gentle upper-body breathing with
 fixed lower four pixel rows and no redesign. All nine delivered frames are
 included without scaling or repainting. The Animator changes only the sprite.
+
+The market NPC uses `Characters/MarketNpcIdle.png`: five 28×28 frames at
+24 PPU, 300 ms per frame, looping over 1.5 seconds. **Tools → Hub → Apply
+Market NPC Animation** updates only the existing `MarketNPC.prefab` visual.
+The market service, label and saved scene placement are retained. Its pivot
+(14,14 pixels) places the fixed opaque feet on the floor for the y=0.5 root.
+The label uses its original local y=0.5 position. The merchant is 22 pixels
+tall, matching the tavern NPC, with the same squat proportions and sparse shading.
+
+PixelLab MCP provenance: the earlier tall Pixflux merchant was rejected for
+style mismatch. The replacement is a direct Pro Flash costume edit of the
+tavern sprite, job `4e626e5b-19e5-4c97-82c0-59697c52b0f9` (seed 1217).
+Only transparent padding was removed from the 32×32 output to obtain 28×28;
+no character pixels were resized. Idle job
+`b98cdb04-37ba-449a-8dd2-dea61f7be28c` (seed 1218) produced four frames plus
+the original pose. PixelLab's free workbench stabilized the head (rows 0–13)
+and lower body (rows 21–27), retaining the generated torso movement.
+Final workbench id: `fe01c9d9-c5b8-4d7b-88aa-c0d0fd4e8b65`. The exported frames
+were arranged into a horizontal sheet without resizing. This replacement cost
+six generations (five for the sprite, one for idle). GUIDs and gameplay objects
+are retained; only the replacement artwork is imported.

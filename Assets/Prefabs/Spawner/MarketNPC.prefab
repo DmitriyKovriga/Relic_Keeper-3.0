@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3350113860714668270}
   - component: {fileID: 4517626124045714318}
   - component: {fileID: 9083480308805721033}
+  - component: {fileID: 4777971691697313547}
   m_Layer: 0
   m_Name: MarketNPC
   m_TagString: Untagged
@@ -83,7 +84,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 8dd7b916e54323f4aa18032215b32221, type: 3}
+  m_Sprite: {fileID: 155666586665294076, guid: 3cded4ef99c80fc4f9e838d93e984084, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -113,6 +114,28 @@ MonoBehaviour:
   _defaultLabelLocalPosition: {x: 0, y: 1.2, z: 0}
   _tavernUI: {fileID: 0}
   _stashPanel: {fileID: 0}
+--- !u!95 &4777971691697313547
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3747383711529858298}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 780bbcf923847434fac8550e51d574f4, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage:
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &6500728879806258114
 GameObject:
   m_ObjectHideFlags: 0

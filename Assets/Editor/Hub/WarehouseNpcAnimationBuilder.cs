@@ -29,12 +29,17 @@ namespace RelicKeeper.Editor.Hub
 
         public static void CaptureRuntimeViews()
         {
+            CaptureRuntimeViews(HubService.Stash, FrameCount, FrameDuration, "codex-warehouse-npc");
+        }
+
+        public static void CaptureRuntimeViews(HubService service, int frameCount, float frameDuration, string folderName)
+        {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
-            var npc = Object.FindObjectsByType<HubServiceNpc>(FindObjectsSortMode.None).Single(x => x.Service == HubService.Stash);
+            var npc = Object.FindObjectsByType<HubServiceNpc>(FindObjectsSortMode.None).Single(x => x.Service == service);
             var animator = npc.GetComponent<Animator>();
             var clip = animator.runtimeAnimatorController.animationClips.Single();
             var original = npc.GetComponent<SpriteRenderer>().sprite;
-            var go = new GameObject("Warehouse animation verification camera") { hideFlags = HideFlags.HideAndDontSave };
+            var go = new GameObject(service + " animation verification camera") { hideFlags = HideFlags.HideAndDontSave };
             var camera = go.AddComponent<Camera>();
             camera.scene = npc.gameObject.scene;
             camera.enabled = false;
@@ -51,21 +56,21 @@ namespace RelicKeeper.Editor.Hub
             var target = new RenderTexture(480, 270, 24, RenderTextureFormat.ARGB32);
             var texture = new Texture2D(480, 270, TextureFormat.RGBA32, false);
             var previous = RenderTexture.active;
-            string folder = Path.Combine(Path.GetTempPath(), "codex-warehouse-npc");
+            string folder = Path.Combine(Path.GetTempPath(), folderName);
             Directory.CreateDirectory(folder);
             try
             {
                 target.Create();
-                for (int i = 0; i < FrameCount; i++)
+                for (int i = 0; i < frameCount; i++)
                 {
-                    clip.SampleAnimation(npc.gameObject, i * FrameDuration + 0.01f);
+                    clip.SampleAnimation(npc.gameObject, i * frameDuration + 0.01f);
                     RenderPipeline.SubmitRenderRequest(camera, new RenderPipeline.StandardRequest { destination = target });
                     RenderTexture.active = target;
                     texture.ReadPixels(new Rect(0, 0, 480, 270), 0, 0);
                     texture.Apply();
-                    File.WriteAllBytes(Path.Combine(folder, "warehouse-" + i + ".png"), texture.EncodeToPNG());
+                    File.WriteAllBytes(Path.Combine(folder, service.ToString().ToLowerInvariant() + "-" + i + ".png"), texture.EncodeToPNG());
                 }
-                Debug.Log("Warehouse animation views saved to " + folder + "; Animator state: " + animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
+                Debug.Log(service + " animation views saved to " + folder + "; Animator state: " + animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
             }
             finally
             {

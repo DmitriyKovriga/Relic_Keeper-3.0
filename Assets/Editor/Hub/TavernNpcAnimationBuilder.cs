@@ -19,7 +19,8 @@ namespace RelicKeeper.Editor.Hub
         }
 
         public static void ApplyIdle(string artPath, string clipPath, string controllerPath,
-            string prefabPath, string frameName, int frameCount, float frameDuration)
+            string prefabPath, string frameName, int frameCount, float frameDuration,
+            int frameSize = 28, Vector2? pivot = null, float? labelLocalY = null)
         {
             AssetDatabase.ImportAsset(artPath, ImportAssetOptions.ForceSynchronousImport);
             var importer = (TextureImporter)AssetImporter.GetAtPath(artPath);
@@ -34,12 +35,12 @@ namespace RelicKeeper.Editor.Hub
             importer.ReadTextureSettings(settings);
             settings.spriteMeshType = SpriteMeshType.FullRect;
             importer.SetTextureSettings(settings);
-            // The canvas center places the opaque feet 12 pixels below the existing NPC root.
+            // The supplied pivot places the opaque feet 12 pixels below the existing NPC root.
             importer.spritesheet = Enumerable.Range(0, frameCount).Select(i => new SpriteMetaData
             {
                 name = frameName + "_" + i.ToString("D2"),
-                rect = new Rect(i * 28, 0, 28, 28), alignment = (int)SpriteAlignment.Center,
-                pivot = new Vector2(0.5f, 0.5f)
+                rect = new Rect(i * frameSize, 0, frameSize, frameSize), alignment = (int)SpriteAlignment.Custom,
+                pivot = pivot ?? new Vector2(0.5f, 0.5f)
             }).ToArray();
             importer.SaveAndReimport();
             Sprite[] frames = AssetDatabase.LoadAllAssetsAtPath(artPath).OfType<Sprite>().OrderBy(x => x.name).ToArray();
@@ -68,6 +69,16 @@ namespace RelicKeeper.Editor.Hub
                 if (animator == null) animator = prefab.AddComponent<Animator>();
                 animator.runtimeAnimatorController = controller;
                 animator.applyRootMotion = false;
+                if (labelLocalY.HasValue)
+                {
+                    var label = prefab.transform.Find("WorldLabel");
+                    if (label != null)
+                    {
+                        Vector3 position = label.localPosition;
+                        position.y = labelLocalY.Value;
+                        label.localPosition = position;
+                    }
+                }
                 PrefabUtility.SaveAsPrefabAsset(prefab, prefabPath);
             }
             finally { PrefabUtility.UnloadPrefabContents(prefab); }
