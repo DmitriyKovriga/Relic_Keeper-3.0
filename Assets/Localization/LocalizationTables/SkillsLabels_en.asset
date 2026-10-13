@@ -352,6 +352,14 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 100540886008455168
+    m_Localized: Piercing Shot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100540886155255808
+    m_Localized:
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

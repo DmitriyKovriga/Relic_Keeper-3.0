@@ -1,0 +1,383 @@
+fileFormatVersion: 2
+guid: 6df50d971b27d8449a1a6aead9afa5ee
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1780703578747336864
+    second: PiercingArrowEnergy-Sheet_0
+  - first:
+      213: -3211704521845027852
+    second: PiercingArrowEnergy-Sheet_1
+  - first:
+      213: -1178925492125244897
+    second: PiercingArrowEnergy-Sheet_2
+  - first:
+      213: -34884672386526451
+    second: PiercingArrowEnergy-Sheet_3
+  - first:
+      213: -887122701660302013
+    second: PiercingArrowEnergy-Sheet_4
+  - first:
+      213: -4251332558034880208
+    second: PiercingArrowEnergy-Sheet_5
+  - first:
+      213: 4755934193320193630
+    second: PiercingArrowEnergy-Sheet_6
+  - first:
+      213: 3871235698687949217
+    second: PiercingArrowEnergy-Sheet_7
+  - first:
+      213: 7599949398741900780
+    second: PiercingArrowEnergy_00
+  - first:
+      213: -533451682960661410
+    second: PiercingArrowEnergy_01
+  - first:
+      213: 2667634539198806530
+    second: PiercingArrowEnergy_02
+  - first:
+      213: 2702703589708551368
+    second: PiercingArrowEnergy_03
+  - first:
+      213: 5863516938093437974
+    second: PiercingArrowEnergy_04
+  - first:
+      213: 5891597912918436249
+    second: PiercingArrowEnergy_05
+  - first:
+      213: -6591543323992412748
+    second: PiercingArrowEnergy_06
+  - first:
+      213: 2859034787696162642
+    second: PiercingArrowEnergy_07
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 24
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PiercingArrowEnergy_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 32
+        width: 36
+        height: 16
+      alignment: 9
+      pivot: {x: 0.7222222, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ced54fe36b1787960800000000000000
+      internalID: 7599949398741900780
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PiercingArrowEnergy_01
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 32
+        width: 36
+        height: 16
+      alignment: 9
+      pivot: {x: 0.7222222, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e54ab4c458cc898f0800000000000000
+      internalID: -533451682960661410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PiercingArrowEnergy_02
+      rect:
+        serializedVersion: 2
+        x: 72
+        y: 32
+        width: 36
+        height: 16
+      alignment: 9
+      pivot: {x: 0.7222222, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20af18bca77550520800000000000000
+      internalID: 2667634539198806530
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PiercingArrowEnergy_03
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 16
+        width: 36
+        height: 16
+      alignment: 9
+      pivot: {x: 0.7222222, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c450c5689ee18520800000000000000
+      internalID: 2702703589708551368
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PiercingArrowEnergy_04
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 16
+        width: 36
+        height: 16
+      alignment: 9
+      pivot: {x: 0.7222222, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 614ab85c6956f5150800000000000000
+      internalID: 5863516938093437974
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PiercingArrowEnergy_05
+      rect:
+        serializedVersion: 2
+        x: 72
+        y: 16
+        width: 36
+        height: 16
+      alignment: 9
+      pivot: {x: 0.7222222, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 999afe6361923c150800000000000000
+      internalID: 5891597912918436249
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PiercingArrowEnergy_06
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 36
+        height: 16
+      alignment: 9
+      pivot: {x: 0.7222222, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4bda5d335422684a0800000000000000
+      internalID: -6591543323992412748
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PiercingArrowEnergy_07
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 0
+        width: 36
+        height: 16
+      alignment: 9
+      pivot: {x: 0.7222222, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2573d19ddf45da720800000000000000
+      internalID: 2859034787696162642
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      PiercingArrowEnergy-Sheet_0: 1780703578747336864
+      PiercingArrowEnergy-Sheet_1: -3211704521845027852
+      PiercingArrowEnergy-Sheet_2: -1178925492125244897
+      PiercingArrowEnergy-Sheet_3: -34884672386526451
+      PiercingArrowEnergy-Sheet_4: -887122701660302013
+      PiercingArrowEnergy-Sheet_5: -4251332558034880208
+      PiercingArrowEnergy-Sheet_6: 4755934193320193630
+      PiercingArrowEnergy-Sheet_7: 3871235698687949217
+      PiercingArrowEnergy_00: 7599949398741900780
+      PiercingArrowEnergy_01: -533451682960661410
+      PiercingArrowEnergy_02: 2667634539198806530
+      PiercingArrowEnergy_03: 2702703589708551368
+      PiercingArrowEnergy_04: 5863516938093437974
+      PiercingArrowEnergy_05: 5891597912918436249
+      PiercingArrowEnergy_06: -6591543323992412748
+      PiercingArrowEnergy_07: 2859034787696162642
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

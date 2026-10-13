@@ -21,6 +21,16 @@ namespace RelicKeeper.Editor.Skills
 
         public static void CaptureRuntimeViews()
         {
+            Capture(BowShotBuilder.Root + "SimpleBowShotSkill.asset", "codex-bow-shot", "BowShot");
+        }
+
+        public static void CapturePiercingRuntimeViews()
+        {
+            Capture(PiercingBowShotBuilder.Root + "PiercingBowShotSkill.asset", "codex-piercing-bow-shot", "PiercingShot");
+        }
+
+        private static void Capture(string skillPath, string folderName, string fileName)
+        {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
             var root = new GameObject("Temporary bow shot verification");
             var camera = new GameObject("Bow shot verification camera").AddComponent<Camera>();
@@ -39,8 +49,9 @@ namespace RelicKeeper.Editor.Skills
             var owners = new PlayerStats[2];
             try
             {
-                var skill = AssetDatabase.LoadAssetAtPath<SkillDataSO>(BowShotBuilder.Root + "SimpleBowShotSkill.asset");
+                var skill = AssetDatabase.LoadAssetAtPath<SkillDataSO>(skillPath);
                 var shot = skill.Recipe.Steps.Single(step => step.StepDefinition.Id == "SpawnProjectile");
+                var energyClip = shot.GetObject<GameObject>("ProjectilePrefab").GetComponent<Animator>()?.runtimeAnimatorController?.animationClips.FirstOrDefault();
                 var weapon = AssetDatabase.LoadAssetAtPath<Scripts.Items.WeaponItemSO>("Assets/Resources/Items/2HWeapon/Bow/Adventurer's Bow.asset");
                 WeaponStancePoseTableSO.LoadDefault().TryGetById("bow_stance", out var pose);
                 var bodySprite = AssetDatabase.LoadAllAssetsAtPath("Assets/Resources/Heroes/WarriorResources/Warrioir_v0.1.png")
@@ -86,7 +97,7 @@ namespace RelicKeeper.Editor.Skills
                     runners[side] = runner;
                 }
                 target.Create();
-                string folder = Path.Combine(Path.GetTempPath(), "codex-bow-shot");
+                string folder = Path.Combine(Path.GetTempPath(), folderName);
                 Directory.CreateDirectory(folder);
                 for (int frame = 0; frame < 44; frame++)
                 {
@@ -101,6 +112,7 @@ namespace RelicKeeper.Editor.Skills
                             var existing = Object.FindObjectsByType<SkillProjectile>(FindObjectsSortMode.None);
                             typeof(SkillStepRunner).GetMethod("ExecuteSpawnProjectile", Flags).Invoke(runners[side], new object[] { shot });
                             arrows[side] = Object.FindObjectsByType<SkillProjectile>(FindObjectsSortMode.None).Except(existing).Single();
+                            if (energyClip != null) arrows[side].GetComponent<Animator>().enabled = false;
                             if (Vector2.Distance(origin, arrows[side].transform.position) > 0.001f)
                                 throw new InvalidOperationException("Arrow jumped at release.");
                             int strike = skill.Recipe.Steps.FindIndex(step => step.StepDefinition.Id == "WeaponStrike");
@@ -113,12 +125,14 @@ namespace RelicKeeper.Editor.Skills
                             if (arrows[side] != null)
                                 arrows[side].transform.position += Vector3.right * (facing * shot.GetFloat("BaseSpeed", 18) / 24f);
                         }
+                        if (energyClip != null && arrows[side] != null)
+                            energyClip.SampleAnimation(arrows[side].gameObject, (frame - 20) % 8 / 24f);
                     }
                     RenderPipeline.SubmitRenderRequest(camera, new RenderPipeline.StandardRequest { destination = target });
                     RenderTexture.active = target;
                     texture.ReadPixels(new Rect(0, 0, 480, 270), 0, 0);
                     texture.Apply();
-                    File.WriteAllBytes(Path.Combine(folder, "BowShot-" + frame.ToString("D2") + ".png"), texture.EncodeToPNG());
+                    File.WriteAllBytes(Path.Combine(folder, fileName + "-" + frame.ToString("D2") + ".png"), texture.EncodeToPNG());
                 }
                 foreach (var animation in animations)
                 {
