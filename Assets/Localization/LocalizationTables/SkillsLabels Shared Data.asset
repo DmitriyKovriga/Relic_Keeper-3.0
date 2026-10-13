@@ -331,6 +331,14 @@ MonoBehaviour:
     m_Key: skills.SlashSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 100530024493342720
+    m_Key: skills.SimpleBowShotSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100530024526897152
+    m_Key: skills.SimpleBowShotSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
