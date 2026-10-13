@@ -92,19 +92,20 @@ namespace Scripts.Visuals
             _source.GetPropertyBlock(_properties);
             _display.SetPropertyBlock(_properties);
 
-            float stretch = _pulse;
+            bool authored = _characterAnimation != null && _characterAnimation.HasAuthoredPresentation;
+            float stretch = authored ? 0f : _pulse;
             if (_attack != null && _attack.IsDashing)
                 stretch -= 0.035f;
-            float scaleY = 1f + stretch;
+            float scaleY = (authored ? _characterAnimation.PresentationScale.y : 1f) + stretch;
             float width = _characterAnimation != null ? _characterAnimation.PresentationHorizontalScale : 1f;
-            _display.transform.localScale = new Vector3(width / scaleY, scaleY, 1f);
+            _display.transform.localScale = new Vector3(authored ? width : width / scaleY, scaleY, 1f);
             _display.transform.localPosition = new Vector3(0f, ResolveDisplayY(scaleY), 0f);
             if (_renderAnchor != null)
             {
                 bool casting = _skillManager != null && _skillManager.IsAnySkillCasting;
                 bool dashing = _attack != null && _attack.IsDashing;
-                _renderAnchor.WeaponPresentationOffset = Vector3.up * (!casting && !dashing && _characterAnimation != null
-                    ? _characterAnimation.RunWeaponVerticalOffset : 0);
+                _renderAnchor.WeaponPresentationOffset = !casting && !dashing && _characterAnimation != null
+                    ? _characterAnimation.PresentationWeaponOffset : Vector3.zero;
             }
             _pulse *= Mathf.Exp(-_returnSpeed * Time.deltaTime);
         }

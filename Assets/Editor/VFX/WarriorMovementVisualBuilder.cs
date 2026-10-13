@@ -32,8 +32,59 @@ namespace RelicKeeper.Editor.VFX
             warrior.RunAnimation.HorizontalScale = 1f;
             warrior.JumpAnimation.HorizontalScale = 0.94f;
             warrior.FallAnimation.HorizontalScale = 0.97f;
+            // Airborne artwork animates the upper body and legs with a frame-tracked main-hand grip.
+            var neutral = AssetDatabase.LoadAllAssetsAtPath(Root + "WarriorRun-Sheet.png")
+                .OfType<Sprite>().OrderBy(sprite => sprite.name).First();
+            // Airborne narrowing is authored in pixel poses, never transform-scaled.
+            ConfigurePose(warrior.JumpAnimation, neutral, 0.075f, Enumerable.Repeat(Vector2.one, 5).ToArray());
+            ConfigurePose(warrior.FallAnimation, neutral, 0.08f, Enumerable.Repeat(Vector2.one, 5).ToArray());
+            ConfigurePose(warrior.LandingAnimation, neutral, 0.06f, new[] {
+                new Vector2(1.16f, 0.85f), new Vector2(1.12f, 0.89f), new Vector2(0.97f, 1.03f),
+                new Vector2(1.01f, 0.99f), Vector2.one });
+            warrior.JumpAnimation.AirborneRestartFrame = 3;
+            warrior.JumpAnimation.Frames = LoadPoseFrames("WarriorJump");
+            warrior.FallAnimation.Frames = LoadPoseFrames("WarriorFall");
+            // Offsets follow the AI-authored inner fingertip on the right/main-hand side.
+            warrior.JumpAnimation.WeaponHorizontalOffsets = new[] { 0f, 0f, 2f, 3f, 3f }.Select(value => value / 24f).ToArray();
+            warrior.FallAnimation.WeaponHorizontalOffsets = new[] { 3f, 3f, 3f, 3f, 3f }.Select(value => value / 24f).ToArray();
+            warrior.JumpAnimation.WeaponVerticalOffsets = new[] { 0f, 0f, 1f, 3f, 4f }.Select(value => value / 24f).ToArray();
+            warrior.FallAnimation.WeaponVerticalOffsets = new[] { 4f, 4f, 4f, 4f, 4f }.Select(value => value / 24f).ToArray();
             EditorUtility.SetDirty(warrior);
             AssetDatabase.SaveAssets();
+        }
+
+        private static Sprite[] LoadPoseFrames(string name) => AssetDatabase.LoadAllAssetsAtPath(Root + name + "-Sheet.png")
+            .OfType<Sprite>().OrderBy(sprite => sprite.name).ToArray();
+
+        public static void AssembleAirborneFrames()
+        {
+            string source = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", "codex-warrior-refresh");
+            Assemble(source, "", "WarriorJump", 5, "AirbornePoses-sheet.png");
+            Assemble(source, "", "WarriorFall", 5, "AirbornePoses-sheet.png", 4);
+            Apply();
+        }
+
+        public static void AssembleGeneratedAirborneFrames()
+        {
+            string source = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp", "codex-warrior-refresh");
+            for (int i = 0; i < 5; i++)
+            {
+                File.Copy(Path.Combine(source, "NaturalAir-" + i + ".png"), Path.Combine(source, "NaturalJump-" + i + ".png"), true);
+                File.Copy(Path.Combine(source, "NaturalAir-4.png"), Path.Combine(source, "NaturalFall-" + i + ".png"), true);
+            }
+            Assemble(source, "NaturalJump", "WarriorJump", 5);
+            Assemble(source, "NaturalFall", "WarriorFall", 5);
+            Apply();
+        }
+
+        private static void ConfigurePose(CharacterDataSO.CharacterSpriteAnimation animation, Sprite neutral,
+            float frameDuration, Vector2[] scales)
+        {
+            animation.Frames = Enumerable.Repeat(neutral, scales.Length).ToArray();
+            animation.PresentationScales = scales;
+            animation.HorizontalScale = 1;
+            animation.FrameDuration = frameDuration;
+            animation.Loop = false;
         }
 
         public static void AssembleGeneratedFrames()
@@ -53,7 +104,7 @@ namespace RelicKeeper.Editor.VFX
             Apply();
         }
 
-        private static void Assemble(string source, string prefix, string name, int count, string sourceSheetName = null)
+        private static void Assemble(string source, string prefix, string name, int count, string sourceSheetName = null, int sourceFrameOffset = 0)
         {
             int rows = Mathf.CeilToInt(count / 4f);
             var sheet = new Texture2D(112, rows * 28, TextureFormat.RGBA32, false);
@@ -74,7 +125,8 @@ namespace RelicKeeper.Editor.VFX
                     Color32[] pixels;
                     if (sourceSheet != null)
                     {
-                        Color[] crop = sourceSheet.GetPixels(i % 3 * 28, (2 - i / 3) * 28, 28, 28);
+                        int sourceFrame = i + sourceFrameOffset;
+                        Color[] crop = sourceSheet.GetPixels(sourceFrame % 3 * 28, (2 - sourceFrame / 3) * 28, 28, 28);
                         frame.SetPixels(crop);
                         pixels = frame.GetPixels32();
                     }

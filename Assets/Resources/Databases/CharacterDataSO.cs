@@ -31,6 +31,8 @@ public class CharacterDataSO : ScriptableObject
     [Tooltip("Played when vertical velocity changes from upward to downward, then held/looped while falling.")]
     [SerializeField] private CharacterSpriteAnimation _fallAnimation = new CharacterSpriteAnimation { Loop = false };
 
+    [SerializeField] private CharacterSpriteAnimation _landingAnimation = new CharacterSpriteAnimation { Loop = false };
+
     [Header("Starting Stats Configuration")]
     [Tooltip("Добавь сюда только те статы, которые отличаются от стандартных.")]
     [SerializeField] private List<StatConfig> _startingStats;
@@ -51,6 +53,7 @@ public class CharacterDataSO : ScriptableObject
     public CharacterSpriteAnimation RunAnimation => _runAnimation;
     public CharacterSpriteAnimation JumpAnimation => _jumpAnimation;
     public CharacterSpriteAnimation FallAnimation => _fallAnimation;
+    public CharacterSpriteAnimation LandingAnimation => _landingAnimation;
     public PassiveSkillTreeSO PassiveTree => _passiveTree;
 
     public List<StatConfig> StartingStats => _startingStats ??= new List<StatConfig>();
@@ -71,10 +74,16 @@ public class CharacterDataSO : ScriptableObject
         public string SpriteSheetResourcesPath;
         [Min(0.01f)] public float FrameDuration = 0.08f;
         public bool Loop = true;
+        [Tooltip("Jump pose to restart from when another jump begins in the air. Zero preserves the ground-start sequence.")]
+        [Min(0)] public int AirborneRestartFrame;
         [Tooltip("Optional vertical weapon presentation offsets per animation frame, in world units. Used while running.")]
         public float[] WeaponVerticalOffsets;
+        [Tooltip("Optional horizontal weapon presentation offsets matching authored grip poses.")]
+        public float[] WeaponHorizontalOffsets;
         [Tooltip("Presentation width while this animation plays. Does not resize colliders or weapon sockets.")]
         [Range(0.8f, 1.2f)] public float HorizontalScale = 1f;
+        [Tooltip("Optional per-frame width/height poses, interpolated with feet anchored. Empty preserves legacy presentation.")]
+        public Vector2[] PresentationScales;
 
         public bool HasAnySource =>
             (Frames != null && Frames.Length > 0) || !string.IsNullOrWhiteSpace(SpriteSheetResourcesPath);

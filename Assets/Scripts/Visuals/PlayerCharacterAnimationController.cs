@@ -21,7 +21,8 @@ namespace Scripts.Visuals
             Idle,
             Run,
             Jump,
-            Fall
+            Fall,
+            Land
         }
 
         [SerializeField] private SpriteRenderer _renderer;
@@ -32,17 +33,40 @@ namespace Scripts.Visuals
         private RuntimeAnimation _run = RuntimeAnimation.Empty;
         private RuntimeAnimation _jump = RuntimeAnimation.Empty;
         private RuntimeAnimation _fall = RuntimeAnimation.Empty;
+        private RuntimeAnimation _land = RuntimeAnimation.Empty;
         private RuntimeAnimation _current = RuntimeAnimation.Empty;
         private AnimationState _state = AnimationState.Idle;
         private float _frameTimer;
         private int _frameIndex;
+        private bool _animationComplete;
+        private int _airborneJumpStartFrame;
         private bool _wasMovingUp;
         private bool _hasStartedFallThisAirborne;
         private float _suppressGroundRunUntilTime;
         private float _groundContactStartedAt = -1f;
         private bool _wasRawGrounded;
 
-        public float PresentationHorizontalScale => _current.IsValid ? _current.HorizontalScale : 1f;
+        public float PresentationHorizontalScale => PresentationScale.x;
+        public bool HasAuthoredPresentation => _current.PresentationScales != null && _current.PresentationScales.Length == _current.Frames.Length && _current.IsValid;
+        public Vector2 PresentationScale
+        {
+            get
+            {
+                if (!HasAuthoredPresentation) return new Vector2(_current.IsValid ? _current.HorizontalScale : 1f, 1f);
+                int next = Mathf.Min(_frameIndex + 1, _current.Frames.Length - 1);
+                float t = Mathf.SmoothStep(0, 1, Mathf.Clamp01(_frameTimer / _current.FrameDuration));
+                return Vector2.Lerp(_current.PresentationScales[_frameIndex], _current.PresentationScales[next], t);
+            }
+        }
+        public float PresentationWeaponVerticalOffset => HasAuthoredPresentation
+            ? (PresentationScale.y - 1f) * 0.5f +
+                (_state != AnimationState.Run && _current.WeaponVerticalOffsets != null && _current.WeaponVerticalOffsets.Length == _current.Frames.Length
+                    ? _current.WeaponVerticalOffsets[_frameIndex] : 0f)
+            : RunWeaponVerticalOffset;
+        public Vector3 PresentationWeaponOffset => new Vector3(
+            _current.IsValid && _current.WeaponHorizontalOffsets != null && _current.WeaponHorizontalOffsets.Length == _current.Frames.Length
+                ? _current.WeaponHorizontalOffsets[_frameIndex] : 0f, PresentationWeaponVerticalOffset, 0f);
+        private bool IsLandingPlaying => _state == AnimationState.Land && _current.IsValid && !_animationComplete;
 
         public float RunWeaponVerticalOffset
         {
@@ -68,7 +92,10 @@ namespace Scripts.Visuals
         private void OnEnable()
         {
             if (_movement != null)
+            {
                 _movement.OnJumpStarted += HandleJumpStarted;
+                _movement.OnLanded += HandleLanded;
+            }
 
             if (_stats != null)
             {
@@ -86,7 +113,10 @@ namespace Scripts.Visuals
         private void OnDisable()
         {
             if (_movement != null)
+            {
                 _movement.OnJumpStarted -= HandleJumpStarted;
+                _movement.OnLanded -= HandleLanded;
+            }
 
             if (_stats != null)
                 _stats.OnCharacterDataChanged -= ApplyCharacterData;
@@ -105,6 +135,12 @@ namespace Scripts.Visuals
             bool hasConfirmedGround = HasConfirmedGroundContact();
             bool stillVisuallyFalling = !hasConfirmedGround && _state == AnimationState.Fall && velocity.y <= FallingThreshold;
             bool shouldTreatAsAirborne = !hasConfirmedGround || hasJumpGroundLock || velocity.y > UpwardThreshold || stillVisuallyFalling;
+
+            if (IsLandingPlaying && isGrounded && !hasJumpGroundLock)
+            {
+                TickCurrentAnimation();
+                return;
+            }
 
             if (!shouldTreatAsAirborne)
             {
@@ -156,18 +192,39 @@ namespace Scripts.Visuals
 
         private void HandleJumpStarted()
         {
+            bool jumpingInAir = _state == AnimationState.Jump || _state == AnimationState.Fall;
             _wasMovingUp = true;
             _hasStartedFallThisAirborne = false;
             _groundContactStartedAt = -1f;
             _suppressGroundRunUntilTime = Time.time + JumpGroundedVisualLockSeconds;
+            // A real second jump must restart even if the previous jump clip has already completed.
+            // Skip ground anticipation in the air; artwork and grip offsets advance together.
+            if (_jump.IsValid)
+                _current = RuntimeAnimation.Empty;
             Play(AnimationState.Jump, _jump);
+            if (jumpingInAir && _jump.IsValid)
+            {
+                _frameIndex = _airborneJumpStartFrame;
+                _renderer.sprite = _current.Frames[_frameIndex];
+            }
+        }
+
+        private void HandleLanded()
+        {
+            // Ignore initialization/duplicate contacts; a new jump interrupts recovery immediately.
+            if (_state != AnimationState.Jump && _state != AnimationState.Fall) return;
+            _wasMovingUp = false;
+            _hasStartedFallThisAirborne = false;
+            Play(AnimationState.Land, _land);
         }
 
         private void ApplyCharacterData(CharacterDataSO data)
         {
             _run = RuntimeAnimation.From(data?.RunAnimation);
             _jump = RuntimeAnimation.From(data?.JumpAnimation);
+            _airborneJumpStartFrame = Mathf.Clamp(data?.JumpAnimation?.AirborneRestartFrame ?? 0, 0, Mathf.Max(0, _jump.Frames.Length - 1));
             _fall = RuntimeAnimation.From(data?.FallAnimation).WithLoop(false);
+            _land = RuntimeAnimation.From(data?.LandingAnimation).WithLoop(false);
             _idleSprite = _run.IsValid
                 ? _run.Frames[0]
                 : data != null && data.Portrait != null
@@ -180,6 +237,7 @@ namespace Scripts.Visuals
             _current = RuntimeAnimation.Empty;
             _frameTimer = 0f;
             _frameIndex = 0;
+            _animationComplete = false;
             _hasStartedFallThisAirborne = false;
 
             if (_renderer != null && _idleSprite != null)
@@ -195,6 +253,7 @@ namespace Scripts.Visuals
             _current = RuntimeAnimation.Empty;
             _frameTimer = 0f;
             _frameIndex = 0;
+            _animationComplete = false;
 
             if (_idleSprite != null)
                 _renderer.sprite = _idleSprite;
@@ -216,6 +275,7 @@ namespace Scripts.Visuals
             _current = animation;
             _frameTimer = 0f;
             _frameIndex = 0;
+            _animationComplete = false;
             _renderer.sprite = _current.Frames[0];
         }
 
@@ -238,6 +298,7 @@ namespace Scripts.Visuals
                     }
                     else
                     {
+                        _animationComplete = true;
                         _frameIndex = _current.Frames.Length - 1;
                         _renderer.sprite = _current.Frames[_frameIndex];
                         return;
@@ -257,22 +318,26 @@ namespace Scripts.Visuals
             public readonly float FrameDuration;
             public readonly bool Loop;
             public readonly float[] WeaponVerticalOffsets;
+            public readonly float[] WeaponHorizontalOffsets;
             public readonly float HorizontalScale;
+            public readonly Vector2[] PresentationScales;
             public bool IsValid => Frames != null && Frames.Length > 0;
 
-            private RuntimeAnimation(Sprite[] frames, float frameDuration, bool loop, float[] weaponVerticalOffsets = null, float horizontalScale = 1f)
+            private RuntimeAnimation(Sprite[] frames, float frameDuration, bool loop, float[] weaponVerticalOffsets = null, float horizontalScale = 1f, Vector2[] presentationScales = null, float[] weaponHorizontalOffsets = null)
             {
                 Frames = frames;
                 FrameDuration = frameDuration;
                 Loop = loop;
                 WeaponVerticalOffsets = weaponVerticalOffsets;
+                WeaponHorizontalOffsets = weaponHorizontalOffsets;
+                PresentationScales = presentationScales;
                 HorizontalScale = horizontalScale > 0 ? Mathf.Clamp(horizontalScale, 0.8f, 1.2f) : 1f;
             }
 
             public RuntimeAnimation WithLoop(bool loop)
             {
                 return IsValid && Loop != loop
-                    ? new RuntimeAnimation(Frames, FrameDuration, loop, WeaponVerticalOffsets, HorizontalScale)
+                    ? new RuntimeAnimation(Frames, FrameDuration, loop, WeaponVerticalOffsets, HorizontalScale, PresentationScales, WeaponHorizontalOffsets)
                     : this;
             }
 
@@ -286,7 +351,7 @@ namespace Scripts.Visuals
                     : LoadFramesFromResources(source.SpriteSheetResourcesPath);
 
                 return frames.Length > 0
-                    ? new RuntimeAnimation(frames, source.FrameDuration, source.Loop, source.WeaponVerticalOffsets, source.HorizontalScale)
+                    ? new RuntimeAnimation(frames, source.FrameDuration, source.Loop, source.WeaponVerticalOffsets, source.HorizontalScale, source.PresentationScales, source.WeaponHorizontalOffsets)
                     : Empty;
             }
 

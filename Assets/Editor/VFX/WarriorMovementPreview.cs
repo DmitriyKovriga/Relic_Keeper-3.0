@@ -25,7 +25,12 @@ namespace RelicKeeper.Editor.VFX
             Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Warrior-axe-runtime-");
         }
 
-        private static void Capture(string weaponPath, string stanceId, string outputPrefix)
+        public static void CaptureDoubleJumpRuntimeViews()
+        {
+            Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Warrior-double-runtime-", true);
+        }
+
+        private static void Capture(string weaponPath, string stanceId, string outputPrefix, bool doubleJump = false)
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
             var root = new GameObject("Temporary warrior animation preview");
@@ -111,26 +116,35 @@ namespace RelicKeeper.Editor.VFX
                 target.Create();
                 string folder = Path.Combine(Path.GetTempPath(), "codex-warrior-refresh");
                 Directory.CreateDirectory(folder);
-                for (int frame = 0; frame < 80; frame++)
+                for (int frame = 0; frame < (doubleJump ? 94 : 80); frame++)
                 {
                     for (int side = 0; side < 2; side++)
                     {
                         var controller = controllers[side];
                         if (frame == 32) type.GetMethod("HandleJumpStarted", Flags).Invoke(controller, null);
-                        if (frame == 46) play.Invoke(controller, new[] { Enum.Parse(stateType, "Fall"), type.GetField("_fall", Flags).GetValue(controller) });
-                        if (frame == 60) play.Invoke(controller, new[] { Enum.Parse(stateType, "Run"), type.GetField("_run", Flags).GetValue(controller) });
+                        if (doubleJump && frame == 42) type.GetMethod("HandleJumpStarted", Flags).Invoke(controller, null);
+                        if (frame == (doubleJump ? 56 : 46)) play.Invoke(controller, new[] { Enum.Parse(stateType, "Fall"), type.GetField("_fall", Flags).GetValue(controller) });
+                        if (frame == (doubleJump ? 74 : 60)) type.GetMethod("HandleLanded", Flags).Invoke(controller, null);
+                        if (frame == (doubleJump ? 81 : 67)) play.Invoke(controller, new[] { Enum.Parse(stateType, "Run"), type.GetField("_run", Flags).GetValue(controller) });
                         timer.SetValue(controller, (float)timer.GetValue(controller) + 1f / 24 - Time.deltaTime);
                         tick.Invoke(controller, null);
                         displays[side].sprite = sources[side].sprite;
-                        displays[side].transform.localScale = new Vector3(controller.PresentationHorizontalScale, 1f, 1f);
-                        actors[side].GetComponent<PlayerRenderAnchor>().WeaponPresentationOffset = Vector3.up * controller.RunWeaponVerticalOffset;
+                        displays[side].transform.localScale = new Vector3(controller.PresentationScale.x, controller.PresentationScale.y, 1f);
+                        actors[side].GetComponent<PlayerRenderAnchor>().WeaponPresentationOffset = controller.PresentationWeaponOffset;
                         float airborne = frame >= 32 && frame < 60 ? (frame - 32) / 28f : 0;
                         float height = 4 * 1.5f * airborne * (1 - airborne);
+                        if (doubleJump && frame >= 42 && frame < 74)
+                        {
+                            float secondArc = (frame - 42) / 32f;
+                            float startHeight = 6f * (10f / 28) * (1 - 10f / 28);
+                            height = startHeight * (1 - secondArc) + 6f * secondArc * (1 - secondArc);
+                        }
+                        else if (doubleJump && frame >= 74) height = 0f;
                         var position = actors[side].position;
                         position.y = height;
                         actors[side].position = position;
                         // Same full-rectangle foot anchoring used by PlayerMovementVisual at scale 1.
-                        displays[side].transform.localPosition = Vector3.up * -displays[side].sprite.bounds.min.y;
+                        displays[side].transform.localPosition = Vector3.up * -displays[side].sprite.bounds.min.y * controller.PresentationScale.y;
                     }
                     RenderPipeline.SubmitRenderRequest(camera, new RenderPipeline.StandardRequest { destination = target });
                     RenderTexture.active = target;

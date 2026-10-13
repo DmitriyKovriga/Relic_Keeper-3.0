@@ -23,6 +23,7 @@ MonoBehaviour:
     SpriteSheetResourcesPath: Heroes/WarriorResources/Refined/WarriorRun-Sheet
     FrameDuration: 0.080000006
     Loop: 1
+    AirborneRestartFrame: 0
     WeaponVerticalOffsets:
     - 0
     - 0
@@ -33,21 +34,89 @@ MonoBehaviour:
     - -0.041666668
     - -0.041666668
     - 0
+    WeaponHorizontalOffsets: []
     HorizontalScale: 1
+    PresentationScales: []
   _jumpAnimation:
-    Frames: []
+    Frames:
+    - {fileID: -8306784136560139988, guid: b49ad233186031b4b9a23b0c9e80cb66, type: 3}
+    - {fileID: 889142786580438068, guid: b49ad233186031b4b9a23b0c9e80cb66, type: 3}
+    - {fileID: -6276931957488123729, guid: b49ad233186031b4b9a23b0c9e80cb66, type: 3}
+    - {fileID: -8800052131613116107, guid: b49ad233186031b4b9a23b0c9e80cb66, type: 3}
+    - {fileID: 3663982193765920448, guid: b49ad233186031b4b9a23b0c9e80cb66, type: 3}
     SpriteSheetResourcesPath: Heroes/WarriorResources/Refined/WarriorJump-Sheet
-    FrameDuration: 0.064
+    FrameDuration: 0.075
     Loop: 0
-    WeaponVerticalOffsets: []
-    HorizontalScale: 0.94
+    AirborneRestartFrame: 3
+    WeaponVerticalOffsets:
+    - 0
+    - 0
+    - 0.041666668
+    - 0.125
+    - 0.16666667
+    WeaponHorizontalOffsets:
+    - 0
+    - 0
+    - 0.083333336
+    - 0.125
+    - 0.125
+    HorizontalScale: 1
+    PresentationScales:
+    - {x: 1, y: 1}
+    - {x: 1, y: 1}
+    - {x: 1, y: 1}
+    - {x: 1, y: 1}
+    - {x: 1, y: 1}
   _fallAnimation:
-    Frames: []
+    Frames:
+    - {fileID: 8597173849412214529, guid: 46aa13534f7736f4a908554f55c47555, type: 3}
+    - {fileID: -5726844478733346993, guid: 46aa13534f7736f4a908554f55c47555, type: 3}
+    - {fileID: 4962895472913417721, guid: 46aa13534f7736f4a908554f55c47555, type: 3}
+    - {fileID: -6358086683270580088, guid: 46aa13534f7736f4a908554f55c47555, type: 3}
+    - {fileID: -8999069851747369337, guid: 46aa13534f7736f4a908554f55c47555, type: 3}
     SpriteSheetResourcesPath: Heroes/WarriorResources/Refined/WarriorFall-Sheet
-    FrameDuration: 0.064
+    FrameDuration: 0.08
     Loop: 0
+    AirborneRestartFrame: 0
+    WeaponVerticalOffsets:
+    - 0.16666667
+    - 0.16666667
+    - 0.16666667
+    - 0.16666667
+    - 0.16666667
+    WeaponHorizontalOffsets:
+    - 0.125
+    - 0.125
+    - 0.125
+    - 0.125
+    - 0.125
+    HorizontalScale: 1
+    PresentationScales:
+    - {x: 1, y: 1}
+    - {x: 1, y: 1}
+    - {x: 1, y: 1}
+    - {x: 1, y: 1}
+    - {x: 1, y: 1}
+  _landingAnimation:
+    Frames:
+    - {fileID: 4072664509401770835, guid: 5fa4b9120cf050e43b8462181e97c15c, type: 3}
+    - {fileID: 4072664509401770835, guid: 5fa4b9120cf050e43b8462181e97c15c, type: 3}
+    - {fileID: 4072664509401770835, guid: 5fa4b9120cf050e43b8462181e97c15c, type: 3}
+    - {fileID: 4072664509401770835, guid: 5fa4b9120cf050e43b8462181e97c15c, type: 3}
+    - {fileID: 4072664509401770835, guid: 5fa4b9120cf050e43b8462181e97c15c, type: 3}
+    SpriteSheetResourcesPath:
+    FrameDuration: 0.06
+    Loop: 0
+    AirborneRestartFrame: 0
     WeaponVerticalOffsets: []
-    HorizontalScale: 0.97
+    WeaponHorizontalOffsets: []
+    HorizontalScale: 1
+    PresentationScales:
+    - {x: 1.16, y: 0.85}
+    - {x: 1.12, y: 0.89}
+    - {x: 0.97, y: 1.03}
+    - {x: 1.01, y: 0.99}
+    - {x: 1, y: 1}
   _startingStats:
   - Type: 0
     Value: 75

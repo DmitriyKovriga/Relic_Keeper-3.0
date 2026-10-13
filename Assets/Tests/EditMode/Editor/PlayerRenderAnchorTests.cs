@@ -107,6 +107,21 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(_weapons.localPosition, Is.EqualTo(weapons));
         }
 
+        [TestCase(1)]
+        [TestCase(-1)]
+        public void AirborneGrip_MovesWeaponInwardInBothFacings_AndRestoresSocket(int facing)
+        {
+            _owner.transform.localScale = new Vector3(facing, 1, 1);
+            Vector3 weapon = _weapons.position, body = _body.position, logicalSocket = _weapons.localPosition;
+            _anchor.WeaponPresentationOffset = Vector3.left * (2f / 24);
+            _anchor.BeginRender(_camera);
+            Vector3 shared = _body.position - body;
+            Vector3 correction = _weapons.position - weapon - shared;
+            Assert.That(correction.x, Is.EqualTo(-facing * 2f / 24).Within(0.00001f));
+            _anchor.EndRender(_camera);
+            Assert.That(_weapons.localPosition, Is.EqualTo(logicalSocket));
+        }
+
         [Test]
         public void WeaponBob_IsPresentationOnly_AndRestoresTheAttackSocket()
         {
