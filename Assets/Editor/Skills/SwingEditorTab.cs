@@ -55,6 +55,8 @@ namespace Scripts.Editor.Skills
         private Vector2 _draftWindupPos;
         private float _draftImpactZ;
         private Vector2 _draftImpactPos;
+        private Vector2 _draftNockPosition;
+        private float _draftNockPullback;
         private bool _dirty;
 
         private bool _draggingPos;
@@ -248,6 +250,11 @@ namespace Scripts.Editor.Skills
             _draftImpactPos = EditorGUILayout.Vector2Field("Impact Local Pos", _draftImpactPos);
             _draftImpactZ = EditorGUILayout.FloatField("Impact Euler Z", _draftImpactZ);
             _draftImpactZ = EditorGUILayout.Slider("Impact Rotate", _draftImpactZ, -180f, 180f);
+            if (_selectedStyle == WeaponSwingStyle.BowDraw)
+            {
+                _draftNockPosition = EditorGUILayout.Vector2Field("Nocked Arrow Offset", _draftNockPosition);
+                _draftNockPullback = Mathf.Max(0, EditorGUILayout.FloatField("Arrow Pullback", _draftNockPullback));
+            }
             if (EditorGUI.EndChangeCheck())
             {
                 _dirty = true;
@@ -795,6 +802,8 @@ namespace Scripts.Editor.Skills
             _draftWindupPos = kf.WindupLocalPos;
             _draftImpactZ = kf.ImpactZ;
             _draftImpactPos = kf.ImpactLocalPos;
+            _draftNockPosition = kf.NockedProjectileLocalPosition;
+            _draftNockPullback = kf.NockedProjectilePullback;
         }
 
         private static WeaponSwingStyleTableSO.SwingKeyframes FindDefault(WeaponSwingStyle style)
@@ -872,7 +881,9 @@ namespace Scripts.Editor.Skills
                 WindupZ = _draftWindupZ,
                 WindupLocalPos = _draftWindupPos,
                 ImpactZ = _draftImpactZ,
-                ImpactLocalPos = _draftImpactPos
+                ImpactLocalPos = _draftImpactPos,
+                NockedProjectileLocalPosition = _draftNockPosition,
+                NockedProjectilePullback = _draftNockPullback
             };
 
             Undo.RecordObject(_table, "Edit Swing Style");

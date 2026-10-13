@@ -28,6 +28,10 @@ namespace Scripts.Visuals
             public float ImpactZ;
             [Tooltip("HandPivot local position delta at impact (parent/Visuals space).")]
             public Vector2 ImpactLocalPos;
+            [Tooltip("Bow Draw only: arrow centre offset from the weapon holder, in HandPivot space.")]
+            public Vector2 NockedProjectileLocalPosition;
+            [Tooltip("Bow Draw only: backward arrow travel during windup, in local units.")]
+            public float NockedProjectilePullback;
             public string Id;
             public string DisplayName;
             public string[] AllowedStanceIds;
@@ -52,6 +56,7 @@ namespace Scripts.Visuals
                 case WeaponSwingStyle.Slash: return "slash";
                 case WeaponSwingStyle.LowArc: return "low_arc";
                 case WeaponSwingStyle.OverheadStab: return "overhead_stab";
+                case WeaponSwingStyle.BowDraw: return "bow_draw";
                 default: return "slash";
             }
         }
@@ -63,6 +68,7 @@ namespace Scripts.Visuals
                 case WeaponSwingStyle.Slash: return "Slash";
                 case WeaponSwingStyle.LowArc: return "Low Arc";
                 case WeaponSwingStyle.OverheadStab: return "Overhead Stab";
+                case WeaponSwingStyle.BowDraw: return "Bow Draw";
                 case WeaponSwingStyle.FromStance: return "From Stance";
                 default: return style.ToString();
             }
@@ -72,6 +78,8 @@ namespace Scripts.Visuals
         {
             switch (style)
             {
+                case WeaponSwingStyle.BowDraw:
+                    return new[] { "bow_stance" };
                 case WeaponSwingStyle.LowArc:
                     return new[] { "low_guard" };
                 case WeaponSwingStyle.OverheadStab:
@@ -119,6 +127,19 @@ namespace Scripts.Visuals
                     Id = "overhead_stab",
                     DisplayName = "Overhead Stab",
                     AllowedStanceIds = CanonicalAllowedStanceIds(WeaponSwingStyle.OverheadStab)
+                },
+                new SwingKeyframes
+                {
+                    Style = WeaponSwingStyle.BowDraw,
+                    WindupZ = 0f,
+                    WindupLocalPos = new Vector2(-1f / 24, 0),
+                    ImpactZ = 0f,
+                    ImpactLocalPos = new Vector2(1f / 24, 0),
+                    Id = "bow_draw",
+                    DisplayName = "Bow Draw",
+                    AllowedStanceIds = CanonicalAllowedStanceIds(WeaponSwingStyle.BowDraw),
+                    NockedProjectileLocalPosition = new Vector2(6f / 24, 0),
+                    NockedProjectilePullback = 4f / 24
                 }
             };
         }

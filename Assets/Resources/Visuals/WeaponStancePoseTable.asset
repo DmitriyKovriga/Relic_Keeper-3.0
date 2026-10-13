@@ -76,4 +76,4 @@ MonoBehaviour:
     FlipY: 0
     Id: bow_stance
     DisplayName: Bow Stance
-    DefaultSwingId: slash
+    DefaultSwingId: bow_draw

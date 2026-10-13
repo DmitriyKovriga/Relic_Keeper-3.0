@@ -19,6 +19,8 @@ MonoBehaviour:
     WindupLocalPos: {x: 0.05, y: 0.08}
     ImpactZ: -30
     ImpactLocalPos: {x: 0, y: 0}
+    NockedProjectileLocalPosition: {x: 0, y: 0}
+    NockedProjectilePullback: 0
     Id: slash
     DisplayName: Slash
     AllowedStanceIds:
@@ -31,6 +33,8 @@ MonoBehaviour:
     WindupLocalPos: {x: -0.20833305, y: -0.094722345}
     ImpactZ: 8.4
     ImpactLocalPos: {x: 0.36388886, y: 0.069}
+    NockedProjectileLocalPosition: {x: 0, y: 0}
+    NockedProjectilePullback: 0
     Id: low_arc
     DisplayName: Low Arc
     AllowedStanceIds:
@@ -40,6 +44,8 @@ MonoBehaviour:
     WindupLocalPos: {x: 0.004444446, y: 0.34805548}
     ImpactZ: -178.1
     ImpactLocalPos: {x: 0.7180549, y: -0.7124993}
+    NockedProjectileLocalPosition: {x: 0, y: 0}
+    NockedProjectilePullback: 0
     Id: overhead_stab
     DisplayName: Overhead Stab
     AllowedStanceIds:
@@ -49,7 +55,20 @@ MonoBehaviour:
     WindupLocalPos: {x: 0.10555558, y: 0.5175001}
     ImpactZ: -81.8
     ImpactLocalPos: {x: 0.60416645, y: -0.29861122}
+    NockedProjectileLocalPosition: {x: 0, y: 0}
+    NockedProjectilePullback: 0
     Id: overhead
     DisplayName: OverHead
     AllowedStanceIds:
     - shoulder
+  - Style: 4
+    WindupZ: 0
+    WindupLocalPos: {x: -0.041666668, y: 0}
+    ImpactZ: 0
+    ImpactLocalPos: {x: 0.041666668, y: 0}
+    NockedProjectileLocalPosition: {x: 0.25, y: 0}
+    NockedProjectilePullback: 0.16666667
+    Id: bow_draw
+    DisplayName: Bow Draw
+    AllowedStanceIds:
+    - bow_stance

@@ -94,6 +94,15 @@ namespace Scripts.Skills
                 AoeScale = 1f + _ownerStats.GetValue(StatType.AreaOfEffect) / 100f,
                 Cancelled = false
             };
+            if (_animCtrl != null && _animCtrl.ActiveStyle == WeaponSwingStyle.BowDraw)
+            {
+                foreach (var step in _data.Recipe.Steps)
+                {
+                    if (step?.StepDefinition?.Id != "SpawnProjectile") continue;
+                    _animCtrl.PrepareDrawnProjectile(step.GetObject<GameObject>("ProjectilePrefab"));
+                    break;
+                }
+            }
             _runCoroutine = StartCoroutine(RunRecipe());
         }
 
@@ -331,7 +340,7 @@ namespace Scripts.Skills
                     _animCtrl.LerpWindup(phaseT);
                     break;
                 case "WeaponStrike":
-                    _animCtrl.SetWeaponVisible(false);
+                    _animCtrl.SetWeaponVisible(_animCtrl.KeepsWeaponVisibleAtImpact);
                     _animCtrl.SnapImpact();
                     break;
                 case "WeaponRecovery":
@@ -641,6 +650,10 @@ namespace Scripts.Skills
             };
 
             Vector2 origin = (Vector2)_ownerStats.transform.position + new Vector2(offsetX * _ctx.FacingDirection, offsetY);
+            Vector2 drawnOrigin = Vector2.zero;
+            bool releaseDrawnProjectile = !groundMotion && _animCtrl != null && _animCtrl.TryGetDrawnProjectilePosition(out drawnOrigin);
+            if (releaseDrawnProjectile)
+                origin = drawnOrigin;
             if (data.GroundMotion && TryProjectToGround(origin, data.GroundLayer, data.GroundSnapUp, data.GroundSnapDown, data.GroundYOffset, out Vector2 groundedOrigin))
                 origin = groundedOrigin;
             else if (data.GroundMotion && !step.GetBool("AllowWithoutGround", false))
@@ -665,6 +678,7 @@ namespace Scripts.Skills
 
                 SkillProjectile.Spawn(data, spawnPos, direction, null);
             }
+            if (releaseDrawnProjectile) _animCtrl.ReleaseDrawnProjectile();
         }
 
         private void ExecuteSpawnOrbitProjectiles(StepEntry step)

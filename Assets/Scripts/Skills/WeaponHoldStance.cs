@@ -30,7 +30,8 @@ namespace Scripts.Skills
         FromStance = 0,
         Slash = 1,
         LowArc = 2,
-        OverheadStab = 3
+        OverheadStab = 3,
+        BowDraw = 4
     }
 
     /// <summary>
@@ -55,6 +56,12 @@ namespace Scripts.Skills
         {
             WeaponSwingStyle.FromStance,
             WeaponSwingStyle.OverheadStab
+        };
+
+        private static readonly WeaponSwingStyle[] FallbackBowStyles =
+        {
+            WeaponSwingStyle.FromStance,
+            WeaponSwingStyle.BowDraw
         };
 
         public static string ResolveStanceId(SkillDataSO data)
@@ -168,6 +175,8 @@ namespace Scripts.Skills
                 return FallbackLowGuardStyles;
             if (string.Equals(stanceId, "dagger", StringComparison.Ordinal))
                 return FallbackDaggerStyles;
+            if (string.Equals(stanceId, "bow_stance", StringComparison.Ordinal))
+                return FallbackBowStyles;
             return FallbackDefaultSlashStyles;
         }
 
@@ -241,6 +250,8 @@ namespace Scripts.Skills
                 return WeaponSwingStyle.LowArc;
             if (string.Equals(id, "overhead_stab", StringComparison.Ordinal))
                 return WeaponSwingStyle.OverheadStab;
+            if (string.Equals(id, "bow_draw", StringComparison.Ordinal))
+                return WeaponSwingStyle.BowDraw;
             if (string.Equals(id, "slash", StringComparison.Ordinal))
                 return WeaponSwingStyle.Slash;
             return WeaponSwingStyle.Slash;

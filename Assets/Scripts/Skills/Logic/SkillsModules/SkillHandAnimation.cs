@@ -35,6 +35,11 @@ namespace Scripts.Skills.Modules
 
         private Transform _handPivot;
         private SpriteRenderer _weaponRenderer;
+        private SpriteRenderer _nockedProjectile;
+        private Vector3 _nockPosition;
+        private Vector2 _nockOffset;
+        private float _nockPullback;
+        public bool KeepsWeaponVisibleAtImpact => _activeStyle == WeaponSwingStyle.BowDraw;
 
         private Vector3 _defaultPos = Vector3.zero;
         private Quaternion _defaultRot = Quaternion.identity;
@@ -73,6 +78,7 @@ namespace Scripts.Skills.Modules
         {
             if (style == WeaponSwingStyle.FromStance)
                 style = WeaponSwingStyle.Slash;
+            ReleaseDrawnProjectile();
             _activeStyle = style;
             _activeStyleId = WeaponSwingStyleTableSO.CanonicalId(style);
             ApplyStyleKeyframes(style);
@@ -82,6 +88,7 @@ namespace Scripts.Skills.Modules
         {
             if (string.IsNullOrEmpty(styleId))
                 styleId = "slash";
+            ReleaseDrawnProjectile();
             _activeStyleId = styleId;
             _activeStyle = WeaponSwingStyleResolver.StyleIdToEnum(styleId);
             ApplyStyleKeyframesById(styleId);
@@ -99,6 +106,12 @@ namespace Scripts.Skills.Modules
             t = Mathf.Clamp01(t);
             _handPivot.localRotation = Quaternion.Slerp(_defaultRot, _windupRot, t);
             _handPivot.localPosition = Vector3.Lerp(_defaultPos, _windupPos, t);
+            if (_nockedProjectile != null && _nockedProjectile.enabled)
+            {
+                _nockedProjectile.transform.localPosition = _nockPosition + Vector3.left * (_nockPullback * t);
+                _nockedProjectile.sortingLayerID = _weaponRenderer.sortingLayerID;
+                _nockedProjectile.sortingOrder = _weaponRenderer.sortingOrder + 1;
+            }
         }
 
         /// <summary>Snap HandPivot to impact pose. Does not hide weapon (callers do).</summary>
@@ -138,6 +151,46 @@ namespace Scripts.Skills.Modules
             LerpRecovery(t);
         }
 
+        // A visual-only arrow is held during draw; the damage projectile starts at release.
+        public void PrepareDrawnProjectile(GameObject projectilePrefab)
+        {
+            ReleaseDrawnProjectile();
+            if (_activeStyle != WeaponSwingStyle.BowDraw || _handPivot == null || _weaponRenderer == null || projectilePrefab == null)
+                return;
+            var source = projectilePrefab.GetComponentInChildren<SpriteRenderer>();
+            if (source == null || source.sprite == null) return;
+            if (_nockedProjectile == null)
+            {
+                var arrow = new GameObject("Nocked projectile");
+                arrow.transform.SetParent(_handPivot, false);
+                _nockedProjectile = arrow.AddComponent<SpriteRenderer>();
+            }
+            _nockedProjectile.sprite = source.sprite;
+            _nockedProjectile.sharedMaterial = source.sharedMaterial;
+            _nockedProjectile.color = source.color;
+            _nockedProjectile.sortingLayerID = _weaponRenderer.sortingLayerID;
+            _nockedProjectile.sortingOrder = _weaponRenderer.sortingOrder + 1;
+            _nockPosition = _handPivot.InverseTransformPoint(_weaponRenderer.transform.position) + (Vector3)_nockOffset;
+            _nockedProjectile.transform.localPosition = _nockPosition;
+            _nockedProjectile.transform.localRotation = Quaternion.identity;
+            _nockedProjectile.transform.localScale = Vector3.one;
+            _nockedProjectile.enabled = true;
+        }
+
+        public bool TryGetDrawnProjectilePosition(out Vector2 position)
+        {
+            position = Vector2.zero;
+            if (_nockedProjectile == null || !_nockedProjectile.enabled || _activeStyle != WeaponSwingStyle.BowDraw)
+                return false;
+            position = _nockedProjectile.transform.position;
+            return true;
+        }
+
+        public void ReleaseDrawnProjectile()
+        {
+            if (_nockedProjectile != null) _nockedProjectile.enabled = false;
+        }
+
         // --- Visibility / reset ---
 
         public void SetWeaponVisible(bool isVisible)
@@ -147,6 +200,7 @@ namespace Scripts.Skills.Modules
 
         public void ForceReset()
         {
+            ReleaseDrawnProjectile();
             if (_handPivot != null)
             {
                 _handPivot.localRotation = _defaultRot;
@@ -175,6 +229,11 @@ namespace Scripts.Skills.Modules
         {
             EnsureStyleTable();
 
+            var bowDefaults = WeaponSwingStyleTableSO.CreateDefaultStyleTable();
+            _nockOffset = Vector2.zero;
+            _nockPullback = 0;
+            foreach (var row in bowDefaults)
+                if (row.Style == WeaponSwingStyle.BowDraw) { _nockOffset = row.NockedProjectileLocalPosition; _nockPullback = row.NockedProjectilePullback; }
             float windupZ;
             float impactZ;
             Vector2 windupOff;
@@ -182,6 +241,8 @@ namespace Scripts.Skills.Modules
 
             if (_styleTable != null && _styleTable.TryGetById(styleId, out WeaponSwingStyleTableSO.SwingKeyframes kf))
             {
+                _nockOffset = kf.NockedProjectileLocalPosition;
+                _nockPullback = Mathf.Max(0, kf.NockedProjectilePullback);
                 windupZ = kf.WindupZ;
                 impactZ = kf.ImpactZ;
                 windupOff = kf.WindupLocalPos;
@@ -215,6 +276,13 @@ namespace Scripts.Skills.Modules
         {
             switch (style)
             {
+                case WeaponSwingStyle.BowDraw:
+                    var bow = System.Array.Find(WeaponSwingStyleTableSO.CreateDefaultStyleTable(), row => row.Style == WeaponSwingStyle.BowDraw);
+                    windupZ = bow.WindupZ;
+                    impactZ = bow.ImpactZ;
+                    windupOff = bow.WindupLocalPos;
+                    impactOff = bow.ImpactLocalPos;
+                    break;
                 case WeaponSwingStyle.LowArc:
                     windupZ = LowArcWindupZ;
                     impactZ = LowArcImpactZ;
