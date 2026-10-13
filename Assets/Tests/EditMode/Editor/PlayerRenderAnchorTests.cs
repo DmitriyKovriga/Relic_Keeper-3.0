@@ -73,6 +73,47 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(Vector3.Distance(_weapons.position, weaponBefore), Is.LessThan(0.000001f));
         }
 
+        [TestCase(1)]
+        [TestCase(-1)]
+        public void AirborneLean_RotatesBodyAndGripTogether_AndRestoresPhysicsAndSockets(int facing)
+        {
+            _owner.transform.localScale = new Vector3(facing, 1, 1);
+            _body.localRotation = Quaternion.Euler(0, 0, 11);
+            _weapons.localRotation = Quaternion.Euler(0, 0, -19);
+            Vector3 body = _body.localPosition, weapons = _weapons.localPosition;
+            Quaternion bodyRotation = _body.localRotation, weaponsRotation = _weapons.localRotation;
+            Vector3 root = _owner.transform.position;
+            Physics2D.SyncTransforms();
+            var collider = _owner.GetComponent<BoxCollider2D>();
+            var bounds = collider.bounds;
+            var grip = new GameObject("Authored attack socket").transform;
+            grip.SetParent(_weapons, false);
+            grip.localPosition = new Vector3(0.2f, 0.1f, 0);
+            Vector3 socketBefore = grip.position;
+            Vector3 bodyUpBefore = _body.up;
+            _anchor.PresentationLeanDegrees = -6f;
+            _anchor.WeaponPresentationOffset = new Vector3(2f / 24, 3f / 24, 0);
+            Vector3 relativeBefore = _weapons.position + _owner.transform.TransformVector(_anchor.WeaponPresentationOffset) - _body.position;
+            Quaternion lean = Quaternion.Euler(0, 0, -6f * facing);
+            for (int i = 0; i < 3; i++)
+            {
+                _anchor.BeginRender(_camera);
+                Assert.That(Vector3.Distance(_weapons.position - _body.position, lean * relativeBefore), Is.LessThan(0.00001f), "Weapon must share body lean around the same pivot.");
+                Assert.That(Vector3.Distance(_body.up, lean * bodyUpBefore), Is.LessThan(0.00001f));
+                Assert.That(_owner.transform.position, Is.EqualTo(root));
+                Assert.That(_owner.transform.rotation, Is.EqualTo(Quaternion.identity));
+                Physics2D.SyncTransforms();
+                Assert.That(collider.bounds, Is.EqualTo(bounds));
+                // Also covers a render interrupted before the camera-end callback.
+                _anchor.Restore();
+                Assert.That(_body.localPosition, Is.EqualTo(body));
+                Assert.That(_weapons.localPosition, Is.EqualTo(weapons));
+                Assert.That(_body.localRotation, Is.EqualTo(bodyRotation));
+                Assert.That(_weapons.localRotation, Is.EqualTo(weaponsRotation));
+                Assert.That(Vector3.Distance(grip.position, socketBefore), Is.LessThan(0.00001f));
+            }
+        }
+
         [Test]
         public void RepeatedRenders_DoNotAccumulateOffset_OrChangeAuthoredSockets()
         {

@@ -30,7 +30,12 @@ namespace RelicKeeper.Editor.VFX
             Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Warrior-double-runtime-", true);
         }
 
-        private static void Capture(string weaponPath, string stanceId, string outputPrefix, bool doubleJump = false)
+        public static void CaptureForwardJumpRuntimeViews()
+        {
+            Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Warrior-forward-runtime-", false, true);
+        }
+
+        private static void Capture(string weaponPath, string stanceId, string outputPrefix, bool doubleJump = false, bool forwardJump = false)
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
             var root = new GameObject("Temporary warrior animation preview");
@@ -61,6 +66,7 @@ namespace RelicKeeper.Editor.VFX
                 if (heldWeapon == null) throw new InvalidOperationException("Preview weapon missing: " + weaponPath);
                 WeaponStancePoseTableSO.LoadDefault().TryGetById(stanceId, out var weaponPose);
                 var actors = new Transform[2];
+                var leans = new float[2];
                 var displays = new SpriteRenderer[2];
                 var sources = new SpriteRenderer[2];
                 var controllers = new PlayerCharacterAnimationController[2];
@@ -91,10 +97,10 @@ namespace RelicKeeper.Editor.VFX
                     displays[side] = display;
                     var weapons = new GameObject("Visuals").transform;
                     weapons.SetParent(actor, false);
-                    // Actor preview origin is the floor; gameplay's physical centre is half a unit above it.
+                    // Match gameplay's physical centre half a unit above the floor so lean uses the same pivot.
                     var pivot = new GameObject("HandPivot").transform;
                     pivot.SetParent(weapons, false);
-                    pivot.localPosition = new Vector3(-1f / 24, 0.5f, 0);
+                    pivot.localPosition = new Vector3(-1f / 24, 0f, 0);
                     var holder = new GameObject("WeaponHolder").transform;
                     holder.SetParent(pivot, false);
                     holder.localPosition = weaponPose.LocalPosition + heldWeapon.InHandSpriteLocalOffset;
@@ -141,10 +147,15 @@ namespace RelicKeeper.Editor.VFX
                         }
                         else if (doubleJump && frame >= 74) height = 0f;
                         var position = actors[side].position;
-                        position.y = height;
+                        position.y = height + 0.5f;
                         actors[side].position = position;
                         // Same full-rectangle foot anchoring used by PlayerMovementVisual at scale 1.
-                        displays[side].transform.localPosition = Vector3.up * -displays[side].sprite.bounds.min.y * controller.PresentationScale.y;
+                        displays[side].transform.localPosition = Vector3.up * (-0.5f - displays[side].sprite.bounds.min.y * controller.PresentationScale.y);
+                        bool inAir = frame >= 32 && frame < (doubleJump ? 74 : 60);
+                        int facing = side == 0 ? -1 : 1;
+                        float targetLean = PlayerMovementVisual.CalculateAirborneLean(forwardJump ? facing * 5f : 0f, facing, inAir);
+                        leans[side] = inAir ? Mathf.Lerp(leans[side], targetLean, 1f - Mathf.Exp(-PlayerMovementVisual.DefaultAirborneLeanResponse / 24f)) : 0f;
+                        actors[side].GetComponent<PlayerRenderAnchor>().PresentationLeanDegrees = leans[side];
                     }
                     RenderPipeline.SubmitRenderRequest(camera, new RenderPipeline.StandardRequest { destination = target });
                     RenderTexture.active = target;

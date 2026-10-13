@@ -13,6 +13,13 @@ namespace Scripts.Visuals
         [SerializeField, Min(1f)] private float _returnSpeed = 16f;
         [SerializeField] private bool _alignFeetToCollider = true;
         [SerializeField] private float _feetOffset;
+        public const float DefaultAirborneLeanDegrees = 6f;
+        public const float DefaultAirborneLeanSpeed = 5f;
+        public const float DefaultAirborneLeanResponse = 12f;
+        [SerializeField, Range(0f, 12f)] private float _airborneLeanDegrees = DefaultAirborneLeanDegrees;
+        [SerializeField, Min(0.1f)] private float _airborneLeanAtSpeed = DefaultAirborneLeanSpeed;
+        [SerializeField, Min(1f)] private float _airborneLeanResponse = DefaultAirborneLeanResponse;
+        private float _airborneLean;
 
         private PlayerMovement _movement;
         private PlayerAttackInput _attack;
@@ -60,7 +67,13 @@ namespace Scripts.Visuals
             if (_display != null)
                 _display.enabled = false;
             _pulse = 0f;
-            if (_renderAnchor != null) _renderAnchor.WeaponPresentationOffset = Vector3.zero;
+            _airborneLean = 0f;
+            if (_renderAnchor != null)
+            {
+                _renderAnchor.WeaponPresentationOffset = Vector3.zero;
+                _renderAnchor.PresentationLeanDegrees = 0f;
+                _renderAnchor.Restore();
+            }
         }
 
         private void OnDestroy()
@@ -106,8 +119,20 @@ namespace Scripts.Visuals
                 bool dashing = _attack != null && _attack.IsDashing;
                 _renderAnchor.WeaponPresentationOffset = !casting && !dashing && _characterAnimation != null
                     ? _characterAnimation.PresentationWeaponOffset : Vector3.zero;
+                bool airborne = _movement != null && !_movement.IsGrounded && !casting && !dashing;
+                float targetLean = CalculateAirborneLean(_movement != null ? _movement.CurrentVelocity.x : 0f,
+                    Mathf.Sign(transform.lossyScale.x), airborne, _airborneLeanDegrees, _airborneLeanAtSpeed);
+                _airborneLean = airborne ? Mathf.Lerp(_airborneLean, targetLean, 1f - Mathf.Exp(-_airborneLeanResponse * Time.deltaTime)) : 0f;
+                _renderAnchor.PresentationLeanDegrees = _airborneLean;
             }
             _pulse *= Mathf.Exp(-_returnSpeed * Time.deltaTime);
+        }
+
+        public static float CalculateAirborneLean(float horizontalVelocity, float facing, bool airborne,
+            float maximumDegrees = DefaultAirborneLeanDegrees, float fullLeanSpeed = DefaultAirborneLeanSpeed)
+        {
+            if (!airborne) return 0f;
+            return -Mathf.Clamp(horizontalVelocity * facing / Mathf.Max(0.1f, fullLeanSpeed), -1f, 1f) * maximumDegrees;
         }
 
         private float ResolveDisplayY(float scaleY)
