@@ -50,6 +50,21 @@ namespace RelicKeeper.Editor.VFX
             Capture("Assets/Scripts/Items/Weapon/LowTier/OneHandedWeapon/Daggers/Adventurer's Dagger/Adventurer's Dagger.asset", "default", "Rogue-double-runtime-", true, true, "Heroes/RogueResources/Rogue");
         }
 
+        public static void CaptureMageRuntimeViews()
+        {
+            Capture("Assets/Resources/Items/2HWeapon/Staff/Lightning/Adventurer/Lightning Staff Of Adventurer.asset", "staff", "Mage-staff-runtime-", false, true, "Heroes/MageResources/Mage");
+        }
+
+        public static void CaptureMageWandRuntimeViews()
+        {
+            Capture("Assets/Resources/Items/1H Weapon/1HWand/MysticAdventurer'sWand.asset", "default", "Mage-wand-runtime-", false, true, "Heroes/MageResources/Mage");
+        }
+
+        public static void CaptureMageDoubleJumpRuntimeViews()
+        {
+            Capture("Assets/Resources/Items/2HWeapon/Staff/Lightning/Adventurer/Lightning Staff Of Adventurer.asset", "staff", "Mage-double-runtime-", true, true, "Heroes/MageResources/Mage");
+        }
+
         private static void Capture(string weaponPath, string stanceId, string outputPrefix, bool doubleJump = false, bool forwardJump = false,
             string characterResourcePath = "Heroes/WarriorResources/Warrior")
         {

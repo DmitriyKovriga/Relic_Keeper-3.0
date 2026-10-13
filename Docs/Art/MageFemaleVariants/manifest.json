@@ -1,0 +1,83 @@
+[
+  {
+    "number": "01",
+    "name": "Classic",
+    "job_id": "e4409041-00e1-445c-b88f-8c3911546195",
+    "index": 0,
+    "source_job_id": "54017dee-c143-44fb-b14c-df7a6458cf7f",
+    "file": "Mage-01.png",
+    "seed": 29114
+  },
+  {
+    "number": "02",
+    "name": "Scholar",
+    "job_id": "e4409041-00e1-445c-b88f-8c3911546195",
+    "index": 1,
+    "source_job_id": "5c15d2a0-ba2e-4551-82dd-9e832ab1524b",
+    "file": "Mage-02.png",
+    "seed": 29114
+  },
+  {
+    "number": "03",
+    "name": "Wanderer",
+    "job_id": "e4409041-00e1-445c-b88f-8c3911546195",
+    "index": 2,
+    "source_job_id": "ce28a05a-af08-4c87-aec6-790136f2d1d0",
+    "file": "Mage-03.png",
+    "seed": 29114
+  },
+  {
+    "number": "04",
+    "name": "Battle mage",
+    "job_id": "e4409041-00e1-445c-b88f-8c3911546195",
+    "index": 3,
+    "source_job_id": "45135b73-0922-4d33-8d14-426491f9e83b",
+    "file": "Mage-04.png",
+    "seed": 29114
+  },
+  {
+    "number": "05",
+    "name": "Mystic",
+    "job_id": "e4409041-00e1-445c-b88f-8c3911546195",
+    "index": 4,
+    "source_job_id": "e396cc68-df07-447a-8765-9f3ac3219904",
+    "file": "Mage-05.png",
+    "seed": 29114
+  },
+  {
+    "number": "06",
+    "name": "Short mantle",
+    "job_id": "e4409041-00e1-445c-b88f-8c3911546195",
+    "index": 5,
+    "source_job_id": "7df36658-b0b7-4e15-ba13-e74affbf8174",
+    "file": "Mage-06.png",
+    "seed": 29114
+  },
+  {
+    "number": "07",
+    "name": "Archivist",
+    "job_id": "e4409041-00e1-445c-b88f-8c3911546195",
+    "index": 6,
+    "source_job_id": "093e98c9-1d82-4810-a0be-5c71d592b57b",
+    "file": "Mage-07.png",
+    "seed": 29114
+  },
+  {
+    "number": "08",
+    "name": "Hood down",
+    "job_id": "e4409041-00e1-445c-b88f-8c3911546195",
+    "index": 7,
+    "source_job_id": "55dad78a-c6d2-4269-b669-6d3f4ca0ee1d",
+    "file": "Mage-08.png",
+    "seed": 29114
+  },
+  {
+    "number": "09",
+    "name": "Deep cowl",
+    "job_id": "e4409041-00e1-445c-b88f-8c3911546195",
+    "index": 8,
+    "source_job_id": "250c2d8a-330a-4415-92b7-a7c176fbd90c",
+    "file": "Mage-09.png",
+    "seed": 29114
+  }
+]

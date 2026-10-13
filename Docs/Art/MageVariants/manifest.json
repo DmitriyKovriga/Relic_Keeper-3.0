@@ -1,0 +1,74 @@
+[
+  {
+    "number": "01",
+    "name": "Classic",
+    "job_id": "54017dee-c143-44fb-b14c-df7a6458cf7f",
+    "seed": 28101,
+    "file": "Mage-01.png",
+    "direction": "Closest careful polish of the original: same teal hood around blonde fringe, same violet cape and gray-teal outfit. Improve face, hood folds, sleeve cuffs, belt buckle and boot shapes with restrained detail. Keep familiar silhouette; this is the baseline, not a new costume."
+  },
+  {
+    "number": "02",
+    "name": "Scholar",
+    "job_id": "5c15d2a0-ba2e-4551-82dd-9e832ab1524b",
+    "seed": 28102,
+    "file": "Mage-02.png",
+    "direction": "Quiet learned mage: slightly more open teal hood, clear blonde fringe, composed narrow brows, high gray-teal cloth collar, pale muted trim along robe opening. Small brown scroll case at belt, hands empty. Keep violet rear cape and burgundy sash. Scholarly rather than elderly caricature."
+  },
+  {
+    "number": "03",
+    "name": "Wanderer",
+    "job_id": "ce28a05a-af08-4c87-aec6-790136f2d1d0",
+    "seed": 28103,
+    "file": "Mage-03.png",
+    "direction": "Travelling mage: weathered teal hood, short blonde fringe and calm mature face; violet travel cloak with a slightly irregular lower edge, layered gray-teal tunic, simple brown leather cuff wraps and a narrow utility belt pouch. Preserve original compact silhouette and readable feet."
+  },
+  {
+    "number": "04",
+    "name": "Battle mage",
+    "job_id": "45135b73-0922-4d33-8d14-426491f9e83b",
+    "seed": 28104,
+    "file": "Mage-04.png",
+    "direction": "Practical battle mage: firm serious face beneath original teal hood, fitted slate-teal cloth, small muted brown leather shoulder reinforcement, broad burgundy waist belt and sturdy brown boots. Violet cloak remains behind. No plate armor, no helmet, no bulk or oversized muscles."
+  },
+  {
+    "number": "05",
+    "name": "Mystic",
+    "job_id": "e396cc68-df07-447a-8765-9f3ac3219904",
+    "seed": 28105,
+    "file": "Mage-05.png",
+    "direction": "Refined mystic mage: original teal hood with one understated desaturated blue edge, blonde fringe framing the exposed face, violet cloak, softly layered gray-teal cloth. One tiny gold clasp at collar and subtle geometric seam at waist. Keep serious human face, no glow, no floating decorations."
+  },
+  {
+    "number": "06",
+    "name": "Short mantle",
+    "job_id": "7df36658-b0b7-4e15-ba13-e74affbf8174",
+    "seed": 28106,
+    "file": "Mage-06.png",
+    "direction": "Agile mage: slightly shorter violet shoulder mantle rather than a long trailing cape, original teal hood and visible blonde fringe. Gray-teal fitted tunic with layered sleeve cuffs, small burgundy sash and brown boots. Calm adult face, lightweight robe details, no exaggerated proportions."
+  },
+  {
+    "number": "07",
+    "name": "Archivist",
+    "job_id": "093e98c9-1d82-4810-a0be-5c71d592b57b",
+    "seed": 28107,
+    "file": "Mage-07.png",
+    "direction": "Experienced archivist mage: original hood and blonde fringe, firmer nose/brow, restrained gray-teal cloth folds. Violet cape, muted leather cross-body strap, one small closed book pouch attached to the belt (not held), burgundy waist wrap and sturdy boots. Sparse useful detailing."
+  },
+  {
+    "number": "08",
+    "name": "Hood down",
+    "job_id": "55dad78a-c6d2-4269-b669-6d3f4ca0ee1d",
+    "seed": 28108,
+    "file": "Mage-08.png",
+    "direction": "Same recognizable mage with teal hood lowered around the shoulders, exposing swept blonde hair and a mature composed face; retain the hood's cloth at the back, violet short cloak, gray-teal tunic, burgundy belt and small gold-brown buckle. Preserve head size and overall compact original silhouette."
+  },
+  {
+    "number": "09",
+    "name": "Deep cowl",
+    "job_id": "250c2d8a-330a-4415-92b7-a7c176fbd90c",
+    "seed": 28109,
+    "file": "Mage-09.png",
+    "direction": "Reserved arcane mage: slightly deeper teal hood with soft shadow over the forehead, a small visible blonde fringe and a readable serious face (no mask). Violet rear cloak, layered gray-teal cloth collar, muted burgundy waist belt, dark boots. Avoid a faceless or black-clad assassin; retain original gentle palette."
+  }
+]

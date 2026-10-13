@@ -11,28 +11,121 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c359ea2dab145b47a7617b00be441e3, type: 3}
   m_Name: Mage
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   <ID>k__BackingField: Mage
   _nameKey: character.Mage.name
   _descriptionKey: character.Mage.description
   _displayNameFallback: Mage
-  _descriptionFallback: 
-  _portrait: {fileID: 7553771788744308013, guid: 5b1ab7e28818ff14984e29d4b223b661, type: 3}
+  _descriptionFallback:
+  _portrait: {fileID: 21300000, guid: 09de959db8ecf954881d4dae2323ff32, type: 3}
   _runAnimation:
-    Frames: []
-    SpriteSheetResourcesPath: Heroes/MageResources/MageWalk-Sheet
+    Frames:
+    - {fileID: -5463183328042334217, guid: c5359c6e644b13e43934130e4e43c5c0, type: 3}
+    - {fileID: -6428056907499848006, guid: c5359c6e644b13e43934130e4e43c5c0, type: 3}
+    - {fileID: 5637802384367302560, guid: c5359c6e644b13e43934130e4e43c5c0, type: 3}
+    - {fileID: -8679670404151278769, guid: c5359c6e644b13e43934130e4e43c5c0, type: 3}
+    - {fileID: 3220544195626967947, guid: c5359c6e644b13e43934130e4e43c5c0, type: 3}
+    - {fileID: 702823835611154332, guid: c5359c6e644b13e43934130e4e43c5c0, type: 3}
+    - {fileID: 1479210948644190081, guid: c5359c6e644b13e43934130e4e43c5c0, type: 3}
+    - {fileID: -7728328972541220224, guid: c5359c6e644b13e43934130e4e43c5c0, type: 3}
+    SpriteSheetResourcesPath: Heroes/MageResources/Refined/MageRun-Sheet
     FrameDuration: 0.08
     Loop: 1
+    AirborneRestartFrame: 0
+    WeaponVerticalOffsets:
+    - 0.083333336
+    - 0.125
+    - 0.083333336
+    - 0.125
+    - 0.125
+    - 0.125
+    - 0.125
+    - 0.125
+    WeaponHorizontalOffsets:
+    - 0.083333336
+    - 0.083333336
+    - 0.083333336
+    - 0.083333336
+    - 0.083333336
+    - 0.083333336
+    - 0.083333336
+    - 0.083333336
+    HorizontalScale: 1
+    PresentationScales: []
   _jumpAnimation:
-    Frames: []
-    SpriteSheetResourcesPath: Heroes/MageResources/MageJump-Sheet
-    FrameDuration: 0.08
+    Frames:
+    - {fileID: 6877359930815435722, guid: adc8a7fc65128fc4ab322c35dee300b2, type: 3}
+    - {fileID: -4516768369352130144, guid: adc8a7fc65128fc4ab322c35dee300b2, type: 3}
+    - {fileID: 1859651161854926051, guid: adc8a7fc65128fc4ab322c35dee300b2, type: 3}
+    - {fileID: -1923963495574280528, guid: adc8a7fc65128fc4ab322c35dee300b2, type: 3}
+    - {fileID: -546033919252427644, guid: adc8a7fc65128fc4ab322c35dee300b2, type: 3}
+    SpriteSheetResourcesPath: Heroes/MageResources/Refined/MageJump-Sheet
+    FrameDuration: 0.075
     Loop: 0
+    AirborneRestartFrame: 3
+    WeaponVerticalOffsets:
+    - 0.083333336
+    - 0.125
+    - 0.16666667
+    - 0.16666667
+    - 0.16666667
+    WeaponHorizontalOffsets:
+    - 0.083333336
+    - 0.083333336
+    - 0.125
+    - 0.125
+    - 0.125
+    HorizontalScale: 1
+    PresentationScales:
+    - {x: 1, y: 1}
+    - {x: 1, y: 1}
+    - {x: 1, y: 1}
+    - {x: 1, y: 1}
+    - {x: 1, y: 1}
   _fallAnimation:
-    Frames: []
-    SpriteSheetResourcesPath: Heroes/MageResources/MageFall-Sheet
+    Frames:
+    - {fileID: -5988379122972251846, guid: 36562d77d35922146b05cfeb911ec292, type: 3}
+    SpriteSheetResourcesPath: Heroes/MageResources/Refined/MageFall-Sheet
     FrameDuration: 0.08
     Loop: 0
+    AirborneRestartFrame: 0
+    WeaponVerticalOffsets:
+    - 0.16666667
+    WeaponHorizontalOffsets:
+    - 0.125
+    HorizontalScale: 1
+    PresentationScales:
+    - {x: 1, y: 1}
+  _landingAnimation:
+    Frames:
+    - {fileID: 21300000, guid: 09de959db8ecf954881d4dae2323ff32, type: 3}
+    - {fileID: 21300000, guid: 09de959db8ecf954881d4dae2323ff32, type: 3}
+    - {fileID: 21300000, guid: 09de959db8ecf954881d4dae2323ff32, type: 3}
+    - {fileID: 21300000, guid: 09de959db8ecf954881d4dae2323ff32, type: 3}
+    - {fileID: 21300000, guid: 09de959db8ecf954881d4dae2323ff32, type: 3}
+    SpriteSheetResourcesPath:
+    FrameDuration: 0.06
+    Loop: 0
+    AirborneRestartFrame: 0
+    WeaponVerticalOffsets:
+    - 0.083333336
+    - 0.083333336
+    - 0.083333336
+    - 0.083333336
+    - 0.083333336
+    WeaponHorizontalOffsets:
+    - 0.083333336
+    - 0.083333336
+    - 0.083333336
+    - 0.083333336
+    - 0.083333336
+    HorizontalScale: 1
+    PresentationScales:
+    - {x: 1.08, y: 0.92}
+    - {x: 1.05, y: 0.96}
+    - {x: 0.99, y: 1.01}
+    - {x: 1.01, y: 0.99}
+    - {x: 1, y: 1}
   _startingStats:
   - Type: 6
     Value: 5

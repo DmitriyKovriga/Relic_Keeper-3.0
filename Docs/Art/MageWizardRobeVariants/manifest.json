@@ -1,0 +1,92 @@
+[
+  {
+    "number": "01",
+    "name": "Classic",
+    "job_id": "8f862fe3-457d-4fe6-ac7d-df5c6af40625",
+    "source_job_id": "3cdd25cd-2b8d-4088-afc8-9fa8bbae7952",
+    "source_index": 0,
+    "file": "Mage-01.png",
+    "seed": 31101,
+    "direction": "A modest pointed violet wizard hat, charcoal-violet robe with muted gold edging, small diamond belt clasp and open split front panels. Closest adaptation of the reference outfit."
+  },
+  {
+    "number": "02",
+    "name": "Soft hat",
+    "job_id": "1f5194fd-9266-433c-ae1b-e496e3a89373",
+    "source_job_id": "3cdd25cd-2b8d-4088-afc8-9fa8bbae7952",
+    "source_index": 1,
+    "file": "Mage-02.png",
+    "seed": 31102,
+    "direction": "A gently bent violet hat with narrow brim, one small gold diamond on the band; light charcoal fitted sleeves, violet tabard panels and delicate gold border. Feminine face and a visible blonde side braid."
+  },
+  {
+    "number": "03",
+    "name": "Traveller",
+    "job_id": "afc15385-f63c-4e5d-a57a-bcc3fb1c86e0",
+    "source_job_id": "3cdd25cd-2b8d-4088-afc8-9fa8bbae7952",
+    "source_index": 2,
+    "file": "Mage-03.png",
+    "seed": 31103,
+    "direction": "A shorter forward-bent pointed hat, practical mid-thigh violet split robe over charcoal trousers, brown narrow belt with diamond buckle, gold edge only on collar and hem. Restrained travel-worn style."
+  },
+  {
+    "number": "04",
+    "name": "Arcane coat",
+    "job_id": "50a64b99-8985-4785-9626-3acba18e4a64",
+    "source_job_id": "3cdd25cd-2b8d-4088-afc8-9fa8bbae7952",
+    "source_index": 3,
+    "file": "Mage-04.png",
+    "seed": 31104,
+    "direction": "Medium pointed violet hat with restrained brim, tailored charcoal long cloth coat with two violet front panels, thin gold piping and one small diamond chest clasp. Clearly woven cloth, slim shoulders."
+  },
+  {
+    "number": "05",
+    "name": "Gold diamond",
+    "job_id": "f818ef22-74d3-4302-a4d4-024b4bc739a8",
+    "source_job_id": "3cdd25cd-2b8d-4088-afc8-9fa8bbae7952",
+    "source_index": 4,
+    "file": "Mage-05.png",
+    "seed": 31105,
+    "direction": "A slightly taller soft pointed hat with gold band and central diamond, rich muted violet tunic panels over charcoal underdress, small matching diamond at belt. Minimal readable decorative gold accents."
+  },
+  {
+    "number": "06",
+    "name": "Short robe",
+    "job_id": "cd29cce0-1c5a-464e-8e65-257a18c93598",
+    "source_job_id": "3cdd25cd-2b8d-4088-afc8-9fa8bbae7952",
+    "source_index": 5,
+    "file": "Mage-06.png",
+    "seed": 31106,
+    "direction": "Small slouched pointed violet hat, lightweight waist-to-thigh layered violet robe and very short rear mantle, slim charcoal sleeves, small gold belt clasp and subtle gold cuff edging. Agile cloth silhouette."
+  },
+  {
+    "number": "07",
+    "name": "Scholar robe",
+    "job_id": "96513a02-6529-4d96-9521-ec7d749e470f",
+    "source_job_id": "3cdd25cd-2b8d-4088-afc8-9fa8bbae7952",
+    "source_index": 6,
+    "file": "Mage-07.png",
+    "seed": 31107,
+    "direction": "A restrained violet wizard hat with slightly raised brim, neat charcoal-violet scholarly robe, vertical gold front edging, small angular collar and belt clasp. A small book pouch stays on belt, hands free."
+  },
+  {
+    "number": "08",
+    "name": "Wide brim",
+    "job_id": "6fb7390e-16ac-441c-bea1-30fc9c048d47",
+    "source_job_id": "3cdd25cd-2b8d-4088-afc8-9fa8bbae7952",
+    "source_index": 7,
+    "file": "Mage-08.png",
+    "seed": 31108,
+    "direction": "Graceful curved pointed violet hat with a moderately wider brim, clearly visible blonde bob framing the feminine face. Charcoal bodice and violet split skirt-like robe panels with fine gold hems, plain boots."
+  },
+  {
+    "number": "09",
+    "name": "Dark violet",
+    "job_id": "bac1b725-329c-4785-901f-9dd563f56109",
+    "source_job_id": "3cdd25cd-2b8d-4088-afc8-9fa8bbae7952",
+    "source_index": 8,
+    "file": "Mage-09.png",
+    "seed": 31109,
+    "direction": "A darker charcoal-violet bent wizard hat with thin gold band, predominantly charcoal robe with violet lining visible at the open front and sleeve ends, muted gold diamond buckle. Subtle general arcane mage."
+  }
+]
