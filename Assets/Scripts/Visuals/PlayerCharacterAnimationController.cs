@@ -30,6 +30,7 @@ namespace Scripts.Visuals
         private PlayerMovement _movement;
         private PlayerStats _stats;
         private Sprite _idleSprite;
+        private Vector3 _idleWeaponOffset;
         private RuntimeAnimation _run = RuntimeAnimation.Empty;
         private RuntimeAnimation _jump = RuntimeAnimation.Empty;
         private RuntimeAnimation _fall = RuntimeAnimation.Empty;
@@ -58,12 +59,12 @@ namespace Scripts.Visuals
                 return Vector2.Lerp(_current.PresentationScales[_frameIndex], _current.PresentationScales[next], t);
             }
         }
-        public float PresentationWeaponVerticalOffset => HasAuthoredPresentation
+        public float PresentationWeaponVerticalOffset => _state == AnimationState.Idle ? _idleWeaponOffset.y : HasAuthoredPresentation
             ? (PresentationScale.y - 1f) * 0.5f +
                 (_state != AnimationState.Run && _current.WeaponVerticalOffsets != null && _current.WeaponVerticalOffsets.Length == _current.Frames.Length
                     ? _current.WeaponVerticalOffsets[_frameIndex] : 0f)
             : RunWeaponVerticalOffset;
-        public Vector3 PresentationWeaponOffset => new Vector3(
+        public Vector3 PresentationWeaponOffset => _state == AnimationState.Idle ? _idleWeaponOffset : new Vector3(
             _current.IsValid && _current.WeaponHorizontalOffsets != null && _current.WeaponHorizontalOffsets.Length == _current.Frames.Length
                 ? _current.WeaponHorizontalOffsets[_frameIndex] : 0f, PresentationWeaponVerticalOffset, 0f);
         private bool IsLandingPlaying => _state == AnimationState.Land && _current.IsValid && !_animationComplete;
@@ -221,6 +222,9 @@ namespace Scripts.Visuals
         private void ApplyCharacterData(CharacterDataSO data)
         {
             _run = RuntimeAnimation.From(data?.RunAnimation);
+            _idleWeaponOffset = new Vector3(
+                _run.IsValid && _run.WeaponHorizontalOffsets != null && _run.WeaponHorizontalOffsets.Length == _run.Frames.Length ? _run.WeaponHorizontalOffsets[0] : 0f,
+                _run.IsValid && _run.WeaponVerticalOffsets != null && _run.WeaponVerticalOffsets.Length == _run.Frames.Length ? _run.WeaponVerticalOffsets[0] : 0f, 0f);
             _jump = RuntimeAnimation.From(data?.JumpAnimation);
             _airborneJumpStartFrame = Mathf.Clamp(data?.JumpAnimation?.AirborneRestartFrame ?? 0, 0, Mathf.Max(0, _jump.Frames.Length - 1));
             _fall = RuntimeAnimation.From(data?.FallAnimation).WithLoop(false);

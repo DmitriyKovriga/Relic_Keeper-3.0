@@ -1,0 +1,65 @@
+[
+  {
+    "number": "01",
+    "name": "Classic",
+    "job_id": "ea474b02-b7b3-4a9f-9ad4-54d53e8d49dc",
+    "file": "Rogue-01.png",
+    "direction": "Closest to the original: retain the gray tunic, pale gray sleeves and red waist sash. Add restrained cloth folds, a clearer belt and boot shapes. Original recognizable face and hair with a subtle serious expression. This is a careful polish, not a new costume."
+  },
+  {
+    "number": "02",
+    "name": "Scout",
+    "job_id": "f27f26e2-87cb-4427-80a8-853773c9f6e6",
+    "file": "Rogue-02.png",
+    "direction": "Practical scout: slightly fitted ash-gray leather vest over gray sleeves, small brown wrist wraps, a simple narrow belt pouch. Keep red scarf small. Natural face and loose swept brown hair, understated useful detail, no black armor."
+  },
+  {
+    "number": "03",
+    "name": "Scarf",
+    "job_id": "c0d95960-1eb1-41a9-87af-f57690518b83",
+    "file": "Rogue-03.png",
+    "direction": "Scarf-led rogue: preserve the original outfit silhouette and gray fabric. Burgundy scarf wraps the neck and trails briefly behind one shoulder, leaving the face clearly exposed. Slightly angular serious face and tidy hair, subtle leather seams."
+  },
+  {
+    "number": "04",
+    "name": "Veteran",
+    "job_id": "258bc295-3713-45c6-87c5-90233c754b57",
+    "file": "Rogue-04.png",
+    "direction": "Weathered mature rogue: retain exposed face, swept brown hair, red scarf, simple gray outfit. Face has firmer nose/brow and less rounded cheeks, without changing head size. Worn gray leather shoulder seam, muted brown belt and cuffs. Quiet experienced appearance."
+  },
+  {
+    "number": "05",
+    "name": "Soft cowl",
+    "job_id": "2148641e-107f-4ff7-9b16-3cffbf9ff188",
+    "file": "Rogue-05.png",
+    "direction": "A small soft gray-brown cowl resting behind the swept brown hair, not enclosing the face. Original exposed face and red scarf. Gray cloth sleeves, understated leather chest panel. Preserve original soft palette and silhouette, avoid black masked assassin style."
+  },
+  {
+    "number": "06",
+    "name": "Short mantle",
+    "job_id": "df6f1f5e-3a63-4c00-8e71-61dd2dd7eb08",
+    "file": "Rogue-06.png",
+    "direction": "Gray-clad rogue with a very short dark brown shoulder mantle on the rear shoulder; front arm and torso remain clearly visible. Exposed mature face, original swept brown hair and burgundy neck scarf. Small gray tunic folds, simple brown gloves and boots. No bulky cloak."
+  },
+  {
+    "number": "07",
+    "name": "Light leather",
+    "job_id": "48e67946-64c1-4de8-9687-076fac4c0665",
+    "file": "Rogue-07.png",
+    "direction": "Balanced cloth and light leather: soft medium gray torso, pale gray sleeves, muted reddish-brown slim waist belt with one pouch, simple leather cuffs and reinforced boots. Same original hair and exposed face. One subtle diagonal chest strap, no excessive buckles or high contrast."
+  },
+  {
+    "number": "08",
+    "name": "Tidy hair",
+    "job_id": "a47ca27a-1c32-4151-8243-085a581ebf5e",
+    "file": "Rogue-08.png",
+    "direction": "Same recognizable brown hair color and general outline, but a slightly tidier swept fringe with a tiny tied-back section at the rear. Composed mature exposed face, original red scarf and gray clothes. Slim gray vest, modest sleeves, readable belt and sturdy boots. Keep head and body proportions unchanged."
+  },
+  {
+    "number": "09",
+    "name": "Stealth cloth",
+    "job_id": "b8075b54-1942-49b0-9797-b979fe3fbdeb",
+    "file": "Rogue-09.png",
+    "direction": "Understated stealth rogue in layered slate-gray cloth with a desaturated burgundy neck scarf and waist wrap. Preserve original exposed face, brown swept hair and compact silhouette. Slightly narrower gray torso, complete hands low at hips, defined soft cloth seams and quiet brown boots; no mask or armor."
+  }
+]

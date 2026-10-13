@@ -35,11 +35,27 @@ namespace RelicKeeper.Editor.VFX
             Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Warrior-forward-runtime-", false, true);
         }
 
-        private static void Capture(string weaponPath, string stanceId, string outputPrefix, bool doubleJump = false, bool forwardJump = false)
+        public static void CaptureRogueRuntimeViews()
+        {
+            Capture("Assets/Scripts/Items/Weapon/LowTier/OneHandedWeapon/Daggers/Adventurer's Dagger/Adventurer's Dagger.asset", "default", "Rogue-runtime-", false, false, "Heroes/RogueResources/Rogue");
+        }
+
+        public static void CaptureRogueBowRuntimeViews()
+        {
+            Capture("Assets/Resources/Items/2HWeapon/Bow/Adventurer's Bow.asset", "bow_stance", "Rogue-bow-runtime-", false, true, "Heroes/RogueResources/Rogue");
+        }
+
+        public static void CaptureRogueDoubleJumpRuntimeViews()
+        {
+            Capture("Assets/Scripts/Items/Weapon/LowTier/OneHandedWeapon/Daggers/Adventurer's Dagger/Adventurer's Dagger.asset", "default", "Rogue-double-runtime-", true, true, "Heroes/RogueResources/Rogue");
+        }
+
+        private static void Capture(string weaponPath, string stanceId, string outputPrefix, bool doubleJump = false, bool forwardJump = false,
+            string characterResourcePath = "Heroes/WarriorResources/Warrior")
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
-            var root = new GameObject("Temporary warrior animation preview");
-            var camera = new GameObject("Warrior animation preview camera").AddComponent<Camera>();
+            var root = new GameObject("Temporary character animation preview");
+            var camera = new GameObject("Character animation preview camera").AddComponent<Camera>();
             camera.enabled = false;
             camera.orthographic = true;
             camera.orthographicSize = 270f / 48;
@@ -61,7 +77,7 @@ namespace RelicKeeper.Editor.VFX
             var previous = RenderTexture.active;
             try
             {
-                var warrior = Resources.Load<CharacterDataSO>("Heroes/WarriorResources/Warrior");
+                var warrior = Resources.Load<CharacterDataSO>(characterResourcePath);
                 var heldWeapon = AssetDatabase.LoadAssetAtPath<WeaponItemSO>(weaponPath);
                 if (heldWeapon == null) throw new InvalidOperationException("Preview weapon missing: " + weaponPath);
                 WeaponStancePoseTableSO.LoadDefault().TryGetById(stanceId, out var weaponPose);
@@ -120,7 +136,7 @@ namespace RelicKeeper.Editor.VFX
                 floor.transform.localScale = new Vector3(24, 0.1f, 1);
                 floor.color = new Color(0.3f, 0.33f, 0.27f);
                 target.Create();
-                string folder = Path.Combine(Path.GetTempPath(), "codex-warrior-refresh");
+                string folder = Path.Combine(Path.GetTempPath(), "codex-" + warrior.ID.ToLowerInvariant() + "-refresh");
                 Directory.CreateDirectory(folder);
                 for (int frame = 0; frame < (doubleJump ? 94 : 80); frame++)
                 {
