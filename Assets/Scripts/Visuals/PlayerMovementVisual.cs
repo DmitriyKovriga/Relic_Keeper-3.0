@@ -36,6 +36,8 @@ namespace Scripts.Visuals
             visual.transform.SetParent(transform, false);
             _display = visual.AddComponent<SpriteRenderer>();
             _properties = new MaterialPropertyBlock();
+            var anchor = GetComponent<PlayerRenderAnchor>() ?? gameObject.AddComponent<PlayerRenderAnchor>();
+            anchor.Initialize(visual.transform, transform.Find("Visuals"));
         }
 
         private void OnEnable()
