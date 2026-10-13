@@ -1,0 +1,65 @@
+[
+  {
+    "number": 1,
+    "name": "Classic veteran",
+    "direction": "Closest to the original: brown leather jerkin, dark trousers, short brown beard, stronger readable face, worn bracers and narrow belt. Add careful material detail while retaining the original silhouette.",
+    "seed": 33101,
+    "job_id": "75b8e611-e177-4988-ba47-dabc92e11e28"
+  },
+  {
+    "number": 2,
+    "name": "Mail and leather",
+    "direction": "A practical brown leather vest over a muted dark steel chainmail shirt; small shoulder guards, leather wrist wraps, dark boots. Keep the original brown hair and beard, compact sturdy body.",
+    "seed": 33102,
+    "job_id": "4e68d4a2-0788-4a96-9923-fbae56155c4e"
+  },
+  {
+    "number": 3,
+    "name": "Mercenary",
+    "direction": "A weathered mercenary in dark brown brigandine with a few small dull steel rivets, one restrained shoulder plate, burgundy waist sash, brown beard. Grounded, practical armour.",
+    "seed": 33103,
+    "job_id": "b0b7a819-960a-4c5d-845f-7b8e7ad0e859"
+  },
+  {
+    "number": 4,
+    "name": "Frontier fighter",
+    "direction": "Brown leather padded jacket, tan inner shirt, dark wrist guards, sturdy trousers and worn boots, small belt pouch. Rugged brown-haired bearded fighter; no bulky fur.",
+    "seed": 33104,
+    "job_id": "2f60a091-5c95-4dbc-8509-38ff41bc0170"
+  },
+  {
+    "number": 5,
+    "name": "Iron guard",
+    "direction": "Brown leather torso with a restrained dark iron chest insert and small squared pauldrons, dark steel bracers, narrow leather belt. Exposed brown-haired bearded head, mature practical fighter.",
+    "seed": 33105,
+    "job_id": "c51ac303-cd3c-4365-8db6-0f53d351adfe"
+  },
+  {
+    "number": 6,
+    "name": "Battle worn",
+    "direction": "Original brown warrior outfit refined into layered leather straps, a small pale old facial scar, muted red cloth at waist, darker boots. A seasoned grounded fighter with a strong face.",
+    "seed": 33106,
+    "job_id": "aa22c0be-9aed-46bb-9675-8a77ae06bc73"
+  },
+  {
+    "number": 7,
+    "name": "Light vanguard",
+    "direction": "Fitted brown leather cuirass, grey cloth sleeves, small metal knee guards and dark wrist wraps. Compact athletic masculine body, original brown hair and beard. Clear silhouette and subtle metal highlights.",
+    "seed": 33107,
+    "job_id": "48cd73cf-c6e7-4f5f-9e47-3445d7e4cea6"
+  },
+  {
+    "number": 8,
+    "name": "Bronze veteran",
+    "direction": "Dark chocolate leather armour with sparse tarnished bronze fasteners and bracers, charcoal trousers, dull rust shoulder cloth. Original brown-haired bearded identity, restrained earthy palette.",
+    "seed": 33108,
+    "job_id": "43ece2e5-a08b-46b8-8889-436c353e147b"
+  },
+  {
+    "number": 9,
+    "name": "Dark adventurer",
+    "direction": "Charcoal-brown fitted gambeson, brown leather shoulder yoke and belt, muted olive undershirt, sturdy boots. Mature brown-haired bearded warrior, elegant understated material separation.",
+    "seed": 33109,
+    "job_id": "99f89f26-e5f5-45bd-8cc5-e1b93fa3f0cc"
+  }
+]

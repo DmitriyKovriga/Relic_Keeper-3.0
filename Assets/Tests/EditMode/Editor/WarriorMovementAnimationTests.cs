@@ -9,6 +9,33 @@ namespace RelicKeeper.Tests.EditMode
     {
         private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
+        [Test]
+        public void SelectedOutfit_PreservesBasePixelsAndIdentity_WithGroundedBoots()
+        {
+            var warrior = Resources.Load<CharacterDataSO>("Heroes/WarriorResources/Warrior");
+            Assert.That(UnityEditor.AssetDatabase.AssetPathToGUID(UnityEditor.AssetDatabase.GetAssetPath(warrior.PassiveTree)),
+                Is.EqualTo("1ac34a4e0d7b149478f48e7eff040153"));
+            var raw = new Texture2D(2, 2);
+            var imported = new Texture2D(2, 2);
+            try
+            {
+                raw.LoadImage(System.IO.File.ReadAllBytes("Docs/Art/WarriorVariantsRound2/Warrior-05.png"));
+                imported.LoadImage(System.IO.File.ReadAllBytes(UnityEditor.AssetDatabase.GetAssetPath(warrior.Portrait)));
+                Assert.That(imported.GetPixels(), Is.EqualTo(raw.GetPixels(2, 2, 28, 28)),
+                    "Selected face, hair and outfit must retain their exact native pixels.");
+                Assert.That(imported.GetPixels(0, 0, 28, 1), Has.Some.Matches<Color>(pixel => pixel.a > 0),
+                    "The transparent reference border must not lift boots off the ground.");
+                Assert.That(warrior.Portrait.rect.size, Is.EqualTo(new Vector2(28, 28)));
+                foreach (var animation in new[] { warrior.RunAnimation, warrior.JumpAnimation, warrior.FallAnimation, warrior.LandingAnimation })
+                {
+                    Assert.That(animation.WeaponHorizontalOffsets.Length, Is.EqualTo(animation.Frames.Length));
+                    Assert.That(animation.WeaponVerticalOffsets.Length, Is.EqualTo(animation.Frames.Length));
+                }
+                Assert.That(warrior.LandingAnimation.Frames[0], Is.SameAs(warrior.Portrait));
+            }
+            finally { Object.DestroyImmediate(raw); Object.DestroyImmediate(imported); }
+        }
+
         [TestCase(false, false)]
         [TestCase(false, true)]
         [TestCase(true, false)]
@@ -202,7 +229,7 @@ namespace RelicKeeper.Tests.EditMode
                 type.GetMethod("Play", Flags).Invoke(controller, new[] { System.Enum.Parse(state, "Fall"), type.GetField("_fall", Flags).GetValue(controller) });
                 Assert.That(controller.PresentationWeaponOffset, Is.EqualTo(expectedGripOffset));
                 type.GetMethod("PlayIdle", Flags).Invoke(controller, null);
-                Assert.That(controller.PresentationWeaponOffset, Is.EqualTo(Vector3.zero));
+                Assert.That(controller.PresentationWeaponOffset, Is.EqualTo(new Vector3(Resources.Load<CharacterDataSO>("Heroes/WarriorResources/Warrior").RunAnimation.WeaponHorizontalOffsets[0], Resources.Load<CharacterDataSO>("Heroes/WarriorResources/Warrior").RunAnimation.WeaponVerticalOffsets[0], 0)));
             }
             finally { Object.DestroyImmediate(jump); Object.DestroyImmediate(fall); Object.DestroyImmediate(run); Object.DestroyImmediate(owner); }
         }
@@ -211,7 +238,7 @@ namespace RelicKeeper.Tests.EditMode
 
         private static void AssertGripConnected(Texture2D sheet, int frame, int gripX, int gripY)
         {
-            int originX = frame % 4 * 28, originY = (1 - frame / 4) * 28;
+            int originX = frame % 4 * 28, originY = (sheet.height / 28 - 1 - frame / 4) * 28;
             var queue = new System.Collections.Generic.Queue<Vector2Int>();
             var visited = new System.Collections.Generic.HashSet<Vector2Int>();
             queue.Enqueue(new Vector2Int(gripX, gripY));
@@ -231,42 +258,28 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void RunArt_GripTracksWeaponWithinOnePixel_WhileLegsAnimate()
+        public void RunArt_GripsStayConnectedToBody_WhileLegsAnimate()
         {
             var texture = new Texture2D(2, 2);
             try
             {
-                Assert.That(texture.LoadImage(System.IO.File.ReadAllBytes(System.IO.Path.Combine(Application.dataPath,
-                    "Resources/Heroes/WarriorResources/Refined/WarriorRun-Sheet.png"))), Is.True);
-                var pixels = texture.GetPixels32();
-                var offsets = Resources.Load<CharacterDataSO>("Heroes/WarriorResources/Warrior").RunAnimation.WeaponVerticalOffsets;
+                texture.LoadImage(System.IO.File.ReadAllBytes(System.IO.Path.Combine(Application.dataPath,
+                    "Resources/Heroes/WarriorResources/Refined/WarriorRun-Sheet.png")));
+                var animation = Resources.Load<CharacterDataSO>("Heroes/WarriorResources/Warrior").RunAnimation;
                 bool legsChanged = false;
-                bool upperBodyChanged = false;
-                for (int frame = 1; frame < 9; frame++)
+                for (int frame = 0; frame < 9; frame++)
                 {
-                    int originX = frame % 4 * 28, originY = (2 - frame / 4) * 28;
-                    int handDrop = -Mathf.RoundToInt(offsets[frame] * 24);
-                    Assert.That(handDrop, Is.InRange(0, 1));
-                    for (int y = 0; y < 28; y++)
-                    for (int x = 0; x < 28; x++)
-                    {
-                        var reference = pixels[(56 + y) * texture.width + x];
-                        var actual = pixels[(originY + y) * texture.width + originX + x];
-                        // The lowered hand extends below the waist into the leg rows.
-                        // Protect its fingertips and outline too, so a passing leg cannot erase it.
-                        bool loweredHand = x >= 19 && x <= 21 && y >= 3 - handDrop && y <= 7 - handDrop;
-                        bool offhandContour = x >= 3 && x <= 7 && y >= 3 - handDrop && y <= 10 - handDrop;
-                        if (loweredHand || offhandContour || (y >= 6 - handDrop && y <= 10 - handDrop))
-                            Assert.That(actual, Is.EqualTo(pixels[(56 + y + handDrop) * texture.width + x]), "Grip separated from weapon in frame " + frame);
-                        else if (!actual.Equals(reference))
-                        {
-                            if (y < 6) legsChanged = true;
-                            else upperBodyChanged = true;
-                        }
-                    }
+                    int originY = (2 - frame / 4) * 28;
+                    int x = 19 + Mathf.RoundToInt(animation.WeaponHorizontalOffsets[frame] * 24);
+                    int y = 4 + Mathf.RoundToInt(animation.WeaponVerticalOffsets[frame] * 24);
+                    Assert.That(IsGripSkin(texture.GetPixel(frame % 4 * 28 + x, originY + y)), Is.True,
+                        "Every frame must anchor equipment on the complete hand.");
+                    AssertGripConnected(texture, frame, x, y);
+                    for (int legY = 0; legY < 6; legY++)
+                    for (int legX = 0; legX < 28; legX++)
+                        if (texture.GetPixel(frame % 4 * 28 + legX, originY + legY) != texture.GetPixel(legX, 56 + legY)) legsChanged = true;
                 }
-                Assert.That(legsChanged, Is.True);
-                Assert.That(upperBodyChanged, Is.True);
+                Assert.That(legsChanged, Is.True, "Outfit transfer must preserve the moving leg cycle.");
             }
             finally { Object.DestroyImmediate(texture); }
         }
@@ -317,10 +330,10 @@ namespace RelicKeeper.Tests.EditMode
                 var state = type.GetNestedType("AnimationState", BindingFlags.NonPublic);
                 type.GetMethod("Play", Flags).Invoke(controller, new[] { System.Enum.Parse(state, "Run"), type.GetField("_run", Flags).GetValue(controller) });
                 type.GetField("_frameTimer", Flags).SetValue(controller, warrior.RunAnimation.FrameDuration * 0.5f);
-                Assert.That(controller.RunWeaponVerticalOffset, Is.Zero);
+                Assert.That(controller.RunWeaponVerticalOffset, Is.EqualTo(warrior.RunAnimation.WeaponVerticalOffsets[0]));
                 type.GetField("_frameIndex", Flags).SetValue(controller, 2);
                 type.GetField("_frameTimer", Flags).SetValue(controller, warrior.RunAnimation.FrameDuration * 0.5f);
-                Assert.That(controller.RunWeaponVerticalOffset, Is.EqualTo(-1f / 24));
+                Assert.That(controller.RunWeaponVerticalOffset, Is.EqualTo(warrior.RunAnimation.WeaponVerticalOffsets[2]));
                 type.GetMethod("HandleJumpStarted", Flags).Invoke(controller, null);
                 Assert.That(controller.RunWeaponVerticalOffset, Is.Zero);
             }

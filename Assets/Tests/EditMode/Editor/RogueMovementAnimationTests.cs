@@ -70,7 +70,9 @@ namespace RelicKeeper.Tests.EditMode
                 type.GetMethod("PlayIdle", Flags).Invoke(controller, null);
                 Assert.That(controller.PresentationWeaponOffset, Is.EqualTo(expected));
                 type.GetMethod("ApplyCharacterData", Flags).Invoke(controller, new object[] { Resources.Load<CharacterDataSO>("Heroes/WarriorResources/Warrior") });
-                Assert.That(controller.PresentationWeaponOffset, Is.EqualTo(Vector3.zero));
+                var swapped = Resources.Load<CharacterDataSO>("Heroes/WarriorResources/Warrior");
+                Assert.That(controller.PresentationWeaponOffset, Is.EqualTo(new Vector3(
+                    swapped.RunAnimation.WeaponHorizontalOffsets[0], swapped.RunAnimation.WeaponVerticalOffsets[0], 0)));
             }
             finally { Object.DestroyImmediate(owner); }
         }

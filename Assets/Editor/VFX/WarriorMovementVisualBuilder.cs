@@ -13,6 +13,11 @@ namespace RelicKeeper.Editor.VFX
         [MenuItem("Tools/Visuals/Apply Refined Warrior Movement")]
         public static void Apply()
         {
+            if (File.Exists(Root + "WarriorBase.png"))
+            {
+                WarriorOutfitVisualBuilder.Apply();
+                return;
+            }
             Import("WarriorRun", 9);
             Import("WarriorJump", 5);
             Import("WarriorFall", 5);

@@ -1,0 +1,77 @@
+[
+  {
+    "number": 1,
+    "name": "Classic leather",
+    "source": "OriginalReference.png",
+    "direction": "Refine the original warm brown leather jerkin with subtle seams, a narrow belt and fitted dark boots. Stay closest to the old clothing, improve material separation and readable body detail.",
+    "seed": 34101,
+    "job_id": "f5e5c026-2f35-4479-b33f-541a58e5eed2"
+  },
+  {
+    "number": 2,
+    "name": "Leather and mail",
+    "source": "Variant06Reference.png",
+    "direction": "Warm brown fitted leather vest over muted grey chainmail sleeves, small leather shoulder caps and worn bracers; dark trousers and boots. Sparse readable mail highlights.",
+    "seed": 34102,
+    "job_id": "2cb00513-5417-4bf0-83a6-fe6e41113cba"
+  },
+  {
+    "number": 3,
+    "name": "Mercenary",
+    "source": "OriginalReference.png",
+    "direction": "Dark brown riveted brigandine, modest iron guard on one shoulder, burgundy waist sash, leather gloves, charcoal trousers. Practical understated armour.",
+    "seed": 34103,
+    "job_id": "3c1c4076-045c-4791-9ac4-35207c69791b"
+  },
+  {
+    "number": 4,
+    "name": "Traveller",
+    "source": "Variant06Reference.png",
+    "direction": "Layered warm brown leather jacket over dull tan cloth, wrist wraps, weathered boots and one small belt pouch. Practical rugged adventurer outfit, no cape or fur.",
+    "seed": 34104,
+    "job_id": "3c0428a5-7ece-49b4-9f4a-71566fe43d54"
+  },
+  {
+    "number": 5,
+    "name": "Iron and leather",
+    "source": "OriginalReference.png",
+    "direction": "Brown leather chest armour with restrained dull dark steel central insert and small metal bracers, leather belt and dark trousers. Not a full plate knight; keep the compact warm silhouette.",
+    "seed": 34105,
+    "job_id": "63ab0d3b-b445-47fe-94d6-b1e7b191521c",
+    "retry_job_id": "fe572cf2-f193-4094-bc9d-228d8f5a0950",
+    "retry_seed": 34205,
+    "retry_note": "Original completed while retry was processing; original is the displayed option."
+  },
+  {
+    "number": 6,
+    "name": "Red sash",
+    "source": "Variant06Reference.png",
+    "direction": "Refine the brown strapped leather outfit with a muted red short waist tabard, narrow leather belt, dark wrist guards and sturdy dark boots. Controlled contrast and deliberate pixel clusters.",
+    "seed": 34106,
+    "job_id": "fd7c496a-43fe-4cfc-9817-ed4695662e0a"
+  },
+  {
+    "number": 7,
+    "name": "Light soldier",
+    "source": "OriginalReference.png",
+    "direction": "Fitted chocolate-brown padded jerkin, grey undersleeves, small muted iron shoulder and knee guards, warm leather belt and boots. Light practical warrior armour, not bulky.",
+    "seed": 34107,
+    "job_id": "53e8ceb4-8b2f-42c2-8038-332d81c353e7"
+  },
+  {
+    "number": 8,
+    "name": "Bronze fittings",
+    "source": "Variant06Reference.png",
+    "direction": "Dark brown leather cuirass with small tarnished bronze buckles and wrist guards, rust-brown waist cloth, charcoal trousers and brown boots. Sparse warm metallic highlights.",
+    "seed": 34108,
+    "job_id": "feeb24e3-e8f2-42a4-8d4a-e81041824a8e"
+  },
+  {
+    "number": 9,
+    "name": "Olive gambeson",
+    "source": "OriginalReference.png",
+    "direction": "Brown leather shoulder yoke over a muted olive-brown fitted quilted gambeson, narrow brown belt, dark wrist guards and sturdy boots. Subtle woven-cloth detail, restrained grounded palette.",
+    "seed": 34109,
+    "job_id": "077fcbdb-3268-44b3-b14c-5c09ef0360c8"
+  }
+]
