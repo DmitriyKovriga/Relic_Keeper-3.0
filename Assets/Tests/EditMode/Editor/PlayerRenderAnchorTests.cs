@@ -106,5 +106,18 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(_body.localPosition, Is.EqualTo(body));
             Assert.That(_weapons.localPosition, Is.EqualTo(weapons));
         }
+
+        [Test]
+        public void WeaponBob_IsPresentationOnly_AndRestoresTheAttackSocket()
+        {
+            Vector3 body = _body.position, weapon = _weapons.position, root = _owner.transform.position;
+            _anchor.WeaponPresentationOffset = Vector3.up / 24;
+            _anchor.BeginRender(_camera);
+            Vector3 shared = _body.position - body;
+            Assert.That(Vector3.Distance(_weapons.position - weapon - shared, Vector3.up / 24), Is.LessThan(0.000001f));
+            Assert.That(_owner.transform.position, Is.EqualTo(root));
+            _anchor.EndRender(_camera);
+            Assert.That(Vector3.Distance(_weapons.position, weapon), Is.LessThan(0.000001f));
+        }
     }
 }

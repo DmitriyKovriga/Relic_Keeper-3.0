@@ -71,6 +71,10 @@ public class CharacterDataSO : ScriptableObject
         public string SpriteSheetResourcesPath;
         [Min(0.01f)] public float FrameDuration = 0.08f;
         public bool Loop = true;
+        [Tooltip("Optional vertical weapon presentation offsets per animation frame, in world units. Used while running.")]
+        public float[] WeaponVerticalOffsets;
+        [Tooltip("Presentation width while this animation plays. Does not resize colliders or weapon sockets.")]
+        [Range(0.8f, 1.2f)] public float HorizontalScale = 1f;
 
         public bool HasAnySource =>
             (Frames != null && Frames.Length > 0) || !string.IsNullOrWhiteSpace(SpriteSheetResourcesPath);

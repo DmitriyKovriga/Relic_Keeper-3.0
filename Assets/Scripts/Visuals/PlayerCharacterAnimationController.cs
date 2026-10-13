@@ -42,6 +42,20 @@ namespace Scripts.Visuals
         private float _groundContactStartedAt = -1f;
         private bool _wasRawGrounded;
 
+        public float PresentationHorizontalScale => _current.IsValid ? _current.HorizontalScale : 1f;
+
+        public float RunWeaponVerticalOffset
+        {
+            get
+            {
+                var offsets = _current.WeaponVerticalOffsets;
+                if (_state != AnimationState.Run || !_current.IsValid || offsets == null || offsets.Length != _current.Frames.Length)
+                    return 0;
+                // Pixel-art grip poses move on frame boundaries, so equipment must do the same.
+                return offsets[_frameIndex];
+            }
+        }
+
         private void Awake()
         {
             if (_renderer == null)
@@ -242,19 +256,23 @@ namespace Scripts.Visuals
             public readonly Sprite[] Frames;
             public readonly float FrameDuration;
             public readonly bool Loop;
+            public readonly float[] WeaponVerticalOffsets;
+            public readonly float HorizontalScale;
             public bool IsValid => Frames != null && Frames.Length > 0;
 
-            private RuntimeAnimation(Sprite[] frames, float frameDuration, bool loop)
+            private RuntimeAnimation(Sprite[] frames, float frameDuration, bool loop, float[] weaponVerticalOffsets = null, float horizontalScale = 1f)
             {
                 Frames = frames;
                 FrameDuration = frameDuration;
                 Loop = loop;
+                WeaponVerticalOffsets = weaponVerticalOffsets;
+                HorizontalScale = horizontalScale > 0 ? Mathf.Clamp(horizontalScale, 0.8f, 1.2f) : 1f;
             }
 
             public RuntimeAnimation WithLoop(bool loop)
             {
                 return IsValid && Loop != loop
-                    ? new RuntimeAnimation(Frames, FrameDuration, loop)
+                    ? new RuntimeAnimation(Frames, FrameDuration, loop, WeaponVerticalOffsets, HorizontalScale)
                     : this;
             }
 
@@ -268,7 +286,7 @@ namespace Scripts.Visuals
                     : LoadFramesFromResources(source.SpriteSheetResourcesPath);
 
                 return frames.Length > 0
-                    ? new RuntimeAnimation(frames, source.FrameDuration, source.Loop)
+                    ? new RuntimeAnimation(frames, source.FrameDuration, source.Loop, source.WeaponVerticalOffsets, source.HorizontalScale)
                     : Empty;
             }
 

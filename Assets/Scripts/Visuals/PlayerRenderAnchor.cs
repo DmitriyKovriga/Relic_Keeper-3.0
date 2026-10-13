@@ -14,6 +14,7 @@ namespace Scripts.Visuals
         private Vector3 _weaponsLocalPosition;
         private Camera _renderingCamera;
         private bool _applied;
+        public Vector3 WeaponPresentationOffset { get; set; }
 
         public void Initialize(Transform body, Transform weapons)
         {
@@ -59,7 +60,7 @@ namespace Scripts.Visuals
             if (_weapons != null && _weapons != transform && _weapons != _body)
             {
                 _weaponsLocalPosition = _weapons.localPosition;
-                _weapons.position += offset;
+                _weapons.position += offset + transform.TransformVector(WeaponPresentationOffset);
             }
         }
 

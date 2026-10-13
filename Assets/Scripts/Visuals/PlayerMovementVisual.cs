@@ -22,6 +22,9 @@ namespace Scripts.Visuals
         private MaterialPropertyBlock _properties;
         private bool _originalForceRenderingOff;
         private float _pulse;
+        private PlayerRenderAnchor _renderAnchor;
+        private PlayerCharacterAnimationController _characterAnimation;
+        private Scripts.Skills.PlayerSkillManager _skillManager;
         public SpriteRenderer DisplayRenderer => _display;
 
         private void Awake()
@@ -36,8 +39,10 @@ namespace Scripts.Visuals
             visual.transform.SetParent(transform, false);
             _display = visual.AddComponent<SpriteRenderer>();
             _properties = new MaterialPropertyBlock();
-            var anchor = GetComponent<PlayerRenderAnchor>() ?? gameObject.AddComponent<PlayerRenderAnchor>();
-            anchor.Initialize(visual.transform, transform.Find("Visuals"));
+            _renderAnchor = GetComponent<PlayerRenderAnchor>() ?? gameObject.AddComponent<PlayerRenderAnchor>();
+            _renderAnchor.Initialize(visual.transform, transform.Find("Visuals"));
+            _characterAnimation = GetComponent<PlayerCharacterAnimationController>();
+            _skillManager = GetComponent<Scripts.Skills.PlayerSkillManager>();
         }
 
         private void OnEnable()
@@ -55,6 +60,7 @@ namespace Scripts.Visuals
             if (_display != null)
                 _display.enabled = false;
             _pulse = 0f;
+            if (_renderAnchor != null) _renderAnchor.WeaponPresentationOffset = Vector3.zero;
         }
 
         private void OnDestroy()
@@ -90,8 +96,16 @@ namespace Scripts.Visuals
             if (_attack != null && _attack.IsDashing)
                 stretch -= 0.035f;
             float scaleY = 1f + stretch;
-            _display.transform.localScale = new Vector3(1f / scaleY, scaleY, 1f);
+            float width = _characterAnimation != null ? _characterAnimation.PresentationHorizontalScale : 1f;
+            _display.transform.localScale = new Vector3(width / scaleY, scaleY, 1f);
             _display.transform.localPosition = new Vector3(0f, ResolveDisplayY(scaleY), 0f);
+            if (_renderAnchor != null)
+            {
+                bool casting = _skillManager != null && _skillManager.IsAnySkillCasting;
+                bool dashing = _attack != null && _attack.IsDashing;
+                _renderAnchor.WeaponPresentationOffset = Vector3.up * (!casting && !dashing && _characterAnimation != null
+                    ? _characterAnimation.RunWeaponVerticalOffset : 0);
+            }
             _pulse *= Mathf.Exp(-_returnSpeed * Time.deltaTime);
         }
 

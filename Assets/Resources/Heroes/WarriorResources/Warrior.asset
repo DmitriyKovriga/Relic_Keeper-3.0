@@ -20,19 +20,34 @@ MonoBehaviour:
   _portrait: {fileID: 1760075824156950922, guid: 960d4c59f9d0f2c40bf39c5cc09c4231, type: 3}
   _runAnimation:
     Frames: []
-    SpriteSheetResourcesPath: Heroes/WarriorResources/WarriorWalk-Sheet
-    FrameDuration: 0.08
+    SpriteSheetResourcesPath: Heroes/WarriorResources/Refined/WarriorRun-Sheet
+    FrameDuration: 0.080000006
     Loop: 1
+    WeaponVerticalOffsets:
+    - 0
+    - 0
+    - -0.041666668
+    - -0.041666668
+    - 0
+    - 0
+    - -0.041666668
+    - -0.041666668
+    - 0
+    HorizontalScale: 1
   _jumpAnimation:
     Frames: []
-    SpriteSheetResourcesPath: Heroes/WarriorResources/WarriorJump-Sheet
-    FrameDuration: 0.08
+    SpriteSheetResourcesPath: Heroes/WarriorResources/Refined/WarriorJump-Sheet
+    FrameDuration: 0.064
     Loop: 0
+    WeaponVerticalOffsets: []
+    HorizontalScale: 0.94
   _fallAnimation:
     Frames: []
-    SpriteSheetResourcesPath: Heroes/WarriorResources/WarriorFall-Sheet
-    FrameDuration: 0.08
+    SpriteSheetResourcesPath: Heroes/WarriorResources/Refined/WarriorFall-Sheet
+    FrameDuration: 0.064
     Loop: 0
+    WeaponVerticalOffsets: []
+    HorizontalScale: 0.97
   _startingStats:
   - Type: 0
     Value: 75
