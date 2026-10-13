@@ -10,7 +10,10 @@ namespace RelicKeeper.Tests.EditMode
     public class RangedWeaponAffixPoolTests
     {
         private const string RangedPoolName = "RangedWeaponAffixPool";
+        private const string TwoHandedPhysicalRangedPoolName = "TwoHandedGenericPhysRangedAffixPool";
+        private const string BowPoolName = "BowAffixPool";
         private const string ChakramPath = "Assets/Resources/Items/2HWeapon/Chakram/Adventurer/Adventurer's Chakram.asset";
+        private const string BowPath = "Assets/Resources/Items/2HWeapon/Bow/Adventurer's Bow.asset";
         private const string BodyEvasionPoolPath = "Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/BodyEvasionPool.asset";
 
         [Test]
@@ -25,7 +28,7 @@ namespace RelicKeeper.Tests.EditMode
                 AffixPoolSO pool = AssetDatabase.LoadAssetAtPath<AffixPoolSO>(AssetDatabase.GUIDToAssetPath(guids[i]));
                 Assert.That(pool, Is.Not.Null);
 
-                bool isRangedPool = pool.name == RangedPoolName;
+                bool isRangedPool = pool.name == RangedPoolName || pool.name == TwoHandedPhysicalRangedPoolName || pool.name == BowPoolName;
                 bool hasFork = PoolHasStat(pool, StatType.ProjectileFork);
                 bool hasCount = PoolHasStat(pool, StatType.ProjectileCount);
 
@@ -53,13 +56,54 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(PoolHasStat(evasion, StatType.ProjectilePierce), Is.True);
         }
 
-        [Test]
-        public void Chakram_UsesRangedWeaponAffixPool()
+        [TestCase(ChakramPath, TwoHandedPhysicalRangedPoolName)]
+        [TestCase(BowPath, BowPoolName)]
+        public void TwoHandedRangedWeapon_UsesItsAssignedRangedPool(string weaponPath, string expectedPool)
         {
             var chakram = AssetDatabase.LoadAssetAtPath<WeaponItemSO>(ChakramPath);
-            Assert.That(chakram, Is.Not.Null);
-            Assert.That(chakram.AffixPool, Is.Not.Null);
-            Assert.That(chakram.AffixPool.name, Is.EqualTo(RangedPoolName));
+            var weapon = AssetDatabase.LoadAssetAtPath<WeaponItemSO>(weaponPath);
+            Assert.That(weapon, Is.Not.Null);
+            Assert.That(weapon.AffixPool, Is.Not.Null);
+            Assert.That(weapon.AffixPool.name, Is.EqualTo(expectedPool));
+            if (weaponPath == BowPath) Assert.That(weapon.AffixPool, Is.Not.SameAs(chakram.AffixPool));
+            Assert.That(weapon.AffixPool.Affixes, Is.Not.Empty);
+            foreach (var affix in weapon.AffixPool.Affixes)
+                Assert.That(affix, Is.Not.Null, "Ranged pool must not contain missing affix references.");
+        }
+
+        [TestCase(StatType.DamageFire)]
+        [TestCase(StatType.DamageCold)]
+        [TestCase(StatType.DamageLightning)]
+        public void Bow_HasLocalFlatAndIncreasedElementalDamage(StatType stat)
+        {
+            var pool = AssetDatabase.LoadAssetAtPath<WeaponItemSO>(BowPath).AffixPool;
+            bool flat = false, increased = false;
+            foreach (var affix in pool.Affixes)
+                foreach (var entry in affix.GetStatsForTier(affix.GetDefaultTier()))
+                {
+                    if (entry.Stat != stat || entry.Scope != StatScope.Local) continue;
+                    flat |= entry.Type == StatModType.Flat;
+                    increased |= entry.Type == StatModType.PercentAdd;
+                }
+            Assert.That(flat, Is.True, "Bow must roll local added elemental damage.");
+            Assert.That(increased, Is.True, "Bow must roll local increased elemental damage.");
+        }
+
+        [Test]
+        public void Bow_SupportsPhysicalAndElementalAilments_WithoutDuplicateAffixes()
+        {
+            var pool = AssetDatabase.LoadAssetAtPath<WeaponItemSO>(BowPath).AffixPool;
+            foreach (var stat in new[]
+            {
+                StatType.BleedChance, StatType.BleedDamage, StatType.BleedDuration,
+                StatType.PoisonChance, StatType.PoisonDamage, StatType.PoisonDuration,
+                StatType.IgniteChance, StatType.IgniteDamage, StatType.IgniteDamageMult, StatType.IgniteDuration, StatType.MaxIgniteStacks,
+                StatType.FreezeChance, StatType.FreezeDuration,
+                StatType.ShockChance, StatType.ShockDuration, StatType.ShockApplicationEffectiveness, StatType.ShockEffectMagnitude
+            })
+                Assert.That(PoolHasStat(pool, stat), Is.True, stat.ToString());
+            Assert.That(new System.Collections.Generic.HashSet<ItemAffixSO>(pool.Affixes).Count, Is.EqualTo(pool.Affixes.Count));
+            Assert.That(pool.GetAvailableAffixGroupCount(1), Is.GreaterThan(0));
         }
 
         private static bool PoolHasStat(AffixPoolSO pool, StatType stat)
