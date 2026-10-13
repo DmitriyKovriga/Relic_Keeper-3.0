@@ -116,7 +116,7 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void EnabledPushback_AppearsInAutomaticDescription()
+        public void EnabledPushback_StaysHiddenInAutomaticDescription()
         {
             SkillDataSO skill = Track(ScriptableObject.CreateInstance<SkillDataSO>());
             SkillRecipeSO recipe = Track(ScriptableObject.CreateInstance<SkillRecipeSO>());
@@ -130,9 +130,12 @@ namespace RelicKeeper.Tests.EditMode
             string en = SkillDescriptionGenerator.BuildAutomatic(skill, "en");
             string ru = SkillDescriptionGenerator.BuildAutomatic(skill, "ru");
 
-            Assert.That(en, Does.Contain("Knocks enemies back"));
-            Assert.That(en, Does.Contain("200"));
-            Assert.That(ru, Does.Contain("Отталкивает"));
+            Assert.That(en, Does.Not.Contain("Knocks enemies back"));
+            Assert.That(en, Does.Not.Contain("pushback"));
+            Assert.That(ru, Does.Not.Contain("Отталкивает"));
+            Assert.That(ru, Does.Not.Contain("pushback"));
+            Assert.That(en, Does.Contain("damage"));
+            Assert.That(ru, Does.Contain("урон"));
         }
 
         [Test]

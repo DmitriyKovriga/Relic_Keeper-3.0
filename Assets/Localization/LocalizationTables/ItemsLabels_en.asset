@@ -146,6 +146,10 @@ MonoBehaviour:
     m_Localized: Mystic Adventurer's Wand
     m_Metadata:
       m_Items: []
+  - m_Id: 100525277350715392
+    m_Localized: Adventurer's Bow
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

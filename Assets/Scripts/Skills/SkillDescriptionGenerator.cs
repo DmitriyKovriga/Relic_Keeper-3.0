@@ -128,15 +128,7 @@ namespace Scripts.Skills
             bool ru = IsRussian(localeCode);
             var unique = new HashSet<string>(StringComparer.Ordinal);
             var quickNotes = new List<QuickStatusNote>();
-            if (skill.EnablePushback)
-            {
-                if (skill.PushbackRating > 0.001f)
-                    Add(lines, unique, ru
-                        ? $"Отталкивает врагов (pushback {N(skill.PushbackRating)})."
-                        : $"Knocks enemies back (pushback {N(skill.PushbackRating)}).", SkillDescriptionSection.Attack);
-                else
-                    Add(lines, unique, ru ? "Отталкивает врагов." : "Knocks enemies back.", SkillDescriptionSection.Attack);
-            }
+            // Pushback remains a hidden combat property, not a description line.
 
             float shieldEffectiveness = 1f;
             foreach (StepEntry step in skill.Recipe.Steps)

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66f91d0859ac76146bd4c3f7c52a2e86, type: 3}
   m_Name: WeaponStancePoseTable
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.WeaponStancePoseTableSO
-  _version: 8
+  _version: 9
   _poses:
   - Stance: 0
     LocalPosition: {x: 0.45833328, y: -0.042000007}
@@ -20,33 +20,60 @@ MonoBehaviour:
     SortBehindCharacter: 0
     FlipX: 0
     FlipY: 0
+    Id: default
+    DisplayName: Default
+    DefaultSwingId: slash
   - Stance: 1
     LocalPosition: {x: 0.47277904, y: -0.1466667}
     LocalEulerZ: -68.45352
     SortBehindCharacter: 0
     FlipX: 0
     FlipY: 0
+    Id: aggressive
+    DisplayName: Aggressive
+    DefaultSwingId: slash
   - Stance: 2
     LocalPosition: {x: -0.31888896, y: -0.3519445}
     LocalEulerZ: 100.43515
     SortBehindCharacter: 0
     FlipX: 0
     FlipY: 0
+    Id: low_guard
+    DisplayName: Low Guard
+    DefaultSwingId: low_arc
   - Stance: 3
     LocalPosition: {x: 0.2522222, y: -0.37694454}
     LocalEulerZ: 166.50876
     SortBehindCharacter: 0
     FlipX: 0
     FlipY: 0
+    Id: dagger
+    DisplayName: Dagger
+    DefaultSwingId: overhead_stab
   - Stance: 4
     LocalPosition: {x: -0.110555544, y: -0.06300008}
     LocalEulerZ: 32
     SortBehindCharacter: 0
     FlipX: 0
     FlipY: 0
+    Id: shoulder
+    DisplayName: Shoulder
+    DefaultSwingId: slash
   - Stance: 5
     LocalPosition: {x: 0.051388875, y: -0.23750007}
     LocalEulerZ: -89.8
     SortBehindCharacter: 0
     FlipX: 0
     FlipY: 0
+    Id: staff
+    DisplayName: Staff
+    DefaultSwingId: slash
+  - Stance: 0
+    LocalPosition: {x: 0.31944436, y: -0.13227782}
+    LocalEulerZ: -4.015503
+    SortBehindCharacter: 0
+    FlipX: 0
+    FlipY: 0
+    Id: bow_stance
+    DisplayName: Bow Stance
+    DefaultSwingId: slash
