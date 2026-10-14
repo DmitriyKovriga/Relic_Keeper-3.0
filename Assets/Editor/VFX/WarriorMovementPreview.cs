@@ -70,8 +70,18 @@ namespace RelicKeeper.Editor.VFX
             Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Jump-puff-runtime-", true, true, "Heroes/WarriorResources/Warrior", true);
         }
 
+        public static void CaptureGroundDashRuntimeViews()
+        {
+            Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Ground-dash-runtime-", false, false, "Heroes/WarriorResources/Warrior", false, true);
+        }
+
+        public static void CaptureAirDodgeRuntimeViews()
+        {
+            Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Air-dodge-runtime-", false, true, "Heroes/WarriorResources/Warrior", false, false, true);
+        }
+
         private static void Capture(string weaponPath, string stanceId, string outputPrefix, bool doubleJump = false, bool forwardJump = false,
-            string characterResourcePath = "Heroes/WarriorResources/Warrior", bool jumpPuffs = false)
+            string characterResourcePath = "Heroes/WarriorResources/Warrior", bool jumpPuffs = false, bool groundDashPreview = false, bool airDodgePreview = false)
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
             var root = new GameObject("Temporary character animation preview");
@@ -159,6 +169,16 @@ namespace RelicKeeper.Editor.VFX
                 string folder = Path.Combine(Path.GetTempPath(), "codex-" + warrior.ID.ToLowerInvariant() + "-refresh");
                 Directory.CreateDirectory(folder);
                 var puffs = new System.Collections.Generic.List<GroundingSpriteSheetVfx>();
+                var ghosts = new System.Collections.Generic.Dictionary<DodgeAfterImageGhost, int>();
+                PlayerAttackInput afterimageDriver = null;
+                if (groundDashPreview || airDodgePreview)
+                {
+                    var driver = new GameObject("Inactive afterimage driver");
+                    driver.SetActive(false);
+                    driver.transform.SetParent(root.transform);
+                    afterimageDriver = driver.AddComponent<PlayerAttackInput>();
+                    typeof(PlayerAttackInput).GetField("_isGroundDash", Flags).SetValue(afterimageDriver, groundDashPreview);
+                }
                 for (int frame = 0; frame < (doubleJump ? 94 : 80); frame++)
                 {
                     for (int side = 0; side < 2; side++)
@@ -184,20 +204,74 @@ namespace RelicKeeper.Editor.VFX
                         }
                         else if (doubleJump && frame >= 74) height = 0f;
                         var position = actors[side].position;
+                        if (groundDashPreview)
+                            position.x = 2000 + (side == 0 ? -1 : 1) * (2f + Mathf.Clamp(frame - 9, 0, 4) * 0.22f);
+                        if (airDodgePreview)
+                            position.x = 2000 + (side == 0 ? -1 : 1) * (2f + Mathf.Clamp(frame - 37, 0, 4) * 0.22f);
                         position.y = height + 0.5f;
                         actors[side].position = position;
                         if (jumpPuffs && (frame == 32 || frame == 42))
                         {
-                            float width = frame == 32 ? 0.75f : 0.525f;
+                            float width = frame == 32 ? 0.75f : 0.99f;
                             var puff = new GameObject("Preview jump puff");
                             puff.transform.SetParent(root.transform);
-                            puff.transform.position = new Vector3(position.x, height + width * 0.5f, 0);
+                            puff.transform.position = new Vector3(position.x, height + width * (frame == 32 ? 0.5f : 0.5f - AirJumpPuffSprites.ContactHeightRatio), 0);
                             var overlay = puff.AddComponent<GroundingSpriteSheetVfx>();
-                            overlay.Initialize(JumpPuffSprites.Frames, 0.32f, frame == 32 ? 0.9f : 0.7f, displays[side].sortingLayerID, 3, width, false);
+                            overlay.Initialize(frame == 32 ? JumpPuffSprites.Frames : AirJumpPuffSprites.Frames, frame == 32 ? 0.32f : 0.48f, 0.9f, displays[side].sortingLayerID, 3, width, false);
                             puffs.Add(overlay);
                         }
                         // Same full-rectangle foot anchoring used by PlayerMovementVisual at scale 1.
                         displays[side].transform.localPosition = Vector3.up * (-0.5f - displays[side].sprite.bounds.min.y * controller.PresentationScale.y);
+                        if (groundDashPreview)
+                        {
+                            float amount = frame >= 10 && frame < 14 ? 1f : frame >= 14 ? Mathf.Exp(-(frame - 13) * 18f / 24f) : 0f;
+                            Vector2 compression = Vector2.Lerp(Vector2.one, PlayerMovementVisual.GroundDashScale, amount);
+                            displays[side].transform.localScale = new Vector3(compression.x, compression.y, 1);
+                            displays[side].transform.localPosition = Vector3.up * (-0.5f - displays[side].sprite.bounds.min.y * compression.y);
+                            actors[side].GetComponent<PlayerRenderAnchor>().WeaponPresentationOffset = PlayerMovementVisual.AdjustDashGrip(controller.PresentationWeaponOffset, compression);
+                            if (frame == 10)
+                            {
+                                var puff = new GameObject("Preview dash push off");
+                                puff.transform.SetParent(root.transform);
+                                puff.transform.position = new Vector3(position.x - (side == 0 ? -1 : 1) * 0.244f, 0.55f, 0);
+                                var overlay = puff.AddComponent<GroundingSpriteSheetVfx>();
+                                overlay.Initialize(GroundDashPuffSprites.Frames, 0.8f, 0.95f, displays[side].sortingLayerID, 3, 1.08f, side == 0);
+                                puffs.Add(overlay);
+                            }
+                            if (frame == 10 || frame == 12)
+                            {
+                                typeof(PlayerAttackInput).GetField("_playerRenderers", Flags).SetValue(afterimageDriver, actors[side].GetComponentsInChildren<SpriteRenderer>());
+                                typeof(PlayerAttackInput).GetMethod("SpawnAfterImageSnapshot", Flags).Invoke(afterimageDriver, null);
+                                foreach (var ghost in Object.FindObjectsByType<DodgeAfterImageGhost>(FindObjectsSortMode.None))
+                                    if (!ghosts.ContainsKey(ghost)) { ghosts.Add(ghost, frame); ghost.transform.SetParent(root.transform, true); }
+                            }
+                            foreach (var pair in ghosts)
+                                foreach (var renderer in pair.Key.GetComponentsInChildren<SpriteRenderer>())
+                                {
+                                    float alpha = Mathf.Max(0, 1f - (frame - pair.Value) / (24f * 0.3f));
+                                    renderer.color = new Color(0.86f, 0.93f, 0.95f, 0.5f * alpha);
+                                }
+                            foreach (var puff in puffs)
+                            {
+                                var sprite = puff.GetComponent<SpriteRenderer>();
+                                float age = (frame - 10) / 24f;
+                                sprite.enabled = age >= 0 && age < 0.8f;
+                                if (sprite.enabled) sprite.sprite = GroundDashPuffSprites.Frames[Mathf.Clamp((int)(age / 0.8f * GroundDashPuffSprites.Frames.Length), 0, GroundDashPuffSprites.Frames.Length - 1)];
+                            }
+                        }
+                        if (airDodgePreview)
+                        {
+                            if (frame == 38 || frame == 40)
+                            {
+                                typeof(PlayerAttackInput).GetField("_playerRenderers", Flags).SetValue(afterimageDriver, actors[side].GetComponentsInChildren<SpriteRenderer>());
+                                typeof(PlayerAttackInput).GetMethod("SpawnAfterImageSnapshot", Flags).Invoke(afterimageDriver, null);
+                                foreach (var ghost in Object.FindObjectsByType<DodgeAfterImageGhost>(FindObjectsSortMode.None))
+                                    if (!ghosts.ContainsKey(ghost)) { ghosts.Add(ghost, frame); ghost.transform.SetParent(root.transform, true); }
+                            }
+                            foreach (var pair in ghosts)
+                                foreach (var renderer in pair.Key.GetComponentsInChildren<SpriteRenderer>())
+                                    renderer.color = new Color(0.86f, 0.93f, 0.95f, 0.4f * Mathf.Max(0, 1f - (frame - pair.Value) / (24f * 0.16f)));
+                        }
                         bool inAir = frame >= 32 && frame < (doubleJump ? 74 : 60);
                         int facing = side == 0 ? -1 : 1;
                         float targetLean = PlayerMovementVisual.CalculateAirborneLean(forwardJump ? facing * 5f : 0f, facing, inAir);
@@ -211,8 +285,8 @@ namespace RelicKeeper.Editor.VFX
                         {
                             var sprite = puff.GetComponent<SpriteRenderer>();
                             float seconds = age / 24f;
-                            sprite.enabled = seconds >= 0 && seconds < 0.32f;
-                            if (sprite.enabled) sprite.sprite = JumpPuffSprites.Frames[Mathf.Clamp((int)(seconds / 0.32f * 8), 0, 7)];
+                            sprite.enabled = seconds >= 0 && seconds < (frame >= 42 ? 0.48f : 0.32f);
+                            if (sprite.enabled) sprite.sprite = (frame >= 42 ? AirJumpPuffSprites.Frames : JumpPuffSprites.Frames)[Mathf.Clamp((int)(seconds / (frame >= 42 ? 0.48f : 0.32f) * 8), 0, 7)];
                         }
                         if (frame == 41) { foreach (var puff in puffs) puff.GetComponent<SpriteRenderer>().enabled = false; puffs.Clear(); }
                     }

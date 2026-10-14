@@ -61,8 +61,12 @@ public class PlayerAttackInput : MonoBehaviour
     [Header("Directional Dodge Afterimage")]
     [SerializeField, Min(0.01f)] private float _afterImageInterval = 0.05f;
     [SerializeField, Min(0.05f)] private float _afterImageLifetime = 0.16f;
-    [SerializeField, Range(0f, 1f)] private float _afterImageAlpha = 0.45f;
-    [SerializeField] private Color _afterImageColor = new(0.1f, 0.1f, 0.1f, 0.45f);
+    [SerializeField, HideInInspector, Range(0f, 1f)] private float _afterImageAlpha = 0.45f;
+    [SerializeField, HideInInspector] private Color _afterImageColor = new(0.1f, 0.1f, 0.1f, 0.45f);
+    [SerializeField] private Color _groundDashAfterImageColor = new(0.86f, 0.93f, 0.95f, 0.5f);
+    [SerializeField, Min(0.05f)] private float _groundDashAfterImageLifetime = 0.3f;
+    [SerializeField] private Color _airDodgeAfterImageColor = new(0.86f, 0.93f, 0.95f, 0.4f);
+    private Material _groundDashAfterImageMaterial;
 
     [Header("Directional Dodge Motion")]
     [SerializeField, Min(0f)] private float _directionalDodgeHorizontalCarryDuration = 0.35f;
@@ -692,13 +696,18 @@ public class PlayerAttackInput : MonoBehaviour
         ghostRoot.transform.rotation = Quaternion.identity;
         ghostRoot.transform.localScale = Vector3.one;
 
-        var color = new Color(_afterImageColor.r, _afterImageColor.g, _afterImageColor.b, Mathf.Clamp01(_afterImageAlpha));
+        Color color = _isGroundDash ? _groundDashAfterImageColor
+            : _airDodgeAfterImageColor;
+        if (_groundDashAfterImageMaterial == null)
+            _groundDashAfterImageMaterial = Resources.Load<Material>("VFX/Materials/GroundDashAfterimage");
+        SpriteRenderer sortingReference = Array.Find(_playerRenderers,
+            renderer => renderer != null && renderer.enabled && !renderer.forceRenderingOff && renderer.sprite != null);
         int childCount = 0;
 
         for (int i = 0; i < _playerRenderers.Length; i++)
         {
             SpriteRenderer source = _playerRenderers[i];
-            if (source == null || !source.enabled || source.sprite == null)
+            if (source == null || !source.enabled || source.forceRenderingOff || source.sprite == null)
                 continue;
 
             GameObject child = new($"AfterImagePart_{i}");
@@ -713,7 +722,22 @@ public class PlayerAttackInput : MonoBehaviour
             clone.flipY = source.flipY;
             clone.sortingLayerName = WorldRenderSorting.GetSortingLayer(RenderDepthCategory.PlayerOverlay);
             clone.sortingOrder = WorldRenderSorting.ResolveOrder(RenderDepthCategory.PlayerOverlay, source.transform.position.y, -1);
+            if (sortingReference != null)
+            {
+                clone.sortingLayerID = sortingReference.sortingLayerID;
+                clone.sortingOrder = sortingReference.sortingOrder - 1;
+            }
             clone.color = color;
+            if (_groundDashAfterImageMaterial != null)
+            {
+                clone.sharedMaterial = _groundDashAfterImageMaterial;
+                var properties = new MaterialPropertyBlock();
+                properties.SetTexture("_MainTex", source.sprite.texture);
+                Texture2D externalAlpha = source.sprite.associatedAlphaSplitTexture;
+                properties.SetFloat("_EnableExternalAlpha", externalAlpha != null ? 1f : 0f);
+                if (externalAlpha != null) properties.SetTexture("_AlphaTex", externalAlpha);
+                clone.SetPropertyBlock(properties);
+            }
             childCount++;
         }
 
@@ -724,7 +748,7 @@ public class PlayerAttackInput : MonoBehaviour
         }
 
         var afterImage = ghostRoot.AddComponent<DodgeAfterImageGhost>();
-        afterImage.Initialize(_afterImageLifetime);
+        afterImage.Initialize(_isGroundDash ? _groundDashAfterImageLifetime : _afterImageLifetime);
     }
 
     private Vector2 GetDodgeDirection(Vector2 moveInput, bool startedGrounded)

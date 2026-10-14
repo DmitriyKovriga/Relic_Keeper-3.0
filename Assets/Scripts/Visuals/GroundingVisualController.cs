@@ -39,7 +39,9 @@ namespace Scripts.Visuals
         [SerializeField] private bool _spawnJumpDust = true;
         [SerializeField, Min(40)] private int _jumpDustDurationMs = 320;
         [SerializeField, Range(0.25f, 3f)] private float _jumpDustWidthRelativeToBody = 1.25f;
-        [SerializeField, Range(0f, 1f)] private float _airJumpDustAlpha = 0.7f;
+        [SerializeField, Range(0f, 1f)] private float _airJumpDustAlpha = 0.9f;
+        [SerializeField, Min(40)] private int _airJumpDustDurationMs = 480;
+        [SerializeField, Range(0.25f, 3f)] private float _airJumpDustWidthRelativeToBody = 1.65f;
         [SerializeField] private bool _spawnLandingDust = true;
         [SerializeField] private bool _spawnRunDust = true;
         [SerializeField] private bool _spawnDashDust = true;
@@ -57,6 +59,8 @@ namespace Scripts.Visuals
         [SerializeField, Min(40)] private int _landingDustDurationMs = 280;
         [SerializeField, Min(40)] private int _heavyImpactDurationMs = 320;
         [SerializeField, Min(40)] private int _dashDustDurationMs = 360;
+        [SerializeField, Min(40)] private int _groundDashPuffDurationMs = 800;
+        [SerializeField, Range(0.25f, 3f)] private float _groundDashPuffWidthRelativeToBody = 1.45f;
         [SerializeField, Min(40)] private int _groundScrapeDurationMs = 260;
         [SerializeField, Min(40)] private int _runDustSmallDurationMs = 160;
         [SerializeField, Min(40)] private int _runDustHeavyDurationMs = 220;
@@ -137,11 +141,13 @@ namespace Scripts.Visuals
             // Use the last observed contact, never a raycast to a distant floor for air jumps.
             bool groundJump = _wasGrounded;
             Bounds feet = ResolveBounds();
+            float width = ResolveEffectWidth(groundJump ? _jumpDustWidthRelativeToBody : _airJumpDustWidthRelativeToBody);
             Vector3 origin = groundJump ? ResolveGroundEffectPosition(0f)
-                : new Vector3(feet.center.x, feet.min.y, 0f);
-            SpawnGroundEffect(JumpPuffSprites.Frames, DurationMsToSeconds(_jumpDustDurationMs), origin,
+                : new Vector3(feet.center.x, feet.min.y - width * AirJumpPuffSprites.ContactHeightRatio, 0f);
+            SpawnGroundEffect(groundJump ? JumpPuffSprites.Frames : AirJumpPuffSprites.Frames,
+                DurationMsToSeconds(groundJump ? _jumpDustDurationMs : _airJumpDustDurationMs), origin,
                 false, groundJump ? 0.9f : _airJumpDustAlpha, ResolveDustSortingOrder(),
-                ResolveEffectWidth(_jumpDustWidthRelativeToBody * (groundJump ? 1f : 0.7f)));
+                width);
             _wasGrounded = false;
         }
 
@@ -334,14 +340,15 @@ namespace Scripts.Visuals
         private void SpawnDashEffects()
         {
             float direction = ResolveFacingDirection();
+            bool groundDash = _playerAttackInput != null && _playerAttackInput.IsDashing;
             SpawnGroundEffect(
-                _dustDashSmall,
-                DurationMsToSeconds(_dashDustDurationMs),
-                ResolveGroundEffectPosition(-direction * 0.08f),
+                groundDash ? GroundDashPuffSprites.Frames : _dustDashSmall,
+                DurationMsToSeconds(groundDash ? _groundDashPuffDurationMs : _dashDustDurationMs),
+                ResolveGroundEffectPosition(-direction * (groundDash ? ResolveBounds().extents.x * 0.65f : 0.08f)),
                 direction < 0f,
-                1f,
+                groundDash ? 0.95f : 1f,
                 ResolveDustSortingOrder(),
-                ResolveEffectWidth(_dashDustWidthRelativeToBody));
+                ResolveEffectWidth(groundDash ? _groundDashPuffWidthRelativeToBody : _dashDustWidthRelativeToBody));
 
             if (_spawnGroundScrape)
             {

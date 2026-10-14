@@ -12,6 +12,18 @@ namespace RelicKeeper.Tests.EditMode
         private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
 
         [Test]
+        public void AirJumpCloudFormsLargerRing_WithOpenCentreAndDownwardJet()
+        {
+            var air = AirJumpPuffSprites.Frames[2].texture;
+            int airCount = 0, groundCount = 0;
+            foreach (var pixel in air.GetPixels32()) if (pixel.a > 0) airCount++;
+            foreach (var pixel in JumpPuffSprites.Frames[2].texture.GetPixels32()) if (pixel.a > 0) groundCount++;
+            Assert.That(airCount, Is.GreaterThan(groundCount));
+            Assert.That(air.GetPixel(16, 17).a, Is.Zero, "The cushion should open into a cloud ring.");
+            Assert.That(air.GetPixel(16, 8).a, Is.GreaterThan(0), "A downward jet should emphasize the push-off.");
+        }
+
+        [Test]
         public void PuffExpandsAndFadesOnNativePixelGrid()
         {
             var frames = JumpPuffSprites.Frames;
@@ -63,8 +75,13 @@ namespace RelicKeeper.Tests.EditMode
                 if (grounded)
                     Assert.That(renderer.bounds.min.y, Is.InRange(0f, 1f / 24f), "Ground puff must start at the contact surface.");
                 else
-                    Assert.That(renderer.bounds.min.y, Is.GreaterThanOrEqualTo(3.5f), "Air jump must not project its puff onto a floor below.");
-                Assert.That(renderer.color.a, Is.EqualTo(grounded ? 0.9f : 0.7f).Within(0.001f));
+                    {
+                    Assert.That(renderer.bounds.max.y, Is.GreaterThan(3.5f), "Cloud cushion must touch the feet from below.");
+                    Assert.That(renderer.bounds.min.y, Is.InRange(2f, 3.5f), "Cloud must stay beneath the airborne player, not at the distant floor.");
+                    Assert.That(renderer.sprite, Is.SameAs(AirJumpPuffSprites.Frames[0]));
+                    Assert.That(typeof(GroundingSpriteSheetVfx).GetField("_duration", Private).GetValue(effects[0]), Is.EqualTo(0.48f));
+                }
+                Assert.That(renderer.color.a, Is.EqualTo(0.9f).Within(0.001f));
                 var heldPosition = effects[0].transform.position;
                 root.transform.position += Vector3.up;
                 Assert.That(effects[0].transform.position, Is.EqualTo(heldPosition));

@@ -20,6 +20,10 @@ namespace Scripts.Visuals
         [SerializeField, Min(0.1f)] private float _airborneLeanAtSpeed = DefaultAirborneLeanSpeed;
         [SerializeField, Min(1f)] private float _airborneLeanResponse = DefaultAirborneLeanResponse;
         private float _airborneLean;
+        public static readonly Vector2 GroundDashScale = new Vector2(0.96f, 0.87f);
+        [SerializeField] private Vector2 _groundDashScale = GroundDashScale;
+        [SerializeField, Min(1f)] private float _dashShapeResponse = 18f;
+        private float _dashShape;
 
         private PlayerMovement _movement;
         private PlayerAttackInput _attack;
@@ -68,6 +72,7 @@ namespace Scripts.Visuals
                 _display.enabled = false;
             _pulse = 0f;
             _airborneLean = 0f;
+            _dashShape = 0f;
             if (_renderAnchor != null)
             {
                 _renderAnchor.WeaponPresentationOffset = Vector3.zero;
@@ -107,18 +112,23 @@ namespace Scripts.Visuals
 
             bool authored = _characterAnimation != null && _characterAnimation.HasAuthoredPresentation;
             float stretch = authored ? 0f : _pulse;
-            if (_attack != null && _attack.IsDashing)
-                stretch -= 0.035f;
+            bool casting = _skillManager != null && _skillManager.IsAnySkillCasting;
+            bool groundDash = _attack != null && _attack.IsDashing && _movement != null && _movement.IsGrounded && !casting;
+            bool canRecoverDash = _movement != null && _movement.IsGrounded && !casting;
+            _dashShape = canRecoverDash ? Mathf.Lerp(_dashShape, groundDash ? 1f : 0f,
+                1f - Mathf.Exp(-_dashShapeResponse * Time.deltaTime)) : 0f;
             float scaleY = (authored ? _characterAnimation.PresentationScale.y : 1f) + stretch;
             float width = _characterAnimation != null ? _characterAnimation.PresentationHorizontalScale : 1f;
-            _display.transform.localScale = new Vector3(authored ? width : width / scaleY, scaleY, 1f);
+            Vector2 dashScale = Vector2.Lerp(Vector2.one, _groundDashScale, _dashShape);
+            _display.transform.localScale = new Vector3((authored ? width : width / scaleY) * dashScale.x, scaleY * dashScale.y, 1f);
+            scaleY *= dashScale.y;
             _display.transform.localPosition = new Vector3(0f, ResolveDisplayY(scaleY), 0f);
             if (_renderAnchor != null)
             {
-                bool casting = _skillManager != null && _skillManager.IsAnySkillCasting;
                 bool dashing = _attack != null && _attack.IsDashing;
-                _renderAnchor.WeaponPresentationOffset = !casting && !dashing && _characterAnimation != null
+                Vector3 grip = !casting && (!dashing || groundDash) && _characterAnimation != null
                     ? _characterAnimation.PresentationWeaponOffset : Vector3.zero;
+                _renderAnchor.WeaponPresentationOffset = AdjustDashGrip(grip, dashScale);
                 bool airborne = _movement != null && !_movement.IsGrounded && !casting && !dashing;
                 float targetLean = CalculateAirborneLean(_movement != null ? _movement.CurrentVelocity.x : 0f,
                     Mathf.Sign(transform.lossyScale.x), airborne, _airborneLeanDegrees, _airborneLeanAtSpeed);
@@ -133,6 +143,13 @@ namespace Scripts.Visuals
         {
             if (!airborne) return 0f;
             return -Mathf.Clamp(horizontalVelocity * facing / Mathf.Max(0.1f, fullLeanSpeed), -1f, 1f) * maximumDegrees;
+        }
+
+        public static Vector3 AdjustDashGrip(Vector3 gripOffset, Vector2 scale)
+        {
+            // Authored hand baseline: five pixels forward, four above the anchored feet.
+            return gripOffset + new Vector3((5f / 24f + gripOffset.x) * (scale.x - 1f),
+                (4f / 24f + gripOffset.y) * (scale.y - 1f), 0f);
         }
 
         private float ResolveDisplayY(float scaleY)
