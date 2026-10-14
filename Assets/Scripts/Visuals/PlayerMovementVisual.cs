@@ -77,6 +77,7 @@ namespace Scripts.Visuals
             {
                 _renderAnchor.WeaponPresentationOffset = Vector3.zero;
                 _renderAnchor.PresentationLeanDegrees = 0f;
+                _renderAnchor.HideWeaponsForDodge = false;
                 _renderAnchor.Restore();
             }
         }
@@ -110,7 +111,7 @@ namespace Scripts.Visuals
             _source.GetPropertyBlock(_properties);
             _display.SetPropertyBlock(_properties);
 
-            bool authored = _characterAnimation != null && _characterAnimation.HasAuthoredPresentation;
+            bool authored = _characterAnimation != null && (_characterAnimation.HasAuthoredPresentation || _characterAnimation.IsPlayingNeutralDodge);
             float stretch = authored ? 0f : _pulse;
             bool casting = _skillManager != null && _skillManager.IsAnySkillCasting;
             bool groundDash = _attack != null && _attack.IsDashing && _movement != null && _movement.IsGrounded && !casting;
@@ -129,11 +130,13 @@ namespace Scripts.Visuals
                 Vector3 grip = !casting && (!dashing || groundDash) && _characterAnimation != null
                     ? _characterAnimation.PresentationWeaponOffset : Vector3.zero;
                 _renderAnchor.WeaponPresentationOffset = AdjustDashGrip(grip, dashScale);
-                bool airborne = _movement != null && !_movement.IsGrounded && !casting && !dashing;
+                bool neutralDodge = _attack != null && _attack.IsStationaryDodging;
+                bool airborne = _movement != null && !_movement.IsGrounded && !casting && !dashing && !neutralDodge;
                 float targetLean = CalculateAirborneLean(_movement != null ? _movement.CurrentVelocity.x : 0f,
                     Mathf.Sign(transform.lossyScale.x), airborne, _airborneLeanDegrees, _airborneLeanAtSpeed);
                 _airborneLean = airborne ? Mathf.Lerp(_airborneLean, targetLean, 1f - Mathf.Exp(-_airborneLeanResponse * Time.deltaTime)) : 0f;
                 _renderAnchor.PresentationLeanDegrees = _airborneLean;
+                _renderAnchor.HideWeaponsForDodge = neutralDodge;
             }
             _pulse *= Mathf.Exp(-_returnSpeed * Time.deltaTime);
         }
@@ -161,9 +164,9 @@ namespace Scripts.Visuals
                 _bodyCollider = GetComponent<Collider2D>();
 
             // A flipped sprite has its visual bottom on the opposite side of its pivot.
-            float spriteFootY = _source.flipY
-                ? -_source.sprite.bounds.max.y
-                : _source.sprite.bounds.min.y;
+            Bounds reference = _characterAnimation != null && _characterAnimation.IsPlayingNeutralDodge
+                ? _characterAnimation.NeutralDodgeReferenceBounds : _source.sprite.bounds;
+            float spriteFootY = _source.flipY ? -reference.max.y : reference.min.y;
 
             // Keep the feet anchored while the upper body compresses/extends. Animation
             // frames can have a different height/pivot, so align every frame to the

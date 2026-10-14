@@ -175,5 +175,67 @@ namespace RelicKeeper.Tests.EditMode
             _anchor.EndRender(_camera);
             Assert.That(Vector3.Distance(_weapons.position, weapon), Is.LessThan(0.000001f));
         }
+
+        [TestCase(1, true)]
+        [TestCase(-1, true)]
+        [TestCase(1, false)]
+        [TestCase(-1, false)]
+        public void NeutralDodge_HidesWeaponsOnlyDuringRendering_AndPreservesHiddenFlags(int facing, bool pixelCamera)
+        {
+            _owner.transform.localScale = new Vector3(facing, 1, 1);
+            _camera.GetComponent<PixelPerfectCamera>().enabled = pixelCamera;
+            var collider = _owner.GetComponent<BoxCollider2D>();
+            collider.offset = new Vector2(0.02f, -0.04f);
+            Physics2D.SyncTransforms();
+            Bounds bounds = collider.bounds;
+            Vector3 root = _owner.transform.position;
+            Vector3 body = _body.localPosition, weapon = _weapons.localPosition;
+            Vector3 bodyScale = _body.localScale, weaponScale = _weapons.localScale;
+            Quaternion bodyRotation = _body.localRotation, weaponRotation = _weapons.localRotation;
+            var visible = _weapons.gameObject.AddComponent<SpriteRenderer>();
+            var hidden = new GameObject("Already hidden weapon part").AddComponent<SpriteRenderer>();
+            hidden.transform.SetParent(_weapons, false);
+            hidden.forceRenderingOff = true;
+            _anchor.HideWeaponsForDodge = true;
+            for (int i = 0; i < 3; i++)
+            {
+                _anchor.BeginRender(_camera);
+                Assert.That(visible.forceRenderingOff, Is.True);
+                Assert.That(hidden.forceRenderingOff, Is.True);
+                Assert.That(_weapons.gameObject.activeSelf, Is.True, "Hiding must not disable equipment components or sockets.");
+                Physics2D.SyncTransforms();
+                Assert.That(collider.bounds, Is.EqualTo(bounds));
+                Assert.That(_owner.transform.position, Is.EqualTo(root));
+                Assert.That(_owner.transform.rotation, Is.EqualTo(Quaternion.identity));
+                _anchor.EndRender(_camera);
+                Assert.That(visible.forceRenderingOff, Is.False);
+                Assert.That(hidden.forceRenderingOff, Is.True);
+                Assert.That(_body.localPosition, Is.EqualTo(body));
+                Assert.That(_weapons.localPosition, Is.EqualTo(weapon));
+                Assert.That(_body.localRotation, Is.EqualTo(bodyRotation));
+                Assert.That(_weapons.localRotation, Is.EqualTo(weaponRotation));
+                Assert.That(_body.localScale, Is.EqualTo(bodyScale));
+                Assert.That(_weapons.localScale, Is.EqualTo(weaponScale));
+            }
+        }
+
+        [Test]
+        public void NeutralDodge_CancellationRestoresWeapons_AndNextDodgeIncludesNewEquipment()
+        {
+            var original = _weapons.gameObject.AddComponent<SpriteRenderer>();
+            _anchor.HideWeaponsForDodge = true;
+            _anchor.BeginRender(_camera);
+            _anchor.HideWeaponsForDodge = false;
+            Assert.That(original.forceRenderingOff, Is.False);
+            var replacement = new GameObject("New equipped weapon").AddComponent<SpriteRenderer>();
+            replacement.transform.SetParent(_weapons, false);
+            _anchor.HideWeaponsForDodge = true;
+            _anchor.BeginRender(_camera);
+            Assert.That(replacement.forceRenderingOff, Is.True);
+            _anchor.enabled = false;
+            typeof(PlayerRenderAnchor).GetMethod("OnDisable", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(_anchor, null);
+            Assert.That(original.forceRenderingOff, Is.False);
+            Assert.That(replacement.forceRenderingOff, Is.False);
+        }
     }
 }

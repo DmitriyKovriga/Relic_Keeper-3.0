@@ -126,6 +126,16 @@ MonoBehaviour:
     - {x: 0.98, y: 1.02}
     - {x: 1.01, y: 0.99}
     - {x: 1, y: 1}
+  _neutralDodgeAnimation:
+    Frames: []
+    SpriteSheetResourcesPath: Heroes/RogueResources/Refined/RogueNeutralDodge-Sheet
+    FrameDuration: 0.026666665
+    Loop: 0
+    AirborneRestartFrame: 0
+    WeaponVerticalOffsets: []
+    WeaponHorizontalOffsets: []
+    HorizontalScale: 1
+    PresentationScales: []
   _startingStats:
   - Type: 15
     Value: 100

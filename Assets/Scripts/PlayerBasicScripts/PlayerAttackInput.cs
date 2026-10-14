@@ -131,6 +131,8 @@ public class PlayerAttackInput : MonoBehaviour
     public bool IsDamageImmune => _isDodging && !_isGroundDash;
     public bool IsDashing => _isDodging && _isGroundDash;
     public bool IsStationaryDodging => _isDodging && _isStationaryDodge;
+    public float StationaryDodgeProgress => IsStationaryDodging
+        ? Mathf.Clamp01((Time.time - _currentDodgeStartTime) / Mathf.Max(0.01f, _currentDodgeDuration)) : 0f;
 
     private void Awake()
     {
@@ -636,15 +638,7 @@ public class PlayerAttackInput : MonoBehaviour
             return;
 
         RestoreVisualPose();
-        if (!stationaryDodge)
-            return;
-
-        float targetScaleY = Mathf.Clamp(_stationaryDodgeScaleY, 0.7f, 1f);
-        float scaleLoss = 1f - targetScaleY;
-        float offsetDown = _visualRootBoundsHeight * scaleLoss * 0.5f;
-
-        _visualRoot.localScale = new Vector3(_visualRootInitialLocalScale.x, _visualRootInitialLocalScale.y * targetScaleY, _visualRootInitialLocalScale.z);
-        _visualRoot.localPosition = _visualRootInitialLocalPosition + Vector3.down * offsetDown;
+        // Neutral dodge poses are authored sprite frames; equipment is hidden during the clip.
     }
 
     private void RestoreVisualPose()

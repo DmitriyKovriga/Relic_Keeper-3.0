@@ -96,6 +96,18 @@ namespace RelicKeeper.Editor.VFX
                 false, false, "Heroes/WarriorResources/Warrior", false, false, false, false, true);
         }
 
+        public static void CaptureRogueNeutralDodgeRuntimeViews()
+        {
+            Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Rogue-neutral-dodge-runtime-",
+                false, false, "Heroes/RogueResources/Rogue", false, false, false, false, true);
+        }
+
+        public static void CaptureMageNeutralDodgeRuntimeViews()
+        {
+            Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Mage-neutral-dodge-runtime-",
+                false, false, "Heroes/MageResources/Mage", false, false, false, false, true);
+        }
+
         private static void Capture(string weaponPath, string stanceId, string outputPrefix, bool doubleJump = false, bool forwardJump = false,
             string characterResourcePath = "Heroes/WarriorResources/Warrior", bool jumpPuffs = false, bool groundDashPreview = false, bool airDodgePreview = false, bool dashJumpPreview = false, bool stationaryDodgePreview = false)
         {
@@ -224,6 +236,12 @@ namespace RelicKeeper.Editor.VFX
                         if (frame == (doubleJump ? 81 : 67)) play.Invoke(controller, new[] { Enum.Parse(stateType, "Run"), type.GetField("_run", Flags).GetValue(controller) });
                         timer.SetValue(controller, (float)timer.GetValue(controller) + 1f / 24 - Time.deltaTime);
                         tick.Invoke(controller, null);
+                        if (stationaryDodgePreview)
+                        {
+                            float age = (frame-10)/24f;
+                            if (age >= 0f && age <= 0.24f) controller.SampleNeutralDodge(age/0.24f);
+                            else controller.EndNeutralDodge();
+                        }
                         displays[side].sprite = sources[side].sprite;
                         displays[side].transform.localScale = new Vector3(controller.PresentationScale.x, controller.PresentationScale.y, 1f);
                         actors[side].GetComponent<PlayerRenderAnchor>().WeaponPresentationOffset = controller.PresentationWeaponOffset;
@@ -271,7 +289,14 @@ namespace RelicKeeper.Editor.VFX
                             puffs.Add(overlay);
                         }
                         // Same full-rectangle foot anchoring used by PlayerMovementVisual at scale 1.
-                        displays[side].transform.localPosition = Vector3.up * (-0.5f - displays[side].sprite.bounds.min.y * controller.PresentationScale.y);
+                        float spriteFoot = controller.IsPlayingNeutralDodge ? controller.NeutralDodgeReferenceBounds.min.y : displays[side].sprite.bounds.min.y;
+                        displays[side].transform.localPosition = Vector3.up * (-0.5f - spriteFoot * controller.PresentationScale.y);
+                        if (stationaryDodgePreview)
+                        {
+                            var anchor = actors[side].GetComponent<PlayerRenderAnchor>();
+                            float age = (frame-10)/24f;
+                            anchor.HideWeaponsForDodge = age >= 0f && age <= 0.24f;
+                        }
                         if (groundDashPreview)
                         {
                             float amount = frame >= 10 && frame < 14 ? 1f : frame >= 14 ? Mathf.Exp(-(frame - 13) * 18f / 24f) : 0f;

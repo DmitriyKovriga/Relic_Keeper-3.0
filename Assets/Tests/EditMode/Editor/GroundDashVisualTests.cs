@@ -139,6 +139,13 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(renderer.color.a,Is.Zero);
                 Assert.That(root.GetComponentsInChildren<DodgeAfterImageGhost>(true),Is.Empty);
                 root.AddComponent<SpriteRenderer>().sprite = frames[0];
+                typeof(PlayerAttackInput).GetField("_currentDodgeStartTime",Private).SetValue(attack,Time.time-0.12f);
+                typeof(PlayerAttackInput).GetField("_currentDodgeDuration",Private).SetValue(attack,0.24f);
+                var movementVisual = root.AddComponent<PlayerMovementVisual>();
+                typeof(PlayerMovementVisual).GetMethod("Awake",Private).Invoke(movementVisual,null);
+                typeof(PlayerMovementVisual).GetMethod("LateUpdate",Private).Invoke(movementVisual,null);
+                var anchor = root.GetComponent<PlayerRenderAnchor>();
+                Assert.That(anchor.HideWeaponsForDodge,Is.EqualTo(stationary));
                 var grounding = root.AddComponent<GroundingVisualController>();
                 typeof(GroundingVisualController).GetMethod("Awake",Private).Invoke(grounding,null);
                 if (stationary)
@@ -150,6 +157,12 @@ namespace RelicKeeper.Tests.EditMode
             }
             finally
             {
+                var movementVisual = root.GetComponent<PlayerMovementVisual>();
+                if (movementVisual != null && movementVisual.DisplayRenderer != null)
+                {
+                    Object.DestroyImmediate(movementVisual.DisplayRenderer.gameObject);
+                    typeof(PlayerMovementVisual).GetField("_display",Private).SetValue(movementVisual,null);
+                }
                 var grounding = root.GetComponent<GroundingVisualController>();
                 if (grounding != null)
                 {

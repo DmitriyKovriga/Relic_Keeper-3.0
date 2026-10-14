@@ -29,7 +29,12 @@ namespace Scripts.Visuals
 
         private PlayerMovement _movement;
         private PlayerStats _stats;
+        private PlayerAttackInput _attack;
         private Sprite _idleSprite;
+        private Sprite[] _neutralDodgeFrames = Array.Empty<Sprite>();
+        private bool _neutralDodgePlaying;
+        public bool IsPlayingNeutralDodge => _neutralDodgePlaying;
+        public Bounds NeutralDodgeReferenceBounds => _idleSprite != null ? _idleSprite.bounds : default;
         private Vector3 _idleWeaponOffset;
         private RuntimeAnimation _run = RuntimeAnimation.Empty;
         private RuntimeAnimation _jump = RuntimeAnimation.Empty;
@@ -53,6 +58,7 @@ namespace Scripts.Visuals
         {
             get
             {
+                if (_neutralDodgePlaying) return Vector2.one;
                 if (!HasAuthoredPresentation) return new Vector2(_current.IsValid ? _current.HorizontalScale : 1f, 1f);
                 int next = Mathf.Min(_frameIndex + 1, _current.Frames.Length - 1);
                 float t = Mathf.SmoothStep(0, 1, Mathf.Clamp01(_frameTimer / _current.FrameDuration));
@@ -64,7 +70,7 @@ namespace Scripts.Visuals
                 (_state != AnimationState.Run && _current.WeaponVerticalOffsets != null && _current.WeaponVerticalOffsets.Length == _current.Frames.Length
                     ? _current.WeaponVerticalOffsets[_frameIndex] : 0f)
             : RunWeaponVerticalOffset;
-        public Vector3 PresentationWeaponOffset => _state == AnimationState.Idle ? _idleWeaponOffset : new Vector3(
+        public Vector3 PresentationWeaponOffset => _neutralDodgePlaying ? Vector3.zero : _state == AnimationState.Idle ? _idleWeaponOffset : new Vector3(
             _current.IsValid && _current.WeaponHorizontalOffsets != null && _current.WeaponHorizontalOffsets.Length == _current.Frames.Length
                 ? _current.WeaponHorizontalOffsets[_frameIndex] : 0f, PresentationWeaponVerticalOffset, 0f);
         private bool IsLandingPlaying => _state == AnimationState.Land && _current.IsValid && !_animationComplete;
@@ -88,6 +94,7 @@ namespace Scripts.Visuals
 
             _movement = GetComponent<PlayerMovement>();
             _stats = GetComponent<PlayerStats>();
+            _attack = GetComponent<PlayerAttackInput>();
         }
 
         private void OnEnable()
@@ -113,6 +120,7 @@ namespace Scripts.Visuals
 
         private void OnDisable()
         {
+            EndNeutralDodge();
             if (_movement != null)
             {
                 _movement.OnJumpStarted -= HandleJumpStarted;
@@ -127,6 +135,13 @@ namespace Scripts.Visuals
         {
             if (_movement == null || _renderer == null)
                 return;
+
+            if (_attack != null && _attack.IsStationaryDodging)
+            {
+                SampleNeutralDodge(_attack.StationaryDodgeProgress);
+                return;
+            }
+            EndNeutralDodge();
 
             Vector2 velocity = _movement.CurrentVelocity;
             bool isGrounded = _movement.IsGrounded;
@@ -221,6 +236,8 @@ namespace Scripts.Visuals
 
         private void ApplyCharacterData(CharacterDataSO data)
         {
+            _neutralDodgeFrames = RuntimeAnimation.From(data?.NeutralDodgeAnimation).Frames;
+            _neutralDodgePlaying = false;
             _run = RuntimeAnimation.From(data?.RunAnimation);
             _idleWeaponOffset = new Vector3(
                 _run.IsValid && _run.WeaponHorizontalOffsets != null && _run.WeaponHorizontalOffsets.Length == _run.Frames.Length ? _run.WeaponHorizontalOffsets[0] : 0f,
@@ -246,6 +263,22 @@ namespace Scripts.Visuals
 
             if (_renderer != null && _idleSprite != null)
                 _renderer.sprite = _idleSprite;
+        }
+
+        public void SampleNeutralDodge(float progress)
+        {
+            if (_renderer == null || _neutralDodgeFrames.Length == 0) return;
+            _neutralDodgePlaying = true;
+            int frame = Mathf.Min((int)(Mathf.Clamp01(progress) * _neutralDodgeFrames.Length), _neutralDodgeFrames.Length - 1);
+            _renderer.sprite = _neutralDodgeFrames[frame];
+        }
+
+        public void EndNeutralDodge()
+        {
+            if (!_neutralDodgePlaying) return;
+            _neutralDodgePlaying = false;
+            if (_renderer != null)
+                _renderer.sprite = _current.IsValid ? _current.Frames[_frameIndex] : _idleSprite;
         }
 
         private void PlayIdle()
