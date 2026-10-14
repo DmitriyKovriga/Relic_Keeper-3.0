@@ -48,6 +48,11 @@ icon as the held model reference. Sources are kept in `Docs/Art/Shields`.
 - Final held sprite: compact, angled 24×24 model with a thick beveled rim.
   `create_image_pro`: `bbc0be0a-f6d8-4d32-8ac7-b1da8f929ced`, refined through
   `edit_image_pixen`: `bb273a55-d8d5-4306-9c8a-5b4d5ca611d8`.
+  Matte, neutral-lighting revision through `edit_image_pixen`:
+  `ad01beac-953c-426e-b12b-5552f545e4e7`. This removes strong rim glare and
+  deep directional shadows while retaining the silhouette and burgundy crest.
+  Exact horizontal mirror (including lighting) through PixelLab workbench:
+  `0171dd71-22dc-452a-8798-d4059c543a0d`; 260 guarded pixel replacements.
   The original generated source is archived as `TowerShieldHeldSource-v1.png`.
 - Body pressure effect, `create_image_pro`:
   `783db602-4459-4efe-8103-98de28c36ffd`; nine-frame `animate_image` sequence:
@@ -70,6 +75,12 @@ icon as the held model reference. Sources are kept in `Docs/Art/Shields`.
 - `TowerShieldChargeBuilder.Apply`: regenerates this feature's asset wiring.
 - `TowerShieldChargeBuilder.ApplyVisuals`: updates the held sprite and body VFX
   while preserving existing skill balance, timing and other recipe steps.
+- `TowerShieldEquippedPreview.Capture`: captures the actual equipped hero in
+  the current live scene in both facing directions. It temporarily substitutes
+  an offhand item through the real equipment visual controller without firing
+  inventory/save events, then restores the equipment array and facing in finally.
+  This checks the real hand pose and lighting. `TowerShieldEquippedPreview.png`
+  is a nearest-neighbor enlargement of both live scene captures.
 
 Verified: compilation succeeded, 8 TowerShieldCharge tests and 41 related
 EditMode tests passed, and the authored Play Mode recipe check passed with no
