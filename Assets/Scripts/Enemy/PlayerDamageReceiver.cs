@@ -24,7 +24,7 @@ namespace Scripts.Enemies
         public bool TakeDamage(DamageSnapshot damage)
         {
             DamageResolution result = TakeDamageDetailed(damage);
-            return !result.WasImmune && !result.WasEvaded;
+            return !result.WasImmune && !result.WasEvaded && !result.WasParried;
         }
 
         public DamageResolution TakeDamageDetailed(DamageSnapshot damage)
@@ -38,12 +38,6 @@ namespace Scripts.Enemies
             result.RawFire = Mathf.Max(0f, damage.Fire * enemyDamageMultiplier);
             result.RawCold = Mathf.Max(0f, damage.Cold * enemyDamageMultiplier);
             result.RawLightning = Mathf.Max(0f, damage.Lightning * enemyDamageMultiplier);
-
-            if (PlaytestConfiguration.PlayerImmortal)
-            {
-                result.WasImmune = true;
-                return result;
-            }
 
             if (_attackInput == null)
                 _attackInput = GetComponent<PlayerAttackInput>();
@@ -62,6 +56,19 @@ namespace Scripts.Enemies
                 _stats = GetComponent<PlayerStats>();
             if (_stats == null || _stats.Health == null)
                 return result;
+
+            var parry = GetComponent<PlayerParryController>();
+            if (parry != null && parry.TryParry(damage))
+            {
+                result.WasParried = true;
+                result.HealthBefore = result.HealthAfter = _stats.Health.Current;
+                return result;
+            }
+            if (PlaytestConfiguration.PlayerImmortal)
+            {
+                result.WasImmune = true;
+                return result;
+            }
 
             result.Evasion = Mathf.Max(0f, _stats.GetValue(StatType.Evasion));
             result.EvadeChance = EvasionMitigation.EvasionToDodgeChance(result.Evasion);
@@ -188,6 +195,7 @@ namespace Scripts.Enemies
         {
             public bool WasImmune;
             public bool WasEvaded;
+            public bool WasParried;
             public float Evasion;
             public float EvadeChance;
             public float RawPhysical;

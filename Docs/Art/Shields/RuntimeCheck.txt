@@ -1,0 +1,1 @@
+PASS: authored recipe, VFX, repeated hits, 25% maximum stun per hit, no HP damage, mana, cooldown, expiry and shield restoration.

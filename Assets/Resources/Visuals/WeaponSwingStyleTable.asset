@@ -72,3 +72,14 @@ MonoBehaviour:
     DisplayName: Bow Draw
     AllowedStanceIds:
     - bow_stance
+  - Style: 1
+    WindupZ: -14
+    WindupLocalPos: {x: -0.08, y: 0.06}
+    ImpactZ: 15
+    ImpactLocalPos: {x: 0.1, y: 0.02}
+    NockedProjectileLocalPosition: {x: 0, y: 0}
+    NockedProjectilePullback: 0
+    Id: shield_parry
+    DisplayName: Shield Parry
+    AllowedStanceIds:
+    - shield_guard

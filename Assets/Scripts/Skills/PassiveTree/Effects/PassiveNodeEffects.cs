@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Scripts.GameplayEvents;
+using Scripts.Combat;
 using Scripts.Stats;
 using Scripts.StatusEffects;
 using UnityEngine;
@@ -156,7 +157,17 @@ namespace Scripts.Skills.PassiveTree
         [InspectorName("Apply timed buff")]
         ApplyBuff,
         [InspectorName("Restore resource")]
-        RestoreResource
+        RestoreResource,
+        [InspectorName("Deal HP / stun damage")]
+        DealDamage
+    }
+
+    public enum PassiveEffectTarget
+    {
+        Owner,
+        OtherParticipant,
+        EventSource,
+        EventTarget
     }
 
     public enum PassiveCooldownTarget
@@ -190,6 +201,21 @@ namespace Scripts.Skills.PassiveTree
         public float InternalCooldownSeconds;
 
         public PassiveTriggerAction Action = PassiveTriggerAction.ReduceSkillCooldown;
+        public PassiveEffectTarget EffectTarget = PassiveEffectTarget.Owner;
+        public CombatTriggerDamage Damage = new CombatTriggerDamage();
+        public StatusEffectKind InlineEffectKind = StatusEffectKind.Buff;
+
+        public GameObject ResolveTarget(GameplayEventContext context, GameObject owner)
+        {
+            return EffectTarget switch
+            {
+                PassiveEffectTarget.OtherParticipant => context != null && context.HasParticipant(owner)
+                    ? context.Source == owner ? context.Target : context.Source : null,
+                PassiveEffectTarget.EventSource => context?.Source,
+                PassiveEffectTarget.EventTarget => context?.Target,
+                _ => owner
+            };
+        }
 
         [Min(0f)] public float CooldownSeconds = 1f;
         public PassiveCooldownTarget CooldownTarget = PassiveCooldownTarget.RandomOnCooldown;

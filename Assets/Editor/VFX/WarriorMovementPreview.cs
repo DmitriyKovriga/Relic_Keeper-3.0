@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Scripts.Visuals;
 using Scripts.Items;
@@ -45,6 +46,11 @@ namespace RelicKeeper.Editor.VFX
         public static void CaptureDualDaggerRuntimeViews()
         {
             Capture("Assets/Scripts/Items/Weapon/LowTier/OneHandedWeapon/Daggers/Adventurer's Dagger/Adventurer's Dagger.asset", "dagger", "Rogue-dual-dagger-", characterResourcePath: "Heroes/RogueResources/Rogue", dualDaggerPreview: true);
+        }
+
+        public static void CaptureBucklerParryRuntimeViews()
+        {
+            Capture(BucklerParryBuilder.BucklerPath, "shield_guard", "Rogue-buckler-parry-", characterResourcePath: "Heroes/RogueResources/Rogue", shieldParryPreview: true);
         }
 
         public static void CaptureRogueBowRuntimeViews()
@@ -116,7 +122,7 @@ namespace RelicKeeper.Editor.VFX
         }
 
         private static void Capture(string weaponPath, string stanceId, string outputPrefix, bool doubleJump = false, bool forwardJump = false,
-            string characterResourcePath = "Heroes/WarriorResources/Warrior", bool jumpPuffs = false, bool groundDashPreview = false, bool airDodgePreview = false, bool dashJumpPreview = false, bool stationaryDodgePreview = false, bool dualDaggerPreview = false)
+            string characterResourcePath = "Heroes/WarriorResources/Warrior", bool jumpPuffs = false, bool groundDashPreview = false, bool airDodgePreview = false, bool dashJumpPreview = false, bool stationaryDodgePreview = false, bool dualDaggerPreview = false, bool shieldParryPreview = false)
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
             var root = new GameObject("Temporary character animation preview");
@@ -152,6 +158,8 @@ namespace RelicKeeper.Editor.VFX
                 var sources = new SpriteRenderer[2];
                 var controllers = new PlayerCharacterAnimationController[2];
                 var handAnimations = new SkillHandAnimation[2, 2];
+                var parryRenderers = new SpriteRenderer[2];
+                var parryFrames = shieldParryPreview ? AssetDatabase.LoadAllAssetsAtPath("Assets/Resources/Skills/Shields/ParryVfx-Sheet.png").OfType<Sprite>().OrderBy(s => s.name).ToArray() : Array.Empty<Sprite>();
                 var type = typeof(PlayerCharacterAnimationController);
                 var stateType = type.GetNestedType("AnimationState", BindingFlags.NonPublic);
                 var play = type.GetMethod("Play", Flags);
@@ -193,20 +201,23 @@ namespace RelicKeeper.Editor.VFX
                     weapon.flipX = weaponPose.FlipX;
                     weapon.flipY = weaponPose.FlipY;
                     weapon.sortingOrder = weaponPose.SortBehindCharacter ? -1 : 1;
-                    if (dualDaggerPreview)
+                    if (dualDaggerPreview || shieldParryPreview)
                     {
                         var stats = fake.AddComponent<PlayerStats>();
                         var visuals = fake.AddComponent<WeaponVisualController>();
                         var visualType = typeof(WeaponVisualController);
                         visualType.GetField("_handPivot", Flags).SetValue(visuals, pivot);
                         visualType.GetField("_weaponRenderer", Flags).SetValue(visuals, weapon);
-                        visualType.GetMethod("EnsureOffhandRenderer", Flags).Invoke(visuals, null);
-                        var off = (SpriteRenderer)visualType.GetField("_offhandWeaponRenderer", Flags).GetValue(visuals);
-                        off.sprite = heldWeapon.InHandSprite;
-                        off.transform.localPosition = holder.localPosition + new Vector3(-0.28f, -0.06f, 0);
-                        off.transform.localRotation = holder.localRotation;
-                        off.sortingOrder = weapon.sortingOrder;
-                        for (int hand = 0; hand < 2; hand++)
+                        if (dualDaggerPreview)
+                        {
+                            visualType.GetMethod("EnsureOffhandRenderer", Flags).Invoke(visuals, null);
+                            var off = (SpriteRenderer)visualType.GetField("_offhandWeaponRenderer", Flags).GetValue(visuals);
+                            off.sprite = heldWeapon.InHandSprite;
+                            off.transform.localPosition = holder.localPosition + new Vector3(-0.28f, -0.06f, 0);
+                            off.transform.localRotation = holder.localRotation;
+                            off.sortingOrder = weapon.sortingOrder;
+                        }
+                        for (int hand = 0; hand < (shieldParryPreview ? 1 : 2); hand++)
                         {
                             var skillObject = new GameObject("Preview hand skill " + hand);
                             skillObject.SetActive(false);
@@ -216,6 +227,15 @@ namespace RelicKeeper.Editor.VFX
                             var animation = skillObject.GetComponent<SkillHandAnimation>();
                             animation.Initialize(stats);
                             handAnimations[side, hand] = animation;
+                        }
+                        if (shieldParryPreview)
+                        {
+                            var overlay = new GameObject("Preview parry VFX").AddComponent<SpriteRenderer>();
+                            overlay.transform.SetParent(actor, false);
+                            overlay.transform.localPosition = new Vector3(0.34f, 0, 0);
+                            overlay.sortingOrder = 3;
+                            overlay.enabled = false;
+                            parryRenderers[side] = overlay;
                         }
                     }
                     actor.gameObject.AddComponent<PlayerRenderAnchor>().Initialize(display.transform, weapons);
@@ -262,6 +282,24 @@ namespace RelicKeeper.Editor.VFX
                     for (int side = 0; side < 2; side++)
                     {
                         var controller = controllers[side];
+                        if (shieldParryPreview)
+                        {
+                            int age = frame - (frame < 42 ? 8 : 42);
+                            var animation = handAnimations[side, 0];
+                            if (age == 0) animation.SetActiveStyleId("shield_parry");
+                            if (age >= 0 && age < 5) animation.LerpWindup(age / 4f);
+                            if (age == 5) { animation.SnapImpact(); animation.SetWeaponVisible(false); }
+                            if (age >= 15 && age <= 20) animation.LerpRecovery((age - 15) / 5f);
+                            if (age == 24) animation.ForceReset();
+                            var overlay = parryRenderers[side];
+                            overlay.enabled = age >= 5 && age < 15;
+                            if (overlay.enabled)
+                            {
+                                float life = (age - 5) / 10f;
+                                overlay.sprite = parryFrames[Mathf.Clamp((int)(life * parryFrames.Length), 0, parryFrames.Length - 1)];
+                                overlay.color = new Color(1, 1, 1, life < 0.5f ? 1 : (1 - life) / 0.5f);
+                            }
+                        }
                         if (dualDaggerPreview)
                         {
                             for (int hand = 0; hand < 2; hand++)

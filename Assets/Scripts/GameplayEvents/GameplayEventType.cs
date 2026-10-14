@@ -9,6 +9,7 @@ namespace Scripts.GameplayEvents
         Jumped,
         Dodged,
         EnemyKilled,
-        MysticShieldConsumed
+        MysticShieldConsumed,
+        Parried
     }
 }

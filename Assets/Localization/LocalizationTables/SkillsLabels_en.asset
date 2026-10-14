@@ -333,7 +333,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 97341694008090624
-    m_Localized: 
+    m_Localized:
     m_Metadata:
       m_Items: []
   - m_Id: 99827794492514304
@@ -341,7 +341,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 99827794534457344
-    m_Localized: 
+    m_Localized:
     m_Metadata:
       m_Items: []
   - m_Id: 100530024493342720
@@ -349,7 +349,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 100530024526897152
-    m_Localized: 
+    m_Localized:
     m_Metadata:
       m_Items: []
   - m_Id: 100540886008455168
@@ -357,6 +357,14 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 100540886155255808
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100987013019197440
+    m_Localized: Spectacular Parry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 100987013149220864
     m_Localized:
     m_Metadata:
       m_Items: []

@@ -19,6 +19,7 @@ namespace Scripts.Visuals
         private float _lastAppliedAnchorY = float.NaN;
         private int _stableTieBreakerOffset;
         private int _temporaryOrderBoost;
+        private int _postSortOffset;
 
         public RenderDepthCategory Category => _category;
         public bool UsesStaticAnchor => _staticAnchor;
@@ -63,6 +64,19 @@ namespace Scripts.Visuals
             ApplySort(force: true);
         }
 
+        public void SetAnchor(Transform anchor)
+        {
+            _anchor = anchor;
+            _lastAppliedAnchorY = float.NaN;
+            ApplySort(force: true);
+        }
+
+        public void SetPostSortOffset(int offset)
+        {
+            _postSortOffset = offset;
+            ApplySort(force: true);
+        }
+
         public void SetTemporaryOrderBoost(int boost)
         {
             int clampedBoost = Mathf.Max(0, boost);
@@ -77,7 +91,7 @@ namespace Scripts.Visuals
         {
             if (_useFixedOrder)
             {
-                WorldRenderSorting.ApplyToRenderers(transform, _category, 0f, ResolveLocalOffset(), respectNestedSorters: true);
+                WorldRenderSorting.ApplyToRenderers(transform, _category, 0f, ResolveLocalOffset(), respectNestedSorters: true, postSortOffset: _postSortOffset);
                 return;
             }
 
@@ -90,7 +104,7 @@ namespace Scripts.Visuals
             }
 
             _lastAppliedAnchorY = worldY;
-            WorldRenderSorting.ApplyToRenderers(transform, _category, worldY, ResolveLocalOffset(), respectNestedSorters: true);
+            WorldRenderSorting.ApplyToRenderers(transform, _category, worldY, ResolveLocalOffset(), respectNestedSorters: true, postSortOffset: _postSortOffset);
         }
 
         public float ResolveAnchorY()

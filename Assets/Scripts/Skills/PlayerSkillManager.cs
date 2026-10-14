@@ -370,7 +370,10 @@ namespace Scripts.Skills
             if (_activeSkills.TryGetValue(slotIndex, out var activeSkill))
             {
                 if (activeSkill != null)
+                {
+                    activeSkill.Cancel();
                     Destroy(activeSkill.gameObject);
+                }
 
                 _activeSkills.Remove(slotIndex);
             }

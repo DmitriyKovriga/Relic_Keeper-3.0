@@ -8,6 +8,8 @@ namespace Scripts.Items
     {
         [Header("Weapon Config")]
         public bool IsTwoHanded;
+        [Tooltip("Offhand shield with offensive weapon stats. Ordinary defensive shields leave this disabled.")]
+        public bool IsCombatShield;
 
         [Header("Visuals")]
         [Tooltip("РЎРїСЂР°Р№С‚, РєРѕС‚РѕСЂС‹Р№ РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ РІ СЂСѓРєРµ РїРµСЂСЃРѕРЅР°Р¶Р°")]
@@ -49,10 +51,7 @@ namespace Scripts.Items
         [Tooltip("РўРѕР»СЊРєРѕ РґР»СЏ РґРІСѓСЂСѓС‡РЅРѕРіРѕ РѕСЂСѓР¶РёСЏ: РџСѓР» СЃРєРёР»Р»РѕРІ РґР»СЏ РїСЂР°РІРѕР№ РєРЅРѕРїРєРё РјС‹С€Рё (Secondary Attack)")]
         public SkillPoolSO SecondarySkillPool;
 
-        /// <summary>
-        /// Р©РёС‚ Рё РїСЂРѕС‡РёР№ Р·Р°С‰РёС‚РЅС‹Р№ РѕС„С„С…РµРЅРґ: СЃР»РѕС‚ OffHand, РґР°Р¶Рµ РµСЃР»Рё Р°СЃСЃРµС‚ СѓРЅР°СЃР»РµРґРѕРІР°РЅ РѕС‚ РѕСЂСѓР¶РёСЏ.
-        /// Dual wield Рё Р»РѕРєР°Р»СЊРЅС‹Р№ СѓСЂРѕРЅ/APS/РєСЂРёС‚ РЅР° С‚Р°РєРёРµ РїСЂРµРґРјРµС‚С‹ РЅРµ СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅСЏСЋС‚СЃСЏ.
-        /// </summary>
-        public bool IsDefensiveOffHand => Slot == EquipmentSlot.OffHand;
+        /// <summary>Defensive shields use their own skill speed without contributing weapon damage or crit.</summary>
+        public bool IsDefensiveOffHand => Slot == EquipmentSlot.OffHand && !IsCombatShield;
     }
 }

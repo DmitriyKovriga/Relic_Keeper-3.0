@@ -34,6 +34,7 @@ namespace Scripts.Skills.Steps
             Id == "WeaponWindup" ||
             Id == "WeaponRecovery" ||
             Id == "Wait" ||
+            Id == "ParryWindow" ||
             Id == "PersistentDamageCircle" ||
             Id == "PersistentDamageRectangle";
 

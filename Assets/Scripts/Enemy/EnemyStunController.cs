@@ -30,6 +30,8 @@ namespace Scripts.Enemies
         public bool IsStunned => _isStunned;
         public float Normalized => _maxMeter > 0f ? Mathf.Clamp01(_currentMeter / _maxMeter) : 0f;
         public bool HasMeter => _maxMeter > 0.001f;
+        public float MaxMeter => _maxMeter;
+        public float CurrentMeter => _currentMeter;
 
         public event System.Action<float, float> OnStunMeterChanged;
         public event System.Action<bool> OnStunStateChanged;
@@ -84,12 +86,19 @@ namespace Scripts.Enemies
             if (buildUpDamage <= 0f)
                 return;
 
+            ApplyMeterDamage(buildUpDamage, damage?.Source);
+        }
+
+        public bool ApplyMeterDamage(float amount, object source)
+        {
+            if (_health == null || _health.IsDead || _isStunned || !HasMeter || amount <= 0 || float.IsNaN(amount) || float.IsInfinity(amount)) return false;
             _lastBuildUpTime = Time.time;
-            _currentMeter = Mathf.Max(0f, _currentMeter - buildUpDamage);
+            _currentMeter = Mathf.Max(0f, _currentMeter - amount);
             OnStunMeterChanged?.Invoke(_currentMeter, _maxMeter);
 
             if (_currentMeter <= 0.001f)
-                StartStun(ResolveStunDuration(damage?.Source));
+                StartStun(ResolveStunDuration(source));
+            return true;
         }
 
         public void RecalculateMaxMeter(bool resetCurrent)

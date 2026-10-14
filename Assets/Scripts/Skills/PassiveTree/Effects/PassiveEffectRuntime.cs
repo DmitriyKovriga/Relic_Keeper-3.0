@@ -42,6 +42,7 @@ namespace Scripts.Skills.PassiveTree
         private readonly List<PassiveHitScalingRule> _hitRules = new List<PassiveHitScalingRule>();
         private readonly Dictionary<PassiveCondition, float> _lastConditionEventTime = new Dictionary<PassiveCondition, float>();
         private readonly Dictionary<string, float> _nextTriggerAllowedAt = new Dictionary<string, float>();
+        private readonly HashSet<string> _executingTriggers = new HashSet<string>();
         private IPassiveSkillCooldowns _cooldowns;
         private bool _disposed;
 
@@ -346,6 +347,7 @@ namespace Scripts.Skills.PassiveTree
         private void TryFire(TriggerEntry entry, GameplayEventContext context, float now)
         {
             PassiveTriggeredEffect effect = entry.Data;
+            if (_executingTriggers.Contains(entry.Key)) return;
             if (!effect.Trigger.Matches(context, _ownerObject))
                 return;
             if (_nextTriggerAllowedAt.TryGetValue(entry.Key, out float allowedAt) && now < allowedAt)
@@ -353,14 +355,16 @@ namespace Scripts.Skills.PassiveTree
             if (effect.ChancePercent < 100f && Random01() >= effect.ChancePercent / 100f)
                 return;
 
-            if (!Execute(entry))
-                return;
-
-            if (effect.InternalCooldownSeconds > 0f)
-                _nextTriggerAllowedAt[entry.Key] = now + effect.InternalCooldownSeconds;
+            _executingTriggers.Add(entry.Key);
+            try
+            {
+                if (Execute(entry, context) && effect.InternalCooldownSeconds > 0f)
+                    _nextTriggerAllowedAt[entry.Key] = now + effect.InternalCooldownSeconds;
+            }
+            finally { _executingTriggers.Remove(entry.Key); }
         }
 
-        private bool Execute(TriggerEntry entry)
+        private bool Execute(TriggerEntry entry, GameplayEventContext context)
         {
             PassiveTriggeredEffect effect = entry.Data;
             switch (effect.Action)
@@ -368,9 +372,11 @@ namespace Scripts.Skills.PassiveTree
                 case PassiveTriggerAction.ReduceSkillCooldown:
                     return ReduceCooldown(effect);
                 case PassiveTriggerAction.ApplyBuff:
-                    return ApplyBuff(entry);
+                    return ApplyBuff(entry, effect.ResolveTarget(context, _ownerObject));
                 case PassiveTriggerAction.RestoreResource:
                     return RestoreResource(effect);
+                case PassiveTriggerAction.DealDamage:
+                    return effect.Damage != null && effect.Damage.Apply(effect.ResolveTarget(context, _ownerObject), _owner);
                 default:
                     return false;
             }
@@ -397,10 +403,10 @@ namespace Scripts.Skills.PassiveTree
             }
         }
 
-        private bool ApplyBuff(TriggerEntry entry)
+        private bool ApplyBuff(TriggerEntry entry, GameObject target)
         {
             PassiveTriggeredEffect effect = entry.Data;
-            if (_ownerObject == null || !StatusEffectController.TryResolve(_ownerObject.transform, out StatusEffectController controller) || controller == null)
+            if (target == null || !StatusEffectController.TryResolve(target.transform, out StatusEffectController controller) || controller == null)
                 return false;
 
             if (effect.StatusEffect != null)
@@ -420,7 +426,7 @@ namespace Scripts.Skills.PassiveTree
             return controller.ApplyRuntimeStatusEffect(
                 effect.BuffModifiers,
                 effect.BuffDurationSeconds,
-                StatusEffectKind.Buff,
+                effect.InlineEffectKind,
                 entry,
                 id,
                 effect.BuffAuraColor) != null;

@@ -77,14 +77,15 @@ namespace Scripts.Visuals
             RenderDepthCategory category,
             float worldY,
             int localOffset = 0,
-            bool respectNestedSorters = true)
+            bool respectNestedSorters = true,
+            int postSortOffset = 0)
         {
             if (root == null)
                 return;
 
             RenderStackSettings settings = Settings;
             string layerName = settings.GetSortingLayer(category);
-            int order = settings.ResolveOrder(category, worldY, localOffset);
+            int order = settings.ResolveOrder(category, worldY, localOffset) + postSortOffset;
             int spriteIndex = 0;
             int lineIndex = 0;
             ApplyToRenderersRecursive(root, root, layerName, order, respectNestedSorters, ref spriteIndex, ref lineIndex);

@@ -167,14 +167,14 @@ namespace Scripts.Editor.PassiveTree
         {
             new GUIContent("Deal damage"), new GUIContent("Take damage"), new GUIContent("Evade an attack"),
             new GUIContent("Kill an enemy"), new GUIContent("Dodge"), new GUIContent("Jump"), new GUIContent("Land"),
-            new GUIContent("Lose a Mystic Shield charge")
+            new GUIContent("Lose a Mystic Shield charge"), new GUIContent("Parry an attack")
         };
 
         private static readonly int[] EventValues =
         {
             (int)GameplayEventType.DamageDealt, (int)GameplayEventType.DamageTaken, (int)GameplayEventType.Evaded,
             (int)GameplayEventType.EnemyKilled, (int)GameplayEventType.Dodged, (int)GameplayEventType.Jumped,
-            (int)GameplayEventType.Landed, (int)GameplayEventType.MysticShieldConsumed
+            (int)GameplayEventType.Landed, (int)GameplayEventType.MysticShieldConsumed, (int)GameplayEventType.Parried
         };
 
         // StatusEventSubject order: CarrierAsTarget, CarrierAsSource, CarrierAsSourceOrTarget, Any.
@@ -208,7 +208,7 @@ namespace Scripts.Editor.PassiveTree
 
         internal static readonly GUIContent[] ActionOptions =
         {
-            new GUIContent("Reduce skill cooldown"), new GUIContent("Apply buff"), new GUIContent("Restore resource")
+            new GUIContent("Reduce skill cooldown"), new GUIContent("Apply buff / debuff"), new GUIContent("Restore resource"), new GUIContent("Deal HP / stun damage")
         };
 
         internal static readonly GUIContent[] StackingOptions =
@@ -738,12 +738,14 @@ namespace Scripts.Editor.PassiveTree
                         "Seconds removed from the remaining cooldown. \"Random skill\" only picks skills that are recovering.");
                     break;
                 case PassiveTriggerAction.ApplyBuff:
+                    layout.Field(property.FindPropertyRelative("EffectTarget"), new GUIContent("Apply to"));
                     SerializedProperty authored = property.FindPropertyRelative("StatusEffect");
                     layout.Field(authored, new GUIContent("Status effect",
                         "Optional. An authored effect with an icon, shown in the HUD. When set, it replaces the duration and modifiers below."));
                     bool inline = authored.objectReferenceValue == null;
                     if (inline)
                     {
+                        layout.Field(property.FindPropertyRelative("InlineEffectKind"), new GUIContent("Effect kind"));
                         PassiveEffectFields.ValueWithUnit(layout, property.FindPropertyRelative("BuffDurationSeconds"), "Duration", "s");
                         layout.List(property.FindPropertyRelative("BuffModifiers"), new GUIContent("Modifiers"));
                         layout.Field(property.FindPropertyRelative("BuffAuraColor"), new GUIContent("Aura color",
@@ -754,6 +756,11 @@ namespace Scripts.Editor.PassiveTree
                     break;
                 case PassiveTriggerAction.RestoreResource:
                     PassiveEffectFields.Restore(layout, property);
+                    break;
+                case PassiveTriggerAction.DealDamage:
+                    layout.Field(property.FindPropertyRelative("EffectTarget"), new GUIContent("Damage target"));
+                    layout.Field(property.FindPropertyRelative("Damage"), new GUIContent("HP / stun impact"));
+                    layout.Hint("Other Participant means the attacker for a Parry event. Stun damage never damages HP.");
                     break;
             }
 

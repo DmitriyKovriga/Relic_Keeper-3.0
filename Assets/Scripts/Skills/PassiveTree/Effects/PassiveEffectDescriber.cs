@@ -79,6 +79,10 @@ namespace Scripts.Skills.PassiveTree
                     else
                         sb.Append('\n').Append(Indent).Append('«').Append(effect.StatusEffect.GetDisplayName(ru)).Append('»');
                     break;
+                case PassiveTriggerAction.DealDamage:
+                    sb.Append(ru ? ", нанести " : ", deal ").Append(effect.Damage?.Describe(ru))
+                        .Append(ru ? " цели: " : " to: ").Append(EffectTargetName(effect.EffectTarget, ru)).Append('.');
+                    break;
             }
 
             AppendChanceAndCooldown(sb, effect, ru);
@@ -184,6 +188,8 @@ namespace Scripts.Skills.PassiveTree
                     return ru ? (past ? "убивали врагов" : "вы убиваете врага") : (past ? "killed an enemy" : "you kill an enemy");
                 case GameplayEventType.MysticShieldConsumed:
                     return ru ? (past ? "теряли заряд Мистического щита" : "вы теряете заряд Мистического щита") : (past ? "lost a Mystic Shield charge" : "you lose a Mystic Shield charge");
+                case GameplayEventType.Parried:
+                    return ru ? (past ? "парировали удар" : "вы парируете удар") : (past ? "parried an attack" : "you parry an attack");
                 default:
                     return filter.Event.ToString();
             }
@@ -242,8 +248,19 @@ namespace Scripts.Skills.PassiveTree
                 PassiveBuffStacking.IgnoreWhileActive => ru ? ", не обновляется, пока действует" : ", not refreshed while active",
                 _ => ru ? ", не суммируется" : ", does not stack"
             };
-            return ru ? $"на {N(duration, ru)} с ({stacking.TrimStart(',', ' ')})" : $"for {N(duration, ru)} s ({stacking.TrimStart(',', ' ')}) you gain";
+            string target = effect.EffectTarget == PassiveEffectTarget.Owner ? (ru ? "" : "you gain")
+                : EffectTargetName(effect.EffectTarget, ru) + (ru ? " получает эффект" : " gains the effect");
+            return ru ? $"{target} на {N(duration, ru)} с ({stacking.TrimStart(',', ' ')})".TrimStart()
+                : $"for {N(duration, ru)} s ({stacking.TrimStart(',', ' ')}) {target}";
         }
+
+        private static string EffectTargetName(PassiveEffectTarget target, bool ru) => target switch
+        {
+            PassiveEffectTarget.OtherParticipant => ru ? "другой участник (атакующий при парировании)" : "the other participant (attacker on parry)",
+            PassiveEffectTarget.EventSource => ru ? "источник события" : "the event source",
+            PassiveEffectTarget.EventTarget => ru ? "цель события" : "the event target",
+            _ => ru ? "вы" : "you"
+        };
 
         private static void AppendChanceAndCooldown(StringBuilder sb, PassiveTriggeredEffect effect, bool ru)
         {

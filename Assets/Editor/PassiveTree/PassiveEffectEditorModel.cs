@@ -114,6 +114,8 @@ namespace Scripts.Editor.PassiveTree
                 case PassiveTriggerAction.RestoreResource:
                     string amount = effect.RestoreAsPercentOfMax ? $"{N(effect.RestoreAmount)}% max" : $"{N(effect.RestoreAmount)}";
                     return $"+{amount} {effect.Resource}";
+                case PassiveTriggerAction.DealDamage:
+                    return $"{effect.EffectTarget}: {effect.Damage?.Describe(false)}";
                 default:
                     return effect.Action.ToString();
             }
@@ -150,12 +152,12 @@ namespace Scripts.Editor.PassiveTree
         internal static bool HasOtherParticipant(GameplayEventType type)
         {
             return type == GameplayEventType.DamageDealt || type == GameplayEventType.DamageTaken ||
-                   type == GameplayEventType.Evaded || type == GameplayEventType.EnemyKilled;
+                   type == GameplayEventType.Evaded || type == GameplayEventType.EnemyKilled || type == GameplayEventType.Parried;
         }
 
         internal static StatusEventSubject NaturalSubject(GameplayEventType type)
         {
-            return type == GameplayEventType.DamageTaken || type == GameplayEventType.Evaded
+            return type == GameplayEventType.DamageTaken || type == GameplayEventType.Evaded || type == GameplayEventType.Parried
                 ? StatusEventSubject.CarrierAsTarget
                 : StatusEventSubject.CarrierAsSource;
         }
@@ -172,6 +174,7 @@ namespace Scripts.Editor.PassiveTree
                 GameplayEventType.Jumped => "jump",
                 GameplayEventType.Landed => "landing",
                 GameplayEventType.MysticShieldConsumed => "Mystic Shield charge lost",
+                GameplayEventType.Parried => "parry",
                 _ => ObjectNames.NicifyVariableName(type.ToString()).ToLowerInvariant()
             };
         }
@@ -261,6 +264,10 @@ namespace Scripts.Editor.PassiveTree
                     break;
                 case PassiveTriggerAction.RestoreResource when effect.RestoreAmount <= 0f:
                     issues.Add("Restore amount is 0.");
+                    break;
+                case PassiveTriggerAction.DealDamage when effect.Damage == null ||
+                    effect.Damage.HealthDamage <= 0 && effect.Damage.HealthPercentOfMax <= 0 && effect.Damage.StunDamage <= 0 && effect.Damage.StunPercentOfMax <= 0:
+                    issues.Add("Set HP damage or stun-meter damage.");
                     break;
             }
         }

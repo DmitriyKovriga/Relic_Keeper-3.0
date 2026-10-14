@@ -77,3 +77,21 @@ MonoBehaviour:
     Id: bow_stance
     DisplayName: Bow Stance
     DefaultSwingId: bow_draw
+  - Stance: 0
+    LocalPosition: {x: 0.583333, y: -0.1480556}
+    LocalEulerZ: 0
+    SortBehindCharacter: 0
+    FlipX: 0
+    FlipY: 0
+    Id: shield_guard
+    DisplayName: Shield Guard
+    DefaultSwingId: shield_parry
+  - Stance: 0
+    LocalPosition: {x: 0.41666663, y: -0.20866674}
+    LocalEulerZ: 0
+    SortBehindCharacter: 0
+    FlipX: 0
+    FlipY: 0
+    Id: shield
+    DisplayName: Shield
+    DefaultSwingId: slash

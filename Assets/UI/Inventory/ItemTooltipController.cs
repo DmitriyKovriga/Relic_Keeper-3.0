@@ -2475,15 +2475,18 @@ public class ItemTooltipController : MonoBehaviour
                 IsMissingTranslationResult(n) || n == handKey ? handFallback : n, _colSkillType);
         }
 
-        if (item.Data is WeaponItemSO weapon && !weapon.IsDefensiveOffHand)
+        if (item.Data is WeaponItemSO weapon)
         {
-            AddRow(StatType.DamagePhysical, item, weapon.MinPhysicalDamage, weapon.MaxPhysicalDamage);
-            AddRow(StatType.DamageFire, item, weapon.MinFireDamage, weapon.MaxFireDamage, _colFireText);
-            AddRow(StatType.DamageCold, item, weapon.MinColdDamage, weapon.MaxColdDamage, _colColdText);
-            AddRow(StatType.DamageLightning, item, weapon.MinLightningDamage, weapon.MaxLightningDamage, _colLightningText);
-            
+            if (!weapon.IsDefensiveOffHand)
+            {
+                AddRow(StatType.DamagePhysical, item, weapon.MinPhysicalDamage, weapon.MaxPhysicalDamage);
+                AddRow(StatType.DamageFire, item, weapon.MinFireDamage, weapon.MaxFireDamage, _colFireText);
+                AddRow(StatType.DamageCold, item, weapon.MinColdDamage, weapon.MaxColdDamage, _colColdText);
+                AddRow(StatType.DamageLightning, item, weapon.MinLightningDamage, weapon.MaxLightningDamage, _colLightningText);
+            }
             AddSimpleRow(StatType.AttackSpeed, item, weapon.AttacksPerSecond, "{0:F2}");
-            AddSimpleRow(StatType.CritChance, item, weapon.BaseCritChance, "{0}%");
+            if (!weapon.IsDefensiveOffHand)
+                AddSimpleRow(StatType.CritChance, item, weapon.BaseCritChance, "{0}%");
         }
         else if (item.Data is ArmorItemSO armor)
         {

@@ -47,6 +47,8 @@ namespace Scripts.Skills
         private readonly Dictionary<int, HashSet<int>> _persistentHitTargetsByStep = new Dictionary<int, HashSet<int>>();
         private readonly HashSet<int> _persistentHitStopSteps = new HashSet<int>();
         private SkillHitStopGate _hitStopGate;
+        private PlayerParryController _parry;
+        private readonly HashSet<int> _openedParrySteps = new HashSet<int>();
 
         public override void Cancel()
         {
@@ -84,6 +86,7 @@ namespace Scripts.Skills
             }
 
             _cancelled = false;
+            _openedParrySteps.Clear();
             if (_animCtrl != null)
                 _animCtrl.SetActiveStyleId(WeaponSwingStyleResolver.ResolveStyleId(_data));
             _hitStopGate = new SkillHitStopGate(_data.Recipe.HitStopFrames);
@@ -117,6 +120,8 @@ namespace Scripts.Skills
                 _ctx.Cleanup();
             _runCoroutine = null;
             if (_animCtrl != null) _animCtrl.ForceReset();
+            if (_parry != null) _parry.CloseWindow(this);
+            _openedParrySteps.Clear();
             if (_moveCtrl != null) _moveCtrl.SetLock(false);
             _persistentHitTargetsByStep.Clear();
             _persistentHitStopSteps.Clear();
@@ -347,6 +352,20 @@ namespace Scripts.Skills
                     _animCtrl.LerpRecovery(phaseT);
                     break;
                 case "Wait":
+                    break;
+                case "ParryWindow":
+                    if (_openedParrySteps.Add(stepIndex))
+                    {
+                        _parry = _ownerStats.GetComponent<PlayerParryController>();
+                        if (_parry == null) _parry = _ownerStats.gameObject.AddComponent<PlayerParryController>();
+                        _parry.OpenWindow(this, stepDuration, new CombatTriggerDamage
+                        {
+                            HealthDamage = step.GetFloat("HealthDamage"),
+                            HealthPercentOfMax = step.GetFloat("HealthPercentOfMax"),
+                            StunDamage = step.GetFloat("StunDamage"),
+                            StunPercentOfMax = step.GetFloat("StunPercentOfMax", 25f)
+                        });
+                    }
                     break;
                 case "SpawnVFX":
                     ExecuteSpawnVFX(stepIndex, step, stepDuration);

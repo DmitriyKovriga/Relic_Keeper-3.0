@@ -67,7 +67,7 @@ namespace Scripts.Skills
                 "ApplyQuickStatusSelf" or "ApplyQuickStatusSelfPerConsumedMysticShield" or
                 "ApplyQuickStatusCircle" or "ApplyQuickStatusRectangle" or
                 "ApplyStatBasedEffectSelf" or "ConsumeMysticShield" or "GenerateMysticShield" or
-                "MysticShieldDamageBoost" or "ModifyCooldown" or
+                "MysticShieldDamageBoost" or "ModifyCooldown" or "ParryWindow" or
                 "ParallelGroup" or "MovementLock" or "MovementUnlock" or
                 "SpawnChainVFX" or "SpawnVFX" or "Wait" or
                 "WeaponWindup" or "WeaponStrike" or "WeaponRecovery" => true,
@@ -256,6 +256,17 @@ namespace Scripts.Skills
                     break;
                 case "ModifyCooldown":
                     AddCooldown(step, ru, lines, unique);
+                    break;
+                case "ParryWindow":
+                    var impact = new CombatTriggerDamage
+                    {
+                        HealthDamage = step.GetFloat("HealthDamage"), HealthPercentOfMax = step.GetFloat("HealthPercentOfMax"),
+                        StunDamage = step.GetFloat("StunDamage"), StunPercentOfMax = step.GetFloat("StunPercentOfMax", 25)
+                    };
+                    Add(lines, unique, ru ? "Парирует все прямые удары врагов в течение активного окна."
+                        : "Parries every direct enemy hit during the active window.", SkillDescriptionSection.Other);
+                    Add(lines, unique, ru ? "При парировании атакующий теряет: " + impact.Describe(true) + "."
+                        : "On parry, the attacker loses: " + impact.Describe(false) + ".", SkillDescriptionSection.Other);
                     break;
             }
 

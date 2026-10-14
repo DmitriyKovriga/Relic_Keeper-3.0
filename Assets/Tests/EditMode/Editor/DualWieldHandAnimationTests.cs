@@ -177,5 +177,34 @@ namespace RelicKeeper.Tests.EditMode
             animation.ForceReset();
             Assert.That(_mainPivot.localPosition, Is.EqualTo(rest));
         }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void OffhandStaysBelowMainHandDuringIndependentSwings(bool mainBehindBody)
+        {
+            var configure = typeof(WeaponVisualController).GetMethod("EnsureWeaponDepthSort", BindingFlags.Instance | BindingFlags.NonPublic);
+            var mainArgs = new object[] { _mainRenderer, null, mainBehindBody };
+            configure.Invoke(_visuals, mainArgs);
+            typeof(WeaponVisualController).GetField("_weaponDepthSort", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(_visuals, mainArgs[1]);
+            var offArgs = new object[] { _offRenderer, null, false };
+            configure.Invoke(_visuals, offArgs);
+            var mainSort = (WorldDepthSort)mainArgs[1];
+            var offSort = (WorldDepthSort)offArgs[1];
+            Assert.That(offSort.Category, Is.EqualTo(mainSort.Category));
+            var main = Skill(0); var off = Skill(1);
+            main.SetActiveStyleId("overhead_stab"); off.SetActiveStyleId("shield_parry");
+            foreach (int facing in new[] { -1, 1 })
+            foreach (float height in new[] { -3f, 0f, 3f })
+            {
+                _stats.transform.localScale = new Vector3(facing, 1, 1);
+                _stats.transform.position = Vector3.up * height;
+                main.LerpWindup(1); off.SnapImpact();
+                _mainRenderer.transform.position += Vector3.up * 2;
+                _offRenderer.transform.position += Vector3.down * 2;
+                mainSort.ApplySort(force: true); offSort.ApplySort(force: true);
+                Assert.That(_offRenderer.sortingLayerID, Is.EqualTo(_mainRenderer.sortingLayerID));
+                Assert.That(_offRenderer.sortingOrder, Is.EqualTo(_mainRenderer.sortingOrder - 1));
+            }
+        }
     }
 }

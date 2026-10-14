@@ -75,12 +75,12 @@ namespace Scripts.Combat
 
         private static bool IsCombatWeapon(InventoryItem item)
         {
-            return item?.Data is WeaponItemSO weapon && !weapon.IsDefensiveOffHand;
+            return item?.Data is WeaponItemSO;
         }
 
         private static bool IsCombatOneHandedWeapon(InventoryItem item)
         {
-            return item?.Data is WeaponItemSO weapon && !weapon.IsTwoHanded && !weapon.IsDefensiveOffHand;
+            return item?.Data is WeaponItemSO weapon && !weapon.IsTwoHanded;
         }
     }
 }

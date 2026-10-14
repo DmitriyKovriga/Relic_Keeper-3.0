@@ -44,6 +44,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
             if (!_stats.ContainsKey(type))
                 GetStat(type);
         }
+        GetStat(StatType.AttackSpeed).BaseValue = 1f;
 
         Health = new StatResource(GetStat(StatType.MaxHealth));
         Mana = new StatResource(GetStat(StatType.MaxMana));
@@ -135,7 +136,9 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         return newStat;
     }
 
-    public float GetValue(StatType type) => GetStat(type).Value;
+    public float GetValue(StatType type) => type == StatType.AttackSpeed
+        ? (Scripts.Combat.WeaponHandStatScope.ForSkill(this, 0).TryGetStat(type, out var speed) ? speed.Value : 1f)
+        : GetStat(type).Value;
 
     public bool TryGetStat(StatType type, out CharacterStat stat)
     {
@@ -180,8 +183,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         EnsureMinStat(StatType.MaxMysticShieldMitigationPercent, 90f);
         EnsureMinStat(StatType.CritMultiplier, 150f);
         EnsureMinStat(StatType.StunDuration, 1f);
-        // APS flat base comes from equipped weapons; keep scalar base at 0.
-        GetStat(StatType.AttackSpeed).BaseValue = 0f;
+        RefreshAttackSpeedBase();
 
         CreateLevelingSystem(1, 0, 100, 0);
         ResetResourceRegenTimer();
@@ -243,6 +245,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     {
         foreach (var stat in _stats.Values)
             stat.ClearAllModifiers();
+        RefreshAttackSpeedBase();
     }
 
     public void ApplyItemModifiers(InventoryItem item)
@@ -251,6 +254,17 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
 
         foreach (var (statType, mod) in item.GetAllModifiers())
             GetStat(statType).AddModifier(mod);
+        RefreshAttackSpeedBase();
+    }
+
+    private void RefreshAttackSpeedBase()
+    {
+        var speed = GetStat(StatType.AttackSpeed);
+        bool hasWeaponSpeed = false;
+        foreach (var modifier in speed.Modifiers)
+            if (modifier.Source is WeaponLocalStatSource && modifier.Type == StatModType.Flat)
+                hasWeaponSpeed = true;
+        speed.BaseValue = hasWeaponSpeed ? 0f : 1f;
     }
 
     public void ResyncExternalStatModifiers(InventoryItem[] equipment, PassiveTreeManager passiveTree)
@@ -289,6 +303,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
             stat.RemoveAllModifiersFromSource(item);
             stat.RemoveAllModifiersFromSource(item.WeaponLocalModifierSource);
         }
+        RefreshAttackSpeedBase();
         NotifyChanged();
     }
 

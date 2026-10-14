@@ -527,11 +527,24 @@ namespace Scripts.Inventory
                     AddWeaponDamage(result, StatType.DamageCold, weapon.MinColdDamage, weapon.MaxColdDamage);
                     AddWeaponDamage(result, StatType.DamageLightning, weapon.MinLightningDamage, weapon.MaxLightningDamage);
 
-                    float finalAps = GetCalculatedStat(StatType.AttackSpeed, weapon.AttacksPerSecond);
-                    if (finalAps > 0) result.Add((StatType.AttackSpeed, new StatModifier(finalAps, StatModType.Flat, WeaponLocalModifierSource)));
-
                     float finalCrit = GetCalculatedStat(StatType.CritChance, weapon.BaseCritChance);
                     if (finalCrit > 0) result.Add((StatType.CritChance, new StatModifier(finalCrit, StatModType.Flat, WeaponLocalModifierSource)));
+                }
+                // Shields have their own skill tempo even when they do not deal weapon damage.
+                float finalAps = GetCalculatedStat(StatType.AttackSpeed, weapon.AttacksPerSecond);
+                if (finalAps > 0) result.Add((StatType.AttackSpeed, new StatModifier(finalAps, StatModType.Flat, WeaponLocalModifierSource)));
+                if (weapon.Slot == EquipmentSlot.OffHand)
+                {
+                    foreach (var defense in new[] { StatType.Armor, StatType.Evasion, StatType.MaxMysticShield })
+                    {
+                        float baseDefense = 0;
+                        if (Data.ImplicitModifiers != null)
+                            foreach (var implicitMod in Data.ImplicitModifiers)
+                                if (implicitMod.Stat == defense && implicitMod.Scope == StatScope.Global && implicitMod.Type == StatModType.Flat)
+                                    baseDefense += implicitMod.Value;
+                        float delta = GetCalculatedStat(defense, baseDefense) - baseDefense;
+                        if (Mathf.Abs(delta) > 0.0001f) result.Add((defense, new StatModifier(delta, StatModType.Flat, this)));
+                    }
                 }
             }
 
@@ -585,6 +598,9 @@ namespace Scripts.Inventory
 
         private bool ShouldPromoteLocalStatToCharacter(StatType stat)
         {
+            if (Data is WeaponItemSO shield && shield.Slot == EquipmentSlot.OffHand &&
+                (stat == StatType.Armor || stat == StatType.Evasion || stat == StatType.MaxMysticShield))
+                return false; // Fold local defenses into this shield's own flat contribution above.
             if (!IsDefensiveOffHand)
                 return false;
             if (IsWeaponOffenseStat(stat))

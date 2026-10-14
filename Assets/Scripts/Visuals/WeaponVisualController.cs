@@ -145,9 +145,7 @@ namespace Scripts.Visuals
 
             bool mainIsWeapon = TryGetCombatWeapon(mainHandItem, out WeaponItemSO mainWeapon);
             bool offIsCombatOneHand = TryGetCombatOneHandedWeapon(offHandItem, out WeaponItemSO offWeapon);
-            bool dualOneHand = mainIsWeapon
-                && !mainWeapon.IsTwoHanded
-                && offIsCombatOneHand;
+            bool dualOneHand = offIsCombatOneHand && (!mainIsWeapon || !mainWeapon.IsTwoHanded);
 
             StancePose mainPose = ResolvePoseForItem(mainHandItem);
             // InHandSpriteLocalOffset: per-weapon handle nudge when sprite.pivot cannot be authored
@@ -383,13 +381,22 @@ namespace Scripts.Visuals
             if (depthSort == null)
                 depthSort = renderer.gameObject.AddComponent<WorldDepthSort>();
 
+            bool offhand = renderer == _offhandWeaponRenderer;
+            if (offhand && _weaponRenderer != null && _weaponRenderer.sprite != null &&
+                _weaponDepthSort != null && _weaponDepthSort.Category == RenderDepthCategory.Player)
+                behind = true;
+            int localOffset = behind ? _behindLocalOffset : _frontLocalOffset;
+            // Both hands share the player's depth anchor; swinging their sprites cannot reverse their order.
+            depthSort.SetAnchor(transform);
+            depthSort.SetPostSortOffset(offhand ? -1 : 0);
+
             // Shoulder (and any SortBehindCharacter pose): Player band below body (localOffset 0).
             // Default: PlayerOverlay in front of body.
             if (behind)
             {
                 depthSort.Configure(
                     RenderDepthCategory.Player,
-                    localOffset: _behindLocalOffset,
+                    localOffset: localOffset,
                     staticAnchor: false,
                     anchorY: renderer.transform.position.y);
             }
@@ -397,7 +404,7 @@ namespace Scripts.Visuals
             {
                 depthSort.Configure(
                     RenderDepthCategory.PlayerOverlay,
-                    localOffset: _frontLocalOffset,
+                    localOffset: localOffset,
                     staticAnchor: false,
                     anchorY: renderer.transform.position.y);
             }
@@ -416,7 +423,7 @@ namespace Scripts.Visuals
         private static bool TryGetCombatWeapon(InventoryItem item, out WeaponItemSO weapon)
         {
             weapon = item?.Data as WeaponItemSO;
-            return weapon != null && !weapon.IsDefensiveOffHand;
+            return weapon != null;
         }
 
         private static bool TryGetCombatOneHandedWeapon(InventoryItem item, out WeaponItemSO weapon)
