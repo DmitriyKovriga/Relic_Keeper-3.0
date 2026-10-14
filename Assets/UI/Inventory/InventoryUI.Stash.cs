@@ -389,17 +389,30 @@ internal sealed class StashTabsPresenter
 
         stashTabsRow.Clear();
         var scroll = new ScrollView(ScrollViewMode.Horizontal);
+        // Visibility must be configured on ScrollView: its overflow layout can overwrite USS display.
+        scroll.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+        scroll.verticalScrollerVisibility = ScrollerVisibility.Hidden;
         scroll.AddToClassList("stash-tabs-scroll");
         scroll.style.height = 14;
         scroll.style.minHeight = 14;
         scroll.style.maxHeight = 14;
-        if (scroll.verticalScroller != null)
+        scroll.style.flexGrow = 1;
+        scroll.style.flexShrink = 1;
+        scroll.style.flexBasis = 0;
+        scroll.style.minWidth = 0;
+
+        void MoveTabs(float direction)
         {
-            scroll.verticalScroller.style.display = DisplayStyle.None;
-            scroll.verticalScroller.style.width = 0;
-            scroll.verticalScroller.style.minWidth = 0;
-            scroll.verticalScroller.style.maxWidth = 0;
+            float distance = Mathf.Max(24f, scroll.contentViewport.layout.width * 0.75f);
+            scroll.horizontalScroller.value = Mathf.Clamp(scroll.horizontalScroller.value + direction * distance,
+                0f, scroll.horizontalScroller.highValue);
         }
+        var previous = new Button(() => MoveTabs(-1)) { name = "PreviousStashTabs", text = "<",
+            tooltip = Scripts.UI.RuntimeLocalization.Resolve("stash.tab.previous", "Previous tabs", "Предыдущие вкладки") };
+        var next = new Button(() => MoveTabs(1)) { name = "NextStashTabs", text = ">",
+            tooltip = Scripts.UI.RuntimeLocalization.Resolve("stash.tab.next", "Next tabs", "Следующие вкладки") };
+        previous.AddToClassList("stash-tabs-nav"); next.AddToClassList("stash-tabs-nav");
+        previous.style.display = DisplayStyle.None; next.style.display = DisplayStyle.None;
 
         var content = new VisualElement();
         content.AddToClassList("stash-tabs-carousel");
@@ -470,9 +483,21 @@ internal sealed class StashTabsPresenter
         }
 
         scroll.Add(content);
+        stashTabsRow.Add(previous);
         stashTabsRow.Add(scroll);
-        HideVerticalScrollerDelayed(scroll);
-        HideHorizontalScrollerArrows(scroll);
+        stashTabsRow.Add(next);
+
+        void UpdateNavigation()
+        {
+            // Compare with the whole row so showing the arrows cannot cause an overflow/layout loop.
+            bool overflow = content.layout.width > stashTabsRow.contentRect.width + 0.5f;
+            previous.style.display = next.style.display = overflow ? DisplayStyle.Flex : DisplayStyle.None;
+            previous.SetEnabled(scroll.horizontalScroller.value > 0.5f);
+            next.SetEnabled(scroll.horizontalScroller.value < scroll.horizontalScroller.highValue - 0.5f);
+        }
+        scroll.horizontalScroller.valueChanged += _ => UpdateNavigation();
+        content.RegisterCallback<GeometryChangedEvent>(_ => scroll.schedule.Execute(UpdateNavigation));
+        scroll.RegisterCallback<GeometryChangedEvent>(_ => scroll.schedule.Execute(UpdateNavigation));
 
         float offsetToRestore = savedScrollOffset;
         void RestoreScroll()
@@ -480,6 +505,7 @@ internal sealed class StashTabsPresenter
             if (scroll == null || scroll.horizontalScroller == null) return;
             float high = scroll.horizontalScroller.highValue;
             scroll.horizontalScroller.value = Mathf.Clamp(offsetToRestore, 0, high);
+            UpdateNavigation();
         }
 
         scroll.schedule.Execute(RestoreScroll).ExecuteLater(1);
@@ -500,29 +526,6 @@ internal sealed class StashTabsPresenter
         button.style.backgroundImage = new StyleBackground(sprite);
     }
 
-    private static void HideHorizontalScrollerArrows(ScrollView scroll)
-    {
-        if (scroll?.horizontalScroller == null) return;
-        var h = scroll.horizontalScroller;
-        if (h.lowButton != null) h.lowButton.style.display = DisplayStyle.None;
-        if (h.highButton != null) h.highButton.style.display = DisplayStyle.None;
-    }
-
-    private static void HideVerticalScrollerDelayed(ScrollView scroll)
-    {
-        void TryHide()
-        {
-            if (scroll == null || scroll.verticalScroller == null) return;
-            var v = scroll.verticalScroller;
-            v.style.display = DisplayStyle.None;
-            v.style.width = 0;
-            v.style.minWidth = 0;
-            v.style.maxWidth = 0;
-        }
-
-        scroll.schedule.Execute(TryHide).ExecuteLater(2);
-        scroll.schedule.Execute(TryHide).ExecuteLater(10);
-    }
 }
 
 internal enum StashPointerActionKind

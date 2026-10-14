@@ -26,6 +26,7 @@ public partial class InventoryUI
     private void OnInventoryLocaleChanged(Locale _)
     {
         RefreshInventorySlotLabels();
+        _stashWindowController?.RefreshTabs(_stashTabsRow);
     }
 
     private void RefreshInventorySlotLabelsWhenReady()
