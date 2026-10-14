@@ -61,8 +61,20 @@ namespace RelicKeeper.Editor.VFX
                 for (int x = 0; x < size; x++)
                 {
                     // Keep the same cell coordinates in every frame: drifting remnants must not be recentered.
-                    Color32 pixel = source.GetPixel(frame % columns * cellWidth + (int)((size-x-0.5f)*cellWidth/size),
-                        (rows-1-frame/columns)*cellHeight + (int)((y+0.5f)*cellHeight/size));
+                    Color32 pixel;
+                    if (name == "StationaryDodge")
+                    {
+                        // The generated strip has tall cells. Sample a shared square window
+                        // without stretching the circular burst into a flattened ellipse.
+                        float window = cellWidth * 1.2f;
+                        int sourceX = (int)((cellWidth-window)*0.5f+(size-x-0.5f)*window/size);
+                        int sourceY = (int)((cellHeight-window)*0.5f+(y+0.5f)*window/size);
+                        pixel = sourceX < 0 || sourceX >= cellWidth || sourceY < 0 || sourceY >= cellHeight
+                            ? default : (Color32)source.GetPixel(frame*cellWidth+sourceX,sourceY);
+                    }
+                    else
+                        pixel = source.GetPixel(frame % columns * cellWidth + (int)((size-x-0.5f)*cellWidth/size),
+                            (rows-1-frame/columns)*cellHeight + (int)((y+0.5f)*cellHeight/size));
                     if (pixel.a < 150 || pixel.b > pixel.r + 35 || pixel.g > pixel.r + 35) continue;
                     byte alpha = (byte)(pixel.a * (frame < count-3 ? 1f : frame == count-3 ? 0.8f : frame == count-2 ? 0.5f : 0.15f));
                     pixel = pixel.r > 205 ? new Color32(246,247,233,alpha)
@@ -94,7 +106,7 @@ namespace RelicKeeper.Editor.VFX
                             if (index >= size) queue.Enqueue(index-size);
                             if (index < size*(size-1)) queue.Enqueue(index+size);
                         }
-                        if (component.Count < (frame < 6 ? 4 : 2))
+                        if (component.Count < (frame < count-2 ? 4 : 2))
                             foreach (int index in component) pixels[index] = default;
                     }
                 }

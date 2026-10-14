@@ -76,7 +76,7 @@ public class PlayerAttackInput : MonoBehaviour
     [SerializeField, Range(0.7f, 1f)] private float _stationaryDodgeScaleY = 0.86f;
     [SerializeField, Min(0.05f)] private float _stationaryDodgeVfxDuration = 0.28f;
     [SerializeField, Range(0f, 1f)] private float _stationaryDodgeVfxAlpha = 1f;
-    [SerializeField, Min(0.5f)] private float _stationaryDodgeVfxHeightRelativeToBody = 2.1f;
+    [SerializeField, Min(0.5f)] private float _stationaryDodgeVfxHeightRelativeToBody = 1.8f;
     [SerializeField, Range(0f, 1f)] private float _stationaryDodgeVfxBodyAnchor = 0.45f;
     [SerializeField, Range(0f, 0.99f)] private float _stationaryDodgeVfxFadeStart = 0.8f;
     [SerializeField, HideInInspector] private float _stationaryDodgeVfxFlashRise = 0.12f;

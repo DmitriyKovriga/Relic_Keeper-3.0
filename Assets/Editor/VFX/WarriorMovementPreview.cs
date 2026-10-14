@@ -253,7 +253,7 @@ namespace RelicKeeper.Editor.VFX
                             var effect = new GameObject("Stationary dodge preview");
                             effect.transform.SetParent(actors[side], false);
                             effect.transform.position = new Vector3(position.x, position.y-0.05f, 0);
-                            effect.transform.localScale = Vector3.one * (2.1f / stationaryFrames[0].bounds.size.y);
+                            effect.transform.localScale = Vector3.one * (1.8f / stationaryFrames[0].bounds.size.y);
                             var overlay = effect.AddComponent<SpriteSheetOverlayVfx>();
                             overlay.Initialize(stationaryFrames,0.28f,1f,displays[side].sortingLayerID,3);
                             overlay.SetFadeOut(0.8f);

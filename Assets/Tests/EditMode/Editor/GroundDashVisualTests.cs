@@ -123,7 +123,7 @@ namespace RelicKeeper.Tests.EditMode
                 var renderer = overlays[0].GetComponent<SpriteRenderer>();
                 Assert.That(renderer.sprite,Is.SameAs(frames[0]));
                 Assert.That(renderer.color.a,Is.EqualTo(1f),"The first cover frame must appear immediately.");
-                Assert.That(renderer.bounds.size.y,Is.EqualTo(2.1f).Within(0.001f));
+                Assert.That(renderer.bounds.size.y,Is.EqualTo(1.8f).Within(0.001f));
                 Assert.That(typeof(SpriteSheetOverlayVfx).GetField("_duration",Private).GetValue(overlays[0]),Is.EqualTo(0.28f));
                 Assert.That(overlays[0].transform.position.y,Is.EqualTo(collider.bounds.min.y+collider.bounds.size.y*0.45f).Within(0.001f));
                 Rect first = frames[0].rect;
