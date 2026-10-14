@@ -13,7 +13,6 @@ namespace Scripts.StatusEffects
     public sealed class StatusAuraPresenter : MonoBehaviour
     {
         private const float InnerEmission = 0.03f;
-        private const string HaloShaderName = "RelicKeeper/Sprites/Aura Halo";
 
         private static readonly Vector2[] Directions =
         {
@@ -208,11 +207,11 @@ namespace Scripts.StatusEffects
             if (_haloMaterial != null)
                 return _haloMaterial;
 
-            Shader shader = Shader.Find(HaloShaderName);
-            if (shader == null)
+            Material source = StatusEffectVisualMaterials.LoadHalo();
+            if (source == null)
                 return EnsureAuraMaterial();
 
-            _haloMaterial = new Material(shader);
+            _haloMaterial = new Material(source);
             return _haloMaterial;
         }
 

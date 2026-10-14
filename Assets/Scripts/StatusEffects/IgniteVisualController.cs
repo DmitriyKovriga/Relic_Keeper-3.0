@@ -122,7 +122,9 @@ namespace Scripts.StatusEffects
                     flameObject.transform.SetParent(_flameRoot, false);
                     SpriteRenderer renderer = flameObject.AddComponent<SpriteRenderer>();
                     renderer.sprite = sprite;
-                    renderer.sharedMaterial = material;
+                    // Keep SpriteRenderer's default material if the custom shader is unsupported.
+                    if (material != null)
+                        renderer.sharedMaterial = material;
                     _flames[i] = renderer;
                 }
             }
@@ -242,8 +244,7 @@ namespace Scripts.StatusEffects
 
         private static Material FlameMaterial()
         {
-            Shader shader = Shader.Find("RelicKeeper/Sprites/Aura Halo");
-            return shader != null ? new Material(shader) : null;
+            return StatusEffectVisualMaterials.LoadHalo();
         }
     }
 }
