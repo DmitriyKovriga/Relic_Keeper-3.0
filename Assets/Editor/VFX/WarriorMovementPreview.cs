@@ -65,8 +65,13 @@ namespace RelicKeeper.Editor.VFX
             Capture("Assets/Resources/Items/2HWeapon/Staff/Lightning/Adventurer/Lightning Staff Of Adventurer.asset", "staff", "Mage-double-runtime-", true, true, "Heroes/MageResources/Mage");
         }
 
+        public static void CaptureJumpPuffRuntimeViews()
+        {
+            Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Jump-puff-runtime-", true, true, "Heroes/WarriorResources/Warrior", true);
+        }
+
         private static void Capture(string weaponPath, string stanceId, string outputPrefix, bool doubleJump = false, bool forwardJump = false,
-            string characterResourcePath = "Heroes/WarriorResources/Warrior")
+            string characterResourcePath = "Heroes/WarriorResources/Warrior", bool jumpPuffs = false)
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
             var root = new GameObject("Temporary character animation preview");
@@ -153,6 +158,7 @@ namespace RelicKeeper.Editor.VFX
                 target.Create();
                 string folder = Path.Combine(Path.GetTempPath(), "codex-" + warrior.ID.ToLowerInvariant() + "-refresh");
                 Directory.CreateDirectory(folder);
+                var puffs = new System.Collections.Generic.List<GroundingSpriteSheetVfx>();
                 for (int frame = 0; frame < (doubleJump ? 94 : 80); frame++)
                 {
                     for (int side = 0; side < 2; side++)
@@ -180,6 +186,16 @@ namespace RelicKeeper.Editor.VFX
                         var position = actors[side].position;
                         position.y = height + 0.5f;
                         actors[side].position = position;
+                        if (jumpPuffs && (frame == 32 || frame == 42))
+                        {
+                            float width = frame == 32 ? 0.75f : 0.525f;
+                            var puff = new GameObject("Preview jump puff");
+                            puff.transform.SetParent(root.transform);
+                            puff.transform.position = new Vector3(position.x, height + width * 0.5f, 0);
+                            var overlay = puff.AddComponent<GroundingSpriteSheetVfx>();
+                            overlay.Initialize(JumpPuffSprites.Frames, 0.32f, frame == 32 ? 0.9f : 0.7f, displays[side].sortingLayerID, 3, width, false);
+                            puffs.Add(overlay);
+                        }
                         // Same full-rectangle foot anchoring used by PlayerMovementVisual at scale 1.
                         displays[side].transform.localPosition = Vector3.up * (-0.5f - displays[side].sprite.bounds.min.y * controller.PresentationScale.y);
                         bool inAir = frame >= 32 && frame < (doubleJump ? 74 : 60);
@@ -187,6 +203,18 @@ namespace RelicKeeper.Editor.VFX
                         float targetLean = PlayerMovementVisual.CalculateAirborneLean(forwardJump ? facing * 5f : 0f, facing, inAir);
                         leans[side] = inAir ? Mathf.Lerp(leans[side], targetLean, 1f - Mathf.Exp(-PlayerMovementVisual.DefaultAirborneLeanResponse / 24f)) : 0f;
                         actors[side].GetComponent<PlayerRenderAnchor>().PresentationLeanDegrees = leans[side];
+                    }
+                    if (jumpPuffs)
+                    {
+                        int age = frame >= 42 ? frame - 42 : frame - 32;
+                        foreach (var puff in puffs)
+                        {
+                            var sprite = puff.GetComponent<SpriteRenderer>();
+                            float seconds = age / 24f;
+                            sprite.enabled = seconds >= 0 && seconds < 0.32f;
+                            if (sprite.enabled) sprite.sprite = JumpPuffSprites.Frames[Mathf.Clamp((int)(seconds / 0.32f * 8), 0, 7)];
+                        }
+                        if (frame == 41) { foreach (var puff in puffs) puff.GetComponent<SpriteRenderer>().enabled = false; puffs.Clear(); }
                     }
                     RenderPipeline.SubmitRenderRequest(camera, new RenderPipeline.StandardRequest { destination = target });
                     RenderTexture.active = target;

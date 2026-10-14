@@ -36,6 +36,10 @@ namespace Scripts.Visuals
         [SerializeField] private int _shadowOrderOffset = -1;
 
         [Header("Dust")]
+        [SerializeField] private bool _spawnJumpDust = true;
+        [SerializeField, Min(40)] private int _jumpDustDurationMs = 320;
+        [SerializeField, Range(0.25f, 3f)] private float _jumpDustWidthRelativeToBody = 1.25f;
+        [SerializeField, Range(0f, 1f)] private float _airJumpDustAlpha = 0.7f;
         [SerializeField] private bool _spawnLandingDust = true;
         [SerializeField] private bool _spawnRunDust = true;
         [SerializeField] private bool _spawnDashDust = true;
@@ -110,6 +114,35 @@ namespace Scripts.Visuals
             CacheReferences();
             UpdateShadowVisual();
             UpdateGroundingEffects();
+        }
+
+        private void OnEnable()
+        {
+            CacheReferences();
+            _wasGrounded = ResolveGroundedState();
+            if (_playerMovement != null)
+                _playerMovement.OnJumpStarted += HandleJumpStarted;
+        }
+
+        private void OnDisable()
+        {
+            if (_playerMovement != null)
+                _playerMovement.OnJumpStarted -= HandleJumpStarted;
+        }
+
+        private void HandleJumpStarted()
+        {
+            if (!_spawnJumpDust || _playerMovement == null) return;
+            // Movement has already cleared IsGrounded before raising this event.
+            // Use the last observed contact, never a raycast to a distant floor for air jumps.
+            bool groundJump = _wasGrounded;
+            Bounds feet = ResolveBounds();
+            Vector3 origin = groundJump ? ResolveGroundEffectPosition(0f)
+                : new Vector3(feet.center.x, feet.min.y, 0f);
+            SpawnGroundEffect(JumpPuffSprites.Frames, DurationMsToSeconds(_jumpDustDurationMs), origin,
+                false, groundJump ? 0.9f : _airJumpDustAlpha, ResolveDustSortingOrder(),
+                ResolveEffectWidth(_jumpDustWidthRelativeToBody * (groundJump ? 1f : 0.7f)));
+            _wasGrounded = false;
         }
 
         private void OnDestroy()
