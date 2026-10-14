@@ -248,12 +248,20 @@ namespace Scripts.Enemies
              !string.IsNullOrWhiteSpace(DigOutSpritesResourcePath));
     }
 
+    public enum EnemyRank
+    {
+        Regular = 0,
+        Boss = 1
+    }
+
     [CreateAssetMenu(menuName = "RPG/Enemies/Enemy Data")]
     public class EnemyDataSO : ScriptableObject
     {
         [Header("Info")]
         public string ID;
         public string DisplayName;
+        [Tooltip("Gameplay classification, independent of the enemy's room or appearance.")]
+        public EnemyRank Rank = EnemyRank.Regular;
         public EnemyEntity Prefab;
         public EnemyAIType AIType = EnemyAIType.GroundChaser;
 

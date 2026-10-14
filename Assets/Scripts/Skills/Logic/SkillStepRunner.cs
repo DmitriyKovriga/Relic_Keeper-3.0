@@ -372,7 +372,9 @@ namespace Scripts.Skills
                             HealthDamage = step.GetFloat("HealthDamage"),
                             HealthPercentOfMax = step.GetFloat("HealthPercentOfMax"),
                             StunDamage = step.GetFloat("StunDamage"),
-                            StunPercentOfMax = step.GetFloat("StunPercentOfMax", 25f)
+                            StunPercentOfMax = step.GetFloat("StunPercentOfMax", 25f),
+                            UseBossStunPercent = step.GetBool("UseBossStunPercent"),
+                            BossStunPercentOfMax = step.GetFloat("BossStunPercentOfMax", 25f)
                         });
                     }
                     break;

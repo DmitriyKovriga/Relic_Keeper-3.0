@@ -37,6 +37,11 @@ namespace RelicKeeper.Editor.VFX
             enemy.AddComponent<EnemyStats>().Initialize(null, 1);
             var health = enemy.AddComponent<EnemyHealth>(); health.Initialize();
             var stun = enemy.AddComponent<EnemyStunController>(); stun.Initialize(null);
+            var bossData = ScriptableObject.CreateInstance<EnemyDataSO>(); bossData.Rank = EnemyRank.Boss;
+            var boss = new GameObject("Temporary boss parry attacker"); boss.transform.SetParent(root.transform, false);
+            boss.AddComponent<EnemyStats>().Initialize(bossData, 1);
+            var bossHealth = boss.AddComponent<EnemyHealth>(); bossHealth.Initialize();
+            var bossStun = boss.AddComponent<EnemyStunController>(); bossStun.Initialize(bossData);
             var skillObject = new GameObject("Temporary authored parry skill");
             skillObject.transform.SetParent(root.transform, false);
             var skill = skillObject.AddComponent<SkillStepRunner>();
@@ -67,9 +72,16 @@ namespace RelicKeeper.Editor.VFX
                         Require(root.GetComponentInChildren<Animator>() != null, "The recipe must spawn its animated VFX.");
                         for (int i = 0; i < 2; i++)
                             Require(receiver.TakeDamageDetailed(new DamageSnapshot(health) { Physical = 10 }).WasParried, "Every hit must be absorbed.");
-                        Require(Mathf.Abs(stun.Normalized - 0.5f) < 0.001f, "Two hits must remove 50% of the attacker's maximum stun meter.");
+                        Require(stun.IsStunned && stun.Normalized == 0f, "A regular enemy must lose its entire stun meter on the first parry.");
+                        for (int i = 0; i < 2; i++)
+                        {
+                            Require(receiver.TakeDamageDetailed(new DamageSnapshot(bossHealth) { Physical = 10 }).WasParried, "Boss hits must also be absorbed.");
+                            Require(Mathf.Abs(bossStun.Normalized - (1f - (i + 1) * 0.25f)) < 0.001f,
+                                "Bosses must lose exactly 25% maximum stun per parry.");
+                        }
                         Require(Mathf.Approximately(player.Health.Current, 100), "Parried hits must not damage the player.");
                         Require(Mathf.Approximately(health.CurrentHealth, health.MaxHealth), "Default parry must not deal HP damage.");
+                        Require(Mathf.Approximately(bossHealth.CurrentHealth, bossHealth.MaxHealth), "Boss retaliation must not deal HP damage.");
                         hitChecked = true;
                     }
                     if (age < 1.2f) return;
@@ -77,7 +89,7 @@ namespace RelicKeeper.Editor.VFX
                     Require(!parry.IsActive && !skill.IsCasting && holder.enabled, "Cast completion must close the guard and restore the shield.");
                     Require(Mathf.Approximately(player.Mana.Current, 90), "Parry must consume 10 mana.");
                     Require(skill.CooldownRemaining > 0, "Parry must enter cooldown.");
-                    File.WriteAllText(report, "PASS: authored recipe, VFX, repeated hits, 25% maximum stun per hit, no HP damage, mana, cooldown, expiry and shield restoration.");
+                    File.WriteAllText(report, "PASS: authored recipe, VFX, repeated hits, 100% maximum stun on regular enemies, 25% on bosses, no HP damage, mana, cooldown, expiry and shield restoration.");
                     Debug.Log("Buckler parry Play Mode recipe check passed.");
                 }
                 catch (Exception ex)
@@ -92,6 +104,7 @@ namespace RelicKeeper.Editor.VFX
                     Application.runInBackground = previousRunInBackground;
                 }
                 if (root != null) Object.Destroy(root);
+                Object.Destroy(bossData);
             }
             EditorApplication.update += Tick;
             EditorApplication.QueuePlayerLoopUpdate();

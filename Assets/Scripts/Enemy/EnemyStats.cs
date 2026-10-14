@@ -12,10 +12,13 @@ namespace Scripts.Enemies
         public float ExperienceReward { get; private set; }
         public int GoldReward { get; private set; }
         public int Level { get; private set; }
+        public EnemyRank Rank { get; private set; }
+        public bool IsBoss => Rank == EnemyRank.Boss;
 
         public void Initialize(EnemyDataSO data, int level)
         {
             _stats.Clear();
+            Rank = data != null ? data.Rank : EnemyRank.Regular;
             Level = Mathf.Clamp(level, 1, 100);
 
             float experienceMultiplier = DungeonController.Instance != null && DungeonController.Instance.CurrentModifiers != null

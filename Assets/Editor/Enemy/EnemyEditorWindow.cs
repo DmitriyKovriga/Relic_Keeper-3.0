@@ -147,6 +147,7 @@ namespace Scripts.Editor.Enemy
             EditorGUILayout.LabelField("Info", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(so.FindProperty("ID"));
             EditorGUILayout.PropertyField(so.FindProperty("DisplayName"));
+            EditorGUILayout.PropertyField(so.FindProperty("Rank"));
             EditorGUILayout.PropertyField(so.FindProperty("Prefab"));
             EditorGUILayout.PropertyField(so.FindProperty("AIType"));
             EditorGUILayout.Space(4f);

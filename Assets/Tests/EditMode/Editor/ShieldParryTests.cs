@@ -73,6 +73,62 @@ namespace RelicKeeper.Tests.EditMode
         private void Open() => _parry.OpenWindow(_cast, 0.4f, new CombatTriggerDamage { StunPercentOfMax = 25 });
         private DamageSnapshot Hit(EnemyHealth enemy = null) => new DamageSnapshot(enemy != null ? enemy : _attacker) { Physical = 10 };
 
+        [TestCase(EnemyRank.Regular, true, 0f)]
+        [TestCase(EnemyRank.Boss, false, 0.75f)]
+        public void AuthoredBucklerParry_UsesAttackerRank(EnemyRank rank, bool stunned, float remaining)
+        {
+            var data = Keep(ScriptableObject.CreateInstance<EnemyDataSO>()); data.Rank = rank;
+            _attacker.GetComponent<EnemyStats>().Initialize(data, 1);
+            _attacker.Initialize(); _stun.Initialize(data);
+            var skill = AssetDatabase.LoadAssetAtPath<SkillDataSO>("Assets/Resources/Skills/Shields/SpectacularParry.asset");
+            var step = skill.Recipe.Steps.Find(s => s.StepDefinition.Id == "ParryWindow");
+            var go = Keep(new GameObject("Authored parry runner")); go.SetActive(false);
+            var runner = go.AddComponent<SkillStepRunner>();
+            typeof(SkillBehaviour).GetField("_ownerStats", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(runner, _player);
+            typeof(SkillStepRunner).GetMethod("ExecuteStepLogic", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(runner, new object[] { 0, step, 0f, 0.4f });
+            Assert.That(_receiver.TakeDamageDetailed(Hit()).WasParried, Is.True);
+            Assert.That(_stun.Normalized, Is.EqualTo(remaining).Within(0.0001));
+            Assert.That(_stun.IsStunned, Is.EqualTo(stunned));
+            Assert.That(_attacker.CurrentHealth, Is.EqualTo(_attacker.MaxHealth));
+            Assert.That(_player.Health.Current, Is.EqualTo(_player.Health.Max));
+            Assert.That(_parry.IsActive, Is.True, "A successful parry must not close the every-hit window.");
+        }
+
+        [Test]
+        public void EnemyRank_DefaultsToRegularAndResetsWhenReinitialized()
+        {
+            var data = Keep(ScriptableObject.CreateInstance<EnemyDataSO>());
+            Assert.That(data.Rank, Is.EqualTo(EnemyRank.Regular));
+            var stats = _attacker.GetComponent<EnemyStats>();
+            data.Rank = EnemyRank.Boss; stats.Initialize(data, 1);
+            Assert.That(stats.IsBoss, Is.True);
+            stats.Initialize(null, 1);
+            Assert.That(stats.IsBoss, Is.False);
+        }
+
+        [Test]
+        public void BossOverride_IsOptInForReusableTriggerDamage()
+        {
+            var data = Keep(ScriptableObject.CreateInstance<EnemyDataSO>()); data.Rank = EnemyRank.Boss;
+            _attacker.GetComponent<EnemyStats>().Initialize(data, 1); _stun.Initialize(data);
+            new CombatTriggerDamage { StunPercentOfMax = 40, BossStunPercentOfMax = 10 }.Apply(_attacker.gameObject, _player);
+            Assert.That(_stun.Normalized, Is.EqualTo(0.6f).Within(0.0001));
+            new CombatTriggerDamage { StunPercentOfMax = 40, UseBossStunPercent = true, BossStunPercentOfMax = 10 }
+                .Apply(_attacker.gameObject, _player);
+            Assert.That(_stun.Normalized, Is.EqualTo(0.5f).Within(0.0001));
+        }
+
+        [TestCase(false, "100% of maximum stun meter (25% against bosses)")]
+        [TestCase(true, "100% максимальной шкалы оглушения (25% против боссов)")]
+        public void RankDependentStunDescription_ExplainsBothValues(bool ru, string expected)
+        {
+            var damage = new CombatTriggerDamage { StunPercentOfMax = 100, UseBossStunPercent = true, BossStunPercentOfMax = 25 };
+            Assert.That(damage.Describe(ru), Is.EqualTo(expected));
+            var skill = AssetDatabase.LoadAssetAtPath<SkillDataSO>("Assets/Resources/Skills/Shields/SpectacularParry.asset");
+            Assert.That(SkillDescriptionGenerator.Build(skill, ru ? "ru" : "en", ""), Does.Contain(expected));
+        }
+
         [Test]
         public void EveryHitIsAbsorbedAndRetaliationTargetsEachActualAttacker()
         {

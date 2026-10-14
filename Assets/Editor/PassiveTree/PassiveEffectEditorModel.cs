@@ -266,7 +266,8 @@ namespace Scripts.Editor.PassiveTree
                     issues.Add("Restore amount is 0.");
                     break;
                 case PassiveTriggerAction.DealDamage when effect.Damage == null ||
-                    effect.Damage.HealthDamage <= 0 && effect.Damage.HealthPercentOfMax <= 0 && effect.Damage.StunDamage <= 0 && effect.Damage.StunPercentOfMax <= 0:
+                    effect.Damage.HealthDamage <= 0 && effect.Damage.HealthPercentOfMax <= 0 && effect.Damage.StunDamage <= 0 && effect.Damage.StunPercentOfMax <= 0 &&
+                    (!effect.Damage.UseBossStunPercent || effect.Damage.BossStunPercentOfMax <= 0):
                     issues.Add("Set HP damage or stun-meter damage.");
                     break;
             }

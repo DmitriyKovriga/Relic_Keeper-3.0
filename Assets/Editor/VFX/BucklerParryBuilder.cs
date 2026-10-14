@@ -75,13 +75,14 @@ namespace RelicKeeper.Editor.VFX
             definition.NameEn = "Parry Window"; definition.NameRu = "Окно парирования";
             definition.DescriptionEn = "Absorb every direct enemy hit in this window. Retaliation targets that hit's attacker.";
             definition.DescriptionRu = "Поглощает все прямые удары врагов в течение окна. Ответный эффект получает атакующий.";
-            definition.DefaultParams = new List<StepParamValue> { Float("StunPercentOfMax", 25), Float("StunDamage", 0), Float("HealthDamage", 0), Float("HealthPercentOfMax", 0) };
+            definition.DefaultParams = new List<StepParamValue> { Float("StunPercentOfMax", 25), Bool("UseBossStunPercent", false), Float("BossStunPercentOfMax", 25), Float("StunDamage", 0), Float("HealthDamage", 0), Float("HealthPercentOfMax", 0) };
             EditorUtility.SetDirty(definition);
             var recipe = LoadOrCreate<SkillRecipeSO>(Root + "SpectacularParryRecipe.asset");
             recipe.Steps = new List<StepEntry>
             {
                 Step("WeaponWindup", 0, 0.18f), Step("WeaponStrike", 0.18f, 0.18f),
-                new StepEntry { StepDefinition = definition, StartPercentPipeline = 0.18f, EndPercentPipeline = 0.58f },
+                new StepEntry { StepDefinition = definition, StartPercentPipeline = 0.18f, EndPercentPipeline = 0.58f,
+                    Overrides = new List<StepParamValue> { Float("StunPercentOfMax", 100), Bool("UseBossStunPercent", true), Float("BossStunPercentOfMax", 25) } },
                 Step("SpawnVFX", 0.18f, 0.58f, new StepParamValue { Key = "VfxPrefab", Type = StepParamValue.ParamKind.Object, ObjectVal = prefab },
                     Float("OffsetX", 0.34f), Float("OffsetY", 0), Bool("AttachToParent", true), Bool("FadeOutEnabled", true),
                     Float("FadeOutStartLifePercent", 0.5f), Float("FadeStartAlphaMultiplier", 1)),
