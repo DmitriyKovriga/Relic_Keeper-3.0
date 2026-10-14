@@ -74,6 +74,13 @@ public class PlayerAttackInput : MonoBehaviour
 
     [Header("Stationary Dodge Pose")]
     [SerializeField, Range(0.7f, 1f)] private float _stationaryDodgeScaleY = 0.86f;
+    [SerializeField, Min(0.05f)] private float _stationaryDodgeVfxDuration = 0.28f;
+    [SerializeField, Range(0f, 1f)] private float _stationaryDodgeVfxAlpha = 1f;
+    [SerializeField, Min(0.5f)] private float _stationaryDodgeVfxHeightRelativeToBody = 2.1f;
+    [SerializeField, Range(0f, 1f)] private float _stationaryDodgeVfxBodyAnchor = 0.45f;
+    [SerializeField, Range(0f, 0.99f)] private float _stationaryDodgeVfxFadeStart = 0.8f;
+    [SerializeField, HideInInspector] private float _stationaryDodgeVfxFlashRise = 0.12f;
+    [SerializeField, HideInInspector] private float _stationaryDodgeVfxFlashEnd = 0.6f;
 
     private PlayerSkillManager _skillManager;
     private PlayerMovement _playerMovement;
@@ -81,6 +88,7 @@ public class PlayerAttackInput : MonoBehaviour
     private SpriteRenderer[] _playerRenderers = Array.Empty<SpriteRenderer>();
     private Sprite[] _moveDodgeFrames = Array.Empty<Sprite>();
     private Sprite[] _standDodgeFrames = Array.Empty<Sprite>();
+    private Sprite[] _stationaryDodgeFrames = Array.Empty<Sprite>();
 
     private readonly bool[] _pressedSkillInputs = new bool[SkillActionNames.Length];
     private bool _isDodging;
@@ -122,6 +130,7 @@ public class PlayerAttackInput : MonoBehaviour
 
     public bool IsDamageImmune => _isDodging && !_isGroundDash;
     public bool IsDashing => _isDodging && _isGroundDash;
+    public bool IsStationaryDodging => _isDodging && _isStationaryDodge;
 
     private void Awake()
     {
@@ -135,6 +144,7 @@ public class PlayerAttackInput : MonoBehaviour
         _visualRootBoundsHeight = CalculateVisualBoundsHeight();
         _moveDodgeFrames = LoadOrderedSprites("VFX/Dodge/move_dodge");
         _standDodgeFrames = LoadOrderedSprites("VFX/Dodge/stand_dodge-Sheet");
+        _stationaryDodgeFrames = LoadOrderedSprites("VFX/Dodge/StationaryDodge-Sheet");
 
         for (int i = 0; i < SkillActionNames.Length; i++)
         {
@@ -362,14 +372,49 @@ public class PlayerAttackInput : MonoBehaviour
         }
 
         ApplyDodgePose(_isStationaryDodge);
-        SpawnDodgeVfx(_standDodgeFrames, effectiveDodgeTime, 2);
+        SpawnDodgeFeedback(effectiveDodgeTime);
+    }
+
+    private void SpawnDodgeFeedback(float effectiveDodgeTime)
+    {
+        if (_isStationaryDodge || !_isGroundDash)
+        {
+            SpawnStationaryDodgeVfx(effectiveDodgeTime);
+        }
+        else
+        {
+            SpawnDodgeVfx(_standDodgeFrames, effectiveDodgeTime, 2);
+            SpawnDodgeVfx(_moveDodgeFrames, effectiveDodgeTime, 1);
+        }
         if (!_isStationaryDodge)
         {
-            SpawnDodgeVfx(_moveDodgeFrames, effectiveDodgeTime, 1);
             if (_afterImageCoroutine != null)
                 StopCoroutine(_afterImageCoroutine);
             _afterImageCoroutine = StartCoroutine(SpawnAfterImages(effectiveDodgeTime));
         }
+    }
+
+    private void SpawnStationaryDodgeVfx(float dodgeDuration)
+    {
+        if (_stationaryDodgeFrames.Length == 0) return;
+        Collider2D body = GetComponent<Collider2D>();
+        Bounds bounds = body != null ? body.bounds : new Bounds(transform.position, Vector3.one);
+        float height = Mathf.Max(0.1f, bounds.size.y) * _stationaryDodgeVfxHeightRelativeToBody;
+        Vector3 centre = bounds.center;
+        centre.y = bounds.min.y + bounds.size.y * _stationaryDodgeVfxBodyAnchor;
+        var effect = new GameObject("StationaryDodgeVfx");
+        effect.transform.SetParent(transform, false);
+        effect.transform.position = centre;
+        Vector3 parentScale = transform.lossyScale;
+        float scale = height / Mathf.Max(0.01f, _stationaryDodgeFrames[0].bounds.size.y);
+        effect.transform.localScale = new Vector3(scale / Mathf.Max(0.01f, Mathf.Abs(parentScale.x)),
+            scale / Mathf.Max(0.01f, Mathf.Abs(parentScale.y)), 1);
+        var overlay = effect.AddComponent<SpriteSheetOverlayVfx>();
+        string layer = WorldRenderSorting.GetSortingLayer(RenderDepthCategory.PlayerOverlay);
+        overlay.Initialize(_stationaryDodgeFrames, Mathf.Max(dodgeDuration, _stationaryDodgeVfxDuration),
+            _stationaryDodgeVfxAlpha, SortingLayer.NameToID(layer),
+            WorldRenderSorting.ResolveOrder(RenderDepthCategory.PlayerOverlay, centre.y, 2));
+        overlay.SetFadeOut(_stationaryDodgeVfxFadeStart);
     }
 
     private void FinishDodge()
@@ -881,6 +926,12 @@ public sealed class SpriteSheetOverlayVfx : MonoBehaviour
     private Sprite[] _frames;
     private float _duration;
     private float _elapsed;
+    private float _alpha;
+    private float _fadeStart = 1f;
+    private bool _opacityPulse;
+    private float _pulseRiseEnd;
+    private float _pulseFallStart;
+    private float _pulseFallEnd;
 
     public void Initialize(Sprite[] frames, float duration, float alpha, int sortingLayerId, int sortingOrder)
     {
@@ -894,10 +945,49 @@ public sealed class SpriteSheetOverlayVfx : MonoBehaviour
 
         _renderer.sortingLayerID = sortingLayerId;
         _renderer.sortingOrder = sortingOrder;
-        _renderer.color = new Color(1f, 1f, 1f, Mathf.Clamp01(alpha));
+        _alpha = Mathf.Clamp01(alpha);
+        _fadeStart = 1f;
+        _opacityPulse = false;
+        _renderer.color = new Color(1f, 1f, 1f, _alpha);
 
         if (_frames != null && _frames.Length > 0)
             _renderer.sprite = _frames[0];
+    }
+
+    public void SetFadeOut(float startNormalized)
+    {
+        _fadeStart = Mathf.Clamp(startNormalized, 0f, 0.99f);
+    }
+
+    public void SetOpacityPulse(float riseEnd, float fallStart, float fallEnd)
+    {
+        _pulseRiseEnd = Mathf.Clamp(riseEnd, 0.001f, 0.99f);
+        _pulseFallStart = Mathf.Clamp(fallStart, _pulseRiseEnd, 0.999f);
+        _pulseFallEnd = Mathf.Clamp(fallEnd, _pulseFallStart + 0.001f, 1f);
+        _opacityPulse = true;
+        Sample(0f);
+    }
+
+    private static float SteepSCurve(float value)
+    {
+        value = Mathf.Clamp01(value);
+        return value * value * value * (value * (value * 6f - 15f) + 10f);
+    }
+
+    public void Sample(float normalized)
+    {
+        if (_renderer == null || _frames == null || _frames.Length == 0)
+            return;
+        normalized = Mathf.Clamp01(normalized);
+        int index = Mathf.Clamp(Mathf.FloorToInt(normalized * _frames.Length), 0, _frames.Length - 1);
+        _renderer.sprite = _frames[index];
+        float fade = _fadeStart < 1f
+            ? 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(_fadeStart, 1f, normalized))
+            : 1f;
+        if (_opacityPulse)
+            fade = SteepSCurve(Mathf.InverseLerp(0f, _pulseRiseEnd, normalized))
+                * (1f - SteepSCurve(Mathf.InverseLerp(_pulseFallStart, _pulseFallEnd, normalized)));
+        _renderer.color = new Color(1f, 1f, 1f, _alpha * fade);
     }
 
     private void Update()
@@ -910,8 +1000,7 @@ public sealed class SpriteSheetOverlayVfx : MonoBehaviour
 
         _elapsed += Time.deltaTime;
         float normalized = Mathf.Clamp01(_elapsed / _duration);
-        int frameIndex = Mathf.Clamp(Mathf.FloorToInt(normalized * _frames.Length), 0, _frames.Length - 1);
-        _renderer.sprite = _frames[frameIndex];
+        Sample(normalized);
 
         if (_elapsed >= _duration)
             Destroy(gameObject);

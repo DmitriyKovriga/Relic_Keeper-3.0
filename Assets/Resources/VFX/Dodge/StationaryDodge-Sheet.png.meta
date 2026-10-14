@@ -1,0 +1,439 @@
+fileFormatVersion: 2
+guid: fa39d56ad7883a6498b789061414a968
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1860779051112846397
+    second: StationaryDodge-Sheet_0
+  - first:
+      213: 8116671455150194168
+    second: StationaryDodge-Sheet_1
+  - first:
+      213: 1260336739877890537
+    second: StationaryDodge-Sheet_2
+  - first:
+      213: 4464089049389013396
+    second: StationaryDodge-Sheet_3
+  - first:
+      213: 3010882349573081452
+    second: StationaryDodge-Sheet_4
+  - first:
+      213: -1404676328607445394
+    second: StationaryDodge-Sheet_5
+  - first:
+      213: 7114188182924900820
+    second: StationaryDodge-Sheet_6
+  - first:
+      213: 3332467453451020984
+    second: StationaryDodge-Sheet_7
+  - first:
+      213: -7352887485868643585
+    second: StationaryDodge-Sheet_8
+  - first:
+      213: -741631171658417501
+    second: StationaryDodge-Sheet_9
+  - first:
+      213: -5301666711001654226
+    second: StationaryDodge-Sheet_10
+  - first:
+      213: 2091251394039728485
+    second: StationaryDodge-Sheet_11
+  - first:
+      213: 2419377655382538661
+    second: StationaryDodge-Sheet_12
+  - first:
+      213: -400652481384728768
+    second: StationaryDodge-Sheet_13
+  - first:
+      213: -557052145555997784
+    second: StationaryDodge-Sheet_14
+  - first:
+      213: 6376682553958368250
+    second: StationaryDodge-Sheet_15
+  - first:
+      213: -4555265931897650542
+    second: StationaryDodge-Sheet_16
+  - first:
+      213: -3540858967535190114
+    second: StationaryDodge-Sheet_17
+  - first:
+      213: -8232952157161790512
+    second: StationaryDodge-Sheet_18
+  - first:
+      213: -58880444910915197
+    second: StationaryDodge-Sheet_19
+  - first:
+      213: 446025353367739047
+    second: StationaryDodge-Sheet_20
+  - first:
+      213: -6302272247052851789
+    second: StationaryDodge-Sheet_21
+  - first:
+      213: 2331075141987875836
+    second: StationaryDodge_00
+  - first:
+      213: -9096009612543944562
+    second: StationaryDodge_01
+  - first:
+      213: -1081389542703384281
+    second: StationaryDodge_02
+  - first:
+      213: -5240235488612124245
+    second: StationaryDodge_03
+  - first:
+      213: 8429400482592995155
+    second: StationaryDodge_04
+  - first:
+      213: 7210479739530876639
+    second: StationaryDodge_05
+  - first:
+      213: -3893996490355803606
+    second: StationaryDodge_06
+  - first:
+      213: 7998473305062461206
+    second: StationaryDodge_07
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 1
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 24
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: StationaryDodge_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 40
+        height: 40
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cfb3ee6bd74a95020800000000000000
+      internalID: 2331075141987875836
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StationaryDodge_01
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 0
+        width: 40
+        height: 40
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8897ca337b74c180800000000000000
+      internalID: -9096009612543944562
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StationaryDodge_02
+      rect:
+        serializedVersion: 2
+        x: 80
+        y: 0
+        width: 40
+        height: 40
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 729b75bb0f12ef0f0800000000000000
+      internalID: -1081389542703384281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StationaryDodge_03
+      rect:
+        serializedVersion: 2
+        x: 120
+        y: 0
+        width: 40
+        height: 40
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba9f0e94691f647b0800000000000000
+      internalID: -5240235488612124245
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StationaryDodge_04
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 0
+        width: 40
+        height: 40
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 357367af31f3bf470800000000000000
+      internalID: 8429400482592995155
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StationaryDodge_05
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 0
+        width: 40
+        height: 40
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd693eece15c01460800000000000000
+      internalID: 7210479739530876639
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StationaryDodge_06
+      rect:
+        serializedVersion: 2
+        x: 240
+        y: 0
+        width: 40
+        height: 40
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2a79b3c2deb5f9c0800000000000000
+      internalID: -3893996490355803606
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StationaryDodge_07
+      rect:
+        serializedVersion: 2
+        x: 280
+        y: 0
+        width: 40
+        height: 40
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 61f41bdd719400f60800000000000000
+      internalID: 7998473305062461206
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      StationaryDodge-Sheet_0: -1860779051112846397
+      StationaryDodge-Sheet_1: 8116671455150194168
+      StationaryDodge-Sheet_10: -5301666711001654226
+      StationaryDodge-Sheet_11: 2091251394039728485
+      StationaryDodge-Sheet_12: 2419377655382538661
+      StationaryDodge-Sheet_13: -400652481384728768
+      StationaryDodge-Sheet_14: -557052145555997784
+      StationaryDodge-Sheet_15: 6376682553958368250
+      StationaryDodge-Sheet_16: -4555265931897650542
+      StationaryDodge-Sheet_17: -3540858967535190114
+      StationaryDodge-Sheet_18: -8232952157161790512
+      StationaryDodge-Sheet_19: -58880444910915197
+      StationaryDodge-Sheet_2: 1260336739877890537
+      StationaryDodge-Sheet_20: 446025353367739047
+      StationaryDodge-Sheet_21: -6302272247052851789
+      StationaryDodge-Sheet_3: 4464089049389013396
+      StationaryDodge-Sheet_4: 3010882349573081452
+      StationaryDodge-Sheet_5: -1404676328607445394
+      StationaryDodge-Sheet_6: 7114188182924900820
+      StationaryDodge-Sheet_7: 3332467453451020984
+      StationaryDodge-Sheet_8: -7352887485868643585
+      StationaryDodge-Sheet_9: -741631171658417501
+      StationaryDodge_00: 2331075141987875836
+      StationaryDodge_01: -9096009612543944562
+      StationaryDodge_02: -1081389542703384281
+      StationaryDodge_03: -5240235488612124245
+      StationaryDodge_04: 8429400482592995155
+      StationaryDodge_05: 7210479739530876639
+      StationaryDodge_06: -3893996490355803606
+      StationaryDodge_07: 7998473305062461206
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

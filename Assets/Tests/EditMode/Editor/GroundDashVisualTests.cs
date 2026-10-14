@@ -11,6 +11,20 @@ namespace RelicKeeper.Tests.EditMode
         private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
 
         [Test]
+        public void LegacySpriteOverlayKeepsItsOpacityWithoutOptingIntoFade()
+        {
+            var effect = new GameObject("Legacy sprite overlay test");
+            try
+            {
+                var overlay = effect.AddComponent<SpriteSheetOverlayVfx>();
+                overlay.Initialize(GroundDashPuffSprites.Frames, 0.4f, 0.8f, 0, 0);
+                overlay.Sample(0.9f);
+                Assert.That(effect.GetComponent<SpriteRenderer>().color.a, Is.EqualTo(0.8f).Within(0.001f));
+            }
+            finally { Object.DestroyImmediate(effect); }
+        }
+
+        [Test]
         public void ReferenceCloudStartsAtThirdSourceFrame_AnchoredAtTheFloor()
         {
             var frames = GroundDashPuffSprites.Frames;
@@ -71,6 +85,79 @@ namespace RelicKeeper.Tests.EditMode
                 foreach (var ghost in Object.FindObjectsByType<DodgeAfterImageGhost>(FindObjectsSortMode.None)) Object.DestroyImmediate(ghost.gameObject);
                 Object.DestroyImmediate(root);
                 Object.DestroyImmediate(sprite);
+            }
+        }
+
+        [TestCase(true, true)]
+        [TestCase(false, true)]
+        [TestCase(false, false)]
+        public void DodgeCoverAppearsImmediatelyAndReplacesLegacyAirOverlay(bool grounded, bool stationary)
+        {
+            var root = new GameObject("Stationary dodge feedback test");
+            root.SetActive(false);
+            root.transform.position = new Vector3(1000,grounded ? 0.5f : 4f,0);
+            try
+            {
+                var attack = root.AddComponent<PlayerAttackInput>();
+                var movement = root.GetComponent<PlayerMovement>();
+                var collider = root.GetComponent<BoxCollider2D>();
+                collider.size = Vector2.one;
+                attack.enabled = false;
+                movement.enabled = false;
+                root.GetComponent<Scripts.Skills.PlayerSkillManager>().enabled = false;
+                root.SetActive(true);
+                typeof(PlayerMovement).GetField("_isGrounded", Private).SetValue(movement, grounded);
+                typeof(PlayerAttackInput).GetField("_playerMovement", Private).SetValue(attack,movement);
+                typeof(PlayerAttackInput).GetField("_isStationaryDodge", Private).SetValue(attack,stationary);
+                typeof(PlayerAttackInput).GetField("_isDodging", Private).SetValue(attack,true);
+                var frames = Resources.LoadAll<Sprite>("VFX/Dodge/StationaryDodge-Sheet");
+                System.Array.Sort(frames,(a,b)=>string.CompareOrdinal(a.name,b.name));
+                Assert.That(frames.Length,Is.EqualTo(5));
+                typeof(PlayerAttackInput).GetField("_stationaryDodgeFrames",Private).SetValue(attack,frames);
+                typeof(PlayerAttackInput).GetField("_standDodgeFrames",Private).SetValue(attack,Resources.LoadAll<Sprite>("VFX/Dodge/stand_dodge-Sheet"));
+                typeof(PlayerAttackInput).GetField("_moveDodgeFrames",Private).SetValue(attack,Resources.LoadAll<Sprite>("VFX/Dodge/move_dodge"));
+                Physics2D.SyncTransforms();
+                typeof(PlayerAttackInput).GetMethod("SpawnDodgeFeedback",Private).Invoke(attack,new object[]{0.24f});
+                var overlays = root.GetComponentsInChildren<SpriteSheetOverlayVfx>(true);
+                Assert.That(overlays.Length,Is.EqualTo(1),"Stationary and air dodges must not layer either old black overlay.");
+                var renderer = overlays[0].GetComponent<SpriteRenderer>();
+                Assert.That(renderer.sprite,Is.SameAs(frames[0]));
+                Assert.That(renderer.color.a,Is.EqualTo(1f),"The first cover frame must appear immediately.");
+                Assert.That(renderer.bounds.size.y,Is.EqualTo(2.1f).Within(0.001f));
+                Assert.That(typeof(SpriteSheetOverlayVfx).GetField("_duration",Private).GetValue(overlays[0]),Is.EqualTo(0.28f));
+                Assert.That(overlays[0].transform.position.y,Is.EqualTo(collider.bounds.min.y+collider.bounds.size.y*0.45f).Within(0.001f));
+                Rect first = frames[0].rect;
+                Assert.That(frames[0].texture.GetPixel((int)first.x+20,(int)first.y+20).a,Is.GreaterThan(0.95f),"Cover the character on the first frame, without buildup.");
+                for (int frame = 1; frame < frames.Length; frame++)
+                {
+                    Rect previous = frames[frame-1].rect, current = frames[frame].rect;
+                    var previousMask = System.Array.ConvertAll(frames[frame-1].texture.GetPixels((int)previous.x,(int)previous.y,40,40),pixel=>pixel.a>0.01f);
+                    var currentMask = System.Array.ConvertAll(frames[frame].texture.GetPixels((int)current.x,(int)current.y,40,40),pixel=>pixel.a>0.01f);
+                    Assert.That(currentMask,Is.Not.EqualTo(previousMask),"Each dissolution frame must change shape, not just opacity.");
+                }
+                overlays[0].Sample(1f);
+                Assert.That(renderer.color.a,Is.Zero);
+                Assert.That(root.GetComponentsInChildren<DodgeAfterImageGhost>(true),Is.Empty);
+                root.AddComponent<SpriteRenderer>().sprite = frames[0];
+                var grounding = root.AddComponent<GroundingVisualController>();
+                typeof(GroundingVisualController).GetMethod("Awake",Private).Invoke(grounding,null);
+                if (stationary)
+                {
+                    typeof(GroundingVisualController).GetMethod("SpawnDashEffects",Private).Invoke(grounding,null);
+                    Assert.That(typeof(GroundingVisualController).GetField("_activeDashPuff",Private).GetValue(grounding),Is.Null,
+                        "Stationary dodge must not layer old dust over the cover burst.");
+                }
+            }
+            finally
+            {
+                var grounding = root.GetComponent<GroundingVisualController>();
+                if (grounding != null)
+                {
+                    var shadow = typeof(GroundingVisualController).GetField("_shadowObject",Private);
+                    Object.DestroyImmediate((GameObject)shadow.GetValue(grounding));
+                    shadow.SetValue(grounding,null);
+                }
+                Object.DestroyImmediate(root);
             }
         }
 

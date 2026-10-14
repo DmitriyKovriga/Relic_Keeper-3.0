@@ -375,6 +375,7 @@ namespace Scripts.Visuals
 
         private void SpawnDashEffects()
         {
+            if (_playerAttackInput != null && _playerAttackInput.IsStationaryDodging) return;
             if (_playerMovement != null && _playerMovement.IsDashJump) return;
             ClearDashEffects();
             float direction = ResolveFacingDirection();

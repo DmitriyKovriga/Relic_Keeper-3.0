@@ -90,8 +90,14 @@ namespace RelicKeeper.Editor.VFX
             Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Dash-jump-runtime-", false, true, "Heroes/WarriorResources/Warrior", false, false, false, true);
         }
 
+        public static void CaptureStationaryDodgeRuntimeViews()
+        {
+            Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Stationary-dodge-runtime-",
+                false, false, "Heroes/WarriorResources/Warrior", false, false, false, false, true);
+        }
+
         private static void Capture(string weaponPath, string stanceId, string outputPrefix, bool doubleJump = false, bool forwardJump = false,
-            string characterResourcePath = "Heroes/WarriorResources/Warrior", bool jumpPuffs = false, bool groundDashPreview = false, bool airDodgePreview = false, bool dashJumpPreview = false)
+            string characterResourcePath = "Heroes/WarriorResources/Warrior", bool jumpPuffs = false, bool groundDashPreview = false, bool airDodgePreview = false, bool dashJumpPreview = false, bool stationaryDodgePreview = false)
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
             var root = new GameObject("Temporary character animation preview");
@@ -141,6 +147,7 @@ namespace RelicKeeper.Editor.VFX
                     type.GetMethod("Awake", Flags).Invoke(controller, null);
                     type.GetMethod("ApplyCharacterData", Flags).Invoke(controller, new object[] { warrior });
                     play.Invoke(controller, new[] { Enum.Parse(stateType, "Run"), type.GetField("_run", Flags).GetValue(controller) });
+                    if (stationaryDodgePreview) type.GetMethod("PlayIdle", Flags).Invoke(controller,null);
                     controllers[side] = controller;
                     sources[side] = fake.GetComponent<SpriteRenderer>();
                     var actor = new GameObject("Warrior facing " + facing).transform;
@@ -179,6 +186,9 @@ namespace RelicKeeper.Editor.VFX
                 string folder = Path.Combine(Path.GetTempPath(), "codex-" + warrior.ID.ToLowerInvariant() + "-refresh");
                 Directory.CreateDirectory(folder);
                 var puffs = new System.Collections.Generic.List<GroundingSpriteSheetVfx>();
+                var stationaryEffects = new System.Collections.Generic.List<SpriteRenderer>();
+                var stationaryFrames = stationaryDodgePreview || airDodgePreview ? Resources.LoadAll<Sprite>("VFX/Dodge/StationaryDodge-Sheet") : Array.Empty<Sprite>();
+                Array.Sort(stationaryFrames,(a,b)=>string.CompareOrdinal(a.name,b.name));
                 var dashTrails = new DashJumpTrail[2];
                 var dashMovements = new PlayerMovement[2];
                 if (dashJumpPreview)
@@ -207,10 +217,10 @@ namespace RelicKeeper.Editor.VFX
                     for (int side = 0; side < 2; side++)
                     {
                         var controller = controllers[side];
-                        if (frame == 32) type.GetMethod("HandleJumpStarted", Flags).Invoke(controller, null);
+                        if (frame == 32 && !stationaryDodgePreview) type.GetMethod("HandleJumpStarted", Flags).Invoke(controller, null);
                         if (doubleJump && frame == 42) type.GetMethod("HandleJumpStarted", Flags).Invoke(controller, null);
-                        if (frame == (doubleJump ? 56 : 46)) play.Invoke(controller, new[] { Enum.Parse(stateType, "Fall"), type.GetField("_fall", Flags).GetValue(controller) });
-                        if (frame == (doubleJump ? 74 : 60)) type.GetMethod("HandleLanded", Flags).Invoke(controller, null);
+                        if (frame == (doubleJump ? 56 : 46) && !stationaryDodgePreview) play.Invoke(controller, new[] { Enum.Parse(stateType, "Fall"), type.GetField("_fall", Flags).GetValue(controller) });
+                        if (frame == (doubleJump ? 74 : 60) && !stationaryDodgePreview) type.GetMethod("HandleLanded", Flags).Invoke(controller, null);
                         if (frame == (doubleJump ? 81 : 67)) play.Invoke(controller, new[] { Enum.Parse(stateType, "Run"), type.GetField("_run", Flags).GetValue(controller) });
                         timer.SetValue(controller, (float)timer.GetValue(controller) + 1f / 24 - Time.deltaTime);
                         tick.Invoke(controller, null);
@@ -219,6 +229,7 @@ namespace RelicKeeper.Editor.VFX
                         actors[side].GetComponent<PlayerRenderAnchor>().WeaponPresentationOffset = controller.PresentationWeaponOffset;
                         float airborne = frame >= 32 && frame < 60 ? (frame - 32) / 28f : 0;
                         float height = 4 * 1.5f * airborne * (1 - airborne);
+                        if (stationaryDodgePreview) height = side == 0 ? 0 : 1.5f;
                         if (doubleJump && frame >= 42 && frame < 74)
                         {
                             float secondArc = (frame - 42) / 32f;
@@ -237,6 +248,17 @@ namespace RelicKeeper.Editor.VFX
                             position.x = 2000 + (side == 0 ? -1 : 1) * (2f + Mathf.Clamp(frame - 32, 0, 9) * 0.18f);
                         position.y = height + 0.5f;
                         actors[side].position = position;
+                        if ((stationaryDodgePreview && frame == 10) || (airDodgePreview && frame == 38))
+                        {
+                            var effect = new GameObject("Stationary dodge preview");
+                            effect.transform.SetParent(actors[side], false);
+                            effect.transform.position = new Vector3(position.x, position.y-0.05f, 0);
+                            effect.transform.localScale = Vector3.one * (2.1f / stationaryFrames[0].bounds.size.y);
+                            var overlay = effect.AddComponent<SpriteSheetOverlayVfx>();
+                            overlay.Initialize(stationaryFrames,0.28f,1f,displays[side].sortingLayerID,3);
+                            overlay.SetFadeOut(0.8f);
+                            stationaryEffects.Add(effect.GetComponent<SpriteRenderer>());
+                        }
                         if (jumpPuffs && (frame == 32 || frame == 42))
                         {
                             float width = frame == 32 ? 0.75f : 0.99f;
@@ -345,6 +367,12 @@ namespace RelicKeeper.Editor.VFX
                             if (sprite.enabled) sprite.sprite = (frame >= 42 ? AirJumpPuffSprites.Frames : forwardJump ? JumpPuffSprites.Frames : VerticalJumpPuffSprites.Frames)[Mathf.Clamp((int)(seconds / (frame >= 42 ? 0.48f : 0.32f) * 8), 0, 7)];
                         }
                         if (frame == 41) { foreach (var puff in puffs) puff.GetComponent<SpriteRenderer>().enabled = false; puffs.Clear(); }
+                    }
+                    foreach (var renderer in stationaryEffects)
+                    {
+                        float age = (frame-(airDodgePreview ? 38 : 10))/24f;
+                        renderer.enabled = age >= 0 && age < 0.28f;
+                        if (renderer.enabled) renderer.GetComponent<SpriteSheetOverlayVfx>().Sample(age/0.28f);
                     }
                     RenderPipeline.SubmitRenderRequest(camera, new RenderPipeline.StandardRequest { destination = target });
                     RenderTexture.active = target;
