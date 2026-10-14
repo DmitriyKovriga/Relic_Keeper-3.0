@@ -6,9 +6,16 @@ namespace Scripts.Visuals
     public static class JumpPuffSprites
     {
         private static Sprite[] _frames;
-        public static Sprite[] Frames => _frames ??= Build();
+        public static Sprite[] Frames => _frames ??= Load();
 
-        private static Sprite[] Build()
+        private static Sprite[] Load()
+        {
+            var frames = Resources.LoadAll<Sprite>("VFX/Grounds/JumpCloud-Sheet");
+            System.Array.Sort(frames, (a,b) => string.CompareOrdinal(a.name,b.name));
+            return frames.Length == 8 ? frames : Build();
+        }
+
+        internal static Sprite[] Build()
         {
             const int size = 24;
             var frames = new Sprite[8];
@@ -49,6 +56,19 @@ namespace Scripts.Visuals
                 frames[frame].hideFlags = HideFlags.HideAndDontSave;
             }
             return frames;
+        }
+    }
+
+    public static class VerticalJumpPuffSprites
+    {
+        private static Sprite[] _frames;
+        public static Sprite[] Frames => _frames ??= Load();
+
+        private static Sprite[] Load()
+        {
+            var frames = Resources.LoadAll<Sprite>("VFX/Grounds/VerticalJumpCloud-Sheet");
+            System.Array.Sort(frames, (a,b) => string.CompareOrdinal(a.name,b.name));
+            return frames.Length == 8 ? frames : JumpPuffSprites.Build();
         }
     }
 }

@@ -55,7 +55,7 @@ namespace RelicKeeper.Tests.EditMode
             var air = AirJumpPuffSprites.Frames[2].texture;
             int airCount = 0, groundCount = 0;
             foreach (var pixel in air.GetPixels32()) if (pixel.a > 0) airCount++;
-            foreach (var pixel in JumpPuffSprites.Frames[2].texture.GetPixels32()) if (pixel.a > 0) groundCount++;
+            foreach (var pixel in FramePixels(JumpPuffSprites.Frames[2])) if (pixel.a > 0) groundCount++;
             Assert.That(airCount, Is.GreaterThan(groundCount));
             Assert.That(air.GetPixel(16, 17).a, Is.Zero, "The cushion should open into a cloud ring.");
             Assert.That(air.GetPixel(16, 8).a, Is.GreaterThan(0), "A downward jet should emphasize the push-off.");
@@ -69,17 +69,28 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(frames[0].pixelsPerUnit, Is.EqualTo(24));
             Assert.That(frames[0].texture.filterMode, Is.EqualTo(FilterMode.Point));
             float first = 0, last = 0;
-            foreach (var pixel in frames[0].texture.GetPixels()) first += pixel.a;
-            foreach (var pixel in frames[7].texture.GetPixels()) last += pixel.a;
+            foreach (var pixel in FramePixels(frames[0])) first += pixel.a;
+            foreach (var pixel in FramePixels(frames[7])) last += pixel.a;
             Assert.That(first, Is.GreaterThan(0));
             Assert.That(last, Is.LessThan(first * 0.2f));
-            Assert.That(frames[2].texture.GetPixels32(), Is.Not.EqualTo(frames[0].texture.GetPixels32()));
+            Assert.That(FramePixels(frames[2]), Is.Not.EqualTo(FramePixels(frames[0])));
+        }
+
+        private static Color[] FramePixels(Sprite sprite)
+        {
+            Rect rect = sprite.rect;
+            return sprite.texture.GetPixels((int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height);
         }
 
         [TestCase(false, false)]
         [TestCase(true, false)]
         [TestCase(true, true)]
-        public void JumpEventSpawnsOnce_DisablingUnsubscribes_AndPuffStaysAtTakeoff(bool grounded, bool dashJump)
+        [TestCase(true, false, -3f, 0f)]
+        [TestCase(true, false, 3f, 0f)]
+        [TestCase(true, false, 0f, -1f)]
+        [TestCase(true, false, 0f, 1f)]
+        [TestCase(true, false, 0.1f, 0.05f)]
+        public void JumpEventSpawnsOnce_DisablingUnsubscribes_AndPuffStaysAtTakeoff(bool grounded, bool dashJump, float horizontalSpeed = 0f, float moveInput = 0f)
         {
             var root = new GameObject("Jump puff test");
 
@@ -97,6 +108,11 @@ namespace RelicKeeper.Tests.EditMode
                 driver.transform.SetParent(root.transform);
                 driver.SetActive(false);
                 var movement = driver.AddComponent<PlayerMovement>();
+                var body = root.AddComponent<Rigidbody2D>();
+                body.bodyType = RigidbodyType2D.Kinematic;
+                body.linearVelocity = new Vector2(horizontalSpeed, 0);
+                typeof(PlayerMovement).GetField("_rb", Private).SetValue(movement, body);
+                typeof(PlayerMovement).GetField("_moveInput", Private).SetValue(movement, new Vector2(moveInput, 0));
                 var grounding = root.AddComponent<GroundingVisualController>();
                 var type = typeof(GroundingVisualController);
                 type.GetMethod("Awake", Private).Invoke(grounding, null);
@@ -145,6 +161,13 @@ namespace RelicKeeper.Tests.EditMode
                     Assert.That(renderer.sprite, Is.SameAs(DashJumpPuffSprites.Frames[0]));
                     Assert.That(typeof(GroundingSpriteSheetVfx).GetField("_duration", Private).GetValue(effects[0]), Is.EqualTo(0.65f));
                     Assert.That(renderer.bounds.size.x, Is.EqualTo(2.5f).Within(0.001f));
+                }
+                else if (grounded)
+                {
+                    float direction = Mathf.Abs(horizontalSpeed) > 0.15f ? Mathf.Sign(horizontalSpeed)
+                        : Mathf.Abs(moveInput) > 0.1f ? Mathf.Sign(moveInput) : 0;
+                    Assert.That(renderer.sprite, Is.SameAs(direction == 0 ? VerticalJumpPuffSprites.Frames[0] : JumpPuffSprites.Frames[0]));
+                    Assert.That(renderer.transform.localScale.x < 0, Is.EqualTo(direction > 0), "The sheet leans left: mirror rightward launches so the plume follows the jump.");
                 }
                 var heldPosition = effects[0].transform.position;
                 root.transform.position += Vector3.up;

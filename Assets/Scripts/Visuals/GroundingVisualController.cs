@@ -167,11 +167,24 @@ namespace Scripts.Visuals
             float width = ResolveEffectWidth(groundJump ? _jumpDustWidthRelativeToBody : _airJumpDustWidthRelativeToBody);
             Vector3 origin = groundJump ? ResolveGroundEffectPosition(0f)
                 : new Vector3(feet.center.x, feet.min.y - width * AirJumpPuffSprites.ContactHeightRatio, 0f);
-            SpawnGroundEffect(groundJump ? JumpPuffSprites.Frames : AirJumpPuffSprites.Frames,
+            float jumpDirection = groundJump ? ResolveJumpDustDirection() : 0f;
+            Sprite[] frames = groundJump
+                ? jumpDirection == 0f ? VerticalJumpPuffSprites.Frames : JumpPuffSprites.Frames
+                : AirJumpPuffSprites.Frames;
+            SpawnGroundEffect(frames,
                 DurationMsToSeconds(groundJump ? _jumpDustDurationMs : _airJumpDustDurationMs), origin,
-                false, groundJump ? 0.9f : _airJumpDustAlpha, ResolveDustSortingOrder(),
+                jumpDirection > 0f, groundJump ? 0.9f : _airJumpDustAlpha, ResolveDustSortingOrder(),
                 width);
             _wasGrounded = false;
+        }
+
+        private float ResolveJumpDustDirection()
+        {
+            // Facing alone cannot distinguish a standing jump from a moving takeoff.
+            float speed = _playerMovement.CurrentVelocity.x;
+            if (Mathf.Abs(speed) > 0.15f) return Mathf.Sign(speed);
+            float input = _playerMovement.CurrentMoveInput.x;
+            return Mathf.Abs(input) > 0.1f ? Mathf.Sign(input) : 0f;
         }
 
         private void OnDestroy()

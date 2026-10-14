@@ -9,15 +9,47 @@ namespace RelicKeeper.Editor.VFX
     {
         public static void ImportCloud()
         {
-            const int size = 48, count = 12;
-            const string path = "Assets/Resources/VFX/Grounds/DashJumpCloud-Sheet.png";
+            ImportSheet("DashJumpCloud", 48, 12, 3, true);
+        }
+
+        public static void ImportJumpCloud()
+        {
+            ImportSheet("JumpCloud", 24, 8, 2, false);
+        }
+
+        public static void ImportVerticalJumpCloud()
+        {
+            ImportSheet("VerticalJumpCloud", 24, 8, 2, false);
+        }
+
+        private static void ImportSheet(string name, int size, int count, int rows, bool dashJump)
+        {
+            string path = "Assets/Resources/VFX/Grounds/" + name + "-Sheet.png";
             var source = new Texture2D(2, 2);
             var sheet = new Texture2D(size * count, size, TextureFormat.RGBA32, false);
             try
             {
-                if (!source.LoadImage(File.ReadAllBytes("Docs/Art/MovementVfx/DashJumpCloudSource.png")))
-                    throw new InvalidOperationException("Dash jump cloud source missing.");
-                int cellWidth = source.width / 4, cellHeight = source.height / 3;
+                if (!source.LoadImage(File.ReadAllBytes("Docs/Art/MovementVfx/" + name + "Source.png")))
+                    throw new InvalidOperationException(name + " source missing.");
+                int cellWidth = source.width / 4, cellHeight = source.height / rows;
+                int floorOffset = 2;
+                if (!dashJump)
+                {
+                    // Derive one shared anchor from the opening puff, never from later drifting frames.
+                    floorOffset = -1;
+                    for (int y = 0; y < size && floorOffset < 0; y++)
+                    {
+                        int visible = 0;
+                        for (int x = 0; x < size; x++)
+                        {
+                            Color32 sample = source.GetPixel((int)((x+0.5f)*cellWidth/size),
+                                (rows-1)*cellHeight + (int)((y+0.5f)*cellHeight/size));
+                            if (sample.a >= 150 && sample.b <= sample.r+35 && sample.g <= sample.r+35) visible++;
+                        }
+                        if (visible >= 2) floorOffset = y;
+                    }
+                    if (floorOffset < 0) throw new InvalidOperationException("Opening jump cloud is empty.");
+                }
                 var pixels = new Color32[size * size * count];
                 for (int frame = 0; frame < count; frame++)
                 for (int y = 0; y < size; y++)
@@ -25,13 +57,14 @@ namespace RelicKeeper.Editor.VFX
                 {
                     // Keep the same cell coordinates in every frame: drifting remnants must not be recentered.
                     Color32 pixel = source.GetPixel(frame % 4 * cellWidth + (int)((size-x-0.5f)*cellWidth/size),
-                        (2-frame/4)*cellHeight + (int)((y+0.5f)*cellHeight/size));
+                        (rows-1-frame/4)*cellHeight + (int)((y+0.5f)*cellHeight/size));
                     if (pixel.a < 150 || pixel.b > pixel.r + 35 || pixel.g > pixel.r + 35) continue;
-                    byte alpha = (byte)(pixel.a * (frame < 9 ? 1f : frame == 9 ? 0.8f : frame == 10 ? 0.5f : 0.15f));
-                    pixel = pixel.r > 205 ? new Color32(246,247,233,alpha) : new Color32(179,196,196,alpha);
+                    byte alpha = (byte)(pixel.a * (frame < count-3 ? 1f : frame == count-3 ? 0.8f : frame == count-2 ? 0.5f : 0.15f));
+                    pixel = pixel.r > 205 ? new Color32(246,247,233,alpha)
+                        : dashJump ? new Color32(179,196,196,alpha) : new Color32(210,222,219,alpha);
                     // One shared floor offset; fragments gain a little outward drift as the cloud breaks up.
-                    int drift = Mathf.Max(0, frame-4);
-                    int outX = x-drift/3, outY = y-2+drift/2;
+                    int drift = dashJump ? Mathf.Max(0, frame-4) : 0;
+                    int outX = x-drift/3, outY = y-floorOffset+drift/2;
                     if (outX >= 0 && outX < size && outY >= 0 && outY < size)
                         pixels[outY * size * count + frame * size + outX] = pixel;
                 }
@@ -47,6 +80,7 @@ namespace RelicKeeper.Editor.VFX
                 importer.textureCompression = TextureImporterCompression.Uncompressed;
                 importer.mipmapEnabled = false;
                 importer.alphaIsTransparency = true;
+                importer.isReadable = !dashJump;
                 var settings = new TextureImporterSettings();
                 importer.ReadTextureSettings(settings);
                 settings.spriteMeshType = SpriteMeshType.FullRect;
@@ -54,7 +88,7 @@ namespace RelicKeeper.Editor.VFX
                 var frames = new SpriteMetaData[count];
                 for (int i = 0; i < count; i++) frames[i] = new SpriteMetaData
                 {
-                    name = "DashJumpCloud_" + i.ToString("D2"), rect = new Rect(i*size, 0, size, size),
+                    name = name + "_" + i.ToString("D2"), rect = new Rect(i*size, 0, size, size),
                     alignment = (int)SpriteAlignment.Center, pivot = Vector2.one * 0.5f
                 };
                 importer.spritesheet = frames;

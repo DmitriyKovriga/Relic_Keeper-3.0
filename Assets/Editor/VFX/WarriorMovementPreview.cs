@@ -70,6 +70,11 @@ namespace RelicKeeper.Editor.VFX
             Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Jump-puff-runtime-", true, true, "Heroes/WarriorResources/Warrior", true);
         }
 
+        public static void CaptureVerticalJumpPuffRuntimeViews()
+        {
+            Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Vertical-jump-runtime-", false, false, "Heroes/WarriorResources/Warrior", true);
+        }
+
         public static void CaptureGroundDashRuntimeViews()
         {
             Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Ground-dash-runtime-", false, false, "Heroes/WarriorResources/Warrior", false, true);
@@ -228,6 +233,8 @@ namespace RelicKeeper.Editor.VFX
                             position.x = 2000 + (side == 0 ? -1 : 1) * (2f + Mathf.Clamp(frame - 37, 0, 4) * 0.22f);
                         if (dashJumpPreview)
                             position.x = 2000 + (side == 0 ? -1 : 1) * (2f + Mathf.Clamp(frame - 32, 0, 9) * 0.25f);
+                        if (jumpPuffs && forwardJump)
+                            position.x = 2000 + (side == 0 ? -1 : 1) * (2f + Mathf.Clamp(frame - 32, 0, 9) * 0.18f);
                         position.y = height + 0.5f;
                         actors[side].position = position;
                         if (jumpPuffs && (frame == 32 || frame == 42))
@@ -237,7 +244,8 @@ namespace RelicKeeper.Editor.VFX
                             puff.transform.SetParent(root.transform);
                             puff.transform.position = new Vector3(position.x, height + width * (frame == 32 ? 0.5f : 0.5f - AirJumpPuffSprites.ContactHeightRatio), 0);
                             var overlay = puff.AddComponent<GroundingSpriteSheetVfx>();
-                            overlay.Initialize(frame == 32 ? JumpPuffSprites.Frames : AirJumpPuffSprites.Frames, frame == 32 ? 0.32f : 0.48f, 0.9f, displays[side].sortingLayerID, 3, width, false);
+                            overlay.Initialize(frame == 32 ? (forwardJump ? JumpPuffSprites.Frames : VerticalJumpPuffSprites.Frames) : AirJumpPuffSprites.Frames,
+                                frame == 32 ? 0.32f : 0.48f, 0.9f, displays[side].sortingLayerID, 3, width, frame == 32 && forwardJump && side == 1);
                             puffs.Add(overlay);
                         }
                         // Same full-rectangle foot anchoring used by PlayerMovementVisual at scale 1.
@@ -332,7 +340,7 @@ namespace RelicKeeper.Editor.VFX
                             var sprite = puff.GetComponent<SpriteRenderer>();
                             float seconds = age / 24f;
                             sprite.enabled = seconds >= 0 && seconds < (frame >= 42 ? 0.48f : 0.32f);
-                            if (sprite.enabled) sprite.sprite = (frame >= 42 ? AirJumpPuffSprites.Frames : JumpPuffSprites.Frames)[Mathf.Clamp((int)(seconds / (frame >= 42 ? 0.48f : 0.32f) * 8), 0, 7)];
+                            if (sprite.enabled) sprite.sprite = (frame >= 42 ? AirJumpPuffSprites.Frames : forwardJump ? JumpPuffSprites.Frames : VerticalJumpPuffSprites.Frames)[Mathf.Clamp((int)(seconds / (frame >= 42 ? 0.48f : 0.32f) * 8), 0, 7)];
                         }
                         if (frame == 41) { foreach (var puff in puffs) puff.GetComponent<SpriteRenderer>().enabled = false; puffs.Clear(); }
                     }
