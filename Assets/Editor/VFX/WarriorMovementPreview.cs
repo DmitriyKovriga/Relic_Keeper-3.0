@@ -268,7 +268,8 @@ namespace RelicKeeper.Editor.VFX
                             }
                             if (frame == 10 || frame == 12)
                             {
-                                typeof(PlayerAttackInput).GetField("_playerRenderers", Flags).SetValue(afterimageDriver, actors[side].GetComponentsInChildren<SpriteRenderer>());
+                                typeof(PlayerAttackInput).GetField("_visualRoot", Flags).SetValue(afterimageDriver, actors[side]);
+                                typeof(PlayerAttackInput).GetMethod("RefreshPlayerRendererCache", Flags).Invoke(afterimageDriver, null);
                                 typeof(PlayerAttackInput).GetMethod("SpawnAfterImageSnapshot", Flags).Invoke(afterimageDriver, null);
                                 foreach (var ghost in Object.FindObjectsByType<DodgeAfterImageGhost>(FindObjectsSortMode.None))
                                     if (!ghosts.ContainsKey(ghost)) { ghosts.Add(ghost, frame); ghost.transform.SetParent(root.transform, true); }
@@ -291,7 +292,8 @@ namespace RelicKeeper.Editor.VFX
                         {
                             if (frame == 38 || frame == 40)
                             {
-                                typeof(PlayerAttackInput).GetField("_playerRenderers", Flags).SetValue(afterimageDriver, actors[side].GetComponentsInChildren<SpriteRenderer>());
+                                typeof(PlayerAttackInput).GetField("_visualRoot", Flags).SetValue(afterimageDriver, actors[side]);
+                                typeof(PlayerAttackInput).GetMethod("RefreshPlayerRendererCache", Flags).Invoke(afterimageDriver, null);
                                 typeof(PlayerAttackInput).GetMethod("SpawnAfterImageSnapshot", Flags).Invoke(afterimageDriver, null);
                                 foreach (var ghost in Object.FindObjectsByType<DodgeAfterImageGhost>(FindObjectsSortMode.None))
                                     if (!ghosts.ContainsKey(ghost)) { ghosts.Add(ghost, frame); ghost.transform.SetParent(root.transform, true); }

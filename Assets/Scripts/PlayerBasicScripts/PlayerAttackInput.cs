@@ -552,7 +552,7 @@ public class PlayerAttackInput : MonoBehaviour
         for (int i = 0; i < _playerRenderers.Length; i++)
         {
             SpriteRenderer renderer = _playerRenderers[i];
-            if (renderer == null || renderer.sprite == null || !renderer.enabled)
+            if (renderer == null || renderer.sprite == null || !renderer.enabled || renderer.forceRenderingOff)
                 continue;
 
             GameObject overlayObject = new($"DodgeReadyFlash_{i}");
@@ -654,6 +654,10 @@ public class PlayerAttackInput : MonoBehaviour
 
         Transform rendererRoot = _visualRoot != null ? _visualRoot : transform;
         PlayerMovementVisual movementVisual = GetComponent<PlayerMovementVisual>();
+        // MovementSprite is a sibling of Visuals, not necessarily inside the weapon hierarchy.
+        SpriteRenderer visibleBody = movementVisual != null ? movementVisual.DisplayRenderer : null;
+        if (visibleBody != null && seen.Add(visibleBody))
+            renderers.Add(visibleBody);
         if (rendererRoot != null)
         {
             SpriteRenderer[] childRenderers = rendererRoot.GetComponentsInChildren<SpriteRenderer>(true);
@@ -661,6 +665,8 @@ public class PlayerAttackInput : MonoBehaviour
             {
                 SpriteRenderer childRenderer = childRenderers[i];
                 if (movementVisual != null && childRenderer == movementVisual.DisplayRenderer)
+                    continue;
+                if (childRenderer.GetComponent<SpriteSheetOverlayVfx>() != null)
                     continue;
                 if (childRenderer.transform.parent != null && childRenderer.transform.parent.name == "StatusAuraOutline")
                     continue;
@@ -674,6 +680,8 @@ public class PlayerAttackInput : MonoBehaviour
 
     private IEnumerator SpawnAfterImages(float dodgeDuration)
     {
+        // The presentation body may be created after this component's Awake cache.
+        RefreshPlayerRendererCache();
         float elapsed = 0f;
         float interval = Mathf.Max(0.01f, _afterImageInterval);
         while (_isDodging && elapsed < dodgeDuration)

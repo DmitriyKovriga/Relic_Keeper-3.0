@@ -74,6 +74,72 @@ namespace RelicKeeper.Tests.EditMode
             }
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void AfterimageCacheCapturesPresentationBodyOutsideWeaponRoot(bool groundDash)
+        {
+            var root = new GameObject("Dodge renderer ownership test");
+            root.SetActive(false);
+            var bodySprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0,0,1,1), Vector2.one*0.5f, 1);
+            var weaponSprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0,0,1,1), Vector2.one*0.5f, 2);
+            PlayerMovementVisual visual = null;
+            try
+            {
+                var attack = root.AddComponent<PlayerAttackInput>();
+                var hidden = root.AddComponent<SpriteRenderer>();
+                hidden.sprite = bodySprite;
+                hidden.forceRenderingOff = true;
+                var weapons = new GameObject("Visuals");
+                weapons.transform.SetParent(root.transform);
+                var weapon = weapons.AddComponent<SpriteRenderer>();
+                weapon.sprite = weaponSprite;
+                typeof(PlayerAttackInput).GetField("_visualRoot", Private).SetValue(attack, weapons.transform);
+
+                // Cache once before the presentation body exists, reproducing Awake ordering.
+                typeof(PlayerAttackInput).GetMethod("RefreshPlayerRendererCache", Private).Invoke(attack, null);
+                visual = root.AddComponent<PlayerMovementVisual>();
+                typeof(PlayerMovementVisual).GetMethod("Awake", Private).Invoke(visual, null);
+                var display = visual.DisplayRenderer;
+                display.sprite = bodySprite;
+                display.transform.localPosition = new Vector3(0.2f,0.1f,0);
+                display.transform.localScale = new Vector3(0.9f,1.1f,1);
+                Assert.That(display.transform.parent, Is.EqualTo(root.transform));
+                var dodgeOverlay = new GameObject("Temporary dodge VFX");
+                dodgeOverlay.transform.SetParent(weapons.transform);
+                dodgeOverlay.AddComponent<SpriteRenderer>().sprite = weaponSprite;
+                dodgeOverlay.AddComponent<SpriteSheetOverlayVfx>();
+                typeof(PlayerAttackInput).GetField("_isGroundDash", Private).SetValue(attack, groundDash);
+                typeof(PlayerAttackInput).GetField("_isDodging", Private).SetValue(attack, true);
+                var emission = (System.Collections.IEnumerator)typeof(PlayerAttackInput)
+                    .GetMethod("SpawnAfterImages", Private).Invoke(attack, new object[] {0.2f});
+                Assert.That(emission.MoveNext(), Is.True);
+                var ghosts = Object.FindObjectsByType<DodgeAfterImageGhost>(FindObjectsSortMode.None);
+                Assert.That(ghosts.Length, Is.EqualTo(1));
+                var parts = ghosts[0].GetComponentsInChildren<SpriteRenderer>();
+                Assert.That(parts.Length, Is.EqualTo(2), "Capture visible body and weapon, skipping the hidden root duplicate.");
+                var body = System.Array.Find(parts, part => part.sprite == bodySprite);
+                Assert.That(body, Is.Not.Null, "The real renderer cache must include MovementSprite.");
+                Assert.That(System.Array.Exists(parts, part => part.sprite == weaponSprite), Is.True);
+                Assert.That(body.transform.position, Is.EqualTo(display.transform.position));
+                Assert.That(body.transform.lossyScale, Is.EqualTo(display.transform.lossyScale));
+                Vector3 heldPosition = body.transform.position;
+                root.transform.position += Vector3.right;
+                Assert.That(body.transform.position, Is.EqualTo(heldPosition), "Body afterimage must remain at emission position.");
+            }
+            finally
+            {
+                foreach (var ghost in Object.FindObjectsByType<DodgeAfterImageGhost>(FindObjectsSortMode.None)) Object.DestroyImmediate(ghost.gameObject);
+                if (visual != null)
+                {
+                    Object.DestroyImmediate(visual.DisplayRenderer.gameObject);
+                    typeof(PlayerMovementVisual).GetField("_display", Private).SetValue(visual, null);
+                }
+                Object.DestroyImmediate(root);
+                Object.DestroyImmediate(bodySprite);
+                Object.DestroyImmediate(weaponSprite);
+            }
+        }
+
         [TestCase(true, true)]
         [TestCase(false, true)]
         [TestCase(true, false)]
