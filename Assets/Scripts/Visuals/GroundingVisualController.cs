@@ -42,6 +42,9 @@ namespace Scripts.Visuals
         [SerializeField, Range(0f, 1f)] private float _airJumpDustAlpha = 0.9f;
         [SerializeField, Min(40)] private int _airJumpDustDurationMs = 480;
         [SerializeField, Range(0.25f, 3f)] private float _airJumpDustWidthRelativeToBody = 1.65f;
+        [SerializeField] private bool _spawnDashJumpTrail = true;
+        [SerializeField, Min(40)] private int _dashJumpDustDurationMs = 650;
+        [SerializeField, Range(0.25f, 3f)] private float _dashJumpDustWidthRelativeToBody = 2.5f;
         [SerializeField] private bool _spawnLandingDust = true;
         [SerializeField] private bool _spawnRunDust = true;
         [SerializeField] private bool _spawnDashDust = true;
@@ -83,6 +86,8 @@ namespace Scripts.Visuals
 
         private bool _wasGrounded;
         private bool _wasDodging;
+        private GroundingSpriteSheetVfx _activeDashPuff;
+        private GroundingSpriteSheetVfx _activeDashScrape;
         private float _previousVerticalSpeed;
         private float _nextRunDustTime;
         private int _stepSide = 1;
@@ -130,13 +135,31 @@ namespace Scripts.Visuals
 
         private void OnDisable()
         {
+            ClearDashEffects();
             if (_playerMovement != null)
                 _playerMovement.OnJumpStarted -= HandleJumpStarted;
         }
 
         private void HandleJumpStarted()
         {
-            if (!_spawnJumpDust || _playerMovement == null) return;
+            if (_playerMovement == null) return;
+            if (_playerMovement.IsDashJump)
+            {
+                ClearDashEffects();
+                if (_spawnJumpDust)
+                {
+                    float direction = _playerMovement.CurrentVelocity.x != 0 ? Mathf.Sign(_playerMovement.CurrentVelocity.x) : ResolveFacingDirection();
+                    Bounds bounds = ResolveBounds();
+                    Vector3 launch = _wasGrounded ? ResolveGroundEffectPosition(-direction*0.3f) : new Vector3(bounds.center.x,bounds.min.y,0);
+                    SpawnGroundEffect(DashJumpPuffSprites.Frames, DurationMsToSeconds(_dashJumpDustDurationMs), launch,
+                        direction<0, 0.95f, ResolveDustSortingOrder(), ResolveEffectWidth(_dashJumpDustWidthRelativeToBody), true);
+                }
+                if (_spawnDashJumpTrail) (GetComponent<DashJumpTrail>() ?? gameObject.AddComponent<DashJumpTrail>()).Begin();
+                _wasGrounded = false;
+                return;
+            }
+            GetComponent<DashJumpTrail>()?.Stop();
+            if (!_spawnJumpDust) return;
             // Movement has already cleared IsGrounded before raising this event.
             // Use the last observed contact, never a raycast to a distant floor for air jumps.
             bool groundJump = _wasGrounded;
@@ -339,9 +362,11 @@ namespace Scripts.Visuals
 
         private void SpawnDashEffects()
         {
+            if (_playerMovement != null && _playerMovement.IsDashJump) return;
+            ClearDashEffects();
             float direction = ResolveFacingDirection();
             bool groundDash = _playerAttackInput != null && _playerAttackInput.IsDashing;
-            SpawnGroundEffect(
+            _activeDashPuff = SpawnGroundEffect(
                 groundDash ? GroundDashPuffSprites.Frames : _dustDashSmall,
                 DurationMsToSeconds(groundDash ? _groundDashPuffDurationMs : _dashDustDurationMs),
                 ResolveGroundEffectPosition(-direction * (groundDash ? ResolveBounds().extents.x * 0.65f : 0.08f)),
@@ -352,7 +377,7 @@ namespace Scripts.Visuals
 
             if (_spawnGroundScrape)
             {
-                SpawnGroundEffect(
+                _activeDashScrape = SpawnGroundEffect(
                     _groundScrape,
                     DurationMsToSeconds(_groundScrapeDurationMs),
                     ResolveGroundEffectPosition(-direction * 0.12f),
@@ -361,6 +386,21 @@ namespace Scripts.Visuals
                     ResolveDustSortingOrder(),
                     ResolveEffectWidth(_groundScrapeWidthRelativeToBody));
             }
+        }
+
+        private void ClearDashEffects()
+        {
+            RemoveDashEffect(ref _activeDashPuff);
+            RemoveDashEffect(ref _activeDashScrape);
+        }
+
+        private static void RemoveDashEffect(ref GroundingSpriteSheetVfx effect)
+        {
+            if (effect == null) return;
+            effect.gameObject.SetActive(false);
+            if (Application.isPlaying) Destroy(effect.gameObject);
+            else DestroyImmediate(effect.gameObject);
+            effect = null;
         }
 
         private void SpawnRunDust(bool isHeavy)
@@ -383,10 +423,10 @@ namespace Scripts.Visuals
                 ResolveEffectWidth(isHeavy ? _runDustHeavyWidthRelativeToBody : _runDustSmallWidthRelativeToBody));
         }
 
-        private void SpawnGroundEffect(Sprite[] frames, float duration, Vector3 position, bool flipX, float alpha, int orderOffset, float targetWorldWidth)
+        private GroundingSpriteSheetVfx SpawnGroundEffect(Sprite[] frames, float duration, Vector3 position, bool flipX, float alpha, int orderOffset, float targetWorldWidth, bool behindBody = false)
         {
             if (frames == null || frames.Length == 0 || _primaryRenderer == null)
-                return;
+                return null;
 
             GameObject effect = new("GroundingFx");
             Transform parent = transform.parent;
@@ -400,8 +440,14 @@ namespace Scripts.Visuals
             string layerName = WorldRenderSorting.GetSortingLayer(RenderDepthCategory.GameplayVfx);
             int sortingOrder = WorldRenderSorting.ResolveOrder(RenderDepthCategory.GameplayVfx, position.y, orderOffset);
 
+            if (behindBody)
+            {
+                layerName = _primaryRenderer.sortingLayerName;
+                sortingOrder = _primaryRenderer.sortingOrder - 1;
+            }
             GroundingSpriteSheetVfx overlay = effect.AddComponent<GroundingSpriteSheetVfx>();
             overlay.Initialize(frames, duration, alpha, SortingLayer.NameToID(layerName), sortingOrder, targetWorldWidth, flipX);
+            return overlay;
         }
 
         private int ResolveDustSortingOrder()

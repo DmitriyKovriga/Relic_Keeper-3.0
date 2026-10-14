@@ -1,0 +1,619 @@
+fileFormatVersion: 2
+guid: ef5baf81f5e62f249a958a533818fa80
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 7962862435242509820
+    second: DashJumpCloud-Sheet_0
+  - first:
+      213: -5571662577612478497
+    second: DashJumpCloud-Sheet_1
+  - first:
+      213: 2575912916060157648
+    second: DashJumpCloud-Sheet_2
+  - first:
+      213: -5037672416198543063
+    second: DashJumpCloud-Sheet_3
+  - first:
+      213: 4479917622171494770
+    second: DashJumpCloud-Sheet_4
+  - first:
+      213: 6006568066525795029
+    second: DashJumpCloud-Sheet_5
+  - first:
+      213: 1910928846895954723
+    second: DashJumpCloud-Sheet_6
+  - first:
+      213: 199874833718468991
+    second: DashJumpCloud-Sheet_7
+  - first:
+      213: -6979975539966307481
+    second: DashJumpCloud-Sheet_8
+  - first:
+      213: 8590056599338265420
+    second: DashJumpCloud-Sheet_9
+  - first:
+      213: -74750435022748281
+    second: DashJumpCloud-Sheet_10
+  - first:
+      213: 1444035837370116890
+    second: DashJumpCloud-Sheet_11
+  - first:
+      213: 1808294923500721534
+    second: DashJumpCloud-Sheet_12
+  - first:
+      213: -3274258327251480373
+    second: DashJumpCloud-Sheet_13
+  - first:
+      213: 186613390733574676
+    second: DashJumpCloud-Sheet_14
+  - first:
+      213: 8442621319049010030
+    second: DashJumpCloud-Sheet_15
+  - first:
+      213: -3876390542873139741
+    second: DashJumpCloud-Sheet_16
+  - first:
+      213: -1045800020754072470
+    second: DashJumpCloud-Sheet_17
+  - first:
+      213: -8927722919102684095
+    second: DashJumpCloud-Sheet_18
+  - first:
+      213: -5231346847227730207
+    second: DashJumpCloud-Sheet_19
+  - first:
+      213: -2017615481777028778
+    second: DashJumpCloud-Sheet_20
+  - first:
+      213: 8415794919832318363
+    second: DashJumpCloud-Sheet_21
+  - first:
+      213: 5904946704763630220
+    second: DashJumpCloud-Sheet_22
+  - first:
+      213: 6960510495599582494
+    second: DashJumpCloud-Sheet_23
+  - first:
+      213: -4812516524235959195
+    second: DashJumpCloud-Sheet_24
+  - first:
+      213: 5158723361773284
+    second: DashJumpCloud-Sheet_25
+  - first:
+      213: 8460366137245238618
+    second: DashJumpCloud-Sheet_26
+  - first:
+      213: -8723358786440612462
+    second: DashJumpCloud-Sheet_27
+  - first:
+      213: 8998700190986453224
+    second: DashJumpCloud-Sheet_28
+  - first:
+      213: -4634131261861316111
+    second: DashJumpCloud-Sheet_29
+  - first:
+      213: 2205368453943534132
+    second: DashJumpCloud-Sheet_30
+  - first:
+      213: 4314321466394778423
+    second: DashJumpCloud-Sheet_31
+  - first:
+      213: -2952917802083945324
+    second: DashJumpCloud-Sheet_32
+  - first:
+      213: -2715561969036367989
+    second: DashJumpCloud-Sheet_33
+  - first:
+      213: -7239597383270646965
+    second: DashJumpCloud-Sheet_34
+  - first:
+      213: 3475857908987829971
+    second: DashJumpCloud-Sheet_35
+  - first:
+      213: -4032198481335194010
+    second: DashJumpCloud-Sheet_36
+  - first:
+      213: 2106967756982622781
+    second: DashJumpCloud-Sheet_37
+  - first:
+      213: 8130933604127877321
+    second: DashJumpCloud-Sheet_38
+  - first:
+      213: 8923648729355851608
+    second: DashJumpCloud-Sheet_39
+  - first:
+      213: 3892435905685179461
+    second: DashJumpCloud-Sheet_40
+  - first:
+      213: 5598936201596374232
+    second: DashJumpCloud_00
+  - first:
+      213: -8311021268430901468
+    second: DashJumpCloud_01
+  - first:
+      213: 4199278320873722569
+    second: DashJumpCloud_02
+  - first:
+      213: 2631062765903522743
+    second: DashJumpCloud_03
+  - first:
+      213: -3682350389511061425
+    second: DashJumpCloud_04
+  - first:
+      213: 5630643449798686980
+    second: DashJumpCloud_05
+  - first:
+      213: -8882515810518531348
+    second: DashJumpCloud_06
+  - first:
+      213: -2686723511818062557
+    second: DashJumpCloud_07
+  - first:
+      213: -8376063970963795679
+    second: DashJumpCloud_08
+  - first:
+      213: -1936535370368536112
+    second: DashJumpCloud_09
+  - first:
+      213: -5356112189390099309
+    second: DashJumpCloud_10
+  - first:
+      213: -2219976921888697539
+    second: DashJumpCloud_11
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 24
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: DashJumpCloud_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8dc0a389fca63bd40800000000000000
+      internalID: 5598936201596374232
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DashJumpCloud_01
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42fa576a03259ac80800000000000000
+      internalID: -8311021268430901468
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DashJumpCloud_02
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c25da45265d64a30800000000000000
+      internalID: 4199278320873722569
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DashJumpCloud_03
+      rect:
+        serializedVersion: 2
+        x: 144
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7bbaf6745a9638420800000000000000
+      internalID: 2631062765903522743
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DashJumpCloud_04
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f400ca6a4d9a5ecc0800000000000000
+      internalID: -3682350389511061425
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DashJumpCloud_05
+      rect:
+        serializedVersion: 2
+        x: 240
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 409712a9260142e40800000000000000
+      internalID: 5630643449798686980
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DashJumpCloud_06
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce280429ee6fab480800000000000000
+      internalID: -8882515810518531348
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DashJumpCloud_07
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 325f46c6337d6bad0800000000000000
+      internalID: -2686723511818062557
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DashJumpCloud_08
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 12151ca523e32cb80800000000000000
+      internalID: -8376063970963795679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DashJumpCloud_09
+      rect:
+        serializedVersion: 2
+        x: 432
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d13432475b0025e0800000000000000
+      internalID: -1936535370368536112
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DashJumpCloud_10
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39c634677544ba5b0800000000000000
+      internalID: -5356112189390099309
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: DashJumpCloud_11
+      rect:
+        serializedVersion: 2
+        x: 528
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d33524160ce0131e0800000000000000
+      internalID: -2219976921888697539
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      DashJumpCloud-Sheet_0: 7962862435242509820
+      DashJumpCloud-Sheet_1: -5571662577612478497
+      DashJumpCloud-Sheet_10: -74750435022748281
+      DashJumpCloud-Sheet_11: 1444035837370116890
+      DashJumpCloud-Sheet_12: 1808294923500721534
+      DashJumpCloud-Sheet_13: -3274258327251480373
+      DashJumpCloud-Sheet_14: 186613390733574676
+      DashJumpCloud-Sheet_15: 8442621319049010030
+      DashJumpCloud-Sheet_16: -3876390542873139741
+      DashJumpCloud-Sheet_17: -1045800020754072470
+      DashJumpCloud-Sheet_18: -8927722919102684095
+      DashJumpCloud-Sheet_19: -5231346847227730207
+      DashJumpCloud-Sheet_2: 2575912916060157648
+      DashJumpCloud-Sheet_20: -2017615481777028778
+      DashJumpCloud-Sheet_21: 8415794919832318363
+      DashJumpCloud-Sheet_22: 5904946704763630220
+      DashJumpCloud-Sheet_23: 6960510495599582494
+      DashJumpCloud-Sheet_24: -4812516524235959195
+      DashJumpCloud-Sheet_25: 5158723361773284
+      DashJumpCloud-Sheet_26: 8460366137245238618
+      DashJumpCloud-Sheet_27: -8723358786440612462
+      DashJumpCloud-Sheet_28: 8998700190986453224
+      DashJumpCloud-Sheet_29: -4634131261861316111
+      DashJumpCloud-Sheet_3: -5037672416198543063
+      DashJumpCloud-Sheet_30: 2205368453943534132
+      DashJumpCloud-Sheet_31: 4314321466394778423
+      DashJumpCloud-Sheet_32: -2952917802083945324
+      DashJumpCloud-Sheet_33: -2715561969036367989
+      DashJumpCloud-Sheet_34: -7239597383270646965
+      DashJumpCloud-Sheet_35: 3475857908987829971
+      DashJumpCloud-Sheet_36: -4032198481335194010
+      DashJumpCloud-Sheet_37: 2106967756982622781
+      DashJumpCloud-Sheet_38: 8130933604127877321
+      DashJumpCloud-Sheet_39: 8923648729355851608
+      DashJumpCloud-Sheet_4: 4479917622171494770
+      DashJumpCloud-Sheet_40: 3892435905685179461
+      DashJumpCloud-Sheet_5: 6006568066525795029
+      DashJumpCloud-Sheet_6: 1910928846895954723
+      DashJumpCloud-Sheet_7: 199874833718468991
+      DashJumpCloud-Sheet_8: -6979975539966307481
+      DashJumpCloud-Sheet_9: 8590056599338265420
+      DashJumpCloud_00: 5598936201596374232
+      DashJumpCloud_01: -8311021268430901468
+      DashJumpCloud_02: 4199278320873722569
+      DashJumpCloud_03: 2631062765903522743
+      DashJumpCloud_04: -3682350389511061425
+      DashJumpCloud_05: 5630643449798686980
+      DashJumpCloud_06: -8882515810518531348
+      DashJumpCloud_07: -2686723511818062557
+      DashJumpCloud_08: -8376063970963795679
+      DashJumpCloud_09: -1936535370368536112
+      DashJumpCloud_10: -5356112189390099309
+      DashJumpCloud_11: -2219976921888697539
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

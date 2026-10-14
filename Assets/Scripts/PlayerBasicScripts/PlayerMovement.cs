@@ -124,6 +124,7 @@ public class PlayerMovement : MonoBehaviour
     private float _jumpStartedTime = float.NegativeInfinity;
     private bool _groundJumpAvailable;
     private bool _isDashJump;
+    public bool IsDashJump => _isDashJump && !_isGrounded;
     private PlayerAttackInput _attackInput;
 
     public bool IsGrounded => _isGrounded;
@@ -254,8 +255,7 @@ public class PlayerMovement : MonoBehaviour
         // A dash jump has a deliberate launch speed, not the peak speed of an interrupted dash.
         float horizontalSpeed = _dashJumpHorizontalSpeed * direction;
         _isFastFalling = false;
-        ApplyJumpForce(_dashJumpVerticalMultiplier, horizontalSpeed);
-        _isDashJump = true;
+        ApplyJumpForceCore(_dashJumpVerticalMultiplier, horizontalSpeed, true);
         ConsumeJump();
         BeginHorizontalLaunch(horizontalSpeed, _dashJumpCarryDuration);
         return true;
@@ -590,11 +590,16 @@ public class PlayerMovement : MonoBehaviour
 
     private void ApplyJumpForce(float verticalMultiplier = 1f, float? horizontalOverride = null)
     {
+        ApplyJumpForceCore(verticalMultiplier, horizontalOverride, false);
+    }
+
+    private void ApplyJumpForceCore(float verticalMultiplier, float? horizontalOverride, bool dashJump)
+    {
         // Once a jump actually happens, that press must never be reused by a later Down press.
         _lastDropThroughJumpPressedTime = float.NegativeInfinity;
         _isFastFallPriming = false;
         _isFastFalling = false;
-        _isDashJump = false;
+        _isDashJump = dashJump;
         _jumpStartedTime = Time.time;
         RestoreBaseGravity();
         float horizontalVelocity = horizontalOverride ?? _rb.linearVelocity.x;

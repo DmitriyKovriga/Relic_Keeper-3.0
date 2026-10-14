@@ -12,6 +12,44 @@ namespace RelicKeeper.Tests.EditMode
         private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
 
         [Test]
+        public void DashJumpTrailStaysInWorld_AndStopsOnNormalJump()
+        {
+            var root = new GameObject("Dash jump trail test");
+            var movement = root.AddComponent<PlayerMovement>();
+            var trail = root.AddComponent<DashJumpTrail>();
+            try
+            {
+                typeof(PlayerMovement).GetField("_rb", Private).SetValue(movement, root.GetComponent<Rigidbody2D>());
+                typeof(PlayerMovement).GetField("_isDashJump", Private).SetValue(movement, true);
+                root.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(8.5f, 5f);
+                trail.Begin();
+                float now = Time.time;
+                trail.Tick(now);
+                SpriteRenderer streak = null;
+                foreach (var renderer in Object.FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None))
+                    if (renderer.name == "Dash jump white streak") streak = renderer;
+                Assert.That(streak, Is.Not.Null);
+                Assert.That(streak.color.r, Is.GreaterThan(0.9f));
+                Vector3 origin = streak.transform.position;
+                root.transform.position += Vector3.right * 2;
+                typeof(PlayerMovement).GetField("_isDashJump", Private).SetValue(movement, false);
+                trail.Tick(now + 0.05f);
+                Assert.That(streak.transform.position, Is.EqualTo(origin));
+                Assert.That(typeof(DashJumpTrail).GetField("_emitting", Private).GetValue(trail), Is.False);
+                trail.Tick(now + 0.3f);
+                Assert.That(streak == null || !streak.enabled, Is.True);
+            }
+            finally
+            {
+                foreach (var renderer in Object.FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None))
+                    if (renderer.name == "Dash jump white streak") Object.DestroyImmediate(renderer.gameObject);
+                Object.DestroyImmediate((Sprite)typeof(DashJumpTrail).GetField("_pixel", Private).GetValue(trail));
+                typeof(DashJumpTrail).GetField("_pixel", Private).SetValue(trail, null);
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
         public void AirJumpCloudFormsLargerRing_WithOpenCentreAndDownwardJet()
         {
             var air = AirJumpPuffSprites.Frames[2].texture;
@@ -38,9 +76,10 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(frames[2].texture.GetPixels32(), Is.Not.EqualTo(frames[0].texture.GetPixels32()));
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        public void JumpEventSpawnsOnce_DisablingUnsubscribes_AndPuffStaysAtTakeoff(bool grounded)
+        [TestCase(false, false)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public void JumpEventSpawnsOnce_DisablingUnsubscribes_AndPuffStaysAtTakeoff(bool grounded, bool dashJump)
         {
             var root = new GameObject("Jump puff test");
 
@@ -65,10 +104,29 @@ namespace RelicKeeper.Tests.EditMode
                 Physics2D.SyncTransforms();
                 type.GetMethod("OnEnable", Private).Invoke(grounding, null);
                 type.GetField("_wasGrounded", Private).SetValue(grounding, grounded);
+                GroundingSpriteSheetVfx oldPuff = null, oldScrape = null;
+                if (dashJump)
+                {
+                    // Begin with a real dash cloud and scrape, then convert mid-effect.
+                    type.GetMethod("SpawnDashEffects", Private).Invoke(grounding, null);
+                    oldPuff = (GroundingSpriteSheetVfx)type.GetField("_activeDashPuff", Private).GetValue(grounding);
+                    oldScrape = (GroundingSpriteSheetVfx)type.GetField("_activeDashScrape", Private).GetValue(grounding);
+                    Assert.That(oldPuff, Is.Not.Null);
+                    Assert.That(oldScrape, Is.Not.Null);
+                }
+                typeof(PlayerMovement).GetField("_isDashJump", Private).SetValue(movement, dashJump);
+                type.GetField("_spawnDashJumpTrail", Private).SetValue(grounding, false);
                 var evt = typeof(PlayerMovement).GetField("OnJumpStarted", Private);
                 var jump = (Action)evt.GetValue(movement);
                 Assert.That(jump, Is.Not.Null);
                 jump.Invoke();
+                if (dashJump)
+                {
+                    Assert.That(oldPuff == null || !oldPuff.gameObject.activeSelf, Is.True);
+                    Assert.That(oldScrape == null || !oldScrape.gameObject.activeSelf, Is.True);
+                    // A late dash notification must not restore the regular cloud.
+                    type.GetMethod("SpawnDashEffects", Private).Invoke(grounding, null);
+                }
                 var effects = Object.FindObjectsByType<GroundingSpriteSheetVfx>(FindObjectsSortMode.None);
                 Assert.That(effects.Length, Is.EqualTo(1));
                 var renderer = effects[0].GetComponent<SpriteRenderer>();
@@ -81,7 +139,13 @@ namespace RelicKeeper.Tests.EditMode
                     Assert.That(renderer.sprite, Is.SameAs(AirJumpPuffSprites.Frames[0]));
                     Assert.That(typeof(GroundingSpriteSheetVfx).GetField("_duration", Private).GetValue(effects[0]), Is.EqualTo(0.48f));
                 }
-                Assert.That(renderer.color.a, Is.EqualTo(0.9f).Within(0.001f));
+                Assert.That(renderer.color.a, Is.EqualTo(dashJump ? 0.95f : 0.9f).Within(0.001f));
+                if (dashJump)
+                {
+                    Assert.That(renderer.sprite, Is.SameAs(DashJumpPuffSprites.Frames[0]));
+                    Assert.That(typeof(GroundingSpriteSheetVfx).GetField("_duration", Private).GetValue(effects[0]), Is.EqualTo(0.65f));
+                    Assert.That(renderer.bounds.size.x, Is.EqualTo(2.5f).Within(0.001f));
+                }
                 var heldPosition = effects[0].transform.position;
                 root.transform.position += Vector3.up;
                 Assert.That(effects[0].transform.position, Is.EqualTo(heldPosition));

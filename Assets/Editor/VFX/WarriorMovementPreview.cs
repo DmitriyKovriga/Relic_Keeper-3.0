@@ -80,8 +80,13 @@ namespace RelicKeeper.Editor.VFX
             Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Air-dodge-runtime-", false, true, "Heroes/WarriorResources/Warrior", false, false, true);
         }
 
+        public static void CaptureDashJumpRuntimeViews()
+        {
+            Capture("Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset", "default", "Dash-jump-runtime-", false, true, "Heroes/WarriorResources/Warrior", false, false, false, true);
+        }
+
         private static void Capture(string weaponPath, string stanceId, string outputPrefix, bool doubleJump = false, bool forwardJump = false,
-            string characterResourcePath = "Heroes/WarriorResources/Warrior", bool jumpPuffs = false, bool groundDashPreview = false, bool airDodgePreview = false)
+            string characterResourcePath = "Heroes/WarriorResources/Warrior", bool jumpPuffs = false, bool groundDashPreview = false, bool airDodgePreview = false, bool dashJumpPreview = false)
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
             var root = new GameObject("Temporary character animation preview");
@@ -169,6 +174,19 @@ namespace RelicKeeper.Editor.VFX
                 string folder = Path.Combine(Path.GetTempPath(), "codex-" + warrior.ID.ToLowerInvariant() + "-refresh");
                 Directory.CreateDirectory(folder);
                 var puffs = new System.Collections.Generic.List<GroundingSpriteSheetVfx>();
+                var dashTrails = new DashJumpTrail[2];
+                var dashMovements = new PlayerMovement[2];
+                if (dashJumpPreview)
+                for (int side = 0; side < 2; side++)
+                {
+                    var driver = new GameObject("Inactive dash jump driver");
+                    driver.SetActive(false);
+                    driver.transform.SetParent(root.transform);
+                    dashMovements[side] = driver.AddComponent<PlayerMovement>();
+                    typeof(PlayerMovement).GetField("_rb", Flags).SetValue(dashMovements[side], driver.GetComponent<Rigidbody2D>());
+                    typeof(PlayerMovement).GetField("_isDashJump", Flags).SetValue(dashMovements[side], true);
+                    dashTrails[side] = driver.AddComponent<DashJumpTrail>();
+                }
                 var ghosts = new System.Collections.Generic.Dictionary<DodgeAfterImageGhost, int>();
                 PlayerAttackInput afterimageDriver = null;
                 if (groundDashPreview || airDodgePreview)
@@ -208,6 +226,8 @@ namespace RelicKeeper.Editor.VFX
                             position.x = 2000 + (side == 0 ? -1 : 1) * (2f + Mathf.Clamp(frame - 9, 0, 4) * 0.22f);
                         if (airDodgePreview)
                             position.x = 2000 + (side == 0 ? -1 : 1) * (2f + Mathf.Clamp(frame - 37, 0, 4) * 0.22f);
+                        if (dashJumpPreview)
+                            position.x = 2000 + (side == 0 ? -1 : 1) * (2f + Mathf.Clamp(frame - 32, 0, 9) * 0.25f);
                         position.y = height + 0.5f;
                         actors[side].position = position;
                         if (jumpPuffs && (frame == 32 || frame == 42))
@@ -272,6 +292,32 @@ namespace RelicKeeper.Editor.VFX
                                 foreach (var renderer in pair.Key.GetComponentsInChildren<SpriteRenderer>())
                                     renderer.color = new Color(0.86f, 0.93f, 0.95f, 0.4f * Mathf.Max(0, 1f - (frame - pair.Value) / (24f * 0.16f)));
                         }
+                        if (dashJumpPreview && frame >= 32)
+                        {
+                            var trail = dashTrails[side];
+                            trail.transform.position = actors[side].position;
+                            dashMovements[side].GetComponent<Rigidbody2D>().linearVelocity = new Vector2((side == 0 ? -1 : 1)*6f, frame < 46 ? 5f : -3f);
+                            if (frame == 32)
+                            {
+                                trail.Begin();
+                                typeof(DashJumpTrail).GetField("_body", Flags).SetValue(trail, null);
+                                typeof(DashJumpTrail).GetField("_visual", Flags).SetValue(trail, displays[side]);
+                                var puff = new GameObject("Dash jump launch fan");
+                                puff.transform.SetParent(root.transform);
+                                puff.transform.position = new Vector3(position.x-(side==0?-1:1)*0.3f, 0.76f, 0);
+                                var overlay = puff.AddComponent<GroundingSpriteSheetVfx>();
+                                overlay.Initialize(DashJumpPuffSprites.Frames,0.65f,0.95f,displays[side].sortingLayerID,-1,1.5f,side == 0);
+                                puffs.Add(overlay);
+                            }
+                            trail.Sample(Time.time + (frame-32)/24f, new Vector2((side==0?-1:1)*6f,5f), actors[side].position, true);
+                            foreach (var puff in puffs)
+                            {
+                                var renderer = puff.GetComponent<SpriteRenderer>();
+                                float age = (frame-32)/24f;
+                                renderer.enabled = age<0.65f;
+                                if(renderer.enabled) renderer.sprite=DashJumpPuffSprites.Frames[Mathf.Clamp((int)(age/0.65f*DashJumpPuffSprites.Frames.Length),0,DashJumpPuffSprites.Frames.Length-1)];
+                            }
+                        }
                         bool inAir = frame >= 32 && frame < (doubleJump ? 74 : 60);
                         int facing = side == 0 ? -1 : 1;
                         float targetLean = PlayerMovementVisual.CalculateAirborneLean(forwardJump ? facing * 5f : 0f, facing, inAir);
@@ -296,6 +342,7 @@ namespace RelicKeeper.Editor.VFX
                     image.Apply();
                     File.WriteAllBytes(Path.Combine(folder, outputPrefix + frame.ToString("D2") + ".png"), image.EncodeToPNG());
                 }
+                if (dashJumpPreview) foreach(var trail in dashTrails) trail.Clear();
                 Debug.Log("Warrior run, jump, apex hold, fall and landing transitions rendered in both directions: " + folder);
             }
             finally

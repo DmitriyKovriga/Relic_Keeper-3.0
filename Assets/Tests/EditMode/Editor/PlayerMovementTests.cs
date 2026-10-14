@@ -500,6 +500,17 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void DashJumpKindIsAvailableInsideJumpEvent_AndNormalJumpClearsIt()
+        {
+            bool? observed = null;
+            _movement.OnJumpStarted += () => observed = _movement.IsDashJump;
+            Assert.That(_movement.TryPerformDashJump(1f), Is.True);
+            Assert.That(observed, Is.True, "Visual listeners must recognize the launch before the event returns.");
+            Call("ApplyJumpForce", 1f, null);
+            Assert.That(observed, Is.False, "An air jump must not inherit the dash-jump effect.");
+        }
+
+        [Test]
         public void CarryDoesNotWeakenAirControlAfterCollision()
         {
             _body.linearVelocity = Vector2.zero;
