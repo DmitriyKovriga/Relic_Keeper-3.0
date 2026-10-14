@@ -37,7 +37,7 @@ namespace RelicKeeper.Editor.VFX
 
         public static void CaptureRogueRuntimeViews()
         {
-            Capture("Assets/Scripts/Items/Weapon/LowTier/OneHandedWeapon/Daggers/Adventurer's Dagger/Adventurer's Dagger.asset", "default", "Rogue-runtime-", false, false, "Heroes/RogueResources/Rogue");
+            Capture("Assets/Scripts/Items/Weapon/LowTier/OneHandedWeapon/Daggers/Adventurer's Dagger/Adventurer's Dagger.asset", "dagger", "Rogue-runtime-", false, false, "Heroes/RogueResources/Rogue");
         }
 
         public static void CaptureRogueBowRuntimeViews()

@@ -42,8 +42,8 @@ MonoBehaviour:
     DisplayName: Low Guard
     DefaultSwingId: low_arc
   - Stance: 3
-    LocalPosition: {x: 0.2522222, y: -0.37694454}
-    LocalEulerZ: 166.50876
+    LocalPosition: {x: 0.28694445, y: -0.23111114}
+    LocalEulerZ: 154.37506
     SortBehindCharacter: 0
     FlipX: 0
     FlipY: 0
