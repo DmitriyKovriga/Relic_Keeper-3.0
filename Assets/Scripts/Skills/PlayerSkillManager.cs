@@ -22,6 +22,8 @@ namespace Scripts.Skills
         public event System.Action<int, SkillDataSO> OnSkillSlotUpdated;
 
         private readonly Dictionary<int, SkillBehaviour> _activeSkills = new();
+        private readonly Dictionary<int, (string Item, SkillDataSO Skill, int Index)> _skillKeys = new();
+        private readonly Dictionary<(string Item, SkillDataSO Skill, int Index), SkillBehaviour.CooldownState> _storedCooldowns = new();
 
         [SerializeField] private Transform _skillContainer;
 
@@ -61,6 +63,7 @@ namespace Scripts.Skills
             {
                 InventoryManager.Instance.OnItemEquipped += HandleEquipmentChanged;
                 InventoryManager.Instance.OnItemUnequipped += HandleEquipmentChanged;
+                InventoryManager.Instance.OnWeaponPresetChanged += RefreshAllSkills;
                 RefreshAllSkills();
             }
 
@@ -81,6 +84,7 @@ namespace Scripts.Skills
             {
                 InventoryManager.Instance.OnItemEquipped -= HandleEquipmentChanged;
                 InventoryManager.Instance.OnItemUnequipped -= HandleEquipmentChanged;
+                InventoryManager.Instance.OnWeaponPresetChanged -= RefreshAllSkills;
             }
         }
 
@@ -100,19 +104,41 @@ namespace Scripts.Skills
 
         public void RefreshAllSkills()
         {
-            // Equipment changes only. Inventory UI updates (currency pickup, backpack
-            // reshuffle) must not reset cooldowns or wipe in-flight projectiles.
-            SkillProjectile.DespawnAllForOwner(_playerStats);
+            // Launched projectiles have their own lifetime. Only replace skills whose
+            // source changed, keeping unrelated skills and their running cooldowns intact.
+            var expired = new List<(string Item, SkillDataSO Skill, int Index)>();
+            foreach (var pair in _storedCooldowns)
+                if (!pair.Value.IsRecoveringAt(Time.time)) expired.Add(pair.Key);
+            foreach (var key in expired) _storedCooldowns.Remove(key);
 
+            var desired = new (InventoryItem Item, int Index)[SkillSlotCount];
+            var equipment = InventoryManager.Instance != null ? InventoryManager.Instance.EquipmentItems : null;
+            GetHandSkills(equipment, desired);
+            desired[HelmetSkillSlot] = (GetEquipmentItem(equipment, EquipmentSlot.Helmet), 0);
+            desired[BodyArmorSkillSlot] = (GetEquipmentItem(equipment, EquipmentSlot.BodyArmor), 0);
+            desired[GlovesSkillSlot] = (GetEquipmentItem(equipment, EquipmentSlot.Gloves), 0);
+            desired[BootsSkillSlot] = (GetEquipmentItem(equipment, EquipmentSlot.Boots), 0);
+            // Capture both hands before equipping either one: moving a weapon between
+            // hands must carry its own cooldown rather than borrowing the other hand's.
             for (int i = 0; i < SkillSlotCount; i++)
-                UnequipSkill(i);
-
-            if (InventoryManager.Instance == null)
-                return;
-
-            var equipment = InventoryManager.Instance.EquipmentItems;
-            EquipHandSkills(equipment);
-            EquipUtilitySkills(equipment);
+            {
+                var source = desired[i];
+                var data = source.Item != null && source.Item.GrantedSkills.Count > source.Index
+                    ? source.Item.GrantedSkills[source.Index] : null;
+                if (data == null || !_skillKeys.TryGetValue(i, out var key)
+                    || key != (source.Item.InstanceID, data, source.Index))
+                    UnequipSkill(i);
+            }
+            for (int i = 0; i < SkillSlotCount; i++)
+            {
+                var source = desired[i];
+                var data = source.Item != null && source.Item.GrantedSkills.Count > source.Index
+                    ? source.Item.GrantedSkills[source.Index] : null;
+                if (data == null)
+                    UnequipSkill(i);
+                else
+                    EquipSkill(i, data, source.Item.InstanceID, source.Index);
+            }
         }
 
         public void UseSkill(int slotIndex)
@@ -163,11 +189,15 @@ namespace Scripts.Skills
 
         private void HandleActiveCharacterChanged(string _)
         {
+            // Character changes still tear down the previous character's casts/projectiles.
             CancelAllSkills();
+            SkillProjectile.DespawnAllForOwner(_playerStats);
+            for (int i = 0; i < SkillSlotCount; i++)
+                UnequipSkill(i);
             RefreshAllSkills();
         }
 
-        private void EquipHandSkills(InventoryItem[] equipment)
+        private static void GetHandSkills(InventoryItem[] equipment, (InventoryItem Item, int Index)[] desired)
         {
             if (equipment == null)
                 return;
@@ -177,34 +207,14 @@ namespace Scripts.Skills
 
             if (mainHandItem != null && mainHandItem.GrantedSkills.Count > 0)
             {
-                EquipSkill(MainHandSkillSlot, mainHandItem.GrantedSkills[0]);
+                desired[MainHandSkillSlot] = (mainHandItem, 0);
 
                 if (mainHandItem.Data is WeaponItemSO { IsTwoHanded: true } && mainHandItem.GrantedSkills.Count > 1)
-                    EquipSkill(OffHandSkillSlot, mainHandItem.GrantedSkills[1]);
+                    desired[OffHandSkillSlot] = (mainHandItem, 1);
             }
 
             if (offHandItem != null && offHandItem.GrantedSkills.Count > 0)
-                EquipSkill(OffHandSkillSlot, offHandItem.GrantedSkills[0]);
-        }
-
-        private void EquipUtilitySkills(InventoryItem[] equipment)
-        {
-            if (equipment == null)
-                return;
-
-            EquipEquipmentSkill(equipment, EquipmentSlot.Helmet, HelmetSkillSlot);
-            EquipEquipmentSkill(equipment, EquipmentSlot.BodyArmor, BodyArmorSkillSlot);
-            EquipEquipmentSkill(equipment, EquipmentSlot.Gloves, GlovesSkillSlot);
-            EquipEquipmentSkill(equipment, EquipmentSlot.Boots, BootsSkillSlot);
-        }
-
-        private void EquipEquipmentSkill(InventoryItem[] equipment, EquipmentSlot equipmentSlot, int skillSlot)
-        {
-            InventoryItem item = GetEquipmentItem(equipment, equipmentSlot);
-            if (item == null || item.GrantedSkills.Count == 0)
-                return;
-
-            EquipSkill(skillSlot, item.GrantedSkills[0]);
+                desired[OffHandSkillSlot] = (offHandItem, 0);
         }
 
         public void ReduceSkillCooldown(int slotIndex, float seconds)
@@ -308,8 +318,13 @@ namespace Scripts.Skills
             return item != null && item.Data != null ? item : null;
         }
 
-        private void EquipSkill(int slotIndex, SkillDataSO skillData)
+        private void EquipSkill(int slotIndex, SkillDataSO skillData, string itemId, int skillIndex)
         {
+            var key = (itemId, skillData, skillIndex);
+            if (_activeSkills.TryGetValue(slotIndex, out var existing) && existing != null
+                && _skillKeys.TryGetValue(slotIndex, out var existingKey) && existingKey == key)
+                return;
+
             UnequipSkill(slotIndex);
 
             if (skillData != null)
@@ -340,7 +355,13 @@ namespace Scripts.Skills
                 {
                     behaviour.Initialize(_playerStats, skillData);
                     behaviour.SetRuntimeSlot(this, slotIndex);
+                    if (_storedCooldowns.TryGetValue(key, out var cooldown))
+                    {
+                        behaviour.RestoreCooldownState(cooldown);
+                        _storedCooldowns.Remove(key);
+                    }
                     _activeSkills[slotIndex] = behaviour;
+                    _skillKeys[slotIndex] = key;
                 }
                 else if (skillObj != null)
                 {
@@ -371,11 +392,19 @@ namespace Scripts.Skills
             {
                 if (activeSkill != null)
                 {
+                    if (_skillKeys.TryGetValue(slotIndex, out var key))
+                    {
+                        var cooldown = activeSkill.CaptureCooldownState();
+                        if (cooldown.IsRecoveringAt(Time.time)) _storedCooldowns[key] = cooldown;
+                        else _storedCooldowns.Remove(key);
+                    }
                     activeSkill.Cancel();
-                    Destroy(activeSkill.gameObject);
+                    if (Application.isPlaying) Destroy(activeSkill.gameObject);
+                    else DestroyImmediate(activeSkill.gameObject);
                 }
 
                 _activeSkills.Remove(slotIndex);
+                _skillKeys.Remove(slotIndex);
             }
 
             OnSkillSlotUpdated?.Invoke(slotIndex, null);

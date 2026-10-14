@@ -75,6 +75,38 @@ namespace Scripts.Skills
 
         public virtual void Cancel() { }
 
+        public readonly struct CooldownState
+        {
+            private readonly float _progress;
+            private readonly float _duration;
+            private readonly float _sampleTime;
+
+            internal CooldownState(float progress, float duration, float sampleTime)
+            {
+                _progress = progress;
+                _duration = duration;
+                _sampleTime = sampleTime;
+            }
+
+            internal float ProgressAt(float time) => _duration <= 0f ? 1f
+                : Mathf.Clamp01(_progress + Mathf.Max(0f, time - _sampleTime) / _duration);
+
+            public bool IsRecoveringAt(float time) => ProgressAt(time) < 1f;
+        }
+
+        public CooldownState CaptureCooldownState()
+        {
+            float duration = CooldownDuration;
+            AdvanceCooldown(duration);
+            return new CooldownState(_cooldownProgress, duration, CurrentTime);
+        }
+
+        public void RestoreCooldownState(CooldownState state)
+        {
+            _cooldownProgress = state.ProgressAt(CurrentTime);
+            _cooldownSampleTime = CurrentTime;
+        }
+
         public virtual void Initialize(PlayerStats stats, SkillDataSO data)
         {
             _ownerStats = stats;
