@@ -64,6 +64,7 @@ namespace Scripts.Visuals
         {
             EnsurePoseTable();
             CacheHandPivot();
+            GetAnimationAnchor(_handPivot);
             EnsureWeaponDepthSort(_weaponRenderer, ref _weaponDepthSort, behind: false);
         }
 
@@ -288,25 +289,41 @@ namespace Scripts.Visuals
 
         private void EnsureOffhandRenderer()
         {
-            if (_offhandWeaponRenderer != null)
-                return;
-
             CacheHandPivot();
             if (_handPivot == null)
                 return;
 
-            Transform existing = _handPivot.Find(OffhandHolderName);
+            Transform offPivot = transform.Find("Visuals/OffhandHandPivot");
+            if (offPivot == null)
+            {
+                offPivot = new GameObject("OffhandHandPivot").transform;
+                offPivot.gameObject.layer = _handPivot.gameObject.layer;
+                offPivot.SetParent(_handPivot.parent, false);
+                var mainAnchor = GetAnimationAnchor(_handPivot);
+                offPivot.localPosition = mainAnchor.RestPosition;
+                offPivot.localRotation = mainAnchor.RestRotation;
+                offPivot.localScale = _handPivot.localScale;
+            }
+            GetAnimationAnchor(offPivot);
+            if (_offhandWeaponRenderer != null)
+            {
+                _offhandWeaponRenderer.transform.SetParent(offPivot, false);
+                return;
+            }
+
+            Transform existing = offPivot.Find(OffhandHolderName) ?? _handPivot.Find(OffhandHolderName);
             GameObject go;
             if (existing != null)
             {
                 go = existing.gameObject;
                 _offhandWeaponRenderer = go.GetComponent<SpriteRenderer>();
+                go.transform.SetParent(offPivot, false);
             }
             else
             {
                 go = new GameObject(OffhandHolderName);
                 go.layer = _handPivot.gameObject.layer;
-                go.transform.SetParent(_handPivot, false);
+                go.transform.SetParent(offPivot, false);
                 go.transform.SetSiblingIndex(0); // draw under mainhand child order when same sorting
                 _offhandWeaponRenderer = go.AddComponent<SpriteRenderer>();
             }
@@ -316,6 +333,25 @@ namespace Scripts.Visuals
                 _offhandWeaponRenderer.sharedMaterial = _weaponRenderer.sharedMaterial;
                 _offhandWeaponRenderer.sortingLayerID = _weaponRenderer.sortingLayerID;
             }
+        }
+
+        public bool TryGetAnimationHand(int skillSlot, out Transform pivot, out SpriteRenderer renderer)
+        {
+            CacheHandPivot();
+            bool useOffhand = skillSlot == WeaponHandStatScope.OffHandSkillSlot
+                && _offhandWeaponRenderer != null && _offhandWeaponRenderer.sprite != null;
+            renderer = useOffhand ? _offhandWeaponRenderer : _weaponRenderer;
+            pivot = useOffhand ? _offhandWeaponRenderer.transform.parent : _handPivot;
+            return pivot != null && renderer != null;
+        }
+
+        public static WeaponHandAnimationAnchor GetAnimationAnchor(Transform pivot)
+        {
+            if (pivot == null) return null;
+            var anchor = pivot.GetComponent<WeaponHandAnimationAnchor>();
+            if (anchor == null) anchor = pivot.gameObject.AddComponent<WeaponHandAnimationAnchor>();
+            anchor.Initialize();
+            return anchor;
         }
 
         private void CacheHandPivot()

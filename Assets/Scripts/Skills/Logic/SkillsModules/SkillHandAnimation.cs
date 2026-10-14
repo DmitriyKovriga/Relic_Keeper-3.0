@@ -34,6 +34,8 @@ namespace Scripts.Skills.Modules
         [SerializeField] private WeaponSwingStyleTableSO _styleTable;
 
         private Transform _handPivot;
+        private PlayerStats _ownerStats;
+        private WeaponHandAnimationAnchor _anchor;
         private SpriteRenderer _weaponRenderer;
         private SpriteRenderer _nockedProjectile;
         private Vector3 _nockPosition;
@@ -54,21 +56,35 @@ namespace Scripts.Skills.Modules
 
         public void Initialize(PlayerStats stats)
         {
-            _handPivot = stats.transform.Find("Visuals/HandPivot");
-
-            if (_handPivot != null)
-            {
-                _weaponRenderer = _handPivot.GetComponentInChildren<SpriteRenderer>();
-                _defaultPos = _handPivot.localPosition;
-                _defaultRot = _handPivot.localRotation;
-            }
-            else
-            {
-                Debug.LogError($"[SkillHandAnimation] HandPivot not found under {stats.name}!");
-            }
+            _ownerStats = stats;
+            BindHand();
 
             EnsureStyleTable();
             ApplyStyleKeyframes(WeaponSwingStyle.Slash);
+        }
+
+        private void BindHand()
+        {
+            if (_ownerStats == null) return;
+            var skill = GetComponent<SkillBehaviour>();
+            var visuals = _ownerStats.GetComponent<WeaponVisualController>();
+            if (visuals == null || !visuals.TryGetAnimationHand(skill != null ? skill.SlotIndex : -1, out _handPivot, out _weaponRenderer))
+            {
+                _handPivot = _ownerStats.transform.Find("Visuals/HandPivot");
+                // Child order changes when equipping an offhand; never choose the first renderer.
+                _weaponRenderer = _handPivot != null ? _handPivot.Find("WeaponHolder")?.GetComponent<SpriteRenderer>() : null;
+            }
+
+            if (_handPivot != null)
+            {
+                _anchor = WeaponVisualController.GetAnimationAnchor(_handPivot);
+                _defaultPos = _anchor.RestPosition;
+                _defaultRot = _anchor.RestRotation;
+            }
+            else
+            {
+                Debug.LogError($"[SkillHandAnimation] HandPivot not found under {_ownerStats.name}!");
+            }
         }
 
         /// <summary>
@@ -79,6 +95,8 @@ namespace Scripts.Skills.Modules
             if (style == WeaponSwingStyle.FromStance)
                 style = WeaponSwingStyle.Slash;
             ReleaseDrawnProjectile();
+            BindHand();
+            if (_anchor != null) _anchor.Acquire(this);
             _activeStyle = style;
             _activeStyleId = WeaponSwingStyleTableSO.CanonicalId(style);
             ApplyStyleKeyframes(style);
@@ -89,6 +107,8 @@ namespace Scripts.Skills.Modules
             if (string.IsNullOrEmpty(styleId))
                 styleId = "slash";
             ReleaseDrawnProjectile();
+            BindHand();
+            if (_anchor != null) _anchor.Acquire(this);
             _activeStyleId = styleId;
             _activeStyle = WeaponSwingStyleResolver.StyleIdToEnum(styleId);
             ApplyStyleKeyframesById(styleId);
@@ -102,7 +122,7 @@ namespace Scripts.Skills.Modules
         /// <summary>Lerp HandPivot from idle toward windup pose. t: 0..1</summary>
         public void LerpWindup(float t)
         {
-            if (_handPivot == null) return;
+            if (_handPivot == null || _anchor == null || !_anchor.IsOwnedBy(this)) return;
             t = Mathf.Clamp01(t);
             _handPivot.localRotation = Quaternion.Slerp(_defaultRot, _windupRot, t);
             _handPivot.localPosition = Vector3.Lerp(_defaultPos, _windupPos, t);
@@ -117,7 +137,7 @@ namespace Scripts.Skills.Modules
         /// <summary>Snap HandPivot to impact pose. Does not hide weapon (callers do).</summary>
         public void SnapImpact()
         {
-            if (_handPivot == null) return;
+            if (_handPivot == null || _anchor == null || !_anchor.IsOwnedBy(this)) return;
             _handPivot.localRotation = _impactRot;
             _handPivot.localPosition = _impactPos;
         }
@@ -125,7 +145,7 @@ namespace Scripts.Skills.Modules
         /// <summary>Lerp HandPivot from impact back to idle. t: 0..1</summary>
         public void LerpRecovery(float t)
         {
-            if (_handPivot == null) return;
+            if (_handPivot == null || _anchor == null || !_anchor.IsOwnedBy(this)) return;
             t = Mathf.Clamp01(t);
             _handPivot.localRotation = Quaternion.Slerp(_impactRot, _defaultRot, t);
             _handPivot.localPosition = Vector3.Lerp(_impactPos, _defaultPos, t);
@@ -195,18 +215,16 @@ namespace Scripts.Skills.Modules
 
         public void SetWeaponVisible(bool isVisible)
         {
-            if (_weaponRenderer != null) _weaponRenderer.enabled = isVisible;
+            if (_weaponRenderer != null && _anchor != null && _anchor.IsOwnedBy(this)) _weaponRenderer.enabled = isVisible;
         }
 
         public void ForceReset()
         {
             ReleaseDrawnProjectile();
-            if (_handPivot != null)
+            if (_anchor != null && _anchor.Release(this))
             {
-                _handPivot.localRotation = _defaultRot;
-                _handPivot.localPosition = _defaultPos;
+                if (_weaponRenderer != null) _weaponRenderer.enabled = _weaponRenderer.sprite != null;
             }
-            SetWeaponVisible(true);
         }
 
         private void OnDisable()

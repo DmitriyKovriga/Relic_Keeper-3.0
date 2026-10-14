@@ -3,6 +3,8 @@ using System.IO;
 using System.Reflection;
 using Scripts.Visuals;
 using Scripts.Items;
+using Scripts.Skills;
+using Scripts.Skills.Modules;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -38,6 +40,11 @@ namespace RelicKeeper.Editor.VFX
         public static void CaptureRogueRuntimeViews()
         {
             Capture("Assets/Scripts/Items/Weapon/LowTier/OneHandedWeapon/Daggers/Adventurer's Dagger/Adventurer's Dagger.asset", "dagger", "Rogue-runtime-", false, false, "Heroes/RogueResources/Rogue");
+        }
+
+        public static void CaptureDualDaggerRuntimeViews()
+        {
+            Capture("Assets/Scripts/Items/Weapon/LowTier/OneHandedWeapon/Daggers/Adventurer's Dagger/Adventurer's Dagger.asset", "dagger", "Rogue-dual-dagger-", characterResourcePath: "Heroes/RogueResources/Rogue", dualDaggerPreview: true);
         }
 
         public static void CaptureRogueBowRuntimeViews()
@@ -109,7 +116,7 @@ namespace RelicKeeper.Editor.VFX
         }
 
         private static void Capture(string weaponPath, string stanceId, string outputPrefix, bool doubleJump = false, bool forwardJump = false,
-            string characterResourcePath = "Heroes/WarriorResources/Warrior", bool jumpPuffs = false, bool groundDashPreview = false, bool airDodgePreview = false, bool dashJumpPreview = false, bool stationaryDodgePreview = false)
+            string characterResourcePath = "Heroes/WarriorResources/Warrior", bool jumpPuffs = false, bool groundDashPreview = false, bool airDodgePreview = false, bool dashJumpPreview = false, bool stationaryDodgePreview = false, bool dualDaggerPreview = false)
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
             var root = new GameObject("Temporary character animation preview");
@@ -144,6 +151,7 @@ namespace RelicKeeper.Editor.VFX
                 var displays = new SpriteRenderer[2];
                 var sources = new SpriteRenderer[2];
                 var controllers = new PlayerCharacterAnimationController[2];
+                var handAnimations = new SkillHandAnimation[2, 2];
                 var type = typeof(PlayerCharacterAnimationController);
                 var stateType = type.GetNestedType("AnimationState", BindingFlags.NonPublic);
                 var play = type.GetMethod("Play", Flags);
@@ -185,6 +193,31 @@ namespace RelicKeeper.Editor.VFX
                     weapon.flipX = weaponPose.FlipX;
                     weapon.flipY = weaponPose.FlipY;
                     weapon.sortingOrder = weaponPose.SortBehindCharacter ? -1 : 1;
+                    if (dualDaggerPreview)
+                    {
+                        var stats = fake.AddComponent<PlayerStats>();
+                        var visuals = fake.AddComponent<WeaponVisualController>();
+                        var visualType = typeof(WeaponVisualController);
+                        visualType.GetField("_handPivot", Flags).SetValue(visuals, pivot);
+                        visualType.GetField("_weaponRenderer", Flags).SetValue(visuals, weapon);
+                        visualType.GetMethod("EnsureOffhandRenderer", Flags).Invoke(visuals, null);
+                        var off = (SpriteRenderer)visualType.GetField("_offhandWeaponRenderer", Flags).GetValue(visuals);
+                        off.sprite = heldWeapon.InHandSprite;
+                        off.transform.localPosition = holder.localPosition + new Vector3(-0.28f, -0.06f, 0);
+                        off.transform.localRotation = holder.localRotation;
+                        off.sortingOrder = weapon.sortingOrder;
+                        for (int hand = 0; hand < 2; hand++)
+                        {
+                            var skillObject = new GameObject("Preview hand skill " + hand);
+                            skillObject.SetActive(false);
+                            skillObject.transform.SetParent(fake.transform, false);
+                            var skill = skillObject.AddComponent<SkillStepRunner>();
+                            skill.SetRuntimeSlot(null, hand);
+                            var animation = skillObject.GetComponent<SkillHandAnimation>();
+                            animation.Initialize(stats);
+                            handAnimations[side, hand] = animation;
+                        }
+                    }
                     actor.gameObject.AddComponent<PlayerRenderAnchor>().Initialize(display.transform, weapons);
                 }
                 var floor = new GameObject("Floor").AddComponent<SpriteRenderer>();
@@ -229,6 +262,19 @@ namespace RelicKeeper.Editor.VFX
                     for (int side = 0; side < 2; side++)
                     {
                         var controller = controllers[side];
+                        if (dualDaggerPreview)
+                        {
+                            for (int hand = 0; hand < 2; hand++)
+                            {
+                                int age = frame - (hand == 0 ? 8 : 42);
+                                var animation = handAnimations[side, hand];
+                                if (age == 0) animation.SetActiveStyleId("overhead_stab");
+                                if (age >= 0 && age < 6) animation.LerpWindup(age / 5f);
+                                if (age == 6) { animation.SetWeaponVisible(false); animation.SnapImpact(); }
+                                if (age >= 7 && age < 13) { animation.SetWeaponVisible(true); animation.LerpRecovery((age - 7) / 5f); }
+                                if (age == 13) animation.ForceReset();
+                            }
+                        }
                         if (frame == 32 && !stationaryDodgePreview) type.GetMethod("HandleJumpStarted", Flags).Invoke(controller, null);
                         if (doubleJump && frame == 42) type.GetMethod("HandleJumpStarted", Flags).Invoke(controller, null);
                         if (frame == (doubleJump ? 56 : 46) && !stationaryDodgePreview) play.Invoke(controller, new[] { Enum.Parse(stateType, "Fall"), type.GetField("_fall", Flags).GetValue(controller) });
