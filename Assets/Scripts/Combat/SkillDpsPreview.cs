@@ -86,6 +86,7 @@ namespace Scripts.Combat
         public static SkillDpsPreview Build(SkillDataSO skill, IStatsProvider stats, int skillSlot)
         {
             IStatsProvider scopedStats = WeaponHandStatScope.ForSkill(stats, skillSlot) ?? stats;
+            scopedStats = StatLinkModifiers.Apply(scopedStats, skill?.StatLinks);
             float castsPerSecond = ResolveCastsPerSecond(skill, scopedStats, skillSlot);
             SkillHitDpsPreview hit = BuildHitPreview(skill, scopedStats, castsPerSecond);
             return new SkillDpsPreview(hit, BuildDotPreviews(scopedStats, hit));

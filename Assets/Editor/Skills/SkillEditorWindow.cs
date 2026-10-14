@@ -954,6 +954,7 @@ namespace Scripts.Editor.Skills
             EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField("Runtime Links", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("DamageContextTags"));
+            EditorGUILayout.PropertyField(serializedSkill.FindProperty("StatLinks"), true);
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("SkillPrefab"));
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("AnimationTrigger"));
             EditorGUILayout.PropertyField(serializedSkill.FindProperty("Recipe"));

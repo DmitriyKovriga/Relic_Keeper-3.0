@@ -49,6 +49,7 @@ namespace Scripts.Skills
         private SkillHitStopGate _hitStopGate;
         private PlayerParryController _parry;
         private readonly HashSet<int> _openedParrySteps = new HashSet<int>();
+        private readonly Dictionary<int, Vector2> _previousDamageCenters = new Dictionary<int, Vector2>();
 
         public override void Cancel()
         {
@@ -122,7 +123,8 @@ namespace Scripts.Skills
             if (_animCtrl != null) _animCtrl.ForceReset();
             if (_parry != null) _parry.CloseWindow(this);
             _openedParrySteps.Clear();
-            if (_moveCtrl != null) _moveCtrl.SetLock(false);
+            if (_moveCtrl != null) { _moveCtrl.EndCharge(); _moveCtrl.SetLock(false); }
+            _previousDamageCenters.Clear();
             _persistentHitTargetsByStep.Clear();
             _persistentHitStopSteps.Clear();
             _isCasting = false;
@@ -204,6 +206,10 @@ namespace Scripts.Skills
                             ended[i] = true;
                             if (step.StepDefinition.Id == "MovementLock")
                                 _moveCtrl.SetLock(false);
+                            else if (step.StepDefinition.Id == "PlayerCharge")
+                                _moveCtrl.EndCharge();
+                            else if (IsPersistentDamageStep(step))
+                                ExecuteStepLogic(i, step, 1f, (endP - startP) * _ctx.TotalDuration);
                         }
                     }
                     else
@@ -341,11 +347,14 @@ namespace Scripts.Skills
                 case "PlayerImpulse":
                     ExecutePlayerImpulse(step);
                     break;
+                case "PlayerCharge":
+                    _moveCtrl.Charge(_ctx.FacingDirection * Mathf.Max(0, step.GetFloat("Distance", 3)) / Mathf.Max(0.01f, stepDuration));
+                    break;
                 case "WeaponWindup":
                     _animCtrl.LerpWindup(phaseT);
                     break;
                 case "WeaponStrike":
-                    _animCtrl.SetWeaponVisible(_animCtrl.KeepsWeaponVisibleAtImpact);
+                    _animCtrl.SetWeaponVisible(step.GetBool("KeepWeaponVisible", _animCtrl.KeepsWeaponVisibleAtImpact));
                     _animCtrl.SnapImpact();
                     break;
                 case "WeaponRecovery":
@@ -1233,6 +1242,19 @@ namespace Scripts.Skills
         private void ExecutePersistentDamageRectangle(int stepIndex, StepEntry step)
         {
             ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
+            if (step.GetBool("SweepBetweenSamples", false))
+            {
+                Vector2 current = center;
+                if (_previousDamageCenters.TryGetValue(stepIndex, out var previous))
+                {
+                    Vector2 travel = current - previous;
+                    float radians = angle * Mathf.Deg2Rad;
+                    size += new Vector2(Mathf.Abs(travel.x * Mathf.Cos(radians) + travel.y * Mathf.Sin(radians)),
+                        Mathf.Abs(-travel.x * Mathf.Sin(radians) + travel.y * Mathf.Cos(radians)));
+                    center = (current + previous) * 0.5f;
+                }
+                _previousDamageCenters[stepIndex] = current;
+            }
             var targets = GetTargetsInBox(center, size, angle);
             DealDamageToTargets(stepIndex, step, targets, GetPersistentHitSet(stepIndex), appendHitResults: true);
         }
@@ -1264,6 +1286,8 @@ namespace Scripts.Skills
                 var snapshot = DamageCalculator.CreateDamageSnapshot(scopedStats, mult, damageContext, step.DamageConversions);
                 snapshot.Source = _ownerStats;
                 Vector2 hitOrigin = _ownerStats != null ? (Vector2)_ownerStats.transform.position : Vector2.zero;
+                if (step.GetBool("PushbackInFacingDirection", false) && target is Component hitComponent)
+                    hitOrigin = (Vector2)hitComponent.transform.position - Vector2.right * _ctx.FacingDirection;
                 PushbackResolver.BindToSnapshot(snapshot, SkillPushback.IsEnabled(_data), scopedStats, hitOrigin);
                 Transform targetTransform = ResolveDamageableTransform(target);
                 if (target.TakeDamage(snapshot))

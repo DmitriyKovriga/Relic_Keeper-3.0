@@ -1,0 +1,465 @@
+fileFormatVersion: 2
+guid: 927ffc4313ee54f49960a7a408b98831
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1288701459182634993
+    second: TowerChargeBody-Sheet_0
+  - first:
+      213: -5349922337372576940
+    second: TowerChargeBody-Sheet_1
+  - first:
+      213: -4957185535515208899
+    second: TowerChargeBody-Sheet_2
+  - first:
+      213: -6201708769641963497
+    second: TowerChargeBody-Sheet_3
+  - first:
+      213: -6429768429245614884
+    second: TowerChargeBody-Sheet_4
+  - first:
+      213: 6121690121669977351
+    second: TowerChargeBody-Sheet_5
+  - first:
+      213: -2967377391625831665
+    second: TowerChargeBody-Sheet_6
+  - first:
+      213: -7049150878084699545
+    second: TowerChargeBody-Sheet_7
+  - first:
+      213: 752043120116554191
+    second: TowerChargeBody-Sheet_8
+  - first:
+      213: 4637137541196906227
+    second: TowerChargeBody-Sheet_9
+  - first:
+      213: 6742735960189762032
+    second: TowerChargeBody-Sheet_10
+  - first:
+      213: -2853105127450444856
+    second: TowerChargeBody-Sheet_11
+  - first:
+      213: 8950283662407685205
+    second: TowerChargeBody-Sheet_12
+  - first:
+      213: 3568422213050485383
+    second: TowerChargeBody-Sheet_13
+  - first:
+      213: -7540531484123598717
+    second: TowerChargeBody-Sheet_14
+  - first:
+      213: 3495591364615371012
+    second: TowerChargeBody-Sheet_15
+  - first:
+      213: 3081154677602470420
+    second: TowerChargeBody-Sheet_16
+  - first:
+      213: 6395534484347073337
+    second: TowerChargeBody-Sheet_17
+  - first:
+      213: -5814643662576594678
+    second: TowerChargeBody-Sheet_18
+  - first:
+      213: 3643922387917034917
+    second: TowerChargeBody-Sheet_19
+  - first:
+      213: -14332066464987423
+    second: TowerChargeBody-Sheet_20
+  - first:
+      213: -414338023750616325
+    second: TowerChargeBody-Sheet_21
+  - first:
+      213: 8957208637047891802
+    second: ChargeBody_00
+  - first:
+      213: 2782864126058547547
+    second: ChargeBody_01
+  - first:
+      213: 4586186564307667164
+    second: ChargeBody_02
+  - first:
+      213: 4327151815980381676
+    second: ChargeBody_03
+  - first:
+      213: 6151874393627609436
+    second: ChargeBody_04
+  - first:
+      213: 6320041249681148108
+    second: ChargeBody_05
+  - first:
+      213: 7996898318293765273
+    second: ChargeBody_06
+  - first:
+      213: -4875922464604495230
+    second: ChargeBody_07
+  - first:
+      213: 4212339906524614391
+    second: ChargeBody_08
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 24
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: ChargeBody_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a57ec4e4cc56e4c70800000000000000
+      internalID: 8957208637047891802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChargeBody_01
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b59c5ebad28be9620800000000000000
+      internalID: 2782864126058547547
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChargeBody_02
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd84a3fa16865af30800000000000000
+      internalID: 4586186564307667164
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChargeBody_03
+      rect:
+        serializedVersion: 2
+        x: 144
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce572b086a12d0c30800000000000000
+      internalID: 4327151815980381676
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChargeBody_04
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c59cefeba29df5550800000000000000
+      internalID: 6151874393627609436
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChargeBody_05
+      rect:
+        serializedVersion: 2
+        x: 240
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc88f05180c45b750800000000000000
+      internalID: 6320041249681148108
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChargeBody_06
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99c81dea6a0bafe60800000000000000
+      internalID: 7996898318293765273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChargeBody_07
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 282e6e82a5e355cb0800000000000000
+      internalID: -4875922464604495230
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChargeBody_08
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 0
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fe0a99b3dc357a30800000000000000
+      internalID: 4212339906524614391
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      ChargeBody_00: 8957208637047891802
+      ChargeBody_01: 2782864126058547547
+      ChargeBody_02: 4586186564307667164
+      ChargeBody_03: 4327151815980381676
+      ChargeBody_04: 6151874393627609436
+      ChargeBody_05: 6320041249681148108
+      ChargeBody_06: 7996898318293765273
+      ChargeBody_07: -4875922464604495230
+      ChargeBody_08: 4212339906524614391
+      TowerChargeBody-Sheet_0: 1288701459182634993
+      TowerChargeBody-Sheet_1: -5349922337372576940
+      TowerChargeBody-Sheet_10: 6742735960189762032
+      TowerChargeBody-Sheet_11: -2853105127450444856
+      TowerChargeBody-Sheet_12: 8950283662407685205
+      TowerChargeBody-Sheet_13: 3568422213050485383
+      TowerChargeBody-Sheet_14: -7540531484123598717
+      TowerChargeBody-Sheet_15: 3495591364615371012
+      TowerChargeBody-Sheet_16: 3081154677602470420
+      TowerChargeBody-Sheet_17: 6395534484347073337
+      TowerChargeBody-Sheet_18: -5814643662576594678
+      TowerChargeBody-Sheet_19: 3643922387917034917
+      TowerChargeBody-Sheet_2: -4957185535515208899
+      TowerChargeBody-Sheet_20: -14332066464987423
+      TowerChargeBody-Sheet_21: -414338023750616325
+      TowerChargeBody-Sheet_3: -6201708769641963497
+      TowerChargeBody-Sheet_4: -6429768429245614884
+      TowerChargeBody-Sheet_5: 6121690121669977351
+      TowerChargeBody-Sheet_6: -2967377391625831665
+      TowerChargeBody-Sheet_7: -7049150878084699545
+      TowerChargeBody-Sheet_8: 752043120116554191
+      TowerChargeBody-Sheet_9: 4637137541196906227
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

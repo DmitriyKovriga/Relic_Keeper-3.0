@@ -61,7 +61,7 @@ namespace Scripts.Skills
                 "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
-                "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or
+                "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
                 "ApplyStatusSelf" or "ApplyStatusSelfIfMysticShieldConsumed" or
                 "ApplyStatusSelfPerConsumedMysticShield" or "ApplyStatusCircle" or "ApplyStatusRectangle" or
                 "ApplyQuickStatusSelf" or "ApplyQuickStatusSelfPerConsumedMysticShield" or
@@ -128,6 +128,23 @@ namespace Scripts.Skills
             bool ru = IsRussian(localeCode);
             var unique = new HashSet<string>(StringComparer.Ordinal);
             var quickNotes = new List<QuickStatusNote>();
+            if (skill.StatLinks != null)
+                foreach (var link in skill.StatLinks)
+                {
+                    string source = StatName(link.SourceStat, statNameResolver);
+                    string target = StatName(link.TargetStat, statNameResolver);
+                    string kind = link.TargetModifierType switch
+                    {
+                        StatModType.Flat => ru ? "базовому" : "flat",
+                        StatModType.PercentAdd => ru ? "увеличенному" : "increased",
+                        StatModType.PercentSub => ru ? "уменьшенному" : "decreased",
+                        StatModType.PercentLess => ru ? "меньшему" : "less",
+                        _ => ru ? "большему" : "more"
+                    };
+                    Add(lines, unique, ru
+                        ? $"Добавляет {P(link.SourcePercent)} от текущего параметра «{source}» к {kind} значению «{target}» для этого навыка."
+                        : $"Adds {P(link.SourcePercent)} of current {source} as {kind} {target} for this skill.", SkillDescriptionSection.Attack);
+                }
             // Pushback remains a hidden combat property, not a description line.
 
             float shieldEffectiveness = 1f;
@@ -226,6 +243,9 @@ namespace Scripts.Skills
                     break;
                 case "PlayerImpulse":
                     AddImpulse(step, ru, lines, unique);
+                    break;
+                case "PlayerCharge":
+                    Add(lines, unique, ru ? "Рывок вперёд сквозь врагов на пути." : "Charge forward through enemies in your path.");
                     break;
                 case "ApplyStatusSelf":
                 case "ApplyStatusSelfIfMysticShieldConsumed":

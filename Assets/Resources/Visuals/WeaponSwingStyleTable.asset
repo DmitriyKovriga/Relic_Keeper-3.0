@@ -83,3 +83,14 @@ MonoBehaviour:
     DisplayName: Shield Parry
     AllowedStanceIds:
     - shield_guard
+  - Style: 1
+    WindupZ: -8
+    WindupLocalPos: {x: -0.1, y: 0.02}
+    ImpactZ: 0
+    ImpactLocalPos: {x: 0.16, y: -0.04}
+    NockedProjectileLocalPosition: {x: 0, y: 0}
+    NockedProjectilePullback: 0
+    Id: shield_charge
+    DisplayName: Shield Charge
+    AllowedStanceIds:
+    - shield_guard

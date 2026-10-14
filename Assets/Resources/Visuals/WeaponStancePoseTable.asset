@@ -86,12 +86,3 @@ MonoBehaviour:
     Id: shield_guard
     DisplayName: Shield Guard
     DefaultSwingId: shield_parry
-  - Stance: 0
-    LocalPosition: {x: 0.41666663, y: -0.20866674}
-    LocalEulerZ: 0
-    SortBehindCharacter: 0
-    FlipX: 0
-    FlipY: 0
-    Id: shield
-    DisplayName: Shield
-    DefaultSwingId: slash

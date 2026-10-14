@@ -728,6 +728,7 @@ namespace Scripts.Skills.Projectiles
         private IStatsProvider BuildScopedStatsProvider(IDamageable target)
         {
             IStatsProvider weaponStats = WeaponHandStatScope.ForSkill(_data.OwnerStats, _data.SkillSlotIndex);
+            weaponStats = StatLinkModifiers.Apply(weaponStats, _data.Skill?.StatLinks);
             StepEntry step = _data.Step;
             var modifiers = new List<SerializableStatModifier>();
             SkillPushback.AppendFlatModifier(_data.Skill, modifiers);

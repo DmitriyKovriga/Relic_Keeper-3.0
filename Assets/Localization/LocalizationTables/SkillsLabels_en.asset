@@ -368,6 +368,14 @@ MonoBehaviour:
     m_Localized:
     m_Metadata:
       m_Items: []
+  - m_Id: 101008014532665344
+    m_Localized: Tower Charge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101008014687854592
+    m_Localized:
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

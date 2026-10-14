@@ -9,6 +9,27 @@ namespace Scripts.Skills.Modules
     public class SkillMovementControl : MonoBehaviour
     {
         private PlayerMovement _playerMovement;
+        private bool _charging;
+
+        public void Charge(float speed)
+        {
+            if (_playerMovement == null) return;
+            var velocity = new Vector2(speed, 0);
+            if (!_charging)
+            {
+                _playerMovement.BeginMotionOverride(velocity, false, true);
+                _charging = true;
+            }
+            else _playerMovement.UpdateMotionOverride(velocity);
+        }
+
+        public void EndCharge()
+        {
+            if (!_charging) return;
+            _charging = false;
+            if (_playerMovement != null)
+                _playerMovement.EndMotionOverride(new Vector2(0, _playerMovement.CurrentVelocity.y));
+        }
 
         public void Initialize(PlayerStats stats)
         {
@@ -33,6 +54,7 @@ namespace Scripts.Skills.Modules
 
         private void OnDisable()
         {
+            EndCharge();
             SetLock(false);
         }
     }

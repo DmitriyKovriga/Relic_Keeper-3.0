@@ -2,6 +2,8 @@ using UnityEngine;
 using Scripts.Skills.Steps;
 using Scripts.Stats;
 using Scripts.Visuals;
+using System.Collections.Generic;
+using Scripts.StatusEffects;
 
 namespace Scripts.Skills
 {
@@ -60,6 +62,9 @@ namespace Scripts.Skills
         public float SkillSpeedMultiplier = 1f;
         [Tooltip("Р С™Р С•Р Р…РЎвЂљР ВµР С”РЎРѓРЎвЂљ РЎС“РЎР‚Р С•Р Р…Р В° Р Т‘Р В»РЎРЏ РЎР‚Р В°РЎРѓРЎвЂЎР ВµРЎвЂљР В° Context Modifier РЎРѓРЎвЂљР В°РЎвЂљР С•Р Р†. Р вЂўРЎРѓР В»Р С‘ Р С•РЎРѓРЎвЂљР В°Р Р†Р С‘РЎвЂљРЎРЉ None РЎС“ РЎРѓРЎвЂљР В°РЎР‚РЎвЂ№РЎвЂ¦ melee-РЎРѓР С”Р С‘Р В»Р В»Р С•Р Р†, РЎР‚Р В°Р Р…РЎвЂљР В°Р в„–Р С Р С—Р С•Р Т‘РЎРѓРЎвЂљР В°Р Р†Р С‘РЎвЂљ Р В±Р ВµР В·Р С•Р С—Р В°РЎРѓР Р…РЎвЂ№Р в„– legacy fallback Attack|Melee.")]
         public StatContextTagFlags DamageContextTags;
+
+        [Tooltip("Skill-only modifiers derived from current stats. Sources are read before links; Flat adds base damage before increases and conversions.")]
+        public List<DerivedStatModifier> StatLinks = new List<DerivedStatModifier>();
 
         [Header("Pushback")]
         [Tooltip("When enabled, this skill knocks enemies left or right using Pushback rating. Off by default.")]

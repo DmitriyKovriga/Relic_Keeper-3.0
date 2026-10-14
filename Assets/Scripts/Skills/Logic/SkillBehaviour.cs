@@ -122,7 +122,7 @@ namespace Scripts.Skills
 
         protected IStatsProvider ResolveSkillStats()
         {
-            return WeaponHandStatScope.ForSkill(_ownerStats, _slotIndex);
+            return StatLinkModifiers.Apply(WeaponHandStatScope.ForSkill(_ownerStats, _slotIndex), _data?.StatLinks);
         }
 
         protected float ResolveSkillSpeedMultiplier()
@@ -153,7 +153,7 @@ namespace Scripts.Skills
 
         private float ResolveAttackActionSpeed()
         {
-            IStatsProvider stats = WeaponHandStatScope.ForSkill(_ownerStats, _slotIndex);
+            IStatsProvider stats = ResolveSkillStats();
             if (stats == null
                 || !stats.TryGetStat(StatType.AttackSpeed, out CharacterStat attackStat)
                 || attackStat == null)
@@ -176,7 +176,8 @@ namespace Scripts.Skills
             float castPercentAdd = 0f;
             float castMultiplier = 1f;
 
-            if (_ownerStats != null && _ownerStats.TryGetStat(StatType.CastSpeed, out CharacterStat castStat) && castStat != null)
+            IStatsProvider stats = ResolveSkillStats();
+            if (stats != null && stats.TryGetStat(StatType.CastSpeed, out CharacterStat castStat) && castStat != null)
             {
                 foreach (StatModifier modifier in castStat.Modifiers)
                 {
@@ -195,7 +196,7 @@ namespace Scripts.Skills
 
         private float ResolveAttackSpeedFlatBase()
         {
-            IStatsProvider stats = WeaponHandStatScope.ForSkill(_ownerStats, _slotIndex);
+            IStatsProvider stats = ResolveSkillStats();
             if (stats != null && stats.TryGetStat(StatType.AttackSpeed, out CharacterStat attackStat) && attackStat != null)
             {
                 float rawFlat = attackStat.GetRawFlatValue();
