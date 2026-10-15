@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "BlinkStab" or "InstantBeam" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -216,6 +216,12 @@ namespace Scripts.Skills
 
             switch (id)
             {
+                case "PlasmaField":
+                    Add(lines, unique, ru
+                        ? $"Кольцо молний расширяется до {N(step.GetFloat("Radius", 4))} м, затем сжимается к герою. Поражает каждую цель один раз при расширении и ещё раз при возвращении."
+                        : $"A lightning ring expands to {N(step.GetFloat("Radius", 4))} m, then contracts to the player. Hits each target once outward and once on the return.");
+                    AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
+                    break;
                 case "BlinkStab":
                     Add(lines, unique, ru
                         ? $"Одна телепортация за спину врага в радиусе {N(step.GetFloat("Range", 6f))} м и один удар за применение. Предпочитает ближайшего ещё не поражённого врага, затем того, кого атаковал раньше остальных. Помнит живых врагов между применениями."

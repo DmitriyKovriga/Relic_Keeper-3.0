@@ -29,6 +29,6 @@ MonoBehaviour:
   SkillPool: {fileID: 11400000, guid: 58ae6bcd6f5d65d42bc7cf5bf0c7dfdc, type: 2}
   SkillCount: 1
   DefenseType: 1
-  BaseArmor: 25
+  BaseArmor: 150
   BaseEvasion: 0
   BaseMysticShield: 0

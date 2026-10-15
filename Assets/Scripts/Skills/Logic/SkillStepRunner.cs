@@ -50,6 +50,7 @@ namespace Scripts.Skills
         private PlayerParryController _parry;
         private readonly HashSet<int> _openedParrySteps = new HashSet<int>();
         private readonly Dictionary<int, Vector2> _previousDamageCenters = new Dictionary<int, Vector2>();
+        private readonly Dictionary<int, (PlasmaFieldWave Wave, PlasmaFieldVisual Visual)> _plasmaFields = new Dictionary<int, (PlasmaFieldWave, PlasmaFieldVisual)>();
 
         public override void Cancel()
         {
@@ -117,6 +118,13 @@ namespace Scripts.Skills
 
         private void Cleanup()
         {
+            foreach (var field in _plasmaFields.Values)
+                if (field.Visual != null)
+                {
+                    if (Application.isPlaying) Destroy(field.Visual.gameObject);
+                    else DestroyImmediate(field.Visual.gameObject);
+                }
+            _plasmaFields.Clear();
             if (_ctx != null)
                 _ctx.Cleanup();
             _runCoroutine = null;
@@ -414,6 +422,9 @@ namespace Scripts.Skills
                     break;
                 case "InstantBeam":
                     ExecuteInstantBeam(stepIndex, step);
+                    break;
+                case "PlasmaField":
+                    ExecutePlasmaField(stepIndex, step, phaseT);
                     break;
                 case "PersistentDamageCircle":
                     ExecutePersistentDamageCircle(stepIndex, step);
@@ -1292,6 +1303,38 @@ namespace Scripts.Skills
             BlinkStabVisual.Spawn(body.bounds.center, facing, true);
             DealDamageToTargets(stepIndex, step, new List<IDamageable> { selected });
             history.Remember((Component)selected);
+        }
+
+        private void ExecutePlasmaField(int stepIndex, StepEntry step, float progress)
+        {
+            if (_ownerStats == null) return;
+            if (!_plasmaFields.TryGetValue(stepIndex, out var field))
+            {
+                float aoe = Mathf.Max(.01f, _ctx != null ? _ctx.AoeScale : 1 + _ownerStats.GetValue(StatType.AreaOfEffect) / 100f);
+                var wave = new PlasmaFieldWave(step.GetFloat("Radius", 4) * aoe, step.GetFloat("WaveWidth", .3f) * aoe);
+                field = (wave, PlasmaFieldVisual.Create(wave.MaxRadius)); _plasmaFields.Add(stepIndex, field);
+            }
+            var body = _ownerStats.GetComponent<Collider2D>();
+            Vector2 center = body != null ? (Vector2)body.bounds.center : (Vector2)_ownerStats.transform.position;
+            center += Vector2.up * step.GetFloat("OffsetY", 0);
+            field.Wave.Advance(progress, out var outward, out var inward);
+            if (outward.Active) DealDamageToTargets(stepIndex, step, CollectPlasmaFieldTargets(center, outward), field.Wave.OutwardHits, true);
+            if (inward.Active) DealDamageToTargets(stepIndex, step, CollectPlasmaFieldTargets(center, inward), field.Wave.ReturnHits, true);
+            field.Visual.Sample(center, progress, field.Wave.RadiusAt(progress));
+        }
+
+        private List<IDamageable> CollectPlasmaFieldTargets(Vector2 center, PlasmaFieldWave.Sweep sweep)
+        {
+            var targets = new List<IDamageable>();
+            var seen = new HashSet<IDamageable>();
+            foreach (var collider in Physics2D.OverlapCircleAll(center, sweep.Outer, _targetLayer))
+            {
+                if (collider == null || IsOwnerCollider(collider) || !sweep.Intersects(collider.bounds, center)) continue;
+                var target = collider.GetComponentInParent<IDamageable>();
+                if (target == null || target is Component component && IsOwnerTransform(component.transform)) continue;
+                if (seen.Add(target)) targets.Add(target);
+            }
+            return targets;
         }
 
         private void ExecuteInstantBeam(int stepIndex, StepEntry step)

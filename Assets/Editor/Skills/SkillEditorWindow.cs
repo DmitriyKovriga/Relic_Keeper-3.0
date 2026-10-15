@@ -688,6 +688,7 @@ namespace Scripts.Editor.Skills
                 case "DealDamageCircle":
                 case "DealDamageRectangle":
                 case "InstantBeam":
+                case "PlasmaField":
                 case "BlinkStab":
                 case "PersistentDamageCircle":
                 case "PersistentDamageRectangle":
@@ -1438,6 +1439,18 @@ namespace Scripts.Editor.Skills
         private void DrawStepTypeFields(SkillRecipeSO recipe, StepEntry step, bool isSubStep)
         {
             string id = step.StepDefinition != null ? step.StepDefinition.Id : "";
+
+            if (id == "PlasmaField")
+            {
+                EditorGUILayout.HelpBox("Expands around the moving caster, then returns. One hit per target on each pass. Timing follows the duration window and spell speed.", MessageType.None);
+                foreach (string key in new[] { "Radius", "WaveWidth", "OffsetY", "DamageMultiplier" })
+                {
+                    float value = step.GetFloat(key), edited = EditorGUILayout.FloatField(key, step.GetFloat(key));
+                    if (edited != value) { step.SetOverrideFloat(key, edited); EditorUtility.SetDirty(recipe); }
+                }
+                DrawDamageConversionRules(recipe, step); DrawSkillScopedModifierFields(recipe, step); DrawOnHitEffectRules(recipe, step);
+                return;
+            }
 
             if (id == "BlinkStab" || id == "InstantBeam")
             {

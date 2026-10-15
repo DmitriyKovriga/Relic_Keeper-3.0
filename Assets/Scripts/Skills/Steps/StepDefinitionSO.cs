@@ -36,6 +36,7 @@ namespace Scripts.Skills.Steps
             Id == "Wait" ||
             Id == "ParryWindow" ||
             Id == "PlayerCharge" ||
+            Id == "PlasmaField" ||
             Id == "PersistentDamageCircle" ||
             Id == "PersistentDamageRectangle";
 

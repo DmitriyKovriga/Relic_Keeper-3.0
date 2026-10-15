@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa469c8d85911614bbc9afc2a526821c, type: 3}
+  m_Name: Recipe_PlasmaField
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.Steps.SkillRecipeSO
+  Steps:
+  - StepDefinition: {fileID: 11400000, guid: 67e6a7df6c27a1344b230a872bdb29c8, type: 2}
+    Overrides: []
+    DamageConversions:
+    - Source: 0
+      Target: 3
+      Percent: 100
+    - Source: 1
+      Target: 3
+      Percent: 100
+    - Source: 2
+      Target: 3
+      Percent: 100
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0
+    EndPercentPipeline: 1
+    SubSteps: []
+  HitStopFrames: 0
+  IsChanneling: 0
+  ChannelLoopStepIndices:
+  ChannelMaxDuration: 5
+  ChannelTickDuration: 0
