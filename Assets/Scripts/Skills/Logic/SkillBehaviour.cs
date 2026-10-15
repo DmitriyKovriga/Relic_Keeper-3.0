@@ -241,6 +241,9 @@ namespace Scripts.Skills
 
         public void TryCast()
         {
+            if (PlayerStasisController.IsActiveFor(_ownerStats))
+                return;
+
             if (_isCasting)
                 return;
 

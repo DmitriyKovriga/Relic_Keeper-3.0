@@ -217,6 +217,12 @@ public class PlayerAttackInput : MonoBehaviour
 
     private void Update()
     {
+        if (PlayerStasisController.IsActiveFor(this))
+        {
+            ClearPressedSkillInputs();
+            _dodgeQueuedUntil = float.NegativeInfinity;
+            return;
+        }
         if (_dodgeAction == null && WasDodgePressedThisFrame())
             QueueDodge(default);
 
@@ -243,6 +249,7 @@ public class PlayerAttackInput : MonoBehaviour
 
     private void QueueDodge(InputAction.CallbackContext context)
     {
+        if (PlayerStasisController.IsActiveFor(this)) return;
         if (ItemTooltipController.Instance != null && ItemTooltipController.Instance.IsConsumingTooltipLockInput)
             return;
 
@@ -253,6 +260,7 @@ public class PlayerAttackInput : MonoBehaviour
     // Called by PlayerMovement after refreshing ground/input and before consuming jump.
     public void TickMovementActions()
     {
+        if (PlayerStasisController.IsActiveFor(this)) return;
         if (_isDodging && TryConvertCurrentDodgeToDashJump())
             return;
         UpdateDodgeState();

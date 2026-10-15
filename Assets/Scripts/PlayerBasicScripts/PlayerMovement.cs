@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Scripts.GameplayEvents;
 using Scripts.Stats;
+using Scripts.Skills;
 using Scripts.Visuals;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -333,6 +334,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (PlayerStasisController.IsActiveFor(this))
+        {
+            _hasQueuedJump = false;
+            _rb.linearVelocity = Vector2.zero;
+            return;
+        }
         // Sample intent even during a dash/skill lock; locks restrict motion, not input.
         SampleMovementInput();
         UpdateDropThroughState();
@@ -358,6 +365,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
+        if (PlayerStasisController.IsActiveFor(this)) return;
         // Input callbacks can run between Update and FixedUpdate. Sampling here preserves a
         // freshly pressed Down even when Jump is pressed almost simultaneously before landing.
         SampleMovementInput();

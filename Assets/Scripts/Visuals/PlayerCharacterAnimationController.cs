@@ -133,6 +133,7 @@ namespace Scripts.Visuals
 
         private void Update()
         {
+            if (Scripts.Skills.PlayerStasisController.IsActiveFor(this)) return;
             if (_movement == null || _renderer == null)
                 return;
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using Scripts.Stats;
+using Scripts.Skills;
 using Scripts.Combat;
 using Scripts.Configuration;
 using Scripts.GameplayEvents;
@@ -38,6 +39,14 @@ namespace Scripts.Enemies
             result.RawFire = Mathf.Max(0f, damage.Fire * enemyDamageMultiplier);
             result.RawCold = Mathf.Max(0f, damage.Cold * enemyDamageMultiplier);
             result.RawLightning = Mathf.Max(0f, damage.Lightning * enemyDamageMultiplier);
+
+            if (PlayerStasisController.IsActiveFor(this))
+            {
+                result.WasImmune = true;
+                var stats = _stats != null ? _stats : GetComponent<PlayerStats>();
+                result.HealthBefore = result.HealthAfter = stats.Health.Current;
+                return result;
+            }
 
             if (_attackInput == null)
                 _attackInput = GetComponent<PlayerAttackInput>();
@@ -145,7 +154,7 @@ namespace Scripts.Enemies
 
         public void ApplyPureDamage(float amount, object source, string damageType = "Pure")
         {
-            if (PlaytestConfiguration.PlayerImmortal)
+            if (PlaytestConfiguration.PlayerImmortal || PlayerStasisController.IsActiveFor(this))
                 return;
 
             if (_stats == null)

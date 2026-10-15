@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -221,6 +221,11 @@ namespace Scripts.Skills
                         ? $"Кольцо молний расширяется до {N(step.GetFloat("Radius", 4))} м, затем сжимается к герою. Поражает каждую цель один раз при расширении и ещё раз при возвращении."
                         : $"A lightning ring expands to {N(step.GetFloat("Radius", 4))} m, then contracts to the player. Hits each target once outward and once on the return.");
                     AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
+                    break;
+                case "SelfStasis":
+                    Add(lines, unique, ru
+                        ? $"Ледяной кристалл на {N(step.GetFloat("Duration", 5))} сек.: невосприимчивость к урону, запрет движения, уклонений и умений. Восстанавливает {N(step.GetFloat("HealPercentPerSecond", 10))}% максимального здоровья в секунду."
+                        : $"Encases you in an ice crystal for {N(step.GetFloat("Duration", 5))}s: immune to damage; cannot move, dodge or use skills. Restores {N(step.GetFloat("HealPercentPerSecond", 10))}% of maximum life per second.");
                     break;
                 case "ForwardBlink":
                     Add(lines, unique, ru

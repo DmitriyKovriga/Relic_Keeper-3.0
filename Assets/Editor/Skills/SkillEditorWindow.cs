@@ -675,6 +675,7 @@ namespace Scripts.Editor.Skills
             {
                 case "MovementLock":
                 case "MovementUnlock":
+                case "SelfStasis":
                 case "ForwardBlink":
                 case "PlayerImpulse":
                 case "WeaponWindup":
@@ -1440,6 +1441,17 @@ namespace Scripts.Editor.Skills
         private void DrawStepTypeFields(SkillRecipeSO recipe, StepEntry step, bool isSubStep)
         {
             string id = step.StepDefinition != null ? step.StepDefinition.Id : "";
+
+            if (id == "SelfStasis")
+            {
+                EditorGUILayout.HelpBox("Player-owned stasis: fixed seconds, full damage immunity, movement/dodge/skill lock, maximum-life healing per second. Survives weapon swaps.", MessageType.None);
+                foreach (string key in new[] { "Duration", "HealPercentPerSecond" })
+                {
+                    float value = step.GetFloat(key), edited = EditorGUILayout.FloatField(key, value);
+                    if (edited != value) { step.SetOverrideFloat(key, Mathf.Max(0, edited)); EditorUtility.SetDirty(recipe); }
+                }
+                return;
+            }
 
             if (id == "ForwardBlink")
             {

@@ -371,6 +371,11 @@ namespace Scripts.Skills
                     break;
                 case "Wait":
                     break;
+                case "SelfStasis":
+                    var stasis = _ownerStats.GetComponent<PlayerStasisController>();
+                    if (stasis == null) stasis = _ownerStats.gameObject.AddComponent<PlayerStasisController>();
+                    stasis.Begin(step.GetFloat("Duration", 5), step.GetFloat("HealPercentPerSecond", 10), this);
+                    break;
                 case "ForwardBlink":
                     ExecuteForwardBlink(step);
                     break;

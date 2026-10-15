@@ -93,11 +93,13 @@ namespace Scripts.Skills
             _suppressSkillUsage = suppressed;
         }
 
-        public void CancelAllSkills()
+        public void CancelAllSkills() => CancelAllSkillsExcept(null);
+
+        public void CancelAllSkillsExcept(SkillBehaviour except)
         {
             foreach (var pair in _activeSkills)
             {
-                if (pair.Value != null)
+                if (pair.Value != null && pair.Value != except)
                     pair.Value.Cancel();
             }
         }

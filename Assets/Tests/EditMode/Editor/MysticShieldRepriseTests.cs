@@ -37,7 +37,7 @@ namespace RelicKeeper.Tests.EditMode
             _objects.Clear();
         }
 
-        [Test] public void GeneratedMysticShieldRollsDefensiveAffixesAndReprise()
+        [Test] public void GeneratedMysticShieldRollsDefensiveAffixesAndAnEligibleSkill()
         {
             var shield = AssetDatabase.LoadAssetAtPath<WeaponItemSO>(RelicKeeper.Editor.VFX.MysticShieldRepriseBuilder.ItemPath);
             var source = AssetDatabase.LoadAssetAtPath<AffixPoolSO>("Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/HelmetsMysticPool.asset");
@@ -47,7 +47,9 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(shield.AffixPool.Affixes, Is.EquivalentTo(source.Affixes));
             Assert.That(shield.AffixPool.Affixes.Count, Is.GreaterThan(0));
             var item = ItemGenerator.GenerateRuntime(shield, 1, 1);
-            Assert.That(item.GrantedSkills, Is.EqualTo(new[] { Skill }));
+            Assert.That(item.GrantedSkills.Count, Is.EqualTo(1));
+            var pool = AssetDatabase.LoadAssetAtPath<SkillPoolSO>("Assets/Resources/Skills/Shields/MysticShieldSkillPool.asset");
+            Assert.That(pool.PossibleSkills.Exists(entry => entry.Skill == item.GrantedSkills[0]), Is.True);
             Assert.That(item.Affixes.Count, Is.GreaterThan(0));
         }
 

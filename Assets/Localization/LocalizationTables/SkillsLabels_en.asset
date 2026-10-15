@@ -424,6 +424,14 @@ MonoBehaviour:
     m_Localized:
     m_Metadata:
       m_Items: []
+  - m_Id: 101409656608223232
+    m_Localized: Frost Anabiosis
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101409656704692224
+    m_Localized:
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
