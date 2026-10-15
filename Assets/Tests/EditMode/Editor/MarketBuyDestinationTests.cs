@@ -52,6 +52,58 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void RefreshStock_ReplacesStockAndPreservesBuybackAndGold()
+        {
+            var oldStock = CreateArmor("old-stock", EquipmentSlot.Helmet);
+            var sold = CreateArmor("sold-item", EquipmentSlot.Helmet);
+            MarketManager.EnsureInstance();
+            Assert.That(_market.TryAddItemPreferringTab(oldStock, 0), Is.True);
+            Assert.That(_market.AcceptSoldItem(sold), Is.True);
+            int gold = GoldWallet.Amount;
+            int changes = 0;
+            _market.OnChanged += () => changes++;
+
+            _market.RefreshStock();
+
+            Assert.That(changes, Is.EqualTo(1));
+            Assert.That(GoldWallet.Amount, Is.EqualTo(gold));
+            bool foundBuyback = false;
+            for (int tab = 0; tab < _market.TabCount; tab++)
+            for (int slot = 0; slot < StashManager.STASH_COLS * StashManager.STASH_ROWS; slot++)
+            {
+                Assert.That(_market.GetItem(tab, slot), Is.Not.SameAs(oldStock));
+                if (_market.GetItem(tab, slot) == sold)
+                {
+                    Assert.That(_market.IsBuybackTab(tab), Is.True);
+                    foundBuyback = true;
+                }
+            }
+            Assert.That(foundBuyback, Is.True);
+        }
+
+        [Test]
+        public void SpawnMerchant_RefreshesOncePerArrival_StashDoesNotRefresh()
+        {
+            MarketManager.EnsureInstance();
+            var room = new GameObject("market-test-room");
+            _createdObjects.Add(room);
+            int changes = 0;
+            _market.OnChanged += () => changes++;
+            var merchant = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Spawner/MarketNPC.prefab");
+            var stash = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Spawner/StashNPC.prefab");
+
+            Assert.That(Scripts.Dungeon.DungeonRoomServiceSpawner.SpawnMerchant(
+                new Vector2(1000, 1000), room.transform, merchant), Is.Not.Null);
+            Assert.That(changes, Is.EqualTo(1));
+            MarketManager.EnsureInstance();
+            Assert.That(changes, Is.EqualTo(1), "Accessing the existing store must not reroll it.");
+            Scripts.Dungeon.DungeonRoomServiceSpawner.SpawnStash(new Vector2(1000, 1000), room.transform, stash);
+            Assert.That(changes, Is.EqualTo(1));
+            Scripts.Dungeon.DungeonRoomServiceSpawner.SpawnMerchant(new Vector2(1000, 1000), room.transform, merchant);
+            Assert.That(changes, Is.EqualTo(2));
+        }
+
+        [Test]
         public void TryBuy_EmptyEquipmentSlot_EquipsPurchasedItem()
         {
             InventoryItem helmet = CreateArmor("shop-helm", EquipmentSlot.Helmet);

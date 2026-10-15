@@ -144,6 +144,30 @@
     z-index: 3;
 }
 
+.market-reroll {
+    width: 58px;
+    min-width: 58px;
+    height: 14px;
+    flex-shrink: 0;
+    margin: 0 0 0 2px;
+    padding: 0 2px;
+    border-width: 1px;
+    border-radius: 0;
+    border-color: rgb(122, 112, 85);
+    background-color: rgb(42, 46, 43);
+    color: rgb(235, 224, 192);
+    font-size: 9px;
+    -unity-text-align: middle-center;
+}
+
+.market-reroll:hover {
+    background-color: rgb(66, 69, 57);
+}
+
+.market-reroll:active {
+    background-color: rgb(86, 80, 61);
+}
+
 .stash-tabs-scroll {
     flex-grow: 1;
     min-width: 0;

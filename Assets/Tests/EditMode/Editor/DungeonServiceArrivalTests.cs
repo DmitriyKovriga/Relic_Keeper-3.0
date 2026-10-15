@@ -20,6 +20,8 @@ namespace RelicKeeper.Tests.EditMode
             _settings = Resources.Load<DungeonServiceArrivalSettings>(DungeonServiceArrivalSettings.ResourcePath);
             Assert.That(_settings, Is.Not.Null);
             _room = new GameObject("Arrival test room");
+            // Room merchants now refresh the market; keep its lifetime inside this fixture.
+            _room.AddComponent<Scripts.Economy.MarketManager>();
             var ground = new GameObject("Ground") { layer = 6 };
             ground.transform.SetParent(_room.transform);
             ground.transform.position = new Vector3(1000, -0.5f, 0);

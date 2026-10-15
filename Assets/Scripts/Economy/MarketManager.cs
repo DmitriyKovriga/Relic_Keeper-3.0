@@ -11,7 +11,7 @@ namespace Scripts.Economy
 {
     /// <summary>
     /// Vendor stock + unlimited buyback tabs. Reuses the stash grid size so the stash window can host it.
-    /// Shop stock refreshes when the player returns to the hub from a raid.
+    /// Stock refreshes on return to the hub, on dungeon merchant arrival, or on manual reroll.
     /// </summary>
     public class MarketManager : MonoBehaviour, ITabbedItemGrid
     {

@@ -487,10 +487,30 @@ internal sealed class StashTabsPresenter
         stashTabsRow.Add(scroll);
         stashTabsRow.Add(next);
 
+        bool isMarket = stash is Scripts.Economy.MarketManager;
+        if (isMarket)
+        {
+            var reroll = new Button(() =>
+            {
+                if (_getGrid?.Invoke() is Scripts.Economy.MarketManager market)
+                    market.RefreshStock();
+            })
+            {
+                name = "MarketRerollButton",
+                text = Scripts.UI.RuntimeLocalization.Resolve("market.reroll", "Reroll", "Обновить"),
+                tooltip = Scripts.UI.RuntimeLocalization.Resolve("market.reroll.hint",
+                    "Refresh items for sale. Buyback items are kept.",
+                    "Обновить товары. Предметы для выкупа сохраняются.")
+            };
+            reroll.AddToClassList("market-reroll");
+            stashTabsRow.Add(reroll);
+        }
+
         void UpdateNavigation()
         {
             // Compare with the whole row so showing the arrows cannot cause an overflow/layout loop.
-            bool overflow = content.layout.width > stashTabsRow.contentRect.width + 0.5f;
+            float availableWidth = stashTabsRow.contentRect.width - (isMarket ? 60f : 0f);
+            bool overflow = content.layout.width > availableWidth + 0.5f;
             previous.style.display = next.style.display = overflow ? DisplayStyle.Flex : DisplayStyle.None;
             previous.SetEnabled(scroll.horizontalScroller.value > 0.5f);
             next.SetEnabled(scroll.horizontalScroller.value < scroll.horizontalScroller.highValue - 0.5f);
