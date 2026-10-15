@@ -103,7 +103,7 @@ namespace Scripts.Skills
             {
                 foreach (var step in _data.Recipe.Steps)
                 {
-                    if (step?.StepDefinition?.Id != "SpawnProjectile") continue;
+                    if (step?.StepDefinition?.Id != "SpawnProjectile" && step?.StepDefinition?.Id != "ArrowRain") continue;
                     _animCtrl.PrepareDrawnProjectile(step.GetObject<GameObject>("ProjectilePrefab"));
                     break;
                 }
@@ -370,6 +370,10 @@ namespace Scripts.Skills
                     _animCtrl.LerpRecovery(phaseT);
                     break;
                 case "Wait":
+                    break;
+                case "ArrowRain":
+                    ArrowArtilleryBarrage.Create(_ownerStats, _data, step, SlotIndex);
+                    _animCtrl?.ReleaseDrawnProjectile();
                     break;
                 case "WinterStorm":
                     var storm = _ownerStats.GetComponent<PlayerWinterStormController>();

@@ -90,6 +90,8 @@ namespace Scripts.Skills.Projectiles
         public bool UseElementalSpellDamage;
         public DamageChannel ElementalSpellTarget = DamageChannel.Fire;
         public HashSet<IDamageable> HitHistory;
+        // Optional per-volley budget, shared by sibling arrows but never cleared by pooled initialization.
+        public HashSet<IDamageable> SharedHitHistory;
         public SkillDataSO Skill;
         public SkillHitStopGate HitStopGate;
 
@@ -545,6 +547,8 @@ namespace Scripts.Skills.Projectiles
         {
             if (target == null || _data == null)
                 return true;
+            if (_data.SharedHitHistory != null && _data.SharedHitHistory.Contains(target))
+                return true;
 
             float cooldown = Mathf.Max(0f, _data.RehitCooldownSeconds);
             if (cooldown <= 0f)
@@ -557,6 +561,7 @@ namespace Scripts.Skills.Projectiles
         {
             if (target == null || _data == null)
                 return;
+            _data.SharedHitHistory?.Add(target);
 
             float cooldown = Mathf.Max(0f, _data.RehitCooldownSeconds);
             if (cooldown <= 0f)

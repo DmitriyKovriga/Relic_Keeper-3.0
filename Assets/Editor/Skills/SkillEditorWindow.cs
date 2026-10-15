@@ -690,6 +690,7 @@ namespace Scripts.Editor.Skills
                 case "DealDamageCircle":
                 case "DealDamageRectangle":
                 case "InstantBeam":
+                case "ArrowRain":
                 case "WinterStorm":
                 case "PlasmaField":
                 case "BlinkStab":
@@ -1442,6 +1443,23 @@ namespace Scripts.Editor.Skills
         private void DrawStepTypeFields(SkillRecipeSO recipe, StepEntry step, bool isSubStep)
         {
             string id = step.StepDefinition != null ? step.StepDefinition.Id : "";
+
+            if (id == "ArrowRain")
+            {
+                EditorGUILayout.HelpBox("Falling arrows share one hit per enemy for the barrage. Stops on terrain. Uses weapon damage and persists after source cancellation.", MessageType.None);
+                foreach (string key in new[] { "Radius", "SpawnHeight", "RainDelay", "RainDuration", "ArrowSpeed", "ArrowLifetime", "DamageMultiplier" })
+                {
+                    float value = step.GetFloat(key), edited = EditorGUILayout.FloatField(key, value);
+                    if (edited != value) { step.SetOverrideFloat(key, Mathf.Max(.01f, edited)); EditorUtility.SetDirty(recipe); }
+                }
+                int count = EditorGUILayout.IntField("Arrow Count", step.GetInt("ArrowCount", 17));
+                if (count != step.GetInt("ArrowCount", 17)) { step.SetOverrideInt("ArrowCount", Mathf.Clamp(count, 3, 96)); EditorUtility.SetDirty(recipe); }
+                var prefab = step.GetObject<GameObject>("ProjectilePrefab");
+                var editedPrefab = (GameObject)EditorGUILayout.ObjectField("Projectile Prefab", prefab, typeof(GameObject), false);
+                if (editedPrefab != prefab) { step.SetOverrideObject("ProjectilePrefab", editedPrefab); EditorUtility.SetDirty(recipe); }
+                DrawDamageConversionRules(recipe, step); DrawSkillScopedModifierFields(recipe, step); DrawOnHitEffectRules(recipe, step);
+                return;
+            }
 
             if (id == "WinterStorm")
             {

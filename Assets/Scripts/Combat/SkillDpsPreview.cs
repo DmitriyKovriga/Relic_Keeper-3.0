@@ -287,6 +287,7 @@ namespace Scripts.Combat
                 || id == "InstantBeam"
                 || id == "PlasmaField"
                 || id == "WinterStorm"
+                || id == "ArrowRain"
                 || id == "BlinkStab"
                 || id == "ChainDamage"
                 || id == "PersistentDamageCircle"

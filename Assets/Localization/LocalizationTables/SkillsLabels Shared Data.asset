@@ -427,6 +427,14 @@ MonoBehaviour:
     m_Key: skills.WinterStorm.description
     m_Metadata:
       m_Items: []
+  - m_Id: 101423537627951104
+    m_Key: skills.ArrowArtillery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101423537724420096
+    m_Key: skills.ArrowArtillery.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -31,6 +31,7 @@ namespace RelicKeeper.Tests.EditMode
             holder.SetParent(pivot, false);
             holder.localPosition = new Vector3(0.3f, 0.2f, 0);
             _bow = holder.gameObject.AddComponent<SpriteRenderer>();
+            _bow.sprite = Resources.Load<Scripts.Items.WeaponItemSO>("Items/2HWeapon/Bow/Adventurer's Bow").InHandSprite;
             var stats = _owner.AddComponent<PlayerStats>();
             _animation = _owner.AddComponent<SkillHandAnimation>();
             _animation.Initialize(stats);

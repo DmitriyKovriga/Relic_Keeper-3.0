@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -220,6 +220,12 @@ namespace Scripts.Skills
                     Add(lines, unique, ru
                         ? $"Кольцо молний расширяется до {N(step.GetFloat("Radius", 4))} м, затем сжимается к герою. Поражает каждую цель один раз при расширении и ещё раз при возвращении."
                         : $"A lightning ring expands to {N(step.GetFloat("Radius", 4))} m, then contracts to the player. Hits each target once outward and once on the return.");
+                    AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
+                    break;
+                case "ArrowRain":
+                    Add(lines, unique, ru
+                        ? $"Град стрел вокруг места применения. Радиус: {N(step.GetFloat("Radius", 3))} м. Каждая цель получает одно попадание за залп; дополнительные стрелы не умножают урон."
+                        : $"Rain of arrows around the cast position. Radius: {N(step.GetFloat("Radius", 3))} m. Each target is hit once per barrage; overlapping arrows do not multiply damage.");
                     AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
                     break;
                 case "WinterStorm":
