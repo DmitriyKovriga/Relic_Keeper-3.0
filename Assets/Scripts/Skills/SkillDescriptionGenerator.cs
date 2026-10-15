@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -221,6 +221,11 @@ namespace Scripts.Skills
                         ? $"Кольцо молний расширяется до {N(step.GetFloat("Radius", 4))} м, затем сжимается к герою. Поражает каждую цель один раз при расширении и ещё раз при возвращении."
                         : $"A lightning ring expands to {N(step.GetFloat("Radius", 4))} m, then contracts to the player. Hits each target once outward and once on the return.");
                     AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
+                    break;
+                case "ForwardBlink":
+                    Add(lines, unique, ru
+                        ? $"Телепортация на {N(step.GetFloat("Distance", 5))} клеток в сторону взгляда. Останавливается перед твёрдыми препятствиями."
+                        : $"Blink {N(step.GetFloat("Distance", 5))} tiles in the facing direction. Stops before solid obstacles.");
                     break;
                 case "BlinkStab":
                     Add(lines, unique, ru

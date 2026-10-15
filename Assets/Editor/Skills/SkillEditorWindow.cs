@@ -675,6 +675,7 @@ namespace Scripts.Editor.Skills
             {
                 case "MovementLock":
                 case "MovementUnlock":
+                case "ForwardBlink":
                 case "PlayerImpulse":
                 case "WeaponWindup":
                 case "WeaponStrike":
@@ -1439,6 +1440,17 @@ namespace Scripts.Editor.Skills
         private void DrawStepTypeFields(SkillRecipeSO recipe, StepEntry step, bool isSubStep)
         {
             string id = step.StepDefinition != null ? step.StepDefinition.Id : "";
+
+            if (id == "ForwardBlink")
+            {
+                EditorGUILayout.HelpBox("Instant horizontal blink. Stops before solid terrain; preserves airborne momentum. One tile = one world unit.", MessageType.None);
+                foreach (string key in new[] { "Distance", "Clearance" })
+                {
+                    float value = step.GetFloat(key), edited = EditorGUILayout.FloatField(key, value);
+                    if (edited != value) { step.SetOverrideFloat(key, Mathf.Max(0, edited)); EditorUtility.SetDirty(recipe); }
+                }
+                return;
+            }
 
             if (id == "PlasmaField")
             {

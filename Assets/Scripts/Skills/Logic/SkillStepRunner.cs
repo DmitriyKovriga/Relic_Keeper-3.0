@@ -371,6 +371,9 @@ namespace Scripts.Skills
                     break;
                 case "Wait":
                     break;
+                case "ForwardBlink":
+                    ExecuteForwardBlink(step);
+                    break;
                 case "BlinkStab":
                     ExecuteBlinkStab(stepIndex, step);
                     break;
@@ -1250,6 +1253,33 @@ namespace Scripts.Skills
             ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
             var targets = GetTargetsInBox(center, size, angle);
             DealDamageToTargets(stepIndex, step, targets);
+        }
+
+        private void ExecuteForwardBlink(StepEntry step)
+        {
+            if (_ownerStats == null || _ctx == null) return;
+            var body = _ownerStats.GetComponent<Collider2D>();
+            if (body == null || !body.enabled) return;
+            int facing = _ctx.FacingDirection < 0 ? -1 : 1;
+            Vector2 origin = _ownerStats.transform.position;
+            Vector2 destination = ForwardBlinkGeometry.Destination(body, origin, facing,
+                step.GetFloat("Distance", 5), step.GetInt("WorldLayerMask", 1 << 6), step.GetFloat("Clearance", .04f));
+            if ((destination - origin).sqrMagnitude < .000001f) return;
+            Vector2 departure = body.bounds.center;
+            var rigidbody = _ownerStats.GetComponent<Rigidbody2D>();
+            Vector2 velocity = rigidbody != null ? rigidbody.linearVelocity : Vector2.zero;
+            var movement = _ownerStats.GetComponent<PlayerMovement>();
+            if (movement != null) movement.TeleportForSkill(destination, facing);
+            else
+            {
+                if (rigidbody != null) rigidbody.position = destination;
+                _ownerStats.transform.position = new Vector3(destination.x, destination.y, _ownerStats.transform.position.z);
+                Physics2D.SyncTransforms();
+            }
+            // A horizontal blink preserves jump/fall momentum and grants no extra jump or invulnerability.
+            if (rigidbody != null) rigidbody.linearVelocity = velocity;
+            BlinkStabVisual.Spawn(departure, facing, false);
+            BlinkStabVisual.Spawn(body.bounds.center, facing, false);
         }
 
         private void ExecuteBlinkStab(int stepIndex, StepEntry step)
