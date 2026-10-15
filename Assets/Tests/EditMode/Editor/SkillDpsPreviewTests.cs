@@ -101,6 +101,7 @@ namespace RelicKeeper.Tests.EditMode
             stats.Set(StatType.DamagePhysical, 10f);
             stats.Set(StatType.AttackSpeed, 1f);
             stats.Set(StatType.BleedChance, 40f);
+            stats.Set(StatType.BleedDamageMult, 70f); // Explicit fixture: the runtime default is now 50%.
 
             SkillDataSO skill = ScriptableObject.CreateInstance<SkillDataSO>();
             try

@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -227,6 +227,16 @@ namespace Scripts.Skills
                         ? $"Град стрел вокруг места применения. Радиус: {N(step.GetFloat("Radius", 3))} м. Каждая цель получает одно попадание за залп; дополнительные стрелы не умножают урон."
                         : $"Rain of arrows around the cast position. Radius: {N(step.GetFloat("Radius", 3))} m. Each target is hit once per barrage; overlapping arrows do not multiply damage.");
                     AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
+                    break;
+                case "IceSkates":
+                    var ice = step.GetObject<GroundSurfaceEffectSO>("SurfaceEffect");
+                    float skatingDuration = EffectDurationCalculator.Resolve(step.GetFloat("Duration", 8), durationStats);
+                    Add(lines, unique, ru
+                        ? $"Скольжение на {N(skatingDuration)} сек.; на {N(step.GetFloat("SpeedBonusPercent", 35))}% больше скорости передвижения. Оставляет на земле лёд на {N(ice != null ? ice.Lifetime : 3)} сек."
+                        : $"Glide for {N(skatingDuration)}s with {N(step.GetFloat("SpeedBonusPercent", 35))}% more movement speed. Leaves ground ice lasting {N(ice != null ? ice.Lifetime : 3)}s.");
+                    Add(lines, unique, ru
+                        ? $"Лёд наносит {N((ice != null ? ice.WeaponDamagePerSecond : .3f) * 100)}% урона оружия в секунду контакта. Весь урон преобразуется в холод; действуют обычные правила холодных состояний. Перекрывающийся лёд не умножает урон."
+                        : $"Ice deals {N((ice != null ? ice.WeaponDamagePerSecond : .3f) * 100)}% weapon damage per second of contact, fully converted to cold. Uses normal cold-ailment rules. Overlapping ice does not multiply damage.");
                     break;
                 case "WinterStorm":
                     Add(lines, unique, ru

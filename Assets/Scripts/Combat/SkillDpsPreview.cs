@@ -131,6 +131,16 @@ namespace Scripts.Combat
 
         private static SkillHitDpsPreview BuildHitPreview(SkillDataSO skill, IStatsProvider stats, float castsPerSecond)
         {
+            // Surface damage is displayed per second of contact, independent of the buff's cooldown.
+            if (skill?.Recipe?.Steps?.Count == 1 && skill.Recipe.Steps[0]?.StepDefinition?.Id == "IceSkates")
+            {
+                var step = skill.Recipe.Steps[0];
+                var surface = step.GetObject<GroundSurfaceEffectSO>("SurfaceEffect");
+                if (surface == null) return default;
+                var hit = DamageCalculator.CreatePreviewSnapshot(ApplyStepScopedStats(stats, step),
+                    surface.WeaponDamagePerSecond * surface.DamageInterval, ResolveDamageContext(skill), surface.DamageConversions);
+                return new SkillHitDpsPreview(hit.Physical, hit.Fire, hit.Cold, hit.Lightning, 1 / surface.DamageInterval);
+            }
             float physical = 0f;
             float fire = 0f;
             float cold = 0f;

@@ -457,6 +457,9 @@ public class PlayerMovement : MonoBehaviour
             && Mathf.Abs(currentHorizontalSpeed) > Mathf.Abs(targetSpeed))
             acceleration = Mathf.Min(acceleration, _momentumDeceleration * 0.5f);
 
+        if (_isGrounded && TryGetComponent<Scripts.Skills.PlayerIceSkatesController>(out var skates) && skates.IsActive)
+            acceleration = skates.Acceleration(finalSpeed, hasInput, reversing);
+
         bool preserveFastFallMomentum = _isFastFalling && !hasInput;
         float nextHorizontalSpeed = preserveFastFallMomentum
             ? currentHorizontalSpeed

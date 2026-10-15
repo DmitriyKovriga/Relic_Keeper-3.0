@@ -675,6 +675,7 @@ namespace Scripts.Editor.Skills
             {
                 case "MovementLock":
                 case "MovementUnlock":
+                case "IceSkates":
                 case "SelfStasis":
                 case "ForwardBlink":
                 case "PlayerImpulse":
@@ -1458,6 +1459,22 @@ namespace Scripts.Editor.Skills
                 var editedPrefab = (GameObject)EditorGUILayout.ObjectField("Projectile Prefab", prefab, typeof(GameObject), false);
                 if (editedPrefab != prefab) { step.SetOverrideObject("ProjectilePrefab", editedPrefab); EditorUtility.SetDirty(recipe); }
                 DrawDamageConversionRules(recipe, step); DrawSkillScopedModifierFields(recipe, step); DrawOnHitEffectRules(recipe, step);
+                return;
+            }
+
+            if (id == "IceSkates")
+            {
+                EditorGUILayout.HelpBox("Ground-only trail. Same-source patches share one damage clock. Surface asset controls lifetime, damage/sec, conversions and optional contact debuffs.", MessageType.None);
+                foreach (string key in new[] { "Duration", "SpeedBonusPercent", "AccelerationPerSpeed", "BrakePerSpeed", "TurnPerSpeed" })
+                {
+                    float value = step.GetFloat(key), edited = EditorGUILayout.FloatField(key, value);
+                    if (edited != value) { step.SetOverrideFloat(key, Mathf.Max(0, edited)); EditorUtility.SetDirty(recipe); }
+                }
+                var surface = step.GetObject<GroundSurfaceEffectSO>("SurfaceEffect");
+                var editedSurface = (GroundSurfaceEffectSO)EditorGUILayout.ObjectField("Ground Surface", surface, typeof(GroundSurfaceEffectSO), false);
+                if (editedSurface != surface) { step.SetOverrideObject("SurfaceEffect", editedSurface); EditorUtility.SetDirty(recipe); }
+                if (surface != null && GUILayout.Button("Edit surface settings")) Selection.activeObject = surface;
+                DrawSkillScopedModifierFields(recipe, step); DrawOnHitEffectRules(recipe, step);
                 return;
             }
 

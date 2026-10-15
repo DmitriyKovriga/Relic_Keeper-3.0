@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 16e5b693ef63f6d4491fd3ede7cf12a2, type: 3}
   m_Name: ItemDatabaseSO
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   BaseItemDropChance: 0.13
   MagicItemDropChance: 0.2
   RareItemDropChance: 0.1
@@ -988,3 +988,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cbaaada42048f8a46badce093a6d2097, type: 2}
   - {fileID: 11400000, guid: 32d578bb235dd964a95f3c03a6acff07, type: 2}
   - {fileID: 11400000, guid: e5facf4437332c043a30de320cf8db29, type: 2}
+  - {fileID: 11400000, guid: c516407ff064faf4eb4ef3a198debcec, type: 2}

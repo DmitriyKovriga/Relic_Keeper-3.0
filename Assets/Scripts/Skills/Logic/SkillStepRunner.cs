@@ -375,6 +375,11 @@ namespace Scripts.Skills
                     ArrowArtilleryBarrage.Create(_ownerStats, _data, step, SlotIndex);
                     _animCtrl?.ReleaseDrawnProjectile();
                     break;
+                case "IceSkates":
+                    var skates = _ownerStats.GetComponent<PlayerIceSkatesController>();
+                    if (skates == null) skates = _ownerStats.gameObject.AddComponent<PlayerIceSkatesController>();
+                    skates.Begin(_data, step, SlotIndex, this);
+                    break;
                 case "WinterStorm":
                     var storm = _ownerStats.GetComponent<PlayerWinterStormController>();
                     if (storm == null) storm = _ownerStats.gameObject.AddComponent<PlayerWinterStormController>();
@@ -1277,6 +1282,9 @@ namespace Scripts.Skills
             _ctx = new SkillStepContext { OwnerStats = owner };
             _moveCtrl = null; _animCtrl = null;
         }
+
+        internal void EmitTargetPulse(StepEntry step, IDamageable target) =>
+            DealDamageToTargets(-1, step, new List<IDamageable> { target });
 
         internal void EmitAreaPulse(StepEntry step, Vector2 center, float radius)
         {

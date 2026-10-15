@@ -448,6 +448,14 @@ MonoBehaviour:
     m_Localized:
     m_Metadata:
       m_Items: []
+  - m_Id: 101431617510010880
+    m_Localized: Ice Skates
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101431617610674176
+    m_Localized:
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

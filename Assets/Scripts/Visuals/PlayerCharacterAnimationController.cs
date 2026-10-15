@@ -163,7 +163,7 @@ namespace Scripts.Visuals
             {
                 _wasMovingUp = false;
                 _hasStartedFallThisAirborne = false;
-                if (Mathf.Abs(velocity.x) > HorizontalMoveThreshold)
+                if (Mathf.Abs(velocity.x) > HorizontalMoveThreshold && !Scripts.Skills.PlayerIceSkatesController.IsActiveFor(this))
                     Play(AnimationState.Run, _run);
                 else
                     PlayIdle();
