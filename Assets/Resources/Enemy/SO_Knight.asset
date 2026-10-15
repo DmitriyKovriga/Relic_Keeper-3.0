@@ -102,7 +102,7 @@ MonoBehaviour:
     DashSpeed: 8.5
     DashDuration: 0.26
     DashOvershootDistance: 1.1
-    IgnoreLedgesDuringDash: 0
+    IgnoreLedgesDuringDash: 1
   Behaviour:
     DecisionIntervalMin: 0.08
     DecisionIntervalMax: 0.16
