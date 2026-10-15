@@ -384,6 +384,14 @@ MonoBehaviour:
     m_Localized:
     m_Metadata:
       m_Items: []
+  - m_Id: 101254608410632192
+    m_Localized: Electric Beam
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101254608519684096
+    m_Localized:
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -274,6 +274,7 @@ namespace Scripts.Combat
             return isProjectile
                 || id == "DealDamageCircle"
                 || id == "DealDamageRectangle"
+                || id == "InstantBeam"
                 || id == "ChainDamage"
                 || id == "PersistentDamageCircle"
                 || id == "PersistentDamageRectangle";

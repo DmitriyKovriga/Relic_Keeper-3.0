@@ -408,6 +408,9 @@ namespace Scripts.Skills
                 case "DealDamageRectangle":
                     ExecuteDealDamageRectangle(stepIndex, step);
                     break;
+                case "InstantBeam":
+                    ExecuteInstantBeam(stepIndex, step);
+                    break;
                 case "PersistentDamageCircle":
                     ExecutePersistentDamageCircle(stepIndex, step);
                     break;
@@ -1231,6 +1234,24 @@ namespace Scripts.Skills
         {
             ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
             var targets = GetTargetsInBox(center, size, angle);
+            DealDamageToTargets(stepIndex, step, targets);
+        }
+
+        private void ExecuteInstantBeam(int stepIndex, StepEntry step)
+        {
+            Vector2 ownerPosition = _ownerStats.transform.position;
+            Vector2 start = ownerPosition + new Vector2(
+                step.GetFloat("OffsetX", 0.45f) * _ctx.FacingDirection,
+                step.GetFloat("OffsetY", 0.25f));
+            // Trace from the caster, including the muzzle offset, so a nearby wall cannot be skipped.
+            float length = InstantBeamGeometry.ResolveLength(ownerPosition, start,
+                _ctx.FacingDirection, step.GetFloat("Range", 12f), step.GetInt("WorldLayerMask", 1 << 6));
+            if (length <= 0f)
+                return;
+            float width = Mathf.Max(0.05f, step.GetFloat("Width", 0.35f)) * SkillAoeScale.FromAoe(_ctx.AoeScale).y;
+            Vector2 end = start + Vector2.right * _ctx.FacingDirection * length;
+            ElectricBeamVisual.Spawn(start, end, step.GetFloat("VisualLifetime", 0.28f), width);
+            var targets = GetTargetsInBox((start + end) * 0.5f, new Vector2(length, width), 0f);
             DealDamageToTargets(stepIndex, step, targets);
         }
 

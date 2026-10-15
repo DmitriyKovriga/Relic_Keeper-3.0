@@ -687,6 +687,7 @@ namespace Scripts.Editor.Skills
                 case "SpawnOrbitProjectiles":
                 case "DealDamageCircle":
                 case "DealDamageRectangle":
+                case "InstantBeam":
                 case "PersistentDamageCircle":
                 case "PersistentDamageRectangle":
                     return StepEditorCategory.HitboxesVfxProjectiles;
@@ -1436,6 +1437,24 @@ namespace Scripts.Editor.Skills
         private void DrawStepTypeFields(SkillRecipeSO recipe, StepEntry step, bool isSubStep)
         {
             string id = step.StepDefinition != null ? step.StepDefinition.Id : "";
+
+            if (id == "InstantBeam")
+            {
+                EditorGUILayout.HelpBox("Instant forward hit; stops at solid terrain. Cast speed controls repeat rate.", MessageType.None);
+                foreach (string key in new[] { "Range", "Width", "OffsetX", "OffsetY", "VisualLifetime", "DamageMultiplier" })
+                {
+                    float value = step.GetFloat(key);
+                    float edited = EditorGUILayout.FloatField(key, value);
+                    if (edited != value) { step.SetOverrideFloat(key, edited); EditorUtility.SetDirty(recipe); }
+                }
+                int mask = step.GetInt("WorldLayerMask", 1 << 6);
+                int editedMask = EditorGUILayout.IntField("World layer mask", mask);
+                if (editedMask != mask) { step.SetOverrideInt("WorldLayerMask", editedMask); EditorUtility.SetDirty(recipe); }
+                DrawDamageConversionRules(recipe, step);
+                DrawSkillScopedModifierFields(recipe, step);
+                DrawOnHitEffectRules(recipe, step);
+                return;
+            }
 
             if (id == "WeaponWindup" || id == "WeaponRecovery" || id == "Wait")
             {

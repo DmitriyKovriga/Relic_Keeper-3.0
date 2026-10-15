@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 037112ba607a5b2409ab1b0826944402, type: 3}
+  m_Name: ElectricBeamSkill
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
+  ID: ElectricBeamSkill
+  SkillName: Electric Beam
+  DescriptionMode: 0
+  Description: 
+  Icon: {fileID: 21300000, guid: 79c5169231fa6ce4691d0b24fa14e99d, type: 3}
+  NameKey: skills.ElectricBeamSkill
+  DescriptionKey: skills.ElectricBeamSkill.description
+  IsActive: 1
+  Cooldown: 0
+  ManaCost: 0
+  ActionSpeedMode: 1
+  SkillSpeedMultiplier: 1
+  DamageContextTags: 146
+  StatLinks: []
+  EnablePushback: 0
+  PushbackRating: 0
+  SkillPrefab: {fileID: 0}
+  AnimationTrigger: Attack
+  Recipe: {fileID: 11400000, guid: 83c3b2a48e4adc945bbb07f9d8b65b99, type: 2}
+  WeaponRole: 0
+  HoldStance: 0
+  HoldStanceId: 
+  SwingStyle: 0
+  SwingStyleId: 

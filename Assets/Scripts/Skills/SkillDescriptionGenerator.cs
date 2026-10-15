@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "InstantBeam" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -216,6 +216,12 @@ namespace Scripts.Skills
 
             switch (id)
             {
+                case "InstantBeam":
+                    Add(lines, unique, ru
+                        ? $"Мгновенный электрический луч перед героем. Дальность: {N(step.GetFloat("Range", 12f))} м. Останавливается на препятствиях."
+                        : $"Instant electric beam in front of you. Range: {N(step.GetFloat("Range", 12f))} m. Stops at terrain.");
+                    AddDamage(step, ru, nearby: false, lines, unique, effectiveness);
+                    break;
                 case "DealDamageRectangle":
                 case "PersistentDamageRectangle":
                     AddDamage(step, ru, nearby: false, lines, unique, effectiveness);
