@@ -133,7 +133,7 @@ public class PlayerMovement : MonoBehaviour
     public Vector2 CurrentMoveInput => _moveInput;
     public Vector2 CurrentVelocity => _rb != null ? _rb.linearVelocity : Vector2.zero;
     public float CurrentMoveSpeed => ResolveMoveSpeed();
-    public bool IsMovementLocked => _isMovementLocked;
+    public bool IsMovementLocked => _isMovementLocked || PlayerWinterStormController.IsActiveFor(this);
     public bool HasBufferedJump => _hasQueuedJump && Time.time <= _jumpQueuedUntilTime;
     public float DashJumpHorizontalSpeed => _dashJumpHorizontalSpeed;
     public float DashJumpVerticalMultiplier => _dashJumpVerticalMultiplier;
@@ -340,6 +340,13 @@ public class PlayerMovement : MonoBehaviour
             _rb.linearVelocity = Vector2.zero;
             return;
         }
+        if (PlayerWinterStormController.IsActiveFor(this))
+        {
+            _hasQueuedJump = false;
+            _rb.linearVelocity = new Vector2(0, _rb.linearVelocity.y);
+            CheckGround();
+            return;
+        }
         // Sample intent even during a dash/skill lock; locks restrict motion, not input.
         SampleMovementInput();
         UpdateDropThroughState();
@@ -365,7 +372,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
-        if (PlayerStasisController.IsActiveFor(this)) return;
+        if (PlayerStasisController.IsActiveFor(this) || PlayerWinterStormController.IsActiveFor(this)) return;
         // Input callbacks can run between Update and FixedUpdate. Sampling here preserves a
         // freshly pressed Down even when Jump is pressed almost simultaneously before landing.
         SampleMovementInput();

@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -221,6 +221,13 @@ namespace Scripts.Skills
                         ? $"Кольцо молний расширяется до {N(step.GetFloat("Radius", 4))} м, затем сжимается к герою. Поражает каждую цель один раз при расширении и ещё раз при возвращении."
                         : $"A lightning ring expands to {N(step.GetFloat("Radius", 4))} m, then contracts to the player. Hits each target once outward and once on the return.");
                     AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
+                    break;
+                case "WinterStorm":
+                    Add(lines, unique, ru
+                        ? $"Зимняя буря вокруг героя на {N(step.GetFloat("Duration", 5))} сек. Радиус: {N(step.GetFloat("Radius", 3))} м; попадание каждые {N(step.GetFloat("PulseInterval", .5f))} сек. Движение, прыжки и уклонения запрещены; другие умения доступны. Буря продолжается во время Ледяного анабиоза."
+                        : $"Winter storm around you for {N(step.GetFloat("Duration", 5))}s. Radius: {N(step.GetFloat("Radius", 3))} m; hits every {N(step.GetFloat("PulseInterval", .5f))}s. Cannot walk, jump or dodge; can use other skills. Continues during Frost Anabiosis.");
+                    AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
+                    Add(lines, unique, ru ? "Попадания вызывают заморозку с учётом защиты и задержки повторной заморозки врага." : "Hits inflict Freeze, respecting enemy avoidance and refreeze protection.");
                     break;
                 case "SelfStasis":
                     Add(lines, unique, ru

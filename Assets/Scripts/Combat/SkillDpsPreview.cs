@@ -14,22 +14,24 @@ namespace Scripts.Combat
         public readonly float ColdPerHit;
         public readonly float LightningPerHit;
         public readonly float CastsPerSecond;
+        public readonly float HitsPerCast;
 
-        public SkillHitDpsPreview(float physicalPerHit, float firePerHit, float coldPerHit, float lightningPerHit, float castsPerSecond)
+        public SkillHitDpsPreview(float physicalPerHit, float firePerHit, float coldPerHit, float lightningPerHit, float castsPerSecond, float hitsPerCast = 1)
         {
             PhysicalPerHit = physicalPerHit;
             FirePerHit = firePerHit;
             ColdPerHit = coldPerHit;
             LightningPerHit = lightningPerHit;
             CastsPerSecond = castsPerSecond;
+            HitsPerCast = hitsPerCast;
         }
 
         public float TotalPerHit => PhysicalPerHit + FirePerHit + ColdPerHit + LightningPerHit;
-        public float PhysicalDps => PhysicalPerHit * CastsPerSecond;
-        public float FireDps => FirePerHit * CastsPerSecond;
-        public float ColdDps => ColdPerHit * CastsPerSecond;
-        public float LightningDps => LightningPerHit * CastsPerSecond;
-        public float TotalDps => TotalPerHit * CastsPerSecond;
+        public float PhysicalDps => PhysicalPerHit * CastsPerSecond * HitsPerCast;
+        public float FireDps => FirePerHit * CastsPerSecond * HitsPerCast;
+        public float ColdDps => ColdPerHit * CastsPerSecond * HitsPerCast;
+        public float LightningDps => LightningPerHit * CastsPerSecond * HitsPerCast;
+        public float TotalDps => TotalPerHit * CastsPerSecond * HitsPerCast;
         public int PresentChannelCount
         {
             get
@@ -177,7 +179,15 @@ namespace Scripts.Combat
                 lightning = snapshot.Lightning;
             }
 
-            return new SkillHitDpsPreview(physical, fire, cold, lightning, castsPerSecond);
+            float hitsPerCast = 1;
+            // A standalone pulsing storm displays damage per pulse, but DPS includes its complete duration.
+            if (skill?.Recipe?.Steps?.Count == 1 && skill.Recipe.Steps[0]?.StepDefinition?.Id == "WinterStorm")
+            {
+                var storm = skill.Recipe.Steps[0];
+                hitsPerCast = Mathf.Max(1, Mathf.CeilToInt((Mathf.Max(.01f, storm.GetFloat("Duration", 5)) - .00001f)
+                    / Mathf.Max(.05f, storm.GetFloat("PulseInterval", .5f))));
+            }
+            return new SkillHitDpsPreview(physical, fire, cold, lightning, castsPerSecond, hitsPerCast);
         }
 
         private static SkillDotDpsPreview[] BuildDotPreviews(IStatsProvider stats, SkillHitDpsPreview hit)
@@ -276,6 +286,7 @@ namespace Scripts.Combat
                 || id == "DealDamageRectangle"
                 || id == "InstantBeam"
                 || id == "PlasmaField"
+                || id == "WinterStorm"
                 || id == "BlinkStab"
                 || id == "ChainDamage"
                 || id == "PersistentDamageCircle"

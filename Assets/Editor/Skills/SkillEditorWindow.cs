@@ -690,6 +690,7 @@ namespace Scripts.Editor.Skills
                 case "DealDamageCircle":
                 case "DealDamageRectangle":
                 case "InstantBeam":
+                case "WinterStorm":
                 case "PlasmaField":
                 case "BlinkStab":
                 case "PersistentDamageCircle":
@@ -1441,6 +1442,18 @@ namespace Scripts.Editor.Skills
         private void DrawStepTypeFields(SkillRecipeSO recipe, StepEntry step, bool isSubStep)
         {
             string id = step.StepDefinition != null ? step.StepDefinition.Id : "";
+
+            if (id == "WinterStorm")
+            {
+                EditorGUILayout.HelpBox("Player-owned storm: fixed seconds, blocks locomotion while allowing other skills. Continues during stasis and source cancellation. One cold hit per target per pulse.", MessageType.None);
+                foreach (string key in new[] { "Duration", "Radius", "PulseInterval", "DamageMultiplier" })
+                {
+                    float value = step.GetFloat(key), edited = EditorGUILayout.FloatField(key, value);
+                    if (edited != value) { step.SetOverrideFloat(key, Mathf.Max(.01f, edited)); EditorUtility.SetDirty(recipe); }
+                }
+                DrawDamageConversionRules(recipe, step); DrawSkillScopedModifierFields(recipe, step); DrawOnHitEffectRules(recipe, step);
+                return;
+            }
 
             if (id == "SelfStasis")
             {

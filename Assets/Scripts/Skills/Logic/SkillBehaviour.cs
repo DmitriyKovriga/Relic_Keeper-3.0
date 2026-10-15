@@ -241,6 +241,9 @@ namespace Scripts.Skills
 
         public void TryCast()
         {
+            if (_ownerStats != null && _ownerStats.TryGetComponent<PlayerWinterStormController>(out var storm)
+                && storm.IsActive && storm.Skill == _data)
+                return;
             if (PlayerStasisController.IsActiveFor(_ownerStats))
                 return;
 

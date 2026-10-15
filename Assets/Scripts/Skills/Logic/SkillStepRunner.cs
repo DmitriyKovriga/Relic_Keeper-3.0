@@ -371,6 +371,11 @@ namespace Scripts.Skills
                     break;
                 case "Wait":
                     break;
+                case "WinterStorm":
+                    var storm = _ownerStats.GetComponent<PlayerWinterStormController>();
+                    if (storm == null) storm = _ownerStats.gameObject.AddComponent<PlayerWinterStormController>();
+                    storm.Begin(_data, step, SlotIndex);
+                    break;
                 case "SelfStasis":
                     var stasis = _ownerStats.GetComponent<PlayerStasisController>();
                     if (stasis == null) stasis = _ownerStats.gameObject.AddComponent<PlayerStasisController>();
@@ -1258,6 +1263,29 @@ namespace Scripts.Skills
             ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
             var targets = GetTargetsInBox(center, size, angle);
             DealDamageToTargets(stepIndex, step, targets);
+        }
+
+        // Player-owned persistent effects reuse the normal hit pipeline without owning the hands or movement lock.
+        internal void InitializePulseEmitter(PlayerStats owner, SkillDataSO skill, int slot)
+        {
+            base.Initialize(owner, skill);
+            SetRuntimeSlot(null, slot);
+            _ctx = new SkillStepContext { OwnerStats = owner };
+            _moveCtrl = null; _animCtrl = null;
+        }
+
+        internal void EmitAreaPulse(StepEntry step, Vector2 center, float radius)
+        {
+            var targets = new List<IDamageable>();
+            var unique = new HashSet<IDamageable>();
+            foreach (var hit in Physics2D.OverlapCircleAll(center, radius, _targetLayer))
+            {
+                if (hit == null || IsOwnerCollider(hit)) continue;
+                var target = hit.GetComponentInParent<IDamageable>();
+                if (target == null || target is Component component && IsOwnerTransform(component.transform)) continue;
+                if (unique.Add(target)) targets.Add(target);
+            }
+            DealDamageToTargets(-1, step, targets);
         }
 
         private void ExecuteForwardBlink(StepEntry step)

@@ -432,6 +432,14 @@ MonoBehaviour:
     m_Localized:
     m_Metadata:
       m_Items: []
+  - m_Id: 101416522599985152
+    m_Localized: Winter Storm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101416522688065536
+    m_Localized:
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
