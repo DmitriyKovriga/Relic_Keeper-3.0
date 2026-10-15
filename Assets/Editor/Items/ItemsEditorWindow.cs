@@ -17,10 +17,10 @@ namespace Scripts.Editor.Items
     /// <summary>
     /// Редактор предметов, пулов аффиксов и аффиксов в одном окне.
     /// </summary>
-    public class ItemsEditorWindow : EditorWindow
+    public partial class ItemsEditorWindow : EditorWindow
     {
         private int _tab;
-        private readonly string[] _tabs = { "Items", "Affix Pools", "Affixes" };
+        private readonly string[] _tabs = { "Regular Items", "Unique Items", "Affix Pools", "Affixes" };
         private Vector2 _listScroll;
         private Vector2 _detailsScroll;
 
@@ -29,7 +29,7 @@ namespace Scripts.Editor.Items
         private EquipmentItemSO _selectedItem;
         private string _itemSearch = "";
         private int _itemTypeFilter; // 0 All, 1 Armor, 2 Weapon
-        private int _itemSlotFilter; // -1 = all, else EquipmentSlot
+        private int _itemSlotFilter = -1; // -1 = all, else EquipmentSlot
         private SerializedObject _serializedItem;
         private ItemDatabaseSO _itemDatabase;
         private StringTableCollection _itemsLabelsCollection;
@@ -59,7 +59,7 @@ namespace Scripts.Editor.Items
         private int _affixTierFilter = -1;
 
         private const string MenuPath = "Tools/Items Editor";
-        private const string SessionKeyTab = "ItemsEditorWindow_Tab";
+        private const string SessionKeyTab = "ItemsEditorWindow_Tab_v2";
         private const string SessionKeySelectedItem = "ItemsEditorWindow_SelectedItem";
         private const string SessionKeySelectedPool = "ItemsEditorWindow_SelectedPool";
         private const string SessionKeySelectedAffix = "ItemsEditorWindow_SelectedAffix";
@@ -79,8 +79,8 @@ namespace Scripts.Editor.Items
 
             var w = GetWindow<ItemsEditorWindow>();
             w.titleContent = new GUIContent("Items Editor");
-            w._tab = 0;
-            SessionState.SetInt(SessionKeyTab, 0);
+            w._tab = item.IsUnique ? 1 : 0;
+            SessionState.SetInt(SessionKeyTab, w._tab);
             w.LoadItems();
             w._selectedItem = item;
             w._serializedItem = null;
@@ -102,6 +102,7 @@ namespace Scripts.Editor.Items
 
         private void OnEnable()
         {
+            minSize = new Vector2(900, 600);
             _tab = SessionState.GetInt(SessionKeyTab, 0);
             LoadItems();
             LoadPools();
@@ -180,19 +181,20 @@ namespace Scripts.Editor.Items
             switch (_tab)
             {
                 case 0: DrawItemsTab(); break;
-                case 1: DrawPoolsTab(); break;
-                case 2: DrawAffixesTab(); break;
+                case 1: DrawItemsTab(true); break;
+                case 2: DrawPoolsTab(); break;
+                case 3: DrawAffixesTab(); break;
             }
         }
 
         #region Items Tab
 
-        private void DrawItemsTab()
+        private void DrawItemsTab(bool unique = false)
         {
             EditorGUILayout.BeginHorizontal();
 
             EditorGUILayout.BeginVertical(GUILayout.Width(300));
-            GUILayout.Label("Items", EditorStyles.boldLabel);
+            GUILayout.Label(unique ? "Unique Items" : "Regular Items", EditorStyles.boldLabel);
             _itemSearch = EditorGUILayout.TextField("Search", _itemSearch);
             _itemTypeFilter = EditorGUILayout.Popup("Type", _itemTypeFilter, new[] { "All", "Armor", "Weapon" });
             var slotNames = new List<string> { "All Slots" };
@@ -204,13 +206,19 @@ namespace Scripts.Editor.Items
             string search = (_itemSearch ?? "").Trim().ToLowerInvariant();
             var filtered = _items.Where(i =>
             {
-                if (i == null) return false;
+                if (i == null || i.IsUnique != unique) return false;
                 if (_itemTypeFilter == 1 && !(i is ArmorItemSO)) return false;
                 if (_itemTypeFilter == 2 && !(i is WeaponItemSO)) return false;
                 if (_itemSlotFilter >= 0 && i.Slot != (EquipmentSlot)_itemSlotFilter) return false;
                 if (search.Length > 0 && !(i.ItemName ?? "").ToLowerInvariant().Contains(search) && !(i.ID ?? "").ToLowerInvariant().Contains(search) && !i.name.ToLowerInvariant().Contains(search)) return false;
                 return true;
             }).ToList();
+
+            if (_selectedItem != null && _selectedItem.IsUnique != unique)
+            {
+                _selectedItem = filtered.FirstOrDefault();
+                _serializedItem = null;
+            }
 
             foreach (var item in filtered)
             {
@@ -231,37 +239,41 @@ namespace Scripts.Editor.Items
             EditorGUILayout.EndScrollView();
 
             EditorGUILayout.Space(8);
-            GUILayout.Label("Create Item", EditorStyles.boldLabel);
-            _newItemName = EditorGUILayout.TextField("Name", _newItemName);
-            EditorGUILayout.BeginHorizontal();
-            _newItemFolder = EditorGUILayout.TextField("Folder", _newItemFolder);
-            if (GUILayout.Button("...", GUILayout.Width(30)))
+            if (unique) DrawUniqueCreation();
+            else
             {
-                string pickedAbsolutePath = EditorUtility.OpenFolderPanel("Select item folder", Application.dataPath, string.Empty);
-                if (!string.IsNullOrEmpty(pickedAbsolutePath))
+                GUILayout.Label("Create Item", EditorStyles.boldLabel);
+                _newItemName = EditorGUILayout.TextField("Name", _newItemName);
+                EditorGUILayout.BeginHorizontal();
+                _newItemFolder = EditorGUILayout.TextField("Folder", _newItemFolder);
+                if (GUILayout.Button("...", GUILayout.Width(30)))
                 {
-                    if (TryConvertAbsoluteFolderToProjectPath(pickedAbsolutePath, out string projectPath))
-                        _newItemFolder = projectPath;
-                    else
-                        EditorUtility.DisplayDialog("Invalid folder", "Please choose a folder inside this Unity project (under Assets).", "OK");
+                    string pickedAbsolutePath = EditorUtility.OpenFolderPanel("Select item folder", Application.dataPath, string.Empty);
+                    if (!string.IsNullOrEmpty(pickedAbsolutePath))
+                    {
+                        if (TryConvertAbsoluteFolderToProjectPath(pickedAbsolutePath, out string projectPath))
+                            _newItemFolder = projectPath;
+                        else
+                            EditorUtility.DisplayDialog("Invalid folder", "Please choose a folder inside this Unity project (under Assets).", "OK");
+                    }
                 }
+                EditorGUILayout.EndHorizontal();
+                SessionState.SetString(SessionKeyNewItemName, _newItemName ?? string.Empty);
+                SessionState.SetString(SessionKeyNewItemFolder, _newItemFolder ?? string.Empty);
+
+                if (!string.IsNullOrWhiteSpace(_newItemFolder) && !_newItemFolder.Trim().Replace("\\", "/").StartsWith("Assets"))
+                    EditorGUILayout.HelpBox("Folder must be inside project Assets.", MessageType.Warning);
+
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Create Armor")) CreateNewItem(true);
+                if (GUILayout.Button("Create Weapon")) CreateNewItem(false);
+                EditorGUILayout.EndHorizontal();
             }
-            EditorGUILayout.EndHorizontal();
-            SessionState.SetString(SessionKeyNewItemName, _newItemName ?? string.Empty);
-            SessionState.SetString(SessionKeyNewItemFolder, _newItemFolder ?? string.Empty);
-
-            if (!string.IsNullOrWhiteSpace(_newItemFolder) && !_newItemFolder.Trim().Replace("\\", "/").StartsWith("Assets"))
-                EditorGUILayout.HelpBox("Folder must be inside project Assets.", MessageType.Warning);
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Create Armor")) CreateNewItem(true);
-            if (GUILayout.Button("Create Weapon")) CreateNewItem(false);
-            EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-            DrawItemDetails();
+            if (unique) DrawUniqueDetails(); else DrawItemDetails();
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.EndHorizontal();
@@ -285,7 +297,7 @@ namespace Scripts.Editor.Items
             prop.Next(true);
             do
             {
-                if (IsInternalUnityProperty(prop.name)) continue;
+                if (IsInternalUnityProperty(prop.name) || prop.name == "IsUnique" || prop.name == "UniqueAffixes") continue;
                 if (prop.name == "ID")
                 {
                     DrawItemIdFieldWithActions(prop);
@@ -307,8 +319,8 @@ namespace Scripts.Editor.Items
                 if (GUILayout.Button("Open pool"))
                 {
                     _selectedPool = usedPool;
-                    _tab = 1;
-                    SessionState.SetInt(SessionKeyTab, 1);
+                    _tab = 2;
+                    SessionState.SetInt(SessionKeyTab, 2);
                     SessionState.SetString(SessionKeySelectedPool, AssetDatabase.GetAssetPath(usedPool));
                 }
             }
@@ -442,6 +454,11 @@ namespace Scripts.Editor.Items
 
             SetOrAddEntry(enTable, key, _itemNameLocEn ?? string.Empty);
             SetOrAddEntry(ruTable, key, _itemNameLocRu ?? string.Empty);
+            if (_selectedItem != null && _selectedItem.IsUnique && !string.IsNullOrWhiteSpace(_itemNameLocEn))
+            {
+                Undo.RecordObject(_selectedItem, "Rename unique item");
+                _selectedItem.ItemName = _itemNameLocEn.Trim(); EditorUtility.SetDirty(_selectedItem);
+            }
             EditorUtility.SetDirty(enTable);
             EditorUtility.SetDirty(ruTable);
             AssetDatabase.SaveAssets();
@@ -756,8 +773,8 @@ namespace Scripts.Editor.Items
                     if (GUILayout.Button(new GUIContent($"  {item.ItemName ?? item.name}", GetItemIconTexture(item)), GUILayout.Height(36)))
                     {
                         _selectedItem = item;
-                        _tab = 0;
-                        SessionState.SetInt(SessionKeyTab, 0);
+                        _tab = item.IsUnique ? 1 : 0;
+                        SessionState.SetInt(SessionKeyTab, _tab);
                         SessionState.SetString(SessionKeySelectedItem, AssetDatabase.GetAssetPath(item));
                     }
                 }
@@ -1074,8 +1091,8 @@ namespace Scripts.Editor.Items
                     if (GUILayout.Button($"  {pool.name} ({pool.Slot}/{GetDefenseTypeDisplayName(pool.DefenseType)})", EditorStyles.linkLabel))
                     {
                         _selectedPool = pool;
-                        _tab = 1;
-                        SessionState.SetInt(SessionKeyTab, 1);
+                        _tab = 2;
+                        SessionState.SetInt(SessionKeyTab, 2);
                         SessionState.SetString(SessionKeySelectedPool, AssetDatabase.GetAssetPath(pool));
                     }
                 }

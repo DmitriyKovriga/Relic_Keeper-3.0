@@ -1,5 +1,27 @@
 # Unique items
 
+## Authoring
+
+Open **Tools > Items Editor > Unique Items**, or **Tools > Unique Items Editor**.
+The Regular Items tab excludes Unique bases. Create a new armor/weapon, use an
+existing base as a template, or duplicate a Unique. Each new Unique is registered
+in the item database and lives in its own folder under `Resources/Items/Unique`.
+Duplicates receive independent affixes, localization keys and skill pools.
+
+In the Unique tab, add fixed affixes, choose stats and their minimum/maximum rolls,
+and edit EN/RU names and tooltip text. Equal roll bounds give a fixed number.
+Tooltip `{0}` displays the first stat's rolled value, matching the runtime tooltip.
+Use **Make independent copy** before changing a shared affix when the change should
+apply only to this item. **Remove** detaches an affix without deleting its asset.
+Granted-skill pickers configure one guaranteed skill per applicable weapon slot.
+**Save Unique** saves the item and edited affix text to both localization tables.
+
+Deleting a Unique asks for confirmation, unregisters its base and moves only that
+item asset to the trash. Artwork, affixes, skills and pools remain available to
+other assets. Stable item IDs are shown read-only to protect existing saves.
+
+## Runtime rules
+
 Enable `IsUnique` on an equipment base and populate `UniqueAffixes` with its
 authored affixes. Each generated copy receives every listed affix, with one
 value rolled within each stat's bounds. Normal random affix pools are ignored.
