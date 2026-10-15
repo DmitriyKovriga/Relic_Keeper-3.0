@@ -182,6 +182,22 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(secondCollector.Cache.Items, Is.EqualTo(new[] { item }));
         }
 
+        [Test] public void LootFlightHasTrailWithoutInteractionAndIsCleanedUpWithItsRoom()
+        {
+            var room = Room(Vector2.zero); Portal(room, new Vector2(12, 2));
+            var collector = room.gameObject.AddComponent<RoomLootCollector>(); collector.TryStore(Item());
+            var start = new Vector3(-5, 3, 0);
+            WorldLootCacheFlightVisual.Spawn(start, collector.Cache);
+            var flight = room.GetComponentInChildren<WorldLootCacheFlightVisual>();
+            Assert.That(flight, Is.Not.Null);
+            Assert.That(flight.transform.position, Is.EqualTo(start));
+            Assert.That(flight.GetComponent<TrailRenderer>(), Is.Not.Null);
+            Assert.That(flight.GetComponent<Collider2D>(), Is.Null);
+            Assert.That(collector.Cache.Count, Is.EqualTo(1));
+            Object.DestroyImmediate(room.gameObject);
+            Assert.That(flight == null, Is.True);
+        }
+
         [Test] public void MissingPortalUsesRoomSpawnAndInvalidItemsAreRejected()
         {
             var room = Room(new Vector2(100, 0));

@@ -21,7 +21,7 @@ namespace Scripts.Items.World
 
         public WorldLootCache Cache => _cache;
 
-        public bool TryStore(InventoryItem item)
+        public bool TryStore(InventoryItem item, Vector3? sourcePosition = null)
         {
             if (item?.Data == null)
                 return false;
@@ -30,7 +30,14 @@ namespace Scripts.Items.World
                 _cache = WorldLootCache.Create(ResolveCachePosition(), transform);
 
             // Insert the actual rolled item; filtering changes visibility, never ownership.
-            return _cache.TryAddItemPreferringTab(item, _cache.CurrentTabIndex);
+            int previousCount = _cache.Count;
+            if (!_cache.TryAddItemPreferringTab(item, _cache.CurrentTabIndex))
+                return false;
+
+            if (Application.isPlaying && sourcePosition.HasValue && _cache.Count > previousCount &&
+                !LootFilterSettings.ShouldHide(item))
+                WorldLootCacheFlightVisual.Spawn(sourcePosition.Value, _cache);
+            return true;
         }
 
         public Vector2 ResolveCachePosition()

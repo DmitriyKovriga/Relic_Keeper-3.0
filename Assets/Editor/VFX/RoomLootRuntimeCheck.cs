@@ -53,7 +53,13 @@ namespace RelicKeeper.Editor.VFX
                         var cache = room.GetComponent<RoomLootCollector>().Cache;
                         Require(cache.Count == 2 && cache.Items[0] == first, "Drops must retain both actual items in one cache.");
                         Require(room.GetComponentsInChildren<WorldDroppedItem>(true).Length == 0, "No ground item visuals allowed.");
-                        Require(room.GetComponentsInChildren<WorldLootCacheFlightVisual>(true).Length == 0, "No cross-room loot flight allowed.");
+                        var flights = room.GetComponentsInChildren<WorldLootCacheFlightVisual>(true);
+                        Require(flights.Length == 2, "Each visible drop must spawn its own flight to the cache.");
+                        foreach (var flight in flights)
+                        {
+                            Require(flight.GetComponent<TrailRenderer>() != null, "Loot flight needs its golden trail.");
+                            Require(flight.GetComponents<Collider2D>().Length == 0, "Flight visuals must not block interactions.");
+                        }
                         Require(cache.CanInteract(), "Cache must work before the exit unlocks.");
                         Require(cache.transform.position.x < exit.transform.position.x, "Cache must be left of exit.");
                         var floor = Physics2D.Raycast((Vector2)cache.transform.position, Vector2.down, 1.5f, (1 << 6) | LayerMask.GetMask("OneWayPlatform"));
@@ -76,7 +82,7 @@ namespace RelicKeeper.Editor.VFX
                         }
                         finally { Object.DestroyImmediate(probe); }
                         if (checkedRooms == 0) Render(cache, exit, Path.Combine(folder, "ExitLoot.png"));
-                        report.AppendLine($"PASS {prefab.name}: cache {cache.transform.position}; exit {exit.transform.position}; 2 items, no loose drops, exit interaction intact.");
+                        report.AppendLine($"PASS {prefab.name}: cache {cache.transform.position}; exit {exit.transform.position}; 2 items stored immediately, 2 golden flights, no loose drops, exit interaction intact.");
                         checkedRooms++;
                     }
                     finally { Object.DestroyImmediate(instance); }
@@ -95,6 +101,67 @@ namespace RelicKeeper.Editor.VFX
         private static void Require(bool condition, string message)
         {
             if (!condition) throw new InvalidOperationException(message);
+        }
+
+        public static void CaptureFlight()
+        {
+            if (!EditorApplication.isPlaying || Object.FindFirstObjectByType<RoomController>() != null)
+                throw new InvalidOperationException("Run from the hub in Play Mode.");
+            string folder = Path.Combine(Path.GetTempPath(), "room-loot-check"); Directory.CreateDirectory(folder);
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_001.prefab");
+            var instance = Object.Instantiate(prefab, new Vector3(2000, 0), Quaternion.identity);
+            foreach (var spawner in instance.GetComponentsInChildren<EnemySpawner>(true)) spawner.enabled = false;
+            var room = instance.GetComponent<RoomController>(); room.enabled = false;
+            var portal = room.GetComponentsInChildren<DungeonPortal>(true).First(p => p.Type == PortalType.NextRoom);
+            portal.SetActive(true); Physics2D.SyncTransforms();
+            var collector = room.gameObject.AddComponent<RoomLootCollector>();
+            Vector3 source = collector.ResolveCachePosition() + new Vector2(-4, 1.5f);
+            bool hadFilter = PlayerPrefs.HasKey(LootFilterSettings.PlayerPrefsKey);
+            int filter = PlayerPrefs.GetInt(LootFilterSettings.PlayerPrefsKey, 0);
+            PlayerPrefs.SetInt(LootFilterSettings.PlayerPrefsKey, (int)LootFilterThreshold.None);
+            var data = AssetDatabase.LoadAssetAtPath<WeaponItemSO>(MysticShieldRepriseBuilder.ItemPath);
+            WorldItemDropService.Spawn(new InventoryItem(data), source);
+            float start = Time.time;
+            double wallStart = EditorApplication.timeSinceStartup;
+            bool background = Application.runInBackground; Application.runInBackground = true;
+            int frame = 0; bool moved = false, trailSeen = false;
+            void Tick()
+            {
+                try
+                {
+                    Require(EditorApplication.isPlaying && instance != null, "Flight check interrupted.");
+                    Require(EditorApplication.timeSinceStartup - wallStart < 15, "Flight check timed out.");
+                    EditorApplication.QueuePlayerLoopUpdate();
+                    float age = Time.time - start;
+                    var flight = room.GetComponentInChildren<WorldLootCacheFlightVisual>();
+                    if (flight != null)
+                    {
+                        moved |= Vector3.Distance(flight.transform.position, source) > 0.1f;
+                        trailSeen |= flight.GetComponent<TrailRenderer>().positionCount > 1;
+                    }
+                    if (frame < 4 && age >= 0.05f + frame * 0.1f)
+                    {
+                        Render(collector.Cache, portal, Path.Combine(folder, $"LootFlight-{frame:D2}.png")); frame++;
+                    }
+                    if (age < 0.9f) return;
+                    Require(moved && trailSeen, "Loot must move through real frames and leave a visible trail.");
+                    Require(flight == null, "Flight must clean itself up after reaching the cache.");
+                    Require(collector.Cache.Count == 1, "Presentation must not change stored item ownership.");
+                    Require(room.GetComponentsInChildren<WorldDroppedItem>(true).Length == 0, "No loose item objects allowed.");
+                    File.WriteAllText(Path.Combine(folder, "FlightReport.txt"), "PASS: real-frame curved flight with golden trail, item stored immediately, no interaction collider, automatic arrival cleanup.");
+                    Debug.Log("Room loot flight Play Mode check passed.");
+                }
+                catch (Exception ex)
+                {
+                    File.WriteAllText(Path.Combine(folder, "FlightReport.txt"), "FAIL: " + ex.Message); Debug.LogException(ex);
+                }
+                EditorApplication.update -= Tick;
+                Application.runInBackground = background;
+                if (instance != null) Object.Destroy(instance);
+                if (hadFilter) PlayerPrefs.SetInt(LootFilterSettings.PlayerPrefsKey, filter);
+                else PlayerPrefs.DeleteKey(LootFilterSettings.PlayerPrefsKey);
+            }
+            EditorApplication.update += Tick; EditorApplication.QueuePlayerLoopUpdate();
         }
 
         private static void Render(WorldLootCache cache, DungeonPortal portal, string path)

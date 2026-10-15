@@ -35,7 +35,7 @@ namespace Scripts.Items.World
                 var collector = parent.GetComponent<RoomLootCollector>();
                 if (collector == null)
                     collector = parent.gameObject.AddComponent<RoomLootCollector>();
-                if (collector.TryStore(item))
+                if (collector.TryStore(item, new Vector3(position.x, position.y, 0f)))
                     return true;
             }
 

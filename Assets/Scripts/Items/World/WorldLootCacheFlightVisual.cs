@@ -27,6 +27,7 @@ namespace Scripts.Items.World
                 return;
 
             var host = new GameObject("LootToCacheFlight");
+            host.transform.SetParent(target.transform.parent, true);
             host.transform.position = start;
             var flight = host.AddComponent<WorldLootCacheFlightVisual>();
             flight.Initialize(start, target);
