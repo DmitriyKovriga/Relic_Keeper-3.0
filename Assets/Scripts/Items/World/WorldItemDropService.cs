@@ -16,28 +16,47 @@ namespace Scripts.Items.World
 
         private static Transform _runtimeRoot;
 
+        /// <summary>Delivers room loot to its exit container; returns a visual only for a loose ground drop.</summary>
         public static WorldDroppedItem Spawn(InventoryItem item, Vector2 position)
         {
+            TryDeliver(item, position, false, out WorldDroppedItem dropped);
+            return dropped;
+        }
+
+        private static bool TryDeliver(InventoryItem item, Vector2 position, bool projectToGround, out WorldDroppedItem dropped)
+        {
+            dropped = null;
             if (item?.Data == null)
-                return null;
+                return false;
+
+            Transform parent = ResolveDropParent();
+            if (parent.TryGetComponent<RoomController>(out _))
+            {
+                var collector = parent.GetComponent<RoomLootCollector>();
+                if (collector == null)
+                    collector = parent.gameObject.AddComponent<RoomLootCollector>();
+                if (collector.TryStore(item))
+                    return true;
+            }
+
+            if (projectToGround)
+                position = ProjectToGroundUnder(position);
 
             var go = new GameObject($"DroppedItem_{item.Data.ID}");
-            go.transform.SetParent(ResolveDropParent(), true);
+            go.transform.SetParent(parent, true);
             go.transform.position = new Vector3(position.x, position.y, 0f);
 
-            var dropped = go.AddComponent<WorldDroppedItem>();
+            dropped = go.AddComponent<WorldDroppedItem>();
             dropped.Initialize(item, PixelsPerUnit);
             if (dropped.ParticipatesInWorldLayout && !WorldLootCacheCoordinator.ProcessVisibleDrop(dropped))
                 WorldDroppedItemSpread.SeparateFromNeighbors(dropped);
-            return dropped;
+            return true;
         }
 
         public static WorldDroppedItem SpawnOnGround(InventoryItem item, Vector2 position)
         {
-            if (item?.Data == null)
-                return null;
-
-            return Spawn(item, ProjectToGroundUnder(position));
+            TryDeliver(item, position, true, out WorldDroppedItem dropped);
+            return dropped;
         }
 
         public static bool TryDropAtPlayer(InventoryItem item)
@@ -45,7 +64,7 @@ namespace Scripts.Items.World
             if (item?.Data == null)
                 return false;
 
-            return Spawn(item, ResolveDropPositionAtPlayer()) != null;
+            return TryDeliver(item, ResolveDropPositionAtPlayer(), false, out _);
         }
 
         public static Vector2 ResolveDropPositionAtPlayer()

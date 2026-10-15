@@ -14,6 +14,8 @@ namespace Scripts.Dungeon
     {
         [Header("Settings")]
         [SerializeField] private float _interactRadius = 2f;
+        [SerializeField, Min(0f), Tooltip("Standing directly at a portal prioritizes it over nearby loot containers.")]
+        private float _portalPriorityRadius = 0.75f;
         [Tooltip("Слои для поиска (Everything = все)")]
         [SerializeField] private LayerMask _interactLayer = ~0;
         [SerializeField] private bool _debugInput = true;
@@ -129,7 +131,8 @@ namespace Scripts.Dungeon
                     ? interactableComponent.transform.position
                     : col.bounds.center;
                 float sqrDistance = ((Vector2)transform.position - interactablePosition).sqrMagnitude;
-                int priority = GetInteractionPriority(interactable);
+                int priority = interactable is DungeonPortal && sqrDistance <= _portalPriorityRadius * _portalPriorityRadius
+                    ? 5 : GetInteractionPriority(interactable);
                 bool keepCurrentOnTie = ReferenceEquals(interactable, _currentInteractable) &&
                                         priority == closestPriority &&
                                         sqrDistance <= closestSqrDistance + 0.0001f;
