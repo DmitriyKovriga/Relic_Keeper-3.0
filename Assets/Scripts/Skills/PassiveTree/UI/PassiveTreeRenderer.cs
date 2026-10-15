@@ -333,11 +333,15 @@ namespace Scripts.Skills.PassiveTree.UI
                 nodeRoot.Add(frameOverlay);
             }
 
+            int pressedPointer = -1;
+            Vector2 pressPosition = default;
+            const float clickMovementSquared = 16f;
             nodeRoot.RegisterCallback<PointerDownEvent>(evt =>
             {
                 if (evt.button == 0)
                 {
-                    _onNodeClick(node.ID);
+                    pressedPointer = evt.pointerId;
+                    pressPosition = evt.position;
                     evt.StopPropagation();
                 }
                 else if (evt.button == 1)
@@ -347,7 +351,24 @@ namespace Scripts.Skills.PassiveTree.UI
                 }
             });
 
-            nodeRoot.RegisterCallback<ClickEvent>(_ => _onNodeClick(node.ID));
+            nodeRoot.RegisterCallback<PointerMoveEvent>(evt =>
+            {
+                if (evt.pointerId == pressedPointer && ((Vector2)evt.position - pressPosition).sqrMagnitude > clickMovementSquared)
+                    pressedPointer = -1;
+            });
+            nodeRoot.RegisterCallback<PointerLeaveEvent>(_ => pressedPointer = -1);
+            nodeRoot.RegisterCallback<PointerCancelEvent>(_ => pressedPointer = -1);
+            nodeRoot.RegisterCallback<PointerCaptureOutEvent>(_ => pressedPointer = -1);
+            // ClickEvent follows release and requires a matching press/release target.
+            // Arming on this node also prevents a background drag from allocating it.
+            nodeRoot.RegisterCallback<ClickEvent>(evt =>
+            {
+                bool activate = evt.button == 0 && evt.pointerId == pressedPointer
+                    && ((Vector2)evt.position - pressPosition).sqrMagnitude <= clickMovementSquared;
+                pressedPointer = -1;
+                if (activate) _onNodeClick(node.ID);
+                evt.StopPropagation();
+            });
             nodeRoot.RegisterCallback<MouseEnterEvent>(_ => _tooltip.Show(node, nodeRoot.worldBound));
             nodeRoot.RegisterCallback<MouseLeaveEvent>(_ => _tooltip.Hide());
 

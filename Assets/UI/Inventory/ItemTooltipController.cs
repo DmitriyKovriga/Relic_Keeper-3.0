@@ -178,6 +178,8 @@ public class ItemTooltipController : MonoBehaviour
 
     private void OnDisable()
     {
+        if (_root != null)
+            _root.UnregisterCallback<GeometryChangedEvent>(OnTooltipRootGeometryChanged);
         LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
         InputRebindSaver.RebindsChanged -= OnTooltipLockBindingChanged;
         DisposeTooltipLockReader();
@@ -723,6 +725,8 @@ public class ItemTooltipController : MonoBehaviour
 
     private void RebuildTooltipStructure()
     {
+        if (_root != null)
+            _root.UnregisterCallback<GeometryChangedEvent>(OnTooltipRootGeometryChanged);
         // Тултип в том же корне, что и инвентарь — иначе позиция считается в другой панели и "ничего не меняется".
         var inv = UnityEngine.Object.FindObjectOfType<InventoryUI>(true);
         if (inv != null && inv.RootVisualElement != null)
@@ -855,7 +859,16 @@ public class ItemTooltipController : MonoBehaviour
         _root.Add(_orbTooltipBox);
 
         _itemTooltipBox.RegisterCallback<GeometryChangedEvent>(OnItemTooltipGeometryChanged);
+        _compareTooltipBox.RegisterCallback<GeometryChangedEvent>(OnItemTooltipGeometryChanged);
+        _skillTooltipBox.RegisterCallback<GeometryChangedEvent>(OnItemTooltipGeometryChanged);
+        _root.RegisterCallback<GeometryChangedEvent>(OnTooltipRootGeometryChanged);
         RefreshLockHintText();
+    }
+
+    private void OnTooltipRootGeometryChanged(GeometryChangedEvent evt)
+    {
+        if (evt.oldRect.size != evt.newRect.size)
+            ScheduleItemTooltipRelayout();
     }
 
     private void OnItemTooltipGeometryChanged(GeometryChangedEvent evt)
@@ -1422,6 +1435,17 @@ public class ItemTooltipController : MonoBehaviour
         if (hasSecondary && (float.IsNaN(skillH) || skillH < 10)) skillH = 100f;
 
         float maxHeight = Mathf.Max(itemH, skillH);
+        // Layout size remains unscaled, so every pass can restore normal size when
+        // content gets shorter or the window grows. Keep both panels at the same scale.
+        float scale = CalculateTooltipFitScale(new Vector2(itemW + skillW, maxHeight),
+            new Vector2(screenW - (hasSecondary ? _gap : 0f), screenH), _screenPadding);
+        ApplyTooltipScale(_itemTooltipBox, scale);
+        if (hasSecondary) ApplyTooltipScale(secondaryBox, scale);
+        itemW *= scale;
+        itemH *= scale;
+        skillW *= scale;
+        skillH *= scale;
+        maxHeight *= scale;
         float finalItemX;
         float finalSkillX;
         float y;
@@ -1526,10 +1550,33 @@ public class ItemTooltipController : MonoBehaviour
             AssignPosition(skill, secondaryX, y);
     }
 
+    public static float CalculateTooltipFitScale(Vector2 size, Vector2 viewport, float padding)
+    {
+        if (float.IsNaN(size.x) || float.IsNaN(size.y) || float.IsNaN(viewport.x) || float.IsNaN(viewport.y)
+            || float.IsInfinity(size.x) || float.IsInfinity(size.y)
+            || size.x <= 0f || size.y <= 0f || viewport.x <= 0f || viewport.y <= 0f)
+            return 1f;
+
+        float width = Mathf.Max(1f, viewport.x - 2f * Mathf.Max(0f, padding));
+        float height = Mathf.Max(1f, viewport.y - 2f * Mathf.Max(0f, padding));
+        return Mathf.Min(1f, width / size.x, height / size.y);
+    }
+
+    private static void ApplyTooltipScale(VisualElement element, float scale)
+    {
+        element.style.transformOrigin = new TransformOrigin(Length.Percent(0f), Length.Percent(0f), 0f);
+        element.transform.scale = new Vector3(scale, scale, 1f);
+    }
+
     private static void AssignPosition(VisualElement element, float left, float top)
     {
         if (element == null)
             return;
+
+        // Round inward: rounding a fractional fitted edge up can push the last
+        // row outside the viewport again after UI Toolkit's pixel alignment.
+        left = Mathf.Floor(left);
+        top = Mathf.Floor(top);
 
         StyleLength styleLeft = element.style.left;
         StyleLength styleTop = element.style.top;
@@ -1584,6 +1631,14 @@ public class ItemTooltipController : MonoBehaviour
         float skillH = _skillTooltipBox.resolvedStyle.height;
         if (float.IsNaN(skillH) || skillH < 10) skillH = 80f;
 
+        // The skill panel is shared with item tooltips; recompute its scale when
+        // switching to a HUD skill rather than retaining the previous item's fit.
+        float scale = CalculateTooltipFitScale(new Vector2(skillW, skillH),
+            new Vector2(screenW, screenH), HudSkillTooltipPadding);
+        ApplyTooltipScale(_skillTooltipBox, scale);
+        skillW *= scale;
+        skillH *= scale;
+
         Vector2 pos = CalculateHudSkillTooltipPosition(
             pMin,
             pMax,
@@ -1593,9 +1648,9 @@ public class ItemTooltipController : MonoBehaviour
             screenH,
             HudSkillTooltipGap,
             HudSkillTooltipPadding);
-        _skillTooltipBox.style.left = pos.x;
-        _skillTooltipBox.style.top = pos.y;
-        _skillTooltipBox.style.visibility = Visibility.Visible;
+        pos = Vector2.Min(pos, new Vector2(screenW - skillW - HudSkillTooltipPadding,
+            screenH - skillH - HudSkillTooltipPadding));
+        AssignPosition(_skillTooltipBox, pos.x, pos.y);
         RecalculateHudDpsBreakdownPosition();
     }
 
