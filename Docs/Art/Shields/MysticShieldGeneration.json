@@ -1,0 +1,38 @@
+[
+  {
+    "file": "MysticShieldHeldSource.png",
+    "tool": "PixelLab MCP create_image_pro_flash",
+    "job_id": "14fca7a1-54b0-4acc-8038-98562d2adfaa",
+    "parameters": {
+      "width": 24,
+      "height": 24,
+      "seed": 46723,
+      "no_background": true,
+      "description": "Small equipped shield sprite for dark fantasy pixel-art 2D SIDE VIEW RPG. Native 24x24 transparent canvas, one full oval shield 15 pixels wide and 21 pixels tall centered with 1 pixel margin top and bottom. Muted antique bronze thin double rim, dark purple recessed face, golden six-spoked arcane star with a tiny violet central gem. Slight three-quarter side view, narrower oval than a face-on circle. Crisp single pixel outline, readable 1 pixel clusters and restrained detail, neutral even lighting, symmetrical highlights so horizontal flipping looks natural. Entire object fully visible, no cut edges, no directional cast shadow, no perspective floor. Shield only, no hand or person, no external glow, no backdrop, no text. Small hand-held shield of the same scale as a buckler."
+    }
+  },
+  {
+    "file": "MysticShieldHeldLargeSource.png",
+    "tool": "PixelLab MCP create_image_pro_flash",
+    "job_id": "c73e345e-d68e-4d30-8a08-2976415692b4",
+    "parameters": {
+      "width": 48,
+      "height": 48,
+      "seed": 46721,
+      "no_background": true,
+      "description": "In-hand equipment sprite for a grounded dark fantasy pixel-art SIDE VIEW action RPG. Small round mystic shield viewed at a slight side-on three-quarter angle, an oval silhouette 18 pixels wide and 24 pixels tall centred on the 48x48 transparent canvas. Based closely on the reference: muted antique gold thin rim, dark purple recessed face, symmetrical golden six-spoked arcane star design, tiny violet central gem. Entire shield fully visible, clean outline, neutral balanced diffuse lighting so the sprite can flip horizontally without wrong highlights. Simple readable 1-pixel clusters, limited earthy purple gold palette, no strong directional shadow, no glow outside silhouette. Shield only, no hand, no character, no inventory slot, no stand, no floor, no background. A wearable small shield, not a large tower shield."
+    }
+  },
+  {
+    "file": "ArcaneRepriseIcon.png",
+    "tool": "PixelLab MCP create_image_pro_flash",
+    "job_id": "23ba0413-bdc7-4cca-8ddf-a4e1328e3012",
+    "parameters": {
+      "width": 32,
+      "height": 32,
+      "seed": 46722,
+      "no_background": false,
+      "description": "32x32 dark fantasy pixel art skill icon for Arcane Reprise: an antique gold-rimmed violet mystic shield in the center, surrounded by a clear curved lilac clockwise arc and three small bright star sparks, expressing restoring other abilities. Dark desaturated indigo background fills the entire square, subdued warm dark border, high contrast readable central silhouette, crisp native one-pixel clusters, restrained limited gold/violet palette, no text, no digits, no clock face, no UI labels. Match grounded ARPG skill icon style; not cartoon, not glossy."
+    }
+  }
+]
