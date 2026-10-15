@@ -141,7 +141,7 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
-        public void InteractionPrioritizesRewardChestOverCloserDroppedItem()
+        public void InteractionSelectsCloserItemInsteadOfFartherRewardChest()
         {
             GameObject player = CreateGameObject("Player");
             PlayerInteractController controller = player.AddComponent<PlayerInteractController>();
@@ -157,15 +157,15 @@ namespace RelicKeeper.Tests.EditMode
                 BindingFlags.Instance | BindingFlags.NonPublic);
             var selected = findMethod.Invoke(controller, null) as IInteractable;
 
-            Assert.That(selected, Is.SameAs(fartherChest));
-            Assert.That(selected, Is.Not.SameAs(nearerItem));
+            Assert.That(selected, Is.SameAs(nearerItem));
+            Assert.That(selected, Is.Not.SameAs(fartherChest));
         }
 
         [TestCase(HubService.Market, false)]
         [TestCase(HubService.Stash, false)]
         [TestCase(HubService.Market, true)]
         [TestCase(HubService.Stash, true)]
-        public void OverlappingLootCanBeSelectedBeforeNpcAndNpcRemainsAccessible(HubService service, bool cacheLoot)
+        public void CloserNpcIsSelectedBeforeOverlappingLootAndLootRemainsAccessible(HubService service, bool cacheLoot)
         {
             var player = CreateGameObject("Player");
             player.transform.position = new Vector3(1000, 0, 0);
@@ -190,10 +190,54 @@ namespace RelicKeeper.Tests.EditMode
             }
             Physics2D.SyncTransforms();
             var find = typeof(PlayerInteractController).GetMethod("FindNearbyInteractable", BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.That(find.Invoke(controller, null), Is.SameAs(loot), "NPC must not block overlapping loot.");
-            loot.gameObject.SetActive(false);
+            Assert.That(find.Invoke(controller, null), Is.SameAs(npc), "The nearer NPC must win regardless of loot type.");
+            npc.gameObject.SetActive(false);
             Physics2D.SyncTransforms();
-            Assert.That(find.Invoke(controller, null), Is.SameAs(npc), "The service must remain accessible after loot is gone.");
+            Assert.That(find.Invoke(controller, null), Is.SameAs(loot), "Loot remains accessible when the closer NPC is unavailable.");
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public void PortalAndLootAreSelectedOnlyByDistance(bool cacheLoot, bool portalCloser)
+        {
+            var player = CreateGameObject("Player");
+            player.transform.position = new Vector3(2000, 0);
+            var controller = player.AddComponent<PlayerInteractController>();
+            var portalObject = CreateGameObject("Nearby portal");
+            portalObject.transform.position = new Vector3(2000 + (portalCloser ? 1.1f : 1.6f), 0);
+            portalObject.AddComponent<BoxCollider2D>().isTrigger = true;
+            var portal = portalObject.AddComponent<DungeonPortal>();
+            var drop = CreateDroppedItem(new Vector2(2000 + (portalCloser ? 1.6f : 1.1f), 0));
+            Component loot = drop;
+            if (cacheLoot)
+            {
+                var cache = WorldLootCache.Create(drop.transform.position, null);
+                _createdObjects.Add(cache.gameObject);
+                Assert.That(cache.Absorb(drop), Is.True);
+                loot = cache;
+            }
+            Physics2D.SyncTransforms();
+            var find = typeof(PlayerInteractController).GetMethod("FindNearbyInteractable", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(find.Invoke(controller, null), Is.SameAs(portalCloser ? (Component)portal : loot));
+            portal.IsActive = false;
+            Assert.That(find.Invoke(controller, null), Is.SameAs(loot), "Inactive interactables must be skipped.");
+        }
+
+        [Test]
+        public void EqualDistanceKeepsCurrentTargetButMovingCloserChangesSelection()
+        {
+            var player = CreateGameObject("Player");
+            var controller = player.AddComponent<PlayerInteractController>();
+            var left = CreateDroppedItem(Vector2.left);
+            var right = CreateDroppedItem(Vector2.right);
+            SetPrivateField(controller, "_currentInteractable", right);
+            Physics2D.SyncTransforms();
+            var find = typeof(PlayerInteractController).GetMethod("FindNearbyInteractable", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(find.Invoke(controller, null), Is.SameAs(right));
+            player.transform.position = new Vector3(-0.1f, 0);
+            Assert.That(find.Invoke(controller, null), Is.SameAs(left));
         }
 
         [Test]

@@ -14,8 +14,6 @@ namespace Scripts.Dungeon
     {
         [Header("Settings")]
         [SerializeField] private float _interactRadius = 2f;
-        [SerializeField, Min(0f), Tooltip("Standing directly at a portal prioritizes it over nearby loot containers.")]
-        private float _portalPriorityRadius = 0.75f;
         [Tooltip("Слои для поиска (Everything = все)")]
         [SerializeField] private LayerMask _interactLayer = ~0;
         [SerializeField] private bool _debugInput = true;
@@ -119,7 +117,6 @@ namespace Scripts.Dungeon
             var cols = Physics2D.OverlapCircleAll((Vector2)transform.position, _interactRadius, _interactLayer);
             IInteractable closest = null;
             float closestSqrDistance = float.PositiveInfinity;
-            int closestPriority = int.MinValue;
             foreach (var col in cols)
             {
                 var interactable = col.GetComponent<IInteractable>() ?? col.GetComponentInParent<IInteractable>();
@@ -131,35 +128,15 @@ namespace Scripts.Dungeon
                     ? interactableComponent.transform.position
                     : col.bounds.center;
                 float sqrDistance = ((Vector2)transform.position - interactablePosition).sqrMagnitude;
-                int priority = interactable is DungeonPortal && sqrDistance <= _portalPriorityRadius * _portalPriorityRadius
-                    ? 5 : GetInteractionPriority(interactable);
                 bool keepCurrentOnTie = ReferenceEquals(interactable, _currentInteractable) &&
-                                        priority == closestPriority &&
-                                        sqrDistance <= closestSqrDistance + 0.0001f;
-                bool higherPriority = priority > closestPriority;
-                bool closerAtSamePriority = priority == closestPriority && sqrDistance < closestSqrDistance;
-                if (higherPriority || closerAtSamePriority || keepCurrentOnTie)
+                                        sqrDistance == closestSqrDistance;
+                if (sqrDistance < closestSqrDistance || keepCurrentOnTie)
                 {
                     closest = interactable;
                     closestSqrDistance = sqrDistance;
-                    closestPriority = priority;
                 }
             }
             return closest;
-        }
-
-        private static int GetInteractionPriority(IInteractable interactable)
-        {
-            if (interactable is WorldLootCache)
-                return 4;
-            if (interactable is RewardChest)
-                return 3;
-            // Match the visible loot overlay: an NPC underneath must not steal pickup input.
-            if (interactable is WorldDroppedItem)
-                return 2;
-            if (interactable is Scripts.Hub.HubServiceNpc)
-                return 1;
-            return 0;
         }
 
         private void UpdateItemInspection()
