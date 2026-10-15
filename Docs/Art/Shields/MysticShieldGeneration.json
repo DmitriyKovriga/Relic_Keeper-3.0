@@ -2,14 +2,15 @@
   {
     "file": "MysticShieldHeldSource.png",
     "tool": "PixelLab MCP create_image_pro_flash",
-    "job_id": "14fca7a1-54b0-4acc-8038-98562d2adfaa",
+    "job_id": "f2b59525-8603-4915-bd06-05bcad4ebc06",
     "parameters": {
       "width": 24,
       "height": 24,
-      "seed": 46723,
+      "seed": 46731,
       "no_background": true,
-      "description": "Small equipped shield sprite for dark fantasy pixel-art 2D SIDE VIEW RPG. Native 24x24 transparent canvas, one full oval shield 15 pixels wide and 21 pixels tall centered with 1 pixel margin top and bottom. Muted antique bronze thin double rim, dark purple recessed face, golden six-spoked arcane star with a tiny violet central gem. Slight three-quarter side view, narrower oval than a face-on circle. Crisp single pixel outline, readable 1 pixel clusters and restrained detail, neutral even lighting, symmetrical highlights so horizontal flipping looks natural. Entire object fully visible, no cut edges, no directional cast shadow, no perspective floor. Shield only, no hand or person, no external glow, no backdrop, no text. Small hand-held shield of the same scale as a buckler."
-    }
+      "description": "Equipped mystic shield, dark fantasy pixel art side-scrolling RPG item, native 24x24 pixels transparent. Full shield centered, 16 pixels wide and 20 pixels high. Simple rounded oval silhouette with smoothly stepped pixel contour. A SINGLE CLEAN CONSISTENT ANTIQUE GOLD METAL RIM, 1-2 pixels thick, broad smooth unbroken bands, NO double outlines or tiny alternating bright dark zigzags. Dark neutral outline one pixel. Purple flat recessed face with a simple restrained gold six-spoke star and one violet gem center. Three-quarter view almost frontal, gently oval, NOT an edge-on thin sliver. Quiet even shading, no strong highlight side, horizontally flip safe. Readable bold solid pixel clusters, plain outer border, no decorative teeth, no texture dithering, no scratches, no outside glow, no hand or person, no shadow on ground, no text. Fits beside a 32-pixel tall hero. All edges fully visible with transparent margins."
+    },
+    "previous_job_id": "14fca7a1-54b0-4acc-8038-98562d2adfaa"
   },
   {
     "file": "MysticShieldHeldLargeSource.png",
