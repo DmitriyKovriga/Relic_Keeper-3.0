@@ -2525,7 +2525,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 105702380283092992
-    m_Localized: Distancing
+    m_Localized: Inexhaustible Source
     m_Metadata:
       m_Items: []
   - m_Id: 105702380283092993
@@ -2818,6 +2818,70 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 114008382371782656
     m_Localized: Mystic Shield Skill Effectiveness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115818398821113856
+    m_Localized: Otherworldly Wisdom
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115818398850473984
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115818598751002624
+    m_Localized: Inexhaustible Source
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115818598751002625
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115821116889489408
+    m_Localized: Inexhaustible Source
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115821116889489409
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115821205204754432
+    m_Localized: Otherworldly Wisdom
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115821205204754433
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115821685381259264
+    m_Localized: 'Deep Freeze '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115821685381259265
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115822710427213824
+    m_Localized: Chill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115822710427213825
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115829332440506368
+    m_Localized: The Best Protection
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115829332440506369
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115837136844873728
+    m_Localized: Performance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115837136844873729
+    m_Localized: 
     m_Metadata:
       m_Items: []
   references:

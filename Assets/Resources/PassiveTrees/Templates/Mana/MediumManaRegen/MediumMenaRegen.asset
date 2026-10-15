@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
   m_Name: MediumMenaRegen
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
-  Name: MediumMenaRegen
+  Name: MediumManaRegen
   Description: 
   Icon: {fileID: 20927892714965017, guid: 9194de1d2ff294544ae776c164ac525b, type: 3}
   Modifiers:
@@ -22,3 +22,7 @@ MonoBehaviour:
   - Stat: 5
     Value: 50
     Type: 100
+  StatScalingRules: []
+  ConditionalModifiers: []
+  TriggeredEffects: []
+  HitScalingRules: []

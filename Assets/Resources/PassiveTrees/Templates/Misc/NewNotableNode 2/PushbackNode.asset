@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
   Name: PushbackNode
   Description: 
-  Icon: {fileID: 21300000, guid: 8079ef922e51c1d42b9098771ed9e62a, type: 3}
+  Icon: {fileID: 21300000, guid: 5714cc1372fb9584d8e4cc70c00f1f79, type: 3}
   Modifiers:
   - Stat: 110
     Value: 100

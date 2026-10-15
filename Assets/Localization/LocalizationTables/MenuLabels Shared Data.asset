@@ -1859,6 +1859,70 @@ MonoBehaviour:
     m_Key: stats.MysticShieldSkillEffectiveness
     m_Metadata:
       m_Items: []
+  - m_Id: 115818398821113856
+    m_Key: passive.node.NoteGrandManaAndManaregenPercent.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115818398850473984
+    m_Key: passive.node.NoteGrandManaAndManaregenPercent.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115818598751002624
+    m_Key: passive.node.NoteGrandMana.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115818598751002625
+    m_Key: passive.node.NoteGrandMana.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115821116889489408
+    m_Key: passive.node.NoteGrandManaRegen.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115821116889489409
+    m_Key: passive.node.NoteGrandManaRegen.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115821205204754432
+    m_Key: passive.node.NoteGrandManaRegenAndManaregenPercent.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115821205204754433
+    m_Key: passive.node.NoteGrandManaRegenAndManaregenPercent.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115821685381259264
+    m_Key: passive.node.IceDamageFreeze.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115821685381259265
+    m_Key: passive.node.IceDamageFreeze.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115822710427213824
+    m_Key: passive.node.FreezeSmall.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115822710427213825
+    m_Key: passive.node.FreezeSmall.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115829332440506368
+    m_Key: passive.node.NoteBarrierInDamage.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115829332440506369
+    m_Key: passive.node.NoteBarrierInDamage.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115837136844873728
+    m_Key: passive.node.SmallCritMultiplie.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 115837136844873729
+    m_Key: passive.node.SmallCritMultiplie.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
