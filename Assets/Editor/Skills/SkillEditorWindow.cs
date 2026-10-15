@@ -688,6 +688,7 @@ namespace Scripts.Editor.Skills
                 case "DealDamageCircle":
                 case "DealDamageRectangle":
                 case "InstantBeam":
+                case "BlinkStab":
                 case "PersistentDamageCircle":
                 case "PersistentDamageRectangle":
                     return StepEditorCategory.HitboxesVfxProjectiles;
@@ -1438,10 +1439,11 @@ namespace Scripts.Editor.Skills
         {
             string id = step.StepDefinition != null ? step.StepDefinition.Id : "";
 
-            if (id == "InstantBeam")
+            if (id == "BlinkStab" || id == "InstantBeam")
             {
-                EditorGUILayout.HelpBox("Instant forward hit; stops at solid terrain. Cast speed controls repeat rate.", MessageType.None);
-                foreach (string key in new[] { "Range", "Width", "OffsetX", "OffsetY", "VisualLifetime", "DamageMultiplier" })
+                bool blink = id == "BlinkStab";
+                EditorGUILayout.HelpBox(blink ? "Blink behind a new nearby target and stab. Requires clear terrain and ground support." : "Instant forward hit; stops at solid terrain. Cast speed controls repeat rate.", MessageType.None);
+                foreach (string key in blink ? new[] { "Range", "Clearance", "DamageMultiplier" } : new[] { "Range", "Width", "OffsetX", "OffsetY", "VisualLifetime", "DamageMultiplier" })
                 {
                     float value = step.GetFloat(key);
                     float edited = EditorGUILayout.FloatField(key, value);

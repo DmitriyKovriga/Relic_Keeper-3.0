@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using Scripts.Stats;
@@ -351,6 +351,7 @@ namespace Scripts.Skills
                     _moveCtrl.Charge(_ctx.FacingDirection * Mathf.Max(0, step.GetFloat("Distance", 3)) / Mathf.Max(0.01f, stepDuration));
                     break;
                 case "WeaponWindup":
+                    if (step.GetBool("ShowWeapon")) _animCtrl.SetWeaponVisible(true);
                     _animCtrl.LerpWindup(phaseT);
                     break;
                 case "WeaponStrike":
@@ -361,6 +362,9 @@ namespace Scripts.Skills
                     _animCtrl.LerpRecovery(phaseT);
                     break;
                 case "Wait":
+                    break;
+                case "BlinkStab":
+                    ExecuteBlinkStab(stepIndex, step);
                     break;
                 case "ParryWindow":
                     if (_openedParrySteps.Add(stepIndex))
@@ -1235,6 +1239,59 @@ namespace Scripts.Skills
             ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
             var targets = GetTargetsInBox(center, size, angle);
             DealDamageToTargets(stepIndex, step, targets);
+        }
+
+        private void ExecuteBlinkStab(int stepIndex, StepEntry step)
+        {
+            if (_ownerStats == null || _ctx == null) return;
+            var body = _ownerStats.GetComponent<Collider2D>();
+            if (body == null || !body.enabled) return;
+            var history = _ownerStats.GetComponent<BlinkStrikeTargetHistory>();
+            if (history == null) history = _ownerStats.gameObject.AddComponent<BlinkStrikeTargetHistory>();
+            history.PruneDeadTargets();
+            Vector2 origin = _ownerStats.transform.position;
+            float range = Mathf.Max(0, step.GetFloat("Range", 6f));
+            var candidates = Physics2D.OverlapCircleAll(origin, range, _targetLayer);
+            System.Array.Sort(candidates, (a, b) =>
+                ((Vector2)a.bounds.center - origin).sqrMagnitude.CompareTo(((Vector2)b.bounds.center - origin).sqrMagnitude));
+            IDamageable selected = null;
+            Vector2 destination = default;
+            int facing = 1;
+            long oldest = long.MaxValue;
+            foreach (var hit in candidates)
+            {
+                if (!TryResolveValidDamageTarget(hit, out var target)) continue;
+                int key = GetDamageTargetKey(target);
+                if (_ctx.BlinkStrikeTargets.Contains(key)) continue;
+                var health = hit.GetComponentInParent<Scripts.Enemies.EnemyHealth>();
+                if (health != null && health.IsDead) continue;
+                long order = history.LastStrike((Component)target);
+                if (order >= oldest) continue;
+                if (!BlinkStrikeGeometry.TryDestination(body, hit, origin, Mathf.Max(0.02f, step.GetFloat("Clearance", 0.12f)),
+                    step.GetInt("WorldLayerMask", 1 << 6), out var candidateDestination, out int candidateFacing)) continue;
+                selected = target; oldest = order;
+                destination = candidateDestination; facing = candidateFacing;
+                if (order == 0) break; // Candidates are nearest-first; a safe unhit enemy has highest priority.
+            }
+            if (selected == null) return;
+            _ctx.BlinkStrikeTargets.Add(GetDamageTargetKey(selected));
+            Vector2 departure = body.bounds.center;
+            var movement = _ownerStats.GetComponent<PlayerMovement>();
+            if (movement != null) movement.TeleportForSkill(destination, facing);
+            else
+            {
+                var rigidbody = _ownerStats.GetComponent<Rigidbody2D>();
+                if (rigidbody != null) { rigidbody.position = destination; rigidbody.linearVelocity = Vector2.zero; }
+                _ownerStats.transform.position = new Vector3(destination.x, destination.y, _ownerStats.transform.position.z);
+                Vector3 scale = _ownerStats.transform.localScale;
+                scale.x = Mathf.Abs(scale.x) * facing; _ownerStats.transform.localScale = scale;
+                Physics2D.SyncTransforms();
+            }
+            if (_animCtrl != null) { _animCtrl.SnapImpact(); _animCtrl.SetWeaponVisible(false); }
+            BlinkStabVisual.Spawn(departure, facing, false);
+            BlinkStabVisual.Spawn(body.bounds.center, facing, true);
+            DealDamageToTargets(stepIndex, step, new List<IDamageable> { selected });
+            history.Remember((Component)selected);
         }
 
         private void ExecuteInstantBeam(int stepIndex, StepEntry step)

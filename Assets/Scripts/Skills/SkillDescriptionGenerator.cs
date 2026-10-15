@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "InstantBeam" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "BlinkStab" or "InstantBeam" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -216,6 +216,12 @@ namespace Scripts.Skills
 
             switch (id)
             {
+                case "BlinkStab":
+                    Add(lines, unique, ru
+                        ? $"Одна телепортация за спину врага в радиусе {N(step.GetFloat("Range", 6f))} м и один удар за применение. Предпочитает ближайшего ещё не поражённого врага, затем того, кого атаковал раньше остальных. Помнит живых врагов между применениями."
+                        : $"One blink behind an enemy within {N(step.GetFloat("Range", 6f))} m and one stab per use. Prioritizes the nearest unhit enemy, then the least recently hit. Remembers living enemies between uses.");
+                    AddDamage(step, ru, nearby: false, lines, unique, effectiveness);
+                    break;
                 case "InstantBeam":
                     Add(lines, unique, ru
                         ? $"Мгновенный электрический луч перед героем. Дальность: {N(step.GetFloat("Range", 12f))} м. Останавливается на препятствиях."

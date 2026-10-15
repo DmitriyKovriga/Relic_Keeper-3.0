@@ -16,6 +16,7 @@ namespace Scripts.Skills.Steps
         public float FacingDirection => OwnerStats != null && OwnerStats.transform != null && OwnerStats.transform.localScale.x > 0 ? 1f : -1f;
         public float AoeScale = 1f;
         public bool Cancelled;
+        public readonly HashSet<int> BlinkStrikeTargets = new HashSet<int>();
         public int MysticShieldsConsumed;
         public int MysticShieldsGenerated;
         public float MysticShieldDamageMultiplier = 1f;

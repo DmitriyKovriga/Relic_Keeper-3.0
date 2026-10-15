@@ -275,6 +275,7 @@ namespace Scripts.Combat
                 || id == "DealDamageCircle"
                 || id == "DealDamageRectangle"
                 || id == "InstantBeam"
+                || id == "BlinkStab"
                 || id == "ChainDamage"
                 || id == "PersistentDamageCircle"
                 || id == "PersistentDamageRectangle";

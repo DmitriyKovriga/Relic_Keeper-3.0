@@ -215,6 +215,18 @@ public class PlayerMovement : MonoBehaviour
             Flip();
     }
 
+    public void TeleportForSkill(Vector2 position, float facing)
+    {
+        _hasHorizontalLaunch = false;
+        ClearIgnoredPlatformCollisions();
+        _rb.linearVelocity = Vector2.zero;
+        _rb.position = position;
+        transform.position = new Vector3(position.x, position.y, transform.position.z);
+        ForceFaceDirection(facing);
+        Physics2D.SyncTransforms();
+        CheckGround();
+    }
+
     public void ApplySkillImpulse(float angleDegrees, float force, bool relativeToFacing, bool clearCurrentVelocity)
     {
         if (_rb == null || force <= 0f)
