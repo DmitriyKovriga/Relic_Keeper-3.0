@@ -387,6 +387,14 @@ MonoBehaviour:
     m_Key: skills.NinjaStubSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 101274791900602368
+    m_Key: skills.GodOfStrenghtSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101274792005459968
+    m_Key: skills.GodOfStrenghtSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

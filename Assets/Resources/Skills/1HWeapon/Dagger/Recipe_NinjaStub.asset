@@ -32,7 +32,14 @@ MonoBehaviour:
     EndPercentPipeline: 0.1
     SubSteps: []
   - StepDefinition: {fileID: 11400000, guid: 8eab3baafeb2c5c40a605914183f3365, type: 2}
-    Overrides: []
+    Overrides:
+    - Key: DamageMultiplier
+      Type: 0
+      FloatVal: 1.25
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
     DamageConversions: []
     ScopedStatModifiers: []
     TargetAilmentStackModifiers: []
@@ -51,6 +58,6 @@ MonoBehaviour:
     SubSteps: []
   HitStopFrames: 0
   IsChanneling: 0
-  ChannelLoopStepIndices:
+  ChannelLoopStepIndices: 
   ChannelMaxDuration: 5
   ChannelTickDuration: 0

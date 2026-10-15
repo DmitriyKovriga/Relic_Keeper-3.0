@@ -18439,6 +18439,30 @@ MonoBehaviour:
     m_Key: affix_name_shockeffectmagnitude_less_light
     m_Metadata:
       m_Items: []
+  - m_Id: 101946052259442688
+    m_Key: affix.GodsVitality
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101946052376883200
+    m_Key: affix.GodsVitality.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101946052376883201
+    m_Key: affix.GodsProtection
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101946052376883202
+    m_Key: affix.GodsProtection.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101946052376883203
+    m_Key: affix.GodsReach
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101946052376883204
+    m_Key: affix.GodsReach.name
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

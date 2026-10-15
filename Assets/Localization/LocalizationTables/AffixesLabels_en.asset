@@ -16,7 +16,8 @@ MonoBehaviour:
     m_Code: en
   m_SharedData: {fileID: 11400000, guid: 3b788bad494770244aaf54d5e500a8d3, type: 2}
   m_Metadata:
-    m_Items: []
+    m_Items:
+    - rid: 960044427324948570
   m_TableData:
   - m_Id: 61755392000
     m_Localized: '{0:+0.##;-0.##;0}% to Bleed Chance'
@@ -57162,6 +57163,47 @@ MonoBehaviour:
     m_Localized: Light Shock Effect Magnitude less
     m_Metadata:
       m_Items: []
+  - m_Id: 101946052259442688
+    m_Localized: +{0} to maximum life
+    m_Metadata:
+      m_Items:
+      - rid: 960044427324948570
+  - m_Id: 101946052376883200
+    m_Localized: God's Vitality
+    m_Metadata:
+      m_Items:
+      - rid: 960044427324948570
+  - m_Id: 101946052376883201
+    m_Localized: +{0}% to all resistances
+    m_Metadata:
+      m_Items:
+      - rid: 960044427324948570
+  - m_Id: 101946052376883202
+    m_Localized: God's Protection
+    m_Metadata:
+      m_Items:
+      - rid: 960044427324948570
+  - m_Id: 101946052376883203
+    m_Localized: +{0}% to area of effect
+    m_Metadata:
+      m_Items:
+      - rid: 960044427324948570
+  - m_Id: 101946052376883204
+    m_Localized: God's Reach
+    m_Metadata:
+      m_Items:
+      - rid: 960044427324948570
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 960044427324948570
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries:
+        m_SharedEntries:
+        - id: 101946052259442688
+        - id: 101946052376883200
+        - id: 101946052376883201
+        - id: 101946052376883202
+        - id: 101946052376883203
+        - id: 101946052376883204

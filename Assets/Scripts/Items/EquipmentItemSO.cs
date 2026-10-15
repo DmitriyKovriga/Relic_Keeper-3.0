@@ -12,6 +12,10 @@ namespace Scripts.Items
         public string ID;
         public string ItemName;
         public Sprite Icon;
+        [Header("Unique Item")]
+        public bool IsUnique;
+        [Tooltip("Unique items always roll these affixes; only their numeric values vary.")]
+        public List<ItemAffixSO> UniqueAffixes = new List<ItemAffixSO>();
         
         [Header("Size (In Slots)")]
         [Min(1)] public int Width = 1;  // РЁРёСЂРёРЅР° РІ РєР»РµС‚РєР°С…

@@ -14,7 +14,7 @@ namespace Scripts.Stats
             var modifiers = new List<SerializableStatModifier>(links.Count);
             foreach (var link in links)
             {
-                float value = source.GetValue(link.SourceStat) * Mathf.Max(0, link.SourcePercent) / 100f;
+                float value = link.Evaluate(source.GetValue(link.SourceStat));
                 if (float.IsNaN(value) || float.IsInfinity(value) || Mathf.Approximately(value, 0)) continue;
                 modifiers.Add(new SerializableStatModifier
                 {

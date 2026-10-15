@@ -16,7 +16,8 @@ MonoBehaviour:
     m_Code: en
   m_SharedData: {fileID: 11400000, guid: 5c97267dc7eac0a4aab027b3d8a147d0, type: 2}
   m_Metadata:
-    m_Items: []
+    m_Items:
+    - rid: 960044422043271365
   m_TableData:
   - m_Id: 14018847211520
     m_Localized: +{0}% to Bleed Chance
@@ -47,15 +48,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14018855600134
-    m_Localized: "Adds {0} to Chance To Avoid Bleed"
+    m_Localized: Adds {0} to Chance To Avoid Bleed
     m_Metadata:
       m_Items: []
   - m_Id: 14018855600135
-    m_Localized: "Adds {0} to Chance To Avoid Ignite"
+    m_Localized: Adds {0} to Chance To Avoid Ignite
     m_Metadata:
       m_Items: []
   - m_Id: 14018859794432
-    m_Localized: "Adds {0} to Chance To Avoid Poison"
+    m_Localized: Adds {0} to Chance To Avoid Poison
     m_Metadata:
       m_Items: []
   - m_Id: 14018859794433
@@ -267,7 +268,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14018868183048
-    m_Localized: "Adds {0} to Chance To Avoid Shock"
+    m_Localized: Adds {0} to Chance To Avoid Shock
     m_Metadata:
       m_Items: []
   - m_Id: 14018868183049
@@ -567,15 +568,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 22479781789696
-    m_Localized: "Adds {0} to Chance To Avoid Bleed"
+    m_Localized: Adds {0} to Chance To Avoid Bleed
     m_Metadata:
       m_Items: []
   - m_Id: 22479785984000
-    m_Localized: "Adds {0} to Chance To Avoid Ignite"
+    m_Localized: Adds {0} to Chance To Avoid Ignite
     m_Metadata:
       m_Items: []
   - m_Id: 22479785984001
-    m_Localized: "Adds {0} to Chance To Avoid Poison"
+    m_Localized: Adds {0} to Chance To Avoid Poison
     m_Metadata:
       m_Items: []
   - m_Id: 22479790178304
@@ -635,7 +636,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 22479840509952
-    m_Localized: "Adds {0} to Chance To Avoid Shock"
+    m_Localized: Adds {0} to Chance To Avoid Shock
     m_Metadata:
       m_Items: []
   - m_Id: 22479840509953
@@ -1143,15 +1144,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 29700380983296
-    m_Localized: "Adds {0} to Chance To Avoid Bleed"
+    m_Localized: Adds {0} to Chance To Avoid Bleed
     m_Metadata:
       m_Items: []
   - m_Id: 29700385177600
-    m_Localized: "Adds {0} to Chance To Avoid Ignite"
+    m_Localized: Adds {0} to Chance To Avoid Ignite
     m_Metadata:
       m_Items: []
   - m_Id: 29700389371904
-    m_Localized: "Adds {0} to Chance To Avoid Poison"
+    m_Localized: Adds {0} to Chance To Avoid Poison
     m_Metadata:
       m_Items: []
   - m_Id: 29700393566208
@@ -1211,7 +1212,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 29700439703552
-    m_Localized: "Adds {0} to Chance To Avoid Shock"
+    m_Localized: Adds {0} to Chance To Avoid Shock
     m_Metadata:
       m_Items: []
   - m_Id: 29700439703553
@@ -1690,7 +1691,47 @@ MonoBehaviour:
     m_Localized: '{0}% more Maximum Mana'
     m_Metadata:
       m_Items: []
+  - m_Id: 101936850711601152
+    m_Localized: God's Vitality
+    m_Metadata:
+      m_Items:
+      - rid: 960044422043271365
+  - m_Id: 101936851139420160
+    m_Localized: +{0} to maximum life
+    m_Metadata:
+      m_Items:
+      - rid: 960044422043271365
+  - m_Id: 101936851584016384
+    m_Localized: God's Protection
+    m_Metadata:
+      m_Items:
+      - rid: 960044422043271365
+  - m_Id: 101936851584016385
+    m_Localized: +{0}% to all resistances
+    m_Metadata:
+      m_Items:
+      - rid: 960044422043271365
+  - m_Id: 101936851957309440
+    m_Localized: God's Reach
+    m_Metadata:
+      m_Items:
+      - rid: 960044422043271365
+  - m_Id: 101936851957309441
+    m_Localized: +{0}% to area of effect
+    m_Metadata:
+      m_Items:
+      - rid: 960044422043271365
   references:
     version: 2
-    RefIds: []
-
+    RefIds:
+    - rid: 960044422043271365
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries:
+        m_SharedEntries:
+        - id: 101936850711601152
+        - id: 101936851139420160
+        - id: 101936851584016384
+        - id: 101936851584016385
+        - id: 101936851957309440
+        - id: 101936851957309441

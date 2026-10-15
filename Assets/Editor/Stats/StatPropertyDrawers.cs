@@ -147,7 +147,7 @@ namespace Scripts.Editor.Stats
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return EditorGUIUtility.singleLineHeight * 3f + VerticalSpacing * 4f;
+            return EditorGUIUtility.singleLineHeight * 4f + VerticalSpacing * 5f;
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -157,16 +157,19 @@ namespace Scripts.Editor.Stats
 
             SerializedProperty sourceStatProp = property.FindPropertyRelative("SourceStat");
             SerializedProperty sourcePercentProp = property.FindPropertyRelative("SourcePercent");
+            SerializedProperty sourceStepProp = property.FindPropertyRelative("SourceStep");
             SerializedProperty targetStatProp = property.FindPropertyRelative("TargetStat");
             SerializedProperty targetModifierTypeProp = property.FindPropertyRelative("TargetModifierType");
 
             float lineHeight = EditorGUIUtility.singleLineHeight;
             Rect sourceRect = new Rect(position.x, position.y + VerticalSpacing, position.width, lineHeight);
             Rect middleRect = new Rect(position.x, sourceRect.yMax + VerticalSpacing, position.width, lineHeight);
-            Rect targetRect = new Rect(position.x, middleRect.yMax + VerticalSpacing, position.width, lineHeight);
+            Rect stepRect = new Rect(position.x, middleRect.yMax + VerticalSpacing, position.width, lineHeight);
+            Rect targetRect = new Rect(position.x, stepRect.yMax + VerticalSpacing, position.width, lineHeight);
 
             StatPickerUtility.DrawStatPicker(sourceRect, sourceStatProp, new GUIContent("Source stat"));
             EditorGUI.PropertyField(middleRect, sourcePercentProp, new GUIContent("Percent of source"));
+            EditorGUI.PropertyField(stepRect, sourceStepProp, new GUIContent("Source step (0 = continuous)"));
 
             float targetWidth = targetRect.width * 0.58f;
             Rect targetStatRect = new Rect(targetRect.x, targetRect.y, targetWidth, targetRect.height);

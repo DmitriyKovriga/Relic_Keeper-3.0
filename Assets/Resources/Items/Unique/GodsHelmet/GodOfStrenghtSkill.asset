@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 037112ba607a5b2409ab1b0826944402, type: 3}
+  m_Name: GodOfStrenghtSkill
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
+  ID: GodOfStrenghtSkill
+  SkillName: God Of Strenght
+  DescriptionMode: 0
+  Description: 
+  Icon: {fileID: 21300000, guid: bec977cc8c3046f883cafd5dde8198fa, type: 3}
+  NameKey: skills.GodOfStrenghtSkill
+  DescriptionKey: skills.GodOfStrenghtSkill.description
+  IsActive: 1
+  Cooldown: 60
+  ManaCost: 50
+  ActionSpeedMode: 2
+  SkillSpeedMultiplier: 1
+  DamageContextTags: 0
+  StatLinks: []
+  EnablePushback: 0
+  PushbackRating: 0
+  SkillPrefab: {fileID: 0}
+  AnimationTrigger: Attack
+  Recipe: {fileID: 11400000, guid: 02b5f53d0758f4247ad569a0927ae105, type: 2}
+  WeaponRole: 2
+  HoldStance: 0
+  HoldStanceId: 
+  SwingStyle: 0
+  SwingStyleId: 

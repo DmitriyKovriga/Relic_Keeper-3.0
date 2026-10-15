@@ -147,6 +147,10 @@ MonoBehaviour:
     m_Key: items.e6bee9af
     m_Metadata:
       m_Items: []
+  - m_Id: 101272204363161600
+    m_Key: items.GodsHelmet
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

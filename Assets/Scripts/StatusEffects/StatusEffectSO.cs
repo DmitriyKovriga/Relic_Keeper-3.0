@@ -48,8 +48,16 @@ namespace Scripts.StatusEffects
     {
         public StatType SourceStat;
         [Min(0f)] public float SourcePercent;
+        [Tooltip("0 uses the full source. Otherwise only complete steps contribute (e.g. every 50 maximum life).")]
+        [Min(0f)] public float SourceStep;
         public StatType TargetStat;
         public StatModType TargetModifierType;
+
+        public float Evaluate(float sourceValue)
+        {
+            if (SourceStep > 0f) sourceValue = Mathf.Floor(Mathf.Max(0, sourceValue) / SourceStep) * SourceStep;
+            return sourceValue * Mathf.Max(0, SourcePercent) / 100f;
+        }
     }
 
     [System.Serializable]

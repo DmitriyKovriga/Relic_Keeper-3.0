@@ -28,21 +28,21 @@ namespace RelicKeeper.Tests.EditMode
         [Test]
         public void BaseRarityChancesAreRolledAfterDrop()
         {
-            Assert.That(EnemyLootDropService.RollRarity(0.019f, 1f), Is.EqualTo(EnemyLootRarity.Rare));
-            Assert.That(EnemyLootDropService.RollRarity(0.02f, 1f), Is.EqualTo(EnemyLootRarity.Magic));
-            Assert.That(EnemyLootDropService.RollRarity(0.069f, 1f), Is.EqualTo(EnemyLootRarity.Magic));
-            Assert.That(EnemyLootDropService.RollRarity(0.07f, 1f), Is.EqualTo(EnemyLootRarity.Common));
-            Assert.That(EnemyLootDropService.RollRarity(0.99f, 1f), Is.EqualTo(EnemyLootRarity.Common));
+            Assert.That(EnemyLootDropService.RollRarity(0.019f, 1f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Rare));
+            Assert.That(EnemyLootDropService.RollRarity(0.02f, 1f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollRarity(0.069f, 1f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollRarity(0.07f, 1f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Common));
+            Assert.That(EnemyLootDropService.RollRarity(0.99f, 1f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Common));
         }
 
         [Test]
         public void RarityIncreaseMultipliesMagicAndRareUpgradeChances()
         {
-            Assert.That(EnemyLootDropService.RollRarity(0.039f, 2f), Is.EqualTo(EnemyLootRarity.Rare));
-            Assert.That(EnemyLootDropService.RollRarity(0.04f, 2f), Is.EqualTo(EnemyLootRarity.Magic));
-            Assert.That(EnemyLootDropService.RollRarity(0.139f, 2f), Is.EqualTo(EnemyLootRarity.Magic));
-            Assert.That(EnemyLootDropService.RollRarity(0.14f, 2f), Is.EqualTo(EnemyLootRarity.Common));
-            Assert.That(EnemyLootDropService.RollRarity(0f, 0f), Is.EqualTo(EnemyLootRarity.Common));
+            Assert.That(EnemyLootDropService.RollRarity(0.039f, 2f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Rare));
+            Assert.That(EnemyLootDropService.RollRarity(0.04f, 2f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollRarity(0.139f, 2f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollRarity(0.14f, 2f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Common));
+            Assert.That(EnemyLootDropService.RollRarity(0f, 0f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Common));
         }
 
         [Test]
@@ -85,12 +85,12 @@ namespace RelicKeeper.Tests.EditMode
         [Test]
         public void RareUpgradeReplacesMagicAfterCommonIsExhausted()
         {
-            Assert.That(EnemyLootDropService.RollRarity(0.199f, 10f), Is.EqualTo(EnemyLootRarity.Rare));
-            Assert.That(EnemyLootDropService.RollRarity(0.20f, 10f), Is.EqualTo(EnemyLootRarity.Magic));
-            Assert.That(EnemyLootDropService.RollRarity(0.699f, 10f), Is.EqualTo(EnemyLootRarity.Magic));
-            Assert.That(EnemyLootDropService.RollRarity(0.70f, 10f), Is.EqualTo(EnemyLootRarity.Common));
-            Assert.That(EnemyLootDropService.RollRarity(0.999f, 15f), Is.EqualTo(EnemyLootRarity.Magic));
-            Assert.That(EnemyLootDropService.RollRarity(0.999f, 50f), Is.EqualTo(EnemyLootRarity.Rare));
+            Assert.That(EnemyLootDropService.RollRarity(0.199f, 10f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Rare));
+            Assert.That(EnemyLootDropService.RollRarity(0.20f, 10f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollRarity(0.699f, 10f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollRarity(0.70f, 10f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Common));
+            Assert.That(EnemyLootDropService.RollRarity(0.999f, 15f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Magic));
+            Assert.That(EnemyLootDropService.RollRarity(0.999f, 50f, uniqueChance: 0f), Is.EqualTo(EnemyLootRarity.Rare));
         }
 
         [Test]

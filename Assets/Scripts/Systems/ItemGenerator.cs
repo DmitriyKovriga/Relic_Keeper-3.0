@@ -26,7 +26,13 @@ public class ItemGenerator : MonoBehaviour
         // Affixes are now opt-in per item. Empty AffixPool means no random affixes.
         var pool = baseItem.AffixPool;
         int availableAffixGroups = pool != null ? pool.GetAvailableAffixGroupCount(itemLevel) : 0;
-        if (availableAffixGroups > 0 && rarity > 0)
+        if (baseItem.IsUnique)
+        {
+            if (baseItem.UniqueAffixes != null)
+                foreach (var affix in baseItem.UniqueAffixes)
+                    if (affix != null) newItem.Affixes.Add(new AffixInstance(affix, newItem));
+        }
+        else if (availableAffixGroups > 0 && rarity > 0)
         {
             int count;
             if (rarity == 1 || availableAffixGroups < ItemRarity.RareAffixMin)
@@ -77,7 +83,7 @@ public class ItemGenerator : MonoBehaviour
 
     public static bool CanApplyCraftingOrb(InventoryItem item, string effectId)
     {
-        if (item == null || item.Data == null || string.IsNullOrEmpty(effectId))
+        if (item == null || item.Data == null || item.Data.IsUnique || string.IsNullOrEmpty(effectId))
             return false;
 
         int count = item.Affixes?.Count ?? 0;

@@ -17,6 +17,8 @@ public class ItemDatabaseSO : ScriptableObject
     [Range(0f, 1f)] public float MagicItemDropChance = 0.05f;
     [Tooltip("Chance to upgrade a successful Common item drop directly to Rare. Increased rarity multiplies this chance; Rare has priority over Magic.")]
     [Range(0f, 1f)] public float RareItemDropChance = 0.02f;
+    [Tooltip("Unique share among equipment drops before increased rarity. Unique has highest priority.")]
+    [Range(0f, 1f)] public float UniqueItemDropChance = 0.001f;
     [Tooltip("Flat crafting-currency chance before enemy, room and dungeon quantity modifiers. A successful drop starts as Mutation and can then upgrade to another currency.")]
     [Range(0f, 1f)] public float BaseCurrencyDropChance = 0.1025f;
 

@@ -14,7 +14,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_TableCollectionName: Affixes
   m_TableCollectionNameGuidString: 5c97267dc7eac0a4aab027b3d8a147d0
-  m_Entries: []
+  m_Entries:
+  - m_Id: 101936850711601152
+    m_Key: affix.GodsVitality.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101936851139420160
+    m_Key: affix.GodsVitality
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101936851584016384
+    m_Key: affix.GodsProtection.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101936851584016385
+    m_Key: affix.GodsProtection
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101936851957309440
+    m_Key: affix.GodsReach.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101936851957309441
+    m_Key: affix.GodsReach
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

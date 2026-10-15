@@ -15,6 +15,7 @@ MonoBehaviour:
   BaseItemDropChance: 0.13
   MagicItemDropChance: 0.2
   RareItemDropChance: 0.1
+  UniqueItemDropChance: 0.001
   BaseCurrencyDropChance: 0.13
   AllItems:
   - {fileID: 11400000, guid: 51f8e2c396221f34b85b11dd28459e1b, type: 2}
@@ -46,6 +47,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 802327eb71519cd4d96a2e9cc8fd189a, type: 2}
   - {fileID: 11400000, guid: d15b498a0893c69448edc31348007dae, type: 2}
   - {fileID: 11400000, guid: f5fb22e569959384c88ea59f58621178, type: 2}
+  - {fileID: 11400000, guid: 06f0b7b36baac294b95bc81c983cb85b, type: 2}
   AllAffixes:
   - {fileID: 11400000, guid: aa528cde099a24d409b2edf24a0b6212, type: 2}
   - {fileID: 11400000, guid: 10edb8d5ca776514d868b7689d3e8af6, type: 2}
@@ -948,6 +950,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 60b467b71937d09429b8bfdb4ec95f95, type: 2}
   - {fileID: 11400000, guid: 58ab4a20bc57d3740bf0e893565706f0, type: 2}
   - {fileID: 11400000, guid: ec261c356bc9c0b4c96b6a54a28fc91a, type: 2}
+  - {fileID: 11400000, guid: f744f4fab1f15cd45bd67f2b06d660c0, type: 2}
+  - {fileID: 11400000, guid: 6047ae9ff93ff58408d1755d66f89a2e, type: 2}
+  - {fileID: 11400000, guid: 2f518be1fc421b640907b37cfcf62534, type: 2}
   AllSkills:
   - {fileID: 11400000, guid: d6db2865f0945a24eb2793c6db7c0435, type: 2}
   - {fileID: 11400000, guid: a6471ae41a839b542a5389725b729ef7, type: 2}
@@ -977,3 +982,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5a294655da4c3804295ba7a59ef9a98b, type: 2}
   - {fileID: 11400000, guid: 3fc8ae53438892d4b9784b1d3c1f0d57, type: 2}
   - {fileID: 11400000, guid: ecd9a58aeb585af4ca956294a39c01d1, type: 2}
+  - {fileID: 11400000, guid: 12e325d37df376c46a499ddb588ec272, type: 2}

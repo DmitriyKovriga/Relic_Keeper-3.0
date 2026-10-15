@@ -691,9 +691,19 @@ namespace Scripts.Skills
         {
             if (modifiers == null) return;
             foreach (DerivedStatModifier modifier in modifiers)
+            {
+                if (modifier.SourceStep > 0)
+                {
+                    string amount = ModValue(modifier.TargetStat, modifier.SourceStep * modifier.SourcePercent / 100f * effectiveness, modifier.TargetModifierType, ru);
+                    Add(lines, unique, ru
+                        ? $"Эффект даёт {amount} к «{StatName(modifier.TargetStat, resolver)}» за каждые полные {N(modifier.SourceStep)} «{StatName(modifier.SourceStat, resolver)}»."
+                        : $"Effect grants {amount} {StatName(modifier.TargetStat, resolver)} per full {N(modifier.SourceStep)} {StatName(modifier.SourceStat, resolver)}.");
+                    continue;
+                }
                 Add(lines, unique, ru
                     ? $"Эффект даёт параметр «{StatName(modifier.TargetStat, resolver)}» в размере {P(modifier.SourcePercent * effectiveness)} от параметра «{StatName(modifier.SourceStat, resolver)}»."
                     : $"Effect grants {StatName(modifier.TargetStat, resolver)} equal to {P(modifier.SourcePercent * effectiveness)} of {StatName(modifier.SourceStat, resolver)}.");
+            }
         }
 
         private static void AddEventReactions(

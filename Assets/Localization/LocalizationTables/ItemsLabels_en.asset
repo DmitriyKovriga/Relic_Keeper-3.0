@@ -150,6 +150,10 @@ MonoBehaviour:
     m_Localized: Adventurer's Bow
     m_Metadata:
       m_Items: []
+  - m_Id: 101272204363161600
+    m_Localized: God's Helmet
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

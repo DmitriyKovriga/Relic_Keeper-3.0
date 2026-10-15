@@ -11,7 +11,8 @@ namespace Scripts.Enemies
         None = -1,
         Common = 0,
         Magic = 1,
-        Rare = 2
+        Rare = 2,
+        Unique = 3
     }
 
     public enum GuaranteedLootFilter
@@ -27,6 +28,7 @@ namespace Scripts.Enemies
         public const float DefaultCurrencyDropChance = 0.1025f;
         public const float DefaultMagicChance = 0.05f;
         public const float DefaultRareChance = 0.02f;
+        public const float DefaultUniqueChance = 0.001f;
         public const float RepeatDropDecreasePerSuccess = 0.30f;
         public const float MinimumMutationCurrencyChance = 0.10f;
         private static CraftingOrbSO[] s_craftingOrbs;
@@ -70,7 +72,7 @@ namespace Scripts.Enemies
                     Random.value,
                     rarityMultiplier,
                     database.MagicItemDropChance,
-                    database.RareItemDropChance);
+                    database.RareItemDropChance, database.UniqueItemDropChance);
                 EquipmentItemSO baseItem = SelectBaseItemForRarity(database, entity.Level, ref rarity, Random.value);
                 if (baseItem == null)
                 {
@@ -157,9 +159,10 @@ namespace Scripts.Enemies
             float roll,
             float rarityMultiplier,
             float magicChance = DefaultMagicChance,
-            float rareChance = DefaultRareChance)
+            float rareChance = DefaultRareChance,
+            float uniqueChance = DefaultUniqueChance)
         {
-            return RollDroppedRarity(roll, rarityMultiplier, magicChance, rareChance);
+            return RollDroppedRarity(roll, rarityMultiplier, magicChance, rareChance, uniqueChance);
         }
 
         public static float GetDropChance(
@@ -209,19 +212,24 @@ namespace Scripts.Enemies
             float roll,
             float rarityMultiplier,
             float magicChance = DefaultMagicChance,
-            float rareChance = DefaultRareChance)
+            float rareChance = DefaultRareChance,
+            float uniqueChance = DefaultUniqueChance)
         {
             GetRarityChances(
                 rarityMultiplier,
                 magicChance,
                 rareChance,
+                uniqueChance,
                 out _,
                 out float magicResultChance,
-                out float rareResultChance);
-            float rareThreshold = rareResultChance;
-            float magicOrBetterThreshold = rareResultChance + magicResultChance;
+                out float rareResultChance,
+                out float uniqueResultChance);
+            float rareThreshold = uniqueResultChance + rareResultChance;
+            float magicOrBetterThreshold = rareThreshold + magicResultChance;
             float safeRoll = Mathf.Clamp01(roll);
 
+            if (safeRoll < uniqueResultChance)
+                return EnemyLootRarity.Unique;
             if (safeRoll < rareThreshold)
                 return EnemyLootRarity.Rare;
             if (safeRoll < magicOrBetterThreshold)
@@ -244,6 +252,16 @@ namespace Scripts.Enemies
                 rareResultChance + Mathf.Max(0f, magicChance) * safeMultiplier);
             magicResultChance = Mathf.Max(0f, magicOrBetterChance - rareResultChance);
             commonResultChance = Mathf.Max(0f, 1f - magicOrBetterChance);
+        }
+
+        public static void GetRarityChances(float rarityMultiplier, float magicChance, float rareChance,
+            float uniqueChance, out float common, out float magic, out float rare, out float unique)
+        {
+            float multiplier = Mathf.Max(0, rarityMultiplier);
+            unique = Mathf.Clamp01(Mathf.Max(0, uniqueChance) * multiplier);
+            rare = Mathf.Min(1f - unique, Mathf.Max(0, rareChance) * multiplier);
+            magic = Mathf.Min(1f - unique - rare, Mathf.Max(0, magicChance) * multiplier);
+            common = Mathf.Max(0, 1f - unique - rare - magic);
         }
 
         public static CraftingOrbSO SelectCraftingOrb(
@@ -378,7 +396,7 @@ namespace Scripts.Enemies
                 rarityRoll,
                 rarityMultiplier,
                 database.MagicItemDropChance,
-                database.RareItemDropChance);
+                database.RareItemDropChance, database.UniqueItemDropChance);
             float itemRoll = Random.value;
             EquipmentItemSO baseItem = SelectBaseItemForRarity(database, itemLevel, ref rarity, itemRoll);
             if (baseItem == null)
@@ -426,6 +444,7 @@ namespace Scripts.Enemies
             {
                 if (item == null || string.IsNullOrWhiteSpace(item.ID) || item.DropLevel > maximumDropLevel)
                     continue;
+                if (item.IsUnique) continue;
                 if (filter == GuaranteedLootFilter.Weapon && !(item is WeaponItemSO))
                     continue;
                 if (filter == GuaranteedLootFilter.Armor && !(item is ArmorItemSO))
@@ -468,7 +487,7 @@ namespace Scripts.Enemies
             for (int i = 0; i < database.AllItems.Count; i++)
             {
                 EquipmentItemSO item = database.AllItems[i];
-                if (IsEligibleBaseItem(item, maximumDropLevel, requiredAffixGroups))
+                if (item != null && item.IsUnique == (rarity == EnemyLootRarity.Unique) && IsEligibleBaseItem(item, maximumDropLevel, requiredAffixGroups))
                     eligibleCount++;
             }
 
@@ -479,7 +498,7 @@ namespace Scripts.Enemies
             for (int i = 0; i < database.AllItems.Count; i++)
             {
                 EquipmentItemSO item = database.AllItems[i];
-                if (!IsEligibleBaseItem(item, maximumDropLevel, requiredAffixGroups))
+                if (item == null || item.IsUnique != (rarity == EnemyLootRarity.Unique) || !IsEligibleBaseItem(item, maximumDropLevel, requiredAffixGroups))
                     continue;
 
                 if (selectedIndex-- == 0)
@@ -499,6 +518,12 @@ namespace Scripts.Enemies
             if (item != null)
                 return item;
 
+            if (rarity == EnemyLootRarity.Unique)
+            {
+                rarity = EnemyLootRarity.Rare;
+                item = SelectBaseItem(database, enemyLevel, rarity, roll);
+                if (item != null) return item;
+            }
             if (rarity == EnemyLootRarity.Rare)
             {
                 rarity = EnemyLootRarity.Magic;

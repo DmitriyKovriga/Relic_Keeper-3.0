@@ -401,7 +401,7 @@ namespace Scripts.StatusEffects
                 return false;
 
             float sourceValue = _statsProvider.GetValue(derived.SourceStat);
-            float value = sourceValue * (derived.SourcePercent / 100f) * Mathf.Max(1, stackCount);
+            float value = derived.Evaluate(sourceValue) * Mathf.Max(1, stackCount);
             if (Mathf.Approximately(value, 0f))
                 return false;
 

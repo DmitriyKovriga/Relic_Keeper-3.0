@@ -152,13 +152,16 @@ public sealed class LootChanceDebugHud : MonoBehaviour
             rarityMultiplier,
             _database.MagicItemDropChance,
             _database.RareItemDropChance,
+            _database.UniqueItemDropChance,
             out float commonChance,
             out float magicChance,
-            out float rareChance);
+            out float rareChance,
+            out float uniqueChance);
         AddSection("RARITY AMONG ITEMS");
         AddRow("Common", Percent(commonChance), TextColor);
         AddRow("Magic", Percent(magicChance), MagicColor);
         AddRow("Rare", Percent(rareChance), RareColor);
+        AddRow("Unique", Percent(uniqueChance), ItemRarity.UniqueTitle);
 
         AddSection("CURRENCY — AT LEAST 1");
         AddEffectiveDropRows(_database.BaseCurrencyDropChance, quantityMultiplier);
