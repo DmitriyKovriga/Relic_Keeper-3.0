@@ -658,6 +658,9 @@ namespace Scripts.Skills.Projectiles
 
                 switch (rule.Type)
                 {
+                    case SkillOnHitEffectType.StunAndLaunch:
+                        SkillCrowdControl.Apply(rule, primaryTransform);
+                        break;
                     case SkillOnHitEffectType.SpawnVfxDamageCircle:
                         StartCoroutine(RunOnHitVfxDamageCircle(rule, primaryTarget, origin, sourceSnapshot));
                         break;

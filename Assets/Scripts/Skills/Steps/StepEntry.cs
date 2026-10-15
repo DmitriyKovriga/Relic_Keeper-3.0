@@ -114,13 +114,16 @@ namespace Scripts.Skills.Steps
 
     public enum SkillOnHitEffectType
     {
-        SpawnVfxDamageCircle = 0
+        SpawnVfxDamageCircle = 0,
+        StunAndLaunch = 1
     }
 
     [System.Serializable]
     public class SkillOnHitEffectRule
     {
         public SkillOnHitEffectType Type = SkillOnHitEffectType.SpawnVfxDamageCircle;
+        [Min(0)] public float StunSeconds = 1;
+        [Min(0)] public float LaunchHeight = .55f;
         public GameObject VfxPrefab;
         [Min(0.01f)] public float Lifetime = 0.35f;
         [Min(0.01f)] public float ScaleMultiplier = 1f;

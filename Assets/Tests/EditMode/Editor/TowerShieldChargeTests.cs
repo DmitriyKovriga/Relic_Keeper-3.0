@@ -69,14 +69,15 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(cold.GetTotalPercentAdd(), Is.EqualTo(20));
         }
 
-        [Test] public void TowerHasHeldSpriteDefensiveAffixesAndGuaranteedCharge()
+        [Test] public void TowerHasHeldSpriteDefensiveAffixesAndRollsFromItsSkillPool()
         {
             var tower = AssetDatabase.LoadAssetAtPath<WeaponItemSO>(RelicKeeper.Editor.VFX.TowerShieldChargeBuilder.TowerPath);
             Assert.That(tower.InHandSprite, Is.Not.Null);
             Assert.That(tower.AffixPool.DefenseType, Is.EqualTo(ArmorDefenseType.Armour));
             Assert.That(tower.AffixPool.Affixes.Count, Is.EqualTo(15));
             var item = ItemGenerator.GenerateRuntime(tower, 1, 1);
-            Assert.That(item.GrantedSkills[0].ID, Is.EqualTo("TowerCharge"));
+            Assert.That(tower.SkillPool.PossibleSkills.Exists(entry => entry.Skill.ID == "TowerCharge"), Is.True);
+            Assert.That(tower.SkillPool.PossibleSkills.Exists(entry => entry.Skill == item.GrantedSkills[0]), Is.True);
             Assert.That(item.Affixes.Count, Is.GreaterThan(0));
         }
 

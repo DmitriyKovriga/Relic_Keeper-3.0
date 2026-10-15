@@ -36,6 +36,8 @@ namespace Scripts.Enemies
             _spriteRenderer = entity != null ? entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>(true);
             EnsureGroundLayerMask();
             EnsurePhysicsComponents();
+            _rb.linearVelocity = Vector2.zero;
+            ClearForcedHorizontalVelocity();
             _moveInput = 0f;
             _isStunned = false;
             _isFrozen = false;
@@ -141,6 +143,20 @@ namespace Scripts.Enemies
             return true;
         }
 
+        public bool TryLaunchUp(float height)
+        {
+            if (_isFrozen || _rb == null || !_rb.simulated || _rb.bodyType != RigidbodyType2D.Dynamic ||
+                height <= 0 || float.IsNaN(height) || float.IsInfinity(height)) return false;
+            float resist = _stats != null ? _stats.GetValue(StatType.PushbackResist) : 0;
+            float effectiveHeight = PushbackResolver.ApplyResistance(height, resist);
+            float gravity = -Physics2D.gravity.y * _rb.gravityScale;
+            if (effectiveHeight <= .0001f || gravity <= .0001f) return false;
+            float speed = Mathf.Sqrt(2 * gravity * effectiveHeight);
+            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, Mathf.Max(_rb.linearVelocity.y, speed));
+            IsGrounded = false;
+            return true;
+        }
+
         public void ApplyHorizontalPushback(float signedInitialVelocity, float duration)
         {
             if (_isFrozen || duration <= 0f || Mathf.Abs(signedInitialVelocity) < 0.01f)
@@ -200,6 +216,7 @@ namespace Scripts.Enemies
                 }
                 else
                 {
+                    RestoreGravityIfNeeded();
                     _rb.linearVelocity = new Vector2(0f, _rb.linearVelocity.y);
                 }
             }

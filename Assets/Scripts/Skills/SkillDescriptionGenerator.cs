@@ -701,9 +701,19 @@ namespace Scripts.Skills
         {
             if (step.OnHitEffects == null) return;
             foreach (SkillOnHitEffectRule rule in step.OnHitEffects)
+            {
+                if (rule == null) continue;
+                if (rule.Type == SkillOnHitEffectType.StunAndLaunch)
+                {
+                    Add(lines, unique, ru
+                        ? $"При попадании: оглушает на {N(rule.StunSeconds)} сек. и подбрасывает на {N(rule.LaunchHeight)} м. Подбрасывание учитывает сопротивление отталкиванию."
+                        : $"On hit: stuns for {N(rule.StunSeconds)}s and launches upward by {N(rule.LaunchHeight)} m. Launch respects pushback resistance.", SkillDescriptionSection.Attack);
+                    continue;
+                }
                 Add(lines, unique, ru
                     ? $"При попадании: область, {P(rule.DamageMultiplier * 100f)} урона оружия."
                     : $"On hit: an area for {P(rule.DamageMultiplier * 100f)} weapon damage.", SkillDescriptionSection.Attack);
+            }
         }
 
         private static void AddEffectModifiers(

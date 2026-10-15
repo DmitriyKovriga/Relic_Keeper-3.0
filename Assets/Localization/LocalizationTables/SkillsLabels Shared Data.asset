@@ -443,6 +443,14 @@ MonoBehaviour:
     m_Key: skills.IceSkates.description
     m_Metadata:
       m_Items: []
+  - m_Id: 101437821565104128
+    m_Key: skills.LauncherTowerToss
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101437821674156032
+    m_Key: skills.LauncherTowerToss.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

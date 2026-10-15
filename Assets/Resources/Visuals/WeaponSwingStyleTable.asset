@@ -94,3 +94,14 @@ MonoBehaviour:
     DisplayName: Shield Charge
     AllowedStanceIds:
     - shield_guard
+  - Style: 1
+    WindupZ: -18
+    WindupLocalPos: {x: -0.1, y: -0.15}
+    ImpactZ: 38
+    ImpactLocalPos: {x: 0.2, y: 0.2}
+    NockedProjectileLocalPosition: {x: 0, y: 0}
+    NockedProjectilePullback: 0
+    Id: shield_launcher
+    DisplayName: Shield Launcher
+    AllowedStanceIds:
+    - shield_guard

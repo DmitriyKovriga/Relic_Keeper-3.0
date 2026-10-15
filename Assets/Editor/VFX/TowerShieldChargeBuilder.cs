@@ -113,7 +113,9 @@ namespace RelicKeeper.Editor.VFX
             { SourceStat = StatType.Armor, SourcePercent = 5, TargetStat = StatType.DamagePhysical, TargetModifierType = StatModType.Flat } };
             EditorUtility.SetDirty(skill);
             var skillPool = Get<SkillPoolSO>(Root + "TowerShieldSkillPool.asset");
-            skillPool.PossibleSkills = new List<SkillPoolSO.SkillWeight> { new SkillPoolSO.SkillWeight { Skill = skill, Weight = 100 } };
+            skillPool.PossibleSkills ??= new List<SkillPoolSO.SkillWeight>();
+            if (!skillPool.PossibleSkills.Any(entry => entry.Skill == skill))
+                skillPool.PossibleSkills.Add(new SkillPoolSO.SkillWeight { Skill = skill, Weight = 100 });
             EditorUtility.SetDirty(skillPool);
             var sourcePool = AssetDatabase.LoadAssetAtPath<AffixPoolSO>("Assets/Resources/Affixes/Pools/Helmets/Armore/Pool/HelmetsArmorePool.asset");
             var pool = Get<AffixPoolSO>("Assets/Resources/Affixes/Pools/Shields/TowerShieldDefensivePool.asset");

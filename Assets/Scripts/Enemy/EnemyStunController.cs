@@ -32,6 +32,7 @@ namespace Scripts.Enemies
         public bool HasMeter => _maxMeter > 0.001f;
         public float MaxMeter => _maxMeter;
         public float CurrentMeter => _currentMeter;
+        public float RemainingStunSeconds => _isStunned ? Mathf.Max(0, _stunnedUntil - Time.time) : 0;
 
         public event System.Action<float, float> OnStunMeterChanged;
         public event System.Action<bool> OnStunStateChanged;
@@ -98,6 +99,15 @@ namespace Scripts.Enemies
 
             if (_currentMeter <= 0.001f)
                 StartStun(ResolveStunDuration(source));
+            return true;
+        }
+
+        // Explicit skill crowd control bypasses buildup; never shortens an existing longer stun.
+        public bool TryApplyTimedStun(float duration)
+        {
+            if (_health == null || _health.IsDead || !isActiveAndEnabled || duration <= 0 || float.IsNaN(duration) || float.IsInfinity(duration)) return false;
+            if (_isStunned) _stunnedUntil = Mathf.Max(_stunnedUntil, Time.time + duration);
+            else StartStun(duration);
             return true;
         }
 

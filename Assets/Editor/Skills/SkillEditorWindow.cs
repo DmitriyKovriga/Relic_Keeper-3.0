@@ -2467,7 +2467,7 @@ namespace Scripts.Editor.Skills
         {
             EditorGUILayout.Space(6f);
             EditorGUILayout.LabelField("On Hit effects", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox("Срабатывает один раз на каждую цель, которую задел этот damage/projectile step. Сейчас поддержан вариант: VFX на цели + круговой урон на % жизни VFX.", MessageType.None);
+            EditorGUILayout.HelpBox("Runs for each accepted target hit by this damage/projectile step. Choose a VFX damage circle or timed stun with an upward launch.", MessageType.None);
 
             if (step.OnHitEffects == null)
                 step.OnHitEffects = new List<SkillOnHitEffectRule>();
@@ -2496,6 +2496,17 @@ namespace Scripts.Editor.Skills
 
                 SkillOnHitEffectType newType = (SkillOnHitEffectType)EditorGUILayout.EnumPopup("Type", rule.Type);
                 if (newType != rule.Type) { rule.Type = newType; EditorUtility.SetDirty(recipe); }
+
+                if (rule.Type == SkillOnHitEffectType.StunAndLaunch)
+                {
+                    float stun = Mathf.Max(0, EditorGUILayout.FloatField("Stun seconds", rule.StunSeconds));
+                    float height = Mathf.Max(0, EditorGUILayout.FloatField("Launch height (m)", rule.LaunchHeight));
+                    if (stun != rule.StunSeconds || height != rule.LaunchHeight)
+                    { rule.StunSeconds = stun; rule.LaunchHeight = height; EditorUtility.SetDirty(recipe); }
+                    EditorGUILayout.HelpBox("Applies on a successful hit. Launch uses real gravity and respects pushback resistance and frozen state. Stun does not shorten a longer existing stun.", MessageType.None);
+                    EditorGUILayout.EndVertical();
+                    continue;
+                }
 
                 GameObject newVfx = (GameObject)EditorGUILayout.ObjectField("VFX prefab", rule.VfxPrefab, typeof(GameObject), false);
                 if (newVfx != rule.VfxPrefab) { rule.VfxPrefab = newVfx; EditorUtility.SetDirty(recipe); }
@@ -2536,7 +2547,7 @@ namespace Scripts.Editor.Skills
                 EditorGUILayout.EndVertical();
             }
 
-            if (GUILayout.Button("+ Add On Hit VFX damage circle"))
+            if (GUILayout.Button("+ Add On Hit effect"))
             {
                 step.OnHitEffects.Add(new SkillOnHitEffectRule());
                 EditorUtility.SetDirty(recipe);
