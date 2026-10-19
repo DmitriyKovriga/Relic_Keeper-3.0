@@ -14,6 +14,7 @@ namespace Scripts.Saving
         public float CurrentXP;
         public float RequiredXP;
         public int SkillPoints;
+        public int MonstersKilled;
         public InventorySaveData Inventory = new InventorySaveData();
         public List<string> AllocatedPassiveNodes = new List<string>();
 

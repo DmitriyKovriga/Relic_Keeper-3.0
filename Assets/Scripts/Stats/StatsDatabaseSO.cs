@@ -785,6 +785,7 @@ namespace Scripts.Stats
 
         public static StatSemanticKind DefaultSemanticKindFor(StatType type)
         {
+            if (type == StatType.ExecutionThreshold) return StatSemanticKind.CombatScalar;
             switch (type)
             {
                 case StatType.DamagePhysical:
@@ -880,6 +881,7 @@ namespace Scripts.Stats
 
         public static string DefaultCategoryFor(StatType type)
         {
+            if (type == StatType.ExecutionThreshold) return "Combat";
             if (IsCooldownRecoveryStat(type)) return "Speed";
             if (type == StatType.MysticShieldSkillEffectiveness) return "Combat";
             string s = type.ToString();
@@ -897,6 +899,7 @@ namespace Scripts.Stats
 
         public static StatDisplayFormat DefaultFormatFor(StatType type)
         {
+            if (type == StatType.ExecutionThreshold) return StatDisplayFormat.Percent;
             if (type == StatType.DamagePhysical || type == StatType.DamageFire || type == StatType.DamageCold || type == StatType.DamageLightning)
                 return StatDisplayFormat.Damage;
 
@@ -947,6 +950,7 @@ namespace Scripts.Stats
 
         public static StatAffixGenType DefaultAffixGenTypeFor(StatType type)
         {
+            if (type == StatType.ExecutionThreshold) return StatAffixGenType.NOCalcStat;
             string s = type.ToString();
             if (type == StatType.CritMultiplier)
                 return StatAffixGenType.PercentStat;
@@ -1192,6 +1196,7 @@ namespace Scripts.Stats
 
         public static StatAffixModifierKindFlags DefaultAllowedAffixKindsFor(StatType type, StatAffixGenType genType)
         {
+            if (type == StatType.ExecutionThreshold) return StatAffixModifierKindFlags.Flat;
             if (IsRetiredStat(type))
                 return StatAffixModifierKindFlags.None;
             if (type == StatType.CritMultiplier)
@@ -1216,6 +1221,7 @@ namespace Scripts.Stats
 
         public static StatAffixModifierKindFlags NormalizeAllowedAffixKinds(StatAffixModifierKindFlags flags, StatAffixGenType genType, StatType type)
         {
+            if (type == StatType.ExecutionThreshold) return StatAffixModifierKindFlags.Flat;
             if (IsRetiredStat(type))
                 return StatAffixModifierKindFlags.None;
 

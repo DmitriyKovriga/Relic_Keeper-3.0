@@ -2884,6 +2884,18 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 920261019140001
+    m_Localized: Highest dungeon stage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 920261019140002
+    m_Localized: Monsters killed in this life
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117291359067578368
+    m_Localized: Execution Threshold
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -464,6 +464,15 @@ MonoBehaviour:
     m_Localized:
     m_Metadata:
       m_Items: []
+  - m_Id: 102777508791984128
+    m_Localized: Execution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 102777508833927168
+    m_Localized: Stab in front of you. This hit has +10% Execution Threshold, added
+      to your equipment. Enemies left below the threshold are instantly killed.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

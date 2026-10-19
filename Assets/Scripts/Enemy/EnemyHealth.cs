@@ -103,6 +103,9 @@ namespace Scripts.Enemies
                 finalDamage *= DungeonController.Instance.CurrentModifiers.EnemyDamageTakenMultiplier;
 
             _currentHealth -= finalDamage;
+            if (finalDamage > 0f && damage.IsDirectHit &&
+                ExecutionThreshold.ShouldExecute(_currentHealth, _maxHealth, damage.ExecutionThreshold))
+                _currentHealth = 0f;
             if (finalDamage > 0f)
             {
                 GameObject sourceObject = GameplayEventContext.ResolveGameObject(damage.Source);
@@ -140,7 +143,7 @@ namespace Scripts.Enemies
 
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
 
-            if (_currentHealth <= 0)
+            if (_currentHealth <= 0 && !_isDead)
                 Die();
 
             return true;

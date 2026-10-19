@@ -1214,6 +1214,7 @@ namespace Scripts.Skills.Projectiles
                 IsCrit = source.IsCrit,
                 CritMultiplier = source.CritMultiplier,
                 IsDirectHit = source.IsDirectHit,
+                ExecutionThreshold = source.ExecutionThreshold,
                 PushbackRating = source.PushbackRating,
                 HitOrigin = source.HitOrigin
             };

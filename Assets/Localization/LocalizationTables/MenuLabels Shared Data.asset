@@ -1923,6 +1923,18 @@ MonoBehaviour:
     m_Key: passive.node.SmallCritMultiplie.description
     m_Metadata:
       m_Items: []
+  - m_Id: 920261019140001
+    m_Key: ui.death.highest_stage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 920261019140002
+    m_Key: ui.death.monsters_killed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117291359067578368
+    m_Key: stats.ExecutionThreshold
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

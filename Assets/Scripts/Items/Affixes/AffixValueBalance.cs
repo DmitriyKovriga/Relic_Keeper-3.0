@@ -250,6 +250,7 @@ namespace Scripts.Items.Affixes
 
         private static (float t1min, float t1max, float t5min, float t5max) GetFlatCurve(StatType stat)
         {
+            if (stat == StatType.ExecutionThreshold) return (1f, 2f, 4f, 6f);
             switch (stat)
             {
                 case StatType.MaxHealth:

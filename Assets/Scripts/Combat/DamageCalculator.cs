@@ -118,7 +118,7 @@ public static class DamageCalculator
         DamageContext damageContext = default,
         IReadOnlyList<DamageConversionRule> skillConversions = null)
     {
-        var snapshot = new DamageSnapshot(attackerStats);
+        var snapshot = new DamageSnapshot(attackerStats) { ExecutionThreshold = ExecutionThreshold.Resolve(attackerStats) };
 
         DamagePool pool = BuildFinalDamagePool(attackerStats, skillMultiplier, damageContext, skillConversions, rollWeapon: true);
         ApplyRandomCrit(attackerStats, ref pool, snapshot);
@@ -135,7 +135,7 @@ public static class DamageCalculator
         DamageContext damageContext = default,
         IReadOnlyList<DamageConversionRule> skillConversions = null)
     {
-        var snapshot = new DamageSnapshot(attackerStats);
+        var snapshot = new DamageSnapshot(attackerStats) { ExecutionThreshold = ExecutionThreshold.Resolve(attackerStats) };
         DamagePool pool = BuildFinalDamagePool(attackerStats, skillMultiplier, damageContext, skillConversions, rollWeapon: false);
         pool.Multiply(GetExpectedCritFactor(attackerStats));
         AssignSnapshot(snapshot, pool);
@@ -154,7 +154,7 @@ public static class DamageCalculator
         DamageChannel targetElement,
         bool preview)
     {
-        var snapshot = new DamageSnapshot(attackerStats);
+        var snapshot = new DamageSnapshot(attackerStats) { ExecutionThreshold = ExecutionThreshold.Resolve(attackerStats) };
         DamagePool pool = BuildElementalSpellDamagePool(attackerStats);
         ConvertAllElementalDamage(ref pool, targetElement);
         ApplyElementalDamageModifiers(attackerStats, ref pool, damageContext);

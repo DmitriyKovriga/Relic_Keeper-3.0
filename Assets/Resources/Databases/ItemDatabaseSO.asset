@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 16e5b693ef63f6d4491fd3ede7cf12a2, type: 3}
   m_Name: ItemDatabaseSO
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   BaseItemDropChance: 0.13
   MagicItemDropChance: 0.2
   RareItemDropChance: 0.1
@@ -953,6 +953,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f744f4fab1f15cd45bd67f2b06d660c0, type: 2}
   - {fileID: 11400000, guid: 6047ae9ff93ff58408d1755d66f89a2e, type: 2}
   - {fileID: 11400000, guid: 2f518be1fc421b640907b37cfcf62534, type: 2}
+  - {fileID: 11400000, guid: 2cf40d74b383d9243afe815b350bf333, type: 2}
+  - {fileID: 11400000, guid: 88df7e5235dba9141b5adc5b8afe58e7, type: 2}
+  - {fileID: 11400000, guid: ef86fc1f3f208d243948882ed385ffb8, type: 2}
   AllSkills:
   - {fileID: 11400000, guid: d6db2865f0945a24eb2793c6db7c0435, type: 2}
   - {fileID: 11400000, guid: a6471ae41a839b542a5389725b729ef7, type: 2}
@@ -990,3 +993,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e5facf4437332c043a30de320cf8db29, type: 2}
   - {fileID: 11400000, guid: c516407ff064faf4eb4ef3a198debcec, type: 2}
   - {fileID: 11400000, guid: 727c0ef7a62cef04abd0c44b5cacb1ce, type: 2}
+  - {fileID: 11400000, guid: aaf52f53b28e01945bb2dc046b64d2cb, type: 2}

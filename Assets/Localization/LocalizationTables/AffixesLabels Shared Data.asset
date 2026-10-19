@@ -18463,6 +18463,22 @@ MonoBehaviour:
     m_Key: affix.GodsReach.name
     m_Metadata:
       m_Items: []
+  - m_Id: 103408908415148032
+    m_Key: affix_name_executionthreshold_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103408908595503104
+    m_Key: affix_flat_executionthreshold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103408908792635392
+    m_Key: affix_name_executionthreshold_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103408908972990464
+    m_Key: affix_name_executionthreshold_flat_light
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

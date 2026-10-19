@@ -23,6 +23,7 @@ namespace Scripts.Combat
         public bool IsCrit;
         public float CritMultiplier; // 1.5 = 150%
         public bool IsDirectHit = true;
+        public float ExecutionThreshold;
 
         // Horizontal knockback. Rating is abstract (200 small, 1000 noticeable).
         // HitOrigin is the attack/projectile position used to pick left vs right.

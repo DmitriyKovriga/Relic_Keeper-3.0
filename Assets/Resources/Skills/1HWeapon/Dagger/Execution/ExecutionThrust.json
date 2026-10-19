@@ -1,0 +1,261 @@
+{
+ "frames": [
+  {
+   "filename": "relic-keeper-execution-severing-edge 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 32
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-execution-severing-edge 1.png",
+   "frame": {
+    "x": 56,
+    "y": 0,
+    "w": 56,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 32
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-execution-severing-edge 2.png",
+   "frame": {
+    "x": 112,
+    "y": 0,
+    "w": 56,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 32
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-execution-severing-edge 3.png",
+   "frame": {
+    "x": 0,
+    "y": 32,
+    "w": 56,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 32
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-execution-severing-edge 4.png",
+   "frame": {
+    "x": 56,
+    "y": 32,
+    "w": 56,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 32
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-execution-severing-edge 5.png",
+   "frame": {
+    "x": 112,
+    "y": 32,
+    "w": 56,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 32
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-execution-severing-edge 6.png",
+   "frame": {
+    "x": 0,
+    "y": 64,
+    "w": 56,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 32
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-execution-severing-edge 7.png",
+   "frame": {
+    "x": 56,
+    "y": 64,
+    "w": 56,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 32
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-execution-severing-edge 8.png",
+   "frame": {
+    "x": 112,
+    "y": 64,
+    "w": 56,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 32
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.5
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "relic-keeper-execution-severing-edge.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 168,
+   "h": 96
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 4,
+   "y": 16
+  },
+  "frameTags": [
+   {
+    "name": "relic-keeper-execution-severing-edge",
+    "from": 0,
+    "to": 8,
+    "direction": "forward"
+   }
+  ]
+ }
+}

@@ -9,6 +9,7 @@ namespace Scripts.Saving
     {
         /// <summary>Версия формата сейва. При загрузке старых сейвов применяются миграции.</summary>
         public int SaveVersion;
+        public int HighestDungeonStage;
 
         /// <summary>ID активного персонажа (v2+).</summary>
         public string ActiveCharacterID;

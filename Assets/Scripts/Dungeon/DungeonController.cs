@@ -393,6 +393,8 @@ namespace Scripts.Dungeon
                 ApplyRoomCameraBounds(room);
                 room.SetRuntimeLevel(ResolveCurrentLocationLevel());
                 RecordCurrentRoomUnlock();
+                CharacterPartyManager.Instance?.RecordDungeonStageReached(
+                    DungeonRunProgress.ResolveDisplayedRoomNumber(_roomsCompletedBeforeSegment, _currentRoomIndex));
                 _currentModifiers = BuildModifierContext(room);
                 room.OnRoomEntered(_playerTransform, _currentModifiers);
                 RefreshModifierHud(room);

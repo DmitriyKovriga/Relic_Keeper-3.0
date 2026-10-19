@@ -677,6 +677,13 @@ namespace Scripts.Skills
             if (step.ScopedStatModifiers == null) return;
             foreach (SerializableStatModifier modifier in step.ScopedStatModifiers)
             {
+                if (modifier.Stat == StatType.ExecutionThreshold && modifier.Type == StatModType.Flat)
+                {
+                    Add(lines, unique, ru
+                        ? $"+{N(modifier.Value)}% к порогу казни для этого удара. Добивает врагов, если после попадания их здоровье ниже порога."
+                        : $"+{N(modifier.Value)}% Execution Threshold for this hit. Executes enemies left below the threshold after a hit.", SkillDescriptionSection.Attack);
+                    continue;
+                }
                 SkillDescriptionSection section = IsOffensiveStat(modifier.Stat) ? SkillDescriptionSection.Attack : SkillDescriptionSection.Other;
                 Add(lines, unique, StatChip(modifier.Stat, modifier.Value, modifier.Type, ru, resolver) + ".", section);
             }

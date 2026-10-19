@@ -9,7 +9,7 @@ using Scripts.Economy;
 
 public class GameSaveManager : MonoBehaviour
 {
-    public const int CurrentSaveVersion = 8;
+    public const int CurrentSaveVersion = 9;
 
     [Header("Core Dependencies")]
     [SerializeField] private PlayerStats _playerStats;
@@ -297,7 +297,9 @@ public class GameSaveManager : MonoBehaviour
 
     private System.Collections.IEnumerator PlayerDeathRoutine()
     {
-        yield return DeathScreenOverlay.GetOrCreate().PlayDeathSequence(ReturnToHubAfterDeath);
+        int highestStage = _partyManager.HighestDungeonStage;
+        int monstersKilled = _partyManager.GetCharacterData(_partyManager.ActiveCharacterID)?.MonstersKilled ?? 0;
+        yield return DeathScreenOverlay.GetOrCreate().PlayDeathSequence(ReturnToHubAfterDeath, highestStage, monstersKilled);
         _handlingPlayerDeath = false;
     }
 
@@ -422,10 +424,21 @@ public class GameSaveManager : MonoBehaviour
             data.SaveVersion = 8;
             Debug.Log("[System] Save migrated: 7 -> 8 (account crafting currency).");
         }
+        if (data.SaveVersion == 8)
+        {
+            // Older saves have no separate record; retain their best known dungeon progress.
+            if (data.DungeonUnlocks != null)
+                foreach (var record in data.DungeonUnlocks)
+                    if (record != null)
+                        data.HighestDungeonStage = Mathf.Max(data.HighestDungeonStage, record.HighestDisplayedRoom);
+            data.SaveVersion = 9;
+            Debug.Log("[System] Save migrated: 8 -> 9 (dungeon record and character lifetime kills).");
+        }
     }
 
     private void StartNewGame()
     {
+        _partyManager?.ResetDungeonStageRecord();
         Scripts.Dungeon.DungeonRunUnlocks.Clear();
         CraftingCurrencyWallet.Clear();
         if (_defaultCharacter != null)

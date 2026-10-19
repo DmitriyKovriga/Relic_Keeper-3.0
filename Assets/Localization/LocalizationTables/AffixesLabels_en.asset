@@ -57193,6 +57193,22 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 960044427324948570
+  - m_Id: 103408908415148032
+    m_Localized: Strong Execution Threshold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103408908595503104
+    m_Localized: '{0:+0.##;-0.##;0}% to Execution Threshold'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103408908792635392
+    m_Localized: Medium Execution Threshold
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103408908972990464
+    m_Localized: Light Execution Threshold
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

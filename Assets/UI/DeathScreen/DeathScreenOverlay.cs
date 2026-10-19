@@ -3,20 +3,22 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UIElements;
+using Scripts.UI;
 
 /// <summary>
-/// Полноэкранное затемнение со словами "Вы Умерли" после смерти персонажа.
+/// Полноэкранное затемнение с итогами жизни персонажа и рекордом подземелья.
 /// Создаётся в рантайме и живёт поверх остальных окон UI Toolkit.
 /// </summary>
 public class DeathScreenOverlay : MonoBehaviour
 {
     public const string DeathTitleKey = "ui.death.title";
+    public const string HighestStageKey = "ui.death.highest_stage";
+    public const string MonstersKilledKey = "ui.death.monsters_killed";
 
-    private const string MenuLabelsTable = "MenuLabels";
     private const string DeathTitleFallback = "You Died";
 
     /// <summary>Сколько всего длится экран смерти до того, как начнётся переход в хаб.</summary>
-    private const float DeathMessageDuration = 4f;
+    private const float DeathMessageDuration = 6f;
     /// <summary>Пауза на полностью чёрном экране, которая прикрывает переход в хаб и открытие таверны.</summary>
     private const float TransitionCoverDuration = 0.5f;
     private const float FadeInDuration = 0.6f;
@@ -31,6 +33,11 @@ public class DeathScreenOverlay : MonoBehaviour
     private UIDocument _document;
     private VisualElement _background;
     private Label _title;
+    private VisualElement _summary;
+    private Label _highestStage;
+    private Label _monstersKilled;
+    private int _highestStageValue;
+    private int _monstersKilledValue;
     private bool _isBuilt;
 
     public static DeathScreenOverlay GetOrCreate()
@@ -73,12 +80,18 @@ public class DeathScreenOverlay : MonoBehaviour
             _instance = null;
     }
 
+    private void OnEnable() => LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+    private void OnDisable() => LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+    private void OnLocaleChanged(UnityEngine.Localization.Locale locale) => ApplyLocalizedTitle();
+
     /// <summary>
     /// Затемняет экран с надписью "Вы Умерли", затем вызывает <paramref name="onScreenCovered"/>
     /// под чёрным экраном и только после этого проявляет картинку обратно.
     /// </summary>
-    public IEnumerator PlayDeathSequence(Action onScreenCovered)
+    public IEnumerator PlayDeathSequence(Action onScreenCovered, int highestStage = 0, int monstersKilled = 0)
     {
+        _highestStageValue = Mathf.Max(0, highestStage);
+        _monstersKilledValue = Mathf.Max(0, monstersKilled);
         Build();
 
         if (_background == null)
@@ -156,12 +169,33 @@ public class DeathScreenOverlay : MonoBehaviour
         _background.style.backgroundColor = new Color(0f, 0f, 0f, 0f);
         root.Add(_background);
 
+        _summary = new VisualElement { name = "DeathScreenSummary", pickingMode = PickingMode.Ignore };
+        _summary.style.alignItems = Align.Center;
+        _summary.style.maxWidth = Length.Percent(94);
+        _background.Add(_summary);
+
         _title = new Label(DeathTitleFallback) { name = "DeathScreenTitle", pickingMode = PickingMode.Ignore };
-        _title.style.fontSize = 34;
+        _title.style.fontSize = 28;
         _title.style.unityFontStyleAndWeight = FontStyle.Bold;
         _title.style.unityTextAlign = TextAnchor.MiddleCenter;
         _title.style.color = new Color(0.74f, 0.13f, 0.12f);
-        _background.Add(_title);
+        _title.style.marginBottom = 16;
+        _summary.Add(_title);
+
+        _highestStage = CreateStatisticLabel("DeathScreenHighestStage");
+        _monstersKilled = CreateStatisticLabel("DeathScreenMonstersKilled");
+    }
+
+    private Label CreateStatisticLabel(string elementName)
+    {
+        var label = new Label { name = elementName, pickingMode = PickingMode.Ignore };
+        label.style.fontSize = 14;
+        label.style.unityTextAlign = TextAnchor.MiddleCenter;
+        label.style.whiteSpace = WhiteSpace.Normal;
+        label.style.color = new Color(0.86f, 0.8f, 0.65f);
+        label.style.marginBottom = 6;
+        _summary.Add(label);
+        return label;
     }
 
     private void ApplyLocalizedTitle()
@@ -169,17 +203,11 @@ public class DeathScreenOverlay : MonoBehaviour
         if (_title == null)
             return;
 
-        _title.text = DeathTitleFallback;
-        var operation = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(MenuLabelsTable, DeathTitleKey);
-        operation.Completed += _ =>
-        {
-            string value = operation.Result;
-            if (_title == null || string.IsNullOrEmpty(value))
-                return;
-            if (value.IndexOf("translation found", StringComparison.OrdinalIgnoreCase) >= 0)
-                return;
-            _title.text = value;
-        };
+        _title.text = RuntimeLocalization.Resolve(DeathTitleKey, DeathTitleFallback, "Вы умерли");
+        _highestStage.text = RuntimeLocalization.Resolve(HighestStageKey,
+            "Highest dungeon stage", "Рекорд этапов подземелья") + ": " + _highestStageValue;
+        _monstersKilled.text = RuntimeLocalization.Resolve(MonstersKilledKey,
+            "Monsters killed in this life", "Убито монстров за жизнь") + ": " + _monstersKilledValue;
     }
 
     private void SetVisible(bool visible)
@@ -197,7 +225,7 @@ public class DeathScreenOverlay : MonoBehaviour
 
     private void SetTitleAlpha(float alpha)
     {
-        if (_title != null)
-            _title.style.opacity = Mathf.Clamp01(alpha);
+        if (_summary != null)
+            _summary.style.opacity = Mathf.Clamp01(alpha);
     }
 }

@@ -6,6 +6,8 @@ using Scripts.Inventory;
 using Scripts.Saving;
 using Scripts.Skills;
 using Scripts.Skills.PassiveTree;
+using Scripts.Enemies;
+using Scripts.GameplayEvents;
 
 public class CharacterPartyManager : MonoBehaviour
 {
@@ -20,6 +22,7 @@ public class CharacterPartyManager : MonoBehaviour
     private PassiveTreeManager _passiveTreeManager;
 
     public string ActiveCharacterID => _activeCharacterID;
+    public int HighestDungeonStage { get; private set; }
     public bool HasActiveCharacter => !string.IsNullOrEmpty(_activeCharacterID) && _partyCharacters.ContainsKey(_activeCharacterID);
     public IReadOnlyList<string> PartyCharacterIDs => _partyCharacters.Keys.ToList();
     public IReadOnlyList<string> HostelCharacterIDs => _partyCharacters.Keys.Where(id => id != _activeCharacterID).ToList();
@@ -42,6 +45,31 @@ public class CharacterPartyManager : MonoBehaviour
             _passiveTreeManager = _playerStats.GetComponent<PassiveTreeManager>();
     }
 
+    private void OnEnable() => GameplayEventBus.EventRaised += OnGameplayEvent;
+    private void OnDisable() => GameplayEventBus.EventRaised -= OnGameplayEvent;
+
+    private void OnGameplayEvent(GameplayEventContext context)
+    {
+        if (context.Type != GameplayEventType.EnemyKilled || !HasActiveCharacter ||
+            _playerStats == null || _playerStats.Health.Current <= 0f ||
+            context.Source == null || context.Source.GetComponentInParent<PlayerStats>() != _playerStats ||
+            context.Target == null || !context.Target.TryGetComponent<EnemyHealth>(out var enemy) ||
+            !enemy.IsDead || context.Target.GetComponent<DummyEvolution>() != null)
+            return;
+
+        var character = GetCharacterData(_activeCharacterID);
+        if (character.MonstersKilled < int.MaxValue)
+            character.MonstersKilled++;
+    }
+
+    public void RecordDungeonStageReached(int displayedStage)
+    {
+        if (HasActiveCharacter)
+            HighestDungeonStage = Mathf.Max(HighestDungeonStage, displayedStage);
+    }
+
+    public void ResetDungeonStageRecord() => HighestDungeonStage = 0;
+
     public bool HasCharacter(string characterInstanceId) =>
         !string.IsNullOrEmpty(characterInstanceId) && _partyCharacters.ContainsKey(characterInstanceId);
 
@@ -57,6 +85,8 @@ public class CharacterPartyManager : MonoBehaviour
     {
         _partyCharacters.Clear();
         _activeCharacterID = null;
+
+        HighestDungeonStage = Mathf.Max(0, data.HighestDungeonStage);
 
         if (data.SaveVersion >= 2 && data.Characters != null && data.Characters.Count > 0)
         {
@@ -102,6 +132,7 @@ public class CharacterPartyManager : MonoBehaviour
 
     public void WriteToSave(GameSaveData data)
     {
+        data.HighestDungeonStage = HighestDungeonStage;
         data.ActiveCharacterID = _activeCharacterID;
         data.Characters.Clear();
         foreach (var kv in _partyCharacters)
