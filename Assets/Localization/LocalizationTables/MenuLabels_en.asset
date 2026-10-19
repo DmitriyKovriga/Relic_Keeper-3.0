@@ -2681,7 +2681,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 107245649336983552
-    m_Localized: Ignition
+    m_Localized: Fire Wood
     m_Metadata:
       m_Items: []
   - m_Id: 107245649336983553
@@ -2881,6 +2881,126 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 115837136844873729
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117291429389131776
+    m_Localized: Star Boon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117291429405908992
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117291795883220992
+    m_Localized: Star Boon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117291795883220993
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117295516738379776
+    m_Localized: Age of Stars
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117295516738379777
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117297993114181632
+    m_Localized: Stargazer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117297993114181633
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117300940745203712
+    m_Localized: Growing Tension
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117300940745203713
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117303545378627584
+    m_Localized: Hermit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117303545378627585
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117305727393980416
+    m_Localized: Hermit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117305727393980417
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117306553818669056
+    m_Localized: Shining
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117306553818669057
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117308785700102144
+    m_Localized: Inexhaustible Source
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117308785700102145
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117309204438441984
+    m_Localized: Moonlight Veil
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117309204438441985
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117313582624923648
+    m_Localized: Cloaking
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117313582624923649
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117316066458198016
+    m_Localized: Combustion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117316066458198017
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117323166911553536
+    m_Localized: Immolate Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117323166911553537
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117326197736595456
+    m_Localized: Spead
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117326197736595457
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117327196056444928
+    m_Localized: Blazing March
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117327196056444929
     m_Localized: 
     m_Metadata:
       m_Items: []
