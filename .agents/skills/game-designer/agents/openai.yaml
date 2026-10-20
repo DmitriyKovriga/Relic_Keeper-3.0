@@ -1,0 +1,4 @@
+interface:
+  display_name: "Game Designer"
+  short_description: "Relic Keeper weapon skills and build design"
+  default_prompt: "Use $game-designer to design distinct Relic Keeper weapon skills using the project design context."

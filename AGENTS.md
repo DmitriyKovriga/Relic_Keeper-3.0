@@ -59,3 +59,11 @@ directory. Setup, version pin, tradeoffs and removal are in `Docs/ECC_Unity_Setu
 This integration has no automatic learning, memory writes or runtime hooks.
 For skill/plugin/documentation-only edits, validate configuration and discovery;
 Unity compile/tests are required when Unity-imported assets or code change.
+
+## Game design discussions
+
+For weapon-skill concepts, build synergies and balance tradeoffs, use
+[game-designer](.agents/skills/game-designer/SKILL.md). Its shared English reference
+is [Weapon Skill Design Context](Docs/GameDesign/Weapon_Skill_Design_Context.md).
+Read that snapshot before brainstorming; verify affected source data when exact
+numbers matter. Keep implemented facts, proposals and accepted decisions separate.
