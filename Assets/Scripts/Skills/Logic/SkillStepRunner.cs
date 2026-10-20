@@ -393,6 +393,11 @@ namespace Scripts.Skills
                     if (storm == null) storm = _ownerStats.gameObject.AddComponent<PlayerWinterStormController>();
                     storm.Begin(_data, step, SlotIndex);
                     break;
+                case "LightningRod":
+                    var rods = _ownerStats.GetComponent<PlayerLightningRodController>();
+                    if (rods == null) rods = _ownerStats.gameObject.AddComponent<PlayerLightningRodController>();
+                    rods.Begin(_data, step, SlotIndex);
+                    break;
                 case "SelfStasis":
                     var stasis = _ownerStats.GetComponent<PlayerStasisController>();
                     if (stasis == null) stasis = _ownerStats.gameObject.AddComponent<PlayerStasisController>();
@@ -1314,6 +1319,33 @@ namespace Scripts.Skills
 
         internal void EmitTargetPulse(StepEntry step, IDamageable target) =>
             DealDamageToTargets(-1, step, new List<IDamageable> { target });
+
+        internal void EmitLinePass(StepEntry step, Vector2 previous, Vector2 current, float width,
+            HashSet<int> hitOnce, Vector2 source, int worldMask)
+        {
+            var targets = new List<IDamageable>();
+            var unique = new HashSet<IDamageable>();
+            Vector2 travel = current - previous;
+            float angle = Mathf.Atan2(travel.y, travel.x) * Mathf.Rad2Deg;
+            var size = new Vector2(travel.magnitude + width, width);
+            foreach (var hit in Physics2D.OverlapBoxAll((previous + current) * .5f, size, angle, _targetLayer))
+            {
+                if (hit == null || IsOwnerCollider(hit)) continue;
+                var target = hit.GetComponentInParent<IDamageable>();
+                if (target == null || target is Component component && IsOwnerTransform(component.transform)) continue;
+                if (target is Scripts.Enemies.EnemyHealth health && health.IsDead) continue;
+                Vector2 ray = (Vector2)hit.bounds.center - source;
+                bool blocked = false;
+                foreach (var obstacle in Physics2D.RaycastAll(source, ray.normalized, ray.magnitude, worldMask))
+                {
+                    if (obstacle.collider == null || obstacle.collider.isTrigger || IsOwnerCollider(obstacle.collider)) continue;
+                    if (obstacle.collider.GetComponentInParent<IDamageable>() == target) continue;
+                    blocked = true; break;
+                }
+                if (!blocked && unique.Add(target)) targets.Add(target);
+            }
+            DealDamageToTargets(-1, step, targets, hitOnce);
+        }
 
         internal void EmitAreaPulse(StepEntry step, Vector2 center, float radius)
         {

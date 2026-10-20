@@ -507,6 +507,16 @@ MonoBehaviour:
       time.
     m_Metadata:
       m_Items: []
+  - m_Id: 103135056044892160
+    m_Localized: Lightning Rod
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103135056091029504
+    m_Localized: Place two fixed electrodes. A discharge travels repeatedly between
+      them, hitting each enemy on the line once per pass. Keep targets between the
+      electrodes. Area of Effect increases their separation.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

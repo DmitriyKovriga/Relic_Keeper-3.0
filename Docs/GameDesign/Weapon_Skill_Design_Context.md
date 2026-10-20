@@ -163,7 +163,7 @@ examples are not final damage or DPS; verify shared step defaults and runtime to
 | Chakram | Phys 8-16; 1; 5% | None | Homing Weapon Throw | Orbital Weapon Throw (5/10) |
 | Fire staff | Fire 14-24; 1; 5% | +25 ignite chance | Fire Ball | Big Fire Ball (7/50) |
 | Cold staff | Cold 12-24; 1; 5% | +25 freeze chance | Icecle Shot | Big Cold Ball (7/50) / Winter Storm (15/50) |
-| Lightning staff | Lightning 5-48; 1; 5% | +25 shock chance | Lightning Arc | Big Lightning Ball (7/50) |
+| Lightning staff | Lightning 5-48; 1; 5% | +25 shock chance | Lightning Arc | Big Lightning Ball (7/50) / Lightning Rod (15/25) |
 
 Only the 2H axe primary has unequal positive weights in this table; other shown
 alternatives use equal weights. Sweep has serialized weight 0, but is the ONLY

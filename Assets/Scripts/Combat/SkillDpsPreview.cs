@@ -197,6 +197,8 @@ namespace Scripts.Combat
                 hitsPerCast = Mathf.Max(1, Mathf.CeilToInt((Mathf.Max(.01f, storm.GetFloat("Duration", 5)) - .00001f)
                     / Mathf.Max(.05f, storm.GetFloat("PulseInterval", .5f))));
             }
+            if (skill?.Recipe?.Steps?.Count == 1 && skill.Recipe.Steps[0]?.StepDefinition?.Id == "LightningRod")
+                hitsPerCast = Mathf.Max(1, skill.Recipe.Steps[0].GetInt("PassCount", 8));
             return new SkillHitDpsPreview(physical, fire, cold, lightning, castsPerSecond, hitsPerCast);
         }
 
@@ -297,6 +299,7 @@ namespace Scripts.Combat
                 || id == "InstantBeam"
                 || id == "PlasmaField"
                 || id == "WinterStorm"
+                || id == "LightningRod"
                 || id == "ArrowRain"
                 || id == "BlinkStab"
                 || id == "ChainDamage"

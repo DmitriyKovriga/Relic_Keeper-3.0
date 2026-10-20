@@ -198,6 +198,7 @@ namespace Scripts.Skills
         {
             // Character changes still tear down the previous character's casts/projectiles.
             CancelAllSkills();
+            _playerStats.GetComponent<PlayerLightningRodController>()?.End();
             SkillProjectile.DespawnAllForOwner(_playerStats);
             for (int i = 0; i < SkillSlotCount; i++)
                 UnequipSkill(i);

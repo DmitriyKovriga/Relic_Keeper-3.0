@@ -701,6 +701,7 @@ namespace Scripts.Editor.Skills
                 case "InstantBeam":
                 case "ArrowRain":
                 case "WinterStorm":
+                case "LightningRod":
                 case "FallingAnvil":
                 case "PlasmaField":
                 case "BlinkStab":
@@ -1498,6 +1499,25 @@ namespace Scripts.Editor.Skills
                 var prefab = step.GetObject<GameObject>("VfxPrefab");
                 var editedPrefab = (GameObject)EditorGUILayout.ObjectField("Impact VFX", prefab, typeof(GameObject), false);
                 if (prefab != editedPrefab) { step.SetOverrideObject("VfxPrefab", editedPrefab); EditorUtility.SetDirty(recipe); }
+                DrawDamageConversionRules(recipe, step); DrawSkillScopedModifierFields(recipe, step); DrawOnHitEffectRules(recipe, step);
+                return;
+            }
+
+            if (id == "LightningRod")
+            {
+                EditorGUILayout.HelpBox("Fixed electrodes; alternating travelling passes, one hit per target per pass. Area of Effect scales the gap only. New deployment replaces the previous pair; source cancellation and weapon swaps do not erase it.", MessageType.None);
+                int count = step.GetInt("PassCount", 8), editedCount = Mathf.Max(1, EditorGUILayout.IntField("Pass count", count));
+                if (editedCount != count) { step.SetOverrideInt("PassCount", editedCount); EditorUtility.SetDirty(recipe); }
+                foreach (string key in new[] { "Distance", "Width", "BeamHeight", "OffsetX", "PassDuration", "PassInterval", "DamageMultiplier" })
+                {
+                    float value = step.GetFloat(key), edited = Mathf.Max(0, EditorGUILayout.FloatField(key, value));
+                    if (edited != value) { step.SetOverrideFloat(key, edited); EditorUtility.SetDirty(recipe); }
+                }
+                int mask = step.GetInt("WorldLayerMask", 1 << 6), editedMask = EditorGUILayout.IntField("World layer mask", mask);
+                if (editedMask != mask) { step.SetOverrideInt("WorldLayerMask", editedMask); EditorUtility.SetDirty(recipe); }
+                var prefab = step.GetObject<GameObject>("FieldVfxPrefab");
+                var editedPrefab = (GameObject)EditorGUILayout.ObjectField("Electrode / arc VFX", prefab, typeof(GameObject), false);
+                if (prefab != editedPrefab) { step.SetOverrideObject("FieldVfxPrefab", editedPrefab); EditorUtility.SetDirty(recipe); }
                 DrawDamageConversionRules(recipe, step); DrawSkillScopedModifierFields(recipe, step); DrawOnHitEffectRules(recipe, step);
                 return;
             }

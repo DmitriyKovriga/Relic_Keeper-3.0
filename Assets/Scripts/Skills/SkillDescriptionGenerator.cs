@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "LightningRod" or "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -244,6 +244,17 @@ namespace Scripts.Skills
                         : $"Winter storm around you for {N(step.GetFloat("Duration", 5))}s. Radius: {N(step.GetFloat("Radius", 3))} m; hits every {N(step.GetFloat("PulseInterval", .5f))}s. Cannot walk, jump or dodge; can use other skills. Continues during Frost Anabiosis.");
                     AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
                     Add(lines, unique, ru ? "Попадания вызывают заморозку с учётом защиты и задержки повторной заморозки врага." : "Hits inflict Freeze, respecting enemy avoidance and refreeze protection.");
+                    break;
+                case "LightningRod":
+                    Add(lines, unique, ru
+                        ? $"Два неподвижных электрода перед героем. Разряд проходит между ними {step.GetInt("PassCount", 8)} раз; каждый враг на линии получает одно попадание за проход."
+                        : $"Place two fixed electrodes ahead. A discharge travels between them {step.GetInt("PassCount", 8)} times; each enemy on the line can be hit once per pass.");
+                    Add(lines, unique, ru
+                        ? $"Расстояние: {N(step.GetFloat("Distance", 6))} м, увеличивается областью действия. Стены ограничивают размещение. Электроды не следуют за героем."
+                        : $"Gap: {N(step.GetFloat("Distance", 6))} m, scaled by Area of Effect. Walls limit placement. Electrodes stay where cast.");
+                    Add(lines, unique, ru
+                        ? $"Каждый проход наносит {P(step.GetFloat("DamageMultiplier", .6f) * 100 * effectiveness)} урона оружия."
+                        : $"Each pass deals {P(step.GetFloat("DamageMultiplier", .6f) * 100 * effectiveness)} weapon damage.", SkillDescriptionSection.Attack);
                     break;
                 case "FallingAnvil":
                     AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
