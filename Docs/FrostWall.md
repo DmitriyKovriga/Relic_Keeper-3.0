@@ -47,6 +47,13 @@ clones, activate outside the pool too, and guard duplicate despawn. The Editor
 cleans runtime-only templates when returning to Edit mode. Swept contacts
 ensure fast projectiles hit a wall/player in the correct order.
 
+Sweeps and trigger contacts share collider-based target checks. A physics hit's
+`transform` can be its attached Rigidbody's root, while a trigger receives the
+child collider. Mixing these identities previously let ignored child colliders
+pin live shots in place. Only handled contacts now end movement; ignored
+colliders allow flight to continue. `EnemyProjectileMovementTests` covers this
+regression, subsequent valid hits, and terrain stop settings.
+
 Regression coverage: `RelicKeeper.Tests.EditMode.FrostWallTests`, including
 base/empowered math, charge use, conversion, fast projectile ordering,
 pooled reuse, attack delivery, placement rejection, and lifecycle cleanup.

@@ -139,10 +139,10 @@ namespace Scripts.Enemies
             // thin barrier, nor can a wall behind the player intercept an earlier hit.
             float travel = Vector2.Distance(start, end);
             var contacts = Physics2D.CircleCastAll(start, _collider.radius, _direction, travel);
-            var first = contacts.Where(hit => hit.collider != null && hit.collider != _collider
-                && (_owner == null || !hit.transform.IsChildOf(_owner.transform))
-                && ((_data.Attack.ProjectileStopsOnGround && hit.collider.gameObject.layer == 6)
-                    || EnemyAttackController.TryResolveDamageable(hit.transform, out _)))
+            // RaycastHit2D.transform can be the attached Rigidbody's parent, not
+            // the collider transform passed to trigger callbacks. Use one target
+            // predicate for both paths so an ignored child cannot stop flight.
+            var first = contacts.Where(hit => CanHandleContact(hit.collider))
                 .OrderBy(hit => hit.distance).FirstOrDefault();
             Vector2 limit = first.collider != null ? start + _direction * first.distance : end;
             if (PlayerFrostWallController.TryIntercept(start, limit, _collider.radius, _owner, out _))
@@ -151,7 +151,8 @@ namespace Scripts.Enemies
             }
             if (first.collider != null)
             {
-                transform.position = limit; OnTriggerEnter2D(first.collider); return;
+                transform.position = limit;
+                if (TryHandleContact(first.collider)) return;
             }
             transform.position = end;
             _animationTimer += dt;
@@ -162,18 +163,24 @@ namespace Scripts.Enemies
                 Despawn();
         }
 
-        private void OnTriggerEnter2D(Collider2D other)
+        private bool CanHandleContact(Collider2D other)
         {
-            if (_despawning || _data == null || _data.Attack == null || other == null)
-                return;
+            if (_despawning || _data == null || _data.Attack == null || other == null || other == _collider) return false;
+            if (_owner != null && other.transform.IsChildOf(_owner.transform)) return false;
+            return (_data.Attack.ProjectileStopsOnGround && ((1 << other.gameObject.layer) & GroundLayerMask) != 0)
+                || EnemyAttackController.TryResolveDamageable(other.transform, out _);
+        }
 
-            if (_owner != null && (other.gameObject == _owner || other.transform.IsChildOf(_owner.transform)))
-                return;
+        private void OnTriggerEnter2D(Collider2D other) => TryHandleContact(other);
+
+        private bool TryHandleContact(Collider2D other)
+        {
+            if (!CanHandleContact(other)) return false;
 
             if (_data.Attack.ProjectileStopsOnGround && ((1 << other.gameObject.layer) & GroundLayerMask) != 0)
             {
                 Despawn();
-                return;
+                return true;
             }
 
             if (EnemyAttackController.TryResolveDamageable(other.transform, out var damageable))
@@ -181,7 +188,9 @@ namespace Scripts.Enemies
                 if (damageable.TakeDamage(_damageSnapshot))
                     AilmentController.TryApplyHitAilmentsFromSource(_damageSnapshot?.Source, other.transform, _damageSnapshot);
                 Despawn();
+                return true;
             }
+            return false;
         }
 
         private void ApplyFrame(bool force)
