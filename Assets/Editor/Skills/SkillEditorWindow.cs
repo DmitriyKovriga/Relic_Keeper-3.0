@@ -200,12 +200,20 @@ namespace Scripts.Editor.Skills
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Skill", GUILayout.Width(36));
-            var skillNames = _skills.Select(s => s.SkillName ?? s.name).ToArray();
-            if (skillNames.Length > 0)
+            if (_skills.Count > 0)
             {
-                int newSelectedSkillIndex = EditorGUILayout.Popup(_selectedSkillIndex, skillNames);
-                if (newSelectedSkillIndex != _selectedSkillIndex)
-                    SelectSkill(newSelectedSkillIndex);
+                SkillDataSO current = _skills[_selectedSkillIndex];
+                var content = new GUIContent(BuildSkillButtonLabel(current), "Search skills by name, weapon, ID or description");
+                Rect pickerRect = GUILayoutUtility.GetRect(content, EditorStyles.popup, GUILayout.MinWidth(180), GUILayout.Height(20));
+                if (EditorGUI.DropdownButton(pickerRect, content, FocusType.Keyboard, EditorStyles.popup))
+                {
+                    PopupWindow.Show(pickerRect, new SkillDataPickerPopup(current, _skills, selected =>
+                    {
+                        int index = _skills.IndexOf(selected);
+                        if (index >= 0) SelectSkill(index);
+                        Repaint();
+                    }, allowNone: false));
+                }
             }
             else
             {
@@ -3100,15 +3108,18 @@ namespace Scripts.Editor.Skills
             private readonly SkillDataSO _current;
             private readonly System.Action<SkillDataSO> _onSelected;
             private readonly List<Entry> _entries;
+            private readonly bool _allowNone;
+            private readonly Dictionary<string, bool> _groupFoldouts = new Dictionary<string, bool>();
             private Vector2 _scroll;
             private string _search = string.Empty;
             private bool _focusSearchRequested = true;
 
-            public SkillDataPickerPopup(SkillDataSO current, IEnumerable<SkillDataSO> skills, System.Action<SkillDataSO> onSelected)
+            public SkillDataPickerPopup(SkillDataSO current, IEnumerable<SkillDataSO> skills, System.Action<SkillDataSO> onSelected, bool allowNone = true)
             {
                 _current = current;
                 _onSelected = onSelected;
                 _entries = BuildEntries(skills);
+                _allowNone = allowNone;
             }
 
             public override Vector2 GetWindowSize()
@@ -3118,33 +3129,39 @@ namespace Scripts.Editor.Skills
 
             public override void OnGUI(Rect rect)
             {
+                if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Escape)
+                {
+                    editorWindow.Close(); GUIUtility.ExitGUI();
+                }
                 DrawSearchField();
                 EditorGUILayout.Space(4f);
 
-                if (GUILayout.Button("None", EditorStyles.miniButton))
+                if (_allowNone && GUILayout.Button("None", EditorStyles.miniButton))
                 {
                     Select(null);
                     return;
                 }
 
-                _scroll = EditorGUILayout.BeginScrollView(_scroll);
-
-                string search = (_search ?? string.Empty).Trim().ToLowerInvariant();
-                IEnumerable<Entry> filtered = string.IsNullOrWhiteSpace(search)
-                    ? _entries
-                    : _entries.Where(entry => entry.SearchText.Contains(search));
-
-                string currentGroup = null;
-                foreach (Entry entry in filtered)
+                string[] words = (_search ?? string.Empty).ToLowerInvariant().Split(new[] { ' ', '\t' }, System.StringSplitOptions.RemoveEmptyEntries);
+                var filtered = _entries.Where(entry => words.All(word => entry.SearchText.Contains(word))).ToList();
+                EditorGUILayout.LabelField($"{filtered.Count} of {_entries.Count} skills", EditorStyles.miniLabel);
+                if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return && filtered.Count == 1)
                 {
-                    if (!string.Equals(currentGroup, entry.Group, System.StringComparison.Ordinal))
-                    {
-                        currentGroup = entry.Group;
-                        EditorGUILayout.Space(6f);
-                        EditorGUILayout.LabelField(currentGroup, EditorStyles.boldLabel);
-                    }
+                    Select(filtered[0].Skill);
+                    return;
+                }
 
-                    DrawEntry(entry);
+                _scroll = EditorGUILayout.BeginScrollView(_scroll);
+                if (filtered.Count == 0)
+                    EditorGUILayout.HelpBox("No matching skills. Try a name, weapon category or skill ID.", MessageType.Info);
+                foreach (var group in filtered.GroupBy(entry => entry.Group))
+                {
+                    if (!_groupFoldouts.TryGetValue(group.Key, out bool expanded)) expanded = true;
+                    EditorGUILayout.Space(4f);
+                    expanded = EditorGUILayout.Foldout(words.Length > 0 || expanded, $"{group.Key} ({group.Count()})", true, EditorStyles.foldoutHeader);
+                    if (words.Length == 0) _groupFoldouts[group.Key] = expanded;
+                    if (expanded || words.Length > 0)
+                        foreach (Entry entry in group) DrawEntry(entry);
                 }
 
                 EditorGUILayout.EndScrollView();
@@ -3152,8 +3169,16 @@ namespace Scripts.Editor.Skills
 
             private void DrawSearchField()
             {
+                EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+                GUILayout.Label("Search", GUILayout.Width(44));
                 GUI.SetNextControlName("SkillDataPickerSearch");
-                _search = EditorGUILayout.TextField(_search);
+                string next = EditorGUILayout.TextField(_search, EditorStyles.toolbarSearchField);
+                if (next != _search) { _search = next; _scroll = Vector2.zero; }
+                if (GUILayout.Button("Clear", EditorStyles.toolbarButton, GUILayout.Width(42)))
+                {
+                    _search = string.Empty; _scroll = Vector2.zero; _focusSearchRequested = true;
+                }
+                EditorGUILayout.EndHorizontal();
 
                 if (_focusSearchRequested && Event.current.type == EventType.Repaint)
                 {
@@ -3172,7 +3197,7 @@ namespace Scripts.Editor.Skills
                     ? new Color(0.28f, 0.38f, 0.55f, 0.95f)
                     : isHovered
                         ? new Color(0.20f, 0.20f, 0.20f, 0.65f)
-                        : new Color(0f, 0f, 0f, 0f);
+                        : new Color(0.18f, 0.18f, 0.18f, 0.35f);
 
                 if (Event.current.type == EventType.Repaint)
                     EditorGUI.DrawRect(rowRect, background);
@@ -3194,7 +3219,7 @@ namespace Scripts.Editor.Skills
 
                 var nameStyle = new GUIStyle(EditorStyles.label)
                 {
-                    fontStyle = isCurrent ? FontStyle.Bold : FontStyle.Normal
+                    fontStyle = FontStyle.Bold
                 };
                 var metaStyle = new GUIStyle(EditorStyles.miniLabel)
                 {
@@ -3207,11 +3232,11 @@ namespace Scripts.Editor.Skills
 
                 GUI.Label(nameRect, entry.DisplayName, nameStyle);
                 GUI.Label(metaRect, entry.MetaLine, metaStyle);
-                GUI.Label(descRect, entry.DescriptionLine, metaStyle);
+                GUI.Label(descRect, new GUIContent(entry.DescriptionLine, entry.Summary), metaStyle);
                 GUI.Label(pathRect, entry.AssetPath, pathStyle);
 
                 if (isCurrent)
-                    GUI.Label(checkRect, "?", EditorStyles.boldLabel);
+                    GUI.Label(checkRect, "✓", EditorStyles.boldLabel);
             }
 
             private static void DrawSkillIcon(Rect rect, SkillDataSO skill)
@@ -3263,6 +3288,7 @@ namespace Scripts.Editor.Skills
                 public readonly string Group;
                 public readonly string MetaLine;
                 public readonly string DescriptionLine;
+                public readonly string Summary;
                 public readonly string SearchText;
 
                 public Entry(SkillDataSO skill)
@@ -3274,8 +3300,11 @@ namespace Scripts.Editor.Skills
                     string active = skill.IsActive ? "Active" : "Passive";
                     string recipe = skill.Recipe != null ? skill.Recipe.name : "No recipe";
                     MetaLine = $"{skill.ID} · {active} · Mana {skill.ManaCost:0.#} · CD {skill.Cooldown:0.##}s · {recipe}";
-                    DescriptionLine = string.IsNullOrWhiteSpace(skill.Description) ? "No description" : skill.Description;
-                    SearchText = $"{DisplayName} {skill.name} {skill.ID} {active} {recipe} {skill.ManaCost} {skill.Cooldown} {skill.Description} {Group} {AssetPath}".ToLowerInvariant();
+                    Summary = BuildSkillSummary(skill);
+                    string generated = SkillDescriptionGenerator.BuildAutomatic(skill, "en");
+                    string description = string.IsNullOrWhiteSpace(generated) ? skill.Description : generated;
+                    DescriptionLine = string.IsNullOrWhiteSpace(description) ? "No gameplay effects configured" : description.Split('\n').FirstOrDefault(line => !string.IsNullOrWhiteSpace(line))?.Trim();
+                    SearchText = $"{DisplayName} {skill.name} {skill.ID} {active} {recipe} {skill.ManaCost} {skill.Cooldown} {description} {Group} {AssetPath}".ToLowerInvariant();
                 }
 
                 private static string GetSkillGroup(string assetPath)
@@ -3284,9 +3313,14 @@ namespace Scripts.Editor.Skills
                     if (string.IsNullOrWhiteSpace(assetPath) || !assetPath.StartsWith(root))
                         return "Other";
 
-                    string relative = assetPath.Substring(root.Length);
-                    int slash = relative.IndexOf('/');
-                    return slash > 0 ? relative.Substring(0, slash) : "Root";
+                    string[] parts = assetPath.Substring(root.Length).Split('/');
+                    if (parts.Length < 2) return "Root";
+                    if (parts.Length > 2 && (parts[0] == "1HWeapon" || parts[0] == "2HWeapon" || parts[0] == "Shields"))
+                    {
+                        string family = parts[0] == "1HWeapon" ? "One-handed" : parts[0] == "2HWeapon" ? "Two-handed" : "Shields";
+                        return family + " / " + parts[1];
+                    }
+                    return parts[0];
                 }
             }
         }
