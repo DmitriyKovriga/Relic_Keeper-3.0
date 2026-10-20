@@ -393,6 +393,15 @@ namespace Scripts.Skills
 
             if (step.GetBool("Homing", false))
                 Add(lines, unique, ru ? "Снаряды наводятся на врагов." : "Projectiles home in on enemies.", SkillDescriptionSection.Attack);
+            if (step.GetBool("EnvironmentRicochet", false))
+            {
+                Add(lines, unique, ru
+                    ? $"Отскоки: {step.GetInt("BaseWorldBounces", 1)} плюс Цепь снарядов, вместо цепи между врагами. После отскока — наведение на ближайшего доступного врага ({N(step.GetFloat("RicochetSearchRadius", 12))} м); без цели — отражение."
+                    : $"Surface bounces: {step.GetInt("BaseWorldBounces", 1)} plus Projectile Chain, replacing enemy chains. Each bounce aims at the nearest reachable enemy ({N(step.GetFloat("RicochetSearchRadius", 12))} m); otherwise reflects.");
+                Add(lines, unique, ru
+                    ? $"После рикошета на {N(step.GetFloat("RicochetDamagePercent", 75))}% больше урона. Бонус повторно не складывается. Скорость снарядов ускоряет полёт."
+                    : $"After a ricochet, deal {N(step.GetFloat("RicochetDamagePercent", 75))}% more damage. Repeated bounces do not stack the bonus. Projectile Speed speeds up travel.", SkillDescriptionSection.Attack);
+            }
             if (step.GetBool("InfinitePierce", false) || (orbit && step.GetBool("PierceTargets", true)))
                 Add(lines, unique, ru ? "Снаряды пробивают цели." : "Projectiles pierce targets.", SkillDescriptionSection.Attack);
             int reversals = Mathf.Max(0, step.GetInt("ReversalCount", 0));

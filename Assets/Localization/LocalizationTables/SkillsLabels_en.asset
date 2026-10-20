@@ -496,6 +496,17 @@ MonoBehaviour:
       during descent.
     m_Metadata:
       m_Items: []
+  - m_Id: 103128754073772032
+    m_Localized: Lucky Shot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103128754115715072
+    m_Localized: Fire an arrow that ricochets from surfaces and then aims toward
+      the nearest reachable enemy. The ricochet empowers the hit. Projectile Chain
+      adds wall bounces instead of enemy chains; Projectile Speed shortens travel
+      time.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

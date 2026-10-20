@@ -54,6 +54,12 @@ namespace Scripts.Skills.Projectiles
         public bool InfinitePierce;
         public bool IgnoreFork;
         public bool IgnoreChain;
+        public bool EnvironmentRicochet;
+        public int RemainingWorldBounces;
+        public bool WorldBounceEmpowered;
+        public float RicochetDamagePercent = 75f;
+        public float RicochetSearchRadius = 12f;
+        public GameObject RicochetVfxPrefab;
         public float ForkAngle = 18f;
         public float ChainSearchRadius = 12f;
         public bool GroundMotion;
@@ -104,7 +110,7 @@ namespace Scripts.Skills.Projectiles
     [DisallowMultipleComponent]
     [RequireComponent(typeof(CircleCollider2D))]
     [RequireComponent(typeof(Rigidbody2D))]
-    public sealed class SkillProjectile : MonoBehaviour
+    public sealed partial class SkillProjectile : MonoBehaviour
     {
         private const string OneWayPlatformLayerName = "OneWayPlatform";
         private const float GroundSurfaceNormalThreshold = 0.55f;
@@ -425,6 +431,10 @@ namespace Scripts.Skills.Projectiles
 
         private void OnTriggerEnter2D(Collider2D other)
         {
+            // Swept travel supplies the contact normal and safe centre for wall bounces.
+            if (_data != null && _data.EnvironmentRicochet && other != null
+                && IsInLayerMask(other.gameObject.layer, _data.WorldLayer)
+                && !TryResolveDamageable(other.transform, out _, out _)) return;
             TryHandleCollision(other);
         }
 
@@ -447,7 +457,7 @@ namespace Scripts.Skills.Projectiles
                     if (hit == null || hit.transform == transform)
                         continue;
 
-                    if (TryHandleCollision(hit) || _data == null)
+                    if (HandleCollision(hit, hits[i]) || _data == null)
                         return;
                 }
             }
@@ -474,8 +484,11 @@ namespace Scripts.Skills.Projectiles
         }
 
         private bool TryHandleCollision(Collider2D other)
+            => HandleCollision(other, null);
+
+        private bool HandleCollision(Collider2D other, RaycastHit2D? contact)
         {
-            if (_data == null || other == null || !other.enabled)
+            if (_data == null || _despawning || other == null || !other.enabled)
                 return false;
 
             if (other.transform == transform || other.gameObject == gameObject)
@@ -517,9 +530,11 @@ namespace Scripts.Skills.Projectiles
 
             if (_data.StopOnWorld && IsInLayerMask(other.gameObject.layer, _data.WorldLayer))
             {
+                if (_data.EnvironmentRicochet && other.isTrigger) return false;
                 if (_data.GroundMotion && IsInLayerMask(other.gameObject.layer, _data.GroundLayer))
                     return false;
 
+                if (TryWorldRicochet(other, contact)) return true;
                 Despawn();
                 return true;
             }
@@ -585,6 +600,8 @@ namespace Scripts.Skills.Projectiles
                 _returnDamageActive,
                 _data.ReturnDamagePercent,
                 _data.OwnerStats);
+            if (_data.WorldBounceEmpowered)
+                damageMultiplier *= 1f + Mathf.Max(0, _data.RicochetDamagePercent) / 100f;
             DamageSnapshot snapshot = _data.UseElementalSpellDamage
                 ? DamageCalculator.CreateElementalSpellSnapshot(
                     scopedStats,
@@ -789,7 +806,7 @@ namespace Scripts.Skills.Projectiles
 
         private bool TryChain(Transform currentTarget)
         {
-            if (_data.IgnoreChain || _data.RemainingChains <= 0 || currentTarget == null)
+            if (_data.EnvironmentRicochet || _data.IgnoreChain || _data.RemainingChains <= 0 || currentTarget == null)
                 return false;
 
             if (!TryFindChainTarget(currentTarget.position, out Transform nextTarget))
@@ -1247,6 +1264,8 @@ namespace Scripts.Skills.Projectiles
 
             _spriteRenderer.sprite = _data.OverrideSprite != null ? _data.OverrideSprite : _defaultSprite;
             _spriteRenderer.color = PlayerAttackVfxOpacity.MultiplyAlpha(_defaultColor);
+            if (_data.WorldBounceEmpowered)
+                _spriteRenderer.color = new Color(1, .83f, .45f, _spriteRenderer.color.a);
             _spriteRenderer.enabled = _spriteRenderer.sprite != null;
             _spriteRenderer.flipX = _defaultFlipX;
         }

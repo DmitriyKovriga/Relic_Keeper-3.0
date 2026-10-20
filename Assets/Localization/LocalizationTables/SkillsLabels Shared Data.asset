@@ -475,6 +475,14 @@ MonoBehaviour:
     m_Key: skills.FallingAnvilSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103128754073772032
+    m_Key: skills.LuckyShotSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103128754115715072
+    m_Key: skills.LuckyShotSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

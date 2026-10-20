@@ -1,0 +1,209 @@
+{
+ "frames": [
+  {
+   "filename": "relic-keeper-lucky-shot-ricochet 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 26
+   },
+   "pivot": {
+    "x": 0.2857142857142857,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "relic-keeper-lucky-shot-ricochet 1.png",
+   "frame": {
+    "x": 28,
+    "y": 0,
+    "w": 28,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 26
+   },
+   "pivot": {
+    "x": 0.2857142857142857,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "relic-keeper-lucky-shot-ricochet 2.png",
+   "frame": {
+    "x": 56,
+    "y": 0,
+    "w": 28,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 26
+   },
+   "pivot": {
+    "x": 0.2857142857142857,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "relic-keeper-lucky-shot-ricochet 3.png",
+   "frame": {
+    "x": 0,
+    "y": 26,
+    "w": 28,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 26
+   },
+   "pivot": {
+    "x": 0.2857142857142857,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "relic-keeper-lucky-shot-ricochet 4.png",
+   "frame": {
+    "x": 28,
+    "y": 26,
+    "w": 28,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 26
+   },
+   "pivot": {
+    "x": 0.2857142857142857,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "relic-keeper-lucky-shot-ricochet 5.png",
+   "frame": {
+    "x": 56,
+    "y": 26,
+    "w": 28,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 26
+   },
+   "pivot": {
+    "x": 0.2857142857142857,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "relic-keeper-lucky-shot-ricochet 6.png",
+   "frame": {
+    "x": 0,
+    "y": 52,
+    "w": 28,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 28,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 28,
+    "h": 26
+   },
+   "pivot": {
+    "x": 0.2857142857142857,
+    "y": 0.5
+   },
+   "duration": 63
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "relic-keeper-lucky-shot-ricochet.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 84,
+   "h": 78
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 8,
+   "y": 13
+  },
+  "frameTags": [
+   {
+    "name": "relic-keeper-lucky-shot-ricochet",
+    "from": 0,
+    "to": 6,
+    "direction": "forward"
+   }
+  ]
+ }
+}

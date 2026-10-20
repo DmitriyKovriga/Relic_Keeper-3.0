@@ -659,6 +659,7 @@ namespace Scripts.Skills
             }
 
             LayerMask groundSurfaceLayer = groundMotion ? ResolveGroundProjectileSurfaceLayer(step) : step.GetInt("GroundLayerMask", 1 << 6);
+            bool environmentRicochet = !groundMotion && step.GetBool("EnvironmentRicochet", false);
             var data = new SkillProjectileLaunchData
             {
                 OwnerStats = _ownerStats,
@@ -680,11 +681,16 @@ namespace Scripts.Skills
                 HitScaleY = Mathf.Max(0.01f, step.GetFloat("SizeY", 1f)),
                 RotationDegreesPerSecond = step.GetFloat("RotationDegreesPerSecond", useWeaponSprite ? 720f : 0f),
                 RemainingForks = groundMotion ? 0 : Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileFork))),
-                RemainingChains = groundMotion ? 0 : Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileChain))),
+                RemainingChains = groundMotion || environmentRicochet ? 0 : Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileChain))),
+                EnvironmentRicochet = environmentRicochet,
+                RemainingWorldBounces = environmentRicochet ? Mathf.Max(0, step.GetInt("BaseWorldBounces", 1)) + Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectileChain))) : 0,
+                RicochetDamagePercent = Mathf.Max(0, step.GetFloat("RicochetDamagePercent", 75f)),
+                RicochetSearchRadius = Mathf.Max(.1f, step.GetFloat("RicochetSearchRadius", 12f)),
+                RicochetVfxPrefab = step.GetObject<GameObject>("RicochetVfxPrefab"),
                 RemainingPierces = Mathf.Max(0, Mathf.FloorToInt(_ownerStats.GetValue(StatType.ProjectilePierce))),
                 InfinitePierce = step.GetBool("InfinitePierce", false),
                 IgnoreFork = groundMotion || step.GetBool("IgnoreFork", false),
-                IgnoreChain = groundMotion || step.GetBool("IgnoreChain", false),
+                IgnoreChain = groundMotion || environmentRicochet || step.GetBool("IgnoreChain", false),
                 ForkAngle = Mathf.Max(0f, step.GetFloat("ForkAngle", 18f)),
                 ChainSearchRadius = Mathf.Max(0.1f, step.GetFloat("ChainSearchRadius", 12f)),
                 GroundMotion = groundMotion || step.GetBool("GroundMotion", false),

@@ -2108,6 +2108,27 @@ namespace Scripts.Editor.Skills
             EditorGUI.EndDisabledGroup();
 
             bool infinitePierce = step.GetBool("InfinitePierce", false);
+            if (!isGroundProjectile)
+            {
+                bool ricochet = step.GetBool("EnvironmentRicochet", false);
+                bool editedRicochet = EditorGUILayout.Toggle("Environment ricochet", ricochet);
+                if (editedRicochet != ricochet) { step.SetOverrideBool("EnvironmentRicochet", editedRicochet); EditorUtility.SetDirty(recipe); }
+                if (editedRicochet)
+                {
+                    EditorGUILayout.HelpBox("Projectile Chain adds wall bounces instead of enemy chains. Bounces aim at the nearest reachable enemy. Empowerment does not stack.", MessageType.None);
+                    int bounces = step.GetInt("BaseWorldBounces", 1), editedBounces = Mathf.Max(0, EditorGUILayout.IntField("Base wall bounces", bounces));
+                    if (editedBounces != bounces) { step.SetOverrideInt("BaseWorldBounces", editedBounces); EditorUtility.SetDirty(recipe); }
+                    foreach (string key in new[] { "RicochetDamagePercent", "RicochetSearchRadius" })
+                    {
+                        float value = step.GetFloat(key, key == "RicochetDamagePercent" ? 75 : 12);
+                        float edited = Mathf.Max(0, EditorGUILayout.FloatField(key, value));
+                        if (edited != value) { step.SetOverrideFloat(key, edited); EditorUtility.SetDirty(recipe); }
+                    }
+                    var vfx = step.GetObject<GameObject>("RicochetVfxPrefab");
+                    var editedVfx = (GameObject)EditorGUILayout.ObjectField("Ricochet VFX", vfx, typeof(GameObject), false);
+                    if (editedVfx != vfx) { step.SetOverrideObject("RicochetVfxPrefab", editedVfx); EditorUtility.SetDirty(recipe); }
+                }
+            }
             bool newInfinitePierce = EditorGUILayout.Toggle(new GUIContent("Infinite pierce", "Снаряд игнорирует лимит ProjectilePierce и исчезает только по lifetime или от стен."), infinitePierce);
             if (newInfinitePierce != infinitePierce) { step.SetOverrideBool("InfinitePierce", newInfinitePierce); EditorUtility.SetDirty(recipe); }
 
