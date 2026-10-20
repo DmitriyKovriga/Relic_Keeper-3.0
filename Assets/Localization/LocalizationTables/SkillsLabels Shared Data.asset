@@ -499,6 +499,14 @@ MonoBehaviour:
     m_Key: skills.FrostWallSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103151794727821312
+    m_Key: skills.CrimsonHookSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103151794769764352
+    m_Key: skills.CrimsonHookSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

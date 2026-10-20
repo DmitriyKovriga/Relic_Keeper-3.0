@@ -90,6 +90,8 @@ namespace Scripts.Enemies
     [Serializable]
     public class EnemyMovementConfig
     {
+        [Tooltip("Anchored enemy: cannot be pulled, independently of its walking speed.")]
+        public bool PullImmune;
         [Min(0f)] public float MoveSpeed = 2f;
         [Min(0f)] public float StopDistance = 0.85f;
         [Min(0f)] public float Acceleration = 20f;

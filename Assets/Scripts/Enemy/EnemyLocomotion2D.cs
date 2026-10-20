@@ -22,6 +22,7 @@ namespace Scripts.Enemies
         private float _pushbackInitialVelocity;
         private float _pushbackDuration;
         private float _pushbackRemaining;
+        private float _pullTargetX, _pullSpeed, _pullRemaining, _pullResistanceLimit;
 
         public bool IsGrounded { get; private set; }
         public bool IsNearWall { get; private set; }
@@ -43,6 +44,7 @@ namespace Scripts.Enemies
             _isFrozen = false;
             _cachedGravityScale = float.NaN;
             ClearPushback();
+            ClearPull();
         }
 
         private void FixedUpdate()
@@ -88,6 +90,7 @@ namespace Scripts.Enemies
             _hasForcedHorizontalVelocity = false;
             _forcedHorizontalVelocity = 0f;
             ClearPushback();
+            ClearPull();
             if (_rb != null)
                 _rb.linearVelocity = Vector2.zero;
         }
@@ -162,9 +165,64 @@ namespace Scripts.Enemies
             if (_isFrozen || duration <= 0f || Mathf.Abs(signedInitialVelocity) < 0.01f)
                 return;
 
+            ClearPull();
+
             _pushbackInitialVelocity = signedInitialVelocity;
             _pushbackDuration = duration;
             _pushbackRemaining = duration;
+        }
+
+        public bool TryPullTowards(float destinationX, float duration, float heavyResistanceLimit)
+        {
+            if (!CanBePulled(heavyResistanceLimit) || duration <= 0 || float.IsNaN(destinationX) || float.IsInfinity(destinationX)) return false;
+            float resist = _stats != null ? _stats.GetValue(StatType.PushbackResist) : 0;
+            float distance = PushbackResolver.ApplyResistance(Mathf.Abs(destinationX - _rb.position.x), resist);
+            if (distance < .01f) return false;
+            ClearPushback();
+            _pullTargetX = _rb.position.x + Mathf.Sign(destinationX - _rb.position.x) * distance;
+            _pullSpeed = distance / duration; _pullRemaining = duration;
+            _pullResistanceLimit = heavyResistanceLimit;
+            return true;
+        }
+
+        private bool CanBePulled(float heavyResistanceLimit) =>
+            isActiveAndEnabled && !_isFrozen && _data != null && _rb != null && _rb.simulated
+            && _rb.bodyType == RigidbodyType2D.Dynamic && (_rb.constraints & RigidbodyConstraints2D.FreezePositionX) == 0
+            && _data.Movement != null && !_data.Movement.PullImmune
+            && (_stats == null || (!_stats.IsBoss && _stats.GetValue(StatType.PushbackResist) < heavyResistanceLimit));
+
+        private void ClearPull() { _pullRemaining = _pullSpeed = 0; }
+
+        private bool TryConsumePullVelocity(out float velocityX)
+        {
+            velocityX = 0;
+            if (_pullRemaining <= 0) return false;
+            if (!CanBePulled(_pullResistanceLimit)) { ClearPull(); return true; }
+            float dt = Time.fixedDeltaTime;
+            float delta = _pullTargetX - _rb.position.x;
+            float travel = Mathf.Min(Mathf.Abs(delta), _pullSpeed * Mathf.Min(dt, _pullRemaining));
+            int direction = delta < 0 ? -1 : 1;
+            if (_collider != null && travel > 0)
+            {
+                var bounds = _collider.bounds;
+                var hit = Physics2D.BoxCast(bounds.center, new Vector2(bounds.size.x * .98f, bounds.size.y * .9f), 0,
+                    Vector2.right * direction, travel + .025f, _groundLayerMask);
+                if (hit.collider != null) travel = Mathf.Min(travel, Mathf.Max(0, hit.distance - .025f));
+            }
+            velocityX = direction * travel / Mathf.Max(.0001f, dt);
+            _pullRemaining -= dt;
+            // Keep one final sample so the next physics step explicitly stops at
+            // the destination instead of ordinary movement decelerating past it.
+            if (travel < .0001f) ClearPull();
+            else if (_pullRemaining <= 0) _pullRemaining = dt;
+            return true;
+        }
+
+        private void OnDisable()
+        {
+            if (_pullRemaining <= 0) return;
+            ClearPull();
+            if (_rb != null) _rb.linearVelocity = new Vector2(0, _rb.linearVelocity.y);
         }
 
         public void SnapToGroundNow()
@@ -203,7 +261,9 @@ namespace Scripts.Enemies
             _forcedHorizontalVelocity = 0f;
             _ignoreLedgeForForcedMotion = false;
             if (_isFrozen)
-                ClearPushback();
+            {
+                ClearPushback(); ClearPull();
+            }
             if (_rb != null)
             {
                 if (_isFrozen)
@@ -230,7 +290,14 @@ namespace Scripts.Enemies
             if (_isFrozen)
             {
                 ClearPushback();
+                ClearPull();
                 _rb.linearVelocity = Vector2.zero;
+                return;
+            }
+
+            if (TryConsumePullVelocity(out float pullX))
+            {
+                _rb.linearVelocity = new Vector2(pullX, _rb.linearVelocity.y);
                 return;
             }
 

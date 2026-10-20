@@ -304,6 +304,7 @@ namespace Scripts.Combat
                 || id == "PlasmaField"
                 || id == "WinterStorm"
                 || id == "LightningRod"
+                || id == "CrimsonHook"
                 || id == "ArrowRain"
                 || id == "BlinkStab"
                 || id == "ChainDamage"

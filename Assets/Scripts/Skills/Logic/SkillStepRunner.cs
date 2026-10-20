@@ -393,6 +393,9 @@ namespace Scripts.Skills
                     if (storm == null) storm = _ownerStats.gameObject.AddComponent<PlayerWinterStormController>();
                     storm.Begin(_data, step, SlotIndex);
                     break;
+                case "CrimsonHook":
+                    ExecuteCrimsonHook(stepIndex, step);
+                    break;
                 case "FrostWall":
                     var wall = _ownerStats.GetComponent<PlayerFrostWallController>();
                     if (wall == null) wall = _ownerStats.gameObject.AddComponent<PlayerFrostWallController>();
@@ -1528,7 +1531,8 @@ namespace Scripts.Skills
             StepEntry step,
             List<IDamageable> targets,
             HashSet<int> hitOnceTargets = null,
-            bool appendHitResults = false)
+            bool appendHitResults = false,
+            System.Action<IDamageable> onConnected = null)
         {
             if (targets == null || targets.Count == 0)
                 return;
@@ -1559,6 +1563,7 @@ namespace Scripts.Skills
                     dealtDamage = true;
                     TryApplyAilmentsFromHit(scopedStats, target, snapshot);
                     ExecuteOnHitEffects(step, target, targetTransform, snapshot);
+                    onConnected?.Invoke(target);
                 }
                 if (hitResults != null)
                 {

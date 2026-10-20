@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "FrostWall" or "LightningRod" or "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "CrimsonHook" or "FrostWall" or "LightningRod" or "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -244,6 +244,15 @@ namespace Scripts.Skills
                         : $"Winter storm around you for {N(step.GetFloat("Duration", 5))}s. Radius: {N(step.GetFloat("Radius", 3))} m; hits every {N(step.GetFloat("PulseInterval", .5f))}s. Cannot walk, jump or dodge; can use other skills. Continues during Frost Anabiosis.");
                     AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
                     Add(lines, unique, ru ? "Попадания вызывают заморозку с учётом защиты и задержки повторной заморозки врага." : "Hits inflict Freeze, respecting enemy avoidance and refreeze protection.");
+                    break;
+                case "CrimsonHook":
+                    AddDamage(step, ru, nearby: false, lines, unique, effectiveness);
+                    Add(lines, unique, ru
+                        ? $"Дальний захват перед героем: дальность {N(step.GetFloat("Range", 6))} м, ширина {N(step.GetFloat("Width", 1.5f))} м. Область действия увеличивает только ширину захвата. Каждая цель получает одно попадание; стены преграждают захват."
+                        : $"Grapple enemies ahead: reach {N(step.GetFloat("Range", 6))} m, width {N(step.GetFloat("Width", 1.5f))} m. Area of Effect increases width only. Hits each target once; walls block the grapple.");
+                    Add(lines, unique, ru
+                        ? "Притягивает подвижных врагов к герою, не перенося их за спину. Тяжёлые, неподвижные, замороженные цели и боссы получают урон без перемещения. Сопротивление отталкиванию уменьшает притягивание."
+                        : "Pulls movable enemies toward you without dragging them behind you. Heavy, immobile, frozen targets and bosses take damage without displacement. Pushback Resistance reduces the pull.");
                     break;
                 case "FrostWall":
                     float wallDuration = EffectDurationCalculator.Resolve(step.GetFloat("Duration", 5), durationStats);

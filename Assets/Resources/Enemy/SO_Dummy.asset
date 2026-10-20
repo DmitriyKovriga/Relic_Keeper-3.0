@@ -58,6 +58,7 @@ MonoBehaviour:
     AlertLoseTargetRangeMultiplier: 1.35
     IgnoreLineOfSightWhileAlerted: 1
   Movement:
+    PullImmune: 1
     MoveSpeed: 0
     StopDistance: 0.85
     Acceleration: 20

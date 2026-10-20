@@ -527,6 +527,16 @@ MonoBehaviour:
       one available Mystic Shield charge to increase damage and duration.
     m_Metadata:
       m_Items: []
+  - m_Id: 103151794727821312
+    m_Localized: Crimson Hook
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103151794769764352
+    m_Localized: A long-reaching grapple strikes enemies ahead and pulls movable
+      targets toward you. Heavy and immobile targets take damage without displacement.
+      Area of Effect widens the grapple, helping gather groups.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
