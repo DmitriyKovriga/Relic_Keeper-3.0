@@ -200,6 +200,7 @@ namespace Scripts.Skills
             CancelAllSkills();
             _playerStats.GetComponent<PlayerLightningRodController>()?.End();
             _playerStats.GetComponent<PlayerFrostWallController>()?.End();
+            _playerStats.GetComponent<PlayerPrismaticCycleController>()?.ResetCycles();
             SkillProjectile.DespawnAllForOwner(_playerStats);
             for (int i = 0; i < SkillSlotCount; i++)
                 UnequipSkill(i);

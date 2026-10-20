@@ -135,6 +135,23 @@ namespace Scripts.Combat
 
         private static SkillHitDpsPreview BuildHitPreview(SkillDataSO skill, IStatsProvider stats, float castsPerSecond)
         {
+            var prismatic = skill?.Recipe?.Steps?.Find(step => step?.StepDefinition?.Id == "PrismaticCycle");
+            if (prismatic != null)
+            {
+                float cycleFire = 0, cycleCold = 0, cycleLightning = 0, cyclePhysical = 0;
+                for (int phase = 0; phase < 4; phase++)
+                {
+                    var cast = new PrismaticCycleCast(phase, prismatic);
+                    AddCycleHit(cast.Step);
+                }
+                return new SkillHitDpsPreview(cyclePhysical / 4, cycleFire / 4, cycleCold / 4, cycleLightning / 4, castsPerSecond, 1);
+                void AddCycleHit(StepEntry step)
+                {
+                    var hit = DamageCalculator.CreatePreviewSnapshot(ApplyStepScopedStats(stats, step), step.GetFloat("DamageMultiplier", 1),
+                        ResolveDamageContext(skill), step.DamageConversions);
+                    cyclePhysical += hit.Physical; cycleFire += hit.Fire; cycleCold += hit.Cold; cycleLightning += hit.Lightning;
+                }
+            }
             // Surface damage is displayed per second of contact, independent of the buff's cooldown.
             if (skill?.Recipe?.Steps?.Count == 1 && skill.Recipe.Steps[0]?.StepDefinition?.Id == "IceSkates")
             {

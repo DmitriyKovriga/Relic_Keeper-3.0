@@ -100,6 +100,7 @@ namespace Scripts.Skills.Projectiles
         public HashSet<IDamageable> SharedHitHistory;
         public SkillDataSO Skill;
         public SkillHitStopGate HitStopGate;
+        public GameObject PrismaticImpactPrefab;
 
         public SkillProjectileLaunchData Clone()
         {
@@ -364,6 +365,8 @@ namespace Scripts.Skills.Projectiles
                 AcquireHomingTarget();
             ApplyFacingRotation();
             ResetProjectileVisualEffects();
+            if (TryGetComponent(out Scripts.Skills.Visuals.PrismaticProjectileVisual prismaticVisual))
+                prismaticVisual.Configure(_data.OverrideSprite, _data.PrismaticImpactPrefab != null);
         }
 
         private void Update()
@@ -625,8 +628,21 @@ namespace Scripts.Skills.Projectiles
             {
                 _data.HitStopGate?.TryTrigger();
                 TryApplyAilmentsFromHit(scopedStats, target, snapshot);
+                ShowPrismaticImpact(target);
             }
             return snapshot;
+        }
+
+        private void ShowPrismaticImpact(IDamageable target)
+        {
+            if (_data.PrismaticImpactPrefab != null && Application.isPlaying)
+            {
+                var component = target as Component;
+                var body = component != null ? component.GetComponent<Collider2D>() : null;
+                Vector3 origin = body != null ? body.bounds.center : component != null ? component.transform.position : transform.position;
+                var vfx = Instantiate(_data.PrismaticImpactPrefab, origin, Quaternion.identity);
+                vfx.GetComponent<Scripts.Skills.Visuals.PrismaticBurstVisual>()?.Initialize(origin.y);
+            }
         }
 
         private void TryPulseDamage()

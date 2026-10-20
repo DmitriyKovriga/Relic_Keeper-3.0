@@ -47,6 +47,7 @@ namespace Scripts.Skills
         private readonly Dictionary<int, HashSet<int>> _persistentHitTargetsByStep = new Dictionary<int, HashSet<int>>();
         private readonly HashSet<int> _persistentHitStopSteps = new HashSet<int>();
         private SkillHitStopGate _hitStopGate;
+        private PrismaticCycleCast _prismaticCycleCast;
         private PlayerParryController _parry;
         private readonly HashSet<int> _openedParrySteps = new HashSet<int>();
         private readonly Dictionary<int, Vector2> _previousDamageCenters = new Dictionary<int, Vector2>();
@@ -88,6 +89,15 @@ namespace Scripts.Skills
             }
 
             _cancelled = false;
+            _prismaticCycleCast = null;
+            foreach (var step in _data.Recipe.Steps)
+            {
+                if (step?.StepDefinition?.Id != "PrismaticCycle") continue;
+                var cycle = _ownerStats.GetComponent<PlayerPrismaticCycleController>();
+                if (cycle == null) cycle = _ownerStats.gameObject.AddComponent<PlayerPrismaticCycleController>();
+                _prismaticCycleCast = cycle.BeginCast(_slotIndex, step);
+                break;
+            }
             _openedParrySteps.Clear();
             if (_animCtrl != null)
                 _animCtrl.SetActiveStyleId(WeaponSwingStyleResolver.ResolveStyleId(_data));
@@ -393,6 +403,9 @@ namespace Scripts.Skills
                     if (storm == null) storm = _ownerStats.gameObject.AddComponent<PlayerWinterStormController>();
                     storm.Begin(_data, step, SlotIndex);
                     break;
+                case "PrismaticCycle":
+                    SpawnProjectileVolley(step, _prismaticCycleCast);
+                    break;
                 case "CrimsonHook":
                     ExecuteCrimsonHook(stepIndex, step);
                     break;
@@ -644,7 +657,9 @@ namespace Scripts.Skills
                 sr);
         }
 
-        private void ExecuteSpawnProjectile(StepEntry step)
+        private void ExecuteSpawnProjectile(StepEntry step) => SpawnProjectileVolley(step, null);
+
+        private void SpawnProjectileVolley(StepEntry step, PrismaticCycleCast cycle)
         {
             if (_ownerStats == null || step == null)
                 return;
@@ -745,6 +760,11 @@ namespace Scripts.Skills
                     (int)DamageChannel.Lightning),
                 HitStopGate = _hitStopGate
             };
+            if (cycle != null)
+            {
+                data.Step = cycle.Step; data.OverrideSprite = cycle.ProjectileSprite;
+                if (cycle.CompletesCycle) data.PrismaticImpactPrefab = cycle.BurstVfxPrefab;
+            }
 
             Vector2 origin = (Vector2)_ownerStats.transform.position + new Vector2(offsetX * _ctx.FacingDirection, offsetY);
             Vector2 drawnOrigin = Vector2.zero;

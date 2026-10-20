@@ -537,6 +537,17 @@ MonoBehaviour:
       Area of Effect widens the grapple, helping gather groups.
     m_Metadata:
       m_Items: []
+  - m_Id: 103203139270877184
+    m_Localized: Prismatic Cycle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103203139358957568
+    m_Localized: Shots cycle through fire, cold, and lightning, converting all weapon
+      damage to the current element. Every fourth use fires a prismatic volley, split
+      equally between the three elements, with 100% more spell damage. Progress counts
+      uses, not projectiles or hits.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

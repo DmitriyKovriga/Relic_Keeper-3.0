@@ -1,0 +1,107 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa469c8d85911614bbc9afc2a526821c, type: 3}
+  m_Name: Recipe_PrismaticCycle
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.Steps.SkillRecipeSO
+  Steps:
+  - StepDefinition: {fileID: 11400000, guid: e6d99185f818c7840be2327fe444fbc3, type: 2}
+    Overrides: []
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0
+    EndPercentPipeline: 0.15
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: f52618a1da9473f489fc1d7569c9977b, type: 2}
+    Overrides: []
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.15
+    EndPercentPipeline: 0.15
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: 0800f3b3b87573640803ce27be4f9d90, type: 2}
+    Overrides:
+    - Key: ProjectilePrefab
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 6287674897244252772, guid: 7bb9a06ca6aa8294a901798da0c5282c, type: 3}
+    - Key: FireSprite
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 21300000, guid: 5faf63cb87c148c44af18daf5c7da2d4, type: 3}
+    - Key: ColdSprite
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 21300000, guid: b15e828e11c737f45be2e8a5deab087a, type: 3}
+    - Key: LightningSprite
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 21300000, guid: dd4415cfe0cb91d4aa67853ba41cbaf2, type: 3}
+    - Key: BonusSprite
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 21300000, guid: a1e5676be16d6d7499ae058c23856afd, type: 3}
+    - Key: BurstVfxPrefab
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 1746966394438491216, guid: 22d271e8d517216428623c564cf37517, type: 3}
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.15
+    EndPercentPipeline: 0.15
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: 6250a752a1e0b2a418e03bcc5c86278d, type: 2}
+    Overrides: []
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.15
+    EndPercentPipeline: 1
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: 4a09dbc08d2314b46873162258f8a044, type: 2}
+    Overrides: []
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.05
+    EndPercentPipeline: 0.15
+    SubSteps: []
+  HitStopFrames: 0
+  IsChanneling: 0
+  ChannelLoopStepIndices: 
+  ChannelMaxDuration: 5
+  ChannelTickDuration: 0

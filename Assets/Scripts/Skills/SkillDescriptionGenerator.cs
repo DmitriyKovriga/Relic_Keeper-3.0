@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "CrimsonHook" or "FrostWall" or "LightningRod" or "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "PrismaticCycle" or "CrimsonHook" or "FrostWall" or "LightningRod" or "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -244,6 +244,17 @@ namespace Scripts.Skills
                         : $"Winter storm around you for {N(step.GetFloat("Duration", 5))}s. Radius: {N(step.GetFloat("Radius", 3))} m; hits every {N(step.GetFloat("PulseInterval", .5f))}s. Cannot walk, jump or dodge; can use other skills. Continues during Frost Anabiosis.");
                     AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
                     Add(lines, unique, ru ? "Попадания вызывают заморозку с учётом защиты и задержки повторной заморозки врага." : "Hits inflict Freeze, respecting enemy avoidance and refreeze protection.");
+                    break;
+                case "PrismaticCycle":
+                    Add(lines, unique, ru
+                        ? $"Огонь → холод → молния → призматический залп, затем цикл повторяется. Каждый выстрел наносит {P(step.GetFloat("DamageMultiplier", 1) * 100 * effectiveness)} урона оружия; 100% всего урона оружия преобразуется в текущую стихию. Все снаряды одного применения имеют одну стихию."
+                        : $"Fire → cold → lightning → prismatic burst, then repeat. Each shot deals {P(step.GetFloat("DamageMultiplier", 1) * 100 * effectiveness)} weapon damage; 100% of all weapon damage converts to the current element. Every projectile in a cast shares that element.", SkillDescriptionSection.Attack);
+                    Add(lines, unique, ru
+                        ? $"Каждое четвёртое применение выпускает призматический залп. Его урон поровну разделён между огнём, холодом и молнией; на {N(step.GetFloat("BonusMoreSpellDamage", 100))}% больше урона от чар только для этого снаряда."
+                        : $"Every fourth use fires a prismatic volley. Its damage splits equally between fire, cold and lightning, with {N(step.GetFloat("BonusMoreSpellDamage", 100))}% more spell damage for that projectile only.");
+                    Add(lines, unique, ru
+                        ? "Цикл считает применения, включая промахи, а не количество снарядов или попаданий. Показатели урона усреднены за полный цикл."
+                        : "The cycle counts uses, including misses, not projectile or hit count. Damage values average a complete cycle.");
                     break;
                 case "CrimsonHook":
                     AddDamage(step, ru, nearby: false, lines, unique, effectiveness);

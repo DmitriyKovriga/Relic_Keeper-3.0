@@ -507,6 +507,14 @@ MonoBehaviour:
     m_Key: skills.CrimsonHookSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103203139270877184
+    m_Key: skills.PrismaticCycleSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103203139358957568
+    m_Key: skills.PrismaticCycleSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
