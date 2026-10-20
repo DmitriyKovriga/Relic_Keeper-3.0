@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -244,6 +244,15 @@ namespace Scripts.Skills
                         : $"Winter storm around you for {N(step.GetFloat("Duration", 5))}s. Radius: {N(step.GetFloat("Radius", 3))} m; hits every {N(step.GetFloat("PulseInterval", .5f))}s. Cannot walk, jump or dodge; can use other skills. Continues during Frost Anabiosis.");
                     AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
                     Add(lines, unique, ru ? "Попадания вызывают заморозку с учётом защиты и задержки повторной заморозки врага." : "Hits inflict Freeze, respecting enemy avoidance and refreeze protection.");
+                    break;
+                case "FallingAnvil":
+                    AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
+                    Add(lines, unique, ru
+                        ? $"На земле — тяжёлый удар перед героем. В воздухе молот направлен вниз: удар происходит только при приземлении. +{N(step.GetFloat("FallBonusPerUnit", .25f) * 100)}% урона за каждый метр падения, максимум +{N(step.GetFloat("MaximumFallBonus", 1) * 100)}%."
+                        : $"On the ground, a heavy strike in front of you. In the air, point the hammer down and strike only upon landing. +{N(step.GetFloat("FallBonusPerUnit", .25f) * 100)}% damage per metre fallen, up to +{N(step.GetFloat("MaximumFallBonus", 1) * 100)}%.");
+                    Add(lines, unique, ru
+                        ? $"Радиус удара: {N(step.GetFloat("Radius", 1.6f))} м; увеличивается областью действия. Сила прыжка помогает набрать высоту. Во время падения герой уязвим; движение и другие умения заблокированы."
+                        : $"Impact radius: {N(step.GetFloat("Radius", 1.6f))} m, scaled by Area of Effect. Jump Force helps gain height. You remain vulnerable while falling; movement and other skills are locked.");
                     break;
                 case "SelfStasis":
                     Add(lines, unique, ru

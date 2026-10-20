@@ -148,6 +148,11 @@ namespace Scripts.Skills
             if (_suppressSkillUsage)
                 return;
 
+            foreach (var active in _activeSkills.Values)
+                if (active != null && active.IsCasting && active.Data?.Recipe?.Steps != null
+                    && active.Data.Recipe.Steps.Exists(step => step?.StepDefinition?.Id == "FallingAnvil"))
+                    return;
+
             if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)
                 skillBehaviour.TryCast();
         }

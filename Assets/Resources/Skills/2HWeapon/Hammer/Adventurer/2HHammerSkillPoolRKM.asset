@@ -15,3 +15,5 @@ MonoBehaviour:
   PossibleSkills:
   - Skill: {fileID: 11400000, guid: d94c5bb82d051684293f85d8d581c60d, type: 2}
     Weight: 1
+  - Skill: {fileID: 11400000, guid: 0c74dc3ced702304fa6953e6e18b15d1, type: 2}
+    Weight: 1

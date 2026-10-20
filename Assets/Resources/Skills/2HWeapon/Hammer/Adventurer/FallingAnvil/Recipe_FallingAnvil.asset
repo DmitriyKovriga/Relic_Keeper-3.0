@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa469c8d85911614bbc9afc2a526821c, type: 3}
+  m_Name: Recipe_FallingAnvil
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.Steps.SkillRecipeSO
+  Steps:
+  - StepDefinition: {fileID: 11400000, guid: 15a4313fad221104a8e481360dd65988, type: 2}
+    Overrides:
+    - Key: VfxPrefab
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 8079648664726421993, guid: 2bb9f2ffc83d8e54f928b105f1e9e3e1, type: 3}
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0
+    EndPercentPipeline: 0
+    SubSteps: []
+  HitStopFrames: 3
+  IsChanneling: 0
+  ChannelLoopStepIndices: 
+  ChannelMaxDuration: 5
+  ChannelTickDuration: 0

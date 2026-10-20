@@ -701,6 +701,7 @@ namespace Scripts.Editor.Skills
                 case "InstantBeam":
                 case "ArrowRain":
                 case "WinterStorm":
+                case "FallingAnvil":
                 case "PlasmaField":
                 case "BlinkStab":
                 case "PersistentDamageCircle":
@@ -1483,6 +1484,21 @@ namespace Scripts.Editor.Skills
                 if (editedSurface != surface) { step.SetOverrideObject("SurfaceEffect", editedSurface); EditorUtility.SetDirty(recipe); }
                 if (surface != null && GUILayout.Button("Edit surface settings")) Selection.activeObject = surface;
                 DrawSkillScopedModifierFields(recipe, step); DrawOnHitEffectRules(recipe, step);
+                return;
+            }
+
+            if (id == "FallingAnvil")
+            {
+                EditorGUILayout.HelpBox("Ground strike or one landing impact. Fall damage is capped; gravity and vulnerability remain active. Timing is independent of the normalised pipeline.", MessageType.None);
+                foreach (string key in new[] { "DamageMultiplier", "Radius", "GroundOffsetX", "FallBonusPerUnit", "MaximumFallBonus", "WindupSeconds", "RecoverySeconds", "MaximumAirTime" })
+                {
+                    float value = step.GetFloat(key), edited = EditorGUILayout.FloatField(key, value);
+                    if (edited != value) { step.SetOverrideFloat(key, Mathf.Max(0, edited)); EditorUtility.SetDirty(recipe); }
+                }
+                var prefab = step.GetObject<GameObject>("VfxPrefab");
+                var editedPrefab = (GameObject)EditorGUILayout.ObjectField("Impact VFX", prefab, typeof(GameObject), false);
+                if (prefab != editedPrefab) { step.SetOverrideObject("VfxPrefab", editedPrefab); EditorUtility.SetDirty(recipe); }
+                DrawDamageConversionRules(recipe, step); DrawSkillScopedModifierFields(recipe, step); DrawOnHitEffectRules(recipe, step);
                 return;
             }
 

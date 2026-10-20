@@ -129,6 +129,8 @@ public class PlayerMovement : MonoBehaviour
     private PlayerAttackInput _attackInput;
 
     public bool IsGrounded => _isGrounded;
+    private float _airbornePeakY = float.NegativeInfinity;
+    public float AirbornePeakY => Mathf.Max(transform.position.y, _airbornePeakY);
     public int FacingDirection => _isFacingRight ? 1 : -1;
     public Vector2 CurrentMoveInput => _moveInput;
     public Vector2 CurrentVelocity => _rb != null ? _rb.linearVelocity : Vector2.zero;
@@ -351,6 +353,7 @@ public class PlayerMovement : MonoBehaviour
         SampleMovementInput();
         UpdateDropThroughState();
         CheckGround();
+        _airbornePeakY = _isGrounded ? transform.position.y : Mathf.Max(_airbornePeakY, transform.position.y);
         RefreshJumpCountIfLanded();
         if (_attackInput != null && _attackInput.isActiveAndEnabled)
             _attackInput.TickMovementActions();

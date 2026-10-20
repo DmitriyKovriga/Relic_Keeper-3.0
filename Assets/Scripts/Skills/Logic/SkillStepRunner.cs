@@ -19,7 +19,7 @@ namespace Scripts.Skills
     /// </summary>
     [RequireComponent(typeof(SkillMovementControl))]
     [RequireComponent(typeof(SkillHandAnimation))]
-    public class SkillStepRunner : SkillBehaviour
+    public partial class SkillStepRunner : SkillBehaviour
     {
         private enum SpawnVfxGrowthMode
         {
@@ -113,7 +113,7 @@ namespace Scripts.Skills
 
         private void OnDisable()
         {
-            Cleanup();
+            Cancel();
         }
 
         private void Cleanup()
@@ -145,6 +145,12 @@ namespace Scripts.Skills
             {
                 var recipe = _data.Recipe;
                 var steps = recipe.Steps;
+                // Landing attacks own their timing: attack speed must never shorten the fall.
+                if (steps.Count == 1 && steps[0]?.StepDefinition?.Id == "FallingAnvil")
+                {
+                    yield return RunFallingAnvil(steps[0]);
+                    yield break;
+                }
                 int n = steps.Count;
                 var started = new bool[n];
                 var ended = new bool[n];
@@ -239,6 +245,8 @@ namespace Scripts.Skills
                                 && srcIdx >= 0 && vfxLifePct > 0f;
                             if (deferByVfxLife)
                                 _pendingDamageByVfxLife.Add((i, step, srcIdx, vfxLifePct));
+                            else if (step.StepDefinition.Id == "FallingAnvil")
+                                yield return RunFallingAnvil(step);
                             else
                                 ExecuteStepLogic(i, step, 1f, 0f);
                         }

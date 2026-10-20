@@ -485,6 +485,17 @@ MonoBehaviour:
       bleed.
     m_Metadata:
       m_Items: []
+  - m_Id: 103123438414209024
+    m_Localized: Falling Anvil
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103123438460346368
+    m_Localized: A heavy hammer strike. In the air, hold the hammer downward and
+      strike upon landing. Fall height increases impact damage up to a cap. Jump
+      Force helps gain height; Area of Effect widens the impact. You remain vulnerable
+      during descent.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

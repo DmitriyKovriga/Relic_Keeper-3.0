@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "relic-keeper-falling-anvil-impact 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 91,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.4945054945054945,
+    "y": 0.375
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-falling-anvil-impact 1.png",
+   "frame": {
+    "x": 91,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 91,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.4945054945054945,
+    "y": 0.375
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-falling-anvil-impact 2.png",
+   "frame": {
+    "x": 182,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 91,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.4945054945054945,
+    "y": 0.375
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-falling-anvil-impact 3.png",
+   "frame": {
+    "x": 273,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 91,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.4945054945054945,
+    "y": 0.375
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-falling-anvil-impact 4.png",
+   "frame": {
+    "x": 0,
+    "y": 48,
+    "w": 91,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 91,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.4945054945054945,
+    "y": 0.375
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-falling-anvil-impact 5.png",
+   "frame": {
+    "x": 91,
+    "y": 48,
+    "w": 91,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 91,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.4945054945054945,
+    "y": 0.375
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-falling-anvil-impact 6.png",
+   "frame": {
+    "x": 182,
+    "y": 48,
+    "w": 91,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 91,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.4945054945054945,
+    "y": 0.375
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-falling-anvil-impact 7.png",
+   "frame": {
+    "x": 273,
+    "y": 48,
+    "w": 91,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 91,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.4945054945054945,
+    "y": 0.375
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-falling-anvil-impact 8.png",
+   "frame": {
+    "x": 0,
+    "y": 96,
+    "w": 91,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 91,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.4945054945054945,
+    "y": 0.375
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-falling-anvil-impact 9.png",
+   "frame": {
+    "x": 91,
+    "y": 96,
+    "w": 91,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 91,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.4945054945054945,
+    "y": 0.375
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-falling-anvil-impact 10.png",
+   "frame": {
+    "x": 182,
+    "y": 96,
+    "w": 91,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 91,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.4945054945054945,
+    "y": 0.375
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-falling-anvil-impact 11.png",
+   "frame": {
+    "x": 273,
+    "y": 96,
+    "w": 91,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 91,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 91,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.4945054945054945,
+    "y": 0.375
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "relic-keeper-falling-anvil-impact.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 364,
+   "h": 144
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 45,
+   "y": 18
+  },
+  "frameTags": [
+   {
+    "name": "relic-keeper-falling-anvil-impact",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

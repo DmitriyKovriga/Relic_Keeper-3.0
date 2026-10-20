@@ -467,6 +467,14 @@ MonoBehaviour:
     m_Key: skills.ExtractionSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103123438414209024
+    m_Key: skills.FallingAnvilSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103123438460346368
+    m_Key: skills.FallingAnvilSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -1,0 +1,565 @@
+fileFormatVersion: 2
+guid: 18acd40aba7042f4c87754077ad1f131
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 7485458535517195298
+    second: FallingAnvilImpact_0
+  - first:
+      213: -7302989382393104905
+    second: FallingAnvilImpact_1
+  - first:
+      213: -7686658655871826820
+    second: FallingAnvilImpact_2
+  - first:
+      213: -1825917113467951367
+    second: FallingAnvilImpact_3
+  - first:
+      213: -9199117898026565010
+    second: FallingAnvilImpact_4
+  - first:
+      213: -3605936166523737354
+    second: FallingAnvilImpact_5
+  - first:
+      213: 775529045973033170
+    second: FallingAnvilImpact_6
+  - first:
+      213: 8923072719315164551
+    second: FallingAnvilImpact_7
+  - first:
+      213: 1352771019801896210
+    second: FallingAnvilImpact_8
+  - first:
+      213: -8639393758039044008
+    second: FallingAnvilImpact_9
+  - first:
+      213: 7322576952959849193
+    second: FallingAnvilImpact_10
+  - first:
+      213: -2884688309128429785
+    second: FallingAnvilImpact_11
+  - first:
+      213: 6047920941050638337
+    second: FallingAnvilImpact_12
+  - first:
+      213: 4641413396064873855
+    second: FallingAnvilImpact_13
+  - first:
+      213: -5917797892362531454
+    second: FallingAnvilImpact_14
+  - first:
+      213: -6017458828774975832
+    second: FallingAnvilImpact_15
+  - first:
+      213: 6116059671621606644
+    second: FallingAnvilImpact_16
+  - first:
+      213: 9063023974287626655
+    second: FallingAnvilImpact_17
+  - first:
+      213: 1591529352831531077
+    second: FallingAnvilImpact_18
+  - first:
+      213: 5533166258789900789
+    second: FallingAnvilImpact_19
+  - first:
+      213: 9061494015318165471
+    second: FallingAnvilImpact_20
+  - first:
+      213: -8444302871388897970
+    second: FallingAnvil_00
+  - first:
+      213: 9031168933919012057
+    second: FallingAnvil_01
+  - first:
+      213: 6631942016120978065
+    second: FallingAnvil_02
+  - first:
+      213: -1535965065389254472
+    second: FallingAnvil_03
+  - first:
+      213: -1081998317282093734
+    second: FallingAnvil_04
+  - first:
+      213: -8673170103970116304
+    second: FallingAnvil_05
+  - first:
+      213: -1302915660772012641
+    second: FallingAnvil_06
+  - first:
+      213: 6449213637687512893
+    second: FallingAnvil_07
+  - first:
+      213: -7672722947505466956
+    second: FallingAnvil_08
+  - first:
+      213: -5872839161086141770
+    second: FallingAnvil_09
+  - first:
+      213: 5598356840874474642
+    second: FallingAnvil_10
+  - first:
+      213: -1080650260899798274
+    second: FallingAnvil_11
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 28.4375
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: FallingAnvil_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 96
+        width: 91
+        height: 48
+      alignment: 9
+      pivot: {x: 0.4945055, y: 0.625}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4dbd0f374fcfca80800000000000000
+      internalID: -8444302871388897970
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FallingAnvil_01
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 96
+        width: 91
+        height: 48
+      alignment: 9
+      pivot: {x: 0.4945055, y: 0.625}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d439c4db48255d70800000000000000
+      internalID: 9031168933919012057
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FallingAnvil_02
+      rect:
+        serializedVersion: 2
+        x: 182
+        y: 96
+        width: 91
+        height: 48
+      alignment: 9
+      pivot: {x: 0.4945055, y: 0.625}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 19af0e94024690c50800000000000000
+      internalID: 6631942016120978065
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FallingAnvil_03
+      rect:
+        serializedVersion: 2
+        x: 273
+        y: 96
+        width: 91
+        height: 48
+      alignment: 9
+      pivot: {x: 0.4945055, y: 0.625}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b8501239e72faae0800000000000000
+      internalID: -1535965065389254472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FallingAnvil_04
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 48
+        width: 91
+        height: 48
+      alignment: 9
+      pivot: {x: 0.4945055, y: 0.625}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5594da5348fbf0f0800000000000000
+      internalID: -1081998317282093734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FallingAnvil_05
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 48
+        width: 91
+        height: 48
+      alignment: 9
+      pivot: {x: 0.4945055, y: 0.625}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03dc25c2eb5b2a780800000000000000
+      internalID: -8673170103970116304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FallingAnvil_06
+      rect:
+        serializedVersion: 2
+        x: 182
+        y: 48
+        width: 91
+        height: 48
+      alignment: 9
+      pivot: {x: 0.4945055, y: 0.625}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9d04631c1d1bede0800000000000000
+      internalID: -1302915660772012641
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FallingAnvil_07
+      rect:
+        serializedVersion: 2
+        x: 273
+        y: 48
+        width: 91
+        height: 48
+      alignment: 9
+      pivot: {x: 0.4945055, y: 0.625}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3f08f252a5308950800000000000000
+      internalID: 6449213637687512893
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FallingAnvil_08
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 91
+        height: 48
+      alignment: 9
+      pivot: {x: 0.4945055, y: 0.625}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b1d2fd8123058590800000000000000
+      internalID: -7672722947505466956
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FallingAnvil_09
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 0
+        width: 91
+        height: 48
+      alignment: 9
+      pivot: {x: 0.4945055, y: 0.625}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ba157c06eb7f7ea0800000000000000
+      internalID: -5872839161086141770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FallingAnvil_10
+      rect:
+        serializedVersion: 2
+        x: 182
+        y: 0
+        width: 91
+        height: 48
+      alignment: 9
+      pivot: {x: 0.4945055, y: 0.625}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29c733aa2eb51bd40800000000000000
+      internalID: 5598356840874474642
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FallingAnvil_11
+      rect:
+        serializedVersion: 2
+        x: 273
+        y: 0
+        width: 91
+        height: 48
+      alignment: 9
+      pivot: {x: 0.4945055, y: 0.625}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef262a03052c001f0800000000000000
+      internalID: -1080650260899798274
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      FallingAnvilImpact_0: 7485458535517195298
+      FallingAnvilImpact_1: -7302989382393104905
+      FallingAnvilImpact_10: 7322576952959849193
+      FallingAnvilImpact_11: -2884688309128429785
+      FallingAnvilImpact_12: 6047920941050638337
+      FallingAnvilImpact_13: 4641413396064873855
+      FallingAnvilImpact_14: -5917797892362531454
+      FallingAnvilImpact_15: -6017458828774975832
+      FallingAnvilImpact_16: 6116059671621606644
+      FallingAnvilImpact_17: 9063023974287626655
+      FallingAnvilImpact_18: 1591529352831531077
+      FallingAnvilImpact_19: 5533166258789900789
+      FallingAnvilImpact_2: -7686658655871826820
+      FallingAnvilImpact_20: 9061494015318165471
+      FallingAnvilImpact_3: -1825917113467951367
+      FallingAnvilImpact_4: -9199117898026565010
+      FallingAnvilImpact_5: -3605936166523737354
+      FallingAnvilImpact_6: 775529045973033170
+      FallingAnvilImpact_7: 8923072719315164551
+      FallingAnvilImpact_8: 1352771019801896210
+      FallingAnvilImpact_9: -8639393758039044008
+      FallingAnvil_00: -8444302871388897970
+      FallingAnvil_01: 9031168933919012057
+      FallingAnvil_02: 6631942016120978065
+      FallingAnvil_03: -1535965065389254472
+      FallingAnvil_04: -1081998317282093734
+      FallingAnvil_05: -8673170103970116304
+      FallingAnvil_06: -1302915660772012641
+      FallingAnvil_07: 6449213637687512893
+      FallingAnvil_08: -7672722947505466956
+      FallingAnvil_09: -5872839161086141770
+      FallingAnvil_10: 5598356840874474642
+      FallingAnvil_11: -1080650260899798274
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

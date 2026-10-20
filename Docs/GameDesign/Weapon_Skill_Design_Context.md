@@ -158,7 +158,7 @@ examples are not final damage or DPS; verify shared step defaults and runtime to
 | Wand | Fire/Cold/Lightning 2-4 EACH; 1; 5% | +1 Mystic Shield capacity | Seeker Skill / Electric Beam | None |
 | 2H axe | Phys 15-20; 1; 6% | +100 bleed chance | Cleave (weight 100), Cold Slash (weight 1) | Sweep (5/10) |
 | 2H sword | Phys 12-24; 1; 8% | +100 crit multiplier | Wave Cut / Cold Slash | Lunge Slash (3/10) |
-| 2H hammer | Phys 12-24; 1; 5% | 100% increased stun buildup AND stun duration | Ground Shake | Tremor (8/10) |
+| 2H hammer | Phys 12-24; 1; 5% | 100% increased stun buildup AND stun duration | Ground Shake | Tremor (8/10) / Falling Anvil (10/25) |
 | Bow | Phys 12-24; 0.7; 8% | +2 projectiles | Simple Bow Shot | Piercing Shot (6/25) / Arrow Artillery (8/20) |
 | Chakram | Phys 8-16; 1; 5% | None | Homing Weapon Throw | Orbital Weapon Throw (5/10) |
 | Fire staff | Fire 14-24; 1; 5% | +25 ignite chance | Fire Ball | Big Fire Ball (7/50) |
