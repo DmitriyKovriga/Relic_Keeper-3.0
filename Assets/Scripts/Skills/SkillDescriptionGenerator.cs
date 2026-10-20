@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "LightningRod" or "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "FrostWall" or "LightningRod" or "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -244,6 +244,20 @@ namespace Scripts.Skills
                         : $"Winter storm around you for {N(step.GetFloat("Duration", 5))}s. Radius: {N(step.GetFloat("Radius", 3))} m; hits every {N(step.GetFloat("PulseInterval", .5f))}s. Cannot walk, jump or dodge; can use other skills. Continues during Frost Anabiosis.");
                     AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
                     Add(lines, unique, ru ? "Попадания вызывают заморозку с учётом защиты и задержки повторной заморозки врага." : "Hits inflict Freeze, respecting enemy avoidance and refreeze protection.");
+                    break;
+                case "FrostWall":
+                    float wallDuration = EffectDurationCalculator.Resolve(step.GetFloat("Duration", 5), durationStats);
+                    float wallEffectiveness = MysticShieldSkillEffectiveness.Resolve(durationStats);
+                    float empoweredWallDuration = EffectDurationCalculator.Resolve(step.GetFloat("Duration", 5) * step.GetFloat("EmpoweredDurationMultiplier", 2) * wallEffectiveness, durationStats);
+                    Add(lines, unique, ru
+                        ? $"Неподвижная ледяная стена перед героем на {N(wallDuration)} сек. Перехватывает вражеские снаряды и атаки, пересекающие стену; в ответ выпускает ледяной осколок в нападающего. Атаки с другой стороны стены не блокируются. Новая стена заменяет предыдущую."
+                        : $"A fixed ice barrier ahead for {N(wallDuration)}s. Intercepts enemy projectiles and attacks crossing the wall, retaliating with an ice shard toward the attacker. Attacks from your side of the wall are not blocked. Recasting replaces the previous wall.");
+                    Add(lines, unique, ru
+                        ? $"Осколок наносит {P(step.GetFloat("DamageMultiplier", .5f) * 100)} урона оружия в основной руке; весь урон преобразуется в холод."
+                        : $"Each shard deals {P(step.GetFloat("DamageMultiplier", .5f) * 100)} main-hand weapon damage, fully converted to cold.", SkillDescriptionSection.Attack);
+                    Add(lines, unique, ru
+                        ? $"Если доступен заряд Мистического щита, расходует ровно один: урон осколка — {P(step.GetFloat("DamageMultiplier", .5f) * step.GetFloat("EmpoweredDamageMultiplier", 2) * wallEffectiveness * 100)}, длительность — {N(empoweredWallDuration)} сек. Урон и длительность усиленной стены зависят от эффективности умений Мистического щита; длительность также зависит от длительности эффектов."
+                        : $"Consumes exactly one Mystic Shield charge if available: shard damage becomes {P(step.GetFloat("DamageMultiplier", .5f) * step.GetFloat("EmpoweredDamageMultiplier", 2) * wallEffectiveness * 100)}, duration {N(empoweredWallDuration)}s. Empowered damage and duration scale with Mystic Shield Skill Effectiveness; duration also scales with Effect Duration.");
                     break;
                 case "LightningRod":
                     Add(lines, unique, ru

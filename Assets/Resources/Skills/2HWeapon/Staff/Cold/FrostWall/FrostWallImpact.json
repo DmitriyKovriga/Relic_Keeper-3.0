@@ -1,0 +1,287 @@
+{
+ "frames": [
+  {
+   "filename": "relic-keeper-frost-wall-impact 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 37,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 37,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 37,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.5135135135135135,
+    "y": 0.3829787234042553
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-frost-wall-impact 1.png",
+   "frame": {
+    "x": 37,
+    "y": 0,
+    "w": 37,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 37,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 37,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.5135135135135135,
+    "y": 0.3829787234042553
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-frost-wall-impact 2.png",
+   "frame": {
+    "x": 74,
+    "y": 0,
+    "w": 37,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 37,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 37,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.5135135135135135,
+    "y": 0.3829787234042553
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-frost-wall-impact 3.png",
+   "frame": {
+    "x": 111,
+    "y": 0,
+    "w": 37,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 37,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 37,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.5135135135135135,
+    "y": 0.3829787234042553
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-frost-wall-impact 4.png",
+   "frame": {
+    "x": 0,
+    "y": 47,
+    "w": 37,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 37,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 37,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.5135135135135135,
+    "y": 0.3829787234042553
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-frost-wall-impact 5.png",
+   "frame": {
+    "x": 37,
+    "y": 47,
+    "w": 37,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 37,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 37,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.5135135135135135,
+    "y": 0.3829787234042553
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-frost-wall-impact 6.png",
+   "frame": {
+    "x": 74,
+    "y": 47,
+    "w": 37,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 37,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 37,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.5135135135135135,
+    "y": 0.3829787234042553
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-frost-wall-impact 7.png",
+   "frame": {
+    "x": 111,
+    "y": 47,
+    "w": 37,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 37,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 37,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.5135135135135135,
+    "y": 0.3829787234042553
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-frost-wall-impact 8.png",
+   "frame": {
+    "x": 0,
+    "y": 94,
+    "w": 37,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 37,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 37,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.5135135135135135,
+    "y": 0.3829787234042553
+   },
+   "duration": 83
+  },
+  {
+   "filename": "relic-keeper-frost-wall-impact 9.png",
+   "frame": {
+    "x": 37,
+    "y": 94,
+    "w": 37,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 37,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 37,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.5135135135135135,
+    "y": 0.3829787234042553
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "relic-keeper-frost-wall-impact.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 148,
+   "h": 141
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 19,
+   "y": 18
+  },
+  "frameTags": [
+   {
+    "name": "relic-keeper-frost-wall-impact",
+    "from": 0,
+    "to": 9,
+    "direction": "forward"
+   }
+  ]
+ }
+}

@@ -517,6 +517,16 @@ MonoBehaviour:
       electrodes. Area of Effect increases their separation.
     m_Metadata:
       m_Items: []
+  - m_Id: 103147147069890560
+    m_Localized: Frost Wall
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103147147120222208
+    m_Localized: Creates an ice barrier ahead that intercepts enemy attacks and projectiles
+      and retaliates with cold shards based on main-hand weapon damage. Consumes
+      one available Mystic Shield charge to increase damage and duration.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

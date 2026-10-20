@@ -3,6 +3,7 @@ using Scripts.Combat;
 using Scripts.Stats;
 using Scripts.StatusEffects;
 using Scripts.Visuals;
+using Scripts.Skills;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -426,6 +427,8 @@ namespace Scripts.Enemies
                     _lastAttackConnected = true;
                 }
             }
+            else if (PlayerFrostWallController.TryInterceptHitbox(gameObject, center, config.HitboxSize))
+                _lastAttackConnected = true;
         }
 
         private void PerformProjectileAttack(AttackRuntimeConfig config)
@@ -447,13 +450,7 @@ namespace Scripts.Enemies
             if (_currentTarget == null)
                 return;
 
-            if (TryResolveDamageable(_currentTarget, out var damageable))
-            {
-                DamageSnapshot snapshot = CreateDamageSnapshot(config);
-                if (damageable.TakeDamage(snapshot))
-                    AilmentController.TryApplyHitAilmentsFromSource(snapshot.Source, _currentTarget, snapshot);
-                _lastAttackConnected = true;
-            }
+            if (TryApplyHit(_currentTarget, config)) _lastAttackConnected = true;
         }
 
         private float GetRecoveryDuration()
@@ -596,6 +593,11 @@ namespace Scripts.Enemies
                 _hasAppliedHit = true;
                 _lastAttackConnected = true;
             }
+            else if (PlayerFrostWallController.TryInterceptHitbox(gameObject, queryCenter, querySize))
+            {
+                _hasAppliedHit = true;
+                _lastAttackConnected = true;
+            }
         }
 
         private Vector2 ResolveHitboxCenter(AttackRuntimeConfig config, int facing)
@@ -608,6 +610,8 @@ namespace Scripts.Enemies
         {
             if (!TryResolveDamageable(candidate, out var damageable))
                 return false;
+
+            if (PlayerFrostWallController.TryInterceptAttack(gameObject, candidate)) return true;
 
             DamageSnapshot snapshot = CreateDamageSnapshot(config);
             if (damageable.TakeDamage(snapshot))
@@ -724,179 +728,4 @@ namespace Scripts.Enemies
         }
     }
 
-    [RequireComponent(typeof(SpriteRenderer))]
-    [RequireComponent(typeof(CircleCollider2D))]
-    internal class EnemyProjectile : MonoBehaviour
-    {
-        private static readonly Dictionary<string, GameObject> TemplateCache = new();
-
-        private EnemyDataSO _data;
-        private DamageSnapshot _damageSnapshot;
-        private Vector2 _direction;
-        private float _speed;
-        private float _lifetime;
-        private float _age;
-        private GameObject _owner;
-        private SpriteRenderer _spriteRenderer;
-        private CircleCollider2D _collider;
-        private Sprite[] _frames;
-        private float _animationFps;
-        private float _animationTimer;
-        private int _currentFrameIndex;
-        private bool _usePool;
-
-        private const int GroundLayerMask = 1 << 6;
-
-        public static void Spawn(EnemyDataSO data, DamageSnapshot snapshot, Vector2 origin, Vector2 direction, Transform parent, GameObject owner)
-        {
-            if (data == null || string.IsNullOrWhiteSpace(data.Attack.ProjectileVisualResourcePath))
-                return;
-
-            GameObject template = GetOrCreateTemplate(data);
-            if (template == null)
-                return;
-
-            bool usePool = PoolManager.Instance != null;
-            GameObject instance = usePool
-                ? PoolManager.Instance.Spawn(template, origin, Quaternion.identity, parent)
-                : Object.Instantiate(template, origin, Quaternion.identity, parent);
-
-            if (instance == null)
-                return;
-
-            var projectile = instance.GetComponent<EnemyProjectile>();
-            if (projectile == null)
-                return;
-
-            projectile.Initialize(data, snapshot, direction, owner, usePool);
-        }
-
-        private static GameObject GetOrCreateTemplate(EnemyDataSO data)
-        {
-            string key = $"{data.ID}|{data.Attack.ProjectileVisualResourcePath}";
-            if (TemplateCache.TryGetValue(key, out var existing) && existing != null)
-                return existing;
-
-            var template = new GameObject($"{data.ID}_ProjectileTemplate");
-            template.hideFlags = HideFlags.HideAndDontSave;
-            template.SetActive(false);
-            template.layer = 0;
-
-            var renderer = template.AddComponent<SpriteRenderer>();
-
-            var collider = template.AddComponent<CircleCollider2D>();
-            collider.isTrigger = true;
-            collider.radius = Mathf.Max(0.05f, data.Attack.ProjectileHitRadius);
-
-            template.AddComponent<EnemyProjectile>();
-            TemplateCache[key] = template;
-            return template;
-        }
-
-        public void Initialize(EnemyDataSO data, DamageSnapshot snapshot, Vector2 direction, GameObject owner, bool usePool)
-        {
-            _data = data;
-            _damageSnapshot = snapshot;
-            _direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
-            _speed = Mathf.Max(0.1f, data.Attack.ProjectileSpeed);
-            _lifetime = Mathf.Max(0.1f, data.Attack.ProjectileLifetime);
-            _age = 0f;
-            _owner = owner;
-            _usePool = usePool;
-
-            if (_spriteRenderer == null)
-                _spriteRenderer = GetComponent<SpriteRenderer>();
-            if (_collider == null)
-                _collider = GetComponent<CircleCollider2D>();
-
-            _collider.radius = Mathf.Max(0.05f, data.Attack.ProjectileHitRadius);
-            _frames = Resources.LoadAll<Sprite>(data.Attack.ProjectileVisualResourcePath)
-                .OrderBy(sprite => sprite.name)
-                .ToArray();
-            _animationFps = Mathf.Max(1f, data.Attack.ProjectileAnimationFps);
-            _animationTimer = 0f;
-            _currentFrameIndex = -1;
-            ApplyFrame(force: true);
-            _spriteRenderer.flipX = _direction.x < 0f;
-            WorldRenderSorting.ConfigureSorter(gameObject, RenderDepthCategory.GameplayVfx, transform.position.y, 0, staticAnchor: false);
-        }
-
-        private void Update()
-        {
-            if (_data == null || _data.Attack == null)
-            {
-                Despawn();
-                return;
-            }
-
-            float dt = Time.deltaTime;
-            _age += dt;
-            if (_age >= _lifetime)
-            {
-                Despawn();
-                return;
-            }
-
-            transform.position += (Vector3)(_direction * _speed * dt);
-            _animationTimer += dt;
-            ApplyFrame(force: false);
-
-            if (_data.Attack.ProjectileStopsOnGround &&
-                Physics2D.OverlapCircle(transform.position, Mathf.Max(0.02f, _collider.radius), GroundLayerMask))
-                Despawn();
-        }
-
-        private void OnTriggerEnter2D(Collider2D other)
-        {
-            if (_data == null || _data.Attack == null || other == null)
-                return;
-
-            if (_owner != null && (other.gameObject == _owner || other.transform.IsChildOf(_owner.transform)))
-                return;
-
-            if (_data.Attack.ProjectileStopsOnGround && ((1 << other.gameObject.layer) & GroundLayerMask) != 0)
-            {
-                Despawn();
-                return;
-            }
-
-            if (EnemyAttackController.TryResolveDamageable(other.transform, out var damageable))
-            {
-                if (damageable.TakeDamage(_damageSnapshot))
-                    AilmentController.TryApplyHitAilmentsFromSource(_damageSnapshot?.Source, other.transform, _damageSnapshot);
-                Despawn();
-            }
-        }
-
-        private void ApplyFrame(bool force)
-        {
-            if (_frames == null || _frames.Length == 0 || _spriteRenderer == null)
-                return;
-
-            int frameIndex = Mathf.Abs(Mathf.FloorToInt(_animationTimer * _animationFps)) % _frames.Length;
-            if (!force && frameIndex == _currentFrameIndex)
-                return;
-
-            _currentFrameIndex = frameIndex;
-            _spriteRenderer.sprite = _frames[frameIndex];
-        }
-
-        private void Despawn()
-        {
-            if (_usePool && PoolManager.Instance != null)
-                PoolManager.Instance.ReturnToPool(gameObject);
-            else
-                Destroy(gameObject);
-        }
-
-        private void OnDisable()
-        {
-            _data = null;
-            _damageSnapshot = null;
-            _owner = null;
-            _frames = null;
-            _animationTimer = 0f;
-            _currentFrameIndex = -1;
-        }
-    }
 }

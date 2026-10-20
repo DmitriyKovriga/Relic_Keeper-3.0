@@ -491,6 +491,14 @@ MonoBehaviour:
     m_Key: skills.LightningRodSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103147147069890560
+    m_Key: skills.FrostWallSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103147147120222208
+    m_Key: skills.FrostWallSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

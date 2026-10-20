@@ -393,6 +393,11 @@ namespace Scripts.Skills
                     if (storm == null) storm = _ownerStats.gameObject.AddComponent<PlayerWinterStormController>();
                     storm.Begin(_data, step, SlotIndex);
                     break;
+                case "FrostWall":
+                    var wall = _ownerStats.GetComponent<PlayerFrostWallController>();
+                    if (wall == null) wall = _ownerStats.gameObject.AddComponent<PlayerFrostWallController>();
+                    wall.Begin(_data, step);
+                    break;
                 case "LightningRod":
                     var rods = _ownerStats.GetComponent<PlayerLightningRodController>();
                     if (rods == null) rods = _ownerStats.gameObject.AddComponent<PlayerLightningRodController>();

@@ -87,6 +87,10 @@ namespace Scripts.Combat
 
         public static SkillDpsPreview Build(SkillDataSO skill, IStatsProvider stats, int skillSlot)
         {
+            // Retaliation depends on incoming attacks, not casts per second.
+            // Its weapon coefficient is described in the skill text instead.
+            if (skill?.Recipe?.Steps?.Exists(step => step?.StepDefinition?.Id == "FrostWall") == true)
+                return new SkillDpsPreview(default, null);
             IStatsProvider scopedStats = WeaponHandStatScope.ForSkill(stats, skillSlot) ?? stats;
             scopedStats = StatLinkModifiers.Apply(scopedStats, skill?.StatLinks);
             float castsPerSecond = ResolveCastsPerSecond(skill, scopedStats, skillSlot);

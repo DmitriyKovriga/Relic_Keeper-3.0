@@ -1,4 +1,5 @@
 using Scripts.Skills.Projectiles;
+using Scripts.Enemies;
 using UnityEditor;
 using UnityEngine;
 
@@ -37,6 +38,15 @@ public static class SkillProjectileHiddenObjectCleaner
                 continue;
 
             Object.DestroyImmediate(go);
+        }
+
+        // Enemy templates are also runtime-only; never retain them across Play sessions.
+        foreach (var projectile in Resources.FindObjectsOfTypeAll<EnemyProjectile>())
+        {
+            if (projectile == null || EditorUtility.IsPersistent(projectile)) continue;
+            var go = projectile.gameObject;
+            if (go.hideFlags != HideFlags.None && go.name.Contains("_ProjectileTemplate"))
+                Object.DestroyImmediate(go);
         }
     }
 

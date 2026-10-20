@@ -1,0 +1,449 @@
+fileFormatVersion: 2
+guid: 6e46ef3beee49b745860f56160fadd16
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 2423131455481203587
+    second: FrostWallImpact_0
+  - first:
+      213: -1294835091725015774
+    second: FrostWallImpact_1
+  - first:
+      213: -8533427729471253952
+    second: FrostWallImpact_2
+  - first:
+      213: -1960602072040721343
+    second: FrostWallImpact_3
+  - first:
+      213: 6965706927185455431
+    second: FrostWallImpact_4
+  - first:
+      213: -8105176491793137886
+    second: FrostWallImpact_00
+  - first:
+      213: -5094233711876440084
+    second: FrostWallImpact_01
+  - first:
+      213: 1722294965493491806
+    second: FrostWallImpact_02
+  - first:
+      213: 7258174281069211415
+    second: FrostWallImpact_03
+  - first:
+      213: -6544597353392486634
+    second: FrostWallImpact_04
+  - first:
+      213: 8174079343781106719
+    second: FrostWallImpact_05
+  - first:
+      213: -8363978053749898991
+    second: FrostWallImpact_06
+  - first:
+      213: -5456735567897405219
+    second: FrostWallImpact_07
+  - first:
+      213: 1630724571125288294
+    second: FrostWallImpact_08
+  - first:
+      213: 4064491355578919563
+    second: FrostWallImpact_09
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 24
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: FrostWallImpact_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 94
+        width: 37
+        height: 47
+      alignment: 9
+      pivot: {x: 0.5135135, y: 0.61702126}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22fb2dc7ce0a48f80800000000000000
+      internalID: -8105176491793137886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FrostWallImpact_01
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 94
+        width: 37
+        height: 47
+      alignment: 9
+      pivot: {x: 0.5135135, y: 0.61702126}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ceff8c0fd65ad49b0800000000000000
+      internalID: -5094233711876440084
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FrostWallImpact_02
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 94
+        width: 37
+        height: 47
+      alignment: 9
+      pivot: {x: 0.5135135, y: 0.61702126}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e58eea06522d6e710800000000000000
+      internalID: 1722294965493491806
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FrostWallImpact_03
+      rect:
+        serializedVersion: 2
+        x: 111
+        y: 94
+        width: 37
+        height: 47
+      alignment: 9
+      pivot: {x: 0.5135135, y: 0.61702126}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71fa10d9d073ab460800000000000000
+      internalID: 7258174281069211415
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FrostWallImpact_04
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 47
+        width: 37
+        height: 47
+      alignment: 9
+      pivot: {x: 0.5135135, y: 0.61702126}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6174411c16bec25a0800000000000000
+      internalID: -6544597353392486634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FrostWallImpact_05
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 47
+        width: 37
+        height: 47
+      alignment: 9
+      pivot: {x: 0.5135135, y: 0.61702126}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f145ee3ead9207170800000000000000
+      internalID: 8174079343781106719
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FrostWallImpact_06
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 47
+        width: 37
+        height: 47
+      alignment: 9
+      pivot: {x: 0.5135135, y: 0.61702126}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 111031d364e2deb80800000000000000
+      internalID: -8363978053749898991
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FrostWallImpact_07
+      rect:
+        serializedVersion: 2
+        x: 111
+        y: 47
+        width: 37
+        height: 47
+      alignment: 9
+      pivot: {x: 0.5135135, y: 0.61702126}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd85c3a79e7c544b0800000000000000
+      internalID: -5456735567897405219
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FrostWallImpact_08
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 37
+        height: 47
+      alignment: 9
+      pivot: {x: 0.5135135, y: 0.61702126}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66d8c648b5f71a610800000000000000
+      internalID: 1630724571125288294
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: FrostWallImpact_09
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 0
+        width: 37
+        height: 47
+      alignment: 9
+      pivot: {x: 0.5135135, y: 0.61702126}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8a6de17a59f76830800000000000000
+      internalID: 4064491355578919563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      FrostWallImpact_0: 2423131455481203587
+      FrostWallImpact_00: -8105176491793137886
+      FrostWallImpact_01: -5094233711876440084
+      FrostWallImpact_02: 1722294965493491806
+      FrostWallImpact_03: 7258174281069211415
+      FrostWallImpact_04: -6544597353392486634
+      FrostWallImpact_05: 8174079343781106719
+      FrostWallImpact_06: -8363978053749898991
+      FrostWallImpact_07: -5456735567897405219
+      FrostWallImpact_08: 1630724571125288294
+      FrostWallImpact_09: 4064491355578919563
+      FrostWallImpact_1: -1294835091725015774
+      FrostWallImpact_2: -8533427729471253952
+      FrostWallImpact_3: -1960602072040721343
+      FrostWallImpact_4: 6965706927185455431
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
