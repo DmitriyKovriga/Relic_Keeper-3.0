@@ -1,0 +1,507 @@
+fileFormatVersion: 2
+guid: 809a0717881877b4ea6d62e96e6c028d
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5559563309383153085
+    second: ExtractionHook_0
+  - first:
+      213: -711711051597749659
+    second: ExtractionHook_1
+  - first:
+      213: 3078056506100402257
+    second: ExtractionHook_2
+  - first:
+      213: 4932883181265426768
+    second: ExtractionHook_3
+  - first:
+      213: -5287944425488007859
+    second: ExtractionHook_4
+  - first:
+      213: 2432727082102434262
+    second: ExtractionHook_5
+  - first:
+      213: -6217053191121924242
+    second: ExtractionHook_6
+  - first:
+      213: 7375237598099758626
+    second: ExtractionHook_7
+  - first:
+      213: 5816870400900620035
+    second: ExtractionHook_8
+  - first:
+      213: 6272476602280852886
+    second: ExtractionHook_9
+  - first:
+      213: -4049401835711483413
+    second: ExtractionHook_10
+  - first:
+      213: 2773271674629727255
+    second: ExtractionHook_11
+  - first:
+      213: -1381580892058099008
+    second: ExtractionHook_12
+  - first:
+      213: 3424212408831575113
+    second: Extraction_00
+  - first:
+      213: -1557522495861088626
+    second: Extraction_01
+  - first:
+      213: 2311694531635813547
+    second: Extraction_02
+  - first:
+      213: -5669016785930958077
+    second: Extraction_03
+  - first:
+      213: 5006104657745756641
+    second: Extraction_04
+  - first:
+      213: -3151188365070301213
+    second: Extraction_05
+  - first:
+      213: -2923254093429462923
+    second: Extraction_06
+  - first:
+      213: 8174483420278837359
+    second: Extraction_07
+  - first:
+      213: 4694078573296334387
+    second: Extraction_08
+  - first:
+      213: -4193457982127448111
+    second: Extraction_09
+  - first:
+      213: 5868572288203438058
+    second: Extraction_10
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 24
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Extraction_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 80
+        width: 56
+        height: 40
+      alignment: 9
+      pivot: {x: 0.071428575, y: 0.45}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 94404e72b0f358f20800000000000000
+      internalID: 3424212408831575113
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Extraction_01
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 80
+        width: 56
+        height: 40
+      alignment: 9
+      pivot: {x: 0.071428575, y: 0.45}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8e1588ca81926ae0800000000000000
+      internalID: -1557522495861088626
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Extraction_02
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 80
+        width: 56
+        height: 40
+      alignment: 9
+      pivot: {x: 0.071428575, y: 0.45}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bac9d5bbde9c41020800000000000000
+      internalID: 2311694531635813547
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Extraction_03
+      rect:
+        serializedVersion: 2
+        x: 168
+        y: 80
+        width: 56
+        height: 40
+      alignment: 9
+      pivot: {x: 0.071428575, y: 0.45}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30bcbd8d44b9351b0800000000000000
+      internalID: -5669016785930958077
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Extraction_04
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 40
+        width: 56
+        height: 40
+      alignment: 9
+      pivot: {x: 0.071428575, y: 0.45}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e14d59a9a1497540800000000000000
+      internalID: 5006104657745756641
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Extraction_05
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 40
+        width: 56
+        height: 40
+      alignment: 9
+      pivot: {x: 0.071428575, y: 0.45}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e704afa0eab444d0800000000000000
+      internalID: -3151188365070301213
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Extraction_06
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 40
+        width: 56
+        height: 40
+      alignment: 9
+      pivot: {x: 0.071428575, y: 0.45}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5782eecd3e38e67d0800000000000000
+      internalID: -2923254093429462923
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Extraction_07
+      rect:
+        serializedVersion: 2
+        x: 168
+        y: 40
+        width: 56
+        height: 40
+      alignment: 9
+      pivot: {x: 0.071428575, y: 0.45}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f605a084c59917170800000000000000
+      internalID: 8174483420278837359
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Extraction_08
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 56
+        height: 40
+      alignment: 9
+      pivot: {x: 0.071428575, y: 0.45}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 336b9159797b42140800000000000000
+      internalID: 4694078573296334387
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Extraction_09
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 0
+        width: 56
+        height: 40
+      alignment: 9
+      pivot: {x: 0.071428575, y: 0.45}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1df54c2ee28ddc5c0800000000000000
+      internalID: -4193457982127448111
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Extraction_10
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 0
+        width: 56
+        height: 40
+      alignment: 9
+      pivot: {x: 0.071428575, y: 0.45}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae73111376b517150800000000000000
+      internalID: 5868572288203438058
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      ExtractionHook_0: -5559563309383153085
+      ExtractionHook_1: -711711051597749659
+      ExtractionHook_10: -4049401835711483413
+      ExtractionHook_11: 2773271674629727255
+      ExtractionHook_12: -1381580892058099008
+      ExtractionHook_2: 3078056506100402257
+      ExtractionHook_3: 4932883181265426768
+      ExtractionHook_4: -5287944425488007859
+      ExtractionHook_5: 2432727082102434262
+      ExtractionHook_6: -6217053191121924242
+      ExtractionHook_7: 7375237598099758626
+      ExtractionHook_8: 5816870400900620035
+      ExtractionHook_9: 6272476602280852886
+      Extraction_00: 3424212408831575113
+      Extraction_01: -1557522495861088626
+      Extraction_02: 2311694531635813547
+      Extraction_03: -5669016785930958077
+      Extraction_04: 5006104657745756641
+      Extraction_05: -3151188365070301213
+      Extraction_06: -2923254093429462923
+      Extraction_07: 8174483420278837359
+      Extraction_08: 4694078573296334387
+      Extraction_09: -4193457982127448111
+      Extraction_10: 5868572288203438058
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

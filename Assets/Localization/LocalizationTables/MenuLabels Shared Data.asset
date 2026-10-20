@@ -1935,6 +1935,14 @@ MonoBehaviour:
     m_Key: stats.ExecutionThreshold
     m_Metadata:
       m_Items: []
+  - m_Id: 117613247551643648
+    m_Key: stats.BleedExtraction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117617650874589184
+    m_Key: stats.BleedExtractionChance
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

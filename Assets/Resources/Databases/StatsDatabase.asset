@@ -1456,3 +1456,29 @@ MonoBehaviour:
     ContextTags: 0
     DamageChannels: 0
     AllowedAffixKinds: 1
+  - StatTypeId: BleedExtraction
+    Category: Ailments
+    SemanticKind: 1
+    Format: 1
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 3
+    ValueUnit: 3
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 1
+  - StatTypeId: BleedExtractionChance
+    Category: Ailments
+    SemanticKind: 1
+    Format: 1
+    ShowInCharacterWindow: 1
+    ShowInPrimaryStatsEditor: 0
+    AffixGenType: 3
+    ValueUnit: 3
+    DisplayAsPercentWhenFlat: 1
+    AllowNegativeFlatGeneration: 0
+    ContextTags: 0
+    DamageChannels: 0
+    AllowedAffixKinds: 1

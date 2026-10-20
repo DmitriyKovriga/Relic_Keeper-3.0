@@ -270,6 +270,10 @@ namespace Scripts.Skills
                 case "DealDamageRectangle":
                 case "PersistentDamageRectangle":
                     AddDamage(step, ru, nearby: false, lines, unique, effectiveness);
+                    int maxTargets = step.GetInt("MaxTargets", 0);
+                    if (maxTargets > 0)
+                        Add(lines, unique, ru ? $"Число целей перед героем: {maxTargets}. Приоритет — ближайшая."
+                            : $"Hits up to {maxTargets} target{(maxTargets == 1 ? string.Empty : "s")} in front of you, nearest first.", SkillDescriptionSection.Attack);
                     break;
                 case "DealDamageCircle":
                 case "PersistentDamageCircle":
@@ -347,6 +351,9 @@ namespace Scripts.Skills
             AddScopedModifiers(step, ru, resolver, lines, unique);
             AddStackModifiers(step, ru, resolver, lines, unique);
             AddOnHitEffects(step, ru, lines, unique);
+            if (id is "DealDamageRectangle" or "PersistentDamageRectangle" or "DealDamageCircle" or "PersistentDamageCircle" or
+                "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or "ChainDamage" or "InstantBeam" or "BlinkStab")
+                AddBleedExtraction(step, ru, lines, unique, durationStats);
 
             if (step.SubSteps == null) return;
             foreach (StepEntry subStep in step.SubSteps)
@@ -677,6 +684,12 @@ namespace Scripts.Skills
             if (step.ScopedStatModifiers == null) return;
             foreach (SerializableStatModifier modifier in step.ScopedStatModifiers)
             {
+                if (modifier.Stat == StatType.BleedExtractionChance && modifier.Type == StatModType.Flat)
+                {
+                    Add(lines, unique, ru ? $"+{N(modifier.Value)}% к шансу извлечения кровотечения для этого удара."
+                        : $"+{N(modifier.Value)}% Bleed Extraction Chance for this hit.", SkillDescriptionSection.Attack);
+                    continue;
+                }
                 if (modifier.Stat == StatType.ExecutionThreshold && modifier.Type == StatModType.Flat)
                 {
                     Add(lines, unique, ru
@@ -702,6 +715,36 @@ namespace Scripts.Skills
                     : $"{StatChip(rule.Stat, rule.ValuePerStack, rule.Type, false, resolver)} per {AilmentName(rule.Ailment, false, false)} stack{cap}.",
                     IsOffensiveStat(rule.Stat) ? SkillDescriptionSection.Attack : SkillDescriptionSection.Other);
             }
+        }
+
+        private static void AddBleedExtraction(StepEntry step, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique, IStatsProvider stats)
+        {
+            float chance, percent;
+            if (stats != null)
+            {
+                var scoped = new ScopedStatsProvider(stats, step.ScopedStatModifiers);
+                chance = BleedExtraction.ResolveChance(scoped);
+                percent = BleedExtraction.ResolvePercent(scoped);
+            }
+            else
+            {
+                var bases = Resources.Load<GlobalBaseStatsSO>(GlobalBaseStatsSO.DefaultResourcesPath);
+                chance = 0f; percent = 0f;
+                bases?.TryGetValue(StatType.BleedExtractionChance, out chance);
+                bases?.TryGetValue(StatType.BleedExtraction, out percent);
+                if (step.ScopedStatModifiers != null)
+                    foreach (var modifier in step.ScopedStatModifiers)
+                    {
+                        if (modifier.Type != StatModType.Flat) continue;
+                        if (modifier.Stat == StatType.BleedExtractionChance) chance += modifier.Value;
+                        if (modifier.Stat == StatType.BleedExtraction) percent += modifier.Value;
+                    }
+                chance = Mathf.Clamp(chance, 0f, 100f); percent = Mathf.Max(0f, percent);
+            }
+            if (chance <= 0f || percent <= 0f) return;
+            Add(lines, unique, ru
+                ? $"При попадании: с шансом {P(chance)} расходует сильнейшее существующее кровотечение и мгновенно наносит {P(percent)} оставшегося урона. Дополнительный урон не может быть критическим или накладывать состояния. Затем удар может наложить новое кровотечение."
+                : $"On hit: {P(chance)} chance to consume the strongest existing bleed and instantly deal {P(percent)} of its remaining damage. This extra damage cannot crit or inflict ailments. The hit can then apply a new bleed.", SkillDescriptionSection.Attack);
         }
 
         private static void AddOnHitEffects(StepEntry step, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)

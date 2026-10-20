@@ -1718,6 +1718,12 @@ namespace Scripts.Editor.Skills
 
             if (id == "DealDamageRectangle" || id == "PersistentDamageRectangle")
             {
+                if (id == "DealDamageRectangle")
+                {
+                    int maximum = step.GetInt("MaxTargets", 0);
+                    int nextMaximum = Mathf.Max(0, EditorGUILayout.IntField("Max targets (0 = all)", maximum));
+                    if (nextMaximum != maximum) { step.SetOverrideInt("MaxTargets", nextMaximum); EditorUtility.SetDirty(recipe); }
+                }
                 bool persistent = id == "PersistentDamageRectangle";
                 EditorGUILayout.HelpBox(persistent
                     ? "Активный хитбокс: живет между Start % и End %, проверяет попадания каждый кадр и наносит урон каждому противнику только один раз за время жизни step-а. Если указан Source step index, прямоугольник следует за текущим VFX."

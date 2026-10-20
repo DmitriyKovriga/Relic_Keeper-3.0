@@ -1,0 +1,313 @@
+{
+ "frames": [
+  {
+   "filename": "relic-keeper-extraction-hook-and-rip 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.55
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-extraction-hook-and-rip 1.png",
+   "frame": {
+    "x": 56,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.55
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-extraction-hook-and-rip 2.png",
+   "frame": {
+    "x": 112,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.55
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-extraction-hook-and-rip 3.png",
+   "frame": {
+    "x": 168,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.55
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-extraction-hook-and-rip 4.png",
+   "frame": {
+    "x": 0,
+    "y": 40,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.55
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-extraction-hook-and-rip 5.png",
+   "frame": {
+    "x": 56,
+    "y": 40,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.55
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-extraction-hook-and-rip 6.png",
+   "frame": {
+    "x": 112,
+    "y": 40,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.55
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-extraction-hook-and-rip 7.png",
+   "frame": {
+    "x": 168,
+    "y": 40,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.55
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-extraction-hook-and-rip 8.png",
+   "frame": {
+    "x": 0,
+    "y": 80,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.55
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-extraction-hook-and-rip 9.png",
+   "frame": {
+    "x": 56,
+    "y": 80,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.55
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-extraction-hook-and-rip 10.png",
+   "frame": {
+    "x": 112,
+    "y": 80,
+    "w": 56,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 56,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 56,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.07142857142857142,
+    "y": 0.55
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "relic-keeper-extraction-hook-and-rip.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 224,
+   "h": 120
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 4,
+   "y": 22
+  },
+  "frameTags": [
+   {
+    "name": "relic-keeper-extraction-hook-and-rip",
+    "from": 0,
+    "to": 10,
+    "direction": "forward"
+   }
+  ]
+ }
+}

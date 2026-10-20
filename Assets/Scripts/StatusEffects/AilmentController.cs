@@ -108,6 +108,11 @@ namespace Scripts.StatusEffects
             if (!TryResolve(target, out AilmentController controller) || controller == null)
                 return;
 
+            if (controller._enemyHealth != null && controller._enemyHealth.IsDead)
+                return;
+            BleedExtraction.ApplyBeforeAilments(sourceStats, source, controller, hitSnapshot);
+            if (controller._enemyHealth != null && controller._enemyHealth.IsDead)
+                return;
             controller.TryApplyPoison(sourceStats, source, hitSnapshot);
             controller.TryApplyBleed(sourceStats, source, hitSnapshot);
             controller.TryApplyIgnite(sourceStats, source, hitSnapshot);
@@ -308,6 +313,41 @@ namespace Scripts.StatusEffects
 
             OnAilmentsChanged?.Invoke();
             return true;
+        }
+
+        /// <summary>Consumes the highest-DPS wound, before a hit can apply its new bleed.</summary>
+        public float ExtractStrongestBleed(float damagePercent, object source)
+        {
+            if (float.IsNaN(damagePercent) || float.IsInfinity(damagePercent) || damagePercent <= 0f)
+                return 0f;
+            CacheOwner();
+            if (_enemyHealth != null && _enemyHealth.IsDead)
+                return 0f;
+
+            int strongest = -1;
+            for (int i = 0; i < _bleedStacks.Count; i++)
+            {
+                BleedStack candidate = _bleedStacks[i];
+                if (candidate.RemainingSeconds <= 0f || candidate.TickDamage <= 0f)
+                    continue;
+                if (strongest < 0 || candidate.TickDamage > _bleedStacks[strongest].TickDamage ||
+                    candidate.TickDamage == _bleedStacks[strongest].TickDamage &&
+                    candidate.RemainingSeconds > _bleedStacks[strongest].RemainingSeconds)
+                    strongest = i;
+            }
+            if (strongest < 0)
+                return 0f;
+
+            BleedStack wound = _bleedStacks[strongest];
+            float damage = wound.TickDamage * (wound.RemainingSeconds / TickInterval) * (damagePercent / 100f);
+            _bleedStacks.RemoveAt(strongest);
+            if (_bleedStacks.Count == 0)
+                _bleedTickTimer = TickInterval;
+            OnAilmentsChanged?.Invoke();
+            // Existing bleed damage already contains its source's damage scaling.
+            // This path cannot crit, execute, trigger hit recovery or inflict ailments.
+            ApplyPureBleedTick(damage, source);
+            return damage;
         }
 
         public bool TryApplyIgnite(IStatsProvider sourceStats, object source, DamageSnapshot hitSnapshot)

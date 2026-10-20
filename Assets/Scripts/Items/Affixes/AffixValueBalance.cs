@@ -251,6 +251,8 @@ namespace Scripts.Items.Affixes
         private static (float t1min, float t1max, float t5min, float t5max) GetFlatCurve(StatType stat)
         {
             if (stat == StatType.ExecutionThreshold) return (1f, 2f, 4f, 6f);
+            if (stat == StatType.BleedExtraction) return (5f, 8f, 20f, 30f);
+            if (stat == StatType.BleedExtractionChance) return (5f, 8f, 20f, 30f);
             switch (stat)
             {
                 case StatType.MaxHealth:

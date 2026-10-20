@@ -18479,6 +18479,38 @@ MonoBehaviour:
     m_Key: affix_name_executionthreshold_flat_light
     m_Metadata:
       m_Items: []
+  - m_Id: 103730797079568384
+    m_Key: affix_name_bleedextraction_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103730797423501312
+    m_Key: affix_flat_bleedextraction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103730797591273472
+    m_Key: affix_name_bleedextraction_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103730797763239936
+    m_Key: affix_name_bleedextraction_flat_light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103735200364765184
+    m_Key: affix_name_bleedextractionchance_flat_strong
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103735200561897472
+    m_Key: affix_flat_bleedextractionchance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103735200763224064
+    m_Key: affix_name_bleedextractionchance_flat_medium
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103735200960356352
+    m_Key: affix_name_bleedextractionchance_flat_light
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

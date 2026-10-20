@@ -2896,6 +2896,14 @@ MonoBehaviour:
     m_Localized: Execution Threshold
     m_Metadata:
       m_Items: []
+  - m_Id: 117613247551643648
+    m_Localized: Bleed Extraction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117617650874589184
+    m_Localized: Bleed Extraction Chance
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

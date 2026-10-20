@@ -181,6 +181,12 @@ namespace Scripts.Stats
         MysticShieldSkillEffectiveness,
 
         // Flat percentage points of enemy maximum health. Appended for save compatibility.
-        ExecutionThreshold
+        ExecutionThreshold,
+
+        // Flat percentage of a consumed bleed's remaining damage pool.
+        BleedExtraction,
+
+        // Flat percentage chance for a direct hit to extract an existing bleed.
+        BleedExtractionChance
     }
 }

@@ -152,7 +152,7 @@ examples are not final damage or DPS; verify shared step defaults and runtime to
 | Weapon | Base damage; APS; crit | Implicit | Primary pool | Special pool (CD/MP) |
 |---|---|---|---|---|
 | 1H sword | Phys 10-15; 1.2; 8% | +50 crit multiplier | Dexterous Lunge | None |
-| 1H axe | Phys 5-10; 1.2; 6% | +50 bleed chance | Weapon Throw | None |
+| 1H axe | Phys 5-10; 1.2; 6% | +50 bleed chance | Weapon Throw / Extraction | None |
 | Dagger | Phys 5-10; 1.6; 8% | 50% increased crit chance | Venom Strike / Ninja Stub / Execution | None |
 | 1H hammer | Phys 6-12; 1; 5% | 100% increased stun buildup | Stunning Blow | None |
 | Wand | Fire/Cold/Lightning 2-4 EACH; 1; 5% | +1 Mystic Shield capacity | Seeker Skill / Electric Beam | None |
@@ -182,6 +182,14 @@ entry in a multi-entry pool is not normally selected.
   with no authored counting cap. Already occupies poison-ramp territory.
 - **Ninja Stub:** blink-and-stab step, damage coefficient 1.25.
 - **Execution:** ordinary forward weapon hit plus 10 execution-threshold points.
+- **Extraction** (added 2026-10-20 after this snapshot's base revision): one
+  forward axe hit against the nearest target; consumes the highest-potency old
+  bleed before new ailments. Grants +100 flat BleedExtractionChance for its hit;
+  global base chance is 0%, and equipment/passives can enable extraction on other
+  hits. Burst = stored DPS × remaining seconds × flat BleedExtraction/100
+  (player base 50%; separate amount/chance affixes). Cannot crit or inflict
+  ailments. Duration/potency are snapshotted when the wound is applied. See
+  `Docs/Extraction.md`; initial cost/CD 0/0, damage coefficient 1, speed ×1.
 - **Stunning Blow:** pushback and a secondary circle dealing coefficient 0.5 to
   nearby enemies, excluding the primary target; speed x1.25.
 - **Cleave / Sweep:** circular/VFX-fitted melee damage, coefficients 1 / 2.5.
@@ -387,7 +395,13 @@ not user-approved direction or shipped features.
 
 - Confirmed request: build an English factual foundation and reusable
   `game-designer` skill before collaboratively inventing new weapon skills.
-- No new weapon skill or balance change has been selected or implemented yet.
+- 2026-10-20 — Extraction implemented at the user's request, including the
+  follow-up decision to make its portion a flat BleedExtraction stat (base 50%)
+  with affixes. The numbers in `Docs/Extraction.md` are initial tuning, not a
+  completed balance validation.
+- 2026-10-20 — Follow-up implemented: separate flat-only BleedExtractionChance
+  (base 0%) controls the shared hit mechanic. Extraction grants +100 chance for
+  its own hit; BleedExtraction remains the damage portion with base 50%.
 - Add accepted design decisions here with date, scope, rationale and status
   (`proposed`, `accepted`, `implemented`, `rejected`). Keep unaccepted ideas out
   of factual sections; record rejection reasons when useful to avoid repetition.

@@ -473,6 +473,18 @@ MonoBehaviour:
       to your equipment. Enemies left below the threshold are instantly killed.
     m_Metadata:
       m_Items: []
+  - m_Id: 103099397276049408
+    m_Localized: Extraction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103099397317992448
+    m_Localized: Hook the nearest enemy in front of you and wrench the axe from the
+      wound. This hit gains +100% Bleed Extraction Chance. Extraction consumes the
+      strongest old bleed to deal Bleed Extraction of its remaining damage. This
+      extra damage cannot crit or inflict ailments. The weapon hit can apply a new
+      bleed.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

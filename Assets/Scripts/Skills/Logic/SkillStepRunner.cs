@@ -1271,6 +1271,21 @@ namespace Scripts.Skills
         {
             ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
             var targets = GetTargetsInBox(center, size, angle);
+            int maxTargets = step.GetInt("MaxTargets", 0);
+            if (maxTargets > 0)
+                targets.RemoveAll(target => target is Scripts.Enemies.EnemyHealth enemy && enemy.IsDead);
+            if (maxTargets > 0 && targets.Count > maxTargets)
+            {
+                Vector3 origin = _ownerStats.transform.position;
+                targets.Sort((left, right) =>
+                {
+                    float leftDistance = (ResolveDamageableTransform(left).position - origin).sqrMagnitude;
+                    float rightDistance = (ResolveDamageableTransform(right).position - origin).sqrMagnitude;
+                    int distanceOrder = leftDistance.CompareTo(rightDistance);
+                    return distanceOrder != 0 ? distanceOrder : GetDamageTargetKey(left).CompareTo(GetDamageTargetKey(right));
+                });
+                targets.RemoveRange(maxTargets, targets.Count - maxTargets);
+            }
             DealDamageToTargets(stepIndex, step, targets);
         }
 
