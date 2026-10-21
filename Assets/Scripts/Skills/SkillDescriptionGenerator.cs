@@ -463,6 +463,9 @@ namespace Scripts.Skills
         private static void AddDamage(StepEntry step, bool ru, bool nearby, List<SkillDescriptionLine> lines, HashSet<string> unique, float effectiveness)
         {
             string damage = P(step.GetFloat("DamageMultiplier", 1f) * effectiveness * 100f);
+            if (step.GetBool("ThunderHammer", false))
+                Add(lines, unique, ru ? "Тяжёлый удар и электрический разряд поражают одну область одним попаданием. Физический урон накапливает оглушение, урон молнией помогает наложить шок по обычным правилам."
+                    : "The heavy strike and electrical discharge hit the same area as one hit. Physical damage builds stun; lightning damage helps inflict shock under the normal rules.", SkillDescriptionSection.Attack);
             int strike = step.GetInt("ComboStrike", 0);
             if (strike > 0)
             {

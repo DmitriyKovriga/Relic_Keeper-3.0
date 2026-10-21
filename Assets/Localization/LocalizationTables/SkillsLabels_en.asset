@@ -643,6 +643,18 @@ MonoBehaviour:
       cancels the wave.
     m_Metadata:
       m_Items: []
+  - m_Id: 103586299841966080
+    m_Localized: Thunder Hammer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103586299921657856
+    m_Localized: A heavy strike deals 100% weapon damage and releases an electrical
+      discharge in the same area. Every complete 150 Armor adds 5 lightning damage
+      for this skill only. Physical damage continues to build stun; lightning damage
+      helps inflict shock under the normal rules. Attack Speed accelerates the strike;
+      Area of Effect expands its area. No cooldown or mana cost.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

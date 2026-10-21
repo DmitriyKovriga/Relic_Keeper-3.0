@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 037112ba607a5b2409ab1b0826944402, type: 3}
+  m_Name: ThunderHammerSkill
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
+  ID: ThunderHammerSkill
+  SkillName: Thunder Hammer
+  DescriptionMode: 0
+  Description: 
+  Icon: {fileID: 21300000, guid: 02ac543170b7cc34e9e60bb9de399f5c, type: 3}
+  NameKey: skills.ThunderHammerSkill
+  DescriptionKey: skills.ThunderHammerSkill.description
+  IsActive: 1
+  Cooldown: 0
+  ManaCost: 0
+  ActionSpeedMode: 0
+  SkillSpeedMultiplier: 1
+  DamageContextTags: 21
+  StatLinks:
+  - SourceStat: 14
+    SourcePercent: 3.3333333
+    SourceStep: 150
+    TargetStat: 33
+    TargetModifierType: 100
+  EnablePushback: 0
+  PushbackRating: 0
+  SkillPrefab: {fileID: 0}
+  AnimationTrigger: Attack
+  Recipe: {fileID: 11400000, guid: d7f2a3503c246dd4e92ee8f4dd7fc399, type: 2}
+  WeaponRole: 0
+  HoldStance: 4
+  HoldStanceId: shoulder
+  SwingStyle: 3
+  SwingStyleId: overhead
