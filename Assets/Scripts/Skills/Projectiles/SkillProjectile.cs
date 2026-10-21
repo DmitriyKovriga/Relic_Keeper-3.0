@@ -47,6 +47,9 @@ namespace Scripts.Skills.Projectiles
         public float HitRadius = 1f;
         // Optional fixed world-space radius for precision projectiles, independent of sprite length.
         public float WorldHitRadius;
+        // Optional local-space enemy probe; the narrow world probe still handles floors and walls.
+        public float TargetHitRadius;
+        public bool ScaleWithAreaOfEffect;
         public float HitScaleX = 1f;
         public float HitScaleY = 1f;
         public float RotationDegreesPerSecond = 720f;
@@ -146,6 +149,8 @@ namespace Scripts.Skills.Projectiles
         private Color _defaultColor = Color.white;
         private bool _defaultFlipX;
         private bool _defaultVisualStateCaptured;
+        private Vector3 _defaultLocalScale;
+        private bool _areaScaleApplied;
         private CircleCollider2D _collider;
         private BoxCollider2D _boxCollider;
         private Rigidbody2D _rigidbody;
@@ -330,6 +335,16 @@ namespace Scripts.Skills.Projectiles
             CaptureDefaultVisualState();
 
             _data = data.Clone();
+            if (_areaScaleApplied || _data.ScaleWithAreaOfEffect)
+            {
+                transform.localScale = _defaultLocalScale;
+                if (_data.ScaleWithAreaOfEffect)
+                {
+                    Vector2 size = SkillAoeScale.FromAoe(1 + (_data.OwnerStats != null ? _data.OwnerStats.GetValue(Scripts.Stats.StatType.AreaOfEffect) / 100f : 0));
+                    transform.localScale = new Vector3(_defaultLocalScale.x * size.x, _defaultLocalScale.y * size.y, _defaultLocalScale.z);
+                }
+                _areaScaleApplied = _data.ScaleWithAreaOfEffect;
+            }
             _sharedOrbitOrder = _data.ShareOrbitAcrossCasts ? ++_nextSharedOrbitOrder : 0;
             _template = template;
             _usePool = usePool;
@@ -378,6 +393,7 @@ namespace Scripts.Skills.Projectiles
             if (TryGetComponent(out Scripts.Skills.Visuals.PrismaticProjectileVisual prismaticVisual))
                 prismaticVisual.Configure(_data.OverrideSprite, _data.PrismaticImpactPrefab != null);
             if (TryGetComponent(out Scripts.Skills.Visuals.ManaSpearVisual manaSpearVisual)) manaSpearVisual.Configure();
+            if (TryGetComponent(out Scripts.Skills.Visuals.WeaponWaveVisual weaponWaveVisual)) weaponWaveVisual.Configure();
         }
 
         private void Update()
@@ -468,7 +484,7 @@ namespace Scripts.Skills.Projectiles
             float radius = GetWorldHitRadius();
             if (distance > 0.0001f)
             {
-                RaycastHit2D[] hits = Physics2D.CircleCastAll(previousPosition, radius, delta / distance, distance);
+                RaycastHit2D[] hits = CollectTravelHits(previousPosition, radius, delta / distance, distance);
                 System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
                 for (int i = 0; i < hits.Length; i++)
                 {
@@ -489,13 +505,15 @@ namespace Scripts.Skills.Projectiles
             if (_data == null || _collider == null)
                 return;
 
-            float radius = GetWorldHitRadius();
+            float radius = GetTargetProbeRadius();
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, radius);
             for (int i = 0; i < hits.Length; i++)
             {
                 Collider2D hit = hits[i];
                 if (hit == null || hit.transform == transform)
                     continue;
+
+                if (!IsInsideTargetOrWorldProbe(hit)) continue;
 
                 if (TryHandleCollision(hit) || _data == null)
                     return;
@@ -668,6 +686,7 @@ namespace Scripts.Skills.Projectiles
                 TryApplyAilmentsFromHit(scopedStats, target, snapshot);
                 ShowPrismaticImpact(target);
                 if (TryGetComponent(out Scripts.Skills.Visuals.ManaSpearVisual manaSpearVisual)) manaSpearVisual.ShowImpact(target);
+                if (TryGetComponent(out Scripts.Skills.Visuals.WeaponWaveVisual weaponWaveVisual)) weaponWaveVisual.ShowImpact(target);
                 if (_data.SawImpactPrefab != null && Application.isPlaying)
                     Instantiate(_data.SawImpactPrefab, transform.position, Quaternion.identity);
             }
@@ -1575,6 +1594,7 @@ namespace Scripts.Skills.Projectiles
                 return;
 
             _defaultFlipX = _spriteRenderer.flipX;
+            _defaultLocalScale = transform.localScale;
             _defaultColor = _spriteRenderer.color;
             _defaultVisualStateCaptured = true;
         }

@@ -499,6 +499,9 @@ namespace Scripts.Skills
             if (step.GetBool("ManaSpear", false))
                 Add(lines, unique, ru ? "Узкое копьё летит прямо. Пробивание снарядов добавляет цели в линию; число, разветвление и цепь снарядов не влияют на выстрел."
                     : "A narrow spear travels straight. Projectile Pierce adds targets along the line; Projectile Count, Fork and Chain do not affect the shot.", SkillDescriptionSection.Attack);
+            if (step.GetBool("HorizonCrossSection", false))
+                Add(lines, unique, ru ? "После долгого замаха выпускает одну широкую волну меча. Волна проходит сквозь врагов и останавливается у стен. Число, разветвление и цепь снарядов не создают дополнительных волн. Область действия увеличивает размер волны. Скорость передвижения добавляет волне физический урон. Уклонение до выпуска отменяет атаку."
+                    : "After a pronounced wind-up, releases one broad sword wave. It passes through enemies and stops at walls. Projectile Count, Fork and Chain do not create extra waves. Area of Effect increases its size. Movement Speed adds physical damage to the wave. Dodging before release cancels the attack.", SkillDescriptionSection.Attack);
             if (step.GetBool("EnvironmentRicochet", false))
             {
                 Add(lines, unique, ru

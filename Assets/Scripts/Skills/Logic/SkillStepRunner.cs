@@ -728,6 +728,8 @@ namespace Scripts.Skills
                 Lifetime = Mathf.Max(0.05f, step.GetFloat("Lifetime", 4f)),
                 HitRadius = Mathf.Max(0.02f, step.GetFloat("HitRadius", 1f)),
                 WorldHitRadius = Mathf.Max(0, step.GetFloat("WorldHitRadius", 0)),
+                TargetHitRadius = Mathf.Max(0, step.GetFloat("TargetHitRadius", 0)),
+                ScaleWithAreaOfEffect = step.GetBool("ScaleWithAreaOfEffect", false),
                 HitScaleX = Mathf.Max(0.01f, step.GetFloat("SizeX", 1f)),
                 HitScaleY = Mathf.Max(0.01f, step.GetFloat("SizeY", 1f)),
                 RotationDegreesPerSecond = step.GetFloat("RotationDegreesPerSecond", useWeaponSprite ? 720f : 0f),

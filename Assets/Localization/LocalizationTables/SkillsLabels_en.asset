@@ -630,6 +630,19 @@ MonoBehaviour:
       speeds up the sequence; Area of Effect expands the sweeps.'
     m_Metadata:
       m_Items: []
+  - m_Id: 103576020395585536
+    m_Localized: Horizon Cross-section
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103576020483665920
+    m_Localized: After a pronounced wind-up, releases one broad sword wave dealing
+      300% weapon damage well beyond melee range. Each point of Movement Speed adds
+      5 physical damage before the skill multiplier. Area of Effect increases the
+      wave's size. Additional projectiles, Fork and Chain do not create extra waves.
+      The wave passes through enemies and stops at walls. Dodging before release
+      cancels the wave.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

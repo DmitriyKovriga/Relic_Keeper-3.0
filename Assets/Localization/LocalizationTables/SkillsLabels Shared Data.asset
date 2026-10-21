@@ -571,6 +571,14 @@ MonoBehaviour:
     m_Key: skills.ConningTowerSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103576020395585536
+    m_Key: skills.HorizonCrossSectionSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103576020483665920
+    m_Key: skills.HorizonCrossSectionSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
