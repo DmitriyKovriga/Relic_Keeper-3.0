@@ -548,6 +548,18 @@ MonoBehaviour:
       uses, not projectiles or hits.
     m_Metadata:
       m_Items: []
+  - m_Id: 103407469831790592
+    m_Localized: Tectonic Press
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103407469873733632
+    m_Localized: Strike for 250% weapon damage with empowered knockback. A pushed
+      target colliding with a wall or another enemy generates a shockwave dealing
+      200% weapon damage, once per pushed target. Pushback increases travel; Area
+      of Effect expands collision and shockwave radii. Shockwave Damage scales only
+      the wave and starts at 100%.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

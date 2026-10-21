@@ -22,6 +22,7 @@ namespace Scripts.Enemies
         private float _pushbackInitialVelocity;
         private float _pushbackDuration;
         private float _pushbackRemaining;
+        private EmpoweredPushback _empoweredPushback;
         private float _pullTargetX, _pullSpeed, _pullRemaining, _pullResistanceLimit;
 
         public bool IsGrounded { get; private set; }
@@ -166,10 +167,18 @@ namespace Scripts.Enemies
                 return;
 
             ClearPull();
+            _empoweredPushback = null;
 
             _pushbackInitialVelocity = signedInitialVelocity;
             _pushbackDuration = duration;
             _pushbackRemaining = duration;
+        }
+
+        public void ArmEmpoweredPushback(EmpoweredPushback impact)
+        {
+            _empoweredPushback = isActiveAndEnabled && _pushbackRemaining > 0 && _rb != null && _rb.simulated &&
+                _rb.bodyType == RigidbodyType2D.Dynamic &&
+                (_rb.constraints & RigidbodyConstraints2D.FreezePositionX) == 0 ? impact : null;
         }
 
         public bool TryPullTowards(float destinationX, float duration, float heavyResistanceLimit)
@@ -220,6 +229,7 @@ namespace Scripts.Enemies
 
         private void OnDisable()
         {
+            _empoweredPushback = null;
             if (_pullRemaining <= 0) return;
             ClearPull();
             if (_rb != null) _rb.linearVelocity = new Vector2(0, _rb.linearVelocity.y);
@@ -367,6 +377,11 @@ namespace Scripts.Enemies
             _pushbackRemaining -= Time.fixedDeltaTime;
 
             int direction = velocityX > 0f ? 1 : velocityX < 0f ? -1 : 0;
+            if (direction != 0 && TryTriggerEmpoweredCollision(direction, Mathf.Abs(velocityX) * Time.fixedDeltaTime))
+            {
+                velocityX = 0;
+                return true;
+            }
             if (direction != 0 && IsBlockedHorizontally(direction))
             {
                 ClearPushback();
@@ -381,9 +396,50 @@ namespace Scripts.Enemies
 
         private void ClearPushback()
         {
+            _empoweredPushback = null;
             _pushbackInitialVelocity = 0f;
             _pushbackDuration = 0f;
             _pushbackRemaining = 0f;
+        }
+
+        private bool TryTriggerEmpoweredCollision(int direction, float travel)
+        {
+            if (_empoweredPushback == null || _collider == null) return false;
+            var health = GetComponent<EnemyHealth>();
+            if (health != null && health.IsDead) { ClearPushback(); return false; }
+            Bounds body = _collider.bounds;
+            float padding = _empoweredPushback.CollisionRadius;
+            float distance = travel + padding + Mathf.Max(.05f, _data.Movement.WallCheckDistance) + .03f;
+            Vector2 size = new Vector2(Mathf.Max(.02f, body.size.x - .04f), Mathf.Max(.02f, body.size.y + padding * 2 - .04f));
+            // Queries deliberately include other enemies, although their physical layer collision is disabled.
+            foreach (var hit in Physics2D.BoxCastAll(body.center, size, 0, Vector2.right * direction, distance))
+            {
+                var other = hit.collider;
+                if (other == null || !other.enabled || other.isTrigger || other.transform.IsChildOf(transform) ||
+                    other.attachedRigidbody == _rb) continue;
+                var otherHealth = other.GetComponentInParent<EnemyHealth>();
+                bool enemy = other.GetComponentInParent<EnemyStats>() != null;
+                if (otherHealth != null && otherHealth.IsDead) continue;
+                Bounds obstacle = other.bounds;
+                if (enemy)
+                {
+                    if ((obstacle.center.x - body.center.x) * direction <= .01f) continue;
+                }
+                else
+                {
+                    if ((_groundLayerMask & (1 << other.gameObject.layer)) == 0) continue;
+                    // An expanded proximity cast can overlap a floor; floor/ceiling contact is not a wall impact.
+                    if (obstacle.max.y <= body.min.y + .04f || obstacle.min.y >= body.max.y - .04f ||
+                        hit.normal.x * direction > -.5f) continue;
+                }
+                var impact = _empoweredPushback;
+                ClearPushback();
+                Vector2 point = hit.distance > 0 ? hit.point : other.ClosestPoint(body.center);
+                point -= Vector2.right * direction * .04f;
+                impact.TryTrigger(point);
+                return true;
+            }
+            return false;
         }
 
         private bool IsBlockedHorizontally(int direction)

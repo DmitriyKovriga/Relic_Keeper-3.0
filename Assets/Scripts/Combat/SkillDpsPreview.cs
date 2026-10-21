@@ -322,6 +322,7 @@ namespace Scripts.Combat
                 || id == "WinterStorm"
                 || id == "LightningRod"
                 || id == "CrimsonHook"
+                || id == "TectonicPress"
                 || id == "ArrowRain"
                 || id == "BlinkStab"
                 || id == "ChainDamage"

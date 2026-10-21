@@ -129,7 +129,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
     public CharacterStat GetStat(StatType type)
     {
         if (_stats.TryGetValue(type, out CharacterStat stat)) return stat;
-        var newStat = new CharacterStat(type == StatType.ShockApplicationEffectiveness ? 100f :
+        var newStat = new CharacterStat(type == StatType.ShockApplicationEffectiveness || type == StatType.ShockwaveDamage ? 100f :
             type == StatType.ShockEffectMagnitude ? 50f :
             type == StatType.MysticShieldSkillEffectiveness ? 1f : 0f);
         _stats[type] = newStat;
@@ -162,6 +162,7 @@ public class PlayerStats : MonoBehaviour, IStatsProvider
         }
 
         GetStat(StatType.ShockApplicationEffectiveness).BaseValue = 100f;
+        GetStat(StatType.ShockwaveDamage).BaseValue = 100f;
         GetStat(StatType.ShockEffectMagnitude).BaseValue = 50f;
         GetStat(StatType.MysticShieldSkillEffectiveness).BaseValue = 1f;
         var globalBaseStats = ResolveGlobalBaseStats();

@@ -18,7 +18,8 @@ namespace Scripts.Combat
             if (locomotion == null)
                 return;
 
-            locomotion.TryApplyPushbackFromHit(damage.HitOrigin.x, damage.PushbackRating);
+            if (locomotion.TryApplyPushbackFromHit(damage.HitOrigin.x, damage.PushbackRating))
+                locomotion.ArmEmpoweredPushback(damage.EmpoweredPushback);
         }
     }
 }

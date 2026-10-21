@@ -1943,6 +1943,10 @@ MonoBehaviour:
     m_Key: stats.BleedExtractionChance
     m_Metadata:
       m_Items: []
+  - m_Id: 117921320107384832
+    m_Key: stats.ShockwaveDamage
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

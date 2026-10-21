@@ -785,6 +785,7 @@ namespace Scripts.Stats
 
         public static StatSemanticKind DefaultSemanticKindFor(StatType type)
         {
+            if (type == StatType.ShockwaveDamage) return StatSemanticKind.CombatScalar;
             if (type == StatType.ExecutionThreshold || type == StatType.BleedExtraction || type == StatType.BleedExtractionChance) return StatSemanticKind.CombatScalar;
             switch (type)
             {
@@ -881,6 +882,7 @@ namespace Scripts.Stats
 
         public static string DefaultCategoryFor(StatType type)
         {
+            if (type == StatType.ShockwaveDamage) return "Damage";
             if (type == StatType.ExecutionThreshold) return "Combat";
             if (IsCooldownRecoveryStat(type)) return "Speed";
             if (type == StatType.MysticShieldSkillEffectiveness) return "Combat";
@@ -899,6 +901,7 @@ namespace Scripts.Stats
 
         public static StatDisplayFormat DefaultFormatFor(StatType type)
         {
+            if (type == StatType.ShockwaveDamage) return StatDisplayFormat.Percent;
             if (type == StatType.ExecutionThreshold || type == StatType.BleedExtraction || type == StatType.BleedExtractionChance) return StatDisplayFormat.Percent;
             if (type == StatType.DamagePhysical || type == StatType.DamageFire || type == StatType.DamageCold || type == StatType.DamageLightning)
                 return StatDisplayFormat.Damage;
@@ -950,6 +953,7 @@ namespace Scripts.Stats
 
         public static StatAffixGenType DefaultAffixGenTypeFor(StatType type)
         {
+            if (type == StatType.ShockwaveDamage) return StatAffixGenType.FullCalcStat;
             if (type == StatType.ExecutionThreshold || type == StatType.BleedExtraction || type == StatType.BleedExtractionChance) return StatAffixGenType.NOCalcStat;
             string s = type.ToString();
             if (type == StatType.CritMultiplier)

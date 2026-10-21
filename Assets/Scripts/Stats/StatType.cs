@@ -187,6 +187,9 @@ namespace Scripts.Stats
         BleedExtraction,
 
         // Flat percentage chance for a direct hit to extract an existing bleed.
-        BleedExtractionChance
+        BleedExtractionChance,
+
+        // Percentage scalar for collision shockwaves; 100 = normal damage.
+        ShockwaveDamage
     }
 }

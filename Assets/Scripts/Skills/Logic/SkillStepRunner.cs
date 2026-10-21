@@ -409,6 +409,9 @@ namespace Scripts.Skills
                 case "CrimsonHook":
                     ExecuteCrimsonHook(stepIndex, step);
                     break;
+                case "TectonicPress":
+                    ExecuteTectonicPress(stepIndex, step);
+                    break;
                 case "FrostWall":
                     var wall = _ownerStats.GetComponent<PlayerFrostWallController>();
                     if (wall == null) wall = _ownerStats.gameObject.AddComponent<PlayerFrostWallController>();
@@ -1577,6 +1580,8 @@ namespace Scripts.Skills
                 if (step.GetBool("PushbackInFacingDirection", false) && target is Component hitComponent)
                     hitOrigin = (Vector2)hitComponent.transform.position - Vector2.right * _ctx.FacingDirection;
                 PushbackResolver.BindToSnapshot(snapshot, SkillPushback.IsEnabled(_data), scopedStats, hitOrigin);
+                if (step.StepDefinition != null && step.StepDefinition.Id == "TectonicPress")
+                    snapshot.EmpoweredPushback = new TectonicShockwave(_ownerStats, scopedStats, step, _targetLayer).CreateCharge();
                 Transform targetTransform = ResolveDamageableTransform(target);
                 if (target.TakeDamage(snapshot))
                 {

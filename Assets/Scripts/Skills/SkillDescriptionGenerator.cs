@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "PrismaticCycle" or "CrimsonHook" or "FrostWall" or "LightningRod" or "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "TectonicPress" or "PrismaticCycle" or "CrimsonHook" or "FrostWall" or "LightningRod" or "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -264,6 +264,17 @@ namespace Scripts.Skills
                     Add(lines, unique, ru
                         ? "Притягивает подвижных врагов к герою, не перенося их за спину. Тяжёлые, неподвижные, замороженные цели и боссы получают урон без перемещения. Сопротивление отталкиванию уменьшает притягивание."
                         : "Pulls movable enemies toward you without dragging them behind you. Heavy, immobile, frozen targets and bosses take damage without displacement. Pushback Resistance reduces the pull.");
+                    break;
+                case "TectonicPress":
+                    AddDamage(step, ru, nearby: false, lines, unique, effectiveness);
+                    float wavePercent = step.GetFloat("ShockwaveDamageMultiplier", 2) *
+                        (durationStats != null ? Mathf.Max(0, durationStats.GetValue(StatType.ShockwaveDamage)) : 100) * effectiveness;
+                    Add(lines, unique, ru
+                        ? $"Усиленно отталкивает врагов. При столкновении отброшенной цели со стеной или другим врагом возникает ударная волна: {P(wavePercent)} урона оружия. Каждая отброшенная цель создаёт не более одной волны."
+                        : $"Empowered knockback. A pushed target hitting a wall or another enemy creates a shockwave dealing {P(wavePercent)} weapon damage. Each pushed target can create only one wave.");
+                    Add(lines, unique, ru
+                        ? "Отталкивание увеличивает дальность толчка. Область действия увеличивает радиус столкновения и волны. Урон ударной волны масштабирует только волну; базовое значение — 100%. Волны не вызывают новое усиленное отталкивание. Показатели урона учитывают только первоначальный удар."
+                        : "Pushback increases travel. Area of Effect increases collision and shockwave radii. Shockwave Damage scales only the wave and starts at 100%. Waves do not cause empowered knockback. Damage previews show the initial strike only.");
                     break;
                 case "FrostWall":
                     float wallDuration = EffectDurationCalculator.Resolve(step.GetFloat("Duration", 5), durationStats);

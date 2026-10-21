@@ -29,6 +29,7 @@ namespace Scripts.Combat
         // HitOrigin is the attack/projectile position used to pick left vs right.
         public float PushbackRating;
         public Vector2 HitOrigin;
+        [System.NonSerialized] public EmpoweredPushback EmpoweredPushback;
 
         // Хелпер для получения суммы
         public float TotalDamage => Physical + Fire + Cold + Lightning;
