@@ -49,6 +49,20 @@ MonoBehaviour:
       BoolVal: 0
       StringVal: 
       ObjectVal: {fileID: 2052173256437579844, guid: ffea19fd74e4dbe40b07b5b10f7f4e58, type: 3}
+    - Key: ImpactVfxPrefab
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal:
+      ObjectVal: {fileID: 8532914355769269777, guid: 992a3d01b4c9786428121c532a5a2046, type: 3}
+    - Key: CriticalImpactVfxPrefab
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal:
+      ObjectVal: {fileID: 285140643695226474, guid: e6dd4da366f06b3409c35d85863a4f5c, type: 3}
     DamageConversions: []
     ScopedStatModifiers:
     - Stat: 52

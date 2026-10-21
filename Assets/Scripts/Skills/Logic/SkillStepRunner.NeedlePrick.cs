@@ -18,6 +18,7 @@ namespace Scripts.Skills
             int worldMask = step.GetInt("WorldLayerMask", 1 << 6);
             reach = InstantBeamGeometry.ResolveLength(origin, origin, facing, reach, worldMask);
             IDamageable selected = null;
+            Collider2D selectedCollider = null;
             float nearest = float.PositiveInfinity;
             if (reach > .01f)
             {
@@ -39,10 +40,15 @@ namespace Scripts.Skills
                     if (blocked) continue;
                     float distance = ray.sqrMagnitude;
                     if (distance > nearest || distance == nearest && selected != null && GetDamageTargetKey(target) >= GetDamageTargetKey(selected)) continue;
-                    selected = target; nearest = distance;
+                    selected = target; selectedCollider = hit; nearest = distance;
                 }
-                if (selected != null) DealDamageToTargets(stepIndex, step, new List<IDamageable> { selected });
                 float playback = _ctx.TotalDuration > 0 ? .5f / _ctx.TotalDuration : 1;
+                if (selected != null) DealDamageToTargets(stepIndex, step, new List<IDamageable> { selected }, onSnapshotConnected: (target, snapshot) =>
+                {
+                    Vector2 contact = selectedCollider != null ? selectedCollider.ClosestPoint(origin) : origin + Vector2.right * facing * reach;
+                    var impact = step.GetObject<GameObject>(snapshot.IsCrit ? "CriticalImpactVfxPrefab" : "ImpactVfxPrefab");
+                    NeedlePrickVisual.SpawnContact(impact, contact, facing, playback);
+                });
                 NeedlePrickVisual.Spawn(step.GetObject<GameObject>("VfxPrefab"), origin + Vector2.right * (facing * reach * .5f), facing, reach, playback);
             }
         }

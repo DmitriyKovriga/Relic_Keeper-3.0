@@ -1578,7 +1578,8 @@ namespace Scripts.Skills
             List<IDamageable> targets,
             HashSet<int> hitOnceTargets = null,
             bool appendHitResults = false,
-            System.Action<IDamageable> onConnected = null)
+            System.Action<IDamageable> onConnected = null,
+            System.Action<IDamageable, DamageSnapshot> onSnapshotConnected = null)
         {
             if (targets == null || targets.Count == 0)
                 return;
@@ -1612,6 +1613,7 @@ namespace Scripts.Skills
                     TryApplyAilmentsFromHit(scopedStats, target, snapshot);
                     ExecuteOnHitEffects(step, target, targetTransform, snapshot);
                     onConnected?.Invoke(target);
+                    onSnapshotConnected?.Invoke(target, snapshot);
                 }
                 if (hitResults != null)
                 {

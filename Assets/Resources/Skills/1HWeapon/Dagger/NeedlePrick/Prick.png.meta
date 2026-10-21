@@ -29,6 +29,9 @@ TextureImporter:
   - first:
       213: -6008041823421441602
     second: Prick_05
+  - first:
+      213: -7468409512576166870
+    second: Prick_06
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -180,11 +183,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 24
-        width: 40
-        height: 24
+        y: 64
+        width: 48
+        height: 32
       alignment: 9
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0.45833334, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -201,12 +204,12 @@ TextureImporter:
       name: Prick_01
       rect:
         serializedVersion: 2
-        x: 40
-        y: 24
-        width: 40
-        height: 24
+        x: 48
+        y: 64
+        width: 48
+        height: 32
       alignment: 9
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0.45833334, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -223,12 +226,12 @@ TextureImporter:
       name: Prick_02
       rect:
         serializedVersion: 2
-        x: 80
-        y: 24
-        width: 40
-        height: 24
+        x: 96
+        y: 64
+        width: 48
+        height: 32
       alignment: 9
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0.45833334, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -246,11 +249,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 40
-        height: 24
+        y: 32
+        width: 48
+        height: 32
       alignment: 9
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0.45833334, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -267,12 +270,12 @@ TextureImporter:
       name: Prick_04
       rect:
         serializedVersion: 2
-        x: 40
-        y: 0
-        width: 40
-        height: 24
+        x: 48
+        y: 32
+        width: 48
+        height: 32
       alignment: 9
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0.45833334, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -289,12 +292,12 @@ TextureImporter:
       name: Prick_05
       rect:
         serializedVersion: 2
-        x: 80
-        y: 0
-        width: 40
-        height: 24
+        x: 96
+        y: 32
+        width: 48
+        height: 32
       alignment: 9
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0.45833334, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -305,6 +308,28 @@ TextureImporter:
       internalID: -6008041823421441602
       vertices: []
       indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Prick_06
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 48
+        height: 32
+      alignment: 9
+      pivot: {x: 0.45833334, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a24dfbd1e11ea5890800000000000000
+      internalID: -7468409512576166870
+      vertices: []
+      indices:
       edges: []
       weights: []
     outline: []
@@ -328,6 +353,7 @@ TextureImporter:
       Prick_03: -5409353491334654263
       Prick_04: 2741189215577272173
       Prick_05: -6008041823421441602
+      Prick_06: -7468409512576166870
       Prick_1: 2132163278689499285
       Prick_2: 3950046690575469426
   mipmapLimitGroupName: 

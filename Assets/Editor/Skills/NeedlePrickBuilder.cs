@@ -22,25 +22,7 @@ namespace RelicKeeper.Editor.Skills
         [MenuItem("Tools/Skills/Build Needle Prick")]
         public static void Apply()
         {
-            Import("NeedlePrickIcon", false); Import("Prick", true);
-            var material = AssetDatabase.LoadAssetAtPath<Material>(Root + "NeedlePrick.mat");
-            if (material == null)
-            {
-                material = new Material(Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default"));
-                AssetDatabase.CreateAsset(material, Root + "NeedlePrick.mat");
-            }
-            var frames = AssetDatabase.LoadAllAssetsAtPath(Root + "Prick.png").OfType<Sprite>().OrderBy(value => value.name).ToArray();
-            var host = new GameObject("Needle Prick"); GameObject prefab;
-            try
-            {
-                var renderer = host.AddComponent<SpriteRenderer>(); renderer.sprite = frames[0]; renderer.sharedMaterial = material;
-                var visual = host.AddComponent<NeedlePrickVisual>(); var settings = new SerializedObject(visual);
-                var array = settings.FindProperty("_frames"); array.arraySize = frames.Length;
-                for (int i = 0; i < frames.Length; i++) array.GetArrayElementAtIndex(i).objectReferenceValue = frames[i];
-                settings.ApplyModifiedPropertiesWithoutUndo();
-                prefab = PrefabUtility.SaveAsPrefabAsset(host, Root + "Prick.prefab");
-            }
-            finally { Object.DestroyImmediate(host); }
+            var prefab = BuildArt(out var impact, out var criticalImpact);
             var definition = Load<StepDefinitionSO>("Assets/Resources/Skills/StepDefinitions/Step_NeedlePrick.asset");
             definition.Id = "NeedlePrick"; definition.NameEn = "Needle Prick"; definition.NameRu = "Игольный укол";
             definition.DescriptionEn = "One very short, fast stab against the nearest enemy in front.";
@@ -52,6 +34,7 @@ namespace RelicKeeper.Editor.Skills
             }; EditorUtility.SetDirty(definition);
             var hit = new StepEntry { StepDefinition = definition, StartPercentPipeline = .2f, EndPercentPipeline = .2f };
             hit.SetOverrideObject("VfxPrefab", prefab);
+            hit.SetOverrideObject("ImpactVfxPrefab", impact); hit.SetOverrideObject("CriticalImpactVfxPrefab", criticalImpact);
             hit.ScopedStatModifiers = new List<SerializableStatModifier> { new SerializableStatModifier { Stat = StatType.CritMultiplier, Value = 100, Type = StatModType.Flat } };
             StepEntry Present(string id, float start, float end) => new StepEntry
             {
@@ -87,6 +70,46 @@ namespace RelicKeeper.Editor.Skills
                 EditorUtility.SetDirty(table); EditorUtility.SetDirty(table.SharedData);
             }
             AssetDatabase.SaveAssets();
+        }
+        [MenuItem("Tools/Skills/Refresh Needle Prick Art")]
+        public static void RefreshArt()
+        {
+            var prefab = BuildArt(out var impact, out var criticalImpact);
+            var skill = AssetDatabase.LoadAssetAtPath<SkillDataSO>(SkillPath);
+            var hit = skill.Recipe.Steps.Single(value => value.StepDefinition.Id == "NeedlePrick");
+            hit.SetOverrideObject("VfxPrefab", prefab); hit.SetOverrideObject("ImpactVfxPrefab", impact); hit.SetOverrideObject("CriticalImpactVfxPrefab", criticalImpact);
+            skill.Icon = AssetDatabase.LoadAssetAtPath<Sprite>(Root + "NeedlePrickIcon.png");
+            EditorUtility.SetDirty(skill); EditorUtility.SetDirty(skill.Recipe); AssetDatabase.SaveAssets();
+        }
+        private static GameObject BuildArt(out GameObject impact, out GameObject criticalImpact)
+        {
+            Import("NeedlePrickIcon", false); Import("Prick", true); Import("Impact", true); Import("CriticalImpact", true);
+            var material = AssetDatabase.LoadAssetAtPath<Material>(Root + "NeedlePrick.mat");
+            if (material == null)
+            {
+                material = new Material(Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default"));
+                AssetDatabase.CreateAsset(material, Root + "NeedlePrick.mat");
+            }
+            GameObject Visual(string name, float fps, int sortOffset)
+            {
+                var frames = AssetDatabase.LoadAllAssetsAtPath(Root + name + ".png").OfType<Sprite>().OrderBy(value => value.name).ToArray();
+                var host = new GameObject("Needle Prick " + name);
+                try
+                {
+                    var renderer = host.AddComponent<SpriteRenderer>(); renderer.sprite = frames[0]; renderer.sharedMaterial = material;
+                    var settings = new SerializedObject(host.AddComponent<NeedlePrickVisual>());
+                    settings.FindProperty("_framesPerSecond").floatValue = fps;
+                    settings.FindProperty("_referenceWidthPixels").floatValue = 30;
+                    settings.FindProperty("_sortOffset").intValue = sortOffset;
+                    var array = settings.FindProperty("_frames"); array.arraySize = frames.Length;
+                    for (int i = 0; i < frames.Length; i++) array.GetArrayElementAtIndex(i).objectReferenceValue = frames[i];
+                    settings.ApplyModifiedPropertiesWithoutUndo();
+                    return PrefabUtility.SaveAsPrefabAsset(host, Root + name + ".prefab");
+                }
+                finally { Object.DestroyImmediate(host); }
+            }
+            impact = Visual("Impact", 40, 6); criticalImpact = Visual("CriticalImpact", 40, 7);
+            return Visual("Prick", 42, 0);
         }
         [System.Serializable] private class Sheet { public Frame[] frames; public Meta meta; }
         [System.Serializable] private class Frame { public Box frame; public Pivot pivot; }

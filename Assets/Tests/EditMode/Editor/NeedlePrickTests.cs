@@ -65,7 +65,9 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(Skill.HoldStanceId, Is.EqualTo("dagger")); Assert.That(Skill.EnablePushback, Is.False); Assert.That(Skill.Icon, Is.Not.Null);
             Assert.That(AssetDatabase.LoadAssetAtPath<SkillPoolSO>(NeedlePrickBuilder.PoolPath).PossibleSkills.Any(value => value.Skill == Skill), Is.True);
             Assert.That(Resources.Load<ItemDatabaseSO>(ProjectPaths.ResourcesItemDatabase).AllSkills, Does.Contain(Skill));
-            Assert.That(AssetDatabase.LoadAllAssetsAtPath(NeedlePrickBuilder.Root + "Prick.png").OfType<Sprite>().Count(), Is.EqualTo(6));
+            Assert.That(AssetDatabase.LoadAllAssetsAtPath(NeedlePrickBuilder.Root + "Prick.png").OfType<Sprite>().Count(), Is.EqualTo(7));
+            Assert.That(Step.GetObject<GameObject>("ImpactVfxPrefab"), Is.Not.Null);
+            Assert.That(Step.GetObject<GameObject>("CriticalImpactVfxPrefab"), Is.Not.Null.And.Not.SameAs(Step.GetObject<GameObject>("ImpactVfxPrefab")));
         }
         [TestCase(1)] [TestCase(-1)]
         public void ShortPrickHitsOnlyNearestFrontTargetOnce(float facing)
@@ -134,6 +136,21 @@ namespace RelicKeeper.Tests.EditMode
         {
             var target = Target(.5f); Vector3 position = _owner.transform.position; Strike(); Strike();
             Assert.That(target.Hits.Count, Is.EqualTo(2)); Assert.That(_owner.transform.position, Is.EqualTo(position));
+        }
+        [TestCase(false, 0)] [TestCase(true, 0)] [TestCase(false, 100)] [TestCase(true, 100)]
+        public void ContactPresentationReceivesActualCritSnapshotOnlyForAcceptedHits(bool accepted, float critChance)
+        {
+            var target = Keep(new GameObject("Contact presentation target")).AddComponent<TectonicHitRecorder>(); target.Accept = accepted;
+            _owner.GetStat(StatType.CritChance).BaseValue = critChance;
+            int calls = 0; DamageSnapshot delivered = null;
+            System.Action<IDamageable, DamageSnapshot> connected = (hit, snapshot) => { calls++; delivered = snapshot; };
+            typeof(SkillStepRunner).GetMethod("DealDamageToTargets", Flags).Invoke(_runner,
+                new object[] { 3, Step, new List<IDamageable> { target }, null, false, null, connected });
+            Assert.That(calls, Is.EqualTo(accepted ? 1 : 0));
+            if (accepted)
+            {
+                Assert.That(delivered, Is.SameAs(target.Hits.Single())); Assert.That(delivered.IsCrit, Is.EqualTo(critChance == 100));
+            }
         }
         [TestCase("en", "Needle Prick", "nearest enemy", "stay close")]
         [TestCase("ru", "Игольный укол", "ближайшему врагу", "вплотную")]
