@@ -105,6 +105,7 @@ namespace Scripts.Visuals
             if (_movement != null)
             {
                 _movement.OnJumpStarted += HandleJumpStarted;
+                _movement.OnSkillJumpStarted += HandleJumpStarted;
                 _movement.OnLanded += HandleLanded;
             }
 
@@ -128,6 +129,7 @@ namespace Scripts.Visuals
             if (_movement != null)
             {
                 _movement.OnJumpStarted -= HandleJumpStarted;
+                _movement.OnSkillJumpStarted -= HandleJumpStarted;
                 _movement.OnLanded -= HandleLanded;
             }
 

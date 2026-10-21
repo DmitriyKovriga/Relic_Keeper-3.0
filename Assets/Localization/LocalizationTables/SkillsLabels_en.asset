@@ -680,6 +680,18 @@ MonoBehaviour:
       Attack Speed accelerates the shot. Cooldown: 10 seconds. Mana cost: 20."
     m_Metadata:
       m_Items: []
+  - m_Id: 103607846770143232
+    m_Localized: Aerial Volley
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103607846849835008
+    m_Localized: 'Leap backward without turning away and fire 3 consecutive forward
+      volleys of 3 arrows. Each arrow deals 200% weapon damage. Jump Force increases
+      leap height and distance. Projectile Count adds arrows to every volley. The
+      leap grants no invulnerability. Dodging interrupts remaining volleys. Cooldown:
+      10 seconds. Mana cost: 10.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

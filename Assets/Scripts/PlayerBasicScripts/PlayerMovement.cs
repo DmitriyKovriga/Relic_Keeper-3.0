@@ -33,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
     private const float GroundSupportHorizontalInset = 0.005f;
 
     public event System.Action OnJumpStarted;
+    public event System.Action OnSkillJumpStarted;
     public event System.Action OnLanded;
 
     [Header("Environment Detection")]
@@ -228,6 +229,14 @@ public class PlayerMovement : MonoBehaviour
         ForceFaceDirection(facing);
         Physics2D.SyncTransforms();
         CheckGround();
+    }
+
+    // Skill leaps reuse the character's jump animation without spending a normal jump.
+    public void NotifySkillJumpStarted()
+    {
+        _isGrounded = false;
+        _jumpStartedTime = Time.time;
+        OnSkillJumpStarted?.Invoke();
     }
 
     public void ApplySkillImpulse(float angleDegrees, float force, bool relativeToFacing, bool clearCurrentVelocity)

@@ -216,6 +216,9 @@ namespace Scripts.Skills
                             started[i] = true;
                             if (step.StepDefinition.Id == "MovementLock")
                                 _moveCtrl.SetLock(true);
+                            else if (step.StepDefinition.Id == "WeaponWindup" && _animCtrl != null
+                                && step.GetObject<GameObject>("DrawnProjectilePrefab") is GameObject drawnPrefab)
+                                _animCtrl.PrepareDrawnProjectile(drawnPrefab);
                             else if (step.StepDefinition.Id == "SpawnVFX")
                                 ExecuteStepLogic(i, step, 0f, (endP - startP) * _ctx.TotalDuration);
                             else if (IsPersistentDamageStep(step))
@@ -559,9 +562,12 @@ namespace Scripts.Skills
         {
             float angleDegrees = step.GetFloat("AngleDegrees", 0f);
             float force = Mathf.Max(0f, step.GetFloat("Force", 4f));
+            if (step.GetBool("ScaleWithJumpForce", false))
+                force *= Mathf.Max(0f, 1f + _ownerStats.GetValue(StatType.JumpForce) / 100f);
             bool relativeToFacing = step.GetBool("RelativeToFacing", true);
             bool clearCurrentVelocity = step.GetBool("ClearCurrentVelocity", false);
-            _moveCtrl.ApplyImpulse(angleDegrees, force, relativeToFacing, clearCurrentVelocity);
+            _moveCtrl.ApplyImpulse(angleDegrees, force, relativeToFacing, clearCurrentVelocity,
+                step.GetBool("PreserveFacing", false), step.GetBool("AnimateAsJump", false));
         }
 
         private void ExecuteSpawnVFX(int stepIndex, StepEntry step, float requestedLifetime)

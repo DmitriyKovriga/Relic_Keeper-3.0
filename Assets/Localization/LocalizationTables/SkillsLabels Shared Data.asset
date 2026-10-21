@@ -603,6 +603,14 @@ MonoBehaviour:
     m_Key: skills.NearFanSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103607846770143232
+    m_Key: skills.AerialVolleySkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103607846849835008
+    m_Key: skills.AerialVolleySkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

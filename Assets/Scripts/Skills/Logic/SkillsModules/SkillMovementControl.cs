@@ -47,9 +47,17 @@ namespace Scripts.Skills.Modules
         }
 
         public void ApplyImpulse(float angleDegrees, float force, bool relativeToFacing, bool clearCurrentVelocity)
+            => ApplyImpulse(angleDegrees, force, relativeToFacing, clearCurrentVelocity, false, false);
+
+        public void ApplyImpulse(float angleDegrees, float force, bool relativeToFacing, bool clearCurrentVelocity, bool preserveFacing, bool animateAsJump)
         {
             if (_playerMovement != null)
+            {
+                float facing = _playerMovement.FacingDirection;
                 _playerMovement.ApplySkillImpulse(angleDegrees, force, relativeToFacing, clearCurrentVelocity);
+                if (preserveFacing) _playerMovement.ForceFaceDirection(facing);
+                if (animateAsJump && force > 0 && _playerMovement.CurrentVelocity.y > 0) _playerMovement.NotifySkillJumpStarted();
+            }
         }
 
         private void OnDisable()

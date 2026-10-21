@@ -500,7 +500,16 @@ namespace Scripts.Skills
             bool usesCountStat = !ground && step.GetBool("UseProjectileCountStat", true);
             string extra = usesCountStat ? (ru ? " плюс дополнительные снаряды" : " plus additional projectiles") : string.Empty;
 
-            if (ground)
+            if (step.GetBool("AerialVolley", false))
+            {
+                Add(lines, unique, ru
+                    ? $"Выпускает {step.GetInt("VolleyCount", 3)} последовательных залпа вперёд: {count} стрелы{extra} в каждом, каждая наносит {damage} урона оружия."
+                    : $"Fires {step.GetInt("VolleyCount", 3)} consecutive forward volleys: {count} arrows{extra} in each; each arrow deals {damage} weapon damage.", SkillDescriptionSection.Attack);
+                Add(lines, unique, ru
+                    ? "Число снарядов добавляет стрелы в каждый залп. Уклонение прерывает оставшиеся залпы. Показатели урона суммируют по одной стреле из каждого залпа."
+                    : "Projectile Count adds arrows to every volley. Dodging interrupts the remaining volleys. Damage previews add one arrow from each volley.", SkillDescriptionSection.Attack);
+            }
+            else if (ground)
                 Add(lines, unique, ru ? $"Выпускает наземную волну, наносящую {damage} урона оружия." : $"Releases a ground wave dealing {damage} weapon damage.", SkillDescriptionSection.Attack);
             else if (orbit)
                 Add(lines, unique, ru ? $"Создаёт {count} вращающихся снаряда{extra}, каждый наносит {damage} урона оружия." : $"Creates {count} orbiting projectiles{extra}; each deals {damage} weapon damage.", SkillDescriptionSection.Attack);
@@ -566,6 +575,13 @@ namespace Scripts.Skills
 
         private static void AddImpulse(StepEntry step, bool ru, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
+            if (step.GetBool("ScaleWithJumpForce", false) && step.GetBool("PreserveFacing", false))
+            {
+                Add(lines, unique, ru
+                    ? "Прыгает назад, сохраняя направление взгляда. Сила прыжка увеличивает дальность и высоту прыжка. Прыжок не даёт неуязвимости."
+                    : "Leap backward while keeping your facing. Jump Force increases leap distance and height. The leap grants no invulnerability.");
+                return;
+            }
             bool backwards = step.GetBool("InvertFacing", false) || step.GetFloat("Force", 8f) < 0f;
             Add(lines, unique, ru
                 ? (backwards ? "Отбрасывает персонажа назад." : "Перемещает персонажа вперёд.")
