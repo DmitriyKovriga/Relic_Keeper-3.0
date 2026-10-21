@@ -11,7 +11,7 @@ namespace Scripts.Skills.Modules
     /// Style is set once per cast via SetActiveStyle.
     /// Keyframes come from WeaponSwingStyleTableSO (Resources) with code-constant fallback.
     /// </summary>
-    public class SkillHandAnimation : MonoBehaviour
+    public partial class SkillHandAnimation : MonoBehaviour
     {
         // Fallback constants (pre-SO SkillHandAnimation values). Do not retune silently —
         // editor exposes these via WeaponSwingStyleTableSO so designers can fix visually.
@@ -68,6 +68,7 @@ namespace Scripts.Skills.Modules
             if (_ownerStats == null) return;
             var skill = GetComponent<SkillBehaviour>();
             var visuals = _ownerStats.GetComponent<WeaponVisualController>();
+            _spinSpriteTilt = visuals != null ? visuals.GetAnimationSpriteTilt(skill != null ? skill.SlotIndex : -1) : 0;
             if (visuals == null || !visuals.TryGetAnimationHand(skill != null ? skill.SlotIndex : -1, out _handPivot, out _weaponRenderer))
             {
                 _handPivot = _ownerStats.transform.Find("Visuals/HandPivot");
@@ -122,6 +123,7 @@ namespace Scripts.Skills.Modules
         /// <summary>Lerp HandPivot from idle toward windup pose. t: 0..1</summary>
         public void LerpWindup(float t)
         {
+            if (_spinToken != null) return;
             if (_handPivot == null || _anchor == null || !_anchor.IsOwnedBy(this)) return;
             t = Mathf.Clamp01(t);
             _handPivot.localRotation = Quaternion.Slerp(_defaultRot, _windupRot, t);
@@ -137,6 +139,7 @@ namespace Scripts.Skills.Modules
         /// <summary>Snap HandPivot to impact pose. Does not hide weapon (callers do).</summary>
         public void SnapImpact()
         {
+            if (_spinToken != null) return;
             if (_handPivot == null || _anchor == null || !_anchor.IsOwnedBy(this)) return;
             _handPivot.localRotation = _impactRot;
             _handPivot.localPosition = _impactPos;
@@ -145,6 +148,7 @@ namespace Scripts.Skills.Modules
         /// <summary>Lerp HandPivot from impact back to idle. t: 0..1</summary>
         public void LerpRecovery(float t)
         {
+            if (_spinToken != null) return;
             if (_handPivot == null || _anchor == null || !_anchor.IsOwnedBy(this)) return;
             t = Mathf.Clamp01(t);
             _handPivot.localRotation = Quaternion.Slerp(_impactRot, _defaultRot, t);
@@ -215,11 +219,13 @@ namespace Scripts.Skills.Modules
 
         public void SetWeaponVisible(bool isVisible)
         {
+            if (_spinToken != null) return;
             if (_weaponRenderer != null && _anchor != null && _anchor.IsOwnedBy(this)) _weaponRenderer.enabled = isVisible;
         }
 
         public void ForceReset()
         {
+            EndSpin(_spinToken);
             ReleaseDrawnProjectile();
             if (_anchor != null && _anchor.Release(this))
             {

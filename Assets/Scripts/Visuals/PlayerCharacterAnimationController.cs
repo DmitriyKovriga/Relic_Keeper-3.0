@@ -33,6 +33,9 @@ namespace Scripts.Visuals
         private Sprite _idleSprite;
         private Sprite[] _neutralDodgeFrames = Array.Empty<Sprite>();
         private bool _neutralDodgePlaying;
+        private Sprite[] _spinFrames = Array.Empty<Sprite>();
+        private object _spinOwner;
+        public bool IsPlayingSkillSpin => _spinOwner != null;
         public bool IsPlayingNeutralDodge => _neutralDodgePlaying;
         public Bounds NeutralDodgeReferenceBounds => _idleSprite != null ? _idleSprite.bounds : default;
         private Vector3 _idleWeaponOffset;
@@ -58,7 +61,7 @@ namespace Scripts.Visuals
         {
             get
             {
-                if (_neutralDodgePlaying) return Vector2.one;
+                if (_neutralDodgePlaying || IsPlayingSkillSpin) return Vector2.one;
                 if (!HasAuthoredPresentation) return new Vector2(_current.IsValid ? _current.HorizontalScale : 1f, 1f);
                 int next = Mathf.Min(_frameIndex + 1, _current.Frames.Length - 1);
                 float t = Mathf.SmoothStep(0, 1, Mathf.Clamp01(_frameTimer / _current.FrameDuration));
@@ -120,6 +123,7 @@ namespace Scripts.Visuals
 
         private void OnDisable()
         {
+            if (_spinOwner != null) EndSkillSpin(_spinOwner);
             EndNeutralDodge();
             if (_movement != null)
             {
@@ -143,6 +147,8 @@ namespace Scripts.Visuals
                 return;
             }
             EndNeutralDodge();
+
+            if (IsPlayingSkillSpin) return;
 
             Vector2 velocity = _movement.CurrentVelocity;
             bool isGrounded = _movement.IsGrounded;
@@ -237,6 +243,8 @@ namespace Scripts.Visuals
 
         private void ApplyCharacterData(CharacterDataSO data)
         {
+            _spinOwner = null;
+            _spinFrames = RuntimeAnimation.From(data?.SpinAnimation).Frames;
             _neutralDodgeFrames = RuntimeAnimation.From(data?.NeutralDodgeAnimation).Frames;
             _neutralDodgePlaying = false;
             _run = RuntimeAnimation.From(data?.RunAnimation);
@@ -264,6 +272,21 @@ namespace Scripts.Visuals
 
             if (_renderer != null && _idleSprite != null)
                 _renderer.sprite = _idleSprite;
+        }
+
+        public void SampleSkillSpin(object owner, float progress)
+        {
+            if (owner == null || _renderer == null || _spinFrames.Length == 0) return;
+            _spinOwner = owner;
+            int frame = Mathf.Clamp(Mathf.RoundToInt(Mathf.Clamp01(progress) * (_spinFrames.Length - 1)), 0, _spinFrames.Length - 1);
+            _renderer.sprite = _spinFrames[frame];
+        }
+
+        public void EndSkillSpin(object owner)
+        {
+            if (!ReferenceEquals(owner, _spinOwner)) return;
+            _spinOwner = null;
+            if (_renderer != null) _renderer.sprite = _current.IsValid ? _current.Frames[_frameIndex] : _idleSprite;
         }
 
         public void SampleNeutralDodge(float progress)

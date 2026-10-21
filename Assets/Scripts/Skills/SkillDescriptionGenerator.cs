@@ -70,7 +70,7 @@ namespace Scripts.Skills
                 "MysticShieldDamageBoost" or "ModifyCooldown" or "ParryWindow" or
                 "ParallelGroup" or "MovementLock" or "MovementUnlock" or
                 "SpawnChainVFX" or "SpawnVFX" or "Wait" or
-                "WeaponWindup" or "WeaponStrike" or "WeaponRecovery" => true,
+                "SpinAround" or "WeaponWindup" or "WeaponStrike" or "WeaponRecovery" => true,
                 _ => false
             };
         }
@@ -463,6 +463,18 @@ namespace Scripts.Skills
         private static void AddDamage(StepEntry step, bool ru, bool nearby, List<SkillDescriptionLine> lines, HashSet<string> unique, float effectiveness)
         {
             string damage = P(step.GetFloat("DamageMultiplier", 1f) * effectiveness * 100f);
+            int strike = step.GetInt("ComboStrike", 0);
+            if (strike > 0)
+            {
+                int count = Mathf.Max(strike, step.GetInt("ComboStrikeCount", strike));
+                bool radial = step.GetBool("RadialSweep", false);
+                Add(lines, unique, ru ? $"Удар {strike}/{count}: {damage} урона оружия {(radial ? "врагам вокруг героя" : "врагам впереди")}."
+                    : $"Strike {strike}/{count}: {damage} weapon damage to enemies {(radial ? "all around you" : "in front")}.", SkillDescriptionSection.Attack);
+                if (strike == count)
+                    Add(lines, unique, ru ? "Уклонение прерывает серию: оставшиеся удары теряются."
+                        : "Dodging interrupts the combo; remaining strikes are lost.", SkillDescriptionSection.Attack);
+                return;
+            }
             Add(lines, unique, ru
                 ? (nearby ? $"Наносит ближайшим врагам {damage} урона оружия." : $"Наносит врагам перед персонажем {damage} урона оружия.")
                 : (nearby ? $"Deals {damage} weapon damage to nearby enemies." : $"Deals {damage} weapon damage to enemies in front."), SkillDescriptionSection.Attack);

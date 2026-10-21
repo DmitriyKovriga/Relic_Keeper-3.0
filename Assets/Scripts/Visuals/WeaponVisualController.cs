@@ -16,6 +16,10 @@ namespace Scripts.Visuals
     /// </summary>
     public class WeaponVisualController : MonoBehaviour
     {
+        private float _mainSpriteTilt, _offhandSpriteTilt;
+        public float GetAnimationSpriteTilt(int skillSlot) => skillSlot == WeaponHandStatScope.OffHandSkillSlot
+            && _offhandWeaponRenderer != null && _offhandWeaponRenderer.sprite != null ? _offhandSpriteTilt : _mainSpriteTilt;
+
         private const string OffhandHolderName = "OffhandWeaponHolder";
 
         [Serializable]
@@ -222,6 +226,8 @@ namespace Scripts.Visuals
                 renderer.enabled = false;
                 return;
             }
+            if (renderer == _weaponRenderer) _mainSpriteTilt = spriteTiltZ;
+            else _offhandSpriteTilt = spriteTiltZ;
             Transform t = renderer.transform;
             t.localPosition = new Vector3(
                 pose.LocalPosition.x + lateralOffset.x,

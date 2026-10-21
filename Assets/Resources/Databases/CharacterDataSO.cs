@@ -33,6 +33,7 @@ public class CharacterDataSO : ScriptableObject
 
     [SerializeField] private CharacterSpriteAnimation _landingAnimation = new CharacterSpriteAnimation { Loop = false };
     [SerializeField] private CharacterSpriteAnimation _neutralDodgeAnimation = new CharacterSpriteAnimation { Loop = false };
+    [SerializeField] private CharacterSpriteAnimation _spinAnimation = new CharacterSpriteAnimation { Loop = false };
 
     [Header("Starting Stats Configuration")]
     [Tooltip("Добавь сюда только те статы, которые отличаются от стандартных.")]
@@ -56,6 +57,7 @@ public class CharacterDataSO : ScriptableObject
     public CharacterSpriteAnimation FallAnimation => _fallAnimation;
     public CharacterSpriteAnimation LandingAnimation => _landingAnimation;
     public CharacterSpriteAnimation NeutralDodgeAnimation => _neutralDodgeAnimation;
+    public CharacterSpriteAnimation SpinAnimation => _spinAnimation;
     public PassiveSkillTreeSO PassiveTree => _passiveTree;
 
     public List<StatConfig> StartingStats => _startingStats ??= new List<StatConfig>();

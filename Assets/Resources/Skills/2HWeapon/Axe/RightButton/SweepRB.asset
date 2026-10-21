@@ -25,6 +25,7 @@ MonoBehaviour:
   ActionSpeedMode: 0
   SkillSpeedMultiplier: 1
   DamageContextTags: 21
+  StatLinks: []
   EnablePushback: 1
   PushbackRating: 200
   SkillPrefab: {fileID: 5488993807411286246, guid: 1956a8ef2cdbc56468c01f2cf31a29fb, type: 3}
@@ -34,4 +35,4 @@ MonoBehaviour:
   HoldStance: 0
   HoldStanceId: 
   SwingStyle: 0
-  SwingStyleId: overhead
+  SwingStyleId: slash

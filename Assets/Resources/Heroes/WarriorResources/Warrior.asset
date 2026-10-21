@@ -155,6 +155,25 @@ MonoBehaviour:
     WeaponHorizontalOffsets: []
     HorizontalScale: 1
     PresentationScales: []
+  _spinAnimation:
+    Frames:
+    - {fileID: 21300000, guid: bde4701579d3088438ab233acc303c72, type: 3}
+    - {fileID: 21300000, guid: 305eb71a04e25054199cf11b38d96db8, type: 3}
+    - {fileID: 21300000, guid: b9f8456e8263a1940aa717f65d3edeeb, type: 3}
+    - {fileID: 21300000, guid: 0d0e50e5fa1adba4182d4afefb8bb609, type: 3}
+    - {fileID: 21300000, guid: 7ffb9ba2fc446294facf2fe583ef40b3, type: 3}
+    - {fileID: 21300000, guid: 9bcb218b310d8e347ae6ed559ab78138, type: 3}
+    - {fileID: 21300000, guid: bd14d5a94fc432b4683980928ca4579f, type: 3}
+    - {fileID: 21300000, guid: 386eccbbf9c2dca46b1aea76b884c51d, type: 3}
+    - {fileID: 21300000, guid: 22a89e82f4b78f64580dc1e529ab8fe4, type: 3}
+    SpriteSheetResourcesPath:
+    FrameDuration: 0.041666668
+    Loop: 0
+    AirborneRestartFrame: 0
+    WeaponVerticalOffsets: []
+    WeaponHorizontalOffsets: []
+    HorizontalScale: 1
+    PresentationScales: []
   _startingStats:
   - Type: 0
     Value: 75

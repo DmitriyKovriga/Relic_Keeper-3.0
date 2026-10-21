@@ -14,8 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PossibleSkills:
   - Skill: {fileID: 11400000, guid: 7d830c52fefe95c488585c8fdef05834, type: 2}
-    Weight: 0
+    Weight: 1
   - Skill: {fileID: 11400000, guid: 9ba2a89920ed4a048819a7d302632f5d, type: 2}
     Weight: 1
   - Skill: {fileID: 11400000, guid: 52d245ed7b44d8742afad766cea85309, type: 2}
+    Weight: 1
+  - Skill: {fileID: 11400000, guid: b0f126a44b0838c4a8311ad16e17206d, type: 2}
     Weight: 1

@@ -30,6 +30,7 @@ namespace Scripts.Skills.Steps
 
         /// <summary> Степ с диапазоном (Start % — End %): Lock, Windup, Recovery, Wait. Остальные — мгновенные в один момент. </summary>
         public bool IsDurationStep =>
+            Id == "SpinAround" ||
             Id == "MovementLock" ||
             Id == "WeaponWindup" ||
             Id == "WeaponRecovery" ||

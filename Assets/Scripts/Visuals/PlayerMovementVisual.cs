@@ -111,7 +111,7 @@ namespace Scripts.Visuals
             _source.GetPropertyBlock(_properties);
             _display.SetPropertyBlock(_properties);
 
-            bool authored = _characterAnimation != null && (_characterAnimation.HasAuthoredPresentation || _characterAnimation.IsPlayingNeutralDodge);
+            bool authored = _characterAnimation != null && (_characterAnimation.HasAuthoredPresentation || _characterAnimation.IsPlayingNeutralDodge || _characterAnimation.IsPlayingSkillSpin);
             float stretch = authored ? 0f : _pulse;
             bool casting = _skillManager != null && _skillManager.IsAnySkillCasting;
             bool groundDash = _attack != null && _attack.IsDashing && _movement != null && _movement.IsGrounded && !casting;
@@ -164,7 +164,7 @@ namespace Scripts.Visuals
                 _bodyCollider = GetComponent<Collider2D>();
 
             // A flipped sprite has its visual bottom on the opposite side of its pivot.
-            Bounds reference = _characterAnimation != null && _characterAnimation.IsPlayingNeutralDodge
+            Bounds reference = _characterAnimation != null && (_characterAnimation.IsPlayingNeutralDodge || _characterAnimation.IsPlayingSkillSpin)
                 ? _characterAnimation.NeutralDodgeReferenceBounds : _source.sprite.bounds;
             float spriteFootY = _source.flipY ? -reference.max.y : reference.min.y;
 

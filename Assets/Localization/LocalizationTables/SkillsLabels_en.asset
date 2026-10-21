@@ -618,6 +618,18 @@ MonoBehaviour:
       speed.
     m_Metadata:
       m_Items: []
+  - m_Id: 103515101401542656
+    m_Localized: Conning Tower
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103515101506400256
+    m_Localized: 'Three full sweeps around the player with a two-handed axe hit enemies
+      on both sides: the first two deal 100% weapon damage each, followed by a powerful
+      350% final swing. Dodging away interrupts the combo and forfeits the remaining
+      strikes. Mana and cooldown are spent once when the combo starts. Attack Speed
+      speeds up the sequence; Area of Effect expands the sweeps.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

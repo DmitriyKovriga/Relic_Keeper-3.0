@@ -128,6 +128,8 @@ namespace Scripts.Skills
 
         private void Cleanup()
         {
+            foreach (var spin in _spins.Values) spin.Dispose();
+            _spins.Clear();
             foreach (var field in _plasmaFields.Values)
                 if (field.Visual != null)
                 {
@@ -218,6 +220,8 @@ namespace Scripts.Skills
                                 ExecuteStepLogic(i, step, 0f, (endP - startP) * _ctx.TotalDuration);
                             else if (IsPersistentDamageStep(step))
                                 ExecuteStepLogic(i, step, 0f, (endP - startP) * _ctx.TotalDuration);
+                            else if (step.StepDefinition.Id == "SpinAround")
+                                ExecuteStepLogic(i, step, 0f, (endP - startP) * _ctx.TotalDuration);
                         }
                         if (started[i] && T < endP + 0.0001f && step.StepDefinition.Id != "MovementLock" && step.StepDefinition.Id != "SpawnVFX")
                         {
@@ -234,6 +238,11 @@ namespace Scripts.Skills
                                 _moveCtrl.EndCharge();
                             else if (IsPersistentDamageStep(step))
                                 ExecuteStepLogic(i, step, 1f, (endP - startP) * _ctx.TotalDuration);
+                            else if (step.StepDefinition.Id == "SpinAround")
+                            {
+                                ExecuteStepLogic(i, step, 1f, (endP - startP) * _ctx.TotalDuration);
+                                EndSpinAround(i);
+                            }
                         }
                     }
                     else
@@ -307,6 +316,7 @@ namespace Scripts.Skills
                         ended[i] = true;
                         if (step.StepDefinition.Id == "MovementLock")
                             _moveCtrl.SetLock(false);
+                        else if (step.StepDefinition.Id == "SpinAround") EndSpinAround(i);
                     }
                     if (!step.IsParallelGroup && !step.StepDefinition.IsDurationStep && !executed[i] && step.StartPercentPipeline >= 1f - 0.0001f)
                     {
@@ -364,6 +374,9 @@ namespace Scripts.Skills
             string id = step.StepDefinition != null ? step.StepDefinition.Id : "";
             switch (id)
             {
+                case "SpinAround":
+                    ExecuteSpinAround(stepIndex, step, phaseT);
+                    break;
                 case "NeedlePrick":
                     ExecuteNeedlePrick(stepIndex, step);
                     break;
@@ -1337,8 +1350,23 @@ namespace Scripts.Skills
         private void ExecuteDealDamageCircle(int stepIndex, StepEntry step)
         {
             ResolveCircleArea(step, out Vector2 center, out Vector2 size);
-            var targets = GetTargetsInBox(center, size, 0f);
+            var targets = step.GetBool("RadialSweep", false) ? GetRadialSweepTargets(center, size) : GetTargetsInBox(center, size, 0f);
             DealDamageToTargets(stepIndex, step, targets);
+        }
+
+        private List<IDamageable> GetRadialSweepTargets(Vector2 center, Vector2 size)
+        {
+            var targets = new List<IDamageable>();
+            var unique = new HashSet<IDamageable>();
+            Vector2 radii = new Vector2(Mathf.Max(.01f, size.x * .5f), Mathf.Max(.01f, size.y * .5f));
+            foreach (var hit in Physics2D.OverlapBoxAll(center, size, 0f, _targetLayer))
+            {
+                if (!TryResolveValidDamageTarget(hit, out var target)) continue;
+                Vector2 delta = hit.ClosestPoint(center) - center;
+                Vector2 normalized = new Vector2(delta.x / radii.x, delta.y / radii.y);
+                if (normalized.sqrMagnitude <= 1.0001f && unique.Add(target)) targets.Add(target);
+            }
+            return targets;
         }
 
         private void ExecuteDealDamageRectangle(int stepIndex, StepEntry step)
@@ -2405,7 +2433,7 @@ namespace Scripts.Skills
             Vector2 baseSize = new Vector2(baseRadius * 2f, baseRadius * 2f);
             size = SkillAoeScale.ScaleSize(baseSize, _ctx.AoeScale, axisScale.x, axisScale.y);
             float extraWidth = Mathf.Max(0f, size.x - baseSize.x);
-            float shiftForward = extraWidth * 0.5f;
+            float shiftForward = step.GetBool("RadialSweep", false) ? 0f : extraWidth * 0.5f;
             center = (Vector2)_ownerStats.transform.position + new Vector2((offsetX + shiftForward) * _ctx.FacingDirection, offsetY);
             MaybePullHitboxTowardOwner(step, ref center, ref size);
         }

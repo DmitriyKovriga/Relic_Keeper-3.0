@@ -563,6 +563,14 @@ MonoBehaviour:
     m_Key: skills.TornEdgeSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103515101401542656
+    m_Key: skills.ConningTowerSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103515101506400256
+    m_Key: skills.ConningTowerSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
