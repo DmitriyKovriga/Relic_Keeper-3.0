@@ -466,6 +466,16 @@ namespace Scripts.Skills
             if (step.GetBool("ThunderHammer", false))
                 Add(lines, unique, ru ? "Тяжёлый удар и электрический разряд поражают одну область одним попаданием. Физический урон накапливает оглушение, урон молнией помогает наложить шок по обычным правилам."
                     : "The heavy strike and electrical discharge hit the same area as one hit. Physical damage builds stun; lightning damage helps inflict shock under the normal rules.", SkillDescriptionSection.Attack);
+            if (step.GetBool("WeightOfAGiant", false))
+            {
+                Add(lines, unique, ru
+                    ? $"После очень долгого замаха наносит один удар с {damage} урона оружия перед героем."
+                    : $"After a very slow wind-up, delivers one strike for {damage} weapon damage in front.", SkillDescriptionSection.Attack);
+                Add(lines, unique, ru
+                    ? "Устойчивая стойка ограничивает движение, но не даёт неуязвимости. Уклонение прерывает замах. Скорость атаки ускоряет приём, область действия увеличивает радиус удара."
+                    : "The planted stance restricts movement without granting invulnerability. Dodging interrupts the wind-up. Attack Speed accelerates the sequence; Area of Effect expands the impact radius.");
+                return;
+            }
             int strike = step.GetInt("ComboStrike", 0);
             if (strike > 0)
             {

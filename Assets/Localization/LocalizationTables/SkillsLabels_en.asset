@@ -655,6 +655,19 @@ MonoBehaviour:
       Area of Effect expands its area. No cooldown or mana cost.
     m_Metadata:
       m_Items: []
+  - m_Id: 103596792891666432
+    m_Localized: The Weight of a Giant
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103596793055244288
+    m_Localized: 'Take a planted stance and deliver one devastating strike after
+      a very slow wind-up, dealing 500% weapon damage. Every complete 75 Max Health
+      adds 5 flat physical damage to this skill before its damage multiplier. Area
+      of Effect expands the impact radius. Attack Speed accelerates the sequence.
+      The stance restricts movement without granting invulnerability; dodging interrupts
+      the wind-up. Cooldown: 15 seconds. Mana cost: 35.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -587,6 +587,14 @@ MonoBehaviour:
     m_Key: skills.ThunderHammerSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103596792891666432
+    m_Key: skills.WeightOfAGiantSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103596793055244288
+    m_Key: skills.WeightOfAGiantSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
