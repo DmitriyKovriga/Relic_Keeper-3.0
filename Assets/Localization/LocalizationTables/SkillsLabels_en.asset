@@ -560,6 +560,18 @@ MonoBehaviour:
       the wave and starts at 100%.
     m_Metadata:
       m_Items: []
+  - m_Id: 103420026508419072
+    m_Localized: Circular Saw
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103420026613276672
+    m_Localized: One disk strikes for 250% weapon damage. On contact it stops in
+      place for 2.5 seconds, sawing up to 10 times at 0.25-second intervals for 50%
+      of the skill's damage. Enemies can leave the saw. It then returns to the character,
+      dealing 50% of normal damage. Effect Duration extends the pause, not the hit
+      cap. Projectile Speed speeds up travel; Projectile Count adds no disks.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

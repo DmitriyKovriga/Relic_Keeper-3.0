@@ -768,6 +768,23 @@ namespace Scripts.Skills
                 data.Step = cycle.Step; data.OverrideSprite = cycle.ProjectileSprite;
                 if (cycle.CompletesCycle) data.PrismaticImpactPrefab = cycle.BurstVfxPrefab;
             }
+            if (step.GetBool("CircularSaw", false))
+            {
+                totalCount = 1;
+                data.CircularSaw = true;
+                data.SawPauseDuration = EffectDurationCalculator.Resolve(step.GetFloat("SawPauseDuration", 2.5f), _ownerStats);
+                data.SawPulseInterval = Mathf.Max(.01f, step.GetFloat("SawPulseInterval", .25f));
+                data.SawPulseLimit = Mathf.Max(0, step.GetInt("SawPulseLimit", 10));
+                data.SawPulseDamageMultiplier = Mathf.Max(0, step.GetFloat("SawPulseDamageMultiplier", .5f));
+                data.SawImpactPrefab = step.GetObject<GameObject>("SawImpactPrefab");
+                data.Speed = Mathf.Max(.01f, data.Speed);
+                data.FirstReverseAtSeconds = Mathf.Max(.05f, step.GetFloat("OutboundRange", 8)) / data.Speed;
+                data.Lifetime = data.FirstReverseAtSeconds + data.SawPauseDuration + Mathf.Max(2, data.Lifetime);
+                data.RemainingReversals = 1;
+                data.ReversalMode = SkillProjectileReversalMode.HomeToOwner;
+                data.IgnoreFork = data.IgnoreChain = data.InfinitePierce = true;
+                data.Homing = false;
+            }
 
             Vector2 origin = (Vector2)_ownerStats.transform.position + new Vector2(offsetX * _ctx.FacingDirection, offsetY);
             Vector2 drawnOrigin = Vector2.zero;

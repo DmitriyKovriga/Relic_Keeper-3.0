@@ -345,7 +345,21 @@ namespace Scripts.Skills
                     AddDamage(step, ru, nearby: true, lines, unique, effectiveness);
                     break;
                 case "SpawnProjectile":
-                    AddProjectile(step, ru, ground: false, orbit: false, lines, unique, effectiveness);
+                    if (step.GetBool("CircularSaw", false))
+                    {
+                        float pause = EffectDurationCalculator.Resolve(step.GetFloat("SawPauseDuration", 2.5f), durationStats);
+                        string strike = P(step.GetFloat("DamageMultiplier", 2.5f) * effectiveness * 100);
+                        string pulse = P(step.GetFloat("DamageMultiplier", 2.5f) * step.GetFloat("SawPulseDamageMultiplier", .5f) * effectiveness * 100);
+                        Add(lines, unique, ru ? $"Один диск наносит {strike} урона оружия и пилит на месте попадания {N(pause)} с, затем возвращается."
+                            : $"One disk deals {strike} weapon damage, saws at the contact point for {N(pause)}s, then returns.", SkillDescriptionSection.Attack);
+                        Add(lines, unique, ru ? $"Повторные касания: {pulse} урона оружия каждые {N(step.GetFloat("SawPulseInterval", .25f))} с, не более {step.GetInt("SawPulseLimit", 10)}. Враг может выйти из зоны."
+                            : $"Repeat hits: {pulse} weapon damage every {N(step.GetFloat("SawPulseInterval", .25f))}s, up to {step.GetInt("SawPulseLimit", 10)}. Enemies can leave the saw.", SkillDescriptionSection.Attack);
+                        Add(lines, unique, ru ? "Длительность эффекта продлевает остановку, но не лимит касаний. Скорость снарядов ускоряет полёт; число снарядов не добавляет диски."
+                            : "Effect Duration extends the pause, not the hit cap. Projectile Speed speeds up travel; Projectile Count adds no disks.");
+                        Add(lines, unique, ru ? $"На возврате — {P(step.GetFloat("ReturnDamagePercent", 50))} обычного урона. Показатели урона учитывают только начальный удар."
+                            : $"Return flight deals {P(step.GetFloat("ReturnDamagePercent", 50))} of normal damage. Damage preview includes only the initial strike.", SkillDescriptionSection.Attack);
+                    }
+                    else AddProjectile(step, ru, ground: false, orbit: false, lines, unique, effectiveness);
                     break;
                 case "SpawnGroundProjectile":
                     AddProjectile(step, ru, ground: true, orbit: false, lines, unique, effectiveness);

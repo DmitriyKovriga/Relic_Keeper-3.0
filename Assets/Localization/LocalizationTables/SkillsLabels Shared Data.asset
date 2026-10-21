@@ -523,6 +523,14 @@ MonoBehaviour:
     m_Key: skills.TectonicPressSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103420026508419072
+    m_Key: skills.CircularSawSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103420026613276672
+    m_Key: skills.CircularSawSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

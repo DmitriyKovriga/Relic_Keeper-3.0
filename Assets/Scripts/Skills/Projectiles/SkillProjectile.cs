@@ -101,6 +101,12 @@ namespace Scripts.Skills.Projectiles
         public SkillDataSO Skill;
         public SkillHitStopGate HitStopGate;
         public GameObject PrismaticImpactPrefab;
+        public bool CircularSaw;
+        public float SawPauseDuration = 2.5f;
+        public float SawPulseInterval = .25f;
+        public int SawPulseLimit = 10;
+        public float SawPulseDamageMultiplier = .5f;
+        public GameObject SawImpactPrefab;
 
         public SkillProjectileLaunchData Clone()
         {
@@ -333,6 +339,8 @@ namespace Scripts.Skills.Projectiles
             _returningToOwner = false;
             _returnDamageActive = _data.ReturnDamageActive;
             _nextPulseAt = Mathf.Max(0f, _data.PulseInitialDelay);
+            _sawPaused = false;
+            _sawPulses = 0;
             RegisterActive();
 
             _hitHistory.Clear();
@@ -370,6 +378,9 @@ namespace Scripts.Skills.Projectiles
         }
 
         private void Update()
+            => Tick(Time.deltaTime);
+
+        private void Tick(float dt)
         {
             if (_data == null || _data.OwnerStats == null || _data.OwnerTransform == null)
             {
@@ -377,13 +388,15 @@ namespace Scripts.Skills.Projectiles
                 return;
             }
 
-            float dt = Time.deltaTime;
             _age += dt;
             if (_age >= Mathf.Max(0.05f, _data.Lifetime))
             {
                 Despawn();
                 return;
             }
+
+            if (_data.CircularSaw && TickSawPause(dt))
+                return;
 
             Vector2 previousPosition = transform.position;
             UpdateReversal();
@@ -513,10 +526,20 @@ namespace Scripts.Skills.Projectiles
                 if (target == null || IsTargetHitBlocked(target))
                     return false;
 
+                if (_data.CircularSaw && _sawPaused)
+                    return false;
+
                 RegisterTargetHit(target);
                 DamageSnapshot snapshot = DealDamage(target, out bool connected);
                 if (connected)
                     ExecuteOnHitEffects(target, targetTransform, snapshot);
+
+                if (_data.CircularSaw && !_returningToOwner && connected)
+                {
+                    if (contact.HasValue) transform.position = contact.Value.centroid + _direction * .02f;
+                    BeginSawPause();
+                    return true;
+                }
 
                 if (TryFork())
                     return true;
@@ -536,6 +559,14 @@ namespace Scripts.Skills.Projectiles
                 if (_data.EnvironmentRicochet && other.isTrigger) return false;
                 if (_data.GroundMotion && IsInLayerMask(other.gameObject.layer, _data.GroundLayer))
                     return false;
+
+                if (_data.CircularSaw)
+                {
+                    if (_sawPaused || _returningToOwner || other.isTrigger) return false;
+                    if (contact.HasValue) transform.position = contact.Value.centroid;
+                    BeginSawReturn();
+                    return true;
+                }
 
                 if (TryWorldRicochet(other, contact)) return true;
                 Despawn();
@@ -592,6 +623,9 @@ namespace Scripts.Skills.Projectiles
         }
 
         private DamageSnapshot DealDamage(IDamageable target, out bool connected)
+            => DealDamageScaled(target, out connected, 1f);
+
+        private DamageSnapshot DealDamageScaled(IDamageable target, out bool connected, float hitMultiplier)
         {
             connected = false;
             if (_data == null || target == null || _data.OwnerStats == null || _data.Step == null)
@@ -603,6 +637,7 @@ namespace Scripts.Skills.Projectiles
                 _returnDamageActive,
                 _data.ReturnDamagePercent,
                 _data.OwnerStats);
+            damageMultiplier *= hitMultiplier;
             if (_data.WorldBounceEmpowered)
                 damageMultiplier *= 1f + Mathf.Max(0, _data.RicochetDamagePercent) / 100f;
             DamageSnapshot snapshot = _data.UseElementalSpellDamage
@@ -629,6 +664,8 @@ namespace Scripts.Skills.Projectiles
                 _data.HitStopGate?.TryTrigger();
                 TryApplyAilmentsFromHit(scopedStats, target, snapshot);
                 ShowPrismaticImpact(target);
+                if (_data.SawImpactPrefab != null && Application.isPlaying)
+                    Instantiate(_data.SawImpactPrefab, transform.position, Quaternion.identity);
             }
             return snapshot;
         }
