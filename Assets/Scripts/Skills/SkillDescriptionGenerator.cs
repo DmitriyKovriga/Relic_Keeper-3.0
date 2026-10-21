@@ -143,6 +143,13 @@ namespace Scripts.Skills
                         StatModType.PercentLess => ru ? "меньшему" : "less",
                         _ => ru ? "большему" : "more"
                     };
+                    if (link.SourceStep > 0)
+                    {
+                        Add(lines, unique, ru
+                            ? $"Каждые {N(link.SourceStep)} параметра «{source}» дают +{N(link.Evaluate(link.SourceStep))} к {kind} значению «{target}» для этого навыка."
+                            : $"Every {N(link.SourceStep)} {source} grants +{N(link.Evaluate(link.SourceStep))} {kind} {target} for this skill.", SkillDescriptionSection.Attack);
+                        continue;
+                    }
                     Add(lines, unique, ru
                         ? $"Добавляет {P(link.SourcePercent)} от текущего параметра «{source}» к {kind} значению «{target}» для этого навыка."
                         : $"Adds {P(link.SourcePercent)} of current {source} as {kind} {target} for this skill.", SkillDescriptionSection.Attack);
@@ -477,6 +484,9 @@ namespace Scripts.Skills
 
             if (step.GetBool("Homing", false))
                 Add(lines, unique, ru ? "Снаряды наводятся на врагов." : "Projectiles home in on enemies.", SkillDescriptionSection.Attack);
+            if (step.GetBool("ManaSpear", false))
+                Add(lines, unique, ru ? "Узкое копьё летит прямо. Пробивание снарядов добавляет цели в линию; число, разветвление и цепь снарядов не влияют на выстрел."
+                    : "A narrow spear travels straight. Projectile Pierce adds targets along the line; Projectile Count, Fork and Chain do not affect the shot.", SkillDescriptionSection.Attack);
             if (step.GetBool("EnvironmentRicochet", false))
             {
                 Add(lines, unique, ru

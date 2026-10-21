@@ -547,6 +547,14 @@ MonoBehaviour:
     m_Key: skills.NeedlePrickSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103491619955503104
+    m_Key: skills.ManaSpearSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103491620001640448
+    m_Key: skills.ManaSpearSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

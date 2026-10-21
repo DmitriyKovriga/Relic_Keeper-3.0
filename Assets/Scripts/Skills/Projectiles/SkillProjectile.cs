@@ -45,6 +45,8 @@ namespace Scripts.Skills.Projectiles
         public float Speed = 8f;
         public float Lifetime = 4f;
         public float HitRadius = 1f;
+        // Optional fixed world-space radius for precision projectiles, independent of sprite length.
+        public float WorldHitRadius;
         public float HitScaleX = 1f;
         public float HitScaleY = 1f;
         public float RotationDegreesPerSecond = 720f;
@@ -375,6 +377,7 @@ namespace Scripts.Skills.Projectiles
             ResetProjectileVisualEffects();
             if (TryGetComponent(out Scripts.Skills.Visuals.PrismaticProjectileVisual prismaticVisual))
                 prismaticVisual.Configure(_data.OverrideSprite, _data.PrismaticImpactPrefab != null);
+            if (TryGetComponent(out Scripts.Skills.Visuals.ManaSpearVisual manaSpearVisual)) manaSpearVisual.Configure();
         }
 
         private void Update()
@@ -548,7 +551,7 @@ namespace Scripts.Skills.Projectiles
                     return true;
 
                 if (TryPierce())
-                    return true;
+                    return false; // Continue the swept path so fast piercing shots do not skip later targets.
 
                 Despawn();
                 return true;
@@ -664,6 +667,7 @@ namespace Scripts.Skills.Projectiles
                 _data.HitStopGate?.TryTrigger();
                 TryApplyAilmentsFromHit(scopedStats, target, snapshot);
                 ShowPrismaticImpact(target);
+                if (TryGetComponent(out Scripts.Skills.Visuals.ManaSpearVisual manaSpearVisual)) manaSpearVisual.ShowImpact(target);
                 if (_data.SawImpactPrefab != null && Application.isPlaying)
                     Instantiate(_data.SawImpactPrefab, transform.position, Quaternion.identity);
             }
@@ -1477,6 +1481,7 @@ namespace Scripts.Skills.Projectiles
 
             Vector3 lossy = transform.lossyScale;
             float rootScale = Mathf.Max(Mathf.Abs(lossy.x), Mathf.Abs(lossy.y), 0.0001f);
+            if (_data != null && _data.WorldHitRadius > 0) return Mathf.Max(.02f, _data.WorldHitRadius) / rootScale;
             return CalculateLocalRadius(
                 hasSprite ? bounds.size.x : 0f,
                 hasSprite ? bounds.size.y : 0f,

@@ -1,0 +1,235 @@
+{
+ "frames": [
+  {
+   "filename": "mana-spear-energized-flight 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 24
+   },
+   "pivot": {
+    "x": 0.8125,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "mana-spear-energized-flight 1.png",
+   "frame": {
+    "x": 64,
+    "y": 0,
+    "w": 64,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 24
+   },
+   "pivot": {
+    "x": 0.8125,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "mana-spear-energized-flight 2.png",
+   "frame": {
+    "x": 128,
+    "y": 0,
+    "w": 64,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 24
+   },
+   "pivot": {
+    "x": 0.8125,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "mana-spear-energized-flight 3.png",
+   "frame": {
+    "x": 0,
+    "y": 24,
+    "w": 64,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 24
+   },
+   "pivot": {
+    "x": 0.8125,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "mana-spear-energized-flight 4.png",
+   "frame": {
+    "x": 64,
+    "y": 24,
+    "w": 64,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 24
+   },
+   "pivot": {
+    "x": 0.8125,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "mana-spear-energized-flight 5.png",
+   "frame": {
+    "x": 128,
+    "y": 24,
+    "w": 64,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 24
+   },
+   "pivot": {
+    "x": 0.8125,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "mana-spear-energized-flight 6.png",
+   "frame": {
+    "x": 0,
+    "y": 48,
+    "w": 64,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 24
+   },
+   "pivot": {
+    "x": 0.8125,
+    "y": 0.5
+   },
+   "duration": 42
+  },
+  {
+   "filename": "mana-spear-energized-flight 7.png",
+   "frame": {
+    "x": 64,
+    "y": 48,
+    "w": 64,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 24
+   },
+   "pivot": {
+    "x": 0.8125,
+    "y": 0.5
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "mana-spear-energized-flight.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 192,
+   "h": 72
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 52,
+   "y": 12
+  },
+  "frameTags": [
+   {
+    "name": "mana-spear-energized-flight",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ }
+}

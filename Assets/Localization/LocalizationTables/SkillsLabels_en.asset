@@ -594,6 +594,18 @@ MonoBehaviour:
       Stay close to the target.'
     m_Metadata:
       m_Items: []
+  - m_Id: 103491619955503104
+    m_Localized: Mana Spear
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103491620001640448
+    m_Localized: Fire one narrow magic spear for 100% weapon damage converted to
+      lightning. Every complete 75 Max Mana adds 5 flat lightning damage to this
+      skill. Projectile Pierce allows additional targets along the line. Projectile
+      Count, Fork and Chain do not change the single straight shot. Current mana
+      does not affect the bonus.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
