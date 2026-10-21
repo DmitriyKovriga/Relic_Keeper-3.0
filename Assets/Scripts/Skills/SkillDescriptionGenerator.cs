@@ -507,6 +507,10 @@ namespace Scripts.Skills
             else
                 Add(lines, unique, ru ? $"Выпускает {count} снаряд{extra}, наносящий {damage} урона оружия." : $"Fires {count} projectile{(count == 1 ? string.Empty : "s")}{extra}, dealing {damage} weapon damage.", SkillDescriptionSection.Attack);
 
+            if (step.GetBool("NearFan", false))
+                Add(lines, unique, ru
+                    ? $"Стрелы выпускаются одновременно веером {N(step.GetFloat("TotalConeAngle", 70))}°. Каждая стрела может поразить ту же цель: вблизи несколько стрел попадают в одного врага. Число снарядов добавляет стрелы внутри того же веера, повышая его плотность."
+                    : $"Arrows fire simultaneously across a {N(step.GetFloat("TotalConeAngle", 70))}° fan. Each arrow can hit the same target: several arrows can strike one enemy at close range. Projectile Count adds arrows inside the same fan, increasing its density.", SkillDescriptionSection.Attack);
             if (step.GetBool("Homing", false))
                 Add(lines, unique, ru ? "Снаряды наводятся на врагов." : "Projectiles home in on enemies.", SkillDescriptionSection.Attack);
             if (step.GetBool("ManaSpear", false))

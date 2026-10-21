@@ -668,6 +668,18 @@ MonoBehaviour:
       the wind-up. Cooldown: 15 seconds. Mana cost: 35.'
     m_Metadata:
       m_Items: []
+  - m_Id: 103603522648240128
+    m_Localized: Near Fan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103603522757292032
+    m_Localized: "Fire 5 arrows simultaneously across a 70\xB0 fan, each dealing
+      100% weapon damage. Several arrows can hit one enemy at close range; the wider
+      spread covers multiple targets at distance. Projectile Count adds arrows inside
+      the same angle, increasing volley density. Projectile Speed accelerates travel;
+      Attack Speed accelerates the shot. Cooldown: 10 seconds. Mana cost: 20."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

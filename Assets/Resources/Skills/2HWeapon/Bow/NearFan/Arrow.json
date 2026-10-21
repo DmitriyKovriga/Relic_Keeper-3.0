@@ -1,0 +1,131 @@
+{
+ "frames": [
+  {
+   "filename": "near-fan-arrow 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 16
+   },
+   "pivot": {
+    "x": 0.65625,
+    "y": 0.5
+   },
+   "duration": 50
+  },
+  {
+   "filename": "near-fan-arrow 1.png",
+   "frame": {
+    "x": 32,
+    "y": 0,
+    "w": 32,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 16
+   },
+   "pivot": {
+    "x": 0.65625,
+    "y": 0.5
+   },
+   "duration": 50
+  },
+  {
+   "filename": "near-fan-arrow 2.png",
+   "frame": {
+    "x": 0,
+    "y": 16,
+    "w": 32,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 16
+   },
+   "pivot": {
+    "x": 0.65625,
+    "y": 0.5
+   },
+   "duration": 50
+  },
+  {
+   "filename": "near-fan-arrow 3.png",
+   "frame": {
+    "x": 32,
+    "y": 16,
+    "w": 32,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 16
+   },
+   "pivot": {
+    "x": 0.65625,
+    "y": 0.5
+   },
+   "duration": 50
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "near-fan-arrow.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 64,
+   "h": 32
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 21,
+   "y": 8
+  },
+  "frameTags": [
+   {
+    "name": "near-fan-arrow",
+    "from": 0,
+    "to": 3,
+    "direction": "forward"
+   }
+  ]
+ }
+}

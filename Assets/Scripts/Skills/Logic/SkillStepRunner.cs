@@ -820,6 +820,12 @@ namespace Scripts.Skills
 
             Vector2 forward = new Vector2(_ctx.FacingDirection, 0f);
             var spreadMode = (SkillProjectileSpreadMode)step.GetInt("SpreadMode", (int)SkillProjectileSpreadMode.Cone);
+            // An authored total angle keeps extra arrows inside the same fan, increasing density.
+            // Existing volleys retain their per-projectile spacing when no total angle is supplied.
+            float totalConeAngle = Mathf.Clamp(step.GetFloat("TotalConeAngle", 0f), 0f, 180f);
+            float coneAngleStep = totalConeAngle > 0f
+                ? totalConeAngle / Mathf.Max(1, totalCount - 1)
+                : step.GetFloat("ConeAnglePerProjectile", 8f);
             for (int i = 0; i < totalCount; i++)
             {
                 Vector2 spawnPos = origin;
@@ -830,9 +836,8 @@ namespace Scripts.Skills
                 }
                 else
                 {
-                    float angleStep = step.GetFloat("ConeAnglePerProjectile", 8f);
                     float centeredIndex = i - (totalCount - 1) * 0.5f;
-                    direction = RotateVector(forward, centeredIndex * angleStep);
+                    direction = RotateVector(forward, centeredIndex * coneAngleStep);
                 }
 
                 SkillProjectile.Spawn(data, spawnPos, direction, null);
