@@ -539,6 +539,14 @@ MonoBehaviour:
     m_Key: skills.RetreatingThrustSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103440087742816256
+    m_Key: skills.NeedlePrickSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103440087843479552
+    m_Key: skills.NeedlePrickSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

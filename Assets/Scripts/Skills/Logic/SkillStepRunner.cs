@@ -364,6 +364,9 @@ namespace Scripts.Skills
             string id = step.StepDefinition != null ? step.StepDefinition.Id : "";
             switch (id)
             {
+                case "NeedlePrick":
+                    ExecuteNeedlePrick(stepIndex, step);
+                    break;
                 case "RetreatingThrust":
                     ExecuteRetreatingThrust(stepIndex, step);
                     break;

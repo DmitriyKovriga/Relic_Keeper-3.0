@@ -324,6 +324,7 @@ namespace Scripts.Combat
                 || id == "CrimsonHook"
                 || id == "TectonicPress"
                 || id == "RetreatingThrust"
+                || id == "NeedlePrick"
                 || id == "ArrowRain"
                 || id == "BlinkStab"
                 || id == "ChainDamage"

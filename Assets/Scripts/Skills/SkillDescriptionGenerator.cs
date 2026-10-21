@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "RetreatingThrust" or "TectonicPress" or "PrismaticCycle" or "CrimsonHook" or "FrostWall" or "LightningRod" or "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "NeedlePrick" or "RetreatingThrust" or "TectonicPress" or "PrismaticCycle" or "CrimsonHook" or "FrostWall" or "LightningRod" or "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -128,6 +128,8 @@ namespace Scripts.Skills
             bool ru = IsRussian(localeCode);
             var unique = new HashSet<string>(StringComparer.Ordinal);
             var quickNotes = new List<QuickStatusNote>();
+            if (skill.Recipe.Steps?.Exists(step => step?.StepDefinition?.Id == "NeedlePrick") == true)
+                Add(lines, unique, ru ? $"Скорость атаки: ×{N(skill.SkillSpeedMultiplier)}." : $"Attack speed: ×{N(skill.SkillSpeedMultiplier)}.", SkillDescriptionSection.Attack);
             if (skill.StatLinks != null)
                 foreach (var link in skill.StatLinks)
                 {
@@ -216,6 +218,11 @@ namespace Scripts.Skills
 
             switch (id)
             {
+                case "NeedlePrick":
+                    Add(lines, unique, ru
+                        ? $"Быстрый укол: {P(step.GetFloat("DamageMultiplier", .75f) * effectiveness * 100)} урона оружия ближайшему врагу перед героем. Дальность — {N(step.GetFloat("Range", .9f))} м; требуется держаться вплотную."
+                        : $"Fast prick: {P(step.GetFloat("DamageMultiplier", .75f) * effectiveness * 100)} weapon damage to the nearest enemy in front. Reach: {N(step.GetFloat("Range", .9f))} m; stay close.", SkillDescriptionSection.Attack);
+                    break;
                 case "RetreatingThrust":
                     Add(lines, unique, ru
                         ? $"Длинный узкий укол перед героем: {P(step.GetFloat("DamageMultiplier", 2.5f) * effectiveness * 100)} урона оружия, дальность {N(step.GetFloat("Range", 3.2f))} м. Стены останавливают удар."
