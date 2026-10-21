@@ -555,6 +555,14 @@ MonoBehaviour:
     m_Key: skills.ManaSpearSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103502318383493120
+    m_Key: skills.TornEdgeSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103502318458990592
+    m_Key: skills.TornEdgeSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

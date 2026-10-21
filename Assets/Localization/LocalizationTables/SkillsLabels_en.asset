@@ -606,6 +606,18 @@ MonoBehaviour:
       does not affect the bonus.
     m_Metadata:
       m_Items: []
+  - m_Id: 103502318383493120
+    m_Localized: Torn Edge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103502318458990592
+    m_Localized: A slow sweeping strike with a two-handed sword or axe deals 250%
+      weapon damage. Each percentage point of Crit Multiplier adds one point to this
+      skill's Bleed Damage Multiplier, even on non-critical hits. Uses your normal
+      chance to inflict bleed; bleeding is not guaranteed. Attacks at 70% of normal
+      speed.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
