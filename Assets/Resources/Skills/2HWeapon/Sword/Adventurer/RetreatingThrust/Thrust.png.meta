@@ -1,0 +1,397 @@
+fileFormatVersion: 2
+guid: c9a08bb2998c33a45a9a2e4f27d3ce4a
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -3971448639319642843
+    second: Thrust_0
+  - first:
+      213: 4352637255900294146
+    second: Thrust_1
+  - first:
+      213: 4414150143222128918
+    second: Thrust_2
+  - first:
+      213: -3017042825262443818
+    second: Thrust_3
+  - first:
+      213: -6271690014876186876
+    second: Thrust_4
+  - first:
+      213: -6301300876414355068
+    second: Thrust_00
+  - first:
+      213: 5523960689690506664
+    second: Thrust_01
+  - first:
+      213: -2740341266430923801
+    second: Thrust_02
+  - first:
+      213: 3323276934786549633
+    second: Thrust_03
+  - first:
+      213: -5449723416987690098
+    second: Thrust_04
+  - first:
+      213: -2467836834615518332
+    second: Thrust_05
+  - first:
+      213: -2189535803041381662
+    second: Thrust_06
+  - first:
+      213: 8885880261123229383
+    second: Thrust_07
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 24
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Thrust_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 64
+        width: 96
+        height: 32
+      alignment: 9
+      pivot: {x: 0.45833334, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 489f6761d384d88a0800000000000000
+      internalID: -6301300876414355068
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Thrust_01
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 64
+        width: 96
+        height: 32
+      alignment: 9
+      pivot: {x: 0.45833334, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a57936eafc09ac40800000000000000
+      internalID: 5523960689690506664
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Thrust_02
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 64
+        width: 96
+        height: 32
+      alignment: 9
+      pivot: {x: 0.45833334, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7eb6a0b132a58f9d0800000000000000
+      internalID: -2740341266430923801
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Thrust_03
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 32
+        width: 96
+        height: 32
+      alignment: 9
+      pivot: {x: 0.45833334, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1878334c3c6ae1e20800000000000000
+      internalID: 3323276934786549633
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Thrust_04
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 32
+        width: 96
+        height: 32
+      alignment: 9
+      pivot: {x: 0.45833334, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8b12561d61be54b0800000000000000
+      internalID: -5449723416987690098
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Thrust_05
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 32
+        width: 96
+        height: 32
+      alignment: 9
+      pivot: {x: 0.45833334, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48b1e1d597b70cdd0800000000000000
+      internalID: -2467836834615518332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Thrust_06
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 96
+        height: 32
+      alignment: 9
+      pivot: {x: 0.45833334, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e208bca9c43d91e0800000000000000
+      internalID: -2189535803041381662
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Thrust_07
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 96
+        height: 32
+      alignment: 9
+      pivot: {x: 0.45833334, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c6c7e0a40df05b70800000000000000
+      internalID: 8885880261123229383
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Thrust_0: -3971448639319642843
+      Thrust_00: -6301300876414355068
+      Thrust_01: 5523960689690506664
+      Thrust_02: -2740341266430923801
+      Thrust_03: 3323276934786549633
+      Thrust_04: -5449723416987690098
+      Thrust_05: -2467836834615518332
+      Thrust_06: -2189535803041381662
+      Thrust_07: 8885880261123229383
+      Thrust_1: 4352637255900294146
+      Thrust_2: 4414150143222128918
+      Thrust_3: -3017042825262443818
+      Thrust_4: -6271690014876186876
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

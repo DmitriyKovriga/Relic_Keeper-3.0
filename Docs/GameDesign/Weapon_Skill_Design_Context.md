@@ -393,6 +393,19 @@ not user-approved direction or shipped features.
 
 ## 8. Discussion memory and refresh rules
 
+- 2026-10-21 - User feedback for the first 20-concept shortlist: reports adding
+  #1 Reply Slash, #5 Prismatic Cycle, #7 Crimson Hook, #9 Falling Anvil,
+  #10 Tectonic Press, #11 Bank Shot, #13 Circular Saw, #18 Frost Mirror,
+  and #20 Storm Circuit (original proposal names, not necessarily asset names).
+  Other proposals were disliked or required system changes beyond the user's
+  current appetite; the user did not assign a reason to each rejected proposal.
+  Future batches should favor existing recipes, local stat links, conversions,
+  hit shapes, movement and projectile options. Avoid resubmitting rejected
+  concepts unchanged or assuming that a selected concept shipped unchanged.
+  Inspected sources confirm evolved versions named Prismatic Cycle (four-cast
+  cycle), Crimson Hook (no bleed prerequisite), Circular Saw (special slot),
+  and Frost Wall (stationary barrier). See their corresponding Docs files.
+  The reported list alone is not runtime verification of all nine additions.
 - Confirmed request: build an English factual foundation and reusable
   `game-designer` skill before collaboratively inventing new weapon skills.
 - 2026-10-20 — Extraction implemented at the user's request, including the

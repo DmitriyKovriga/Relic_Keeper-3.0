@@ -364,6 +364,9 @@ namespace Scripts.Skills
             string id = step.StepDefinition != null ? step.StepDefinition.Id : "";
             switch (id)
             {
+                case "RetreatingThrust":
+                    ExecuteRetreatingThrust(stepIndex, step);
+                    break;
                 case "MovementLock":
                     _moveCtrl.SetLock(true);
                     break;

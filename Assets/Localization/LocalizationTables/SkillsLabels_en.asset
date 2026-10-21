@@ -572,6 +572,17 @@ MonoBehaviour:
       cap. Projectile Speed speeds up travel; Projectile Count adds no disks.
     m_Metadata:
       m_Items: []
+  - m_Id: 103435650517311488
+    m_Localized: Retreating Thrust
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103435650601197568
+    m_Localized: Thrust in a long narrow line for 250% weapon damage, reaching up
+      to 3.2 metres, then immediately hop backward. Gain 1 percentage point of critical
+      hit chance for this skill per 100 Evasion. Uses the weapon's critical multiplier.
+      The retreat grants no invulnerability and respects obstacles.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

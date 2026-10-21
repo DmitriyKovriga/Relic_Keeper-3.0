@@ -531,6 +531,14 @@ MonoBehaviour:
     m_Key: skills.CircularSawSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103435650517311488
+    m_Key: skills.RetreatingThrustSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103435650601197568
+    m_Key: skills.RetreatingThrustSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

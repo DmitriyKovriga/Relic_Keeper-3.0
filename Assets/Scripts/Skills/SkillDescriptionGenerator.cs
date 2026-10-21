@@ -58,7 +58,7 @@ namespace Scripts.Skills
         {
             return id switch
             {
-                "TectonicPress" or "PrismaticCycle" or "CrimsonHook" or "FrostWall" or "LightningRod" or "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
+                "RetreatingThrust" or "TectonicPress" or "PrismaticCycle" or "CrimsonHook" or "FrostWall" or "LightningRod" or "FallingAnvil" or "IceSkates" or "ArrowRain" or "WinterStorm" or "SelfStasis" or "ForwardBlink" or "BlinkStab" or "InstantBeam" or "PlasmaField" or "DealDamageRectangle" or "PersistentDamageRectangle" or
                 "DealDamageCircle" or "PersistentDamageCircle" or
                 "SpawnProjectile" or "SpawnGroundProjectile" or "SpawnOrbitProjectiles" or
                 "BuildChainTargets" or "ChainDamage" or "PlayerImpulse" or "PlayerCharge" or
@@ -216,6 +216,13 @@ namespace Scripts.Skills
 
             switch (id)
             {
+                case "RetreatingThrust":
+                    Add(lines, unique, ru
+                        ? $"Длинный узкий укол перед героем: {P(step.GetFloat("DamageMultiplier", 2.5f) * effectiveness * 100)} урона оружия, дальность {N(step.GetFloat("Range", 3.2f))} м. Стены останавливают удар."
+                        : $"Long, narrow thrust in front: {P(step.GetFloat("DamageMultiplier", 2.5f) * effectiveness * 100)} weapon damage, {N(step.GetFloat("Range", 3.2f))} m reach. Walls stop the strike.", SkillDescriptionSection.Attack);
+                    Add(lines, unique, ru ? "Сразу после укола герой отпрыгивает назад, сохраняя направление взгляда. Отход не даёт неуязвимости."
+                        : "Immediately hop backward after the thrust, keeping your facing. The retreat grants no invulnerability.");
+                    break;
                 case "PlasmaField":
                     Add(lines, unique, ru
                         ? $"Кольцо молний расширяется до {N(step.GetFloat("Radius", 4))} м, затем сжимается к герою. Поражает каждую цель один раз при расширении и ещё раз при возвращении."
