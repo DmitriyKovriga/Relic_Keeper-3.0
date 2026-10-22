@@ -1385,6 +1385,11 @@ namespace Scripts.Skills
 
         private void ExecuteDealDamageRectangle(int stepIndex, StepEntry step)
         {
+            if (step.GetBool("IcyPalisade", false))
+            {
+                ExecuteIcyPalisadeGroup(stepIndex, step);
+                return;
+            }
             ResolveRectangleArea(step, out Vector2 center, out Vector2 size, out float angle);
             var targets = GetTargetsInBox(center, size, angle);
             int maxTargets = step.GetInt("MaxTargets", 0);

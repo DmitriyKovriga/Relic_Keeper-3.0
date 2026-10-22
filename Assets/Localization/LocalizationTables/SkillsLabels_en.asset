@@ -744,6 +744,19 @@ MonoBehaviour:
       help control enemies. Cooldown: 15 seconds. Mana: 25.'
     m_Metadata:
       m_Items: []
+  - m_Id: 103782127609147392
+    m_Localized: Icy Palisade
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103782127705616384
+    m_Localized: 'Three groups of spikes erupt ahead about 0.15 seconds apart. Each
+      group deals 250% weapon damage converted to cold, then shatters. Each maximum
+      Mystic Shield charge grants 20% additional damage: capacity 3 gives 400% weapon
+      damage per group. Current charges do not affect the bonus and are not consumed.
+      Area of Effect enlarges the spikes. Each spike finds its own ground and skips
+      gaps; no obstacles are created. Cooldown: 10 seconds. Mana: 25.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

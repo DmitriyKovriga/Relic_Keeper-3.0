@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "icy-palisade-spike 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8571428571428571
+   },
+   "duration": 33
+  },
+  {
+   "filename": "icy-palisade-spike 1.png",
+   "frame": {
+    "x": 40,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8571428571428571
+   },
+   "duration": 33
+  },
+  {
+   "filename": "icy-palisade-spike 2.png",
+   "frame": {
+    "x": 80,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8571428571428571
+   },
+   "duration": 33
+  },
+  {
+   "filename": "icy-palisade-spike 3.png",
+   "frame": {
+    "x": 120,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8571428571428571
+   },
+   "duration": 33
+  },
+  {
+   "filename": "icy-palisade-spike 4.png",
+   "frame": {
+    "x": 0,
+    "y": 56,
+    "w": 40,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8571428571428571
+   },
+   "duration": 33
+  },
+  {
+   "filename": "icy-palisade-spike 5.png",
+   "frame": {
+    "x": 40,
+    "y": 56,
+    "w": 40,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8571428571428571
+   },
+   "duration": 33
+  },
+  {
+   "filename": "icy-palisade-spike 6.png",
+   "frame": {
+    "x": 80,
+    "y": 56,
+    "w": 40,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8571428571428571
+   },
+   "duration": 33
+  },
+  {
+   "filename": "icy-palisade-spike 7.png",
+   "frame": {
+    "x": 120,
+    "y": 56,
+    "w": 40,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8571428571428571
+   },
+   "duration": 33
+  },
+  {
+   "filename": "icy-palisade-spike 8.png",
+   "frame": {
+    "x": 0,
+    "y": 112,
+    "w": 40,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8571428571428571
+   },
+   "duration": 33
+  },
+  {
+   "filename": "icy-palisade-spike 9.png",
+   "frame": {
+    "x": 40,
+    "y": 112,
+    "w": 40,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8571428571428571
+   },
+   "duration": 33
+  },
+  {
+   "filename": "icy-palisade-spike 10.png",
+   "frame": {
+    "x": 80,
+    "y": 112,
+    "w": 40,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8571428571428571
+   },
+   "duration": 33
+  },
+  {
+   "filename": "icy-palisade-spike 11.png",
+   "frame": {
+    "x": 120,
+    "y": 112,
+    "w": 40,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8571428571428571
+   },
+   "duration": 33
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "icy-palisade-spike.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 160,
+   "h": 168
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 20,
+   "y": 48
+  },
+  "frameTags": [
+   {
+    "name": "icy-palisade-spike",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

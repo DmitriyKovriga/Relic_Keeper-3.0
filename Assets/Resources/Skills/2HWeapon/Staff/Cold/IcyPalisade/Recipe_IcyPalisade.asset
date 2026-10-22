@@ -1,0 +1,404 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa469c8d85911614bbc9afc2a526821c, type: 3}
+  m_Name: Recipe_IcyPalisade
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.Steps.SkillRecipeSO
+  Steps:
+  - StepDefinition: {fileID: 11400000, guid: 4a09dbc08d2314b46873162258f8a044, type: 2}
+    Overrides: []
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0
+    EndPercentPipeline: 0.8
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: e6d99185f818c7840be2327fe444fbc3, type: 2}
+    Overrides: []
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0
+    EndPercentPipeline: 0.3
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: f52618a1da9473f489fc1d7569c9977b, type: 2}
+    Overrides: []
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.3
+    EndPercentPipeline: 0.3
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: be86aa20acfead645a1a781755a28a0f, type: 2}
+    Overrides:
+    - Key: DamageMultiplier
+      Type: 0
+      FloatVal: 2.5
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SizeX
+      Type: 0
+      FloatVal: 0.6
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SizeY
+      Type: 0
+      FloatVal: 1.65
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: OffsetX
+      Type: 0
+      FloatVal: 1.1
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SpikeSpacing
+      Type: 0
+      FloatVal: 0.55
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: GroundSnapUp
+      Type: 0
+      FloatVal: 0.75
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: GroundSnapDown
+      Type: 0
+      FloatVal: 2
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: GroundYOffset
+      Type: 0
+      FloatVal: 0.02
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: VfxLifetime
+      Type: 0
+      FloatVal: 0.4
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: IcyPalisade
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 1
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: PullTowardOwner
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SpikesPerGroup
+      Type: 1
+      FloatVal: 0
+      IntVal: 3
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: GroundLayerMask
+      Type: 1
+      FloatVal: 0
+      IntVal: 64
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: VfxPrefab
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 6953762467574651413, guid: e806f503343b9054da2f9e1195df73ed, type: 3}
+    DamageConversions:
+    - Source: 0
+      Target: 2
+      Percent: 100
+    - Source: 1
+      Target: 2
+      Percent: 100
+    - Source: 3
+      Target: 2
+      Percent: 100
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.3
+    EndPercentPipeline: 0.3
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: be86aa20acfead645a1a781755a28a0f, type: 2}
+    Overrides:
+    - Key: DamageMultiplier
+      Type: 0
+      FloatVal: 2.5
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SizeX
+      Type: 0
+      FloatVal: 0.6
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SizeY
+      Type: 0
+      FloatVal: 1.65
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: OffsetX
+      Type: 0
+      FloatVal: 2.4
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SpikeSpacing
+      Type: 0
+      FloatVal: 0.55
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: GroundSnapUp
+      Type: 0
+      FloatVal: 0.75
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: GroundSnapDown
+      Type: 0
+      FloatVal: 2
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: GroundYOffset
+      Type: 0
+      FloatVal: 0.02
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: VfxLifetime
+      Type: 0
+      FloatVal: 0.4
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: IcyPalisade
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 1
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: PullTowardOwner
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SpikesPerGroup
+      Type: 1
+      FloatVal: 0
+      IntVal: 3
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: GroundLayerMask
+      Type: 1
+      FloatVal: 0
+      IntVal: 64
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: VfxPrefab
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 6953762467574651413, guid: e806f503343b9054da2f9e1195df73ed, type: 3}
+    DamageConversions:
+    - Source: 0
+      Target: 2
+      Percent: 100
+    - Source: 1
+      Target: 2
+      Percent: 100
+    - Source: 3
+      Target: 2
+      Percent: 100
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.45000002
+    EndPercentPipeline: 0.45000002
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: be86aa20acfead645a1a781755a28a0f, type: 2}
+    Overrides:
+    - Key: DamageMultiplier
+      Type: 0
+      FloatVal: 2.5
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SizeX
+      Type: 0
+      FloatVal: 0.6
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SizeY
+      Type: 0
+      FloatVal: 1.65
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: OffsetX
+      Type: 0
+      FloatVal: 3.6999998
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SpikeSpacing
+      Type: 0
+      FloatVal: 0.55
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: GroundSnapUp
+      Type: 0
+      FloatVal: 0.75
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: GroundSnapDown
+      Type: 0
+      FloatVal: 2
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: GroundYOffset
+      Type: 0
+      FloatVal: 0.02
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: VfxLifetime
+      Type: 0
+      FloatVal: 0.4
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: IcyPalisade
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 1
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: PullTowardOwner
+      Type: 2
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: SpikesPerGroup
+      Type: 1
+      FloatVal: 0
+      IntVal: 3
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: GroundLayerMask
+      Type: 1
+      FloatVal: 0
+      IntVal: 64
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 0}
+    - Key: VfxPrefab
+      Type: 4
+      FloatVal: 0
+      IntVal: 0
+      BoolVal: 0
+      StringVal: 
+      ObjectVal: {fileID: 6953762467574651413, guid: e806f503343b9054da2f9e1195df73ed, type: 3}
+    DamageConversions:
+    - Source: 0
+      Target: 2
+      Percent: 100
+    - Source: 1
+      Target: 2
+      Percent: 100
+    - Source: 3
+      Target: 2
+      Percent: 100
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.6
+    EndPercentPipeline: 0.6
+    SubSteps: []
+  - StepDefinition: {fileID: 11400000, guid: 6250a752a1e0b2a418e03bcc5c86278d, type: 2}
+    Overrides: []
+    DamageConversions: []
+    ScopedStatModifiers: []
+    TargetAilmentStackModifiers: []
+    OnHitEffects: []
+    StartPercentPipeline: 0.6
+    EndPercentPipeline: 1
+    SubSteps: []
+  HitStopFrames: 0
+  IsChanneling: 0
+  ChannelLoopStepIndices: 
+  ChannelMaxDuration: 5
+  ChannelTickDuration: 0

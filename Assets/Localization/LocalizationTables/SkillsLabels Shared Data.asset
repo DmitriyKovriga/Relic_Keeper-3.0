@@ -643,6 +643,14 @@ MonoBehaviour:
     m_Key: skills.FrostInducedJoltSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103782127609147392
+    m_Key: skills.IcyPalisadeSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103782127705616384
+    m_Key: skills.IcyPalisadeSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

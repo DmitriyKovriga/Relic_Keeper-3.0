@@ -463,6 +463,13 @@ namespace Scripts.Skills
         private static void AddDamage(StepEntry step, bool ru, bool nearby, List<SkillDescriptionLine> lines, HashSet<string> unique, float effectiveness)
         {
             string damage = P(step.GetFloat("DamageMultiplier", 1f) * effectiveness * 100f);
+            if (step.GetBool("IcyPalisade", false))
+            {
+                Add(lines, unique, ru
+                    ? $"Три группы ледяных шипов последовательно вырастают перед героем. Каждая группа наносит {damage} урона оружия и сразу разбивается; одна цель получает не более одного попадания от группы. Максимум зарядов Mystic Shield усиливает урон независимо от оставшихся зарядов; заряды не расходуются. Область действия увеличивает шипы. Каждый шип отдельно находит землю; пропасти пропускаются. Шипы не создают препятствий."
+                    : $"Three groups of ice spikes erupt in sequence ahead. Each group deals {damage} weapon damage and immediately shatters; each target is hit at most once per group. Max Mystic Shield increases damage regardless of remaining charges; charges are not consumed. Area of Effect enlarges the spikes. Each spike finds its own ground; gaps are skipped. Spikes create no obstacles.", SkillDescriptionSection.Attack);
+                return;
+            }
             if (step.GetBool("FrostInducedJolt", false))
             {
                 Add(lines, unique, ru
