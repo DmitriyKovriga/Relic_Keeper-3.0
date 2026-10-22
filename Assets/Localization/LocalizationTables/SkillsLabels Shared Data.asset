@@ -635,6 +635,14 @@ MonoBehaviour:
     m_Key: skills.FlamingSpearSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103775990461591552
+    m_Key: skills.FrostInducedJoltSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103775990570643456
+    m_Key: skills.FrostInducedJoltSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

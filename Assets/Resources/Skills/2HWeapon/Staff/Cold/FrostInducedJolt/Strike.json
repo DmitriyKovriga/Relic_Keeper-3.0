@@ -1,0 +1,287 @@
+{
+ "frames": [
+  {
+   "filename": "frost-induced-jolt-wave 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 104,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 104,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 104,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5357142857142857
+   },
+   "duration": 33
+  },
+  {
+   "filename": "frost-induced-jolt-wave 1.png",
+   "frame": {
+    "x": 104,
+    "y": 0,
+    "w": 104,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 104,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 104,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5357142857142857
+   },
+   "duration": 33
+  },
+  {
+   "filename": "frost-induced-jolt-wave 2.png",
+   "frame": {
+    "x": 208,
+    "y": 0,
+    "w": 104,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 104,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 104,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5357142857142857
+   },
+   "duration": 33
+  },
+  {
+   "filename": "frost-induced-jolt-wave 3.png",
+   "frame": {
+    "x": 312,
+    "y": 0,
+    "w": 104,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 104,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 104,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5357142857142857
+   },
+   "duration": 33
+  },
+  {
+   "filename": "frost-induced-jolt-wave 4.png",
+   "frame": {
+    "x": 0,
+    "y": 56,
+    "w": 104,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 104,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 104,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5357142857142857
+   },
+   "duration": 33
+  },
+  {
+   "filename": "frost-induced-jolt-wave 5.png",
+   "frame": {
+    "x": 104,
+    "y": 56,
+    "w": 104,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 104,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 104,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5357142857142857
+   },
+   "duration": 33
+  },
+  {
+   "filename": "frost-induced-jolt-wave 6.png",
+   "frame": {
+    "x": 208,
+    "y": 56,
+    "w": 104,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 104,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 104,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5357142857142857
+   },
+   "duration": 33
+  },
+  {
+   "filename": "frost-induced-jolt-wave 7.png",
+   "frame": {
+    "x": 312,
+    "y": 56,
+    "w": 104,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 104,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 104,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5357142857142857
+   },
+   "duration": 33
+  },
+  {
+   "filename": "frost-induced-jolt-wave 8.png",
+   "frame": {
+    "x": 0,
+    "y": 112,
+    "w": 104,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 104,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 104,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5357142857142857
+   },
+   "duration": 33
+  },
+  {
+   "filename": "frost-induced-jolt-wave 9.png",
+   "frame": {
+    "x": 104,
+    "y": 112,
+    "w": 104,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 104,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 104,
+    "h": 56
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5357142857142857
+   },
+   "duration": 33
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "frost-induced-jolt-wave.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 416,
+   "h": 168
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 52,
+   "y": 30
+  },
+  "frameTags": [
+   {
+    "name": "frost-induced-jolt-wave",
+    "from": 0,
+    "to": 9,
+    "direction": "forward"
+   }
+  ]
+ }
+}

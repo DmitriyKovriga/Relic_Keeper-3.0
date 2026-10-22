@@ -732,6 +732,18 @@ MonoBehaviour:
       target at impact. Cooldown: 10 seconds. Mana: 25.'
     m_Metadata:
       m_Items: []
+  - m_Id: 103775990461591552
+    m_Localized: Frost-induced Jolt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103775990570643456
+    m_Localized: 'A short cold wave hits nearby enemies on both sides for 250% weapon
+      damage converted to cold, pushing them away from the character. Radius: 1.75.
+      Base knockback rating: 750. Every complete 1% Cold Resistance adds 10 knockback
+      rating to this skill only. Area of Effect expands the wave; normal freeze stats
+      help control enemies. Cooldown: 15 seconds. Mana: 25.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

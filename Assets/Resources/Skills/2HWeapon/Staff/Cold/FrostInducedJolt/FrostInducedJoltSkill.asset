@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 037112ba607a5b2409ab1b0826944402, type: 3}
+  m_Name: FrostInducedJoltSkill
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
+  ID: FrostInducedJoltSkill
+  SkillName: Frost-induced Jolt
+  DescriptionMode: 0
+  Description: 
+  Icon: {fileID: 21300000, guid: 20b6274c0ab80e144bc448f53eee48bc, type: 3}
+  NameKey: skills.FrostInducedJoltSkill
+  DescriptionKey: skills.FrostInducedJoltSkill.description
+  IsActive: 1
+  Cooldown: 15
+  ManaCost: 25
+  ActionSpeedMode: 1
+  SkillSpeedMultiplier: 1
+  DamageContextTags: 18
+  StatLinks:
+  - SourceStat: 20
+    SourcePercent: 1000
+    SourceStep: 1
+    TargetStat: 110
+    TargetModifierType: 100
+  EnablePushback: 1
+  PushbackRating: 750
+  SkillPrefab: {fileID: 0}
+  AnimationTrigger: Attack
+  Recipe: {fileID: 11400000, guid: c8a2df43ecc3b3b4aa47a2da57a1ff77, type: 2}
+  WeaponRole: 1
+  HoldStance: 5
+  HoldStanceId: staff
+  SwingStyle: 1
+  SwingStyleId: slash

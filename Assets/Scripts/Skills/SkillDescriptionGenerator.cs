@@ -463,6 +463,13 @@ namespace Scripts.Skills
         private static void AddDamage(StepEntry step, bool ru, bool nearby, List<SkillDescriptionLine> lines, HashSet<string> unique, float effectiveness)
         {
             string damage = P(step.GetFloat("DamageMultiplier", 1f) * effectiveness * 100f);
+            if (step.GetBool("FrostInducedJolt", false))
+            {
+                Add(lines, unique, ru
+                    ? $"Короткая волна холода наносит {damage} урона оружия ближайшим врагам с обеих сторон и отталкивает их от героя. Базовый радиус: {N(step.GetFloat("Radius", 1.75f))}. Область действия увеличивает радиус. Действуют обычные правила заморозки."
+                    : $"A short cold wave deals {damage} weapon damage to nearby enemies on both sides and pushes them away from the character. Base radius: {N(step.GetFloat("Radius", 1.75f))}. Area of Effect expands the radius. Normal freeze rules apply.", SkillDescriptionSection.Attack);
+                return;
+            }
             if (step.GetBool("ThunderHammer", false))
                 Add(lines, unique, ru ? "Тяжёлый удар и электрический разряд поражают одну область одним попаданием. Физический урон накапливает оглушение, урон молнией помогает наложить шок по обычным правилам."
                     : "The heavy strike and electrical discharge hit the same area as one hit. Physical damage builds stun; lightning damage helps inflict shock under the normal rules.", SkillDescriptionSection.Attack);
