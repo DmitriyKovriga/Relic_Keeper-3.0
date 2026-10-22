@@ -47,16 +47,19 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(Resources.Load<SkillRecipeSO>("Skills/2HWeapon/Staff/Cold/Recipe_Icecle_Shot_Skill").HitStopFrames, Is.EqualTo(1));
         }
 
-        [Test]
-        public void FrameRateLimiter_UsesSixtyFpsAndDisablesVSyncOverride()
+        [TestCase(0)]
+        [TestCase(2)]
+        [TestCase(4)]
+        public void FrameRateLimiter_EnablesVSyncWithSixtyFpsFallback(int initialVSync)
         {
             int previousTarget = Application.targetFrameRate;
             int previousVSync = QualitySettings.vSyncCount;
             try
             {
+                QualitySettings.vSyncCount = initialVSync;
                 FrameRateLimiter.Apply();
                 Assert.That(Application.targetFrameRate, Is.EqualTo(60));
-                Assert.That(QualitySettings.vSyncCount, Is.EqualTo(0));
+                Assert.That(QualitySettings.vSyncCount, Is.EqualTo(1));
             }
             finally
             {
