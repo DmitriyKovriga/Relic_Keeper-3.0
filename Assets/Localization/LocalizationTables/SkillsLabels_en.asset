@@ -720,6 +720,18 @@ MonoBehaviour:
       or mana cost."
     m_Metadata:
       m_Items: []
+  - m_Id: 103772787108048896
+    m_Localized: Flaming Spear
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103772787187740672
+    m_Localized: 'Fire one long spear for 250% weapon damage converted to fire. Each
+      Ignite already on the target adds 20% direct hit damage: three effects grant
+      +60%. Ignites remain active. Max Ignite Stacks enables stronger hits; Projectile
+      Pierce adds targets along the line. The bonus is checked separately on each
+      target at impact. Cooldown: 10 seconds. Mana: 25.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

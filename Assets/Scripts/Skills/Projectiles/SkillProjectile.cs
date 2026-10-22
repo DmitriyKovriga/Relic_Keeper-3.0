@@ -696,6 +696,10 @@ namespace Scripts.Skills.Projectiles
                 _data.ReturnDamagePercent,
                 _data.OwnerStats);
             damageMultiplier *= hitMultiplier;
+            float igniteBonus = Mathf.Max(0f, _data.Step.GetFloat("IgniteHitDamagePercentPerStack", 0f));
+            if (igniteBonus > 0f && target is Component targetComponent &&
+                AilmentController.TryResolve(targetComponent.transform, out var ailments))
+                damageMultiplier *= 1f + ailments.GetStackCount(AilmentType.Ignite) * igniteBonus / 100f;
             if (_data.WorldBounceEmpowered)
                 damageMultiplier *= 1f + Mathf.Max(0, _data.RicochetDamagePercent) / 100f;
             DamageSnapshot snapshot = _data.UseElementalSpellDamage

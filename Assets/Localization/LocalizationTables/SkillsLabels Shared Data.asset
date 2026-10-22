@@ -627,6 +627,14 @@ MonoBehaviour:
     m_Key: skills.FanOfSicklesSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103772787108048896
+    m_Key: skills.FlamingSpearSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103772787187740672
+    m_Key: skills.FlamingSpearSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
