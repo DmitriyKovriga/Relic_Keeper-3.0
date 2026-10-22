@@ -460,7 +460,7 @@ namespace Scripts.Skills.Projectiles
         }
 
         // Split travel at turns and expiry so frame size cannot shorten a pass or skip a hit.
-        // This straight-line path is opt-in; ordinary, orbiting and homing projectiles keep their timing.
+        // This path is opt-in; existing projectile recipes keep their timing.
         private void TickFixedReversalPath(float dt)
         {
             float remaining = Mathf.Max(0, dt);
@@ -473,13 +473,17 @@ namespace Scripts.Skills.Projectiles
                 bool reachesBoundary = remaining >= untilBoundary;
                 float segment = Mathf.Min(remaining, untilBoundary);
                 Vector2 previous = transform.position;
-                transform.position += (Vector3)(_direction * (Mathf.Max(.01f, _data.Speed) * segment));
+                UpdateOwnerReturnHoming();
+                float travelDistance = Mathf.Max(.01f, _data.Speed) * segment;
+                bool reachedOwner = _returningToOwner && TryCompleteOwnerReturn(travelDistance);
+                if (!reachedOwner) transform.position += (Vector3)(_direction * travelDistance);
                 transform.Rotate(0, 0, _data.RotationDegreesPerSecond * segment, Space.Self);
                 _travelledDistance += ((Vector2)transform.position - previous).magnitude;
                 _age = reachesBoundary ? boundary : _age + segment;
                 remaining -= segment;
                 ScanTravel(previous);
                 if (_data == null || _despawning) return;
+                if (reachedOwner) { Despawn(); return; }
                 if (_age >= lifetime) { Despawn(); return; }
                 if (reachesBoundary) UpdateReversal();
             }

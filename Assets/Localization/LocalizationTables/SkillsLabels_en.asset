@@ -706,6 +706,20 @@ MonoBehaviour:
       or mana cost.
     m_Metadata:
       m_Items: []
+  - m_Id: 103768030138167296
+    m_Localized: A Fan of Sickles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103768030259802112
+    m_Localized: "Throw 3 discs simultaneously across a 50\xB0 fan, each dealing
+      100% weapon damage outward. After 0.4 seconds they home toward the character's
+      current position, so movement changes their return paths. Each disc can hit
+      a target once outward and once returning. Return hits use 50% of normal damage
+      plus Returning Projectile Damage. Projectile Count adds discs inside the same
+      fan. Discs pass through enemies and walls and disappear when caught. No cooldown
+      or mana cost."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

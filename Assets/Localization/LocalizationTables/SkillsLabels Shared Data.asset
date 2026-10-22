@@ -619,6 +619,14 @@ MonoBehaviour:
     m_Key: skills.PendulumSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103768030138167296
+    m_Key: skills.FanOfSicklesSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103768030259802112
+    m_Key: skills.FanOfSicklesSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
