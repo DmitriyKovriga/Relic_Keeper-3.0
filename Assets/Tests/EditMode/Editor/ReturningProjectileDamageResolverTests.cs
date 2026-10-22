@@ -90,9 +90,20 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(ru?.GetEntry(key)?.Value, Is.EqualTo("Урон снарядов при возврате"));
         }
 
+        [TestCase(StatContextTagFlags.Projectile)]
+        [TestCase(StatContextTagFlags.Melee)]
+        public void ReturningBonusDoesNotAddBaseDamageToOrdinaryHits(StatContextTagFlags tag)
+        {
+            var stats = new TestStats(); stats.SetBase(StatType.DamagePhysical, 10); stats.Add(50, StatModType.Flat);
+            var context = new DamageContext(StatContextTagFlags.Attack | tag);
+            Assert.That(DamageCalculator.CreatePreviewSnapshot(stats, 1, context).Physical, Is.EqualTo(10).Within(.001));
+            Assert.That(ReturningProjectileDamageResolver.ResolveDamageMultiplier(1, true, 50, stats), Is.EqualTo(1).Within(.001));
+        }
+
         private sealed class TestStats : IStatsProvider
         {
             private readonly Dictionary<StatType, CharacterStat> _stats = new Dictionary<StatType, CharacterStat>();
+            public void SetBase(StatType type, float value) => _stats[type] = new CharacterStat(value);
 
             public void Add(float value, StatModType type)
             {

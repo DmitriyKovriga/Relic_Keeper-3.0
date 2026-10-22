@@ -764,6 +764,7 @@ namespace Scripts.Skills
                 HomingStrength = Mathf.Clamp01(step.GetFloat("HomingStrength", 0.4f)),
                 HomingTurnSpeedDegreesPerSecond = Mathf.Max(0f, step.GetFloat("HomingTurnSpeedDegreesPerSecond", 0f)),
                 RemainingReversals = Mathf.Max(0, step.GetInt("ReversalCount", 0)),
+                FixedReversalTiming = step.GetBool("FixedReversalTiming", false),
                 ReverseInterval = Mathf.Max(0.01f, step.GetFloat("ReverseInterval", 1f)),
                 FirstReverseAtSeconds = Mathf.Max(0.01f, step.GetFloat("FirstReverseAtSeconds", 1f)),
                 ReversalMode = (SkillProjectileReversalMode)Mathf.Clamp(

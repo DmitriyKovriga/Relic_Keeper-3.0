@@ -79,6 +79,7 @@ namespace Scripts.Skills.Projectiles
         public float HomingStrength = 0.4f;
         public float HomingTurnSpeedDegreesPerSecond;
         public int RemainingReversals;
+        public bool FixedReversalTiming;
         public float FirstReverseAtSeconds = 1f;
         public float ReverseInterval = 1f;
         public SkillProjectileReversalMode ReversalMode = SkillProjectileReversalMode.AimAtOwnerPosition;
@@ -407,6 +408,12 @@ namespace Scripts.Skills.Projectiles
                 return;
             }
 
+            if (_data.FixedReversalTiming)
+            {
+                TickFixedReversalPath(dt);
+                return;
+            }
+
             _age += dt;
             if (_age >= Mathf.Max(0.05f, _data.Lifetime))
             {
@@ -450,6 +457,32 @@ namespace Scripts.Skills.Projectiles
             TryPulseDamage();
             if (reachedOwner && _data != null)
                 Despawn();
+        }
+
+        // Split travel at turns and expiry so frame size cannot shorten a pass or skip a hit.
+        // This straight-line path is opt-in; ordinary, orbiting and homing projectiles keep their timing.
+        private void TickFixedReversalPath(float dt)
+        {
+            float remaining = Mathf.Max(0, dt);
+            while (remaining > 0 && _data != null && !_despawning)
+            {
+                float lifetime = Mathf.Max(.05f, _data.Lifetime);
+                if (_age >= lifetime) { Despawn(); return; }
+                float boundary = _data.RemainingReversals > 0 ? Mathf.Min(lifetime, _nextReverseAt) : lifetime;
+                float untilBoundary = Mathf.Max(0, boundary - _age);
+                bool reachesBoundary = remaining >= untilBoundary;
+                float segment = Mathf.Min(remaining, untilBoundary);
+                Vector2 previous = transform.position;
+                transform.position += (Vector3)(_direction * (Mathf.Max(.01f, _data.Speed) * segment));
+                transform.Rotate(0, 0, _data.RotationDegreesPerSecond * segment, Space.Self);
+                _travelledDistance += ((Vector2)transform.position - previous).magnitude;
+                _age = reachesBoundary ? boundary : _age + segment;
+                remaining -= segment;
+                ScanTravel(previous);
+                if (_data == null || _despawning) return;
+                if (_age >= lifetime) { Despawn(); return; }
+                if (reachesBoundary) UpdateReversal();
+            }
         }
 
         private void UpdateOrbitPosition()

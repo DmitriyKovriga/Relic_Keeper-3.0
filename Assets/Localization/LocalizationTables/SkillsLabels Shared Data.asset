@@ -611,6 +611,14 @@ MonoBehaviour:
     m_Key: skills.AerialVolleySkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 103764307898888192
+    m_Key: skills.PendulumSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103764307991162880
+    m_Key: skills.PendulumSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

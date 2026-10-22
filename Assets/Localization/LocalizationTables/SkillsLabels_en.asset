@@ -692,6 +692,20 @@ MonoBehaviour:
       10 seconds. Mana cost: 10.'
     m_Metadata:
       m_Items: []
+  - m_Id: 103764307898888192
+    m_Localized: Pendulum
+    m_Metadata:
+      m_Items: []
+  - m_Id: 103764307991162880
+    m_Localized: One disc follows a fixed straight line, reversing at 0.6 and 1.2
+      seconds and disappearing at 1.8 seconds. The first pass deals 100% weapon damage;
+      both later passes use 50% of normal damage plus Returning Projectile Damage.
+      Each target can be hit once per pass. Projectile Speed lengthens each pass
+      without changing turn intervals. The disc does not track the character and
+      stops at walls; Projectile Count, Fork and Chain add no discs. No cooldown
+      or mana cost.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

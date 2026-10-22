@@ -520,6 +520,10 @@ namespace Scripts.Skills
                 Add(lines, unique, ru
                     ? $"Стрелы выпускаются одновременно веером {N(step.GetFloat("TotalConeAngle", 70))}°. Каждая стрела может поразить ту же цель: вблизи несколько стрел попадают в одного врага. Число снарядов добавляет стрелы внутри того же веера, повышая его плотность."
                     : $"Arrows fire simultaneously across a {N(step.GetFloat("TotalConeAngle", 70))}° fan. Each arrow can hit the same target: several arrows can strike one enemy at close range. Projectile Count adds arrows inside the same fan, increasing its density.", SkillDescriptionSection.Attack);
+            if (step.GetBool("Pendulum", false))
+                Add(lines, unique, ru
+                    ? $"Один диск летит по прямой и дважды меняет направление с интервалом {N(step.GetFloat("ReverseInterval", .6f))} с. Каждая цель получает не более одного попадания за проход. Скорость снарядов увеличивает длину каждого прохода. Диск не наводится на героя и останавливается у стен; число, разветвление и цепь снарядов не создают дополнительных дисков. Оба прохода после первого разворота используют урон возвращающихся снарядов."
+                    : $"One disc travels in a fixed straight line and reverses twice at {N(step.GetFloat("ReverseInterval", .6f))}s intervals. Each target can be hit once per pass. Projectile Speed increases the length of each pass. It does not track the character and stops at walls; Projectile Count, Fork and Chain do not add discs. Both passes after the first turn use returning-projectile damage.", SkillDescriptionSection.Attack);
             if (step.GetBool("Homing", false))
                 Add(lines, unique, ru ? "Снаряды наводятся на врагов." : "Projectiles home in on enemies.", SkillDescriptionSection.Attack);
             if (step.GetBool("ManaSpear", false))

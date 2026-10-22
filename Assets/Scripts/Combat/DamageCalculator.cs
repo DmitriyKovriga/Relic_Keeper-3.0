@@ -637,6 +637,9 @@ public static class DamageCalculator
         int count = 0;
         for (int i = 0; i < all.Length; i++)
         {
+            // This flat percentage is consumed by ReturningProjectileDamageResolver after a turn.
+            // Treating it as a generic context stat also adds base damage to every projectile hit.
+            if (all[i] == StatType.ReturningProjectileDamage) continue;
             if (database.GetSemanticKind(all[i]) == StatSemanticKind.ContextModifier)
                 packed[count++] = all[i];
         }
