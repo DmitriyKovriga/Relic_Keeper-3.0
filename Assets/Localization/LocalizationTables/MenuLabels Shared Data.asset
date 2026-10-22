@@ -1947,6 +1947,126 @@ MonoBehaviour:
     m_Key: stats.ShockwaveDamage
     m_Metadata:
       m_Items: []
+  - m_Id: 117291429389131776
+    m_Key: passive.node.CritAndManaRegPercent.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117291429405908992
+    m_Key: passive.node.CritAndManaRegPercent.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117291795883220992
+    m_Key: passive.node.CritChanceAndManaRegPercent.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117291795883220993
+    m_Key: passive.node.CritChanceAndManaRegPercent.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117295516738379776
+    m_Key: passive.node.ManaInCrit.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117295516738379777
+    m_Key: passive.node.ManaInCrit.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117297993114181632
+    m_Key: passive.node.WasteSpellsCrit.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117297993114181633
+    m_Key: passive.node.WasteSpellsCrit.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117300940745203712
+    m_Key: passive.node.ChainInDamage.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117300940745203713
+    m_Key: passive.node.ChainInDamage.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117303545378627584
+    m_Key: passive.node.FreezePenAndEvasion.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117303545378627585
+    m_Key: passive.node.FreezePenAndEvasion.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117305727393980416
+    m_Key: passive.node.FreezeAndEvasion.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117305727393980417
+    m_Key: passive.node.FreezeAndEvasion.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117306553818669056
+    m_Key: passive.node.EvasionAndMSRD.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117306553818669057
+    m_Key: passive.node.EvasionAndMSRD.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117308785700102144
+    m_Key: passive.node.NoteEvasionAndMSRD.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117308785700102145
+    m_Key: passive.node.NoteEvasionAndMSRD.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117309204438441984
+    m_Key: passive.node.NoteEvasionAndMSMP.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117309204438441985
+    m_Key: passive.node.NoteEvasionAndMSMP.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117313582624923648
+    m_Key: passive.node.EvasionAndResForMS.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117313582624923649
+    m_Key: passive.node.EvasionAndResForMS.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117316066458198016
+    m_Key: passive.node.Smallignite.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117316066458198017
+    m_Key: passive.node.Smallignite.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117323166911553536
+    m_Key: passive.node.IgniteMultAndDuration.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117323166911553537
+    m_Key: passive.node.IgniteMultAndDuration.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117326197736595456
+    m_Key: passive.node.SmalligniteSpread.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117326197736595457
+    m_Key: passive.node.SmalligniteSpread.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117327196056444928
+    m_Key: passive.node.NoteIgniteSpread.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 117327196056444929
+    m_Key: passive.node.NoteIgniteSpread.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
