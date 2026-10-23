@@ -68,7 +68,6 @@ namespace Scripts.Skills.Modules
             if (_ownerStats == null) return;
             var skill = GetComponent<SkillBehaviour>();
             var visuals = _ownerStats.GetComponent<WeaponVisualController>();
-            _spinSpriteTilt = visuals != null ? visuals.GetAnimationSpriteTilt(skill != null ? skill.SlotIndex : -1) : 0;
             if (visuals == null || !visuals.TryGetAnimationHand(skill != null ? skill.SlotIndex : -1, out _handPivot, out _weaponRenderer))
             {
                 _handPivot = _ownerStats.transform.Find("Visuals/HandPivot");

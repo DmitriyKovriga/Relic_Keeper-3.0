@@ -60,7 +60,7 @@ namespace RelicKeeper.Tests.EditMode
             finally { Object.DestroyImmediate(owner); }
         }
         [TestCase(false)] [TestCase(true)]
-        public void SharedStepSamplesBodyAndWeaponByTheSamePercentageAndCancelRestoresPose(bool reverse)
+        public void SharedStepAnimatesBodyHidesWeaponAndCancelRestoresPose(bool reverse)
         {
             var owner = new GameObject("Spin scheduler test"); owner.SetActive(false);
             try
@@ -86,19 +86,20 @@ namespace RelicKeeper.Tests.EditMode
                 float eased = .25f - .65f / (Mathf.PI * 2);
                 float phase = reverse ? 1 - eased : eased;
                 Assert.That(owner.GetComponent<SpriteRenderer>().sprite, Is.SameAs(data.SpinAnimation.Frames[Mathf.RoundToInt(phase * 8)]));
-                float tip = Mathf.Max(0, data.Portrait.bounds.max.y);
-                float vertical = -Mathf.Sin(phase * Mathf.PI * 2) * .16f;
-                float gripReach = Mathf.Clamp(2.2f - tip, .1f, .35f);
-                Assert.That(holder.transform.position.y, Is.EqualTo(-.15f + vertical * gripReach).Within(.001));
-                Assert.That(holder.transform.TransformPoint(new Vector3(0, tip, 0)).y, Is.EqualTo(-.15f + vertical * 2.2f).Within(.001));
+                Assert.That(weapon.enabled, Is.False, "The sweep VFX replaces the equipped weapon during the spin.");
+                Assert.That(holder.transform.localPosition, Is.EqualTo(savedPosition));
+                Assert.That(Quaternion.Angle(holder.transform.localRotation, savedRotation), Is.LessThan(.001));
                 runner.Cancel(); Assert.That(controller.IsPlayingSkillSpin, Is.False);
                 Assert.That(holder.transform.localPosition, Is.EqualTo(savedPosition)); Assert.That(Quaternion.Angle(holder.transform.localRotation, savedRotation), Is.LessThan(.001));
                 Assert.That(weapon.sortingOrder, Is.EqualTo(103));
+                Assert.That(weapon.enabled, Is.True);
             }
             finally { Object.DestroyImmediate(owner); }
         }
-        [TestCase(1f)] [TestCase(-1f)]
-        public void TiltedWeaponPointsAlongTheOrbitForEitherFacing(float facing)
+        [TestCase(1f, 1f, true)] [TestCase(-1f, 1f, true)]
+        [TestCase(1f, 3f, true)] [TestCase(-1f, 3f, true)]
+        [TestCase(1f, 3f, false)]
+        public void SpinHidesWeaponAtAnyRadiusWithoutDeformingItAndRestoresVisibility(float facing, float aoeScale, bool initiallyVisible)
         {
             var owner = new GameObject("Tilted spin test"); owner.SetActive(false);
             try
@@ -110,29 +111,29 @@ namespace RelicKeeper.Tests.EditMode
                 var holder = new GameObject("WeaponHolder"); holder.transform.SetParent(pivot.transform, false);
                 var weapon = holder.AddComponent<SpriteRenderer>(); weapon.sprite = Resources.Load<CharacterDataSO>("Heroes/WarriorResources/Warrior").Portrait;
                 weapon.flipX = true;
+                weapon.enabled = initiallyVisible;
                 var hand = owner.AddComponent<SkillHandAnimation>(); hand.Initialize(stats);
-                typeof(SkillHandAnimation).GetField("_spinSpriteTilt", Flags).SetValue(hand, -41f);
                 var token = new object();
                 Transform originalParent = holder.transform.parent;
                 Vector3 initialPosition = holder.transform.position;
                 Quaternion initialRotation = holder.transform.rotation;
-                hand.SampleSpin(token, 0, 2.2f, .16f, .4f, 0);
-                Assert.That(Vector3.Distance(holder.transform.position, initialPosition), Is.LessThan(.001));
-                Assert.That(Quaternion.Angle(holder.transform.rotation, initialRotation), Is.LessThan(.001));
-                for (int i = 0; i < 8; i++)
+                Vector3 initialScale = holder.transform.localScale;
+                for (int i = 0; i <= 8; i++)
                 {
-                    hand.SampleSpin(token, i / 8f, 2.2f, .16f, .4f);
-                    Vector3 direction = holder.transform.TransformVector(Quaternion.Euler(0, 0, -41) * Vector3.up).normalized;
-                    Vector3 radial = (holder.transform.position - Vector3.up * .4f).normalized;
-                    Assert.That(Vector3.Dot(direction, radial), Is.GreaterThan(.999f), "Blade must follow orbit at phase " + i);
-                    Vector3 acrossBlade = holder.transform.TransformVector(Quaternion.Euler(0, 0, -41) * Vector3.right);
-                    Assert.That(acrossBlade.magnitude, Is.EqualTo(1).Within(.001), "Only shaft length is foreshortened, never blade width.");
-                    Assert.That(weapon.flipX, Is.False);
+                    hand.SampleSpin(token, i / 8f, 2.2f * aoeScale, .16f, .4f, i / 8f);
+                    hand.SetWeaponVisible(true);
+                    Assert.That(weapon.enabled, Is.False, "Weapon stays hidden through the entire VFX window.");
+                    Assert.That(Vector3.Distance(holder.transform.position, initialPosition), Is.LessThan(.001));
+                    Assert.That(Quaternion.Angle(holder.transform.rotation, initialRotation), Is.LessThan(.001));
+                    Assert.That(holder.transform.localScale, Is.EqualTo(initialScale));
+                    Assert.That(weapon.flipX, Is.True);
                 }
-                hand.SampleSpin(token, 1, 2.2f, .16f, .4f, 1);
-                Assert.That(Vector3.Distance(holder.transform.position, initialPosition), Is.LessThan(.001));
-                Assert.That(Quaternion.Angle(holder.transform.rotation, initialRotation), Is.LessThan(.001));
+                var nextToken = new object();
+                hand.SampleSpin(nextToken, .25f, 2.2f * aoeScale, .16f, .4f);
                 hand.EndSpin(token); Assert.That(weapon.flipX, Is.True);
+                Assert.That(weapon.enabled, Is.False, "Previous spin cleanup cannot reveal the weapon during a later spin.");
+                hand.EndSpin(nextToken);
+                Assert.That(weapon.enabled, Is.EqualTo(initiallyVisible));
                 Assert.That(holder.transform.parent, Is.SameAs(originalParent));
                 Assert.That(owner.GetComponentsInChildren<Transform>().Any(value => value.name == "Skill spin grip"), Is.False);
             }
