@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "designRevision": 4,
+  "date": "2026-10-23",
+  "engine": "Installed Chrome through Playwright; offline file URL",
+  "checks": [
+    "130 nodes, 150 edges, 2 proposed connections, all table rows",
+    "All 130 sizes match source types, 25 double-ring notables, six promoted nodes, distinct defense symbols/colors, no native SVG tooltip",
+    "24 transport roads: exactly +3 HP Flat and +5 Evasion Flat; shared template, distinct rendering, hover, role and filter; no specialized bonuses",
+    "Hover displays the actual node and effects",
+    "Click pins scaling rule, coordinates and implementation fields",
+    "21 homogeneous feeder groups cover all 72 specialized smalls; 10 shared small templates; group explanation shown",
+    "All six archetypes, defense detours, remote goal lists, exact shared allocation plans and keystone shortcuts highlight correctly",
+    "ID search finds and focuses the formerly isolated n73",
+    "Family filter and complete node table support pinned node inspection",
+    "Zoom/reset and ID display controls",
+    "JSON export retains all 130 specifications and source fingerprint",
+    "760px responsive layout has no horizontal page overflow",
+    "No JavaScript errors or external network requests"
+  ],
+  "errors": [],
+  "externalRequests": []
+}

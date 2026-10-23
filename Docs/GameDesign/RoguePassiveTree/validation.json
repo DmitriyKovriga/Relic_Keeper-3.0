@@ -1,0 +1,5425 @@
+{
+  "counts": {
+    "Start": 1,
+    "Keystone": 8,
+    "Small": 96,
+    "Notable": 25
+  },
+  "designRoleCounts": {
+    "start": 1,
+    "specialized": 105,
+    "transport": 24
+  },
+  "transportIds": [
+    "n10",
+    "n11",
+    "n14",
+    "n15",
+    "n16",
+    "n17",
+    "n18",
+    "n19",
+    "n20",
+    "n21",
+    "n43",
+    "n49",
+    "n58",
+    "n59",
+    "n61",
+    "n62",
+    "n64",
+    "n65",
+    "n66",
+    "n68",
+    "n70",
+    "n76",
+    "n80",
+    "n111"
+  ],
+  "transportFlatHealth": 3,
+  "transportFlatEvasion": 5,
+  "newTemplateCount": 43,
+  "newSmallTemplateCount": 10,
+  "homogeneousFeederGroups": 21,
+  "allSpecializedSmallNodesCovered": true,
+  "existingTransportTemplateReused": true,
+  "originalUnreachable": [
+    "n73",
+    "n74"
+  ],
+  "proposedUnreachable": [],
+  "originalEdgeCount": 148,
+  "proposedEdgeCount": 150,
+  "allNodesAssigned": true,
+  "sourceAssetModifiedByBuilder": false,
+  "defenseCriterion": "For each archetype core route, at least two distinct defense families on separate branch options within 4 additional allocated nodes; start is free. Transport baseline bonuses do not qualify as a defense option.",
+  "designRevision": 4,
+  "sourceSha256": "bf5a124613a689a7c2798bf874d666d4d8468184df98777dd53c655ed60b7b73",
+  "archetypes": [
+    {
+      "id": "speed",
+      "goal": "n55",
+      "extendedGoals": [
+        "n178",
+        "n85"
+      ],
+      "defenseOptions": [
+        {
+          "family": "life",
+          "targets": [
+            "n37"
+          ],
+          "additionalPath": [
+            "n31",
+            "n28",
+            "n37"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "family": "resist",
+          "targets": [
+            "n172"
+          ],
+          "additionalPath": [
+            "n15",
+            "n172"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "family": "evasion",
+          "targets": [
+            "n33"
+          ],
+          "additionalPath": [
+            "n16",
+            "n33"
+          ],
+          "additionalCost": 2
+        }
+      ],
+      "nameRu": "Скорость атаки",
+      "corePath": [
+        "start",
+        "n14",
+        "n30",
+        "n49",
+        "n69",
+        "n52",
+        "n53",
+        "n54",
+        "n55"
+      ],
+      "coreCost": 8,
+      "coreTransportCount": 2,
+      "coreTransportHealth": 6,
+      "coreTransportEvasion": 10
+    },
+    {
+      "id": "crit",
+      "goal": "n60",
+      "extendedGoals": [
+        "n149",
+        "n4"
+      ],
+      "defenseOptions": [
+        {
+          "family": "evasion",
+          "targets": [
+            "n38"
+          ],
+          "additionalPath": [
+            "n34",
+            "n35",
+            "n38"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "family": "life",
+          "targets": [
+            "n67"
+          ],
+          "additionalPath": [
+            "n14",
+            "n66",
+            "n67"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "family": "resist",
+          "targets": [
+            "n173"
+          ],
+          "additionalPath": [
+            "n64",
+            "n17",
+            "n173"
+          ],
+          "additionalCost": 3
+        }
+      ],
+      "nameRu": "Критические удары",
+      "corePath": [
+        "start",
+        "n16",
+        "n33",
+        "n59",
+        "n60"
+      ],
+      "coreCost": 4,
+      "coreTransportCount": 2,
+      "coreTransportHealth": 6,
+      "coreTransportEvasion": 10
+    },
+    {
+      "id": "poison",
+      "goal": "n118",
+      "extendedGoals": [
+        "n87",
+        "n9"
+      ],
+      "defenseOptions": [
+        {
+          "family": "evasion",
+          "targets": [
+            "n75"
+          ],
+          "additionalPath": [
+            "n104",
+            "n100",
+            "n102",
+            "n75"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "family": "life",
+          "targets": [
+            "n129"
+          ],
+          "additionalPath": [
+            "n21",
+            "n58",
+            "n129"
+          ],
+          "additionalCost": 3
+        }
+      ],
+      "nameRu": "Яд",
+      "corePath": [
+        "start",
+        "n20",
+        "n136",
+        "n138",
+        "n110",
+        "n119",
+        "n120",
+        "n121",
+        "n118"
+      ],
+      "coreCost": 8,
+      "coreTransportCount": 1,
+      "coreTransportHealth": 3,
+      "coreTransportEvasion": 5
+    },
+    {
+      "id": "range",
+      "goal": "n161",
+      "extendedGoals": [
+        "n117",
+        "n7"
+      ],
+      "defenseOptions": [
+        {
+          "family": "life",
+          "targets": [
+            "n37"
+          ],
+          "additionalPath": [
+            "n31",
+            "n28",
+            "n37"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "family": "resist",
+          "targets": [
+            "n172"
+          ],
+          "additionalPath": [
+            "n172"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "family": "evasion",
+          "targets": [
+            "n33"
+          ],
+          "additionalPath": [
+            "n16",
+            "n33"
+          ],
+          "additionalCost": 2
+        }
+      ],
+      "nameRu": "Снаряды / дальний бой",
+      "corePath": [
+        "start",
+        "n14",
+        "n30",
+        "n49",
+        "n69",
+        "n68",
+        "n70",
+        "n155",
+        "n157",
+        "n161"
+      ],
+      "coreCost": 9,
+      "coreTransportCount": 4,
+      "coreTransportHealth": 12,
+      "coreTransportEvasion": 20
+    },
+    {
+      "id": "physical",
+      "goal": "n96",
+      "extendedGoals": [
+        "n63",
+        "n8"
+      ],
+      "defenseOptions": [
+        {
+          "family": "evasion",
+          "targets": [
+            "n33"
+          ],
+          "additionalPath": [
+            "n16",
+            "n33"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "family": "life",
+          "targets": [
+            "n37"
+          ],
+          "additionalPath": [
+            "n30",
+            "n31",
+            "n28",
+            "n37"
+          ],
+          "additionalCost": 4
+        }
+      ],
+      "nameRu": "Физический урон",
+      "corePath": [
+        "start",
+        "n14",
+        "n66",
+        "n67",
+        "n76",
+        "n87",
+        "n89",
+        "n92",
+        "n91",
+        "n94",
+        "n96"
+      ],
+      "coreCost": 10,
+      "coreTransportCount": 3,
+      "coreTransportHealth": 9,
+      "coreTransportEvasion": 15
+    },
+    {
+      "id": "elemental",
+      "goal": "n160",
+      "extendedGoals": [
+        "n128",
+        "n168",
+        "n2"
+      ],
+      "defenseOptions": [
+        {
+          "family": "life",
+          "targets": [
+            "n37"
+          ],
+          "additionalPath": [
+            "n31",
+            "n28",
+            "n37"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "family": "resist",
+          "targets": [
+            "n172"
+          ],
+          "additionalPath": [
+            "n172"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "family": "evasion",
+          "targets": [
+            "n33"
+          ],
+          "additionalPath": [
+            "n16",
+            "n33"
+          ],
+          "additionalCost": 2
+        }
+      ],
+      "nameRu": "Конверсия и стихии",
+      "corePath": [
+        "start",
+        "n14",
+        "n30",
+        "n49",
+        "n69",
+        "n68",
+        "n70",
+        "n154",
+        "n156",
+        "n160"
+      ],
+      "coreCost": 9,
+      "coreTransportCount": 4,
+      "coreTransportHealth": 12,
+      "coreTransportEvasion": 20
+    }
+  ],
+  "portfolioAudit": [
+    {
+      "family": "speed",
+      "goals": [
+        "n55",
+        "n178"
+      ],
+      "withoutKeystones": {
+        "minimumPoints": 17,
+        "allocatedIds": [
+          "n110",
+          "n136",
+          "n138",
+          "n14",
+          "n174",
+          "n175",
+          "n176",
+          "n177",
+          "n178",
+          "n20",
+          "n30",
+          "n49",
+          "n52",
+          "n53",
+          "n54",
+          "n55",
+          "n69",
+          "start"
+        ]
+      },
+      "withKeystones": {
+        "minimumPoints": 17,
+        "allocatedIds": [
+          "n110",
+          "n136",
+          "n138",
+          "n14",
+          "n174",
+          "n175",
+          "n176",
+          "n177",
+          "n178",
+          "n20",
+          "n30",
+          "n49",
+          "n52",
+          "n53",
+          "n54",
+          "n55",
+          "n69",
+          "start"
+        ],
+        "keystoneIds": []
+      },
+      "pairwiseDistances": [
+        {
+          "a": "n55",
+          "b": "n178",
+          "edges": 14
+        }
+      ]
+    },
+    {
+      "family": "crit",
+      "goals": [
+        "n60",
+        "n149"
+      ],
+      "withoutKeystones": {
+        "minimumPoints": 13,
+        "allocatedIds": [
+          "n140",
+          "n145",
+          "n146",
+          "n147",
+          "n148",
+          "n149",
+          "n16",
+          "n18",
+          "n33",
+          "n43",
+          "n45",
+          "n59",
+          "n60",
+          "start"
+        ]
+      },
+      "withKeystones": {
+        "minimumPoints": 13,
+        "allocatedIds": [
+          "n140",
+          "n145",
+          "n146",
+          "n147",
+          "n148",
+          "n149",
+          "n16",
+          "n18",
+          "n33",
+          "n43",
+          "n45",
+          "n59",
+          "n60",
+          "start"
+        ],
+        "keystoneIds": []
+      },
+      "pairwiseDistances": [
+        {
+          "a": "n60",
+          "b": "n149",
+          "edges": 13
+        }
+      ]
+    },
+    {
+      "family": "poison",
+      "goals": [
+        "n87",
+        "n118"
+      ],
+      "withoutKeystones": {
+        "minimumPoints": 13,
+        "allocatedIds": [
+          "n110",
+          "n118",
+          "n119",
+          "n120",
+          "n121",
+          "n136",
+          "n138",
+          "n14",
+          "n20",
+          "n66",
+          "n67",
+          "n76",
+          "n87",
+          "start"
+        ]
+      },
+      "withKeystones": {
+        "minimumPoints": 13,
+        "allocatedIds": [
+          "n110",
+          "n118",
+          "n119",
+          "n120",
+          "n121",
+          "n136",
+          "n138",
+          "n14",
+          "n20",
+          "n66",
+          "n67",
+          "n76",
+          "n87",
+          "start"
+        ],
+        "keystoneIds": []
+      },
+      "pairwiseDistances": [
+        {
+          "a": "n87",
+          "b": "n118",
+          "edges": 13
+        }
+      ]
+    },
+    {
+      "family": "range",
+      "goals": [
+        "n161",
+        "n117"
+      ],
+      "withoutKeystones": {
+        "minimumPoints": 18,
+        "allocatedIds": [
+          "n106",
+          "n107",
+          "n108",
+          "n109",
+          "n110",
+          "n117",
+          "n136",
+          "n138",
+          "n14",
+          "n155",
+          "n157",
+          "n161",
+          "n20",
+          "n30",
+          "n49",
+          "n68",
+          "n69",
+          "n70",
+          "start"
+        ]
+      },
+      "withKeystones": {
+        "minimumPoints": 17,
+        "allocatedIds": [
+          "n106",
+          "n107",
+          "n108",
+          "n109",
+          "n110",
+          "n111",
+          "n117",
+          "n136",
+          "n138",
+          "n157",
+          "n161",
+          "n2",
+          "n20",
+          "n3",
+          "n4",
+          "n8",
+          "n9",
+          "start"
+        ],
+        "keystoneIds": [
+          "n2",
+          "n3",
+          "n4",
+          "n8",
+          "n9"
+        ]
+      },
+      "pairwiseDistances": [
+        {
+          "a": "n161",
+          "b": "n117",
+          "edges": 11
+        }
+      ]
+    },
+    {
+      "family": "physical",
+      "goals": [
+        "n63",
+        "n96"
+      ],
+      "withoutKeystones": {
+        "minimumPoints": 14,
+        "allocatedIds": [
+          "n14",
+          "n16",
+          "n61",
+          "n62",
+          "n63",
+          "n66",
+          "n67",
+          "n76",
+          "n87",
+          "n89",
+          "n91",
+          "n92",
+          "n94",
+          "n96",
+          "start"
+        ]
+      },
+      "withKeystones": {
+        "minimumPoints": 14,
+        "allocatedIds": [
+          "n14",
+          "n16",
+          "n61",
+          "n62",
+          "n63",
+          "n66",
+          "n67",
+          "n76",
+          "n87",
+          "n89",
+          "n91",
+          "n92",
+          "n94",
+          "n96",
+          "start"
+        ],
+        "keystoneIds": []
+      },
+      "pairwiseDistances": [
+        {
+          "a": "n63",
+          "b": "n96",
+          "edges": 14
+        }
+      ]
+    },
+    {
+      "family": "elemental",
+      "goals": [
+        "n160",
+        "n128",
+        "n168"
+      ],
+      "withoutKeystones": {
+        "minimumPoints": 23,
+        "allocatedIds": [
+          "n113",
+          "n114",
+          "n116",
+          "n125",
+          "n126",
+          "n127",
+          "n128",
+          "n14",
+          "n154",
+          "n156",
+          "n160",
+          "n165",
+          "n166",
+          "n167",
+          "n168",
+          "n19",
+          "n21",
+          "n30",
+          "n49",
+          "n58",
+          "n68",
+          "n69",
+          "n70",
+          "start"
+        ]
+      },
+      "withKeystones": {
+        "minimumPoints": 18,
+        "allocatedIds": [
+          "n10",
+          "n11",
+          "n125",
+          "n126",
+          "n127",
+          "n128",
+          "n156",
+          "n160",
+          "n167",
+          "n168",
+          "n2",
+          "n21",
+          "n3",
+          "n4",
+          "n5",
+          "n58",
+          "n8",
+          "n9",
+          "start"
+        ],
+        "keystoneIds": [
+          "n2",
+          "n3",
+          "n4",
+          "n5",
+          "n8",
+          "n9"
+        ]
+      },
+      "pairwiseDistances": [
+        {
+          "a": "n160",
+          "b": "n128",
+          "edges": 8
+        },
+        {
+          "a": "n160",
+          "b": "n168",
+          "edges": 7
+        },
+        {
+          "a": "n128",
+          "b": "n168",
+          "edges": 9
+        }
+      ]
+    }
+  ],
+  "homogeneousGroups": [
+    {
+      "id": "life_nw",
+      "locationRu": "Северо-запад, внутренний круг",
+      "smallIds": [
+        "n30",
+        "n31",
+        "n28",
+        "n74"
+      ],
+      "notableIds": [
+        "n37"
+      ],
+      "family": "defense",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_LifeReserve.asset",
+      "smallEffectsRu": [
+        "+25 — максимальное здоровье"
+      ]
+    },
+    {
+      "id": "evasion_ne",
+      "locationRu": "Северо-восток, внутренний круг",
+      "smallIds": [
+        "n33",
+        "n34",
+        "n35",
+        "n73"
+      ],
+      "notableIds": [
+        "n38"
+      ],
+      "family": "defense",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_EvasionTraining.asset",
+      "smallEffectsRu": [
+        "+50 — рейтинг уклонения",
+        "10% увеличение — рейтинг уклонения"
+      ]
+    },
+    {
+      "id": "recovery_w",
+      "locationRu": "Запад, малый круг",
+      "smallIds": [
+        "n44",
+        "n45",
+        "n170"
+      ],
+      "notableIds": [
+        "n171"
+      ],
+      "family": "defense",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_RecoveryTraining.asset",
+      "smallEffectsRu": [
+        "+0.5 — восстановление здоровья / с"
+      ]
+    },
+    {
+      "id": "speed_nw",
+      "locationRu": "Северо-запад, верхняя дуга",
+      "smallIds": [
+        "n69",
+        "n52",
+        "n53",
+        "n54"
+      ],
+      "notableIds": [
+        "n55"
+      ],
+      "family": "speed",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_AttackTempo.asset",
+      "smallEffectsRu": [
+        "7% увеличение — скорость атаки"
+      ]
+    },
+    {
+      "id": "speed_se",
+      "locationRu": "Юго-восток, нижний малый круг",
+      "smallIds": [
+        "n174",
+        "n175",
+        "n176",
+        "n177"
+      ],
+      "notableIds": [
+        "n178"
+      ],
+      "family": "speed",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_AttackTempo.asset",
+      "smallEffectsRu": [
+        "7% увеличение — скорость атаки"
+      ]
+    },
+    {
+      "id": "physical_poison_w",
+      "locationRu": "Запад, верхний внешний круг",
+      "smallIds": [
+        "n89",
+        "n92",
+        "n91",
+        "n94"
+      ],
+      "notableIds": [
+        "n87",
+        "n96"
+      ],
+      "family": "physical",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_HonedEdge.asset",
+      "smallEffectsRu": [
+        "10% увеличение — физический урон"
+      ]
+    },
+    {
+      "id": "cold_n",
+      "locationRu": "Север, левый верхний круг",
+      "smallIds": [
+        "n154",
+        "n156",
+        "n158"
+      ],
+      "notableIds": [
+        "n160"
+      ],
+      "family": "elemental",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_ElementalTraining.asset",
+      "smallEffectsRu": [
+        "10% увеличение — стихийный урон"
+      ]
+    },
+    {
+      "id": "range_n",
+      "locationRu": "Север, правый верхний круг",
+      "smallIds": [
+        "n155",
+        "n157",
+        "n159"
+      ],
+      "notableIds": [
+        "n161"
+      ],
+      "family": "range",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_RangedTraining.asset",
+      "smallEffectsRu": [
+        "10% увеличение — урон с тегом Range"
+      ]
+    },
+    {
+      "id": "resist_n",
+      "locationRu": "Север, центральный тупик",
+      "smallIds": [
+        "n72"
+      ],
+      "notableIds": [
+        "n71"
+      ],
+      "family": "defense",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_ElementalGuard.asset",
+      "smallEffectsRu": [
+        "+5 п.п. — сопротивление огню",
+        "+5 п.п. — сопротивление холоду",
+        "+5 п.п. — сопротивление молнии"
+      ]
+    },
+    {
+      "id": "life_e",
+      "locationRu": "Восток, средний круг",
+      "smallIds": [
+        "n130",
+        "n131",
+        "n132",
+        "n133"
+      ],
+      "notableIds": [
+        "n129"
+      ],
+      "family": "defense",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_LifeReserve.asset",
+      "smallEffectsRu": [
+        "+25 — максимальное здоровье"
+      ]
+    },
+    {
+      "id": "evasion_e",
+      "locationRu": "Северо-восток, внешний треугольник",
+      "smallIds": [
+        "n151",
+        "n162"
+      ],
+      "notableIds": [
+        "n150",
+        "n152"
+      ],
+      "family": "defense",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_EvasionTraining.asset",
+      "smallEffectsRu": [
+        "+50 — рейтинг уклонения",
+        "10% увеличение — рейтинг уклонения"
+      ]
+    },
+    {
+      "id": "lightning_e",
+      "locationRu": "Восток, нижний внешний круг",
+      "smallIds": [
+        "n125",
+        "n126",
+        "n127",
+        "n135"
+      ],
+      "notableIds": [
+        "n128"
+      ],
+      "family": "elemental",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_ElementalTraining.asset",
+      "smallEffectsRu": [
+        "10% увеличение — стихийный урон"
+      ]
+    },
+    {
+      "id": "evasion_sw",
+      "locationRu": "Юго-запад, внутренний треугольник",
+      "smallIds": [
+        "n116",
+        "n114",
+        "n113"
+      ],
+      "notableIds": [],
+      "family": "defense",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_EvasionTraining.asset",
+      "smallEffectsRu": [
+        "+50 — рейтинг уклонения",
+        "10% увеличение — рейтинг уклонения"
+      ]
+    },
+    {
+      "id": "fire_sw",
+      "locationRu": "Юго-запад, нижний внешний круг",
+      "smallIds": [
+        "n165",
+        "n166",
+        "n167"
+      ],
+      "notableIds": [
+        "n168"
+      ],
+      "family": "elemental",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_ElementalTraining.asset",
+      "smallEffectsRu": [
+        "10% увеличение — стихийный урон"
+      ]
+    },
+    {
+      "id": "life_sw",
+      "locationRu": "Юго-запад, внешняя орбита двойного круга",
+      "smallIds": [
+        "n140",
+        "n144",
+        "n143",
+        "n142"
+      ],
+      "notableIds": [
+        "n141"
+      ],
+      "family": "defense",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_LifeReserve.asset",
+      "smallEffectsRu": [
+        "+25 — максимальное здоровье"
+      ]
+    },
+    {
+      "id": "crit_sw",
+      "locationRu": "Юго-запад, внутренняя орбита двойного круга",
+      "smallIds": [
+        "n146",
+        "n145",
+        "n147",
+        "n148"
+      ],
+      "notableIds": [
+        "n149"
+      ],
+      "family": "crit",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_CriticalTraining.asset",
+      "smallEffectsRu": [
+        "15% увеличение — шанс критического удара"
+      ]
+    },
+    {
+      "id": "range_s",
+      "locationRu": "Юг, внешняя орбита двойного круга",
+      "smallIds": [
+        "n110",
+        "n109",
+        "n108",
+        "n107",
+        "n106"
+      ],
+      "notableIds": [
+        "n117"
+      ],
+      "family": "range",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_RangedTraining.asset",
+      "smallEffectsRu": [
+        "10% увеличение — урон с тегом Range"
+      ]
+    },
+    {
+      "id": "poison_s",
+      "locationRu": "Юг, внутренняя орбита двойного круга",
+      "smallIds": [
+        "n119",
+        "n120",
+        "n121"
+      ],
+      "notableIds": [
+        "n118"
+      ],
+      "family": "poison",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_VenomTraining.asset",
+      "smallEffectsRu": [
+        "+12 п.п. — увеличение урона яда"
+      ]
+    },
+    {
+      "id": "evasion_s",
+      "locationRu": "Юг, центральная развилка",
+      "smallIds": [
+        "n100",
+        "n102",
+        "n103",
+        "n104"
+      ],
+      "notableIds": [
+        "n75"
+      ],
+      "family": "defense",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_EvasionTraining.asset",
+      "smallEffectsRu": [
+        "+50 — рейтинг уклонения",
+        "10% увеличение — рейтинг уклонения"
+      ]
+    },
+    {
+      "id": "resist_se",
+      "locationRu": "Юго-восток, внутренний треугольник",
+      "smallIds": [
+        "n136",
+        "n138",
+        "n139"
+      ],
+      "notableIds": [],
+      "family": "defense",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_ElementalGuard.asset",
+      "smallEffectsRu": [
+        "+5 п.п. — сопротивление огню",
+        "+5 п.п. — сопротивление холоду",
+        "+5 п.п. — сопротивление молнии"
+      ]
+    },
+    {
+      "id": "physical_w_gate",
+      "locationRu": "Запад, подход к внешнему ключу",
+      "smallIds": [
+        "n82",
+        "n83",
+        "n84"
+      ],
+      "notableIds": [
+        "n85"
+      ],
+      "family": "physical",
+      "smallTemplatePath": "Assets/Resources/PassiveTrees/Templates/Rogue/Rogue_Small_HonedEdge.asset",
+      "smallEffectsRu": [
+        "10% увеличение — физический урон"
+      ]
+    }
+  ],
+  "allDamageGoalDefenseAudit": [
+    {
+      "goal": "n2",
+      "corePath": [
+        "start",
+        "n21",
+        "n58",
+        "n129",
+        "n130",
+        "n133",
+        "n131",
+        "n2"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n132",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n150",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n151",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n152",
+          "families": [
+            "evasion",
+            "physical_resist",
+            "armor"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n162",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        }
+      ]
+    },
+    {
+      "goal": "n3",
+      "corePath": [
+        "start",
+        "n20",
+        "n136",
+        "n138",
+        "n139",
+        "n10",
+        "n11",
+        "n3"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n75",
+          "families": [
+            "evasion",
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        }
+      ]
+    },
+    {
+      "goal": "n4",
+      "corePath": [
+        "start",
+        "n20",
+        "n136",
+        "n138",
+        "n110",
+        "n109",
+        "n108",
+        "n111",
+        "n4"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n75",
+          "families": [
+            "evasion",
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        }
+      ]
+    },
+    {
+      "goal": "n5",
+      "corePath": [
+        "start",
+        "n18",
+        "n43",
+        "n45",
+        "n44",
+        "n82",
+        "n83",
+        "n85",
+        "n5"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n142",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n143",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n144",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n171",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 1
+        }
+      ]
+    },
+    {
+      "goal": "n7",
+      "corePath": [
+        "start",
+        "n14",
+        "n30",
+        "n49",
+        "n69",
+        "n68",
+        "n172",
+        "n15",
+        "n7"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n37",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n71",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n72",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n173",
+          "families": [
+            "life",
+            "resist"
+          ],
+          "additionalCost": 3
+        }
+      ]
+    },
+    {
+      "goal": "n8",
+      "corePath": [
+        "start",
+        "n16",
+        "n33",
+        "n59",
+        "n60",
+        "n64",
+        "n17",
+        "n9",
+        "n8"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n38",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n71",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n72",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n172",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n173",
+          "families": [
+            "life",
+            "resist"
+          ],
+          "additionalCost": 1
+        }
+      ]
+    },
+    {
+      "goal": "n9",
+      "corePath": [
+        "start",
+        "n16",
+        "n33",
+        "n59",
+        "n60",
+        "n64",
+        "n17",
+        "n9"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n38",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n71",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n72",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n172",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n173",
+          "families": [
+            "life",
+            "resist"
+          ],
+          "additionalCost": 1
+        }
+      ]
+    },
+    {
+      "goal": "n55",
+      "corePath": [
+        "start",
+        "n14",
+        "n30",
+        "n49",
+        "n69",
+        "n52",
+        "n53",
+        "n54",
+        "n55"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n37",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n71",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n72",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n172",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n173",
+          "families": [
+            "life",
+            "resist"
+          ],
+          "additionalCost": 4
+        }
+      ]
+    },
+    {
+      "goal": "n60",
+      "corePath": [
+        "start",
+        "n16",
+        "n33",
+        "n59",
+        "n60"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n38",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n72",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n173",
+          "families": [
+            "life",
+            "resist"
+          ],
+          "additionalCost": 3
+        }
+      ]
+    },
+    {
+      "goal": "n63",
+      "corePath": [
+        "start",
+        "n16",
+        "n61",
+        "n62",
+        "n63"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n38",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n173",
+          "families": [
+            "life",
+            "resist"
+          ],
+          "additionalCost": 3
+        }
+      ]
+    },
+    {
+      "goal": "n85",
+      "corePath": [
+        "start",
+        "n18",
+        "n43",
+        "n45",
+        "n44",
+        "n82",
+        "n83",
+        "n85"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n142",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n143",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n144",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n171",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 1
+        }
+      ]
+    },
+    {
+      "goal": "n87",
+      "corePath": [
+        "start",
+        "n14",
+        "n66",
+        "n67",
+        "n76",
+        "n87"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n37",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        }
+      ]
+    },
+    {
+      "goal": "n96",
+      "corePath": [
+        "start",
+        "n14",
+        "n66",
+        "n67",
+        "n76",
+        "n87",
+        "n89",
+        "n92",
+        "n91",
+        "n94",
+        "n96"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n37",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        }
+      ]
+    },
+    {
+      "goal": "n117",
+      "corePath": [
+        "start",
+        "n20",
+        "n136",
+        "n138",
+        "n110",
+        "n109",
+        "n108",
+        "n107",
+        "n106",
+        "n117"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n75",
+          "families": [
+            "evasion",
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        }
+      ]
+    },
+    {
+      "goal": "n118",
+      "corePath": [
+        "start",
+        "n20",
+        "n136",
+        "n138",
+        "n110",
+        "n119",
+        "n120",
+        "n121",
+        "n118"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n75",
+          "families": [
+            "evasion",
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        }
+      ]
+    },
+    {
+      "goal": "n128",
+      "corePath": [
+        "start",
+        "n21",
+        "n58",
+        "n125",
+        "n126",
+        "n127",
+        "n128"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n131",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n132",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n133",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        }
+      ]
+    },
+    {
+      "goal": "n149",
+      "corePath": [
+        "start",
+        "n18",
+        "n43",
+        "n45",
+        "n140",
+        "n146",
+        "n145",
+        "n147",
+        "n148",
+        "n149"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n141",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n142",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n143",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n144",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n171",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 2
+        }
+      ]
+    },
+    {
+      "goal": "n160",
+      "corePath": [
+        "start",
+        "n14",
+        "n30",
+        "n49",
+        "n69",
+        "n68",
+        "n70",
+        "n154",
+        "n156",
+        "n160"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n37",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n71",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n72",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n172",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n173",
+          "families": [
+            "life",
+            "resist"
+          ],
+          "additionalCost": 2
+        }
+      ]
+    },
+    {
+      "goal": "n161",
+      "corePath": [
+        "start",
+        "n14",
+        "n30",
+        "n49",
+        "n69",
+        "n68",
+        "n70",
+        "n155",
+        "n157",
+        "n161"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n37",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n71",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n72",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n172",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n173",
+          "families": [
+            "life",
+            "resist"
+          ],
+          "additionalCost": 2
+        }
+      ]
+    },
+    {
+      "goal": "n168",
+      "corePath": [
+        "start",
+        "n19",
+        "n116",
+        "n114",
+        "n113",
+        "n165",
+        "n166",
+        "n167",
+        "n168"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n75",
+          "families": [
+            "evasion",
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n136",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n138",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        }
+      ]
+    },
+    {
+      "goal": "n178",
+      "corePath": [
+        "start",
+        "n20",
+        "n136",
+        "n138",
+        "n110",
+        "n174",
+        "n175",
+        "n176",
+        "n177",
+        "n178"
+      ],
+      "choicesWithin4": [
+        {
+          "target": "n28",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n30",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n31",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n33",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n34",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n35",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n44",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n45",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n67",
+          "families": [
+            "life",
+            "sustain"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n73",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n74",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n75",
+          "families": [
+            "evasion",
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n100",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n102",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n103",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n104",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n113",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n114",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n116",
+          "families": [
+            "evasion"
+          ],
+          "additionalCost": 2
+        },
+        {
+          "target": "n129",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 3
+        },
+        {
+          "target": "n130",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n139",
+          "families": [
+            "resist"
+          ],
+          "additionalCost": 1
+        },
+        {
+          "target": "n140",
+          "families": [
+            "life"
+          ],
+          "additionalCost": 4
+        },
+        {
+          "target": "n170",
+          "families": [
+            "sustain"
+          ],
+          "additionalCost": 4
+        }
+      ]
+    }
+  ]
+}

@@ -578,7 +578,7 @@ MonoBehaviour:
     IsBackbone: 0
     ZoneTwinId: 
   - ID: n60
-    NodeType: 0
+    NodeType: 1
     PlacementMode: 0
     Position: {x: 2173.4128, y: 1261.6825}
     ClusterID: 
@@ -623,7 +623,7 @@ MonoBehaviour:
     IsBackbone: 0
     ZoneTwinId: 
   - ID: n63
-    NodeType: 0
+    NodeType: 1
     PlacementMode: 0
     Position: {x: 2223, y: 1293}
     ClusterID: 
@@ -684,7 +684,7 @@ MonoBehaviour:
     IsBackbone: 0
     ZoneTwinId: 
   - ID: n67
-    NodeType: 0
+    NodeType: 1
     PlacementMode: 0
     Position: {x: 1782, y: 1338}
     ClusterID: 
@@ -912,7 +912,7 @@ MonoBehaviour:
     IsBackbone: 0
     ZoneTwinId: 
   - ID: n87
-    NodeType: 0
+    NodeType: 1
     PlacementMode: 1
     Position: {x: 1641.5846, y: 1371.7144}
     ClusterID: c86
@@ -1072,7 +1072,6 @@ MonoBehaviour:
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
-    - n114
     - n117
     - n107
     IsBackbone: 0
@@ -1181,7 +1180,6 @@ MonoBehaviour:
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:
-    - n106
     - n113
     - n116
     IsBackbone: 0
@@ -1336,7 +1334,7 @@ MonoBehaviour:
     IsBackbone: 0
     ZoneTwinId: 
   - ID: n129
-    NodeType: 0
+    NodeType: 1
     PlacementMode: 0
     Position: {x: 2295, y: 1554}
     ClusterID: 
@@ -1623,7 +1621,7 @@ MonoBehaviour:
     IsBackbone: 0
     ZoneTwinId: 
   - ID: n150
-    NodeType: 0
+    NodeType: 1
     PlacementMode: 0
     Position: {x: 2403, y: 1293}
     ClusterID: 
