@@ -1588,7 +1588,11 @@ namespace Scripts.Skills
                 return;
             float width = Mathf.Max(0.05f, step.GetFloat("Width", 0.35f)) * SkillAoeScale.FromAoe(_ctx.AoeScale).y;
             Vector2 end = start + Vector2.right * _ctx.FacingDirection * length;
-            ElectricBeamVisual.Spawn(start, end, step.GetFloat("VisualLifetime", 0.28f), width);
+            var beamPrefab = step.GetObject<GameObject>("VfxPrefab");
+            if (beamPrefab != null)
+                AuthoredBeamVisual.Spawn(beamPrefab, start, end, width, step.GetFloat("VisualLifetime", .2f));
+            else
+                ElectricBeamVisual.Spawn(start, end, step.GetFloat("VisualLifetime", 0.28f), width);
             var targets = GetTargetsInBox((start + end) * 0.5f, new Vector2(length, width), 0f);
             DealDamageToTargets(stepIndex, step, targets);
         }

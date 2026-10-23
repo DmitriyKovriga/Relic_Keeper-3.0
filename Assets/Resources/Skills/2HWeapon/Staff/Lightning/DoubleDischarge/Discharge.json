@@ -1,0 +1,235 @@
+{
+ "frames": [
+  {
+   "filename": "relic-keeper-double-discharge 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 25
+  },
+  {
+   "filename": "relic-keeper-double-discharge 1.png",
+   "frame": {
+    "x": 160,
+    "y": 0,
+    "w": 160,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 25
+  },
+  {
+   "filename": "relic-keeper-double-discharge 2.png",
+   "frame": {
+    "x": 320,
+    "y": 0,
+    "w": 160,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 25
+  },
+  {
+   "filename": "relic-keeper-double-discharge 3.png",
+   "frame": {
+    "x": 0,
+    "y": 48,
+    "w": 160,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 25
+  },
+  {
+   "filename": "relic-keeper-double-discharge 4.png",
+   "frame": {
+    "x": 160,
+    "y": 48,
+    "w": 160,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 25
+  },
+  {
+   "filename": "relic-keeper-double-discharge 5.png",
+   "frame": {
+    "x": 320,
+    "y": 48,
+    "w": 160,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 25
+  },
+  {
+   "filename": "relic-keeper-double-discharge 6.png",
+   "frame": {
+    "x": 0,
+    "y": 96,
+    "w": 160,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 25
+  },
+  {
+   "filename": "relic-keeper-double-discharge 7.png",
+   "frame": {
+    "x": 160,
+    "y": 96,
+    "w": 160,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 160,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 160,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 25
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "relic-keeper-double-discharge.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 480,
+   "h": 144
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 80,
+   "y": 24
+  },
+  "frameTags": [
+   {
+    "name": "relic-keeper-double-discharge",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ }
+}

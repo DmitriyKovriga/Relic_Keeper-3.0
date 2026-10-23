@@ -651,6 +651,14 @@ MonoBehaviour:
     m_Key: skills.IcyPalisadeSkill.description
     m_Metadata:
       m_Items: []
+  - m_Id: 104154654441304064
+    m_Key: skills.DoubleDischargeSkill
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104154654533578752
+    m_Key: skills.DoubleDischargeSkill.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

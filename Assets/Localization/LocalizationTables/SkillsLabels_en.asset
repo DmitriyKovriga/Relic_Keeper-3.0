@@ -757,6 +757,18 @@ MonoBehaviour:
       gaps; no obstacles are created. Cooldown: 10 seconds. Mana: 25.'
     m_Metadata:
       m_Items: []
+  - m_Id: 104154654441304064
+    m_Localized: Double Discharge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 104154654533578752
+    m_Localized: Two rapid discharges, each dealing 100% weapon damage. The first
+      gains 50% increased shock buildup and +50 percentage points of Shock Chance.
+      The second gains +50 percentage points of Critical Strike Multiplier. Bonuses
+      apply only to their respective discharge. Beams stop at terrain; Spell Speed
+      accelerates the pair. No cooldown or mana cost.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

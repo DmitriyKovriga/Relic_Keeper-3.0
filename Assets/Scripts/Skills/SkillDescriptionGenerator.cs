@@ -348,6 +348,13 @@ namespace Scripts.Skills
                     AddDamage(step, ru, nearby: false, lines, unique, effectiveness);
                     break;
                 case "InstantBeam":
+                    if (step.GetInt("DischargeIndex", 0) > 0)
+                    {
+                        Add(lines, unique, ru
+                            ? $"Два быстрых разряда перед героем, каждый наносит {P(step.GetFloat("DamageMultiplier", 1) * effectiveness * 100)} урона оружия. Дальность: {N(step.GetFloat("Range", 8))} м. Останавливаются на препятствиях. Скорость заклинаний ускоряет всю пару."
+                            : $"Two rapid discharges in front, each dealing {P(step.GetFloat("DamageMultiplier", 1) * effectiveness * 100)} weapon damage. Range: {N(step.GetFloat("Range", 8))} m. Stops at terrain. Spell Speed accelerates the whole pair.", SkillDescriptionSection.Attack);
+                        break;
+                    }
                     Add(lines, unique, ru
                         ? $"Мгновенный электрический луч перед героем. Дальность: {N(step.GetFloat("Range", 12f))} м. Останавливается на препятствиях."
                         : $"Instant electric beam in front of you. Range: {N(step.GetFloat("Range", 12f))} m. Stops at terrain.");
@@ -868,8 +875,16 @@ namespace Scripts.Skills
         private static void AddScopedModifiers(StepEntry step, bool ru, Func<StatType, string> resolver, List<SkillDescriptionLine> lines, HashSet<string> unique)
         {
             if (step.ScopedStatModifiers == null) return;
+            int discharge = step.GetInt("DischargeIndex", 0);
             foreach (SerializableStatModifier modifier in step.ScopedStatModifiers)
             {
+                if (discharge > 0)
+                {
+                    string prefix = ru ? (discharge == 1 ? "Первый разряд: " : "Второй разряд: ")
+                        : (discharge == 1 ? "First discharge: " : "Second discharge: ");
+                    Add(lines, unique, prefix + StatChip(modifier.Stat, modifier.Value, modifier.Type, ru, resolver) + ".", SkillDescriptionSection.Attack);
+                    continue;
+                }
                 if (modifier.Stat == StatType.BleedExtractionChance && modifier.Type == StatModType.Flat)
                 {
                     Add(lines, unique, ru ? $"+{N(modifier.Value)}% к шансу извлечения кровотечения для этого удара."
