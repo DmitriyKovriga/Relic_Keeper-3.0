@@ -67,3 +67,16 @@ For weapon-skill concepts, build synergies and balance tradeoffs, use
 is [Weapon Skill Design Context](Docs/GameDesign/Weapon_Skill_Design_Context.md).
 Read that snapshot before brainstorming; verify affected source data when exact
 numbers matter. Keep implemented facts, proposals and accepted decisions separate.
+
+## Local code graph (Graphify)
+
+For cross-file C# discovery, try the project Graphify MCP (`query_graph`,
+`get_node`, `get_neighbors`, `shortest_path`, `graph_stats`) or
+`./Tools/Graphify/Invoke-Graphify.ps1 query "specific symbol or question" --budget 1200`.
+Use one focused query, then read the returned source locations; fall back to `rg`
+when coverage is missing or ambiguous. Do not load the full graph/report into context.
+Refresh after source changes or checkout with `./Tools/Graphify/Update-Graphify.ps1`.
+The graph is an ignored local code-only cache, not the source of truth. Inspect Unity
+GUID/serialized asset references, dynamic dispatch, reflection, and scene wiring directly.
+No semantic API calls, git hooks, automatic memory writes, or background indexing are
+enabled. Setup, limits, and removal: [Graphify setup](Docs/Graphify_Setup.md).

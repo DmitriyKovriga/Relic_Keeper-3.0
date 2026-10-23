@@ -109,3 +109,7 @@ ShaderCache/
 
 # --- Recruitment / hiring materials (private, not part of the game) ---
 /Recruitment/
+
+# Local Graphify environment and generated code index
+/.graphify/
+/graphify-out/

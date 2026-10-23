@@ -1,0 +1,24 @@
+# Project-local Graphify, installed with Tools/Graphify/Install-Graphify.ps1.
+# If this checkout moves, update command, args and cwd to its new absolute path.
+[mcp_servers.graphify]
+command = "D:/Work/GameDev/Relic_Keeper-3.0/.graphify/venv/Scripts/python.exe"
+args = ["-m", "graphify.serve", "D:/Work/GameDev/Relic_Keeper-3.0/.graphify/index/graph.json"]
+cwd = "D:/Work/GameDev/Relic_Keeper-3.0"
+enabled = true
+startup_timeout_sec = 30
+tool_timeout_sec = 30
+enabled_tools = ["query_graph", "get_node", "get_neighbors", "shortest_path", "graph_stats"]
+
+[mcp_servers.graphify.env]
+PYTHONUTF8 = "1"
+GRAPHIFY_OUT = "D:/Work/GameDev/Relic_Keeper-3.0/.graphify/index"
+GRAPHIFY_QUERY_LOG_DISABLE = "1"
+
+[mcp_servers.graphify.tools.query_graph]
+output_token_limit = 1800
+
+[mcp_servers.graphify.tools.get_node]
+output_token_limit = 1800
+
+[mcp_servers.graphify.tools.get_neighbors]
+output_token_limit = 1800

@@ -1,0 +1,39 @@
+# Unity caches, build outputs, third-party packages and generated content
+Library/
+Temp/
+Obj/
+Logs/
+Build/
+Builds/
+UserSettings/
+Packages/
+.git/
+.graphify/
+graphify-out/
+.agents/
+.agents-unity-bridge/
+.codex/
+.cursor/
+.vscode/
+.dotnet_home/
+.dotnet-cli/
+outputs/
+Screenshots/
+UIElementsSchema/
+Recruitment/
+Assets/TextMesh Pro/
+Assets/Plugins/
+Assets/ThirdParty/
+Assets/AddressableAssetsData/
+# Unity serialized references need direct asset inspection, not generic YAML indexing.
+*.meta
+*.asset
+*.prefab
+*.unity
+*.mat
+*.anim
+*.controller
+*.csproj
+*.sln
+*.png
+*.json
