@@ -2067,6 +2067,350 @@ MonoBehaviour:
     m_Key: passive.node.NoteIgniteSpread.description
     m_Metadata:
       m_Items: []
+  - m_Id: 118697750877270016
+    m_Key: passive.node.Rogue_n2.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697750973739008
+    m_Key: passive.node.Rogue_n2.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697752357859328
+    m_Key: passive.node.Rogue_n3.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697752357859329
+    m_Key: passive.node.Rogue_n3.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697753813282816
+    m_Key: passive.node.Rogue_n4.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697753813282817
+    m_Key: passive.node.Rogue_n4.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697755197403136
+    m_Key: passive.node.Rogue_n5.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697755201597440
+    m_Key: passive.node.Rogue_n5.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697756526997504
+    m_Key: passive.node.Rogue_n7.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697756526997505
+    m_Key: passive.node.Rogue_n7.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697757990809600
+    m_Key: passive.node.Rogue_n8.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697757990809601
+    m_Key: passive.node.Rogue_n8.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697759324598272
+    m_Key: passive.node.Rogue_n9.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697759324598273
+    m_Key: passive.node.Rogue_n9.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697760821964800
+    m_Key: passive.node.Rogue_Small_LifeReserve.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697760821964801
+    m_Key: passive.node.Rogue_Small_LifeReserve.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697762118004736
+    m_Key: passive.node.Rogue_Small_EvasionTraining.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697762118004737
+    m_Key: passive.node.Rogue_Small_EvasionTraining.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697763573428224
+    m_Key: passive.node.Rogue_n37.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697763573428225
+    m_Key: passive.node.Rogue_n37.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697764944965632
+    m_Key: passive.node.Rogue_n38.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697764944965633
+    m_Key: passive.node.Rogue_n38.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697766144536576
+    m_Key: passive.node.Rogue_Small_RecoveryTraining.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697766144536577
+    m_Key: passive.node.Rogue_Small_RecoveryTraining.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697767469936640
+    m_Key: passive.node.Rogue_Small_AttackTempo.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697767469936641
+    m_Key: passive.node.Rogue_Small_AttackTempo.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697768698867712
+    m_Key: passive.node.Rogue_n55.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697768698867713
+    m_Key: passive.node.Rogue_n55.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697770053627904
+    m_Key: passive.node.Rogue_n60.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697770053627905
+    m_Key: passive.node.Rogue_n60.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697771488079872
+    m_Key: passive.node.Rogue_n63.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697771488079873
+    m_Key: passive.node.Rogue_n63.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697772964474880
+    m_Key: passive.node.Rogue_n67.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697772964474881
+    m_Key: passive.node.Rogue_n67.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697774294069248
+    m_Key: passive.node.Rogue_n71.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697774294069249
+    m_Key: passive.node.Rogue_n71.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697775745298432
+    m_Key: passive.node.Rogue_Small_ElementalGuard.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697775745298433
+    m_Key: passive.node.Rogue_Small_ElementalGuard.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697777167167488
+    m_Key: passive.node.Rogue_n75.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697777167167489
+    m_Key: passive.node.Rogue_n75.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697778521927680
+    m_Key: passive.node.Rogue_Small_HonedEdge.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697778521927681
+    m_Key: passive.node.Rogue_Small_HonedEdge.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697779738275840
+    m_Key: passive.node.Rogue_n85.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697779738275841
+    m_Key: passive.node.Rogue_n85.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697781004955648
+    m_Key: passive.node.Rogue_n87.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697781004955649
+    m_Key: passive.node.Rogue_n87.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697782233886720
+    m_Key: passive.node.Rogue_n96.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697782233886721
+    m_Key: passive.node.Rogue_n96.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697783508955136
+    m_Key: passive.node.Rogue_Small_RangedTraining.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697783508955137
+    m_Key: passive.node.Rogue_Small_RangedTraining.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697784716914688
+    m_Key: passive.node.Rogue_n117.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697784716914689
+    m_Key: passive.node.Rogue_n117.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697786101035008
+    m_Key: passive.node.Rogue_n118.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697786101035009
+    m_Key: passive.node.Rogue_n118.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697787472572416
+    m_Key: passive.node.Rogue_Small_VenomTraining.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697787472572417
+    m_Key: passive.node.Rogue_Small_VenomTraining.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697788701503488
+    m_Key: passive.node.Rogue_Small_ElementalTraining.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697788701503489
+    m_Key: passive.node.Rogue_Small_ElementalTraining.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697790081429504
+    m_Key: passive.node.Rogue_n128.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697790081429505
+    m_Key: passive.node.Rogue_n128.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697791436189696
+    m_Key: passive.node.Rogue_n129.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697791436189697
+    m_Key: passive.node.Rogue_n129.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697792673509376
+    m_Key: passive.node.Rogue_n141.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697792673509377
+    m_Key: passive.node.Rogue_n141.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697793956966400
+    m_Key: passive.node.Rogue_Small_CriticalTraining.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697793956966401
+    m_Key: passive.node.Rogue_Small_CriticalTraining.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697795294949376
+    m_Key: passive.node.Rogue_n149.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697795294949377
+    m_Key: passive.node.Rogue_n149.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697796523880448
+    m_Key: passive.node.Rogue_n150.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697796523880449
+    m_Key: passive.node.Rogue_n150.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697797920583680
+    m_Key: passive.node.Rogue_n152.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697797920583681
+    m_Key: passive.node.Rogue_n152.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697799258566656
+    m_Key: passive.node.Rogue_n160.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697799258566657
+    m_Key: passive.node.Rogue_n160.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697800571383808
+    m_Key: passive.node.Rogue_n161.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697800571383809
+    m_Key: passive.node.Rogue_n161.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697801905172480
+    m_Key: passive.node.Rogue_n168.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697801905172481
+    m_Key: passive.node.Rogue_n168.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697803167657984
+    m_Key: passive.node.Rogue_n171.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697803167657985
+    m_Key: passive.node.Rogue_n171.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697804614692864
+    m_Key: passive.node.Rogue_n172.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697804614692865
+    m_Key: passive.node.Rogue_n172.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697805801680896
+    m_Key: passive.node.Rogue_n173.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697805801680897
+    m_Key: passive.node.Rogue_n173.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697807169024000
+    m_Key: passive.node.Rogue_n178.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697807169024001
+    m_Key: passive.node.Rogue_n178.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

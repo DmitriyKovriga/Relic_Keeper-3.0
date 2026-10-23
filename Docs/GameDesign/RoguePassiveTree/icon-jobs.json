@@ -1,0 +1,391 @@
+[
+  {
+    "key": "Rogue_n2",
+    "name": "Elemental Turning Point",
+    "type": "Keystone",
+    "size": 48,
+    "job": "e427f9fe-85bd-4ed2-9503-6483d95eeb06",
+    "previousJob": "2efdfcce-43e9-4547-a5e8-485535828f07",
+    "prompt": "hooded rogue thrusting a dagger, fire cold and lightning ribbons streaming from the moving blade"
+  },
+  {
+    "key": "Rogue_n3",
+    "name": "Dance of Blades",
+    "type": "Keystone",
+    "size": 48,
+    "job": "47dcc7ac-9235-4798-81c7-2849cade4625",
+    "previousJob": "6f1a4bed-f3b8-4e70-b181-7a90b698d55f",
+    "prompt": "hooded rogue spinning with two outstretched daggers, turquoise sweeping crescent trails surrounding the body"
+  },
+  {
+    "key": "Rogue_n4",
+    "name": "Perfect Precision",
+    "type": "Keystone",
+    "size": 48,
+    "job": "6ea35e9e-145e-48a9-b46d-b119eb043ce6",
+    "previousJob": "37c7518d-c2df-4604-af27-608917c5cc4c",
+    "prompt": "close-up intense rogue eye beside the precisely aligned tip of a silver dagger, one tiny bright impact glint"
+  },
+  {
+    "key": "Rogue_n5",
+    "name": "Borderland Blade",
+    "type": "Keystone",
+    "size": 48,
+    "job": "0f8f9e60-3198-4506-bc63-310c99dca554",
+    "previousJob": "9217344a-8643-49ce-98a0-727ba39a6e92",
+    "prompt": "hooded rogue lunging forward, one crimson physical blade slash and one violet elemental slash crossing in the air"
+  },
+  {
+    "key": "Rogue_n7",
+    "name": "Distant Hunt: Wager",
+    "type": "Keystone",
+    "size": 48,
+    "job": "71587dd5-de54-441a-95d8-386fe8ee0038",
+    "previousJob": "c51cc539-7e02-435a-82db-3bf6ed34e68b",
+    "prompt": "lean hooded archer drawing a bow to full tension, arrow aimed across the picture and a long pale wind streak"
+  },
+  {
+    "key": "Rogue_n8",
+    "name": "Deep Cut",
+    "type": "Keystone",
+    "size": 48,
+    "job": "8b5841d2-c363-48a9-8b25-e7c940efc297",
+    "previousJob": "385c4fe1-7182-4ee3-92dd-6e841806d78a",
+    "prompt": "rogue driving a heavy diagonal dagger cut, long blood-red slicing streak across dark empty space"
+  },
+  {
+    "key": "Rogue_n9",
+    "name": "Lethal Toxin",
+    "type": "Keystone",
+    "size": 48,
+    "job": "21e11ea7-4738-425d-8725-c0fb4c02dbc7",
+    "previousJob": "0aa39b70-b44d-42cd-b215-d45344db7347",
+    "prompt": "hooded assassin exhaling a swirling emerald toxic cloud over two raised venom daggers"
+  },
+  {
+    "key": "Rogue_Small_LifeReserve",
+    "name": "Life Reserve",
+    "type": "Small",
+    "size": 32,
+    "job": "aadd0089-7122-4c1b-98f0-684053b30635",
+    "previousJob": "927b7d17-1433-4e42-9fcf-6ff5a524df80",
+    "prompt": "human rogue torso silhouette with vivid warm red life force glowing in the chest"
+  },
+  {
+    "key": "Rogue_Small_EvasionTraining",
+    "name": "Evasion Training",
+    "type": "Small",
+    "size": 32,
+    "job": "8107861e-c42f-4cfc-963d-1927771cf1e8",
+    "previousJob": "b84b12c8-2d55-4372-8b76-811514d153e3",
+    "prompt": "hooded human figure crouching sideways to dodge a passing white diagonal slash, cyan afterimage"
+  },
+  {
+    "key": "Rogue_n37",
+    "name": "Second Wind",
+    "type": "Notable",
+    "size": 32,
+    "job": "3e859add-9eb3-4015-b773-dc4ff1280b9b",
+    "previousJob": "de072842-4b12-48e7-98c7-c772d6b1ad8f",
+    "prompt": "kneeling exhausted rogue rising again, small bright green restorative motes spiraling upward"
+  },
+  {
+    "key": "Rogue_n38",
+    "name": "Ghost Step",
+    "type": "Notable",
+    "size": 32,
+    "job": "0859e060-aa00-4a7f-b807-4a9312eadbb1",
+    "previousJob": "ec4b8782-9df5-47b2-b06f-433c29eb00e6",
+    "prompt": "ghostlike hooded rogue stepping aside, two translucent cyan afterimages fading behind the moving body"
+  },
+  {
+    "key": "Rogue_Small_RecoveryTraining",
+    "name": "Recovery Training",
+    "type": "Small",
+    "size": 32,
+    "job": "d4cfd7d6-b8ef-494a-9ad8-2fafb6a46f02",
+    "previousJob": "5dcf359b-03d8-4f43-b15a-3b1d936290e0",
+    "prompt": "hands held close to a green glowing wound on a rogue torso, healing particles drifting upward"
+  },
+  {
+    "key": "Rogue_Small_AttackTempo",
+    "name": "Attack Tempo",
+    "type": "Small",
+    "size": 32,
+    "job": "203b91e1-49c0-451c-a454-28c2d0f8afed",
+    "previousJob": "66ca6fbc-cffe-46b5-8871-6f4ae283e5c8",
+    "prompt": "two short ivory dagger slashes following one another, quick yellow motion streaks, disembodied gloved hand"
+  },
+  {
+    "key": "Rogue_n55",
+    "name": "Flurry",
+    "type": "Notable",
+    "size": 32,
+    "job": "708fe63e-dc78-4f00-84c7-3f5cb47923f2",
+    "previousJob": "81babb5c-f0b3-4a01-967d-d62932917c7b",
+    "prompt": "hooded rogue unleashing a rapid flurry of three white crescent dagger cuts in front of the body"
+  },
+  {
+    "key": "Rogue_n60",
+    "name": "Unerring Strike",
+    "type": "Notable",
+    "size": 32,
+    "job": "15231184-187b-48d3-8ea1-5cd41a7e7134",
+    "previousJob": "e8406587-2724-47a2-bc1e-04332175c92b",
+    "prompt": "hooded rogue precisely thrusting a silver blade into one tiny red point, focused glint at the tip"
+  },
+  {
+    "key": "Rogue_n63",
+    "name": "Crushing Wound",
+    "type": "Notable",
+    "size": 32,
+    "job": "b55121fb-bac6-412a-8a38-4f4f8cea6e1a",
+    "previousJob": "bda6745e-645d-4d7b-a637-78046811417f",
+    "prompt": "side-view rogue twisting into a forceful dagger thrust, deep crimson impact flare and slashing red trails"
+  },
+  {
+    "key": "Rogue_n67",
+    "name": "Hardy Hunter",
+    "type": "Notable",
+    "size": 32,
+    "job": "d5c65095-2dc0-4139-87de-dc5d309e2cdd",
+    "previousJob": "db71787b-14d1-44ca-ae7c-95cc6ef4e152",
+    "prompt": "crouching rogue enduring a blow, compact green and red life aura around the shoulders and chest"
+  },
+  {
+    "key": "Rogue_n71",
+    "name": "Elemental Readiness",
+    "type": "Notable",
+    "size": 32,
+    "job": "7c9c2749-051c-45bc-9aab-d435e3738c31",
+    "previousJob": "b41750c7-c2f7-4b90-afef-9b5cc23ecb5a",
+    "prompt": "hooded figure surrounded by a loose flame wisp, ice mist and tiny electric arcs, no solid objects"
+  },
+  {
+    "key": "Rogue_Small_ElementalGuard",
+    "name": "Elemental Guard",
+    "type": "Small",
+    "size": 32,
+    "job": "da5d8686-72e9-44be-8367-91c60eca8e6e",
+    "firstActionJob": "de56672c-b4e5-42c7-bf2a-3304d11f32f1",
+    "previousJob": "8f4707ee-06cb-4f03-ab6a-fde9d677b9ff",
+    "prompt": "Large close-up bust of a hooded human rogue. Bright orange blue and violet energy flows around both shoulders and head. Large luminous silhouette fills almost the entire 32 pixel square. The human head is recognizable and torso is broad. Strong readable colored aura."
+  },
+  {
+    "key": "Rogue_n75",
+    "name": "Room for Error",
+    "type": "Notable",
+    "size": 32,
+    "job": "134fcb98-121a-484d-84a7-9b3ce93bf139",
+    "previousJob": "18d52057-fcb8-40e3-bf11-96729bcee9a8",
+    "prompt": "rogue leaning backward after a near miss, red life spark in chest and one soft cyan afterimage"
+  },
+  {
+    "key": "Rogue_Small_HonedEdge",
+    "name": "Honed Edge",
+    "type": "Small",
+    "size": 32,
+    "job": "a79b685d-9424-4f49-8e37-138e087c4603",
+    "previousJob": "cf132973-91e1-497a-a6ed-cb5f9e167826",
+    "prompt": "gloved rogue hand performing a single fast steel dagger cut, ivory slash trail on dark background"
+  },
+  {
+    "key": "Rogue_n85",
+    "name": "Relentless Hunt",
+    "type": "Keystone",
+    "size": 48,
+    "job": "b49cfaae-fc81-4df4-a594-499a7aec2016",
+    "previousJob": "71feb8fa-19aa-45a1-b74b-36cbe041642d",
+    "prompt": "hooded assassin sprinting low with twin daggers trailing behind, several strong yellow-green speed streaks"
+  },
+  {
+    "key": "Rogue_n87",
+    "name": "Poisoned Steel",
+    "type": "Notable",
+    "size": 32,
+    "job": "63c66a89-f076-4aa7-8e0d-0f8d5efdb85b",
+    "previousJob": "53c852ef-78b8-4c80-b93d-985d703ba171",
+    "prompt": "gloved hand drawing a dagger through glowing green venom, toxic droplets falling from the moving edge"
+  },
+  {
+    "key": "Rogue_n96",
+    "name": "Blade Master",
+    "type": "Notable",
+    "size": 32,
+    "job": "994c01ea-deab-4071-b4aa-ae89a65cc9db",
+    "firstActionJob": "11da41a9-757d-4d91-929f-38318d2cd786",
+    "previousJob": "8c95e736-298c-402b-a15e-33723027df0c",
+    "prompt": "Close-up upper body of a rogue making an aggressive two dagger strike. A broad vivid red curved slash and large gloved hand dominate foreground, hooded head behind. Subject fills almost the entire square, bold solid bright silhouette."
+  },
+  {
+    "key": "Rogue_Small_RangedTraining",
+    "name": "Ranged Training",
+    "type": "Small",
+    "size": 32,
+    "job": "d8022a5c-3415-4dc0-8015-3cbc3b31ea8f",
+    "previousJob": "649e89f8-d70b-4628-a895-376271b608c6",
+    "prompt": "hooded bow archer releasing one arrow, long thin white motion trail extending to the right"
+  },
+  {
+    "key": "Rogue_n117",
+    "name": "Returning Edge",
+    "type": "Notable",
+    "size": 32,
+    "job": "6b079553-76de-47cd-b8bb-ba85b08b2430",
+    "previousJob": "0c2fc7a1-9804-4cf8-90b3-575e66d56f3d",
+    "prompt": "rogue catching a curved throwing disc returning along a sweeping cyan trail behind their body"
+  },
+  {
+    "key": "Rogue_n118",
+    "name": "Venom Master",
+    "type": "Notable",
+    "size": 32,
+    "job": "65d305e6-5a92-4873-8073-fd0240d949f6",
+    "previousJob": "f40a5705-0f5d-4e54-a589-8397c77898f2",
+    "prompt": "hooded rogue amid spiraling poisonous green fumes, one outstretched hand dripping vivid venom"
+  },
+  {
+    "key": "Rogue_Small_VenomTraining",
+    "name": "Venom Training",
+    "type": "Small",
+    "size": 32,
+    "job": "9ea2634f-ea63-468f-ab2d-37c4529a410d",
+    "previousJob": "6ebe1579-4bba-481d-8b96-0ccd8fa70ce6",
+    "prompt": "one bright green venom droplet splashing from a small dagger tip into a curl of poisonous mist"
+  },
+  {
+    "key": "Rogue_Small_ElementalTraining",
+    "name": "Elemental Training",
+    "type": "Small",
+    "size": 32,
+    "job": "6ab1eb74-4ae9-4740-b5a7-2de7a733950b",
+    "previousJob": "8bbf5e3c-e10a-42cc-8d95-2a350ea5e2ee",
+    "prompt": "human hand shaping three flowing wisps of orange flame, blue frost and purple electricity"
+  },
+  {
+    "key": "Rogue_n128",
+    "name": "Charged Steel",
+    "type": "Notable",
+    "size": 32,
+    "job": "4782e0d3-b837-425d-adb3-d93d8ff7b4f5",
+    "previousJob": "ff22c81a-1cc5-41bd-9d11-750b403d26b4",
+    "prompt": "hooded rogue striking with an electrified dagger, branching violet-white lightning along the sweeping blade"
+  },
+  {
+    "key": "Rogue_n129",
+    "name": "Combat Reserve",
+    "type": "Notable",
+    "size": 32,
+    "job": "8edf1562-6186-42ec-a241-b47b7c3d39a6",
+    "previousJob": "44f22e9e-f135-46f6-b1cf-c20badf11bf1",
+    "prompt": "steady hooded rogue standing ready, warm ruby life aura glowing through chest and shoulders"
+  },
+  {
+    "key": "Rogue_n141",
+    "name": "Tempered Body",
+    "type": "Notable",
+    "size": 32,
+    "job": "fcb32162-f6c3-40ed-a6f9-241bbb895c4e",
+    "previousJob": "06be9d5d-33bf-4ae9-a88b-e9ec351de755",
+    "prompt": "rogue bracing in a low stance, red life energy coursing through the entire muscular silhouette"
+  },
+  {
+    "key": "Rogue_Small_CriticalTraining",
+    "name": "Critical Training",
+    "type": "Small",
+    "size": 32,
+    "job": "635283ac-c996-4422-a5e4-8873a828127a",
+    "previousJob": "09d824c2-6779-423c-b003-84887f8f288a",
+    "prompt": "single vivid green focused eye emerging from a dark hood, one sharp ivory glint at the iris"
+  },
+  {
+    "key": "Rogue_n149",
+    "name": "Deadly Precision",
+    "type": "Notable",
+    "size": 32,
+    "job": "67f7e96e-ad64-454e-ac50-c2f62e0fa85a",
+    "previousJob": "744eb33e-e92b-462f-95ce-94081f96925f",
+    "prompt": "close-up hooded rogue eye following a blade tip, crimson precise impact spark and clean white diagonal slash"
+  },
+  {
+    "key": "Rogue_n150",
+    "name": "Defensive Maneuver",
+    "type": "Notable",
+    "size": 32,
+    "job": "8198163a-5919-47ea-9ba4-f026a071ad74",
+    "previousJob": "e4ed493a-acff-4038-aa69-cce8b6aea321",
+    "prompt": "hooded rogue twisting the torso away from an attack, bright cyan afterimage showing previous position"
+  },
+  {
+    "key": "Rogue_n152",
+    "name": "Glancing Guard",
+    "type": "Notable",
+    "size": 32,
+    "job": "f5eeb928-f637-4491-93dd-1702dfa03cbb",
+    "previousJob": "2cba4cff-f3af-41c3-8423-174f20a9c2a7",
+    "prompt": "rogue ducking under a passing blow, steel-gray sparks grazing their shoulder, faint green evasive aura"
+  },
+  {
+    "key": "Rogue_n160",
+    "name": "Cold Steel",
+    "type": "Notable",
+    "size": 32,
+    "job": "f55cb773-6920-4add-a0f8-c00e4478c254",
+    "previousJob": "de2d6650-ff25-4d02-93a9-f55666c73841",
+    "prompt": "rogue slashing with a frost-coated dagger, icy blue shards and a cold crescent trail"
+  },
+  {
+    "key": "Rogue_n161",
+    "name": "Distant Hunt",
+    "type": "Notable",
+    "size": 32,
+    "job": "9f18b92c-e462-4e0b-b9d3-0ad204c4efdc",
+    "previousJob": "433df91a-7cfd-4512-871b-49a4b3b01230",
+    "prompt": "side-view hooded archer releasing a volley, two long pale arrows flying diagonally across the scene"
+  },
+  {
+    "key": "Rogue_n168",
+    "name": "Scorched Steel",
+    "type": "Notable",
+    "size": 32,
+    "job": "8bd4fe2c-8e2b-4acb-84a2-43d5f06ad813",
+    "previousJob": "49bc68a5-4a1a-44a0-909c-028278d68344",
+    "prompt": "hooded rogue sweeping a flaming dagger, orange-red flame crescent curling from the blade"
+  },
+  {
+    "key": "Rogue_n171",
+    "name": "Hardy Constitution",
+    "type": "Notable",
+    "size": 32,
+    "job": "3a77dd2e-2cbf-437a-a286-9cbc3eed739c",
+    "previousJob": "dc6fe7d0-5da1-4caf-ba29-a8e7acbc3d52",
+    "prompt": "rogue sitting briefly to bind an injured forearm, gentle green restorative aura around the figure"
+  },
+  {
+    "key": "Rogue_n172",
+    "name": "Elemental Conditioning",
+    "type": "Notable",
+    "size": 32,
+    "job": "733183ca-a7b1-47b3-bac7-652c75cd26d8",
+    "previousJob": "8f2230ec-c078-48d6-affd-dca336a93e8d",
+    "prompt": "hooded human leaning into swirling fire frost and lightning, colored motes breaking away around the shoulders"
+  },
+  {
+    "key": "Rogue_n173",
+    "name": "Cold Resolve",
+    "type": "Notable",
+    "size": 32,
+    "job": "917f50ae-ac0f-4832-a0f9-1b0027551d05",
+    "previousJob": "dbe52412-27e5-467d-a0c9-a2e156c9254c",
+    "prompt": "calm hooded rogue breathing pale cold mist, ruby life glow in the chest and frost sparkles around shoulders"
+  },
+  {
+    "key": "Rogue_n178",
+    "name": "Unbroken Tempo",
+    "type": "Notable",
+    "size": 32,
+    "job": "47c9d04c-e614-4125-a3d6-3a33710e0e58",
+    "previousJob": "f3c6769f-4216-4f0a-9064-e3451306fcc2",
+    "prompt": "hooded rogue delivering two fast dagger thrusts, pale gold motion lines and a small blue mana wisp"
+  }
+]

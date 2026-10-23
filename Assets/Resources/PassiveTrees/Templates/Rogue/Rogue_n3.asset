@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
+  m_Name: Rogue_n3
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
+  Name: Dance of Blades
+  Description: 
+  Icon: {fileID: 21300000, guid: 5e5d9c398fd360f4e9705d7867f34373, type: 3}
+  Modifiers:
+  - Stat: 28
+    Value: 10
+    Type: 200
+  - Stat: 14
+    Value: 20
+    Type: 310
+  StatScalingRules:
+  - SourceStat: 15
+    SourceAmountPerStep: 1000
+    UseWholeSteps: 1
+    TargetStat: 52
+    TargetValuePerStep: 25
+    TargetModifierType: 100
+  ConditionalModifiers: []
+  TriggeredEffects: []
+  HitScalingRules: []

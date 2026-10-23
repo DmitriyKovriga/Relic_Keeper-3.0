@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
+  m_Name: Rogue_n7
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
+  Name: 'Distant Hunt: Wager'
+  Description: 
+  Icon: {fileID: 21300000, guid: 2285d5cb8dcd47c46b6b799fe4684952, type: 3}
+  Modifiers:
+  - Stat: 114
+    Value: 30
+    Type: 300
+  - Stat: 83
+    Value: 3
+    Type: 100
+  - Stat: 88
+    Value: 80
+    Type: 310
+  - Stat: 89
+    Value: 80
+    Type: 310
+  StatScalingRules: []
+  ConditionalModifiers: []
+  TriggeredEffects: []
+  HitScalingRules: []

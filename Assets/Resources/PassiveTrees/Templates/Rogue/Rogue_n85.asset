@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 193fd79e64bb0214ba9700570dd74e18, type: 3}
+  m_Name: Rogue_n85
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
+  Name: Relentless Hunt
+  Description: 
+  Icon: {fileID: 21300000, guid: b8cb0122f8e692042a7220bd0e261564, type: 3}
+  Modifiers:
+  - Stat: 28
+    Value: 40
+    Type: 300
+  - Stat: 30
+    Value: 15
+    Type: 310
+  - Stat: 113
+    Value: 15
+    Type: 310
+  StatScalingRules: []
+  ConditionalModifiers: []
+  TriggeredEffects: []
+  HitScalingRules: []

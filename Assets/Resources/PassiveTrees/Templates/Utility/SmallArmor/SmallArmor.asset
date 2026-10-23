@@ -19,3 +19,10 @@ MonoBehaviour:
   - Stat: 14
     Value: 25
     Type: 100
+  - Stat: 0
+    Value: 5
+    Type: 100
+  StatScalingRules: []
+  ConditionalModifiers: []
+  TriggeredEffects: []
+  HitScalingRules: []

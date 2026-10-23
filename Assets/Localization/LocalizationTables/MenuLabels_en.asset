@@ -2625,7 +2625,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 110132100382842880
-    m_Localized: Transport Node Evasion
+    m_Localized: Travel
     m_Metadata:
       m_Items: []
   - m_Id: 110132100382842881
@@ -3026,6 +3026,350 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 117327196056444929
     m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697750877270016
+    m_Localized: Elemental Turning Point
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697750973739008
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697752357859328
+    m_Localized: Dance of Blades
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697752357859329
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697753813282816
+    m_Localized: Perfect Precision
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697753813282817
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697755197403136
+    m_Localized: Borderland Blade
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697755201597440
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697756526997504
+    m_Localized: 'Distant Hunt: Wager'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697756526997505
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697757990809600
+    m_Localized: Deep Cut
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697757990809601
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697759324598272
+    m_Localized: Lethal Toxin
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697759324598273
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697760821964800
+    m_Localized: Life Reserve
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697760821964801
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697762118004736
+    m_Localized: Evasion Training
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697762118004737
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697763573428224
+    m_Localized: Second Wind
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697763573428225
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697764944965632
+    m_Localized: Ghost Step
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697764944965633
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697766144536576
+    m_Localized: Recovery Training
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697766144536577
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697767469936640
+    m_Localized: Attack Tempo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697767469936641
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697768698867712
+    m_Localized: Flurry
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697768698867713
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697770053627904
+    m_Localized: Unerring Strike
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697770053627905
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697771488079872
+    m_Localized: Crushing Wound
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697771488079873
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697772964474880
+    m_Localized: Hardy Hunter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697772964474881
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697774294069248
+    m_Localized: Elemental Readiness
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697774294069249
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697775745298432
+    m_Localized: Elemental Guard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697775745298433
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697777167167488
+    m_Localized: Room for Error
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697777167167489
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697778521927680
+    m_Localized: Honed Edge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697778521927681
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697779738275840
+    m_Localized: Relentless Hunt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697779738275841
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697781004955648
+    m_Localized: Poisoned Steel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697781004955649
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697782233886720
+    m_Localized: Blade Master
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697782233886721
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697783508955136
+    m_Localized: Ranged Training
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697783508955137
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697784716914688
+    m_Localized: Returning Edge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697784716914689
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697786101035008
+    m_Localized: Venom Master
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697786101035009
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697787472572416
+    m_Localized: Venom Training
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697787472572417
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697788701503488
+    m_Localized: Elemental Training
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697788701503489
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697790081429504
+    m_Localized: Charged Steel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697790081429505
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697791436189696
+    m_Localized: Combat Reserve
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697791436189697
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697792673509376
+    m_Localized: Tempered Body
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697792673509377
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697793956966400
+    m_Localized: Critical Training
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697793956966401
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697795294949376
+    m_Localized: Deadly Precision
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697795294949377
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697796523880448
+    m_Localized: Defensive Maneuver
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697796523880449
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697797920583680
+    m_Localized: Glancing Guard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697797920583681
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697799258566656
+    m_Localized: Cold Steel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697799258566657
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697800571383808
+    m_Localized: Distant Hunt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697800571383809
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697801905172480
+    m_Localized: Scorched Steel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697801905172481
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697803167657984
+    m_Localized: Hardy Constitution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697803167657985
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697804614692864
+    m_Localized: Elemental Conditioning
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697804614692865
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697805801680896
+    m_Localized: Cold Resolve
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697805801680897
+    m_Localized:
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697807169024000
+    m_Localized: Unbroken Tempo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 118697807169024001
+    m_Localized:
     m_Metadata:
       m_Items: []
   references:
