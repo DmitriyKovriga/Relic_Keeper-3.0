@@ -45,9 +45,9 @@ dungeon gameplay or changing progress. Continuous motion and target-device
 performance are not established by these still captures.
 
 To regenerate the study, enter Play Mode and use **Tools > Relic Keeper >
-Visuals > Capture Contact Shadow Study**. Images are written to ignored
+Developer > Visuals > Capture Contact Shadow Study**. Images are written to ignored
 `Logs/ContactShadows/`; all temporary actors, colliders, cameras and shadows are
 removed before the call returns. The live player and saved scene remain intact.
 
-V05 (authored contact darkening under roofs, walls and props) is the next proposed
-step. Lighting, background mist and parallax remain separate later steps.
+V05's foundation/joint pilot is recorded in [Environment contact shading](Environment_Contact_Shading.md).
+Lighting, background mist and parallax remain separate later steps.

@@ -72,7 +72,7 @@ namespace RelicKeeper.Editor.Visuals
             EditorApplication.delayCall += WorldColorGrading.RefreshRegisteredScenes;
         }
 
-        [MenuItem("Tools/Relic Keeper/Visuals/Repair Missing Preview Materials")]
+        [MenuItem("Tools/Relic Keeper/Developer/Visuals/Repair Missing Preview Materials")]
         public static void RecoverMissingPreviewMaterials()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)

@@ -12,21 +12,33 @@ namespace RelicKeeper.Editor.Visuals
         internal enum PreviewEnvironment { CurrentGame, Hub, Mortfall }
         [SerializeField] private PreviewEnvironment _environment;
         [SerializeField] private int _roomIndex;
+        [SerializeField] private int _appearanceTab = 1;
         private WorldColorPreviewStage _stage;
         private string[] _rooms, _roomLabels;
         private bool _overview, _showActors = true;
         private readonly Dictionary<WorldColorProfileSO, WorldColorProfileSO> _drafts = new Dictionary<WorldColorProfileSO, WorldColorProfileSO>();
+        private readonly Dictionary<AtmosphereProfileSO, AtmosphereProfileSO> _mistDrafts = new Dictionary<AtmosphereProfileSO, AtmosphereProfileSO>();
         private AtmosphereController _controller;
         private WorldColorProfileSO _source, _working;
         private SerializedObject _settings;
+        private AtmosphereProfileSO _mistSource, _mistWorking;
+        private SerializedObject _mistSettings;
         private RenderTexture _previewTexture;
         private double _lastRepaint;
-        private bool _preview = true, _neutral;
+        private bool _showSaved;
         private Vector2 _scroll;
 
-        [MenuItem("Tools/Relic Keeper/Visuals/Color Profiles")]
-        public static void Open() => GetWindow<WorldColorProfilesWindow>("World Color Profiles");
-        public static void ShowMortfall() => GetWindow<WorldColorProfilesWindow>("World Color Profiles").SetPreviewEnvironment(PreviewEnvironment.Mortfall);
+        [MenuItem("Tools/Relic Keeper/Visuals/World Appearance")]
+        public static void Open() => GetWindow<WorldColorProfilesWindow>("World Appearance");
+        public static void ShowMortfall()
+        {
+            var window = GetWindow<WorldColorProfilesWindow>("World Appearance");
+            window.SetPreviewEnvironment(PreviewEnvironment.Mortfall);
+            window._appearanceTab = 1;
+            var editor = EditorGUIUtility.GetMainWindowPosition();
+            window.position = new Rect(editor.x + 20, editor.y + 40, Mathf.Max(860, editor.width - 40), Mathf.Max(520, editor.height - 80));
+            window.Show(); window.Focus();
+        }
         private AtmosphereController PreviewController => _environment == PreviewEnvironment.CurrentGame ? _controller : _stage?.Controller;
         internal Camera ActivePreviewCamera => PreviewController != null ? PreviewController.GetComponent<Camera>() : null;
 
@@ -41,6 +53,7 @@ namespace RelicKeeper.Editor.Visuals
         {
             // Restoring a draft is safe even while scene/material rebinding is suspended.
             if (_working == null && _source != null) Load(_source);
+            if (_mistWorking == null && _mistSource != null) LoadMist(_mistSource);
             if (WorldColorGrading.BindingsSuspended) return;
             if (_controller == null && Camera.main != null)
                 _controller = Camera.main.GetComponent<AtmosphereController>();
@@ -48,13 +61,16 @@ namespace RelicKeeper.Editor.Visuals
             {
                 EnsureStage();
                 if (_working == null) Load(_source != null ? _source : _stage?.AssignedProfile);
+                LoadMist(_stage?.Controller.AssignedDepthMistProfile);
+                ApplyPreview();
                 return;
             }
             if (_working == null && _source != null) { Load(_source); return; }
             if (_controller == null) return;
             WorldColorGrading.Register(_controller);
-            if (_working == null) Load(_controller.ActiveColorProfile);
+            if (_working == null) Load(_controller.AssignedColorProfile);
             else ApplyPreview(true);
+            LoadMist(_controller.AssignedDepthMistProfile);
         }
 
         private void Tick()
@@ -63,15 +79,20 @@ namespace RelicKeeper.Editor.Visuals
             if (EditorApplication.timeSinceStartup - _lastRepaint < 1.0 / 12.0) return;
             _lastRepaint = EditorApplication.timeSinceStartup;
             if (_controller == null || _working == null || (_environment != PreviewEnvironment.CurrentGame && _stage == null)) ConnectMainCamera();
+            if (_environment == PreviewEnvironment.CurrentGame && _controller != null)
+            {
+                if (_source != _controller.AssignedColorProfile) Load(_controller.AssignedColorProfile);
+                LoadMist(_controller.AssignedDepthMistProfile);
+            }
             if (PreviewController != null) Repaint();
         }
 
         private void OnGUI()
         {
-            EditorGUILayout.HelpBox("Move a slider and watch the world preview. 100% means unchanged. Click Save Profile to keep your changes; closing this window discards unsaved preview edits.", MessageType.Info);
+            EditorGUILayout.HelpBox("Choose a location, adjust Colors or Mist, then press Save. Changes appear in the preview.", MessageType.Info);
             EditorGUI.BeginChangeCheck();
-            var environment = (PreviewEnvironment)EditorGUILayout.Popup("Preview environment", (int)_environment,
-                new[] { "Current game camera", "Hub (sample view)", "Mortfall (sample view)" });
+            var environment = (PreviewEnvironment)EditorGUILayout.Popup("Location", (int)_environment,
+                new[] { "Current game", "Hub", "Mortfall" });
             if (EditorGUI.EndChangeCheck()) SetPreviewEnvironment(environment);
             if (_environment == PreviewEnvironment.Mortfall)
             {
@@ -80,7 +101,7 @@ namespace RelicKeeper.Editor.Visuals
                 int previousRoom = _roomIndex;
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    _roomIndex = EditorGUILayout.Popup("Mortfall room", Mathf.Clamp(_roomIndex, 0, Mathf.Max(0, _rooms.Length - 1)), _roomLabels);
+                    _roomIndex = EditorGUILayout.Popup("Room", Mathf.Clamp(_roomIndex, 0, Mathf.Max(0, _rooms.Length - 1)), _roomLabels);
                     using (new EditorGUI.DisabledScope(_roomIndex <= 0))
                         if (GUILayout.Button("Previous", GUILayout.Width(75))) _roomIndex--;
                     using (new EditorGUI.DisabledScope(_roomIndex >= _rooms.Length - 1))
@@ -91,76 +112,50 @@ namespace RelicKeeper.Editor.Visuals
             }
             if (_environment != PreviewEnvironment.CurrentGame)
             {
-                EditorGUI.BeginChangeCheck();
-                _overview = EditorGUILayout.Toggle("Show whole room", _overview);
-                _showActors = EditorGUILayout.Toggle("Show character samples", _showActors);
-                if (EditorGUI.EndChangeCheck()) _stage?.SetView(_overview, _showActors);
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    EditorGUI.BeginChangeCheck();
+                    _overview = EditorGUILayout.ToggleLeft("Whole room", _overview, GUILayout.Width(120));
+                    _showActors = EditorGUILayout.ToggleLeft("Characters", _showActors, GUILayout.Width(120));
+                    if (EditorGUI.EndChangeCheck()) _stage?.SetView(_overview, _showActors);
+                }
             }
-            else
-            {
-            EditorGUI.BeginChangeCheck();
-            var controller = (AtmosphereController)EditorGUILayout.ObjectField("Camera controller", _controller, typeof(AtmosphereController), true);
-            if (EditorGUI.EndChangeCheck())
-            {
-                ClearPreview(); _controller = controller;
-                if (_controller != null) WorldColorGrading.Register(_controller);
-            }
-            if (_controller == null && GUILayout.Button("Use main camera"))
-            {
-                _controller = Camera.main != null ? Camera.main.GetComponent<AtmosphereController>() : null;
-                if (_controller != null) Load(_controller.ActiveColorProfile);
-            }
-            }
-            EditorGUI.BeginChangeCheck();
-            var source = (WorldColorProfileSO)EditorGUILayout.ObjectField("Profile to edit", _source, typeof(WorldColorProfileSO), false);
-            if (EditorGUI.EndChangeCheck()) Load(source);
-            if (_controller != null && _source == null && GUILayout.Button("Load current environment profile")) Load(_controller.ActiveColorProfile);
-            _preview = EditorGUILayout.Toggle("Live preview", _preview);
-            _neutral = EditorGUILayout.Toggle("Show original (before)", _neutral);
-            if (_neutral) EditorGUILayout.HelpBox("Showing original colors. Turn off 'Show original' to see your adjustments.", MessageType.Info);
+            _showSaved = GUILayout.Toggle(_showSaved, "Compare with saved", EditorStyles.miniButton);
             bool wide = position.width >= 860;
             if (wide) { EditorGUILayout.BeginHorizontal(); EditorGUILayout.BeginVertical(GUILayout.Width(390)); }
             else DrawPreview(false);
-            if (_working != null)
+            _appearanceTab = GUILayout.Toolbar(_appearanceTab, new[] { "Colors", "Mist" }, GUILayout.Height(27));
+            _scroll = EditorGUILayout.BeginScrollView(_scroll);
+            if (_showSaved) EditorGUILayout.HelpBox("Showing the saved version. Turn off Compare with saved to see your edits.", MessageType.Info);
+            if (_appearanceTab == 0)
             {
-                _scroll = EditorGUILayout.BeginScrollView(_scroll);
-                _settings.Update();
-                DrawGroup("characters", "Characters", "Player, enemies and weapons.");
-                DrawGroup("environment", "Environment", "Ground, platforms, walls, buildings and nearby decoration.");
-                DrawGroup("background", "Background", "Sky, mountains, distant forest and dungeon backdrops.");
-                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+                if (_working != null)
                 {
-                    EditorGUILayout.LabelField("Combat effects", EditorStyles.boldLabel);
-                    EditorGUILayout.LabelField("0% keeps their original colors. Higher values apply more of the profile.", EditorStyles.wordWrappedMiniLabel);
-                    DrawPercent(_settings.FindProperty("effectsInfluence"), "Color influence (%)", 0, 100);
-                }
-                if (_settings.ApplyModifiedProperties()) ApplyPreview(true);
-                EditorGUILayout.LabelField("100% = unchanged. White tint = original colors.", EditorStyles.wordWrappedMiniLabel);
-                EditorGUILayout.EndScrollView();
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    if (GUILayout.Button("Reset all to neutral")) { Undo.RecordObject(_working, "Reset world colors"); _working.ResetToNeutral(); ApplyPreview(true); }
-                    if (GUILayout.Button("Discard edits / Reload")) ReloadSaved();
-                }
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    if (GUILayout.Button("Save Profile") && _source != null)
+                    _settings.Update();
+                    DrawGroup("characters", "Characters", "Player, enemies and weapons.");
+                    DrawGroup("environment", "Environment", "Ground, platforms, buildings and nearby decoration.");
+                    DrawGroup("background", "Background", "Sky, mountains and distant scenery.");
+                    using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                     {
-                        Undo.RecordObject(_source, "Save world color profile");
-                        EditorUtility.CopySerialized(_working, _source);
-                        _source.hideFlags = HideFlags.None;
-                        EditorUtility.SetDirty(_source); AssetDatabase.SaveAssetIfDirty(_source);
-                        ShowNotification(new GUIContent("Profile saved"));
+                        EditorGUILayout.LabelField("Combat effects", EditorStyles.boldLabel);
+                        DrawPercent(_settings.FindProperty("effectsInfluence"), "Color influence (%)", 0, 100);
                     }
-                    if (GUILayout.Button("Save As…")) SaveAs();
+                    if (_settings.ApplyModifiedProperties()) ApplyPreview(true);
+                    EditorGUILayout.LabelField("100% keeps the original brightness, contrast and saturation.", EditorStyles.wordWrappedMiniLabel);
+                }
+                else EditorGUILayout.HelpBox("Choose Hub or Mortfall to edit its appearance.", MessageType.Info);
+            }
+            else DrawMist();
+            EditorGUILayout.EndScrollView();
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                using (new EditorGUI.DisabledScope(_working == null && _mistWorking == null))
+                {
+                    if (GUILayout.Button("Save", GUILayout.Height(30))) SaveAppearance();
+                    if (GUILayout.Button("Discard changes", GUILayout.Height(30))) DiscardAppearance();
                 }
             }
-            else EditorGUILayout.HelpBox("Choose HubDay, Mortfall or Neutral in 'Profile to edit' above.", MessageType.Info);
             if (wide) { EditorGUILayout.EndVertical(); EditorGUILayout.BeginVertical(); DrawPreview(true); EditorGUILayout.EndVertical(); EditorGUILayout.EndHorizontal(); }
-            if (PreviewController != null && GUILayout.Button("Refresh scene groups")) PreviewController.RefreshColorGroups();
-            EditorGUILayout.LabelField("Shared renderer bindings", WorldColorGrading.BoundRendererCount.ToString());
-            if (WorldColorGrading.UnsupportedRendererCount > 0)
-                EditorGUILayout.HelpBox("Some custom materials are left unchanged. See the color-profile guide for supported shaders and explicit group overrides.", MessageType.Warning);
             ApplyPreview();
         }
 
@@ -173,16 +168,54 @@ namespace RelicKeeper.Editor.Visuals
             else if (!_drafts.TryGetValue(source, out _working) || _working == null)
             { _working = CreateEditablePreview(source); _drafts[source] = _working; }
             if (_working != null) _settings = new SerializedObject(_working);
+            LoadMist(PreviewController != null ? PreviewController.AssignedDepthMistProfile : _mistSource);
             if (PreviewController != null) WorldColorGrading.Register(PreviewController);
             ApplyPreview();
         }
 
-        private void ReloadSaved()
+        private void LoadMist(AtmosphereProfileSO source)
+        {
+            if (_mistSource == source && (_mistWorking != null || source == null)) return;
+            _mistSettings?.Dispose(); _mistSettings = null;
+            _mistSource = source;
+            if (source == null) _mistWorking = null;
+            else if (!_mistDrafts.TryGetValue(source, out _mistWorking) || _mistWorking == null)
+            {
+                _mistWorking = Instantiate(source); _mistWorking.name = source.name;
+                _mistWorking.hideFlags = HideFlags.HideAndDontSave & ~HideFlags.NotEditable;
+                _mistDrafts[source] = _mistWorking;
+            }
+            if (_mistWorking != null) _mistSettings = new SerializedObject(_mistWorking);
+            ApplyPreview(true);
+        }
+
+        internal void SaveAppearance()
+        {
+            if (_source != null && _working != null)
+            {
+                Undo.RecordObject(_source, "Save world appearance");
+                EditorUtility.CopySerialized(_working, _source); _source.hideFlags = HideFlags.None;
+                EditorUtility.SetDirty(_source); AssetDatabase.SaveAssetIfDirty(_source);
+            }
+            if (_mistSource != null && _mistWorking != null)
+            {
+                Undo.RecordObject(_mistSource, "Save world appearance");
+                EditorUtility.CopySerialized(_mistWorking, _mistSource); _mistSource.hideFlags = HideFlags.None;
+                EditorUtility.SetDirty(_mistSource); AssetDatabase.SaveAssetIfDirty(_mistSource);
+            }
+            _showSaved = false; ApplyPreview(true);
+            if (hasFocus) ShowNotification(new GUIContent("Appearance saved"));
+        }
+
+        internal void DiscardAppearance()
         {
             ClearPreview(); _settings?.Dispose(); _settings = null;
+            _mistSettings?.Dispose(); _mistSettings = null;
             if (_source != null && _drafts.TryGetValue(_source, out var draft))
             { _drafts.Remove(_source); if (draft != null) DestroyImmediate(draft); }
-            _working = null; Load(_source);
+            if (_mistSource != null && _mistDrafts.TryGetValue(_mistSource, out var mistDraft))
+            { _mistDrafts.Remove(_mistSource); if (mistDraft != null) DestroyImmediate(mistDraft); }
+            _working = null; _mistWorking = null; _showSaved = false; Load(_source);
         }
 
         internal void SetPreviewEnvironment(PreviewEnvironment environment)
@@ -193,7 +226,7 @@ namespace RelicKeeper.Editor.Visuals
             if (_environment == PreviewEnvironment.CurrentGame)
             {
                 ConnectMainCamera(); ClearPreview();
-                if (_controller != null) Load(_controller.ActiveColorProfile);
+                if (_controller != null) Load(_controller.AssignedColorProfile);
             }
             else { EnsureStage(); if (_stage != null) Load(_stage.AssignedProfile); }
             ApplyPreview(true); Repaint();
@@ -251,9 +284,59 @@ namespace RelicKeeper.Editor.Visuals
             if (EditorGUI.EndChangeCheck()) property.floatValue = value / 100f;
         }
 
+        private void DrawMist()
+        {
+            if (_mistWorking == null)
+            {
+                EditorGUILayout.HelpBox("Choose Hub or Mortfall to edit its mist.", MessageType.Info);
+                return;
+            }
+            _mistSettings.Update();
+            EditorGUILayout.LabelField("Background mist", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Mist softens the distant scenery. Set Amount to 0% to turn it off.", EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.Space(6);
+            DrawPercent(_mistSettings.FindProperty("backgroundMist"), "Amount (%)", 0, 100);
+            var tint = _mistSettings.FindProperty("backgroundTint");
+            EditorGUI.BeginChangeCheck();
+            Color color = EditorGUILayout.ColorField(new GUIContent("Mist color"), tint.colorValue, true, false, false);
+            if (EditorGUI.EndChangeCheck()) tint.colorValue = color;
+            DrawPercent(_mistSettings.FindProperty("wispStrength"), "Wisps / clear gaps (%)", 0, 100);
+            EditorGUILayout.PropertyField(_mistSettings.FindProperty("limitDepthMistHeight"), new GUIContent("Limit height"));
+            if (_mistSettings.FindProperty("limitDepthMistHeight").boolValue)
+            {
+                EditorGUILayout.LabelField("Only near a fixed height above the room entrance.", EditorStyles.wordWrappedMiniLabel);
+                DrawMistSlider("depthMistCenterY", "Vertical position", -10f, 25f);
+                DrawMistSlider("depthMistHeight", "Thickness", 0.5f, 30f);
+                DrawMistSlider("depthMistFeather", "Soft edges", 0.1f, 15f);
+            }
+            else EditorGUILayout.LabelField("Mist covers the whole view, including lower floors.", EditorStyles.wordWrappedMiniLabel);
+            var scale = _mistSettings.FindProperty("noiseScale");
+            EditorGUI.BeginChangeCheck();
+            float size = EditorGUILayout.Slider("Size of wisps", 1f / Mathf.Max(0.001f, scale.floatValue), 0.5f, 20f);
+            if (EditorGUI.EndChangeCheck()) scale.floatValue = 1f / size;
+            var drift = _mistSettings.FindProperty("driftSpeed");
+            EditorGUI.BeginChangeCheck();
+            float speed = EditorGUILayout.Slider("Drift speed (%)", drift.vector2Value.magnitude * 1000f, 0f, 100f);
+            if (EditorGUI.EndChangeCheck())
+            {
+                Vector2 direction = drift.vector2Value.sqrMagnitude > 0.000001f ? drift.vector2Value.normalized :
+                    _mistSource.driftSpeed.sqrMagnitude > 0.000001f ? _mistSource.driftSpeed.normalized : Vector2.right;
+                drift.vector2Value = direction * (speed / 1000f);
+            }
+            if (_mistSettings.ApplyModifiedProperties()) ApplyPreview(true);
+        }
+
+        private void DrawMistSlider(string field, string label, float min, float max)
+        {
+            var property = _mistSettings.FindProperty(field);
+            EditorGUI.BeginChangeCheck();
+            float value = EditorGUILayout.Slider(label, property.floatValue, min, max);
+            if (EditorGUI.EndChangeCheck()) property.floatValue = value;
+        }
+
         private void DrawPreview(bool expand)
         {
-            EditorGUILayout.LabelField(_neutral ? "Original colors — before" : _environment + " preview — your adjustments", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(_showSaved ? "Saved appearance" : "Live preview", EditorStyles.boldLabel);
             Rect area = expand
                 ? GUILayoutUtility.GetRect(480, 270, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true))
                 : GUILayoutUtility.GetAspectRect(480f / 270f);
@@ -277,35 +360,27 @@ namespace RelicKeeper.Editor.Visuals
                 else GUI.Label(area, "Choose Hub or Mortfall above, or open HubScene for the game camera.", EditorStyles.centeredGreyMiniLabel);
             }
             EditorGUILayout.LabelField(_environment == PreviewEnvironment.CurrentGame
-                ? "480 × 270 world view. HUD is hidden here; existing atmosphere and fog remain visible."
-                : "Static color samples with flat lighting. Use Current game camera to check live lighting and effects.", EditorStyles.wordWrappedMiniLabel);
-        }
-
-        private void SaveAs()
-        {
-            string path = EditorUtility.SaveFilePanelInProject("Save world color profile", _source.name + " Copy", "asset", "Choose the profile's location.", "Assets/Visuals/ColorProfiles");
-            if (string.IsNullOrEmpty(path)) return;
-            var saved = Instantiate(_working); saved.name = Path.GetFileNameWithoutExtension(path); saved.hideFlags = HideFlags.None;
-            AssetDatabase.CreateAsset(saved, path); AssetDatabase.SaveAssetIfDirty(saved);
-            Load(saved); EditorGUIUtility.PingObject(saved);
+                ? "Changes are previewed here. Press Save to keep them."
+                : "Adjust Colors or Mist on the left. Press Save to keep both.", EditorStyles.wordWrappedMiniLabel);
         }
 
         private void ApplyPreview(bool force = false)
         {
             var controller = PreviewController;
             if (controller == null || WorldColorGrading.BindingsSuspended) return;
-            var desired = _preview ? _working : null;
-            bool neutral = _preview && _neutral;
-            bool changed = controller.PreviewColorProfile != desired || controller.PreviewNeutralColors != neutral || force;
+            var desired = _showSaved ? _source : _working;
+            var mist = _showSaved ? _mistSource : _mistWorking;
+            bool changed = controller.PreviewColorProfile != desired || controller.PreviewNeutralColors || controller.PreviewDepthMistProfile != mist || force;
             controller.PreviewColorProfile = desired;
-            controller.PreviewNeutralColors = neutral;
+            controller.PreviewNeutralColors = false;
+            controller.PreviewDepthMistProfile = mist;
             if (changed) { SceneView.RepaintAll(); EditorApplication.QueuePlayerLoopUpdate(); }
         }
 
         private void ClearPreview()
         {
-            if (_controller != null) { _controller.PreviewColorProfile = null; _controller.PreviewNeutralColors = false; }
-            if (_stage?.Controller != null) { _stage.Controller.PreviewColorProfile = null; _stage.Controller.PreviewNeutralColors = false; }
+            if (_controller != null) { _controller.PreviewColorProfile = null; _controller.PreviewNeutralColors = false; _controller.PreviewDepthMistProfile = null; }
+            if (_stage?.Controller != null) { _stage.Controller.PreviewColorProfile = null; _stage.Controller.PreviewNeutralColors = false; _stage.Controller.PreviewDepthMistProfile = null; }
         }
 
         private void OnDisable()
@@ -314,9 +389,12 @@ namespace RelicKeeper.Editor.Visuals
             EditorApplication.delayCall -= ConnectMainCamera;
             ClearPreview();
             _settings?.Dispose(); _settings = null;
+            _mistSettings?.Dispose(); _mistSettings = null;
             _stage?.Dispose(); _stage = null;
             foreach (var draft in _drafts.Values) if (draft != null) DestroyImmediate(draft);
             _drafts.Clear(); _working = null;
+            foreach (var draft in _mistDrafts.Values) if (draft != null) DestroyImmediate(draft);
+            _mistDrafts.Clear(); _mistWorking = null;
             if (_previewTexture != null) { _previewTexture.Release(); DestroyImmediate(_previewTexture); }
         }
     }

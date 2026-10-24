@@ -42,6 +42,9 @@ namespace Scripts.Dungeon
         [Tooltip("Environment color profile. Empty uses the camera's default dungeon profile, never the hub profile.")]
         [SerializeField] private Scripts.Visuals.Atmosphere.WorldColorProfileSO _colorProfile;
         public Scripts.Visuals.Atmosphere.WorldColorProfileSO ColorProfile => _colorProfile;
+        [Tooltip("Background-plane mist only; empty uses the camera's default dungeon mist preset.")]
+        [SerializeField] private Scripts.Visuals.Atmosphere.AtmosphereProfileSO _depthMistProfile;
+        public Scripts.Visuals.Atmosphere.AtmosphereProfileSO DepthMistProfile => _depthMistProfile;
         [Tooltip("Background sprite path in Resources. Example: Sprites/WallAndGrounds/MortfallDungeon/MortFallAssets/Mortfall-background")]
         [SerializeField] private string _backgroundSpriteResourcePath;
 

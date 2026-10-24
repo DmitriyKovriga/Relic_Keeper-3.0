@@ -12,7 +12,7 @@ namespace RelicKeeper.Editor.Visuals
     {
         private const string Output = "Logs/ColorProfiles";
 
-        [MenuItem("Tools/Relic Keeper/Visuals/Capture Color Profile Examples")]
+        [MenuItem("Tools/Relic Keeper/Developer/Visuals/Capture Color Profile Examples")]
         public static void CaptureExamples()
         {
             CaptureExample("hub", "Assets/Resources/HubObj/Hub2.0/HubEnvironment.prefab", "HubDay", false);

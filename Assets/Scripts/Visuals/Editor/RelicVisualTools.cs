@@ -20,7 +20,7 @@ namespace RelicKeeper.Editor.Visuals
         public const string PreviewPath = Root + "/Preview/RelicFXPreview.prefab";
         public const string SpriteShaderName = "RelicKeeper/Sprites/Relic Sprite FX";
 
-        [MenuItem("Tools/Relic Keeper/Visual FX/Install neutral assets and Renderer Feature")]
+        [MenuItem("Tools/Relic Keeper/Developer/Visual FX/Install neutral assets and Renderer Feature")]
         public static void Install()
         {
             EnsureAssets();
@@ -91,7 +91,7 @@ namespace RelicKeeper.Editor.Visuals
             }
         }
 
-        [MenuItem("Tools/Relic Keeper/Visual FX/Apply shared Sprite FX to selected sprites")]
+        [MenuItem("Tools/Relic Keeper/Developer/Visual FX/Apply shared Sprite FX to selected sprites")]
         public static void ApplySelected()
         {
             EnsureAssets();
@@ -106,7 +106,7 @@ namespace RelicKeeper.Editor.Visuals
             }
         }
 
-        [MenuItem("Tools/Relic Keeper/Visual FX/Add atmosphere to selected camera")]
+        [MenuItem("Tools/Relic Keeper/Developer/Visual FX/Add atmosphere to selected camera")]
         public static void AddToCamera()
         {
             var camera = Selection.activeGameObject != null ? Selection.activeGameObject.GetComponent<Camera>() : null;
@@ -132,7 +132,7 @@ namespace RelicKeeper.Editor.Visuals
             return null;
         }
 
-        [MenuItem("Tools/Relic Keeper/Visual FX/Create preview assets")]
+        [MenuItem("Tools/Relic Keeper/Developer/Visual FX/Create preview assets")]
         public static void CreatePreview()
         {
             Install();

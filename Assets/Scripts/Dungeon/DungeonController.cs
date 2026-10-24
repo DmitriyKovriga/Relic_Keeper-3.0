@@ -206,7 +206,7 @@ namespace Scripts.Dungeon
             BuildRoomSequence();
             _currentRoomIndex = 0;
             ApplyDungeonBackground(dungeon);
-            Camera.main?.GetComponent<Scripts.Visuals.Atmosphere.AtmosphereController>()?.ApplyDungeonColors(dungeon.ColorProfile);
+            Camera.main?.GetComponent<Scripts.Visuals.Atmosphere.AtmosphereController>()?.ApplyDungeonPresentation(dungeon.ColorProfile, dungeon.DepthMistProfile);
 
             if (_hubWorld != null)
                 _hubWorld.SetActive(false);
@@ -391,6 +391,8 @@ namespace Scripts.Dungeon
             _currentRoomInstance.transform.position = new Vector3(roomPosition.x, roomPosition.y, _roomWorldZ);
 
             var room = _currentRoomInstance.GetComponent<RoomController>();
+            if (room != null)
+                Camera.main?.GetComponent<Scripts.Visuals.Atmosphere.AtmosphereController>()?.ResetDepthMistAnchor(room.PlayerSpawnPosition);
             if (room != null && _playerTransform != null)
             {
                 ApplyRoomCameraBounds(room);

@@ -203,6 +203,21 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &920000000000000101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1527619669462130701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 2
+  _influence: 1
+  _combatEffect: 0
 --- !u!1 &1636138804107558603
 GameObject:
   m_ObjectHideFlags: 0
@@ -295,6 +310,21 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &920000000000000106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1636138804107558603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 3
+  _influence: 1
+  _combatEffect: 0
 --- !u!1 &1766283642728423125
 GameObject:
   m_ObjectHideFlags: 0
@@ -418,6 +448,21 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &920000000000000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2042712361419697055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 2
+  _influence: 1
+  _combatEffect: 0
 --- !u!1 &2346501321349364354
 GameObject:
   m_ObjectHideFlags: 0
@@ -510,6 +555,21 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &920000000000000109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2346501321349364354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 3
+  _influence: 1
+  _combatEffect: 0
 --- !u!1 &3879570714025644763
 GameObject:
   m_ObjectHideFlags: 0
@@ -602,6 +662,21 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &920000000000000103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3879570714025644763}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 3
+  _influence: 1
+  _combatEffect: 0
 --- !u!1 &4371553195763204508
 GameObject:
   m_ObjectHideFlags: 0
@@ -871,6 +946,21 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &920000000000000104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4869192725865021273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 3
+  _influence: 1
+  _combatEffect: 0
 --- !u!1 &5808172832310740313
 GameObject:
   m_ObjectHideFlags: 0
@@ -1029,7 +1119,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 1897341205
   m_SortingLayer: -1
-  m_SortingOrder: 7
+  m_SortingOrder: 6
   m_MaskInteraction: 0
   m_Sprite: {fileID: -8869790248156344392, guid: fb8be5d6e8513e8418dcf2d02b6662b7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1041,6 +1131,21 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &920000000000000107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6630021625599836325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 3
+  _influence: 1
+  _combatEffect: 0
 --- !u!1 &6763477102696695655
 GameObject:
   m_ObjectHideFlags: 0
@@ -1224,6 +1329,21 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &920000000000000100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6920523176661212186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 2
+  _influence: 1
+  _combatEffect: 0
 --- !u!1 &7389902464036761967
 GameObject:
   m_ObjectHideFlags: 0
@@ -1260,7 +1380,41 @@ Transform:
   - {fileID: 4224748831601316765}
   - {fileID: 5412441099721619287}
   - {fileID: 5097825059183516696}
+  - {fileID: 377781017087263806}
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7487762837836451048
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 377781017087263806}
+  m_Layer: 0
+  m_Name: EnvironmentContactShade
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &377781017087263806
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7487762837836451048}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 6008962758104968731}
+  - {fileID: 456670291434353656}
+  m_Father: {fileID: 2748637662627765064}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7952891225862514085
 GameObject:
@@ -1354,6 +1508,21 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &920000000000000105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7952891225862514085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 3
+  _influence: 1
+  _combatEffect: 0
 --- !u!1 &8893495642010311098
 GameObject:
   m_ObjectHideFlags: 0
@@ -1477,6 +1646,21 @@ MonoBehaviour:
   - {fileID: -7966030772244627402, guid: fb8be5d6e8513e8418dcf2d02b6662b7, type: 3}
   _frameDuration: 1.44
   _opacity: 0.4
+--- !u!114 &920000000000000108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8893495642010311098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 3
+  _influence: 1
+  _combatEffect: 0
 --- !u!1 &9023297503726588696
 GameObject:
   m_ObjectHideFlags: 0
@@ -1555,153 +1739,135 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.5, y: 16}
   m_EdgeRadius: 0
---- !u!114 &920000000000000100
-MonoBehaviour:
+--- !u!1001 &2842490342592082542
+PrefabInstance:
   m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 377781017087263806}
+    m_Modifications:
+    - target: {fileID: 3681039195093475853, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_Name
+      value: Tavern foundation
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 3.5625
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -24.958334
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.041666668
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+--- !u!4 &6008962758104968731 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+  m_PrefabInstance: {fileID: 2842490342592082542}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6920523176661212186}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
-  _role: 2
-  _influence: 1
-  _combatEffect: 0
---- !u!114 &920000000000000101
-MonoBehaviour:
+--- !u!1001 &8232853997197930381
+PrefabInstance:
   m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 377781017087263806}
+    m_Modifications:
+    - target: {fileID: 3681039195093475853, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_Name
+      value: Warehouse foundation
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2.71875
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -14.041667
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.041666668
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+--- !u!4 &456670291434353656 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8365034035344841845, guid: ad2a3954d6833244aac9bbada95de4f4, type: 3}
+  m_PrefabInstance: {fileID: 8232853997197930381}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1527619669462130701}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
-  _role: 2
-  _influence: 1
-  _combatEffect: 0
---- !u!114 &920000000000000102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2042712361419697055}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
-  _role: 2
-  _influence: 1
-  _combatEffect: 0
---- !u!114 &920000000000000103
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3879570714025644763}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
-  _role: 3
-  _influence: 1
-  _combatEffect: 0
---- !u!114 &920000000000000104
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4869192725865021273}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
-  _role: 3
-  _influence: 1
-  _combatEffect: 0
---- !u!114 &920000000000000105
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7952891225862514085}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
-  _role: 3
-  _influence: 1
-  _combatEffect: 0
---- !u!114 &920000000000000106
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1636138804107558603}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
-  _role: 3
-  _influence: 1
-  _combatEffect: 0
---- !u!114 &920000000000000107
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6630021625599836325}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
-  _role: 3
-  _influence: 1
-  _combatEffect: 0
---- !u!114 &920000000000000108
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8893495642010311098}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
-  _role: 3
-  _influence: 1
-  _combatEffect: 0
---- !u!114 &920000000000000109
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2346501321349364354}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
-  _role: 3
-  _influence: 1
-  _combatEffect: 0

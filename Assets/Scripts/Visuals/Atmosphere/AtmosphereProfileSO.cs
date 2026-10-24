@@ -32,6 +32,12 @@ namespace Scripts.Visuals.Atmosphere
         [Tooltip("0 = uniform haze; 1 = separated drifting wisps with clear gaps.")]
         [Range(0f, 1f)] public float wispStrength;
         [Range(0f, 1f)] public float shafts;
+        [Tooltip("Off covers the whole view. Enable only to confine mist to a fixed height band near the room entrance.")]
+        public bool limitDepthMistHeight;
+        [Tooltip("Mist belt centre above the current room/spawn anchor, in world units.")]
+        public float depthMistCenterY = 2.5f;
+        [Min(0.1f)] public float depthMistHeight = 8f;
+        [Min(0.01f)] public float depthMistFeather = 2f;
         [Header("Player lantern / airborne dust")]
         [Range(0f, 1f)] public float lantern;
         public Color lanternTint = new Color(1f, 0.6f, 0.24f, 1f);
@@ -68,6 +74,8 @@ namespace Scripts.Visuals.Atmosphere
             backgroundMist = Mathf.Clamp01(backgroundMist);
             wispStrength = Mathf.Clamp01(wispStrength);
             shafts = Mathf.Clamp01(shafts);
+            depthMistHeight = Mathf.Max(0.1f, depthMistHeight);
+            depthMistFeather = Mathf.Max(0.01f, depthMistFeather);
             lantern = Mathf.Clamp01(lantern);
             lanternRadius = Mathf.Max(0.1f, lanternRadius);
             motes = Mathf.Clamp01(motes);

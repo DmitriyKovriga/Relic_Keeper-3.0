@@ -195,6 +195,7 @@ namespace RelicKeeper.Editor.Hub
                 {
                     renderer.sharedMaterial = material;
                     renderer.sortingLayerName = "Background";
+                    if (renderer.name == "Forest") renderer.sortingOrder = 6;
                     var colors = renderer.gameObject.AddComponent<Scripts.Visuals.Atmosphere.WorldColorGroup>();
                     bool near = renderer.name == "Ground" || renderer.name == "Buildings" || renderer.name == "TreesAndPlants";
                     colors.Configure(near ? Scripts.Visuals.Atmosphere.WorldColorRole.Environment : Scripts.Visuals.Atmosphere.WorldColorRole.Background);
@@ -233,6 +234,7 @@ namespace RelicKeeper.Editor.Hub
                     (Vector2)PixelToWorld(LayoutWidth, LayoutHeight), (Vector2)PixelToWorld(0, LayoutHeight) });
                 var spawn = NewChild(environment.transform, "LayoutSpawnReference");
                 spawn.transform.localPosition = PixelToWorld(325f, GroundPixelY) + Vector3.up * 1.5f;
+                RelicKeeper.Editor.VFX.EnvironmentContactShadingBuilder.ConfigureHub(environment);
                 PrefabUtility.SaveAsPrefabAsset(environment, EnvironmentPath);
                 var text = new StringBuilder();
                 WriteTree(environment.transform, text, 0);

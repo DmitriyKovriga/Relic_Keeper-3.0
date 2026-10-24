@@ -7,6 +7,128 @@ namespace RelicKeeper.Tests.EditMode
 {
     public sealed class WorldColorProfilesWindowTests
     {
+        private const System.Reflection.BindingFlags Private = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+
+        [SetUp]
+        public void ResumePreviewRendering() => WorldColorGrading.SetBindingsSuspended(false);
+
+        [Test]
+        public void MistDraftsStaySeparateBetweenLocationsAndNeverEditTheSource()
+        {
+            var hub = ScriptableObject.CreateInstance<AtmosphereProfileSO>();
+            var dungeon = ScriptableObject.CreateInstance<AtmosphereProfileSO>();
+            var window = ScriptableObject.CreateInstance<WorldColorProfilesWindow>();
+            try
+            {
+                hub.backgroundMist = 0.1f; dungeon.backgroundMist = 0.17f;
+                typeof(WorldColorProfilesWindow).GetMethod("LoadMist", Private).Invoke(window, new object[] { hub });
+                var hubDraft = (AtmosphereProfileSO)typeof(WorldColorProfilesWindow).GetField("_mistWorking", Private).GetValue(window);
+                hubDraft.backgroundMist = 0.6f;
+                typeof(WorldColorProfilesWindow).GetMethod("LoadMist", Private).Invoke(window, new object[] { dungeon });
+                var dungeonDraft = (AtmosphereProfileSO)typeof(WorldColorProfilesWindow).GetField("_mistWorking", Private).GetValue(window);
+                dungeonDraft.backgroundMist = 0.4f;
+                typeof(WorldColorProfilesWindow).GetMethod("LoadMist", Private).Invoke(window, new object[] { hub });
+                Assert.That(typeof(WorldColorProfilesWindow).GetField("_mistWorking", Private).GetValue(window), Is.SameAs(hubDraft));
+                Assert.That(hubDraft.backgroundMist, Is.EqualTo(0.6f));
+                Assert.That(hub.backgroundMist, Is.EqualTo(0.1f));
+                Assert.That(dungeon.backgroundMist, Is.EqualTo(0.17f));
+                Assert.That(hubDraft.hideFlags.HasFlag(HideFlags.NotEditable), Is.False);
+            }
+            finally { Object.DestroyImmediate(window); Object.DestroyImmediate(hub); Object.DestroyImmediate(dungeon); }
+        }
+
+        [Test]
+        public void OneSavePersistsBothColorsAndMistWithoutChangingOtherMistFields()
+        {
+            var colors = ScriptableObject.CreateInstance<WorldColorProfileSO>();
+            var mist = ScriptableObject.CreateInstance<AtmosphereProfileSO>();
+            string suffix = System.Guid.NewGuid().ToString("N");
+            string colorPath = "Assets/__AppearanceColors_" + suffix + ".asset";
+            string mistPath = "Assets/__AppearanceMist_" + suffix + ".asset";
+            var scene = UnityEditor.SceneManagement.EditorSceneManager.NewPreviewScene();
+            WorldColorProfilesWindow window = null;
+            try
+            {
+                mist.backgroundMist = 0.17f; mist.darkness = 0.37f; mist.limitDepthMistHeight = true;
+                UnityEditor.AssetDatabase.CreateAsset(colors, colorPath);
+                UnityEditor.AssetDatabase.CreateAsset(mist, mistPath);
+                var camera = new GameObject("Appearance save camera", typeof(Camera));
+                UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(camera, scene);
+                var controller = camera.AddComponent<AtmosphereController>();
+                var fields = new UnityEditor.SerializedObject(controller);
+                fields.FindProperty("_hubColorProfile").objectReferenceValue = colors;
+                fields.FindProperty("_hubDepthMistProfile").objectReferenceValue = mist;
+                fields.ApplyModifiedPropertiesWithoutUndo();
+                window = ScriptableObject.CreateInstance<WorldColorProfilesWindow>();
+                typeof(WorldColorProfilesWindow).GetField("_controller", Private).SetValue(window, controller);
+                typeof(WorldColorProfilesWindow).GetMethod("Load", Private).Invoke(window, new object[] { colors });
+                var colorDraft = (WorldColorProfileSO)typeof(WorldColorProfilesWindow).GetField("_working", Private).GetValue(window);
+                var mistDraft = (AtmosphereProfileSO)typeof(WorldColorProfilesWindow).GetField("_mistWorking", Private).GetValue(window);
+                colorDraft.background.exposure = -0.5f; mistDraft.backgroundMist = 0.42f; mistDraft.limitDepthMistHeight = false;
+                Assert.That(colors.background.exposure, Is.Zero);
+                Assert.That(mist.backgroundMist, Is.EqualTo(0.17f));
+                window.SaveAppearance();
+                Assert.That(colors.background.exposure, Is.EqualTo(-0.5f));
+                Assert.That(mist.backgroundMist, Is.EqualTo(0.42f));
+                Assert.That(mist.darkness, Is.EqualTo(0.37f), "Unshown screen-fog fields must be preserved.");
+                Assert.That(mist.limitDepthMistHeight, Is.False, "Save must retain full-view coverage.");
+                StringAssert.Contains("backgroundMist: 0.42", System.IO.File.ReadAllText(mistPath));
+                Assert.That(colors.hideFlags, Is.EqualTo(HideFlags.None));
+                Assert.That(mist.hideFlags, Is.EqualTo(HideFlags.None));
+            }
+            finally
+            {
+                if (window != null) Object.DestroyImmediate(window);
+                UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(scene);
+                UnityEditor.AssetDatabase.DeleteAsset(colorPath); UnityEditor.AssetDatabase.DeleteAsset(mistPath);
+                if (colors != null) Object.DestroyImmediate(colors);
+                if (mist != null) Object.DestroyImmediate(mist);
+            }
+        }
+
+        [Test]
+        public void CompareAndDiscardUseSavedColorsAndMist_ClosingClearsBothOverrides()
+        {
+            var colors = ScriptableObject.CreateInstance<WorldColorProfileSO>();
+            var mist = ScriptableObject.CreateInstance<AtmosphereProfileSO>();
+            var scene = UnityEditor.SceneManagement.EditorSceneManager.NewPreviewScene();
+            var camera = new GameObject("Appearance preview camera", typeof(Camera));
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(camera, scene);
+            var controller = camera.AddComponent<AtmosphereController>();
+            var fields = new UnityEditor.SerializedObject(controller);
+            fields.FindProperty("_hubColorProfile").objectReferenceValue = colors;
+            fields.FindProperty("_hubDepthMistProfile").objectReferenceValue = mist;
+            fields.ApplyModifiedPropertiesWithoutUndo();
+            var window = ScriptableObject.CreateInstance<WorldColorProfilesWindow>();
+            try
+            {
+                mist.backgroundMist = 0.17f;
+                typeof(WorldColorProfilesWindow).GetField("_controller", Private).SetValue(window, controller);
+                typeof(WorldColorProfilesWindow).GetMethod("Load", Private).Invoke(window, new object[] { colors });
+                var colorDraft = (WorldColorProfileSO)typeof(WorldColorProfilesWindow).GetField("_working", Private).GetValue(window);
+                var mistDraft = (AtmosphereProfileSO)typeof(WorldColorProfilesWindow).GetField("_mistWorking", Private).GetValue(window);
+                colorDraft.characters.exposure = 1f; mistDraft.backgroundMist = 0.6f;
+                typeof(WorldColorProfilesWindow).GetMethod("ApplyPreview", Private).Invoke(window, new object[] { true });
+                Assert.That(controller.ActiveDepthMistProfile, Is.SameAs(mistDraft), "Live preview must use the temporary mist draft.");
+                typeof(WorldColorProfilesWindow).GetField("_showSaved", Private).SetValue(window, true);
+                typeof(WorldColorProfilesWindow).GetMethod("ApplyPreview", Private).Invoke(window, new object[] { true });
+                Assert.That(controller.ActiveDepthMistProfile, Is.SameAs(mist), "Comparison must show the saved mist preset.");
+                Assert.That(controller.ActiveColorProfile, Is.SameAs(colors));
+                window.DiscardAppearance();
+                Assert.That(controller.ActiveDepthMistProfile.backgroundMist, Is.EqualTo(0.17f));
+                Assert.That(controller.ActiveColorProfile.characters.exposure, Is.Zero);
+                Object.DestroyImmediate(window); window = null;
+                Assert.That(controller.PreviewDepthMistProfile, Is.Null);
+                Assert.That(controller.PreviewColorProfile, Is.Null);
+            }
+            finally
+            {
+                if (window != null) Object.DestroyImmediate(window);
+                UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(scene);
+                Object.DestroyImmediate(colors); Object.DestroyImmediate(mist);
+            }
+        }
+
         [Test]
         public void SwitchingProfilesKeepsUnfinishedEditsSeparateFromTheSavedAssets()
         {

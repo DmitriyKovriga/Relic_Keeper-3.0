@@ -18,7 +18,7 @@ namespace RelicKeeper.Editor.VFX
     // Temporary Play Mode study; does not move the real player or write scene/save assets.
     public static class GroundShadowPreview
     {
-        [MenuItem("Tools/Relic Keeper/Visuals/Capture Contact Shadow Study")]
+        [MenuItem("Tools/Relic Keeper/Developer/Visuals/Capture Contact Shadow Study")]
         public static void Capture()
         {
             if (!EditorApplication.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");

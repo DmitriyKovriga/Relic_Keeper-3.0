@@ -18,7 +18,7 @@ namespace RelicKeeper.Editor.Visuals
         private RenderTexture _target;
         private double _lastRepaint;
 
-        [MenuItem("Tools/Relic Keeper/Visual FX/Open safe preview")]
+        [MenuItem("Tools/Relic Keeper/Developer/Visual FX/Open safe preview")]
         public static void Open() => GetWindow<RelicFxPreviewWindow>("Relic FX Preview");
 
         private void OnEnable()

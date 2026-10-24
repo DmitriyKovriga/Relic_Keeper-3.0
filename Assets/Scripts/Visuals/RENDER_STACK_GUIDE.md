@@ -24,7 +24,7 @@ UI не участвует в этой системе: Canvas всегда от�
 
 После изменений в слоях или сценах запускай:
 
-`Tools → Relic Keeper → Visuals → Validate Render Stack`
+`Tools → Relic Keeper → Developer → Visuals → Validate Render Stack`
 
 ## Главное правило
 
@@ -173,7 +173,7 @@ WorldRenderSorting.ConfigureAutoSorter(
 
 Перед тем как считать контент готовым:
 
-- запусти `Tools → Relic Keeper → Visuals → Validate Render Stack`;
+- запусти `Tools → Relic Keeper → Developer → Visuals → Validate Render Stack`;
 - проверь, что lit-спрайты не чёрные;
 - проверь, что герой и его атаки поверх врагов;
 - проверь, что враги не моргают при пересечении;

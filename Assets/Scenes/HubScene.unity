@@ -1743,6 +1743,9 @@ MonoBehaviour:
   _defaultDungeonColorProfile: {fileID: 11400000, guid: dd056664cfcf4e2f93e3a23e635a6200, type: 2}
   _colorUnlitShader: {fileID: 4800000, guid: f2efd75215ab49d1aa01c5c19b448cf9, type: 3}
   _colorLitShader: {fileID: 4800000, guid: 5cd2fd14546a4908ab8ea5a66bd748d1, type: 3}
+  _hubDepthMistProfile: {fileID: 11400000, guid: e1b6f4d815b614c419218967463a1194, type: 2}
+  _defaultDungeonDepthMistProfile: {fileID: 11400000, guid: 1125849e35411c344af51a8d02bd62ff, type: 2}
+  _depthMistShader: {fileID: 4800000, guid: a547365a79b00f24e85b160106b11fc1, type: 3}
 --- !u!1 &563462190
 GameObject:
   m_ObjectHideFlags: 0

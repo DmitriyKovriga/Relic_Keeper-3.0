@@ -97,16 +97,23 @@ namespace RelicKeeper.Editor.Visuals
             fields.FindProperty("_hubColorProfile").objectReferenceValue = AssignedProfile;
             fields.FindProperty("_colorLitShader").objectReferenceValue = Shader.Find("RelicKeeper/Sprites/World Color Lit");
             fields.FindProperty("_colorUnlitShader").objectReferenceValue = Shader.Find("RelicKeeper/Sprites/World Color Unlit");
+            fields.FindProperty("_depthMistShader").objectReferenceValue = Shader.Find("RelicKeeper/Atmosphere/Depth Mist");
+            fields.FindProperty("_hubDepthMistProfile").objectReferenceValue = mortfall ? dungeon.DepthMistProfile :
+                (ReadMistProfile(live) ?? AssetDatabase.LoadAssetAtPath<AtmosphereProfileSO>("Assets/Visuals/RelicFX/HubDepthMist.asset"));
             fields.ApplyModifiedPropertiesWithoutUndo();
             Controller.Profile = live != null ? live.Profile : null;
             var focus = NewObject("Preview reveal focus").transform; focus.position = _spawn;
             Controller.BindPlayer(focus);
+            Controller.ResetDepthMistAnchor(mortfall ? (Vector2)_spawn : Vector2.zero);
             SetView(false, true);
             Controller.RefreshColorGroups();
         }
 
         private static WorldColorProfileSO ReadProfile(AtmosphereController controller, string field) => controller != null
             ? new SerializedObject(controller).FindProperty(field).objectReferenceValue as WorldColorProfileSO : null;
+
+        private static AtmosphereProfileSO ReadMistProfile(AtmosphereController controller) => controller != null
+            ? new SerializedObject(controller).FindProperty("_hubDepthMistProfile").objectReferenceValue as AtmosphereProfileSO : null;
 
         private static Material StockMaterial(bool lit) => AssetDatabase.LoadAssetAtPath<Material>(
             "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-" + (lit ? "Lit" : "Unlit") + "-Default.mat");

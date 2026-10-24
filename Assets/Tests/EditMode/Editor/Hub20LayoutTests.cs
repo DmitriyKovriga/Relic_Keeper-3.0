@@ -81,7 +81,9 @@ namespace RelicKeeper.Tests.EditMode
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Hub20Builder.EnvironmentPath);
             Assert.That(prefab, Is.Not.Null);
-            var renderers = prefab.GetComponentsInChildren<SpriteRenderer>(true).Where(x => x.name != "FogBlend").ToArray();
+            // Validate the nine source-art layers independently of authored
+            // decoration added alongside LayoutArt (such as contact shadows).
+            var renderers = prefab.transform.Find("LayoutArt").GetComponentsInChildren<SpriteRenderer>(true).Where(x => x.name != "FogBlend").ToArray();
             Assert.That(renderers.Length, Is.EqualTo(9));
             Assert.That(renderers.Select(x => x.name), Is.EquivalentTo(new[] { "Sky", "Mountains", "Castle", "DistantForest", "Fog", "Forest", "Ground", "Buildings", "TreesAndPlants" }));
             Assert.That(renderers.Where(x => x.name != "Fog" && x.name != "Buildings").All(x => x.sharedMaterial.shader.name == "Universal Render Pipeline/2D/Sprite-Unlit-Default"), Is.True);

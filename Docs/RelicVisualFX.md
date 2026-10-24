@@ -5,7 +5,7 @@
 
 ## Подключение за минуту
 
-1. `Tools → Relic Keeper → Visual FX → Install neutral assets and Renderer Feature` создаёт отсутствующие базовые ассеты и один `Relic Atmosphere` в **активном default Renderer2D**. Повторный вызов не дублирует feature и не сбрасывает ассеты. В текущем проекте feature уже установлен в `Assets/Settings/Renderer2D.asset`.
+1. `Tools → Relic Keeper → Developer → Visual FX → Install neutral assets and Renderer Feature` создаёт отсутствующие базовые ассеты и один `Relic Atmosphere` в **активном default Renderer2D**. Повторный вызов не дублирует feature и не сбрасывает ассеты. В текущем проекте feature уже установлен в `Assets/Settings/Renderer2D.asset`.
 2. Выберите конкретные SpriteRenderer и вызовите `Apply shared Sprite FX to selected sprites`. Назначается общий `Assets/Visuals/RelicFX/RelicSpriteFX.mat` и добавляется `SpriteFxController`. Действие поддерживает Undo. Материалы остальных объектов не меняются.
 3. Для атмосферы выберите настоящую ортографическую Camera (в Hub это Main Camera с Cinemachine Brain, **не** CinemachineCamera) и вызовите `Add atmosphere to selected camera`.
 4. Дублируйте `Assets/Visuals/RelicFX/AtmosphereNeutral.asset`, назначьте копию в `AtmosphereController.Profile`. В ней начните с Darkness `0.2`, Fog Opacity `0.12`, Vignette `0.1`. Исходный нейтральный профиль оставьте нейтральным.
@@ -78,7 +78,7 @@ Controller World Plane Z — плоскость XY мира, обычно 0. Wor
 
 ## Preview
 
-`Tools → Relic Keeper → Visual FX → Open safe preview` открывает отдельное окно с настоящим рендером 480×270 и ползунками darkness, fog, reveal и позиции игрока. Все изменения в окне временные. Текущая игровая сцена не сохраняется и не заменяется. Шесть собственных процедурных силуэтов показывают neutral, flash, outline, inner shadow, emission и dissolve. Reveal привязан к Emission; подписи показывает само окно Editor.
+`Tools → Relic Keeper → Developer → Visual FX → Open safe preview` открывает отдельное окно с настоящим рендером 480×270 и ползунками darkness, fog, reveal и позиции игрока. Все изменения в окне временные. Текущая игровая сцена не сохраняется и не заменяется. Шесть собственных процедурных силуэтов показывают neutral, flash, outline, inner shadow, emission и dissolve. Reveal привязан к Emission; подписи показывает само окно Editor.
 
 `Create preview assets` создаёт `Assets/Visuals/RelicFX/Preview/RelicFXPreview.prefab` с отдельным профилем и материалами; повторный вызов выделяет существующий ассет. Prefab также можно поместить в **пустую тестовую сцену**: там есть своя Camera и Overlay Canvas. В изолированном окне Canvas не захватывается render request; интерфейс окна рисуется отдельно. В игровые сцены этот демонстрационный prefab добавлять не нужно.
 

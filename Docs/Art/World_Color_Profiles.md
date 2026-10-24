@@ -7,21 +7,23 @@ mist, parallax, bloom, or contact shadows.
 
 ## Tune and save
 
-Open **Tools > Relic Keeper > Visuals > Color Profiles**, choose a **Preview
-environment**, then choose a profile. The window previews a temporary copy; it does
-not overwrite an asset until **Save Profile** is pressed. **Save As** creates a
-separate preset. **Show original (before)** bypasses color grading only, leaving
-existing atmosphere/fog effects in place. Closing the window restores the
-environment's assigned profile. Unsaved preview edits survive switching profiles
-within the window, and are discarded when closing or reloading the window.
+Open **Tools > Relic Keeper > Visuals > World Appearance**:
 
-The window connects to MainCamera automatically and displays Characters,
-Environment, and Background expanded, beside an inline world preview. Start by
-moving **Background > Saturation (%)** down to 60 to see an obvious change. Keep
-**Live preview** enabled and **Show original (before)** disabled while adjusting.
-Press **Save Profile** to keep the result, or **Discard edits / Reload** to undo
-the preview changes. The inline view excludes HUD and keeps native pixel scaling
-when the window is large enough.
+1. Choose **Location**: Current game, Hub, or Mortfall.
+2. Choose **Colors** to adjust Characters, Environment, and Background, or
+   **Mist** to adjust background haze directly beside the preview.
+3. Press **Save** to keep both colors and mist for that location.
+
+Changes appear immediately. **Compare with saved** temporarily displays the saved
+appearance without losing your edits. **Discard changes** restores both colors
+and mist. Unsaved drafts survive switching locations within the window; closing
+or reloading the window discards them and restores the assigned game profiles.
+
+The window connects to MainCamera automatically. Start by moving **Colors >
+Background > Saturation (%)** down to 60, or change **Mist > Amount (%)** to see
+an obvious change. The inline view excludes HUD and keeps native pixel scaling
+when the window is large enough. Maintenance and diagnostic commands are under
+**Tools > Relic Keeper > Developer**, outside this everyday editing workflow.
 
 Window sliders show brightness, contrast, and saturation as percentages: 100%
 means unchanged. Brightness at 50% halves linear brightness; 200% doubles it.
@@ -47,7 +49,7 @@ and **Default Dungeon Color Profile**. Each **Dungeon Data** asset can override
 the latter through **Color Profile**. Entry selects the dungeon override or
 default; return restores the hub. A dungeon with no override and no default is
 neutral, rather than accidentally inheriting hub colors. Preview overrides take
-precedence until the preview window closes or live preview is disabled.
+precedence until the preview window closes.
 
 Add **World Color Group** to a renderer or parent object for explicit membership:
 Characters, Environment, Background, or Unaffected. The closest enabled group
@@ -69,8 +71,8 @@ New room renderers are registered on room creation. Existing sorting and
 temporary-VFX initialization paths register newly spawned content without a
 scene scan every frame. A custom spawn path that bypasses both should call
 `WorldColorGrading.RefreshRoot(instance.transform)` after assigning its materials.
-Use **Refresh scene groups** after manually adding or changing materials in the
-Editor. A single combined sprite remains a single grading region: split the art
+The window refreshes scene groups automatically when reconnecting. A single
+combined sprite remains a single grading region: split the art
 or author a mask if it needs independent adjustments within that sprite.
 
 ## Rendering and ownership
@@ -91,8 +93,8 @@ graded URP Unlit), Relic Sprite FX, Hub Building Wind, and Hub Fog. The URP shad
 adaptations retain 2D lighting, normals, sprite flips, vertex colors and skinning;
 review them when upgrading URP. Relic Sprite FX applies grading before hit flash,
 emission and dissolve. Unknown custom shaders (including AuraHalo) are deliberately
-left unchanged so their behavior is preserved. The preview window reports
-unsupported materials; it does not substitute an incompatible shader.
+left unchanged so their behavior is preserved. The preview does not substitute
+an incompatible shader.
 
 Serialized shader references on the saved hub camera keep the graded Lit/Unlit
 shaders reachable in player builds. No extra cameras or intermediate color
@@ -117,7 +119,7 @@ The mismatch remains for separate correction.
 
 The actual hub camera was inspected in Play Mode at 480x270 with neutral,
 assigned hub, and switched dungeon settings. Source-art hub/dungeon comparisons
-are in `Logs/ColorProfiles/`; regenerate them with **Tools > Relic Keeper > Visuals
+are in `Logs/ColorProfiles/`; regenerate them with **Tools > Relic Keeper > Developer > Visuals
 > Capture Color Profile Examples**. No standalone player build or target-device
 performance measurement was performed.
 
@@ -137,7 +139,7 @@ corresponding Entered mode. SessionState carries this protection across domain
 reload. Duplicated renderers that copied a variant before their first sorting
 update are restored as well.
 
-For sessions already affected by the old bug, **Tools > Relic Keeper > Visuals >
+For sessions already affected by the old bug, **Tools > Relic Keeper > Developer > Visuals >
 Repair Missing Preview Materials** reads saved scenes in isolation and repairs
 only missing material slots. It preserves valid materials, transforms, other
 unsaved scene edits, and color-profile values; it does not overwrite scene files.
@@ -149,25 +151,29 @@ the window closed. Both live captures and the post-stop capture had zero missing
 material references. Before/after captures and material reports are in
 `Logs/ColorProfiles/transition-*`.
 
-Preview options: use **Preview environment** at the top of the window to choose
-**Current game camera**, **Hub (sample view)**, or **Mortfall (sample view)**.
+Preview options: use **Location** at the top of the window to choose
+**Current game**, **Hub**, or **Mortfall**.
 Selecting a sample view loads its assigned color profile. Mortfall also offers a
-**Mortfall room** selector populated from its dungeon data, in room-name order,
+**Room** selector populated from its dungeon data, in room-name order,
 with **Previous** and **Next** buttons for browsing.
-**Show whole room** switches from the spawn-area composition to an overview;
-**Show character samples** toggles static player/monster poses.
+**Whole room** switches from the spawn-area composition to an overview;
+**Characters** toggles static player/monster poses.
 
 Sample views use isolated, visual-only copies of the artwork. They do not enter a
 dungeon, start spawners/AI, create collision, or alter player progress. Sample
 lighting is flat and independent of game-scene lights. Stock lit sprite
 materials receive temporary unlit adapters that preserve their authored values;
-no Light2D objects are registered by the samples. Use Current game camera for live
+no Light2D objects are registered by the samples. Use Current game for live
 lighting and effects. Profiles are applied to the selected preview camera.
 The current game camera remains on its own assigned profile while viewing a
 sample. Temporary drafts are kept separately per profile when switching views;
-Save Profile writes only the selected asset, and closing/reloading the window
+Save writes the selected location's color and mist drafts, and closing/reloading the window
 still discards unsaved drafts. Play Mode transition protections also apply to
 these sample views.
+
+V08 follow-up: hub and Mortfall sample cameras now include the environment's
+background depth mist. The **Mist** tab edits it directly using a temporary draft.
+See [Background depth mist](Depth_Mist.md) for its controls and lifecycle.
 
 Preview validation (2026-10-24): all 20 focused profile/window tests passed,
 including draft separation, visual-only Mortfall scene cleanup, and coexistence
@@ -175,3 +181,10 @@ with the game's global light. Room browsing and whole-room framing were checked
 through the actual window. With Mortfall selected, entering Play Mode rendered
 both the hub game camera and Mortfall sample correctly, with no missing game
 material references.
+
+Unified appearance editor (2026-10-25): 14 focused window/depth-mist checks passed,
+including persistent saving of both drafts, saved comparison, discard, and close
+cleanup. The actual Mist slider, saved comparison and Discard changes were also
+checked visually in Mortfall; the user's saved settings were preserved.
+The window also recovered its Mortfall preview after entering Play Mode; no
+rendering errors were returned by the filtered console check.

@@ -12,7 +12,7 @@ namespace RK.Editor.Visuals
     {
         private const string SettingsAssetPath = "Assets/Resources/Visuals/RenderStackSettings.asset";
 
-        [MenuItem("Tools/Relic Keeper/Visuals/Validate Render Stack")]
+        [MenuItem("Tools/Relic Keeper/Developer/Visuals/Validate Render Stack")]
         public static void ValidateRenderStack()
         {
             var report = new StringBuilder();
@@ -103,7 +103,7 @@ namespace RK.Editor.Visuals
             }
         }
 
-        [MenuItem("Tools/Relic Keeper/Visuals/Create Default Render Stack Settings")]
+        [MenuItem("Tools/Relic Keeper/Developer/Visuals/Create Default Render Stack Settings")]
         public static void CreateDefaultSettingsAsset()
         {
             LoadOrCreateSettingsAsset();
