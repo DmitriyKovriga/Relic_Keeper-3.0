@@ -34,6 +34,11 @@ namespace Scripts.Visuals
         [Tooltip("How many shadow sprite pixels may overlap below the ground surface.")]
         [SerializeField, Range(0f, 6f)] private float _shadowContactOverlapPixels = 1.5f;
         [SerializeField] private int _shadowOrderOffset = -1;
+        [SerializeField, Range(0f, 1f)] private float _shadowOpacity = 1f;
+        [Tooltip("Contact shadows fade out at this distance from the supporting surface.")]
+        [SerializeField, Min(0.1f)] private float _shadowFadeHeight = 2.5f;
+        [SerializeField, Range(0.25f, 1f)] private float _shadowAirborneScale = 0.7f;
+        [SerializeField, Range(0.5f, 1f)] private float _shadowDepthMultiplier = 0.8f;
 
         [Header("Dust")]
         [SerializeField] private bool _spawnJumpDust = true;
@@ -97,6 +102,7 @@ namespace Scripts.Visuals
         private float _airborneTime;
         private readonly List<Vector2> _shapeBuffer = new();
         private readonly List<Vector2> _localShapeBuffer = new();
+        private readonly RaycastHit2D[] _shadowGroundHits = new RaycastHit2D[8];
 
         private Sprite _shadowSmall;
         private Sprite _shadowMedium;
@@ -136,6 +142,7 @@ namespace Scripts.Visuals
         private void OnDisable()
         {
             ClearDashEffects();
+            if (_shadowRenderer != null) _shadowRenderer.enabled = false;
             if (_playerMovement != null)
                 _playerMovement.OnJumpStarted -= HandleJumpStarted;
         }
@@ -277,10 +284,11 @@ namespace Scripts.Visuals
 
         private void UpdateShadowVisual()
         {
-            if (_shadowRenderer == null || _primaryRenderer == null)
+            if (_shadowRenderer == null)
                 return;
 
-            if (!TryResolveGroundAnchor(out Vector2 groundAnchor, out float heightAboveGround))
+            if (_primaryRenderer == null || !_primaryRenderer.enabled || !_primaryRenderer.gameObject.activeInHierarchy ||
+                !TryResolveGroundSurface(out Vector2 groundAnchor, out float heightAboveGround, out Vector2 normal))
             {
                 _shadowRenderer.enabled = false;
                 return;
@@ -293,23 +301,37 @@ namespace Scripts.Visuals
                 return;
             }
 
-            float targetWidth = ResolveShadowFootprintWidth() * Mathf.Max(0.5f, _shadowWidthMultiplier);
+            float heightFraction = Mathf.Clamp01(heightAboveGround / Mathf.Max(0.1f, _shadowFadeHeight));
+            float opacity = _shadowOpacity * (1f - Mathf.SmoothStep(0f, 1f, heightFraction));
+            if (opacity <= 0.01f)
+            {
+                _shadowRenderer.enabled = false;
+                return;
+            }
+            float targetWidth = Mathf.Max(ResolveShadowFootprintWidth(), ResolveBounds().size.x * 1.3f * ResolveShadowWidthScale())
+                * Mathf.Max(0.5f, _shadowWidthMultiplier)
+                * Mathf.Lerp(1f, _shadowAirborneScale, heightFraction);
+            ClipShadowToSurface(ref groundAnchor, normal, ref targetWidth);
             float spriteWidth = Mathf.Max(0.01f, shadowSprite.bounds.size.x);
             float scale = targetWidth / spriteWidth;
-            float bottomAnchorOffset = ResolveShadowBottomAnchorOffset(shadowSprite, scale);
-            float contactOverlap = ResolveShadowContactOverlapWorld(shadowSprite, scale);
+            // At the logical 24 PPU grid a thinner oval vanishes beneath the feet.
+            float depthScale = Mathf.Max(scale * _shadowDepthMultiplier,
+                (4f / 24f) / Mathf.Max(0.01f, shadowSprite.bounds.size.y))
+                * Mathf.Lerp(1f, _shadowAirborneScale, heightFraction);
 
             _shadowRenderer.enabled = true;
             _shadowRenderer.sprite = shadowSprite;
-            _shadowRenderer.sortingLayerName = WorldRenderSorting.LayerBackground;
+            // Contact darkens the walking surface, then actors draw over it.
+            _shadowRenderer.sortingLayerName = WorldRenderSorting.Settings.LayerDefault;
             _shadowRenderer.sortingOrder = WorldRenderSorting.ResolveOrder(RenderDepthCategory.Environment, groundAnchor.y, _shadowOrderOffset);
-            _shadowRenderer.color = Color.white;
+            _shadowRenderer.color = new Color(1f, 1f, 1f, opacity);
 
-            _shadowObject.transform.rotation = Quaternion.identity;
-            _shadowObject.transform.localScale = new Vector3(scale, scale, 1f);
-            // Keep the oval on the walking surface, with only its contact overlap
-            // below it, rather than hanging the entire shadow from its top edge.
-            _shadowObject.transform.position = new Vector3(groundAnchor.x, groundAnchor.y + _shadowLift - bottomAnchorOffset - contactOverlap, 0f);
+            _shadowObject.transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(-normal.x, normal.y) * Mathf.Rad2Deg);
+            _shadowObject.transform.localScale = new Vector3(scale, depthScale, 1f);
+            // Centre on the surface, allowing the lower half to darken the top
+            // floor pixels. Retain the authored lift/overlap controls as offsets.
+            float overlapAdjustment = ((_shadowContactOverlapPixels - 1.5f) / Mathf.Max(1f, shadowSprite.pixelsPerUnit)) * depthScale;
+            _shadowObject.transform.position = (Vector3)(groundAnchor + normal * (_shadowLift - overlapAdjustment));
         }
 
         private void UpdateGroundingEffects()
@@ -566,6 +588,9 @@ namespace Scripts.Visuals
         }
 
         private bool TryResolveGroundAnchor(out Vector2 anchor, out float heightAboveGround)
+            => TryResolveGroundSurface(out anchor, out heightAboveGround, out _);
+
+        private bool TryResolveGroundSurface(out Vector2 anchor, out float heightAboveGround, out Vector2 normal)
         {
             Bounds bounds = ResolveBounds();
             Vector2 shadowOffset = ResolveShadowOffset();
@@ -574,24 +599,76 @@ namespace Scripts.Visuals
             // Animation outlines are not ground geometry. Cast from the feet so
             // padding/poses cannot move a grounded shadow or select a ceiling.
             Vector2 origin = new(x, bounds.min.y + 0.1f);
-            RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, 8f, _groundMask);
-            if (hit.collider != null)
+            bool found = TryFindShadowSurface(origin, Vector2.down, 8f, out RaycastHit2D hit);
+            if ((!found || bounds.min.y - hit.point.y > 0.15f) && ResolveGroundedState())
+            {
+                // At a ledge the body's centre may be over empty space while one
+                // foot still has contact. Prefer that nearby support to a lower floor.
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    Vector2 foot = new(bounds.center.x + side * bounds.extents.x * 0.8f, origin.y);
+                    if (TryFindShadowSurface(foot, Vector2.down, 0.3f, out var contact) && (!found || contact.point.y > hit.point.y))
+                    { hit = contact; x = contact.point.x; found = true; }
+                }
+            }
+            if (found)
             {
                 anchor = new Vector2(x, hit.point.y + shadowOffset.y);
                 heightAboveGround = Mathf.Max(0f, bounds.min.y - hit.point.y);
-                return true;
-            }
-
-            if (ResolveGroundedState())
-            {
-                anchor = new Vector2(x, bounds.min.y + shadowOffset.y);
-                heightAboveGround = 0f;
+                normal = hit.normal;
                 return true;
             }
 
             anchor = default;
             heightAboveGround = 0f;
+            normal = Vector2.up;
             return false;
+        }
+
+        private bool TryFindShadowSurface(Vector2 origin, Vector2 direction, float distance, out RaycastHit2D hit)
+        {
+            var filter = new ContactFilter2D { useTriggers = false };
+            filter.SetLayerMask(_groundMask);
+            int count = Physics2D.Raycast(origin, direction, filter, _shadowGroundHits, distance);
+            for (int i = 0; i < count; i++)
+            {
+                hit = _shadowGroundHits[i];
+                if (hit.fraction > 0f && hit.normal.y >= 0.5f) return true;
+            }
+            hit = default;
+            return false;
+        }
+
+        private void ClipShadowToSurface(ref Vector2 anchor, Vector2 normal, ref float width)
+        {
+            Vector2 tangent = new Vector2(normal.y, -normal.x);
+            float half = width * 0.5f;
+            float left = ResolveSupportedExtent(anchor, normal, -tangent, half);
+            float right = ResolveSupportedExtent(anchor, normal, tangent, half);
+            anchor += tangent * ((right - left) * 0.5f);
+            width = Mathf.Max(0.01f, left + right);
+        }
+
+        private float ResolveSupportedExtent(Vector2 anchor, Vector2 normal, Vector2 direction, float extent)
+        {
+            // Only accept the same surface plane: a lower floor is not support
+            // for the portion of an oval extending beyond a platform edge.
+            bool Supported(float offset)
+            {
+                Vector2 point = anchor + direction * offset;
+                return TryFindShadowSurface(point + normal * 0.15f, -normal, 0.3f, out var hit)
+                    && Vector2.Dot(hit.normal, normal) > 0.8f
+                    && Mathf.Abs(Vector2.Dot(hit.point - point, normal)) < 0.08f;
+            }
+            if (Supported(extent)) return extent;
+            float supported = 0f, unsupported = extent;
+            for (int i = 0; i < 3; i++)
+            {
+                float middle = (supported + unsupported) * 0.5f;
+                if (Supported(middle)) supported = middle;
+                else unsupported = middle;
+            }
+            return supported;
         }
 
         private float ResolveShadowAnchorX()
@@ -627,7 +704,7 @@ namespace Scripts.Visuals
         private float ResolveShadowFootprintWidth()
         {
             if (TryResolveOpaqueFootprint(out _, out float opaqueWidth))
-                return Mathf.Max(0.08f, opaqueWidth) * ResolveShadowWidthScale();
+                return Mathf.Clamp(opaqueWidth, 0.08f, Mathf.Max(0.08f, ResolveBounds().size.x * 1.25f)) * ResolveShadowWidthScale();
 
             Bounds visualBounds = ResolveVisualBounds();
             Bounds bodyBounds = ResolveBounds();

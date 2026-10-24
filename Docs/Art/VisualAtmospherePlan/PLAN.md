@@ -1,6 +1,9 @@
 # Visual depth and atmosphere — planning review
 
 Date: 2026-10-24. Source revision: `a151bd0e`. Status: **proposal, no runtime implementation**.
+The review below describes the original baseline. Subsequent implementation:
+color-profile foundation for V01/V02/V03 is in `../World_Color_Profiles.md`;
+the V04 contact-shadow pass is in `../Contact_Shadows.md`.
 This review uses the two supplied screenshots and saved project sources/assets.
 No new live Editor capture, Play Mode comparison or GPU profile was performed.
 Screenshot observations and proposed visual gains are art-direction judgments,
