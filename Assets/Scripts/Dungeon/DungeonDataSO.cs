@@ -39,6 +39,9 @@ namespace Scripts.Dungeon
         [SerializeField, Range(1, 5)] private int _roomChoiceCount = 3;
 
         [Header("Presentation")]
+        [Tooltip("Environment color profile. Empty uses the camera's default dungeon profile, never the hub profile.")]
+        [SerializeField] private Scripts.Visuals.Atmosphere.WorldColorProfileSO _colorProfile;
+        public Scripts.Visuals.Atmosphere.WorldColorProfileSO ColorProfile => _colorProfile;
         [Tooltip("Background sprite path in Resources. Example: Sprites/WallAndGrounds/MortfallDungeon/MortFallAssets/Mortfall-background")]
         [SerializeField] private string _backgroundSpriteResourcePath;
 

@@ -206,6 +206,7 @@ namespace Scripts.Dungeon
             BuildRoomSequence();
             _currentRoomIndex = 0;
             ApplyDungeonBackground(dungeon);
+            Camera.main?.GetComponent<Scripts.Visuals.Atmosphere.AtmosphereController>()?.ApplyDungeonColors(dungeon.ColorProfile);
 
             if (_hubWorld != null)
                 _hubWorld.SetActive(false);
@@ -252,6 +253,7 @@ namespace Scripts.Dungeon
             _roomsCompletedBeforeSegment = 0;
             _roomSequence.Clear();
             RestoreHubBackground();
+            Camera.main?.GetComponent<Scripts.Visuals.Atmosphere.AtmosphereController>()?.RestoreHubColors();
             RestoreHubCameraBounds();
             DungeonModifierChoiceUI.HideIfVisible();
             DungeonRunContinueUI.HideIfVisible();
@@ -379,6 +381,7 @@ namespace Scripts.Dungeon
             }
 
             _currentRoomInstance = Instantiate(prefab);
+            Scripts.Visuals.Atmosphere.WorldColorGrading.RefreshRoot(_currentRoomInstance.transform);
             if (_dungeonContainer != null)
                 _currentRoomInstance.transform.SetParent(_dungeonContainer, true);
             else

@@ -88,7 +88,7 @@ namespace Scripts.Visuals
             int order = settings.ResolveOrder(category, worldY, localOffset) + postSortOffset;
             int spriteIndex = 0;
             int lineIndex = 0;
-            ApplyToRenderersRecursive(root, root, layerName, order, respectNestedSorters, ref spriteIndex, ref lineIndex);
+            ApplyToRenderersRecursive(root, root, category, layerName, order, respectNestedSorters, ref spriteIndex, ref lineIndex);
         }
 
         public static WorldDepthSort ConfigureSorter(
@@ -137,6 +137,7 @@ namespace Scripts.Visuals
 
             renderer.sortingLayerName = GetSortingLayer(category);
             renderer.sortingOrder = ResolveOrder(category, worldY, localOffset);
+            Atmosphere.WorldColorGrading.Bind(renderer, category);
         }
 
         public static bool ValidateProjectStack(out string error)
@@ -161,6 +162,7 @@ namespace Scripts.Visuals
         private static void ApplyToRenderersRecursive(
             Transform root,
             Transform current,
+            RenderDepthCategory category,
             string layerName,
             int baseOrder,
             bool respectNestedSorters,
@@ -179,6 +181,7 @@ namespace Scripts.Visuals
                 spriteRenderer.sortingLayerName = layerName;
                 spriteRenderer.sortingOrder = baseOrder + spriteIndex;
                 spriteIndex++;
+                Atmosphere.WorldColorGrading.Bind(spriteRenderer, category);
             }
 
             LineRenderer lineRenderer = current.GetComponent<LineRenderer>();
@@ -187,13 +190,14 @@ namespace Scripts.Visuals
                 lineRenderer.sortingLayerName = layerName;
                 lineRenderer.sortingOrder = baseOrder + lineIndex;
                 lineIndex++;
+                Atmosphere.WorldColorGrading.Bind(lineRenderer, category);
             }
 
             for (int i = 0; i < current.childCount; i++)
             {
                 Transform child = current.GetChild(i);
                 if (child != null)
-                    ApplyToRenderersRecursive(root, child, layerName, baseOrder, respectNestedSorters, ref spriteIndex, ref lineIndex);
+                    ApplyToRenderersRecursive(root, child, category, layerName, baseOrder, respectNestedSorters, ref spriteIndex, ref lineIndex);
             }
         }
     }

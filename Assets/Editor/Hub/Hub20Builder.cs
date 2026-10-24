@@ -195,6 +195,9 @@ namespace RelicKeeper.Editor.Hub
                 {
                     renderer.sharedMaterial = material;
                     renderer.sortingLayerName = "Background";
+                    var colors = renderer.gameObject.AddComponent<Scripts.Visuals.Atmosphere.WorldColorGroup>();
+                    bool near = renderer.name == "Ground" || renderer.name == "Buildings" || renderer.name == "TreesAndPlants";
+                    colors.Configure(near ? Scripts.Visuals.Atmosphere.WorldColorRole.Environment : Scripts.Visuals.Atmosphere.WorldColorRole.Background);
                 }
                 ConfigureFog(imported);
                 HubBuildingWindBuilder.Configure(imported);

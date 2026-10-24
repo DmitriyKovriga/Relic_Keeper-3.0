@@ -2,6 +2,9 @@ Shader "RelicKeeper/Hub Building Wind"
 {
     Properties
     {
+        [HideInInspector] _RKGradeGroup ("World color group", Float) = 0
+        [HideInInspector] _RKGradeInfluence ("World color influence", Float) = 1
+        [HideInInspector] _RKGradeIsEffect ("Combat effect", Float) = 0
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         _Period ("Sway period (seconds)", Float) = 6
         _Amplitude ("Sway (source pixels)", Range(0, 1)) = 1
@@ -24,6 +27,7 @@ Shader "RelicKeeper/Hub Building Wind"
             #pragma fragment WindFragment
             #pragma multi_compile_instancing
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
+            #include "RelicFX/WorldColorGrade.hlsl"
             struct Attributes { COMMON_2D_INPUTS half4 color : COLOR; };
             struct Varyings
             {
@@ -34,6 +38,7 @@ Shader "RelicKeeper/Hub Building Wind"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/2DCommon.hlsl"
             float4 _MainTex_TexelSize;
             CBUFFER_START(UnityPerMaterial)
+                float _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect;
                 half4 _Color;
                 float _Period, _Amplitude, _PreviewTime;
                 float4 _Tavern, _Warehouse;
@@ -61,7 +66,11 @@ Shader "RelicKeeper/Hub Building Wind"
             {
                 half4 original = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
                 if (!Inside(input.world, _Tavern) && !Inside(input.world, _Warehouse))
-                    return original * input.color;
+                {
+                    half4 result = original * input.color;
+                    result.rgb = RKGradeColor(result.rgb, _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect);
+                    return result;
+                }
                 float time = _PreviewTime >= 0 ? _PreviewTime : _Time.y;
                 // Small patches have different phases. Whole source-pixel steps
                 // preserve sharpness; the building transform never moves.
@@ -71,7 +80,9 @@ Shader "RelicKeeper/Hub Building Wind"
                 half4 moved = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv + float2(offset, 0) * _MainTex_TexelSize.xy);
                 // Never displace structural pixels. Neighboring straw colors
                 // drift within the roof, without making gaps in its silhouette.
-                return (Foliage(original) && Foliage(moved) ? moved : original) * input.color;
+                half4 result = (Foliage(original) && Foliage(moved) ? moved : original) * input.color;
+                result.rgb = RKGradeColor(result.rgb, _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect);
+                return result;
             }
             ENDHLSL
         }

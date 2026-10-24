@@ -57,4 +57,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b2000000000000000000000000000002, type: 2}
   _entryChoiceCount: 3
   _roomChoiceCount: 3
+  _colorProfile: {fileID: 11400000, guid: dd056664cfcf4e2f93e3a23e635a6200, type: 2}
   _backgroundSpriteResourcePath: Assets/Resources/Sprites/WallAndGrounds/MortfallDungeon/MortFallAssets/Mortfall-background.png

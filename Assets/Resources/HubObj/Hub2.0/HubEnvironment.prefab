@@ -121,6 +121,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2611623569699843402}
   - component: {fileID: 4237683471840753974}
+  - component: {fileID: 920000000000000101}
   m_Layer: 0
   m_Name: Buildings
   m_TagString: Untagged
@@ -212,6 +213,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9104015642000190732}
   - component: {fileID: 8096969471465859187}
+  - component: {fileID: 920000000000000106}
   m_Layer: 0
   m_Name: DistantForest
   m_TagString: Untagged
@@ -334,6 +336,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5441392408051438390}
   - component: {fileID: 7495495212216234786}
+  - component: {fileID: 920000000000000102}
   m_Layer: 0
   m_Name: TreesAndPlants
   m_TagString: Untagged
@@ -425,6 +428,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8230137152157422464}
   - component: {fileID: 6679342597808417994}
+  - component: {fileID: 920000000000000109}
   m_Layer: 0
   m_Name: FogBlend
   m_TagString: Untagged
@@ -516,6 +520,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7137966348205987960}
   - component: {fileID: 3949746053011167760}
+  - component: {fileID: 920000000000000103}
   m_Layer: 0
   m_Name: Sky
   m_TagString: Untagged
@@ -784,6 +789,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5944161851548171431}
   - component: {fileID: 3887887946483372013}
+  - component: {fileID: 920000000000000104}
   m_Layer: 0
   m_Name: Mountains
   m_TagString: Untagged
@@ -953,6 +959,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6823527741170892407}
   - component: {fileID: 4595342658314210553}
+  - component: {fileID: 920000000000000107}
   m_Layer: 0
   m_Name: Forest
   m_TagString: Untagged
@@ -1135,6 +1142,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8611674665573757493}
   - component: {fileID: 7487164764416810821}
+  - component: {fileID: 920000000000000100}
   m_Layer: 0
   m_Name: Ground
   m_TagString: Untagged
@@ -1264,6 +1272,7 @@ GameObject:
   m_Component:
   - component: {fileID: 518568396699518864}
   - component: {fileID: 686069414368150247}
+  - component: {fileID: 920000000000000105}
   m_Layer: 0
   m_Name: Castle
   m_TagString: Untagged
@@ -1356,6 +1365,7 @@ GameObject:
   - component: {fileID: 3637317388924607476}
   - component: {fileID: 5556790219537739987}
   - component: {fileID: 1518668743502252951}
+  - component: {fileID: 920000000000000108}
   m_Layer: 0
   m_Name: Fog
   m_TagString: Untagged
@@ -1545,3 +1555,153 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.5, y: 16}
   m_EdgeRadius: 0
+--- !u!114 &920000000000000100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6920523176661212186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 2
+  _influence: 1
+  _combatEffect: 0
+--- !u!114 &920000000000000101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1527619669462130701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 2
+  _influence: 1
+  _combatEffect: 0
+--- !u!114 &920000000000000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2042712361419697055}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 2
+  _influence: 1
+  _combatEffect: 0
+--- !u!114 &920000000000000103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3879570714025644763}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 3
+  _influence: 1
+  _combatEffect: 0
+--- !u!114 &920000000000000104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4869192725865021273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 3
+  _influence: 1
+  _combatEffect: 0
+--- !u!114 &920000000000000105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7952891225862514085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 3
+  _influence: 1
+  _combatEffect: 0
+--- !u!114 &920000000000000106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1636138804107558603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 3
+  _influence: 1
+  _combatEffect: 0
+--- !u!114 &920000000000000107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6630021625599836325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 3
+  _influence: 1
+  _combatEffect: 0
+--- !u!114 &920000000000000108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8893495642010311098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 3
+  _influence: 1
+  _combatEffect: 0
+--- !u!114 &920000000000000109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2346501321349364354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8550fb02484748c78b0fbadb813d9aeb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.WorldColorGroup
+  _role: 3
+  _influence: 1
+  _combatEffect: 0

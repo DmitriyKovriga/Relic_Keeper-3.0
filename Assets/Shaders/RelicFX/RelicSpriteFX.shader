@@ -2,6 +2,9 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
 {
     Properties
     {
+        [HideInInspector] _RKGradeGroup ("World color group", Float) = 0
+        [HideInInspector] _RKGradeInfluence ("World color influence", Float) = 1
+        [HideInInspector] _RKGradeIsEffect ("Combat effect", Float) = 0
         [PerRendererData] _MainTex ("Sprite", 2D) = "white" {}
         _FxTint ("Tint", Color) = (1,1,1,1)
         _FxBrightness ("Brightness", Range(0,2)) = 1
@@ -51,11 +54,13 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
             #pragma target 3.5
             #pragma multi_compile_instancing
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
+            #include "WorldColorGrade.hlsl"
 
             TEXTURE2D(_MainTex); SAMPLER(sampler_MainTex);
             TEXTURE2D(_FxNoiseTex); SAMPLER(sampler_FxNoiseTex);
             float4 _MainTex_TexelSize;
             CBUFFER_START(UnityPerMaterial)
+                float _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect;
                 half4 _FxTint, _FxFlashColor, _FxOutlineColor, _FxInnerColor, _FxEmissionColor, _FxEdgeColor;
                 half4 _RendererColor, _FxRuntimeTint, _FxRuntimeFlashColor, _FxRuntimeEmissionColor;
                 float4 _FxUvRect;
@@ -96,6 +101,7 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
                 float luminance = dot(rgb, half3(0.2126, 0.7152, 0.0722));
                 rgb = lerp(rgb, luminance.xxx, _FxDesaturate);
                 rgb = max(0, (rgb - 0.5) * _FxContrast + 0.5) * _FxBrightness;
+                rgb = RKGradeColor(rgb, _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect);
 
                 float dilation = texel.a, erosion = texel.a;
                 if (_FxNeighboursAllowed > 0.5 && (_FxOutline > 0.0 || _FxInnerShadow > 0.0))

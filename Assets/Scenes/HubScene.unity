@@ -1739,6 +1739,10 @@ MonoBehaviour:
   _profile: {fileID: 11400000, guid: 414d7da7d3ab9f84c9394f6e5289e956, type: 2}
   _player: {fileID: 1563690798}
   _worldPlaneZ: 0
+  _hubColorProfile: {fileID: 11400000, guid: 15f71665aae94ab39a98fded9d021c80, type: 2}
+  _defaultDungeonColorProfile: {fileID: 11400000, guid: dd056664cfcf4e2f93e3a23e635a6200, type: 2}
+  _colorUnlitShader: {fileID: 4800000, guid: f2efd75215ab49d1aa01c5c19b448cf9, type: 3}
+  _colorLitShader: {fileID: 4800000, guid: 5cd2fd14546a4908ab8ea5a66bd748d1, type: 3}
 --- !u!1 &563462190
 GameObject:
   m_ObjectHideFlags: 0

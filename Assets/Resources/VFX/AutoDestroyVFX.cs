@@ -50,6 +50,7 @@ public class AutoDestroyVFX : MonoBehaviour
         }
 
         ApplyAlphaMultiplier(1f);
+        Scripts.Visuals.Atmosphere.WorldColorGrading.RefreshRoot(transform);
         _initialized = true;
     }
 

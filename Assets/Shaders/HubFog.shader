@@ -2,6 +2,9 @@ Shader "RelicKeeper/Hub Fog"
 {
     Properties
     {
+        [HideInInspector] _RKGradeGroup ("World color group", Float) = 0
+        [HideInInspector] _RKGradeInfluence ("World color influence", Float) = 1
+        [HideInInspector] _RKGradeIsEffect ("Combat effect", Float) = 0
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         _FadeBottom ("Fade bottom (world Y)", Float) = 0
         _FadeTop ("Invisible above (world Y)", Float) = 6.5
@@ -21,6 +24,7 @@ Shader "RelicKeeper/Hub Fog"
             #pragma fragment FogFragment
             #pragma multi_compile_instancing
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
+            #include "RelicFX/WorldColorGrade.hlsl"
             struct Attributes
             {
                 COMMON_2D_INPUTS
@@ -35,6 +39,7 @@ Shader "RelicKeeper/Hub Fog"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/2DCommon.hlsl"
             float4 _MainTex_TexelSize;
             CBUFFER_START(UnityPerMaterial)
+                float _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect;
                 half4 _Color;
                 float _FadeBottom;
                 float _FadeTop;
@@ -65,7 +70,8 @@ Shader "RelicKeeper/Hub Fog"
                 half3 color = total.rgb / max(total.a, 0.00001h);
                 float height = saturate((input.worldY - _FadeBottom) / max(_FadeTop - _FadeBottom, 0.0001));
                 half fade = 1 - smoothstep(0, 1, height);
-                return half4(color * input.color.rgb, alpha * input.color.a * fade);
+                color = RKGradeColor(color * input.color.rgb, _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect);
+                return half4(color, alpha * input.color.a * fade);
             }
             ENDHLSL
         }

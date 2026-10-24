@@ -1,0 +1,203 @@
+// Adapted from URP 17.3 Sprite-Lit-Default. Keep lighting, normals and sprite deformation in sync on URP upgrades.
+Shader "RelicKeeper/Sprites/World Color Lit"
+{
+    Properties
+    {
+        [HideInInspector] _RKGradeGroup ("World color group", Float) = 0
+        [HideInInspector] _RKGradeInfluence ("World color influence", Float) = 1
+        [HideInInspector] _RKGradeIsEffect ("Combat effect", Float) = 0
+        _MainTex("Diffuse", 2D) = "white" {}
+        _MaskTex("Mask", 2D) = "white" {}
+        _NormalMap("Normal Map", 2D) = "bump" {}
+        [MaterialToggle] _ZWrite("ZWrite", Float) = 0
+
+        // Legacy properties. They're here so that materials using this shader can gracefully fallback to the legacy sprite shader.
+        [HideInInspector] _Color("Tint", Color) = (1,1,1,1)
+        [HideInInspector] _RendererColor("RendererColor", Color) = (1,1,1,1)
+        [HideInInspector] _AlphaTex("External Alpha", 2D) = "white" {}
+        [HideInInspector] _EnableExternalAlpha("Enable External Alpha", Float) = 0
+    }
+
+    SubShader
+    {
+        Tags {"Queue" = "Transparent" "RenderType" = "Transparent" "RenderPipeline" = "UniversalPipeline" }
+
+        Blend SrcAlpha OneMinusSrcAlpha, One OneMinusSrcAlpha
+        Cull Off
+        ZWrite [_ZWrite]
+
+        Pass
+        {
+            Tags { "LightMode" = "Universal2D" }
+
+            HLSLPROGRAM
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
+
+            #pragma target 3.5
+            #pragma vertex LitVertex
+            #pragma fragment LitFragment
+
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/ShapeLightShared.hlsl"
+
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma multi_compile _ DEBUG_DISPLAY
+            #pragma multi_compile _ SKINNED_SPRITE
+
+            struct Attributes
+            {
+                COMMON_2D_INPUTS
+                half4 color        : COLOR;
+                UNITY_SKINNED_VERTEX_INPUTS
+            };
+
+            struct Varyings
+            {
+                COMMON_2D_LIT_OUTPUTS
+                half4 color        : COLOR;
+            };
+
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Lit2DCommon.hlsl"
+
+            // NOTE: Do not ifdef the properties here as SRP batcher can not handle different layouts.
+            #include "WorldColorGrade.hlsl"
+            CBUFFER_START(UnityPerMaterial)
+                float _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect;
+                half4 _Color;
+            CBUFFER_END
+
+            Varyings LitVertex(Attributes input)
+            {
+                UNITY_SKINNED_VERTEX_COMPUTE(input);
+                SetUpSpriteInstanceProperties();
+                input.positionOS = UnityFlipSprite(input.positionOS, unity_SpriteProps.xy);
+
+                Varyings o = CommonLitVertex(input);
+                o.color = input.color * _Color * unity_SpriteColor;
+
+                return o;
+            }
+
+            half4 LitFragment(Varyings input) : SV_Target
+            {
+                half4 result = CommonLitFragment(input, input.color);
+                result.rgb = RKGradeColor(result.rgb, _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect);
+                return result;
+            }
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Tags { "LightMode" = "NormalsRendering"}
+
+            HLSLPROGRAM
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
+
+            #pragma target 3.5
+            #pragma vertex NormalsRenderingVertex
+            #pragma fragment NormalsRenderingFragment
+
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma multi_compile _ SKINNED_SPRITE
+
+            struct Attributes
+            {
+                COMMON_2D_NORMALS_INPUTS
+                float4 color        : COLOR;
+                UNITY_SKINNED_VERTEX_INPUTS
+            };
+
+            struct Varyings
+            {
+                COMMON_2D_NORMALS_OUTPUTS
+                half4   color           : COLOR;
+            };
+
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Normals2DCommon.hlsl"
+
+            // NOTE: Do not ifdef the properties here as SRP batcher can not handle different layouts.
+            #include "WorldColorGrade.hlsl"
+            CBUFFER_START( UnityPerMaterial )
+                float _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect;
+                half4 _Color;
+            CBUFFER_END
+
+            Varyings NormalsRenderingVertex(Attributes input)
+            {
+                UNITY_SKINNED_VERTEX_COMPUTE(input);
+                SetUpSpriteInstanceProperties();
+                input.positionOS = UnityFlipSprite(input.positionOS, unity_SpriteProps.xy);
+
+                Varyings o = CommonNormalsVertex(input);
+                o.color = input.color * _Color * unity_SpriteColor;
+
+                return o;
+            }
+
+            half4 NormalsRenderingFragment(Varyings input) : SV_Target
+            {
+                return CommonNormalsFragment(input, input.color);
+            }
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Tags { "LightMode" = "UniversalForward" "Queue"="Transparent" "RenderType"="Transparent"}
+
+            HLSLPROGRAM
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
+
+            #pragma target 3.5
+            #pragma vertex UnlitVertex
+            #pragma fragment UnlitFragment
+
+            struct Attributes
+            {
+                COMMON_2D_INPUTS
+                half4 color : COLOR;
+                UNITY_SKINNED_VERTEX_INPUTS
+            };
+
+            struct Varyings
+            {
+                COMMON_2D_OUTPUTS
+                half4 color : COLOR;
+            };
+
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/2DCommon.hlsl"
+          
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma multi_compile _ DEBUG_DISPLAY SKINNED_SPRITE
+
+            // NOTE: Do not ifdef the properties here as SRP batcher can not handle different layouts.
+            #include "WorldColorGrade.hlsl"
+            CBUFFER_START(UnityPerMaterial)
+                float _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect;
+                half4 _Color;
+            CBUFFER_END
+
+            Varyings UnlitVertex(Attributes input)
+            {
+                UNITY_SKINNED_VERTEX_COMPUTE(input);
+                SetUpSpriteInstanceProperties();
+                input.positionOS = UnityFlipSprite(input.positionOS, unity_SpriteProps.xy);
+
+                Varyings o = CommonUnlitVertex(input);
+                o.color = input.color *_Color * unity_SpriteColor;
+                return o;
+            }
+
+            half4 UnlitFragment(Varyings input) : SV_Target
+            {
+                half4 result = CommonUnlitFragment(input, input.color);
+                result.rgb = RKGradeColor(result.rgb, _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect);
+                return result;
+            }
+            ENDHLSL
+        }
+    }
+}

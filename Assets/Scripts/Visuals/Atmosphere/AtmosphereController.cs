@@ -12,6 +12,26 @@ namespace Scripts.Visuals.Atmosphere
         [Tooltip("XY world plane used for orthographic reconstruction.")]
         [SerializeField] private float _worldPlaneZ;
 
+        [Header("Layer color profiles")]
+        [SerializeField] private WorldColorProfileSO _hubColorProfile;
+        [SerializeField] private WorldColorProfileSO _defaultDungeonColorProfile;
+        [Tooltip("Serialized shader references keep graded sprite variants available in builds.")]
+        [SerializeField] private Shader _colorUnlitShader;
+        [SerializeField] private Shader _colorLitShader;
+        private bool _dungeonColors;
+        private WorldColorProfileSO _environmentColorProfile;
+        public WorldColorProfileSO PreviewColorProfile { get; set; }
+        public bool PreviewNeutralColors { get; set; }
+        public WorldColorProfileSO ActiveColorProfile => PreviewColorProfile != null ? PreviewColorProfile :
+            (_dungeonColors ? (_environmentColorProfile != null ? _environmentColorProfile : _defaultDungeonColorProfile) : _hubColorProfile);
+        public Shader ColorUnlitShader => _colorUnlitShader;
+        public Shader ColorLitShader => _colorLitShader;
+        public void ApplyDungeonColors(WorldColorProfileSO profile) { _dungeonColors = true; _environmentColorProfile = profile; }
+        public void RestoreHubColors() { _dungeonColors = false; _environmentColorProfile = null; }
+        public void RefreshColorGroups() => WorldColorGrading.RefreshScene(this);
+        private void OnEnable() => WorldColorGrading.Register(this);
+        private void OnDisable() => WorldColorGrading.Unregister(this);
+
         public AtmosphereProfileSO Profile { get => _profile; set => _profile = value; }
         public Transform Player => _player;
         public float WorldPlaneZ => _worldPlaneZ;
