@@ -10,13 +10,13 @@ mist, parallax, bloom, or contact shadows.
 Open **Tools > Relic Keeper > Visuals > World Appearance**:
 
 1. Choose **Location**: Current game, Hub, or Mortfall.
-2. Choose **Colors** to adjust Characters, Environment, and Background, or
-   **Mist** to adjust background haze directly beside the preview.
-3. Press **Save** to keep both colors and mist for that location.
+2. Choose **Colors** to adjust Characters, Environment, and Background,
+   **Mist** for background haze, or **Movement** for layered background motion.
+3. Press **Save** to keep colors, mist and movement for that location.
 
 Changes appear immediately. **Compare with saved** temporarily displays the saved
-appearance without losing your edits. **Discard changes** restores both colors
-and mist. Unsaved drafts survive switching locations within the window; closing
+appearance without losing your edits. **Discard changes** restores colors,
+mist and movement. Unsaved drafts survive switching locations within the window; closing
 or reloading the window discards them and restores the assigned game profiles.
 
 The window connects to MainCamera automatically. Start by moving **Colors >

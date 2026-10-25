@@ -38,6 +38,15 @@ namespace Scripts.Visuals.Atmosphere
         public float depthMistCenterY = 2.5f;
         [Min(0.1f)] public float depthMistHeight = 8f;
         [Min(0.01f)] public float depthMistFeather = 2f;
+        [Header("Background movement")]
+        public bool layeredParallax;
+        [Range(0f, 1f)] public float parallaxFar = 0.9f;
+        [Range(0f, 1f)] public float parallaxMiddle = 0.65f;
+        [Range(0f, 1f)] public float parallaxNear = 0.3f;
+        [Range(0f, 1f)] public float parallaxVertical;
+        [Tooltip("0 hides distant columns; any positive value shows solid stone. Retained for saved profile compatibility.")]
+        [Range(0f, 1f)] public float parallaxSilhouettes = 1f;
+
         [Header("Player lantern / airborne dust")]
         [Range(0f, 1f)] public float lantern;
         public Color lanternTint = new Color(1f, 0.6f, 0.24f, 1f);

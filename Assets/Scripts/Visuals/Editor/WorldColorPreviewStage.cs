@@ -28,6 +28,7 @@ namespace RelicKeeper.Editor.Visuals
         private GameObject _actors;
         private Vector3 _spawn;
         private bool _mortfall;
+        private Vector3 _viewCenter;
         public Camera Camera { get; private set; }
         public AtmosphereController Controller { get; private set; }
         public WorldColorProfileSO AssignedProfile { get; private set; }
@@ -64,7 +65,8 @@ namespace RelicKeeper.Editor.Visuals
             GameObject prefab = mortfall ? dungeon?.LoadRoomPrefab(roomPath) :
                 AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Resources/HubObj/Hub2.0/HubEnvironment.prefab");
             if (prefab == null) throw new InvalidOperationException("The selected preview artwork could not be loaded.");
-            CopyVisuals(prefab.transform, null);
+            GameObject artwork = CopyVisuals(prefab.transform, null);
+            if (!mortfall) LayeredParallaxGroup.ConfigureHub(artwork);
             _spawn = mortfall ? prefab.GetComponent<RoomController>().PlayerSpawnPosition : new Vector3(7f, 0.8f, 0f);
 
             Camera = NewObject("Color preview camera").AddComponent<Camera>();
@@ -75,9 +77,11 @@ namespace RelicKeeper.Editor.Visuals
             {
                 _background = NewObject("DungeonSharedBackground").AddComponent<SpriteRenderer>();
                 _background.sprite = dungeon.LoadBackgroundSprite();
+                _background.drawMode = SpriteDrawMode.Tiled;
                 _background.sharedMaterial = StockMaterial(false);
-                _background.sortingLayerName = "Background"; _background.sortingOrder = -100;
+                _background.sortingLayerName = "Background"; _background.sortingOrder = -1000;
                 _background.gameObject.AddComponent<WorldColorGroup>().Configure(WorldColorRole.Background);
+                if (dungeon.ParallaxSilhouette != null) LayeredParallaxGroup.ConfigureDungeon(_background, dungeon.ParallaxSilhouette);
             }
             _actors = NewObject("Static character samples");
             var player = Object.FindObjectsByType<global::PlayerStats>(FindObjectsSortMode.None).FirstOrDefault();
@@ -118,7 +122,7 @@ namespace RelicKeeper.Editor.Visuals
         private static Material StockMaterial(bool lit) => AssetDatabase.LoadAssetAtPath<Material>(
             "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-" + (lit ? "Lit" : "Unlit") + "-Default.mat");
 
-        private void CopyVisuals(Transform source, Transform parent)
+        private GameObject CopyVisuals(Transform source, Transform parent)
         {
             var copy = NewObject(source.name);
             copy.layer = source.gameObject.layer;
@@ -170,6 +174,7 @@ namespace RelicKeeper.Editor.Visuals
             }
             for (int i = 0; i < source.childCount; i++) CopyVisuals(source.GetChild(i), copy.transform);
             copy.SetActive(source.gameObject.activeSelf);
+            return copy;
         }
 
         private void AddMonster(string path, float x)
@@ -233,12 +238,29 @@ namespace RelicKeeper.Editor.Visuals
                 foreach (SpriteRenderer renderer in _art) bounds.Encapsulate(renderer.bounds);
                 center = bounds.center; size = Mathf.Max(5.625f, bounds.extents.y + 0.75f, bounds.extents.x / Camera.aspect + 0.75f);
             }
-            Camera.orthographicSize = size; Camera.transform.position = new Vector3(center.x, center.y, -10f);
+            _viewCenter = new Vector3(center.x, center.y, -10f);
+            Camera.orthographicSize = size; Camera.transform.position = _viewCenter;
             if (_background != null && _background.sprite != null)
             {
                 _background.transform.position = new Vector3(center.x, center.y, 0f);
-                _background.transform.localScale = Vector3.one * Mathf.Max(size * 2f * Camera.aspect / _background.sprite.bounds.size.x, size * 2f / _background.sprite.bounds.size.y);
+                _background.transform.localScale = Vector3.one;
+                Vector2 tile = _background.sprite.rect.size / _background.sprite.pixelsPerUnit;
+                int columns = Mathf.CeilToInt(Mathf.Max(160f, size * 2f * Camera.aspect + 20f) / tile.x) | 1;
+                int rows = Mathf.CeilToInt(Mathf.Max(100f, size * 2f + 20f) / tile.y) | 1;
+                _background.size = new Vector2(columns * tile.x, rows * tile.y);
+                _background.GetComponent<LayeredParallaxGroup>()?.ResetAnchor(center);
             }
+        }
+
+        public void SetCameraOffset(float x)
+        {
+            Vector3 position = _viewCenter + Vector3.right * x;
+            if (!_mortfall)
+            {
+                float available = Mathf.Max(0f, 1558f / 48f - Camera.orthographicSize * Camera.aspect);
+                position.x = Mathf.Clamp(position.x, -available, available);
+            }
+            Camera.transform.position = position;
         }
 
         public void Dispose()

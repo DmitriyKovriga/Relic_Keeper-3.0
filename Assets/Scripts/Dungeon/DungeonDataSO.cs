@@ -45,6 +45,9 @@ namespace Scripts.Dungeon
         [Tooltip("Background-plane mist only; empty uses the camera's default dungeon mist preset.")]
         [SerializeField] private Scripts.Visuals.Atmosphere.AtmosphereProfileSO _depthMistProfile;
         public Scripts.Visuals.Atmosphere.AtmosphereProfileSO DepthMistProfile => _depthMistProfile;
+        [Tooltip("Optional transparent middle-distance column artwork. Never adds collision.")]
+        [SerializeField] private Sprite _parallaxSilhouette;
+        public Sprite ParallaxSilhouette => _parallaxSilhouette;
         [Tooltip("Background sprite path in Resources. Example: Sprites/WallAndGrounds/MortfallDungeon/MortFallAssets/Mortfall-background")]
         [SerializeField] private string _backgroundSpriteResourcePath;
 

@@ -33,6 +33,12 @@ MonoBehaviour:
   depthMistCenterY: 2
   depthMistHeight: 12
   depthMistFeather: 3
+  layeredParallax: 1
+  parallaxFar: 0.9
+  parallaxMiddle: 0.65
+  parallaxNear: 0.3
+  parallaxVertical: 0.75
+  parallaxSilhouettes: 0.4
   lantern: 0
   lanternTint: {r: 1, g: 0.6, b: 0.24, a: 1}
   lanternRadius: 2.8

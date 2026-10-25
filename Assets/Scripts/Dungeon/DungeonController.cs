@@ -729,6 +729,13 @@ namespace Scripts.Dungeon
             _sharedBackgroundRenderer.sprite = dungeonBackground != null ? dungeonBackground : _defaultHubBackgroundSprite;
             _sharedBackgroundRenderer.size = backgroundSize;
             _sharedBackgroundRenderer.enabled = _sharedBackgroundRenderer.sprite != null;
+            if (dungeon.ParallaxSilhouette != null)
+            {
+                var group = Scripts.Visuals.Atmosphere.LayeredParallaxGroup.ConfigureDungeon(_sharedBackgroundRenderer, dungeon.ParallaxSilhouette);
+                Scripts.Visuals.Atmosphere.WorldColorGrading.RefreshRoot(group.transform);
+            }
+            else if (_sharedBackgroundRenderer.TryGetComponent<Scripts.Visuals.Atmosphere.LayeredParallaxGroup>(out var previousLayers))
+                previousLayers.enabled = false;
         }
 
         private void RestoreHubBackground()
@@ -739,6 +746,7 @@ namespace Scripts.Dungeon
 
             _sharedBackgroundRenderer.sprite = _defaultHubBackgroundSprite;
             _sharedBackgroundRenderer.enabled = _defaultHubBackgroundSprite != null;
+            _sharedBackgroundRenderer.GetComponent<Scripts.Visuals.Atmosphere.LayeredParallaxGroup>()?.SetVisible(false);
         }
 
         private void PrepareCameraConfiner()
@@ -794,6 +802,8 @@ namespace Scripts.Dungeon
             var parallax = background.GetComponent<ParallaxEffect>();
             if (parallax != null) parallax.ResetAnchor(position, roomCenter);
             else background.transform.position = position;
+            var layers = background.GetComponent<Scripts.Visuals.Atmosphere.LayeredParallaxGroup>();
+            if (layers != null) layers.ResetAnchor(roomCenter);
         }
 
         private void RestoreHubCameraBounds()

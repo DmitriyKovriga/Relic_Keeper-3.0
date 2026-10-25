@@ -27,6 +27,8 @@ namespace RelicKeeper.Editor.Visuals
         private double _lastRepaint;
         private bool _showSaved;
         private Vector2 _scroll;
+        private bool _animatePreview;
+        private float _previewTravel;
 
         [MenuItem("Tools/Relic Keeper/Visuals/World Appearance")]
         public static void Open() => GetWindow<WorldColorProfilesWindow>("World Appearance");
@@ -85,11 +87,12 @@ namespace RelicKeeper.Editor.Visuals
                 LoadMist(_controller.AssignedDepthMistProfile);
             }
             if (PreviewController != null) Repaint();
+            if (_stage != null) _stage.SetCameraOffset(_animatePreview ? Mathf.Sin((float)EditorApplication.timeSinceStartup * 0.5f) * 8f : _previewTravel);
         }
 
         private void OnGUI()
         {
-            EditorGUILayout.HelpBox("Choose a location, adjust Colors or Mist, then press Save. Changes appear in the preview.", MessageType.Info);
+            EditorGUILayout.HelpBox("Choose a location, adjust its appearance, then press Save. Changes appear in the preview.", MessageType.Info);
             EditorGUI.BeginChangeCheck();
             var environment = (PreviewEnvironment)EditorGUILayout.Popup("Location", (int)_environment,
                 new[] { "Current game", "Hub", "Mortfall" });
@@ -124,7 +127,7 @@ namespace RelicKeeper.Editor.Visuals
             bool wide = position.width >= 860;
             if (wide) { EditorGUILayout.BeginHorizontal(); EditorGUILayout.BeginVertical(GUILayout.Width(390)); }
             else DrawPreview(false);
-            _appearanceTab = GUILayout.Toolbar(_appearanceTab, new[] { "Colors", "Mist" }, GUILayout.Height(27));
+            _appearanceTab = GUILayout.Toolbar(_appearanceTab, new[] { "Colors", "Mist", "Movement" }, GUILayout.Height(27));
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
             if (_showSaved) EditorGUILayout.HelpBox("Showing the saved version. Turn off Compare with saved to see your edits.", MessageType.Info);
             if (_appearanceTab == 0)
@@ -145,7 +148,8 @@ namespace RelicKeeper.Editor.Visuals
                 }
                 else EditorGUILayout.HelpBox("Choose Hub or Mortfall to edit its appearance.", MessageType.Info);
             }
-            else DrawMist();
+            else if (_appearanceTab == 1) DrawMist();
+            else DrawMovement();
             EditorGUILayout.EndScrollView();
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -334,6 +338,36 @@ namespace RelicKeeper.Editor.Visuals
             if (EditorGUI.EndChangeCheck()) property.floatValue = value;
         }
 
+        private void DrawMovement()
+        {
+            if (_mistWorking == null) { EditorGUILayout.HelpBox("Choose Hub or Mortfall to edit background movement.", MessageType.Info); return; }
+            _mistSettings.Update();
+            EditorGUILayout.LabelField("Background depth", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Higher values make scenery look farther away. Ground and buildings stay fixed.", EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.PropertyField(_mistSettings.FindProperty("layeredParallax"), new GUIContent("Background movement"));
+            DrawPercent(_mistSettings.FindProperty("parallaxFar"), "Distant scenery (%)", 0, 100);
+            DrawPercent(_mistSettings.FindProperty("parallaxMiddle"), "Middle scenery (%)", 0, 100);
+            DrawPercent(_mistSettings.FindProperty("parallaxNear"), "Nearby scenery (%)", 0, 100);
+            DrawPercent(_mistSettings.FindProperty("parallaxVertical"), "Vertical movement (%)", 0, 100);
+            if (_environment == PreviewEnvironment.Mortfall)
+            {
+                var columns = _mistSettings.FindProperty("parallaxSilhouettes");
+                EditorGUI.BeginChangeCheck();
+                bool visible = EditorGUILayout.Toggle("Distant columns", columns.floatValue > 0f);
+                if (EditorGUI.EndChangeCheck()) columns.floatValue = visible ? 1f : 0f;
+            }
+            if (_mistSettings.ApplyModifiedProperties()) ApplyPreview(true);
+            if (_stage != null)
+            {
+                EditorGUILayout.Space(12);
+                EditorGUILayout.LabelField("Try it in the preview", EditorStyles.boldLabel);
+                _animatePreview = EditorGUILayout.Toggle("Move preview", _animatePreview);
+                using (new EditorGUI.DisabledScope(_animatePreview))
+                    _previewTravel = EditorGUILayout.Slider("Look left / right", _previewTravel, -15f, 15f);
+                EditorGUILayout.LabelField("Preview movement does not move your character.", EditorStyles.wordWrappedMiniLabel);
+            }
+        }
+
         private void DrawPreview(bool expand)
         {
             EditorGUILayout.LabelField(_showSaved ? "Saved appearance" : "Live preview", EditorStyles.boldLabel);
@@ -361,7 +395,7 @@ namespace RelicKeeper.Editor.Visuals
             }
             EditorGUILayout.LabelField(_environment == PreviewEnvironment.CurrentGame
                 ? "Changes are previewed here. Press Save to keep them."
-                : "Adjust Colors or Mist on the left. Press Save to keep both.", EditorStyles.wordWrappedMiniLabel);
+                : "Adjust the appearance on the left. Press Save to keep all changes.", EditorStyles.wordWrappedMiniLabel);
         }
 
         private void ApplyPreview(bool force = false)

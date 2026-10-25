@@ -201,6 +201,7 @@ namespace RelicKeeper.Editor.Hub
                     colors.Configure(near ? Scripts.Visuals.Atmosphere.WorldColorRole.Environment : Scripts.Visuals.Atmosphere.WorldColorRole.Background);
                 }
                 ConfigureFog(imported);
+                Scripts.Visuals.Atmosphere.LayeredParallaxGroup.ConfigureHub(environment);
                 HubBuildingWindBuilder.Configure(imported);
                 // Replace the baked mannequin silhouette with the live training
                 // actor. A SpriteMask preserves the supplied artwork/source pixels.

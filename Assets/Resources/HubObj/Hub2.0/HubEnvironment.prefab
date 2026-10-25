@@ -1353,6 +1353,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2748637662627765064}
+  - component: {fileID: 8034291207038608600}
   m_Layer: 0
   m_Name: HubEnvironment
   m_TagString: Untagged
@@ -1383,6 +1384,41 @@ Transform:
   - {fileID: 377781017087263806}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8034291207038608600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7389902464036761967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35136fb5f4897954da0f0808a9432a58, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LayeredParallaxGroup
+  _layers:
+  - renderer: {fileID: 4595342658314210553}
+    depth: 3
+    silhouette: 0
+  - renderer: {fileID: 5556790219537739987}
+    depth: 3
+    silhouette: 0
+  - renderer: {fileID: 6679342597808417994}
+    depth: 3
+    silhouette: 0
+  - renderer: {fileID: 8096969471465859187}
+    depth: 2
+    silhouette: 0
+  - renderer: {fileID: 686069414368150247}
+    depth: 1
+    silhouette: 0
+  - renderer: {fileID: 3887887946483372013}
+    depth: 1
+    silhouette: 0
+  - renderer: {fileID: 3949746053011167760}
+    depth: 0
+    silhouette: 0
+  _visibilitySource: {fileID: 0}
 --- !u!1 &7487762837836451048
 GameObject:
   m_ObjectHideFlags: 0

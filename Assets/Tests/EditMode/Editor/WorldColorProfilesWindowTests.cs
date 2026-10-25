@@ -65,6 +65,7 @@ namespace RelicKeeper.Tests.EditMode
                 var colorDraft = (WorldColorProfileSO)typeof(WorldColorProfilesWindow).GetField("_working", Private).GetValue(window);
                 var mistDraft = (AtmosphereProfileSO)typeof(WorldColorProfilesWindow).GetField("_mistWorking", Private).GetValue(window);
                 colorDraft.background.exposure = -0.5f; mistDraft.backgroundMist = 0.42f; mistDraft.limitDepthMistHeight = false;
+                mistDraft.layeredParallax = true; mistDraft.parallaxFar = 0.73f;
                 Assert.That(colors.background.exposure, Is.Zero);
                 Assert.That(mist.backgroundMist, Is.EqualTo(0.17f));
                 window.SaveAppearance();
@@ -72,6 +73,8 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(mist.backgroundMist, Is.EqualTo(0.42f));
                 Assert.That(mist.darkness, Is.EqualTo(0.37f), "Unshown screen-fog fields must be preserved.");
                 Assert.That(mist.limitDepthMistHeight, Is.False, "Save must retain full-view coverage.");
+                Assert.That(mist.layeredParallax, Is.True);
+                Assert.That(mist.parallaxFar, Is.EqualTo(0.73f), "One Save must include background movement settings.");
                 StringAssert.Contains("backgroundMist: 0.42", System.IO.File.ReadAllText(mistPath));
                 Assert.That(colors.hideFlags, Is.EqualTo(HideFlags.None));
                 Assert.That(mist.hideFlags, Is.EqualTo(HideFlags.None));

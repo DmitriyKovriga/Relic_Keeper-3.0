@@ -2,6 +2,17 @@ using UnityEngine;
 
 public class ParallaxEffect : MonoBehaviour
 {
+    // Shared by the legacy backdrop and layered scenery. Absolute displacement avoids drift.
+    public static Vector3 EvaluatePosition(Vector3 artwork, Vector3 reference, Vector3 camera, float x, float y, float ppu = 0)
+    {
+        Vector3 offset = new Vector3((camera.x - reference.x) * x, (camera.y - reference.y) * y, 0);
+        if (ppu > 0)
+        {
+            offset.x = Mathf.Round(offset.x * ppu) / ppu;
+            offset.y = Mathf.Round(offset.y * ppu) / ppu;
+        }
+        return artwork + offset;
+    }
     [Header("Settings")]
     [Tooltip("1 = двигается вместе с камерой (далеко), 0 = стоит на месте (близко)")]
     [Range(0f, 1f)] public float ParallaxStrengthX = 0.9f;

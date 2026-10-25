@@ -93,7 +93,8 @@ with no pink rendering. No dungeon run or player progress was changed. These
 checks do not constitute a standalone player build or target-device GPU profile;
 the additional transparent background draw still needs device measurement.
 
-Next in the base integration package is V09: multiple background parallax speeds.
+V09 now adds [layered background movement](Layered_Parallax.md), edited in the
+same window through **Movement** and saved with the same button.
 
 Coverage correction (2026-10-25): the height band is now opt-in. Previously, its
 entrance-relative lower edge removed the mist on lower dungeon floors and faded
