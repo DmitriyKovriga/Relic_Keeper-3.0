@@ -1,0 +1,685 @@
+fileFormatVersion: 2
+guid: 44afce544ffbb884dbe0bf272f17ae43
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6839087848303703169
+    second: ChimneySmoke_0
+  - first:
+      213: 7142875464009652364
+    second: ChimneySmoke_1
+  - first:
+      213: 8975423853151386686
+    second: ChimneySmoke_2
+  - first:
+      213: -4357008443163510137
+    second: ChimneySmoke_3
+  - first:
+      213: 5387128588000006397
+    second: ChimneySmoke_4
+  - first:
+      213: -1200247694925193046
+    second: ChimneySmoke_5
+  - first:
+      213: -5371359067180733978
+    second: ChimneySmoke_6
+  - first:
+      213: 3269391979071619347
+    second: ChimneySmoke_7
+  - first:
+      213: -6047457060749190161
+    second: ChimneySmoke_8
+  - first:
+      213: -1531649785722866865
+    second: ChimneySmoke_9
+  - first:
+      213: 4128938280446867804
+    second: ChimneySmoke_10
+  - first:
+      213: -4043621529564252381
+    second: ChimneySmoke_11
+  - first:
+      213: -2708248049423986108
+    second: ChimneySmoke_12
+  - first:
+      213: -3869487002887127704
+    second: ChimneySmoke_13
+  - first:
+      213: -6889097587018247667
+    second: ChimneySmoke_14
+  - first:
+      213: -2617301186623260263
+    second: ChimneySmoke_15
+  - first:
+      213: -3544448558207544845
+    second: ChimneySmoke_16
+  - first:
+      213: 4260992566405046248
+    second: ChimneySmoke_17
+  - first:
+      213: -599867738478702773
+    second: ChimneySmoke_18
+  - first:
+      213: 1335200824854685564
+    second: ChimneySmoke_19
+  - first:
+      213: 783554275165418877
+    second: ChimneySmoke_20
+  - first:
+      213: 5527707707144379315
+    second: ChimneySmoke_21
+  - first:
+      213: 8685774505951159323
+    second: ChimneySmoke_22
+  - first:
+      213: -8498093906705301043
+    second: ChimneySmoke_23
+  - first:
+      213: -1379463848245694288
+    second: ChimneySmoke_24
+  - first:
+      213: 8479205094338255636
+    second: ChimneySmoke_25
+  - first:
+      213: -6667341983091622532
+    second: ChimneySmoke_26
+  - first:
+      213: -8590203301666527310
+    second: ChimneySmoke_27
+  - first:
+      213: -7214799308781979660
+    second: ChimneySmoke_28
+  - first:
+      213: 7082722797562203276
+    second: ChimneySmoke_29
+  - first:
+      213: 5013039782461951494
+    second: ChimneySmoke_30
+  - first:
+      213: 1486903196794716210
+    second: ChimneySmoke_00
+  - first:
+      213: 3918631204901969868
+    second: ChimneySmoke_01
+  - first:
+      213: 7875995820835877803
+    second: ChimneySmoke_02
+  - first:
+      213: 2338323644372539710
+    second: ChimneySmoke_03
+  - first:
+      213: 6543620870170219210
+    second: ChimneySmoke_04
+  - first:
+      213: -2580360991502758493
+    second: ChimneySmoke_05
+  - first:
+      213: -647443628029553458
+    second: ChimneySmoke_06
+  - first:
+      213: -8583074212635208723
+    second: ChimneySmoke_07
+  - first:
+      213: 2450603946363695333
+    second: ChimneySmoke_08
+  - first:
+      213: 7648673160674140549
+    second: ChimneySmoke_09
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 24
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: ChimneySmoke_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 144
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 230875c549a82a410800000000000000
+      internalID: 1486903196794716210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_01
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 144
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ccf51fda156c16630800000000000000
+      internalID: 3918631204901969868
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_02
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 144
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba3326168782d4d60800000000000000
+      internalID: 7875995820835877803
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_03
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 144
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e39d8b037f4637020800000000000000
+      internalID: 2338323644372539710
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_04
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 96
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac21457038c9fca50800000000000000
+      internalID: 6543620870170219210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_05
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 96
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ad043d7957b03cd0800000000000000
+      internalID: -2580360991502758493
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_06
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 96
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec4553b5371d307f0800000000000000
+      internalID: -647443628029553458
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_07
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 96
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de3101b8a7bc2e880800000000000000
+      internalID: -8583074212635208723
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_08
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 48
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e0bd2c2e4b420220800000000000000
+      internalID: 2450603946363695333
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_09
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 48
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 581eb0917bb852a60800000000000000
+      internalID: 7648673160674140549
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_10
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 48
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c593c817d7fec4930800000000000000
+      internalID: 4128938280446867804
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_11
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 48
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 327733494ab22e7c0800000000000000
+      internalID: -4043621529564252381
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 442507a7fbe5a6ad0800000000000000
+      internalID: -2708248049423986108
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_13
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 0
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86dfbe18212dc4ac0800000000000000
+      internalID: -3869487002887127704
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_14
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d02d6ce9e320560a0800000000000000
+      internalID: -6889097587018247667
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ChimneySmoke_15
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 32
+        height: 48
+      alignment: 9
+      pivot: {x: 0.375, y: 0.10416669}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 999bc15107a7dabd0800000000000000
+      internalID: -2617301186623260263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      ChimneySmoke_0: -6839087848303703169
+      ChimneySmoke_00: 1486903196794716210
+      ChimneySmoke_01: 3918631204901969868
+      ChimneySmoke_02: 7875995820835877803
+      ChimneySmoke_03: 2338323644372539710
+      ChimneySmoke_04: 6543620870170219210
+      ChimneySmoke_05: -2580360991502758493
+      ChimneySmoke_06: -647443628029553458
+      ChimneySmoke_07: -8583074212635208723
+      ChimneySmoke_08: 2450603946363695333
+      ChimneySmoke_09: 7648673160674140549
+      ChimneySmoke_1: 7142875464009652364
+      ChimneySmoke_10: 4128938280446867804
+      ChimneySmoke_11: -4043621529564252381
+      ChimneySmoke_12: -2708248049423986108
+      ChimneySmoke_13: -3869487002887127704
+      ChimneySmoke_14: -6889097587018247667
+      ChimneySmoke_15: -2617301186623260263
+      ChimneySmoke_16: -3544448558207544845
+      ChimneySmoke_17: 4260992566405046248
+      ChimneySmoke_18: -599867738478702773
+      ChimneySmoke_19: 1335200824854685564
+      ChimneySmoke_2: 8975423853151386686
+      ChimneySmoke_20: 783554275165418877
+      ChimneySmoke_21: 5527707707144379315
+      ChimneySmoke_22: 8685774505951159323
+      ChimneySmoke_23: -8498093906705301043
+      ChimneySmoke_24: -1379463848245694288
+      ChimneySmoke_25: 8479205094338255636
+      ChimneySmoke_26: -6667341983091622532
+      ChimneySmoke_27: -8590203301666527310
+      ChimneySmoke_28: -7214799308781979660
+      ChimneySmoke_29: 7082722797562203276
+      ChimneySmoke_3: -4357008443163510137
+      ChimneySmoke_30: 5013039782461951494
+      ChimneySmoke_4: 5387128588000006397
+      ChimneySmoke_5: -1200247694925193046
+      ChimneySmoke_6: -5371359067180733978
+      ChimneySmoke_7: 3269391979071619347
+      ChimneySmoke_8: -6047457060749190161
+      ChimneySmoke_9: -1531649785722866865
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

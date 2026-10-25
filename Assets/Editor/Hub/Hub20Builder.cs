@@ -237,6 +237,7 @@ namespace RelicKeeper.Editor.Hub
                 spawn.transform.localPosition = PixelToWorld(325f, GroundPixelY) + Vector3.up * 1.5f;
                 RelicKeeper.Editor.VFX.EnvironmentContactShadingBuilder.ConfigureHub(environment);
                 RelicKeeper.Editor.Visuals.LocalLightingSetup.ConfigureHub(environment);
+                RelicKeeper.Editor.Visuals.EnvironmentAnimationSetup.ConfigureHub(environment);
                 PrefabUtility.SaveAsPrefabAsset(environment, EnvironmentPath);
                 var text = new StringBuilder();
                 WriteTree(environment.transform, text, 0);

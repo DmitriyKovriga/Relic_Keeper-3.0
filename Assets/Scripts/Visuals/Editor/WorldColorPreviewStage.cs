@@ -30,6 +30,7 @@ namespace RelicKeeper.Editor.Visuals
         private bool _mortfall;
         private Vector3 _viewCenter;
         private readonly List<LocalLight2DSource> _localLights = new List<LocalLight2DSource>();
+        private readonly List<EnvironmentAnimation> _environmentAnimations = new List<EnvironmentAnimation>();
         public Camera Camera { get; private set; }
         public AtmosphereController Controller { get; private set; }
         public WorldColorProfileSO AssignedProfile { get; private set; }
@@ -196,6 +197,11 @@ namespace RelicKeeper.Editor.Visuals
                 if (changed) renderer.sharedMaterials = materials;
             }
             for (int i = 0; i < source.childCount; i++) CopyVisuals(source.GetChild(i), copy.transform);
+            if (source.TryGetComponent<EnvironmentAnimation>(out var animation))
+            {
+                var target = copy.AddComponent<EnvironmentAnimation>();
+                EditorUtility.CopySerialized(animation, target); _environmentAnimations.Add(target);
+            }
             copy.SetActive(source.gameObject.activeSelf);
             return copy;
         }
@@ -293,6 +299,16 @@ namespace RelicKeeper.Editor.Visuals
             _viewCenter = new Vector3(_localLights[0].transform.position.x,
                 _localLights[0].transform.position.y + (_mortfall ? 0.5f : 2.5f), -10f);
             if (!_mortfall) _actors.transform.localPosition = Vector3.right * (_localLights[0].transform.position.x - _spawn.x - 0.75f);
+            SetCameraOffset(0);
+        }
+
+        public void FocusAmbient()
+        {
+            if (_environmentAnimations.Count == 0) return;
+            var source = _environmentAnimations[0];
+            _viewCenter = new Vector3(source.transform.position.x, _mortfall
+                ? source.transform.position.y - source.FallDistance * 0.5f : 4.5f, -10f);
+            if (!_mortfall) _actors.transform.localPosition = Vector3.right * (source.transform.position.x - _spawn.x + 3f);
             SetCameraOffset(0);
         }
 

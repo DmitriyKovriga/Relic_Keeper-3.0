@@ -1,0 +1,35 @@
+{
+  "provider": "PixelLab MCP vfx_workbench",
+  "direction": "Restrained small environmental animations for a 24 PPU sidescroller, 480x270 reference. No combat flash, glow, black outlines, or fullscreen coverage.",
+  "smoke": {
+    "effect_id": "6eb5a40d-61e1-4cf2-94d5-f284935559d8",
+    "image_id": "9b870b54-2bfe-4381-b1f5-288fb2edbe97",
+    "step_id": "fd6a9b71-900b-48d3-9250-689a857efa67",
+    "notes": "Small narrow grey-green plume, overlapping rounded billows, clear gaps and gradual thinning. A 1-3px wisp connects it to the chimney mouth. Preserve sharp pixels; Unity controls opacity separately.",
+    "recipe": {
+      "name": "Relic Keeper chimney smoke", "canvas": {"w":32,"h":48}, "frames":16, "fps":8, "loop":true,
+      "origin":[12,43], "ramps":{"main":["#374648","#536363","#75827d","#929e91"]},
+      "outline":{"mode":"none"}, "tones":4, "detail":0.25, "dither":0, "seed":774,
+      "layers":[
+        {"id":"smoke","type":"puffs","mode":"column","x":12,"y":43,"radius":4.5,"count":5,"height":28,"spread":0.35,"direction":-82,"lump":0.65,"billow":0.55,"highlight":0.3,"thin":0.5,"outline":false},
+        {"id":"root_wisp","type":"shape","x":12,"y":43,"points":[[0,2],[-1,-1],[-1,-6],[1,-10],[2,-6],[1,-1]],"smooth":0.15,"fill":"smoke","grain":2,"erosion":0.2,"billow":0.4,"flow":[0,-8],"bevel":1,"outline":false,"intensity":0.5}
+      ]
+    }
+  },
+  "drip": {
+    "effect_id": "b8cdfca7-322a-4753-ab2f-e36d54a928d4",
+    "image_id": "bd3fe409-1bd3-4323-935b-c41215755072",
+    "step_id": "a09366a8-5158-42dd-8635-9a9da0a8e6f5",
+    "notes": "First four frames form/stretch a tiny water drop; next three are a small muted impact ripple with 1px droplets; final frame is clear. Runtime moves the sprite through a validated gap and keeps long quiet periods between drops.",
+    "recipe": {
+      "name":"Relic Keeper cave water drip", "canvas":{"w":16,"h":16}, "frames":8, "fps":12, "loop":false,
+      "origin":[8,8], "ramps":{"main":["#34484c","#5b7778","#8ca4a1","#c0cdbb"]},
+      "outline":{"mode":"none"}, "tones":4, "detail":0, "dither":0, "seed":518,
+      "layers":[
+        {"id":"drop","type":"shape","x":8,"y":8,"points":[[0,-3],[-1,-1],[-2,1],[-1,3],[1,3],[2,1],[1,-1]],"fill":"linear","fill_angle":-90,"outline":false,"life":[0,0.45],"scale":{"keys":[[0,0.35],[0.4,0.7],[1,1]]}},
+        {"id":"impact","type":"ring","x":8,"y":12,"radius":{"from":1,"to":3.5},"width":1,"soft":0,"squash":0.4,"outline":false,"life":[0.55,0.9],"intensity":{"from":0.65,"to":0.3},"dissolve":0},
+        {"id":"splash","type":"particles","x":8,"y":12,"mode":"burst","count":2,"radius":0,"speed":4,"direction":-90,"spread":100,"gravity":7,"size":[1,1],"shape":"dot","life":[0.55,0.9],"fade_out":0.65,"outline":false}
+      ]
+    }
+  }
+}

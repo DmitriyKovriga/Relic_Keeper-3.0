@@ -13,6 +13,7 @@ Open **Tools > Relic Keeper > Visuals > World Appearance**:
 2. Choose **Colors** to adjust Characters, Environment, and Background,
    **Mist** for background haze, **Movement** for layered background motion,
    or **Lighting** for the warmth, strength and reach of local light sources.
+   **Details** controls the chimney smoke and occasional cave water drops.
 3. Press **Save** to keep all appearance settings for that location.
 
 The Lighting tab frames the hub forge or the selected room's first torch.

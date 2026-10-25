@@ -53,6 +53,11 @@ namespace Scripts.Visuals.Atmosphere
         [Range(0.5f, 2f)] public float localLightRadius = 1f;
         public Color localLightTint = new Color(1f, 0.6f, 0.24f, 1f);
 
+        [Header("Small environmental animations")]
+        public bool ambientAnimations = true;
+        [Range(0f, 1f)] public float chimneySmokeOpacity = 0.55f;
+        [Range(0f, 2f)] public float dripFrequency = 1f;
+
         [Header("Player lantern / airborne dust")]
         [Range(0f, 1f)] public float lantern;
         public Color lanternTint = new Color(1f, 0.6f, 0.24f, 1f);
@@ -89,6 +94,8 @@ namespace Scripts.Visuals.Atmosphere
             backgroundMist = Mathf.Clamp01(backgroundMist);
             wispStrength = Mathf.Clamp01(wispStrength);
             shafts = Mathf.Clamp01(shafts);
+            chimneySmokeOpacity = Mathf.Clamp01(chimneySmokeOpacity);
+            dripFrequency = Mathf.Clamp(dripFrequency, 0f, 2f);
             depthMistHeight = Mathf.Max(0.1f, depthMistHeight);
             depthMistFeather = Mathf.Max(0.01f, depthMistFeather);
             lantern = Mathf.Clamp01(lantern);

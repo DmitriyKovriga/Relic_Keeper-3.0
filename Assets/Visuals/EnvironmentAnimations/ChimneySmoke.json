@@ -1,0 +1,443 @@
+{
+ "frames": [
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 1.png",
+   "frame": {
+    "x": 32,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 2.png",
+   "frame": {
+    "x": 64,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 3.png",
+   "frame": {
+    "x": 96,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 4.png",
+   "frame": {
+    "x": 0,
+    "y": 48,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 5.png",
+   "frame": {
+    "x": 32,
+    "y": 48,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 6.png",
+   "frame": {
+    "x": 64,
+    "y": 48,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 7.png",
+   "frame": {
+    "x": 96,
+    "y": 48,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 8.png",
+   "frame": {
+    "x": 0,
+    "y": 96,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 9.png",
+   "frame": {
+    "x": 32,
+    "y": 96,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 10.png",
+   "frame": {
+    "x": 64,
+    "y": 96,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 11.png",
+   "frame": {
+    "x": 96,
+    "y": 96,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 12.png",
+   "frame": {
+    "x": 0,
+    "y": 144,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 13.png",
+   "frame": {
+    "x": 32,
+    "y": 144,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 14.png",
+   "frame": {
+    "x": 64,
+    "y": 144,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  },
+  {
+   "filename": "relic-keeper-tavern-chimney-smoke 15.png",
+   "frame": {
+    "x": 96,
+    "y": 144,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   },
+   "pivot": {
+    "x": 0.375,
+    "y": 0.8958333333333334
+   },
+   "duration": 125
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "relic-keeper-tavern-chimney-smoke.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 128,
+   "h": 192
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 12,
+   "y": 43
+  },
+  "frameTags": [
+   {
+    "name": "relic-keeper-tavern-chimney-smoke",
+    "from": 0,
+    "to": 15,
+    "direction": "forward"
+   }
+  ]
+ }
+}

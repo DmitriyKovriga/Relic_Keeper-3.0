@@ -128,11 +128,12 @@ namespace RelicKeeper.Editor.Visuals
             if (wide) { EditorGUILayout.BeginHorizontal(); EditorGUILayout.BeginVertical(GUILayout.Width(390)); }
             else DrawPreview(false);
             int previousTab = _appearanceTab;
-            _appearanceTab = GUILayout.Toolbar(_appearanceTab, new[] { "Colors", "Mist", "Movement", "Lighting" }, GUILayout.Height(27));
+            _appearanceTab = GUILayout.Toolbar(_appearanceTab, new[] { "Colors", "Mist", "Movement", "Lighting", "Details" }, GUILayout.Height(27));
             if (_stage != null && previousTab != _appearanceTab)
             {
                 _stage.SetView(_overview, _showActors);
                 if (_appearanceTab == 3) _stage.FocusLighting();
+                if (_appearanceTab == 4) _stage.FocusAmbient();
             }
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
             if (_showSaved) EditorGUILayout.HelpBox("Showing the saved version. Turn off Compare with saved to see your edits.", MessageType.Info);
@@ -156,7 +157,8 @@ namespace RelicKeeper.Editor.Visuals
             }
             else if (_appearanceTab == 1) DrawMist();
             else if (_appearanceTab == 2) DrawMovement();
-            else DrawLighting();
+            else if (_appearanceTab == 3) DrawLighting();
+            else DrawAmbient();
             EditorGUILayout.EndScrollView();
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -260,6 +262,7 @@ namespace RelicKeeper.Editor.Visuals
                 _rooms.Length > 0 ? _rooms[_roomIndex] : null, _controller);
             _stage.SetView(_overview, _showActors);
             if (_appearanceTab == 3) _stage.FocusLighting();
+            if (_appearanceTab == 4) _stage.FocusAmbient();
         }
 
         internal static WorldColorProfileSO CreateEditablePreview(WorldColorProfileSO source)
@@ -374,6 +377,20 @@ namespace RelicKeeper.Editor.Visuals
                     _previewTravel = EditorGUILayout.Slider("Look left / right", _previewTravel, -15f, 15f);
                 EditorGUILayout.LabelField("Preview movement does not move your character.", EditorStyles.wordWrappedMiniLabel);
             }
+        }
+
+        private void DrawAmbient()
+        {
+            if (_mistWorking == null) { EditorGUILayout.HelpBox("Choose Hub or Mortfall to edit small animations.", MessageType.Info); return; }
+            _mistSettings.Update();
+            EditorGUILayout.LabelField("Small environmental animations", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(_mistSettings.FindProperty("ambientAnimations"), new GUIContent("Small animations"));
+            DrawPercent(_mistSettings.FindProperty("chimneySmokeOpacity"), "Chimney smoke (%)", 0, 100);
+            DrawPercent(_mistSettings.FindProperty("dripFrequency"), "Water drops (%)", 0, 200);
+            EditorGUILayout.LabelField(_environment == PreviewEnvironment.Mortfall
+                ? "Room 001 has one dripping ceiling. Watch for a drop every few seconds. 0% turns drops off."
+                : "The chimney smoke stays attached to the tavern. 0% hides it.", EditorStyles.wordWrappedMiniLabel);
+            if (_mistSettings.ApplyModifiedProperties()) ApplyPreview(true);
         }
 
         private void DrawLighting()
