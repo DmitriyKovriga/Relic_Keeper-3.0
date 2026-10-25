@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Scripts.Dungeon;
 using Scripts.Enemies;
+using Scripts.Visuals;
 using Scripts.Visuals.Atmosphere;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -32,6 +33,14 @@ namespace RelicKeeper.Editor.Visuals
         private readonly List<LocalLight2DSource> _localLights = new List<LocalLight2DSource>();
         private readonly List<EnvironmentAnimation> _environmentAnimations = new List<EnvironmentAnimation>();
         private readonly List<AmbientParticleSource> _particles = new List<AmbientParticleSource>();
+        private GroundSurfaceProfileSO _groundPreviewProfile;
+        private SpriteRenderer _groundPreviewPlayer;
+        private GroundingSpriteSheetVfx _groundPreviewEffect;
+        private Sprite _groundBaseSprite;
+        private Sprite[] _groundRunFrames = Array.Empty<Sprite>();
+        private Vector3 _groundBasePosition;
+        private float _groundFloor, _groundBodyWidth = 0.65f;
+        private bool _groundPreviewActive;
         public Camera Camera { get; private set; }
         public AtmosphereController Controller { get; private set; }
         public WorldColorProfileSO AssignedProfile { get; private set; }
@@ -68,6 +77,7 @@ namespace RelicKeeper.Editor.Visuals
             GameObject prefab = mortfall ? dungeon?.LoadRoomPrefab(roomPath) :
                 AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Resources/HubObj/Hub2.0/HubEnvironment.prefab");
             if (prefab == null) throw new InvalidOperationException("The selected preview artwork could not be loaded.");
+            _groundPreviewProfile = prefab.GetComponentInChildren<GroundSurfaceVisuals>(true)?.Profile;
             GameObject artwork = CopyVisuals(prefab.transform, null);
             if (!mortfall) LayeredParallaxGroup.ConfigureHub(artwork);
             _spawn = mortfall ? prefab.GetComponent<RoomController>().PlayerSpawnPosition : new Vector3(7f, 0.8f, 0f);
@@ -88,25 +98,41 @@ namespace RelicKeeper.Editor.Visuals
             }
             _actors = NewObject("Static character samples");
             var player = Object.FindObjectsByType<global::PlayerStats>(FindObjectsSortMode.None).FirstOrDefault();
+            var sampleData = player != null ? player.CurrentCharacterData ?? new SerializedObject(player).FindProperty("_defaultCharacterData").objectReferenceValue as CharacterDataSO : null;
+            if (sampleData == null) sampleData = Resources.Load<CharacterDataSO>("Heroes/RogueResources/Rogue");
             SpriteRenderer body = player != null ? player.GetComponentsInChildren<SpriteRenderer>(true)
                 .FirstOrDefault(x => x.sprite != null && (x.name == "MovementSprite" || x.name == "Player")) : null;
             if (body != null) AddActor("Player sample", body.sprite, body.transform.lossyScale, _spawn.x, body.flipX);
-            else if (player != null)
+            else
             {
                 // Before Play, the movement animator may not have assigned a
                 // sprite yet. Keep the lighting preview's character visible.
-                var data = player.CurrentCharacterData ?? new SerializedObject(player).FindProperty("_defaultCharacterData").objectReferenceValue as CharacterDataSO;
+                var data = sampleData;
                 var animation = data != null ? data.RunAnimation : null;
                 Sprite pose = animation?.Frames?.FirstOrDefault();
                 if (pose == null && !string.IsNullOrWhiteSpace(animation?.SpriteSheetResourcesPath))
                     pose = Resources.LoadAll<Sprite>(animation.SpriteSheetResourcesPath).OrderBy(x => x.name, StringComparer.Ordinal).FirstOrDefault();
                 if (pose == null && data != null) pose = data.Portrait;
-                if (pose != null) AddActor("Player sample", pose, player.transform.lossyScale, _spawn.x, false);
+                if (pose != null) AddActor("Player sample", pose, player != null ? player.transform.lossyScale : Vector3.one, _spawn.x, false);
             }
             if (mortfall)
             {
                 AddMonster("Enemy/SO_Zombie", _spawn.x + 1.25f);
                 AddMonster("Enemy/SO_Mold", _spawn.x + 8f);
+            }
+            _groundPreviewPlayer = _actors.GetComponentsInChildren<SpriteRenderer>().FirstOrDefault(x => x.name == "Player sample");
+            if (_groundPreviewPlayer != null)
+            {
+                _groundBaseSprite = _groundPreviewPlayer.sprite; _groundBasePosition = _groundPreviewPlayer.transform.localPosition;
+                _groundFloor = mortfall ? _groundPreviewPlayer.bounds.min.y : 0;
+                var data = sampleData;
+                if (data?.RunAnimation != null)
+                {
+                    _groundRunFrames = data.RunAnimation.Frames;
+                    if ((_groundRunFrames == null || _groundRunFrames.Length == 0) && !string.IsNullOrWhiteSpace(data.RunAnimation.SpriteSheetResourcesPath))
+                        _groundRunFrames = Resources.LoadAll<Sprite>(data.RunAnimation.SpriteSheetResourcesPath).OrderBy(x => x.name, StringComparer.Ordinal).ToArray();
+                }
+                if (player != null && player.TryGetComponent<Collider2D>(out var collider)) _groundBodyWidth = Mathf.Max(0.3f, collider.bounds.size.x);
             }
             Controller = Camera.gameObject.AddComponent<AtmosphereController>();
             AssignedProfile = mortfall ? dungeon.ColorProfile : ReadProfile(live, "_hubColorProfile");
@@ -308,12 +334,13 @@ namespace RelicKeeper.Editor.Visuals
             SetCameraOffset(0);
         }
 
-        public void FocusAmbient()
+        public int AmbientSourceCount => _environmentAnimations.Count;
+        public void FocusAmbient(int sourceIndex = 0)
         {
             if (_environmentAnimations.Count == 0) return;
-            var source = _environmentAnimations[0];
+            var source = _environmentAnimations[Mathf.Clamp(sourceIndex, 0, _environmentAnimations.Count - 1)];
             _viewCenter = new Vector3(source.transform.position.x, _mortfall
-                ? source.transform.position.y - source.FallDistance * 0.5f : 4.5f, -10f);
+                ? source.transform.position.y - source.FallDistance + 3.5f : 4.5f, -10f);
             if (!_mortfall) _actors.transform.localPosition = Vector3.right * (source.transform.position.x - _spawn.x + 3f);
             SetCameraOffset(0);
         }
@@ -325,6 +352,67 @@ namespace RelicKeeper.Editor.Visuals
             _viewCenter = new Vector3(source.transform.position.x, _mortfall ? source.transform.position.y - 0.5f : 3.5f, -10);
             if (!_mortfall) _actors.transform.localPosition = Vector3.right * (source.transform.position.x - _spawn.x + 1.5f);
             SetCameraOffset(0);
+        }
+
+        public void FocusGroundMovement()
+        {
+            _actors.transform.localPosition = Vector3.zero;
+            _viewCenter = new Vector3(_spawn.x, _groundFloor + 3.5f, -10);
+            Camera.orthographicSize = 5.625f; SetCameraOffset(0);
+        }
+
+        public void SampleGroundMovement(bool active, float seconds)
+        {
+            if (_groundPreviewEffect != null) _groundPreviewEffect.GetComponent<SpriteRenderer>().enabled = false;
+            if (!active || _groundPreviewPlayer == null || _groundPreviewProfile == null)
+            {
+                if (_groundPreviewActive && _groundPreviewPlayer != null)
+                { _groundPreviewPlayer.sprite = _groundBaseSprite; _groundPreviewPlayer.transform.localPosition = _groundBasePosition; }
+                _groundPreviewActive = false; return;
+            }
+            _groundPreviewActive = true;
+            var profile = _groundPreviewProfile; var appearance = Controller.ActiveDepthMistProfile;
+            float t = Mathf.Repeat(seconds, 3.6f);
+            bool run = t < 1.6f, hop = t >= 1.6f && t < 2.4f;
+            float offset = run ? Mathf.Lerp(-0.5f, 0.5f, t / 1.6f) : hop ? Mathf.Lerp(0.5f, -0.5f, (t - 1.6f) / 0.8f) : -0.5f;
+            float height = hop ? Mathf.Sin((t - 1.6f) / 0.8f * Mathf.PI) * 0.7f : 0;
+            _groundPreviewPlayer.sprite = run && _groundRunFrames != null && _groundRunFrames.Length > 0
+                ? _groundRunFrames[Mathf.FloorToInt(t * 10) % _groundRunFrames.Length] : _groundBaseSprite;
+            _groundPreviewPlayer.transform.localPosition = _groundBasePosition + Vector3.right * offset;
+            _groundPreviewPlayer.transform.position += Vector3.up * (_groundFloor + height - _groundPreviewPlayer.bounds.min.y);
+            if (appearance != null && (!appearance.surfaceMovementEffects || appearance.surfaceEffectOpacity <= 0)) return;
+            float density = appearance != null ? appearance.surfaceRunDust : 1;
+            float age, width, opacity, duration;
+            Sprite[] frames;
+            if (run && density > 0)
+            {
+                float interval = Mathf.Max(profile.runInterval, profile.runStride / (4f * density));
+                age = Mathf.Repeat(t, interval); duration = profile.stepDuration; width = profile.stepWidth;
+                opacity = profile.stepOpacity; frames = profile.stepFrames;
+                offset = Mathf.Lerp(-0.5f, 0.5f, (t - age) / 1.6f);
+                offset -= _groundBodyWidth * 0.675f;
+            }
+            else if (t >= 2.4f)
+            {
+                var response = profile.EvaluateLanding(9, false, appearance != null ? appearance.surfaceLandingStrength : 1);
+                if (!response.visible) return;
+                age = t - 2.4f; duration = response.duration; width = response.width;
+                opacity = response.opacity; frames = profile.landingFrames;
+            }
+            else return;
+            if (age > duration || frames == null || frames.Length == 0) return;
+            if (_groundPreviewEffect == null)
+            {
+                _groundPreviewEffect = NewObject("Surface movement sample").AddComponent<GroundingSpriteSheetVfx>();
+                _groundPreviewEffect.enabled = false; // Only the preview clock drives this copy.
+                _groundPreviewEffect.GetComponent<SpriteRenderer>().sharedMaterial = StockMaterial(false);
+                _groundPreviewEffect.gameObject.AddComponent<WorldColorGroup>().Configure(WorldColorRole.Environment);
+            }
+            width = Mathf.Min(profile.maxWorldWidth, width * _groundBodyWidth);
+            _groundPreviewEffect.Initialize(frames, duration, opacity * (appearance != null ? appearance.surfaceEffectOpacity : 1),
+                SortingLayer.NameToID(WorldRenderSorting.Settings.LayerDefault), WorldRenderSorting.ResolveOrder(RenderDepthCategory.Environment, _groundFloor, 6), width, false);
+            _groundPreviewEffect.transform.position = new Vector3(_spawn.x + offset, _groundFloor + frames[0].bounds.size.y * width / frames[0].bounds.size.x * 0.5f + 0.02f);
+            _groundPreviewEffect.Sample(age / duration); _groundPreviewEffect.GetComponent<SpriteRenderer>().enabled = true;
         }
 
         public void Dispose()

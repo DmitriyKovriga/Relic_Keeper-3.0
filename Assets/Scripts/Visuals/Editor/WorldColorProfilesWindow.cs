@@ -14,6 +14,7 @@ namespace RelicKeeper.Editor.Visuals
         [SerializeField] private int _roomIndex;
         [SerializeField] private int _appearanceTab = 1;
         [SerializeField] private int _detailArea;
+        [SerializeField] private int _dripSpot;
         private WorldColorPreviewStage _stage;
         private string[] _rooms, _roomLabels;
         private bool _overview, _showActors = true;
@@ -386,17 +387,25 @@ namespace RelicKeeper.Editor.Visuals
             _mistSettings.Update();
             if (_stage != null)
             {
-                var areas = _environment == PreviewEnvironment.Mortfall ? new[] { "Ceiling drops", "Torch dust" } : new[] { "Chimney smoke", "Forge embers", "Tree leaves" };
+                var areas = _environment == PreviewEnvironment.Mortfall ? new[] { "Ceiling drops", "Torch dust", "Ground movement" } : new[] { "Chimney smoke", "Forge embers", "Tree leaves", "Ground movement" };
                 EditorGUI.BeginChangeCheck();
                 _detailArea = EditorGUILayout.Popup("Preview area", Mathf.Clamp(_detailArea, 0, areas.Length - 1), areas);
                 if (EditorGUI.EndChangeCheck()) { _previewTravel = 0; FocusDetails(); }
+                if (_environment == PreviewEnvironment.Mortfall && _detailArea == 0 && _stage.AmbientSourceCount > 0)
+                {
+                    var spots = new string[_stage.AmbientSourceCount];
+                    for (int i = 0; i < spots.Length; i++) spots[i] = "Spot " + (i + 1);
+                    EditorGUI.BeginChangeCheck();
+                    _dripSpot = EditorGUILayout.Popup("Drop location", Mathf.Clamp(_dripSpot, 0, spots.Length - 1), spots);
+                    if (EditorGUI.EndChangeCheck()) { _previewTravel = 0; FocusDetails(); }
+                }
             }
             EditorGUILayout.LabelField("Small environmental animations", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(_mistSettings.FindProperty("ambientAnimations"), new GUIContent("Small animations"));
             DrawPercent(_mistSettings.FindProperty("chimneySmokeOpacity"), "Chimney smoke (%)", 0, 100);
             DrawPercent(_mistSettings.FindProperty("dripFrequency"), "Water drops (%)", 0, 200);
             EditorGUILayout.LabelField(_environment == PreviewEnvironment.Mortfall
-                ? "Room 001 has one dripping ceiling. Watch for a drop every few seconds. 0% turns drops off."
+                ? "Choose a room and drop location above. Drops can enter the view from higher ceilings. 0% turns drops off."
                 : "The chimney smoke stays attached to the tavern. 0% hides it.", EditorStyles.wordWrappedMiniLabel);
             EditorGUILayout.Space(8);
             EditorGUILayout.LabelField("Air particles", EditorStyles.boldLabel);
@@ -406,13 +415,22 @@ namespace RelicKeeper.Editor.Visuals
             EditorGUILayout.LabelField(_environment == PreviewEnvironment.Mortfall
                 ? "Faint dust near the first torch in Room 001. Turning its light off also hides the dust."
                 : "A few embers rise from the forge. Leaves fall occasionally beneath one tree.", EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.Space(8);
+            EditorGUILayout.LabelField("Movement on ground", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(_mistSettings.FindProperty("surfaceMovementEffects"), new GUIContent("Enable ground effects"));
+            DrawPercent(_mistSettings.FindProperty("surfaceRunDust"), "Running dust (%)", 0, 100);
+            DrawPercent(_mistSettings.FindProperty("surfaceEffectOpacity"), "Visibility (%)", 0, 100);
+            DrawPercent(_mistSettings.FindProperty("surfaceLandingStrength"), "Landing strength (%)", 0, 200);
+            EditorGUILayout.LabelField("Choose Ground movement above to preview a footstep and landing loop. 0% running dust keeps landings enabled.", EditorStyles.wordWrappedMiniLabel);
             if (_mistSettings.ApplyModifiedProperties()) ApplyPreview(true);
         }
 
         private void FocusDetails()
         {
             if (_stage == null) return;
-            if (_detailArea == 0) _stage.FocusAmbient();
+            _detailArea = Mathf.Clamp(_detailArea, 0, _environment == PreviewEnvironment.Mortfall ? 2 : 3);
+            if (_detailArea == (_environment == PreviewEnvironment.Mortfall ? 2 : 3)) { _overview = false; _stage.FocusGroundMovement(); return; }
+            if (_detailArea == 0) _stage.FocusAmbient(_environment == PreviewEnvironment.Mortfall ? _dripSpot : 0);
             else _stage.FocusParticles(_environment == PreviewEnvironment.Mortfall ? AmbientParticleKind.TorchDust :
                 _detailArea == 1 ? AmbientParticleKind.ForgeEmbers : AmbientParticleKind.DriftingLeaves);
         }
@@ -453,6 +471,8 @@ namespace RelicKeeper.Editor.Visuals
                             { filterMode = FilterMode.Point, hideFlags = HideFlags.HideAndDontSave };
                         _previewTexture.Create();
                     }
+                    _stage?.SampleGroundMovement(_appearanceTab == 4 && _detailArea == (_environment == PreviewEnvironment.Mortfall ? 2 : 3),
+                        (float)EditorApplication.timeSinceStartup);
                     RenderPipeline.SubmitRenderRequest(PreviewController.GetComponent<Camera>(), new RenderPipeline.StandardRequest { destination = _previewTexture });
                     float zoom = Mathf.Min(area.width / 480f, area.height / 270f);
                     if (zoom >= 1f) zoom = Mathf.Floor(zoom);

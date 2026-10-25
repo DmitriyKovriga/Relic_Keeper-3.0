@@ -10,6 +10,8 @@ V09 hub/Mortfall layered parallax is implemented in `../Layered_Parallax.md`.
 V06 forge/torch lighting, terrain blocking and flame motion are in `../Local_Lighting.md`.
 The V11 chimney-smoke / Mortfall ceiling-drip slice is in `../Environment_Animations.md`.
 The V12 forge embers / tree leaves / torchlit dust slice is in `../Ambient_Particles.md`.
+V14 is skipped by user decision; the forge-work-area and broken-winch pilot was removed.
+V15 earth/stone movement and landing effects are implemented in `../Surface_Movement.md`.
 This review uses the two supplied screenshots and saved project sources/assets.
 No new live Editor capture, Play Mode comparison or GPU profile was performed.
 Screenshot observations and proposed visual gains are art-direction judgments,
@@ -160,8 +162,8 @@ existing facilities, separate background distance, use a shared palette and
 contact. If layering requires too much art work, test V01/V04/V05 first on the
 existing assets. V02 stays restrained while the material/value relationships settle.
 
-**Balanced destination:** base + V06/V11/V12/V14. Light has visible sources;
-each representative composition has one landmark and a few ambient events.
+**Current chosen direction:** base + V06/V11/V12. Light has visible sources
+and a few ambient events. V14 landmarks are skipped by user decision.
 V06 begins with a material-compatibility pilot, not a global material swap.
 
 **Alternative with lower lighting integration cost:** base + V07/V11/V14.
@@ -359,6 +361,8 @@ this planning-only task.
 - Main tradeoff: Слишком частые мелкие детали конкурируют с врагами и делают сцену пёстрой.
 
 ### V14: Ориентиры и история места
+
+**Skipped by user decision.** The experimental forge props and broken winch were removed; do not reinstall this pilot when continuing the plan.
 
 Один запоминающийся объект на композицию: сломанный механизм, корни вокруг алтаря, огромная запертая дверь. Понятная функция и масштаб мира.
 

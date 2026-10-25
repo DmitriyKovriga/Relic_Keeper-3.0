@@ -15,6 +15,42 @@ namespace RelicKeeper.Tests.EditMode
 {
     public sealed class EnvironmentAnimationTests
     {
+        [UnityTest]
+        public IEnumerator DropFromAnOffscreenCeilingCanLandInsideTheCameraView()
+        {
+            WorldColorGrading.SetBindingsSuspended(false);
+            var scene = EditorSceneManager.NewPreviewScene();
+            var cameraObject = new GameObject("Offscreen drip camera", typeof(Camera)); SceneManager.MoveGameObjectToScene(cameraObject, scene);
+            var camera = cameraObject.GetComponent<Camera>(); camera.scene = scene; camera.enabled = false;
+            camera.orthographic = true; camera.orthographicSize = 2; camera.aspect = 1;
+            camera.transform.position = new Vector3(0, 0, -10); camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = Color.black;
+            var controller = cameraObject.AddComponent<AtmosphereController>();
+            var profile = ScriptableObject.CreateInstance<AtmosphereProfileSO>(); controller.Profile = profile;
+            var source = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Visuals/CaveDrip.prefab"), scene);
+            source.transform.position = Vector3.up * 10;
+            var animation = source.GetComponent<EnvironmentAnimation>();
+            animation.Configure(EnvironmentAnimationKind.WaterDrip, animation.Frames, 0, 10);
+            var target = new RenderTexture(128, 128, 24); target.Create();
+            var image = new Texture2D(128, 128, TextureFormat.RGB24, false); var previous = RenderTexture.active;
+            try
+            {
+                yield return null;
+                float fall = Mathf.Sqrt(20f / 9);
+                animation.PreviewTime = 6.25f + fall * 0.5f;
+                RenderPipeline.SubmitRenderRequest(camera, new RenderPipeline.StandardRequest { destination = target });
+                RenderTexture.active = target; image.ReadPixels(new Rect(0, 0, 128, 128), 0, 0); image.Apply();
+                Assert.That(image.GetPixels32().All(x => x.r == 0 && x.g == 0 && x.b == 0), Is.True);
+                animation.PreviewTime = 6.25f + fall + 0.1f;
+                RenderPipeline.SubmitRenderRequest(camera, new RenderPipeline.StandardRequest { destination = target });
+                image.ReadPixels(new Rect(0, 0, 128, 128), 0, 0); image.Apply();
+                Assert.That(image.GetPixels32().Any(x => x.r > 5), Is.True, "An offscreen emitter must still show the splash on the visible floor.");
+            }
+            finally
+            {
+                RenderTexture.active = previous; EditorSceneManager.ClosePreviewScene(scene);
+                Object.DestroyImmediate(profile); Object.DestroyImmediate(target); Object.DestroyImmediate(image);
+            }
+        }
         [Test]
         public void DripHasQuietFormationFallAndImpact_AndZeroRateDisablesIt()
         {

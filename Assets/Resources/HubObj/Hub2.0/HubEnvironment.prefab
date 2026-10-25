@@ -1106,6 +1106,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5447116075254915980}
   - component: {fileID: 6722896831594582001}
+  - component: {fileID: 169322790140212306}
   m_Layer: 6
   m_Name: GroundCollision
   m_TagString: Untagged
@@ -1175,6 +1176,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 64.916664, y: 2.2083333}
   m_EdgeRadius: 0
+--- !u!114 &169322790140212306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5808172832310740313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7f70c45fe212f949aa178086e15eb57, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.GroundSurfaceVisuals
+  _profile: {fileID: 11400000, guid: c48dce28fcb429f4f8f4f17ced654b16, type: 2}
 --- !u!1 &6630021625599836325
 GameObject:
   m_ObjectHideFlags: 0

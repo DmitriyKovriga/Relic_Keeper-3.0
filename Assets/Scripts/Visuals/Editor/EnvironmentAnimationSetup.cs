@@ -2,12 +2,10 @@ using System;
 using System.IO;
 using System.Linq;
 using RelicKeeper.Editor.Hub;
-using Scripts.Dungeon;
 using Scripts.Visuals.Atmosphere;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Tilemaps;
 using Object = UnityEngine.Object;
 
 namespace RelicKeeper.Editor.Visuals
@@ -67,45 +65,7 @@ namespace RelicKeeper.Editor.Visuals
             var hub = PrefabUtility.LoadPrefabContents(Hub20Builder.EnvironmentPath);
             try { ConfigureHub(hub); PrefabUtility.SaveAsPrefabAsset(hub, Hub20Builder.EnvironmentPath); }
             finally { PrefabUtility.UnloadPrefabContents(hub); }
-            var room = PrefabUtility.LoadPrefabContents(LocalLightingSetup.RoomPath);
-            try
-            {
-                var old = room.transform.Find("CeilingDrip"); if (old != null) Object.DestroyImmediate(old.gameObject);
-                var ground = room.GetComponentsInChildren<Tilemap>(true).First(x => x.name == "Ground");
-                var solidMaps = room.GetComponentsInChildren<Tilemap>(true).Where(x => x.GetComponent<TilemapCollider2D>() != null).ToArray();
-                var flames = room.GetComponentsInChildren<LocalLight2DSource>(true);
-                Vector3 desired = room.GetComponent<RoomController>().PlayerSpawnPosition + new Vector3(5, 2);
-                Vector3? chosen = null; float distance = 0, best = float.PositiveInfinity;
-                foreach (var cell in ground.cellBounds.allPositionsWithin)
-                {
-                    if (!ground.HasTile(cell) || ground.HasTile(cell + Vector3Int.down)) continue;
-                    Vector3 source = ground.CellToWorld(cell) + new Vector3(ground.layoutGrid.cellSize.x * 0.5f, -4f / 24f);
-                    for (int j = 1; j <= 7 * 24; j++)
-                    {
-                        Vector3 probe = source + Vector3.down * (j / 24f);
-                        var landing = solidMaps.FirstOrDefault(x => x.HasTile(x.WorldToCell(probe)) && x.GetColliderType(x.WorldToCell(probe)) != Tile.ColliderType.None);
-                        if (landing == null) continue;
-                        var lower = landing.WorldToCell(probe);
-                        float fall = source.y - (landing.CellToWorld(lower + Vector3Int.up).y + 4f / 24f);
-                        if (fall >= 1.5f && fall <= 6f)
-                        {
-                            if (flames.Any(x => Mathf.Abs(x.transform.position.x - source.x) < 0.8f &&
-                                x.transform.position.y < source.y && x.transform.position.y > source.y - fall)) break;
-                            float score = (source - desired).sqrMagnitude;
-                            if (score < best) { best = score; chosen = source; distance = fall; }
-                        }
-                        break;
-                    }
-                }
-                if (!chosen.HasValue) throw new InvalidOperationException("No clear ceiling-to-floor drip path in the pilot room.");
-                var drip = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(DripPrefab), room.scene);
-                drip.name = "CeilingDrip"; drip.transform.SetParent(room.transform, false); drip.transform.position = chosen.Value;
-                var animation = drip.GetComponent<EnvironmentAnimation>(); animation.Configure(EnvironmentAnimationKind.WaterDrip, animation.Frames, 2.31f, distance);
-                var terrain = ground.GetComponent<TilemapRenderer>(); var renderer = drip.GetComponentInChildren<SpriteRenderer>(true);
-                renderer.sortingLayerID = terrain.sortingLayerID; renderer.sortingOrder = terrain.sortingOrder + 1;
-                PrefabUtility.SaveAsPrefabAsset(room, LocalLightingSetup.RoomPath);
-            }
-            finally { PrefabUtility.UnloadPrefabContents(room); }
+            MortfallDripSetup.Apply();
             foreach (var path in new[] { DepthMistSetup.HubPath, DepthMistSetup.DungeonPath })
             {
                 var profile = AssetDatabase.LoadAssetAtPath<AtmosphereProfileSO>(path);
@@ -125,9 +85,10 @@ namespace RelicKeeper.Editor.Visuals
         }
         public static void PrepareHubCapture() => Prepare(false);
         public static void PrepareDripCapture() => Prepare(true);
-        private static void Prepare(bool mortfall)
+        public static void PrepareLastRoomDripCapture() => Prepare(true, WorldColorPreviewStage.GetMortfallRooms().Last());
+        private static void Prepare(bool mortfall, string roomPath = null)
         {
-            _capture?.Dispose(); _capture = WorldColorPreviewStage.Create(mortfall, LocalLightingSetup.RoomPath, Camera.main?.GetComponent<AtmosphereController>());
+            _capture?.Dispose(); _capture = WorldColorPreviewStage.Create(mortfall, roomPath ?? LocalLightingSetup.RoomPath, Camera.main?.GetComponent<AtmosphereController>());
             _capture.FocusAmbient();
         }
         public static void Capture()
@@ -144,7 +105,12 @@ namespace RelicKeeper.Editor.Visuals
                     foreach (var animation in animations)
                     {
                         float fall = Mathf.Sqrt(2f * animation.FallDistance / 9f);
-                        float[] dripTimes = { 0, 3.74f, 3.89f, 3.94f + fall * 0.5f, 3.96f + fall, 4.09f + fall };
+                        float phase = new SerializedObject(animation).FindProperty("_phase").floatValue;
+                        float frequency = Mathf.Max(0.01f, _capture.Controller.ActiveDepthMistProfile.dripFrequency);
+                        float start = 6f / frequency - phase;
+                        float period = 6f / frequency + 0.25f + fall + 0.3f;
+                        if (start < 0.5f) start += Mathf.Ceil((0.5f - start) / period) * period;
+                        float[] dripTimes = { start - 0.2f, start + 0.05f, start + 0.2f, start + 0.25f + fall * 0.5f, start + 0.27f + fall, start + 0.4f + fall };
                         animation.PreviewTime = animation.Kind == EnvironmentAnimationKind.ChimneySmoke ? i * 0.25f : dripTimes[i];
                     }
                     UnityEngine.Rendering.RenderPipeline.SubmitRenderRequest(_capture.Camera, new UnityEngine.Rendering.RenderPipeline.StandardRequest { destination = target });

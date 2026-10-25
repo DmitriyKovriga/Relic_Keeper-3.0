@@ -100,6 +100,11 @@ namespace Scripts.Visuals
         private float _lastRunDustX;
         private bool _hasRunDustSample;
         private float _airborneTime;
+        private float _peakFallSpeed, _lastSurfaceStepTime;
+        private Collider2D _supportCollider;
+        private GroundSurfaceVisuals _surface;
+        private GroundSurfaceProfileSO _lastContactSurface;
+        private Atmosphere.AtmosphereController _atmosphere;
         private readonly List<Vector2> _shapeBuffer = new();
         private readonly List<Vector2> _localShapeBuffer = new();
         private readonly RaycastHit2D[] _shadowGroundHits = new RaycastHit2D[8];
@@ -135,6 +140,8 @@ namespace Scripts.Visuals
         {
             CacheReferences();
             _wasGrounded = ResolveGroundedState();
+            _peakFallSpeed = 0; _airborneTime = 0; _hasRunDustSample = false;
+            _previousVerticalSpeed = ResolveVelocity().y;
             if (_playerMovement != null)
                 _playerMovement.OnJumpStarted += HandleJumpStarted;
         }
@@ -142,6 +149,8 @@ namespace Scripts.Visuals
         private void OnDisable()
         {
             ClearDashEffects();
+            _peakFallSpeed = 0; _airborneTime = 0; _hasRunDustSample = false;
+            _supportCollider = null; _surface = null; _lastContactSurface = null;
             if (_shadowRenderer != null) _shadowRenderer.enabled = false;
             if (_playerMovement != null)
                 _playerMovement.OnJumpStarted -= HandleJumpStarted;
@@ -170,6 +179,14 @@ namespace Scripts.Visuals
             // Movement has already cleared IsGrounded before raising this event.
             // Use the last observed contact, never a raycast to a distant floor for air jumps.
             bool groundJump = _wasGrounded;
+            var takeoffSurface = groundJump ? ResolveSurfaceProfile() ?? _lastContactSurface : null;
+            if (takeoffSurface != null)
+            {
+                SpawnSurfaceContact(takeoffSurface.stepFrames, takeoffSurface.takeoffDuration, takeoffSurface.takeoffWidth,
+                    takeoffSurface.stepOpacity, ResolveGroundEffectPosition(0), ResolveJumpDustDirection() > 0);
+                _wasGrounded = false;
+                return;
+            }
             Bounds feet = ResolveBounds();
             float width = ResolveEffectWidth(groundJump ? _jumpDustWidthRelativeToBody : _airJumpDustWidthRelativeToBody);
             Vector3 origin = groundJump ? ResolveGroundEffectPosition(0f)
@@ -340,6 +357,8 @@ namespace Scripts.Visuals
             bool dodgingNow = _playerAttackInput != null && (_playerAttackInput.IsDamageImmune || _playerAttackInput.IsDashing);
             Vector2 velocity = ResolveVelocity();
             bool isHeavy = ResolveIsHeavy();
+            GroundSurfaceProfileSO surface = groundedNow ? ResolveSurfaceProfile() : null;
+            if (!groundedNow) _peakFallSpeed = Mathf.Max(_peakFallSpeed, -velocity.y);
 
             bool qualifiesForLandingDust = _airborneTime >= _landingDustMinAirborneTime ||
                                            _previousVerticalSpeed <= -Mathf.Max(0.1f, _landingDustMinDownwardSpeed);
@@ -359,12 +378,15 @@ namespace Scripts.Visuals
                     _lastRunDustX = currentX;
                     _hasRunDustSample = true;
                 }
-                else if (Mathf.Abs(currentX - _lastRunDustX) >= strideDistance && Time.time >= _nextRunDustTime)
+                else if (surface != null ? surface.ShouldStep(Mathf.Abs(currentX - _lastRunDustX), Time.time - _lastSurfaceStepTime,
+                    Mathf.Abs(velocity.x), SurfaceAppearance != null ? SurfaceAppearance.surfaceRunDust : 1, isHeavy)
+                    : Mathf.Abs(currentX - _lastRunDustX) >= strideDistance && Time.time >= _nextRunDustTime)
                 {
                     SpawnRunDust(isHeavy);
                     float interval = isHeavy ? _runDustIntervalHeavy : _runDustIntervalSmall;
                     _nextRunDustTime = Time.time + Mathf.Max(0.01f, interval);
                     _lastRunDustX = currentX;
+                    _lastSurfaceStepTime = Time.time;
                 }
             }
             else
@@ -373,7 +395,10 @@ namespace Scripts.Visuals
             }
 
             if (groundedNow)
+            {
                 _airborneTime = 0f;
+                _peakFallSpeed = 0;
+            }
             else
                 _airborneTime += Time.deltaTime;
 
@@ -384,6 +409,15 @@ namespace Scripts.Visuals
 
         private void SpawnLandingOrHeavyImpact(bool isHeavy)
         {
+            var surface = ResolveSurfaceProfile();
+            if (surface != null)
+            {
+                var response = surface.EvaluateLanding(Mathf.Max(_peakFallSpeed, -_previousVerticalSpeed), isHeavy,
+                    SurfaceAppearance != null ? SurfaceAppearance.surfaceLandingStrength : 1);
+                if (response.visible) SpawnSurfaceContact(surface.landingFrames, response.duration, response.width, response.opacity,
+                    ResolveGroundEffectPosition(0), false, true);
+                return;
+            }
             Sprite[] frames = isHeavy ? ResolveHeavyImpactFrames() : _dustLandSmall;
             SpawnGroundEffect(
                 frames,
@@ -401,6 +435,13 @@ namespace Scripts.Visuals
             if (_playerMovement != null && _playerMovement.IsDashJump) return;
             ClearDashEffects();
             float direction = ResolveFacingDirection();
+            var surface = ResolveSurfaceProfile();
+            if (surface != null)
+            {
+                _activeDashPuff = SpawnSurfaceContact(surface.landingFrames, surface.dashDuration, surface.dashWidth,
+                    surface.stepOpacity, ResolveGroundEffectPosition(-direction * 0.15f), direction < 0);
+                return;
+            }
             bool groundDash = _playerAttackInput != null && _playerAttackInput.IsDashing;
             _activeDashPuff = SpawnGroundEffect(
                 groundDash ? GroundDashPuffSprites.Frames : _dustDashSmall,
@@ -441,6 +482,15 @@ namespace Scripts.Visuals
 
         private void SpawnRunDust(bool isHeavy)
         {
+            var surface = ResolveSurfaceProfile();
+            if (surface != null)
+            {
+                // Leave the puff behind the trailing foot rather than inside the body silhouette.
+                float offset = ResolveBounds().extents.x * (-ResolveFacingDirection() * 1.35f + 0.1f * _stepSide); _stepSide *= -1;
+                SpawnSurfaceContact(surface.stepFrames, surface.stepDuration, surface.stepWidth, surface.stepOpacity,
+                    ResolveGroundEffectPosition(offset), false);
+                return;
+            }
             Sprite[] frames = isHeavy && _dustRunHeavy.Length > 0 ? _dustRunHeavy : _dustRunSmall;
             if (frames == null || frames.Length == 0)
                 return;
@@ -486,6 +536,40 @@ namespace Scripts.Visuals
             return overlay;
         }
 
+        private Atmosphere.AtmosphereProfileSO SurfaceAppearance
+        {
+            get
+            {
+                if (_atmosphere == null && Camera.main != null) _atmosphere = Camera.main.GetComponent<Atmosphere.AtmosphereController>();
+                return _atmosphere != null && _atmosphere.isActiveAndEnabled ? _atmosphere.ActiveDepthMistProfile : null;
+            }
+        }
+        private GroundSurfaceProfileSO ResolveSurfaceProfile()
+        {
+            if (!TryResolveGroundSurface(out _, out float height, out _) || height > 0.3f) return null;
+            _lastContactSurface = _surface != null && _surface.isActiveAndEnabled ? _surface.Profile : null;
+            return _lastContactSurface;
+        }
+        private GroundingSpriteSheetVfx SpawnSurfaceContact(Sprite[] frames, float duration, float width, float opacity,
+            Vector3 position, bool flip, bool landing = false)
+        {
+            var appearance = SurfaceAppearance;
+            if (appearance != null && !appearance.surfaceMovementEffects) return null;
+            opacity *= appearance != null ? appearance.surfaceEffectOpacity : 1;
+            if (opacity <= 0) return null;
+            var effect = SpawnGroundEffect(frames, duration, position, flip, opacity,
+                landing ? ResolveLandingDustSortingOrder() : ResolveDustSortingOrder(),
+                Mathf.Min(ResolveEffectWidth(width), _lastContactSurface != null ? _lastContactSurface.maxWorldWidth : float.MaxValue));
+            if (effect != null)
+            {
+                var renderer = effect.GetComponent<SpriteRenderer>();
+                renderer.sortingLayerName = WorldRenderSorting.Settings.LayerDefault;
+                renderer.sortingOrder = WorldRenderSorting.ResolveOrder(RenderDepthCategory.Environment, position.y, 6);
+                Atmosphere.WorldColorGrading.Bind(renderer, RenderDepthCategory.Environment);
+            }
+            return effect;
+        }
+
         private int ResolveDustSortingOrder()
         {
             return _dustOrderOffset;
@@ -498,7 +582,7 @@ namespace Scripts.Visuals
 
         private Vector3 ResolveGroundEffectPosition(float xOffset)
         {
-            if (TryResolveGroundAnchor(out Vector2 anchor, out _))
+            if (TryResolveGroundAnchor(out Vector2 anchor, out float height) && height <= 0.3f)
                 return new Vector3(anchor.x + xOffset, anchor.y + 0.01f, 0f);
 
             Bounds bounds = ResolveBounds();
@@ -613,6 +697,12 @@ namespace Scripts.Visuals
             }
             if (found)
             {
+                if (_supportCollider != hit.collider)
+                {
+                    _supportCollider = hit.collider;
+                    _surface = _supportCollider.GetComponentInParent<GroundSurfaceVisuals>();
+                    _hasRunDustSample = false;
+                }
                 anchor = new Vector2(x, hit.point.y + shadowOffset.y);
                 heightAboveGround = Mathf.Max(0f, bounds.min.y - hit.point.y);
                 normal = hit.normal;
@@ -620,6 +710,7 @@ namespace Scripts.Visuals
             }
 
             anchor = default;
+            _supportCollider = null; _surface = null;
             heightAboveGround = 0f;
             normal = Vector2.up;
             return false;
@@ -982,12 +1073,18 @@ namespace Scripts.Visuals
             }
 
             _elapsed += Time.deltaTime;
-            float normalized = Mathf.Clamp01(_elapsed / _duration);
-            int frameIndex = Mathf.Clamp(Mathf.FloorToInt(normalized * _frames.Length), 0, _frames.Length - 1);
-            _renderer.sprite = _frames[frameIndex];
+            Sample(_elapsed / _duration);
 
             if (_elapsed >= _duration)
                 Destroy(gameObject);
+        }
+
+        public void Sample(float normalized)
+        {
+            if (_renderer == null || _frames == null || _frames.Length == 0) return;
+            normalized = Mathf.Clamp01(normalized);
+            int frameIndex = Mathf.Clamp(Mathf.FloorToInt(normalized * _frames.Length), 0, _frames.Length - 1);
+            _renderer.sprite = _frames[frameIndex];
         }
 
         private void ApplyScale(float targetWorldWidth, bool flipX)

@@ -1,0 +1,611 @@
+{
+  "step": "V15 surface movement effects",
+  "tool": "PixelLab MCP vfx_workbench",
+  "notes": "Exact PixelLab recipes, no outside pixel edits. Unity imports 24 PPU point-filtered eight-frame atlases with centered pivots.",
+  "clips": [
+    {
+      "name": "EarthStep",
+      "effectId": "c874b96e-b80e-44ce-b690-2524172bac16",
+      "imageId": "479a529b-ed1c-40fd-81e2-a8bd3b8eb9b8",
+      "recipe": {
+        "name": "Earth step",
+        "canvas": {
+          "w": 16,
+          "h": 16
+        },
+        "frames": 8,
+        "fps": 40,
+        "loop": false,
+        "origin": [
+          8,
+          8
+        ],
+        "ramps": {
+          "main": [
+            "#493d2a",
+            "#6b573d",
+            "#8a7050"
+          ]
+        },
+        "outline": {
+          "mode": "none"
+        },
+        "tones": 3,
+        "detail": 0,
+        "dither": 0,
+        "seed": 1511,
+        "layers": [
+          {
+            "id": "puff0",
+            "type": "glow",
+            "x": {
+              "from": 7,
+              "to": 4,
+              "ease": "out"
+            },
+            "y": {
+              "from": 14,
+              "to": 12,
+              "ease": "out"
+            },
+            "radius": {
+              "keys": [
+                [
+                  0,
+                  1
+                ],
+                [
+                  0.35,
+                  1.65
+                ],
+                [
+                  1,
+                  0.3
+                ]
+              ]
+            },
+            "squash": 0.5,
+            "shape": "hard",
+            "outline": false,
+            "intensity": 0.68,
+            "dissolve": {
+              "from": 0,
+              "to": 1,
+              "start": 0.55,
+              "end": 1
+            },
+            "life": [
+              0,
+              1
+            ]
+          },
+          {
+            "id": "puff1",
+            "type": "glow",
+            "x": {
+              "from": 9,
+              "to": 12,
+              "ease": "out"
+            },
+            "y": {
+              "from": 14,
+              "to": 12,
+              "ease": "out"
+            },
+            "radius": {
+              "keys": [
+                [
+                  0,
+                  1
+                ],
+                [
+                  0.35,
+                  1.65
+                ],
+                [
+                  1,
+                  0.3
+                ]
+              ]
+            },
+            "squash": 0.5,
+            "shape": "hard",
+            "outline": false,
+            "intensity": 0.85,
+            "dissolve": {
+              "from": 0,
+              "to": 1,
+              "start": 0.55,
+              "end": 1
+            },
+            "life": [
+              0,
+              1
+            ]
+          },
+          {
+            "id": "grit",
+            "type": "particles",
+            "x": 8,
+            "y": 13,
+            "mode": "burst",
+            "count": 1,
+            "radius": 0,
+            "speed": 5,
+            "direction": -90,
+            "spread": 100,
+            "gravity": 6,
+            "floor": 0.5,
+            "bounce": 0.15,
+            "size": [
+              1,
+              1
+            ],
+            "shape": "dot",
+            "spacing": "even",
+            "shrink": 0,
+            "fade_out": 0.35,
+            "intensity": 0.7,
+            "lifespan": 1,
+            "seed": 1511,
+            "together": true,
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "EarthLanding",
+      "effectId": "4fa0a714-26c4-4002-ab32-ebdf7c5ca85d",
+      "imageId": "9900d00e-f8f9-4828-ac9c-7676b90bfed4",
+      "recipe": {
+        "name": "Earth landing",
+        "canvas": {
+          "w": 32,
+          "h": 16
+        },
+        "frames": 8,
+        "fps": 24,
+        "loop": false,
+        "origin": [
+          16,
+          8
+        ],
+        "ramps": {
+          "main": [
+            "#493d2a",
+            "#6b573d",
+            "#8a7050"
+          ]
+        },
+        "outline": {
+          "mode": "none"
+        },
+        "tones": 3,
+        "detail": 0,
+        "dither": 0,
+        "seed": 1511,
+        "layers": [
+          {
+            "id": "puff0",
+            "type": "glow",
+            "x": {
+              "from": 14,
+              "to": 7,
+              "ease": "out"
+            },
+            "y": {
+              "from": 14,
+              "to": 10,
+              "ease": "out"
+            },
+            "radius": {
+              "keys": [
+                [
+                  0,
+                  1.4
+                ],
+                [
+                  0.35,
+                  2.8
+                ],
+                [
+                  1,
+                  0.3
+                ]
+              ]
+            },
+            "squash": 0.5,
+            "shape": "hard",
+            "outline": false,
+            "intensity": 0.68,
+            "dissolve": {
+              "from": 0,
+              "to": 1,
+              "start": 0.55,
+              "end": 1
+            },
+            "life": [
+              0,
+              1
+            ]
+          },
+          {
+            "id": "puff1",
+            "type": "glow",
+            "x": {
+              "from": 18,
+              "to": 25,
+              "ease": "out"
+            },
+            "y": {
+              "from": 14,
+              "to": 11,
+              "ease": "out"
+            },
+            "radius": {
+              "keys": [
+                [
+                  0,
+                  1.4
+                ],
+                [
+                  0.35,
+                  2.8
+                ],
+                [
+                  1,
+                  0.3
+                ]
+              ]
+            },
+            "squash": 0.5,
+            "shape": "hard",
+            "outline": false,
+            "intensity": 0.85,
+            "dissolve": {
+              "from": 0,
+              "to": 1,
+              "start": 0.55,
+              "end": 1
+            },
+            "life": [
+              0,
+              1
+            ]
+          },
+          {
+            "id": "puff2",
+            "type": "glow",
+            "x": {
+              "from": 18,
+              "to": 25,
+              "ease": "out"
+            },
+            "y": {
+              "from": 14,
+              "to": 12,
+              "ease": "out"
+            },
+            "radius": {
+              "keys": [
+                [
+                  0,
+                  1.4
+                ],
+                [
+                  0.35,
+                  2.8
+                ],
+                [
+                  1,
+                  0.3
+                ]
+              ]
+            },
+            "squash": 0.5,
+            "shape": "hard",
+            "outline": false,
+            "intensity": 0.85,
+            "dissolve": {
+              "from": 0,
+              "to": 1,
+              "start": 0.55,
+              "end": 1
+            },
+            "life": [
+              0,
+              0.85
+            ]
+          },
+          {
+            "id": "grit",
+            "type": "particles",
+            "x": 16,
+            "y": 13,
+            "mode": "burst",
+            "count": 3,
+            "radius": 0,
+            "speed": 10,
+            "direction": -90,
+            "spread": 120,
+            "gravity": 12,
+            "floor": 0.5,
+            "bounce": 0.15,
+            "size": [
+              1,
+              1
+            ],
+            "shape": "dot",
+            "spacing": "even",
+            "shrink": 0,
+            "fade_out": 0.35,
+            "intensity": 0.7,
+            "lifespan": 1,
+            "seed": 1511,
+            "together": true,
+            "line": 4
+          }
+        ]
+      }
+    },
+    {
+      "name": "StoneStep",
+      "effectId": "386d170e-a100-4787-bbc6-2d05069b94df",
+      "imageId": "160268e9-248f-4def-9c72-8703da4e53a8",
+      "recipe": {
+        "name": "Stone step",
+        "canvas": {
+          "w": 16,
+          "h": 16
+        },
+        "frames": 8,
+        "fps": 40,
+        "loop": false,
+        "origin": [
+          8,
+          8
+        ],
+        "ramps": {
+          "main": [
+            "#374748",
+            "#566968",
+            "#7e8980"
+          ]
+        },
+        "outline": {
+          "mode": "none"
+        },
+        "tones": 3,
+        "detail": 0,
+        "dither": 0,
+        "seed": 1512,
+        "layers": [
+          {
+            "id": "grit",
+            "type": "particles",
+            "x": 8,
+            "y": 13,
+            "mode": "burst",
+            "count": 2,
+            "radius": 0,
+            "speed": 5,
+            "direction": -90,
+            "spread": 100,
+            "gravity": 6,
+            "floor": 0.5,
+            "bounce": 0.15,
+            "size": [
+              1,
+              2
+            ],
+            "shape": "chunk",
+            "spacing": "even",
+            "shrink": 0,
+            "fade_out": 0.1,
+            "intensity": 0.8,
+            "lifespan": 1,
+            "seed": 1512,
+            "together": true,
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "StoneLanding",
+      "effectId": "7a0e5b1a-5a56-408b-8374-f4c1bf09818f",
+      "imageId": "404ca3b3-8d56-4404-bd9d-b03c17f25444",
+      "recipe": {
+        "name": "Stone landing",
+        "canvas": {
+          "w": 32,
+          "h": 16
+        },
+        "frames": 8,
+        "fps": 24,
+        "loop": false,
+        "origin": [
+          16,
+          8
+        ],
+        "ramps": {
+          "main": [
+            "#374748",
+            "#566968",
+            "#7e8980"
+          ]
+        },
+        "outline": {
+          "mode": "none"
+        },
+        "tones": 3,
+        "detail": 0,
+        "dither": 0,
+        "seed": 1512,
+        "layers": [
+          {
+            "id": "puff0",
+            "type": "glow",
+            "x": {
+              "from": 14,
+              "to": 7,
+              "ease": "out"
+            },
+            "y": {
+              "from": 14,
+              "to": 10,
+              "ease": "out"
+            },
+            "radius": {
+              "keys": [
+                [
+                  0,
+                  1.4
+                ],
+                [
+                  0.35,
+                  2.8
+                ],
+                [
+                  1,
+                  0.3
+                ]
+              ]
+            },
+            "squash": 0.5,
+            "shape": "hard",
+            "outline": false,
+            "intensity": 0.68,
+            "dissolve": {
+              "from": 0,
+              "to": 1,
+              "start": 0.55,
+              "end": 1
+            },
+            "life": [
+              0,
+              1
+            ]
+          },
+          {
+            "id": "puff1",
+            "type": "glow",
+            "x": {
+              "from": 18,
+              "to": 25,
+              "ease": "out"
+            },
+            "y": {
+              "from": 14,
+              "to": 11,
+              "ease": "out"
+            },
+            "radius": {
+              "keys": [
+                [
+                  0,
+                  1.4
+                ],
+                [
+                  0.35,
+                  2.8
+                ],
+                [
+                  1,
+                  0.3
+                ]
+              ]
+            },
+            "squash": 0.5,
+            "shape": "hard",
+            "outline": false,
+            "intensity": 0.85,
+            "dissolve": {
+              "from": 0,
+              "to": 1,
+              "start": 0.55,
+              "end": 1
+            },
+            "life": [
+              0,
+              1
+            ]
+          },
+          {
+            "id": "puff2",
+            "type": "glow",
+            "x": {
+              "from": 18,
+              "to": 25,
+              "ease": "out"
+            },
+            "y": {
+              "from": 14,
+              "to": 12,
+              "ease": "out"
+            },
+            "radius": {
+              "keys": [
+                [
+                  0,
+                  1.4
+                ],
+                [
+                  0.35,
+                  2.8
+                ],
+                [
+                  1,
+                  0.3
+                ]
+              ]
+            },
+            "squash": 0.5,
+            "shape": "hard",
+            "outline": false,
+            "intensity": 0.85,
+            "dissolve": {
+              "from": 0,
+              "to": 1,
+              "start": 0.55,
+              "end": 1
+            },
+            "life": [
+              0,
+              0.85
+            ]
+          },
+          {
+            "id": "grit",
+            "type": "particles",
+            "x": 16,
+            "y": 13,
+            "mode": "burst",
+            "count": 5,
+            "radius": 0,
+            "speed": 10,
+            "direction": -90,
+            "spread": 120,
+            "gravity": 12,
+            "floor": 0.5,
+            "bounce": 0.15,
+            "size": [
+              1,
+              2
+            ],
+            "shape": "chunk",
+            "spacing": "even",
+            "shrink": 0,
+            "fade_out": 0.35,
+            "intensity": 0.8,
+            "lifespan": 1,
+            "seed": 1512,
+            "together": true,
+            "line": 4
+          }
+        ]
+      }
+    }
+  ]
+}

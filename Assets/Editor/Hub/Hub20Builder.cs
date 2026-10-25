@@ -239,6 +239,7 @@ namespace RelicKeeper.Editor.Hub
                 RelicKeeper.Editor.Visuals.LocalLightingSetup.ConfigureHub(environment);
                 RelicKeeper.Editor.Visuals.EnvironmentAnimationSetup.ConfigureHub(environment);
                 RelicKeeper.Editor.Visuals.AmbientParticleSetup.ConfigureHub(environment);
+                RelicKeeper.Editor.Visuals.SurfaceMovementSetup.ConfigureHub(environment);
                 PrefabUtility.SaveAsPrefabAsset(environment, EnvironmentPath);
                 var text = new StringBuilder();
                 WriteTree(environment.transform, text, 0);

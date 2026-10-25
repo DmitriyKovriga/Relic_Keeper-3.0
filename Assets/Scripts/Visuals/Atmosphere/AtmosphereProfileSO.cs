@@ -63,6 +63,12 @@ namespace Scripts.Visuals.Atmosphere
         [Range(0f, 1f)] public float ambientParticleDensity = 0.5f;
         [Range(0f, 1f)] public float ambientParticleOpacity = 0.7f;
 
+        [Header("Movement on ground")]
+        public bool surfaceMovementEffects = true;
+        [Range(0f, 1f)] public float surfaceRunDust = 0.75f;
+        [Range(0f, 1f)] public float surfaceEffectOpacity = 0.85f;
+        [Range(0f, 2f)] public float surfaceLandingStrength = 1f;
+
         [Header("Player lantern / airborne dust")]
         [Range(0f, 1f)] public float lantern;
         public Color lanternTint = new Color(1f, 0.6f, 0.24f, 1f);
@@ -103,6 +109,9 @@ namespace Scripts.Visuals.Atmosphere
             dripFrequency = Mathf.Clamp(dripFrequency, 0f, 2f);
             ambientParticleDensity = Mathf.Clamp01(ambientParticleDensity);
             ambientParticleOpacity = Mathf.Clamp01(ambientParticleOpacity);
+            surfaceRunDust = Mathf.Clamp01(surfaceRunDust);
+            surfaceEffectOpacity = Mathf.Clamp01(surfaceEffectOpacity);
+            surfaceLandingStrength = Mathf.Clamp(surfaceLandingStrength, 0, 2);
             depthMistHeight = Mathf.Max(0.1f, depthMistHeight);
             depthMistFeather = Mathf.Max(0.01f, depthMistFeather);
             lantern = Mathf.Clamp01(lantern);

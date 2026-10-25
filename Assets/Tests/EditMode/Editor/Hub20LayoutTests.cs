@@ -130,7 +130,8 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(ids.Select(x => (long)x.targetPrefabId), Is.EquivalentTo(new long[] { 9045518769657461748, 3985822915088299744, 5261396444560616950, 50434182, 1877000100 }));
             foreach (HubServiceNpc npc in npcs)
             {
-                float x = npc.Service == HubService.Tavern ? 315 : npc.Service == HubService.Stash ? 515 : 1070;
+                // Preserve the authored tavern placement, adjusted after the original hub build.
+                float x = npc.Service == HubService.Tavern ? 338.6f : npc.Service == HubService.Stash ? 515 : 1070;
                 Assert.That(npc.transform.position.x, Is.EqualTo(Hub20Builder.PixelToWorld(x, 295).x).Within(0.001f));
                 Assert.That(PrefabUtility.GetPropertyModifications(npc).Any(m => m.propertyPath == "m_LocalPosition.x"), Is.True, "Actor movement must be saved as a prefab override.");
             }

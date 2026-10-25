@@ -69,6 +69,7 @@ namespace RelicKeeper.Tests.EditMode
                 mistDraft.localLights = true; mistDraft.localLightStrength = 1.25f;
                 mistDraft.ambientAnimations = false; mistDraft.chimneySmokeOpacity = 0.35f; mistDraft.dripFrequency = 1.4f;
                 mistDraft.ambientParticles = false; mistDraft.ambientParticleDensity = 0.23f; mistDraft.ambientParticleOpacity = 0.61f;
+                mistDraft.surfaceMovementEffects = false; mistDraft.surfaceRunDust = 0.37f; mistDraft.surfaceEffectOpacity = 0.6f; mistDraft.surfaceLandingStrength = 1.3f;
                 Assert.That(colors.background.exposure, Is.Zero);
                 Assert.That(mist.backgroundMist, Is.EqualTo(0.17f));
                 window.SaveAppearance();
@@ -84,6 +85,8 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(mist.dripFrequency, Is.EqualTo(1.4f), "The same Save includes environmental animation settings.");
                 Assert.That(mist.ambientParticles, Is.False); Assert.That(mist.ambientParticleDensity, Is.EqualTo(0.23f));
                 Assert.That(mist.ambientParticleOpacity, Is.EqualTo(0.61f), "Particle settings use the same location Save.");
+                Assert.That(mist.surfaceMovementEffects, Is.False); Assert.That(mist.surfaceRunDust, Is.EqualTo(0.37f));
+                Assert.That(mist.surfaceEffectOpacity, Is.EqualTo(0.6f)); Assert.That(mist.surfaceLandingStrength, Is.EqualTo(1.3f));
                 StringAssert.Contains("backgroundMist: 0.42", System.IO.File.ReadAllText(mistPath));
                 Assert.That(colors.hideFlags, Is.EqualTo(HideFlags.None));
                 Assert.That(mist.hideFlags, Is.EqualTo(HideFlags.None));

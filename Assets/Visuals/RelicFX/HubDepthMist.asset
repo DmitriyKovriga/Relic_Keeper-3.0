@@ -49,6 +49,10 @@ MonoBehaviour:
   ambientParticles: 1
   ambientParticleDensity: 0.5
   ambientParticleOpacity: 0.7
+  surfaceMovementEffects: 1
+  surfaceRunDust: 0.75
+  surfaceEffectOpacity: 0.85
+  surfaceLandingStrength: 1
   lantern: 0
   lanternTint: {r: 1, g: 0.6, b: 0.24, a: 1}
   lanternRadius: 2.8

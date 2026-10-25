@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d68dad1420a725479df7e0e5171b25a, type: 3}
+  m_Name: Earth
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.GroundSurfaceProfileSO
+  stepFrames:
+  - {fileID: -5415434755389122338, guid: e85602db542f16b41bb66978f9b5a94e, type: 3}
+  - {fileID: 1313256521036838625, guid: e85602db542f16b41bb66978f9b5a94e, type: 3}
+  - {fileID: 1912097119317179329, guid: e85602db542f16b41bb66978f9b5a94e, type: 3}
+  - {fileID: 5813385310718742580, guid: e85602db542f16b41bb66978f9b5a94e, type: 3}
+  - {fileID: 738984748549917283, guid: e85602db542f16b41bb66978f9b5a94e, type: 3}
+  - {fileID: 8895242454031921543, guid: e85602db542f16b41bb66978f9b5a94e, type: 3}
+  - {fileID: -8055141921543328364, guid: e85602db542f16b41bb66978f9b5a94e, type: 3}
+  - {fileID: 28203821476129164, guid: e85602db542f16b41bb66978f9b5a94e, type: 3}
+  landingFrames:
+  - {fileID: 5735331786985790584, guid: 2f3cd5905dcbf494cbb63da761f2366b, type: 3}
+  - {fileID: -8966525079328232543, guid: 2f3cd5905dcbf494cbb63da761f2366b, type: 3}
+  - {fileID: 7976679913508759852, guid: 2f3cd5905dcbf494cbb63da761f2366b, type: 3}
+  - {fileID: -6101226076344085188, guid: 2f3cd5905dcbf494cbb63da761f2366b, type: 3}
+  - {fileID: 2786333072130097773, guid: 2f3cd5905dcbf494cbb63da761f2366b, type: 3}
+  - {fileID: 1675774598115453085, guid: 2f3cd5905dcbf494cbb63da761f2366b, type: 3}
+  - {fileID: 4814452465722632110, guid: 2f3cd5905dcbf494cbb63da761f2366b, type: 3}
+  - {fileID: -3963680445210517923, guid: 2f3cd5905dcbf494cbb63da761f2366b, type: 3}
+  runStride: 1.6
+  runInterval: 0.25
+  runMinSpeed: 1
+  stepWidth: 1.4
+  maxWorldWidth: 2.2
+  stepDuration: 0.18
+  stepOpacity: 0.7
+  minLandingSpeed: 2
+  fullLandingSpeed: 14
+  landingWidth: 3.6
+  landingDuration: 0.3
+  landingOpacity: 0.85
+  lightImpactScale: 0.7
+  fullImpactScale: 1.25
+  maxImpactScale: 1.5
+  heavyScale: 1.15
+  takeoffWidth: 1.2
+  takeoffDuration: 0.2
+  dashWidth: 2.2
+  dashDuration: 0.3
