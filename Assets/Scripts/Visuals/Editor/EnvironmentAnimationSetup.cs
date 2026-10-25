@@ -25,11 +25,11 @@ namespace RelicKeeper.Editor.Visuals
         [Serializable] private sealed class Size { public int w, h; }
         private static WorldColorPreviewStage _capture;
 
-        private static Sprite[] Import(string name)
+        internal static Sprite[] Import(string name, string root = ArtRoot)
         {
-            string path = ArtRoot + "/" + name + ".png";
+            string path = root + "/" + name + ".png";
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
-            var atlas = JsonUtility.FromJson<Atlas>(File.ReadAllText(ArtRoot + "/" + name + ".json"));
+            var atlas = JsonUtility.FromJson<Atlas>(File.ReadAllText(root + "/" + name + ".json"));
             var importer = (TextureImporter)AssetImporter.GetAtPath(path);
             importer.textureType = TextureImporterType.Sprite; importer.spriteImportMode = SpriteImportMode.Multiple;
             importer.spritePixelsPerUnit = 24; importer.filterMode = FilterMode.Point;

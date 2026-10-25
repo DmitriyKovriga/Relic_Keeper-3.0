@@ -1,0 +1,188 @@
+{
+  "step": "V12 sparse ambient particles",
+  "tool": "PixelLab vfx_workbench",
+  "pixelEdits": "None outside PixelLab; Unity slices the exported atlas at 24 PPU.",
+  "clips": [
+    {
+      "name": "ForgeEmber",
+      "effectId": "e84db875-ec9d-4147-8acd-650627223a58",
+      "imageId": "2815eca0-f91d-466c-b0af-04b7e351ace3",
+      "recipe": {
+        "name": "Relic Keeper ember pixel",
+        "canvas": {
+          "w": 16,
+          "h": 16
+        },
+        "frames": 8,
+        "fps": 8,
+        "loop": true,
+        "origin": [
+          8,
+          8
+        ],
+        "ramps": {
+          "main": [
+            "#713e27",
+            "#af652d",
+            "#dc9e4c"
+          ]
+        },
+        "outline": {
+          "mode": "none"
+        },
+        "tones": 3,
+        "detail": 0,
+        "dither": 0,
+        "seed": 312,
+        "layers": [
+          {
+            "id": "ember",
+            "type": "glow",
+            "x": 8,
+            "y": 8,
+            "radius": 0.9,
+            "shape": "hard",
+            "outline": false,
+            "intensity": {
+              "wave": {
+                "mid": 0.75,
+                "amp": 0.22,
+                "cycles": 1
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "DriftingLeaf",
+      "effectId": "3b9bd6a7-3758-4d24-8a25-20c74c9bc3b5",
+      "imageId": "2133df6e-b872-4455-95b0-9c47a3b05096",
+      "recipe": {
+        "name": "Relic Keeper drifting leaf",
+        "canvas": {
+          "w": 16,
+          "h": 16
+        },
+        "frames": 8,
+        "fps": 8,
+        "loop": true,
+        "origin": [
+          8,
+          8
+        ],
+        "ramps": {
+          "main": [
+            "#3d4b2d",
+            "#68723f",
+            "#94904e",
+            "#b0a269"
+          ]
+        },
+        "outline": {
+          "mode": "none"
+        },
+        "tones": 4,
+        "detail": 0,
+        "dither": 0,
+        "seed": 414,
+        "layers": [
+          {
+            "id": "leaf",
+            "type": "shape",
+            "x": 8,
+            "y": 8,
+            "points": [
+              [
+                -3,
+                0
+              ],
+              [
+                -1,
+                -2
+              ],
+              [
+                2,
+                -1
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                1,
+                2
+              ],
+              [
+                -1,
+                1
+              ]
+            ],
+            "fill": "linear",
+            "fill_angle": -135,
+            "outline": false,
+            "bevel": 1,
+            "rotation": {
+              "wave": {
+                "mid": 0,
+                "amp": 25,
+                "cycles": 1
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TorchDust",
+      "effectId": "77a128e0-2224-4055-9dbe-7ea1bc2dcfc8",
+      "imageId": "6c5786ac-7f3c-4f62-a0f9-24962a28b5fd",
+      "recipe": {
+        "name": "Relic Keeper torch dust",
+        "canvas": {
+          "w": 16,
+          "h": 16
+        },
+        "frames": 8,
+        "fps": 8,
+        "loop": true,
+        "origin": [
+          8,
+          8
+        ],
+        "ramps": {
+          "main": [
+            "#747b63",
+            "#9b9f83",
+            "#b9b89c"
+          ]
+        },
+        "outline": {
+          "mode": "none"
+        },
+        "tones": 3,
+        "detail": 0,
+        "dither": 0,
+        "seed": 721,
+        "layers": [
+          {
+            "id": "mote",
+            "type": "glow",
+            "x": 8,
+            "y": 8,
+            "radius": 0.9,
+            "shape": "hard",
+            "outline": false,
+            "intensity": {
+              "wave": {
+                "mid": 0.75,
+                "amp": 0.22,
+                "cycles": 1
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

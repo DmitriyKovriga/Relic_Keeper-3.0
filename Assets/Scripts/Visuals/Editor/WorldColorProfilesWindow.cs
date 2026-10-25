@@ -13,6 +13,7 @@ namespace RelicKeeper.Editor.Visuals
         [SerializeField] private PreviewEnvironment _environment;
         [SerializeField] private int _roomIndex;
         [SerializeField] private int _appearanceTab = 1;
+        [SerializeField] private int _detailArea;
         private WorldColorPreviewStage _stage;
         private string[] _rooms, _roomLabels;
         private bool _overview, _showActors = true;
@@ -133,7 +134,7 @@ namespace RelicKeeper.Editor.Visuals
             {
                 _stage.SetView(_overview, _showActors);
                 if (_appearanceTab == 3) _stage.FocusLighting();
-                if (_appearanceTab == 4) _stage.FocusAmbient();
+                if (_appearanceTab == 4) FocusDetails();
             }
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
             if (_showSaved) EditorGUILayout.HelpBox("Showing the saved version. Turn off Compare with saved to see your edits.", MessageType.Info);
@@ -262,7 +263,7 @@ namespace RelicKeeper.Editor.Visuals
                 _rooms.Length > 0 ? _rooms[_roomIndex] : null, _controller);
             _stage.SetView(_overview, _showActors);
             if (_appearanceTab == 3) _stage.FocusLighting();
-            if (_appearanceTab == 4) _stage.FocusAmbient();
+            if (_appearanceTab == 4) FocusDetails();
         }
 
         internal static WorldColorProfileSO CreateEditablePreview(WorldColorProfileSO source)
@@ -383,6 +384,13 @@ namespace RelicKeeper.Editor.Visuals
         {
             if (_mistWorking == null) { EditorGUILayout.HelpBox("Choose Hub or Mortfall to edit small animations.", MessageType.Info); return; }
             _mistSettings.Update();
+            if (_stage != null)
+            {
+                var areas = _environment == PreviewEnvironment.Mortfall ? new[] { "Ceiling drops", "Torch dust" } : new[] { "Chimney smoke", "Forge embers", "Tree leaves" };
+                EditorGUI.BeginChangeCheck();
+                _detailArea = EditorGUILayout.Popup("Preview area", Mathf.Clamp(_detailArea, 0, areas.Length - 1), areas);
+                if (EditorGUI.EndChangeCheck()) { _previewTravel = 0; FocusDetails(); }
+            }
             EditorGUILayout.LabelField("Small environmental animations", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(_mistSettings.FindProperty("ambientAnimations"), new GUIContent("Small animations"));
             DrawPercent(_mistSettings.FindProperty("chimneySmokeOpacity"), "Chimney smoke (%)", 0, 100);
@@ -390,7 +398,23 @@ namespace RelicKeeper.Editor.Visuals
             EditorGUILayout.LabelField(_environment == PreviewEnvironment.Mortfall
                 ? "Room 001 has one dripping ceiling. Watch for a drop every few seconds. 0% turns drops off."
                 : "The chimney smoke stays attached to the tavern. 0% hides it.", EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.Space(8);
+            EditorGUILayout.LabelField("Air particles", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(_mistSettings.FindProperty("ambientParticles"), new GUIContent("Enable particles"));
+            DrawPercent(_mistSettings.FindProperty("ambientParticleDensity"), "Density (%)", 0, 100);
+            DrawPercent(_mistSettings.FindProperty("ambientParticleOpacity"), "Visibility (%)", 0, 100);
+            EditorGUILayout.LabelField(_environment == PreviewEnvironment.Mortfall
+                ? "Faint dust near the first torch in Room 001. Turning its light off also hides the dust."
+                : "A few embers rise from the forge. Leaves fall occasionally beneath one tree.", EditorStyles.wordWrappedMiniLabel);
             if (_mistSettings.ApplyModifiedProperties()) ApplyPreview(true);
+        }
+
+        private void FocusDetails()
+        {
+            if (_stage == null) return;
+            if (_detailArea == 0) _stage.FocusAmbient();
+            else _stage.FocusParticles(_environment == PreviewEnvironment.Mortfall ? AmbientParticleKind.TorchDust :
+                _detailArea == 1 ? AmbientParticleKind.ForgeEmbers : AmbientParticleKind.DriftingLeaves);
         }
 
         private void DrawLighting()

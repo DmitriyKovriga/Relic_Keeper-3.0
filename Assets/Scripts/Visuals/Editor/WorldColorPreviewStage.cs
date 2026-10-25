@@ -31,6 +31,7 @@ namespace RelicKeeper.Editor.Visuals
         private Vector3 _viewCenter;
         private readonly List<LocalLight2DSource> _localLights = new List<LocalLight2DSource>();
         private readonly List<EnvironmentAnimation> _environmentAnimations = new List<EnvironmentAnimation>();
+        private readonly List<AmbientParticleSource> _particles = new List<AmbientParticleSource>();
         public Camera Camera { get; private set; }
         public AtmosphereController Controller { get; private set; }
         public WorldColorProfileSO AssignedProfile { get; private set; }
@@ -203,6 +204,11 @@ namespace RelicKeeper.Editor.Visuals
                 EditorUtility.CopySerialized(animation, target); _environmentAnimations.Add(target);
             }
             copy.SetActive(source.gameObject.activeSelf);
+            if (source.TryGetComponent<AmbientParticleSource>(out var particles))
+            {
+                var target = copy.AddComponent<AmbientParticleSource>();
+                EditorUtility.CopySerialized(particles, target); _particles.Add(target);
+            }
             return copy;
         }
 
@@ -309,6 +315,15 @@ namespace RelicKeeper.Editor.Visuals
             _viewCenter = new Vector3(source.transform.position.x, _mortfall
                 ? source.transform.position.y - source.FallDistance * 0.5f : 4.5f, -10f);
             if (!_mortfall) _actors.transform.localPosition = Vector3.right * (source.transform.position.x - _spawn.x + 3f);
+            SetCameraOffset(0);
+        }
+
+        public void FocusParticles(AmbientParticleKind kind)
+        {
+            var source = _particles.FirstOrDefault(x => x.Kind == kind);
+            if (source == null) { FocusLighting(); return; }
+            _viewCenter = new Vector3(source.transform.position.x, _mortfall ? source.transform.position.y - 0.5f : 3.5f, -10);
+            if (!_mortfall) _actors.transform.localPosition = Vector3.right * (source.transform.position.x - _spawn.x + 1.5f);
             SetCameraOffset(0);
         }
 

@@ -9,6 +9,7 @@ V08 background-plane mist is implemented in `../Depth_Mist.md`.
 V09 hub/Mortfall layered parallax is implemented in `../Layered_Parallax.md`.
 V06 forge/torch lighting, terrain blocking and flame motion are in `../Local_Lighting.md`.
 The V11 chimney-smoke / Mortfall ceiling-drip slice is in `../Environment_Animations.md`.
+The V12 forge embers / tree leaves / torchlit dust slice is in `../Ambient_Particles.md`.
 This review uses the two supplied screenshots and saved project sources/assets.
 No new live Editor capture, Play Mode comparison or GPU profile was performed.
 Screenshot observations and proposed visual gains are art-direction judgments,

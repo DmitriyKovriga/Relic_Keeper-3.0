@@ -21,6 +21,15 @@ namespace Scripts.Visuals.Atmosphere
         public void ConfigureFlame(float phase) { _flame = true; _flamePhase = phase; SetPlacementPhase(); }
         private void SetPlacementPhase() => _placementPhase = Mathf.Repeat(transform.position.x * 0.173f + transform.position.y * 0.347f, 37f);
         public bool HasFlameMotion => _flame;
+        // Particle visibility must not depend on transient Light.intensity: it is
+        // deliberately reset between cameras. Use the source and profile instead.
+        public float ParticleIllumination(AtmosphereProfileSO profile, Vector3 world)
+        {
+            if (!isActiveAndEnabled || !Light.enabled || _strength <= 0 || profile == null || !profile.localLights) return 0;
+            float radius = _radius * profile.localLightRadius * FlameSample.y;
+            float edge = Mathf.Clamp01(1f - Vector2.Distance(world, transform.position) / Mathf.Max(0.1f, radius));
+            return Mathf.Clamp01(profile.localLightStrength) * Mathf.SmoothStep(0, 1, edge);
+        }
         public static Vector2 SampleFlame(float seconds, float phase)
         {
             float slow = Mathf.Clamp01(Mathf.PerlinNoise(phase, seconds * 0.85f)) * 2f - 1f;

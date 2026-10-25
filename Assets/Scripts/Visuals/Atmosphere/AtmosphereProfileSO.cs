@@ -58,6 +58,11 @@ namespace Scripts.Visuals.Atmosphere
         [Range(0f, 1f)] public float chimneySmokeOpacity = 0.55f;
         [Range(0f, 2f)] public float dripFrequency = 1f;
 
+        [Header("Sparse source-bound particles")]
+        public bool ambientParticles = true;
+        [Range(0f, 1f)] public float ambientParticleDensity = 0.5f;
+        [Range(0f, 1f)] public float ambientParticleOpacity = 0.7f;
+
         [Header("Player lantern / airborne dust")]
         [Range(0f, 1f)] public float lantern;
         public Color lanternTint = new Color(1f, 0.6f, 0.24f, 1f);
@@ -96,6 +101,8 @@ namespace Scripts.Visuals.Atmosphere
             shafts = Mathf.Clamp01(shafts);
             chimneySmokeOpacity = Mathf.Clamp01(chimneySmokeOpacity);
             dripFrequency = Mathf.Clamp(dripFrequency, 0f, 2f);
+            ambientParticleDensity = Mathf.Clamp01(ambientParticleDensity);
+            ambientParticleOpacity = Mathf.Clamp01(ambientParticleOpacity);
             depthMistHeight = Mathf.Max(0.1f, depthMistHeight);
             depthMistFeather = Mathf.Max(0.01f, depthMistFeather);
             lantern = Mathf.Clamp01(lantern);

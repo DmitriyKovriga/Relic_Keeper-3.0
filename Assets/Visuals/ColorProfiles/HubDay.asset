@@ -24,7 +24,7 @@ MonoBehaviour:
     tint: {r: 1, g: 1, b: 1, a: 1}
   background:
     exposure: 0
-    contrast: 0.94
+    contrast: 0.98
     saturation: 1
     tint: {r: 1, g: 1, b: 1, a: 1}
   effectsInfluence: 0.35

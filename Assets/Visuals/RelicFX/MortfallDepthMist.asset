@@ -46,6 +46,9 @@ MonoBehaviour:
   ambientAnimations: 1
   chimneySmokeOpacity: 0.55
   dripFrequency: 1
+  ambientParticles: 1
+  ambientParticleDensity: 0.5
+  ambientParticleOpacity: 0.7
   lantern: 0
   lanternTint: {r: 1, g: 0.6, b: 0.24, a: 1}
   lanternRadius: 2.8
