@@ -11,8 +11,13 @@ Open **Tools > Relic Keeper > Visuals > World Appearance**:
 
 1. Choose **Location**: Current game, Hub, or Mortfall.
 2. Choose **Colors** to adjust Characters, Environment, and Background,
-   **Mist** for background haze, or **Movement** for layered background motion.
-3. Press **Save** to keep colors, mist and movement for that location.
+   **Mist** for background haze, **Movement** for layered background motion,
+   or **Lighting** for the warmth, strength and reach of local light sources.
+3. Press **Save** to keep all appearance settings for that location.
+
+The Lighting tab frames the hub forge or the selected room's first torch.
+Placed torches light automatically and have gentle flame motion. Room 001 and
+Room 002 currently contain torches. See [Local lighting](Local_Lighting.md).
 
 Changes appear immediately. **Compare with saved** temporarily displays the saved
 appearance without losing your edits. **Discard changes** restores colors,

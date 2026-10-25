@@ -28,12 +28,15 @@ Shader "RelicKeeper/Hub Building Wind"
             #pragma multi_compile_instancing
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
             #include "RelicFX/WorldColorGrade.hlsl"
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/ShapeLightShared.hlsl"
+            #include "RelicFX/RelicLocalLight.hlsl"
             struct Attributes { COMMON_2D_INPUTS half4 color : COLOR; };
             struct Varyings
             {
                 COMMON_2D_OUTPUTS
                 half4 color : COLOR;
                 float2 world : TEXCOORD2;
+                float2 lightingUV : TEXCOORD4;
             };
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/2DCommon.hlsl"
             float4 _MainTex_TexelSize;
@@ -50,6 +53,7 @@ Shader "RelicKeeper/Hub Building Wind"
                 Varyings output = CommonUnlitVertex(input);
                 output.color = input.color * _Color * unity_SpriteColor;
                 output.world = TransformObjectToWorld(input.positionOS).xy;
+                output.lightingUV = ComputeScreenPos(output.positionCS / output.positionCS.w).xy;
                 return output;
             }
             bool Inside(float2 p, float4 rect)
@@ -68,6 +72,7 @@ Shader "RelicKeeper/Hub Building Wind"
                 if (!Inside(input.world, _Tavern) && !Inside(input.world, _Warehouse))
                 {
                     half4 result = original * input.color;
+                    result.rgb = RKApplyLocalLight(result.rgb, input.lightingUV, _RKGradeGroup, _RKGradeIsEffect);
                     result.rgb = RKGradeColor(result.rgb, _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect);
                     return result;
                 }
@@ -81,6 +86,7 @@ Shader "RelicKeeper/Hub Building Wind"
                 // Never displace structural pixels. Neighboring straw colors
                 // drift within the roof, without making gaps in its silhouette.
                 half4 result = (Foliage(original) && Foliage(moved) ? moved : original) * input.color;
+                result.rgb = RKApplyLocalLight(result.rgb, input.lightingUV, _RKGradeGroup, _RKGradeIsEffect);
                 result.rgb = RKGradeColor(result.rgb, _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect);
                 return result;
             }

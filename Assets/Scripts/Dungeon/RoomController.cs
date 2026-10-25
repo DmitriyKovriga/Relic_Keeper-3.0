@@ -78,6 +78,7 @@ namespace Scripts.Dungeon
 
         private void Awake()
         {
+            Scripts.Visuals.Atmosphere.TorchLightBinding.Ensure(gameObject);
             _spawners = GetComponentsInChildren<EnemySpawner>(true);
             ResolveCameraBounds();
         }

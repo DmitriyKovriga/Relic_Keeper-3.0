@@ -29,6 +29,7 @@ namespace RelicKeeper.Editor.Visuals
         private Vector3 _spawn;
         private bool _mortfall;
         private Vector3 _viewCenter;
+        private readonly List<LocalLight2DSource> _localLights = new List<LocalLight2DSource>();
         public Camera Camera { get; private set; }
         public AtmosphereController Controller { get; private set; }
         public WorldColorProfileSO AssignedProfile { get; private set; }
@@ -88,6 +89,18 @@ namespace RelicKeeper.Editor.Visuals
             SpriteRenderer body = player != null ? player.GetComponentsInChildren<SpriteRenderer>(true)
                 .FirstOrDefault(x => x.sprite != null && (x.name == "MovementSprite" || x.name == "Player")) : null;
             if (body != null) AddActor("Player sample", body.sprite, body.transform.lossyScale, _spawn.x, body.flipX);
+            else if (player != null)
+            {
+                // Before Play, the movement animator may not have assigned a
+                // sprite yet. Keep the lighting preview's character visible.
+                var data = player.CurrentCharacterData ?? new SerializedObject(player).FindProperty("_defaultCharacterData").objectReferenceValue as CharacterDataSO;
+                var animation = data != null ? data.RunAnimation : null;
+                Sprite pose = animation?.Frames?.FirstOrDefault();
+                if (pose == null && !string.IsNullOrWhiteSpace(animation?.SpriteSheetResourcesPath))
+                    pose = Resources.LoadAll<Sprite>(animation.SpriteSheetResourcesPath).OrderBy(x => x.name, StringComparer.Ordinal).FirstOrDefault();
+                if (pose == null && data != null) pose = data.Portrait;
+                if (pose != null) AddActor("Player sample", pose, player.transform.lossyScale, _spawn.x, false);
+            }
             if (mortfall)
             {
                 AddMonster("Enemy/SO_Zombie", _spawn.x + 1.25f);
@@ -105,6 +118,7 @@ namespace RelicKeeper.Editor.Visuals
             fields.FindProperty("_hubDepthMistProfile").objectReferenceValue = mortfall ? dungeon.DepthMistProfile :
                 (ReadMistProfile(live) ?? AssetDatabase.LoadAssetAtPath<AtmosphereProfileSO>("Assets/Visuals/RelicFX/HubDepthMist.asset"));
             fields.ApplyModifiedPropertiesWithoutUndo();
+            foreach (var light in _localLights) light.BindPreview(Controller);
             Controller.Profile = live != null ? live.Profile : null;
             var focus = NewObject("Preview reveal focus").transform; focus.position = _spawn;
             Controller.BindPlayer(focus);
@@ -151,6 +165,15 @@ namespace RelicKeeper.Editor.Visuals
             if (source.TryGetComponent(out SortingGroup sorting)) EditorUtility.CopySerialized(sorting, copy.AddComponent<SortingGroup>());
             if (source.TryGetComponent(out WorldColorGroup colors))
                 copy.AddComponent<WorldColorGroup>().Configure(colors.Role, colors.Influence, colors.CombatEffect);
+            if (source.TryGetComponent<LocalLight2DSource>(out var sourceLight))
+            {
+                var target = copy.AddComponent<LocalLight2DSource>();
+                EditorUtility.CopySerialized(sourceLight, target); _localLights.Add(target);
+            }
+            if (source.TryGetComponent<LocalLightOccluder>(out var blocker))
+            {
+                LocalLightOccluderBuilder.Configure(copy, blocker.Outline);
+            }
             var renderer = copy.GetComponent<Renderer>();
             if (renderer != null)
             {
@@ -222,6 +245,7 @@ namespace RelicKeeper.Editor.Visuals
 
         public void SetView(bool overview, bool actors)
         {
+            _actors.transform.localPosition = Vector3.zero;
             _actors.SetActive(actors);
             Vector3 center = _spawn + new Vector3(3f, _mortfall ? 2f : 3.7f, 0f);
             float size = 5.625f;
@@ -261,6 +285,15 @@ namespace RelicKeeper.Editor.Visuals
                 position.x = Mathf.Clamp(position.x, -available, available);
             }
             Camera.transform.position = position;
+        }
+
+        public void FocusLighting()
+        {
+            if (_localLights.Count == 0) return;
+            _viewCenter = new Vector3(_localLights[0].transform.position.x,
+                _localLights[0].transform.position.y + (_mortfall ? 0.5f : 2.5f), -10f);
+            if (!_mortfall) _actors.transform.localPosition = Vector3.right * (_localLights[0].transform.position.x - _spawn.x - 0.75f);
+            SetCameraOffset(0);
         }
 
         public void Dispose()

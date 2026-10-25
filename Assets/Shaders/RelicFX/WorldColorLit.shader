@@ -58,6 +58,7 @@ Shader "RelicKeeper/Sprites/World Color Lit"
             };
 
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Lit2DCommon.hlsl"
+            #include "RelicLocalLight.hlsl"
 
             // NOTE: Do not ifdef the properties here as SRP batcher can not handle different layouts.
             #include "WorldColorGrade.hlsl"
@@ -81,6 +82,10 @@ Shader "RelicKeeper/Sprites/World Color Lit"
             half4 LitFragment(Varyings input) : SV_Target
             {
                 half4 result = CommonLitFragment(input, input.color);
+                // Replace URP's flat additive slot 1 with the same albedo-aware
+                // response used by the actor FX, stone and swaying hub shaders.
+                result.rgb = max(0, result.rgb - RKLocalIrradiance(input.lightingUV));
+                result.rgb = RKApplyLocalLight(result.rgb, input.lightingUV, _RKGradeGroup, _RKGradeIsEffect);
                 result.rgb = RKGradeColor(result.rgb, _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect);
                 return result;
             }

@@ -38,6 +38,9 @@ namespace Scripts.Visuals
                 Light2D light = lights[i];
                 if (light == null)
                     continue;
+                // Source lights deliberately exclude combat VFX and overlay layers.
+                if (light.GetComponent<Atmosphere.LocalLight2DSource>() != null)
+                    continue;
 
                 for (int j = 0; j < layerNames.Length; j++)
                     TryAddSortingLayer(light, layerNames[j], settings);

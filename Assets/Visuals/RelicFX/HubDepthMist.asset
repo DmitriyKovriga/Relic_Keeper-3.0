@@ -39,6 +39,10 @@ MonoBehaviour:
   parallaxNear: 0.3
   parallaxVertical: 0
   parallaxSilhouettes: 0.4
+  localLights: 1
+  localLightStrength: 2.69
+  localLightRadius: 1.144
+  localLightTint: {r: 1, g: 0.6, b: 0.24, a: 1}
   lantern: 0
   lanternTint: {r: 1, g: 0.6, b: 0.24, a: 1}
   lanternRadius: 2.8

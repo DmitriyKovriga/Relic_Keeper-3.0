@@ -47,6 +47,12 @@ namespace Scripts.Visuals.Atmosphere
         [Tooltip("0 hides distant columns; any positive value shows solid stone. Retained for saved profile compatibility.")]
         [Range(0f, 1f)] public float parallaxSilhouettes = 1f;
 
+        [Header("Local source lighting")]
+        public bool localLights = true;
+        [Range(0f, 3f)] public float localLightStrength = 1f;
+        [Range(0.5f, 2f)] public float localLightRadius = 1f;
+        public Color localLightTint = new Color(1f, 0.6f, 0.24f, 1f);
+
         [Header("Player lantern / airborne dust")]
         [Range(0f, 1f)] public float lantern;
         public Color lanternTint = new Color(1f, 0.6f, 0.24f, 1f);

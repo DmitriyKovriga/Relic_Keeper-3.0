@@ -127,7 +127,13 @@ namespace RelicKeeper.Editor.Visuals
             bool wide = position.width >= 860;
             if (wide) { EditorGUILayout.BeginHorizontal(); EditorGUILayout.BeginVertical(GUILayout.Width(390)); }
             else DrawPreview(false);
-            _appearanceTab = GUILayout.Toolbar(_appearanceTab, new[] { "Colors", "Mist", "Movement" }, GUILayout.Height(27));
+            int previousTab = _appearanceTab;
+            _appearanceTab = GUILayout.Toolbar(_appearanceTab, new[] { "Colors", "Mist", "Movement", "Lighting" }, GUILayout.Height(27));
+            if (_stage != null && previousTab != _appearanceTab)
+            {
+                _stage.SetView(_overview, _showActors);
+                if (_appearanceTab == 3) _stage.FocusLighting();
+            }
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
             if (_showSaved) EditorGUILayout.HelpBox("Showing the saved version. Turn off Compare with saved to see your edits.", MessageType.Info);
             if (_appearanceTab == 0)
@@ -149,7 +155,8 @@ namespace RelicKeeper.Editor.Visuals
                 else EditorGUILayout.HelpBox("Choose Hub or Mortfall to edit its appearance.", MessageType.Info);
             }
             else if (_appearanceTab == 1) DrawMist();
-            else DrawMovement();
+            else if (_appearanceTab == 2) DrawMovement();
+            else DrawLighting();
             EditorGUILayout.EndScrollView();
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -252,6 +259,7 @@ namespace RelicKeeper.Editor.Visuals
             _stage = WorldColorPreviewStage.Create(_environment == PreviewEnvironment.Mortfall,
                 _rooms.Length > 0 ? _rooms[_roomIndex] : null, _controller);
             _stage.SetView(_overview, _showActors);
+            if (_appearanceTab == 3) _stage.FocusLighting();
         }
 
         internal static WorldColorProfileSO CreateEditablePreview(WorldColorProfileSO source)
@@ -366,6 +374,25 @@ namespace RelicKeeper.Editor.Visuals
                     _previewTravel = EditorGUILayout.Slider("Look left / right", _previewTravel, -15f, 15f);
                 EditorGUILayout.LabelField("Preview movement does not move your character.", EditorStyles.wordWrappedMiniLabel);
             }
+        }
+
+        private void DrawLighting()
+        {
+            if (_mistWorking == null) { EditorGUILayout.HelpBox("Choose Hub or Mortfall to edit lighting.", MessageType.Info); return; }
+            _mistSettings.Update();
+            EditorGUILayout.LabelField("Local lights", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Warm light from the forge and torches. Nearby stone and characters share the same light.", EditorStyles.wordWrappedMiniLabel);
+            var enabled = _mistSettings.FindProperty("localLights");
+            enabled.boolValue = EditorGUILayout.Toggle("Enable lights", enabled.boolValue);
+            DrawPercent(_mistSettings.FindProperty("localLightStrength"), "Strength (%)", 0, 300);
+            DrawPercent(_mistSettings.FindProperty("localLightRadius"), "Reach (%)", 50, 200);
+            var tint = _mistSettings.FindProperty("localLightTint");
+            tint.colorValue = EditorGUILayout.ColorField(new GUIContent("Light color"), tint.colorValue, true, false, false);
+            if (_mistSettings.ApplyModifiedProperties()) ApplyPreview(true);
+            EditorGUILayout.Space(8);
+            EditorGUILayout.LabelField(_environment == PreviewEnvironment.Mortfall
+                ? "Placed torches light automatically. Every flame breathes with its own gentle flicker."
+                : "The sample view focuses on the forge when this tab opens.", EditorStyles.wordWrappedMiniLabel);
         }
 
         private void DrawPreview(bool expand)

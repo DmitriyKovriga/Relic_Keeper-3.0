@@ -55,6 +55,8 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
             #pragma multi_compile_instancing
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
             #include "WorldColorGrade.hlsl"
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/ShapeLightShared.hlsl"
+            #include "RelicLocalLight.hlsl"
 
             TEXTURE2D(_MainTex); SAMPLER(sampler_MainTex);
             TEXTURE2D(_FxNoiseTex); SAMPLER(sampler_FxNoiseTex);
@@ -70,7 +72,7 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
             CBUFFER_END
 
             struct Attributes { float3 positionOS : POSITION; float2 uv : TEXCOORD0; half4 color : COLOR; UNITY_VERTEX_INPUT_INSTANCE_ID };
-            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; half4 color : COLOR; UNITY_VERTEX_OUTPUT_STEREO };
+            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float2 lightingUV : TEXCOORD1; half4 color : COLOR; UNITY_VERTEX_OUTPUT_STEREO };
             Varyings Vert(Attributes input)
             {
                 Varyings o = (Varyings)0;
@@ -79,6 +81,7 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
                 SetUpSpriteInstanceProperties();
                 o.positionCS = TransformObjectToHClip(UnityFlipSprite(input.positionOS, unity_SpriteProps.xy));
                 o.uv = input.uv;
+                o.lightingUV = ComputeScreenPos(o.positionCS / o.positionCS.w).xy;
                 o.color = input.color * unity_SpriteColor;
                 return o;
             }
@@ -101,6 +104,7 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
                 float luminance = dot(rgb, half3(0.2126, 0.7152, 0.0722));
                 rgb = lerp(rgb, luminance.xxx, _FxDesaturate);
                 rgb = max(0, (rgb - 0.5) * _FxContrast + 0.5) * _FxBrightness;
+                rgb = RKApplyLocalLight(rgb, i.lightingUV, _RKGradeGroup, _RKGradeIsEffect);
                 rgb = RKGradeColor(rgb, _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect);
 
                 float dilation = texel.a, erosion = texel.a;

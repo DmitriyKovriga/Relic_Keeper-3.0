@@ -13,6 +13,7 @@ namespace RelicKeeper.Editor.Visuals
     {
         private const string TransitionKey = "RelicKeeper.WorldColors.PlayTransition";
         private const string ReloadKey = "RelicKeeper.WorldColors.AssemblyReload";
+        private static double _reloadStableSince = -1;
 
         static WorldColorSaveGuard()
         {
@@ -26,7 +27,9 @@ namespace RelicKeeper.Editor.Visuals
             EditorSceneManager.sceneOpened += (_, __) => WorldColorGrading.RefreshRegisteredScenes();
             PrefabStage.prefabSaving += _ => WorldColorGrading.SuspendBindings();
             PrefabStage.prefabSaved += _ => ScheduleRefresh();
-            EditorApplication.delayCall += ResumeAfterReload;
+            // update also runs when the Editor is unfocused; delayCall may wait for
+            // an Inspector repaint and leave every appearance preview paused.
+            EditorApplication.update += ResumeAfterReload;
         }
 
         private static void BeforeReload()
@@ -52,11 +55,24 @@ namespace RelicKeeper.Editor.Visuals
 
         private static void ResumeAfterReload()
         {
-            if (SessionState.GetBool(TransitionKey, false)) return;
             if (EditorApplication.isCompiling || EditorApplication.isUpdating)
-            { EditorApplication.delayCall += ResumeAfterReload; return; }
+            { _reloadStableSince = -1; return; }
+            if (SessionState.GetBool(TransitionKey, false))
+            {
+                // Test-runner reloads can leave the transition marker behind without
+                // delivering an Entered-mode event. Never resume during a real mode
+                // change; recover only after the Editor has settled in one mode.
+                if (EditorApplication.isPlayingOrWillChangePlaymode != EditorApplication.isPlaying)
+                    _reloadStableSince = -1;
+                else if (_reloadStableSince < 0) _reloadStableSince = EditorApplication.timeSinceStartup;
+                if (_reloadStableSince < 0 || EditorApplication.timeSinceStartup - _reloadStableSince < 0.25)
+                    return;
+                SessionState.SetBool(TransitionKey, false);
+            }
+            _reloadStableSince = -1;
             SessionState.SetBool(ReloadKey, false);
             WorldColorGrading.SetBindingsSuspended(false);
+            EditorApplication.update -= ResumeAfterReload;
         }
 
         private static string[] OnWillSaveAssets(string[] paths)

@@ -66,6 +66,7 @@ namespace RelicKeeper.Tests.EditMode
                 var mistDraft = (AtmosphereProfileSO)typeof(WorldColorProfilesWindow).GetField("_mistWorking", Private).GetValue(window);
                 colorDraft.background.exposure = -0.5f; mistDraft.backgroundMist = 0.42f; mistDraft.limitDepthMistHeight = false;
                 mistDraft.layeredParallax = true; mistDraft.parallaxFar = 0.73f;
+                mistDraft.localLights = true; mistDraft.localLightStrength = 1.25f;
                 Assert.That(colors.background.exposure, Is.Zero);
                 Assert.That(mist.backgroundMist, Is.EqualTo(0.17f));
                 window.SaveAppearance();
@@ -75,6 +76,8 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(mist.limitDepthMistHeight, Is.False, "Save must retain full-view coverage.");
                 Assert.That(mist.layeredParallax, Is.True);
                 Assert.That(mist.parallaxFar, Is.EqualTo(0.73f), "One Save must include background movement settings.");
+                Assert.That(mist.localLights, Is.True);
+                Assert.That(mist.localLightStrength, Is.EqualTo(1.25f), "Save must also keep local lighting settings.");
                 StringAssert.Contains("backgroundMist: 0.42", System.IO.File.ReadAllText(mistPath));
                 Assert.That(colors.hideFlags, Is.EqualTo(HideFlags.None));
                 Assert.That(mist.hideFlags, Is.EqualTo(HideFlags.None));
@@ -197,8 +200,13 @@ namespace RelicKeeper.Tests.EditMode
                 using (var stage = WorldColorPreviewStage.Create(true, WorldColorPreviewStage.GetMortfallRooms()[0], null))
                 {
                     foreach (GameObject root in stage.Scene.GetRootGameObjects())
-                        Assert.That(root.GetComponentsInChildren<UnityEngine.Rendering.Universal.Light2D>(true), Is.Empty,
-                            "Flat color samples must not register lights or depend on game-scene ambient light.");
+                        foreach (var sampleLight in root.GetComponentsInChildren<UnityEngine.Rendering.Universal.Light2D>(true))
+                        {
+                            Assert.That(sampleLight.lightType, Is.Not.EqualTo(UnityEngine.Rendering.Universal.Light2D.LightType.Global),
+                                "Samples must not register a duplicate ambient/global light.");
+                            Assert.That(sampleLight.GetComponent<LocalLight2DSource>(), Is.Not.Null,
+                                "Only source-owned local lights may be copied into the preview.");
+                        }
                 }
                 Assert.That(light.lightType, Is.EqualTo(UnityEngine.Rendering.Universal.Light2D.LightType.Global));
             }
