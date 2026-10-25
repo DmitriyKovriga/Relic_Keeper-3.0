@@ -217,5 +217,72 @@ namespace RelicKeeper.Tests.EditMode
             RenderPipeline.SubmitRenderRequest(camera, new RenderPipeline.StandardRequest { destination = target });
             RenderTexture.active = target; image.ReadPixels(new Rect(0, 0, 480, 270), 0, 0); image.Apply(); return image.GetPixels32();
         }
+
+        [Test]
+        public void ExposedTerrainReceivesLightWithoutOpeningInternalStepSeams()
+        {
+            var scene = EditorSceneManager.NewPreviewScene();
+            var root = new GameObject("Stepped terrain", typeof(Grid)); UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(root, scene);
+            var child = new GameObject("Ground", typeof(UnityEngine.Tilemaps.Tilemap), typeof(UnityEngine.Tilemaps.TilemapRenderer), typeof(UnityEngine.Tilemaps.TilemapCollider2D));
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(child, scene); child.transform.SetParent(root.transform, false);
+            var tile = ScriptableObject.CreateInstance<UnityEngine.Tilemaps.Tile>(); tile.colliderType = UnityEngine.Tilemaps.Tile.ColliderType.Grid;
+            try
+            {
+                var map = child.GetComponent<UnityEngine.Tilemaps.Tilemap>();
+                foreach (var cell in new[] { Vector3Int.zero, Vector3Int.right, new Vector3Int(1, 1) }) map.SetTile(cell, tile);
+                RelicKeeper.Editor.Visuals.LocalLightOccluderBuilder.ConfigureRoom(root);
+                var outlines = root.GetComponentsInChildren<LocalLightOccluder>().Select(x => x.Outline).ToArray();
+                bool Blocked(Vector2 point) => outlines.Any(x => point.x > x.Min(v => v.x) && point.x < x.Max(v => v.x) &&
+                    point.y > x.Min(v => v.y) && point.y < x.Max(v => v.y));
+                Assert.That(Blocked(new Vector2(0.5f, 0.9f)), Is.False, "The exposed top can catch light.");
+                Assert.That(Blocked(new Vector2(1.5f, 1.9f)), Is.False);
+                Assert.That(Blocked(new Vector2(1.5f, 0.9f)), Is.True, "Do not carve an air slit under a taller neighboring tile.");
+                Assert.That(Blocked(new Vector2(0.5f, 0.5f)), Is.True, "The terrain body stays opaque.");
+                Assert.That(Blocked(new Vector2(1.5f, 1.5f)), Is.True);
+            }
+            finally { EditorSceneManager.ClosePreviewScene(scene); Object.DestroyImmediate(tile); }
+        }
+
+        [UnityTest]
+        public IEnumerator BothSavedTorchesLightTheGroundSurfaceWithoutLightingBelowIt()
+        {
+            WorldColorGrading.SetBindingsSuspended(false);
+            var stage = RelicKeeper.Editor.Visuals.WorldColorPreviewStage.Create(true, RelicKeeper.Editor.Visuals.LocalLightingSetup.RoomPath, null);
+            var profile = Object.Instantiate(stage.Controller.ActiveDepthMistProfile);
+            profile.ambientParticles = false; profile.ambientAnimations = false; profile.backgroundMist = 0; profile.shafts = 0;
+            profile.localLightStrength = 3; profile.localLightRadius = 1;
+            stage.Controller.PreviewDepthMistProfile = profile;
+            var target = new RenderTexture(480, 270, 24); target.Create();
+            var image = new Texture2D(480, 270, TextureFormat.RGBA32, false, true); var previous = RenderTexture.active;
+            try
+            {
+                EditorApplication.QueuePlayerLoopUpdate(); yield return null;
+                var torches = stage.Scene.GetRootGameObjects().SelectMany(x => x.GetComponentsInChildren<LocalLight2DSource>(true)).OrderBy(x => x.transform.position.x).ToArray();
+                Assert.That(torches.Length, Is.EqualTo(2));
+                foreach (var torch in torches)
+                {
+                    stage.Camera.transform.position = torch.transform.position + new Vector3(0, -1.2f, -10);
+                    profile.localLights = false; var before = Render(stage.Camera, target, image);
+                    profile.localLights = true; var after = Render(stage.Camera, target, image);
+                    int Pixel(Vector3 world)
+                    {
+                        Vector3 viewport = stage.Camera.WorldToViewportPoint(world);
+                        return Mathf.FloorToInt(viewport.y * 270) * 480 + Mathf.FloorToInt(viewport.x * 480);
+                    }
+                    int top = Pixel(new Vector3(torch.transform.position.x + 0.25f, 3.875f));
+                    Assert.That(after[top].r, Is.GreaterThan(before[top].r + 3), torch.name + " must light its visible platform surface.");
+                    foreach (float y in new[] { 3.4f, 2.5f })
+                    {
+                        int below = Pixel(new Vector3(torch.transform.position.x + 0.25f, y));
+                        Assert.That(after[below].r, Is.EqualTo(before[below].r).Within(1), torch.name + " must still stop at the stone beneath the receiving surface.");
+                    }
+                }
+            }
+            finally
+            {
+                stage.Controller.PreviewDepthMistProfile = null; RenderTexture.active = previous;
+                stage.Dispose(); Object.DestroyImmediate(profile); Object.DestroyImmediate(target); Object.DestroyImmediate(image);
+            }
+        }
     }
 }

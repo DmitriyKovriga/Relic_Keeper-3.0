@@ -70,8 +70,14 @@ The adapted shaders preserve hub roof sway and sprite flash/emission/dissolve.
 Terrain now blocks local light. A render-only URP shadow shape uses the existing
 hub ground box; Mortfall's solid tile cells are merged into convex rectangles.
 The geometry includes interiors, so underground areas remain unlit as well as
-areas behind a wall. Openings are preserved. Room 001 has 20 terrain rectangles;
+areas behind a wall. Openings are preserved;
 the approximation follows solid tile cells, rather than subpixel sprite outlines.
+Exposed top edges leave a six-art-pixel receiving skin so platform caps can
+catch torchlight. Vertical walls, underground stone, and internal joins between
+stepped tiles remain opaque. Runs split at exposed-edge changes before merging;
+the inset never carves a seam under a taller neighboring tile. This also fixes
+the right-hand torch in Room 001 appearing inactive when there is no decorative
+wall behind it: its platform now visibly receives light.
 Room Prefab Mode saves rebuild these shapes after tile edits. Hub rebuilding
 also refreshes its ground shape. Gameplay colliders are unchanged.
 
@@ -117,3 +123,11 @@ probe was then removed without moving the player or changing saved profiles.
 A standalone player build and target-device GPU profiling have
 not been performed. Many overlapping lights need measurement before expanding
 this pilot across whole dungeons.
+
+Ground-receiver fix: 25 relevant lighting/torch/ambient/preview tests passed,
+including both saved Room 001 torch platforms gaining surface illumination and
+their underground probes remaining unlit. A stepped-grid regression checks that
+internal tile joins do not become light leaks. On/off/shadows-disabled captures
+of both torches were compared in Edit Mode and in the visual preview during Play
+Mode at 480x270; no new console errors appeared. Updated terrain blocker data is
+saved in the Mortfall room prefabs; existing appearance profiles are preserved.

@@ -18,6 +18,61 @@ namespace RelicKeeper.Editor.Visuals
         private const string LightPrefab = "Assets/Prefabs/Visuals/WarmLocalLight.prefab";
         private const string TorchPrefab = "Assets/Prefabs/Visuals/WarmWallTorch.prefab";
         private static WorldColorPreviewStage[] _captures;
+        private static WorldColorPreviewStage _torchComparison;
+        public static void RefreshTerrainReceivers()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Exit Play Mode first.");
+            foreach (string path in WorldColorPreviewStage.GetMortfallRooms())
+            {
+                var room = PrefabUtility.LoadPrefabContents(path);
+                try
+                {
+                    if (room.GetComponentInChildren<LocalLight2DSource>(true) == null) continue;
+                    LocalLightOccluderBuilder.ConfigureRoom(room);
+                    PrefabUtility.SaveAsPrefabAsset(room, path);
+                }
+                finally { PrefabUtility.UnloadPrefabContents(room); }
+            }
+        }
+        public static void PrepareTorchComparison()
+        {
+            _torchComparison?.Dispose();
+            _torchComparison = WorldColorPreviewStage.Create(true, RoomPath, Camera.main?.GetComponent<AtmosphereController>());
+            EditorApplication.QueuePlayerLoopUpdate();
+        }
+        public static void CaptureTorchComparison()
+        {
+            if (_torchComparison == null) throw new InvalidOperationException("Prepare the torch comparison first.");
+            var stage = _torchComparison;
+            var draft = Object.Instantiate(stage.Controller.ActiveDepthMistProfile);
+            var sources = stage.Scene.GetRootGameObjects().SelectMany(x => x.GetComponentsInChildren<LocalLight2DSource>(true)).OrderBy(x => x.transform.position.x).ToArray();
+            var target = new RenderTexture(480, 270, 24); target.Create();
+            var image = new Texture2D(480, 270, TextureFormat.RGB24, false); var previous = RenderTexture.active;
+            try
+            {
+                Directory.CreateDirectory("Logs/LocalLighting"); stage.Controller.PreviewDepthMistProfile = draft;
+                for (int i = 0; i < sources.Length; i++)
+                {
+                    stage.Camera.transform.position = sources[i].transform.position + new Vector3(0, -1.2f, -10);
+                    foreach (string mode in new[] { "Off", "On", "NoShadows" })
+                    {
+                        draft.localLights = mode != "Off";
+                        foreach (var source in sources) source.Light.shadowsEnabled = mode != "NoShadows";
+                        UnityEngine.Rendering.RenderPipeline.SubmitRenderRequest(stage.Camera,
+                            new UnityEngine.Rendering.RenderPipeline.StandardRequest { destination = target });
+                        RenderTexture.active = target; image.ReadPixels(new Rect(0, 0, 480, 270), 0, 0); image.Apply();
+                        File.WriteAllBytes($"Logs/LocalLighting/Torch-{i}-{mode}.png", image.EncodeToPNG());
+                    }
+                }
+                File.WriteAllText("Logs/LocalLighting/Torch-sources.txt", string.Join("\n", sources.Select(x => x.name + " " + x.transform.position)));
+            }
+            finally
+            {
+                RenderTexture.active = previous; stage.Controller.PreviewDepthMistProfile = null;
+                Object.DestroyImmediate(draft); Object.DestroyImmediate(target); Object.DestroyImmediate(image);
+                stage.Dispose(); _torchComparison = null;
+            }
+        }
 
         public static void LinkAllTorches()
         {

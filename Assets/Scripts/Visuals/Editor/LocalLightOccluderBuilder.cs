@@ -14,6 +14,9 @@ namespace RelicKeeper.Editor.Visuals
     public static class LocalLightOccluderBuilder
     {
         private const string RootName = "LocalLightBlockers";
+        // Keep a visible receiving skin above the solid volume. Full-cell self
+        // shadows otherwise erase all illumination from platform/ground artwork.
+        internal const float TerrainSurfaceDepth = 6f / 24f;
         static LocalLightOccluderBuilder()
         {
             PrefabStage.prefabSaving += root =>
@@ -72,37 +75,43 @@ namespace RelicKeeper.Editor.Visuals
             {
                 if (map.GetComponent<TilemapCollider2D>() == null) continue;
                 var root = Reset(map.transform);
-                // Merge solid cell runs vertically. Each resulting rectangle is
-                // convex, so openings/holes cannot become accidentally filled.
-                var active = new Dictionary<(int, int), RectInt>();
-                var finished = new List<RectInt>();
+                // Split runs at exposed top edges before merging vertically.
+                // Only those edges recede: internal joins remain completely solid.
+                var active = new Dictionary<(int, int, bool), RectInt>();
+                var finished = new List<(RectInt rectangle, bool exposedTop)>();
                 var bounds = map.cellBounds;
                 for (int y = bounds.yMin; y < bounds.yMax; y++)
                 {
-                    var next = new Dictionary<(int, int), RectInt>();
+                    var next = new Dictionary<(int, int, bool), RectInt>();
                     for (int x = bounds.xMin; x < bounds.xMax;)
                     {
                         var cell = new Vector3Int(x, y, 0);
-                        if (!map.HasTile(cell) || map.GetColliderType(cell) == Tile.ColliderType.None) { x++; continue; }
+                        if (!IsSolid(map, cell)) { x++; continue; }
+                        bool exposedTop = !IsSolid(map, cell + Vector3Int.up);
                         int start = x++;
-                        while (x < bounds.xMax && map.HasTile(new Vector3Int(x, y, 0)) &&
-                            map.GetColliderType(new Vector3Int(x, y, 0)) != Tile.ColliderType.None) x++;
-                        var key = (start, x - start);
+                        while (x < bounds.xMax && IsSolid(map, new Vector3Int(x, y, 0)) &&
+                            !IsSolid(map, new Vector3Int(x, y + 1, 0)) == exposedTop) x++;
+                        var key = (start, x - start, exposedTop);
                         if (active.TryGetValue(key, out var rectangle)) { rectangle.height++; active.Remove(key); }
                         else rectangle = new RectInt(start, y, x - start, 1);
                         next[key] = rectangle;
                     }
-                    finished.AddRange(active.Values); active = next;
+                    foreach (var pair in active) finished.Add((pair.Value, pair.Key.Item3));
+                    active = next;
                 }
-                finished.AddRange(active.Values);
-                foreach (var rectangle in finished)
+                foreach (var pair in active) finished.Add((pair.Value, pair.Key.Item3));
+                foreach (var region in finished)
                 {
+                    var rectangle = region.rectangle;
                     var min = map.CellToLocal(new Vector3Int(rectangle.xMin, rectangle.yMin, 0));
                     var max = map.CellToLocal(new Vector3Int(rectangle.xMax, rectangle.yMax, 0));
+                    if (region.exposedTop) max.y -= Mathf.Min(TerrainSurfaceDepth, (max.y - min.y) * 0.5f);
                     AddPolygon(root, Rectangle(min, max));
                 }
             }
         }
+
+        private static bool IsSolid(Tilemap map, Vector3Int cell) => map.HasTile(cell) && map.GetColliderType(cell) != Tile.ColliderType.None;
 
         private static Vector3[] Rectangle(Vector2 min, Vector2 max) => new[]
         { new Vector3(min.x, min.y), new Vector3(max.x, min.y), new Vector3(max.x, max.y), new Vector3(min.x, max.y) };
