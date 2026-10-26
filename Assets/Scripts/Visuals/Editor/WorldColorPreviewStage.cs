@@ -289,6 +289,7 @@ namespace RelicKeeper.Editor.Visuals
             renderer.sortingLayerName = "Hero"; renderer.sortingOrder = 1;
             renderer.gameObject.AddComponent<WorldColorGroup>().Configure(WorldColorRole.Characters);
             float floor = float.NegativeInfinity;
+            Tilemap supportMap = null; Vector3Int supportCell = default;
             foreach (Tilemap map in _ground)
             {
                 Vector3Int start = map.WorldToCell(new Vector3(x, _spawn.y, 0));
@@ -296,11 +297,40 @@ namespace RelicKeeper.Editor.Visuals
                 {
                     Vector3Int cell = start + Vector3Int.down * i;
                     if (!map.HasTile(cell)) continue;
-                    floor = Mathf.Max(floor, map.CellToWorld(cell + Vector3Int.up).y); break;
+                    float candidate = map.CellToWorld(cell + Vector3Int.up).y;
+                    if (candidate > floor) { floor = candidate; supportMap = map; supportCell = cell; }
+                    break;
                 }
             }
             if (float.IsNegativeInfinity(floor)) floor = _spawn.y - 0.7f;
             renderer.transform.position += new Vector3(x - renderer.bounds.center.x, floor - renderer.bounds.min.y, 0f);
+            if (name == "Player sample")
+            {
+                var shadow = renderer.gameObject.AddComponent<PlayerLightShadow>(); shadow.ConfigureBody(renderer.bounds);
+                float min = -1000, max = 1000;
+                if (supportMap != null)
+                {
+                    int left = 0, right = 0;
+                    while (left < 128 && supportMap.HasTile(supportCell + Vector3Int.left * (left + 1))) left++;
+                    while (right < 128 && supportMap.HasTile(supportCell + Vector3Int.right * (right + 1))) right++;
+                    min = supportMap.CellToWorld(supportCell + Vector3Int.left * left).x;
+                    max = supportMap.CellToWorld(supportCell + Vector3Int.right * (right + 1)).x;
+                }
+                shadow.ConfigurePreviewGround(floor, min, max);
+                shadow.PreviewLightVisibility = IsPreviewLightVisible;
+            }
+        }
+
+        private bool IsPreviewLightVisible(Vector2 start, Vector2 end)
+        {
+            int steps = Mathf.Clamp(Mathf.CeilToInt(Vector2.Distance(start, end) * 24), 1, 512);
+            foreach (var map in _shaftTerrain)
+                for (int i = 1; i < steps; i++)
+                {
+                    Vector3Int cell = map.WorldToCell(Vector2.Lerp(start, end, i / (float)steps));
+                    if (map.HasTile(cell) && map.GetColliderType(cell) != Tile.ColliderType.None) return false;
+                }
+            return true;
         }
 
         public void SetView(bool overview, bool actors)

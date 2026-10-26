@@ -52,6 +52,17 @@ namespace Scripts.Visuals.Atmosphere
         [Range(0f, 3f)] public float localLightStrength = 1f;
         [Range(0.5f, 2f)] public float localLightRadius = 1f;
         public Color localLightTint = new Color(1f, 0.6f, 0.24f, 1f);
+        [Header("Player light shadow — independent of terrain shadows")]
+        public bool playerLightShadow = true;
+        [Range(0, 1)] public float playerLightShadowStrength = 0.24f;
+        [Range(0.1f, 30)] public float playerLightShadowReach = 2.5f;
+        [Range(0.1f, 4)] public float playerLightShadowWidth = 1;
+        [Range(0.1f, 3)] public float playerLightShadowHeight = 1;
+        [Range(0, 2)] public float playerLightShadowSoftness = 0.25f;
+        [Range(0, 1)] public float playerGroundShadowOpacity = 0.35f;
+        [Range(0, 8)] public float playerGroundShadowLength = 1;
+        [Range(0.03f, 1)] public float playerGroundShadowThickness = 0.18f;
+
         [Header("Soft room fills")]
         public bool roomFillLights = true;
         [Range(0, 3)] public float roomFillStrength = 1;
@@ -124,6 +135,14 @@ namespace Scripts.Visuals.Atmosphere
             localShaftDust = Mathf.Clamp01(localShaftDust);
             roomFillStrength = Mathf.Clamp(roomFillStrength, 0, 3);
             roomFillRadius = Mathf.Clamp(roomFillRadius, 0.5f, 2);
+            playerLightShadowStrength = Mathf.Clamp01(playerLightShadowStrength);
+            playerLightShadowReach = Mathf.Clamp(playerLightShadowReach, 0.1f, 30);
+            playerLightShadowWidth = Mathf.Clamp(playerLightShadowWidth, 0.1f, 4);
+            playerLightShadowHeight = Mathf.Clamp(playerLightShadowHeight, 0.1f, 3);
+            playerLightShadowSoftness = Mathf.Clamp(playerLightShadowSoftness, 0, 2);
+            playerGroundShadowOpacity = Mathf.Clamp01(playerGroundShadowOpacity);
+            playerGroundShadowLength = Mathf.Clamp(playerGroundShadowLength, 0, 8);
+            playerGroundShadowThickness = Mathf.Clamp(playerGroundShadowThickness, 0.03f, 1);
             sourceGlowStrength = Mathf.Clamp(sourceGlowStrength, 0, 2);
             sourceGlowRadius = Mathf.Clamp(sourceGlowRadius, 0.25f, 3);
             sourceGlowSoftness = Mathf.Clamp(sourceGlowSoftness, 0.25f, 3);

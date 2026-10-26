@@ -9,6 +9,9 @@ namespace Scripts.Visuals.Atmosphere
     [ExecuteAlways, DisallowMultipleComponent, RequireComponent(typeof(Light2D))]
     public sealed class LocalLight2DSource : MonoBehaviour
     {
+        internal static readonly System.Collections.Generic.HashSet<LocalLight2DSource> ActiveSources = new System.Collections.Generic.HashSet<LocalLight2DSource>();
+        public bool CastsPlayerShadow(AtmosphereProfileSO profile) => _strength > 0 && IsAvailable(profile) && ProfileStrength(profile) > 0;
+        public float ShadowRadius(AtmosphereProfileSO profile) => _radius * ProfileRadius(profile) * FlameSample.y;
         [SerializeField, Min(0f)] private float _strength = 0.18f;
         [SerializeField, Min(0.1f)] private float _radius = 3.5f;
         [SerializeField] private bool _flame;
@@ -81,6 +84,7 @@ namespace Scripts.Visuals.Atmosphere
         public void BindPreview(AtmosphereController owner) { _previewOwner = owner; Prepare(); EnsureGlow(); }
         private void OnEnable()
         {
+            ActiveSources.Add(this);
             SetPlacementPhase();
             Prepare();
             EnsureGlow();
@@ -91,6 +95,7 @@ namespace Scripts.Visuals.Atmosphere
         }
         private void OnDisable()
         {
+            ActiveSources.Remove(this);
             _glowVisual?.Dispose(); _glowVisual = null;
             RenderPipelineManager.beginCameraRendering -= BeginCamera;
             RenderPipelineManager.endCameraRendering -= EndCamera;

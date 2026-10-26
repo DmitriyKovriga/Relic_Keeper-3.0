@@ -303,6 +303,8 @@ public class PlayerMovement : MonoBehaviour
         _attackInput = GetComponent<PlayerAttackInput>();
         if (GetComponent<GroundingVisualController>() == null)
             gameObject.AddComponent<GroundingVisualController>();
+        if (GetComponent<Scripts.Visuals.Atmosphere.PlayerLightShadow>() == null)
+            gameObject.AddComponent<Scripts.Visuals.Atmosphere.PlayerLightShadow>();
         if (GetComponent<PlayerCharacterAnimationController>() == null)
             gameObject.AddComponent<PlayerCharacterAnimationController>();
         if (GetComponent<PlayerMovementVisual>() == null)
