@@ -1,0 +1,862 @@
+{
+  "drawing_id": "e8f3bb2c-7193-4384-8f4a-c0f64f2995b4",
+  "native_png": "https://api.pixellab.ai/mcp/pixel-tools/e8f3bb2c-7193-4384-8f4a-c0f64f2995b4/assets/front/full.png",
+  "purpose": "Transparent 24px masonry seam overlays; six moss and two hairline cracks. Exact artwork made with PixelLab pixel tools.",
+  "recipe": {
+    "job": {
+      "canvas": [
+        96,
+        48
+      ],
+      "frame_count": 1,
+      "views": [
+        {
+          "id": "front",
+          "offset": [
+            0,
+            0
+          ]
+        }
+      ],
+      "source_bookends_exact": false,
+      "require_clear_border": true
+    },
+    "scene": {
+      "palette": {
+        "d": "#1f2d26",
+        "s": "#2c3c30",
+        "m": "#3b4d3d",
+        "l": "#4b5b46",
+        "ink": "#141c1d",
+        "bevel": "#324240"
+      },
+      "layers": [
+        {
+          "id": "overlay",
+          "name": "Body - masonry overlays"
+        }
+      ],
+      "views": {
+        "front": {
+          "nodes": {
+            "tile0": {
+              "layer": "overlay",
+              "at": [
+                0,
+                0
+              ],
+              "draw": [
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      2,
+                      5
+                    ],
+                    [
+                      12,
+                      5
+                    ]
+                  ],
+                  "color": "m",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      8,
+                      5
+                    ],
+                    [
+                      8,
+                      10
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      3,
+                      4
+                    ],
+                    [
+                      6,
+                      4
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      10,
+                      6
+                    ],
+                    [
+                      13,
+                      6
+                    ]
+                  ],
+                  "color": "d",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      16,
+                      13
+                    ],
+                    [
+                      21,
+                      13
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      5,
+                      5
+                    ],
+                    [
+                      6,
+                      5
+                    ]
+                  ],
+                  "color": "l",
+                  "stroke_width": 1
+                }
+              ]
+            },
+            "tile1": {
+              "layer": "overlay",
+              "at": [
+                24,
+                0
+              ],
+              "draw": [
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      12,
+                      13
+                    ],
+                    [
+                      21,
+                      13
+                    ]
+                  ],
+                  "color": "m",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      12,
+                      14
+                    ],
+                    [
+                      12,
+                      18
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      14,
+                      12
+                    ],
+                    [
+                      17,
+                      12
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      17,
+                      14
+                    ],
+                    [
+                      20,
+                      14
+                    ]
+                  ],
+                  "color": "d",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      2,
+                      21
+                    ],
+                    [
+                      7,
+                      21
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      14,
+                      13
+                    ],
+                    [
+                      16,
+                      13
+                    ]
+                  ],
+                  "color": "l",
+                  "stroke_width": 1
+                }
+              ]
+            },
+            "tile2": {
+              "layer": "overlay",
+              "at": [
+                48,
+                0
+              ],
+              "draw": [
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      2,
+                      21
+                    ],
+                    [
+                      16,
+                      21
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      6,
+                      20
+                    ],
+                    [
+                      10,
+                      20
+                    ]
+                  ],
+                  "color": "m",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      12,
+                      20
+                    ],
+                    [
+                      14,
+                      20
+                    ]
+                  ],
+                  "color": "m",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      9,
+                      22
+                    ],
+                    [
+                      12,
+                      22
+                    ]
+                  ],
+                  "color": "d",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      4,
+                      17
+                    ],
+                    [
+                      4,
+                      21
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      7,
+                      20
+                    ],
+                    [
+                      8,
+                      20
+                    ]
+                  ],
+                  "color": "l",
+                  "stroke_width": 1
+                }
+              ]
+            },
+            "tile3": {
+              "layer": "overlay",
+              "at": [
+                72,
+                0
+              ],
+              "draw": [
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      3,
+                      13
+                    ],
+                    [
+                      18,
+                      13
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      8,
+                      10
+                    ],
+                    [
+                      8,
+                      13
+                    ]
+                  ],
+                  "color": "m",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      11,
+                      12
+                    ],
+                    [
+                      15,
+                      12
+                    ]
+                  ],
+                  "color": "m",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      18,
+                      14
+                    ],
+                    [
+                      20,
+                      14
+                    ]
+                  ],
+                  "color": "d",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      2,
+                      5
+                    ],
+                    [
+                      6,
+                      5
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      12,
+                      12
+                    ],
+                    [
+                      13,
+                      12
+                    ]
+                  ],
+                  "color": "l",
+                  "stroke_width": 1
+                }
+              ]
+            },
+            "tile4": {
+              "layer": "overlay",
+              "at": [
+                0,
+                24
+              ],
+              "draw": [
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      16,
+                      1
+                    ],
+                    [
+                      16,
+                      5
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      13,
+                      5
+                    ],
+                    [
+                      21,
+                      5
+                    ]
+                  ],
+                  "color": "m",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      22,
+                      6
+                    ],
+                    [
+                      22,
+                      11
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      17,
+                      4
+                    ],
+                    [
+                      19,
+                      4
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      20,
+                      6
+                    ],
+                    [
+                      22,
+                      6
+                    ]
+                  ],
+                  "color": "d",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      18,
+                      5
+                    ],
+                    [
+                      19,
+                      5
+                    ]
+                  ],
+                  "color": "l",
+                  "stroke_width": 1
+                }
+              ]
+            },
+            "tile5": {
+              "layer": "overlay",
+              "at": [
+                24,
+                24
+              ],
+              "draw": [
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      8,
+                      7
+                    ],
+                    [
+                      8,
+                      13
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      5,
+                      13
+                    ],
+                    [
+                      11,
+                      13
+                    ]
+                  ],
+                  "color": "m",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      4,
+                      15
+                    ],
+                    [
+                      4,
+                      21
+                    ]
+                  ],
+                  "color": "s",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      2,
+                      21
+                    ],
+                    [
+                      6,
+                      21
+                    ]
+                  ],
+                  "color": "m",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      9,
+                      12
+                    ],
+                    [
+                      11,
+                      12
+                    ]
+                  ],
+                  "color": "d",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      6,
+                      13
+                    ],
+                    [
+                      7,
+                      13
+                    ]
+                  ],
+                  "color": "l",
+                  "stroke_width": 1
+                }
+              ]
+            },
+            "tile6": {
+              "layer": "overlay",
+              "at": [
+                48,
+                24
+              ],
+              "draw": [
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      10,
+                      2
+                    ],
+                    [
+                      11,
+                      3
+                    ],
+                    [
+                      11,
+                      6
+                    ],
+                    [
+                      13,
+                      8
+                    ],
+                    [
+                      12,
+                      11
+                    ],
+                    [
+                      14,
+                      14
+                    ],
+                    [
+                      13,
+                      17
+                    ],
+                    [
+                      15,
+                      19
+                    ],
+                    [
+                      15,
+                      22
+                    ]
+                  ],
+                  "color": "ink",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      12,
+                      8
+                    ],
+                    [
+                      9,
+                      9
+                    ],
+                    [
+                      7,
+                      9
+                    ]
+                  ],
+                  "color": "ink",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      14,
+                      14
+                    ],
+                    [
+                      17,
+                      15
+                    ],
+                    [
+                      18,
+                      17
+                    ]
+                  ],
+                  "color": "ink",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      12,
+                      3
+                    ],
+                    [
+                      12,
+                      5
+                    ]
+                  ],
+                  "color": "bevel",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      15,
+                      15
+                    ],
+                    [
+                      14,
+                      17
+                    ]
+                  ],
+                  "color": "bevel",
+                  "stroke_width": 1
+                }
+              ]
+            },
+            "tile7": {
+              "layer": "overlay",
+              "at": [
+                72,
+                24
+              ],
+              "draw": [
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      4,
+                      4
+                    ],
+                    [
+                      7,
+                      5
+                    ],
+                    [
+                      9,
+                      8
+                    ],
+                    [
+                      12,
+                      9
+                    ],
+                    [
+                      12,
+                      12
+                    ],
+                    [
+                      16,
+                      13
+                    ],
+                    [
+                      18,
+                      16
+                    ],
+                    [
+                      20,
+                      17
+                    ]
+                  ],
+                  "color": "ink",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      12,
+                      12
+                    ],
+                    [
+                      10,
+                      15
+                    ],
+                    [
+                      10,
+                      18
+                    ],
+                    [
+                      8,
+                      20
+                    ]
+                  ],
+                  "color": "ink",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      5,
+                      3
+                    ],
+                    [
+                      7,
+                      4
+                    ]
+                  ],
+                  "color": "bevel",
+                  "stroke_width": 1
+                },
+                {
+                  "op": "path",
+                  "points": [
+                    [
+                      17,
+                      13
+                    ],
+                    [
+                      18,
+                      15
+                    ]
+                  ],
+                  "color": "bevel",
+                  "stroke_width": 1
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

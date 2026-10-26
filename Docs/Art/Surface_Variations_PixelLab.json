@@ -1,0 +1,911 @@
+{
+  "kind": "V13 wall-surface pilot; only CrackedMasonry retained. DampStone and MossSeam rejected and removed; replacement palette in Wall_Details_PixelLab.json",
+  "paletteReferences": [
+    "Assets/Resources/Sprites/WallAndGrounds/MortfallDungeon/MortFallAssets/Mortfall-Walls-tiled.png",
+    "Assets/Resources/Sprites/WallAndGrounds/MortfallDungeon/MortFallAssets/Mortfall-ground-platforms.png"
+  ],
+  "tool": "PixelLab pixelart_workbench draw",
+  "assets": [
+    {
+      "name": "CrackedMasonry",
+      "drawingId": "711d9bfc-8fd5-4111-9eb9-0ae952d2f92d",
+      "recipe": {
+        "job": {
+          "canvas": [
+            48,
+            48
+          ],
+          "frame_count": 1,
+          "views": [
+            {
+              "id": "front",
+              "offset": [
+                0,
+                0
+              ]
+            }
+          ],
+          "source_bookends_exact": false,
+          "require_clear_border": true
+        },
+        "scene": {
+          "palette": {
+            "crack": "#181d1e",
+            "shadow": "#1c2223",
+            "bevel": "#293939",
+            "mid": "#1e2a2a"
+          },
+          "layers": [
+            {
+              "id": "stone",
+              "name": "Body - wall fracture"
+            }
+          ],
+          "views": {
+            "front": {
+              "nodes": {
+                "marks": {
+                  "layer": "stone",
+                  "at": [
+                    0,
+                    0
+                  ],
+                  "draw": [
+                    {
+                      "op": "path",
+                      "points": [
+                        [
+                          26,
+                          3
+                        ],
+                        [
+                          26,
+                          8
+                        ],
+                        [
+                          23,
+                          10
+                        ],
+                        [
+                          24,
+                          15
+                        ],
+                        [
+                          21,
+                          17
+                        ],
+                        [
+                          22,
+                          22
+                        ],
+                        [
+                          20,
+                          25
+                        ],
+                        [
+                          20,
+                          29
+                        ],
+                        [
+                          23,
+                          31
+                        ],
+                        [
+                          22,
+                          36
+                        ],
+                        [
+                          19,
+                          38
+                        ],
+                        [
+                          20,
+                          43
+                        ],
+                        [
+                          17,
+                          45
+                        ]
+                      ],
+                      "color": "crack",
+                      "stroke_width": 1
+                    },
+                    {
+                      "op": "path",
+                      "points": [
+                        [
+                          23,
+                          11
+                        ],
+                        [
+                          18,
+                          13
+                        ],
+                        [
+                          16,
+                          16
+                        ],
+                        [
+                          12,
+                          15
+                        ],
+                        [
+                          9,
+                          17
+                        ]
+                      ],
+                      "color": "crack",
+                      "stroke_width": 1
+                    },
+                    {
+                      "op": "path",
+                      "points": [
+                        [
+                          22,
+                          21
+                        ],
+                        [
+                          28,
+                          23
+                        ],
+                        [
+                          31,
+                          22
+                        ],
+                        [
+                          34,
+                          25
+                        ],
+                        [
+                          38,
+                          26
+                        ]
+                      ],
+                      "color": "crack",
+                      "stroke_width": 1
+                    },
+                    {
+                      "op": "path",
+                      "points": [
+                        [
+                          22,
+                          34
+                        ],
+                        [
+                          16,
+                          33
+                        ],
+                        [
+                          13,
+                          36
+                        ],
+                        [
+                          8,
+                          36
+                        ]
+                      ],
+                      "color": "crack",
+                      "stroke_width": 1
+                    },
+                    {
+                      "op": "path",
+                      "points": [
+                        [
+                          27,
+                          4
+                        ],
+                        [
+                          27,
+                          8
+                        ],
+                        [
+                          25,
+                          10
+                        ]
+                      ],
+                      "color": "bevel",
+                      "stroke_width": 1
+                    },
+                    {
+                      "op": "path",
+                      "points": [
+                        [
+                          25,
+                          13
+                        ],
+                        [
+                          25,
+                          15
+                        ],
+                        [
+                          23,
+                          17
+                        ]
+                      ],
+                      "color": "bevel",
+                      "stroke_width": 1
+                    },
+                    {
+                      "op": "path",
+                      "points": [
+                        [
+                          23,
+                          20
+                        ],
+                        [
+                          23,
+                          22
+                        ],
+                        [
+                          21,
+                          25
+                        ]
+                      ],
+                      "color": "bevel",
+                      "stroke_width": 1
+                    },
+                    {
+                      "op": "path",
+                      "points": [
+                        [
+                          24,
+                          31
+                        ],
+                        [
+                          23,
+                          35
+                        ]
+                      ],
+                      "color": "bevel",
+                      "stroke_width": 1
+                    },
+                    {
+                      "op": "path",
+                      "points": [
+                        [
+                          21,
+                          40
+                        ],
+                        [
+                          21,
+                          43
+                        ],
+                        [
+                          19,
+                          45
+                        ]
+                      ],
+                      "color": "mid",
+                      "stroke_width": 1
+                    },
+                    {
+                      "op": "path",
+                      "points": [
+                        [
+                          29,
+                          24
+                        ],
+                        [
+                          32,
+                          23
+                        ],
+                        [
+                          34,
+                          26
+                        ]
+                      ],
+                      "color": "mid",
+                      "stroke_width": 1
+                    },
+                    {
+                      "op": "polygon",
+                      "points": [
+                        [
+                          21,
+                          21
+                        ],
+                        [
+                          24,
+                          22
+                        ],
+                        [
+                          22,
+                          25
+                        ],
+                        [
+                          20,
+                          25
+                        ]
+                      ],
+                      "color": "crack"
+                    },
+                    {
+                      "op": "polygon",
+                      "points": [
+                        [
+                          18,
+                          36
+                        ],
+                        [
+                          21,
+                          37
+                        ],
+                        [
+                          19,
+                          39
+                        ]
+                      ],
+                      "color": "shadow"
+                    },
+                    {
+                      "op": "pixels",
+                      "pixels": [
+                        [
+                          23,
+                          23,
+                          "mid"
+                        ],
+                        [
+                          22,
+                          24,
+                          "mid"
+                        ],
+                        [
+                          19,
+                          37,
+                          "mid"
+                        ],
+                        [
+                          16,
+                          14,
+                          "bevel"
+                        ],
+                        [
+                          35,
+                          25,
+                          "bevel"
+                        ],
+                        [
+                          14,
+                          35,
+                          "bevel"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "DampStone",
+      "drawingId": "f051feaf-95d0-46f6-a1f8-5e7fef0730e3",
+      "recipe": {
+        "job": {
+          "canvas": [
+            32,
+            64
+          ],
+          "frame_count": 1,
+          "views": [
+            {
+              "id": "front",
+              "offset": [
+                0,
+                0
+              ]
+            }
+          ],
+          "source_bookends_exact": false,
+          "require_clear_border": true
+        },
+        "scene": {
+          "palette": {
+            "wet": "#16262666",
+            "deep": "#15232355",
+            "edge": "#253c3b44"
+          },
+          "layers": [
+            {
+              "id": "detail",
+              "name": "Body - DampStone"
+            }
+          ],
+          "views": {
+            "front": {
+              "nodes": {
+                "marks": {
+                  "layer": "detail",
+                  "at": [
+                    0,
+                    0
+                  ],
+                  "draw": [
+                    {
+                      "op": "polygon",
+                      "points": [
+                        [
+                          7,
+                          7
+                        ],
+                        [
+                          12,
+                          8
+                        ],
+                        [
+                          15,
+                          6
+                        ],
+                        [
+                          20,
+                          8
+                        ],
+                        [
+                          24,
+                          7
+                        ],
+                        [
+                          26,
+                          11
+                        ],
+                        [
+                          24,
+                          15
+                        ],
+                        [
+                          22,
+                          17
+                        ],
+                        [
+                          18,
+                          17
+                        ],
+                        [
+                          15,
+                          20
+                        ],
+                        [
+                          10,
+                          17
+                        ],
+                        [
+                          6,
+                          18
+                        ],
+                        [
+                          4,
+                          14
+                        ],
+                        [
+                          6,
+                          12
+                        ]
+                      ],
+                      "color": "wet"
+                    },
+                    {
+                      "op": "polygon",
+                      "points": [
+                        [
+                          12,
+                          14
+                        ],
+                        [
+                          17,
+                          16
+                        ],
+                        [
+                          16,
+                          23
+                        ],
+                        [
+                          18,
+                          26
+                        ],
+                        [
+                          16,
+                          32
+                        ],
+                        [
+                          17,
+                          35
+                        ],
+                        [
+                          14,
+                          40
+                        ],
+                        [
+                          15,
+                          45
+                        ],
+                        [
+                          13,
+                          49
+                        ],
+                        [
+                          14,
+                          53
+                        ],
+                        [
+                          12,
+                          57
+                        ],
+                        [
+                          10,
+                          54
+                        ],
+                        [
+                          11,
+                          47
+                        ],
+                        [
+                          10,
+                          42
+                        ],
+                        [
+                          12,
+                          38
+                        ],
+                        [
+                          11,
+                          32
+                        ],
+                        [
+                          12,
+                          27
+                        ],
+                        [
+                          10,
+                          22
+                        ]
+                      ],
+                      "color": "wet"
+                    },
+                    {
+                      "op": "polygon",
+                      "points": [
+                        [
+                          6,
+                          16
+                        ],
+                        [
+                          9,
+                          17
+                        ],
+                        [
+                          8,
+                          23
+                        ],
+                        [
+                          10,
+                          26
+                        ],
+                        [
+                          8,
+                          30
+                        ],
+                        [
+                          9,
+                          34
+                        ],
+                        [
+                          6,
+                          39
+                        ],
+                        [
+                          5,
+                          35
+                        ],
+                        [
+                          6,
+                          30
+                        ],
+                        [
+                          4,
+                          26
+                        ],
+                        [
+                          6,
+                          21
+                        ]
+                      ],
+                      "color": "deep"
+                    },
+                    {
+                      "op": "polygon",
+                      "points": [
+                        [
+                          20,
+                          14
+                        ],
+                        [
+                          23,
+                          15
+                        ],
+                        [
+                          24,
+                          22
+                        ],
+                        [
+                          22,
+                          25
+                        ],
+                        [
+                          23,
+                          29
+                        ],
+                        [
+                          21,
+                          34
+                        ],
+                        [
+                          22,
+                          40
+                        ],
+                        [
+                          20,
+                          44
+                        ],
+                        [
+                          19,
+                          40
+                        ],
+                        [
+                          20,
+                          35
+                        ],
+                        [
+                          18,
+                          32
+                        ],
+                        [
+                          20,
+                          26
+                        ],
+                        [
+                          18,
+                          22
+                        ]
+                      ],
+                      "color": "deep"
+                    },
+                    {
+                      "op": "path",
+                      "points": [
+                        [
+                          14,
+                          20
+                        ],
+                        [
+                          15,
+                          26
+                        ],
+                        [
+                          13,
+                          34
+                        ],
+                        [
+                          14,
+                          40
+                        ]
+                      ],
+                      "color": "edge",
+                      "stroke_width": 1
+                    },
+                    {
+                      "op": "pixels",
+                      "pixels": [
+                        [
+                          10,
+                          50,
+                          "deep"
+                        ],
+                        [
+                          11,
+                          51,
+                          "deep"
+                        ],
+                        [
+                          12,
+                          59,
+                          "deep"
+                        ],
+                        [
+                          13,
+                          58,
+                          "deep"
+                        ],
+                        [
+                          6,
+                          41,
+                          "edge"
+                        ],
+                        [
+                          7,
+                          40,
+                          "edge"
+                        ],
+                        [
+                          20,
+                          46,
+                          "deep"
+                        ],
+                        [
+                          21,
+                          45,
+                          "deep"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "MossSeam",
+      "drawingId": "f48e3b6a-cd53-44b7-bcb3-0d1464de0d3e",
+      "recipe": {
+        "job": {
+          "canvas": [
+            48,
+            24
+          ],
+          "frame_count": 1,
+          "views": [
+            {
+              "id": "front",
+              "offset": [
+                0,
+                0
+              ]
+            }
+          ],
+          "source_bookends_exact": false,
+          "require_clear_border": true
+        },
+        "scene": {
+          "palette": {
+            "d": "#202824",
+            "s": "#2b3534",
+            "m": "#36463a",
+            "l": "#435146"
+          },
+          "layers": [
+            {
+              "id": "detail",
+              "name": "Body - MossSeam"
+            }
+          ],
+          "views": {
+            "front": {
+              "nodes": {
+                "marks": {
+                  "layer": "detail",
+                  "at": [
+                    0,
+                    0
+                  ],
+                  "draw": [
+                    {
+                      "op": "grid",
+                      "at": [
+                        4,
+                        7
+                      ],
+                      "legend": {
+                        "d": "d",
+                        "s": "s",
+                        "m": "m",
+                        "l": "l"
+                      },
+                      "rows": [
+                        "...............",
+                        "...ss..s.......",
+                        ".ssmmssmms.....",
+                        "ssmllmmlmss....",
+                        "dssmmmsmmms....",
+                        ".dddsssmss.....",
+                        "....dssddd.....",
+                        ".....dd........"
+                      ]
+                    },
+                    {
+                      "op": "grid",
+                      "at": [
+                        19,
+                        10
+                      ],
+                      "legend": {
+                        "d": "d",
+                        "s": "s",
+                        "m": "m",
+                        "l": "l"
+                      },
+                      "rows": [
+                        "...........ss...",
+                        "..ss..ss.ssmmss.",
+                        ".smmsmmlsmmllms.",
+                        "dssmmssmmmssmss.",
+                        ".dddssddssddd...",
+                        ".....d...dd....."
+                      ]
+                    },
+                    {
+                      "op": "grid",
+                      "at": [
+                        37,
+                        8
+                      ],
+                      "legend": {
+                        "d": "d",
+                        "s": "s",
+                        "m": "m",
+                        "l": "l"
+                      },
+                      "rows": [
+                        "..ss...",
+                        ".smms..",
+                        "ssmmms.",
+                        "ddssss."
+                      ]
+                    },
+                    {
+                      "op": "pixels",
+                      "pixels": [
+                        [
+                          17,
+                          12,
+                          "s"
+                        ],
+                        [
+                          18,
+                          12,
+                          "m"
+                        ],
+                        [
+                          18,
+                          13,
+                          "d"
+                        ],
+                        [
+                          35,
+                          12,
+                          "s"
+                        ],
+                        [
+                          36,
+                          12,
+                          "m"
+                        ],
+                        [
+                          36,
+                          13,
+                          "d"
+                        ]
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "discardedDrafts": {
+    "pixflux": [
+      "89a6c4c9-de06-4a27-b0cf-358d7842c33e",
+      "3b6abf15-6ee4-4b74-a4a5-8cb431258204",
+      "059b3e04-c72d-4d02-9d40-e5f5c3c2d0f0"
+    ],
+    "mossDrawing": "2c23f921-ca94-4218-9a5f-618b3ddd51e9"
+  }
+}
