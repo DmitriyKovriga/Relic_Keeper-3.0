@@ -540,6 +540,7 @@ GameObject:
   - component: {fileID: 1284007157085106791}
   - component: {fileID: 7418729673188587839}
   - component: {fileID: 6606796037551092979}
+  - component: {fileID: 2175782338590786533}
   m_Layer: 8
   m_Name: Platforms
   m_TagString: Untagged
@@ -751,7 +752,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: eee55e3f9fff50c4791b403efb0da8bb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1054,6 +1055,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.GroundSurfaceVisuals
   _profile: {fileID: 11400000, guid: e02c5cd32dbc8c049bb283c5fa50645e, type: 2}
+--- !u!114 &2175782338590786533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1807531096432361042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eafaeaab23d0e6f48bdea2c1727c756d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.StoneReliefSurface
+  _localRegion:
+    serializedVersion: 2
+    x: -3.5
+    y: 2.6666665
+    width: 6
+    height: 5.9999995
 --- !u!1 &2095047170091158564
 GameObject:
   m_ObjectHideFlags: 0
@@ -1356,6 +1375,7 @@ GameObject:
   - component: {fileID: 8195154452663721900}
   - component: {fileID: 8738622119109423867}
   - component: {fileID: 2575610450270445613}
+  - component: {fileID: 7844859943308489917}
   m_Layer: 6
   m_Name: Ground
   m_TagString: Untagged
@@ -78059,7 +78079,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: eee55e3f9fff50c4791b403efb0da8bb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -78274,6 +78294,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.GroundSurfaceVisuals
   _profile: {fileID: 11400000, guid: e02c5cd32dbc8c049bb283c5fa50645e, type: 2}
+--- !u!114 &7844859943308489917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2954311478932865384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eafaeaab23d0e6f48bdea2c1727c756d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.StoneReliefSurface
+  _localRegion:
+    serializedVersion: 2
+    x: -3.5
+    y: 2.6666665
+    width: 6
+    height: 5.9999995
 --- !u!1 &4528486697182175330
 GameObject:
   m_ObjectHideFlags: 0
@@ -78882,6 +78920,7 @@ GameObject:
   - component: {fileID: 6200861804636202943}
   - component: {fileID: 457273584871394558}
   - component: {fileID: 3372807634791565781}
+  - component: {fileID: 5382300881266120233}
   m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
@@ -80544,7 +80583,7 @@ TilemapRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: eee55e3f9fff50c4791b403efb0da8bb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -80574,6 +80613,24 @@ TilemapRenderer:
   m_SortOrder: 0
   m_Mode: 0
   m_DetectChunkCullingBounds: 0
+--- !u!114 &5382300881266120233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7023703582177873845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eafaeaab23d0e6f48bdea2c1727c756d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.StoneReliefSurface
+  _localRegion:
+    serializedVersion: 2
+    x: -3.5
+    y: 2.6666665
+    width: 6
+    height: 5.9999995
 --- !u!1 &7238374872649580254
 GameObject:
   m_ObjectHideFlags: 0
@@ -80712,9 +80769,9 @@ MonoBehaviour:
   m_LightOrder: 0
   m_AlphaBlendOnOverlap: 0
   m_OverlapOperation: 0
-  m_NormalMapDistance: 3
-  m_NormalMapQuality: 2
-  m_UseNormalMap: 0
+  m_NormalMapDistance: 0.85
+  m_NormalMapQuality: 1
+  m_UseNormalMap: 1
   m_ShadowsEnabled: 1
   m_ShadowIntensity: 1
   m_ShadowSoftness: 0

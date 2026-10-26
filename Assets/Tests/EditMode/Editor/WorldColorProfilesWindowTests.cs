@@ -67,6 +67,7 @@ namespace RelicKeeper.Tests.EditMode
                 colorDraft.background.exposure = -0.5f; mistDraft.backgroundMist = 0.42f; mistDraft.limitDepthMistHeight = false;
                 mistDraft.layeredParallax = true; mistDraft.parallaxFar = 0.73f;
                 mistDraft.localLights = true; mistDraft.localLightStrength = 1.25f;
+                mistDraft.stoneReliefStrength = 0.63f;
                 mistDraft.ambientAnimations = false; mistDraft.chimneySmokeOpacity = 0.35f; mistDraft.dripFrequency = 1.4f;
                 mistDraft.ambientParticles = false; mistDraft.ambientParticleDensity = 0.23f; mistDraft.ambientParticleOpacity = 0.61f;
                 mistDraft.surfaceMovementEffects = false; mistDraft.surfaceRunDust = 0.37f; mistDraft.surfaceEffectOpacity = 0.6f; mistDraft.surfaceLandingStrength = 1.3f;
@@ -90,6 +91,7 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(mist.parallaxFar, Is.EqualTo(0.73f), "One Save must include background movement settings.");
                 Assert.That(mist.localLights, Is.True);
                 Assert.That(mist.localLightStrength, Is.EqualTo(1.25f), "Save must also keep local lighting settings.");
+                Assert.That(mist.stoneReliefStrength, Is.EqualTo(0.63f), "Stone relief must survive the same profile Save.");
                 Assert.That(mist.ambientAnimations, Is.False); Assert.That(mist.chimneySmokeOpacity, Is.EqualTo(0.35f));
                 Assert.That(mist.dripFrequency, Is.EqualTo(1.4f), "The same Save includes environmental animation settings.");
                 Assert.That(mist.ambientParticles, Is.False); Assert.That(mist.ambientParticleDensity, Is.EqualTo(0.23f));

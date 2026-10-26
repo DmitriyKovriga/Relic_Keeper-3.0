@@ -48,6 +48,8 @@ namespace Scripts.Visuals.Atmosphere
         [Range(0f, 1f)] public float parallaxSilhouettes = 1f;
 
         [Header("Local source lighting")]
+        [Tooltip("Normal-map relief on explicitly marked stone surfaces only. Zero keeps their original flat lighting.")]
+        [Range(0f, 1f)] public float stoneReliefStrength;
         public bool localLights = true;
         [Range(0f, 3f)] public float localLightStrength = 1f;
         [Range(0.5f, 2f)] public float localLightRadius = 1f;
@@ -138,6 +140,7 @@ namespace Scripts.Visuals.Atmosphere
             localShaftStrength = Mathf.Clamp(localShaftStrength, 0, 2);
             localShaftDust = Mathf.Clamp01(localShaftDust);
             roomFillStrength = Mathf.Clamp(roomFillStrength, 0, 3);
+            stoneReliefStrength = Mathf.Clamp01(stoneReliefStrength);
             roomFillRadius = Mathf.Clamp(roomFillRadius, 0.5f, 2);
             playerLightShadowStrength = Mathf.Clamp01(playerLightShadowStrength);
             playerLightShadowReach = Mathf.Clamp(playerLightShadowReach, 0.1f, 30);

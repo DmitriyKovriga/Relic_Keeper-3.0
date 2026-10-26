@@ -15,6 +15,7 @@ V15 earth/stone movement and landing effects are implemented in `../Surface_Move
 V16 has adjustable focused/soft shafts and one cool room-fill pilot in Mortfall Room 001; reusable cool/warm fills and placement guidance are in `../Local_Light_Shafts.md`.
 V17 adds restrained source halos to flames and portals, with location and per-source controls; see `../Source_Glow.md`.
 V18 terrain-shadow refinement is skipped by user decision. A player-only partial light-blocking pilot is in `../Player_Light_Shadow.md`.
+V19 has a bounded stone-relief pilot near the entrance torch in Mortfall Room 001, using PixelLab normal maps and a location strength control; see `../Stone_Relief.md`.
 This review uses the two supplied screenshots and saved project sources/assets.
 No new live Editor capture, Play Mode comparison or GPU profile was performed.
 Screenshot observations and proposed visual gains are art-direction judgments,

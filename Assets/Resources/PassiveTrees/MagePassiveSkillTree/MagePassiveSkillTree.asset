@@ -1550,7 +1550,7 @@ MonoBehaviour:
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
-    Template: {fileID: 0}
+    Template: {fileID: 11400000, guid: 6da90ec2fda0cc0478ce02610c7a21fd, type: 2}
     UniqueModifiers: []
     UniqueStatScalingRules: []
     ConnectionIDs:

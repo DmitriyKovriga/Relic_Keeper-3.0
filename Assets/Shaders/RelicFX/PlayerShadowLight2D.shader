@@ -73,6 +73,7 @@ Shader "Hidden/RelicKeeper/Light2D"
             NORMALS_LIGHTING_VARIABLES
             SHADOW_VARIABLES
             UNITY_LIGHT2D_DATA
+            #include "StoneReliefNormals.hlsl"
 
             half _InverseHDREmulationScale;
 
@@ -217,7 +218,17 @@ Shader "Hidden/RelicKeeper/Light2D"
 #endif
 
 #if !USE_VOLUMETRIC
-                APPLY_NORMALS_LIGHTING(i, lightColor, _L2D_POSITION.xyz, _L2D_POSITION.w);
+                #if USE_NORMAL_MAP
+                    #if LIGHT_QUALITY_FAST
+                        // Use the same interpolated direction as URP's fast mode.
+                        half3 normal = UnpackNormalRGBNoScale(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, i.screenUV));
+                        half3 direction = normalize(i.lightDirection.xyz);
+                        half response = RKStoneNormalResponseFromDirection(normal, direction);
+                        lightColor *= response;
+                    #else
+                        lightColor *= RKStoneNormalResponse(i.screenUV, i.positionWS.xyz, _L2D_POSITION.xyz, _L2D_POSITION.w);
+                    #endif
+                #endif
 #endif
 
 #if USE_SHADOW_MAP

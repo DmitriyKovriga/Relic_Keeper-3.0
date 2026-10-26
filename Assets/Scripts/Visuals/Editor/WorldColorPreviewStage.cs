@@ -204,10 +204,13 @@ namespace RelicKeeper.Editor.Visuals
             if (source.TryGetComponent(out SortingGroup sorting)) EditorUtility.CopySerialized(sorting, copy.AddComponent<SortingGroup>());
             if (source.TryGetComponent(out WorldColorGroup colors))
                 copy.AddComponent<WorldColorGroup>().Configure(colors.Role, colors.Influence, colors.CombatEffect);
+            if (source.TryGetComponent<StoneReliefSurface>(out var relief))
+                copy.AddComponent<StoneReliefSurface>().Configure(relief.LocalRegion);
             if (source.TryGetComponent<LocalLight2DSource>(out var sourceLight))
             {
                 var target = copy.AddComponent<LocalLight2DSource>();
                 EditorUtility.CopySerialized(sourceLight, target); _localLights.Add(target);
+                EditorUtility.CopySerialized(sourceLight.Light, target.Light);
             }
             if (source.TryGetComponent<LocalLightOccluder>(out var blocker))
             {

@@ -1380,7 +1380,9 @@ TextureImporter:
     indices: 
     edges: []
     weights: []
-    secondaryTextures: []
+    secondaryTextures:
+    - texture: {fileID: 2800000, guid: 1eabda2a8548cca4bb88cca8e0264277, type: 3}
+      name: _NormalMap
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings

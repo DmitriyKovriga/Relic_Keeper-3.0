@@ -26,6 +26,7 @@ namespace Scripts.Visuals.Atmosphere
         private static readonly List<(Material, WorldColorRole, float, bool)> DeadVariants = new List<(Material, WorldColorRole, float, bool)>();
         private static readonly HashSet<Scene> OwnedScenes = new HashSet<Scene>();
         private static readonly int EnabledId = Shader.PropertyToID("_RKColorEnabled");
+        private static readonly int ReliefId = Shader.PropertyToID("_RKStoneReliefStrength");
         private static readonly int ParamsId = Shader.PropertyToID("_RKColorParameters");
         private static readonly int TintsId = Shader.PropertyToID("_RKColorTints");
         private static readonly int EffectsId = Shader.PropertyToID("_RKColorEffectsInfluence");
@@ -43,6 +44,7 @@ namespace Scripts.Visuals.Atmosphere
             RenderPipelineManager.endCameraRendering -= EndCamera;
             SceneManager.sceneLoaded -= OnSceneLoaded;
             Shader.SetGlobalFloat(EnabledId, 0f);
+            Shader.SetGlobalFloat(ReliefId, 0f);
         }
 
         public static void Register(AtmosphereController controller)
@@ -75,6 +77,7 @@ namespace Scripts.Visuals.Atmosphere
             {
                 RestoreMaterials();
                 Shader.SetGlobalFloat(EnabledId, 0f);
+                Shader.SetGlobalFloat(ReliefId, 0f);
                 return;
             }
             _lastPruneFrame = -1;
@@ -103,6 +106,7 @@ namespace Scripts.Visuals.Atmosphere
             RenderPipelineManager.endCameraRendering -= EndCamera;
             SceneManager.sceneLoaded -= OnSceneLoaded;
             Shader.SetGlobalFloat(EnabledId, 0f);
+            Shader.SetGlobalFloat(ReliefId, 0f);
         }
 
         private static void RestoreSceneMaterials(Scene scene)
@@ -268,9 +272,14 @@ namespace Scripts.Visuals.Atmosphere
                 controller = Camera.main.GetComponent<AtmosphereController>();
 #endif
             Upload(!BindingsSuspended && controller != null && controller.isActiveAndEnabled && !controller.PreviewNeutralColors ? controller.ActiveColorProfile : null);
+            var lighting = !BindingsSuspended && controller != null && controller.isActiveAndEnabled ? controller.ActiveDepthMistProfile : null;
+            Shader.SetGlobalFloat(ReliefId, lighting != null ? Mathf.Clamp01(lighting.stoneReliefStrength) : 0);
         }
 
-        private static void EndCamera(ScriptableRenderContext context, Camera camera) => Shader.SetGlobalFloat(EnabledId, 0f);
+        private static void EndCamera(ScriptableRenderContext context, Camera camera)
+        {
+            Shader.SetGlobalFloat(EnabledId, 0f); Shader.SetGlobalFloat(ReliefId, 0f);
+        }
 
         private static void Upload(WorldColorProfileSO profile)
         {

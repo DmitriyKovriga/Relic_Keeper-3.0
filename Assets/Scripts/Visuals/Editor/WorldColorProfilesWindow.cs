@@ -486,6 +486,8 @@ namespace RelicKeeper.Editor.Visuals
             enabled.boolValue = EditorGUILayout.Toggle("Enable lights", enabled.boolValue);
             DrawPercent(_mistSettings.FindProperty("localLightStrength"), "Strength (%)", 0, 300);
             DrawPercent(_mistSettings.FindProperty("localLightRadius"), "Reach (%)", 50, 200);
+            DrawPercent(_mistSettings.FindProperty("stoneReliefStrength"), "Stone relief (%)", 0, 100);
+            EditorGUILayout.HelpBox("Stone relief affects the marked wall and platform near the entrance torch in Mortfall Room 001. Zero restores flat lighting.", MessageType.None);
             var tint = _mistSettings.FindProperty("localLightTint");
             tint.colorValue = EditorGUILayout.ColorField(new GUIContent("Light color"), tint.colorValue, true, false, false);
             EditorGUILayout.Space(8);
