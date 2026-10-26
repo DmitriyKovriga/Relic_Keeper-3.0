@@ -211,6 +211,7 @@ namespace RelicKeeper.Editor.Visuals
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("_tint"), new GUIContent("Color"));
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("_innerRadius"), new GUIContent("Bright center size", "Low values give a gradual falloff. Higher values make a broader bright center."));
             }
+            else EditorGUILayout.PropertyField(serializedObject.FindProperty("_glow"), new GUIContent("Source glow"), true);
             if (serializedObject.ApplyModifiedProperties()) SceneView.RepaintAll();
             EditorGUILayout.LabelField("Save the room prefab to keep placement. World Appearance > Lighting controls the environment's overall strength and reach.", EditorStyles.wordWrappedMiniLabel);
         }

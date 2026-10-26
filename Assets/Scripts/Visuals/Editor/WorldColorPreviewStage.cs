@@ -34,6 +34,7 @@ namespace RelicKeeper.Editor.Visuals
         private readonly List<EnvironmentAnimation> _environmentAnimations = new List<EnvironmentAnimation>();
         private readonly List<AmbientParticleSource> _particles = new List<AmbientParticleSource>();
         private readonly List<LocalLightShaftSource> _shafts = new List<LocalLightShaftSource>();
+        private readonly List<SourceGlowVisual> _portalGlows = new List<SourceGlowVisual>();
         private readonly List<Tilemap> _shaftTerrain = new List<Tilemap>();
         public IReadOnlyList<LocalLightShaftSource> Shafts => _shafts;
         public void ReclipShaft(LocalLightShaftSource shaft)
@@ -233,7 +234,13 @@ namespace RelicKeeper.Editor.Visuals
                 }
                 if (changed) renderer.sharedMaterials = materials;
             }
-            for (int i = 0; i < source.childCount; i++) CopyVisuals(source.GetChild(i), copy.transform);
+            for (int i = 0; i < source.childCount; i++)
+                if ((source.GetChild(i).gameObject.hideFlags & HideFlags.DontSave) == 0) CopyVisuals(source.GetChild(i), copy.transform);
+            if (source.TryGetComponent<DungeonPortal>(out var portal) && copy.TryGetComponent<SpriteRenderer>(out var portalArt))
+            {
+                var look = portal.Glow;
+                _portalGlows.Add(new SourceGlowVisual(copy.transform, () => look, portal: portalArt));
+            }
             if (source.TryGetComponent<EnvironmentAnimation>(out var animation))
             {
                 var target = copy.AddComponent<EnvironmentAnimation>();
@@ -441,6 +448,8 @@ namespace RelicKeeper.Editor.Visuals
 
         public void Dispose()
         {
+            foreach (var glow in _portalGlows) glow.Dispose();
+            _portalGlows.Clear();
             if (_scene.IsValid()) EditorSceneManager.ClosePreviewScene(_scene);
             _scene = default;
             foreach (Material material in _flatMaterials.Values) if (material != null) Object.DestroyImmediate(material);

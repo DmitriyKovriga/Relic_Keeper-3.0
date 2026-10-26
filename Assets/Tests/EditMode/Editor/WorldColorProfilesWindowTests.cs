@@ -72,6 +72,8 @@ namespace RelicKeeper.Tests.EditMode
                 mistDraft.surfaceMovementEffects = false; mistDraft.surfaceRunDust = 0.37f; mistDraft.surfaceEffectOpacity = 0.6f; mistDraft.surfaceLandingStrength = 1.3f;
                 mistDraft.localShafts = false; mistDraft.localShaftStrength = 1.2f; mistDraft.localShaftDust = 0.27f;
                 mistDraft.roomFillLights = false; mistDraft.roomFillStrength = 0.63f; mistDraft.roomFillRadius = 1.3f;
+                mistDraft.sourceGlow = false; mistDraft.sourceGlowStrength = 0.42f;
+                mistDraft.sourceGlowRadius = 1.7f; mistDraft.sourceGlowSoftness = 1.4f;
                 Assert.That(colors.background.exposure, Is.Zero);
                 Assert.That(mist.backgroundMist, Is.EqualTo(0.17f));
                 window.SaveAppearance();
@@ -91,6 +93,8 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(mist.surfaceEffectOpacity, Is.EqualTo(0.6f)); Assert.That(mist.surfaceLandingStrength, Is.EqualTo(1.3f));
                 Assert.That(mist.localShafts, Is.False); Assert.That(mist.localShaftStrength, Is.EqualTo(1.2f)); Assert.That(mist.localShaftDust, Is.EqualTo(0.27f));
                 Assert.That(mist.roomFillLights, Is.False); Assert.That(mist.roomFillStrength, Is.EqualTo(0.63f)); Assert.That(mist.roomFillRadius, Is.EqualTo(1.3f));
+                Assert.That(mist.sourceGlow, Is.False); Assert.That(mist.sourceGlowStrength, Is.EqualTo(0.42f));
+                Assert.That(mist.sourceGlowRadius, Is.EqualTo(1.7f)); Assert.That(mist.sourceGlowSoftness, Is.EqualTo(1.4f));
                 StringAssert.Contains("backgroundMist: 0.42", System.IO.File.ReadAllText(mistPath));
                 Assert.That(colors.hideFlags, Is.EqualTo(HideFlags.None));
                 Assert.That(mist.hideFlags, Is.EqualTo(HideFlags.None));

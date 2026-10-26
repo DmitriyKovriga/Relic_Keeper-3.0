@@ -46,6 +46,10 @@ MonoBehaviour:
   roomFillLights: 1
   roomFillStrength: 1
   roomFillRadius: 1
+  sourceGlow: 1
+  sourceGlowStrength: 0.986
+  sourceGlowRadius: 1.2
+  sourceGlowSoftness: 1
   localShafts: 1
   localShaftStrength: 0.074
   localShaftDust: 1

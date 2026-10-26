@@ -16,16 +16,31 @@ namespace Scripts.Visuals.Atmosphere
         [SerializeField] private bool _roomFill;
         [SerializeField] private Color _tint = new Color(0.63f, 0.78f, 1);
         [SerializeField, Range(0, 0.8f)] private float _innerRadius = 0.1f;
+        [SerializeField] private SourceGlowSettings _glow = SourceGlowSettings.Flame;
+        private SourceGlowVisual _glowVisual;
         private float _placementPhase;
         private Light2D _light;
         private AtmosphereController _previewOwner;
         public Light2D Light => _light != null ? _light : (_light = GetComponent<Light2D>());
         public void Configure(float strength, float radius) { _strength = strength; _radius = radius; Prepare(); }
-        public void ConfigureFlame(float phase) { _flame = true; _flamePhase = phase; SetPlacementPhase(); }
+        public void ConfigureFlame(float phase) { _flame = true; _flamePhase = phase; SetPlacementPhase(); EnsureGlow(); }
+        public SourceGlowSettings Glow => _glow;
+        public void ConfigureGlow(SourceGlowSettings settings) { _glow = settings; EnsureGlow(); }
+        public float GlowMultiplier(AtmosphereProfileSO profile) => isActiveAndEnabled && HasFlameMotion && Light.enabled &&
+            _strength > 0 && IsAvailable(profile) ? Mathf.Max(0, ProfileStrength(profile)) * FlameSample.x : 0;
+        private void EnsureGlow()
+        {
+            if (!_flame || !isActiveAndEnabled || _glowVisual?.Renderer != null) return;
+#if UNITY_EDITOR
+            if (UnityEditor.EditorUtility.IsPersistent(this)) return;
+#endif
+            _glowVisual?.Dispose(); _glowVisual = new SourceGlowVisual(transform, () => _glow, this);
+        }
         public bool IsRoomFill => _roomFill;
         public float Radius => _radius;
         public void ConfigureFill(float strength, float radius, Color tint, float innerRadius = 0.1f)
         {
+            _glowVisual?.Dispose(); _glowVisual = null;
             _roomFill = true; _flame = false; _strength = Mathf.Max(0, strength); _radius = Mathf.Max(0.1f, radius);
             _tint = tint; _innerRadius = Mathf.Clamp(innerRadius, 0, 0.8f); Prepare();
         }
@@ -63,11 +78,12 @@ namespace Scripts.Visuals.Atmosphere
                 return SampleFlame(seconds, _flamePhase + _placementPhase);
             }
         }
-        public void BindPreview(AtmosphereController owner) { _previewOwner = owner; Prepare(); }
+        public void BindPreview(AtmosphereController owner) { _previewOwner = owner; Prepare(); EnsureGlow(); }
         private void OnEnable()
         {
             SetPlacementPhase();
             Prepare();
+            EnsureGlow();
             RenderPipelineManager.beginCameraRendering -= BeginCamera;
             RenderPipelineManager.endCameraRendering -= EndCamera;
             RenderPipelineManager.beginCameraRendering += BeginCamera;
@@ -75,6 +91,7 @@ namespace Scripts.Visuals.Atmosphere
         }
         private void OnDisable()
         {
+            _glowVisual?.Dispose(); _glowVisual = null;
             RenderPipelineManager.beginCameraRendering -= BeginCamera;
             RenderPipelineManager.endCameraRendering -= EndCamera;
             // Light2D owns its reload/teardown registration. Disabling it here can
@@ -93,6 +110,7 @@ namespace Scripts.Visuals.Atmosphere
         }
         private void LateUpdate()
         {
+            EnsureGlow();
             var owner = _previewOwner != null ? _previewOwner : Camera.main?.GetComponent<AtmosphereController>();
             var profile = owner != null && owner.isActiveAndEnabled ? owner.ActiveDepthMistProfile : null;
             UpdateRadius(profile, FlameSample.y);

@@ -57,6 +57,12 @@ namespace Scripts.Visuals.Atmosphere
         [Range(0, 3)] public float roomFillStrength = 1;
         [Range(0.5f, 2)] public float roomFillRadius = 1;
 
+        [Header("Source glow — fire and portals only")]
+        public bool sourceGlow = true;
+        [Range(0, 2)] public float sourceGlowStrength = 0.65f;
+        [Range(0.25f, 3)] public float sourceGlowRadius = 1;
+        [Range(0.25f, 3)] public float sourceGlowSoftness = 1;
+
         [Header("Placed ceiling light beams")]
         public bool localShafts = true;
         [Range(0f, 2f)] public float localShaftStrength = 1f;
@@ -118,6 +124,9 @@ namespace Scripts.Visuals.Atmosphere
             localShaftDust = Mathf.Clamp01(localShaftDust);
             roomFillStrength = Mathf.Clamp(roomFillStrength, 0, 3);
             roomFillRadius = Mathf.Clamp(roomFillRadius, 0.5f, 2);
+            sourceGlowStrength = Mathf.Clamp(sourceGlowStrength, 0, 2);
+            sourceGlowRadius = Mathf.Clamp(sourceGlowRadius, 0.25f, 3);
+            sourceGlowSoftness = Mathf.Clamp(sourceGlowSoftness, 0.25f, 3);
             chimneySmokeOpacity = Mathf.Clamp01(chimneySmokeOpacity);
             dripFrequency = Mathf.Clamp(dripFrequency, 0f, 2f);
             ambientParticleDensity = Mathf.Clamp01(ambientParticleDensity);

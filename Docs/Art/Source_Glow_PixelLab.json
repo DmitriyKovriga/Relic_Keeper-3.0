@@ -1,0 +1,53 @@
+{
+ "frames": [
+  {
+   "filename": "relic-keeper-restrained-source-halo 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 64
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 1000
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "relic-keeper-restrained-source-halo.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 64,
+   "h": 64
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 32,
+   "y": 32
+  },
+  "frameTags": [
+   {
+    "name": "relic-keeper-restrained-source-halo",
+    "from": 0,
+    "to": 0,
+    "direction": "forward"
+   }
+  ]
+ }
+}

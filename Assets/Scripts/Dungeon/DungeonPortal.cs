@@ -34,6 +34,9 @@ namespace Scripts.Dungeon
         [SerializeField] private bool _forceWorldZ = true;
         [SerializeField] private float _targetWorldZ = 0f;
         [SerializeField, Min(0f)] private float _portalAnimationSpeed = 1f;
+        [SerializeField] private Scripts.Visuals.Atmosphere.SourceGlowSettings _glow = Scripts.Visuals.Atmosphere.SourceGlowSettings.Portal;
+        private Scripts.Visuals.Atmosphere.SourceGlowVisual _glowVisual;
+        public Scripts.Visuals.Atmosphere.SourceGlowSettings Glow => _glow;
         [Header("Enter Dungeon")]
         [SerializeField] private DungeonDataSO _targetDungeon;
         [Header("World Label")]
@@ -135,11 +138,14 @@ namespace Scripts.Dungeon
 
         private void OnEnable()
         {
+            if (_glowVisual == null && TryGetComponent<SpriteRenderer>(out var portalSprite))
+                _glowVisual = new Scripts.Visuals.Atmosphere.SourceGlowVisual(transform, () => _glow, portal: portalSprite);
             LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
         }
 
         private void OnDisable()
         {
+            _glowVisual?.Dispose(); _glowVisual = null;
             LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
         }
 

@@ -494,6 +494,13 @@ namespace RelicKeeper.Editor.Visuals
             EditorGUILayout.PropertyField(_mistSettings.FindProperty("roomFillLights"), new GUIContent("Enable room fills"));
             DrawPercent(_mistSettings.FindProperty("roomFillStrength"), "Fill strength (%)", 0, 300);
             DrawPercent(_mistSettings.FindProperty("roomFillRadius"), "Fill reach (%)", 50, 200);
+            EditorGUILayout.Space(8);
+            EditorGUILayout.LabelField("Source glow", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Small halos around flames and portals. Select a source in the room to adjust its own glow; these controls affect the whole location.", EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.PropertyField(_mistSettings.FindProperty("sourceGlow"), new GUIContent("Enable glow"));
+            DrawPercent(_mistSettings.FindProperty("sourceGlowStrength"), "Glow strength (%)", 0, 200);
+            DrawPercent(_mistSettings.FindProperty("sourceGlowRadius"), "Glow radius (%)", 25, 300);
+            DrawPercent(_mistSettings.FindProperty("sourceGlowSoftness"), "Glow softness (%)", 25, 300);
             if (_mistSettings.ApplyModifiedProperties()) ApplyPreview(true);
             EditorGUILayout.Space(8);
             EditorGUILayout.LabelField(_environment == PreviewEnvironment.Mortfall
