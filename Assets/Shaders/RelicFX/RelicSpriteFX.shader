@@ -2,6 +2,7 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
 {
     Properties
     {
+        [HideInInspector] _RKPlayerOverlapShade ("Player backlight cover", Float) = 0
         [HideInInspector] _RKGradeGroup ("World color group", Float) = 0
         [HideInInspector] _RKGradeInfluence ("World color influence", Float) = 1
         [HideInInspector] _RKGradeIsEffect ("Combat effect", Float) = 0
@@ -55,6 +56,7 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
             #pragma multi_compile_instancing
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
             #include "WorldColorGrade.hlsl"
+            float _RKPlayerOverlapAmount;
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/ShapeLightShared.hlsl"
             #include "RelicLocalLight.hlsl"
 
@@ -62,6 +64,7 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
             TEXTURE2D(_FxNoiseTex); SAMPLER(sampler_FxNoiseTex);
             float4 _MainTex_TexelSize;
             CBUFFER_START(UnityPerMaterial)
+                float _RKPlayerOverlapShade;
                 float _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect;
                 half4 _FxTint, _FxFlashColor, _FxOutlineColor, _FxInnerColor, _FxEmissionColor, _FxEdgeColor;
                 half4 _RendererColor, _FxRuntimeTint, _FxRuntimeFlashColor, _FxRuntimeEmissionColor;
@@ -105,6 +108,7 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
                 rgb = lerp(rgb, luminance.xxx, _FxDesaturate);
                 rgb = max(0, (rgb - 0.5) * _FxContrast + 0.5) * _FxBrightness;
                 rgb = RKApplyLocalLight(rgb, i.lightingUV, _RKGradeGroup, _RKGradeIsEffect);
+                rgb *= 1 - saturate(_RKPlayerOverlapShade * _RKPlayerOverlapAmount);
                 rgb = RKGradeColor(rgb, _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect);
 
                 float dilation = texel.a, erosion = texel.a;

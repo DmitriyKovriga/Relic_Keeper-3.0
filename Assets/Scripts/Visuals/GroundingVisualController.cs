@@ -675,6 +675,7 @@ namespace Scripts.Visuals
             => TryResolveGroundSurface(out anchor, out heightAboveGround, out _);
 
         internal SpriteRenderer ContactShadowRenderer => _shadowRenderer;
+        internal SpriteRenderer LightShadowBodyRenderer => _primaryRenderer;
         internal bool TryGetLightShadowSurface(out Vector2 anchor, out float height, out Vector2 normal)
             => TryResolveGroundSurface(out anchor, out height, out normal);
         internal void ClipLightShadow(ref Vector2 anchor, Vector2 normal, ref float width)

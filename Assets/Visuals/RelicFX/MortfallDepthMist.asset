@@ -44,14 +44,17 @@ MonoBehaviour:
   localLightRadius: 2
   localLightTint: {r: 1, g: 0.6, b: 0.24, a: 1}
   playerLightShadow: 1
-  playerLightShadowStrength: 0.872
+  playerLightShadowStrength: 0.857
   playerLightShadowReach: 20.7
-  playerLightShadowWidth: 0.92
-  playerLightShadowHeight: 0.83
+  playerLightShadowWidth: 0.77
+  playerLightShadowHeight: 0.86
   playerLightShadowSoftness: 1.353
   playerGroundShadowOpacity: 0.801
   playerGroundShadowLength: 2.55
   playerGroundShadowThickness: 0.304
+  playerGroundShadowDistanceResponse: 1
+  playerLightCrossingFade: 0.65
+  playerLightOverlapDarkness: 0.14
   roomFillLights: 1
   roomFillStrength: 1
   roomFillRadius: 1

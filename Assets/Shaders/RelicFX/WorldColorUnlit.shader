@@ -3,6 +3,7 @@ Shader "RelicKeeper/Sprites/World Color Unlit"
 {
     Properties
     {
+        [HideInInspector] _RKPlayerOverlapShade ("Player backlight cover", Float) = 0
         [HideInInspector] _RKGradeGroup ("World color group", Float) = 0
         [HideInInspector] _RKGradeInfluence ("World color influence", Float) = 1
         [HideInInspector] _RKGradeIsEffect ("Combat effect", Float) = 0
@@ -59,7 +60,9 @@ Shader "RelicKeeper/Sprites/World Color Unlit"
 
             // NOTE: Do not ifdef the properties here as SRP batcher can not handle different layouts.
             #include "WorldColorGrade.hlsl"
+            float _RKPlayerOverlapAmount;
             CBUFFER_START(UnityPerMaterial)
+                float _RKPlayerOverlapShade;
                 float _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect;
                 half4 _Color;
             CBUFFER_END
@@ -80,6 +83,7 @@ Shader "RelicKeeper/Sprites/World Color Unlit"
             {
                 half4 result = CommonUnlitFragment(input, input.color);
                 result.rgb = RKApplyLocalLight(result.rgb, input.lightingUV, _RKGradeGroup, _RKGradeIsEffect);
+                result.rgb *= 1 - saturate(_RKPlayerOverlapShade * _RKPlayerOverlapAmount);
                 result.rgb = RKGradeColor(result.rgb, _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect);
                 return result;
             }

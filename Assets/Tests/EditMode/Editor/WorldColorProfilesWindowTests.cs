@@ -77,6 +77,8 @@ namespace RelicKeeper.Tests.EditMode
                 mistDraft.playerLightShadow = false; mistDraft.playerLightShadowStrength = 0.95f; mistDraft.playerLightShadowReach = 22;
                 mistDraft.playerLightShadowWidth = 2.7f; mistDraft.playerLightShadowHeight = 1.8f; mistDraft.playerLightShadowSoftness = 1.4f;
                 mistDraft.playerGroundShadowOpacity = 0.8f; mistDraft.playerGroundShadowLength = 5.5f; mistDraft.playerGroundShadowThickness = 0.6f;
+                mistDraft.playerGroundShadowDistanceResponse = 1.7f; mistDraft.playerLightCrossingFade = 1.2f; mistDraft.playerLightOverlapDarkness = 0.3f;
+                mistDraft.playerGroundShadowGrowthDistance = 2.4f;
                 Assert.That(colors.background.exposure, Is.Zero);
                 Assert.That(mist.backgroundMist, Is.EqualTo(0.17f));
                 window.SaveAppearance();
@@ -101,6 +103,8 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(mist.playerLightShadow, Is.False); Assert.That(mist.playerLightShadowStrength, Is.EqualTo(0.95f)); Assert.That(mist.playerLightShadowReach, Is.EqualTo(22));
                 Assert.That(mist.playerLightShadowWidth, Is.EqualTo(2.7f)); Assert.That(mist.playerLightShadowHeight, Is.EqualTo(1.8f)); Assert.That(mist.playerLightShadowSoftness, Is.EqualTo(1.4f));
                 Assert.That(mist.playerGroundShadowOpacity, Is.EqualTo(0.8f)); Assert.That(mist.playerGroundShadowLength, Is.EqualTo(5.5f)); Assert.That(mist.playerGroundShadowThickness, Is.EqualTo(0.6f));
+                Assert.That(mist.playerGroundShadowDistanceResponse, Is.EqualTo(1.7f)); Assert.That(mist.playerLightCrossingFade, Is.EqualTo(1.2f)); Assert.That(mist.playerLightOverlapDarkness, Is.EqualTo(0.3f));
+                Assert.That(mist.playerGroundShadowGrowthDistance, Is.EqualTo(2.4f));
                 StringAssert.Contains("backgroundMist: 0.42", System.IO.File.ReadAllText(mistPath));
                 Assert.That(colors.hideFlags, Is.EqualTo(HideFlags.None));
                 Assert.That(mist.hideFlags, Is.EqualTo(HideFlags.None));

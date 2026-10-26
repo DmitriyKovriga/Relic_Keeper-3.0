@@ -40,6 +40,18 @@ namespace RelicKeeper.Editor.Visuals
             AssetDatabase.CreateAsset(new Material(shader) { name = "Light-directed ground shadow" }, path);
         }
 
+        public static void ReimportActorShaders()
+        {
+            var report = new System.Text.StringBuilder();
+            foreach (string file in new[] { "WorldColorUnlit.shader", "WorldColorLit.shader", "RelicSpriteFX.shader", "PlayerShadowLight2D.shader" })
+            {
+                AssetDatabase.ImportAsset("Assets/Shaders/RelicFX/" + file, ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
+                var shader = AssetDatabase.LoadAssetAtPath<Shader>("Assets/Shaders/RelicFX/" + file);
+                report.AppendLine(file + " error=" + ShaderUtil.ShaderHasError(shader) + " properties=" + string.Join(",", Enumerable.Range(0, shader.GetPropertyCount()).Select(shader.GetPropertyName)));
+            }
+            Directory.CreateDirectory("Logs/PlayerLightShadow"); File.WriteAllText("Logs/PlayerLightShadow/Shaders.txt", report.ToString());
+        }
+
         public static void PrepareCapture()
         {
             _capture?.Dispose();
@@ -148,7 +160,10 @@ namespace RelicKeeper.Editor.Visuals
             }
         }
 
-        public static void CaptureLiveGround()
+        public static void CaptureLiveGround() => CaptureLiveStudy(false);
+        public static void CaptureLiveCrossing() => CaptureLiveStudy(true);
+
+        private static void CaptureLiveStudy(bool crossing)
         {
             if (!Application.isPlaying) throw new InvalidOperationException("Enter Play Mode first.");
             var camera = Camera.main; var owner = camera.GetComponent<AtmosphereController>();
@@ -170,6 +185,43 @@ namespace RelicKeeper.Editor.Visuals
                 body.linearVelocity = Vector2.zero; Physics2D.SyncTransforms(); grounding.SendMessage("LateUpdate");
                 camera.transform.position = player.transform.position + new Vector3(0, 1, -10);
                 Directory.CreateDirectory("Logs/PlayerLightShadow/Ground");
+                if (crossing)
+                {
+                    // Exercise the user's long Mortfall shadow tuning without
+                    // changing either saved profile or the live room placement.
+                    var saved = AssetDatabase.LoadAssetAtPath<AtmosphereProfileSO>("Assets/Visuals/RelicFX/MortfallDepthMist.asset");
+                    if (saved != null)
+                    {
+                        profile.playerGroundShadowOpacity = saved.playerGroundShadowOpacity;
+                        profile.playerGroundShadowLength = saved.playerGroundShadowLength;
+                        profile.playerGroundShadowThickness = saved.playerGroundShadowThickness;
+                        profile.playerGroundShadowDistanceResponse = saved.playerGroundShadowDistanceResponse;
+                        profile.playerGroundShadowGrowthDistance = saved.playerGroundShadowGrowthDistance;
+                        profile.playerLightCrossingFade = saved.playerLightCrossingFade;
+                    }
+                    Directory.CreateDirectory("Logs/PlayerLightShadow/Crossing");
+                    Vector3 pivot = player.transform.position + Vector3.right * (light.transform.position.x - shadow.Body.x);
+                    camera.transform.position = pivot + new Vector3(0, 1, -10);
+                    profile.playerLightShadow = true;
+                    var report = new System.Text.StringBuilder("distance,length,visibility\n");
+                    for (int i = 0; i <= 40; i++)
+                    {
+                        float distance = Mathf.Lerp(-2, 2, i / 40f);
+                        point = pivot + Vector3.right * distance;
+                        player.transform.position = point; body.position = point; Physics2D.SyncTransforms(); grounding.SendMessage("LateUpdate");
+                        RenderPipeline.SubmitRenderRequest(camera, new RenderPipeline.StandardRequest { destination = target });
+                        RenderTexture.active = target; image.ReadPixels(new Rect(0, 0, 480, 270), 0, 0); image.Apply();
+                        File.WriteAllBytes($"Logs/PlayerLightShadow/Crossing/Frame-{i:00}.png", image.EncodeToPNG());
+                        var response = PlayerLightShadow.GroundResponse(distance, shadow.Body.z, profile.playerGroundShadowDistanceResponse, profile.playerLightCrossingFade);
+                        // This study keeps the actor grounded on the flat hub floor.
+                        float sourceHeight = light.transform.position.y - (shadow.Body.y - shadow.Body.w);
+                        float length = PlayerLightShadow.ProjectedGroundLength(distance, sourceHeight, shadow.Body.w * 2,
+                            profile.playerGroundShadowLength, profile.playerGroundShadowDistanceResponse, profile.playerGroundShadowGrowthDistance);
+                        report.AppendLine(FormattableString.Invariant($"{distance},{length},{response.y}"));
+                    }
+                    File.WriteAllText("Logs/PlayerLightShadow/Crossing/Curve.csv", report.ToString());
+                    return;
+                }
                 foreach (string mode in new[] { "Off", "Default", "Strong" })
                 {
                     profile.playerLightShadow = mode != "Off";
@@ -182,8 +234,7 @@ namespace RelicKeeper.Editor.Visuals
                     RenderTexture.active = target; image.ReadPixels(new Rect(0, 0, 480, 270), 0, 0); image.Apply();
                     File.WriteAllBytes($"Logs/PlayerLightShadow/Ground/Live-{mode}.png", image.EncodeToPNG());
                 }
-                if (shadow.GroundProjection == null) throw new InvalidOperationException("The live player's ground projection was not created.");
-                File.WriteAllText("Logs/PlayerLightShadow/Ground/Live-Report.txt", $"Ground projection alpha={shadow.GroundProjection.color.a}; bounds={shadow.GroundProjection.bounds}");
+                File.WriteAllText("Logs/PlayerLightShadow/Ground/Live-Report.txt", "Native source-light floor shadow; no overlay renderer. Body=" + shadow.Body);
             }
             finally
             {

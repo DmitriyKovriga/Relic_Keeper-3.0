@@ -499,9 +499,13 @@ namespace RelicKeeper.Editor.Visuals
             DrawPercent(_mistSettings.FindProperty("playerLightShadowSoftness"), "Edge softness (%)", 0, 200);
             EditorGUILayout.LabelField("Try 70–100% blocking and 100–150% width for a clearer shadow. Reach only affects areas inside the source light. Ambient brightness is preserved, even at 100% blocking.", EditorStyles.wordWrappedMiniLabel);
             EditorGUILayout.LabelField("Ground projection", EditorStyles.boldLabel);
-            DrawPercent(_mistSettings.FindProperty("playerGroundShadowOpacity"), "Ground shadow opacity (%)", 0, 100);
-            EditorGUILayout.PropertyField(_mistSettings.FindProperty("playerGroundShadowLength"), new GUIContent("Ground shadow length"));
+            DrawPercent(_mistSettings.FindProperty("playerGroundShadowOpacity"), "Ground light blocked (%)", 0, 100);
+            EditorGUILayout.PropertyField(_mistSettings.FindProperty("playerGroundShadowLength"), new GUIContent("Maximum ground length", "The shadow extends away from the source, based on its height. This caps the length."));
             EditorGUILayout.PropertyField(_mistSettings.FindProperty("playerGroundShadowThickness"), new GUIContent("Ground shadow thickness"));
+            DrawPercent(_mistSettings.FindProperty("playerGroundShadowDistanceResponse"), "Light height response (%)", 0, 200);
+            EditorGUILayout.PropertyField(_mistSettings.FindProperty("playerLightCrossingFade"), new GUIContent("Crossing fade distance", "Distance from the flame where shadows fade out before changing side."));
+            EditorGUILayout.PropertyField(_mistSettings.FindProperty("playerGroundShadowGrowthDistance"), new GUIContent("Length growth softness", "Larger values make the shadow extend more gradually. It always starts at the feet and collapses when crossing the flame."));
+            DrawPercent(_mistSettings.FindProperty("playerLightOverlapDarkness"), "Overlap darkness (%)", 0, 60);
             EditorGUILayout.LabelField("This soft floor shadow extends away from a nearby light and fades in the air. Set its opacity to zero to use light blocking alone.", EditorStyles.wordWrappedMiniLabel);
             EditorGUILayout.Space(8);
             EditorGUILayout.LabelField("Soft room fills", EditorStyles.boldLabel);

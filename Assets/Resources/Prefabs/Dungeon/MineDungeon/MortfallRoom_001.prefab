@@ -43,7 +43,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5aa7dfe57903340b2090fe338e86d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLightOccluder
   _outline:
   - {x: 1, y: -1, z: 0}
@@ -60,7 +60,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
   m_ShadowGroup: 0
   m_Priority: 0
@@ -102,7 +102,7 @@ MonoBehaviour:
     RefIds:
     - rid: 5435538564248240995
       type: {class: LocalLightOccluderShape, ns: Scripts.Visuals.Atmosphere, asm: Assembly-CSharp}
-      data:
+      data: 
 --- !u!1 &135485408015820689
 GameObject:
   m_ObjectHideFlags: 0
@@ -146,7 +146,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5aa7dfe57903340b2090fe338e86d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLightOccluder
   _outline:
   - {x: 25, y: 3, z: 0}
@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
   m_ShadowGroup: 0
   m_Priority: 0
@@ -205,7 +205,7 @@ MonoBehaviour:
     RefIds:
     - rid: 5435538564248241001
       type: {class: LocalLightOccluderShape, ns: Scripts.Visuals.Atmosphere, asm: Assembly-CSharp}
-      data:
+      data: 
 --- !u!1 &167690462867329439
 GameObject:
   m_ObjectHideFlags: 0
@@ -249,7 +249,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
   m_ComponentVersion: 2
   m_LightType: 3
@@ -301,7 +301,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 58617c4903544b24cb1173bc0da781ff, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLight2DSource
   _strength: 0.32
   _radius: 3.6
@@ -310,6 +310,13 @@ MonoBehaviour:
   _roomFill: 0
   _tint: {r: 0.63, g: 0.78, b: 1, a: 1}
   _innerRadius: 0.1
+  _glow:
+    enabled: 1
+    strength: 0.32
+    radius: 0.65
+    softness: 1
+    color: {r: 1, g: 1, b: 1, a: 1}
+    offset: {x: 0, y: 0}
 --- !u!1 &543414675859744898
 GameObject:
   m_ObjectHideFlags: 0
@@ -353,7 +360,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5aa7dfe57903340b2090fe338e86d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLightOccluder
   _outline:
   - {x: -55, y: -1, z: 0}
@@ -370,7 +377,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
   m_ShadowGroup: 0
   m_Priority: 0
@@ -412,7 +419,7 @@ MonoBehaviour:
     RefIds:
     - rid: 5435538564248240996
       type: {class: LocalLightOccluderShape, ns: Scripts.Visuals.Atmosphere, asm: Assembly-CSharp}
-      data:
+      data: 
 --- !u!1 &548349512562980079
 GameObject:
   m_ObjectHideFlags: 0
@@ -456,7 +463,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5aa7dfe57903340b2090fe338e86d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLightOccluder
   _outline:
   - {x: 5, y: 3, z: 0}
@@ -473,7 +480,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
   m_ShadowGroup: 0
   m_Priority: 0
@@ -515,7 +522,7 @@ MonoBehaviour:
     RefIds:
     - rid: 5435538564248241006
       type: {class: LocalLightOccluderShape, ns: Scripts.Visuals.Atmosphere, asm: Assembly-CSharp}
-      data:
+      data: 
 --- !u!1 &1807531096432361042
 GameObject:
   m_ObjectHideFlags: 0
@@ -1029,7 +1036,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c5360f41ea9ef324f89de950a7c6839d, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Dungeon.OneWayPlatformTilemap
   _matchGroundSorting: 1
   _sortingLayerName: Default
@@ -1044,7 +1051,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7f70c45fe212f949aa178086e15eb57, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.GroundSurfaceVisuals
   _profile: {fileID: 11400000, guid: e02c5cd32dbc8c049bb283c5fa50645e, type: 2}
 --- !u!1 &2095047170091158564
@@ -1090,7 +1097,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5aa7dfe57903340b2090fe338e86d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLightOccluder
   _outline:
   - {x: -55, y: 10, z: 0}
@@ -1107,7 +1114,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
   m_ShadowGroup: 0
   m_Priority: 0
@@ -1149,7 +1156,7 @@ MonoBehaviour:
     RefIds:
     - rid: 5435538564248241002
       type: {class: LocalLightOccluderShape, ns: Scripts.Visuals.Atmosphere, asm: Assembly-CSharp}
-      data:
+      data: 
 --- !u!1 &2204735673090775324
 GameObject:
   m_ObjectHideFlags: 0
@@ -1226,7 +1233,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5aa7dfe57903340b2090fe338e86d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLightOccluder
   _outline:
   - {x: 13, y: 3, z: 0}
@@ -1243,7 +1250,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
   m_ShadowGroup: 0
   m_Priority: 0
@@ -1285,7 +1292,7 @@ MonoBehaviour:
     RefIds:
     - rid: 5435538564248241007
       type: {class: LocalLightOccluderShape, ns: Scripts.Visuals.Atmosphere, asm: Assembly-CSharp}
-      data:
+      data: 
 --- !u!1 &2586033976023169708
 GameObject:
   m_ObjectHideFlags: 0
@@ -78264,7 +78271,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7f70c45fe212f949aa178086e15eb57, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.GroundSurfaceVisuals
   _profile: {fileID: 11400000, guid: e02c5cd32dbc8c049bb283c5fa50645e, type: 2}
 --- !u!1 &4528486697182175330
@@ -78310,7 +78317,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5aa7dfe57903340b2090fe338e86d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLightOccluder
   _outline:
   - {x: -55, y: 36, z: 0}
@@ -78327,7 +78334,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
   m_ShadowGroup: 0
   m_Priority: 0
@@ -78369,7 +78376,7 @@ MonoBehaviour:
     RefIds:
     - rid: 5435538564248241005
       type: {class: LocalLightOccluderShape, ns: Scripts.Visuals.Atmosphere, asm: Assembly-CSharp}
-      data:
+      data: 
 --- !u!1 &4752310014245285428
 GameObject:
   m_ObjectHideFlags: 0
@@ -78413,7 +78420,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5aa7dfe57903340b2090fe338e86d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLightOccluder
   _outline:
   - {x: 21, y: 10, z: 0}
@@ -78430,7 +78437,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
   m_ShadowGroup: 0
   m_Priority: 0
@@ -78472,7 +78479,7 @@ MonoBehaviour:
     RefIds:
     - rid: 5435538564248241003
       type: {class: LocalLightOccluderShape, ns: Scripts.Visuals.Atmosphere, asm: Assembly-CSharp}
-      data:
+      data: 
 --- !u!1 &5911424203811864693
 GameObject:
   m_ObjectHideFlags: 0
@@ -78516,7 +78523,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5aa7dfe57903340b2090fe338e86d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLightOccluder
   _outline:
   - {x: -55, y: 15, z: 0}
@@ -78533,7 +78540,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
   m_ShadowGroup: 0
   m_Priority: 0
@@ -78575,7 +78582,7 @@ MonoBehaviour:
     RefIds:
     - rid: 5435538564248241004
       type: {class: LocalLightOccluderShape, ns: Scripts.Visuals.Atmosphere, asm: Assembly-CSharp}
-      data:
+      data: 
 --- !u!1 &6325592539573581003
 GameObject:
   m_ObjectHideFlags: 0
@@ -78658,7 +78665,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5aa7dfe57903340b2090fe338e86d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLightOccluder
   _outline:
   - {x: 21, y: -1, z: 0}
@@ -78675,7 +78682,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
   m_ShadowGroup: 0
   m_Priority: 0
@@ -78717,7 +78724,7 @@ MonoBehaviour:
     RefIds:
     - rid: 5435538564248240997
       type: {class: LocalLightOccluderShape, ns: Scripts.Visuals.Atmosphere, asm: Assembly-CSharp}
-      data:
+      data: 
 --- !u!1 &6674190863674313921
 GameObject:
   m_ObjectHideFlags: 0
@@ -78804,7 +78811,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5aa7dfe57903340b2090fe338e86d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLightOccluder
   _outline:
   - {x: -55, y: -28, z: 0}
@@ -78821,7 +78828,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
   m_ShadowGroup: 0
   m_Priority: 0
@@ -78863,7 +78870,7 @@ MonoBehaviour:
     RefIds:
     - rid: 5435538564248240994
       type: {class: LocalLightOccluderShape, ns: Scripts.Visuals.Atmosphere, asm: Assembly-CSharp}
-      data:
+      data: 
 --- !u!1 &7023703582177873845
 GameObject:
   m_ObjectHideFlags: 0
@@ -80689,7 +80696,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
   m_ComponentVersion: 2
   m_LightType: 3
@@ -80741,7 +80748,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 58617c4903544b24cb1173bc0da781ff, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLight2DSource
   _strength: 0.32
   _radius: 3.6
@@ -80750,6 +80757,13 @@ MonoBehaviour:
   _roomFill: 0
   _tint: {r: 0.63, g: 0.78, b: 1, a: 1}
   _innerRadius: 0.1
+  _glow:
+    enabled: 1
+    strength: 0.32
+    radius: 0.65
+    softness: 1
+    color: {r: 1, g: 1, b: 1, a: 1}
+    offset: {x: 0, y: 0}
 --- !u!1 &8450290293448138794
 GameObject:
   m_ObjectHideFlags: 0
@@ -80793,7 +80807,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5aa7dfe57903340b2090fe338e86d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLightOccluder
   _outline:
   - {x: -3, y: 3, z: 0}
@@ -80810,7 +80824,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
   m_ShadowGroup: 0
   m_Priority: 0
@@ -80852,7 +80866,7 @@ MonoBehaviour:
     RefIds:
     - rid: 5435538564248240998
       type: {class: LocalLightOccluderShape, ns: Scripts.Visuals.Atmosphere, asm: Assembly-CSharp}
-      data:
+      data: 
 --- !u!1 &8556847548906835663
 GameObject:
   m_ObjectHideFlags: 0
@@ -80896,7 +80910,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5aa7dfe57903340b2090fe338e86d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLightOccluder
   _outline:
   - {x: 21, y: 3, z: 0}
@@ -80913,7 +80927,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
   m_ShadowGroup: 0
   m_Priority: 0
@@ -80955,7 +80969,7 @@ MonoBehaviour:
     RefIds:
     - rid: 5435538564248240999
       type: {class: LocalLightOccluderShape, ns: Scripts.Visuals.Atmosphere, asm: Assembly-CSharp}
-      data:
+      data: 
 --- !u!1 &8617980777562406474
 GameObject:
   m_ObjectHideFlags: 0
@@ -81636,7 +81650,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf5aa7dfe57903340b2090fe338e86d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.LocalLightOccluder
   _outline:
   - {x: -55, y: 3, z: 0}
@@ -81653,7 +81667,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
   m_ShadowGroup: 0
   m_Priority: 0
@@ -81695,7 +81709,7 @@ MonoBehaviour:
     RefIds:
     - rid: 5435538564248241000
       type: {class: LocalLightOccluderShape, ns: Scripts.Visuals.Atmosphere, asm: Assembly-CSharp}
-      data:
+      data: 
 --- !u!1 &8919589073607077528
 GameObject:
   m_ObjectHideFlags: 0
@@ -81764,7 +81778,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb93e81db84a5314f942f483b2196cc3, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: 
   _roomLevel: 1
   _roomModifiers:
@@ -81791,7 +81805,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 91f81ee3fb7d84b4aad3ea81e7ea94c0, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Atmosphere.TorchLightBinding
   _lights:
   - map: {fileID: 1980728102315293373}
@@ -82154,7 +82168,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1228602193279182244, guid: 03d19168c29805e4db38af4c5ce85d96, type: 3}
       propertyPath: _enemyEntries.Array.data[0].EnemyData
-      value:
+      value: 
       objectReference: {fileID: 11400000, guid: 83e177d483b1cc64abd6750ba9e625e1, type: 2}
     - target: {fileID: 3379810722663494706, guid: 03d19168c29805e4db38af4c5ce85d96, type: 3}
       propertyPath: m_Name
@@ -111110,7 +111124,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f285f2b43f9f9764c8d9d0c8af25ea67, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: 
 --- !u!4 &2807908840102885484 stripped
 Transform:

@@ -76,6 +76,27 @@ namespace RelicKeeper.Tests.EditMode
             finally { Object.DestroyImmediate(profile); }
         }
 
+        [Test]
+        public void GroundProjectionUsesLightHeight_IsBounded_AndCollapsesContinuouslyAtCrossing()
+        {
+            Vector2 Sample(float x) => PlayerLightShadow.GroundResponse(x, 0.3f, 1, 0.65f);
+            Assert.That(Sample(0.5f).x, Is.LessThan(Sample(1.25f).x));
+            Assert.That(Sample(1.25f).x, Is.LessThan(Sample(3).x));
+            Assert.That(Sample(-0.5f), Is.EqualTo(Sample(0.5f)), "Both sides follow the same curve.");
+            Assert.That(Sample(0).y, Is.Zero); Assert.That(Sample(-0.1f).y, Is.Zero); Assert.That(Sample(0.1f).y, Is.Zero);
+            for (float x = -0.8f; x < 0.8f; x += 0.01f)
+                Assert.That(Mathf.Abs(Sample(x + 0.01f).y - Sample(x).y), Is.LessThan(0.04f), "Opacity cannot jump as direction changes.");
+            float Length(float x, float height = 1) => PlayerLightShadow.ProjectedGroundLength(x, height, 1.2f, 2, 1, 0.8f);
+            Assert.That(Length(0), Is.Zero);
+            Assert.That(Length(-0.5f), Is.EqualTo(Length(0.5f)));
+            Assert.That(Length(0.5f), Is.LessThan(Length(1.5f)), "An elevated light projects a longer shadow farther away.");
+            Assert.That(Length(1, 3), Is.LessThan(Length(1, 1)), "A higher light projects a shorter shadow.");
+            Assert.That(Length(100, 0.1f), Is.LessThanOrEqualTo(2), "A low flame must not create an infinite projection.");
+            Assert.That(Length(1, 0), Is.Zero, "A source below the support cannot project onto its top.");
+            for (float x = -2; x < 2; x += 0.01f)
+                Assert.That(Mathf.Abs(Length(x + 0.01f) - Length(x)), Is.LessThan(0.04f), "Length cannot pop while crossing the source.");
+        }
+
         [UnityTest]
         public IEnumerator ActualPointLightIsPartiallyBlocked_AndAmbientBodyAndOtherLightRemainReadable()
         {
@@ -132,12 +153,63 @@ namespace RelicKeeper.Tests.EditMode
                 profile.playerLightShadowStrength = 0; profile.playerGroundShadowOpacity = 1;
                 profile.playerGroundShadowLength = 1.8f; profile.playerGroundShadowThickness = 0.3f;
                 var groundOn = Render(true); var groundOff = Render(false);
-                Assert.That(groundOn[Index(0.5f, -0.65f)].r, Is.LessThan(groundOff[Index(0.5f, -0.65f)].r - 2), "The separate floor projection must visibly darken actual floor pixels.");
-                Assert.That(actor.GroundProjection.bounds.center.x, Is.GreaterThan(0), "A light on the left projects to the right.");
-                Assert.That(actor.GroundProjection.bounds.min.x, Is.GreaterThanOrEqualTo(-0.501f));
-                Assert.That(actor.GroundProjection.bounds.max.x, Is.LessThanOrEqualTo(1.601f), "It cannot extend past the platform edge.");
+                Assert.That(groundOn[Index(0.5f, -0.65f)].r, Is.LessThan(groundOff[Index(0.5f, -0.65f)].r - 2), "A light on the left must lose illumination on the floor to the right.");
+                Assert.That(groundOn[Index(0.5f, -0.4f)].r, Is.EqualTo(groundOff[Index(0.5f, -0.4f)].r).Within(1), "The floor projection must not draw in the air.");
+                Assert.That(groundOn[Index(-0.6f, -0.65f)].r, Is.EqualTo(groundOff[Index(-0.6f, -0.65f)].r).Within(1));
+                profile.playerGroundShadowLength = 8;
+                Assert.That(Render(true)[Index(1.7f, -0.65f)].r, Is.EqualTo(Render(false)[Index(1.7f, -0.65f)].r).Within(1), "Even a long shadow cannot pass the platform edge.");
+                profile.playerGroundShadowLength = 1.8f;
+                actor.PreviewLightVisibility = (from, to) => false;
+                Assert.That(Render(true), Is.EqualTo(Render(false)), "An obstructed source cannot cast the floor extension.");
+                actor.PreviewLightVisibility = null;
                 light.enabled = false; other.enabled = true; Render(true);
-                Assert.That(actor.GroundProjection.bounds.center.x, Is.LessThan(0), "Crossing the light reverses the floor projection.");
+                Assert.That(Render(true)[Index(-0.3f, -0.65f)].r, Is.LessThan(Render(false)[Index(-0.3f, -0.65f)].r - 2), "An opposing light projects to the left.");
+                light.enabled = true; other.enabled = false;
+                var singleLight = Render(true);
+                other.enabled = true; var bothLights = Render(true);
+                Assert.That(bothLights[Index(0.5f, -0.65f)].r, Is.GreaterThan(singleLight[Index(0.5f, -0.65f)].r + 2), "Another torch must still illuminate the shaded floor.");
+                light.enabled = false; other.enabled = false;
+                var ambientFloor = Render(false);
+                Assert.That(Render(true), Is.EqualTo(ambientFloor), "A floor shadow must never darken ambient color when its lights are off.");
+                Assert.That(singleLight[Index(0.5f, -0.65f)].r, Is.GreaterThanOrEqualTo(ambientFloor[Index(0.5f, -0.65f)].r - 1), "Even at full ground strength, ambient floor detail must survive beneath an active light's shadow.");
+                light.enabled = true;
+                actor.ConfigurePreviewGround(-0.6f, -10, 10);
+                Assert.That(actor.GroundProjection, Is.Null, "Never create another dark oval overlay.");
+                actor.transform.position = new Vector3(-1.5f, 0);
+                Assert.That(Render(true), Is.EqualTo(Render(false)), "The extra projection must disappear while passing through the flame.");
+
+                var bodyRenderer = actor.gameObject.AddComponent<SpriteRenderer>();
+                bodyRenderer.sprite = sprite; bodyRenderer.sortingLayerName = "Hero";
+                bodyRenderer.sharedMaterial = receiver.sharedMaterial;
+                actor.transform.localScale = new Vector3(0.3f, 0.6f, 1);
+                actor.ConfigureBody(new Bounds(actor.transform.position, new Vector3(0.6f, 1.2f)));
+                var properties = new MaterialPropertyBlock(); bodyRenderer.GetPropertyBlock(properties);
+                properties.SetFloat("_FxRuntimeFlash", 0.37f); bodyRenderer.SetPropertyBlock(properties);
+                actor.ConfigureBody(new Bounds(actor.transform.position, new Vector3(0.6f, 1.2f)));
+                Assert.That(bodyRenderer.sharedMaterial.shader.FindPropertyIndex("_RKPlayerOverlapShade"), Is.GreaterThanOrEqualTo(0), "The compiled actor shader exposes the receiver property.");
+                bodyRenderer.GetPropertyBlock(properties);
+                Assert.That(properties.GetFloat("_RKPlayerOverlapShade"), Is.EqualTo(1), "Bind the body receiver before camera rendering.");
+                yield return null;
+                profile.playerLightOverlapDarkness = 0; var uncovered = Render(true);
+                profile.playerLightOverlapDarkness = 0.4f;
+                float capturedCover = -1, capturedFlag = -1;
+                System.Action<ScriptableRenderContext, Camera> probe = (context, renderingCamera) =>
+                {
+                    if (renderingCamera != camera) return;
+                    capturedCover = Shader.GetGlobalFloat("_RKPlayerOverlapAmount");
+                    bodyRenderer.GetPropertyBlock(properties); capturedFlag = properties.GetFloat("_RKPlayerOverlapShade");
+                };
+                Color32[] covered;
+                RenderPipelineManager.beginCameraRendering += probe;
+                try { covered = Render(true); } finally { RenderPipelineManager.beginCameraRendering -= probe; }
+                Assert.That(capturedCover, Is.GreaterThan(0.3f), $"Shade must be uploaded for {bodyRenderer.sharedMaterial.shader.name}, flag {capturedFlag}, body {actor.Body}, illumination {light.ParticleIllumination(profile, actor.transform.position)}.");
+                Assert.That(capturedFlag, Is.EqualTo(1));
+                Assert.That(covered[Index(-1.5f)].r, Is.LessThan(uncovered[Index(-1.5f)].r - 3), "Only the actual player renderer should darken during overlap.");
+                bodyRenderer.GetPropertyBlock(properties);
+                Assert.That(Shader.GetGlobalFloat("_RKPlayerOverlapAmount"), Is.Zero, "Restore body shading between cameras.");
+                Assert.That(properties.GetFloat("_FxRuntimeFlash"), Is.EqualTo(0.37f), "Preserve other effect owners' properties.");
+                actor.transform.position = Vector3.zero; profile.playerGroundShadowOpacity = 0;
+                Assert.That(Render(true), Is.EqualTo(Render(false)), "Overlap darkness must not follow the player away from the source.");
                 actor.transform.position = new Vector3(0, 3);
                 Assert.That(Render(true), Is.EqualTo(Render(false)), "The projection fades away on a high jump.");
                 actor.enabled = false; Assert.That(actor.GroundProjection, Is.Null); Assert.That(Render(true), Is.EqualTo(Render(false)));

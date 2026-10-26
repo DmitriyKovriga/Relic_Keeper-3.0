@@ -62,6 +62,10 @@ namespace Scripts.Visuals.Atmosphere
         [Range(0, 1)] public float playerGroundShadowOpacity = 0.35f;
         [Range(0, 8)] public float playerGroundShadowLength = 1;
         [Range(0.03f, 1)] public float playerGroundShadowThickness = 0.18f;
+        [Range(0, 2)] public float playerGroundShadowDistanceResponse = 1;
+        [Range(0.1f, 3)] public float playerLightCrossingFade = 0.65f;
+        [Range(0, 6)] public float playerGroundShadowGrowthDistance = 0.8f;
+        [Range(0, 0.6f)] public float playerLightOverlapDarkness = 0.14f;
 
         [Header("Soft room fills")]
         public bool roomFillLights = true;
@@ -143,6 +147,10 @@ namespace Scripts.Visuals.Atmosphere
             playerGroundShadowOpacity = Mathf.Clamp01(playerGroundShadowOpacity);
             playerGroundShadowLength = Mathf.Clamp(playerGroundShadowLength, 0, 8);
             playerGroundShadowThickness = Mathf.Clamp(playerGroundShadowThickness, 0.03f, 1);
+            playerGroundShadowDistanceResponse = Mathf.Clamp(playerGroundShadowDistanceResponse, 0, 2);
+            playerLightCrossingFade = Mathf.Clamp(playerLightCrossingFade, 0.1f, 3);
+            playerGroundShadowGrowthDistance = Mathf.Clamp(playerGroundShadowGrowthDistance, 0, 6);
+            playerLightOverlapDarkness = Mathf.Clamp(playerLightOverlapDarkness, 0, 0.6f);
             sourceGlowStrength = Mathf.Clamp(sourceGlowStrength, 0, 2);
             sourceGlowRadius = Mathf.Clamp(sourceGlowRadius, 0.25f, 3);
             sourceGlowSoftness = Mathf.Clamp(sourceGlowSoftness, 0.25f, 3);
