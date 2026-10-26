@@ -45,6 +45,8 @@ namespace Scripts.Hub
 
         private WorldLocalizedLabel _label;
         private bool _arrivalInProgress;
+        private Transform _labelPlayer;
+        private float _nextLabelPlayerSearch;
 
         public HubService Service => _service;
         public bool IsArriving => _arrivalInProgress;
@@ -54,6 +56,24 @@ namespace Scripts.Hub
         {
             EnsureTriggerCollider();
             EnsureLabel();
+        }
+
+        private void OnEnable() { if (Application.isPlaying) UpdateLabelVisibility(); }
+        private void LateUpdate() => UpdateLabelVisibility();
+        private void OnDisable() { if (_label != null) _label.SetPresentationOpacity(1); }
+
+        private void UpdateLabelVisibility()
+        {
+            if (_label == null) return;
+            if (!GameplayPresentationSettings.NearbyServiceNames) { _label.SetPresentationOpacity(1); return; }
+            if ((_labelPlayer == null || !_labelPlayer.gameObject.activeInHierarchy) && Time.unscaledTime >= _nextLabelPlayerSearch)
+            {
+                var player = FindFirstObjectByType<PlayerStats>();
+                _labelPlayer = player != null ? player.transform : null;
+                _nextLabelPlayerSearch = Time.unscaledTime + 0.5f;
+            }
+            float distance = _labelPlayer != null ? Vector2.Distance(_labelPlayer.position, transform.position) : float.PositiveInfinity;
+            _label.SetPresentationOpacity(WorldInformationVisibility.ProximityOpacity(distance));
         }
 
         public void ConfigureRuntime(
@@ -208,6 +228,7 @@ namespace Scripts.Hub
                 _ => "Stash"
             };
             _label = WorldLocalizedLabel.Create(transform, key, fallback, _defaultLabelLocalPosition);
+            if (Application.isPlaying) UpdateLabelVisibility();
         }
 
 #if UNITY_EDITOR

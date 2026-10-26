@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Scripts.Enemies;
 using Scripts.StatusEffects;
 using Scripts.Stats;
+using Scripts.UI;
 using UnityEngine;
 using UnityEngine.UI;
 using UObject = UnityEngine.Object;
@@ -194,18 +195,24 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
                 Transform = enemy.transform,
                 Ailments = ailments,
                 Stun = stun,
+                Sensor = enemy.GetComponent<EnemySensor2D>(),
+                Attack = enemy.GetComponent<EnemyAttackController>(),
                 AutoHeight = ComputeAutoHeight(enemy.transform),
                 View = view
             };
             tracked.EnemyHealthHandler = (cur, max) =>
             {
-                tracked.CachedHealthNormalized = max > 0f ? Mathf.Clamp01(cur / max) : 0f;
-                if (max > 0f && cur < max - 0.01f)
-                    tracked.HealthBarRevealed = true;
+                float normalized = max > 0f ? Mathf.Clamp01(cur / max) : 0f;
+                if (normalized < tracked.CachedHealthNormalized - 0.0001f)
+                    tracked.LastActivityAt = Time.unscaledTime;
+                tracked.CachedHealthNormalized = normalized;
             };
-            tracked.EnemyDeathHandler = _ => tracked.CachedHealthNormalized = 0f;
+            tracked.EnemyDamageHandler = amount => { if (amount > 0) tracked.LastActivityAt = Time.unscaledTime; };
+            tracked.EnemyDeathHandler = _ => { tracked.CachedHealthNormalized = 0f; tracked.LastActivityAt = float.NegativeInfinity; };
             enemy.OnHealthChanged += tracked.EnemyHealthHandler;
             enemy.OnDeath += tracked.EnemyDeathHandler;
+            enemy.OnDamageReceived += tracked.EnemyDamageHandler;
+            tracked.CachedHealthNormalized = 1;
             tracked.EnemyHealthHandler.Invoke(enemy.CurrentHealth, enemy.MaxHealth);
             _enemies[enemy] = tracked;
         }
@@ -261,6 +268,7 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             return;
 
         var toRemove = new List<EnemyHealth>();
+        bool combatOnly = GameplayPresentationSettings.CombatEnemyBars;
         foreach (var kv in _enemies)
         {
             var key = kv.Key;
@@ -280,25 +288,32 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             }
 
             // Poll as fallback, events are still the main update path.
-            tracked.CachedHealthNormalized = Mathf.Clamp01(cur / max);
-            if (cur < max - 0.01f)
-                tracked.HealthBarRevealed = true;
+            float normalized = Mathf.Clamp01(cur / max);
+            if (normalized < tracked.CachedHealthNormalized - 0.0001f)
+                tracked.LastActivityAt = Time.unscaledTime;
+            tracked.CachedHealthNormalized = normalized;
             tracked.View.SetHealth(tracked.CachedHealthNormalized);
             if (tracked.Ailments == null)
                 AilmentController.TryResolve(tracked.Transform, out tracked.Ailments);
-            tracked.View.SetAilmentStacks(
-                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Poison) : 0,
-                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Bleed) : 0,
-                tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Ignite) : 0,
-                tracked.Ailments != null && tracked.Ailments.GetStackCount(AilmentType.Shock) > 0);
+            int poison = tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Poison) : 0;
+            int bleed = tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Bleed) : 0;
+            int ignite = tracked.Ailments != null ? tracked.Ailments.GetStackCount(AilmentType.Ignite) : 0;
+            bool shocked = tracked.Ailments != null && tracked.Ailments.GetStackCount(AilmentType.Shock) > 0;
+            tracked.View.SetAilmentStacks(poison, bleed, ignite, shocked);
             if (tracked.Stun == null)
                 tracked.Stun = tracked.Transform.GetComponent<EnemyStunController>();
             float stunNormalized = tracked.Stun != null && tracked.Stun.HasMeter ? tracked.Stun.Normalized : 1f;
-            bool showStun = tracked.HealthBarRevealed && stunNormalized < 0.999f;
+            bool hasAilment = poison > 0 || bleed > 0 || ignite > 0 || shocked;
+            bool fighting = (tracked.Sensor != null && tracked.Sensor.HasTarget) || (tracked.Attack != null && tracked.Attack.IsBusy);
+            if (fighting || hasAilment || stunNormalized < 0.999f) tracked.LastActivityAt = Time.unscaledTime;
+            float opacity = combatOnly
+                ? WorldInformationVisibility.RecentActivityOpacity(Time.unscaledTime, tracked.LastActivityAt, WorldInformationVisibility.EnemyHoldSeconds) : 1;
+            bool showStun = opacity > 0 && stunNormalized < 0.999f;
             tracked.View.SetStun(stunNormalized, showStun);
             tracked.View.Tick(Time.unscaledDeltaTime);
             var worldPos = tracked.Transform.position + Vector3.up * (Mathf.Max(MinAutoHeight, tracked.AutoHeight) + EnemyExtraYOffset);
-            tracked.View.SetVisible(tracked.HealthBarRevealed && SetUiPosition(tracked.View.Root, worldPos));
+            tracked.View.SetOpacity(opacity);
+            tracked.View.SetVisible(opacity > 0 && SetUiPosition(tracked.View.Root, worldPos));
         }
 
         for (int i = 0; i < toRemove.Count; i++)
@@ -589,6 +604,8 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             tracked.Health.OnHealthChanged -= tracked.EnemyHealthHandler;
         if (tracked.EnemyDeathHandler != null && tracked.Health != null)
             tracked.Health.OnDeath -= tracked.EnemyDeathHandler;
+        if (tracked.EnemyDamageHandler != null && tracked.Health != null)
+            tracked.Health.OnDamageReceived -= tracked.EnemyDamageHandler;
 
         tracked?.View?.Destroy();
         _enemies.Remove(enemy);
@@ -598,12 +615,20 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
     {
         foreach (var kv in _players)
         {
+            if (kv.Key != null && kv.Value.PlayerChangedHandler != null)
+                kv.Key.OnAnyStatChanged -= kv.Value.PlayerChangedHandler;
             kv.Value?.View?.Destroy();
         }
         _players.Clear();
 
         foreach (var kv in _enemies)
         {
+            if (kv.Key != null)
+            {
+                kv.Key.OnHealthChanged -= kv.Value.EnemyHealthHandler;
+                kv.Key.OnDeath -= kv.Value.EnemyDeathHandler;
+                kv.Key.OnDamageReceived -= kv.Value.EnemyDamageHandler;
+            }
             kv.Value?.View?.Destroy();
         }
         _enemies.Clear();
@@ -628,10 +653,13 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         public Transform Transform;
         public AilmentController Ailments;
         public EnemyStunController Stun;
+        public EnemySensor2D Sensor;
+        public EnemyAttackController Attack;
         public float AutoHeight;
         public StatusBarView View;
         public float CachedHealthNormalized;
-        public bool HealthBarRevealed;
+        public float LastActivityAt = float.NegativeInfinity;
+        public Action<float> EnemyDamageHandler;
         public Action<float, float> EnemyHealthHandler;
         public Action<EnemyHealth> EnemyDeathHandler;
     }
@@ -918,6 +946,7 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
         private readonly AilmentStackRow _ailmentStackRow;
         private readonly DebuffMarkerRow _debuffMarkerRow;
         private readonly bool _isPlayer;
+        private readonly CanvasGroup _opacityGroup;
 
         public StatusBarView(RectTransform root, BarRow healthRow, BarRow manaRow, BarRow stunRow, MysticShieldRow mysticShieldRow, AilmentStackRow ailmentStackRow, DebuffMarkerRow debuffMarkerRow, bool isPlayer)
         {
@@ -929,6 +958,8 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
             _ailmentStackRow = ailmentStackRow;
             _debuffMarkerRow = debuffMarkerRow;
             _isPlayer = isPlayer;
+            if (!isPlayer && root != null)
+                _opacityGroup = root.gameObject.AddComponent<CanvasGroup>();
         }
 
         public void SetHealth(float normalized)
@@ -971,10 +1002,18 @@ public sealed class WorldStatusBarsManager : MonoBehaviour
                 Root.gameObject.SetActive(visible);
         }
 
+        public void SetOpacity(float opacity)
+        {
+            if (_opacityGroup != null) _opacityGroup.alpha = Mathf.Clamp01(opacity);
+        }
+
         public void Destroy()
         {
             if (Root != null)
-                UObject.Destroy(Root.gameObject);
+            {
+                if (Application.isPlaying) UObject.Destroy(Root.gameObject);
+                else UObject.DestroyImmediate(Root.gameObject);
+            }
         }
 
         private static void SetRowNormalized(BarRow row, float normalized, bool useDamageTrail)

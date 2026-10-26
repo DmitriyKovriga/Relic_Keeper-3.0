@@ -6,12 +6,29 @@ public static class GameplayPresentationSettings
     public const string HudScaleKey = "presentation_hud_scale";
     public const string HudOpacityKey = "presentation_hud_opacity";
     public const string PlayerAttackVfxOpacityKey = "presentation_player_attack_vfx_opacity";
+    public const string NearbyServiceNamesKey = "presentation_nearby_service_names";
+    public const string CombatEnemyBarsKey = "presentation_combat_enemy_bars";
+    public const string RecentDummyDpsKey = "presentation_recent_dummy_dps";
 
     public static event Action Changed;
 
     public static float HudScale => NormalizeHudScale(PlayerPrefs.GetFloat(HudScaleKey, 0.75f));
     public static float HudOpacity => Mathf.Clamp(PlayerPrefs.GetFloat(HudOpacityKey, 1f), 0.2f, 1f);
     public static float PlayerAttackVfxOpacity => Mathf.Clamp(PlayerPrefs.GetFloat(PlayerAttackVfxOpacityKey, 1f), 0.1f, 1f);
+    public static bool NearbyServiceNames => PlayerPrefs.GetInt(NearbyServiceNamesKey, 1) != 0;
+    public static bool CombatEnemyBars => PlayerPrefs.GetInt(CombatEnemyBarsKey, 1) != 0;
+    public static bool RecentDummyDps => PlayerPrefs.GetInt(RecentDummyDpsKey, 1) != 0;
+
+    public static void SetNearbyServiceNames(bool value) => SaveChoice(NearbyServiceNamesKey, value);
+    public static void SetCombatEnemyBars(bool value) => SaveChoice(CombatEnemyBarsKey, value);
+    public static void SetRecentDummyDps(bool value) => SaveChoice(RecentDummyDpsKey, value);
+
+    private static void SaveChoice(string key, bool value)
+    {
+        int stored = value ? 1 : 0;
+        if (PlayerPrefs.GetInt(key, 1) == stored) return;
+        PlayerPrefs.SetInt(key, stored); PlayerPrefs.Save(); Changed?.Invoke();
+    }
 
     public static void SetHudScale(float value)
     {

@@ -3388,6 +3388,34 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 119828062772490240
+    m_Localized: Service names
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119828062868959232
+    m_Localized: Enemy health bars
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119828062868959233
+    m_Localized: Training DPS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119828062868959234
+    m_Localized: Nearby
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119828062868959235
+    m_Localized: Combat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119828062868959236
+    m_Localized: After damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119828062868959237
+    m_Localized: Always
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

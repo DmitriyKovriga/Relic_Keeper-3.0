@@ -3,6 +3,7 @@ using UnityEngine.UIElements;
 using UnityEngine.Localization.Settings;
 using System.Collections.Generic;
 using Scripts.Items.World;
+using Scripts.UI;
 
 public class LanguageSelector : MonoBehaviour
 {
@@ -46,6 +47,9 @@ public class LanguageSelector : MonoBehaviour
     private Button _lootFilterOptionCommon;
     private Button _lootFilterOptionMagic;
     private Button _lootFilterOptionRare;
+    private Button _serviceNamesButton;
+    private Button _enemyBarsButton;
+    private Button _dummyDpsButton;
 
     private void OnEnable()
     {
@@ -62,6 +66,15 @@ public class LanguageSelector : MonoBehaviour
         UpdateButtonText();
         SetupDisplaySelector();
         SetupPresentationSettings();
+        _serviceNamesButton = root.Q<Button>("ServiceNamesButton");
+        _enemyBarsButton = root.Q<Button>("EnemyBarsButton");
+        _dummyDpsButton = root.Q<Button>("DummyDpsButton");
+        if (_serviceNamesButton != null) _serviceNamesButton.clicked += ToggleServiceNames;
+        if (_enemyBarsButton != null) _enemyBarsButton.clicked += ToggleEnemyBars;
+        if (_dummyDpsButton != null) _dummyDpsButton.clicked += ToggleDummyDps;
+        GameplayPresentationSettings.Changed += RefreshWorldInformationLabels;
+        LocalizationSettings.SelectedLocaleChanged += OnPresentationLocaleChanged;
+        RefreshWorldInformationLabels();
 
         _popup.style.display = DisplayStyle.None;
         if (_displayPopup != null) _displayPopup.style.display = DisplayStyle.None;
@@ -88,6 +101,11 @@ public class LanguageSelector : MonoBehaviour
 
     private void OnDisable()
     {
+        if (_serviceNamesButton != null) _serviceNamesButton.clicked -= ToggleServiceNames;
+        if (_enemyBarsButton != null) _enemyBarsButton.clicked -= ToggleEnemyBars;
+        if (_dummyDpsButton != null) _dummyDpsButton.clicked -= ToggleDummyDps;
+        GameplayPresentationSettings.Changed -= RefreshWorldInformationLabels;
+        LocalizationSettings.SelectedLocaleChanged -= OnPresentationLocaleChanged;
         if (_languageButton != null) _languageButton.clicked -= OnLanguageButtonClick;
         if (_optEnglish != null) _optEnglish.clicked -= OnOptEnglishClick;
         if (_optRussian != null) _optRussian.clicked -= OnOptRussianClick;
@@ -266,6 +284,7 @@ public class LanguageSelector : MonoBehaviour
 
     private void RefreshPresentationLabels()
     {
+        RefreshWorldInformationLabels();
         bool russian = IsRussianLocale();
         if (_hudScaleLabel != null)
             _hudScaleLabel.text = russian ? "Размер HUD" : "HUD size";
@@ -285,6 +304,32 @@ public class LanguageSelector : MonoBehaviour
 
         RefreshHudScaleChoices();
         RefreshLootFilterChoices();
+    }
+
+    private void ToggleServiceNames() => GameplayPresentationSettings.SetNearbyServiceNames(!GameplayPresentationSettings.NearbyServiceNames);
+    private void ToggleEnemyBars() => GameplayPresentationSettings.SetCombatEnemyBars(!GameplayPresentationSettings.CombatEnemyBars);
+    private void ToggleDummyDps() => GameplayPresentationSettings.SetRecentDummyDps(!GameplayPresentationSettings.RecentDummyDps);
+    private void OnPresentationLocaleChanged(UnityEngine.Localization.Locale locale)
+    {
+        if (_languageButton != null) _languageButton.text = IsRussianLocale() ? "Russian" : "English";
+        RefreshPresentationLabels();
+    }
+
+    private void RefreshWorldInformationLabels()
+    {
+        var root = ui?.rootVisualElement;
+        if (root == null) return;
+        void LabelText(string name, string key)
+        {
+            var label = root.Q<Label>(name);
+            if (label != null) label.text = WorldInformationVisibility.Text("settings.worldInfo." + key);
+        }
+        LabelText("ServiceNamesLabel", "serviceNames");
+        LabelText("EnemyBarsLabel", "enemyBars");
+        LabelText("DummyDpsLabel", "dummyDps");
+        if (_serviceNamesButton != null) _serviceNamesButton.text = WorldInformationVisibility.Text("settings.worldInfo." + (GameplayPresentationSettings.NearbyServiceNames ? "nearby" : "always"));
+        if (_enemyBarsButton != null) _enemyBarsButton.text = WorldInformationVisibility.Text("settings.worldInfo." + (GameplayPresentationSettings.CombatEnemyBars ? "combat" : "always"));
+        if (_dummyDpsButton != null) _dummyDpsButton.text = WorldInformationVisibility.Text("settings.worldInfo." + (GameplayPresentationSettings.RecentDummyDps ? "recentDamage" : "always"));
     }
 
     private void RefreshHudScaleChoices()

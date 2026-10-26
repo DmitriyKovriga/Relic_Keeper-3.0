@@ -38,6 +38,18 @@
                     <ui:Label text="Hide items" name="LootFilterLabel" class="settings-presentation-label" />
                     <ui:Button text="Do not hide" name="LootFilterButton" class="settings-select-button settings-presentation-dropdown" />
                 </ui:VisualElement>
+                <ui:VisualElement name="ServiceNamesRow" class="settings-presentation-row">
+                    <ui:Label text="Service names" name="ServiceNamesLabel" class="settings-presentation-label" />
+                    <ui:Button text="Nearby" name="ServiceNamesButton" class="settings-select-button settings-presentation-dropdown" />
+                </ui:VisualElement>
+                <ui:VisualElement name="EnemyBarsRow" class="settings-presentation-row">
+                    <ui:Label text="Enemy health bars" name="EnemyBarsLabel" class="settings-presentation-label" />
+                    <ui:Button text="Combat" name="EnemyBarsButton" class="settings-select-button settings-presentation-dropdown" />
+                </ui:VisualElement>
+                <ui:VisualElement name="DummyDpsRow" class="settings-presentation-row">
+                    <ui:Label text="Training DPS" name="DummyDpsLabel" class="settings-presentation-label" />
+                    <ui:Button text="After damage" name="DummyDpsButton" class="settings-select-button settings-presentation-dropdown" />
+                </ui:VisualElement>
                 <ui:VisualElement name="BindingRowsContainer" class="settings-rows-container" />
             </ui:ScrollView>
             <ui:VisualElement name="LanguagePopup" class="settings-select-popup">

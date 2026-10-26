@@ -2427,6 +2427,34 @@ MonoBehaviour:
     m_Key: passive.node.keyStoneManaStack.description
     m_Metadata:
       m_Items: []
+  - m_Id: 119828062772490240
+    m_Key: settings.worldInfo.serviceNames
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119828062868959232
+    m_Key: settings.worldInfo.enemyBars
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119828062868959233
+    m_Key: settings.worldInfo.dummyDps
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119828062868959234
+    m_Key: settings.worldInfo.nearby
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119828062868959235
+    m_Key: settings.worldInfo.combat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119828062868959236
+    m_Key: settings.worldInfo.recentDamage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119828062868959237
+    m_Key: settings.worldInfo.always
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

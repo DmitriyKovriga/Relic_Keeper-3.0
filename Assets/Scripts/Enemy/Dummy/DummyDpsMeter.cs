@@ -63,6 +63,7 @@ namespace Scripts.Enemies
         private EnemyHealth _health;
         private WorldLocalizedLabel _label;
         private float _nextRefreshTime;
+        private float _lastDamageAt = float.NegativeInfinity;
 
         private void Awake()
         {
@@ -73,20 +74,24 @@ namespace Scripts.Enemies
 
         private void OnEnable()
         {
+            _lastDamageAt = float.NegativeInfinity;
             if (_health == null)
                 _health = GetComponent<EnemyHealth>();
             if (_health != null)
                 _health.OnDamageReceived += HandleDamage;
+            UpdateVisibility();
         }
 
         private void OnDisable()
         {
             if (_health != null)
                 _health.OnDamageReceived -= HandleDamage;
+            if (_label != null) _label.SetPresentationOpacity(1);
         }
 
         private void Update()
         {
+            UpdateVisibility();
             if (Time.unscaledTime < _nextRefreshTime)
                 return;
 
@@ -96,8 +101,17 @@ namespace Scripts.Enemies
 
         private void HandleDamage(float amount)
         {
+            if (amount <= 0) return;
+            _lastDamageAt = Time.unscaledTime;
             _window.Add(Time.unscaledTime, amount);
             RefreshLabel();
+        }
+
+        private void UpdateVisibility()
+        {
+            if (_label != null)
+                _label.SetPresentationOpacity(GameplayPresentationSettings.RecentDummyDps
+                    ? WorldInformationVisibility.RecentActivityOpacity(Time.unscaledTime, _lastDamageAt, WorldInformationVisibility.DummyHoldSeconds) : 1);
         }
 
         private void RefreshLabel()
@@ -106,6 +120,7 @@ namespace Scripts.Enemies
                 return;
 
             _label.Configure(string.Empty, FormatDps(_window.Evaluate(Time.unscaledTime)));
+            UpdateVisibility();
         }
 
         public static string FormatDps(float dps)

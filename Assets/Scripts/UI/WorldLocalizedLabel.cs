@@ -37,6 +37,14 @@ namespace Scripts.UI
         private TextMeshPro _text;
         private bool _waitingForLocalizationInit;
         private int _refreshGeneration;
+        private float _presentationOpacity = 1f;
+
+        public float PresentationOpacity => _presentationOpacity;
+        public void SetPresentationOpacity(float opacity)
+        {
+            _presentationOpacity = Mathf.Clamp01(opacity);
+            if (_text != null) _text.alpha = _color.a * _presentationOpacity;
+        }
 
         public static WorldLocalizedLabel Create(Transform parent, string localizationKey, string fallbackText, Vector3 localPosition)
         {
@@ -239,6 +247,7 @@ namespace Scripts.UI
 
             _text.fontSize = _fontSize;
             _text.color = _color;
+            _text.alpha = _color.a * _presentationOpacity;
 
             var meshRenderer = _text.GetComponent<MeshRenderer>();
             if (meshRenderer == null)
