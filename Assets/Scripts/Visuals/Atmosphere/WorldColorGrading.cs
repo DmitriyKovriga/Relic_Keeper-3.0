@@ -91,12 +91,36 @@ namespace Scripts.Visuals.Atmosphere
         public static void Unregister(AtmosphereController controller)
         {
             Controllers.Remove(controller);
+            Controllers.RemoveWhere(x => x == null);
+            var scene = controller != null ? controller.gameObject.scene : default;
+            bool stillOwned = false;
+            foreach (var owner in Controllers)
+                if (owner.isActiveAndEnabled && owner.gameObject.scene == scene) { stillOwned = true; break; }
+            if (!stillOwned) RestoreSceneMaterials(scene);
             if (Controllers.Count != 0) return;
             RestoreMaterials();
             RenderPipelineManager.beginCameraRendering -= BeginCamera;
             RenderPipelineManager.endCameraRendering -= EndCamera;
             SceneManager.sceneLoaded -= OnSceneLoaded;
             Shader.SetGlobalFloat(EnabledId, 0f);
+        }
+
+        private static void RestoreSceneMaterials(Scene scene)
+        {
+            if (scene.IsValid() && scene.isLoaded)
+                foreach (var root in scene.GetRootGameObjects())
+                foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
+                {
+                    var materials = renderer.sharedMaterials; bool changed = false;
+                    for (int i = 0; i < materials.Length; i++)
+                        if (materials[i] != null && Sources.TryGetValue(materials[i], out var source) && source != null)
+                        { materials[i] = source; changed = true; }
+                    if (changed) renderer.sharedMaterials = materials;
+                }
+            DeadRenderers.Clear();
+            foreach (var pair in Bindings)
+                if (pair.Key == null || pair.Key.gameObject.scene == scene) DeadRenderers.Add(pair.Key);
+            foreach (var renderer in DeadRenderers) Bindings.Remove(renderer);
         }
 
         public static void RefreshScene(AtmosphereController controller)

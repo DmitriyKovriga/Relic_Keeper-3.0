@@ -125,6 +125,27 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void DisablingOneSceneRestoresItsMaterials_WhileAnotherOwnerRemainsActive()
+        {
+            var otherScene = EditorSceneManager.NewPreviewScene();
+            try
+            {
+                var camera = new GameObject("Other active atmosphere", typeof(Camera)); SceneManager.MoveGameObjectToScene(camera, otherScene);
+                camera.AddComponent<AtmosphereController>();
+                var own = AddSprite(); WorldColorGrading.Bind(own, RenderDepthCategory.Player);
+                var other = new GameObject("Other scene sprite", typeof(SpriteRenderer)); SceneManager.MoveGameObjectToScene(other, otherScene);
+                var renderer = other.GetComponent<SpriteRenderer>(); renderer.sprite = _sprite; renderer.sharedMaterial = _source;
+                WorldColorGrading.Bind(renderer, RenderDepthCategory.Player);
+                var block = new MaterialPropertyBlock(); block.SetFloat("_CustomOwnerProperty", 0.72f); own.SetPropertyBlock(block);
+                _controller.enabled = false;
+                Assert.That(own.sharedMaterial, Is.SameAs(_source));
+                Assert.That(renderer.sharedMaterial, Is.Not.SameAs(_source), "The other scene still needs its graded material.");
+                own.GetPropertyBlock(block); Assert.That(block.GetFloat("_CustomOwnerProperty"), Is.EqualTo(0.72f));
+            }
+            finally { EditorSceneManager.ClosePreviewScene(otherScene); }
+        }
+
+        [Test]
         public void WeaponCopyOfGradedMaterialStillRestoresPersistentSource()
         {
             var main = AddSprite(); WorldColorGrading.Bind(main, RenderDepthCategory.Player);

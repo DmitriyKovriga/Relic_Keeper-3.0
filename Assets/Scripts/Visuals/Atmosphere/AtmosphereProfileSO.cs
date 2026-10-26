@@ -52,6 +52,15 @@ namespace Scripts.Visuals.Atmosphere
         [Range(0f, 3f)] public float localLightStrength = 1f;
         [Range(0.5f, 2f)] public float localLightRadius = 1f;
         public Color localLightTint = new Color(1f, 0.6f, 0.24f, 1f);
+        [Header("Soft room fills")]
+        public bool roomFillLights = true;
+        [Range(0, 3)] public float roomFillStrength = 1;
+        [Range(0.5f, 2)] public float roomFillRadius = 1;
+
+        [Header("Placed ceiling light beams")]
+        public bool localShafts = true;
+        [Range(0f, 2f)] public float localShaftStrength = 1f;
+        [Range(0f, 1f)] public float localShaftDust = 0.45f;
 
         [Header("Small environmental animations")]
         public bool ambientAnimations = true;
@@ -105,6 +114,10 @@ namespace Scripts.Visuals.Atmosphere
             backgroundMist = Mathf.Clamp01(backgroundMist);
             wispStrength = Mathf.Clamp01(wispStrength);
             shafts = Mathf.Clamp01(shafts);
+            localShaftStrength = Mathf.Clamp(localShaftStrength, 0, 2);
+            localShaftDust = Mathf.Clamp01(localShaftDust);
+            roomFillStrength = Mathf.Clamp(roomFillStrength, 0, 3);
+            roomFillRadius = Mathf.Clamp(roomFillRadius, 0.5f, 2);
             chimneySmokeOpacity = Mathf.Clamp01(chimneySmokeOpacity);
             dripFrequency = Mathf.Clamp(dripFrequency, 0f, 2f);
             ambientParticleDensity = Mathf.Clamp01(ambientParticleDensity);

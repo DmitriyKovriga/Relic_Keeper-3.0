@@ -70,6 +70,8 @@ namespace RelicKeeper.Tests.EditMode
                 mistDraft.ambientAnimations = false; mistDraft.chimneySmokeOpacity = 0.35f; mistDraft.dripFrequency = 1.4f;
                 mistDraft.ambientParticles = false; mistDraft.ambientParticleDensity = 0.23f; mistDraft.ambientParticleOpacity = 0.61f;
                 mistDraft.surfaceMovementEffects = false; mistDraft.surfaceRunDust = 0.37f; mistDraft.surfaceEffectOpacity = 0.6f; mistDraft.surfaceLandingStrength = 1.3f;
+                mistDraft.localShafts = false; mistDraft.localShaftStrength = 1.2f; mistDraft.localShaftDust = 0.27f;
+                mistDraft.roomFillLights = false; mistDraft.roomFillStrength = 0.63f; mistDraft.roomFillRadius = 1.3f;
                 Assert.That(colors.background.exposure, Is.Zero);
                 Assert.That(mist.backgroundMist, Is.EqualTo(0.17f));
                 window.SaveAppearance();
@@ -87,6 +89,8 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(mist.ambientParticleOpacity, Is.EqualTo(0.61f), "Particle settings use the same location Save.");
                 Assert.That(mist.surfaceMovementEffects, Is.False); Assert.That(mist.surfaceRunDust, Is.EqualTo(0.37f));
                 Assert.That(mist.surfaceEffectOpacity, Is.EqualTo(0.6f)); Assert.That(mist.surfaceLandingStrength, Is.EqualTo(1.3f));
+                Assert.That(mist.localShafts, Is.False); Assert.That(mist.localShaftStrength, Is.EqualTo(1.2f)); Assert.That(mist.localShaftDust, Is.EqualTo(0.27f));
+                Assert.That(mist.roomFillLights, Is.False); Assert.That(mist.roomFillStrength, Is.EqualTo(0.63f)); Assert.That(mist.roomFillRadius, Is.EqualTo(1.3f));
                 StringAssert.Contains("backgroundMist: 0.42", System.IO.File.ReadAllText(mistPath));
                 Assert.That(colors.hideFlags, Is.EqualTo(HideFlags.None));
                 Assert.That(mist.hideFlags, Is.EqualTo(HideFlags.None));

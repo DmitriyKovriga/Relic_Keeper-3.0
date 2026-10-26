@@ -13,22 +13,35 @@ namespace Scripts.Visuals.Atmosphere
         [SerializeField, Min(0.1f)] private float _radius = 3.5f;
         [SerializeField] private bool _flame;
         [SerializeField] private float _flamePhase;
+        [SerializeField] private bool _roomFill;
+        [SerializeField] private Color _tint = new Color(0.63f, 0.78f, 1);
+        [SerializeField, Range(0, 0.8f)] private float _innerRadius = 0.1f;
         private float _placementPhase;
         private Light2D _light;
         private AtmosphereController _previewOwner;
         public Light2D Light => _light != null ? _light : (_light = GetComponent<Light2D>());
         public void Configure(float strength, float radius) { _strength = strength; _radius = radius; Prepare(); }
         public void ConfigureFlame(float phase) { _flame = true; _flamePhase = phase; SetPlacementPhase(); }
+        public bool IsRoomFill => _roomFill;
+        public float Radius => _radius;
+        public void ConfigureFill(float strength, float radius, Color tint, float innerRadius = 0.1f)
+        {
+            _roomFill = true; _flame = false; _strength = Mathf.Max(0, strength); _radius = Mathf.Max(0.1f, radius);
+            _tint = tint; _innerRadius = Mathf.Clamp(innerRadius, 0, 0.8f); Prepare();
+        }
+        public bool IsAvailable(AtmosphereProfileSO profile) => profile != null && (_roomFill ? profile.roomFillLights : profile.localLights);
+        private float ProfileStrength(AtmosphereProfileSO profile) => _roomFill ? profile.roomFillStrength : profile.localLightStrength;
+        private float ProfileRadius(AtmosphereProfileSO profile) => _roomFill ? profile.roomFillRadius : profile.localLightRadius;
         private void SetPlacementPhase() => _placementPhase = Mathf.Repeat(transform.position.x * 0.173f + transform.position.y * 0.347f, 37f);
         public bool HasFlameMotion => _flame;
         // Particle visibility must not depend on transient Light.intensity: it is
         // deliberately reset between cameras. Use the source and profile instead.
         public float ParticleIllumination(AtmosphereProfileSO profile, Vector3 world)
         {
-            if (!isActiveAndEnabled || !Light.enabled || _strength <= 0 || profile == null || !profile.localLights) return 0;
-            float radius = _radius * profile.localLightRadius * FlameSample.y;
+            if (!isActiveAndEnabled || !Light.enabled || _strength <= 0 || !IsAvailable(profile)) return 0;
+            float radius = _radius * ProfileRadius(profile) * FlameSample.y;
             float edge = Mathf.Clamp01(1f - Vector2.Distance(world, transform.position) / Mathf.Max(0.1f, radius));
-            return Mathf.Clamp01(profile.localLightStrength) * Mathf.SmoothStep(0, 1, edge);
+            return Mathf.Clamp01(ProfileStrength(profile)) * Mathf.SmoothStep(0, 1, edge);
         }
         public static Vector2 SampleFlame(float seconds, float phase)
         {
@@ -74,7 +87,7 @@ namespace Scripts.Visuals.Atmosphere
             Light.shadowsEnabled = true; Light.shadowIntensity = 1; Light.shadowSoftness = 0;
             Light.intensity = 0; Light.enabled = isActiveAndEnabled;
             Light.pointLightInnerAngle = 360; Light.pointLightOuterAngle = 360;
-            Light.pointLightOuterRadius = _radius; Light.pointLightInnerRadius = 0.35f;
+            Light.pointLightOuterRadius = _radius; Light.pointLightInnerRadius = _roomFill ? _radius * _innerRadius : 0.35f;
             Light.targetSortingLayers = new[] { SortingLayer.NameToID("Background"), SortingLayer.NameToID("Default"),
                 SortingLayer.NameToID("World"), SortingLayer.NameToID("Hero") };
         }
@@ -82,7 +95,7 @@ namespace Scripts.Visuals.Atmosphere
         {
             var owner = _previewOwner != null ? _previewOwner : Camera.main?.GetComponent<AtmosphereController>();
             var profile = owner != null && owner.isActiveAndEnabled ? owner.ActiveDepthMistProfile : null;
-            Light.pointLightOuterRadius = _radius * (profile != null ? profile.localLightRadius : 1f) * FlameSample.y;
+            UpdateRadius(profile, FlameSample.y);
             Light.intensity = 0; // Keep its mesh/bounds updated, but illuminate only its own camera below.
         }
         private void BeginCamera(ScriptableRenderContext context, Camera camera)
@@ -96,9 +109,9 @@ namespace Scripts.Visuals.Atmosphere
                 owner = Camera.main.GetComponent<AtmosphereController>();
 #endif
             var profile = owner != null && owner.isActiveAndEnabled ? owner.ActiveDepthMistProfile : null;
-            if (WorldColorGrading.BindingsSuspended || profile == null || !profile.localLights) return;
+            if (WorldColorGrading.BindingsSuspended || !IsAvailable(profile)) return;
             Vector2 flame = FlameSample;
-            Light.pointLightOuterRadius = _radius * profile.localLightRadius * flame.y;
+            UpdateRadius(profile, flame.y);
 #if UNITY_EDITOR
             // Isolated preview scenes have no ordinary player loop. Flush Unity's
             // own Light2D mesh/bounds update before their synchronous render request.
@@ -106,8 +119,13 @@ namespace Scripts.Visuals.Atmosphere
             if (UnityEditor.SceneManagement.EditorSceneManager.IsPreviewScene(gameObject.scene))
                 Light.SendMessage("LateUpdate", SendMessageOptions.DontRequireReceiver);
 #endif
-            Light.color = profile.localLightTint;
-            Light.intensity = _strength * profile.localLightStrength * flame.x;
+            Light.color = _roomFill ? _tint : profile.localLightTint;
+            Light.intensity = _strength * ProfileStrength(profile) * flame.x;
+        }
+        private void UpdateRadius(AtmosphereProfileSO profile, float motion)
+        {
+            Light.pointLightOuterRadius = _radius * (profile != null ? ProfileRadius(profile) : 1f) * motion;
+            Light.pointLightInnerRadius = _roomFill ? Light.pointLightOuterRadius * _innerRadius : 0.35f;
         }
         private void EndCamera(ScriptableRenderContext context, Camera camera) { if (_light != null) _light.intensity = 0; }
     }

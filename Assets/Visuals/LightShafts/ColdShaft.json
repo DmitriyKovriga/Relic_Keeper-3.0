@@ -1,0 +1,53 @@
+{
+ "frames": [
+  {
+   "filename": "relic-keeper-mortfall-cold-shaft 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 160
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 160
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 160
+   },
+   "pivot": {
+    "x": 0.15625,
+    "y": 0.05625
+   },
+   "duration": 1000
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "relic-keeper-mortfall-cold-shaft.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 64,
+   "h": 160
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 10,
+   "y": 9
+  },
+  "frameTags": [
+   {
+    "name": "relic-keeper-mortfall-cold-shaft",
+    "from": 0,
+    "to": 0,
+    "direction": "forward"
+   }
+  ]
+ }
+}

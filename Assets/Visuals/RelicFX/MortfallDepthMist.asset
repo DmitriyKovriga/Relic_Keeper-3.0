@@ -43,6 +43,12 @@ MonoBehaviour:
   localLightStrength: 2.85
   localLightRadius: 2
   localLightTint: {r: 1, g: 0.6, b: 0.24, a: 1}
+  roomFillLights: 1
+  roomFillStrength: 1
+  roomFillRadius: 1
+  localShafts: 1
+  localShaftStrength: 0.074
+  localShaftDust: 1
   ambientAnimations: 1
   chimneySmokeOpacity: 0.66400003
   dripFrequency: 1

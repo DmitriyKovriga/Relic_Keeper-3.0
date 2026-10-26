@@ -3,7 +3,7 @@ using UnityEngine.Rendering;
 
 namespace Scripts.Visuals.Atmosphere
 {
-    public enum AmbientParticleKind { ForgeEmbers, DriftingLeaves, TorchDust }
+    public enum AmbientParticleKind { ForgeEmbers, DriftingLeaves, TorchDust, ShaftDust }
 
     // Fixed renderer slots, deterministic motion, no physics or per-frame spawning.
     // Bounds describe a hand-placed clear pocket of air, not the camera viewport.
@@ -16,11 +16,12 @@ namespace Scripts.Visuals.Atmosphere
         [SerializeField] private int _seed = 17;
         private SpriteRenderer[] _slots;
         private LocalLight2DSource _torch;
+        private LocalLightShaftSource _shaft;
         public AmbientParticleKind Kind => _kind;
         public Sprite[] Frames => _frames;
         public Vector2 Extent => _extent;
         public float PreviewTime { get; set; } = -1;
-        public static int Capacity(AmbientParticleKind kind) => kind == AmbientParticleKind.DriftingLeaves ? 1 : kind == AmbientParticleKind.ForgeEmbers ? 3 : 4;
+        public static int Capacity(AmbientParticleKind kind) => kind == AmbientParticleKind.DriftingLeaves ? 1 : kind == AmbientParticleKind.TorchDust ? 4 : 3;
         public readonly struct State
         {
             public readonly bool visible;
@@ -37,6 +38,7 @@ namespace Scripts.Visuals.Atmosphere
         {
             if (_slots == null) _slots = GetComponentsInChildren<SpriteRenderer>(true);
             if (_kind == AmbientParticleKind.TorchDust && _torch == null) _torch = GetComponentInParent<LocalLight2DSource>();
+            if (_kind == AmbientParticleKind.ShaftDust && _shaft == null) _shaft = GetComponentInParent<LocalLightShaftSource>();
         }
         private void OnEnable()
         {
@@ -86,7 +88,7 @@ namespace Scripts.Visuals.Atmosphere
                 offset = new Vector2(Mathf.Sin(t * 2 + phase) * width * 0.45f, Mathf.Cos(t * 2.5f + phase) * height * 0.45f);
             offset = new Vector2(Mathf.Round(offset.x * 24) / 24, Mathf.Round(offset.y * 24) / 24);
             float opacity = Mathf.SmoothStep(0, 1, Mathf.Min(t * 8, (1 - t) * 5));
-            opacity *= kind == AmbientParticleKind.TorchDust ? 0.5f : 0.9f;
+            opacity *= kind == AmbientParticleKind.TorchDust || kind == AmbientParticleKind.ShaftDust ? 0.5f : 0.9f;
             return new State(offset, opacity, Mathf.FloorToInt(age * 8));
         }
         private void BeginCamera(ScriptableRenderContext context, Camera camera)
@@ -98,8 +100,12 @@ namespace Scripts.Visuals.Atmosphere
             else if (camera.cameraType == CameraType.SceneView && Camera.main != null && Camera.main.gameObject.scene == gameObject.scene)
                 owner = Camera.main.GetComponent<AtmosphereController>();
 #endif
-            if (WorldColorGrading.BindingsSuspended || owner == null || !owner.isActiveAndEnabled || _frames == null || _frames.Length == 0) return;
-            var profile = owner.ActiveDepthMistProfile;
+            if (WorldColorGrading.BindingsSuspended || _frames == null || _frames.Length == 0) return;
+            var profile = owner != null && owner.isActiveAndEnabled ? owner.ActiveDepthMistProfile : null;
+#if UNITY_EDITOR
+            if (camera.cameraType == CameraType.SceneView && _kind == AmbientParticleKind.ShaftDust && _shaft != null)
+                profile = LocalLightShaftSource.EditorPreviewProfile?.Invoke(_shaft, camera) ?? profile;
+#endif
             if (profile == null || !profile.ambientParticles || profile.ambientParticleOpacity <= 0) return;
             float seconds = Time.realtimeSinceStartup;
 #if UNITY_EDITOR
@@ -108,14 +114,19 @@ namespace Scripts.Visuals.Atmosphere
             if (PreviewTime >= 0) seconds = PreviewTime;
             for (int i = 0; i < _slots.Length && i < Capacity(_kind); i++)
             {
-                var state = Sample(_kind, seconds, i, _seed, _extent, profile.ambientParticleDensity);
+                bool shaft = _kind == AmbientParticleKind.ShaftDust;
+                if (shaft && (_shaft == null || !_shaft.isActiveAndEnabled || _shaft.Strength(profile) <= 0)) continue;
+                var state = Sample(_kind, shaft ? seconds * _shaft.DustSpeed : seconds, i, _seed, _extent, shaft ? _shaft.DustDensity(profile) : profile.ambientParticleDensity);
                 if (!state.visible) continue;
-                float illumination = _kind != AmbientParticleKind.TorchDust ? 1 :
+                Vector3 point = shaft ? _shaft.DustPosition(state.offset) : (Vector3)state.offset;
+                if (shaft && !_shaft.Contains(point)) continue;
+                float illumination = shaft ? _shaft.ParticleIllumination(point) : _kind != AmbientParticleKind.TorchDust ? 1 :
                     _torch != null ? _torch.ParticleIllumination(profile, transform.TransformPoint(state.offset)) : 0;
-                float opacity = state.opacity * profile.ambientParticleOpacity * illumination;
+                float opacity = state.opacity * profile.ambientParticleOpacity * illumination * (shaft ? Mathf.Min(1, _shaft.Strength(profile)) : 1);
+                if (shaft) opacity *= _shaft.DustOpacity;
                 if (opacity <= 0) continue;
                 var slot = _slots[i]; slot.sprite = _frames[state.frame % _frames.Length];
-                slot.transform.localPosition = state.offset;
+                slot.transform.localPosition = point;
                 slot.color = new Color(1, 1, 1, opacity); slot.enabled = true;
             }
         }

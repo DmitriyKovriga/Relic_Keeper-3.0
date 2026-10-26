@@ -62,7 +62,7 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(light.GetComponentsInChildren<Collider2D>(), Is.Empty);
             var room = AssetDatabase.LoadAssetAtPath<GameObject>(RelicKeeper.Editor.Visuals.LocalLightingSetup.RoomPath);
             Assert.That(room.GetComponent<TorchLightBinding>(), Is.Not.Null);
-            var torches = room.GetComponentsInChildren<LocalLight2DSource>(true);
+            var torches = room.GetComponentsInChildren<LocalLight2DSource>(true).Where(x => !x.IsRoomFill).ToArray();
             Assert.That(torches.Length, Is.GreaterThanOrEqualTo(2));
             Assert.That(torches.All(x => x.HasFlameMotion && x.GetComponentsInChildren<Collider2D>().Length == 0), Is.True);
             Assert.That(room.GetComponentsInChildren<LocalLightOccluder>(true), Is.Not.Empty);
@@ -71,7 +71,12 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [UnityTest]
-        public IEnumerator TerrainStopsLightInsideAndBehindWallsAndFloors()
+        public IEnumerator TerrainStopsLightInsideAndBehindWallsAndFloors() => CheckTerrainLighting(false);
+
+        [UnityTest]
+        public IEnumerator RoomFillHasIndependentColorAndControls_AndTerrainStillBlocksIt() => CheckTerrainLighting(true);
+
+        private IEnumerator CheckTerrainLighting(bool roomFill)
         {
             WorldColorGrading.SetBindingsSuspended(false);
             var scene = EditorSceneManager.NewPreviewScene();
@@ -86,6 +91,11 @@ namespace RelicKeeper.Tests.EditMode
             var sourceObject = new GameObject("Source and terrain");
             UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(sourceObject, scene);
             var source = sourceObject.AddComponent<LocalLight2DSource>(); source.Configure(0.35f, 4); source.BindPreview(controller);
+            if (roomFill)
+            {
+                source.ConfigureFill(0.35f, 4, RelicKeeper.Editor.Visuals.RoomLightingAuthoring.CoolTint);
+                profile.localLightStrength = 0; profile.localLightRadius = 0.5f; profile.localLightTint = Color.red;
+            }
             RelicKeeper.Editor.Visuals.LocalLightOccluderBuilder.AddPolygon(sourceObject.transform, new[]
             { new Vector3(0.75f, -3), new Vector3(1.25f, -3), new Vector3(1.25f, 3), new Vector3(0.75f, 3) });
             RelicKeeper.Editor.Visuals.LocalLightOccluderBuilder.AddPolygon(sourceObject.transform, new[]
@@ -106,9 +116,16 @@ namespace RelicKeeper.Tests.EditMode
             try
             {
                 EditorApplication.QueuePlayerLoopUpdate(); yield return null;
-                profile.localLights = false; var before = Render(camera, target, image);
-                profile.localLights = true; var after = Render(camera, target, image);
+                profile.localLights = false; profile.roomFillLights = false; var before = Render(camera, target, image);
+                if (roomFill) profile.roomFillLights = true; else profile.localLights = true;
+                var after = Render(camera, target, image);
                 Assert.That(after[135 * 480 + 163].r, Is.GreaterThan(before[135 * 480 + 163].r + 5), "An exposed actor still receives light.");
+                if (roomFill)
+                {
+                    Assert.That(source.Light.color, Is.EqualTo(RelicKeeper.Editor.Visuals.RoomLightingAuthoring.CoolTint));
+                    Assert.That(source.Light.pointLightOuterRadius, Is.EqualTo(4));
+                    Assert.That(source.HasFlameMotion, Is.False);
+                }
                 foreach (int pixel in new[] { 135 * 480 + 317, 58 * 480 + 163, 135 * 480 + 279 })
                     Assert.That(after[pixel].r, Is.EqualTo(before[pixel].r).Within(1), "Solid wall interiors, their far side, and underground areas must not receive source light.");
                 foreignScene = EditorSceneManager.NewPreviewScene();
@@ -257,7 +274,7 @@ namespace RelicKeeper.Tests.EditMode
             try
             {
                 EditorApplication.QueuePlayerLoopUpdate(); yield return null;
-                var torches = stage.Scene.GetRootGameObjects().SelectMany(x => x.GetComponentsInChildren<LocalLight2DSource>(true)).OrderBy(x => x.transform.position.x).ToArray();
+                var torches = stage.Scene.GetRootGameObjects().SelectMany(x => x.GetComponentsInChildren<LocalLight2DSource>(true)).Where(x => !x.IsRoomFill).OrderBy(x => x.transform.position.x).ToArray();
                 Assert.That(torches.Length, Is.EqualTo(2));
                 foreach (var torch in torches)
                 {

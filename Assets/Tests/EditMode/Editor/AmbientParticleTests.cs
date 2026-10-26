@@ -20,6 +20,7 @@ namespace RelicKeeper.Tests.EditMode
         [TestCase(AmbientParticleKind.ForgeEmbers, 3)]
         [TestCase(AmbientParticleKind.DriftingLeaves, 1)]
         [TestCase(AmbientParticleKind.TorchDust, 4)]
+        [TestCase(AmbientParticleKind.ShaftDust, 3)]
         public void MotionIsDeterministicBoundedPixelSnappedAndCapped(AmbientParticleKind kind, int cap)
         {
             var extent = new Vector2(2, 3);
@@ -43,7 +44,7 @@ namespace RelicKeeper.Tests.EditMode
                     Assert.That(sample.offset.y * 24, Is.EqualTo(Mathf.Round(sample.offset.y * 24)).Within(0.001f));
                 }
             Assert.That(visible, Is.GreaterThan(0));
-            if (kind != AmbientParticleKind.TorchDust) Assert.That(quiet, Is.GreaterThan(0), "Sources need quiet gaps, especially leaves.");
+            if (kind != AmbientParticleKind.TorchDust && kind != AmbientParticleKind.ShaftDust) Assert.That(quiet, Is.GreaterThan(0), "Sources need quiet gaps, especially leaves.");
             if (cap > 1) Assert.That(AmbientParticleSource.Sample(kind, 1, cap - 1, 17, extent, 0.1f).visible, Is.False);
         }
 
@@ -57,7 +58,8 @@ namespace RelicKeeper.Tests.EditMode
             try
             {
                 var sources = hub.GetComponentsInChildren<AmbientParticleSource>(true).Concat(room.GetComponentsInChildren<AmbientParticleSource>(true)).ToArray();
-                Assert.That(sources.Length, Is.EqualTo(3));
+                Assert.That(sources.Count(x => x.Kind != AmbientParticleKind.ShaftDust), Is.EqualTo(3));
+                Assert.That(sources.Count(x => x.Kind == AmbientParticleKind.ShaftDust), Is.EqualTo(room.GetComponentsInChildren<LocalLightShaftSource>(true).Length), "Each placed beam owns its dust slots.");
                 foreach (var source in sources)
                 {
                     Assert.That(source.Frames.Length, Is.EqualTo(8));
@@ -70,7 +72,7 @@ namespace RelicKeeper.Tests.EditMode
                     Assert.That(slots.Length, Is.EqualTo(AmbientParticleSource.Capacity(source.Kind)));
                     foreach (var slot in slots)
                     {
-                        Assert.That(slot.enabled, Is.False); Assert.That(slot.GetComponent<WorldColorGroup>().Role, Is.EqualTo(WorldColorRole.Environment));
+                        Assert.That(slot.enabled, Is.False); Assert.That(slot.GetComponent<WorldColorGroup>().Role, Is.EqualTo(source.Kind == AmbientParticleKind.ShaftDust ? WorldColorRole.Background : WorldColorRole.Environment));
                         Assert.That(SortingLayer.GetLayerValueFromID(slot.sortingLayerID), Is.LessThan(SortingLayer.GetLayerValueFromID(SortingLayer.NameToID("Hero"))));
                     }
                 }
@@ -90,7 +92,7 @@ namespace RelicKeeper.Tests.EditMode
             var scene = stage.Scene;
             try
             {
-                var dust = scene.GetRootGameObjects().SelectMany(x => x.GetComponentsInChildren<AmbientParticleSource>(true)).Single();
+                var dust = scene.GetRootGameObjects().SelectMany(x => x.GetComponentsInChildren<AmbientParticleSource>(true)).Single(x => x.Kind == AmbientParticleKind.TorchDust);
                 var torch = dust.GetComponentInParent<LocalLight2DSource>();
                 Assert.That(torch, Is.Not.Null); Assert.That(torch.gameObject.scene, Is.EqualTo(scene));
                 Assert.That(dust.GetComponentsInChildren<SpriteRenderer>(true).Length, Is.EqualTo(4));

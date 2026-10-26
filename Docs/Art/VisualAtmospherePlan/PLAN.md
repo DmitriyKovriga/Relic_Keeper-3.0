@@ -12,6 +12,7 @@ The V11 chimney-smoke / Mortfall ceiling-drip slice is in `../Environment_Animat
 The V12 forge embers / tree leaves / torchlit dust slice is in `../Ambient_Particles.md`.
 V14 is skipped by user decision; the forge-work-area and broken-winch pilot was removed.
 V15 earth/stone movement and landing effects are implemented in `../Surface_Movement.md`.
+V16 has adjustable focused/soft shafts and one cool room-fill pilot in Mortfall Room 001; reusable cool/warm fills and placement guidance are in `../Local_Light_Shafts.md`.
 This review uses the two supplied screenshots and saved project sources/assets.
 No new live Editor capture, Play Mode comparison or GPU profile was performed.
 Screenshot observations and proposed visual gains are art-direction judgments,

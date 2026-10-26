@@ -1,0 +1,88 @@
+{
+  "effect_id": "9033d9c2-b1db-4c47-ad8f-2557cd81784a",
+  "image_id": "cafcdb0d-2133-482a-b1fe-bcb5426ef9d5",
+  "render_step_id": "b30525d4-0952-40a5-935c-15700069deb2",
+  "tool": "PixelLab MCP vfx_workbench",
+  "edit_url": "https://pixellab.ai/create-vfx?effect=9033d9c2-b1db-4c47-ad8f-2557cd81784a",
+  "recipe": {
+    "name": "Mortfall Cold Ceiling Shaft",
+    "canvas": {
+      "w": 64,
+      "h": 160
+    },
+    "origin": [
+      10,
+      9
+    ],
+    "frames": 1,
+    "fps": 1,
+    "loop": false,
+    "still_t": 0.5,
+    "ramps": {
+      "main": [
+        "#667d82",
+        "#91a5a6",
+        "#bac9c1"
+      ]
+    },
+    "outline": {
+      "mode": "none"
+    },
+    "dither": 0,
+    "tones": 3,
+    "detail": 0,
+    "shading": "level",
+    "seed": 1601,
+    "camera": {
+      "tilt": 1
+    },
+    "layers": [
+      {
+        "id": "shaft",
+        "type": "beam",
+        "plane": "screen",
+        "x": 44,
+        "y": 145,
+        "width": 24,
+        "height": 140,
+        "angle": -14,
+        "taper": 0.95,
+        "soft": 3,
+        "top_fade": 0.25,
+        "outline": false,
+        "intensity": 0.65
+      },
+      {
+        "id": "core",
+        "type": "beam",
+        "plane": "screen",
+        "x": 44,
+        "y": 145,
+        "width": 8,
+        "height": 140,
+        "angle": -14,
+        "taper": 0.98,
+        "soft": 2,
+        "top_fade": 0.45,
+        "outline": false,
+        "intensity": 1
+      }
+    ],
+    "core": [
+      "shaft",
+      "core"
+    ],
+    "notes": "Cool ceiling daylight, very low opacity in game; broadening down-right from an existing crack. A calm atmospheric shaft, not a magic pillar. No flare, ring, sparks or bright white outline."
+  },
+  "unity": {
+    "ppu": 24,
+    "anchor_pixel": [
+      10,
+      14
+    ],
+    "anchor_note": "Align the first visible light pixels with the ceiling crack; exported effect origin is 10,9.",
+    "sprite": "Assets/Visuals/LightShafts/ColdShaft.png",
+    "dust": "Reuses PixelLab-authored TorchDust.png; see Ambient_Particles_PixelLab.json.",
+    "rendering": "Original exported pixels unchanged. A shader uses pixel tone as opacity density with a lower fade. Terrain column limits are baked into the room, uploaded once per source and used as a GPU mask; no sprite geometry or image pixels are replaced."
+  }
+}

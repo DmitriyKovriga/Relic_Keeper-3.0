@@ -1,6 +1,7 @@
 using System.IO;
 using Scripts.Visuals.Atmosphere;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
 using System.Collections.Generic;
@@ -31,6 +32,11 @@ namespace RelicKeeper.Editor.Visuals
         private Vector2 _scroll;
         private bool _animatePreview;
         private float _previewTravel;
+        private readonly CeilingBeamEditing _beamEdits = new CeilingBeamEditing();
+        private int _beamIndex;
+        private string _beamSaveError;
+        internal AtmosphereProfileSO MortfallBeamProfile => _environment == PreviewEnvironment.Mortfall ? (_showSaved ? _mistSource : _mistWorking) : null;
+        private bool HasRoomPreview => _environment == PreviewEnvironment.Mortfall && _stage != null && _rooms != null && _rooms.Length > 0;
 
         [MenuItem("Tools/Relic Keeper/Visuals/World Appearance")]
         public static void Open() => GetWindow<WorldColorProfilesWindow>("World Appearance");
@@ -51,6 +57,21 @@ namespace RelicKeeper.Editor.Visuals
             minSize = new Vector2(420, 500);
             EditorApplication.update += Tick;
             EditorApplication.delayCall += ConnectMainCamera;
+            PrefabStage.prefabSaved += RoomSaved;
+        }
+
+        private void RoomSaved(GameObject room)
+        {
+            if (_environment != PreviewEnvironment.Mortfall || _rooms == null || _rooms.Length == 0) return;
+            if (PrefabStageUtility.GetPrefabStage(room)?.assetPath != _rooms[_roomIndex]) return;
+            EditorApplication.delayCall -= RefreshPlacedLights;
+            EditorApplication.delayCall += RefreshPlacedLights;
+        }
+        private void RefreshPlacedLights()
+        {
+            if (this == null || EditorApplication.isPlayingOrWillChangePlaymode) return;
+            if (HasRoomPreview) _beamEdits.ForgetIfClean(_rooms[_roomIndex]);
+            SetPreviewEnvironment(_environment);
         }
 
         private void ConnectMainCamera()
@@ -130,12 +151,13 @@ namespace RelicKeeper.Editor.Visuals
             if (wide) { EditorGUILayout.BeginHorizontal(); EditorGUILayout.BeginVertical(GUILayout.Width(390)); }
             else DrawPreview(false);
             int previousTab = _appearanceTab;
-            _appearanceTab = GUILayout.Toolbar(_appearanceTab, new[] { "Colors", "Mist", "Movement", "Lighting", "Details" }, GUILayout.Height(27));
+            _appearanceTab = GUILayout.Toolbar(_appearanceTab, new[] { "Colors", "Mist", "Movement", "Lighting", "Details", "Beams" }, GUILayout.Height(27));
             if (_stage != null && previousTab != _appearanceTab)
             {
                 _stage.SetView(_overview, _showActors);
                 if (_appearanceTab == 3) _stage.FocusLighting();
                 if (_appearanceTab == 4) FocusDetails();
+                if (_appearanceTab == 5) _stage.FocusShaft(_beamIndex);
             }
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
             if (_showSaved) EditorGUILayout.HelpBox("Showing the saved version. Turn off Compare with saved to see your edits.", MessageType.Info);
@@ -160,7 +182,8 @@ namespace RelicKeeper.Editor.Visuals
             else if (_appearanceTab == 1) DrawMist();
             else if (_appearanceTab == 2) DrawMovement();
             else if (_appearanceTab == 3) DrawLighting();
-            else DrawAmbient();
+            else if (_appearanceTab == 4) DrawAmbient();
+            else DrawCeilingBeams();
             EditorGUILayout.EndScrollView();
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -206,6 +229,11 @@ namespace RelicKeeper.Editor.Visuals
 
         internal void SaveAppearance()
         {
+            if (HasRoomPreview)
+            {
+                try { _beamEdits.Save(_rooms[_roomIndex]); _beamSaveError = null; }
+                catch (System.InvalidOperationException exception) { _beamSaveError = exception.Message; Repaint(); return; }
+            }
             if (_source != null && _working != null)
             {
                 Undo.RecordObject(_source, "Save world appearance");
@@ -224,6 +252,11 @@ namespace RelicKeeper.Editor.Visuals
 
         internal void DiscardAppearance()
         {
+            _beamSaveError = null;
+            if (HasRoomPreview)
+            {
+                _beamEdits.Discard(_rooms[_roomIndex]); ClearPreview(); _stage.Dispose(); _stage = null; EnsureStage();
+            }
             ClearPreview(); _settings?.Dispose(); _settings = null;
             _mistSettings?.Dispose(); _mistSettings = null;
             if (_source != null && _drafts.TryGetValue(_source, out var draft))
@@ -265,6 +298,7 @@ namespace RelicKeeper.Editor.Visuals
             _stage.SetView(_overview, _showActors);
             if (_appearanceTab == 3) _stage.FocusLighting();
             if (_appearanceTab == 4) FocusDetails();
+            if (_appearanceTab == 5) _stage.FocusShaft(_beamIndex);
         }
 
         internal static WorldColorProfileSO CreateEditablePreview(WorldColorProfileSO source)
@@ -387,7 +421,7 @@ namespace RelicKeeper.Editor.Visuals
             _mistSettings.Update();
             if (_stage != null)
             {
-                var areas = _environment == PreviewEnvironment.Mortfall ? new[] { "Ceiling drops", "Torch dust", "Ground movement" } : new[] { "Chimney smoke", "Forge embers", "Tree leaves", "Ground movement" };
+                var areas = _environment == PreviewEnvironment.Mortfall ? new[] { "Ceiling drops", "Torch dust", "Ground movement", "Ceiling light beam" } : new[] { "Chimney smoke", "Forge embers", "Tree leaves", "Ground movement" };
                 EditorGUI.BeginChangeCheck();
                 _detailArea = EditorGUILayout.Popup("Preview area", Mathf.Clamp(_detailArea, 0, areas.Length - 1), areas);
                 if (EditorGUI.EndChangeCheck()) { _previewTravel = 0; FocusDetails(); }
@@ -399,6 +433,11 @@ namespace RelicKeeper.Editor.Visuals
                     _dripSpot = EditorGUILayout.Popup("Drop location", Mathf.Clamp(_dripSpot, 0, spots.Length - 1), spots);
                     if (EditorGUI.EndChangeCheck()) { _previewTravel = 0; FocusDetails(); }
                 }
+            }
+            if (_environment == PreviewEnvironment.Mortfall && _detailArea == 3)
+            {
+                DrawCeilingBeams();
+                return;
             }
             EditorGUILayout.LabelField("Small environmental animations", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(_mistSettings.FindProperty("ambientAnimations"), new GUIContent("Small animations"));
@@ -428,7 +467,9 @@ namespace RelicKeeper.Editor.Visuals
         private void FocusDetails()
         {
             if (_stage == null) return;
-            _detailArea = Mathf.Clamp(_detailArea, 0, _environment == PreviewEnvironment.Mortfall ? 2 : 3);
+            _detailArea = Mathf.Clamp(_detailArea, 0, 3);
+            if (_environment == PreviewEnvironment.Mortfall && _detailArea == 3)
+            { _overview = false; if (!_stage.FocusShaft()) _stage.FocusLighting(); return; }
             if (_detailArea == (_environment == PreviewEnvironment.Mortfall ? 2 : 3)) { _overview = false; _stage.FocusGroundMovement(); return; }
             if (_detailArea == 0) _stage.FocusAmbient(_environment == PreviewEnvironment.Mortfall ? _dripSpot : 0);
             else _stage.FocusParticles(_environment == PreviewEnvironment.Mortfall ? AmbientParticleKind.TorchDust :
@@ -447,11 +488,74 @@ namespace RelicKeeper.Editor.Visuals
             DrawPercent(_mistSettings.FindProperty("localLightRadius"), "Reach (%)", 50, 200);
             var tint = _mistSettings.FindProperty("localLightTint");
             tint.colorValue = EditorGUILayout.ColorField(new GUIContent("Light color"), tint.colorValue, true, false, false);
+            EditorGUILayout.Space(8);
+            EditorGUILayout.LabelField("Soft room fills", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("A gentle pool of light on stone and characters, without a visible cone. Each placed fill has its own color, size and softness.", EditorStyles.wordWrappedMiniLabel);
+            EditorGUILayout.PropertyField(_mistSettings.FindProperty("roomFillLights"), new GUIContent("Enable room fills"));
+            DrawPercent(_mistSettings.FindProperty("roomFillStrength"), "Fill strength (%)", 0, 300);
+            DrawPercent(_mistSettings.FindProperty("roomFillRadius"), "Fill reach (%)", 50, 200);
             if (_mistSettings.ApplyModifiedProperties()) ApplyPreview(true);
             EditorGUILayout.Space(8);
             EditorGUILayout.LabelField(_environment == PreviewEnvironment.Mortfall
                 ? "Placed torches light automatically. Every flame breathes with its own gentle flicker."
                 : "The sample view focuses on the forge when this tab opens.", EditorStyles.wordWrappedMiniLabel);
+            DrawRoomPlacement(false);
+        }
+
+        private void DrawCeilingBeams()
+        {
+            if (!HasRoomPreview || _mistWorking == null)
+            { EditorGUILayout.HelpBox("Choose Mortfall and a room to edit its roof beams.", MessageType.Info); return; }
+            _mistSettings.Update();
+            EditorGUILayout.LabelField("Ceiling beams — environment", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(_mistSettings.FindProperty("localShafts"), new GUIContent("Show beams"));
+            DrawPercent(_mistSettings.FindProperty("localShaftStrength"), "Overall brightness (%)", 0, 200);
+            DrawPercent(_mistSettings.FindProperty("localShaftDust"), "Overall dust (%)", 0, 100);
+            if (_mistSettings.ApplyModifiedProperties()) ApplyPreview(true);
+            EditorGUILayout.Space(8);
+            var drafts = _beamEdits.Get(_rooms[_roomIndex], _stage);
+            if (drafts.Count != _stage.Shafts.Count)
+            {
+                EditorGUILayout.HelpBox("Beam placements changed in the room while preview edits were pending. Discard changes to reload this room's beams.", MessageType.Warning);
+                return;
+            }
+            if (drafts.Count == 0)
+            {
+                EditorGUILayout.HelpBox("No roof beam is placed in this room. Room 001 has the example. Add a beam in the room from GameObject > Light > Relic Keeper.", MessageType.Info);
+                DrawRoomPlacement(true); return;
+            }
+            var labels = new string[drafts.Count];
+            for (int i = 0; i < labels.Length; i++) labels[i] = (i + 1) + ": " + _stage.Shafts[i].name + (drafts[i].Dirty ? " *" : "");
+            EditorGUI.BeginChangeCheck();
+            _beamIndex = EditorGUILayout.Popup("Placed beam", Mathf.Clamp(_beamIndex, 0, labels.Length - 1), labels);
+            if (EditorGUI.EndChangeCheck()) { _previewTravel = 0; _stage.FocusShaft(_beamIndex); }
+            var draft = drafts[_beamIndex]; var source = _stage.Shafts[_beamIndex];
+            var value = draft.appearance;
+            Vector3 anchorOffset = CeilingBeamControls.AnchorOffset(source);
+            Vector3 point = draft.position + anchorOffset;
+            using (new EditorGUI.DisabledScope(_showSaved))
+            {
+                if (CeilingBeamControls.Draw(ref value, ref point, source.transform))
+                {
+                    draft.appearance = value; draft.position = point - anchorOffset;
+                    _beamEdits.Apply(_rooms[_roomIndex], _stage, false); _beamSaveError = null; Repaint();
+                }
+            }
+            EditorGUILayout.HelpBox("Changes appear immediately. Save keeps this beam in the selected room and saves the environment sliders. Compare and Discard also include beam shape and placement.", MessageType.Info);
+            if (!string.IsNullOrEmpty(_beamSaveError)) EditorGUILayout.HelpBox(_beamSaveError, MessageType.Warning);
+            DrawRoomPlacement(true);
+        }
+
+        private void DrawRoomPlacement(bool beam)
+        {
+            if (_environment != PreviewEnvironment.Mortfall || _rooms == null || _rooms.Length == 0) return;
+            EditorGUILayout.Space(8);
+            EditorGUILayout.LabelField("Level design", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(beam
+                ? "You can also shape the beam in the room's Inspector and Scene view. Open the room below; add more beams from GameObject > Light > Relic Keeper. Save the room to update this preview."
+                : "These sliders affect the whole environment. Edit individual light positions and shapes inside the room prefab. Add more from GameObject > Light > Relic Keeper, then save the room.", EditorStyles.wordWrappedMiniLabel);
+            using (new EditorGUI.DisabledScope(EditorApplication.isPlayingOrWillChangePlaymode))
+                if (GUILayout.Button("Open this room to place lights")) RoomLightingAuthoring.OpenRoom(_rooms[_roomIndex], beam);
         }
 
         private void DrawPreview(bool expand)
@@ -496,6 +600,7 @@ namespace RelicKeeper.Editor.Visuals
             controller.PreviewColorProfile = desired;
             controller.PreviewNeutralColors = false;
             controller.PreviewDepthMistProfile = mist;
+            if (HasRoomPreview) _beamEdits.Apply(_rooms[_roomIndex], _stage, _showSaved);
             if (changed) { SceneView.RepaintAll(); EditorApplication.QueuePlayerLoopUpdate(); }
         }
 
@@ -509,6 +614,8 @@ namespace RelicKeeper.Editor.Visuals
         {
             EditorApplication.update -= Tick;
             EditorApplication.delayCall -= ConnectMainCamera;
+            PrefabStage.prefabSaved -= RoomSaved;
+            EditorApplication.delayCall -= RefreshPlacedLights;
             ClearPreview();
             _settings?.Dispose(); _settings = null;
             _mistSettings?.Dispose(); _mistSettings = null;

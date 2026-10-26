@@ -33,6 +33,14 @@ namespace RelicKeeper.Editor.Visuals
         private readonly List<LocalLight2DSource> _localLights = new List<LocalLight2DSource>();
         private readonly List<EnvironmentAnimation> _environmentAnimations = new List<EnvironmentAnimation>();
         private readonly List<AmbientParticleSource> _particles = new List<AmbientParticleSource>();
+        private readonly List<LocalLightShaftSource> _shafts = new List<LocalLightShaftSource>();
+        private readonly List<Tilemap> _shaftTerrain = new List<Tilemap>();
+        public IReadOnlyList<LocalLightShaftSource> Shafts => _shafts;
+        public void ReclipShaft(LocalLightShaftSource shaft)
+        {
+            // Visual copies deliberately have no colliders, but retain each tile's collider type.
+            CeilingBeamVisibility.Apply(_shaftTerrain.ToArray(), shaft);
+        }
         private GroundSurfaceProfileSO _groundPreviewProfile;
         private SpriteRenderer _groundPreviewPlayer;
         private GroundingSpriteSheetVfx _groundPreviewEffect;
@@ -74,11 +82,12 @@ namespace RelicKeeper.Editor.Visuals
             _mortfall = mortfall;
             _scene = EditorSceneManager.NewPreviewScene();
             var dungeon = AssetDatabase.LoadAssetAtPath<DungeonDataSO>(MortfallDataPath);
-            GameObject prefab = mortfall ? dungeon?.LoadRoomPrefab(roomPath) :
+            GameObject prefab = mortfall ? AssetDatabase.LoadAssetAtPath<GameObject>(roomPath) ?? dungeon?.LoadRoomPrefab(roomPath) :
                 AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Resources/HubObj/Hub2.0/HubEnvironment.prefab");
             if (prefab == null) throw new InvalidOperationException("The selected preview artwork could not be loaded.");
             _groundPreviewProfile = prefab.GetComponentInChildren<GroundSurfaceVisuals>(true)?.Profile;
             GameObject artwork = CopyVisuals(prefab.transform, null);
+            foreach (var shaft in _shafts) ReclipShaft(shaft);
             if (!mortfall) LayeredParallaxGroup.ConfigureHub(artwork);
             _spawn = mortfall ? prefab.GetComponent<RoomController>().PlayerSpawnPosition : new Vector3(7f, 0.8f, 0f);
 
@@ -177,6 +186,7 @@ namespace RelicKeeper.Editor.Visuals
             {
                 var target = copy.AddComponent<Tilemap>(); EditorUtility.CopySerialized(tilemap, target); target.RefreshAllTiles();
                 _tiles.Add(target);
+                if (source.GetComponent<TilemapCollider2D>() != null) _shaftTerrain.Add(target);
                 if (source.GetComponent<TilemapCollider2D>() != null || source.name == "Ground" || source.name == "Platforms") _ground.Add(target);
             }
             if (source.TryGetComponent(out SpriteRenderer sprite))
@@ -234,6 +244,11 @@ namespace RelicKeeper.Editor.Visuals
             {
                 var target = copy.AddComponent<AmbientParticleSource>();
                 EditorUtility.CopySerialized(particles, target); _particles.Add(target);
+            }
+            if (source.TryGetComponent<LocalLightShaftSource>(out var shaft))
+            {
+                var target = copy.AddComponent<LocalLightShaftSource>();
+                EditorUtility.CopySerialized(shaft, target); _shafts.Add(target);
             }
             return copy;
         }
@@ -352,6 +367,15 @@ namespace RelicKeeper.Editor.Visuals
             _viewCenter = new Vector3(source.transform.position.x, _mortfall ? source.transform.position.y - 0.5f : 3.5f, -10);
             if (!_mortfall) _actors.transform.localPosition = Vector3.right * (source.transform.position.x - _spawn.x + 1.5f);
             SetCameraOffset(0);
+        }
+
+        public bool FocusShaft(int index = 0)
+        {
+            if (_shafts.Count == 0) return false;
+            var source = _shafts[Mathf.Clamp(index, 0, _shafts.Count - 1)];
+            Camera.orthographicSize = 5.625f;
+            _viewCenter = source.SourcePosition + new Vector3(0.6f, -2.5f, -10);
+            SetCameraOffset(0); return true;
         }
 
         public void FocusGroundMovement()
