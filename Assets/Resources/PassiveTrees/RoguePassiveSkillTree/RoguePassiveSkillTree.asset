@@ -244,7 +244,7 @@ MonoBehaviour:
   - ID: n18
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 1845, y: 1500}
+    Position: {x: 1880, y: 1540}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -291,7 +291,7 @@ MonoBehaviour:
   - ID: n21
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 2133, y: 1500}
+    Position: {x: 2080, y: 1540}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -428,7 +428,7 @@ MonoBehaviour:
   - ID: n43
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 1771.0531, y: 1553.1857}
+    Position: {x: 1800, y: 1520}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -438,6 +438,7 @@ MonoBehaviour:
     ConnectionIDs:
     - n18
     - n45
+    - f587b894-7c1e-488e-9366-64847a4300a4
     IsBackbone: 0
     ZoneTwinId: 
   - ID: n44
@@ -551,7 +552,7 @@ MonoBehaviour:
   - ID: n58
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 2196, y: 1554}
+    Position: {x: 2160, y: 1520}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -705,7 +706,7 @@ MonoBehaviour:
   - ID: n68
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 1827, y: 1185}
+    Position: {x: 1820, y: 1180}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -779,6 +780,8 @@ MonoBehaviour:
     ConnectionIDs:
     - n70
     - n71
+    - e0c79938-c5a6-49dd-b338-8ca15b00d1ef
+    - 4c099005-ab97-4ef4-8cb9-808493e4a5b2
     IsBackbone: 0
     ZoneTwinId: 
   - ID: n73
@@ -841,7 +844,7 @@ MonoBehaviour:
   - ID: n80
     NodeType: 0
     PlacementMode: 0
-    Position: {x: 2160, y: 1185}
+    Position: {x: 2140, y: 1180}
     ClusterID: 
     OrbitIndex: 0
     OrbitAngle: 0
@@ -2153,6 +2156,108 @@ MonoBehaviour:
     - 94327d43-3f39-40fc-a604-63e6bf5ee281
     IsBackbone: 0
     ZoneTwinId: 
+  - ID: f587b894-7c1e-488e-9366-64847a4300a4
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 2a03dedc-e72a-4914-9674-067e36ac0126
+    OrbitIndex: 0
+    OrbitAngle: 180
+    Template: {fileID: 11400000, guid: 70df5b04e76069c40afaa4120e3d0ad2, type: 2}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - 71e904dc-1b37-4855-87fc-f7dc1c21b297
+    - n43
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: 71e904dc-1b37-4855-87fc-f7dc1c21b297
+    NodeType: 0
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 2a03dedc-e72a-4914-9674-067e36ac0126
+    OrbitIndex: 0
+    OrbitAngle: 270
+    Template: {fileID: 11400000, guid: 70df5b04e76069c40afaa4120e3d0ad2, type: 2}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - f587b894-7c1e-488e-9366-64847a4300a4
+    - 99c0faa1-1edb-4e67-9af2-dca628decb14
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: 99c0faa1-1edb-4e67-9af2-dca628decb14
+    NodeType: 1
+    PlacementMode: 1
+    Position: {x: 0, y: 0}
+    ClusterID: 2a03dedc-e72a-4914-9674-067e36ac0126
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: 401f5c25b36c62c44816f9c5be48caf5, type: 2}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - 71e904dc-1b37-4855-87fc-f7dc1c21b297
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: e0c79938-c5a6-49dd-b338-8ca15b00d1ef
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 2020, y: 1200}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: cc316cb6a50f09a4e8704f4a71600d22, type: 2}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - n72
+    - 06bcd951-fe45-42e4-83a7-6beb24df02f2
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: 06bcd951-fe45-42e4-83a7-6beb24df02f2
+    NodeType: 1
+    PlacementMode: 0
+    Position: {x: 2080, y: 1200}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: ff5bdfefd4f6bd3448d9cbd5d3349e2a, type: 2}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - e0c79938-c5a6-49dd-b338-8ca15b00d1ef
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: 4c099005-ab97-4ef4-8cb9-808493e4a5b2
+    NodeType: 0
+    PlacementMode: 0
+    Position: {x: 1940, y: 1200}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: cc316cb6a50f09a4e8704f4a71600d22, type: 2}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - n72
+    - ca175ca8-4cf5-4c1d-9695-14eff00ffad9
+    IsBackbone: 0
+    ZoneTwinId: 
+  - ID: ca175ca8-4cf5-4c1d-9695-14eff00ffad9
+    NodeType: 1
+    PlacementMode: 0
+    Position: {x: 1880, y: 1200}
+    ClusterID: 
+    OrbitIndex: 0
+    OrbitAngle: 0
+    Template: {fileID: 11400000, guid: ff5bdfefd4f6bd3448d9cbd5d3349e2a, type: 2}
+    UniqueModifiers: []
+    UniqueStatScalingRules: []
+    ConnectionIDs:
+    - 4c099005-ab97-4ef4-8cb9-808493e4a5b2
+    IsBackbone: 0
+    ZoneTwinId: 
   Clusters:
   - ID: c22
     Name: Cluster
@@ -2341,6 +2446,16 @@ MonoBehaviour:
       ArcStartAngle: 0
       ArcEndAngle: 360
     EditorColor: {r: 0.33753848, g: 0.7760476, b: 0.7121618, a: 0.4}
+    RoadConnections: []
+  - ID: 2a03dedc-e72a-4914-9674-067e36ac0126
+    Name: Half-Circle
+    Center: {x: 1813.302, y: 1453.8173}
+    Orbits:
+    - Radius: 40
+      IsPartialArc: 0
+      ArcStartAngle: 0
+      ArcEndAngle: 360
+    EditorColor: {r: 0.7004966, g: 0.43543437, b: 0.95221686, a: 0.4}
     RoadConnections: []
   BezierConnections:
   - NodeIdA: n17
@@ -2533,8 +2648,58 @@ MonoBehaviour:
     StartOutOffset: {x: 0, y: 0}
     EndInOffset: {x: 0, y: 0}
     Knots: []
+  - NodeIdA: f587b894-7c1e-488e-9366-64847a4300a4
+    NodeIdB: n43
+    AnchorPercent: 50
+    InHandleOffset: {x: -18.8, y: -12.4}
+    OutHandleOffset: {x: -7.6, y: 21.2}
+    MirrorHandles: 0
+    UseSpanPath: 0
+    StartOutOffset: {x: 0, y: 0}
+    EndInOffset: {x: 0, y: 0}
+    Knots: []
+  - NodeIdA: e0c79938-c5a6-49dd-b338-8ca15b00d1ef
+    NodeIdB: n72
+    AnchorPercent: 50
+    InHandleOffset: {x: 20.543278, y: 0.95456696}
+    OutHandleOffset: {x: -5.7878666, y: 19.734188}
+    MirrorHandles: 0
+    UseSpanPath: 0
+    StartOutOffset: {x: 0, y: 0}
+    EndInOffset: {x: 0, y: 0}
+    Knots: []
+  - NodeIdA: 06bcd951-fe45-42e4-83a7-6beb24df02f2
+    NodeIdB: e0c79938-c5a6-49dd-b338-8ca15b00d1ef
+    AnchorPercent: 50
+    InHandleOffset: {x: 15.760278, y: -12.125027}
+    OutHandleOffset: {x: -15.509557, y: -12.444129}
+    MirrorHandles: 0
+    UseSpanPath: 0
+    StartOutOffset: {x: 0, y: 0}
+    EndInOffset: {x: 0, y: 0}
+    Knots: []
+  - NodeIdA: 4c099005-ab97-4ef4-8cb9-808493e4a5b2
+    NodeIdB: n72
+    AnchorPercent: 50
+    InHandleOffset: {x: -19.78, y: -2.1200001}
+    OutHandleOffset: {x: 2.62, y: 19.72}
+    MirrorHandles: 0
+    UseSpanPath: 0
+    StartOutOffset: {x: 0, y: 0}
+    EndInOffset: {x: 0, y: 0}
+    Knots: []
+  - NodeIdA: 4c099005-ab97-4ef4-8cb9-808493e4a5b2
+    NodeIdB: ca175ca8-4cf5-4c1d-9695-14eff00ffad9
+    AnchorPercent: 50
+    InHandleOffset: {x: 16.8, y: -13.2}
+    OutHandleOffset: {x: -16.8, y: -13.2}
+    MirrorHandles: 0
+    UseSpanPath: 0
+    StartOutOffset: {x: 0, y: 0}
+    EndInOffset: {x: 0, y: 0}
+    Knots: []
   GridSize: 20
-  SnapToGrid: 0
+  SnapToGrid: 1
   ZoneToolsEnabled: 1
   LockBackbone: 1
   ZoneLinks:

@@ -2411,6 +2411,22 @@ MonoBehaviour:
     m_Key: passive.node.Rogue_n178.description
     m_Metadata:
       m_Items: []
+  - m_Id: 119809142715936768
+    m_Key: passive.node.NewKeystoneNode.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119809142766268416
+    m_Key: passive.node.NewKeystoneNode.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119809143328305152
+    m_Key: passive.node.keyStoneManaStack.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 119809143328305153
+    m_Key: passive.node.keyStoneManaStack.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
