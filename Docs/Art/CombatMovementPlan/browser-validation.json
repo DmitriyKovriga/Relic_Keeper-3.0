@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "date": "2026-10-27",
+  "checks": [
+    "revision 2: 21 active proposals, 3 excluded/deferred/optional, 24 total",
+    "4 mechanics-change proposals isolated",
+    "7 research statuses",
+    "package selection and manual deselection",
+    "search and expanded reuse notes",
+    "interactive body/recoil/contact diagram",
+    "miss suppresses target feedback",
+    "body-follow changes neither collider nor independent weapon transform",
+    "play and scrub controls",
+    "responsive width",
+    "no JS errors or external requests"
+  ],
+  "boundary": "Browser artifact verification only; not Unity runtime/Play Mode validation."
+}

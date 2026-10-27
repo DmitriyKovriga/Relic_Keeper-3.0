@@ -6,6 +6,7 @@ using Scripts.Dungeon;
 using Scripts.Enemies;
 using Scripts.Visuals;
 using Scripts.Visuals.Atmosphere;
+using Scripts.Visuals.Tiles;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -22,6 +23,7 @@ namespace RelicKeeper.Editor.Visuals
         internal const string MortfallDataPath = "Assets/Resources/Dungeons/MortFallDungeonSO.asset";
         private Scene _scene;
         private readonly List<Tilemap> _tiles = new List<Tilemap>();
+        private readonly Dictionary<Tilemap, Tilemap> _tileCopies = new Dictionary<Tilemap, Tilemap>();
         private readonly List<Tilemap> _ground = new List<Tilemap>();
         private readonly List<SpriteRenderer> _art = new List<SpriteRenderer>();
         private readonly Dictionary<Material, Material> _flatMaterials = new Dictionary<Material, Material>();
@@ -88,6 +90,14 @@ namespace RelicKeeper.Editor.Visuals
             if (prefab == null) throw new InvalidOperationException("The selected preview artwork could not be loaded.");
             _groundPreviewProfile = prefab.GetComponentInChildren<GroundSurfaceVisuals>(true)?.Profile;
             GameObject artwork = CopyVisuals(prefab.transform, null);
+            foreach (var support in prefab.GetComponentsInChildren<MortfallWallSupport>(true))
+            {
+                var wall = _tileCopies[support.GetComponent<Tilemap>()];
+                Tilemap ground = null, platforms = null;
+                if (support.Ground != null) _tileCopies.TryGetValue(support.Ground, out ground);
+                if (support.Platforms != null) _tileCopies.TryGetValue(support.Platforms, out platforms);
+                wall.gameObject.AddComponent<MortfallWallSupport>().Configure(ground, platforms);
+            }
             foreach (var shaft in _shafts) ReclipShaft(shaft);
             if (!mortfall) LayeredParallaxGroup.ConfigureHub(artwork);
             _spawn = mortfall ? prefab.GetComponent<RoomController>().PlayerSpawnPosition : new Vector3(7f, 0.8f, 0f);
@@ -187,6 +197,7 @@ namespace RelicKeeper.Editor.Visuals
             {
                 var target = copy.AddComponent<Tilemap>(); EditorUtility.CopySerialized(tilemap, target); target.RefreshAllTiles();
                 _tiles.Add(target);
+                _tileCopies[tilemap] = target;
                 if (source.GetComponent<TilemapCollider2D>() != null) _shaftTerrain.Add(target);
                 if (source.GetComponent<TilemapCollider2D>() != null || source.name == "Ground" || source.name == "Platforms") _ground.Add(target);
             }

@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d1514134bc4fbd41bb739b1b9a49231, type: 3}
+  m_Script: {fileID: 11500000, guid: 64d6f9d9563a879478226b0855ab2575, type: 3}
   m_Name: MortFallWallRuleTile
-  m_EditorClassIdentifier: Unity.2D.Tilemap.Extras::UnityEngine.RuleTile
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.Tiles.MortfallWallRuleTile
   m_DefaultSprite: {fileID: 1891063443, guid: 858e2a6f69c8d074fa7baf1d04ea1980, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
@@ -1507,3 +1507,17 @@ MonoBehaviour:
     - {x: 1, y: 0, z: 0}
     - {x: 0, y: 1, z: 0}
     m_RuleTransform: 0
+  _exposedBottoms:
+  - {fileID: 7287185818563982942, guid: 4c3201559704bf24f9c367f1f8a7d11a, type: 3}
+  - {fileID: -7858297175845719889, guid: 4c3201559704bf24f9c367f1f8a7d11a, type: 3}
+  - {fileID: -4202638462598290050, guid: 4c3201559704bf24f9c367f1f8a7d11a, type: 3}
+  - {fileID: 297542772278211858, guid: 4c3201559704bf24f9c367f1f8a7d11a, type: 3}
+  - {fileID: -5649940551481800029, guid: 4c3201559704bf24f9c367f1f8a7d11a, type: 3}
+  - {fileID: 1499377759187478565, guid: 4c3201559704bf24f9c367f1f8a7d11a, type: 3}
+  - {fileID: 580070564574733636, guid: 4c3201559704bf24f9c367f1f8a7d11a, type: 3}
+  - {fileID: 3114577768640842910, guid: 4c3201559704bf24f9c367f1f8a7d11a, type: 3}
+  - {fileID: -1772540048429914362, guid: 4c3201559704bf24f9c367f1f8a7d11a, type: 3}
+  - {fileID: -700118719344392457, guid: 4c3201559704bf24f9c367f1f8a7d11a, type: 3}
+  - {fileID: -4897929098956003219, guid: 4c3201559704bf24f9c367f1f8a7d11a, type: 3}
+  - {fileID: -1623944386088930431, guid: 4c3201559704bf24f9c367f1f8a7d11a, type: 3}
+  - {fileID: -4545467895925251767, guid: 4c3201559704bf24f9c367f1f8a7d11a, type: 3}
