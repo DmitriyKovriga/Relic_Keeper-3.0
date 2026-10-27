@@ -106,6 +106,7 @@ namespace Scripts.Skills.Projectiles
         public HashSet<IDamageable> SharedHitHistory;
         public SkillDataSO Skill;
         public SkillHitStopGate HitStopGate;
+        public AttackImpactContext ImpactContext;
         public GameObject PrismaticImpactPrefab;
         public bool CircularSaw;
         public float SawPauseDuration = 2.5f;
@@ -168,6 +169,12 @@ namespace Scripts.Skills.Projectiles
         {
             if (data == null)
                 return;
+
+            // Launch families (including forks) retain their accepted identity, never current equipment.
+            if (data.ImpactContext == null)
+                data.ImpactContext = new AttackImpactContext(data.Skill, data.SkillSlotIndex,
+                    WeaponHandStatScope.GetActiveWeapon(data.SkillSlotIndex)?.Data as Scripts.Items.WeaponItemSO,
+                    data.HitStopGate, enableHitStop: data.HitStopGate != null);
 
             GameObject template = data.ProjectilePrefab != null ? data.ProjectilePrefab : GetDefaultTemplate();
             if (template == null)
@@ -720,10 +727,14 @@ namespace Scripts.Skills.Projectiles
                 SkillPushback.IsEnabled(_data.Skill),
                 scopedStats,
                 transform.position);
+            bool authoredImpact = AttackImpactContact.HasAuthoredContact(_data.Step) ||
+                _data.PrismaticImpactPrefab != null || _data.SawImpactPrefab != null ||
+                TryGetComponent(out ManaSpearVisual _) || TryGetComponent(out WeaponWaveVisual _);
+            snapshot.Impact = new AttackImpactContact(_data.ImpactContext, transform.position, _direction,
+                damageMultiplier, authoredImpact);
             connected = target.TakeDamage(snapshot);
             if (connected)
             {
-                _data.HitStopGate?.TryTrigger();
                 TryApplyAilmentsFromHit(scopedStats, target, snapshot);
                 ShowPrismaticImpact(target);
                 if (TryGetComponent(out Scripts.Skills.Visuals.ManaSpearVisual manaSpearVisual)) manaSpearVisual.ShowImpact(target);
@@ -1350,7 +1361,8 @@ namespace Scripts.Skills.Projectiles
                 IsDirectHit = source.IsDirectHit,
                 ExecutionThreshold = source.ExecutionThreshold,
                 PushbackRating = source.PushbackRating,
-                HitOrigin = source.HitOrigin
+                HitOrigin = source.HitOrigin,
+                Impact = source.Impact
             };
         }
 

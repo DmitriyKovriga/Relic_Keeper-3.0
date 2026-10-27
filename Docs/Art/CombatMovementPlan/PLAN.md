@@ -10,6 +10,24 @@ previous atmosphere plan and its modified documents are not rebuilt or overwritt
 
 ## Recommendation
 
+Implementation follow-up (2026-10-27): numbered first-slice **steps 1–3 are complete**.
+See [the observed baseline](Step01_Baseline.md) and
+[confirmed enemy hits and the shared hit-stop gate](Step02_HitConfirmation.md).
+The original research status above describes the planning task. C01's enemy-hit
+path and the initial C18 per-cast hit-stop bound are implemented. C02/C04 now
+add [body follow-through and enemy visual recoil](Step03_BodyAndRecoil.md), with
+shared tuning and on/off previews. Broader C18 settings and crowd validation
+remain later work; C07/C10 are subsequent proposals, not automatic additions.
+
+The [custom melee expansion](Step03_MeleeExpansion.md) also covers the ten
+previously excluded melee skills, with 163 passing regression tests and twelve
+live presentation cases. Ranged/casting body motion remains a separate slice.
+
+User review (2026-10-27): **remove the automatic generic contact effect**.
+The extra mark overlaps existing skill VFX and adds visual clutter. Keep the
+confirmed-hit signal and zero-damage hit-stop fix; use the skill's authored VFX
+for the visible strike. Do not add a universal contact burst by default in C05.
+
 Prioritize a **coherent impact**, not simply more particles: attacker preparation
 and follow-through, a readable contact point and target visual recoil.
 The first slice preserves current damage, movement,
@@ -200,17 +218,17 @@ features that intentionally change mechanics, not only presentation.
    Log the accepted-cast token, recipe phase, hit resolution and body/weapon pose.
 2. **C01 semantics + initial C18 bounds.** Pick one post-mitigation confirmation
    path; define direct hit/contact outcome and a fallback position. Prove that
-   one event cannot double-spawn through DamageTaken + DamageDealt. Add a neutral
-   universal visual fallback and a small shared attack-intensity profile instead of copying fields
-   into every recipe. Existing active VFX should not double up.
+   one event cannot duplicate presentation through DamageTaken + DamageDealt.
+   Carry shared attack-intensity hints and a per-cast hit-stop gate. Keep the
+   skill's authored VFX; the generic contact mark is excluded after user review.
 3. **C02 body + C04 target.** One normal slash and one heavier strike. Compose
    with current movement/weapon ownership. Keep all gameplay transforms and
    recipe hit windows unchanged. Validate standing, running, airborne, facing
    both ways, offhand overlap, cancel, dodge, stasis and spin before adding more art.
-4. **C05/C07/C10 contact.** Add one universal contact shape, a small directional
-   burst and a brief flash. No sound assets, dispatcher or target-material catalog.
-   Use neutral shared shapes with bounded light/heavy variation; Extend to one
-   ranged hit so the abstraction is not melee-only. C09 tunes the existing stop.
+4. **C07/C10 skill-aware contact.** Compare a restrained target flash and preserve
+   the skill's existing contact art. C05's automatic universal burst is excluded
+   after user review. No sound assets, dispatcher or target-material catalog.
+   Extend to one ranged hit so presentation is not melee-only. C09 tunes the existing stop.
 5. **Crowd validation.** Repeat with the highest plausible APS, several targets,
    persistent pulses and projectile return hits. Enforce active/retrigger
    limits; do not hide real target confirmations by delaying gameplay damage.

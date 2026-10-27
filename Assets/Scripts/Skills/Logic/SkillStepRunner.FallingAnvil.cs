@@ -26,9 +26,11 @@ namespace Scripts.Skills
             {
                 Observe();
                 _animCtrl.LerpWindup(t / windup);
+                _bodyVisual?.SampleAttackWindup(_bodyOwner, t / windup);
                 yield return null;
             }
             if (!Alive()) yield break;
+            _bodyVisual?.SampleAttackWindup(_bodyOwner, 1f);
             _animCtrl.SnapImpact(); // Hold the hammer down while gravity carries the player to the floor.
             float timeout = Mathf.Max(.1f, step.GetFloat("MaximumAirTime", 15));
             for (float t = 0; impact.IsAerial && !impact.HasLanded && Alive(); t += Time.deltaTime)
@@ -39,6 +41,7 @@ namespace Scripts.Skills
                 yield return null;
             }
             if (!Alive() || !movement.IsGrounded) yield break;
+            _bodyVisual?.SampleAttackStrike(_bodyOwner);
 
             float aoe = Mathf.Max(.01f, 1f + ResolveSkillStats().GetValue(StatType.AreaOfEffect) / 100f);
             float radius = Mathf.Max(.01f, step.GetFloat("Radius", 1.6f)) * aoe;
@@ -77,6 +80,7 @@ namespace Scripts.Skills
             for (float t = 0; t < recovery && Alive(); t += Time.deltaTime)
             {
                 _animCtrl.LerpRecovery(t / recovery);
+                _bodyVisual?.SampleAttackRecovery(_bodyOwner, t / recovery);
                 yield return null;
             }
         }

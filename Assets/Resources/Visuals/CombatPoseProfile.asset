@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34a833297694164b57137aa4823799c, type: 3}
+  m_Name: CombatPoseProfile
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Visuals.CombatPoseProfile
+  EnableBodyFollow: 1
+  EnableEnemyRecoil: 1
+  WindupDegrees: 2
+  StrikeDegrees: 2.5
+  WindupHeight: 0.99
+  StrikeHeight: 0.985
+  HeavyBodyMultiplier: 1.4
+  RecoilPixels: 1.2
+  RecoilDegrees: 2
+  RecoilCompression: 0.025
+  RecoilDuration: 0.16
+  RecoilRetrigger: 0.05
+  BossRecoilMultiplier: 0.35

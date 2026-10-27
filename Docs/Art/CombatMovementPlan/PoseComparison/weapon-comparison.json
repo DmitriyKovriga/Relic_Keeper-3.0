@@ -1,0 +1,24 @@
+[
+  {
+    "skill": "cleave",
+    "maximum_socket_position_delta": 0,
+    "maximum_socket_degrees_delta": 0,
+    "damage_phases_off": [
+      0.33333340287208557
+    ],
+    "damage_phases_on": [
+      0.33333340287208557
+    ]
+  },
+  {
+    "skill": "heavy",
+    "maximum_socket_position_delta": 0,
+    "maximum_socket_degrees_delta": 0,
+    "damage_phases_off": [
+      0.6999996304512024
+    ],
+    "damage_phases_on": [
+      0.6999996304512024
+    ]
+  }
+]

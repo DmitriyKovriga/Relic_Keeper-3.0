@@ -41,12 +41,18 @@ namespace Scripts.Skills
         private SkillMovementControl _moveCtrl;
         private SkillHandAnimation _animCtrl;
         private SkillStepContext _ctx;
+#if UNITY_EDITOR
+        public float EditorRecipePhase { get; private set; }
+        public float EditorRecipeDuration => _ctx?.TotalDuration ?? 0f;
+        public event System.Action<SkillStepRunner, IDamageable, DamageSnapshot, bool> EditorDamageResolved;
+#endif
         private Coroutine _runCoroutine;
         private bool _cancelled;
         private List<(int stepIndex, StepEntry step, int sourceIdx, float pct)> _pendingDamageByVfxLife;
         private readonly Dictionary<int, HashSet<int>> _persistentHitTargetsByStep = new Dictionary<int, HashSet<int>>();
-        private readonly HashSet<int> _persistentHitStopSteps = new HashSet<int>();
         private SkillHitStopGate _hitStopGate;
+        private PlayerMovementVisual _bodyVisual;
+        private object _bodyOwner;
         private PrismaticCycleCast _prismaticCycleCast;
         private PlayerParryController _parry;
         private readonly HashSet<int> _openedParrySteps = new HashSet<int>();
@@ -101,7 +107,7 @@ namespace Scripts.Skills
             _openedParrySteps.Clear();
             if (_animCtrl != null)
                 _animCtrl.SetActiveStyleId(WeaponSwingStyleResolver.ResolveStyleId(_data));
-            _hitStopGate = new SkillHitStopGate(_data.Recipe.HitStopFrames);
+            _hitStopGate = AcceptedAttack.HitStop;
             _ctx = new SkillStepContext
             {
                 OwnerStats = _ownerStats,
@@ -109,6 +115,9 @@ namespace Scripts.Skills
                 AoeScale = 1f + _ownerStats.GetValue(StatType.AreaOfEffect) / 100f,
                 Cancelled = false
             };
+            _bodyVisual = _ownerStats.GetComponent<PlayerMovementVisual>();
+            _bodyOwner = AcceptedAttack;
+            _bodyVisual?.BeginAttackBody(_bodyOwner, _data);
             if (_animCtrl != null && _animCtrl.ActiveStyle == WeaponSwingStyle.BowDraw)
             {
                 foreach (var step in _data.Recipe.Steps)
@@ -118,6 +127,9 @@ namespace Scripts.Skills
                     break;
                 }
             }
+#if UNITY_EDITOR
+            EditorRecipePhase = 0f;
+#endif
             _runCoroutine = StartCoroutine(RunRecipe());
         }
 
@@ -128,6 +140,8 @@ namespace Scripts.Skills
 
         private void Cleanup()
         {
+            _bodyVisual?.EndAttackBody(_bodyOwner);
+            _bodyOwner = null;
             foreach (var spin in _spins.Values) spin.Dispose();
             _spins.Clear();
             foreach (var field in _plasmaFields.Values)
@@ -146,7 +160,6 @@ namespace Scripts.Skills
             if (_moveCtrl != null) { _moveCtrl.EndCharge(); _moveCtrl.SetLock(false); }
             _previousDamageCenters.Clear();
             _persistentHitTargetsByStep.Clear();
-            _persistentHitStopSteps.Clear();
             _isCasting = false;
         }
 
@@ -178,6 +191,9 @@ namespace Scripts.Skills
                 {
                     elapsed += Time.deltaTime;
                     float T = Mathf.Clamp01(elapsed / _ctx.TotalDuration);
+#if UNITY_EDITOR
+                    EditorRecipePhase = T;
+#endif
 
                 for (int i = 0; i < n; i++)
                 {
@@ -283,9 +299,11 @@ namespace Scripts.Skills
                         _pendingDamageByVfxLife.RemoveAt(j);
                     }
                 }
+                    _bodyVisual?.SampleAttackPipeline(_bodyOwner, T);
                     yield return null;
                 }
 
+                _bodyVisual?.SampleAttackPipeline(_bodyOwner, 1f);
                 for (int j = _pendingDamageByVfxLife.Count - 1; j >= 0; j--)
                 {
                     var (stepIndex, step, sourceIdx, pct) = _pendingDamageByVfxLife[j];
@@ -401,13 +419,16 @@ namespace Scripts.Skills
                 case "WeaponWindup":
                     if (step.GetBool("ShowWeapon")) _animCtrl.SetWeaponVisible(true);
                     _animCtrl.LerpWindup(phaseT);
+                    _bodyVisual?.SampleAttackWindup(_bodyOwner, phaseT);
                     break;
                 case "WeaponStrike":
                     _animCtrl.SetWeaponVisible(step.GetBool("KeepWeaponVisible", _animCtrl.KeepsWeaponVisibleAtImpact));
                     _animCtrl.SnapImpact();
+                    _bodyVisual?.SampleAttackStrike(_bodyOwner);
                     break;
                 case "WeaponRecovery":
                     _animCtrl.LerpRecovery(phaseT);
+                    _bodyVisual?.SampleAttackRecovery(_bodyOwner, phaseT);
                     break;
                 case "Wait":
                     break;
@@ -790,7 +811,8 @@ namespace Scripts.Skills
                     step.GetInt("ElementalSpellTarget", (int)DamageChannel.Fire),
                     (int)DamageChannel.Fire,
                     (int)DamageChannel.Lightning),
-                HitStopGate = _hitStopGate
+                HitStopGate = _hitStopGate,
+                ImpactContext = AcceptedAttack
             };
             if (cycle != null)
             {
@@ -939,7 +961,8 @@ namespace Scripts.Skills
                     OrbitAngularSpeedDegreesPerSecond = angularSpeed,
                     OrbitAngleDegrees = angle,
                     RehitCooldownSeconds = rehitCooldown,
-                    HitStopGate = _hitStopGate
+                    HitStopGate = _hitStopGate,
+                    ImpactContext = AcceptedAttack
                 };
 
                 SkillProjectile.Spawn(data, origin, tangent, null);
@@ -1232,10 +1255,11 @@ namespace Scripts.Skills
             DamageSnapshot snapshot = DamageCalculator.CreateDamageSnapshot(scopedStats, mult, damageContext, step.DamageConversions);
             snapshot.Source = _ownerStats;
             PushbackResolver.BindToSnapshot(snapshot, SkillPushback.IsEnabled(_data), scopedStats, hitOrigin);
+            snapshot.Impact = new AttackImpactContact(AcceptedAttack, hitOrigin, Vector2.zero, mult,
+                AttackImpactContact.HasAuthoredContact(step));
 
             if (target.TakeDamage(snapshot))
             {
-                _hitStopGate?.TryTrigger();
                 TryApplyAilmentsFromHit(scopedStats, target, snapshot);
                 ExecuteOnHitEffects(step, target, chainTarget.TargetTransform, snapshot);
             }
@@ -1537,6 +1561,7 @@ namespace Scripts.Skills
                 Physics2D.SyncTransforms();
             }
             if (_animCtrl != null) { _animCtrl.SnapImpact(); _animCtrl.SetWeaponVisible(false); }
+            _bodyVisual?.SampleAttackStrike(_bodyOwner);
             BlinkStabVisual.Spawn(departure, facing, false);
             BlinkStabVisual.Spawn(body.bounds.center, facing, true);
             DealDamageToTargets(stepIndex, step, new List<IDamageable> { selected });
@@ -1639,7 +1664,6 @@ namespace Scripts.Skills
             float mult = ResolveDamageMultiplier(step);
             DamageContext damageContext = ResolveDamageContext();
             var hitResults = stepIndex >= 0 ? new List<SkillStepContext.HitResult>(targets.Count) : null;
-            bool dealtDamage = false;
             for (int i = 0; i < targets.Count; i++)
             {
                 IDamageable target = targets[i];
@@ -1656,12 +1680,19 @@ namespace Scripts.Skills
                 if (step.GetBool("PushbackInFacingDirection", false) && target is Component hitComponent)
                     hitOrigin = (Vector2)hitComponent.transform.position - Vector2.right * _ctx.FacingDirection;
                 PushbackResolver.BindToSnapshot(snapshot, SkillPushback.IsEnabled(_data), scopedStats, hitOrigin);
+                snapshot.Impact = new AttackImpactContact(AcceptedAttack, hitOrigin, Vector2.zero, mult,
+                    AttackImpactContact.HasAuthoredContact(step));
                 if (step.StepDefinition != null && step.StepDefinition.Id == "TectonicPress")
                     snapshot.EmpoweredPushback = new TectonicShockwave(_ownerStats, scopedStats, step, _targetLayer).CreateCharge();
                 Transform targetTransform = ResolveDamageableTransform(target);
-                if (target.TakeDamage(snapshot))
+                bool accepted = target.TakeDamage(snapshot);
+#if UNITY_EDITOR
+                // Observer failures must never change whether gameplay damage/effects run.
+                try { EditorDamageResolved?.Invoke(this, target, snapshot, accepted); }
+                catch (System.Exception exception) { Debug.LogException(exception, this); }
+#endif
+                if (accepted)
                 {
-                    dealtDamage = true;
                     TryApplyAilmentsFromHit(scopedStats, target, snapshot);
                     ExecuteOnHitEffects(step, target, targetTransform, snapshot);
                     onConnected?.Invoke(target);
@@ -1678,9 +1709,6 @@ namespace Scripts.Skills
                     });
                 }
             }
-
-            if (dealtDamage && (hitOnceTargets == null || _persistentHitStopSteps.Add(stepIndex)))
-                HitStopService.Request(_data.Recipe.HitStopFrames);
 
             if (hitResults != null && hitResults.Count > 0)
             {
@@ -1859,7 +1887,8 @@ namespace Scripts.Skills
                 IsDirectHit = source.IsDirectHit,
                 ExecutionThreshold = source.ExecutionThreshold,
                 PushbackRating = source.PushbackRating,
-                HitOrigin = source.HitOrigin
+                HitOrigin = source.HitOrigin,
+                Impact = source.Impact
             };
         }
 

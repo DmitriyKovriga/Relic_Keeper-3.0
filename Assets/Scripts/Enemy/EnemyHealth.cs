@@ -62,7 +62,7 @@ namespace Scripts.Enemies
 
         public bool TakeDamage(DamageSnapshot damage)
         {
-            if (_isDead) return false;
+            if (_isDead || damage == null) return false;
             if (!EnsureReady())
                 return false;
 
@@ -106,6 +106,7 @@ namespace Scripts.Enemies
             if (finalDamage > 0f && damage.IsDirectHit &&
                 ExecutionThreshold.ShouldExecute(_currentHealth, _maxHealth, damage.ExecutionThreshold))
                 _currentHealth = 0f;
+            CombatHitFeedback.Confirm(this, damage, finalDamage, _currentHealth <= 0f);
             if (finalDamage > 0f)
             {
                 GameObject sourceObject = GameplayEventContext.ResolveGameObject(damage.Source);

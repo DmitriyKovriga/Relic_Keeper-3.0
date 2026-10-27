@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GodOfStrenghtSkill
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.SkillDataSO
   ID: GodOfStrenghtSkill
-  SkillName: God Of Strenght
+  SkillName: G.D.S.
   DescriptionMode: 0
   Description: 
   Icon: {fileID: 21300000, guid: bec977cc8c3046f883cafd5dde8198fa, type: 3}

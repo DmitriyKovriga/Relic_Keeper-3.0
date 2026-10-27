@@ -23,6 +23,11 @@ namespace Scripts.Skills
         public bool IsCasting => _isCasting;
         public SkillDataSO Data => _data;
         public int SlotIndex => _slotIndex;
+        public AttackImpactContext AcceptedAttack { get; private set; }
+#if UNITY_EDITOR
+        // Observation only: rejected input never advances this instance-local sequence.
+        public int EditorAcceptedCastSequence { get; private set; }
+#endif
 
         public float CooldownDuration => _data != null
             ? SkillCooldownRecovery.Resolve(_data.Cooldown, _ownerStats, _slotIndex)
@@ -264,6 +269,11 @@ namespace Scripts.Skills
 
             _ownerStats.Mana.Decrease(_data.ManaCost);
             StartCooldown();
+            AcceptedAttack = new AttackImpactContext(_data, _slotIndex,
+                WeaponHandStatScope.GetActiveWeapon(_slotIndex)?.Data as Scripts.Items.WeaponItemSO);
+#if UNITY_EDITOR
+            EditorAcceptedCastSequence++;
+#endif
             Execute();
         }
 

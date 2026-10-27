@@ -114,7 +114,7 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [TestCase(1)] [TestCase(-1)]
-        public void ConsecutiveUsesBlinkBehindDifferentEnemiesAndDealNormalWeaponDamage(int facing)
+        public void ConsecutiveUsesBlinkBehindDifferentEnemiesAndPreserveConfiguredWeaponDamage(int facing)
         {
             Box("Floor", new Vector2(0, -1), new Vector2(30, 1), 6);
             var player = Player(); var runner = Runner(player);
@@ -125,7 +125,7 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(first.Hits + second.Hits, Is.EqualTo(1), "A use blinks and deals damage immediately to just one target.");
             Assert.That((player.transform.position.x - first.transform.position.x) * facing, Is.LessThan(0));
             Assert.That(Mathf.Sign(player.transform.localScale.x), Is.EqualTo(facing));
-            Assert.That(first.Last.Physical, Is.EqualTo(10).Within(0.001)); Assert.That(first.Last.Source, Is.SameAs(player));
+            Assert.That(first.Last.Physical, Is.EqualTo(12.5f).Within(0.001)); Assert.That(first.Last.Source, Is.SameAs(player));
             Strike(runner, 1);
             Assert.That(first.Hits, Is.EqualTo(1), "Never stab the previous target twice, including its extra collider.");
             Assert.That(second.Hits, Is.EqualTo(1));
@@ -244,7 +244,8 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(SkillDescriptionGenerator.Build(Skill, "en"), Does.Contain("one stab per use").And.Contain("6 m"));
             Assert.That(SkillDescriptionGenerator.Build(Skill, "ru"), Does.Contain("один удар за применение"));
             var preview = SkillDpsPreview.Build(Skill, Player(), 0);
-            Assert.That(preview.Hit.PhysicalPerHit, Is.EqualTo(10).Within(0.001), "One use deals one normal-damage stab.");
+            Assert.That(Skill.Recipe.Steps.Single(s => s.StepDefinition.Id == "BlinkStab").GetFloat("DamageMultiplier"), Is.EqualTo(1.25f));
+            Assert.That(preview.Hit.PhysicalPerHit, Is.EqualTo(12.5f).Within(0.001), "One use preserves the recipe's existing 125% stab.");
         }
 
         [Test]

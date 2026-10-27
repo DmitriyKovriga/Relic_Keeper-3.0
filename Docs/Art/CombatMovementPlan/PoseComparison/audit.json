@@ -1,0 +1,1004 @@
+{
+  "status": "complete",
+  "error": "",
+  "utc": "2026-10-27T18:57:32.7838034Z",
+  "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+  "recipe": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/Recipe_Cleave.asset",
+  "fixture": "Controlled standing normal/heavy on-off comparisons; busy Mold; Animator-root Zombie; left-facing Rogue; stationary airborne Mage miss. Physics roots constrained; base physical=100, APS=1, crit=0, target HP/stun=10000, no rewards/loot. Existing hand-stat scope and skill stat links remain active.",
+  "fps": 60,
+  "currentFrame": 110,
+  "pumpTicks": 3248,
+  "engineFrame": 1045,
+  "currentCase": "mage-air",
+  "scene": "HubScene",
+  "playingScene": true,
+  "cases": [
+    {
+      "name": "cleave-off",
+      "castToken": "cleave-off:1:1",
+      "error": "",
+      "weapon": "Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset",
+      "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+      "hero": "Warrior",
+      "posesEnabled": false,
+      "rootEnemyRenderer": false,
+      "attempt": 1,
+      "acceptedCasts": 1,
+      "damageTakenEvents": 1,
+      "damageDealtEvents": 1,
+      "evadeEvents": 0,
+      "kills": 0,
+      "resolutionCount": 1,
+      "confirmedHits": 1,
+      "returnedTrue": true,
+      "enemyAttackStarted": false,
+      "busyAtDamage": false,
+      "dead": false,
+      "positiveDamage": 97.62322998046875,
+      "initialHealth": 10000.0,
+      "finalHealth": 9902.376953125,
+      "recipeDuration": 1.0,
+      "events": [
+        {
+          "type": "Landed",
+          "castToken": "",
+          "frame": 1,
+          "phase": 0.0,
+          "amount": 0.0,
+          "direct": false,
+          "busy": false,
+          "eventPosition": {
+            "x": 3000.0,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "HitConfirmed",
+          "castToken": "1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 97.62322998046875,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 1999.8656005859375,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "DamageTaken",
+          "castToken": "cleave-off:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 97.62322998046875,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "DamageDealt",
+          "castToken": "cleave-off:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 97.62322998046875,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "TakeDamage returned True",
+          "castToken": "cleave-off:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 97.62322998046875,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          }
+        }
+      ],
+      "frozen_frames": 3,
+      "frame_count": 110,
+      "resolution_return": "true",
+      "body_sprite_samples": [
+        "WarriorRun_00"
+      ],
+      "target_sprite_samples": [
+        "MoldHit_00",
+        "MoldHit_01",
+        "MoldHit_02",
+        "MoldHit_03",
+        "MoldHit_04",
+        "MoldIdle_00",
+        "MoldIdle_01",
+        "MoldIdle_02",
+        "MoldIdle_03",
+        "MoldIdle_04"
+      ],
+      "body_local_x_range": [
+        0.0,
+        0.0
+      ],
+      "body_rotation_range": [
+        0.0,
+        0.0
+      ],
+      "body_signed_degrees": [
+        0.0,
+        0.0
+      ],
+      "recoil_visible_frames": 0
+    },
+    {
+      "name": "cleave-on",
+      "castToken": "cleave-on:1:1",
+      "error": "",
+      "weapon": "Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset",
+      "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+      "hero": "Warrior",
+      "posesEnabled": true,
+      "rootEnemyRenderer": false,
+      "attempt": 1,
+      "acceptedCasts": 1,
+      "damageTakenEvents": 1,
+      "damageDealtEvents": 1,
+      "evadeEvents": 0,
+      "kills": 0,
+      "resolutionCount": 1,
+      "confirmedHits": 1,
+      "returnedTrue": true,
+      "enemyAttackStarted": false,
+      "busyAtDamage": false,
+      "dead": false,
+      "positiveDamage": 99.6207275390625,
+      "initialHealth": 10000.0,
+      "finalHealth": 9900.37890625,
+      "recipeDuration": 1.0,
+      "events": [
+        {
+          "type": "Landed",
+          "castToken": "",
+          "frame": 1,
+          "phase": 0.0,
+          "amount": 0.0,
+          "direct": false,
+          "busy": false,
+          "eventPosition": {
+            "x": 3000.0,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "HitConfirmed",
+          "castToken": "2",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 99.6207275390625,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 1999.8656005859375,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "DamageTaken",
+          "castToken": "cleave-on:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 99.6207275390625,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "DamageDealt",
+          "castToken": "cleave-on:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 99.6207275390625,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "TakeDamage returned True",
+          "castToken": "cleave-on:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 99.6207275390625,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          }
+        }
+      ],
+      "frozen_frames": 3,
+      "frame_count": 110,
+      "resolution_return": "true",
+      "body_sprite_samples": [
+        "WarriorRun_00"
+      ],
+      "target_sprite_samples": [
+        "MoldHit_00",
+        "MoldHit_01",
+        "MoldHit_02",
+        "MoldHit_03",
+        "MoldHit_04",
+        "MoldIdle_00",
+        "MoldIdle_01",
+        "MoldIdle_02",
+        "MoldIdle_03",
+        "MoldIdle_04"
+      ],
+      "body_local_x_range": [
+        -0.019461488351225853,
+        0.025062939152121544
+      ],
+      "body_rotation_range": [
+        0.0,
+        359.9681396484375
+      ],
+      "body_signed_degrees": [
+        -2.5,
+        1.931413173675537
+      ],
+      "recoil_visible_frames": 12
+    },
+    {
+      "name": "heavy-off",
+      "castToken": "heavy-off:1:1",
+      "error": "",
+      "weapon": "Assets/Resources/Items/2HWeapon/Hammer/Adventurer/Adventurer's Hammer.asset",
+      "skill": "Assets/Resources/Skills/2HWeapon/Hammer/Adventurer/WeightOfAGiant/WeightOfAGiantSkill.asset",
+      "hero": "Warrior",
+      "posesEnabled": false,
+      "rootEnemyRenderer": false,
+      "attempt": 1,
+      "acceptedCasts": 1,
+      "damageTakenEvents": 1,
+      "damageDealtEvents": 1,
+      "evadeEvents": 0,
+      "kills": 0,
+      "resolutionCount": 1,
+      "confirmedHits": 1,
+      "returnedTrue": true,
+      "enemyAttackStarted": false,
+      "busyAtDamage": false,
+      "dead": false,
+      "positiveDamage": 3818.203125,
+      "initialHealth": 10000.0,
+      "finalHealth": 6181.796875,
+      "recipeDuration": 2.5,
+      "events": [
+        {
+          "type": "Landed",
+          "castToken": "",
+          "frame": 1,
+          "phase": 0.0,
+          "amount": 0.0,
+          "direct": false,
+          "busy": false,
+          "eventPosition": {
+            "x": 3000.0,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "HitConfirmed",
+          "castToken": "3",
+          "frame": 116,
+          "phase": 0.6999996304512024,
+          "amount": 3818.203125,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 1999.8656005859375,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "DamageTaken",
+          "castToken": "heavy-off:1:1",
+          "frame": 116,
+          "phase": 0.6999996304512024,
+          "amount": 3818.203125,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "DamageDealt",
+          "castToken": "heavy-off:1:1",
+          "frame": 116,
+          "phase": 0.6999996304512024,
+          "amount": 3818.203125,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "TakeDamage returned True",
+          "castToken": "heavy-off:1:1",
+          "frame": 116,
+          "phase": 0.6999996304512024,
+          "amount": 3818.203125,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          }
+        }
+      ],
+      "frozen_frames": 4,
+      "frame_count": 192,
+      "resolution_return": "true",
+      "body_sprite_samples": [
+        "WarriorRun_00"
+      ],
+      "target_sprite_samples": [
+        "MoldHit_00",
+        "MoldHit_01",
+        "MoldHit_02",
+        "MoldHit_03",
+        "MoldHit_04",
+        "MoldIdle_00",
+        "MoldIdle_01",
+        "MoldIdle_02",
+        "MoldIdle_03",
+        "MoldIdle_04"
+      ],
+      "body_local_x_range": [
+        0.0,
+        0.0
+      ],
+      "body_rotation_range": [
+        0.0,
+        0.0
+      ],
+      "body_signed_degrees": [
+        0.0,
+        0.0
+      ],
+      "recoil_visible_frames": 0
+    },
+    {
+      "name": "heavy-on",
+      "castToken": "heavy-on:1:1",
+      "error": "",
+      "weapon": "Assets/Resources/Items/2HWeapon/Hammer/Adventurer/Adventurer's Hammer.asset",
+      "skill": "Assets/Resources/Skills/2HWeapon/Hammer/Adventurer/WeightOfAGiant/WeightOfAGiantSkill.asset",
+      "hero": "Warrior",
+      "posesEnabled": true,
+      "rootEnemyRenderer": false,
+      "attempt": 1,
+      "acceptedCasts": 1,
+      "damageTakenEvents": 1,
+      "damageDealtEvents": 1,
+      "evadeEvents": 0,
+      "kills": 0,
+      "resolutionCount": 1,
+      "confirmedHits": 1,
+      "returnedTrue": true,
+      "enemyAttackStarted": false,
+      "busyAtDamage": false,
+      "dead": false,
+      "positiveDamage": 3825.01171875,
+      "initialHealth": 10000.0,
+      "finalHealth": 6174.98828125,
+      "recipeDuration": 2.5,
+      "events": [
+        {
+          "type": "Landed",
+          "castToken": "",
+          "frame": 0,
+          "phase": 0.0,
+          "amount": 0.0,
+          "direct": false,
+          "busy": false,
+          "eventPosition": {
+            "x": 3000.0,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "HitConfirmed",
+          "castToken": "4",
+          "frame": 116,
+          "phase": 0.6999996304512024,
+          "amount": 3825.01171875,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 1999.8656005859375,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "DamageTaken",
+          "castToken": "heavy-on:1:1",
+          "frame": 116,
+          "phase": 0.6999996304512024,
+          "amount": 3825.01171875,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "DamageDealt",
+          "castToken": "heavy-on:1:1",
+          "frame": 116,
+          "phase": 0.6999996304512024,
+          "amount": 3825.01171875,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "TakeDamage returned True",
+          "castToken": "heavy-on:1:1",
+          "frame": 116,
+          "phase": 0.6999996304512024,
+          "amount": 3825.01171875,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          }
+        }
+      ],
+      "frozen_frames": 4,
+      "frame_count": 192,
+      "resolution_return": "true",
+      "body_sprite_samples": [
+        "WarriorRun_00"
+      ],
+      "target_sprite_samples": [
+        "MoldHit_00",
+        "MoldHit_01",
+        "MoldHit_02",
+        "MoldHit_03",
+        "MoldHit_04",
+        "MoldIdle_00",
+        "MoldIdle_01",
+        "MoldIdle_02",
+        "MoldIdle_03",
+        "MoldIdle_04"
+      ],
+      "body_local_x_range": [
+        -0.02808927372097969,
+        0.034863803535699844
+      ],
+      "body_rotation_range": [
+        -0.005109429359436035,
+        359.9798583984375
+      ],
+      "body_signed_degrees": [
+        -3.5,
+        2.7992427349090576
+      ],
+      "recoil_visible_frames": 13
+    },
+    {
+      "name": "attacking-target",
+      "castToken": "attacking-target:1:1",
+      "error": "",
+      "weapon": "Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset",
+      "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+      "hero": "Warrior",
+      "posesEnabled": true,
+      "rootEnemyRenderer": false,
+      "attempt": 1,
+      "acceptedCasts": 1,
+      "damageTakenEvents": 1,
+      "damageDealtEvents": 1,
+      "evadeEvents": 0,
+      "kills": 0,
+      "resolutionCount": 1,
+      "confirmedHits": 1,
+      "returnedTrue": true,
+      "enemyAttackStarted": true,
+      "busyAtDamage": true,
+      "dead": false,
+      "positiveDamage": 99.22418212890625,
+      "initialHealth": 10000.0,
+      "finalHealth": 9900.775390625,
+      "recipeDuration": 1.0,
+      "events": [
+        {
+          "type": "Landed",
+          "castToken": "",
+          "frame": 1,
+          "phase": 0.0,
+          "amount": 0.0,
+          "direct": false,
+          "busy": false,
+          "eventPosition": {
+            "x": 3000.0,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "HitConfirmed",
+          "castToken": "5",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 99.22418212890625,
+          "direct": true,
+          "busy": true,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 1999.8656005859375,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "DamageTaken",
+          "castToken": "attacking-target:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 99.22418212890625,
+          "direct": true,
+          "busy": true,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "DamageDealt",
+          "castToken": "attacking-target:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 99.22418212890625,
+          "direct": true,
+          "busy": true,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "TakeDamage returned True",
+          "castToken": "attacking-target:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 99.22418212890625,
+          "direct": true,
+          "busy": true,
+          "eventPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          }
+        }
+      ],
+      "frozen_frames": 3,
+      "frame_count": 110,
+      "resolution_return": "true",
+      "body_sprite_samples": [
+        "WarriorRun_00"
+      ],
+      "target_sprite_samples": [
+        "MoldAttack_00",
+        "MoldAttack_01",
+        "MoldAttack_02",
+        "MoldAttack_03",
+        "MoldAttack_04",
+        "MoldAttack_05",
+        "MoldAttack_06",
+        "MoldAttack_07",
+        "MoldAttack_08",
+        "MoldAttack_09",
+        "MoldAttack_10",
+        "MoldAttack_11",
+        "MoldAttack_12",
+        "MoldIdle_00",
+        "MoldIdle_01",
+        "MoldIdle_02",
+        "MoldIdle_03"
+      ],
+      "body_local_x_range": [
+        -0.019461488351225853,
+        0.025062939152121544
+      ],
+      "body_rotation_range": [
+        0.0,
+        359.9681396484375
+      ],
+      "body_signed_degrees": [
+        -2.5,
+        1.931413173675537
+      ],
+      "recoil_visible_frames": 12
+    },
+    {
+      "name": "zombie-recoil",
+      "castToken": "zombie-recoil:1:1",
+      "error": "",
+      "weapon": "Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset",
+      "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+      "hero": "Warrior",
+      "posesEnabled": true,
+      "rootEnemyRenderer": true,
+      "attempt": 1,
+      "acceptedCasts": 1,
+      "damageTakenEvents": 1,
+      "damageDealtEvents": 1,
+      "evadeEvents": 0,
+      "kills": 0,
+      "resolutionCount": 1,
+      "confirmedHits": 1,
+      "returnedTrue": true,
+      "enemyAttackStarted": false,
+      "busyAtDamage": false,
+      "dead": false,
+      "positiveDamage": 100.1722412109375,
+      "initialHealth": 10000.0,
+      "finalHealth": 9899.828125,
+      "recipeDuration": 1.0,
+      "events": [
+        {
+          "type": "Landed",
+          "castToken": "",
+          "frame": 1,
+          "phase": 0.0,
+          "amount": 0.0,
+          "direct": false,
+          "busy": false,
+          "eventPosition": {
+            "x": 3000.0,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "HitConfirmed",
+          "castToken": "6",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 100.1722412109375,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 1999.849853515625,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "DamageTaken",
+          "castToken": "zombie-recoil:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 100.1722412109375,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 1999.9296875,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "DamageDealt",
+          "castToken": "zombie-recoil:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 100.1722412109375,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 3001.10009765625,
+            "y": 1999.9296875,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "TakeDamage returned True",
+          "castToken": "zombie-recoil:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 100.1722412109375,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          }
+        }
+      ],
+      "frozen_frames": 3,
+      "frame_count": 110,
+      "resolution_return": "true",
+      "body_sprite_samples": [
+        "WarriorRun_00"
+      ],
+      "target_sprite_samples": [
+        "zombie damage-Sheet_0",
+        "zombie damage-Sheet_1",
+        "zombie damage-Sheet_2",
+        "zombie damage-Sheet_3",
+        "zombie damage-Sheet_4",
+        "zombie idle-Sheet_0",
+        "zombie idle-Sheet_1",
+        "zombie idle-Sheet_2",
+        "zombie idle-Sheet_3",
+        "zombie idle-Sheet_4",
+        "zombie idle-Sheet_5",
+        "zombie idle-Sheet_6"
+      ],
+      "body_local_x_range": [
+        -0.019461488351225853,
+        0.025062939152121544
+      ],
+      "body_rotation_range": [
+        0.0,
+        359.9681396484375
+      ],
+      "body_signed_degrees": [
+        -2.5,
+        1.931413173675537
+      ],
+      "recoil_visible_frames": 12
+    },
+    {
+      "name": "rogue-left",
+      "castToken": "rogue-left:1:1",
+      "error": "",
+      "weapon": "Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset",
+      "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+      "hero": "Rogue",
+      "posesEnabled": true,
+      "rootEnemyRenderer": false,
+      "attempt": 1,
+      "acceptedCasts": 1,
+      "damageTakenEvents": 1,
+      "damageDealtEvents": 1,
+      "evadeEvents": 0,
+      "kills": 0,
+      "resolutionCount": 1,
+      "confirmedHits": 1,
+      "returnedTrue": true,
+      "enemyAttackStarted": false,
+      "busyAtDamage": false,
+      "dead": false,
+      "positiveDamage": 98.62129211425781,
+      "initialHealth": 10000.0,
+      "finalHealth": 9901.37890625,
+      "recipeDuration": 1.0,
+      "events": [
+        {
+          "type": "Landed",
+          "castToken": "",
+          "frame": 1,
+          "phase": 0.0,
+          "amount": 0.0,
+          "direct": false,
+          "busy": false,
+          "eventPosition": {
+            "x": 3000.0,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "HitConfirmed",
+          "castToken": "7",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 98.62129211425781,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 2998.89990234375,
+            "y": 1999.8656005859375,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "DamageTaken",
+          "castToken": "rogue-left:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 98.62129211425781,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 2998.89990234375,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "DamageDealt",
+          "castToken": "rogue-left:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 98.62129211425781,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 2998.89990234375,
+            "y": 2000.0,
+            "z": 0.0
+          }
+        },
+        {
+          "type": "TakeDamage returned True",
+          "castToken": "rogue-left:1:1",
+          "frame": 31,
+          "phase": 0.33333340287208557,
+          "amount": 98.62129211425781,
+          "direct": true,
+          "busy": false,
+          "eventPosition": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          }
+        }
+      ],
+      "frozen_frames": 3,
+      "frame_count": 110,
+      "resolution_return": "true",
+      "body_sprite_samples": [
+        "RogueRun_00"
+      ],
+      "target_sprite_samples": [
+        "MoldHit_00",
+        "MoldHit_01",
+        "MoldHit_02",
+        "MoldHit_03",
+        "MoldHit_04",
+        "MoldIdle_00",
+        "MoldIdle_01",
+        "MoldIdle_02",
+        "MoldIdle_03",
+        "MoldIdle_04"
+      ],
+      "body_local_x_range": [
+        -0.019461488351225853,
+        0.025062939152121544
+      ],
+      "body_rotation_range": [
+        0.0,
+        359.9681396484375
+      ],
+      "body_signed_degrees": [
+        -2.5,
+        1.931413173675537
+      ],
+      "recoil_visible_frames": 12
+    },
+    {
+      "name": "mage-air",
+      "castToken": "mage-air:1:1",
+      "error": "",
+      "weapon": "Assets/Scripts/Items/Weapon/LowTier/TwoHandedWeapon/LowTierBases/AxeOfSettler/Axe of Settler.asset",
+      "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+      "hero": "Mage",
+      "posesEnabled": true,
+      "rootEnemyRenderer": false,
+      "attempt": 1,
+      "acceptedCasts": 1,
+      "damageTakenEvents": 0,
+      "damageDealtEvents": 0,
+      "evadeEvents": 0,
+      "kills": 0,
+      "resolutionCount": 0,
+      "confirmedHits": 0,
+      "returnedTrue": false,
+      "enemyAttackStarted": false,
+      "busyAtDamage": false,
+      "dead": false,
+      "positiveDamage": 0.0,
+      "initialHealth": 10000.0,
+      "finalHealth": 10000.0,
+      "recipeDuration": 1.0,
+      "events": [],
+      "frozen_frames": 0,
+      "frame_count": 110,
+      "resolution_return": "not-called",
+      "body_sprite_samples": [
+        "MageRun_00"
+      ],
+      "target_sprite_samples": [
+        "MoldIdle_00",
+        "MoldIdle_01",
+        "MoldIdle_02",
+        "MoldIdle_03",
+        "MoldIdle_04"
+      ],
+      "body_local_x_range": [
+        -0.02781471610069275,
+        0.03580424562096596
+      ],
+      "body_rotation_range": [
+        0.0,
+        359.9681396484375
+      ],
+      "body_signed_degrees": [
+        -2.5,
+        1.931413173675537
+      ],
+      "recoil_visible_frames": 0
+    }
+  ],
+  "revision": "74af2b7d",
+  "source_sha256": {
+    "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset": "98df7eac20d911bb94ba5d0620bd60cb683443969eebfbd5c80a134c21c11115",
+    "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/Recipe_Cleave.asset": "5d495a0a8abd85ad42f4c9e0b210a04ef6de78278c4407304dfd063f230eb55b",
+    "Assets/Scripts/Enemy/EnemyHealth.cs": "68c2f7117caac489922be1904538637e22f5869c5a161e800139860ca56b0a88",
+    "Assets/Scripts/Skills/Logic/SkillBehaviour.cs": "250992ca4084e4b337af58c08e55f8ffd7b796f4968aab06e15b5e0e9e166db1",
+    "Assets/Scripts/Skills/Logic/SkillStepRunner.cs": "03521658d3d7cde7fe6636e79dbb424219aaa5fd328ba77143bca3e6a3fbf134",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.cs": "7bfa9839f759dfa22bcf5cfaec382e52ddd6309485eca8314be7cb6ff1178534",
+    "Assets/Scripts/Visuals/PlayerMovementVisual.cs": "f2b953dec1ba9b6b53246c28212a1327b0b894815227f9c3a8d2b69ecf48edf7",
+    "Assets/Scripts/Combat/AttackImpactContext.cs": "4c256ff84e38cec144046c19467a7bdb1216f5d235ec208d9a5e48101847e9da",
+    "Assets/Scripts/Combat/ConfirmedHit.cs": "ac095e3f7894cc1cbe91c41498dd7f4ce68781ed69233f5ef5b7e623009df288",
+    "Assets/Scripts/Skills/Projectiles/SkillProjectile.cs": "af91f17abed7e0117cafabc7970228cca5351137a0ab119b80e2984ccd49e9e6",
+    "Assets/Scripts/Skills/Logic/SkillsModules/SkillDamageDealer.cs": "b159260e96a43042752830583eb439beab7d8b74c2e9a0568948350e1236a447",
+    "Assets/Scripts/Visuals/AttackBodyFollow.cs": "5195d71aa43406c52e24bcd4cc760e8f02a9d4608dbcd166ee0e18aa02293107",
+    "Assets/Scripts/Visuals/CombatPoseProfile.cs": "bd5ac09c286ee0b955f574ad744f774be4f03763b6c29279d34e457ae55cb62b",
+    "Assets/Scripts/Visuals/EnemyHitRecoil.cs": "f82c5593a67bf3cc503e02284182c44d5ac097317030a16b96f4a3f4995391c4",
+    "Assets/Scripts/Enemy/EnemyEntity.cs": "e7d6213d33678a77b552f465092d73216d95ac65da9bfff2c9a128e02165840d",
+    "Assets/Resources/Visuals/CombatPoseProfile.asset": "536c03189f0f2a1bbee214bdf90d1b7550374be09c7fc8b7c4258d1106c62275",
+    "Assets/Resources/Skills/2HWeapon/Hammer/Adventurer/WeightOfAGiant/WeightOfAGiantSkill.asset": "388fad3592e9fffaa3c2174af90acb2ba0ee6fab5bc5ded31f872bd7c3f6445f",
+    "Assets/Resources/Skills/2HWeapon/Hammer/Adventurer/WeightOfAGiant/Recipe_WeightOfAGiant.asset": "1211c52c949c50c6b1e1272bb89c44c7f55798654e7a3302653d76427ad04f28"
+  },
+  "capture_note": "Actual Play Mode camera frames, fixed capture rate 60. Slow GIF changes playback only. Poses are sampled after visual LateUpdate, before render rounding. GIF quantization is for review; native PNGs remain under Logs."
+}

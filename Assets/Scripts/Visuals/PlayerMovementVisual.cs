@@ -36,7 +36,27 @@ namespace Scripts.Visuals
         private PlayerRenderAnchor _renderAnchor;
         private PlayerCharacterAnimationController _characterAnimation;
         private Scripts.Skills.PlayerSkillManager _skillManager;
+        [SerializeField] private CombatPoseProfile _combatPoseProfile;
+        private readonly AttackBodyFollow _attackBody = new AttackBodyFollow();
+        private PlayerStats _stats;
+        private CharacterDataSO _attackCharacter;
         public SpriteRenderer DisplayRenderer => _display;
+        public AttackBodyPose VisibleAttackPose { get; private set; } = AttackBodyPose.Neutral;
+        public object AttackBodyOwner => _attackBody.Owner;
+
+        public bool BeginAttackBody(object owner, Scripts.Skills.SkillDataSO skill)
+        {
+            if (!isActiveAndEnabled) return false;
+            if (_combatPoseProfile == null) _combatPoseProfile = CombatPoseProfile.LoadDefault();
+            if (!_attackBody.TryBegin(owner, skill, _combatPoseProfile)) return false;
+            _attackCharacter = _stats != null ? _stats.CurrentCharacterData : null;
+            return true;
+        }
+        public void SampleAttackWindup(object owner, float phase) => _attackBody.Windup(owner, phase);
+        public void SampleAttackStrike(object owner) => _attackBody.Strike(owner);
+        public void SampleAttackRecovery(object owner, float phase) => _attackBody.Recovery(owner, phase);
+        public void SampleAttackPipeline(object owner, float phase) => _attackBody.SamplePipeline(owner, phase);
+        public void EndAttackBody(object owner) => _attackBody.Release(owner);
 
         private void Awake()
         {
@@ -54,6 +74,7 @@ namespace Scripts.Visuals
             _renderAnchor.Initialize(visual.transform, transform.Find("Visuals"));
             _characterAnimation = GetComponent<PlayerCharacterAnimationController>();
             _skillManager = GetComponent<Scripts.Skills.PlayerSkillManager>();
+            _stats = GetComponent<PlayerStats>();
         }
 
         private void OnEnable()
@@ -73,6 +94,7 @@ namespace Scripts.Visuals
             _pulse = 0f;
             _airborneLean = 0f;
             _dashShape = 0f;
+            _attackBody.Clear(); VisibleAttackPose = AttackBodyPose.Neutral;
             if (_renderAnchor != null)
             {
                 _renderAnchor.WeaponPresentationOffset = Vector3.zero;
@@ -123,7 +145,22 @@ namespace Scripts.Visuals
             Vector2 dashScale = Vector2.Lerp(Vector2.one, _groundDashScale, _dashShape);
             _display.transform.localScale = new Vector3((authored ? width : width / scaleY) * dashScale.x, scaleY * dashScale.y, 1f);
             scaleY *= dashScale.y;
-            _display.transform.localPosition = new Vector3(0f, ResolveDisplayY(scaleY), 0f);
+            if (_stats != null && (_stats.CurrentCharacterData != _attackCharacter || _stats.Health != null && _stats.Health.Current <= 0f))
+                _attackBody.Clear();
+            bool specialPose = _characterAnimation != null && (_characterAnimation.IsPlayingNeutralDodge || _characterAnimation.IsPlayingSkillSpin);
+            bool dodgePose = _attack != null && (_attack.IsDashing || _attack.IsStationaryDodging);
+            bool suppressAttack = specialPose || dodgePose || Scripts.Skills.PlayerStasisController.IsActiveFor(this);
+            VisibleAttackPose = !suppressAttack && _combatPoseProfile != null && _combatPoseProfile.EnableBodyFollow
+                ? _attackBody.Pose : AttackBodyPose.Neutral;
+            Vector3 bodyScale = _display.transform.localScale;
+            bodyScale.x /= VisibleAttackPose.Height; bodyScale.y *= VisibleAttackPose.Height;
+            _display.transform.localScale = bodyScale;
+            scaleY *= VisibleAttackPose.Height;
+            Quaternion bodyRotation = Quaternion.Euler(0f, 0f, VisibleAttackPose.Degrees);
+            _display.transform.localRotation = bodyRotation;
+            float footY = _source.sprite != null ? (_source.flipY ? -_source.sprite.bounds.max.y : _source.sprite.bounds.min.y) : 0f;
+            _display.transform.localPosition = new Vector3(0f, ResolveDisplayY(scaleY), 0f) +
+                SpriteFootPose.RotationCompensation(footY * scaleY, bodyRotation);
             if (_renderAnchor != null)
             {
                 bool dashing = _attack != null && _attack.IsDashing;

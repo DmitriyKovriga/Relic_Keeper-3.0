@@ -70,6 +70,8 @@ namespace Scripts.Enemies
             _locomotion.Initialize(this, data);
             _attack.Initialize(this, data);
             _animation.Initialize(this, data);
+            var recoil = GetComponent<EnemyHitRecoil>() ?? gameObject.AddComponent<EnemyHitRecoil>();
+            recoil.Initialize(VisualRenderer);
             _brain.Initialize(this, data);
             _stun.Initialize(data);
 
