@@ -1,0 +1,131 @@
+{
+ "frames": [
+  {
+   "filename": "relic-keeper-parry-success 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 17
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 17
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 17
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.47058823529411764
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-parry-success 1.png",
+   "frame": {
+    "x": 16,
+    "y": 0,
+    "w": 16,
+    "h": 17
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 17
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 17
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.47058823529411764
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-parry-success 2.png",
+   "frame": {
+    "x": 0,
+    "y": 17,
+    "w": 16,
+    "h": 17
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 17
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 17
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.47058823529411764
+   },
+   "duration": 42
+  },
+  {
+   "filename": "relic-keeper-parry-success 3.png",
+   "frame": {
+    "x": 16,
+    "y": 17,
+    "w": 16,
+    "h": 17
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 17
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 17
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.47058823529411764
+   },
+   "duration": 42
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "relic-keeper-parry-success.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 32,
+   "h": 34
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 8,
+   "y": 8
+  },
+  "frameTags": [
+   {
+    "name": "relic-keeper-parry-success",
+    "from": 0,
+    "to": 3,
+    "direction": "forward"
+   }
+  ]
+ }
+}

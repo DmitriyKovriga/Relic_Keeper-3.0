@@ -46,6 +46,10 @@ namespace Scripts.Visuals
         [Range(0f, 2f)] public float CameraImpulsePixels = 2f;
         [Range(.08f, .2f)] public float CameraImpulseDuration = .14f;
         [Range(.3f, 1f)] public float CameraImpulseInterval = .4f;
+        [Header("Successful defenses (PixelLab accents)")]
+        public bool EnableDefenseFeedback = true;
+        [Range(0f, 1f)] public float DefenseFeedbackOpacity = .85f;
+        [Range(.2f, .6f)] public float DefenseFeedbackInterval = .3f;
 
         public static CombatPoseProfile LoadDefault() => Resources.Load<CombatPoseProfile>(ResourcePath);
     }

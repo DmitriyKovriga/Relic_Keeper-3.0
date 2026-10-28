@@ -93,6 +93,7 @@ namespace Scripts.Visuals
             _characterAnimation = GetComponent<PlayerCharacterAnimationController>();
             _skillManager = GetComponent<Scripts.Skills.PlayerSkillManager>();
             _stats = GetComponent<PlayerStats>();
+            if (GetComponent<PlayerDefenseFeedback>() == null) gameObject.AddComponent<PlayerDefenseFeedback>();
         }
 
         private void OnEnable()

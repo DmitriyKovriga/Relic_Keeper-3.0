@@ -46,3 +46,6 @@ MonoBehaviour:
   CameraImpulsePixels: 2
   CameraImpulseDuration: 0.14
   CameraImpulseInterval: 0.4
+  EnableDefenseFeedback: 1
+  DefenseFeedbackOpacity: 0.85
+  DefenseFeedbackInterval: 0.3

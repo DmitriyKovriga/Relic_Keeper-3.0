@@ -35,7 +35,11 @@ whole-reference-pixel translation before the confiner, and pause/room/owner clea
 also passed in English and Russian.
 [C12 player damage response](Step07_PlayerHurt.md) is implemented with a bounded
 warm highlight, foot-anchored body recoil and defense/DoT filtering. 100 focused
-tests and seven controlled live cases passed. The next planned wave is C13/C14.
+tests and seven controlled live cases passed.
+[C13 distinct successful-defense feedback](Step08_DefenseFeedback.md) is implemented
+with PixelLab parry/evade/shield accents, bounded reusable renderers and separate
+defense versus hurt semantics. 121 focused tests and twelve live cases passed.
+The next planned step is C14.
 Full player-build GPU profiling is not claimed by the Editor measurements.
 
 User review (2026-10-27): **remove the automatic generic contact effect**.

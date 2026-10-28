@@ -1,0 +1,147 @@
+{
+  "date": "2026-10-28",
+  "tests": {
+    "passed": 121,
+    "failed": 0,
+    "skipped": 0
+  },
+  "cases": [
+    {
+      "name": "parry",
+      "responses": 1,
+      "maxActive": 1,
+      "hurtPeak": 0.0,
+      "healthBefore": 10000.0,
+      "healthAfter": 10000.0,
+      "settled": true
+    },
+    {
+      "name": "rogue-left",
+      "responses": 1,
+      "maxActive": 1,
+      "hurtPeak": 0.0,
+      "healthBefore": 10000.0,
+      "healthAfter": 10000.0,
+      "settled": true
+    },
+    {
+      "name": "mage-air",
+      "responses": 1,
+      "maxActive": 1,
+      "hurtPeak": 0.0,
+      "healthBefore": 10000.0,
+      "healthAfter": 10000.0,
+      "settled": true
+    },
+    {
+      "name": "rapid-parry",
+      "responses": 2,
+      "maxActive": 1,
+      "hurtPeak": 0.0,
+      "healthBefore": 10000.0,
+      "healthAfter": 10000.0,
+      "settled": true
+    },
+    {
+      "name": "partial-shield",
+      "responses": 1,
+      "maxActive": 1,
+      "hurtPeak": 0.4000000059604645,
+      "healthBefore": 10000.0,
+      "healthAfter": 9996.0,
+      "settled": true
+    },
+    {
+      "name": "depleted",
+      "responses": 0,
+      "maxActive": 0,
+      "hurtPeak": 0.4000000059604645,
+      "healthBefore": 10000.0,
+      "healthAfter": 9991.0,
+      "settled": true
+    },
+    {
+      "name": "dot",
+      "responses": 0,
+      "maxActive": 0,
+      "hurtPeak": 0.0,
+      "healthBefore": 10000.0,
+      "healthAfter": 9991.0,
+      "settled": true
+    },
+    {
+      "name": "zero",
+      "responses": 0,
+      "maxActive": 0,
+      "hurtPeak": 0.0,
+      "healthBefore": 10000.0,
+      "healthAfter": 10000.0,
+      "settled": true
+    },
+    {
+      "name": "disabled",
+      "responses": 0,
+      "maxActive": 0,
+      "hurtPeak": 0.0,
+      "healthBefore": 10000.0,
+      "healthAfter": 10000.0,
+      "settled": true
+    },
+    {
+      "name": "pause",
+      "responses": 1,
+      "maxActive": 1,
+      "hurtPeak": 0.0,
+      "healthBefore": 10000.0,
+      "healthAfter": 10000.0,
+      "settled": true
+    },
+    {
+      "name": "class-change",
+      "responses": 1,
+      "maxActive": 1,
+      "hurtPeak": 0.0,
+      "healthBefore": 10000.0,
+      "healthAfter": 100.0,
+      "settled": true
+    },
+    {
+      "name": "owner-zero-health",
+      "responses": 1,
+      "maxActive": 1,
+      "hurtPeak": 0.0,
+      "healthBefore": 10000.0,
+      "healthAfter": 1.0,
+      "settled": true
+    }
+  ],
+  "sourceSha256": {
+    "Assets/Scripts/Visuals/PlayerDefenseFeedback.cs": "1fc7927136528141797b04c3bb8eb41dbd64a444c9124ec6c1b12e6cca5ef5c6",
+    "Assets/Scripts/Visuals/PlayerMovementVisual.cs": "73a9742112076619c568fe35cf24d7615caf5342a865f2baf7053b55a24684eb",
+    "Assets/Scripts/Visuals/CombatPoseProfile.cs": "2e642656d56236ae849775b83796865cfa470cae0d9ce4b020ad0a25c49daef8",
+    "Assets/Resources/Visuals/CombatPoseProfile.asset": "b1ea78c96e5312bc8a42888b644292f7f3e49f0c5b06ac9c6a501ee068243720",
+    "Assets/Tests/EditMode/Editor/DefenseFeedbackTests.cs": "25e781b3911eb33d68abae0c73b580e0830108149a83029d914e2100361d5b7f",
+    "Assets/Editor/Combat/DefenseFeedbackArtImporter.cs": "97cbf56bbba0a815ee4a217d144f41ab6b8a86a87f2e2f4267901db4b4702234",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.Defense.cs": "34e6e1f30a8991e0e771014d824f0df6121f81a305936f1325b142a81c6288cf",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.Hurt.cs": "42da8c6844bb43e087c59b71f5f5033ddc0c456d7b87c867960e6bfdfb97e90c",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.cs": "f59343507e595c04405bcb69c00aa1958855e813c26707562e2e0863b69f23ce",
+    "Assets/Resources/Visuals/DefenseFeedback/DefenseAccent.mat": "65c30f1d8183c60509624e8ea3fd70e58bfeb0c50065b4b75d480d6ccdadcffb",
+    "Assets/Resources/Visuals/DefenseFeedback/relic-keeper-evasion-shimmer.json": "3fa343a54d5d484fd43af93e0bdbd6a6b876e5adf0ac168d14f11ac7d892d636",
+    "Assets/Resources/Visuals/DefenseFeedback/relic-keeper-evasion-shimmer.png": "74ca02a0285019fc8232426417aa74b24f35240f88de6cfcfffc3126f16cbfa6",
+    "Assets/Resources/Visuals/DefenseFeedback/relic-keeper-mystic-charge-pulse.json": "1c301809ac2d2e5861b4a46ef433b0e2e6408597935ef72d52c0b4f378861e88",
+    "Assets/Resources/Visuals/DefenseFeedback/relic-keeper-mystic-charge-pulse.png": "f5623c9a7b2b8e66ab90cfedbb6cdcbc5434e41a57a3a4aec3ae5360ec23f319",
+    "Assets/Resources/Visuals/DefenseFeedback/relic-keeper-parry-success.json": "93607cc8715beedf35672062ec9ba2e26649915d1f7d839c2f4e001ed4f02602",
+    "Assets/Resources/Visuals/DefenseFeedback/relic-keeper-parry-success.png": "8013c69c2a2840da65ddfdc19b9fd3f487d9be32d6aa3ff9c271ff2511a4e0ef"
+  },
+  "pixellab": {
+    "parry": "https://pixellab.ai/create-vfx?effect=c92ac672-c466-4ff8-b83b-f50cdb7fa501",
+    "evade": "https://pixellab.ai/create-vfx?effect=76c0bd4c-93b9-4773-a6dc-6546e8ddf8f1",
+    "shield": "https://pixellab.ai/create-vfx?effect=8d738a84-9ce3-4e7e-a5fc-13eeefa79700"
+  },
+  "limits": [
+    "Controlled Editor fixture at native 480x270; not standalone build/GPU profiling.",
+    "Each lane is limited separately; at most three reusable child sprite renderers per player.",
+    "Zero-health fixture does not invoke player death/save flow.",
+    "Mystic Shield pulse also reports charges consumed by skills, since the existing event does not distinguish their reason."
+  ]
+}
