@@ -43,6 +43,10 @@ defense versus hurt semantics. 121 focused tests and twelve live cases passed.
 direction, bounded heavy fragment impulse, living-feedback cleanup and rejection
 of terminal repeat/reentrant hits. 142 focused tests and seven live death cases
 passed. The C11–C14 presentation wave is complete.
+[M01 ground movement weight](Step10_MovementWeight.md) is implemented with bounded
+start/brake leans and turn settling, foot anchoring, existing action priorities
+and no movement-physics changes. 110 focused tests and nine controlled live
+presentation cases passed. M02/M03 remain review-first follow-ups.
 Full player-build GPU profiling is not claimed by the Editor measurements.
 
 User review (2026-10-27): **remove the automatic generic contact effect**.

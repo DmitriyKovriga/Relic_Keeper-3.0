@@ -54,6 +54,11 @@ namespace Scripts.Visuals
         public bool EnableDirectedDeaths = true;
         [Range(0f, 1f)] public float DeathDirectionBias = .8f;
         [Range(1f, 1.5f)] public float HeavyDeathImpulse = 1.25f;
+        [Header("Ground movement weight — body only")]
+        public bool EnableMovementWeight = true;
+        [Range(0f, 4f)] public float MovementLeanDegrees = 3f;
+        [Range(0f, .025f)] public float MovementCompression = .012f;
+        [Range(0f, .03f)] public float TurnCompression = .02f;
 
         public static CombatPoseProfile LoadDefault() => Resources.Load<CombatPoseProfile>(ResourcePath);
     }

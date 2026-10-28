@@ -40,6 +40,10 @@ namespace Scripts.Visuals
         private readonly AttackBodyFollow _attackBody = new AttackBodyFollow();
         private PlayerStats _stats;
         private CharacterDataSO _attackCharacter;
+        private readonly MovementWeightShift _movementWeight = new MovementWeightShift();
+        private CharacterDataSO _movementCharacter;
+        private Vector3 _lastWeightPosition;
+        public AttackBodyPose VisibleMovementPose { get; private set; } = AttackBodyPose.Neutral;
         private readonly PlayerHurtPulse _hurt = new PlayerHurtPulse();
         private SpriteFX.SpriteFxController _hurtFx;
         private CharacterDataSO _hurtCharacter;
@@ -93,6 +97,7 @@ namespace Scripts.Visuals
             _characterAnimation = GetComponent<PlayerCharacterAnimationController>();
             _skillManager = GetComponent<Scripts.Skills.PlayerSkillManager>();
             _stats = GetComponent<PlayerStats>();
+            _lastWeightPosition = transform.position;
             if (GetComponent<PlayerDefenseFeedback>() == null) gameObject.AddComponent<PlayerDefenseFeedback>();
         }
 
@@ -108,6 +113,7 @@ namespace Scripts.Visuals
         {
             Scripts.GameplayEvents.GameplayEventBus.EventRaised -= OnDamage;
             ClearHurt();
+            _movementWeight.Clear(); VisibleMovementPose = AttackBodyPose.Neutral;
             _movement.OnJumpStarted -= Jump;
             _movement.OnLanded -= Land;
             _source.forceRenderingOff = _originalForceRenderingOff;
@@ -179,6 +185,18 @@ namespace Scripts.Visuals
             bool specialPose = _characterAnimation != null && (_characterAnimation.IsPlayingNeutralDodge || _characterAnimation.IsPlayingSkillSpin);
             bool dodgePose = _attack != null && (_attack.IsDashing || _attack.IsStationaryDodging);
             bool suppressAttack = specialPose || dodgePose || Scripts.Skills.PlayerStasisController.IsActiveFor(this);
+            if (_combatPoseProfile == null) _combatPoseProfile = CombatPoseProfile.LoadDefault();
+            bool changedCharacter = _stats != null && _stats.CurrentCharacterData != _movementCharacter;
+            bool warped = (transform.position - _lastWeightPosition).sqrMagnitude > 16;
+            if (changedCharacter || warped) _movementWeight.Clear();
+            _movementCharacter = _stats != null ? _stats.CurrentCharacterData : null;
+            _lastWeightPosition = transform.position;
+            bool canShift = _movement != null && _movement.isActiveAndEnabled && _movement.IsGrounded && !_movement.IsMovementLocked &&
+                !suppressAttack && !casting && _attackBody.Owner == null && VisibleHurtFlash == 0 &&
+                _stats != null && _stats.Health != null && _stats.Health.Current > 0 && !changedCharacter && !warped;
+            VisibleMovementPose = _movementWeight.Sample(_movement != null ? _movement.CurrentVelocity.x : 0,
+                _movement != null ? _movement.CurrentMoveInput.x : 0, _movement != null ? _movement.CurrentMoveSpeed : 1,
+                Mathf.Sign(transform.lossyScale.x), Time.deltaTime, canShift, _combatPoseProfile);
             VisibleAttackPose = !suppressAttack && _combatPoseProfile != null && _combatPoseProfile.EnableBodyFollow
                 ? _attackBody.Pose : AttackBodyPose.Neutral;
             float hurtAmount = !suppressAttack && _combatPoseProfile != null
@@ -187,11 +205,13 @@ namespace Scripts.Visuals
             Vector3 bodyScale = _display.transform.localScale;
             bodyScale.x /= VisibleAttackPose.Height; bodyScale.y *= VisibleAttackPose.Height;
             bodyScale.x /= hurtHeight; bodyScale.y *= hurtHeight;
+            bodyScale.x /= VisibleMovementPose.Height; bodyScale.y *= VisibleMovementPose.Height;
             _display.transform.localScale = bodyScale;
             scaleY *= VisibleAttackPose.Height;
             scaleY *= hurtHeight;
+            scaleY *= VisibleMovementPose.Height;
             float hurtDegrees = hurtAmount * hurtDirection * Mathf.Sign(transform.lossyScale.x) * (_combatPoseProfile != null ? Mathf.Clamp(_combatPoseProfile.PlayerHurtDegrees, 0, 4) : 0);
-            Quaternion bodyRotation = Quaternion.Euler(0f, 0f, VisibleAttackPose.Degrees - hurtDegrees);
+            Quaternion bodyRotation = Quaternion.Euler(0f, 0f, VisibleAttackPose.Degrees - hurtDegrees + VisibleMovementPose.Degrees);
             _display.transform.localRotation = bodyRotation;
             float footY = _source.sprite != null ? (_source.flipY ? -_source.sprite.bounds.max.y : _source.sprite.bounds.min.y) : 0f;
             _display.transform.localPosition = new Vector3(0f, ResolveDisplayY(scaleY), 0f) +

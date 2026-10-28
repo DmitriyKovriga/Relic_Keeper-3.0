@@ -226,6 +226,28 @@ namespace RelicKeeper.Tests.EditMode
             visual.EndAttackBody(owner); Call(visual, "LateUpdate"); Assert.That(visual.VisibleAttackPose.Degrees, Is.Zero);
         }
 
+        [TestCase("Warrior", 1)] [TestCase("Warrior", -1)]
+        [TestCase("Rogue", 1)] [TestCase("Rogue", -1)]
+        [TestCase("Mage", 1)] [TestCase("Mage", -1)]
+        public void MovementWeightKeepsFeetPhysicsAndHandsAnchored(string hero, int facing)
+        {
+            var visual = Player(hero, facing, true, out var stats, out var hands);
+            Call(visual, "LateUpdate"); var display = visual.DisplayRenderer; var sprite = display.sprite;
+            Vector3 foot = display.transform.TransformPoint(new Vector3(0, sprite.bounds.min.y));
+            Vector3 handPosition = hands.position, rootPosition = stats.transform.position;
+            var body = stats.GetComponent<Rigidbody2D>(); body.linearVelocity = Vector2.right * 3;
+            var state = (MovementWeightShift)typeof(PlayerMovementVisual).GetField("_movementWeight", Private).GetValue(visual);
+            state.Sample(0, 0, 5, facing, .016f, true, _profile); state.Sample(3, 1, 5, facing, .016f, true, _profile);
+            Set(visual, "_movementCharacter", stats.CurrentCharacterData);
+            Call(visual, "LateUpdate");
+            Assert.That(Mathf.Abs(visual.VisibleMovementPose.Degrees), Is.GreaterThan(0));
+            Assert.That(Vector3.Distance(display.transform.TransformPoint(new Vector3(0, sprite.bounds.min.y)), foot), Is.LessThan(.00001f));
+            Assert.That(hands.position, Is.EqualTo(handPosition)); Assert.That(stats.transform.position, Is.EqualTo(rootPosition));
+            Assert.That(body.linearVelocity, Is.EqualTo(Vector2.right * 3));
+            var token = new object(); visual.BeginAttackBody(token, Slash); visual.SampleAttackStrike(token); Call(visual, "LateUpdate");
+            Assert.That(visual.VisibleMovementPose.Degrees, Is.Zero); Assert.That(visual.VisibleMovementPose.Height, Is.EqualTo(1));
+        }
+
         [TestCase("spin")] [TestCase("dodge")] [TestCase("dash")] [TestCase("stasis")]
         public void SpecialPresentationTakesPriorityAndCleanupRestoresNeutral(string mode)
         {

@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-28",
+  "passedTests": 110,
+  "failedTests": 0,
+  "cases": [
+    {
+      "name": "warrior-off",
+      "peakDegrees": 0.0,
+      "minHeight": 1.0,
+      "lastDegrees": 0.0,
+      "lastHeight": 1.0
+    },
+    {
+      "name": "warrior-on",
+      "peakDegrees": 2.9450528621673584,
+      "minHeight": 0.9880285263061523,
+      "lastDegrees": 0.0024442309513688087,
+      "lastHeight": 1.0
+    },
+    {
+      "name": "rogue-off",
+      "peakDegrees": 0.0,
+      "minHeight": 1.0,
+      "lastDegrees": 0.0,
+      "lastHeight": 1.0
+    },
+    {
+      "name": "rogue-on",
+      "peakDegrees": 2.9450528621673584,
+      "minHeight": 0.9880285263061523,
+      "lastDegrees": 0.0024442309513688087,
+      "lastHeight": 1.0
+    },
+    {
+      "name": "mage-off",
+      "peakDegrees": 0.0,
+      "minHeight": 1.0,
+      "lastDegrees": 0.0,
+      "lastHeight": 1.0
+    },
+    {
+      "name": "mage-on",
+      "peakDegrees": 2.9450528621673584,
+      "minHeight": 0.9880285263061523,
+      "lastDegrees": 0.0024442309513688087,
+      "lastHeight": 1.0
+    },
+    {
+      "name": "attack",
+      "peakDegrees": 2.7876617908477783,
+      "minHeight": 0.9888419508934021,
+      "lastDegrees": 0.0024442309513688087,
+      "lastHeight": 1.0
+    },
+    {
+      "name": "air",
+      "peakDegrees": 0.0,
+      "minHeight": 1.0,
+      "lastDegrees": 0.0,
+      "lastHeight": 1.0
+    },
+    {
+      "name": "locked",
+      "peakDegrees": 0.0,
+      "minHeight": 1.0,
+      "lastDegrees": 0.0,
+      "lastHeight": 1.0
+    }
+  ],
+  "sourceSha256": {
+    "Assets/Scripts/Visuals/MovementWeightShift.cs": "3f5161ab82e785720a7d9068bd5a1974234782c21d0686c833291f5affd9ee50",
+    "Assets/Scripts/Visuals/PlayerMovementVisual.cs": "462a92dce5a835cb5e6bc3717b089bff34789f2c17cb0554e1ba7b0943fcadc6",
+    "Assets/Scripts/Visuals/CombatPoseProfile.cs": "aed2203bbb8fd2d009361734a3289075c63f3452ab3f416636b9133b017132da",
+    "Assets/Resources/Visuals/CombatPoseProfile.asset": "7f69a5bd41357d2c4984b7d02168bf4a450a87946ae3a869681343da25e499b6",
+    "Assets/Tests/EditMode/Editor/MovementWeightShiftTests.cs": "ee824f9b7f6b4f1f1ed69ee4b75baea9d5c7cb9da798c3f1ee6fdf18c7d3d4fd",
+    "Assets/Tests/EditMode/Editor/CombatPoseTests.cs": "d570291b1ebf4637494a9daa66ebabfdaeb609be815dfb79bd1ffb0d28cad961",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.Movement.cs": "fd02f2393fb570dc694aa5462c8a444ede65ef045082b65a3e3dc10320e7f983"
+  },
+  "limits": [
+    "Controlled stationary actor with supplied velocity and intent trace, not physical input playback.",
+    "Real class animation is explicitly sampled once per capture frame.",
+    "Off/on comparisons use identical root position and velocity traces.",
+    "Attack, air and movement-lock suppression checked live; other special poses share the existing priority gate and regression suite.",
+    "Editor checks do not certify a standalone build, GPU performance, or every item/skill combination."
+  ]
+}

@@ -27,11 +27,13 @@ namespace RelicKeeper.Editor.Combat
             _frameLimit = 110;
             if (_defenseReview) ConfigureDefenseCase();
             if (_deathReview) ConfigureDeathCase();
+            if (_movementReview) ConfigureMovementCase();
         }
         private void UpdateHurtCase()
         {
             if (_defenseReview) { UpdateDefenseCase(); return; }
             if (_deathReview) { UpdateDeathCase(); return; }
+            if (_movementReview) { UpdateMovementCase(); return; }
             if (_frame == CastFrame) StartCaseCast();
             if (_frame != 30 && !(_case.name == "rapid" && (_frame == 32 || _frame == 34 || _frame == 50))) return;
             if (_case.name == "dot") _hurtReceiver.ApplyPureDamage(10, _enemy.gameObject);
@@ -41,6 +43,7 @@ namespace RelicKeeper.Editor.Combat
         {
             if (_defenseReview) { ValidateDefenseCase(); return; }
             if (_deathReview) { ValidateDeathCase(); return; }
+            if (_movementReview) { ValidateMovementCase(); return; }
             bool expected = _case.name != "zero" && _case.name != "dot" && _case.name != "suppressed";
             bool visible = _case.frames.Any(f => f.hitFlash > 0);
             if (visible != expected) _case.error = "Player hurt eligibility mismatch.";

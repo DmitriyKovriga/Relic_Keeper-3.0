@@ -50,5 +50,9 @@ MonoBehaviour:
   EnableDirectedDeaths: 1
   DeathDirectionBias: 0.8
   HeavyDeathImpulse: 1.25
+  EnableMovementWeight: 1
+  MovementLeanDegrees: 3
+  MovementCompression: 0.012
+  TurnCompression: 0.02
   DefenseFeedbackOpacity: 0.85
   DefenseFeedbackInterval: 0.3
