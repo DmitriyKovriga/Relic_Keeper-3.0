@@ -323,10 +323,13 @@ public class PlayerMovement : MonoBehaviour
     private void OnEnable()
     {
         InputManager.InputActions.Player.Jump.performed += OnJumpPerformed;
+        GamePauseService.PauseChanged += OnPauseChanged;
+        if (GamePauseService.IsPaused) OnPauseChanged(true);
     }
 
     private void OnDisable()
     {
+        GamePauseService.PauseChanged -= OnPauseChanged;
         _lastAirborneDownwardSpeed = 0f;
         LastLandingSpeed = 0f;
         if (InputManager.InputActions != null)
@@ -393,6 +396,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
+        if (GamePauseService.IsPaused) return;
         if (PlayerStasisController.IsActiveFor(this) || PlayerWinterStormController.IsActiveFor(this)) return;
         // Input callbacks can run between Update and FixedUpdate. Sampling here preserves a
         // freshly pressed Down even when Jump is pressed almost simultaneously before landing.
@@ -400,6 +404,14 @@ public class PlayerMovement : MonoBehaviour
         _lastDropThroughJumpPressedTime = Time.time;
         _hasQueuedJump = true;
         _jumpQueuedUntilTime = Time.time + Mathf.Max(0.01f, _jumpBufferDuration);
+    }
+
+    private void OnPauseChanged(bool paused)
+    {
+        if (!paused) return;
+        ClearBufferedJump();
+        ClearDropThroughComboIntent();
+        _wasDropThroughInputHeld = false;
     }
 
     private void SampleMovementInput()

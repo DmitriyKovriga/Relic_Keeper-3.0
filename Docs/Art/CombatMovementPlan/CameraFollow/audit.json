@@ -1,0 +1,48 @@
+{
+  "utc": "2026-10-28T19:50:33.4082800Z",
+  "status": "complete",
+  "fixture": "Cinemachine follow and confiner at native 480x270; supplied target path, not physical input; temporary flat floor; existing C11 extension installed with no hits.",
+  "testsPassed": 14,
+  "comparisons": [
+    {
+      "mode": "straight",
+      "maxHorizontalDifference": 0.576416015625,
+      "maxVerticalDifference": 0.0,
+      "allInside": true,
+      "errors": [
+        "",
+        ""
+      ]
+    },
+    {
+      "mode": "turn",
+      "maxHorizontalDifference": 0.59033203125,
+      "maxVerticalDifference": 0.0,
+      "allInside": true,
+      "errors": [
+        "",
+        ""
+      ]
+    },
+    {
+      "mode": "jump",
+      "maxHorizontalDifference": 0.57861328125,
+      "maxVerticalDifference": 0.0,
+      "allInside": true,
+      "errors": [
+        "",
+        ""
+      ]
+    },
+    {
+      "mode": "edge",
+      "maxHorizontalDifference": 0.802734375,
+      "maxVerticalDifference": 0.0,
+      "allInside": true,
+      "errors": [
+        "",
+        ""
+      ]
+    }
+  ]
+}

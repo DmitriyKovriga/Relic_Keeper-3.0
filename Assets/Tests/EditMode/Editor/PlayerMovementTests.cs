@@ -100,6 +100,104 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void JumpDuringCombatFreezeCanStillBeBuffered()
+        {
+            float scale = Time.timeScale;
+            try
+            {
+                Time.timeScale = 0;
+                Call("OnJumpPerformed", default(UnityEngine.InputSystem.InputAction.CallbackContext));
+                Assert.That(_movement.HasBufferedJump, Is.True, "A combat freeze must not discard jump input.");
+                Time.timeScale = scale;
+                Call("ProcessQueuedJump");
+                Assert.That(_body.linearVelocity.y, Is.GreaterThan(0));
+                Assert.That(_movement.HasBufferedJump, Is.False);
+            }
+            finally { Time.timeScale = scale; }
+        }
+
+        [TestCase(GamePauseReason.PauseMenu)]
+        [TestCase(GamePauseReason.Inventory)]
+        [TestCase(GamePauseReason.DungeonChoice)]
+        [TestCase(GamePauseReason.GameWindow)]
+        public void MenuPauseClearsPendingJumpAndCannotQueueANewJump(GamePauseReason reason)
+        {
+            Call("OnDisable"); Call("OnEnable");
+            try
+            {
+                Set("_hasQueuedJump", true); Set("_jumpQueuedUntilTime", Time.time + .12f);
+                Set("_lastDropThroughJumpPressedTime", Time.time);
+                using (GamePauseService.Acquire(reason))
+                {
+                    Assert.That(_movement.HasBufferedJump, Is.False, "A pre-menu jump must not execute after resuming.");
+                    Call("OnJumpPerformed", default(UnityEngine.InputSystem.InputAction.CallbackContext));
+                    Assert.That(_movement.HasBufferedJump, Is.False, "Space used in a menu must not queue a gameplay jump.");
+                    Assert.That((bool)Call("HasFreshDropThroughIntent"), Is.False);
+                }
+                Call("ProcessQueuedJump");
+                Assert.That(_body.linearVelocity.y, Is.Zero);
+            }
+            finally { Call("OnDisable"); }
+        }
+
+        [Test]
+        public void EarlyJumpWaitsForLanding_ExpiredJumpDoesNotFireOnContact()
+        {
+            Set("_availableJumpCount", 0); Set("_isGrounded", false);
+            Set("_hasQueuedJump", true); Set("_jumpQueuedUntilTime", Time.time + .08f);
+            Call("ProcessQueuedJump"); Assert.That(_movement.HasBufferedJump, Is.True);
+            Set("_isGrounded", true); Call("RefreshJumpCountIfLanded"); Call("ProcessQueuedJump");
+            Assert.That(_body.linearVelocity.y, Is.GreaterThan(0));
+            Assert.That(Get<int>("_availableJumpCount"), Is.EqualTo(1));
+            _body.linearVelocity = Vector2.zero; Set("_isGrounded", true);
+            Set("_hasQueuedJump", true); Set("_jumpQueuedUntilTime", Time.time - .02f);
+            Call("ProcessQueuedJump"); Assert.That(_body.linearVelocity.y, Is.Zero);
+            Assert.That(_movement.HasBufferedJump, Is.False);
+        }
+
+        [TestCase(.08f, 1)]
+        [TestCase(.12f, 0)]
+        public void LedgeGraceKeepsGroundJumpOnlyInsideItsExistingWindow(float elapsed, int jumpsAfterPress)
+        {
+            Set("_groundJumpAvailable", true); Set("_isGrounded", false);
+            Set("_lastGroundedTime", Time.time - elapsed); Set("_availableJumpCount", 2);
+            Call("RefreshJumpCountIfLanded");
+            Set("_hasQueuedJump", true); Set("_jumpQueuedUntilTime", Time.time + .12f);
+            Call("ProcessQueuedJump");
+            Assert.That(_body.linearVelocity.y, Is.GreaterThan(0));
+            Assert.That(Get<int>("_availableJumpCount"), Is.EqualTo(jumpsAfterPress));
+        }
+
+        [TestCase(true)] [TestCase(false)]
+        public void DownJumpDropsThroughOnlyOneWaySupport_AndRestoresCollisionBelowIt(bool oneWay)
+        {
+            var floor = new GameObject("Input window support");
+            try
+            {
+                _player.transform.position = new Vector3(1100, .5f);
+                floor.transform.position = new Vector3(1100, -.5f);
+                floor.layer = LayerMask.NameToLayer(oneWay ? "OneWayPlatform" : "Ground");
+                var collider = floor.AddComponent<BoxCollider2D>(); collider.size = new Vector2(5, 1);
+                var foot = new GameObject("Ground check").transform; foot.SetParent(_player.transform, false); foot.localPosition = Vector3.down * .5f;
+                Set("_groundCheckPoint", foot); Set("_groundLayer", (LayerMask)(1 << LayerMask.NameToLayer("Ground")));
+                Set("_oneWayPlatformLayer", (LayerMask)(1 << LayerMask.NameToLayer("OneWayPlatform")));
+                Physics2D.SyncTransforms(); Call("CheckGround"); Assert.That(_movement.IsGrounded, Is.True);
+                Set("_moveInput", Vector2.down); Set("_lastDropThroughJumpPressedTime", Time.time);
+                Set("_hasQueuedJump", true); Set("_jumpQueuedUntilTime", Time.time + .12f); Call("ProcessQueuedJump");
+                Assert.That(Physics2D.GetIgnoreCollision(_player.GetComponent<BoxCollider2D>(), collider), Is.EqualTo(oneWay));
+                Assert.That(_movement.HasBufferedJump, Is.False);
+                if (oneWay)
+                {
+                    Assert.That(_body.linearVelocity.y, Is.LessThan(0));
+                    _player.transform.position = new Vector3(1100, -2.4f); Physics2D.SyncTransforms(); Call("UpdateDropThroughState");
+                    Assert.That(Physics2D.GetIgnoreCollision(_player.GetComponent<BoxCollider2D>(), collider), Is.False);
+                }
+                else Assert.That(_body.linearVelocity.y, Is.GreaterThan(0));
+            }
+            finally { Object.DestroyImmediate(floor); }
+        }
+
+        [Test]
         public void TakingOffCannotRefreshJumpCountWhileRising()
         {
             Set("_groundCheckPoint", _player.transform);

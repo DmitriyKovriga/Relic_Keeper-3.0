@@ -1,0 +1,99 @@
+{
+  "utc": "2026-10-28T20:28:42.9515327Z",
+  "status": "complete",
+  "fixture": "Real Rigidbody2D and ground probes; jump callback injection and fresh Down intent, not hardware playback. Existing coyote/buffer durations. Real hit-stop and menu pause; no scene edits saved.",
+  "tests": {
+    "beforeFixPassed": 38,
+    "beforeFixFailed": 4,
+    "finalPassed": 91,
+    "finalFailed": 0
+  },
+  "cases": [
+    {
+      "name": "ledge-early",
+      "jumps": 1,
+      "remainingAfterFirstJump": 1,
+      "bufferSeenDuringHitStop": false,
+      "ignoredSupportDuringCase": false,
+      "ignoredAtEnd": false,
+      "error": ""
+    },
+    {
+      "name": "ledge-late",
+      "jumps": 1,
+      "remainingAfterFirstJump": 0,
+      "bufferSeenDuringHitStop": false,
+      "ignoredSupportDuringCase": false,
+      "ignoredAtEnd": false,
+      "error": ""
+    },
+    {
+      "name": "buffered",
+      "jumps": 1,
+      "remainingAfterFirstJump": 1,
+      "bufferSeenDuringHitStop": false,
+      "ignoredSupportDuringCase": false,
+      "ignoredAtEnd": false,
+      "error": ""
+    },
+    {
+      "name": "expired",
+      "jumps": 0,
+      "remainingAfterFirstJump": null,
+      "bufferSeenDuringHitStop": false,
+      "ignoredSupportDuringCase": false,
+      "ignoredAtEnd": false,
+      "error": ""
+    },
+    {
+      "name": "drop",
+      "jumps": 0,
+      "remainingAfterFirstJump": null,
+      "bufferSeenDuringHitStop": false,
+      "ignoredSupportDuringCase": true,
+      "ignoredAtEnd": false,
+      "error": ""
+    },
+    {
+      "name": "solid-down",
+      "jumps": 1,
+      "remainingAfterFirstJump": 1,
+      "bufferSeenDuringHitStop": false,
+      "ignoredSupportDuringCase": false,
+      "ignoredAtEnd": false,
+      "error": ""
+    },
+    {
+      "name": "hitstop",
+      "jumps": 1,
+      "remainingAfterFirstJump": 1,
+      "bufferSeenDuringHitStop": true,
+      "ignoredSupportDuringCase": false,
+      "ignoredAtEnd": false,
+      "error": ""
+    },
+    {
+      "name": "menu-input",
+      "jumps": 0,
+      "remainingAfterFirstJump": null,
+      "bufferSeenDuringHitStop": false,
+      "ignoredSupportDuringCase": false,
+      "ignoredAtEnd": false,
+      "error": ""
+    },
+    {
+      "name": "menu-pending",
+      "jumps": 0,
+      "remainingAfterFirstJump": null,
+      "bufferSeenDuringHitStop": false,
+      "ignoredSupportDuringCase": false,
+      "ignoredAtEnd": false,
+      "error": ""
+    }
+  ],
+  "sha256": {
+    "Assets/Scripts/PlayerBasicScripts/PlayerMovement.cs": "873a6aad7d5861211d4d066ddbf0dbd0773c5f909ae55f3dd79897895cc9d9cc",
+    "Assets/Tests/EditMode/Editor/PlayerMovementTests.cs": "635bfa0dee9140ea31eb0c78891fe05b28dadf7317e20af7b600b99ac8708497",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.Input.cs": "3103ce36278377d0b7e497ab85b27dad25cde2abcadff06765dadf133f01f63a"
+  }
+}

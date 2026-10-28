@@ -29,9 +29,11 @@ namespace RelicKeeper.Editor.Combat
             if (_deathReview) ConfigureDeathCase();
             if (_movementReview) ConfigureMovementCase();
             if (_landingReview) ConfigureLandingCase();
+            if (_inputReview) ConfigureInputCase();
         }
         private void UpdateHurtCase()
         {
+            if (_inputReview) { UpdateInputCase(); return; }
             if (_landingReview) { UpdateLandingCase(); return; }
             if (_defenseReview) { UpdateDefenseCase(); return; }
             if (_deathReview) { UpdateDeathCase(); return; }
@@ -43,6 +45,7 @@ namespace RelicKeeper.Editor.Combat
         }
         private void ValidateHurtCase()
         {
+            if (_inputReview) { ValidateInputCase(); return; }
             if (_landingReview) { ValidateLandingCase(); return; }
             if (_defenseReview) { ValidateDefenseCase(); return; }
             if (_deathReview) { ValidateDeathCase(); return; }
@@ -54,6 +57,7 @@ namespace RelicKeeper.Editor.Combat
         }
         private void DisposeHurtCase()
         {
+            if (_inputReview) { _inputPause?.Dispose(); _inputPause = null; Scripts.Skills.HitStopService.CancelCurrent(); }
             _defensePause?.Dispose(); _defensePause = null;
             PlaytestConfiguration.SetEditorPlayerImmortal(_hurtImmortal);
         }

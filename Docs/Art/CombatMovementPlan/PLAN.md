@@ -57,6 +57,14 @@ The moving-landing follow-up removes the stationary recovery hold during
 horizontal travel; 102 focused tests and fourteen final live cases passed.
 M04 camera follow/look-ahead remains an optional comparison, not an automatic
 change to movement or camera settings.
+[M04 camera follow comparison](Step12_CameraFollow.md) now has an Editor-only
+Current/Look ahead preview with automatic restoration. Fourteen tests and eight
+controlled live comparisons passed; the saved default remains direct follow.
+[M05 existing input windows](Step13_InputWindows.md) are verified, with one
+menu-pause queue leak fixed while preserving hit-stop jump buffering. Ninety-one
+focused tests and nine controlled live physics cases passed. Existing jump,
+coyote and drop-through timing values are unchanged; M06 stays conditional on
+observed corner snagging.
 Full player-build GPU profiling is not claimed by the Editor measurements.
 
 User review (2026-10-27): **remove the automatic generic contact effect**.

@@ -60,6 +60,7 @@ namespace RelicKeeper.Editor.Combat
             _reviewBrain.ChannelMask = _reviewVcam.OutputChannel; _reviewBrain.IgnoreTimeScale = false;
             _reviewBrain.UpdateMethod = CinemachineBrain.UpdateMethods.LateUpdate;
             _reviewBrain.DefaultBlend = new CinemachineBlendDefinition(CinemachineBlendDefinition.Styles.Cut, 0);
+            if (_followReview) { ConfigureFollowCase(composer); return; }
             if (_case.name == "heavy-crowd")
             {
                 _cameraSkill = Object.Instantiate(_runner.Data); _cameraSkill.Cooldown = 0;
@@ -82,6 +83,7 @@ namespace RelicKeeper.Editor.Combat
 
         private void UpdateCameraCase()
         {
+            if (_followReview) { UpdateFollowCase(); return; }
             if (_frame == CastFrame || _case.name == "heavy-crowd" && _frame > CastFrame && _frame < 110 && !_runner.IsCasting) StartCaseCast();
             if (!_cameraInteracted && _reviewImpulse.AcceptedImpulses > 0 && _reviewImpulse.LastOffset != Vector3.zero)
             {
@@ -121,6 +123,7 @@ namespace RelicKeeper.Editor.Combat
 
         private void ValidateCameraCase()
         {
+            if (_followReview) { ValidateFollowCase(); return; }
             bool muted = _case.name == "heavy-off" || _case.name == "normal-on" || _case.name == "bow-on";
             int pulses = _reviewImpulse.AcceptedImpulses;
             if (_case.confirmedHits == 0) _case.error = "No real damage was delivered.";

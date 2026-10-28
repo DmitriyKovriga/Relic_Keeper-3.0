@@ -30,7 +30,7 @@ namespace RelicKeeper.Editor.Combat
         private bool _confirmation;
         private bool _poseComparison;
         private bool _meleeCoverage;
-        private string Output => _landingReview ? "Logs/LandingContact" : _movementReview ? "Logs/MovementWeight" : _deathReview ? "Logs/CombatDeath" : _defenseReview ? "Logs/CombatDefense" : _hurtReview ? "Logs/CombatPlayerHurt" : _cameraReview ? "Logs/CombatCameraImpulse" : _crowdReview ? CrowdOutput : _flashComparison ? "Logs/CombatHitFlash" : _meleeCoverage ? "Logs/CombatMeleeCoverage" : _poseComparison ? "Logs/CombatPoseComparison" : _confirmation ? "Logs/CombatHitConfirmation" : "Logs/CombatBaseline";
+        private string Output => _inputReview ? "Logs/MovementInput" : _followReview ? "Logs/CameraFollow" : _landingReview ? "Logs/LandingContact" : _movementReview ? "Logs/MovementWeight" : _deathReview ? "Logs/CombatDeath" : _defenseReview ? "Logs/CombatDefense" : _hurtReview ? "Logs/CombatPlayerHurt" : _cameraReview ? "Logs/CombatCameraImpulse" : _crowdReview ? CrowdOutput : _flashComparison ? "Logs/CombatHitFlash" : _meleeCoverage ? "Logs/CombatMeleeCoverage" : _poseComparison ? "Logs/CombatPoseComparison" : _confirmation ? "Logs/CombatHitConfirmation" : "Logs/CombatBaseline";
         private const string SkillPath = "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset";
         private const int CaptureFrames = 110;
         private const int CastFrame = 12;
@@ -43,7 +43,7 @@ namespace RelicKeeper.Editor.Combat
             "2HWeapon/Hammer/Adventurer/GroundShake/GroundShakeSkill", "2HWeapon/Sword/Adventurer/LungeSlash/LungeSlashSkill",
             "1HWeapon/Sword/DexterousLungeSkill", "1HWeapon/Hammer/StunningBlowSkill", "1HWeapon/Dagger/NinjaStubSkill",
             "1HWeapon/Dagger/NinjaStubSkill", "Shields/TowerCharge", "Shields/SpectacularParry" };
-        private string[] ActiveCases => _landingReview ? LandingCases : _movementReview ? MovementCases : _deathReview ? DeathCases : _defenseReview ? DefenseCases : _hurtReview ? HurtCases : _cameraReview ? CameraCases : _crowdReview ? CrowdCases : _flashComparison ? FlashCases : _meleeCoverage ? MeleeCases : _poseComparison ? PoseCases : Cases;
+        private string[] ActiveCases => _inputReview ? InputCases : _followReview ? FollowCases : _landingReview ? LandingCases : _movementReview ? MovementCases : _deathReview ? DeathCases : _defenseReview ? DefenseCases : _hurtReview ? HurtCases : _cameraReview ? CameraCases : _crowdReview ? CrowdCases : _flashComparison ? FlashCases : _meleeCoverage ? MeleeCases : _poseComparison ? PoseCases : Cases;
         private string Scenario => _hurtReview ? "hurt-review" : _cameraReview ? "camera-review" : _crowdReview ? "crowd-review" : _flashComparison ? "flash-review" : _meleeCoverage ? "melee-review" : !_poseComparison || _case.name == "attacking-target" ? _case.name
             : _case.name == "mage-air" ? "miss" : "direct-hit";
         private bool HeavyCase => _poseComparison && _case.name.StartsWith("heavy", StringComparison.Ordinal);
@@ -419,6 +419,7 @@ namespace RelicKeeper.Editor.Combat
             });
             if (_movementReview) RecordMovementFrame(_case.frames[_case.frames.Count - 1]);
             if (_landingReview) RecordLandingFrame(_case.frames[_case.frames.Count - 1]);
+            if (_inputReview) RecordInputFrame(_case.frames[_case.frames.Count - 1]);
             if (_deathReview) RecordDeathFrame(_case.frames[_case.frames.Count - 1]);
             if (_defenseReview) RecordDefenseFrame(_case.frames[_case.frames.Count - 1]);
             if (_hurtReview) _case.frames[_case.frames.Count - 1].hitFlash = _owner.GetComponent<PlayerMovementVisual>().VisibleHurtFlash;
@@ -526,7 +527,7 @@ namespace RelicKeeper.Editor.Combat
                 currentFrame = _frame, currentCase = _case?.name, pumpTicks = _pumpTicks, engineFrame = Time.frameCount,
                 scene = gameObject.scene.name, playingScene = Application.IsPlaying(gameObject),
                 recipe = _meleeCoverage ? "Per-case skill recipes" : "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/Recipe_Cleave.asset",
-                fixture = _landingReview ? "Real Rigidbody2D falls and ground probes; controlled motion override for running. Three classes, low/high contacts, buffered jump, tiny fall. Existing stone/earth art; native 480x270. No scene edits saved." : _crowdReview ? "12 APS controlled crowd stress; native 480x270, sparse screenshots excluded from warm performance summaries. Per-case frame rate and feedback metrics in traces." : _flashComparison ? "Normal/heavy/bow flash-only on-off pairs; critical, frozen, status tint/emission, local light, Animator-root enemy and repeated fast attacks. Body/recoil remain enabled in both halves. Physical=100, APS=1 except rapid=10; target HP/stun=10000. No scene edits saved."
+                fixture = _inputReview ? "Real Rigidbody2D and ground probes; jump callback injection and fresh Down intent, not hardware playback. Existing coyote/buffer durations. Real hit-stop and menu pause; no scene edits saved." : _followReview ? "Cinemachine composer/brain/confiner, supplied target path at native 480x270; not physical input or a full-room art traversal. No scene edits saved." : _landingReview ? "Real Rigidbody2D falls and ground probes; controlled motion override for running. Three classes, low/high contacts, buffered jump, tiny fall. Existing stone/earth art; native 480x270. No scene edits saved." : _crowdReview ? "12 APS controlled crowd stress; native 480x270, sparse screenshots excluded from warm performance summaries. Per-case frame rate and feedback metrics in traces." : _flashComparison ? "Normal/heavy/bow flash-only on-off pairs; critical, frozen, status tint/emission, local light, Animator-root enemy and repeated fast attacks. Body/recoil remain enabled in both halves. Physical=100, APS=1 except rapid=10; target HP/stun=10000. No scene edits saved."
                     : _meleeCoverage ? "Ten custom melee recipes, including real movement, ground/air Falling Anvil, valid/invalid blink. Warrior versus stationary Mold; base APS=1, physical=100, no crit, HP/stun=10000. Flat review lighting; no scene edits saved."
                     : _poseComparison
                     ? "Controlled standing normal/heavy on-off comparisons; busy Mold; Animator-root Zombie; left-facing Rogue; stationary airborne Mage miss. Physics roots constrained; base physical=100, APS=1, crit=0, target HP/stun=10000, no rewards/loot. Existing hand-stat scope and skill stat links remain active."
@@ -554,7 +555,7 @@ namespace RelicKeeper.Editor.Combat
                     if (_image != null) Object.DestroyImmediate(_image);
                     if (_floorSprite != null) Object.DestroyImmediate(_floorSprite);
                     if ((_hurtReview || _flashComparison || _crowdReview) && _material != null) Object.DestroyImmediate(_material);
-                    _instance = null; _defenseReview = false; _deathReview = false; _movementReview = false; _landingReview = false; Object.DestroyImmediate(gameObject);
+                    _instance = null; _defenseReview = false; _deathReview = false; _movementReview = false; _landingReview = false; _followReview = false; _inputReview = false; Object.DestroyImmediate(gameObject);
                 }
             }
         }
