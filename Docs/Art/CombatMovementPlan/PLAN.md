@@ -10,18 +10,26 @@ previous atmosphere plan and its modified documents are not rebuilt or overwritt
 
 ## Recommendation
 
-Implementation follow-up (2026-10-27): numbered first-slice **steps 1–3 are complete**.
+Implementation follow-up (2026-10-28): first-slice work is implemented through
+**crowd validation (steps 1–5)**; focused checks and their limits are linked below.
 See [the observed baseline](Step01_Baseline.md) and
 [confirmed enemy hits and the shared hit-stop gate](Step02_HitConfirmation.md).
 The original research status above describes the planning task. C01's enemy-hit
 path and the initial C18 per-cast hit-stop bound are implemented. C02/C04 now
 add [body follow-through and enemy visual recoil](Step03_BodyAndRecoil.md), with
-shared tuning and on/off previews. Broader C18 settings and crowd validation
-remain later work; C07/C10 are subsequent proposals, not automatic additions.
+shared tuning and on/off previews. Broader C18 settings remain later work.
 
 The [custom melee expansion](Step03_MeleeExpansion.md) also covers the ten
 previously excluded melee skills, with 163 passing regression tests and twelve
 live presentation cases. Ranged/casting body motion remains a separate slice.
+
+The [C07/C10 target-flash slice](Step04_HitFlash.md) is also implemented, with
+normal/heavy/bow flash-only comparisons, status/lighting preservation and
+bounded rapid retriggers. [C09 hit-stop tuning and controlled crowd validation](Step05_CrowdAndHitStop.md)
+now include real-time duration, a shared interval, a true zero-disable setting,
+pause/cancellation/lifetime checks, 174 passing tests and 15 final live cases.
+The next planned wave is C11/C12/C13/C14. Full player-build GPU profiling is
+not claimed by the Editor measurements.
 
 User review (2026-10-27): **remove the automatic generic contact effect**.
 The extra mark overlaps existing skill VFX and adds visual clutter. Keep the

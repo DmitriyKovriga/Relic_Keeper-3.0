@@ -21,6 +21,18 @@ namespace Scripts.Visuals
         [Range(.05f, .3f)] public float RecoilDuration = .16f;
         [Range(0f, .2f)] public float RecoilRetrigger = .05f;
         [Range(0f, 1f)] public float BossRecoilMultiplier = .35f;
+        [Header("Enemy hit flash (strength and scaled seconds)")]
+        public bool EnableEnemyHitFlash = true;
+        public Color HitFlashColor = new Color(1f, .95f, .82f, 1f);
+        [Range(0f, .5f)] public float LightHitFlash = .18f;
+        [Range(0f, .5f)] public float NormalHitFlash = .28f;
+        [Range(0f, .5f)] public float HeavyHitFlash = .4f;
+        [Range(0f, .2f)] public float CriticalHitFlashBonus = .08f;
+        [Range(.02f, .12f)] public float HitFlashDuration = .075f;
+        [Range(.1f, .5f)] public float HitFlashInterval = .18f;
+        [Header("Hit-stop (legacy recipe frames use 60 Hz duration)")]
+        public bool EnableHitStop = true;
+        [Range(.1f, .5f)] public float HitStopInterval = .25f;
 
         public static CombatPoseProfile LoadDefault() => Resources.Load<CombatPoseProfile>(ResourcePath);
     }

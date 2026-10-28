@@ -52,6 +52,9 @@ public static class GamePauseService
         int requestGeneration = _generation;
         bool wasPaused = IsPaused;
 
+        // Capture the underlying time scale, not a transient combat freeze's zero.
+        if (!wasPaused) Scripts.Skills.HitStopService.CancelCurrent();
+
         ActiveRequests.Add(requestId, reason);
         if (!wasPaused)
         {
@@ -69,6 +72,7 @@ public static class GamePauseService
     /// </summary>
     public static void ResumeAll()
     {
+        Scripts.Skills.HitStopService.CancelCurrent();
         bool wasPaused = IsPaused;
         ActiveRequests.Clear();
         _generation++;

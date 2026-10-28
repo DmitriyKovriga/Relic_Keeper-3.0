@@ -25,3 +25,13 @@ MonoBehaviour:
   RecoilDuration: 0.16
   RecoilRetrigger: 0.05
   BossRecoilMultiplier: 0.35
+  EnableEnemyHitFlash: 1
+  HitFlashColor: {r: 1, g: 0.95, b: 0.82, a: 1}
+  LightHitFlash: 0.18
+  NormalHitFlash: 0.28
+  HeavyHitFlash: 0.4
+  CriticalHitFlashBonus: 0.08
+  HitFlashDuration: 0.075
+  HitFlashInterval: 0.18
+  EnableHitStop: 1
+  HitStopInterval: 0.25

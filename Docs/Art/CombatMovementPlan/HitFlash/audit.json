@@ -1,0 +1,193 @@
+{
+  "status": "complete",
+  "utc": "2026-10-27T20:34:43.1121363Z",
+  "editModeTests": {
+    "passed": 112,
+    "failed": 0,
+    "skipped": 0
+  },
+  "fixture": "Normal/heavy/bow flash-only on-off pairs; critical, frozen, status tint/emission, local light, Animator-root enemy and repeated fast attacks. Body/recoil remain enabled in both halves. Physical=100, APS=1 except rapid=10; target HP/stun=10000. No scene edits saved.",
+  "cases": [
+    {
+      "case": "normal-off",
+      "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+      "casts": 1,
+      "hits": 1,
+      "peak": 0.0,
+      "flashFrames": 0,
+      "flashBursts": 0,
+      "finalFlash": 0.0,
+      "error": ""
+    },
+    {
+      "case": "normal-on",
+      "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+      "casts": 1,
+      "hits": 1,
+      "peak": 0.2800000011920929,
+      "flashFrames": 7,
+      "flashBursts": 1,
+      "finalFlash": 0.0,
+      "error": ""
+    },
+    {
+      "case": "heavy-off",
+      "skill": "Assets/Resources/Skills/2HWeapon/Hammer/Adventurer/WeightOfAGiant/WeightOfAGiantSkill.asset",
+      "casts": 1,
+      "hits": 1,
+      "peak": 0.0,
+      "flashFrames": 0,
+      "flashBursts": 0,
+      "finalFlash": 0.0,
+      "error": ""
+    },
+    {
+      "case": "heavy-on",
+      "skill": "Assets/Resources/Skills/2HWeapon/Hammer/Adventurer/WeightOfAGiant/WeightOfAGiantSkill.asset",
+      "casts": 1,
+      "hits": 1,
+      "peak": 0.4000000059604645,
+      "flashFrames": 8,
+      "flashBursts": 1,
+      "finalFlash": 0.0,
+      "error": ""
+    },
+    {
+      "case": "bow-off",
+      "skill": "Assets/Resources/Skills/2HWeapon/Bow/SimpleBowShotSkill.asset",
+      "casts": 1,
+      "hits": 1,
+      "peak": 0.0,
+      "flashFrames": 0,
+      "flashBursts": 0,
+      "finalFlash": 0.0,
+      "error": ""
+    },
+    {
+      "case": "bow-on",
+      "skill": "Assets/Resources/Skills/2HWeapon/Bow/SimpleBowShotSkill.asset",
+      "casts": 1,
+      "hits": 1,
+      "peak": 0.2800000011920929,
+      "flashFrames": 5,
+      "flashBursts": 1,
+      "finalFlash": 0.0,
+      "error": ""
+    },
+    {
+      "case": "critical-on",
+      "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+      "casts": 1,
+      "hits": 1,
+      "peak": 0.36000001430511475,
+      "flashFrames": 7,
+      "flashBursts": 1,
+      "finalFlash": 0.0,
+      "error": ""
+    },
+    {
+      "case": "frozen-on",
+      "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+      "casts": 1,
+      "hits": 1,
+      "peak": 0.2800000011920929,
+      "flashFrames": 7,
+      "flashBursts": 1,
+      "finalFlash": 0.0,
+      "error": ""
+    },
+    {
+      "case": "status-on",
+      "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+      "casts": 1,
+      "hits": 1,
+      "peak": 0.2800000011920929,
+      "flashFrames": 7,
+      "flashBursts": 1,
+      "finalFlash": 0.0,
+      "error": ""
+    },
+    {
+      "case": "lit-on",
+      "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+      "casts": 1,
+      "hits": 1,
+      "peak": 0.2800000011920929,
+      "flashFrames": 7,
+      "flashBursts": 1,
+      "finalFlash": 0.0,
+      "error": ""
+    },
+    {
+      "case": "zombie-on",
+      "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+      "casts": 1,
+      "hits": 1,
+      "peak": 0.2800000011920929,
+      "flashFrames": 7,
+      "flashBursts": 1,
+      "finalFlash": 0.0,
+      "error": ""
+    },
+    {
+      "case": "rapid-on",
+      "skill": "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset",
+      "casts": 8,
+      "hits": 8,
+      "peak": 0.2800000011920929,
+      "flashFrames": 28,
+      "flashBursts": 4,
+      "finalFlash": 0.0,
+      "error": ""
+    }
+  ],
+  "comparisons": [
+    {
+      "pair": "normal",
+      "contact": [
+        [
+          31,
+          0.33333340287208557,
+          102.11738586425781
+        ]
+      ],
+      "maxWeaponTransformDifference": 0.0
+    },
+    {
+      "pair": "heavy",
+      "contact": [
+        [
+          116,
+          0.6999996304512024,
+          3835.5869140625
+        ]
+      ],
+      "maxWeaponTransformDifference": 0.0
+    },
+    {
+      "pair": "bow",
+      "contact": [
+        [
+          45,
+          0.5500001311302185,
+          102.11738586425781
+        ]
+      ],
+      "maxWeaponTransformDifference": 0.0
+    }
+  ],
+  "sourceSHA256": {
+    "Assets/Scripts/Visuals/EnemyHitFlash.cs": "b2744aac6508794b756d6f6289488605b93146c8f0e8fb1bb9987422f790fbd2",
+    "Assets/Scripts/Visuals/SpriteFX/SpriteFxController.cs": "943b218626a8e324f58412e63e89724ed5bed378520c5511beaca4ed0f5bd7d1",
+    "Assets/Scripts/Visuals/CombatPoseProfile.cs": "9ee90b058239a5a8c5e241221898584bae84c6a107fd3099ee25226506229afd",
+    "Assets/Resources/Visuals/CombatPoseProfile.asset": "7a988a25ab8587c1c4c23b6a9f964003518dfbd12582a39cc7326008e53ff643",
+    "Assets/Scripts/Combat/ConfirmedHit.cs": "75a72ea47f918c15e40a3acdb0ef199a6ce7b501918882db1942521d8cb900c8",
+    "Assets/Scripts/Enemy/EnemyEntity.cs": "4f57c95099acc09766a502f4ea1f0096a02f71be5235374dadc839afcb2c9107",
+    "Assets/Shaders/RelicFX/RelicHitFlash.hlsl": "ba3672d6960ff7577ed3666393715a11b95feaa718aadc2543824facfdb6e937",
+    "Assets/Shaders/RelicFX/RelicSpriteFX.shader": "f95d1994c75a6e93bb2607c67791efc5668d110b4caec47391f5e839eaac0275",
+    "Assets/Shaders/RelicFX/WorldColorLit.shader": "fd6fe59ef5e971ad65d9e055620296383b4c66f51645bd7b518ea9b86591d418",
+    "Assets/Shaders/RelicFX/WorldColorUnlit.shader": "70cd7d83e085cbfe241b9fadb5ddac058e2771f5ca290a0cf21b98f70b287a1f",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.cs": "8296511d01cdb86f3827a395e99816c1556536b15c248b412af0d7d55799ba54",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.HitFlash.cs": "4f6399d21f92dd518b9509a66118fa9c43767a3dd8d420052c170f9f4d27e70d"
+  }
+}

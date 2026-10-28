@@ -72,6 +72,8 @@ namespace Scripts.Enemies
             _animation.Initialize(this, data);
             var recoil = GetComponent<EnemyHitRecoil>() ?? gameObject.AddComponent<EnemyHitRecoil>();
             recoil.Initialize(VisualRenderer);
+            var hitFlash = GetComponent<EnemyHitFlash>() ?? gameObject.AddComponent<EnemyHitFlash>();
+            hitFlash.Initialize(VisualRenderer);
             _brain.Initialize(this, data);
             _stun.Initialize(data);
 

@@ -6,6 +6,8 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
         [HideInInspector] _RKGradeGroup ("World color group", Float) = 0
         [HideInInspector] _RKGradeInfluence ("World color influence", Float) = 1
         [HideInInspector] _RKGradeIsEffect ("Combat effect", Float) = 0
+        [HideInInspector] _FxHitFlash ("Confirmed hit highlight", Float) = 0
+        [HideInInspector] _FxHitFlashColor ("Confirmed hit color", Color) = (1,1,1,1)
         [PerRendererData] _MainTex ("Sprite", 2D) = "white" {}
         _FxTint ("Tint", Color) = (1,1,1,1)
         _FxBrightness ("Brightness", Range(0,2)) = 1
@@ -56,6 +58,7 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
             #pragma multi_compile_instancing
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
             #include "WorldColorGrade.hlsl"
+            #include "RelicHitFlash.hlsl"
             float _RKPlayerOverlapAmount;
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/ShapeLightShared.hlsl"
             #include "RelicLocalLight.hlsl"
@@ -64,6 +67,8 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
             TEXTURE2D(_FxNoiseTex); SAMPLER(sampler_FxNoiseTex);
             float4 _MainTex_TexelSize;
             CBUFFER_START(UnityPerMaterial)
+                half4 _FxHitFlashColor;
+                float _FxHitFlash;
                 float _RKPlayerOverlapShade;
                 float _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect;
                 half4 _FxTint, _FxFlashColor, _FxOutlineColor, _FxInnerColor, _FxEmissionColor, _FxEdgeColor;
@@ -158,6 +163,7 @@ Shader "RelicKeeper/Sprites/Relic Sprite FX"
                 }
                 float alpha = coverage * min(i.color.a, _RendererColor.a) * _FxTint.a * _FxRuntimeTint.a * _FxFade * _FxRuntimeFade;
                 if (_FxClip > 0.0) clip(alpha - _FxClip);
+                rgb = RKHitFlash(rgb, _FxHitFlash, _FxHitFlashColor.rgb);
                 return half4(rgb, saturate(alpha));
             }
             ENDHLSL

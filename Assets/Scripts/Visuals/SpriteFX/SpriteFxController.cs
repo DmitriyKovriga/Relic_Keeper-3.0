@@ -12,6 +12,8 @@ namespace Scripts.Visuals.SpriteFX
         private static readonly int TintId = Shader.PropertyToID("_FxRuntimeTint");
         private static readonly int FlashId = Shader.PropertyToID("_FxRuntimeFlash");
         private static readonly int FlashColorId = Shader.PropertyToID("_FxRuntimeFlashColor");
+        private static readonly int HitFlashId = Shader.PropertyToID("_FxHitFlash");
+        private static readonly int HitFlashColorId = Shader.PropertyToID("_FxHitFlashColor");
         private static readonly int EmissionId = Shader.PropertyToID("_FxRuntimeEmission");
         private static readonly int EmissionColorId = Shader.PropertyToID("_FxRuntimeEmissionColor");
         private static readonly int DissolveId = Shader.PropertyToID("_FxRuntimeDissolve");
@@ -27,9 +29,12 @@ namespace Scripts.Visuals.SpriteFX
         private float _flash, _flashDuration, _flashRemaining, _tintRemaining, _emission, _dissolve, _fade = 1f;
         private float _dissolveStart, _dissolveTarget, _dissolveDuration, _dissolveElapsed;
         private bool _dissolving;
+        private float _hitFlash;
+        private Color _hitFlashColor = Color.white;
 
         public float DissolveAmount => _dissolve;
         public float Fade => _fade;
+        public float HitFlashAmount => _hitFlash;
 
         private void OnEnable()
         {
@@ -85,6 +90,14 @@ namespace Scripts.Visuals.SpriteFX
             Apply();
         }
 
+        // Separate channel: a combat pulse must not replace a status/level-up flash or its timer.
+        public void SetHitFlash(Color color, float strength)
+        {
+            _hitFlashColor = color;
+            _hitFlash = Mathf.Clamp(strength, 0f, .5f);
+            Apply();
+        }
+
         public void SetEmission(Color color, float strength)
         {
             _emissionColor = color;
@@ -115,6 +128,7 @@ namespace Scripts.Visuals.SpriteFX
         {
             _tint = Color.white;
             _flash = _flashRemaining = _tintRemaining = _emission = _dissolve = 0f;
+            _hitFlash = 0f;
             _fade = 1f;
             _dissolving = false;
             Apply();
@@ -145,6 +159,8 @@ namespace Scripts.Visuals.SpriteFX
             _block.SetColor(TintId, _tint);
             _block.SetColor(FlashColorId, _flashColor);
             _block.SetFloat(FlashId, _flash);
+            _block.SetFloat(HitFlashId, _hitFlash);
+            _block.SetColor(HitFlashColorId, _hitFlashColor);
             _block.SetColor(EmissionColorId, _emissionColor);
             _block.SetFloat(EmissionId, _emission);
             _block.SetFloat(DissolveId, _dissolve);

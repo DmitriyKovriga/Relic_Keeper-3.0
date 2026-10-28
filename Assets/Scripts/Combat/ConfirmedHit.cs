@@ -53,6 +53,7 @@ namespace Scripts.Combat
             {
                 hit.Contact?.Attack?.HitStop?.TryTrigger();
                 target.GetComponent<Scripts.Visuals.EnemyHitRecoil>()?.React(hit);
+                target.GetComponent<Scripts.Visuals.EnemyHitFlash>()?.React(hit);
             }
             catch (Exception exception) { Debug.LogException(exception, target); }
             try { HitConfirmed?.Invoke(hit); }

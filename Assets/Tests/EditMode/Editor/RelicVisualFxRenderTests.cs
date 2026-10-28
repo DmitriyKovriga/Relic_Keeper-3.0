@@ -111,6 +111,31 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(_readback.GetPixel(236, 135).r, Is.LessThan(0.01f));
         }
 
+        [TestCase("RelicKeeper/Sprites/Relic Sprite FX")]
+        [TestCase("RelicKeeper/Sprites/World Color Lit")]
+        [TestCase("RelicKeeper/Sprites/World Color Unlit")]
+        public void HitFlashBrightensExistingPixelsWithoutFlatteningDetailOrChangingCoverage(string shaderName)
+        {
+            _camera.backgroundColor = Color.black;
+            Shader shader = Shader.Find(shaderName); Assert.That(shader, Is.Not.Null);
+            Assert.That(ShaderUtil.ShaderHasError(shader), Is.False, shaderName);
+            _material.shader = shader;
+            var renderer = AddSprite(); renderer.color = new Color(.4f, .5f, .6f, .8f);
+            var lamp = new GameObject("Render fixture ambient"); SceneManager.MoveGameObjectToScene(lamp, _scene);
+            var light = lamp.AddComponent<UnityEngine.Rendering.Universal.Light2D>();
+            light.lightType = UnityEngine.Rendering.Universal.Light2D.LightType.Global; light.intensity = .6f;
+            Render(); Color before = _readback.GetPixel(236, 135);
+            renderer.GetComponent<SpriteFxController>().SetHitFlash(new Color(1, .95f, .82f), .4f);
+            Render(); Color red = _readback.GetPixel(236, 135), green = _readback.GetPixel(244, 135);
+            Assert.That(red.r, Is.GreaterThan(before.r + .01f));
+            Assert.That(red.r, Is.GreaterThan(green.r + .05f), "Red/green texture detail must survive the highlight.");
+            Assert.That(green.g, Is.GreaterThan(red.g + .05f));
+            Assert.That(_readback.GetPixel(220, 135).maxColorComponent, Is.LessThan(.01f), "Transparent pixels remain transparent.");
+            renderer.GetComponent<SpriteFxController>().SetHitFlash(Color.white, 0); Render();
+            Assert.That(_readback.GetPixel(236, 135).r, Is.EqualTo(before.r).Within(.005f));
+            Assert.That(renderer.sharedMaterial, Is.SameAs(_material));
+        }
+
         [Test]
         public void SpriteRectBoundsPreventNeighbourBleed_AfterAnimatedSpriteChange()
         {

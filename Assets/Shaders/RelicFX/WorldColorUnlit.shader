@@ -7,6 +7,8 @@ Shader "RelicKeeper/Sprites/World Color Unlit"
         [HideInInspector] _RKGradeGroup ("World color group", Float) = 0
         [HideInInspector] _RKGradeInfluence ("World color influence", Float) = 1
         [HideInInspector] _RKGradeIsEffect ("Combat effect", Float) = 0
+        [HideInInspector] _FxHitFlash ("Confirmed hit highlight", Float) = 0
+        [HideInInspector] _FxHitFlashColor ("Confirmed hit color", Color) = (1,1,1,1)
         _MainTex ("Sprite Texture", 2D) = "white" {}
         [MaterialToggle] _ZWrite("ZWrite", Float) = 0
 
@@ -60,8 +62,11 @@ Shader "RelicKeeper/Sprites/World Color Unlit"
 
             // NOTE: Do not ifdef the properties here as SRP batcher can not handle different layouts.
             #include "WorldColorGrade.hlsl"
+            #include "RelicHitFlash.hlsl"
             float _RKPlayerOverlapAmount;
             CBUFFER_START(UnityPerMaterial)
+                half4 _FxHitFlashColor;
+                float _FxHitFlash;
                 float _RKPlayerOverlapShade;
                 float _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect;
                 half4 _Color;
@@ -85,6 +90,7 @@ Shader "RelicKeeper/Sprites/World Color Unlit"
                 result.rgb = RKApplyLocalLight(result.rgb, input.lightingUV, _RKGradeGroup, _RKGradeIsEffect);
                 result.rgb *= 1 - saturate(_RKPlayerOverlapShade * _RKPlayerOverlapAmount);
                 result.rgb = RKGradeColor(result.rgb, _RKGradeGroup, _RKGradeInfluence, _RKGradeIsEffect);
+                result.rgb = RKHitFlash(result.rgb, _FxHitFlash, _FxHitFlashColor.rgb);
                 return result;
             }
             ENDHLSL

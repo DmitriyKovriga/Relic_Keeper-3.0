@@ -13,8 +13,8 @@ namespace Scripts.Skills.Steps
         public List<StepEntry> Steps = new List<StepEntry>();
 
         [Header("Combat Feel")]
-        [Range(1, 5)]
-        [Tooltip("Rendered frames frozen on a confirmed melee hit or on the first confirmed projectile hit of the cast.")]
+        [Range(0, 5)]
+        [Tooltip("Hit-stop duration in 60 Hz reference frames (3 = 50 ms, 0 = disabled). At most once per cast; the shared interval limits rapid/crowd repeats.")]
         public int HitStopFrames = 1;
 
         [Header("Channeling (optional)")]
