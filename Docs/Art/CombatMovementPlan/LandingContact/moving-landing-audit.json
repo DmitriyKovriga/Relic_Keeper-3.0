@@ -1,0 +1,118 @@
+{
+  "utc": "2026-10-28T19:41:57.6729998Z",
+  "status": "complete",
+  "tests": {
+    "beforeFixPassed": 7,
+    "beforeFixFailed": 6,
+    "afterFixPassed": 102,
+    "afterFixFailed": 0
+  },
+  "liveCases": [
+    {
+      "name": "warrior-low",
+      "error": ""
+    },
+    {
+      "name": "warrior-high",
+      "error": ""
+    },
+    {
+      "name": "rogue-low",
+      "error": ""
+    },
+    {
+      "name": "rogue-high",
+      "error": ""
+    },
+    {
+      "name": "mage-low",
+      "error": ""
+    },
+    {
+      "name": "mage-high",
+      "error": ""
+    },
+    {
+      "name": "warrior-run",
+      "error": ""
+    },
+    {
+      "name": "rogue-run",
+      "error": ""
+    },
+    {
+      "name": "mage-run",
+      "error": ""
+    },
+    {
+      "name": "buffered",
+      "error": ""
+    },
+    {
+      "name": "tiny",
+      "error": ""
+    },
+    {
+      "name": "warrior-moving",
+      "error": ""
+    },
+    {
+      "name": "rogue-moving",
+      "error": ""
+    },
+    {
+      "name": "mage-moving",
+      "error": ""
+    }
+  ],
+  "movingCases": [
+    {
+      "name": "warrior-moving",
+      "firstGroundedFrame": 16,
+      "groundedSprites": [
+        "WarriorRun_00",
+        "WarriorRun_01",
+        "WarriorRun_02",
+        "WarriorRun_03",
+        "WarriorRun_04",
+        "WarriorRun_05",
+        "WarriorRun_06",
+        "WarriorRun_07",
+        "WarriorRun_08"
+      ]
+    },
+    {
+      "name": "rogue-moving",
+      "firstGroundedFrame": 16,
+      "groundedSprites": [
+        "RogueRun_00",
+        "RogueRun_01",
+        "RogueRun_02",
+        "RogueRun_03",
+        "RogueRun_04",
+        "RogueRun_05",
+        "RogueRun_06",
+        "RogueRun_07"
+      ]
+    },
+    {
+      "name": "mage-moving",
+      "firstGroundedFrame": 15,
+      "groundedSprites": [
+        "MageRun_00",
+        "MageRun_01",
+        "MageRun_02",
+        "MageRun_03",
+        "MageRun_04",
+        "MageRun_05",
+        "MageRun_06",
+        "MageRun_07"
+      ]
+    }
+  ],
+  "sha256": {
+    "Assets/Scripts/Visuals/PlayerCharacterAnimationController.cs": "6af22e06b62a200f7f173174eafb23dd6932fe13173da44fd14f77efaa905b97",
+    "Assets/Tests/EditMode/Editor/LandingContactTests.cs": "623fd495051d8ecd7ec707a5e4c02b31084f999a793939bbefb238d8a2500631",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.Landing.cs": "c62a6c48ecbf3ef2c7073ca251b4042ac61721a570a92b29f1d247e83fb54d2b"
+  }
+}

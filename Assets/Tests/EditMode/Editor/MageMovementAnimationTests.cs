@@ -100,6 +100,7 @@ namespace RelicKeeper.Tests.EditMode
                 type.GetMethod("HandleJumpStarted", Flags).Invoke(controller, null);
                 Assert.That(owner.GetComponent<SpriteRenderer>().sprite, Is.SameAs(Mage.JumpAnimation.Frames[3]));
                 Assert.That(controller.PresentationScale, Is.EqualTo(Vector2.one));
+                typeof(PlayerMovement).GetField("<LastLandingSpeed>k__BackingField", Flags).SetValue(owner.GetComponent<PlayerMovement>(), 14f);
                 type.GetMethod("HandleLanded", Flags).Invoke(controller, null);
                 Assert.That(controller.PresentationScale.y, Is.LessThan(1));
                 type.GetField("_frameTimer", Flags).SetValue(controller, 10f);

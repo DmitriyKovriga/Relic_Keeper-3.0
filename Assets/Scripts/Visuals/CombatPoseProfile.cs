@@ -59,6 +59,15 @@ namespace Scripts.Visuals
         [Range(0f, 4f)] public float MovementLeanDegrees = 3f;
         [Range(0f, .025f)] public float MovementCompression = .012f;
         [Range(0f, .03f)] public float TurnCompression = .02f;
+        [Header("Landing weight — blends existing class poses")]
+        public bool EnableLandingWeight = true;
+        [Min(0f)] public float QuietLandingSpeed = 2f;
+        [Min(.1f)] public float FullLandingSpeed = 14f;
+        [Range(0f, 1f)] public float LandingPoseStrength = 1f;
+
+        public float EvaluateLandingWeight(float speed) => !EnableLandingWeight ? 1f :
+            Mathf.InverseLerp(Mathf.Max(0, QuietLandingSpeed), Mathf.Max(QuietLandingSpeed + .1f, FullLandingSpeed), speed)
+            * Mathf.Clamp01(LandingPoseStrength);
 
         public static CombatPoseProfile LoadDefault() => Resources.Load<CombatPoseProfile>(ResourcePath);
     }

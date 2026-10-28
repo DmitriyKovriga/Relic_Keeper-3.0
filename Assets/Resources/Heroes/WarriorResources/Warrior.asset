@@ -19,6 +19,7 @@ MonoBehaviour:
   _descriptionFallback:
   _portrait: {fileID: 21300000, guid: b4a90577ab2ab92498de8074b2e61657, type: 3}
   _runAnimation:
+    FootContactFrames: 0200000006000000
     Frames:
     - {fileID: 4072664509401770835, guid: 5fa4b9120cf050e43b8462181e97c15c, type: 3}
     - {fileID: 7468451310077886255, guid: 5fa4b9120cf050e43b8462181e97c15c, type: 3}

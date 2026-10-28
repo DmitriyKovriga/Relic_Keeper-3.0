@@ -26,6 +26,11 @@ namespace Scripts.Visuals
         }
 
         [SerializeField] private SpriteRenderer _renderer;
+        [SerializeField] private CombatPoseProfile _combatPoseProfile;
+        private float _landingWeight = 1f;
+        private int[] _runContactFrames = Array.Empty<int>();
+        public int RunContactVersion { get; private set; }
+        public bool HasRunContactFrames => _runContactFrames.Length > 0;
 
         private PlayerMovement _movement;
         private PlayerStats _stats;
@@ -54,6 +59,7 @@ namespace Scripts.Visuals
         private float _suppressGroundRunUntilTime;
         private float _groundContactStartedAt = -1f;
         private bool _wasRawGrounded;
+        private bool _confirmedLandingContact;
 
         public float PresentationHorizontalScale => PresentationScale.x;
         public bool HasAuthoredPresentation => _current.PresentationScales != null && _current.PresentationScales.Length == _current.Frames.Length && _current.IsValid;
@@ -65,7 +71,8 @@ namespace Scripts.Visuals
                 if (!HasAuthoredPresentation) return new Vector2(_current.IsValid ? _current.HorizontalScale : 1f, 1f);
                 int next = Mathf.Min(_frameIndex + 1, _current.Frames.Length - 1);
                 float t = Mathf.SmoothStep(0, 1, Mathf.Clamp01(_frameTimer / _current.FrameDuration));
-                return Vector2.Lerp(_current.PresentationScales[_frameIndex], _current.PresentationScales[next], t);
+                Vector2 scale = Vector2.Lerp(_current.PresentationScales[_frameIndex], _current.PresentationScales[next], t);
+                return _state == AnimationState.Land ? Vector2.Lerp(Vector2.one, scale, _landingWeight) : scale;
             }
         }
         public float PresentationWeaponVerticalOffset => _state == AnimationState.Idle ? _idleWeaponOffset.y : HasAuthoredPresentation
@@ -151,6 +158,8 @@ namespace Scripts.Visuals
             EndNeutralDodge();
 
             if (IsPlayingSkillSpin) return;
+            if (_state == AnimationState.Land && _attack != null && _attack.IsDashing)
+                PlayIdle();
 
             Vector2 velocity = _movement.CurrentVelocity;
             bool isGrounded = _movement.IsGrounded;
@@ -160,8 +169,9 @@ namespace Scripts.Visuals
             bool hasConfirmedGround = HasConfirmedGroundContact();
             bool stillVisuallyFalling = !hasConfirmedGround && _state == AnimationState.Fall && velocity.y <= FallingThreshold;
             bool shouldTreatAsAirborne = !hasConfirmedGround || hasJumpGroundLock || velocity.y > UpwardThreshold || stillVisuallyFalling;
+            bool running = Mathf.Abs(velocity.x) > HorizontalMoveThreshold && !Scripts.Skills.PlayerIceSkatesController.IsActiveFor(this);
 
-            if (IsLandingPlaying && isGrounded && !hasJumpGroundLock)
+            if (IsLandingPlaying && isGrounded && !hasJumpGroundLock && !running)
             {
                 TickCurrentAnimation();
                 return;
@@ -171,7 +181,7 @@ namespace Scripts.Visuals
             {
                 _wasMovingUp = false;
                 _hasStartedFallThisAirborne = false;
-                if (Mathf.Abs(velocity.x) > HorizontalMoveThreshold && !Scripts.Skills.PlayerIceSkatesController.IsActiveFor(this))
+                if (running)
                     Play(AnimationState.Run, _run);
                 else
                     PlayIdle();
@@ -205,6 +215,7 @@ namespace Scripts.Visuals
             else
             {
                 _groundContactStartedAt = -1f;
+                _confirmedLandingContact = false;
             }
 
             _wasRawGrounded = isGrounded;
@@ -212,7 +223,7 @@ namespace Scripts.Visuals
 
         private bool HasConfirmedGroundContact()
         {
-            return _groundContactStartedAt >= 0f && Time.time - _groundContactStartedAt >= LandingGroundConfirmSeconds;
+            return _confirmedLandingContact || _groundContactStartedAt >= 0f && Time.time - _groundContactStartedAt >= LandingGroundConfirmSeconds;
         }
 
         private void HandleJumpStarted()
@@ -221,6 +232,7 @@ namespace Scripts.Visuals
             _wasMovingUp = true;
             _hasStartedFallThisAirborne = false;
             _groundContactStartedAt = -1f;
+            _confirmedLandingContact = false;
             _suppressGroundRunUntilTime = Time.time + JumpGroundedVisualLockSeconds;
             // A real second jump must restart even if the previous jump clip has already completed.
             // Skip ground anticipation in the air; artwork and grip offsets advance together.
@@ -238,8 +250,15 @@ namespace Scripts.Visuals
         {
             // Ignore initialization/duplicate contacts; a new jump interrupts recovery immediately.
             if (_state != AnimationState.Jump && _state != AnimationState.Fall) return;
+            // The physics landing event is authoritative. Do not make moving
+            // feet wait for recovery or the raw-probe confirmation delay.
+            _confirmedLandingContact = true;
+            _suppressGroundRunUntilTime = Time.time;
+            if (_combatPoseProfile == null) _combatPoseProfile = CombatPoseProfile.LoadDefault();
+            _landingWeight = _combatPoseProfile != null ? _combatPoseProfile.EvaluateLandingWeight(_movement.LastLandingSpeed) : 1f;
             _wasMovingUp = false;
             _hasStartedFallThisAirborne = false;
+            if (_landingWeight <= 0) { PlayIdle(); return; }
             Play(AnimationState.Land, _land);
         }
 
@@ -250,6 +269,9 @@ namespace Scripts.Visuals
             _neutralDodgeFrames = RuntimeAnimation.From(data?.NeutralDodgeAnimation).Frames;
             _neutralDodgePlaying = false;
             _run = RuntimeAnimation.From(data?.RunAnimation);
+            _runContactFrames = data?.RunAnimation?.FootContactFrames ?? Array.Empty<int>();
+            _landingWeight = 1f;
+            _confirmedLandingContact = false;
             _idleWeaponOffset = new Vector3(
                 _run.IsValid && _run.WeaponHorizontalOffsets != null && _run.WeaponHorizontalOffsets.Length == _run.Frames.Length ? _run.WeaponHorizontalOffsets[0] : 0f,
                 _run.IsValid && _run.WeaponVerticalOffsets != null && _run.WeaponVerticalOffsets.Length == _run.Frames.Length ? _run.WeaponVerticalOffsets[0] : 0f, 0f);
@@ -340,6 +362,13 @@ namespace Scripts.Visuals
             _frameIndex = 0;
             _animationComplete = false;
             _renderer.sprite = _current.Frames[0];
+            RegisterRunContact();
+        }
+
+        private void RegisterRunContact()
+        {
+            if (_state == AnimationState.Run && Array.IndexOf(_runContactFrames, _frameIndex) >= 0)
+                RunContactVersion++;
         }
 
         private void TickCurrentAnimation()
@@ -348,6 +377,8 @@ namespace Scripts.Visuals
                 return;
 
             _frameTimer += Time.deltaTime;
+            int previousFrame = _frameIndex;
+            bool wrapped = false;
             float frameDuration = Mathf.Max(0.01f, _current.FrameDuration);
             while (_frameTimer >= frameDuration)
             {
@@ -358,6 +389,7 @@ namespace Scripts.Visuals
                     if (_current.Loop)
                     {
                         nextFrame = 0;
+                        wrapped = true;
                     }
                     else
                     {
@@ -371,6 +403,9 @@ namespace Scripts.Visuals
                 _frameIndex = nextFrame;
                 _renderer.sprite = _current.Frames[_frameIndex];
             }
+            // Only the final displayed frame can produce a contact. Skipped art
+            // at low frame rates must not emit a delayed cloud between steps.
+            if (wrapped || previousFrame != _frameIndex) RegisterRunContact();
         }
 
         private readonly struct RuntimeAnimation

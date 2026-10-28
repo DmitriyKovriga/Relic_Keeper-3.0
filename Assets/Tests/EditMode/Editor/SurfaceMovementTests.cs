@@ -42,6 +42,8 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(profile.ShouldStep(20, 0, 4, 1, false), Is.False);
                 Assert.That(profile.ShouldStep(20, 5, 4, 0, false), Is.False);
                 Assert.That(profile.ShouldStep(2, 1, 4, 1, false), Is.True);
+                Assert.That(profile.ShouldStep(1.599f, 1, 5, 1, false), Is.True, "Sub-pixel travel error must not miss a visible foot contact.");
+                Assert.That(profile.ShouldStep(1.55f, 1, 5, 1, false), Is.False, "Contact tolerance cannot bypass real stride spacing.");
                 Assert.That(profile.ShouldStep(2, 1, 4, 0.25f, false), Is.False);
                 Assert.That(profile.ShouldStep(1.7f, 1, 4, 1, true), Is.False);
             }
@@ -137,6 +139,27 @@ namespace RelicKeeper.Tests.EditMode
                 actor.Set("_peakFallSpeed", 25f); actor.Set("_airborneTime", 2f); actor.Call("OnDisable");
                 Assert.That(actor.Get("_peakFallSpeed"), Is.EqualTo(0)); Assert.That(actor.Get("_airborneTime"), Is.EqualTo(0));
                 Assert.That(actor.Get("_hasRunDustSample"), Is.False); Assert.That(actor.Get("_lastContactSurface"), Is.Null);
+            }
+        }
+        [Test]
+        public void SameStepLandingAndJumpUseOneLandingAndTheGroundTakeoffArt()
+        {
+            using (var actor = new Actor())
+            {
+                var move = actor.Root.AddComponent<PlayerMovement>();
+                actor.Set("_playerMovement", move);
+                typeof(PlayerMovement).GetField("<LastLandingSpeed>k__BackingField", Private).SetValue(move, 8f);
+                actor.Set("_wasGrounded", false);
+                actor.Call("HandleLanded");
+                Assert.That(actor.Get("_wasGrounded"), Is.True);
+                Assert.That(actor.Effects.Length, Is.EqualTo(1));
+                Assert.That(actor.Effects[0].GetComponent<SpriteRenderer>().sprite, Is.SameAs(actor.Earth.landingFrames[0]));
+                actor.Call("HandleJumpStarted");
+                Assert.That(actor.Effects.Length, Is.EqualTo(2));
+                Assert.That(actor.Effects.Any(x => x.GetComponent<SpriteRenderer>().sprite == actor.Earth.stepFrames[0]), Is.True,
+                    "A buffered ground jump must not use the air-jump puff because LateUpdate never saw the contact.");
+                actor.Call("UpdateGroundingEffects");
+                Assert.That(actor.Effects.Length, Is.EqualTo(2), "LateUpdate cannot repeat the contact event.");
             }
         }
         [Test]

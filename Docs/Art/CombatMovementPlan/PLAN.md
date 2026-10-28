@@ -46,7 +46,17 @@ passed. The C11–C14 presentation wave is complete.
 [M01 ground movement weight](Step10_MovementWeight.md) is implemented with bounded
 start/brake leans and turn settling, foot anchoring, existing action priorities
 and no movement-physics changes. 110 focused tests and nine controlled live
-presentation cases passed. M02/M03 remain review-first follow-ups.
+presentation cases passed.
+[M02/M03 landing strength and planted-foot dust](Step11_LandingContact.md) are
+implemented after reviewing the existing class art and surface effects. Small
+falls blend down the existing class landing; larger falls reach its authored
+limit. Existing dust now uses the same physical contact and authored run-foot
+markers, retaining surface density/stride limits. 151 focused tests passed,
+followed by a final 15-test landing/surface rerun and eleven live cases.
+The moving-landing follow-up removes the stationary recovery hold during
+horizontal travel; 102 focused tests and fourteen final live cases passed.
+M04 camera follow/look-ahead remains an optional comparison, not an automatic
+change to movement or camera settings.
 Full player-build GPU profiling is not claimed by the Editor measurements.
 
 User review (2026-10-27): **remove the automatic generic contact effect**.

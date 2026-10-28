@@ -139,7 +139,11 @@ namespace Scripts.Visuals
         }
 
         private void Jump() => _pulse = _jumpStretch;
-        private void Land() => _pulse = -_landingSquash;
+        private void Land()
+        {
+            if (_combatPoseProfile == null) _combatPoseProfile = CombatPoseProfile.LoadDefault();
+            _pulse = -_landingSquash * (_combatPoseProfile != null ? _combatPoseProfile.EvaluateLandingWeight(_movement.LastLandingSpeed) : 1f);
+        }
 
         private void LateUpdate()
         {

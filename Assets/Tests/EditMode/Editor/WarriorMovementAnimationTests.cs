@@ -69,6 +69,7 @@ namespace RelicKeeper.Tests.EditMode
                 type.GetField("_frameTimer", Flags).SetValue(controller, 10f);
                 type.GetMethod("TickCurrentAnimation", Flags).Invoke(controller, null);
                 Assert.That(owner.GetComponent<SpriteRenderer>().sprite, Is.SameAs(warrior.JumpAnimation.Frames[4]));
+                typeof(PlayerMovement).GetField("<LastLandingSpeed>k__BackingField", Flags).SetValue(owner.GetComponent<PlayerMovement>(), 14f);
                 type.GetMethod("HandleLanded", Flags).Invoke(controller, null);
                 type.GetMethod("HandleJumpStarted", Flags).Invoke(controller, null);
                 Assert.That(owner.GetComponent<SpriteRenderer>().sprite, Is.SameAs(warrior.JumpAnimation.Frames[0]), "Landing must restore the next ground takeoff.");
@@ -102,10 +103,12 @@ namespace RelicKeeper.Tests.EditMode
                 var type = typeof(PlayerCharacterAnimationController);
                 type.GetMethod("Awake", Flags).Invoke(controller, null);
                 type.GetMethod("ApplyCharacterData", Flags).Invoke(controller, new object[] { Resources.Load<CharacterDataSO>("Heroes/WarriorResources/Warrior") });
+                typeof(PlayerMovement).GetField("<LastLandingSpeed>k__BackingField", Flags).SetValue(owner.GetComponent<PlayerMovement>(), 14f);
                 type.GetMethod("HandleLanded", Flags).Invoke(controller, null);
                 Assert.That(controller.PresentationScale, Is.EqualTo(Vector2.one), "Spawn contact must not trigger landing.");
                 type.GetMethod("HandleJumpStarted", Flags).Invoke(controller, null);
                 Assert.That(controller.PresentationScale, Is.EqualTo(Vector2.one));
+                typeof(PlayerMovement).GetField("<LastLandingSpeed>k__BackingField", Flags).SetValue(owner.GetComponent<PlayerMovement>(), 14f);
                 type.GetMethod("HandleLanded", Flags).Invoke(controller, null);
                 Assert.That(controller.PresentationScale.x, Is.InRange(1.1f, 1.2f));
                 Assert.That(controller.PresentationScale.y, Is.InRange(0.8f, 0.9f));
@@ -123,6 +126,7 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(controller.PresentationScale, Is.EqualTo(Vector2.one));
                 Assert.That(type.GetProperty("IsLandingPlaying", Flags).GetValue(controller), Is.False, "Landing must finish rather than loop forever.");
                 type.GetMethod("HandleJumpStarted", Flags).Invoke(controller, null);
+                typeof(PlayerMovement).GetField("<LastLandingSpeed>k__BackingField", Flags).SetValue(owner.GetComponent<PlayerMovement>(), 14f);
                 type.GetMethod("HandleLanded", Flags).Invoke(controller, null);
                 type.GetMethod("HandleJumpStarted", Flags).Invoke(controller, null);
                 Assert.That(controller.PresentationScale, Is.EqualTo(Vector2.one));

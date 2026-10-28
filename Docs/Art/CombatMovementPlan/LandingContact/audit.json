@@ -1,0 +1,225 @@
+{
+  "utc": "2026-10-28T11:11:18.8402084Z",
+  "status": "complete",
+  "fixture": "Real Rigidbody2D falls and ground probes; controlled motion override for running. Three classes, low/high contacts, buffered jump, tiny fall. Existing stone/earth art; native 480x270. No scene edits saved.",
+  "tests": {
+    "broadPassed": 151,
+    "broadFailed": 0,
+    "finalSurfaceAndLandingPassed": 15,
+    "finalSurfaceAndLandingFailed": 0
+  },
+  "cases": [
+    {
+      "name": "warrior-low",
+      "error": "",
+      "impactSpeed": 3.767038345336914,
+      "minLandingScale": 0.9790229797363281,
+      "contactCount": 1,
+      "jumped": false,
+      "surfaceEmissions": [
+        {
+          "frame": 13,
+          "sprite": "WarriorBase",
+          "contactVersion": 0
+        }
+      ]
+    },
+    {
+      "name": "warrior-high",
+      "error": "",
+      "impactSpeed": 12.184019088745117,
+      "minLandingScale": 0.8791026473045349,
+      "contactCount": 1,
+      "jumped": false,
+      "surfaceEmissions": [
+        {
+          "frame": 39,
+          "sprite": "WarriorBase",
+          "contactVersion": 0
+        }
+      ]
+    },
+    {
+      "name": "rogue-low",
+      "error": "",
+      "impactSpeed": 3.767038345336914,
+      "minLandingScale": 0.9837183356285095,
+      "contactCount": 1,
+      "jumped": false,
+      "surfaceEmissions": [
+        {
+          "frame": 12,
+          "sprite": "RogueBase",
+          "contactVersion": 0
+        }
+      ]
+    },
+    {
+      "name": "rogue-high",
+      "error": "",
+      "impactSpeed": 12.184019088745117,
+      "minLandingScale": 0.9061633348464966,
+      "contactCount": 1,
+      "jumped": false,
+      "surfaceEmissions": [
+        {
+          "frame": 38,
+          "sprite": "RogueBase",
+          "contactVersion": 0
+        }
+      ]
+    },
+    {
+      "name": "mage-low",
+      "error": "",
+      "impactSpeed": 3.767038345336914,
+      "minLandingScale": 0.9893307089805603,
+      "contactCount": 1,
+      "jumped": false,
+      "surfaceEmissions": [
+        {
+          "frame": 12,
+          "sprite": "MageBase",
+          "contactVersion": 0
+        }
+      ]
+    },
+    {
+      "name": "mage-high",
+      "error": "",
+      "impactSpeed": 12.184019088745117,
+      "minLandingScale": 0.9385094046592712,
+      "contactCount": 1,
+      "jumped": false,
+      "surfaceEmissions": [
+        {
+          "frame": 38,
+          "sprite": "MageBase",
+          "contactVersion": 0
+        }
+      ]
+    },
+    {
+      "name": "warrior-run",
+      "error": "",
+      "impactSpeed": 0.0,
+      "minLandingScale": 1.0,
+      "contactCount": 1,
+      "jumped": false,
+      "surfaceEmissions": [
+        {
+          "frame": 73,
+          "sprite": "WarriorRun_02",
+          "contactVersion": 3
+        },
+        {
+          "frame": 116,
+          "sprite": "WarriorRun_02",
+          "contactVersion": 5
+        },
+        {
+          "frame": 160,
+          "sprite": "WarriorRun_02",
+          "contactVersion": 7
+        }
+      ]
+    },
+    {
+      "name": "rogue-run",
+      "error": "",
+      "impactSpeed": 0.0,
+      "minLandingScale": 1.0,
+      "contactCount": 1,
+      "jumped": false,
+      "surfaceEmissions": [
+        {
+          "frame": 59,
+          "sprite": "RogueRun_00",
+          "contactVersion": 3
+        },
+        {
+          "frame": 97,
+          "sprite": "RogueRun_00",
+          "contactVersion": 5
+        },
+        {
+          "frame": 136,
+          "sprite": "RogueRun_00",
+          "contactVersion": 7
+        },
+        {
+          "frame": 174,
+          "sprite": "RogueRun_00",
+          "contactVersion": 9
+        }
+      ]
+    },
+    {
+      "name": "mage-run",
+      "error": "",
+      "impactSpeed": 0.0,
+      "minLandingScale": 1.0,
+      "contactCount": 1,
+      "jumped": false,
+      "surfaceEmissions": [
+        {
+          "frame": 59,
+          "sprite": "MageRun_00",
+          "contactVersion": 3
+        },
+        {
+          "frame": 97,
+          "sprite": "MageRun_00",
+          "contactVersion": 5
+        },
+        {
+          "frame": 136,
+          "sprite": "MageRun_00",
+          "contactVersion": 7
+        },
+        {
+          "frame": 174,
+          "sprite": "MageRun_00",
+          "contactVersion": 9
+        }
+      ]
+    },
+    {
+      "name": "buffered",
+      "error": "",
+      "impactSpeed": 14.046162605285645,
+      "minLandingScale": 0.8575446009635925,
+      "contactCount": 2,
+      "jumped": true,
+      "surfaceEmissions": [
+        {
+          "frame": 13,
+          "sprite": "WarriorJump_00",
+          "contactVersion": 0
+        },
+        {
+          "frame": 105,
+          "sprite": "WarriorBase",
+          "contactVersion": 0
+        }
+      ]
+    },
+    {
+      "name": "tiny",
+      "error": "",
+      "impactSpeed": 0.0,
+      "minLandingScale": 1.0,
+      "contactCount": 1,
+      "jumped": false,
+      "surfaceEmissions": []
+    }
+  ],
+  "sha256": {
+    "Assets/Scripts/PlayerBasicScripts/PlayerMovement.cs": "7efd86e03ff718fde06f0cdbaac8b649ffd41dfc83454b4dc29a7c331815268b",
+    "Assets/Scripts/Visuals/PlayerCharacterAnimationController.cs": "ef1cf1b97b58cfcc97ea926a7decffe2fa9efcd5949ef0f10be81acd90358353",
+    "Assets/Scripts/Visuals/GroundingVisualController.cs": "59681c70259c9eef15166142dcd6541ed0a946a93c02dba0117a43e309410dc3",
+    "Assets/Scripts/Visuals/GroundSurfaceProfileSO.cs": "084b304828e90813f7fa19b7215347d32e7faa7318f44366a28f212d5c7e357a",
+    "Assets/Scripts/Visuals/CombatPoseProfile.cs": "34fbe8ed3804a2eca522f1dafa2d07bb61b621f97fa5a2458ceff1816d131a84",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.Landing.cs": "bb4ebbfb06af7008102bcb5d04fd582944c270647705fa474e97c02ed2e19b6d"
+  }
+}

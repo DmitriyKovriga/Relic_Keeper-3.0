@@ -72,6 +72,8 @@ public class CharacterDataSO : ScriptableObject
     [Serializable]
     public class CharacterSpriteAnimation
     {
+        [Tooltip("Optional zero-based planted-foot frames. Surface dust still requires travel and its usual interval.")]
+        public int[] FootContactFrames = Array.Empty<int>();
         [Tooltip("Optional direct frames. If empty, Sprite Sheet Resources Path is used.")]
         public Sprite[] Frames;
         [Tooltip("Path inside Resources without extension. Example: Heroes/WarriorResources/WarriorWalk-Sheet")]

@@ -49,7 +49,9 @@ namespace Scripts.Visuals
         {
             density = Mathf.Clamp01(density);
             return density > 0 && speed >= runMinSpeed && elapsed >= runInterval &&
-                distance >= runStride * (heavy ? heavyScale : 1) / density;
+                // Half a source pixel avoids missing a planted frame because
+                // physics travel was 1.599 instead of a 1.6-unit stride.
+                distance + 1f / 48f >= runStride * (heavy ? heavyScale : 1) / density;
         }
     }
 }

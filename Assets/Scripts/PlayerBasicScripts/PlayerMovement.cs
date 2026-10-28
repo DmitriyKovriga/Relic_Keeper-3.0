@@ -130,6 +130,9 @@ public class PlayerMovement : MonoBehaviour
     private PlayerAttackInput _attackInput;
 
     public bool IsGrounded => _isGrounded;
+    // Sampled before collision cancels vertical velocity; published before OnLanded.
+    public float LastLandingSpeed { get; private set; }
+    private float _lastAirborneDownwardSpeed;
     private float _airbornePeakY = float.NegativeInfinity;
     public float AirbornePeakY => Mathf.Max(transform.position.y, _airbornePeakY);
     public int FacingDirection => _isFacingRight ? 1 : -1;
@@ -221,6 +224,8 @@ public class PlayerMovement : MonoBehaviour
 
     public void TeleportForSkill(Vector2 position, float facing)
     {
+        _lastAirborneDownwardSpeed = 0f;
+        LastLandingSpeed = 0f;
         _hasHorizontalLaunch = false;
         ClearIgnoredPlatformCollisions();
         _rb.linearVelocity = Vector2.zero;
@@ -322,6 +327,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnDisable()
     {
+        _lastAirborneDownwardSpeed = 0f;
+        LastLandingSpeed = 0f;
         if (InputManager.InputActions != null)
             InputManager.InputActions.Player.Jump.performed -= OnJumpPerformed;
 
@@ -809,6 +816,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void RefreshJumpCountIfLanded()
     {
+        if (!_isGrounded)
+            _lastAirborneDownwardSpeed = Mathf.Max(0f, CurrentVelocity.y * -1f);
         if (_isGrounded)
         {
             _lastGroundedTime = Time.time;
@@ -822,6 +831,8 @@ public class PlayerMovement : MonoBehaviour
         }
         if (_isGrounded && !_wasGroundedLastFixedUpdate)
         {
+            LastLandingSpeed = Mathf.Max(_lastAirborneDownwardSpeed, -CurrentVelocity.y);
+            _lastAirborneDownwardSpeed = 0f;
             bool landedFromFastFall = _isFastFalling && _moveInput.y <= _fastFallInputThreshold;
             _fastFallBunnyHopUntilTime = landedFromFastFall
                 ? Time.time + Mathf.Max(0.01f, _fastFallBunnyHopWindow)

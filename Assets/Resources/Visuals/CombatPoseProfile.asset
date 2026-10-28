@@ -56,3 +56,7 @@ MonoBehaviour:
   TurnCompression: 0.02
   DefenseFeedbackOpacity: 0.85
   DefenseFeedbackInterval: 0.3
+  EnableLandingWeight: 1
+  QuietLandingSpeed: 2
+  FullLandingSpeed: 14
+  LandingPoseStrength: 1

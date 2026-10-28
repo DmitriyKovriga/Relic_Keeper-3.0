@@ -82,6 +82,8 @@ namespace Scripts.Visuals
         private SpriteRenderer _primaryRenderer;
         private Collider2D _collider;
         private PlayerMovement _playerMovement;
+        private PlayerCharacterAnimationController _characterAnimation;
+        private int _lastRunContactVersion;
         private PlayerAttackInput _playerAttackInput;
         private EnemyLocomotion2D _enemyLocomotion;
         private EnemyEntity _enemyEntity;
@@ -143,7 +145,11 @@ namespace Scripts.Visuals
             _peakFallSpeed = 0; _airborneTime = 0; _hasRunDustSample = false;
             _previousVerticalSpeed = ResolveVelocity().y;
             if (_playerMovement != null)
+            {
                 _playerMovement.OnJumpStarted += HandleJumpStarted;
+                _playerMovement.OnLanded += HandleLanded;
+            }
+            _lastRunContactVersion = _characterAnimation != null ? _characterAnimation.RunContactVersion : 0;
         }
 
         private void OnDisable()
@@ -153,7 +159,20 @@ namespace Scripts.Visuals
             _supportCollider = null; _surface = null; _lastContactSurface = null;
             if (_shadowRenderer != null) _shadowRenderer.enabled = false;
             if (_playerMovement != null)
+            {
                 _playerMovement.OnJumpStarted -= HandleJumpStarted;
+                _playerMovement.OnLanded -= HandleLanded;
+            }
+        }
+
+        private void HandleLanded()
+        {
+            // Capture contact before a buffered jump clears grounded in the same
+            // physics step. The event also supplies collision-safe impact speed.
+            _wasGrounded = true;
+            _hasRunDustSample = false;
+            if (_spawnLandingDust && _playerMovement.LastLandingSpeed >= _landingDustMinDownwardSpeed)
+                SpawnLandingOrHeavyImpact(ResolveIsHeavy());
         }
 
         private void HandleJumpStarted()
@@ -224,6 +243,8 @@ namespace Scripts.Visuals
 
             if (_playerMovement == null)
                 _playerMovement = GetComponent<PlayerMovement>();
+            if (_characterAnimation == null)
+                _characterAnimation = GetComponent<PlayerCharacterAnimationController>();
 
             if (_playerAttackInput == null)
                 _playerAttackInput = GetComponent<PlayerAttackInput>();
@@ -358,12 +379,15 @@ namespace Scripts.Visuals
             Vector2 velocity = ResolveVelocity();
             bool isHeavy = ResolveIsHeavy();
             GroundSurfaceProfileSO surface = groundedNow ? ResolveSurfaceProfile() : null;
+            bool footContact = _characterAnimation == null || !_characterAnimation.HasRunContactFrames ||
+                _characterAnimation.RunContactVersion != _lastRunContactVersion;
+            if (_characterAnimation != null) _lastRunContactVersion = _characterAnimation.RunContactVersion;
             if (!groundedNow) _peakFallSpeed = Mathf.Max(_peakFallSpeed, -velocity.y);
 
             bool qualifiesForLandingDust = _airborneTime >= _landingDustMinAirborneTime ||
                                            _previousVerticalSpeed <= -Mathf.Max(0.1f, _landingDustMinDownwardSpeed);
 
-            if (_spawnLandingDust && groundedNow && !_wasGrounded && qualifiesForLandingDust)
+            if (_playerMovement == null && _spawnLandingDust && groundedNow && !_wasGrounded && qualifiesForLandingDust)
                 SpawnLandingOrHeavyImpact(isHeavy);
 
             if (_spawnDashDust && groundedNow && !_wasDodging && dodgingNow)
@@ -378,9 +402,9 @@ namespace Scripts.Visuals
                     _lastRunDustX = currentX;
                     _hasRunDustSample = true;
                 }
-                else if (surface != null ? surface.ShouldStep(Mathf.Abs(currentX - _lastRunDustX), Time.time - _lastSurfaceStepTime,
+                else if (footContact && (surface != null ? surface.ShouldStep(Mathf.Abs(currentX - _lastRunDustX), Time.time - _lastSurfaceStepTime,
                     Mathf.Abs(velocity.x), SurfaceAppearance != null ? SurfaceAppearance.surfaceRunDust : 1, isHeavy)
-                    : Mathf.Abs(currentX - _lastRunDustX) >= strideDistance && Time.time >= _nextRunDustTime)
+                    : Mathf.Abs(currentX - _lastRunDustX) >= strideDistance && Time.time >= _nextRunDustTime))
                 {
                     SpawnRunDust(isHeavy);
                     float interval = isHeavy ? _runDustIntervalHeavy : _runDustIntervalSmall;
@@ -412,7 +436,7 @@ namespace Scripts.Visuals
             var surface = ResolveSurfaceProfile();
             if (surface != null)
             {
-                var response = surface.EvaluateLanding(Mathf.Max(_peakFallSpeed, -_previousVerticalSpeed), isHeavy,
+                var response = surface.EvaluateLanding(_playerMovement != null ? _playerMovement.LastLandingSpeed : Mathf.Max(_peakFallSpeed, -_previousVerticalSpeed), isHeavy,
                     SurfaceAppearance != null ? SurfaceAppearance.surfaceLandingStrength : 1);
                 if (response.visible) SpawnSurfaceContact(surface.landingFrames, response.duration, response.width, response.opacity,
                     ResolveGroundEffectPosition(0), false, true);
