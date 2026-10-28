@@ -40,6 +40,24 @@ namespace Scripts.Visuals
         private readonly AttackBodyFollow _attackBody = new AttackBodyFollow();
         private PlayerStats _stats;
         private CharacterDataSO _attackCharacter;
+        private readonly PlayerHurtPulse _hurt = new PlayerHurtPulse();
+        private SpriteFX.SpriteFxController _hurtFx;
+        private CharacterDataSO _hurtCharacter;
+        public float VisibleHurtFlash { get; private set; }
+
+        private void OnDamage(Scripts.GameplayEvents.GameplayEventContext context)
+        {
+            if (_stats == null || _stats.Health == null || _stats.Health.Current <= 0 || GamePauseService.IsPaused) return;
+            if (_combatPoseProfile == null) _combatPoseProfile = CombatPoseProfile.LoadDefault();
+            if (_hurt.Trigger(context, gameObject, _combatPoseProfile, Time.time))
+                _hurtCharacter = _stats.CurrentCharacterData;
+        }
+
+        private void ClearHurt()
+        {
+            _hurt.Clear(); VisibleHurtFlash = 0;
+            if (_hurtFx != null) _hurtFx.SetHitFlash(Color.white, 0);
+        }
         public SpriteRenderer DisplayRenderer => _display;
         public AttackBodyPose VisibleAttackPose { get; private set; } = AttackBodyPose.Neutral;
         public object AttackBodyOwner => _attackBody.Owner;
@@ -79,6 +97,7 @@ namespace Scripts.Visuals
 
         private void OnEnable()
         {
+            Scripts.GameplayEvents.GameplayEventBus.EventRaised += OnDamage;
             _movement.OnJumpStarted += Jump;
             _movement.OnLanded += Land;
             _source.forceRenderingOff = true;
@@ -86,6 +105,8 @@ namespace Scripts.Visuals
 
         private void OnDisable()
         {
+            Scripts.GameplayEvents.GameplayEventBus.EventRaised -= OnDamage;
+            ClearHurt();
             _movement.OnJumpStarted -= Jump;
             _movement.OnLanded -= Land;
             _source.forceRenderingOff = _originalForceRenderingOff;
@@ -122,6 +143,13 @@ namespace Scripts.Visuals
 
             _display.enabled = _source.enabled && !_originalForceRenderingOff;
             _display.sprite = _source.sprite;
+            if (_stats == null || _stats.Health == null || _stats.Health.Current <= 0 ||
+                _stats.CurrentCharacterData != _hurtCharacter || _combatPoseProfile == null || !_combatPoseProfile.EnablePlayerHurt)
+                ClearHurt();
+            VisibleHurtFlash = _hurt.Sample(Time.time, out float hurtDirection);
+            if (_hurtFx == null && VisibleHurtFlash > 0) _hurtFx = _source.GetComponent<SpriteFX.SpriteFxController>() ?? _source.gameObject.AddComponent<SpriteFX.SpriteFxController>();
+            if (_hurtFx != null) _hurtFx.SetHitFlash(_combatPoseProfile != null ? _combatPoseProfile.PlayerHurtColor : Color.white,
+                _source.sharedMaterial != null && _source.sharedMaterial.HasProperty("_FxHitFlash") ? VisibleHurtFlash : 0);
             _display.color = _source.color;
             _display.flipX = _source.flipX;
             _display.flipY = _source.flipY;
@@ -152,11 +180,17 @@ namespace Scripts.Visuals
             bool suppressAttack = specialPose || dodgePose || Scripts.Skills.PlayerStasisController.IsActiveFor(this);
             VisibleAttackPose = !suppressAttack && _combatPoseProfile != null && _combatPoseProfile.EnableBodyFollow
                 ? _attackBody.Pose : AttackBodyPose.Neutral;
+            float hurtAmount = !suppressAttack && _combatPoseProfile != null
+                ? VisibleHurtFlash / Mathf.Max(.001f, _combatPoseProfile.PlayerHurtFlash) : 0;
+            float hurtHeight = 1f - hurtAmount * (_combatPoseProfile != null ? Mathf.Clamp(_combatPoseProfile.PlayerHurtCompression, 0, .04f) : 0);
             Vector3 bodyScale = _display.transform.localScale;
             bodyScale.x /= VisibleAttackPose.Height; bodyScale.y *= VisibleAttackPose.Height;
+            bodyScale.x /= hurtHeight; bodyScale.y *= hurtHeight;
             _display.transform.localScale = bodyScale;
             scaleY *= VisibleAttackPose.Height;
-            Quaternion bodyRotation = Quaternion.Euler(0f, 0f, VisibleAttackPose.Degrees);
+            scaleY *= hurtHeight;
+            float hurtDegrees = hurtAmount * hurtDirection * Mathf.Sign(transform.lossyScale.x) * (_combatPoseProfile != null ? Mathf.Clamp(_combatPoseProfile.PlayerHurtDegrees, 0, 4) : 0);
+            Quaternion bodyRotation = Quaternion.Euler(0f, 0f, VisibleAttackPose.Degrees - hurtDegrees);
             _display.transform.localRotation = bodyRotation;
             float footY = _source.sprite != null ? (_source.flipY ? -_source.sprite.bounds.max.y : _source.sprite.bounds.min.y) : 0f;
             _display.transform.localPosition = new Vector3(0f, ResolveDisplayY(scaleY), 0f) +

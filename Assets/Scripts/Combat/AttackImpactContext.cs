@@ -16,6 +16,15 @@ namespace Scripts.Combat
         public WeaponItemSO Weapon { get; }
         public int SkillSlot { get; }
         public SkillHitStopGate HitStop { get; }
+        private bool _cameraImpulseConsumed;
+
+        // Shared by projectile clones, repeat passes and every target of this accepted cast.
+        public bool TryConsumeCameraImpulse()
+        {
+            if (_cameraImpulseConsumed) return false;
+            _cameraImpulseConsumed = true;
+            return true;
+        }
 
         public AttackImpactContext(SkillDataSO skill, int slot, WeaponItemSO weapon = null,
             SkillHitStopGate hitStop = null, bool enableHitStop = true)

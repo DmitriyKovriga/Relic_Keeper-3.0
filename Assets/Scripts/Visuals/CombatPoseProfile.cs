@@ -33,6 +33,19 @@ namespace Scripts.Visuals
         [Header("Hit-stop (legacy recipe frames use 60 Hz duration)")]
         public bool EnableHitStop = true;
         [Range(.1f, .5f)] public float HitStopInterval = .25f;
+        [Header("Heavy-hit camera impulse (480 x 270 screen pixels, real seconds)")]
+        public bool EnableCameraImpulse = true;
+        [Header("Player damage response")]
+        public bool EnablePlayerHurt = true;
+        public Color PlayerHurtColor = new Color(1f, .3f, .2f, 1f);
+        [Range(0f, .5f)] public float PlayerHurtFlash = .4f;
+        [Range(.02f, .12f)] public float PlayerHurtDuration = .1f;
+        [Range(.15f, .5f)] public float PlayerHurtInterval = .22f;
+        [Range(0f, 4f)] public float PlayerHurtDegrees = 2f;
+        [Range(0f, .04f)] public float PlayerHurtCompression = .02f;
+        [Range(0f, 2f)] public float CameraImpulsePixels = 2f;
+        [Range(.08f, .2f)] public float CameraImpulseDuration = .14f;
+        [Range(.3f, 1f)] public float CameraImpulseInterval = .4f;
 
         public static CombatPoseProfile LoadDefault() => Resources.Load<CombatPoseProfile>(ResourcePath);
     }

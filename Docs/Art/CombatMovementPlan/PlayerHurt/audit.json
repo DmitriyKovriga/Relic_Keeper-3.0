@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-28",
+  "testsPassed": 100,
+  "testsFailed": 0,
+  "liveCases": [
+    {
+      "name": "warrior",
+      "peak": 0.4000000059604645,
+      "settled": true
+    },
+    {
+      "name": "rogue-left",
+      "peak": 0.4000000059604645,
+      "settled": true
+    },
+    {
+      "name": "mage-air",
+      "peak": 0.4000000059604645,
+      "settled": true
+    },
+    {
+      "name": "rapid",
+      "peak": 0.4000000059604645,
+      "settled": true
+    },
+    {
+      "name": "zero",
+      "peak": 0.0,
+      "settled": true
+    },
+    {
+      "name": "dot",
+      "peak": 0.0,
+      "settled": true
+    },
+    {
+      "name": "suppressed",
+      "peak": 0.0,
+      "settled": true
+    }
+  ],
+  "sourceSha256": {
+    "Assets/Scripts/Visuals/PlayerHurtPulse.cs": "739f842e6bb9804edbbc0f641bdc10b953e844e6e1c1f8671ea1013bc4154ce3",
+    "Assets/Scripts/Visuals/PlayerMovementVisual.cs": "3323030cdb1c0fd9da125bee1817d7ab0caf468516d782b2de2bc487e44ac3dd",
+    "Assets/Scripts/Visuals/CombatPoseProfile.cs": "9365dd844072aaea1852adacb485e517f47b20b42d41c2f70d19c04fd436feb7",
+    "Assets/Resources/Visuals/CombatPoseProfile.asset": "6710aa4f4fba1674980f5994366d388db01014b29a6dae6199bf1f79cdaa76de",
+    "Assets/Tests/EditMode/Editor/PlayerHurtFeedbackTests.cs": "59ab048e3da829978e14dbb722281c46f5e9ad4a1148a0ffd0bdfe83a6390de2",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.Hurt.cs": "7b157cfd692776599019dedf6066aca3a7669ec0dede79a8f5450c59b15477e5"
+  }
+}

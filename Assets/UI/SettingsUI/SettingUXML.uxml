@@ -34,6 +34,13 @@
                         <ui:Label text="100%" name="AttackVfxOpacityValue" class="settings-slider-value" />
                     </ui:VisualElement>
                 </ui:VisualElement>
+                <ui:VisualElement name="CameraImpulseRow" class="settings-presentation-row">
+                    <ui:Label text="Camera impact" name="CameraImpulseLabel" class="settings-presentation-label" />
+                    <ui:VisualElement class="settings-slider-control">
+                        <ui:SliderInt name="CameraImpulseSlider" low-value="0" high-value="100" show-input-field="false" class="settings-presentation-slider" />
+                        <ui:Label text="50%" name="CameraImpulseValue" class="settings-slider-value" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
                 <ui:VisualElement name="LootFilterRow" class="settings-presentation-row">
                     <ui:Label text="Hide items" name="LootFilterLabel" class="settings-presentation-label" />
                     <ui:Button text="Do not hide" name="LootFilterButton" class="settings-select-button settings-presentation-dropdown" />

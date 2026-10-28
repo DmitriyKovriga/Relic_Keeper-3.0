@@ -1,0 +1,181 @@
+{
+  "status": "complete",
+  "date": "2026-10-28",
+  "nativeResolution": [
+    480,
+    270
+  ],
+  "unity": "6000.3.11f1",
+  "tests": {
+    "passed": 115,
+    "failed": 0,
+    "skipped": 0
+  },
+  "liveCases": [
+    {
+      "name": "heavy-off",
+      "casts": 1,
+      "hits": 1,
+      "impulses": 0,
+      "damage": 3835.5869140625,
+      "outsideFrames": 0,
+      "requestedOffsetFrames": 0,
+      "offsetWhileHitStopFrames": 0,
+      "maxActualReferencePixelMovement": 0.0,
+      "settled": true
+    },
+    {
+      "name": "heavy-on",
+      "casts": 1,
+      "hits": 1,
+      "impulses": 1,
+      "damage": 3835.5869140625,
+      "outsideFrames": 0,
+      "requestedOffsetFrames": 5,
+      "offsetWhileHitStopFrames": 3,
+      "maxActualReferencePixelMovement": 1.00195,
+      "settled": true
+    },
+    {
+      "name": "normal-on",
+      "casts": 1,
+      "hits": 1,
+      "impulses": 0,
+      "damage": 102.11738586425781,
+      "outsideFrames": 0,
+      "requestedOffsetFrames": 0,
+      "offsetWhileHitStopFrames": 0,
+      "maxActualReferencePixelMovement": 0.0,
+      "settled": true
+    },
+    {
+      "name": "bow-on",
+      "casts": 1,
+      "hits": 1,
+      "impulses": 0,
+      "damage": 102.11738586425781,
+      "outsideFrames": 0,
+      "requestedOffsetFrames": 0,
+      "offsetWhileHitStopFrames": 0,
+      "maxActualReferencePixelMovement": 0.0,
+      "settled": true
+    },
+    {
+      "name": "heavy-edge-left",
+      "casts": 1,
+      "hits": 1,
+      "impulses": 1,
+      "damage": 3835.5869140625,
+      "outsideFrames": 0,
+      "requestedOffsetFrames": 5,
+      "offsetWhileHitStopFrames": 4,
+      "maxActualReferencePixelMovement": 1.00195,
+      "settled": true
+    },
+    {
+      "name": "heavy-edge-right",
+      "casts": 1,
+      "hits": 1,
+      "impulses": 1,
+      "damage": 3835.5869140625,
+      "outsideFrames": 0,
+      "requestedOffsetFrames": 5,
+      "offsetWhileHitStopFrames": 3,
+      "maxActualReferencePixelMovement": 0.0,
+      "settled": true
+    },
+    {
+      "name": "heavy-pause",
+      "casts": 1,
+      "hits": 1,
+      "impulses": 1,
+      "damage": 3835.5869140625,
+      "outsideFrames": 0,
+      "requestedOffsetFrames": 1,
+      "offsetWhileHitStopFrames": 1,
+      "maxActualReferencePixelMovement": 1.00195,
+      "settled": true
+    },
+    {
+      "name": "heavy-disable",
+      "casts": 1,
+      "hits": 1,
+      "impulses": 1,
+      "damage": 3835.5869140625,
+      "outsideFrames": 0,
+      "requestedOffsetFrames": 1,
+      "offsetWhileHitStopFrames": 1,
+      "maxActualReferencePixelMovement": 1.00195,
+      "settled": true
+    },
+    {
+      "name": "heavy-room-change",
+      "casts": 1,
+      "hits": 1,
+      "impulses": 1,
+      "damage": 3835.5869140625,
+      "outsideFrames": 0,
+      "requestedOffsetFrames": 1,
+      "offsetWhileHitStopFrames": 1,
+      "maxActualReferencePixelMovement": 1.00195,
+      "settled": true
+    },
+    {
+      "name": "heavy-crowd",
+      "casts": 6,
+      "hits": 72,
+      "impulses": 4,
+      "damage": 275375.625,
+      "outsideFrames": 0,
+      "requestedOffsetFrames": 14,
+      "offsetWhileHitStopFrames": 11,
+      "maxActualReferencePixelMovement": 1.00195,
+      "settled": true
+    },
+    {
+      "name": "heavy-owner-zero-health",
+      "casts": 1,
+      "hits": 1,
+      "impulses": 1,
+      "damage": 3835.5869140625,
+      "outsideFrames": 0,
+      "requestedOffsetFrames": 1,
+      "offsetWhileHitStopFrames": 1,
+      "maxActualReferencePixelMovement": 1.00195,
+      "settled": true
+    }
+  ],
+  "ui": {
+    "status": "complete",
+    "locales": [
+      "en",
+      "ru"
+    ],
+    "nativeSize": [
+      480,
+      270
+    ],
+    "offSaved": true
+  },
+  "sourceSha256": {
+    "Assets/Scripts/Visuals/CombatCameraImpulse.cs": "f3b408677ec3f5980e1a47301cebe1be7c12f3a7d4b9987440c1d2bcdea24742",
+    "Assets/Scripts/Combat/AttackImpactContext.cs": "4031aa7842b15440a0742cbc09f60888786f7f264bfb5399aeae3912b08c0f11",
+    "Assets/Scripts/Visuals/CombatPoseProfile.cs": "eef9d3a10b43109d6be451cca392519c670ca01ba5ce9c9a9ee2cc63dd6a99b6",
+    "Assets/Resources/Visuals/CombatPoseProfile.asset": "58bbd64d8e4072ff2a312a627440b228f351c3e31e791ec7981bc3ef3790b41d",
+    "Assets/UI/SettingsUI/GameplayPresentationSettings.cs": "3d72501535bde2696e66796e53f77175db64d3d60fd32fcaa505571a4ccffb97",
+    "Assets/UI/SettingsUI/LanguageSelector.cs": "d63d2b614cef01e3ff6e80bc2e0af387ec1a652e8f842435e8a970fce6ca603b",
+    "Assets/UI/SettingsUI/SettingUXML.uxml": "42c7a43e64d1d9bfc257eab97210eb1a13a0abc456441981cf3daa3cfff8d926",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.cs": "3116236595bdebf7b3e0a64de4f006b52f1e3098cba8b946f55fd292cf7f0bd9",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.Camera.cs": "43bf31398e3e259c0826bab6c3133342b6158da3e3d89008c91074424bec0d14",
+    "Assets/Editor/Combat/CombatCameraSettingsCapture.cs": "d4b662f11a48c5858d355902c4f940b737cf7310636a3baeea337bc27e9d2d66",
+    "Assets/Tests/EditMode/Editor/CombatCameraImpulseTests.cs": "fb5ac72fac98cf1eff4b903fe762d3d8c34869262b3dfe800840818b3439cdbf"
+  },
+  "limits": [
+    "Editor controlled fixture, not a standalone build or GPU performance certification.",
+    "Real Cinemachine LateUpdate with IgnoreTimeScale=false matches HubScene; no camera follow target or physics root is changed.",
+    "Crowd uses a temporary cloned skill with cooldown=0 at 12 base APS, 12 stationary enemies, +200% AoE. Game data is unchanged.",
+    "Zero-health fixture uses SetCurrent(0) without triggering save/death flow.",
+    "Raw traces/PNGs are in ignored Logs/CombatCameraImpulse; UI uses real live LanguageSelector and UI Toolkit target texture.",
+    "The 270px reference grid quantizes very small strength values to zero. Curve clock continues during combat hit-stop; real menu pause cancels it."
+  ]
+}

@@ -28,8 +28,15 @@ normal/heavy/bow flash-only comparisons, status/lighting preservation and
 bounded rapid retriggers. [C09 hit-stop tuning and controlled crowd validation](Step05_CrowdAndHitStop.md)
 now include real-time duration, a shared interval, a true zero-disable setting,
 pause/cancellation/lifetime checks, 174 passing tests and 15 final live cases.
-The next planned wave is C11/C12/C13/C14. Full player-build GPU profiling is
-not claimed by the Editor measurements.
+[C11 restrained heavy-hit camera feedback](Step06_CameraImpulse.md) is implemented:
+saved EN/RU strength/off control, one attempt per cast, shared quiet interval,
+whole-reference-pixel translation before the confiner, and pause/room/owner cleanup.
+115 focused tests and eleven final live camera cases passed; live Settings previews
+also passed in English and Russian.
+[C12 player damage response](Step07_PlayerHurt.md) is implemented with a bounded
+warm highlight, foot-anchored body recoil and defense/DoT filtering. 100 focused
+tests and seven controlled live cases passed. The next planned wave is C13/C14.
+Full player-build GPU profiling is not claimed by the Editor measurements.
 
 User review (2026-10-27): **remove the automatic generic contact effect**.
 The extra mark overlaps existing skill VFX and adds visual clutter. Keep the

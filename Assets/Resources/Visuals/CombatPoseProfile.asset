@@ -35,3 +35,14 @@ MonoBehaviour:
   HitFlashInterval: 0.18
   EnableHitStop: 1
   HitStopInterval: 0.25
+  EnableCameraImpulse: 1
+  EnablePlayerHurt: 1
+  PlayerHurtColor: {r: 1, g: 0.3, b: 0.2, a: 1}
+  PlayerHurtFlash: 0.4
+  PlayerHurtDuration: 0.1
+  PlayerHurtInterval: 0.22
+  PlayerHurtDegrees: 2
+  PlayerHurtCompression: 0.02
+  CameraImpulsePixels: 2
+  CameraImpulseDuration: 0.14
+  CameraImpulseInterval: 0.4

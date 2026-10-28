@@ -29,6 +29,9 @@ public class LanguageSelector : MonoBehaviour
     private Label _hudScaleLabel;
     private Label _hudOpacityLabel;
     private Label _attackVfxOpacityLabel;
+    private Label _cameraImpulseLabel, _cameraImpulseValue;
+    private SliderInt _cameraImpulseSlider;
+    private EventCallback<ChangeEvent<int>> _cameraImpulseChangedCallback;
     private Button _hudScaleButton;
     private VisualElement _hudScalePopup;
     private Button _hudScaleOption100;
@@ -123,6 +126,8 @@ public class LanguageSelector : MonoBehaviour
             _hudOpacitySlider.UnregisterValueChangedCallback(_hudOpacityChangedCallback);
         if (_attackVfxOpacitySlider != null && _attackVfxOpacityChangedCallback != null)
             _attackVfxOpacitySlider.UnregisterValueChangedCallback(_attackVfxOpacityChangedCallback);
+        if (_cameraImpulseSlider != null && _cameraImpulseChangedCallback != null)
+            _cameraImpulseSlider.UnregisterValueChangedCallback(_cameraImpulseChangedCallback);
         if (ui?.rootVisualElement != null && _rootClickCallback != null)
             ui.rootVisualElement.UnregisterCallback(_rootClickCallback);
     }
@@ -235,6 +240,9 @@ public class LanguageSelector : MonoBehaviour
         _hudScaleLabel = root?.Q<Label>("HudScaleLabel");
         _hudOpacityLabel = root?.Q<Label>("HudOpacityLabel");
         _attackVfxOpacityLabel = root?.Q<Label>("AttackVfxOpacityLabel");
+        _cameraImpulseLabel = root?.Q<Label>("CameraImpulseLabel");
+        _cameraImpulseValue = root?.Q<Label>("CameraImpulseValue");
+        _cameraImpulseSlider = root?.Q<SliderInt>("CameraImpulseSlider");
         _hudScaleButton = root?.Q<Button>("HudScaleButton");
         _hudScalePopup = root?.Q<VisualElement>("HudScalePopup");
         _hudScaleOption100 = root?.Q<Button>("HudScaleOption100");
@@ -279,6 +287,18 @@ public class LanguageSelector : MonoBehaviour
             _attackVfxOpacitySlider.RegisterValueChangedCallback(_attackVfxOpacityChangedCallback);
         }
 
+        if (_cameraImpulseSlider != null)
+        {
+            _cameraImpulseSlider.SetValueWithoutNotify(Mathf.RoundToInt(GameplayPresentationSettings.CameraImpulseStrength * 100));
+            UpdatePercentLabel(_cameraImpulseValue, _cameraImpulseSlider.value);
+            _cameraImpulseChangedCallback = evt =>
+            {
+                GameplayPresentationSettings.SetCameraImpulseStrength(evt.newValue / 100f);
+                UpdatePercentLabel(_cameraImpulseValue, evt.newValue);
+            };
+            _cameraImpulseSlider.RegisterValueChangedCallback(_cameraImpulseChangedCallback);
+        }
+
         RefreshPresentationLabels();
     }
 
@@ -292,6 +312,12 @@ public class LanguageSelector : MonoBehaviour
             _hudOpacityLabel.text = russian ? "Прозрачность HUD" : "HUD opacity";
         if (_attackVfxOpacityLabel != null)
             _attackVfxOpacityLabel.text = russian ? "Прозрачность атак" : "Attack VFX opacity";
+        if (_cameraImpulseLabel != null)
+        {
+            _cameraImpulseLabel.text = russian ? "Отклик камеры" : "Camera impact";
+            _cameraImpulseLabel.tooltip = russian ? "Короткий сдвиг при тяжёлом попадании. 0% — выключено."
+                : "A brief nudge on a heavy hit. 0% turns it off.";
+        }
         if (_lootFilterLabel != null)
         {
             _lootFilterLabel.text = russian ? "Скрывать предметы" : "Hide items";

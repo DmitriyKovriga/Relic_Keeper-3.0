@@ -30,7 +30,7 @@ namespace RelicKeeper.Editor.Combat
         private bool _confirmation;
         private bool _poseComparison;
         private bool _meleeCoverage;
-        private string Output => _crowdReview ? CrowdOutput : _flashComparison ? "Logs/CombatHitFlash" : _meleeCoverage ? "Logs/CombatMeleeCoverage" : _poseComparison ? "Logs/CombatPoseComparison" : _confirmation ? "Logs/CombatHitConfirmation" : "Logs/CombatBaseline";
+        private string Output => _hurtReview ? "Logs/CombatPlayerHurt" : _cameraReview ? "Logs/CombatCameraImpulse" : _crowdReview ? CrowdOutput : _flashComparison ? "Logs/CombatHitFlash" : _meleeCoverage ? "Logs/CombatMeleeCoverage" : _poseComparison ? "Logs/CombatPoseComparison" : _confirmation ? "Logs/CombatHitConfirmation" : "Logs/CombatBaseline";
         private const string SkillPath = "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset";
         private const int CaptureFrames = 110;
         private const int CastFrame = 12;
@@ -43,11 +43,11 @@ namespace RelicKeeper.Editor.Combat
             "2HWeapon/Hammer/Adventurer/GroundShake/GroundShakeSkill", "2HWeapon/Sword/Adventurer/LungeSlash/LungeSlashSkill",
             "1HWeapon/Sword/DexterousLungeSkill", "1HWeapon/Hammer/StunningBlowSkill", "1HWeapon/Dagger/NinjaStubSkill",
             "1HWeapon/Dagger/NinjaStubSkill", "Shields/TowerCharge", "Shields/SpectacularParry" };
-        private string[] ActiveCases => _crowdReview ? CrowdCases : _flashComparison ? FlashCases : _meleeCoverage ? MeleeCases : _poseComparison ? PoseCases : Cases;
-        private string Scenario => _crowdReview ? "crowd-review" : _flashComparison ? "flash-review" : _meleeCoverage ? "melee-review" : !_poseComparison || _case.name == "attacking-target" ? _case.name
+        private string[] ActiveCases => _hurtReview ? HurtCases : _cameraReview ? CameraCases : _crowdReview ? CrowdCases : _flashComparison ? FlashCases : _meleeCoverage ? MeleeCases : _poseComparison ? PoseCases : Cases;
+        private string Scenario => _hurtReview ? "hurt-review" : _cameraReview ? "camera-review" : _crowdReview ? "crowd-review" : _flashComparison ? "flash-review" : _meleeCoverage ? "melee-review" : !_poseComparison || _case.name == "attacking-target" ? _case.name
             : _case.name == "mage-air" ? "miss" : "direct-hit";
         private bool HeavyCase => _poseComparison && _case.name.StartsWith("heavy", StringComparison.Ordinal);
-        private string CurrentSkillPath => _crowdReview ? CrowdSkillPath : _flashComparison && _case.name.StartsWith("bow", StringComparison.Ordinal) ? "Assets/Resources/Skills/2HWeapon/Bow/SimpleBowShotSkill.asset"
+        private string CurrentSkillPath => _cameraReview && _case.name == "bow-on" ? "Assets/Resources/Skills/2HWeapon/Bow/SimpleBowShotSkill.asset" : _crowdReview ? CrowdSkillPath : _flashComparison && _case.name.StartsWith("bow", StringComparison.Ordinal) ? "Assets/Resources/Skills/2HWeapon/Bow/SimpleBowShotSkill.asset"
             : _meleeCoverage ? "Assets/Resources/Skills/" + MeleeSkills[_index] + ".asset"
             : HeavyCase ? "Assets/Resources/Skills/2HWeapon/Hammer/Adventurer/WeightOfAGiant/WeightOfAGiantSkill.asset" : SkillPath;
         private CombatPoseProfile _comparisonProfile;
@@ -129,7 +129,7 @@ namespace RelicKeeper.Editor.Combat
         public static void BeginPoseComparison() => BeginCapture(true, true);
         public static void BeginMeleeCoverage() => BeginCapture(true, true, true);
 
-        private static void BeginCapture(bool confirmation, bool poseComparison = false, bool meleeCoverage = false, bool flashComparison = false, bool crowdReview = false, bool crowdBefore = false)
+        private static void BeginCapture(bool confirmation, bool poseComparison = false, bool meleeCoverage = false, bool flashComparison = false, bool crowdReview = false, bool crowdBefore = false, bool cameraReview = false, bool hurtReview = false)
         {
             if (!Application.isPlaying) throw new InvalidOperationException("Enter Play Mode before the baseline audit.");
             if (_instance != null) throw new InvalidOperationException("The baseline audit is already running.");
@@ -147,7 +147,7 @@ namespace RelicKeeper.Editor.Combat
             _instance._poseComparison = poseComparison;
             _instance._meleeCoverage = meleeCoverage;
             _instance._flashComparison = flashComparison;
-            _instance._crowdReview = crowdReview; _instance._crowdBefore = crowdBefore;
+            _instance._hurtReview = hurtReview; _instance._cameraReview = cameraReview; _instance._crowdReview = crowdReview; _instance._crowdBefore = crowdBefore;
             try { _instance.StartCapture(); }
             catch (Exception e) { _instance.Finish(e.ToString()); throw; }
         }
@@ -181,7 +181,7 @@ namespace RelicKeeper.Editor.Combat
             _gameView.Show(); _gameView.Focus();
             EditorApplication.update += PumpPlayerLoop;
             _material = AssetDatabase.LoadAssetAtPath<Material>("Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat");
-            if (_flashComparison || _crowdReview)
+            if (_hurtReview || _flashComparison || _crowdReview)
             {
                 _material = new Material(Shader.Find("RelicKeeper/Sprites/World Color Lit"));
                 _material.SetFloat("_RKGradeGroup", 1);
@@ -221,8 +221,8 @@ namespace RelicKeeper.Editor.Combat
             _case = new CaseResult { name = ActiveCases[_index], attempt = _attempt };
             _case.skill = CurrentSkillPath;
             _case.hero = _case.name == "rogue-left" ? "Rogue" : _case.name == "mage-air" ? "Mage" : "Warrior";
-            _case.posesEnabled = _crowdReview || _flashComparison || !_poseComparison || !_case.name.EndsWith("-off", StringComparison.Ordinal);
-            if (_flashComparison || _crowdReview) UnityEngine.Random.InitState(1137);
+            _case.posesEnabled = _cameraReview || _crowdReview || _flashComparison || !_poseComparison || !_case.name.EndsWith("-off", StringComparison.Ordinal);
+            if (_cameraReview || _flashComparison || _crowdReview) UnityEngine.Random.InitState(1137);
             Directory.CreateDirectory(Output + "/" + _case.name);
             _fixture = new GameObject("Baseline " + _case.name); _fixture.transform.SetParent(transform);
             Vector3 origin = new Vector3(3000, 2000, 0);
@@ -324,6 +324,8 @@ namespace RelicKeeper.Editor.Combat
                 typeof(EnemyHitRecoil).GetField("_profile", Private).SetValue(_enemy.GetComponent<EnemyHitRecoil>(), _comparisonProfile);
             if (_flashComparison) ConfigureHitFlashCase();
             if (_crowdReview) ConfigureCrowdCase();
+            if (_cameraReview) ConfigureCameraCase();
+            if (_hurtReview) ConfigureHurtCase();
             Physics2D.SyncTransforms();
         }
 
@@ -340,11 +342,13 @@ namespace RelicKeeper.Editor.Combat
             _runner.TryCast(); _case.acceptedCasts = _runner.EditorAcceptedCastSequence;
             _case.castToken = _case.name + ":" + _attempt + ":" + _runner.EditorAcceptedCastSequence;
             _case.recipeDuration = _runner.EditorRecipeDuration;
-            if (_poseComparison && !_crowdReview) _frameLimit = Mathf.Max(CaptureFrames, CastFrame + Mathf.CeilToInt(_case.recipeDuration * 60) + 30);
+            if (_poseComparison && !_crowdReview && !_cameraReview) _frameLimit = Mathf.Max(CaptureFrames, CastFrame + Mathf.CeilToInt(_case.recipeDuration * 60) + 30);
         }
 
         private void Update()
         {
+            if (_hurtReview && !_finished && _fixture != null) { UpdateHurtCase(); return; }
+            if (_cameraReview && !_finished && _fixture != null) { UpdateCameraCase(); return; }
             if (_crowdReview && !_finished && _fixture != null) { UpdateCrowdCase(); return; }
             if (_flashComparison && !_finished && _fixture != null)
             {
@@ -367,11 +371,12 @@ namespace RelicKeeper.Editor.Combat
             if (_finished || _fixture == null) return;
             try
             {
-                if (!_crowdReview && !_meleeCoverage && !_flashComparison && _frame == CastFrame) StartCaseCast();
+                if (!_hurtReview && !_cameraReview && !_crowdReview && !_meleeCoverage && !_flashComparison && _frame == CastFrame) StartCaseCast();
                 if (Scenario == "dot" && _frame == CastFrame + 9)
                     _enemy.GetComponent<AilmentController>().ReceiveSpreadIgnite(_owner.gameObject, _owner, 3, 1.25f);
                 RecordFrame();
-                if (_crowdReview) RenderCrowdFrame();
+                if (_cameraReview) RenderCameraFrame();
+                else if (_crowdReview) RenderCrowdFrame();
                 else
                 {
                 var previous = RenderTexture.active;
@@ -412,6 +417,7 @@ namespace RelicKeeper.Editor.Combat
                 weaponPosition = _weapon.transform.localPosition, weaponRotation = _weapon.transform.localEulerAngles,
                 weaponVisible = _weapon.enabled && !_weapon.forceRenderingOff
             });
+            if (_hurtReview) _case.frames[_case.frames.Count - 1].hitFlash = _owner.GetComponent<PlayerMovementVisual>().VisibleHurtFlash;
             if (_flashComparison) RecordHitFlashFrame(_case.frames[_case.frames.Count - 1]);
             if (_crowdReview) RecordCrowdFrame(_case.frames[_case.frames.Count - 1]);
         }
@@ -454,7 +460,7 @@ namespace RelicKeeper.Editor.Combat
             {
                 DisposeCase(); _attempt++; BuildCase(); return;
             }
-            if (!_crowdReview && _case.acceptedCasts != 1) _case.error = "Expected exactly one accepted cast.";
+            if (!_hurtReview && !_cameraReview && !_crowdReview && _case.acceptedCasts != 1) _case.error = "Expected exactly one accepted cast.";
             else if (Scenario == "miss" && _case.resolutionCount != 0) _case.error = "Miss unexpectedly contacted a target.";
             else if (Scenario == "direct-hit" && _case.damageTakenEvents != 1) _case.error = "Direct hit was not confirmed once.";
             else if (Scenario == "evaded" && (_case.evadeEvents != 1 || _case.returnedTrue)) _case.error = "Evasion outcome not reproduced.";
@@ -462,13 +468,13 @@ namespace RelicKeeper.Editor.Combat
             else if (Scenario == "lethal" && !_case.dead) _case.error = "Lethal outcome not reproduced.";
             else if (Scenario == "dot" && (_case.damageTakenEvents < 1 || _case.events.Any(x => x.type == "DamageTaken" && x.direct))) _case.error = "DoT outcome not reproduced.";
             else if (Scenario == "attacking-target" && (!_case.enemyAttackStarted || !_case.busyAtDamage || _case.damageTakenEvents != 1)) _case.error = "Attacking-enemy outcome not reproduced.";
-            if (_confirmation && !_crowdReview && !_meleeCoverage && !_flashComparison && _case.error == null)
+            if (_confirmation && !_hurtReview && !_cameraReview && !_crowdReview && !_meleeCoverage && !_flashComparison && _case.error == null)
             {
                 bool direct = Scenario == "direct-hit" || Scenario == "lethal" || Scenario == "attacking-target";
                 if (_case.confirmedHits != (direct ? 1 : 0)) _case.error = "Unexpected direct confirmation count.";
                 else if (!direct && _case.frames.Any(x => x.timeScale <= 0f)) _case.error = "Non-damaging contact or DoT triggered hit-stop.";
             }
-            if (_poseComparison && !_crowdReview && !_meleeCoverage && !_flashComparison && _case.error == null)
+            if (_poseComparison && !_hurtReview && !_cameraReview && !_crowdReview && !_meleeCoverage && !_flashComparison && _case.error == null)
             {
                 bool bodyMoved = _case.frames.Any(x => Mathf.Abs(Mathf.DeltaAngle(0, x.bodyRotation.z)) > .01f);
                 if (bodyMoved != _case.posesEnabled) _case.error = "Body pose enable/disable mismatch.";
@@ -487,6 +493,8 @@ namespace RelicKeeper.Editor.Combat
             }
             if (_flashComparison) ValidateHitFlashCase();
             if (_crowdReview) ValidateCrowdCase();
+            if (_cameraReview) ValidateCameraCase();
+            if (_hurtReview) ValidateHurtCase();
             _results.Add(_case); File.WriteAllText(Output + "/" + _case.name + "/trace.json", JsonUtility.ToJson(_case, true));
             DisposeCase(); _index++; _attempt = 1; WriteStatus("running", null);
             if (_index == ActiveCases.Length) Finish(_results.Any(x => x.error != null) ? "One or more baseline cases failed validation." : null);
@@ -496,6 +504,8 @@ namespace RelicKeeper.Editor.Combat
         private void DisposeCase()
         {
             if (_crowdReview) DisposeCrowdCase();
+            if (_cameraReview) DisposeCameraCase();
+            if (_hurtReview) DisposeHurtCase();
             if (_runner != null) { _runner.EditorDamageResolved -= ObserveResolution; _runner.Cancel(); }
             if (_fixture != null) Object.DestroyImmediate(_fixture);
             if (_flashComparison) DisposeHitFlashCase();
@@ -539,7 +549,7 @@ namespace RelicKeeper.Editor.Combat
                     if (_target != null) { _target.Release(); Object.DestroyImmediate(_target); }
                     if (_image != null) Object.DestroyImmediate(_image);
                     if (_floorSprite != null) Object.DestroyImmediate(_floorSprite);
-                    if ((_flashComparison || _crowdReview) && _material != null) Object.DestroyImmediate(_material);
+                    if ((_hurtReview || _flashComparison || _crowdReview) && _material != null) Object.DestroyImmediate(_material);
                     _instance = null; Object.DestroyImmediate(gameObject);
                 }
             }

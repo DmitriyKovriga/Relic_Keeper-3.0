@@ -9,6 +9,7 @@ public static class GameplayPresentationSettings
     public const string NearbyServiceNamesKey = "presentation_nearby_service_names";
     public const string CombatEnemyBarsKey = "presentation_combat_enemy_bars";
     public const string RecentDummyDpsKey = "presentation_recent_dummy_dps";
+    public const string CameraImpulseStrengthKey = "presentation_camera_impulse_strength";
 
     public static event Action Changed;
 
@@ -18,6 +19,11 @@ public static class GameplayPresentationSettings
     public static bool NearbyServiceNames => PlayerPrefs.GetInt(NearbyServiceNamesKey, 1) != 0;
     public static bool CombatEnemyBars => PlayerPrefs.GetInt(CombatEnemyBarsKey, 1) != 0;
     public static bool RecentDummyDps => PlayerPrefs.GetInt(RecentDummyDpsKey, 1) != 0;
+    public static float CameraImpulseStrength => NormalizeCameraImpulse(PlayerPrefs.GetFloat(CameraImpulseStrengthKey, .5f));
+
+    public static void SetCameraImpulseStrength(float value) => Save(CameraImpulseStrengthKey, NormalizeCameraImpulse(value));
+
+    private static float NormalizeCameraImpulse(float value) => float.IsNaN(value) || float.IsInfinity(value) ? .5f : Mathf.Clamp01(value);
 
     public static void SetNearbyServiceNames(bool value) => SaveChoice(NearbyServiceNamesKey, value);
     public static void SetCombatEnemyBars(bool value) => SaveChoice(CombatEnemyBarsKey, value);
