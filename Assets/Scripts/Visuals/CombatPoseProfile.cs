@@ -50,6 +50,10 @@ namespace Scripts.Visuals
         public bool EnableDefenseFeedback = true;
         [Range(0f, 1f)] public float DefenseFeedbackOpacity = .85f;
         [Range(.2f, .6f)] public float DefenseFeedbackInterval = .3f;
+        [Header("Death fragment impulse — existing debris only")]
+        public bool EnableDirectedDeaths = true;
+        [Range(0f, 1f)] public float DeathDirectionBias = .8f;
+        [Range(1f, 1.5f)] public float HeavyDeathImpulse = 1.25f;
 
         public static CombatPoseProfile LoadDefault() => Resources.Load<CombatPoseProfile>(ResourcePath);
     }

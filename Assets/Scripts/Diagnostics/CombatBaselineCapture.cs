@@ -30,7 +30,7 @@ namespace RelicKeeper.Editor.Combat
         private bool _confirmation;
         private bool _poseComparison;
         private bool _meleeCoverage;
-        private string Output => _defenseReview ? "Logs/CombatDefense" : _hurtReview ? "Logs/CombatPlayerHurt" : _cameraReview ? "Logs/CombatCameraImpulse" : _crowdReview ? CrowdOutput : _flashComparison ? "Logs/CombatHitFlash" : _meleeCoverage ? "Logs/CombatMeleeCoverage" : _poseComparison ? "Logs/CombatPoseComparison" : _confirmation ? "Logs/CombatHitConfirmation" : "Logs/CombatBaseline";
+        private string Output => _deathReview ? "Logs/CombatDeath" : _defenseReview ? "Logs/CombatDefense" : _hurtReview ? "Logs/CombatPlayerHurt" : _cameraReview ? "Logs/CombatCameraImpulse" : _crowdReview ? CrowdOutput : _flashComparison ? "Logs/CombatHitFlash" : _meleeCoverage ? "Logs/CombatMeleeCoverage" : _poseComparison ? "Logs/CombatPoseComparison" : _confirmation ? "Logs/CombatHitConfirmation" : "Logs/CombatBaseline";
         private const string SkillPath = "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset";
         private const int CaptureFrames = 110;
         private const int CastFrame = 12;
@@ -43,11 +43,11 @@ namespace RelicKeeper.Editor.Combat
             "2HWeapon/Hammer/Adventurer/GroundShake/GroundShakeSkill", "2HWeapon/Sword/Adventurer/LungeSlash/LungeSlashSkill",
             "1HWeapon/Sword/DexterousLungeSkill", "1HWeapon/Hammer/StunningBlowSkill", "1HWeapon/Dagger/NinjaStubSkill",
             "1HWeapon/Dagger/NinjaStubSkill", "Shields/TowerCharge", "Shields/SpectacularParry" };
-        private string[] ActiveCases => _defenseReview ? DefenseCases : _hurtReview ? HurtCases : _cameraReview ? CameraCases : _crowdReview ? CrowdCases : _flashComparison ? FlashCases : _meleeCoverage ? MeleeCases : _poseComparison ? PoseCases : Cases;
+        private string[] ActiveCases => _deathReview ? DeathCases : _defenseReview ? DefenseCases : _hurtReview ? HurtCases : _cameraReview ? CameraCases : _crowdReview ? CrowdCases : _flashComparison ? FlashCases : _meleeCoverage ? MeleeCases : _poseComparison ? PoseCases : Cases;
         private string Scenario => _hurtReview ? "hurt-review" : _cameraReview ? "camera-review" : _crowdReview ? "crowd-review" : _flashComparison ? "flash-review" : _meleeCoverage ? "melee-review" : !_poseComparison || _case.name == "attacking-target" ? _case.name
             : _case.name == "mage-air" ? "miss" : "direct-hit";
         private bool HeavyCase => _poseComparison && _case.name.StartsWith("heavy", StringComparison.Ordinal);
-        private string CurrentSkillPath => _cameraReview && _case.name == "bow-on" ? "Assets/Resources/Skills/2HWeapon/Bow/SimpleBowShotSkill.asset" : _crowdReview ? CrowdSkillPath : _flashComparison && _case.name.StartsWith("bow", StringComparison.Ordinal) ? "Assets/Resources/Skills/2HWeapon/Bow/SimpleBowShotSkill.asset"
+        private string CurrentSkillPath => _deathReview && _case.name == "fan" ? "Assets/Resources/Skills/2HWeapon/Bow/NearFan/NearFanSkill.asset" : _cameraReview && _case.name == "bow-on" ? "Assets/Resources/Skills/2HWeapon/Bow/SimpleBowShotSkill.asset" : _crowdReview ? CrowdSkillPath : _flashComparison && _case.name.StartsWith("bow", StringComparison.Ordinal) ? "Assets/Resources/Skills/2HWeapon/Bow/SimpleBowShotSkill.asset"
             : _meleeCoverage ? "Assets/Resources/Skills/" + MeleeSkills[_index] + ".asset"
             : HeavyCase ? "Assets/Resources/Skills/2HWeapon/Hammer/Adventurer/WeightOfAGiant/WeightOfAGiantSkill.asset" : SkillPath;
         private CombatPoseProfile _comparisonProfile;
@@ -417,6 +417,7 @@ namespace RelicKeeper.Editor.Combat
                 weaponPosition = _weapon.transform.localPosition, weaponRotation = _weapon.transform.localEulerAngles,
                 weaponVisible = _weapon.enabled && !_weapon.forceRenderingOff
             });
+            if (_deathReview) RecordDeathFrame(_case.frames[_case.frames.Count - 1]);
             if (_defenseReview) RecordDefenseFrame(_case.frames[_case.frames.Count - 1]);
             if (_hurtReview) _case.frames[_case.frames.Count - 1].hitFlash = _owner.GetComponent<PlayerMovementVisual>().VisibleHurtFlash;
             if (_flashComparison) RecordHitFlashFrame(_case.frames[_case.frames.Count - 1]);
@@ -551,7 +552,7 @@ namespace RelicKeeper.Editor.Combat
                     if (_image != null) Object.DestroyImmediate(_image);
                     if (_floorSprite != null) Object.DestroyImmediate(_floorSprite);
                     if ((_hurtReview || _flashComparison || _crowdReview) && _material != null) Object.DestroyImmediate(_material);
-                    _instance = null; _defenseReview = false; Object.DestroyImmediate(gameObject);
+                    _instance = null; _defenseReview = false; _deathReview = false; Object.DestroyImmediate(gameObject);
                 }
             }
         }

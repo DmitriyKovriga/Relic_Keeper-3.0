@@ -26,6 +26,7 @@ namespace Scripts.Enemies
         private float _currentHealth;
         private float _maxHealth;
         private bool _isDead;
+        public EnemyDeathImpact DeathImpact { get; private set; }
 
         public float CurrentHealth => _currentHealth;
         public float MaxHealth => _maxHealth;
@@ -56,13 +57,14 @@ namespace Scripts.Enemies
                 _maxHealth = 1f;
             _currentHealth = _maxHealth;
             _isDead = false;
+            DeathImpact = default; _lastDamageSource = null;
             GetComponent<AilmentController>()?.ResetShock();
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
 
         public bool TakeDamage(DamageSnapshot damage)
         {
-            if (_isDead || damage == null) return false;
+            if (_isDead || damage == null || _maxHealth > 0 && _currentHealth <= 0) return false;
             if (!EnsureReady())
                 return false;
 
@@ -102,10 +104,13 @@ namespace Scripts.Enemies
             if (DungeonController.Instance != null && DungeonController.Instance.CurrentModifiers != null)
                 finalDamage *= DungeonController.Instance.CurrentModifiers.EnemyDamageTakenMultiplier;
 
+            // Stun/shield callbacks above may have killed this receiver reentrantly.
+            if (_isDead || _currentHealth <= 0) return false;
             _currentHealth -= finalDamage;
             if (finalDamage > 0f && damage.IsDirectHit &&
                 ExecutionThreshold.ShouldExecute(_currentHealth, _maxHealth, damage.ExecutionThreshold))
                 _currentHealth = 0f;
+            if (finalDamage > 0 && _currentHealth <= 0) DeathImpact = new EnemyDeathImpact(this, damage);
             CombatHitFeedback.Confirm(this, damage, finalDamage, _currentHealth <= 0f);
             if (finalDamage > 0f)
             {
@@ -152,7 +157,7 @@ namespace Scripts.Enemies
 
         public void ApplyPureDamage(float amount, object source, string damageType = "Pure")
         {
-            if (_isDead) return;
+            if (_isDead || _maxHealth > 0 && _currentHealth <= 0) return;
             if (!EnsureReady())
                 return;
 
@@ -176,6 +181,8 @@ namespace Scripts.Enemies
             };
 
             _currentHealth -= finalDamage;
+
+            if (_currentHealth <= 0) DeathImpact = default;
 
             if (_currentHealth > 0f)
                 AlertToAttacker(source);
@@ -210,7 +217,10 @@ namespace Scripts.Enemies
 
         private void Die()
         {
+            if (_isDead) return;
             _isDead = true;
+            GetComponent<Scripts.Visuals.EnemyHitRecoil>()?.ResetPose();
+            GetComponent<Scripts.Visuals.EnemyHitFlash>()?.ResetFlash();
 
             var entity = GetComponent<EnemyEntity>();
 
@@ -241,7 +251,7 @@ namespace Scripts.Enemies
                 EnemyLootDropService.TrySpawnLoot(entity);
                 EnemyLootDropService.TrySpawnCraftingOrbs(entity);
                 var spriteRenderer = entity != null ? entity.VisualRenderer : GetComponentInChildren<SpriteRenderer>(true);
-                EnemyDeathEffectSpawner.Spawn(entity, spriteRenderer);
+                EnemyDeathEffectSpawner.Spawn(entity, spriteRenderer, DeathImpact);
                 Destroy(gameObject);
             }
         }
@@ -314,7 +324,7 @@ namespace Scripts.Enemies
 
         private void TryPlayHitReaction(float finalDamage)
         {
-            if (finalDamage <= 0f || _animation == null)
+            if (finalDamage <= 0f || _currentHealth <= 0f || _animation == null)
                 return;
 
             if (_attack != null && _attack.IsBusy)

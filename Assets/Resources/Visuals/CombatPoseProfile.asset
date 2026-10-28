@@ -47,5 +47,8 @@ MonoBehaviour:
   CameraImpulseDuration: 0.14
   CameraImpulseInterval: 0.4
   EnableDefenseFeedback: 1
+  EnableDirectedDeaths: 1
+  DeathDirectionBias: 0.8
+  HeavyDeathImpulse: 1.25
   DefenseFeedbackOpacity: 0.85
   DefenseFeedbackInterval: 0.3

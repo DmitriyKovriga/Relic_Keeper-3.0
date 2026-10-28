@@ -24,7 +24,7 @@ namespace Scripts.Enemies
             new[] { new Vector2(0.25f, 0.73f), new Vector2(0.5f, 0.73f), new Vector2(0.75f, 0.73f), new Vector2(0.25f, 0.3f), new Vector2(0.5f, 0.3f), new Vector2(0.75f, 0.3f) }
         };
 
-        public static void Spawn(EnemyEntity entity, SpriteRenderer sourceRenderer)
+        public static void Spawn(EnemyEntity entity, SpriteRenderer sourceRenderer, EnemyDeathImpact impact = default)
         {
             if (entity == null || sourceRenderer == null || sourceRenderer.sprite == null)
                 return;
@@ -44,8 +44,9 @@ namespace Scripts.Enemies
             int chunkCount = quality == DeathEffectQuality.Full ? Mathf.Clamp(config.ChunkCount, 1, 6) :
                 quality == DeathEffectQuality.Medium ? Mathf.Clamp(config.ChunkCount, 1, 4) :
                 quality == DeathEffectQuality.Low ? Mathf.Clamp(config.ChunkCount, 1, 2) : 0;
+            var impactProfile = CombatPoseProfile.LoadDefault();
             for (int i = 0; i < chunkCount && sheet.TryReserveFragment(); i++)
-                SpawnFlyingChunk(sheet, config, sourceRenderer, burst, i, chunkCount);
+                SpawnFlyingChunk(sheet, config, sourceRenderer, burst, i, chunkCount, impact, impactProfile);
 
             // Preserve a rich blood silhouette: one central puddle, two flanking puddles and three small drips.
             if (sheet.TryReserveDecal())
@@ -67,7 +68,7 @@ namespace Scripts.Enemies
             TrySpawnWallSpatter(sheet, config, burst, ground, Mathf.Max(0.7f, visualBounds.size.x));
         }
 
-        private static void SpawnFlyingChunk(EnemyDeathRemainsSheet sheet, EnemyDeathEffectConfig config, SpriteRenderer source, Vector2 burst, int index, int count)
+        private static void SpawnFlyingChunk(EnemyDeathRemainsSheet sheet, EnemyDeathEffectConfig config, SpriteRenderer source, Vector2 burst, int index, int count, EnemyDeathImpact impact, CombatPoseProfile profile)
         {
             GameObject fragment = sheet.Pool.GetFragment(sheet.transform, "EnemyBodyChunk");
             fragment.layer = EnemyLayer;
@@ -163,7 +164,7 @@ namespace Scripts.Enemies
             sheet.RegisterFragment(controller);
             Vector2 direction = ((Vector2)fragment.transform.position - burst).normalized;
             if (direction.sqrMagnitude < 0.01f) direction = Random.insideUnitCircle.normalized;
-            rb.AddForce(new Vector2(direction.x * config.ChunkHorizontalForce, Mathf.Abs(direction.y) * config.ChunkVerticalForce + config.ChunkVerticalForce * 0.45f), ForceMode2D.Impulse);
+            rb.AddForce(impact.FragmentImpulse(direction, config, profile), ForceMode2D.Impulse);
         }
 
         private static Vector2 ResolveChunkCenter(int index, int count)

@@ -1,0 +1,113 @@
+{
+  "date": "2026-10-28",
+  "testsPassed": 142,
+  "testsFailed": 0,
+  "cases": [
+    {
+      "name": "right",
+      "deaths": 1,
+      "killEvents": 1,
+      "peakFragments": 6,
+      "direction": {
+        "x": 1.0,
+        "y": 0.0
+      },
+      "livingFeedbackCleared": true,
+      "rejectedLateHits": 0,
+      "horizontalVelocityAtFrame32": 14.464570999145508
+    },
+    {
+      "name": "left",
+      "deaths": 1,
+      "killEvents": 1,
+      "peakFragments": 6,
+      "direction": {
+        "x": -1.0,
+        "y": 0.0
+      },
+      "livingFeedbackCleared": true,
+      "rejectedLateHits": 0,
+      "horizontalVelocityAtFrame32": -14.661397933959961
+    },
+    {
+      "name": "heavy",
+      "deaths": 1,
+      "killEvents": 1,
+      "peakFragments": 6,
+      "direction": {
+        "x": 1.0,
+        "y": 0.0
+      },
+      "livingFeedbackCleared": true,
+      "rejectedLateHits": 0,
+      "horizontalVelocityAtFrame32": 18.080713272094727
+    },
+    {
+      "name": "dot",
+      "deaths": 1,
+      "killEvents": 1,
+      "peakFragments": 6,
+      "direction": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "livingFeedbackCleared": true,
+      "rejectedLateHits": 0,
+      "horizontalVelocityAtFrame32": -0.49206799268722534
+    },
+    {
+      "name": "frozen",
+      "deaths": 1,
+      "killEvents": 1,
+      "peakFragments": 6,
+      "direction": {
+        "x": 1.0,
+        "y": 0.0
+      },
+      "livingFeedbackCleared": true,
+      "rejectedLateHits": 0,
+      "horizontalVelocityAtFrame32": 14.464570999145508
+    },
+    {
+      "name": "repeated",
+      "deaths": 1,
+      "killEvents": 1,
+      "peakFragments": 6,
+      "direction": {
+        "x": 1.0,
+        "y": 0.0
+      },
+      "livingFeedbackCleared": true,
+      "rejectedLateHits": 20,
+      "horizontalVelocityAtFrame32": 14.464570999145508
+    },
+    {
+      "name": "fan",
+      "deaths": 1,
+      "killEvents": 1,
+      "peakFragments": 6,
+      "direction": {
+        "x": 0.8191520571708679,
+        "y": -0.5735764503479004
+      },
+      "livingFeedbackCleared": true,
+      "rejectedLateHits": 0,
+      "horizontalVelocityAtFrame32": 0.0
+    }
+  ],
+  "sourceSha256": {
+    "Assets/Scripts/Enemy/EnemyDeathImpact.cs": "2abb19c39bd8c7356105418c4c4baefe91031ba4c69eddda4b125372163acb50",
+    "Assets/Scripts/Enemy/EnemyHealth.cs": "4f7f64d78be2a31266e9e7b8f78547d9dc0dc56582951b0e95bafd42736c3d98",
+    "Assets/Scripts/Enemy/EnemyDeathEffectSpawner.cs": "59cc16b135abdcb359652244f790e0aba9614fe639d60e54b4c431deac6ccb21",
+    "Assets/Scripts/Visuals/CombatPoseProfile.cs": "7975b3885da45294f3a69d5d9032038f39dcf561f5a6667a52722c7f202c03f1",
+    "Assets/Resources/Visuals/CombatPoseProfile.asset": "0d8c4058d5589ca3eca23a27e08998b270f53166cd5920b08d30c749d52277e2",
+    "Assets/Tests/EditMode/Editor/LethalHitPresentationTests.cs": "1cf5786529b89eb62279f369377741d44a0c7d441720c3c99dc0a97bc4f73383",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.Death.cs": "3918469ba2f7fa3f1deb5af546a93c58324dbb6d7babf60f7cbbfa9607324f51"
+  },
+  "limits": [
+    "Controlled Editor fixtures, not a standalone build or GPU profile.",
+    "Six cases use receiver-side fatal damage; fan uses the actual Near Fan skill/projectiles.",
+    "A living pre-hit precedes the controlled kill; only the final direct hit determines death impulse.",
+    "Inspector headers were cleaned up and an additional shield-callback terminal guard was added after capture. The guard is covered by the final 142-test suite; visual integration is unchanged."
+  ]
+}

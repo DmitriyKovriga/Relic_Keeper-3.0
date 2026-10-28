@@ -39,7 +39,10 @@ tests and seven controlled live cases passed.
 [C13 distinct successful-defense feedback](Step08_DefenseFeedback.md) is implemented
 with PixelLab parry/evade/shield accents, bounded reusable renderers and separate
 defense versus hurt semantics. 121 focused tests and twelve live cases passed.
-The next planned step is C14.
+[C14 fatal-hit/death handoff](Step09_LethalHits.md) is implemented: immutable fatal
+direction, bounded heavy fragment impulse, living-feedback cleanup and rejection
+of terminal repeat/reentrant hits. 142 focused tests and seven live death cases
+passed. The C11–C14 presentation wave is complete.
 Full player-build GPU profiling is not claimed by the Editor measurements.
 
 User review (2026-10-27): **remove the automatic generic contact effect**.
