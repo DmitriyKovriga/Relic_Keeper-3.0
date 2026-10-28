@@ -36,3 +36,4 @@ MonoBehaviour:
   HoldStanceId: bow_stance
   SwingStyle: 4
   SwingStyleId: bow_draw
+  BodyFollowStyle: 1

@@ -1,7 +1,9 @@
 #if UNITY_EDITOR
 using System.Linq;
+using Scripts.Skills;
 using Scripts.Stats;
 using Scripts.Visuals;
+using UnityEditor;
 using UnityEngine;
 
 namespace RelicKeeper.Editor.Combat
@@ -9,13 +11,25 @@ namespace RelicKeeper.Editor.Combat
     public sealed partial class CombatBaselineCapture
     {
         private static bool _rangedReview;
-        private static readonly string[] RangedCases = { "bow-off", "bow-on", "wand-off", "wand-on", "staff-off", "staff-on", "throw-off", "throw-on", "bow-run", "wand-air", "staff-left", "throw-air", "wand-fast", "cancel" };
-        private string RangedSkillPath => "Assets/Resources/Skills/" + (_case.name.StartsWith("bow") ? "2HWeapon/Bow/SimpleBowShotSkill"
+        private static SkillDataSO[] _rangedExpansion;
+        private static readonly string[] RangedPilotCases = { "bow-off", "bow-on", "wand-off", "wand-on", "staff-off", "staff-on", "throw-off", "throw-on", "bow-run", "wand-air", "staff-left", "throw-air", "wand-fast", "cancel" };
+        private string[] RangedCases => _rangedExpansion != null ? _rangedExpansion.Select(x => x.ID).ToArray() : RangedPilotCases;
+        private string RangedSkillPath => _rangedExpansion != null ? AssetDatabase.GetAssetPath(_rangedExpansion[_index]) : "Assets/Resources/Skills/" + (_case.name.StartsWith("bow") ? "2HWeapon/Bow/SimpleBowShotSkill"
             : _case.name.StartsWith("staff") ? "2HWeapon/Staff/Fire/FlamingSpear/FlamingSpearSkill"
             : _case.name.StartsWith("throw") ? "2HWeapon/Chakram/lb/FanOfSickles/FanOfSicklesSkill" : "1HWeapon/Wand/ManaSpear/ManaSpearSkill") + ".asset";
-        private string RangedWeaponKind => _case.name.StartsWith("bow") ? "Bow" : _case.name.StartsWith("staff") ? "Staff" : _case.name.StartsWith("throw") ? "Chakram" : "Wand";
-        private string RangedHero => RangedWeaponKind == "Bow" ? "Rogue" : RangedWeaponKind == "Chakram" ? "Warrior" : "Mage";
-        public static void BeginRangedReview() { _rangedReview = true; BeginCapture(true, true, hurtReview: true); }
+        private string RangedWeaponKind => RangedSkillPath.Contains("/Bow/") ? "Bow" : RangedSkillPath.Contains("/Staff/") ? "Staff" : RangedSkillPath.Contains("/Chakram/") ? "Chakram" : RangedSkillPath.Contains("/Sword/") ? "Sword" : RangedSkillPath.Contains("/Axe/") ? "Axe" : "Wand";
+        private string RangedHero => RangedWeaponKind == "Bow" ? "Rogue" : RangedWeaponKind == "Chakram" || RangedWeaponKind == "Sword" || RangedWeaponKind == "Axe" ? "Warrior" : "Mage";
+        public static void BeginRangedReview() { _rangedExpansion = null; _rangedReview = true; BeginCapture(true, true, hurtReview: true); }
+        public static void BeginRangedExpansionReview()
+        {
+            _rangedExpansion = Resources.LoadAll<SkillDataSO>("Skills").Where(x => x.BodyFollowStyle != RangedBodyStyle.None).OrderBy(x => x.ID).ToArray();
+            _rangedReview = true; BeginCapture(true, true, hurtReview: true);
+        }
+        public static void BeginWeaponThrowBodyReview()
+        {
+            _rangedExpansion = new[] { Resources.Load<SkillDataSO>("Skills/1HWeapon/Axe/WeaponThrowSkill") };
+            _rangedReview = true; BeginCapture(true, true, hurtReview: true);
+        }
         private void ConfigureRangedCase()
         {
             _frameLimit = 120; _enemy.gameObject.SetActive(false);

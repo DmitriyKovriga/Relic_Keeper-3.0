@@ -30,7 +30,7 @@ namespace RelicKeeper.Editor.Combat
         private bool _confirmation;
         private bool _poseComparison;
         private bool _meleeCoverage;
-        private string Output => _rangedReview ? "Logs/RangedBody" : _inputReview ? "Logs/MovementInput" : _followReview ? "Logs/CameraFollow" : _landingReview ? "Logs/LandingContact" : _movementReview ? "Logs/MovementWeight" : _deathReview ? "Logs/CombatDeath" : _defenseReview ? "Logs/CombatDefense" : _hurtReview ? "Logs/CombatPlayerHurt" : _cameraReview ? "Logs/CombatCameraImpulse" : _crowdReview ? CrowdOutput : _flashComparison ? "Logs/CombatHitFlash" : _meleeCoverage ? "Logs/CombatMeleeCoverage" : _poseComparison ? "Logs/CombatPoseComparison" : _confirmation ? "Logs/CombatHitConfirmation" : "Logs/CombatBaseline";
+        private string Output => _rangedReview ? (_rangedExpansion != null ? "Logs/RangedExpansion" : "Logs/RangedBody") : _inputReview ? "Logs/MovementInput" : _followReview ? "Logs/CameraFollow" : _landingReview ? "Logs/LandingContact" : _movementReview ? "Logs/MovementWeight" : _deathReview ? "Logs/CombatDeath" : _defenseReview ? "Logs/CombatDefense" : _hurtReview ? "Logs/CombatPlayerHurt" : _cameraReview ? "Logs/CombatCameraImpulse" : _crowdReview ? CrowdOutput : _flashComparison ? "Logs/CombatHitFlash" : _meleeCoverage ? "Logs/CombatMeleeCoverage" : _poseComparison ? "Logs/CombatPoseComparison" : _confirmation ? "Logs/CombatHitConfirmation" : "Logs/CombatBaseline";
         private const string SkillPath = "Assets/Resources/Skills/2HWeapon/Axe/LeftButton/CleaveLB.asset";
         private const int CaptureFrames = 110;
         private const int CastFrame = 12;

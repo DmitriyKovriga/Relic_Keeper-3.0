@@ -154,10 +154,8 @@ namespace RelicKeeper.Tests.EditMode
             var state = new AttackBodyFollow(); var skill = Keep(Object.Instantiate(Slash));
             skill.WeaponRole = SkillWeaponRole.Equipment;
             Assert.That(state.TryBegin(new object(), skill, _profile), Is.False);
-            foreach (string path in new[] { "Skills/2HWeapon/Axe/RightButton/SweepRB", "Skills/2HWeapon/Bow/LuckyShot/LuckyShotSkill",
-                "Skills/2HWeapon/Sword/HorizonCrossSection/HorizonCrossSectionSkill",
-                "Skills/2HWeapon/Axe/ConningTower/ConningTowerSkill",
-                "Skills/2HWeapon/Chakram/rb/OrbitalWeaponTrowRBSkill" })
+            foreach (string path in new[] { "Skills/2HWeapon/Axe/RightButton/SweepRB",
+                "Skills/2HWeapon/Axe/ConningTower/ConningTowerSkill" })
             {
                 var candidate = Resources.Load<SkillDataSO>(path);
                 Assert.That(candidate, Is.Not.Null, path);
@@ -230,6 +228,32 @@ namespace RelicKeeper.Tests.EditMode
         [TestCase("Mage", "1HWeapon/Wand/ManaSpear/ManaSpearSkill")]
         [TestCase("Mage", "2HWeapon/Staff/Fire/FlamingSpear/FlamingSpearSkill")]
         [TestCase("Warrior", "2HWeapon/Chakram/lb/FanOfSickles/FanOfSicklesSkill")]
+        [TestCase("Mage", "1HWeapon/Wand/ElectricBeamSkill")]
+        [TestCase("Mage", "1HWeapon/Wand/SeekerSkill")]
+        [TestCase("Mage", "1HWeapon/Wand/PrismaticCycle/PrismaticCycleSkill")]
+        [TestCase("Rogue", "2HWeapon/Bow/AerialVolley/AerialVolleySkill")]
+        [TestCase("Rogue", "2HWeapon/Bow/Artillery/ArrowArtillery")]
+        [TestCase("Rogue", "2HWeapon/Bow/LuckyShot/LuckyShotSkill")]
+        [TestCase("Rogue", "2HWeapon/Bow/NearFan/NearFanSkill")]
+        [TestCase("Rogue", "2HWeapon/Bow/PiercingShot/PiercingBowShotSkill")]
+        [TestCase("Warrior", "2HWeapon/Chakram/lb/HomingWeaponThrow")]
+        [TestCase("Warrior", "2HWeapon/Chakram/lb/Pendulum/PendulumSkill")]
+        [TestCase("Warrior", "2HWeapon/Chakram/rb/OrbitalWeaponTrowRBSkill")]
+        [TestCase("Warrior", "2HWeapon/Chakram/rb/CircularSaw/CircularSawSkill")]
+        [TestCase("Mage", "2HWeapon/Staff/Cold/BigColdBallSkill")]
+        [TestCase("Mage", "2HWeapon/Staff/Cold/IcecleShotSkill")]
+        [TestCase("Mage", "2HWeapon/Staff/Cold/WinterStorm")]
+        [TestCase("Mage", "2HWeapon/Staff/Cold/FrostInducedJolt/FrostInducedJoltSkill")]
+        [TestCase("Mage", "2HWeapon/Staff/Cold/FrostWall/FrostWallSkill")]
+        [TestCase("Mage", "2HWeapon/Staff/Cold/IcyPalisade/IcyPalisadeSkill")]
+        [TestCase("Mage", "2HWeapon/Staff/Fire/Adventurers/BigFireBallSkill")]
+        [TestCase("Mage", "2HWeapon/Staff/Fire/Adventurers/FireBallSkill")]
+        [TestCase("Mage", "2HWeapon/Staff/Lightning/BigLightningBallSkill")]
+        [TestCase("Mage", "2HWeapon/Staff/Lightning/LightningArcSkill")]
+        [TestCase("Mage", "2HWeapon/Staff/Lightning/DoubleDischarge/DoubleDischargeSkill")]
+        [TestCase("Mage", "2HWeapon/Staff/Lightning/LightningRod/LightningRodSkill")]
+        [TestCase("Warrior", "2HWeapon/Sword/HorizonCrossSection/HorizonCrossSectionSkill")]
+        [TestCase("Warrior", "1HWeapon/Axe/WeaponThrowSkill")]
         public void RangedReleaseKeepsFeetRootAndHandsRegisteredInBothFacingsAndAir(string hero, string path)
         {
             foreach (bool grounded in new[] { true, false }) foreach (int facing in new[] { -1, 1 })

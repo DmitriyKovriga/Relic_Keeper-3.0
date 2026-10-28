@@ -13,6 +13,7 @@ namespace Scripts.Visuals
         private float _recoveryStart;
         private AttackBodyPose _recoveryFrom;
         private RangedBodyStyle _rangedStyle;
+        private float _rangedWindupStart, _rangedRelease, _rangedRecoveryEnd;
         public object Owner => _owner;
         public AttackBodyPose Pose { get; private set; } = AttackBodyPose.Neutral;
 
@@ -64,26 +65,40 @@ namespace Scripts.Visuals
 
         private bool TryBeginRanged(object owner, SkillDataSO skill, CombatPoseProfile profile, float duration)
         {
-            if (skill.BodyFollowStyle < RangedBodyStyle.Bow || skill.BodyFollowStyle > RangedBodyStyle.Throw) return false;
+            if (skill.BodyFollowStyle < RangedBodyStyle.Bow || skill.BodyFollowStyle > RangedBodyStyle.SwordWave) return false;
             if (owner == null || profile == null || !profile.EnableBodyFollow || !profile.EnableRangedBodyFollow ||
                 skill.WeaponRole == SkillWeaponRole.Equipment || skill.Recipe == null || skill.Recipe.IsChanneling || skill.Recipe.Steps == null ||
                 float.IsNaN(duration) || float.IsInfinity(duration) || duration <= 0) return false;
-            int releases = 0, projectiles = 0; bool windup = false, recovery = false;
+            bool action = false;
+            float release = 1f, preparation = 1f, recoveryStart = -1f, recoveryEnd = -1f;
             foreach (var step in skill.Recipe.Steps)
             {
                 string id = step?.StepDefinition?.Id;
                 if (step == null || step.IsParallelGroup) return false;
                 switch (id)
                 {
-                    case "WeaponWindup": windup = true; break;
-                    case "WeaponStrike": releases++; break;
-                    case "SpawnProjectile": projectiles++; break;
-                    case "WeaponRecovery": recovery |= step.EndPercentPipeline > step.StartPercentPipeline; break;
-                    case "MovementLock": case "Wait": break;
+                    case "WeaponWindup": preparation = Mathf.Min(preparation, step.StartPercentPipeline); break;
+                    case "WeaponStrike": release = Mathf.Min(release, step.StartPercentPipeline); break;
+                    case "SpawnProjectile": case "InstantBeam": case "PrismaticCycle": case "ArrowRain":
+                    case "SpawnOrbitProjectiles": case "ChainDamage": case "DealDamageCircle": case "DealDamageRectangle":
+                    case "WinterStorm": case "FrostWall": case "LightningRod":
+                        action = true; release = Mathf.Min(release, step.StartPercentPipeline); break;
+                    case "WeaponRecovery":
+                        if (step.EndPercentPipeline > step.StartPercentPipeline)
+                        { recoveryStart = Mathf.Max(recoveryStart, step.StartPercentPipeline); recoveryEnd = Mathf.Max(recoveryEnd, step.EndPercentPipeline); }
+                        break;
+                    case "MovementLock": case "Wait": case "PlayerImpulse": case "SpawnVFX":
+                    case "BuildChainTargets": case "SpawnChainVFX": break;
                     default: return false;
                 }
             }
-            if (!windup || !recovery || releases != 1 || projectiles != 1) return false;
+            if (!action || release >= 1f || release < 0f) return false;
+            _rangedRelease = release;
+            _rangedWindupStart = preparation < release ? preparation : 0f;
+            // One cast envelope, even when a recipe has several shots/recoveries. Persistent effects
+            // keep their own lifetime; they never own the caster's body after the recipe finishes.
+            _recoveryStart = recoveryStart >= release ? recoveryStart : release;
+            _rangedRecoveryEnd = recoveryEnd > _recoveryStart ? recoveryEnd : 1f;
             _owner = owner; _profile = profile; _rangedStyle = skill.BodyFollowStyle;
             _weight = Mathf.Clamp01(profile.RangedBodyStrength) * Mathf.Clamp(duration / .5f, .35f, 1f);
             _pipelineRecovery = _hasStrike = _recovering = false; Pose = AttackBodyPose.Neutral;
@@ -95,6 +110,7 @@ namespace Scripts.Visuals
             float degrees = _rangedStyle == RangedBodyStyle.Bow ? (release ? -1.5f : 1.5f)
                 : _rangedStyle == RangedBodyStyle.Wand ? (release ? 1.5f : -.25f)
                 : _rangedStyle == RangedBodyStyle.Staff ? (release ? 2.5f : 1f)
+                : _rangedStyle == RangedBodyStyle.SwordWave ? (release ? -3f : 3f)
                 : (release ? -2f : 1f);
             float compression = _rangedStyle == RangedBodyStyle.Staff ? .01f : 0;
             return new AttackBodyPose(degrees * _weight, 1 - compression * _weight);
@@ -131,6 +147,21 @@ namespace Scripts.Visuals
 
         public void SamplePipeline(object owner, float phase)
         {
+            if (ReferenceEquals(owner, _owner) && _profile != null && _rangedStyle != RangedBodyStyle.None)
+            {
+                if (phase < _rangedWindupStart) { Pose = AttackBodyPose.Neutral; return; }
+                if (phase < _rangedRelease)
+                {
+                    var windup = RangedPose(false);
+                    float t = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(_rangedWindupStart, _rangedRelease, phase));
+                    Pose = new AttackBodyPose(windup.Degrees * t, Mathf.Lerp(1, windup.Height, t));
+                    return;
+                }
+                var strike = RangedPose(true);
+                float settle = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(_recoveryStart, _rangedRecoveryEnd, phase));
+                Pose = new AttackBodyPose(Mathf.Lerp(strike.Degrees, 0, settle), Mathf.Lerp(strike.Height, 1, settle));
+                return;
+            }
             if (!ReferenceEquals(owner, _owner) || _profile == null || !_pipelineRecovery || !_hasStrike || phase < _recoveryStart) return;
             ApplyRecovery(_recoveryStart < 1f ? Mathf.InverseLerp(_recoveryStart, 1f, phase) : 1f);
         }

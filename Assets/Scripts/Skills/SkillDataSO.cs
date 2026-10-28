@@ -7,7 +7,7 @@ using Scripts.StatusEffects;
 
 namespace Scripts.Skills
 {
-    public enum RangedBodyStyle { None, Bow, Wand, Staff, Throw }
+    public enum RangedBodyStyle { None, Bow, Wand, Staff, Throw, SwordWave }
     public enum SkillActionSpeedMode
     {
         Attack = 0,

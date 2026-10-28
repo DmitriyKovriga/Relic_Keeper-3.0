@@ -85,7 +85,11 @@ Spear, Flaming Spear and A Fan of Sickles with opt-in recipe-phase body motion,
 rapid-cast scaling and unchanged hand/root paths. 111 focused tests and fourteen
 live cases passed. Three older Mana Spear finite-pierce tests conflict with its
 unchanged infinite-pierce recipe; this data/test mismatch remains separate.
-Other ranged skills await review of these four examples.
+[C02 ranged expansion](Step18_RangedExpansion.md) now covers 30 skills (26 added
+after the pilot), including volleys, beams, persistent spell casts, the sword
+wave and one-handed axe throw. One recipe-clock response prevents repeated
+shots from restarting body recoil. 112 focused tests and 30 controlled live
+casts passed. Channel loops remain explicitly unsupported.
 Full player-build GPU profiling is not claimed by the Editor measurements.
 
 User review (2026-10-27): **remove the automatic generic contact effect**.

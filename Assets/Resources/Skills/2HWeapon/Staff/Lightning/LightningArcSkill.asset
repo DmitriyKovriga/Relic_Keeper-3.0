@@ -32,3 +32,4 @@ MonoBehaviour:
   Recipe: {fileID: 11400000, guid: 996490015aed4b1692ccc687ef72855c, type: 2}
   HoldStance: 5
   SwingStyle: 0
+  BodyFollowStyle: 3

@@ -35,3 +35,4 @@ MonoBehaviour:
   HoldStanceId: low_guard
   SwingStyle: 2
   SwingStyleId: low_arc
+  BodyFollowStyle: 4

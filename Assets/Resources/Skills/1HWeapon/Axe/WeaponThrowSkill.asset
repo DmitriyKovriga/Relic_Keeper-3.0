@@ -34,3 +34,4 @@ MonoBehaviour:
   HoldStanceId: shoulder
   SwingStyle: 0
   SwingStyleId: overhead
+  BodyFollowStyle: 4

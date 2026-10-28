@@ -35,4 +35,5 @@ MonoBehaviour:
   HoldStance: 2
   HoldStanceId: 
   SwingStyle: 2
-  SwingStyleId: 
+  SwingStyleId:
+  BodyFollowStyle: 4

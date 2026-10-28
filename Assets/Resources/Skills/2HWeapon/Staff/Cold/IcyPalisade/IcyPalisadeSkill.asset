@@ -41,3 +41,4 @@ MonoBehaviour:
   HoldStanceId: staff
   SwingStyle: 1
   SwingStyleId: slash
+  BodyFollowStyle: 3

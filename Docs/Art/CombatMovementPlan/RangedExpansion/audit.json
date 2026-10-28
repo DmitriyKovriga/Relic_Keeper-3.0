@@ -1,0 +1,314 @@
+{
+  "cases": [
+    {
+      "name": "AerialVolleySkill",
+      "hero": "Rogue",
+      "skill": "Assets/Resources/Skills/2HWeapon/Bow/AerialVolley/AerialVolleySkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Bow/Adventurer's Bow.asset",
+      "duration": 0.7142857313156128,
+      "peakDegrees": 1.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "ArrowArtillery",
+      "hero": "Rogue",
+      "skill": "Assets/Resources/Skills/2HWeapon/Bow/Artillery/ArrowArtillery.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Bow/Adventurer's Bow.asset",
+      "duration": 1.0,
+      "peakDegrees": 1.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "BigColdBallSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/2HWeapon/Staff/Cold/BigColdBallSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "BigFireBallSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/2HWeapon/Staff/Fire/Adventurers/BigFireBallSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "BigLightningBallSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/2HWeapon/Staff/Lightning/BigLightningBallSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "CircularSawSkill",
+      "hero": "Warrior",
+      "skill": "Assets/Resources/Skills/2HWeapon/Chakram/rb/CircularSaw/CircularSawSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Chakram/Adventurer/Adventurer's Chakram.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.0,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "DoubleDischargeSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/2HWeapon/Staff/Lightning/DoubleDischarge/DoubleDischargeSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "ElectricBeamSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/1HWeapon/Wand/ElectricBeamSkill.asset",
+      "weapon": "Assets/Resources/Items/1H Weapon/1HWand/MysticAdventurer'sWand.asset",
+      "duration": 1.0,
+      "peakDegrees": 1.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "FanOfSicklesSkill",
+      "hero": "Warrior",
+      "skill": "Assets/Resources/Skills/2HWeapon/Chakram/lb/FanOfSickles/FanOfSicklesSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Chakram/Adventurer/Adventurer's Chakram.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.0,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "FireBallSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/2HWeapon/Staff/Fire/Adventurers/FireBallSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "FlamingSpearSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/2HWeapon/Staff/Fire/FlamingSpear/FlamingSpearSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "FrostInducedJoltSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/2HWeapon/Staff/Cold/FrostInducedJolt/FrostInducedJoltSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "FrostWallSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/2HWeapon/Staff/Cold/FrostWall/FrostWallSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 0.3333333432674408,
+      "peakDegrees": 1.6666667461395264,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "HomingWeaponThrow",
+      "hero": "Warrior",
+      "skill": "Assets/Resources/Skills/2HWeapon/Chakram/lb/HomingWeaponThrow.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Chakram/Adventurer/Adventurer's Chakram.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.0,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "HorizonCrossSectionSkill",
+      "hero": "Warrior",
+      "skill": "Assets/Resources/Skills/2HWeapon/Sword/HorizonCrossSection/HorizonCrossSectionSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Sword/Adventurer's Sword.asset",
+      "duration": 1.25,
+      "peakDegrees": 3.0,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "IcecleShotSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/2HWeapon/Staff/Cold/IcecleShotSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "IcyPalisadeSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/2HWeapon/Staff/Cold/IcyPalisade/IcyPalisadeSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "LightningArcSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/2HWeapon/Staff/Lightning/LightningArcSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.491851806640625,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "LightningRodSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/2HWeapon/Staff/Lightning/LightningRod/LightningRodSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 0.3333333432674408,
+      "peakDegrees": 1.6666667461395264,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "LuckyShotSkill",
+      "hero": "Rogue",
+      "skill": "Assets/Resources/Skills/2HWeapon/Bow/LuckyShot/LuckyShotSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Bow/Adventurer's Bow.asset",
+      "duration": 1.0,
+      "peakDegrees": 1.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "ManaSpearSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/1HWeapon/Wand/ManaSpear/ManaSpearSkill.asset",
+      "weapon": "Assets/Resources/Items/1H Weapon/1HWand/MysticAdventurer'sWand.asset",
+      "duration": 1.0,
+      "peakDegrees": 1.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "NearFanSkill",
+      "hero": "Rogue",
+      "skill": "Assets/Resources/Skills/2HWeapon/Bow/NearFan/NearFanSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Bow/Adventurer's Bow.asset",
+      "duration": 1.0,
+      "peakDegrees": 1.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "OrbitalWeaponThrowSkill",
+      "hero": "Warrior",
+      "skill": "Assets/Resources/Skills/2HWeapon/Chakram/rb/OrbitalWeaponTrowRBSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Chakram/Adventurer/Adventurer's Chakram.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.0,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "PendulumSkill",
+      "hero": "Warrior",
+      "skill": "Assets/Resources/Skills/2HWeapon/Chakram/lb/Pendulum/PendulumSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Chakram/Adventurer/Adventurer's Chakram.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.0,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "PiercingBowShotSkill",
+      "hero": "Rogue",
+      "skill": "Assets/Resources/Skills/2HWeapon/Bow/PiercingShot/PiercingBowShotSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Bow/Adventurer's Bow.asset",
+      "duration": 1.0,
+      "peakDegrees": 1.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "PrismaticCycleSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/1HWeapon/Wand/PrismaticCycle/PrismaticCycleSkill.asset",
+      "weapon": "Assets/Resources/Items/1H Weapon/1HWand/MysticAdventurer'sWand.asset",
+      "duration": 1.0,
+      "peakDegrees": 1.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "SeekerSkill",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/1HWeapon/Wand/SeekerSkill.asset",
+      "weapon": "Assets/Resources/Items/1H Weapon/1HWand/MysticAdventurer'sWand.asset",
+      "duration": 1.0,
+      "peakDegrees": 1.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "SimpleBowShotSkill",
+      "hero": "Rogue",
+      "skill": "Assets/Resources/Skills/2HWeapon/Bow/SimpleBowShotSkill.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Bow/Adventurer's Bow.asset",
+      "duration": 1.0,
+      "peakDegrees": 1.5,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "WinterStorm",
+      "hero": "Mage",
+      "skill": "Assets/Resources/Skills/2HWeapon/Staff/Cold/WinterStorm.asset",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 0.20000000298023224,
+      "peakDegrees": 0.9803240895271301,
+      "finalOwned": false,
+      "error": ""
+    },
+    {
+      "name": "WeaponThrowSkill",
+      "hero": "Warrior",
+      "skill": "Assets/Resources/Skills/1HWeapon/Axe/WeaponThrowSkill.asset",
+      "weapon": "Assets/Scripts/Items/Weapon/LowTier/OneHandedWeapon/Axes/Small Adventurer's Axe.asset",
+      "duration": 0.6666666865348816,
+      "peakDegrees": 2.0,
+      "finalOwned": false,
+      "error": ""
+    }
+  ],
+  "tests": {
+    "passed": 112,
+    "failed": 0,
+    "skipped": 0
+  },
+  "sources": {
+    "Assets/Scripts/Visuals/AttackBodyFollow.cs": "4ce7dc34172394c479bcf89b12720ac842da351d6782f1940ced02b80c9ae534",
+    "Assets/Scripts/Skills/SkillDataSO.cs": "83497b0997df6e8a85933777e48c7db07a06a01dc51fbc6d038a479d9caf7ffb"
+  },
+  "limitations": "Editor controlled miss casts, actor roots constrained; weapon family sprite proxies; not build performance or hardware input traversal."
+}
