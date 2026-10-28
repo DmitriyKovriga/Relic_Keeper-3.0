@@ -1,0 +1,27 @@
+{
+  "status": "complete",
+  "locales": [
+    "en",
+    "ru"
+  ],
+  "nativeSize": [
+    480,
+    270
+  ],
+  "reducedSaved": true,
+  "behaviorTestsPassed": 126,
+  "finalFlashPolicyTestsPassed": 25,
+  "stress": {
+    "requests": 10000,
+    "targets": 24,
+    "normalMaxFlashes": 8,
+    "reducedMaxFlashes": 3
+  },
+  "scope": "Live Settings rendering/callback validation plus EditMode renderer/budget integration; not standalone GPU profiling or a full live crowd replay.",
+  "sha256": {
+    "Assets/Scripts/Visuals/CombatEffectsPolicy.cs": "6aff5b244b574e735cacad2683778371648ad7124b4c84ead80896f6b646605b",
+    "Assets/Scripts/Visuals/EnemyHitFlash.cs": "acbbae9e44372a4349a93068860272e2987ade02a1ec50dad6797a04aa679b70",
+    "Assets/UI/SettingsUI/GameplayPresentationSettings.cs": "9e7c93bf0778b062caa88b2a7c6d006ef42e95909d696e1e0aee488cabcd4563",
+    "Assets/UI/SettingsUI/LanguageSelector.cs": "0fe995475ef90b8fa932078901dea0574c8a30e38170c2ad453ac583db81b160"
+  }
+}

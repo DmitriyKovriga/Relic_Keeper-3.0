@@ -41,6 +41,10 @@
                         <ui:Label text="50%" name="CameraImpulseValue" class="settings-slider-value" />
                     </ui:VisualElement>
                 </ui:VisualElement>
+                <ui:VisualElement name="CombatEffectsRow" class="settings-presentation-row">
+                    <ui:Label text="Combat effects" name="CombatEffectsLabel" class="settings-presentation-label" />
+                    <ui:Button text="Normal" name="CombatEffectsButton" class="settings-select-button settings-presentation-dropdown" />
+                </ui:VisualElement>
                 <ui:VisualElement name="LootFilterRow" class="settings-presentation-row">
                     <ui:Label text="Hide items" name="LootFilterLabel" class="settings-presentation-label" />
                     <ui:Button text="Do not hide" name="LootFilterButton" class="settings-select-button settings-presentation-dropdown" />

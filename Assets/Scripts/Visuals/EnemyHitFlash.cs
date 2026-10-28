@@ -16,10 +16,15 @@ namespace Scripts.Visuals
         private EnemyHitRecoil _recoil;
         private readonly HitFlashPulse _pulse = new HitFlashPulse();
         private bool _applied;
+        private static readonly CombatFlashBudget Budget = new CombatFlashBudget();
+        private bool _reduced;
+        private void OnEnable() { GameplayPresentationSettings.Changed += OnSettings; OnSettings(); }
+        private void OnSettings() { _reduced = GameplayPresentationSettings.ReducedCombatEffects; ResetFlash(); }
         public float Amount => _fx != null ? _fx.HitFlashAmount : 0f;
 
         public void Initialize(SpriteRenderer source)
         {
+            _reduced = GameplayPresentationSettings.ReducedCombatEffects;
             ResetFlash();
             _source = source;
             _fx = source != null ? source.GetComponent<SpriteFxController>() ?? source.gameObject.AddComponent<SpriteFxController>() : null;
@@ -30,11 +35,16 @@ namespace Scripts.Visuals
         public void React(ConfirmedHit hit)
         {
             if (hit.IsLethal) { ResetFlash(); return; }
-            if (!Ready() || _source.sharedMaterial == null || !_source.sharedMaterial.HasProperty("_FxHitFlash")) return;
+            if (GamePauseService.IsPaused || !Ready() || _source.sharedMaterial == null || !_source.sharedMaterial.HasProperty("_FxHitFlash")) return;
             float strength = hit.Contact?.Weight == AttackImpactWeight.Light ? _profile.LightHitFlash
                 : hit.Contact?.Weight == AttackImpactWeight.Heavy ? _profile.HeavyHitFlash : _profile.NormalHitFlash;
             if (hit.IsCritical) strength += _profile.CriticalHitFlashBonus;
-            if (_pulse.Trigger(Time.time, strength, _profile.HitFlashDuration, _profile.HitFlashInterval)) Sample(Time.time);
+            if (_pulse.Trigger(Time.time, strength * CombatEffectsPolicy.AccentScale(_reduced), _profile.HitFlashDuration,
+                _reduced ? Mathf.Max(.35f, _profile.HitFlashInterval) : _profile.HitFlashInterval))
+            {
+                if (!Budget.TryAcquire(this, CombatEffectsPolicy.FlashLimit(_reduced))) { _pulse.Clear(); return; }
+                Sample(Time.time);
+            }
         }
 
         private bool Ready() => isActiveAndEnabled && _source != null && _source.enabled && _source.gameObject.activeInHierarchy &&
@@ -49,6 +59,7 @@ namespace Scripts.Visuals
             if (GamePauseService.IsPaused) return;
             if (!_pulse.Sample(now, out float strength))
             {
+                Budget.Release(this);
                 if (_applied) { _fx.SetHitFlash(_profile.HitFlashColor, 0); _applied = false; }
                 return; // Keep the retrigger cooldown even after the visible pulse has ended.
             }
@@ -57,12 +68,13 @@ namespace Scripts.Visuals
 
         public void ResetFlash()
         {
+            Budget.Release(this);
             _pulse.Clear();
             if (_applied && _fx != null) _fx.SetHitFlash(Color.white, 0);
             _applied = false;
         }
 
-        private void OnDisable() => ResetFlash();
+        private void OnDisable() { GameplayPresentationSettings.Changed -= OnSettings; ResetFlash(); }
         private void OnDestroy() => ResetFlash();
     }
 

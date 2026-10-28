@@ -14,14 +14,23 @@ namespace RelicKeeper.Tests.EditMode
     {
         private readonly List<Object> _objects = new List<Object>();
         private CombatPoseProfile _profile;
+        private bool _hadReduced, _reduced;
         private T Keep<T>(T value) where T : Object { _objects.Add(value); return value; }
         private static void Set(object target, string name, object value) => target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(target, value);
 
-        [SetUp] public void Setup() => _profile = Keep(Object.Instantiate(CombatPoseProfile.LoadDefault()));
+        [SetUp] public void Setup()
+        {
+            _hadReduced = PlayerPrefs.HasKey(GameplayPresentationSettings.ReducedCombatEffectsKey);
+            _reduced = GameplayPresentationSettings.ReducedCombatEffects;
+            GameplayPresentationSettings.SetReducedCombatEffects(false);
+            _profile = Keep(Object.Instantiate(CombatPoseProfile.LoadDefault()));
+        }
         [TearDown] public void Cleanup()
         {
             for (int i = _objects.Count - 1; i >= 0; i--) if (_objects[i] != null) Object.DestroyImmediate(_objects[i]);
             _objects.Clear();
+            GameplayPresentationSettings.SetReducedCombatEffects(_reduced);
+            if (!_hadReduced) PlayerPrefs.DeleteKey(GameplayPresentationSettings.ReducedCombatEffectsKey); PlayerPrefs.Save();
         }
 
         private EnemyHitFlash Target(out SpriteRenderer source, out SpriteFxController fx)

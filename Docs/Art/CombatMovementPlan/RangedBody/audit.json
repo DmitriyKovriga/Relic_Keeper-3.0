@@ -1,0 +1,166 @@
+{
+  "utc": "2026-10-28T21:41:42.1768139Z",
+  "status": "complete",
+  "fixture": "Ranged body on/off recipe comparisons; real skill casts/projectiles; controlled stationary/run/air traces. Existing weapon family proxies recorded per case. Native 480x270, no scene edits saved.",
+  "poseTestsPassed": 111,
+  "knownUnchangedFailures": [
+    "ManaSpearTests.CountForkAndChainDoNotMultiplyOrBendTheSpear",
+    "ManaSpearTests.PierceBudgetHitsExactlyTheAllowedNumberAlongTheLine(0,1)",
+    "ManaSpearTests.PierceBudgetHitsExactlyTheAllowedNumberAlongTheLine(1,2)"
+  ],
+  "pairs": [
+    {
+      "kind": "bow",
+      "handPositionDifference": 0.0,
+      "handRotationDifference": 0.0,
+      "weaponPositionDifference": 0.0,
+      "rootPositionDifference": 0.0,
+      "phaseDifference": 0.0
+    },
+    {
+      "kind": "wand",
+      "handPositionDifference": 0.0,
+      "handRotationDifference": 0.0,
+      "weaponPositionDifference": 0.0,
+      "rootPositionDifference": 0.0,
+      "phaseDifference": 0.0
+    },
+    {
+      "kind": "staff",
+      "handPositionDifference": 0.0,
+      "handRotationDifference": 0.0,
+      "weaponPositionDifference": 0.0,
+      "rootPositionDifference": 0.0,
+      "phaseDifference": 0.0
+    },
+    {
+      "kind": "throw",
+      "handPositionDifference": 0.0,
+      "handRotationDifference": 0.0,
+      "weaponPositionDifference": 0.0,
+      "rootPositionDifference": 0.0,
+      "phaseDifference": 0.0
+    }
+  ],
+  "cases": [
+    {
+      "name": "bow-off",
+      "hero": "Rogue",
+      "weapon": "Assets/Resources/Items/2HWeapon/Bow/Adventurer's Bow.asset",
+      "duration": 1.0,
+      "peakDegrees": 0.0,
+      "error": ""
+    },
+    {
+      "name": "bow-on",
+      "hero": "Rogue",
+      "weapon": "Assets/Resources/Items/2HWeapon/Bow/Adventurer's Bow.asset",
+      "duration": 1.0,
+      "peakDegrees": 1.5,
+      "error": ""
+    },
+    {
+      "name": "wand-off",
+      "hero": "Mage",
+      "weapon": "Assets/Resources/Items/1H Weapon/1HWand/MysticAdventurer'sWand.asset",
+      "duration": 1.0,
+      "peakDegrees": 0.0,
+      "error": ""
+    },
+    {
+      "name": "wand-on",
+      "hero": "Mage",
+      "weapon": "Assets/Resources/Items/1H Weapon/1HWand/MysticAdventurer'sWand.asset",
+      "duration": 1.0,
+      "peakDegrees": 1.5,
+      "error": ""
+    },
+    {
+      "name": "staff-off",
+      "hero": "Mage",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 1.0,
+      "peakDegrees": 0.0,
+      "error": ""
+    },
+    {
+      "name": "staff-on",
+      "hero": "Mage",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.5,
+      "error": ""
+    },
+    {
+      "name": "throw-off",
+      "hero": "Warrior",
+      "weapon": "Assets/Resources/Items/2HWeapon/Chakram/Adventurer/Adventurer's Chakram.asset",
+      "duration": 1.0,
+      "peakDegrees": 0.0,
+      "error": ""
+    },
+    {
+      "name": "throw-on",
+      "hero": "Warrior",
+      "weapon": "Assets/Resources/Items/2HWeapon/Chakram/Adventurer/Adventurer's Chakram.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.0,
+      "error": ""
+    },
+    {
+      "name": "bow-run",
+      "hero": "Rogue",
+      "weapon": "Assets/Resources/Items/2HWeapon/Bow/Adventurer's Bow.asset",
+      "duration": 1.0,
+      "peakDegrees": 1.5,
+      "error": ""
+    },
+    {
+      "name": "wand-air",
+      "hero": "Mage",
+      "weapon": "Assets/Resources/Items/1H Weapon/1HWand/MysticAdventurer'sWand.asset",
+      "duration": 1.0,
+      "peakDegrees": 1.5,
+      "error": ""
+    },
+    {
+      "name": "staff-left",
+      "hero": "Mage",
+      "weapon": "Assets/Resources/Items/2HWeapon/Staff/Cold/Adventurer/Cold Staff Of Adventurer.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.5,
+      "error": ""
+    },
+    {
+      "name": "throw-air",
+      "hero": "Warrior",
+      "weapon": "Assets/Resources/Items/2HWeapon/Chakram/Adventurer/Adventurer's Chakram.asset",
+      "duration": 1.0,
+      "peakDegrees": 2.0,
+      "error": ""
+    },
+    {
+      "name": "wand-fast",
+      "hero": "Mage",
+      "weapon": "Assets/Resources/Items/1H Weapon/1HWand/MysticAdventurer'sWand.asset",
+      "duration": 0.1666666716337204,
+      "peakDegrees": 0.47039997577667236,
+      "error": ""
+    },
+    {
+      "name": "cancel",
+      "hero": "Mage",
+      "weapon": "Assets/Resources/Items/1H Weapon/1HWand/MysticAdventurer'sWand.asset",
+      "duration": 1.0,
+      "peakDegrees": 0.06481482088565826,
+      "error": ""
+    }
+  ],
+  "sha256": {
+    "Assets/Scripts/Visuals/AttackBodyFollow.cs": "0dd6856f2e7c91501a74d9f6f3e5ef17ccb035f518814060e0604d0776ce879d",
+    "Assets/Scripts/Visuals/PlayerMovementVisual.cs": "28e0759203c4eb27c14bab52ca1761e3f4cfc4baced302a6cd964c1bc20a6ecd",
+    "Assets/Scripts/Skills/Logic/SkillStepRunner.cs": "e97259469eaacfb9fc452e42ab4c8d9a12a8f76146716bb066b02b1bbe95930d",
+    "Assets/Scripts/Skills/SkillDataSO.cs": "cb0d8827ca63d7cd7ae739a8d32e838aa2a99ec3237466bb0e8b00a33a2548cc",
+    "Assets/Scripts/Diagnostics/CombatBaselineCapture.Ranged.cs": "b00092f4e121cbf193c3cb4bb9b137056ff751db3420e9eae9a1c7ab96b5e8c6"
+  }
+}

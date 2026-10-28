@@ -132,7 +132,7 @@ namespace Scripts.Visuals
                 if (!active) continue;
                 var frames = Frames((DefenseFeedbackKind)i);
                 renderer.sprite = frames[Mathf.Min(frames.Length - 1, Mathf.FloorToInt(progress * frames.Length))];
-                renderer.color = new Color(1, 1, 1, Mathf.Clamp01(_profile.DefenseFeedbackOpacity));
+                renderer.color = new Color(1, 1, 1, Mathf.Clamp01(_profile.DefenseFeedbackOpacity) * CombatEffectsPolicy.AccentStrength);
                 renderer.transform.position = body.center + (i == 0 ? new Vector3(_side[i] * (body.extents.x + .1f), .05f, 0) : Vector3.zero);
                 ActiveResponses++;
             }

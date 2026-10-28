@@ -66,11 +66,11 @@ namespace Scripts.Visuals
         public AttackBodyPose VisibleAttackPose { get; private set; } = AttackBodyPose.Neutral;
         public object AttackBodyOwner => _attackBody.Owner;
 
-        public bool BeginAttackBody(object owner, Scripts.Skills.SkillDataSO skill)
+        public bool BeginAttackBody(object owner, Scripts.Skills.SkillDataSO skill, float duration = 1f)
         {
             if (!isActiveAndEnabled) return false;
             if (_combatPoseProfile == null) _combatPoseProfile = CombatPoseProfile.LoadDefault();
-            if (!_attackBody.TryBegin(owner, skill, _combatPoseProfile)) return false;
+            if (!_attackBody.TryBegin(owner, skill, _combatPoseProfile, duration)) return false;
             _attackCharacter = _stats != null ? _stats.CurrentCharacterData : null;
             return true;
         }
@@ -160,7 +160,7 @@ namespace Scripts.Visuals
             VisibleHurtFlash = _hurt.Sample(Time.time, out float hurtDirection);
             if (_hurtFx == null && VisibleHurtFlash > 0) _hurtFx = _source.GetComponent<SpriteFX.SpriteFxController>() ?? _source.gameObject.AddComponent<SpriteFX.SpriteFxController>();
             if (_hurtFx != null) _hurtFx.SetHitFlash(_combatPoseProfile != null ? _combatPoseProfile.PlayerHurtColor : Color.white,
-                _source.sharedMaterial != null && _source.sharedMaterial.HasProperty("_FxHitFlash") ? VisibleHurtFlash : 0);
+                _source.sharedMaterial != null && _source.sharedMaterial.HasProperty("_FxHitFlash") ? VisibleHurtFlash * CombatEffectsPolicy.AccentStrength : 0);
             _display.color = _source.color;
             _display.flipX = _source.flipX;
             _display.flipY = _source.flipY;

@@ -117,7 +117,7 @@ namespace Scripts.Skills
             };
             _bodyVisual = _ownerStats.GetComponent<PlayerMovementVisual>();
             _bodyOwner = AcceptedAttack;
-            _bodyVisual?.BeginAttackBody(_bodyOwner, _data);
+            _bodyVisual?.BeginAttackBody(_bodyOwner, _data, _ctx.TotalDuration);
             if (_animCtrl != null && _animCtrl.ActiveStyle == WeaponSwingStyle.BowDraw)
             {
                 foreach (var step in _data.Recipe.Steps)

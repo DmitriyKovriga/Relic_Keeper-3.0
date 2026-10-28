@@ -65,6 +65,27 @@ menu-pause queue leak fixed while preserving hit-stop jump buffering. Ninety-one
 focused tests and nine controlled live physics cases passed. Existing jump,
 coyote and drop-through timing values are unchanged; M06 stays conditional on
 observed corner snagging.
+[M06 controlled corner audit](Step14_CornerAudit.md) reproduced no persistent
+snag in sixteen physical trajectories at normal/double speed and both
+directions. Sixty-three focused EditMode tests passed. Automatic corner
+correction is not added; actual-room tile seams and dash corners remain
+specific follow-ups if a reproducible snag is reported.
+[C16 attack input audit](Step15_AttackInputAudit.md) fixes lost between-update
+taps, menu-time casts and stale intent after cancellation/source changes.
+One-update press edges preserve quick taps without queuing through recovery;
+127 focused tests passed. A timed recovery buffer remains a separate design
+decision, and broader C18 settings remain unfinished.
+[C18 shared limits and Reduced combat effects](Step16_ReducedEffects.md) adds a
+saved EN/RU Settings choice, shared 8/3 enemy-flash caps and reduced accents,
+camera strength and flying death debris. 126 behavior tests, a final 25-test
+flash/policy rerun and live native EN/RU Settings checks passed. Arbitrary skill
+VFX budgets and standalone GPU profiling remain outside this feedback preset.
+[C02 ranged body pilot](Step17_RangedBody.md) now covers Simple Bow Shot, Mana
+Spear, Flaming Spear and A Fan of Sickles with opt-in recipe-phase body motion,
+rapid-cast scaling and unchanged hand/root paths. 111 focused tests and fourteen
+live cases passed. Three older Mana Spear finite-pierce tests conflict with its
+unchanged infinite-pierce recipe; this data/test mismatch remains separate.
+Other ranged skills await review of these four examples.
 Full player-build GPU profiling is not claimed by the Editor measurements.
 
 User review (2026-10-27): **remove the automatic generic contact effect**.

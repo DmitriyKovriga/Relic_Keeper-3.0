@@ -63,7 +63,7 @@ namespace Scripts.Visuals
         private void OnPause(bool paused) { if (paused) ResetImpulse(); }
         private void OnSettings()
         {
-            _strength = GameplayPresentationSettings.CameraImpulseStrength;
+            _strength = GameplayPresentationSettings.CameraImpulseStrength * CombatEffectsPolicy.AccentStrength;
             if (_strength <= 0) ResetImpulse();
         }
         private void RememberScope()

@@ -91,6 +91,7 @@ public class PlayerAttackInput : MonoBehaviour
     private Sprite[] _stationaryDodgeFrames = Array.Empty<Sprite>();
 
     private readonly bool[] _pressedSkillInputs = new bool[SkillActionNames.Length];
+    private readonly bool[] _pendingSkillPresses = new bool[SkillActionNames.Length];
     private bool _isDodging;
     private bool _lastDodgeStartedInAir;
     private bool _landingRefundConsumed = true;
@@ -151,7 +152,12 @@ public class PlayerAttackInput : MonoBehaviour
         for (int i = 0; i < SkillActionNames.Length; i++)
         {
             int capturedIndex = i;
-            _skillStartedHandlers[i] = _ => _pressedSkillInputs[capturedIndex] = true;
+            _skillStartedHandlers[i] = _ =>
+            {
+                if (GamePauseService.IsPaused) return;
+                _pressedSkillInputs[capturedIndex] = true;
+                _pendingSkillPresses[capturedIndex] = true;
+            };
             _skillCanceledHandlers[i] = _ => _pressedSkillInputs[capturedIndex] = false;
         }
 
@@ -161,6 +167,10 @@ public class PlayerAttackInput : MonoBehaviour
 
     private void OnEnable()
     {
+        GamePauseService.PauseChanged += OnPauseChanged;
+        _skillManager.OnSkillsCanceled += ClearPressedSkillInputs;
+        _skillManager.OnSkillSlotUpdated += OnSkillSlotUpdated;
+        if (GamePauseService.IsPaused) OnPauseChanged(true);
         _dodgeAction = InputManager.InputActions.asset?.FindAction("Dodge", false);
         if (_dodgeAction != null)
             _dodgeAction.performed += QueueDodge;
@@ -178,6 +188,12 @@ public class PlayerAttackInput : MonoBehaviour
 
     private void OnDisable()
     {
+        GamePauseService.PauseChanged -= OnPauseChanged;
+        if (_skillManager != null)
+        {
+            _skillManager.OnSkillsCanceled -= ClearPressedSkillInputs;
+            _skillManager.OnSkillSlotUpdated -= OnSkillSlotUpdated;
+        }
         if (_dodgeAction != null)
             _dodgeAction.performed -= QueueDodge;
         _dodgeQueuedUntil = float.NegativeInfinity;
@@ -217,6 +233,7 @@ public class PlayerAttackInput : MonoBehaviour
 
     private void Update()
     {
+        if (GamePauseService.IsPaused) { OnPauseChanged(true); return; }
         if (PlayerStasisController.IsActiveFor(this))
         {
             ClearPressedSkillInputs();
@@ -229,15 +246,18 @@ public class PlayerAttackInput : MonoBehaviour
 
         if (_isDodging)
         {
-            bool wantsSkill = Array.Exists(_pressedSkillInputs, pressed => pressed);
+            bool wantsSkill = Array.Exists(_pressedSkillInputs, pressed => pressed) || Array.Exists(_pendingSkillPresses, pressed => pressed);
             if (!_isGroundDash || !wantsSkill || Time.time < _currentDodgeStartTime + _groundDashBrakeDelay)
+            {
+                Array.Clear(_pendingSkillPresses, 0, _pendingSkillPresses.Length);
                 return;
+            }
             FinishDodge();
         }
 
         for (int i = 0; i < _pressedSkillInputs.Length; i++)
         {
-            if (!_pressedSkillInputs[i])
+            if (!_pressedSkillInputs[i] && !_pendingSkillPresses[i])
                 continue;
             if (UiPointerUtility.IsPointerOverHudShortcuts())
                 break;
@@ -246,10 +266,14 @@ public class PlayerAttackInput : MonoBehaviour
             PlayerInteractController.NotifyActiveSkillInput();
             _skillManager.UseSkill(i);
         }
+        // Preserve a tap until its first update, never until a later recovery,
+        // cooldown, UI dismissal or resource refill. Held inputs retry normally.
+        Array.Clear(_pendingSkillPresses, 0, _pendingSkillPresses.Length);
     }
 
     private void QueueDodge(InputAction.CallbackContext context)
     {
+        if (GamePauseService.IsPaused) return;
         if (PlayerStasisController.IsActiveFor(this) || PlayerWinterStormController.IsActiveFor(this)) return;
         if (ItemTooltipController.Instance != null && ItemTooltipController.Instance.IsConsumingTooltipLockInput)
             return;
@@ -299,7 +323,26 @@ public class PlayerAttackInput : MonoBehaviour
     private void ClearPressedSkillInputs()
     {
         for (int i = 0; i < _pressedSkillInputs.Length; i++)
+        {
             _pressedSkillInputs[i] = false;
+            _pendingSkillPresses[i] = false;
+        }
+    }
+
+    private void OnPauseChanged(bool paused)
+    {
+        if (!paused) return;
+        ClearPressedSkillInputs();
+        _dodgeQueuedUntil = float.NegativeInfinity;
+    }
+
+    private void OnSkillSlotUpdated(int slot, SkillDataSO data)
+    {
+        if (slot >= 0 && slot < _pressedSkillInputs.Length)
+        {
+            _pressedSkillInputs[slot] = false;
+            _pendingSkillPresses[slot] = false;
+        }
     }
 
     private void TryStartDodge()

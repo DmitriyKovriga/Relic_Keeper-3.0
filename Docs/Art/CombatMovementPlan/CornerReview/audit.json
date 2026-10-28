@@ -1,0 +1,137 @@
+{
+  "status": "passed",
+  "testsPassed": 63,
+  "testsFailed": 0,
+  "simulation": "EditMode Physics2D.Simulate, 90 steps at .02 seconds, supplied constant horizontal intent; no hardware input playback",
+  "cases": [
+    {
+      "case": "ceiling-10--1",
+      "peakY": 0.68286,
+      "finalX": -17.54102,
+      "finalY": -35.91138,
+      "groundObserved": false,
+      "steps": 90
+    },
+    {
+      "case": "ceiling-10-1",
+      "peakY": 0.68286,
+      "finalX": 17.54102,
+      "finalY": -35.91138,
+      "groundObserved": false,
+      "steps": 90
+    },
+    {
+      "case": "ceiling-5--1",
+      "peakY": 0.68286,
+      "finalX": -8.90588,
+      "finalY": -35.91138,
+      "groundObserved": false,
+      "steps": 90
+    },
+    {
+      "case": "ceiling-5-1",
+      "peakY": 0.68286,
+      "finalX": 8.90588,
+      "finalY": -35.91138,
+      "groundObserved": false,
+      "steps": 90
+    },
+    {
+      "case": "clear-corner-10--1",
+      "peakY": 1.95862,
+      "finalX": -17.54102,
+      "finalY": -28.61188,
+      "groundObserved": false,
+      "steps": 90
+    },
+    {
+      "case": "clear-corner-10-1",
+      "peakY": 1.95862,
+      "finalX": 17.54102,
+      "finalY": -28.61188,
+      "groundObserved": false,
+      "steps": 90
+    },
+    {
+      "case": "clear-corner-5--1",
+      "peakY": 1.95862,
+      "finalX": -8.90588,
+      "finalY": -28.61188,
+      "groundObserved": false,
+      "steps": 90
+    },
+    {
+      "case": "clear-corner-5-1",
+      "peakY": 1.95862,
+      "finalX": 8.90588,
+      "finalY": -28.61188,
+      "groundObserved": false,
+      "steps": 90
+    },
+    {
+      "case": "one-way-10--1",
+      "peakY": 1.95862,
+      "finalX": -17.54102,
+      "finalY": 1.31488,
+      "groundObserved": true,
+      "steps": 90
+    },
+    {
+      "case": "one-way-10-1",
+      "peakY": 1.95862,
+      "finalX": 17.54102,
+      "finalY": 1.31488,
+      "groundObserved": true,
+      "steps": 90
+    },
+    {
+      "case": "one-way-5--1",
+      "peakY": 1.95862,
+      "finalX": -8.90588,
+      "finalY": 1.31488,
+      "groundObserved": true,
+      "steps": 90
+    },
+    {
+      "case": "one-way-5-1",
+      "peakY": 1.95862,
+      "finalX": 8.90588,
+      "finalY": 1.31488,
+      "groundObserved": true,
+      "steps": 90
+    },
+    {
+      "case": "wall-10--1",
+      "peakY": 1.95862,
+      "finalX": -10.02081,
+      "finalY": -28.61188,
+      "groundObserved": false,
+      "steps": 90
+    },
+    {
+      "case": "wall-10-1",
+      "peakY": 1.95862,
+      "finalX": 10.02081,
+      "finalY": -28.61188,
+      "groundObserved": false,
+      "steps": 90
+    },
+    {
+      "case": "wall-5--1",
+      "peakY": 1.95862,
+      "finalX": -5.38715,
+      "finalY": -28.61188,
+      "groundObserved": false,
+      "steps": 90
+    },
+    {
+      "case": "wall-5-1",
+      "peakY": 1.95862,
+      "finalX": 5.38715,
+      "finalY": -28.61188,
+      "groundObserved": false,
+      "steps": 90
+    }
+  ],
+  "sourceSha256": "4a8f8ee8bfb1e60e758456eb6bcd5aa691a65992f24e10dc775bed00513d5c7a"
+}

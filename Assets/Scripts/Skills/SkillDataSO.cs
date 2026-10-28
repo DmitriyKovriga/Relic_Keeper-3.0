@@ -7,6 +7,7 @@ using Scripts.StatusEffects;
 
 namespace Scripts.Skills
 {
+    public enum RangedBodyStyle { None, Bow, Wand, Staff, Throw }
     public enum SkillActionSpeedMode
     {
         Attack = 0,
@@ -77,6 +78,8 @@ namespace Scripts.Skills
         public GameObject SkillPrefab;
         [Tooltip("Р С’Р Р…Р С‘Р СР В°РЎвЂ Р С‘РЎРЏ Р С‘Р С–РЎР‚Р С•Р С”Р В° Р С—РЎР‚Р С‘ Р С”Р В°РЎРѓРЎвЂљР Вµ")]
         public string AnimationTrigger = "Attack";
+        [Tooltip("Optional body-only presentation. Does not change weapon animation or attack timing.")]
+        public RangedBodyStyle BodyFollowStyle;
 
         [Header("Step-based (optional)")]
         [Tooltip("Р В Р ВµРЎвЂ Р ВµР С—РЎвЂљ Р Т‘Р В»РЎРЏ StepRunner. Р вЂўРЎРѓР В»Р С‘ SkillPrefab Р Р…Р Вµ Р В·Р В°Р Т‘Р В°Р Р…, Р С‘РЎРѓР С—Р С•Р В»Р Р…Р С‘РЎвЂљР ВµР В»РЎРЉ РЎРѓР С•Р В·Р Т‘Р В°РЎвЂРЎвЂљРЎРѓРЎРЏ Р В°Р Р†РЎвЂљР С•Р СР В°РЎвЂљР С‘РЎвЂЎР ВµРЎРѓР С”Р С‘. Р ВР Р…Р В°РЎвЂЎР Вµ Р С—РЎР‚Р ВµРЎвЂћР В°Р В± Р Т‘Р С•Р В»Р В¶Р ВµР Р… РЎРѓР С•Р Т‘Р ВµРЎР‚Р В¶Р В°РЎвЂљРЎРЉ SkillBehaviour.")]

@@ -31,6 +31,8 @@ public class LanguageSelector : MonoBehaviour
     private Label _attackVfxOpacityLabel;
     private Label _cameraImpulseLabel, _cameraImpulseValue;
     private SliderInt _cameraImpulseSlider;
+    private Label _combatEffectsLabel;
+    private Button _combatEffectsButton;
     private EventCallback<ChangeEvent<int>> _cameraImpulseChangedCallback;
     private Button _hudScaleButton;
     private VisualElement _hudScalePopup;
@@ -104,6 +106,7 @@ public class LanguageSelector : MonoBehaviour
 
     private void OnDisable()
     {
+        if (_combatEffectsButton != null) _combatEffectsButton.clicked -= ToggleCombatEffects;
         if (_serviceNamesButton != null) _serviceNamesButton.clicked -= ToggleServiceNames;
         if (_enemyBarsButton != null) _enemyBarsButton.clicked -= ToggleEnemyBars;
         if (_dummyDpsButton != null) _dummyDpsButton.clicked -= ToggleDummyDps;
@@ -243,6 +246,9 @@ public class LanguageSelector : MonoBehaviour
         _cameraImpulseLabel = root?.Q<Label>("CameraImpulseLabel");
         _cameraImpulseValue = root?.Q<Label>("CameraImpulseValue");
         _cameraImpulseSlider = root?.Q<SliderInt>("CameraImpulseSlider");
+        _combatEffectsLabel = root?.Q<Label>("CombatEffectsLabel");
+        _combatEffectsButton = root?.Q<Button>("CombatEffectsButton");
+        if (_combatEffectsButton != null) _combatEffectsButton.clicked += ToggleCombatEffects;
         _hudScaleButton = root?.Q<Button>("HudScaleButton");
         _hudScalePopup = root?.Q<VisualElement>("HudScalePopup");
         _hudScaleOption100 = root?.Q<Button>("HudScaleOption100");
@@ -332,6 +338,7 @@ public class LanguageSelector : MonoBehaviour
         RefreshLootFilterChoices();
     }
 
+    private void ToggleCombatEffects() => GameplayPresentationSettings.SetReducedCombatEffects(!GameplayPresentationSettings.ReducedCombatEffects);
     private void ToggleServiceNames() => GameplayPresentationSettings.SetNearbyServiceNames(!GameplayPresentationSettings.NearbyServiceNames);
     private void ToggleEnemyBars() => GameplayPresentationSettings.SetCombatEnemyBars(!GameplayPresentationSettings.CombatEnemyBars);
     private void ToggleDummyDps() => GameplayPresentationSettings.SetRecentDummyDps(!GameplayPresentationSettings.RecentDummyDps);
@@ -343,6 +350,15 @@ public class LanguageSelector : MonoBehaviour
 
     private void RefreshWorldInformationLabels()
     {
+        bool russian = IsRussianLocale();
+        if (_combatEffectsLabel != null) _combatEffectsLabel.text = russian ? "Эффекты боя" : "Combat effects";
+        if (_combatEffectsButton != null)
+        {
+            _combatEffectsButton.text = GameplayPresentationSettings.ReducedCombatEffects
+                ? (russian ? "Сниженные" : "Reduced") : (russian ? "Обычные" : "Normal");
+            _combatEffectsButton.tooltip = russian ? "Снижает вспышки, отклик камеры и обломки. Атаки и предупреждения сохраняются."
+                : "Softens flashes, camera impact and debris. Attacks and warnings stay visible.";
+        }
         var root = ui?.rootVisualElement;
         if (root == null) return;
         void LabelText(string name, string key)

@@ -60,3 +60,5 @@ MonoBehaviour:
   QuietLandingSpeed: 2
   FullLandingSpeed: 14
   LandingPoseStrength: 1
+  EnableRangedBodyFollow: 1
+  RangedBodyStrength: 1

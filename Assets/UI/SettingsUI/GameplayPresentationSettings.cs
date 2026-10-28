@@ -10,6 +10,7 @@ public static class GameplayPresentationSettings
     public const string CombatEnemyBarsKey = "presentation_combat_enemy_bars";
     public const string RecentDummyDpsKey = "presentation_recent_dummy_dps";
     public const string CameraImpulseStrengthKey = "presentation_camera_impulse_strength";
+    public const string ReducedCombatEffectsKey = "presentation_reduced_combat_effects";
 
     public static event Action Changed;
 
@@ -20,6 +21,12 @@ public static class GameplayPresentationSettings
     public static bool CombatEnemyBars => PlayerPrefs.GetInt(CombatEnemyBarsKey, 1) != 0;
     public static bool RecentDummyDps => PlayerPrefs.GetInt(RecentDummyDpsKey, 1) != 0;
     public static float CameraImpulseStrength => NormalizeCameraImpulse(PlayerPrefs.GetFloat(CameraImpulseStrengthKey, .5f));
+    public static bool ReducedCombatEffects => PlayerPrefs.GetInt(ReducedCombatEffectsKey, 0) != 0;
+    public static void SetReducedCombatEffects(bool value)
+    {
+        if (ReducedCombatEffects == value) return;
+        PlayerPrefs.SetInt(ReducedCombatEffectsKey, value ? 1 : 0); PlayerPrefs.Save(); Changed?.Invoke();
+    }
 
     public static void SetCameraImpulseStrength(float value) => Save(CameraImpulseStrengthKey, NormalizeCameraImpulse(value));
 

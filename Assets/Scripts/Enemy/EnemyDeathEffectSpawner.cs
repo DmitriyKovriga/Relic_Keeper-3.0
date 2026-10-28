@@ -44,6 +44,7 @@ namespace Scripts.Enemies
             int chunkCount = quality == DeathEffectQuality.Full ? Mathf.Clamp(config.ChunkCount, 1, 6) :
                 quality == DeathEffectQuality.Medium ? Mathf.Clamp(config.ChunkCount, 1, 4) :
                 quality == DeathEffectQuality.Low ? Mathf.Clamp(config.ChunkCount, 1, 2) : 0;
+            chunkCount = CombatEffectsPolicy.DeathFragmentCount(chunkCount);
             var impactProfile = CombatPoseProfile.LoadDefault();
             for (int i = 0; i < chunkCount && sheet.TryReserveFragment(); i++)
                 SpawnFlyingChunk(sheet, config, sourceRenderer, burst, i, chunkCount, impact, impactProfile);

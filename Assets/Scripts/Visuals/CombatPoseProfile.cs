@@ -7,6 +7,8 @@ namespace Scripts.Visuals
     {
         public const string ResourcePath = "Visuals/CombatPoseProfile";
         public bool EnableBodyFollow = true;
+        public bool EnableRangedBodyFollow = true;
+        [Range(0f, 1f)] public float RangedBodyStrength = 1f;
         public bool EnableEnemyRecoil = true;
         [Header("Body follow (visual degrees and scale)")]
         [Range(0f, 6f)] public float WindupDegrees = 2f;

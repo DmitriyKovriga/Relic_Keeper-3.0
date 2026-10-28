@@ -30,9 +30,11 @@ namespace RelicKeeper.Editor.Combat
             if (_movementReview) ConfigureMovementCase();
             if (_landingReview) ConfigureLandingCase();
             if (_inputReview) ConfigureInputCase();
+            if (_rangedReview) ConfigureRangedCase();
         }
         private void UpdateHurtCase()
         {
+            if (_rangedReview) { UpdateRangedCase(); return; }
             if (_inputReview) { UpdateInputCase(); return; }
             if (_landingReview) { UpdateLandingCase(); return; }
             if (_defenseReview) { UpdateDefenseCase(); return; }
@@ -45,6 +47,7 @@ namespace RelicKeeper.Editor.Combat
         }
         private void ValidateHurtCase()
         {
+            if (_rangedReview) { ValidateRangedCase(); return; }
             if (_inputReview) { ValidateInputCase(); return; }
             if (_landingReview) { ValidateLandingCase(); return; }
             if (_defenseReview) { ValidateDefenseCase(); return; }

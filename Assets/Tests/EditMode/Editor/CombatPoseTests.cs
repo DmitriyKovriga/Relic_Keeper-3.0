@@ -156,7 +156,7 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(state.TryBegin(new object(), skill, _profile), Is.False);
             foreach (string path in new[] { "Skills/2HWeapon/Axe/RightButton/SweepRB", "Skills/2HWeapon/Bow/LuckyShot/LuckyShotSkill",
                 "Skills/2HWeapon/Sword/HorizonCrossSection/HorizonCrossSectionSkill",
-                "Skills/2HWeapon/Axe/ConningTower/ConningTowerSkill", "Skills/1HWeapon/Wand/ManaSpear/ManaSpearSkill",
+                "Skills/2HWeapon/Axe/ConningTower/ConningTowerSkill",
                 "Skills/2HWeapon/Chakram/rb/OrbitalWeaponTrowRBSkill" })
             {
                 var candidate = Resources.Load<SkillDataSO>(path);
@@ -224,6 +224,30 @@ namespace RelicKeeper.Tests.EditMode
                 Physics2D.SyncTransforms(); Assert.That(collider.bounds, Is.EqualTo(bounds));
             }
             visual.EndAttackBody(owner); Call(visual, "LateUpdate"); Assert.That(visual.VisibleAttackPose.Degrees, Is.Zero);
+        }
+
+        [TestCase("Rogue", "2HWeapon/Bow/SimpleBowShotSkill")]
+        [TestCase("Mage", "1HWeapon/Wand/ManaSpear/ManaSpearSkill")]
+        [TestCase("Mage", "2HWeapon/Staff/Fire/FlamingSpear/FlamingSpearSkill")]
+        [TestCase("Warrior", "2HWeapon/Chakram/lb/FanOfSickles/FanOfSicklesSkill")]
+        public void RangedReleaseKeepsFeetRootAndHandsRegisteredInBothFacingsAndAir(string hero, string path)
+        {
+            foreach (bool grounded in new[] { true, false }) foreach (int facing in new[] { -1, 1 })
+            {
+                var visual = Player(hero, facing, grounded, out var stats, out var hand);
+                Physics2D.SyncTransforms(); var collider = stats.GetComponent<BoxCollider2D>(); Bounds bounds = collider.bounds;
+                Vector3 root = stats.transform.position, grip = hand.position;
+                var owner = new object(); Assert.That(visual.BeginAttackBody(owner, Resources.Load<SkillDataSO>("Skills/" + path)), Is.True);
+                visual.SampleAttackStrike(owner);
+                _profile.EnableBodyFollow = false; Call(visual, "LateUpdate");
+                var display = visual.DisplayRenderer; float bottom = display.sprite.bounds.min.y;
+                Vector3 foot = display.transform.TransformPoint(new Vector3(0, bottom));
+                _profile.EnableBodyFollow = true; Call(visual, "LateUpdate");
+                Assert.That(Vector3.Distance(display.transform.TransformPoint(new Vector3(0, bottom)), foot), Is.LessThan(.00001f));
+                Assert.That(stats.transform.position, Is.EqualTo(root)); Assert.That(hand.position, Is.EqualTo(grip));
+                Physics2D.SyncTransforms(); Assert.That(collider.bounds, Is.EqualTo(bounds));
+                visual.EndAttackBody(owner);
+            }
         }
 
         [TestCase("Warrior", 1)] [TestCase("Warrior", -1)]

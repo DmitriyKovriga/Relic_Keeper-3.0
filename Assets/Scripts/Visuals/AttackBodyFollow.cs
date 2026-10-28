@@ -12,11 +12,14 @@ namespace Scripts.Visuals
         private bool _pipelineRecovery, _hasStrike, _recovering;
         private float _recoveryStart;
         private AttackBodyPose _recoveryFrom;
+        private RangedBodyStyle _rangedStyle;
         public object Owner => _owner;
         public AttackBodyPose Pose { get; private set; } = AttackBodyPose.Neutral;
 
-        public bool TryBegin(object owner, SkillDataSO skill, CombatPoseProfile profile)
+        public bool TryBegin(object owner, SkillDataSO skill, CombatPoseProfile profile, float duration = 1f)
         {
+            if (skill != null && skill.BodyFollowStyle != RangedBodyStyle.None)
+                return TryBeginRanged(owner, skill, profile, duration);
             if (owner == null || profile == null || !profile.EnableBodyFollow ||
                 skill == null || skill.Recipe == null || skill.Recipe.Steps == null || skill.Recipe.IsChanneling ||
                 skill.WeaponRole == SkillWeaponRole.Equipment || skill.ActionSpeedMode == SkillActionSpeedMode.Spell)
@@ -49,6 +52,7 @@ namespace Scripts.Visuals
             }
             if (!landing && (!windup || !strike || !damage)) return false;
             _owner = owner; _profile = profile;
+            _rangedStyle = RangedBodyStyle.None;
             _weight = multiplier >= 2f ? Mathf.Clamp(profile.HeavyBodyMultiplier, 1f, 1.8f) : 1f;
             // Missing/zero-length recovery steps still use the recipe clock. No extra timer or weapon phase.
             _pipelineRecovery = !landing && !recovery;
@@ -58,10 +62,53 @@ namespace Scripts.Visuals
             return true;
         }
 
+        private bool TryBeginRanged(object owner, SkillDataSO skill, CombatPoseProfile profile, float duration)
+        {
+            if (skill.BodyFollowStyle < RangedBodyStyle.Bow || skill.BodyFollowStyle > RangedBodyStyle.Throw) return false;
+            if (owner == null || profile == null || !profile.EnableBodyFollow || !profile.EnableRangedBodyFollow ||
+                skill.WeaponRole == SkillWeaponRole.Equipment || skill.Recipe == null || skill.Recipe.IsChanneling || skill.Recipe.Steps == null ||
+                float.IsNaN(duration) || float.IsInfinity(duration) || duration <= 0) return false;
+            int releases = 0, projectiles = 0; bool windup = false, recovery = false;
+            foreach (var step in skill.Recipe.Steps)
+            {
+                string id = step?.StepDefinition?.Id;
+                if (step == null || step.IsParallelGroup) return false;
+                switch (id)
+                {
+                    case "WeaponWindup": windup = true; break;
+                    case "WeaponStrike": releases++; break;
+                    case "SpawnProjectile": projectiles++; break;
+                    case "WeaponRecovery": recovery |= step.EndPercentPipeline > step.StartPercentPipeline; break;
+                    case "MovementLock": case "Wait": break;
+                    default: return false;
+                }
+            }
+            if (!windup || !recovery || releases != 1 || projectiles != 1) return false;
+            _owner = owner; _profile = profile; _rangedStyle = skill.BodyFollowStyle;
+            _weight = Mathf.Clamp01(profile.RangedBodyStrength) * Mathf.Clamp(duration / .5f, .35f, 1f);
+            _pipelineRecovery = _hasStrike = _recovering = false; Pose = AttackBodyPose.Neutral;
+            return true;
+        }
+
+        private AttackBodyPose RangedPose(bool release)
+        {
+            float degrees = _rangedStyle == RangedBodyStyle.Bow ? (release ? -1.5f : 1.5f)
+                : _rangedStyle == RangedBodyStyle.Wand ? (release ? 1.5f : -.25f)
+                : _rangedStyle == RangedBodyStyle.Staff ? (release ? 2.5f : 1f)
+                : (release ? -2f : 1f);
+            float compression = _rangedStyle == RangedBodyStyle.Staff ? .01f : 0;
+            return new AttackBodyPose(degrees * _weight, 1 - compression * _weight);
+        }
+
         public void Windup(object owner, float phase)
         {
             if (!ReferenceEquals(owner, _owner) || _profile == null) return;
             float t = Mathf.SmoothStep(0, 1, Mathf.Clamp01(phase));
+            if (_rangedStyle != RangedBodyStyle.None)
+            {
+                var pose = RangedPose(false);
+                Pose = new AttackBodyPose(pose.Degrees * t, Mathf.Lerp(1, pose.Height, t)); return;
+            }
             Pose = new AttackBodyPose(Mathf.Clamp(_profile.WindupDegrees * _weight, 0, 6) * t,
                 Mathf.Lerp(1, Mathf.Clamp(1 - (1 - _profile.WindupHeight) * _weight, .94f, 1), t));
         }
@@ -69,7 +116,9 @@ namespace Scripts.Visuals
         public void Strike(object owner)
         {
             if (!ReferenceEquals(owner, _owner) || _profile == null) return;
+            if (_rangedStyle != RangedBodyStyle.None && _hasStrike) return;
             _hasStrike = true; _recovering = false;
+            if (_rangedStyle != RangedBodyStyle.None) { Pose = RangedPose(true); return; }
             Pose = new AttackBodyPose(-Mathf.Clamp(_profile.StrikeDegrees * _weight, 0, 6),
                 Mathf.Clamp(1 - (1 - _profile.StrikeHeight) * _weight, .94f, 1));
         }
@@ -95,6 +144,6 @@ namespace Scripts.Visuals
         }
 
         public void Release(object owner) { if (ReferenceEquals(owner, _owner)) Clear(); }
-        public void Clear() { _owner = null; _profile = null; Pose = AttackBodyPose.Neutral; }
+        public void Clear() { _owner = null; _profile = null; _rangedStyle = RangedBodyStyle.None; Pose = AttackBodyPose.Neutral; }
     }
 }

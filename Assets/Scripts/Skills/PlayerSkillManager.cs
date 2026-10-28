@@ -20,6 +20,7 @@ namespace Scripts.Skills
         private const int BootsSkillSlot = 5;
 
         public event System.Action<int, SkillDataSO> OnSkillSlotUpdated;
+        public event System.Action OnSkillsCanceled;
 
         private readonly Dictionary<int, SkillBehaviour> _activeSkills = new();
         private readonly Dictionary<int, (string Item, SkillDataSO Skill, int Index)> _skillKeys = new();
@@ -93,7 +94,11 @@ namespace Scripts.Skills
             _suppressSkillUsage = suppressed;
         }
 
-        public void CancelAllSkills() => CancelAllSkillsExcept(null);
+        public void CancelAllSkills()
+        {
+            CancelAllSkillsExcept(null);
+            OnSkillsCanceled?.Invoke();
+        }
 
         public void CancelAllSkillsExcept(SkillBehaviour except)
         {
@@ -145,7 +150,7 @@ namespace Scripts.Skills
 
         public void UseSkill(int slotIndex)
         {
-            if (_suppressSkillUsage)
+            if (_suppressSkillUsage || GamePauseService.IsPaused)
                 return;
 
             foreach (var active in _activeSkills.Values)
