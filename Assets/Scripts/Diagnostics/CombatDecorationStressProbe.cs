@@ -17,7 +17,7 @@ namespace RelicKeeper.Diagnostics
 {
     // Opt-in only, never attached to gameplay scenes. Also runs in a development
     // player with -combat-decoration-audit; no shipping UI or background monitor.
-    public sealed class CombatDecorationStressProbe : MonoBehaviour
+    public sealed partial class CombatDecorationStressProbe : MonoBehaviour
     {
         [Serializable] public sealed class ModeResult
         {
@@ -35,12 +35,13 @@ namespace RelicKeeper.Diagnostics
         private bool _previousBackground;
         private RenderTexture _target;
         private Material _particleMaterial;
-        private string Output => Path.Combine(Directory.GetCurrentDirectory(), "Logs/CombatDecorationStress" + (Application.isEditor ? "Editor" : "Player"));
+        private string Output => Path.Combine(Directory.GetCurrentDirectory(), _mortfallAudit ? "Logs/MortfallCombatAudit" : "Logs/CombatDecorationStress" + (Application.isEditor ? "Editor" : "Player"));
         private static readonly Vector3 Origin = new Vector3(15000, 15000);
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void AutoStart()
         {
-            if (Environment.GetCommandLineArgs().Contains("-combat-decoration-audit")) Begin();
+            if (Environment.GetCommandLineArgs().Contains("-mortfall-combat-audit")) BeginMortfallAudit();
+            else if (Environment.GetCommandLineArgs().Contains("-combat-decoration-audit")) Begin();
         }
         public static void Begin()
         {
@@ -56,6 +57,23 @@ namespace RelicKeeper.Diagnostics
             _previousBackground = Application.runInBackground; Application.runInBackground = true;
             QualitySettings.vSyncCount = 0; Application.targetFrameRate = -1;
             Directory.CreateDirectory(Output);
+            if (_mortfallAudit)
+            {
+                var audit = RunMortfallAudit();
+                while (true)
+                {
+                    object next = null; bool more = false; Exception failure = null;
+                    try { more = audit.MoveNext(); if (more) next = audit.Current; }
+                    catch (Exception error) { failure = error; }
+                    if (failure != null)
+                    {
+                        File.WriteAllText(Path.Combine(Output, "failure.txt"), failure.ToString());
+                        Debug.LogException(failure); Destroy(gameObject); yield break;
+                    }
+                    if (!more) yield break;
+                    yield return next;
+                }
+            }
             var camera = Keep(new GameObject("Audit camera")).AddComponent<Camera>();
             camera.transform.position = Origin + Vector3.back * 10; camera.orthographic = true;
             camera.orthographicSize = 3; camera.depth = 100; camera.clearFlags = CameraClearFlags.SolidColor;

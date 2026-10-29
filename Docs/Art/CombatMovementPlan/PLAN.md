@@ -98,6 +98,12 @@ tests and a rendered standalone three-mode stress comparison passed with equal
 32-hit/320-damage outcomes. Dedicated whole-frame measurements are recorded;
 automatic smoke, persistent trails, arbitrary skill-step VFX and full-room GPU
 profiling remain outside this slice.
+[C18 Mortfall room audit](Step20_MortfallCombatAudit.md) adds a reusable opt-in
+development-player workload in rooms 001/006 with authored enemies and active
+AI, Near Fan/Circular Saw/Lightning Rod, and both effects modes. 54 focused tests
+and twelve standalone cases passed, including pause and projectile cleanup.
+Whole-frame measurements and screenshots are saved; GPU timing was unavailable
+and remains unverified. No saved gameplay balance or room geometry was changed.
 
 User review (2026-10-27): **remove the automatic generic contact effect**.
 The extra mark overlaps existing skill VFX and adds visual clutter. Keep the
