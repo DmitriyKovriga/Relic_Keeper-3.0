@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Scripts.UI;
 
 namespace Scripts.Skills.PassiveTree.UI
 {
@@ -9,6 +10,7 @@ namespace Scripts.Skills.PassiveTree.UI
         private static readonly Dictionary<uint, Texture2D> GlowTextureCache = new Dictionary<uint, Texture2D>();
         private static readonly Dictionary<uint, Texture2D> InsetTextureCache = new Dictionary<uint, Texture2D>();
         private bool _pulseScheduled;
+        private readonly UiTransactionFeedback _transactionFeedback;
 
         private readonly VisualElement _container;
         private readonly PassiveTreeThemeSO _theme;
@@ -32,6 +34,7 @@ namespace Scripts.Skills.PassiveTree.UI
             System.Action<string> onNodeRightClick)
         {
             _container = container;
+            _transactionFeedback = new UiTransactionFeedback(container);
             _theme = theme;
             _tooltip = tooltip;
             _onNodeClick = onNodeClick;
@@ -40,6 +43,7 @@ namespace Scripts.Skills.PassiveTree.UI
 
         public void BuildGraph(PassiveSkillTreeSO treeData)
         {
+            _transactionFeedback.Clear();
             _container.Clear();
             _nodeVisuals.Clear();
             _connections.Clear();
@@ -78,6 +82,14 @@ namespace Scripts.Skills.PassiveTree.UI
 
             ApplySearch();
         }
+
+        public void ShowTransaction(string id, bool accepted)
+        {
+            if (_nodeVisuals.TryGetValue(id, out var node)) _transactionFeedback.Show(node, accepted);
+        }
+
+        public void ClearTransaction() => _transactionFeedback.Clear();
+        public void DisposeTransaction() => _transactionFeedback.Dispose();
 
         public void ApplyPreviewStyle()
         {

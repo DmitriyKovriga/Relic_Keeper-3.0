@@ -1,0 +1,1 @@
+PASS: equipment swap; paused confirmation; committed lower rerolls; EN/RU live tooltip; fixed craft target; currency rejection; removed affixes after purge; one passive point spent; no-point rejection; nonblocking bounded overlays; automatic cleanup. Disposable inventory/tree, original singleton restored between callbacks.

@@ -170,6 +170,7 @@ public partial class InventoryUI : MonoBehaviour
 
     private void OnDisable()
     {
+        _transactionFeedback?.Dispose(); _transactionFeedback = null;
         if (InventoryManager.Instance != null)
         {
             InventoryManager.Instance.OnInventoryChanged -= RefreshInventory;
@@ -205,6 +206,7 @@ public partial class InventoryUI : MonoBehaviour
 
     private void OnInventoryWindowClosed()
     {
+        _transactionFeedback?.Clear();
         ReleaseGameplayPause();
         if (ItemTooltipController.Instance != null)
             ItemTooltipController.Instance.HideTooltipImmediate();

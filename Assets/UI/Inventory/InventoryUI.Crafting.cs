@@ -343,13 +343,14 @@ public partial class InventoryUI
         if (_applyOrbOrb == null || InventoryManager.Instance == null) return false;
         if (!TryResolveCraftingTarget(pointerPosition, out InventoryItem targetItem, out int targetAnchor))
             return false;
-        if (!ItemGenerator.CanApplyCraftingOrb(targetItem, _applyOrbOrb.EffectId)) return false;
+        if (!ItemGenerator.CanApplyCraftingOrb(targetItem, _applyOrbOrb.EffectId)) return RejectCraftingTarget(targetAnchor);
 
-        if (!InventoryManager.Instance.ConsumeOrb(_applyOrbOrb.ID)) return false;
+        if (!InventoryManager.Instance.ConsumeOrb(_applyOrbOrb.ID)) return RejectCraftingTarget(targetAnchor);
+        var before = CraftingChangeSnapshot.Capture(targetItem);
         if (!ItemGenerator.TryApplyCraftingOrb(targetItem, _applyOrbOrb.EffectId))
         {
             InventoryManager.Instance.AddOrb(_applyOrbOrb.ID, 1);
-            return false;
+            return RejectCraftingTarget(targetAnchor);
         }
 
         int remaining = InventoryManager.Instance.GetOrbCount(_applyOrbOrb.ID);
@@ -357,9 +358,10 @@ public partial class InventoryUI
             ExitApplyOrbMode();
 
         InventoryManager.Instance.TriggerUIUpdate();
+        TransactionFeedback.Show(GetCraftingTargetVisual(targetAnchor), true);
         if (ItemTooltipController.Instance != null)
             ItemTooltipController.Instance.ShowCraftedItemTooltip(
-                targetItem, GetCraftingTargetVisual(targetAnchor), ResolvePlayerTooltipPriceMode());
+                targetItem, GetCraftingTargetVisual(targetAnchor), ResolvePlayerTooltipPriceMode(), before);
         return true;
     }
 

@@ -392,7 +392,7 @@ public partial class InventoryUI
             evt.StopPropagation();
             if (!IsCompanionPanelVisible)
             {
-                if (InventoryManager.Instance.TryCtrlEquipFromBackpack(anchorIdx))
+                if (TryCtrlEquipWithFeedback(anchorIdx))
                 {
                     RefreshInventory();
                     if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltipImmediate();
@@ -486,7 +486,7 @@ public partial class InventoryUI
 
             if (anchorIdx >= 0 && anchorIdx < InventoryManager.Instance.BackpackSlotCount && !IsCompanionPanelVisible)
             {
-                if (InventoryManager.Instance.TryCtrlEquipFromBackpack(anchorIdx))
+                if (TryCtrlEquipWithFeedback(anchorIdx))
                 {
                     RefreshInventory();
                     if (ItemTooltipController.Instance != null) ItemTooltipController.Instance.HideTooltipImmediate();
@@ -678,6 +678,7 @@ public partial class InventoryUI
             }
         }
 
+        var equipmentBefore = CaptureEquipment();
         bool placed = false;
         var market = Scripts.Economy.MarketManager.Instance;
         if (fromMarket && market != null)
@@ -748,6 +749,10 @@ public partial class InventoryUI
             }
             RefreshInventory();
             RefreshStash();
+            if (foundIndex != invSourceAnchor && InventoryManager.Instance != null &&
+                foundIndex >= InventoryManager.EQUIP_OFFSET && foundIndex < InventoryManager.EQUIP_OFFSET + InventoryManager.Instance.EquipmentItems.Length)
+                PresentEquipmentResult(equipmentBefore,
+                    placed && ReferenceEquals(InventoryManager.Instance.EquipmentItems[foundIndex - InventoryManager.EQUIP_OFFSET], itemToPlace), GetSlotVisual(foundIndex));
             if (placed && _root != null)
                 _root.schedule.Execute(() => { RefreshInventory(); RefreshStash(); }).ExecuteLater(2);
         }

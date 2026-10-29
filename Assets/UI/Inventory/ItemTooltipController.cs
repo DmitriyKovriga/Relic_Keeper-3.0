@@ -21,7 +21,7 @@ public enum ItemTooltipPriceMode
     Buyback
 }
 
-public class ItemTooltipController : MonoBehaviour
+public partial class ItemTooltipController : MonoBehaviour
 {
     public static ItemTooltipController Instance { get; private set; }
     public bool IsConsumingTooltipLockInput => _pin.IsVisible && IsTooltipLockHeld();
@@ -735,6 +735,12 @@ public class ItemTooltipController : MonoBehaviour
             _root = _uiDoc.rootVisualElement;
         if (_root == null) return;
 
+        BuildTooltipStructureAtRoot();
+    }
+
+    private void BuildTooltipStructureAtRoot()
+    {
+
         var old1 = _root.Q<VisualElement>("GlobalItemTooltip");
         if (old1 != null) _root.Remove(old1);
         var old2 = _root.Q<VisualElement>("GlobalSkillTooltip");
@@ -1200,6 +1206,7 @@ public class ItemTooltipController : MonoBehaviour
         }
 
         _pin.Show();
+        if (_craftingResultItem != item) { _craftingResultItem = null; _craftingChanges = null; }
         _currentTargetItem = item;
         _targetAnchorSlot = anchorSlot;
         _worldTargetItem = worldTargetItem;
@@ -1257,9 +1264,7 @@ public class ItemTooltipController : MonoBehaviour
     /// </summary>
     public void ShowCraftedItemTooltip(InventoryItem item, VisualElement anchorSlot, ItemTooltipPriceMode priceMode)
     {
-        HideTooltipImmediate();
-        if (item != null && anchorSlot != null)
-            ShowTooltip(item, anchorSlot, priceMode);
+        ShowCraftedItemTooltip(item, anchorSlot, priceMode, null);
     }
 
     public void HideTooltip()
@@ -1271,6 +1276,8 @@ public class ItemTooltipController : MonoBehaviour
 
     public void HideTooltipImmediate()
     {
+        _craftingResultItem = null;
+        _craftingChanges = null;
         _pin.Hide();
         _pinAnimElapsed = -1f;
         HidePinBadges();
@@ -2561,7 +2568,7 @@ public class ItemTooltipController : MonoBehaviour
         if (item.Data.ImplicitModifiers != null && item.Data.ImplicitModifiers.Count > 0 && ItemRarity.GetAffixCount(item) > 0)
             AddDivToContainer();
 
-        if (item.Affixes != null)
+        if (!AppendCraftingAffixes(item) && item.Affixes != null)
         {
             foreach(var aff in item.Affixes)
             {

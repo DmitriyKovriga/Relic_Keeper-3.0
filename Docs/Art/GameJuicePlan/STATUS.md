@@ -3,7 +3,18 @@
 Started 2026-10-29. The HTML and `PLAN.md` remain the design proposal; this file
 records implementation evidence separately.
 
-## Current step — J01 intake, rarity accents and staged loot flight implemented
+## Current step — J02 transaction-feedback prototype implemented
+
+J02 adds local confirmation/rejection cues for equipment changes, crafting and
+passive allocation. Crafting's existing tooltip now displays committed affix
+changes, including lower rolls and removals. No timing, prices, points, crafting
+rules or saves change. **80 focused tests passed**, with native 480x270 Play Mode
+checks for equipment, EN/RU crafting, rejection, purge and passive allocation.
+See [Step 06](Step06_J02_Transactions.md) and
+[captured UI comparison](J02/UpgradeFeedbackComparison.png). Ordinary-play A/B
+evaluation remains a user review; the old standalone baseline has not been rebuilt.
+
+## Previous step — J01 loot presentation
 
 The user completed an 11:12 ordinary-play session. Its baseline review is
 complete, with coverage limits recorded in [Step 01](Step01_BaselineReview.md).
@@ -103,5 +114,8 @@ twenty-item burst/full inventory, a quiet discard and arrival while the real
 cache window is open. Detailed validation and limits are in Step 02. The old
 standalone baseline executable has not been rebuilt with this feature.
 
-Next: J02, then J03 and J06, each separately reviewed in ordinary gameplay. Later
+J02's first slice is delivered; detailed validation and manual checks are in
+[Step 06](Step06_J02_Transactions.md).
+
+Next: J03, then J06, each separately reviewed in ordinary gameplay. Later
 J04/J05/J10 depend on actual remaining gaps; J09 is last.

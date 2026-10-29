@@ -70,6 +70,7 @@ public class PassiveTreeUI : MonoBehaviour
 
     private void OnDisable()
     {
+        _renderer?.DisposeTransaction();
         LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
         if (_windowView != null)
             _windowView.OnOpened -= OnTreeWindowOpened;
@@ -341,6 +342,7 @@ public class PassiveTreeUI : MonoBehaviour
 
     private void OnTreeWindowOpened()
     {
+        _renderer?.ClearTransaction();
         DeactivateSearch();
     }
 
@@ -432,7 +434,9 @@ public class PassiveTreeUI : MonoBehaviour
     // Существующий метод (ЛКМ)
 private void OnNodeClick(string id)
 {
+    if (_treeManager.IsPreviewMode || _treeManager.IsAllocated(id)) return;
     _treeManager.AllocateNode(id);
+    _renderer.ShowTransaction(id, _treeManager.IsAllocated(id));
 }
 
 private void OnNodeRightClick(string id)
