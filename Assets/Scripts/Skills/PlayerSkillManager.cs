@@ -161,17 +161,14 @@ namespace Scripts.Skills
 
         public SkillCastResult UseSkillWithResult(int slotIndex, bool freshPress = true)
         {
-            if (_suppressSkillUsage || GamePauseService.IsPaused)
-                return GamePauseService.IsPaused ? SkillCastResult.Paused : SkillCastResult.Blocked;
-
-            foreach (var active in _activeSkills.Values)
-                if (active != null && active.IsCasting && active.Data?.Recipe?.Steps != null
-                    && active.Data.Recipe.Steps.Exists(step => step?.StepDefinition?.Id == "FallingAnvil"))
-                {
-                    if (freshPress && _activeSkills.TryGetValue(slotIndex, out var blocked) && blocked != null)
-                        OnSkillCastAttempted?.Invoke(slotIndex, blocked, SkillCastResult.Blocked);
-                    return SkillCastResult.Blocked;
-                }
+            var managerGate = GetManagerCastGate();
+            if (managerGate != SkillCastResult.Accepted)
+            {
+                if (managerGate == SkillCastResult.Blocked && !_suppressSkillUsage && freshPress &&
+                    _activeSkills.TryGetValue(slotIndex, out var blocked) && blocked != null)
+                    OnSkillCastAttempted?.Invoke(slotIndex, blocked, managerGate);
+                return managerGate;
+            }
 
             if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)
             {
@@ -184,6 +181,24 @@ namespace Scripts.Skills
         }
 
         public SkillBehaviour GetSkillRuntime(int slotIndex) => _activeSkills.TryGetValue(slotIndex, out var skill) ? skill : null;
+
+        public SkillCastResult GetSkillAvailability(int slotIndex)
+        {
+            var gate = GetManagerCastGate();
+            if (gate != SkillCastResult.Accepted) return gate;
+            return GetSkillRuntime(slotIndex)?.GetCastAvailability() ?? SkillCastResult.Unavailable;
+        }
+
+        private SkillCastResult GetManagerCastGate()
+        {
+            if (_suppressSkillUsage || GamePauseService.IsPaused)
+                return GamePauseService.IsPaused ? SkillCastResult.Paused : SkillCastResult.Blocked;
+            foreach (var active in _activeSkills.Values)
+                if (active != null && active.IsCasting && active.Data?.Recipe?.Steps != null &&
+                    active.Data.Recipe.Steps.Exists(step => step?.StepDefinition?.Id == "FallingAnvil"))
+                    return SkillCastResult.Blocked;
+            return SkillCastResult.Accepted;
+        }
 
         public float GetSkillCooldownNormalized(int slotIndex)
         {

@@ -3,7 +3,21 @@
 Started 2026-10-29. The HTML and `PLAN.md` remain the design proposal; this file
 records implementation evidence separately.
 
-## Current step — J02 transaction-feedback prototype implemented
+## Current step — J03 skill-state feedback implemented
+
+Completed 2026-10-30. Skills report their actual cast outcome to the HUD. A short
+localized caption distinguishes cooldown, mana, casting and temporary-lock
+rejections. Accepted casts with at least a three-second effective cooldown can
+produce one ready cue once recovery and the current cast gates allow use.
+Zero-cooldown primaries, initialization, HUD rebuilds and restored weapon skills
+stay quiet. **84 focused tests passed**, plus native 480x270 EN/RU and reduced-
+effects checks. See [Step 07](Step07_J03_SkillStates.md),
+[native comparison](J03/SkillStateComparison.png), and
+[enlarged detail](J03/SkillStateDetails.png). Casting rules and input buffering
+remain unchanged. Ordinary-run A/B evaluation and a standalone rebuild remain
+separate from these controlled Editor checks.
+
+## Previous step — J02 transaction feedback
 
 J02 adds local confirmation/rejection cues for equipment changes, crafting and
 passive allocation. Crafting's existing tooltip now displays committed affix
@@ -117,5 +131,8 @@ standalone baseline executable has not been rebuilt with this feature.
 J02's first slice is delivered; detailed validation and manual checks are in
 [Step 06](Step06_J02_Transactions.md).
 
-Next: J03, then J06, each separately reviewed in ordinary gameplay. Later
+J03 is delivered; validation and manual checks are in
+[Step 07](Step07_J03_SkillStates.md).
+
+Next: J06 room resolution and exits, reviewed in ordinary gameplay. Later
 J04/J05/J10 depend on actual remaining gaps; J09 is last.

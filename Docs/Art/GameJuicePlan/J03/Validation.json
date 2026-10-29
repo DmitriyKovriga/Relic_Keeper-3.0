@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "date": "2026-10-30",
+  "editmode": {
+    "passed": 84,
+    "failed": 0,
+    "skipped": 0
+  },
+  "native_resolution": [
+    480,
+    270
+  ],
+  "hud_scale": "existing user preference (default 0.75)",
+  "capture_method": "RelicKeeper.Editor.VFX.SkillStateFeedbackRuntimeCheck.Capture",
+  "locales": [
+    "en",
+    "ru"
+  ],
+  "reduced_effects": true,
+  "source": "real shared cast gate and HUD, disposable owner/skill runtimes, existing slot/icon art",
+  "standalone_rebuilt": false
+}

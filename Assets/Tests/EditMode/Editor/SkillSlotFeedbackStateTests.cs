@@ -48,6 +48,7 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(state.ObserveCooldown(0, false, false, false), Is.False);
             Assert.That(state.ObserveCooldown(0, true, true, false), Is.False);
             Assert.That(state.ObserveCooldown(0, true, false, true), Is.False);
+            Assert.That(state.ObserveCooldown(0, true, false, false, true), Is.False, "A temporary skill lock must not be labelled ready.");
             Assert.That(state.ObserveCooldown(0, true, false, false), Is.True);
             Assert.That(state.ObserveCooldown(0, true, false, false), Is.False);
         }

@@ -777,8 +777,10 @@ public partial class HUDController : MonoBehaviour
             float remaining = _skillManager.GetSkillCooldownRemaining(i);
             slot.SetCooldownOverlay(normalized, i != 0 && hasCooldownSkill);
             slot.SetCooldownText(remaining, i != 0 && hasCooldownSkill);
-            bool canAfford = runtime != null && _playerStats?.Mana != null && _playerStats.Mana.Current >= runtime.Data.ManaCost;
-            if (slot.ObserveFeedbackCooldown(remaining, canAfford, runtime != null && runtime.IsCasting, GamePauseService.IsPaused))
+            bool canAfford = runtime?.Data != null && _playerStats?.Mana != null && _playerStats.Mana.Current >= runtime.Data.ManaCost;
+            bool temporarilyBlocked = slot.WaitingForReady && remaining <= .01f &&
+                _skillManager.GetSkillAvailability(i) != SkillCastResult.Accepted;
+            if (slot.ObserveFeedbackCooldown(remaining, canAfford, runtime != null && runtime.IsCasting, GamePauseService.IsPaused, temporarilyBlocked))
                 ShowSkillStateMessage(i, runtime, Scripts.UI.SkillSlotCue.Ready);
         }
     }

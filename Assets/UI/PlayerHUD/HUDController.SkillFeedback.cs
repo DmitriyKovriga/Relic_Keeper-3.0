@@ -50,13 +50,13 @@ public partial class HUDController
             host.transform.SetParent(_skillSlots[index].transform.parent, false);
             host.GetComponent<LayoutElement>().ignoreLayout = true;
             var rect = host.GetComponent<RectTransform>(); rect.anchorMin = rect.anchorMax = new Vector2(.5f, 0);
-            rect.pivot = new Vector2(.5f, 1); rect.anchoredPosition = new Vector2(0, -10); rect.sizeDelta = new Vector2(150, 11);
+            rect.pivot = new Vector2(.5f, 1); rect.anchoredPosition = new Vector2(0, -10); rect.sizeDelta = new Vector2(180, 13);
             _skillStateBadge = host.GetComponent<Image>(); _skillStateBadge.color = new Color(.04f, .05f, .06f, .88f); _skillStateBadge.raycastTarget = false;
             var textHost = new GameObject("Caption", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI)); textHost.transform.SetParent(host.transform, false);
             var textRect = textHost.GetComponent<RectTransform>(); textRect.anchorMin = Vector2.zero; textRect.anchorMax = Vector2.one;
             textRect.offsetMin = new Vector2(2, 0); textRect.offsetMax = new Vector2(-2, 0);
             _skillStateCaption = textHost.GetComponent<TextMeshProUGUI>(); _skillStateCaption.font = UIFontResolver.ResolveTMPFontAsset();
-            _skillStateCaption.fontSize = 7; _skillStateCaption.alignment = TextAlignmentOptions.Center; _skillStateCaption.enableAutoSizing = false;
+            _skillStateCaption.fontSize = 10; _skillStateCaption.alignment = TextAlignmentOptions.Center; _skillStateCaption.enableAutoSizing = false;
             _skillStateCaption.textWrappingMode = TextWrappingModes.NoWrap; _skillStateCaption.overflowMode = TextOverflowModes.Ellipsis; _skillStateCaption.raycastTarget = false;
         }
         _skillStateSource = runtime; _skillStateSlot = index; _skillStateCue = cue;

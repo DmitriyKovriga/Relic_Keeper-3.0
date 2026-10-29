@@ -76,6 +76,24 @@ namespace RelicKeeper.Tests.EditMode
             _skill.TryCast(); _skill.TryCast();
             Assert.That(_skill.Executions, Is.EqualTo(1)); Assert.That(_stats.Mana.Current, Is.EqualTo(75));
         }
+        [Test] public void ReadOnlyAvailabilityChecksDoNotConsumeManaOrStartACast()
+        {
+            Assert.That(_manager.GetSkillAvailability(1), Is.EqualTo(SkillCastResult.Accepted));
+            Assert.That(_stats.Mana.Current, Is.EqualTo(100)); Assert.That(_skill.Executions, Is.Zero); Assert.That(_events.Count, Is.Zero);
+            _manager.UseSkill(1);
+            Assert.That(_manager.GetSkillAvailability(1), Is.EqualTo(SkillCastResult.Cooldown));
+            Assert.That(_stats.Mana.Current, Is.EqualTo(75)); Assert.That(_events.Count, Is.EqualTo(1));
+        }
+        [Test] public void PersistentWinterStormLockIsSharedByAvailabilityAndActualCasting()
+        {
+            var storm = _host.AddComponent<PlayerWinterStormController>();
+            typeof(PlayerWinterStormController).GetField("<IsActive>k__BackingField", Private).SetValue(storm, true);
+            typeof(PlayerWinterStormController).GetField("<Skill>k__BackingField", Private).SetValue(storm, _data);
+            Assert.That(_manager.GetSkillAvailability(1), Is.EqualTo(SkillCastResult.Blocked));
+            Assert.That(_manager.UseSkillWithResult(1), Is.EqualTo(SkillCastResult.Blocked));
+            Assert.That(_stats.Mana.Current, Is.EqualTo(100)); Assert.That(_skill.Executions, Is.Zero);
+            typeof(PlayerWinterStormController).GetField("<IsActive>k__BackingField", Private).SetValue(storm, false);
+        }
     }
     public sealed class SkillCastFeedbackProbe : SkillBehaviour
     {

@@ -46,8 +46,13 @@ namespace RelicKeeper.Editor.VFX
             _background = Application.runInBackground; Application.runInBackground = true;
             try
             {
-                var template = Object.FindObjectsByType<UISkillSlot>(FindObjectsSortMode.None).First(s => s.CurrentSkill?.Icon != null);
-                var art = template.CurrentSkill;
+                var slots = Object.FindObjectsByType<UISkillSlot>(FindObjectsSortMode.None);
+                var template = slots.FirstOrDefault(s => s.CurrentSkill?.Icon != null) ?? slots.FirstOrDefault();
+                Require(template != null, "The hub HUD must be loaded before capture.");
+                // A fresh hub may still be loading its equipped skills. Reuse its slot
+                // art and a saved skill icon without waiting on the user's character.
+                var art = template.CurrentSkill ?? AssetDatabase.FindAssets("t:SkillDataSO")
+                    .Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadAssetAtPath<SkillDataSO>).First(s => s.Icon != null);
                 _texture = Own(new RenderTexture(480, 270, 24)); _texture.Create();
                 var cameraHost = Own(new GameObject("Temporary Skill State Camera")); cameraHost.transform.position = new Vector3(2000, 0, -10);
                 _camera = cameraHost.AddComponent<Camera>(); _camera.orthographic = true; _camera.orthographicSize = 5.625f;
@@ -119,7 +124,11 @@ namespace RelicKeeper.Editor.VFX
                         LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("ru"); break;
                     case 2:
                         Require(Caption.text.Contains("Перезарядка"), "Live Russian cooldown reason missing."); CaptureFrame("Cooldown-ru");
-                        _skills[1].Clock = 6; Observe(); break;
+                        _skills[1].Clock = 6;
+                        var storm = _stats.gameObject.AddComponent<PlayerWinterStormController>();
+                        Set(storm, "<IsActive>k__BackingField", true); Set(storm, "<Skill>k__BackingField", _skills[1].Data);
+                        Observe(); Require(!Caption.text.Contains("Готово"), "A persistent skill lock falsely appeared ready.");
+                        Set(storm, "<IsActive>k__BackingField", false); Observe(); break;
                     case 3:
                         Require(MessageVisible && Caption.text.Contains("Готово"), "Readiness cue missing."); CaptureFrame("Ready-ru");
                         float expires = (float)Get(_hud, "_skillStateUntil"); Observe(); Observe();
@@ -167,6 +176,7 @@ namespace RelicKeeper.Editor.VFX
             if (MessageVisible)
             {
                 Require(!Badge.raycastTarget && !Caption.raycastTarget && Badge.GetComponent<LayoutElement>().ignoreLayout, "Cue blocks input or participates in layout.");
+                Caption.ForceMeshUpdate(); Require(!Caption.isTextOverflowing, "Localized reason is truncated: " + Caption.text);
                 var corners = new Vector3[4]; Badge.rectTransform.GetWorldCorners(corners);
                 foreach (var corner in corners)
                 {

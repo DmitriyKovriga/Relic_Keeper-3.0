@@ -14,6 +14,7 @@ public partial class UISkillSlot
     private bool _canAffordMana = true;
 
     public string FeedbackBinding => _inputText != null ? _inputText.text : "";
+    public bool WaitingForReady => _stateFeedback.WaitingForReady;
 
     public void ResetStateFeedback()
     {
@@ -43,10 +44,10 @@ public partial class UISkillSlot
         return cue;
     }
 
-    public bool ObserveFeedbackCooldown(float remaining, bool canAfford, bool casting, bool paused)
+    public bool ObserveFeedbackCooldown(float remaining, bool canAfford, bool casting, bool paused, bool temporarilyBlocked = false)
     {
         _canAffordMana = canAfford;
-        if (!_stateFeedback.ObserveCooldown(remaining, canAfford, casting, paused)) return false;
+        if (!_stateFeedback.ObserveCooldown(remaining, canAfford, casting, paused, temporarilyBlocked)) return false;
         ShowStateCue(SkillSlotCue.Ready); return true;
     }
 

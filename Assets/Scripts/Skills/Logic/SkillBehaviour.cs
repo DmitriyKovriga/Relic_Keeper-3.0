@@ -249,7 +249,7 @@ namespace Scripts.Skills
             TryCastWithResult();
         }
 
-        public SkillCastResult TryCastWithResult()
+        public SkillCastResult GetCastAvailability()
         {
             if (GamePauseService.IsPaused) return SkillCastResult.Paused;
             if (_ownerStats != null && _ownerStats.TryGetComponent<PlayerWinterStormController>(out var storm)
@@ -272,6 +272,14 @@ namespace Scripts.Skills
 
             if (_ownerStats.Mana.Current < _data.ManaCost)
                 return SkillCastResult.InsufficientMana;
+
+            return SkillCastResult.Accepted;
+        }
+
+        public SkillCastResult TryCastWithResult()
+        {
+            var availability = GetCastAvailability();
+            if (availability != SkillCastResult.Accepted) return availability;
 
             _ownerStats.Mana.Decrease(_data.ManaCost);
             StartCooldown();

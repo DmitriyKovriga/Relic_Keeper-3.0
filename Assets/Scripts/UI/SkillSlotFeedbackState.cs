@@ -12,6 +12,7 @@ namespace Scripts.UI
         private bool _armed, _observedRecovery, _lastWasRejection;
         private SkillCastResult _lastRejection;
         private float _lastRejectionTime = float.NegativeInfinity;
+        public bool WaitingForReady => _armed;
 
         public void Reset()
         {
@@ -39,11 +40,11 @@ namespace Scripts.UI
             }
         }
 
-        public bool ObserveCooldown(float remaining, bool canAfford, bool casting, bool paused)
+        public bool ObserveCooldown(float remaining, bool canAfford, bool casting, bool paused, bool temporarilyBlocked = false)
         {
             if (!_armed) return false;
             if (remaining > .01f) _observedRecovery = true;
-            if (remaining > .01f || !_observedRecovery || !canAfford || casting || paused) return false;
+            if (remaining > .01f || !_observedRecovery || !canAfford || casting || paused || temporarilyBlocked) return false;
             _armed = false;
             return true;
         }
