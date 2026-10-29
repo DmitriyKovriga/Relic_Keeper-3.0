@@ -74,7 +74,8 @@ namespace Scripts.Skills.Projectiles
         {
             if (_data.RicochetVfxPrefab == null) return;
             var rotation = Quaternion.Euler(0, 0, Mathf.Atan2(normal.y, normal.x) * Mathf.Rad2Deg);
-            var effect = Instantiate(_data.RicochetVfxPrefab, position, rotation);
+            var effect = CombatDecorationBudget.SpawnImpact(_data.RicochetVfxPrefab, position, rotation);
+            if (effect == null) return;
             foreach (var renderer in effect.GetComponentsInChildren<SpriteRenderer>())
             {
                 renderer.color = new Color(1, 1, 1, PlayerAttackVfxOpacity.Multiplier);

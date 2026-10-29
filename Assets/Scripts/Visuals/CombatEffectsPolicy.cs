@@ -8,6 +8,9 @@ namespace Scripts.Visuals
         public static int FlashLimit(bool reduced) => reduced ? 3 : 8;
         public static float AccentStrength => AccentScale(GameplayPresentationSettings.ReducedCombatEffects);
         public static int EnemyFlashLimit => FlashLimit(GameplayPresentationSettings.ReducedCombatEffects);
+        public static int ImpactDecorationLimit(bool reduced) => reduced ? 6 : 16;
+        public static int RippleDecorationLimit(bool reduced) => reduced ? 2 : 8;
+        public static int ParticleDecorationLimit(bool reduced) => reduced ? 96 : 384;
         public static int DeathFragmentCount(int count) => GameplayPresentationSettings.ReducedCombatEffects ? System.Math.Min(count, 2) : count;
     }
 

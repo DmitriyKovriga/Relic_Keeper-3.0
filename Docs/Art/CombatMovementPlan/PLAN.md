@@ -91,6 +91,13 @@ wave and one-handed axe throw. One recipe-clock response prevents repeated
 shots from restarting body recoil. 112 focused tests and 30 controlled live
 casts passed. Channel loops remain explicitly unsupported.
 Full player-build GPU profiling is not claimed by the Editor measurements.
+[C18 selected skill-decoration budgets](Step19_DecorationBudgets.md) now limit
+shared saw/prismatic/ricochet accents, generic projectile ripples and manual
+sparks/debris particles through the existing Normal/Reduced setting. 58 focused
+tests and a rendered standalone three-mode stress comparison passed with equal
+32-hit/320-damage outcomes. Dedicated whole-frame measurements are recorded;
+automatic smoke, persistent trails, arbitrary skill-step VFX and full-room GPU
+profiling remain outside this slice.
 
 User review (2026-10-27): **remove the automatic generic contact effect**.
 The extra mark overlaps existing skill VFX and adds visual clutter. Keep the

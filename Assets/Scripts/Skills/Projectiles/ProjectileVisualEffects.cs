@@ -656,6 +656,7 @@ namespace Scripts.Skills.Projectiles
             float radius = Mathf.Max(0.001f, GetSpriteEmissionRadius(_particles));
             Color startColor = ScaleColorAlpha(_particles.StartColor, _particles.Intensity);
             float lifetime = Mathf.Max(0.01f, _particles.Lifetime);
+            emitCount = Scripts.Visuals.CombatDecorationBudget.AdmitParticles(emitCount, lifetime);
             float size = Mathf.Max(0.001f, _particles.Size);
             float speed = Mathf.Max(0f, _particles.Speed);
 
@@ -713,6 +714,7 @@ namespace Scripts.Skills.Projectiles
                 startSize = Mathf.Max(0.001f, _airSparks.Size)
             };
 
+            emitCount = Scripts.Visuals.CombatDecorationBudget.AdmitParticles(emitCount, emitParams.startLifetime);
             _airSparkSystem.Emit(emitParams, emitCount);
         }
 
@@ -735,7 +737,8 @@ namespace Scripts.Skills.Projectiles
 
         private void SpawnRipple()
         {
-            var go = new GameObject("ProjectileRipple");
+            var go = Scripts.Visuals.CombatDecorationBudget.CreateRipple(transform.position);
+            if (go == null) return;
             go.transform.SetParent(null);
             go.transform.position = transform.position;
             var line = go.AddComponent<LineRenderer>();

@@ -1,0 +1,47 @@
+{
+    "platform": "6000.3.11f1 Direct3D11",
+    "gpu": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "cpu": "12th Gen Intel(R) Core(TM) i7-12700H",
+    "player": true,
+    "modes": [
+        {
+            "mode": "uncapped-reference",
+            "requests": 800,
+            "admitted": 800,
+            "peakImpacts": 160,
+            "particlesRequested": 4000,
+            "particlesAdmitted": 4000,
+            "hits": 32,
+            "damage": 320.0,
+            "medianFrameMs": 0.39589712023735049,
+            "p95FrameMs": 2.962599277496338,
+            "passed": true
+        },
+        {
+            "mode": "normal",
+            "requests": 800,
+            "admitted": 80,
+            "peakImpacts": 16,
+            "particlesRequested": 4000,
+            "particlesAdmitted": 1536,
+            "hits": 32,
+            "damage": 320.0,
+            "medianFrameMs": 0.4066043198108673,
+            "p95FrameMs": 1.0250991582870484,
+            "passed": true
+        },
+        {
+            "mode": "reduced",
+            "requests": 800,
+            "admitted": 30,
+            "peakImpacts": 6,
+            "particlesRequested": 4000,
+            "particlesAdmitted": 384,
+            "hits": 32,
+            "damage": 320.0,
+            "medianFrameMs": 0.4089002311229706,
+            "p95FrameMs": 0.7507015466690064,
+            "passed": true
+        }
+    ]
+}

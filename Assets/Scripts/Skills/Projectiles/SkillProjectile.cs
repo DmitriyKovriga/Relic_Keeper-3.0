@@ -740,7 +740,7 @@ namespace Scripts.Skills.Projectiles
                 if (TryGetComponent(out Scripts.Skills.Visuals.ManaSpearVisual manaSpearVisual)) manaSpearVisual.ShowImpact(target);
                 if (TryGetComponent(out Scripts.Skills.Visuals.WeaponWaveVisual weaponWaveVisual)) weaponWaveVisual.ShowImpact(target);
                 if (_data.SawImpactPrefab != null && Application.isPlaying)
-                    Instantiate(_data.SawImpactPrefab, transform.position, Quaternion.identity);
+                    Scripts.Visuals.CombatDecorationBudget.SpawnImpact(_data.SawImpactPrefab, transform.position, Quaternion.identity);
             }
             return snapshot;
         }
@@ -752,8 +752,8 @@ namespace Scripts.Skills.Projectiles
                 var component = target as Component;
                 var body = component != null ? component.GetComponent<Collider2D>() : null;
                 Vector3 origin = body != null ? body.bounds.center : component != null ? component.transform.position : transform.position;
-                var vfx = Instantiate(_data.PrismaticImpactPrefab, origin, Quaternion.identity);
-                vfx.GetComponent<Scripts.Skills.Visuals.PrismaticBurstVisual>()?.Initialize(origin.y);
+                var vfx = Scripts.Visuals.CombatDecorationBudget.SpawnImpact(_data.PrismaticImpactPrefab, origin, Quaternion.identity);
+                if (vfx != null) vfx.GetComponent<Scripts.Skills.Visuals.PrismaticBurstVisual>()?.Initialize(origin.y);
             }
         }
 

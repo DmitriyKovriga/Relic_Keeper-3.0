@@ -104,7 +104,8 @@ namespace Scripts.Skills.Projectiles
             var renderer = _particles.GetComponent<ParticleSystemRenderer>();
             renderer.sortingLayerID = _source.sortingLayerID;
             renderer.sortingOrder = _source.sortingOrder + 1;
-            for (int i = 0; i < _burstCount; i++)
+            int admitted = Scripts.Visuals.CombatDecorationBudget.AdmitParticles(_burstCount, Mathf.Max(_lifetime.x, _lifetime.y));
+            for (int i = 0; i < admitted; i++)
             {
                 Color color = Color.Lerp(_darkSoil, _lightStone, Next01());
                 color = PlayerAttackVfxOpacity.MultiplyAlpha(color);
