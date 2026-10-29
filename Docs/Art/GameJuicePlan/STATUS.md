@@ -3,11 +3,27 @@
 Started 2026-10-29. The HTML and `PLAN.md` remain the design proposal; this file
 records implementation evidence separately.
 
-## Current step — J03 skill-state feedback implemented
+## Current step — J06 room resolution and exits implemented
 
-Completed 2026-10-30. Skills report their actual cast outcome to the HUD. A short
-localized caption distinguishes cooldown, mana, casting and temporary-lock
-rejections. Accepted casts with at least a three-second effective cooldown can
+Completed 2026-10-30. Portal unlock has a brief local pulse and remains immediately
+usable. Unlock, full clear and level-up merge into one announcement; a brief
+direction hint appears only for an offscreen exit. Kill thresholds and modifier
+rewards are preserved. **85 focused tests passed**, plus native 480x270 Play Mode
+checks for EN/RU, reduced effects, message overlap, room cancellation, duplicate
+events, one-enemy and empty rooms. See [Step 08](Step08_J06_RoomResolution.md),
+[controlled comparison](J06/RoomResolutionComparison.png) and
+[runtime report](J06/RuntimeCheck.txt). Ordinary-run A/B evaluation and a fresh
+standalone build remain separate from these controlled Editor checks.
+
+## Previous step — J03 skill-state feedback
+
+Completed 2026-10-30. Skills report their actual cast outcome to the HUD.
+After user review, floating skill captions were removed: feedback now stays
+within the skill slots, including rejection and readiness highlights.
+The refinement passed **25 focused tests** and native EN/RU/reduced-effects
+checks with no floating messages. See the current-behavior note in
+[Step 07](Step07_J03_SkillStates.md). Accepted casts with at least a
+three-second effective cooldown can
 produce one ready cue once recovery and the current cast gates allow use.
 Zero-cooldown primaries, initialization, HUD rebuilds and restored weapon skills
 stay quiet. **84 focused tests passed**, plus native 480x270 EN/RU and reduced-
@@ -134,5 +150,9 @@ J02's first slice is delivered; detailed validation and manual checks are in
 J03 is delivered; validation and manual checks are in
 [Step 07](Step07_J03_SkillStates.md).
 
-Next: J06 room resolution and exits, reviewed in ordinary gameplay. Later
-J04/J05/J10 depend on actual remaining gaps; J09 is last.
+J06 is delivered; validation and manual checks are in
+[Step 08](Step08_J06_RoomResolution.md).
+
+Next phase: audit three existing build/status chains for J04 and identify an
+actual remaining readability gap before adding another cue. J05/J10 also depend
+on observed gaps; J07/J08 remain user-owned and excluded; J09 is last.

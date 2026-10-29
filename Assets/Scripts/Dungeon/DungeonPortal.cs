@@ -36,6 +36,8 @@ namespace Scripts.Dungeon
         [SerializeField, Min(0f)] private float _portalAnimationSpeed = 1f;
         [SerializeField] private Scripts.Visuals.Atmosphere.SourceGlowSettings _glow = Scripts.Visuals.Atmosphere.SourceGlowSettings.Portal;
         private Scripts.Visuals.Atmosphere.SourceGlowVisual _glowVisual;
+        private Scripts.Visuals.PortalUnlockVisual _unlockVisual;
+        private bool _unlockPresented;
         public Scripts.Visuals.Atmosphere.SourceGlowSettings Glow => _glow;
         [Header("Enter Dungeon")]
         [SerializeField] private DungeonDataSO _targetDungeon;
@@ -145,8 +147,22 @@ namespace Scripts.Dungeon
 
         private void OnDisable()
         {
+            _unlockVisual?.Dispose(); _unlockVisual = null;
             _glowVisual?.Dispose(); _glowVisual = null;
             LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+        }
+
+        public void PresentUnlock()
+        {
+            if (!Application.isPlaying || _unlockPresented || _portalType != PortalType.NextRoom || !_isActive || !isActiveAndEnabled) return;
+            _unlockPresented = true;
+            if (TryGetComponent<SpriteRenderer>(out var sprite)) _unlockVisual = new Scripts.Visuals.PortalUnlockVisual(sprite);
+        }
+
+        private void LateUpdate()
+        {
+            _unlockVisual?.Tick(Time.deltaTime);
+            if (_unlockVisual != null && _unlockVisual.Finished) _unlockVisual = null;
         }
 
         private void OnLocaleChanged(Locale _)

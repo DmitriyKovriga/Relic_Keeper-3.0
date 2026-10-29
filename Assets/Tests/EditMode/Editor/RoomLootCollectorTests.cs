@@ -25,7 +25,7 @@ namespace RelicKeeper.Tests.EditMode
         [TearDown] public void Cleanup()
         {
             for (int i = _objects.Count - 1; i >= 0; i--)
-                if (_objects[i] != null) Object.DestroyImmediate(_objects[i]);
+                if (_objects[i] != null) DestroyWithLifecycle(_objects[i]);
             _objects.Clear();
             if (_hadThreshold) PlayerPrefs.SetInt(LootFilterSettings.PlayerPrefsKey, _threshold);
             else PlayerPrefs.DeleteKey(LootFilterSettings.PlayerPrefsKey);
@@ -34,6 +34,20 @@ namespace RelicKeeper.Tests.EditMode
         private GameObject ObjectAt(string name, Vector2 position)
         {
             var go = new GameObject(name); go.transform.position = position; _objects.Add(go); return go;
+        }
+
+        private static void DestroyWithLifecycle(Object value)
+        {
+            // These runtime components explicitly subscribe during Create/Initialize.
+            // EditMode objects do not receive the usual MonoBehaviour OnDisable.
+            if (value is GameObject go)
+            {
+                foreach (var cache in go.GetComponentsInChildren<WorldLootCache>(true))
+                    typeof(WorldLootCache).GetMethod("OnDisable", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(cache, null);
+                foreach (var drop in go.GetComponentsInChildren<WorldDroppedItem>(true))
+                    typeof(WorldDroppedItem).GetMethod("OnDisable", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(drop, null);
+            }
+            Object.DestroyImmediate(value);
         }
 
         private RoomController Room(Vector2 position)
@@ -164,7 +178,7 @@ namespace RelicKeeper.Tests.EditMode
             var collector = room.gameObject.AddComponent<RoomLootCollector>(); collector.TryStore(Item());
             var original = collector.Cache;
             Assert.That(original.transform.position.x, Is.EqualTo(17).Within(0.001));
-            Object.DestroyImmediate(original.gameObject);
+            DestroyWithLifecycle(original.gameObject);
             var item = Item(); Assert.That(collector.TryStore(item), Is.True);
             Assert.That(collector.Cache, Is.Not.SameAs(original));
             Assert.That(collector.Cache.Items, Is.EqualTo(new[] { item }));
@@ -177,7 +191,7 @@ namespace RelicKeeper.Tests.EditMode
             var firstCollector = first.gameObject.AddComponent<RoomLootCollector>();
             var secondCollector = second.gameObject.AddComponent<RoomLootCollector>();
             firstCollector.TryStore(Item()); var item = Item(); secondCollector.TryStore(item);
-            var oldCache = firstCollector.Cache; Object.DestroyImmediate(first.gameObject);
+            var oldCache = firstCollector.Cache; DestroyWithLifecycle(first.gameObject);
             Assert.That(oldCache == null, Is.True);
             Assert.That(secondCollector.Cache.Items, Is.EqualTo(new[] { item }));
         }
@@ -194,7 +208,7 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(flight.GetComponent<TrailRenderer>(), Is.Not.Null);
             Assert.That(flight.GetComponent<Collider2D>(), Is.Null);
             Assert.That(collector.Cache.Count, Is.EqualTo(1));
-            Object.DestroyImmediate(room.gameObject);
+            DestroyWithLifecycle(room.gameObject);
             Assert.That(flight == null, Is.True);
         }
 

@@ -45,6 +45,7 @@ namespace Scripts.Dungeon
         private bool _roomClearRewardsSpawned;
         private int _initialEnemyCount;
         private bool _nextRoomPortalUnlocked;
+        private DungeonPortal _unlockedExit;
         private float _nextEnemyBoundsCheckTime;
 
         public int RoomLevel => _roomLevel;
@@ -121,6 +122,7 @@ namespace Scripts.Dungeon
             _roomClearRewardsSpawned = false;
             _initialEnemyCount = 0;
             _nextRoomPortalUnlocked = false;
+            _unlockedExit = null;
             _nextEnemyBoundsCheckTime = 0f;
             SetNextRoomPortalsActive(false);
 
@@ -187,6 +189,7 @@ namespace Scripts.Dungeon
 
         private void OnDestroy()
         {
+            RoomClearedBanner.HideForRoom(this);
             for (int i = 0; i < _livingEnemies.Count; i++)
             {
                 if (_livingEnemies[i] != null)
@@ -210,14 +213,14 @@ namespace Scripts.Dungeon
             if (_livingEnemies.Count == 0)
             {
                 if (portalUnlocked)
-                    RoomClearedBanner.ShowClearedAndPortalUnlocked();
+                    RoomClearedBanner.ShowClearedAndPortalUnlocked(_unlockedExit);
                 else
-                    RoomClearedBanner.Show();
+                    RoomClearedBanner.Show(this);
                 SpawnRoomClearRewards();
             }
             else if (portalUnlocked)
             {
-                RoomClearedBanner.ShowPortalUnlocked();
+                RoomClearedBanner.ShowPortalUnlocked(_unlockedExit);
             }
         }
 
@@ -281,6 +284,13 @@ namespace Scripts.Dungeon
                 return false;
 
             _nextRoomPortalUnlocked = SetNextRoomPortalsActive(true);
+            if (announce && _nextRoomPortalUnlocked)
+                foreach (var portal in GetComponentsInChildren<DungeonPortal>(true))
+                    if (portal != null && portal.Type == PortalType.NextRoom)
+                    {
+                        if (_unlockedExit == null) _unlockedExit = portal;
+                        portal.PresentUnlock();
+                    }
             return announce && _nextRoomPortalUnlocked;
         }
 

@@ -16,7 +16,7 @@ namespace Scripts.Dungeon
         public static HubServiceNpc SpawnMerchant(Vector2 position, Transform roomParent, GameObject prefab)
         {
             var merchant = Spawn("DungeonMerchantNPC", HubService.Market, position, roomParent, prefab);
-            if (merchant != null)
+            if (merchant != null && Application.isPlaying)
                 Scripts.Economy.MarketManager.EnsureInstance().RefreshStock();
             return merchant;
         }

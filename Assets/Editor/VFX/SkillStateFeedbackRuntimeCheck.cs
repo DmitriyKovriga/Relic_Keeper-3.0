@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Scripts.Skills;
 using Scripts.Stats;
-using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Localization;
@@ -34,7 +33,7 @@ namespace RelicKeeper.Editor.VFX
         private static double _next, _deadline;
         private static int _stage;
         private static Vector3[] _slotPositions;
-        private static string Output => Path.Combine(Path.GetTempPath(), "skill-state-feedback-check");
+        private static string Output => Path.Combine(Path.GetTempPath(), "skill-state-no-popup-check");
 
         public static void Capture()
         {
@@ -98,9 +97,9 @@ namespace RelicKeeper.Editor.VFX
         private static object Get(object target, string field) => target.GetType().GetField(field, Private).GetValue(target);
         private static object Call(object target, string method, params object[] args) => target.GetType().GetMethod(method, Private).Invoke(target, args);
         private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
-        private static Image Badge => (Image)Get(_hud, "_skillStateBadge");
-        private static TextMeshProUGUI Caption => (TextMeshProUGUI)Get(_hud, "_skillStateCaption");
-        private static bool MessageVisible => Badge != null && Badge.gameObject.activeSelf;
+        private static bool MessageVisible => _host.GetComponentsInChildren<Transform>(true).Any(t => t.name == "SkillStateMessage");
+        private static Image Frame(int index) => _slots[index].transform.Find("SkillStateFrame")?.GetComponent<Image>();
+        private static bool FrameVisible(int index) => Frame(index) != null && Frame(index).isActiveAndEnabled;
         private static void Observe() => Call(_hud, "UpdateCooldownOverlays");
         private static void Tick()
         {
@@ -120,25 +119,25 @@ namespace RelicKeeper.Editor.VFX
                         for (int i = 0; i < 60; i++) _manager.UseSkillWithResult(1, false);
                         break;
                     case 1:
-                        Require(MessageVisible && Caption.text.Contains("Cooldown"), "English cooldown reason missing."); CaptureFrame("Cooldown-en");
+                        Require(!MessageVisible && FrameVisible(1), "Cooldown should highlight only its slot."); CaptureFrame("Cooldown-en");
                         LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("ru"); break;
                     case 2:
-                        Require(Caption.text.Contains("Перезарядка"), "Live Russian cooldown reason missing."); CaptureFrame("Cooldown-ru");
+                        Require(!MessageVisible, "Language switch created a popup."); CaptureFrame("Cooldown-ru");
                         _skills[1].Clock = 6;
                         var storm = _stats.gameObject.AddComponent<PlayerWinterStormController>();
                         Set(storm, "<IsActive>k__BackingField", true); Set(storm, "<Skill>k__BackingField", _skills[1].Data);
-                        Observe(); Require(!Caption.text.Contains("Готово"), "A persistent skill lock falsely appeared ready.");
+                        Observe(); Require(_slots[1].WaitingForReady, "A persistent skill lock falsely appeared ready.");
                         Set(storm, "<IsActive>k__BackingField", false); Observe(); break;
                     case 3:
-                        Require(MessageVisible && Caption.text.Contains("Готово"), "Readiness cue missing."); CaptureFrame("Ready-ru");
-                        float expires = (float)Get(_hud, "_skillStateUntil"); Observe(); Observe();
-                        Require((float)Get(_hud, "_skillStateUntil") == expires, "Ready message repeated every frame.");
+                        Require(!MessageVisible && FrameVisible(1) && !_slots[1].WaitingForReady, "Readiness should highlight only its slot."); CaptureFrame("Ready-ru");
+                        float expires = (float)Get(_slots[1], "_feedbackUntil"); Observe(); Observe();
+                        Require((float)Get(_slots[1], "_feedbackUntil") == expires, "Ready highlight repeated every frame.");
                         _stats.Mana.SetCurrent(0); Require(_manager.UseSkillWithResult(2) == SkillCastResult.InsufficientMana, "Mana rejection lost."); break;
                     case 4:
-                        Require(Caption.text.Contains("Недостаточно маны") && _skills[2].Executions == 0 && _skills[2].CooldownRemaining == 0, "Failed cast was presented as success.");
+                        Require(!MessageVisible && FrameVisible(2) && _skills[2].Executions == 0 && _skills[2].CooldownRemaining == 0, "Failed cast was presented as success or a popup.");
                         CaptureFrame("Mana-ru"); LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("en"); break;
                     case 5:
-                        Require(Caption.text.Contains("Not enough mana"), "English mana reason missing."); CaptureFrame("Mana-en");
+                        Require(!MessageVisible, "Mana rejection created a popup."); CaptureFrame("Mana-en");
                         _stats.Mana.RestoreFull(); Require(_manager.UseSkillWithResult(1) == SkillCastResult.Accepted, "Second cast rejected."); Observe();
                         _skills[1].Clock = 12; Call(_hud, "RefreshAllSkillSlotBindings"); Observe();
                         Require(!MessageVisible, "A binding rebuild falsely replayed readiness.");
@@ -152,17 +151,19 @@ namespace RelicKeeper.Editor.VFX
                         Require(_manager.UseSkillWithResult(1) == SkillCastResult.Accepted, "Replacement cast failed."); Observe();
                         GameplayPresentationSettings.SetReducedCombatEffects(true); replacement.Clock = 6; Observe(); break;
                     case 6:
-                        Require(MessageVisible && Caption.text.Contains("Ready"), "Reduced-effects readiness missing."); CaptureFrame("Ready-reduced-en");
+                        Require(!MessageVisible && FrameVisible(1) && !_slots[1].WaitingForReady, "Reduced readiness should highlight only its slot."); CaptureFrame("Ready-reduced-en");
                         using (GamePauseService.Acquire(GamePauseReason.Inventory))
                         {
                             Require(_manager.UseSkillWithResult(2) == SkillCastResult.Paused, "Menu cast was accepted.");
-                            Call(_hud, "TickSkillStateMessage"); Require(!MessageVisible, "Menu opening replayed a cue.");
+                            Observe(); Require(!MessageVisible, "Menu opening replayed a cue.");
                         }
                         _next = EditorApplication.timeSinceStartup + .85; break;
                     case 7:
                         Require(!MessageVisible, "Message was queued after unpause.");
                         Require(_slots.All(s => s.transform.Find("SkillStateFrame") == null || !s.transform.Find("SkillStateFrame").GetComponent<Image>().enabled), "A slot frame failed to expire.");
-                        File.WriteAllText(Output + "/Report.txt", "PASS: initial ready quiet; actual acceptance/cooldown/mana results; held retry silence; EN/RU live reason captions; one long-cooldown ready cue; lower-amplitude ready cue in reduced mode; no cue on HUD rebuild or same-data runtime replacement; zero-cooldown primary quiet; pause rejection; fixed layout; no input interception; timed cleanup. Disposable owner, mana and skill data only.");
+                        Call(_hud, "OnSkillCastAttempted", 1, _skills[1], SkillCastResult.Busy);
+                        Require(!MessageVisible && FrameVisible(1), "Already-casting feedback should stay in its slot."); CaptureFrame("Already-casting-no-popup");
+                        File.WriteAllText(Output + "/Report.txt", "PASS: no floating skill messages during initialization, accepted casts, cooldown/mana/busy rejections or readiness; actual acceptance/cooldown/mana results retained; held retry silence; EN/RU switch; one long-cooldown slot highlight; reduced mode; no cue on HUD rebuild or same-data runtime replacement; zero-cooldown primary quiet; pause rejection; fixed layout; nonblocking slot highlights; timed cleanup. Disposable owner, mana and skill data only. Busy presentation injected through the HUD callback; other cast outcomes use the real shared gate.");
                         End(); return;
                 }
                 _stage++; if (_stage != 7) _next = EditorApplication.timeSinceStartup + .14;
@@ -172,16 +173,17 @@ namespace RelicKeeper.Editor.VFX
         private static void CaptureFrame(string name)
         {
             Canvas.ForceUpdateCanvases();
-            for (int i = 0; i < _slots.Length; i++) Require(Vector3.Distance(_slots[i].transform.position, _slotPositions[i]) < .01f, "State caption moved a pointer target.");
-            if (MessageVisible)
+            Require(!MessageVisible, "A floating skill message was created.");
+            for (int i = 0; i < _slots.Length; i++)
             {
-                Require(!Badge.raycastTarget && !Caption.raycastTarget && Badge.GetComponent<LayoutElement>().ignoreLayout, "Cue blocks input or participates in layout.");
-                Caption.ForceMeshUpdate(); Require(!Caption.isTextOverflowing, "Localized reason is truncated: " + Caption.text);
-                var corners = new Vector3[4]; Badge.rectTransform.GetWorldCorners(corners);
+                Require(Vector3.Distance(_slots[i].transform.position, _slotPositions[i]) < .01f, "Feedback moved a pointer target.");
+                var frame = Frame(i); if (frame == null) continue;
+                foreach (var edge in frame.GetComponentsInChildren<Image>(true)) Require(!edge.raycastTarget, "Slot highlight intercepts input.");
+                var corners = new Vector3[4]; frame.rectTransform.GetWorldCorners(corners);
                 foreach (var corner in corners)
                 {
                     var screen = _camera.WorldToScreenPoint(corner);
-                    Require(screen.x >= 0 && screen.y >= 0 && screen.x <= 480 && screen.y <= 270, "Caption outside native canvas.");
+                    Require(screen.x >= 0 && screen.y >= 0 && screen.x <= 480 && screen.y <= 270, "Slot highlight outside native canvas.");
                 }
             }
             _camera.Render();

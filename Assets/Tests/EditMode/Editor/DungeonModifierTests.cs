@@ -178,7 +178,12 @@ namespace RelicKeeper.Tests.EditMode
                 for (int i = 0; i < drops.Length; i++)
                 {
                     if (drops[i] != null)
+                    {
+                        // Initialize subscribes explicitly; ordinary MonoBehaviour teardown
+                        // is not dispatched for these EditMode-created objects.
+                        typeof(WorldDroppedItem).GetMethod("OnDisable", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(drops[i], null);
                         created.Add(drops[i].gameObject);
+                    }
                 }
             }
             finally
@@ -341,6 +346,8 @@ namespace RelicKeeper.Tests.EditMode
                 Assert.That(System.Array.Exists(services, service => service.Service == HubService.Market), Is.True);
                 foreach (HubServiceNpc service in services)
                 {
+                    // The real prefab's Awake creates this trigger in Play Mode.
+                    typeof(HubServiceNpc).GetMethod("EnsureTriggerCollider", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(service, null);
                     Assert.That(service.GetComponent<SpriteRenderer>()?.sprite, Is.Not.Null);
                     Assert.That(service.GetComponent<BoxCollider2D>()?.isTrigger, Is.True);
                 }

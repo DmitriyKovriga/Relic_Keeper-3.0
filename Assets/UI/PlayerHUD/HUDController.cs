@@ -214,7 +214,6 @@ public partial class HUDController : MonoBehaviour
     private void OnDisable()
     {
         UnbindSkillStateEvents();
-        ClearSkillStateMessage();
         InputRebindSaver.RebindsChanged -= RefreshAllSkillSlotBindings;
         GameplayPresentationSettings.Changed -= ApplyPresentationSettings;
     }
@@ -222,7 +221,6 @@ public partial class HUDController : MonoBehaviour
     private void OnDestroy()
     {
         UnbindSkillStateEvents();
-        if (_skillStateBadge != null) Destroy(_skillStateBadge.gameObject);
         if (_playerStats != null) _playerStats.OnAnyStatChanged -= UpdateUI;
         if (_skillManager != null) _skillManager.OnSkillSlotUpdated -= UpdateSkillSlotUI;
         InputRebindSaver.RebindsChanged -= RefreshAllSkillSlotBindings;
@@ -239,7 +237,6 @@ public partial class HUDController : MonoBehaviour
     private void Update()
     {
         UpdateCooldownOverlays();
-        TickSkillStateMessage();
         RefreshAdaptiveResourceTextIfNeeded();
         TickResourceBarEffects();
         if (ApplyStatusEffectHudSettings())
@@ -251,7 +248,6 @@ public partial class HUDController : MonoBehaviour
     private void UpdateSkillSlotUI(int index, SkillDataSO skill)
     {
         if (index < 0 || index >= _skillSlots.Length) return;
-        ClearSkillStateMessage();
 
         string inputLabel = GetSkillInputLabel(index);
         if (skill != null)
@@ -780,14 +776,12 @@ public partial class HUDController : MonoBehaviour
             bool canAfford = runtime?.Data != null && _playerStats?.Mana != null && _playerStats.Mana.Current >= runtime.Data.ManaCost;
             bool temporarilyBlocked = slot.WaitingForReady && remaining <= .01f &&
                 _skillManager.GetSkillAvailability(i) != SkillCastResult.Accepted;
-            if (slot.ObserveFeedbackCooldown(remaining, canAfford, runtime != null && runtime.IsCasting, GamePauseService.IsPaused, temporarilyBlocked))
-                ShowSkillStateMessage(i, runtime, Scripts.UI.SkillSlotCue.Ready);
+            slot.ObserveFeedbackCooldown(remaining, canAfford, runtime != null && runtime.IsCasting, GamePauseService.IsPaused, temporarilyBlocked);
         }
     }
 
     private void RefreshAllSkillSlotBindings()
     {
-        ClearSkillStateMessage();
         if (_skillSlots == null)
             return;
 

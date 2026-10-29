@@ -2,6 +2,33 @@
 
 Completed 2026-10-30 following the roadmap's J01 -> J02 -> J03 -> J06 order.
 
+## Current behavior after user review
+
+The user rejected the floating skill messages because they broke immersion.
+They have been removed for every skill state, including Already casting,
+Cooldown, Not enough mana, Cannot cast now and Ready. Feedback stays within
+the existing skill slots: timers, mana costs, short borders and mana tint.
+No popup option or replacement notification was added. Cast rules are unchanged.
+
+Compilation and **25 focused tests passed, 0 failed/skipped**:
+SkillSlotFeedbackStateTests, SkillSlotBindingFeedbackTests and SkillCastFeedbackTests.
+The updated live 480x270 check confirmed no floating message object is created
+for rejected casts or readiness, with EN/RU switching, reduced effects, fixed
+slot positions, pause, replacement and cleanup. Busy presentation is injected
+through the HUD callback; cooldown/mana outcomes use the real shared cast gate.
+See [runtime report](J03/NoPopups/RuntimeReport.txt),
+[already-casting frame](J03/NoPopups/Already-casting-no-popup.png) and
+[mana frame](J03/NoPopups/Mana-ru.png). These are controlled UI captures;
+no new standalone build or ordinary-play A/B was performed.
+
+To test now: use a recovering skill again, attempt a skill with insufficient
+mana, and watch a long cooldown finish. Only its slot should respond; no text
+should appear beneath the bar. Repeat with reduced combat effects enabled.
+
+The remaining sections record the original J03 implementation and its historical
+captures. Their caption descriptions and original manual checks are superseded
+by this user-requested refinement.
+
 ## Delivered behavior
 
 The HUD already had cooldown overlays/countdowns, input labels and mana costs.
