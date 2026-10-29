@@ -81,7 +81,7 @@ namespace Scripts.Visuals.Atmosphere
             if (_flame != null)
             {
                 motion = _flame.GlowMultiplier(profile);
-                tint *= profile.localLightTint;
+                tint *= _flame.SourceTint(profile);
             }
             if (_portal != null && (!_portal.enabled || _portal.sprite == null)) return;
             if (_portal != null) tint *= _portal.color;

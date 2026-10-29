@@ -1,0 +1,7 @@
+{
+  "frames": 48,
+  "capture_duration_seconds": 1.8269139999974868,
+  "observed_capture_rate": 25.72644360931311,
+  "gif_duration_ms": 1870,
+  "note": "Preview sampling rate, not a gameplay performance measurement. Timed from AnimationTimes.csv. Sprite frame changes every four samples; fire advances every sample. 3x nearest-neighbor crop."
+}

@@ -82,6 +82,7 @@ namespace RelicKeeper.Tests.EditMode
 
             Tick(burning, 0.2f);
             Assert.That(clean.GetStackCount(AilmentType.Ignite), Is.EqualTo(1));
+            Assert.That(clean.GetComponent<IgniteVisualController>().IsBurning, Is.True, "Spread uses the same burning presentation.");
         }
 
         [Test]
@@ -94,7 +95,8 @@ namespace RelicKeeper.Tests.EditMode
 
             visual.SetBurning(true);
             Assert.That(host.transform.Find("IgniteFlames"), Is.Not.Null);
-            Assert.That(host.GetComponentsInChildren<SpriteRenderer>(true).Length, Is.EqualTo(4));
+            Assert.That(host.transform.Find("IgniteFlames/Ignite body heat"), Is.Not.Null);
+            Assert.That(host.transform.Find("IgniteFlames/Ignite rising fire"), Is.Not.Null);
 
             visual.SetBurning(false);
             Assert.That(host.transform.Find("IgniteFlames").gameObject.activeSelf, Is.False);

@@ -3,7 +3,27 @@
 Started 2026-10-29. The HTML and `PLAN.md` remain the design proposal; this file
 records implementation evidence separately.
 
-## Current step — J06 room resolution and exits implemented
+## Current step — J04 Ignite burning presentation
+
+Completed 2026-10-30 at the user's request: animated sprite-masked burning,
+rising fire, warm glow and a small flickering surface light. Ignite recipients
+share the same effect; stack refresh does not duplicate visuals. Source art,
+hit-flash ownership, damage and spread rules remain unchanged. After the user's
+screenshot, the fire was reshaped from the animated enemy silhouette and placed
+behind the body. A second review replaced the aura-like shell with separate
+surface-emitted flame tongues: staggered growth, upward curl, bright cores and
+smaller foreground flames. Continuous motion replaces snapped coordinates;
+the preview records its actual sampling times. A follow-up overlaps flame lives
+and blends emission across sprite frames to reduce flicker. Ignite's light/glow
+now share a slower visible breath; existing torch motion stays unchanged.
+The latest preview records 96 frames and the light/glow/radius pulse samples.
+Reduced effects is quieter. **29 focused tests passed**, with native rendering, animation/flip,
+paired terrain-light, ten-enemy and cleanup checks. See
+[Step 09](Step09_J04_IgniteBurn.md), [preview](J04/Ignite/FlameBreath/IgnitePreview.gif) and
+[comparison](J04/Ignite/FlameBreath/IgniteComparison.png). Other J04 chains remain unaudited;
+ordinary-combat review and a fresh standalone build are separate checks.
+
+## Previous step — J06 room resolution and exits
 
 Completed 2026-10-30. Portal unlock has a brief local pulse and remains immediately
 usable. Unlock, full clear and level-up merge into one announcement; a brief
@@ -153,6 +173,7 @@ J03 is delivered; validation and manual checks are in
 J06 is delivered; validation and manual checks are in
 [Step 08](Step08_J06_RoomResolution.md).
 
-Next phase: audit three existing build/status chains for J04 and identify an
-actual remaining readability gap before adding another cue. J05/J10 also depend
-on observed gaps; J07/J08 remain user-owned and excluded; J09 is last.
+J04's first Ignite slice is delivered at the user's request; review its burning
+effect in ordinary combat, then audit remaining build/status chains before
+adding cues. J05/J10 also depend on observed gaps; J07/J08 remain user-owned
+and excluded; J09 is last.

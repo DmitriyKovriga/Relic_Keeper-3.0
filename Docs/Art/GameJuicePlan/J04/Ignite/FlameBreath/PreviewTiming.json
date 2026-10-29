@@ -1,0 +1,10 @@
+{
+  "frames": 96,
+  "capture_duration_seconds": 3.9429200000013225,
+  "observed_capture_rate": 24.093818794185054,
+  "light_glow_motion_min": 1.532811,
+  "light_glow_motion_max": 3.968568,
+  "light_radius_min": 3.332737,
+  "light_radius_max": 3.815932,
+  "note": "Captured presentation motion includes environment strength/radius multipliers. Sampling rate is not a gameplay performance measurement. GIF durations follow recorded capture time; 3x nearest-neighbor crop."
+}

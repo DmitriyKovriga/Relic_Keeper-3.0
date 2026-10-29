@@ -125,7 +125,10 @@ namespace Scripts.StatusEffects
 
         private static bool IsIgniteFlame(SpriteRenderer renderer)
         {
-            return renderer != null && renderer.transform.parent != null && renderer.transform.parent.name == "IgniteFlames";
+            if (renderer == null) return false;
+            for (var node = renderer.transform.parent; node != null; node = node.parent)
+                if (node.name == "IgniteFlames") return true;
+            return false;
         }
 
         private void RestoreBaseColors()

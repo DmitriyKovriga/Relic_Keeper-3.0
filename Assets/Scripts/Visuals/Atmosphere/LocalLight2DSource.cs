@@ -16,8 +16,11 @@ namespace Scripts.Visuals.Atmosphere
         [SerializeField, Min(0.1f)] private float _radius = 3.5f;
         [SerializeField] private bool _flame;
         [SerializeField] private float _flamePhase;
+        [SerializeField, Range(0, .75f)] private float _breathDepth;
+        [SerializeField, Range(.1f, 3f)] private float _breathSpeed = 1;
         [SerializeField] private bool _roomFill;
         [SerializeField] private Color _tint = new Color(0.63f, 0.78f, 1);
+        [SerializeField] private bool _overrideTint;
         [SerializeField, Range(0, 0.8f)] private float _innerRadius = 0.1f;
         [SerializeField] private SourceGlowSettings _glow = SourceGlowSettings.Flame;
         private SourceGlowVisual _glowVisual;
@@ -27,7 +30,10 @@ namespace Scripts.Visuals.Atmosphere
         public Light2D Light => _light != null ? _light : (_light = GetComponent<Light2D>());
         public void Configure(float strength, float radius) { _strength = strength; _radius = radius; Prepare(); }
         public void SetStrength(float strength) => _strength = Mathf.Max(0f, strength);
+        public void ConfigureTint(Color tint) { _tint = tint; _overrideTint = true; }
+        public Color SourceTint(AtmosphereProfileSO profile) => _roomFill || _overrideTint ? _tint : profile.localLightTint;
         public void ConfigureFlame(float phase) { _flame = true; _flamePhase = phase; SetPlacementPhase(); EnsureGlow(); }
+        public void ConfigureBreathing(float depth, float speed = 1) { _breathDepth = Mathf.Clamp(depth, 0, .75f); _breathSpeed = Mathf.Clamp(speed, .1f, 3); }
         public SourceGlowSettings Glow => _glow;
         public void ConfigureGlow(SourceGlowSettings settings) { _glow = settings; EnsureGlow(); }
         public float GlowMultiplier(AtmosphereProfileSO profile) => isActiveAndEnabled && HasFlameMotion && Light.enabled &&
@@ -68,6 +74,13 @@ namespace Scripts.Visuals.Atmosphere
             float flutter = Mathf.Clamp01(Mathf.PerlinNoise(phase + 53.17f, seconds * 3.1f)) * 2f - 1f;
             return new Vector2(1f + (slow * 0.8f + flutter * 0.2f) * 0.12f, 1f + slow * 0.025f);
         }
+        public static Vector2 SampleBreathing(float seconds, float phase, float depth, float speed = 1)
+        {
+            float t = seconds * Mathf.Clamp(speed, .1f, 3);
+            float wave = Mathf.Sin(t * 2.4f + phase) * .7f + Mathf.Sin(t * 3.7f + phase * .73f) * .3f;
+            float amount = wave * Mathf.Clamp(depth, 0, .75f);
+            return new Vector2(1 + amount, 1 + amount * .15f);
+        }
         private Vector2 FlameSample
         {
             get
@@ -79,7 +92,8 @@ namespace Scripts.Visuals.Atmosphere
 #if UNITY_EDITOR
                 if (!Application.isPlaying) seconds = (float)UnityEditor.EditorApplication.timeSinceStartup;
 #endif
-                return SampleFlame(seconds, _flamePhase + _placementPhase);
+                float phase = _flamePhase + _placementPhase;
+                return Vector2.Scale(SampleFlame(seconds, phase), SampleBreathing(seconds, phase, _breathDepth, _breathSpeed));
             }
         }
         public void BindPreview(AtmosphereController owner) { _previewOwner = owner; Prepare(); EnsureGlow(); }
@@ -143,7 +157,7 @@ namespace Scripts.Visuals.Atmosphere
             if (UnityEditor.SceneManagement.EditorSceneManager.IsPreviewScene(gameObject.scene))
                 Light.SendMessage("LateUpdate", SendMessageOptions.DontRequireReceiver);
 #endif
-            Light.color = _roomFill ? _tint : profile.localLightTint;
+            Light.color = SourceTint(profile);
             Light.intensity = _strength * ProfileStrength(profile) * flame.x;
         }
         private void UpdateRadius(AtmosphereProfileSO profile, float motion)
