@@ -36,6 +36,7 @@ namespace Scripts.Items.World
         public const float TooltipWorldHeight = 0.48f;
 
         public InventoryItem Item => _item;
+        public bool IsPlayerDiscard { get; private set; }
         public bool IsLootFilterHidden => _lootFilterHidden;
         public bool ParticipatesInWorldLayout => _isInitialized && !_lootFilterHidden && _item?.Data != null;
         public Vector2 GroundPosition => _isInitialized ? _groundPosition : (Vector2)transform.position;
@@ -48,9 +49,10 @@ namespace Scripts.Items.World
             }
         }
 
-        public void Initialize(InventoryItem item, float pixelsPerUnit)
+        public void Initialize(InventoryItem item, float pixelsPerUnit, bool isPlayerDiscard = false)
         {
             _item = item;
+            IsPlayerDiscard = isPlayerDiscard;
             _pixelsPerUnit = Mathf.Max(1f, pixelsPerUnit);
             _hoverBaseLocalY = transform.localPosition.y;
             _hoverPhase = Mathf.Abs(GetInstanceID() % 1000) * 0.013f;
@@ -239,7 +241,7 @@ namespace Scripts.Items.World
             _iconRenderer.sortingLayerName = WorldRenderSorting.LayerVfx;
             _iconRenderer.sortingOrder = VisualSortingOrder + 1;
             _iconRenderer.transform.localPosition = new Vector3(0f, 0f, -0.01f);
-            FitIconInsideCircle();
+            FitIconInsideCircle(_iconRenderer, _pixelsPerUnit);
         }
 
         private void BuildCollider()
@@ -283,23 +285,23 @@ namespace Scripts.Items.World
             _inspectionCanvas.enabled = false;
         }
 
-        private void FitIconInsideCircle()
+        internal static void FitIconInsideCircle(SpriteRenderer icon, float pixelsPerUnit)
         {
-            if (_iconRenderer == null || _iconRenderer.sprite == null)
+            if (icon == null || icon.sprite == null)
                 return;
 
-            _iconRenderer.transform.localScale = Vector3.one;
-            Bounds bounds = _iconRenderer.bounds;
+            icon.transform.localScale = Vector3.one;
+            Bounds bounds = icon.bounds;
             float maxSize = Mathf.Max(bounds.size.x, bounds.size.y);
             if (maxSize <= 0f)
                 return;
 
-            float targetSize = (CirclePixels - 4f) / _pixelsPerUnit;
+            float targetSize = (CirclePixels - 4f) / pixelsPerUnit;
             float scale = targetSize / maxSize;
-            _iconRenderer.transform.localScale = new Vector3(scale, scale, 1f);
+            icon.transform.localScale = new Vector3(scale, scale, 1f);
         }
 
-        private static Sprite GetCircleSprite()
+        internal static Sprite GetCircleSprite()
         {
             if (_circleSprite != null)
                 return _circleSprite;

@@ -21,7 +21,7 @@ namespace Scripts.Items.World
 
         public WorldLootCache Cache => _cache;
 
-        public bool TryStore(InventoryItem item, Vector3? sourcePosition = null)
+        public bool TryStore(InventoryItem item, Vector3? sourcePosition = null, bool isPlayerDiscard = false)
         {
             if (item?.Data == null)
                 return false;
@@ -34,9 +34,9 @@ namespace Scripts.Items.World
             if (!_cache.TryAddItemPreferringTab(item, _cache.CurrentTabIndex))
                 return false;
 
-            if (Application.isPlaying && sourcePosition.HasValue && _cache.Count > previousCount &&
+            if (Application.isPlaying && !isPlayerDiscard && sourcePosition.HasValue && _cache.Count > previousCount &&
                 !LootFilterSettings.ShouldHide(item))
-                WorldLootCacheFlightVisual.Spawn(sourcePosition.Value, _cache);
+                WorldLootCacheFlightVisual.Spawn(sourcePosition.Value, _cache, item);
             return true;
         }
 

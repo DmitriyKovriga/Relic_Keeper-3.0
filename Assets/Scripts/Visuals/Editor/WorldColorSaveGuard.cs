@@ -1,6 +1,8 @@
 using Scripts.Visuals.Atmosphere;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEditor.Build;
+using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
@@ -9,11 +11,46 @@ namespace RelicKeeper.Editor.Visuals
 {
     // Never serialize temporary preview materials into a scene or prefab.
     [InitializeOnLoad]
-    public sealed class WorldColorSaveGuard : AssetModificationProcessor
+    public sealed class WorldColorSaveGuard : AssetModificationProcessor, IPreprocessBuildWithReport
     {
         private const string TransitionKey = "RelicKeeper.WorldColors.PlayTransition";
         private const string ReloadKey = "RelicKeeper.WorldColors.AssemblyReload";
         private static double _reloadStableSince = -1;
+        private static bool _buildSuspension;
+        private static bool _suspendedBeforeBuild;
+
+        public int callbackOrder => -1000;
+
+        public void OnPreprocessBuild(BuildReport report) => BeginBuild();
+
+        internal static void BeginBuild()
+        {
+            if (_buildSuspension) return;
+            _suspendedBeforeBuild = WorldColorGrading.BindingsSuspended;
+            _buildSuspension = true;
+            // ExecuteAlways controllers also run while Unity loads scenes for a build.
+            // HideAndDontSave material variants become null references in player data.
+            WorldColorGrading.SetBindingsSuspended(true);
+            EditorApplication.update -= ResumeAfterBuild;
+            EditorApplication.update += ResumeAfterBuild;
+        }
+
+        private static void ResumeAfterBuild()
+        {
+            if (BuildPipeline.isBuildingPlayer || EditorApplication.isCompiling || EditorApplication.isUpdating) return;
+            EndBuild();
+        }
+
+        internal static void EndBuild()
+        {
+            if (!_buildSuspension) return;
+            _buildSuspension = false;
+            EditorApplication.update -= ResumeAfterBuild;
+            // Also runs after a failed/cancelled build, where a postprocess callback
+            // is not guaranteed. Preserve a pre-existing play/reload suspension.
+            WorldColorGrading.SetBindingsSuspended(_suspendedBeforeBuild ||
+                SessionState.GetBool(TransitionKey, false) || SessionState.GetBool(ReloadKey, false));
+        }
 
         static WorldColorSaveGuard()
         {
@@ -55,6 +92,7 @@ namespace RelicKeeper.Editor.Visuals
 
         private static void ResumeAfterReload()
         {
+            if (_buildSuspension || BuildPipeline.isBuildingPlayer) return;
             if (EditorApplication.isCompiling || EditorApplication.isUpdating)
             { _reloadStableSince = -1; return; }
             if (SessionState.GetBool(TransitionKey, false))

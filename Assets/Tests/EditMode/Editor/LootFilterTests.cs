@@ -138,14 +138,18 @@ namespace RelicKeeper.Tests.EditMode
 
             Assert.That(cache.VisibleCount, Is.Zero);
             Assert.That(cache.CanInteract(), Is.False);
-            Assert.That(cache.GetComponent<SpriteRenderer>().enabled, Is.False);
+            var cacheRenderers = cache.GetComponentsInChildren<SpriteRenderer>(true);
+            Assert.That(cacheRenderers, Is.Not.Empty);
+            foreach (var renderer in cacheRenderers)
+                Assert.That(renderer.enabled, Is.False, "Filtering must hide the animated sphere and its glow.");
             Assert.That(cache.GetComponent<CircleCollider2D>().enabled, Is.False);
 
             LootFilterSettings.SetThreshold(LootFilterThreshold.None);
 
             Assert.That(cache.VisibleCount, Is.EqualTo(cache.Count));
             Assert.That(cache.CanInteract(), Is.True);
-            Assert.That(cache.GetComponent<SpriteRenderer>().enabled, Is.True);
+            foreach (var renderer in cacheRenderers)
+                Assert.That(renderer.enabled, Is.True);
             Assert.That(cache.GetComponent<CircleCollider2D>().enabled, Is.True);
         }
 

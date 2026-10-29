@@ -1,14 +1,18 @@
 # Combat and movement feel — research and implementation plan
 
-Date: 2026-10-27. Source revision: `0283601f`.
-Revision 2: user feedback applied. Status: **planning only**. Existing facilities below are verified by source and
-serialized-data inspection. Proposals are not implemented or combat-balanced.
-No new Play Mode capture, GPU profile or runtime test run was performed for this
-task. The HTML demonstration is an abstract explanatory diagram, not game footage.
-The user's report that atmosphere work is complete is accepted as context; the
-previous atmosphere plan and its modified documents are not rebuilt or overwritten.
+Initial research: 2026-10-27, revision `0283601f`; revision 2 applied user feedback.
+Current status (2026-10-29): **the approved presentation/input pass is implemented
+within its documented coverage and ready for player playtesting**. The final
+combined regression check passed 369 relevant tests with zero failures/skips.
+See [current status and remaining choices](STATUS.md) for each proposal's actual
+disposition, evidence and limits. Optional mechanics are not marked implemented.
 
-## Recommendation
+The research findings and estimates below describe the original inspection;
+the dated implementation records document later changes. Earlier records retain
+their then-current limits. The HTML is an abstract diagram, not gameplay footage.
+The separate atmosphere plan is not rebuilt or overwritten here.
+
+## Implementation record
 
 Implementation follow-up (2026-10-28): first-slice work is implemented through
 **crowd validation (steps 1–5)**; focused checks and their limits are linked below.
@@ -104,6 +108,12 @@ AI, Near Fan/Circular Saw/Lightning Rod, and both effects modes. 54 focused test
 and twelve standalone cases passed, including pause and projectile cleanup.
 Whole-frame measurements and screenshots are saved; GPU timing was unavailable
 and remains unverified. No saved gameplay balance or room geometry was changed.
+[C18 presented GPU capture](Step21_CameraGpuTiming.md) now supplies a valid
+targeted GPU measurement path for room 006 / Circular Saw. Hidden D3D11/D3D12
+timings stayed unavailable; normal screen presentation returned native camera
+and FrameTimingManager GPU data. Camera GPU p95 was 0.716 ms in both modes on
+the recorded machine. 60 focused tests and both presented cases passed. This
+does not claim a complete GPU pass breakdown or a universal Reduced-mode gain.
 
 User review (2026-10-27): **remove the automatic generic contact effect**.
 The extra mark overlaps existing skill VFX and adds visual clutter. Keep the
@@ -134,7 +144,7 @@ ordinary attacking body's lack of response; that is the highest-value gap.
 - Current packages must work without C03/C06/C08. Their records remain for discussion,
   with visible disposition; default HTML filtering shows the 21 current proposals.
 
-## Source findings: what exists and what is missing
+## Original source findings (2026-10-27)
 
 ### Player body and weapon
 

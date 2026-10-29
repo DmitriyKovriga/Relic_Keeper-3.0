@@ -1,0 +1,60 @@
+{
+  "capture": "Logs/GameJuiceBaseline/20261029-152839",
+  "recordingType": "Human-driven normal game; JPEG samples at up to 4 fps; no input/event telemetry",
+  "selectedFrames": [
+    {
+      "seconds": 20.035,
+      "frame": 72,
+      "label": "Market / equipment"
+    },
+    {
+      "seconds": 59.952,
+      "frame": 226,
+      "label": "Portal unlock during combat"
+    },
+    {
+      "seconds": 137.065,
+      "frame": 523,
+      "label": "Exit cache: boots available"
+    },
+    {
+      "seconds": 138.099,
+      "frame": 527,
+      "label": "Boots removed; equipped"
+    },
+    {
+      "seconds": 142.016,
+      "frame": 542,
+      "label": "Full room clear"
+    },
+    {
+      "seconds": 143.067,
+      "frame": 546,
+      "label": "Level up follows clear"
+    },
+    {
+      "seconds": 188.901,
+      "frame": 722,
+      "label": "Death summary"
+    },
+    {
+      "seconds": 194.065,
+      "frame": 742,
+      "label": "Return / recruit"
+    }
+  ],
+  "reviewedSegment": {
+    "frames": 2585,
+    "firstFrame": 0,
+    "lastFrame": 2584,
+    "firstSampleSeconds": 0.672,
+    "lastSampleSeconds": 672.371,
+    "largestSampleGapSeconds": 0.817,
+    "timelineSnapshot": "Logs/GameJuiceBaseline/Review-20261029-152839/ReviewedFrames.csv"
+  },
+  "rawCaptureAtReview": {
+    "frames": 2591,
+    "lastSampleSeconds": 921.583,
+    "note": "Additional idle/unfocused time after the user finished is excluded from the reviewed segment."
+  }
+}

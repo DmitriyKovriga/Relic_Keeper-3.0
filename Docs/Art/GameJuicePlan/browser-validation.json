@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-29",
+  "revision": 2,
+  "status": "passed",
+  "checks": [
+    "8 active proposals; J07/J08 user-owned and excluded",
+    "central exit cache with 4 optional presentation treatments",
+    "4 first / 3 second / 1 pilot filters",
+    "details and local links",
+    "390px responsive layout",
+    "no JS errors or external requests",
+    "inspected source hashes unchanged"
+  ],
+  "boundary": "Document/browser validation only; no Unity runtime changes or new gameplay tests"
+}

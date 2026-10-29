@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-29",
+  "scope": "Combined focused EditMode regression selection, current working tree; not the entire repository suite",
+  "suites": [
+    "CombatHitFeedbackTests",
+    "CombatPoseTests",
+    "RangedBodyFollowTests",
+    "EnemyHitFlashTests",
+    "HitStopTests",
+    "CombatCameraImpulseTests",
+    "PlayerHurtFeedbackTests",
+    "DefenseFeedbackTests",
+    "LethalHitPresentationTests",
+    "EnemyDeathRemainsTests",
+    "MovementWeightShiftTests",
+    "LandingContactTests",
+    "SurfaceMovementTests",
+    "GroundDashVisualTests",
+    "CameraFollowPreviewTests",
+    "PlayerMovementTests",
+    "GamePauseServiceTests",
+    "CornerTraversalTests",
+    "AttackInputAuditTests",
+    "ReducedCombatEffectsTests",
+    "CombatDecorationBudgetTests",
+    "MortfallCombatAuditTests",
+    "WeaponSwapSkillLifetimeTests"
+  ],
+  "result": {
+    "passed": 369,
+    "failed": 0,
+    "skipped": 0,
+    "failures": []
+  },
+  "status": "success",
+  "knownExcludedDisagreement": "Three ManaSpear finite-pierce cases conflict with the pre-existing InfinitePierce recipe; see Step17."
+}

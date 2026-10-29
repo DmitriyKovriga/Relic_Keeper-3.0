@@ -1,0 +1,287 @@
+{
+ "frames": [
+  {
+   "filename": "relic-keeper-loot-arrival-stars 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 43,
+    "h": 49
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 43,
+    "h": 49
+   },
+   "sourceSize": {
+    "w": 43,
+    "h": 49
+   },
+   "pivot": {
+    "x": 0.4883720930232558,
+    "y": 0.6530612244897959
+   },
+   "duration": 67
+  },
+  {
+   "filename": "relic-keeper-loot-arrival-stars 1.png",
+   "frame": {
+    "x": 43,
+    "y": 0,
+    "w": 43,
+    "h": 49
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 43,
+    "h": 49
+   },
+   "sourceSize": {
+    "w": 43,
+    "h": 49
+   },
+   "pivot": {
+    "x": 0.4883720930232558,
+    "y": 0.6530612244897959
+   },
+   "duration": 67
+  },
+  {
+   "filename": "relic-keeper-loot-arrival-stars 2.png",
+   "frame": {
+    "x": 86,
+    "y": 0,
+    "w": 43,
+    "h": 49
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 43,
+    "h": 49
+   },
+   "sourceSize": {
+    "w": 43,
+    "h": 49
+   },
+   "pivot": {
+    "x": 0.4883720930232558,
+    "y": 0.6530612244897959
+   },
+   "duration": 67
+  },
+  {
+   "filename": "relic-keeper-loot-arrival-stars 3.png",
+   "frame": {
+    "x": 129,
+    "y": 0,
+    "w": 43,
+    "h": 49
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 43,
+    "h": 49
+   },
+   "sourceSize": {
+    "w": 43,
+    "h": 49
+   },
+   "pivot": {
+    "x": 0.4883720930232558,
+    "y": 0.6530612244897959
+   },
+   "duration": 67
+  },
+  {
+   "filename": "relic-keeper-loot-arrival-stars 4.png",
+   "frame": {
+    "x": 0,
+    "y": 49,
+    "w": 43,
+    "h": 49
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 43,
+    "h": 49
+   },
+   "sourceSize": {
+    "w": 43,
+    "h": 49
+   },
+   "pivot": {
+    "x": 0.4883720930232558,
+    "y": 0.6530612244897959
+   },
+   "duration": 67
+  },
+  {
+   "filename": "relic-keeper-loot-arrival-stars 5.png",
+   "frame": {
+    "x": 43,
+    "y": 49,
+    "w": 43,
+    "h": 49
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 43,
+    "h": 49
+   },
+   "sourceSize": {
+    "w": 43,
+    "h": 49
+   },
+   "pivot": {
+    "x": 0.4883720930232558,
+    "y": 0.6530612244897959
+   },
+   "duration": 67
+  },
+  {
+   "filename": "relic-keeper-loot-arrival-stars 6.png",
+   "frame": {
+    "x": 86,
+    "y": 49,
+    "w": 43,
+    "h": 49
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 43,
+    "h": 49
+   },
+   "sourceSize": {
+    "w": 43,
+    "h": 49
+   },
+   "pivot": {
+    "x": 0.4883720930232558,
+    "y": 0.6530612244897959
+   },
+   "duration": 67
+  },
+  {
+   "filename": "relic-keeper-loot-arrival-stars 7.png",
+   "frame": {
+    "x": 129,
+    "y": 49,
+    "w": 43,
+    "h": 49
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 43,
+    "h": 49
+   },
+   "sourceSize": {
+    "w": 43,
+    "h": 49
+   },
+   "pivot": {
+    "x": 0.4883720930232558,
+    "y": 0.6530612244897959
+   },
+   "duration": 67
+  },
+  {
+   "filename": "relic-keeper-loot-arrival-stars 8.png",
+   "frame": {
+    "x": 0,
+    "y": 98,
+    "w": 43,
+    "h": 49
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 43,
+    "h": 49
+   },
+   "sourceSize": {
+    "w": 43,
+    "h": 49
+   },
+   "pivot": {
+    "x": 0.4883720930232558,
+    "y": 0.6530612244897959
+   },
+   "duration": 67
+  },
+  {
+   "filename": "relic-keeper-loot-arrival-stars 9.png",
+   "frame": {
+    "x": 43,
+    "y": 98,
+    "w": 43,
+    "h": 49
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 43,
+    "h": 49
+   },
+   "sourceSize": {
+    "w": 43,
+    "h": 49
+   },
+   "pivot": {
+    "x": 0.4883720930232558,
+    "y": 0.6530612244897959
+   },
+   "duration": 67
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "relic-keeper-loot-arrival-stars.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 172,
+   "h": 147
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 21,
+   "y": 32
+  },
+  "frameTags": [
+   {
+    "name": "relic-keeper-loot-arrival-stars",
+    "from": 0,
+    "to": 9,
+    "direction": "forward"
+   }
+  ]
+ }
+}

@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Scripts.Items.World
 {
     [DisallowMultipleComponent]
-    public sealed class WorldLootCache : MonoBehaviour, IInteractable, ITabbedItemGrid
+    public sealed partial class WorldLootCache : MonoBehaviour, IInteractable, ITabbedItemGrid
     {
         private const int SpritePixels = 24;
         private const float PixelsPerUnit = 24f;
@@ -67,7 +67,7 @@ namespace Scripts.Items.World
 
         private void Awake()
         {
-            if (GetComponent<SpriteRenderer>() == null)
+            if (_mainRenderer == null)
                 BuildVisual();
             if (GetComponent<CircleCollider2D>() == null)
                 BuildCollider();
@@ -83,15 +83,13 @@ namespace Scripts.Items.World
         private void OnDisable()
         {
             LootFilterSettings.Changed -= OnLootFilterChanged;
+            ResetIntake();
+            ResetValuable();
         }
 
         private void Update()
         {
-            if (_glowRenderer == null)
-                return;
-
-            float pulse = 1.18f + Mathf.Sin(Time.time * 3.5f) * 0.08f;
-            _glowRenderer.transform.localScale = Vector3.one * pulse;
+            UpdateIntake(Time.deltaTime);
         }
 
         public bool Absorb(WorldDroppedItem droppedItem)
@@ -110,7 +108,8 @@ namespace Scripts.Items.World
 
             if (Application.isPlaying)
             {
-                WorldLootCacheFlightVisual.Spawn(sourcePosition, this);
+                if (!droppedItem.IsPlayerDiscard && !LootFilterSettings.ShouldHide(item))
+                    WorldLootCacheFlightVisual.Spawn(sourcePosition, this, item);
                 Destroy(droppedItem.gameObject);
             }
             else
@@ -169,20 +168,26 @@ namespace Scripts.Items.World
 
         private void BuildVisual()
         {
-            _mainRenderer = GetComponent<SpriteRenderer>();
+            _visualRoot = transform.Find("Visual");
+            if (_visualRoot == null)
+            {
+                _visualRoot = new GameObject("Visual").transform;
+                _visualRoot.SetParent(transform, false);
+            }
+            _mainRenderer = _visualRoot.GetComponent<SpriteRenderer>();
             if (_mainRenderer == null)
-                _mainRenderer = gameObject.AddComponent<SpriteRenderer>();
+                _mainRenderer = _visualRoot.gameObject.AddComponent<SpriteRenderer>();
             _mainRenderer.sprite = GetCacheSprite();
             _mainRenderer.color = Color.white;
             _mainRenderer.sortingLayerName = WorldRenderSorting.LayerVfx;
             _mainRenderer.sortingOrder = WorldDroppedItem.TopVisualSortingOrder + 2;
 
-            Transform glow = transform.Find("PurpleGlow");
+            Transform glow = _visualRoot.Find("PurpleGlow");
             if (glow == null)
             {
                 var glowObject = new GameObject("PurpleGlow");
                 glow = glowObject.transform;
-                glow.SetParent(transform, false);
+                glow.SetParent(_visualRoot, false);
             }
 
             _glowRenderer = glow.GetComponent<SpriteRenderer>();
@@ -220,6 +225,8 @@ namespace Scripts.Items.World
 
         private void RefreshFilterState()
         {
+            PruneIntake();
+            PruneValuable();
             bool visible = !_destroying && VisibleCount > 0;
             if (_mainRenderer != null)
                 _mainRenderer.enabled = visible;
@@ -288,7 +295,7 @@ namespace Scripts.Items.World
 
         public bool TryAddItemPreferringTab(InventoryItem item, int preferredTab)
         {
-            if (item?.Data == null)
+            if (!CanAcceptItems || item?.Data == null)
                 return false;
             if (_items.Contains(item))
                 return true;

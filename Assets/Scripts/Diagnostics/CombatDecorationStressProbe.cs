@@ -35,12 +35,12 @@ namespace RelicKeeper.Diagnostics
         private bool _previousBackground;
         private RenderTexture _target;
         private Material _particleMaterial;
-        private string Output => Path.Combine(Directory.GetCurrentDirectory(), _mortfallAudit ? "Logs/MortfallCombatAudit" : "Logs/CombatDecorationStress" + (Application.isEditor ? "Editor" : "Player"));
+        private string Output => Path.Combine(Directory.GetCurrentDirectory(), _presentedGpuAudit ? "Logs/MortfallGpuPresentedAudit" : _gpuAudit ? "Logs/MortfallGpuAudit" : _mortfallAudit ? "Logs/MortfallCombatAudit" : "Logs/CombatDecorationStress" + (Application.isEditor ? "Editor" : "Player"));
         private static readonly Vector3 Origin = new Vector3(15000, 15000);
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void AutoStart()
         {
-            if (Environment.GetCommandLineArgs().Contains("-mortfall-combat-audit")) BeginMortfallAudit();
+            if (Environment.GetCommandLineArgs().Contains("-mortfall-combat-audit") || Environment.GetCommandLineArgs().Contains("-mortfall-gpu-audit") || Environment.GetCommandLineArgs().Contains("-mortfall-gpu-presented")) BeginMortfallAudit();
             else if (Environment.GetCommandLineArgs().Contains("-combat-decoration-audit")) Begin();
         }
         public static void Begin()
@@ -170,9 +170,12 @@ namespace RelicKeeper.Diagnostics
         }
         private void OnDestroy()
         {
+            RestoreCameraGpuRecorder();
             GameplayPresentationSettings.SetReducedCombatEffects(_previousReduced);
             QualitySettings.vSyncCount = _previousVsync; Application.targetFrameRate = _previousFps;
-            Application.runInBackground = _previousBackground;
+            // Quit is processed by the player loop. A hidden profiled player must
+            // keep ticking until that request completes; the Editor restores its state.
+            Application.runInBackground = _quit || _previousBackground;
             foreach (var effect in _effects) if (effect != null) Destroy(effect);
             foreach (var go in _owned) if (go != null) Destroy(go);
             if (_particleMaterial != null) Destroy(_particleMaterial);

@@ -1,0 +1,1 @@
+PASS: 1 items stored immediately; discarded=False; rise=True; reveal=True; travel=True; intake=True; flight=True; trail=True; openUI=False; fullInventoryChecked=False; rarityStrength=2; waves=2; peakLight=0.5599807; fixed interaction; settled pulse and automatic cleanup after real frames.

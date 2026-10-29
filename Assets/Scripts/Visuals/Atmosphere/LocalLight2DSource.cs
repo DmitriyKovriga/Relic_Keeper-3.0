@@ -26,6 +26,7 @@ namespace Scripts.Visuals.Atmosphere
         private AtmosphereController _previewOwner;
         public Light2D Light => _light != null ? _light : (_light = GetComponent<Light2D>());
         public void Configure(float strength, float radius) { _strength = strength; _radius = radius; Prepare(); }
+        public void SetStrength(float strength) => _strength = Mathf.Max(0f, strength);
         public void ConfigureFlame(float phase) { _flame = true; _flamePhase = phase; SetPlacementPhase(); EnsureGlow(); }
         public SourceGlowSettings Glow => _glow;
         public void ConfigureGlow(SourceGlowSettings settings) { _glow = settings; EnsureGlow(); }

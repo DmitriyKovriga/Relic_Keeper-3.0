@@ -1,0 +1,29 @@
+{
+  "service": "PixelLab MCP vfx_workbench",
+  "effect_id": "e238cc6f-5cf1-488e-8369-785d729fad1d",
+  "step": "5230aaa6-3e50-45c1-9365-401ac8cfdc03",
+  "derived_from_step": "6374c1d1-41bd-46df-a969-5cb980ff5d38",
+  "editor": "https://pixellab.ai/create-vfx?effect=e238cc6f-5cf1-488e-8369-785d729fad1d",
+  "download_root": "https://api.pixellab.ai/mcp/pixel-tools/7a71bde4-1ba5-47aa-9fd8-0ed385eff238/",
+  "source_sheet": "Assets/Resources/Visuals/LootCache/UniqueArrival.png",
+  "sha256": "be0cc2613eef437948717971a8a276c2411d405c6464c8cd01a10e018e3eef80",
+  "palette": [
+    "#631c21",
+    "#bd342d",
+    "#ff633f",
+    "#ffb58a",
+    "#fff4df"
+  ],
+  "frame_size": [
+    43,
+    49
+  ],
+  "frames": 10,
+  "fps": 15,
+  "anchor_top_left": [
+    21,
+    32
+  ],
+  "ppu": 24,
+  "unique_scale": 2
+}

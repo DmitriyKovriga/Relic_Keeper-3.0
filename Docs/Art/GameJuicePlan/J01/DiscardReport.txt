@@ -1,0 +1,1 @@
+PASS: 1 items stored immediately; discarded=True; intake=False; flight=False; trail=False; fixed interaction; settled pulse and automatic cleanup after real frames.

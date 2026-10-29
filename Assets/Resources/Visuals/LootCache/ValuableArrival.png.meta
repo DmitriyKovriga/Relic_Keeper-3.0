@@ -1,0 +1,453 @@
+fileFormatVersion: 2
+guid: e3a6658d1b9671645950678baebb9b39
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 2392093651658504906
+    second: ValuableArrival_0
+  - first:
+      213: 7266491282913615594
+    second: ValuableArrival_1
+  - first:
+      213: 4693880401714315885
+    second: ValuableArrival_2
+  - first:
+      213: -2145118852221128152
+    second: ValuableArrival_3
+  - first:
+      213: 5877108531525353892
+    second: ValuableArrival_4
+  - first:
+      213: -3476274665516509048
+    second: ValuableArrival_5
+  - first:
+      213: 3130330105963100071
+    second: Arrival_00
+  - first:
+      213: 8323566305233523602
+    second: Arrival_01
+  - first:
+      213: 269939544149937767
+    second: Arrival_02
+  - first:
+      213: -644449788961966203
+    second: Arrival_03
+  - first:
+      213: -632264775867566609
+    second: Arrival_04
+  - first:
+      213: 279499411689546456
+    second: Arrival_05
+  - first:
+      213: -2560751816627409056
+    second: Arrival_06
+  - first:
+      213: 6497071809379378050
+    second: Arrival_07
+  - first:
+      213: 8056610049262537704
+    second: Arrival_08
+  - first:
+      213: 7228800514949239548
+    second: Arrival_09
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 24
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Arrival_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 98
+        width: 43
+        height: 49
+      alignment: 9
+      pivot: {x: 0.4883721, y: 0.3469388}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a734ab65aa217b20800000000000000
+      internalID: 3130330105963100071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Arrival_01
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 98
+        width: 43
+        height: 49
+      alignment: 9
+      pivot: {x: 0.4883721, y: 0.3469388}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 293dad7547f338370800000000000000
+      internalID: 8323566305233523602
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Arrival_02
+      rect:
+        serializedVersion: 2
+        x: 86
+        y: 98
+        width: 43
+        height: 49
+      alignment: 9
+      pivot: {x: 0.4883721, y: 0.3469388}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 76e43efc5940fb300800000000000000
+      internalID: 269939544149937767
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Arrival_03
+      rect:
+        serializedVersion: 2
+        x: 129
+        y: 98
+        width: 43
+        height: 49
+      alignment: 9
+      pivot: {x: 0.4883721, y: 0.3469388}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 587b855d4547e07f0800000000000000
+      internalID: -644449788961966203
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Arrival_04
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 49
+        width: 43
+        height: 49
+      alignment: 9
+      pivot: {x: 0.4883721, y: 0.3469388}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe5fb66498eb937f0800000000000000
+      internalID: -632264775867566609
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Arrival_05
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 49
+        width: 43
+        height: 49
+      alignment: 9
+      pivot: {x: 0.4883721, y: 0.3469388}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d2afaceb3bf0e300800000000000000
+      internalID: 279499411689546456
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Arrival_06
+      rect:
+        serializedVersion: 2
+        x: 86
+        y: 49
+        width: 43
+        height: 49
+      alignment: 9
+      pivot: {x: 0.4883721, y: 0.3469388}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06facfb4ac1667cd0800000000000000
+      internalID: -2560751816627409056
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Arrival_07
+      rect:
+        serializedVersion: 2
+        x: 129
+        y: 49
+        width: 43
+        height: 49
+      alignment: 9
+      pivot: {x: 0.4883721, y: 0.3469388}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 283234e336c3a2a50800000000000000
+      internalID: 6497071809379378050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Arrival_08
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 43
+        height: 49
+      alignment: 9
+      pivot: {x: 0.4883721, y: 0.3469388}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ebc2207724decf60800000000000000
+      internalID: 8056610049262537704
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Arrival_09
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 0
+        width: 43
+        height: 49
+      alignment: 9
+      pivot: {x: 0.4883721, y: 0.3469388}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf2d5bdb4cbd15460800000000000000
+      internalID: 7228800514949239548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Arrival_00: 3130330105963100071
+      Arrival_01: 8323566305233523602
+      Arrival_02: 269939544149937767
+      Arrival_03: -644449788961966203
+      Arrival_04: -632264775867566609
+      Arrival_05: 279499411689546456
+      Arrival_06: -2560751816627409056
+      Arrival_07: 6497071809379378050
+      Arrival_08: 8056610049262537704
+      Arrival_09: 7228800514949239548
+      ValuableArrival_0: 2392093651658504906
+      ValuableArrival_1: 7266491282913615594
+      ValuableArrival_2: 4693880401714315885
+      ValuableArrival_3: -2145118852221128152
+      ValuableArrival_4: 5877108531525353892
+      ValuableArrival_5: -3476274665516509048
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

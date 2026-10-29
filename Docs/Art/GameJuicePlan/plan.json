@@ -1,0 +1,274 @@
+{
+  "date": "2026-10-29",
+  "revision": 2,
+  "status": "proposal; no implementation selected",
+  "baseline": [
+    "Atmosphere work is accepted as completed by the user. The atmosphere plan records specific implemented pilots and skipped options; this does not imply every biome has identical coverage.",
+    "CombatMovementPlan/STATUS.md dated 2026-10-29 reports delivery of body-follow, enemy recoil, hit highlight, hit-stop, camera, hurt/defense/death and movement/input work. It reports 369 selected regression tests passed; those are historical results, not tests run for this new plan.",
+    "Generic contact bursts (C05) were removed by user decision. Do not reintroduce them as a prerequisite. Audio remains deferred (C08); target-material variants remain optional (C06); authored attack-body key poses remain excluded (C03).",
+    "Correction from user and verified delivery path: room loot is stored in one container by the next-room portal via WorldItemDropService -> RoomLootCollector.TryStore -> WorldLootCache. Storage precedes the existing cosmetic flight. Ground-drop hover/rarity visuals are a fallback and must not be treated as the normal mob-loot loop. Experience/currency pickups are separate existing systems.",
+    "J01 preserves central collection and convenience. Improve intake, arrival and bounded accumulation cues; do not scatter loot, require individual ground pickup or make container access wait for effects. J07 encounter rhythm and J08 boss/elite staging are user-owned and removed from the agent roadmap.",
+    "Crafting already refreshes UI and opens the crafted-item tooltip. Level-up already flashes the body, raises an arrow and shows a banner. HUD health/mana have increase/decrease presentation. These must not be sold as missing systems.",
+    "Enemy attack warnings, status presentation and defense feedback exist. Quality/readability at normal speed is not proven by class names or source inspection.",
+    "Room portal unlock and full clear are separate: RequiredPortalKills is max(0, (enemyCount + 1) / 2). Existing banner methods distinguish these outcomes. Reward modifiers decide what actually appears; not every room grants a chest.",
+    "Death overlay already shows highest stage and kill count. Its message interval is six seconds in inspected source, followed by a covered-frame return sequence. No killer-attribution or retained-reward system is assumed."
+  ],
+  "items": [
+    {
+      "id": "J01",
+      "title": "Бокс у портала приятно собирает добычу",
+      "name": "Exit loot-container feedback",
+      "gain": 4,
+      "setup": 2,
+      "upkeep": 2,
+      "prototypeDays": "2–4",
+      "stage": "first",
+      "baseline": "Лут мобов сразу записывается в один бокс у портала. RoomLootCollector запускает декоративный золотой перелёт для видимого предмета; сейчас бокс имеет фоновое пульсирующее свечение. Предмет уже хранится внутри до завершения перелёта. Россыпь на земле — запасной путь, не основа комнатного лута.",
+      "idea": "Сохранить один удобный бокс и усилить ощущение, что он принимает и накапливает добычу. Первый прототип: отклик поглощения на прилёт и один редкий акцент ценной находки. Остальные варианты ниже — для выбора, не обязательный комплект.",
+      "example": "От моба идёт уже существующий перелёт → перед боксом след стягивается к точке приёма → бокс коротко откликается и успокаивается. Пачка добычи даёт один более плотный отклик. Бокс можно открыть в любой момент.",
+      "maintenance": "Общие профили обычного/ценного поступления. Нужен косметический сигнал прилёта: сейчас FlightVisual не сообщает о нём боксу и не получает редкость. Объединять частые прилёты; скрытый фильтром лут не выдавать свечением, счётчиком или сменой состояния.",
+      "scope": "Preserve the room's single container near its exit. WorldItemDropService routes to RoomLootCollector.TryStore: the real rolled item is inserted before a cosmetic flight starts; do not delay ownership or interaction until arrival. Extend the existing flight and cache visuals, not loose ground pickup or a new reward chest. Prototype a brief visual-only intake response and a bounded valuable-arrival accent. A cosmetic arrival hook and small presentation metadata may be needed: Spawn currently accepts only start/target and its completion does not notify the cache. Keep those separate from inventory transfer, Changed events and reward creation. Cancel safely when the box/room disappears or its contents have already been taken. Do not show new-loot celebrations for player-discarded items or ordinary UI refreshes; carry an origin flag only if needed to distinguish them.",
+      "acceptance": "There remains exactly one room container, with the same item identities/count and location policy. It remains usable while flights run or the portal is locked. A burst of twenty items merges feedback without queuing twenty animations. Hidden items cause no flight, rarity accent or accumulation change; changing the filter recomputes visible state without claiming a new drop. Taking all loot or leaving the room mid-flight loses/duplicates nothing and leaves no orphan effect. Test full inventory and simultaneous arrival while the cache UI is open.",
+      "hooks": [
+        "Assets/Scripts/Items/World/WorldItemDropService.cs",
+        "Assets/Scripts/Items/World/RoomLootCollector.cs",
+        "Assets/Scripts/Items/World/WorldLootCache.cs",
+        "Assets/Scripts/Items/World/WorldLootCacheFlightVisual.cs",
+        "Assets/Tests/EditMode/Editor/RoomLootCollectorTests.cs"
+      ],
+      "boundary": "presentation"
+    },
+    {
+      "id": "J02",
+      "title": "Улучшение билда ощущается действием",
+      "name": "Upgrade transactions",
+      "gain": 4,
+      "setup": 2,
+      "upkeep": 2,
+      "prototypeDays": "2–4",
+      "stage": "first",
+      "baseline": "Крафт уже обновляет инвентарь и открывает tooltip результата. Повышение уровня имеет flash, стрелку и баннер. Это развитие существующей подачи, а не новая система прогрессии.",
+      "idea": "После экипировки, крафта или покупки пассивки подтверждать конкретный результат: короткий акцент слота/нода и выделение действительно изменившихся строк. Не трясти всё окно и не считать каждое изменение улучшением.",
+      "example": "Применил сферу → видишь, какие аффиксы изменились. Взял notable → акцент большого нода; обычная малая пассивка получает более тихий отклик.",
+      "maintenance": "Общие состояния success/change/reject. Основная цена — корректно сопоставлять старые и новые данные, включая отрицательный результат и EN/RU.",
+      "scope": "Prototype one equipment swap, one orb operation and one passive allocation using committed results. Keep existing crafted-item tooltip and level-up feedback. For randomized affixes show actual before/after changes without claiming a universal better/worse result. Do not add a broad stat-diff engine for the whole character in the first slice.",
+      "acceptance": "Successful and rejected operations look different. Repeated crafting does not queue animations or move the pointer target; displayed differences match the committed item, including removed or worsened affixes. Keyboard navigation and both locales remain usable.",
+      "hooks": [
+        "Assets/UI/Inventory/InventoryUI.Crafting.cs",
+        "Assets/UI/PassiveTree/PassiveTreeUI.cs",
+        "Assets/Scripts/Visuals/PlayerLevelUpFeedback.cs"
+      ],
+      "boundary": "presentation"
+    },
+    {
+      "id": "J03",
+      "title": "Умения отвечают на намерение игрока",
+      "name": "Skill state feedback",
+      "gain": 4,
+      "setup": 2,
+      "upkeep": 1,
+      "prototypeDays": "1–3",
+      "stage": "first",
+      "baseline": "У слотов уже есть затемнение cooldown, число секунд и цена маны. Наличие этих элементов не доказывает, что попытка применения и переход к готовности хорошо читаются в бою.",
+      "idea": "Проверить и при необходимости добавить локальный отклик принятого применения, единичный акцент окончания значимого cooldown и понятный отказ при нехватке маны. Для спамящейся основной атаки постоянные импульсы не нужны.",
+      "example": "Нажал специальную атаку без маны → отозвались её слот и стоимость; умение восстановилось → один спокойный акцент готовности, а не мигание до следующего нажатия.",
+      "maintenance": "Одна логика состояний для шести слотов. Отказ должен знать реальную причину; частые повторные нажатия объединяются.",
+      "scope": "Audit existing state cues, then add only missing transitions. Read actual cast acceptance/rejection and current cooldown/mana; do not infer success from raw input. A structured rejection reason may need a small runtime extension. Avoid ready pulses for zero-cooldown primaries, initialization, weapon swaps and mere HUD rebuilds. Do not change input buffering, mana, cooldown or cancellation rules.",
+      "acceptance": "No accepted-cast cue on rejection. No ready cue on opening a menu or restoring a swapped weapon. Repeated denied presses remain bounded and communicate the correct reason; meaningful long-cooldown readiness is visible without watching a timer continuously.",
+      "hooks": [
+        "Assets/UI/SkillSlots/UISkillSlot.cs",
+        "Assets/UI/PlayerHUD/HUDController.cs",
+        "Assets/Scripts/Skills/PlayerSkillManager.cs",
+        "Assets/Scripts/Skills/Logic/SkillBehaviour.cs"
+      ],
+      "boundary": "presentation"
+    },
+    {
+      "id": "J04",
+      "title": "Игрок видит, как работает его билд",
+      "name": "Build cause and effect",
+      "gain": 5,
+      "setup": 3,
+      "upkeep": 3,
+      "prototypeDays": "3–6",
+      "stage": "second",
+      "baseline": "Уже есть StatusEffectPresentation, отдельные эффекты ignite/shock, HUD статусов и отклик защиты. Не предлагается заново создавать всю индикацию состояний.",
+      "idea": "Проверить три показательные цепочки: применение яда и его продолжение; накопление/срабатывание shock; расход и возврат Mystic Shield. Дорабатывать только места, где причина и результат теряются.",
+      "example": "После атаки понятно, что яд продолжает работать; накопление shock отличается от срабатывания. Эффект щита сообщает о защитном ресурсе, а не выглядит ещё одним попаданием.",
+      "maintenance": "Дороже общего UI: каждая механика имеет свои состояния. Ограничить пилот тремя цепочками, переиспользовать цвета/формы; не плодить текст и вспышки на каждом тике.",
+      "scope": "Audit three existing chains before authoring. Present application, sustained state and meaningful transition with distinct bounded cues, using actual status/resource events. Preserve the implemented defense response and its ownership. Do not present DoT ticks as fresh direct hits, show one effect per poison stack, invent a fifth hit-damage channel or add a new proc mechanic.",
+      "acceptance": "In an unlabelled clip the reviewer can distinguish application, ongoing effect and major transition. Ten afflicted enemies and repeated procs do not obscure attack intent. A fully readable existing chain requires no new effect.",
+      "hooks": [
+        "Assets/Scripts/StatusEffects/StatusEffectPresentation.cs",
+        "Assets/Scripts/StatusEffects/ShockVisualController.cs",
+        "Assets/Scripts/StatusEffects/IgniteVisualController.cs",
+        "Assets/Scripts/Stats/MysticShieldController.cs"
+      ],
+      "boundary": "presentation"
+    },
+    {
+      "id": "J05",
+      "title": "У врага читаются намерение и уязвимость",
+      "name": "Enemy intent and recovery",
+      "gain": 5,
+      "setup": 3,
+      "upkeep": 3,
+      "prototypeDays": "3–5",
+      "stage": "second",
+      "baseline": "EnemyAttackTelegraphVfx уже рисует предупреждение, а реакции попадания сделаны. Нельзя считать врагов лишёнными телеграфов.",
+      "idea": "На двух частых врагах проверить различимость подготовки, опасного действия и восстановления. Усилить движение силуэта или ритм предупреждения там, где один красный сигнал не объясняет, что сейчас произойдёт.",
+      "example": "Тяжёлый противник собирается перед ударом и заметно завершает его; игрок видит момент для ответа. Дальний враг не выглядит так же, как враг, готовящий контактный рывок.",
+      "maintenance": "Настройка на семейство поведения, а не на каждый скин. Цена растёт с числом уникальных атак; предупреждения нельзя растворять в декоративной сочности.",
+      "scope": "Choose two enemy families and compare existing anticipation/active/recovery at normal speed and in crowds. Adjust presentation against existing authoritative attack windows. Use timing and silhouette, not color alone. Preserve gameplay commitments and existing hit-recoil ownership; new stagger or longer recovery belongs to a separate balance proposal.",
+      "acceptance": "The player can identify the dangerous action and existing recovery window at 480x270 in both effect settings. Telegraphs do not claim an opening that gameplay does not offer. If the current timings are themselves the problem, stop treating that as cosmetic work.",
+      "hooks": [
+        "Assets/Scripts/Enemy/EnemyAttackTelegraphVfx.cs",
+        "Assets/Scripts/Enemy/EnemyAnimationBridge.cs"
+      ],
+      "boundary": "presentation; timing redesign needs separate balance approval"
+    },
+    {
+      "id": "J06",
+      "title": "Комната отпускает игрока после боя",
+      "name": "Room resolution and exits",
+      "gain": 4,
+      "setup": 2,
+      "upkeep": 1,
+      "prototypeDays": "1–3",
+      "stage": "first",
+      "baseline": "Баннеры открытия портала и зачистки уже есть. В RoomController портал открывается примерно после половины убийств, а полная зачистка — отдельное событие. Портал включается через SetActive.",
+      "idea": "Развести два момента визуально: выход стал доступен и бой полностью завершён. Добавить порталу короткое локальное проявление; при зачистке связать существующее уведомление с уже положенной наградой.",
+      "example": "На середине боя выход мягко проявился и остаётся доступным. После последнего врага приходит более спокойное завершение; поздний level-up не стирает важную информацию о выходе.",
+      "maintenance": "Общий профиль портала и правила приоритетов сообщений. Проверять комнаты без награды/врагов и ситуацию, когда события совпали.",
+      "scope": "Extend current portal activation and banner handling; keep unlock and clear separate. Prefer a local portal cue, with optional brief nonblocking navigation hint only if the exit is offscreen. Coordinate overlapping messages rather than stacking banners. Use only rewards already authorized by the room modifiers. Preserve the kill threshold and reward count; never delay portal interaction until cosmetic completion.",
+      "acceptance": "Unlock can be recognized while enemies remain alive. Full clear, unlock and level-up coinciding do not overwrite essential information. Empty rooms and no-reward rooms are truthful; returning to a room does not replay its reward or unlock celebration.",
+      "hooks": [
+        "Assets/Scripts/Dungeon/RoomController.cs",
+        "Assets/Scripts/Dungeon/DungeonPortal.cs",
+        "Assets/UI/Dungeon/RoomClearedBanner.cs"
+      ],
+      "boundary": "presentation"
+    },
+    {
+      "id": "J09",
+      "title": "Мир локально отвечает на присутствие",
+      "name": "Selective world reactions",
+      "gain": 3,
+      "setup": 3,
+      "upkeep": 4,
+      "prototypeDays": "3–5",
+      "stage": "later",
+      "baseline": "Свет, parallax, туман, частицы окружения и поверхности уже развивались в предыдущем плане. Степень реактивности отдельных декораций в игре не проверена.",
+      "idea": "Попробовать один-два объекта: трава отклоняется при проходе, подвесная деталь качнулась от близкого удара. Только визуальные реакции рядом с игроком; сначала без разрушения и выпадения лута.",
+      "example": "Проход через небольшой куст оставляет короткое движение веток. Каменная кладка остаётся неподвижной — реагирует подходящий объект, а не вся сцена.",
+      "maintenance": "Нужны правила размещения, сброс состояния, дистанция обновления и проверка каждого нового набора декора. Разрушаемость резко увеличивает цену.",
+      "scope": "One biome, one or two visual-only prop families. Verify that an existing prop is not already reactive before adding behavior. Reactions never change collision, traversal, rewards or targeting; no physics simulation on every decoration. Author distance limits and disable/reset behavior. Expand only after an A/B clip shows meaningful benefit during ordinary movement.",
+      "acceptance": "A nearby reaction is perceptible without distracting from enemies. Reentry and reused objects restore correctly; crowded rooms do not update every offscreen prop. Stop the pilot if the benefit is mainly visible in a close-up demonstration.",
+      "hooks": [
+        "Docs/Art/VisualAtmospherePlan/PLAN.md",
+        "Docs/Art/Environment_Animations.md",
+        "Docs/Art/Ambient_Particles.md"
+      ],
+      "boundary": "presentation"
+    },
+    {
+      "id": "J10",
+      "title": "Конец попытки сохраняет чувство прогресса",
+      "name": "Run ending and return",
+      "gain": 4,
+      "setup": 2,
+      "upkeep": 2,
+      "prototypeDays": "2–4",
+      "stage": "second",
+      "baseline": "DeathScreenOverlay уже показывает достигнутый этап и убийства, имеет fade и шестисекундную фазу сообщения. Новый экран статистики с нуля не нужен.",
+      "idea": "Проверить темп повторных смертей и возможность быстро продолжить после первого знакомства. Показывать только реальный сохранённый результат; возвращение в хаб должно быть понятным и отзывчивым.",
+      "example": "После смерти видишь известный итог, можешь его прочесть или быстрее вернуться к игре. Если проект действительно сохраняет конкретное продвижение, оно ясно отделено от потерянного за попытку.",
+      "maintenance": "Невысокая цена при использовании уже доступных данных. Причина смерти, история урона и полная аналитика забега — отдельные дорогие системы.",
+      "scope": "Extend the current death overlay and return flow only where a normal repeated-attempt test exposes friction. Add a safe user-paced continuation/skip if desired, retaining the existing covered-frame transition and exactly-once callback. Show only verified existing persisted progress. Do not invent killer attribution, currency retention, unlocks or full-run telemetry.",
+      "acceptance": "First and repeated deaths are readable and responsive. Early/repeated continue input cannot run the transition twice or reveal an unloaded room. Statistics match the existing run state, and EN/RU layout fits the logical canvas.",
+      "hooks": [
+        "Assets/UI/DeathScreen/DeathScreenOverlay.cs"
+      ],
+      "boundary": "presentation"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "J07",
+      "name": "Encounter rhythm",
+      "status": "user-owned; excluded from agent roadmap",
+      "reason": "User will handle this independently; do not schedule or implement."
+    },
+    {
+      "id": "J08",
+      "name": "Elite and boss peaks",
+      "status": "user-owned; excluded from agent roadmap",
+      "reason": "User will handle this independently; do not schedule or implement."
+    }
+  ],
+  "lootVariants": [
+    {
+      "title": "Приём добычи · начать здесь",
+      "description": "Короткое сжатие/раскрытие только визуала бокса и стягивание света внутрь. Частые прилёты объединяются, силуэт быстро успокаивается. Поддержка низкая.",
+      "scope": "Start here: brief visual-only intake compression/opening and inward light. Merge frequent arrivals; do not move the collider or interaction target."
+    },
+    {
+      "title": "Ценная находка · второй акцент",
+      "description": "Один заметный импульс на приём предмета выбранной редкости. Короткая форма/символ дополняет цвет; сигнал не обещает, что вещь сильнее надетой. Поддержка низкая–средняя.",
+      "scope": "Second accent: one rarity-qualified arrival pulse with shape as well as color. Rate-limit it; rarity is not an upgrade guarantee. Hidden and player-discarded items never trigger the rare-drop celebration."
+    },
+    {
+      "title": "Видимое накопление · опционально",
+      "description": "Два-три состояния внутреннего свечения или рисунка: добычи стало больше. Без раздувания бокса, шкалы вместимости и постоянного усиления яркости. Состояние учитывает только видимое содержимое и уменьшается после изъятия. Поддержка средняя.",
+      "scope": "Optional: two or three bounded accumulation states driven by filter-visible contents, recomputed after removal/filter changes. No implied capacity, endless brightness growth or changes to interaction size."
+    },
+    {
+      "title": "Перелёт собирается в поток · опционально",
+      "description": "Доработать существующую дугу и затухание следа перед приёмом. При массовом луте несколько визуальных потоков могут представлять всю пачку, а содержимое бокса остаётся точным. Без новых иконок по всей арене. Поддержка средняя.",
+      "scope": "Optional: tune the existing flight arc and trail convergence. Cap decorative streams during bursts; representation may be grouped while every actual item remains stored exactly once. Avoid a new offscreen VFX framework."
+    }
+  ],
+  "sources": [
+    {
+      "title": "Jeremiah Reid — Juice Your Turns",
+      "url": "https://juiceyourturns.com/",
+      "status": "Read the author's public slide text, not the linked full video.",
+      "takeaway": "Small changes in motion, scale and color can improve interaction; presentation should not block actions."
+    },
+    {
+      "title": "Chris Bourassa — A Torch in the Dark",
+      "url": "https://media.gdcvault.com/gdc2016/Presentations/Bourassa_Chris_a%20torch%20in.pdf",
+      "status": "Read the primary 19-page slide deck; not the full talk.",
+      "takeaway": "A coherent creative direction helps a small team choose valuable features and cut expensive distractions. This is a general principle, not evidence for specific Relic Keeper gains."
+    }
+  ],
+  "sourceHashes": {
+    "Assets/Scripts/Dungeon/DungeonPortal.cs": "d74620ad75245ad6bb560c51a41ca1311d8562e4feb95ad424622fc527633f08",
+    "Assets/Scripts/Dungeon/RoomController.cs": "c545bc1a12ec1ac80c550fd12733e81f1e40a16c5dc5e6218fc342b271d15e8d",
+    "Assets/Scripts/Enemy/EnemyAnimationBridge.cs": "7fe6f008377c471c730b2689ca064d2dc49507f0e4cc5522723a29359dc684c3",
+    "Assets/Scripts/Enemy/EnemyAttackTelegraphVfx.cs": "38884a068e140af5140f4611d79217a3b452b5516ba4594d2b0cfb12c6084b73",
+    "Assets/Scripts/Items/World/RoomLootCollector.cs": "b3981c8ca0a809d1aec6c5dcda3ad458c1ff9247ffd5d5e55ef2b8416cfd6e6d",
+    "Assets/Scripts/Items/World/WorldItemDropService.cs": "565ae846145d5c863ce29937b8759eb5e6dc714dc8b799c15e5a7ae75faee3b4",
+    "Assets/Scripts/Items/World/WorldLootCache.cs": "92e502af6d9c2f66c2dde977e5f50449859120c5f1d9d70802ea945728223111",
+    "Assets/Scripts/Items/World/WorldLootCacheFlightVisual.cs": "cac932518216d412068b7412e77457e3e4731dda2ae17f5dc870f1d8236a951e",
+    "Assets/Scripts/Skills/Logic/SkillBehaviour.cs": "4caa0d8d6bc90a8c680d3bc2f1793d81c4814b19084ae6b9df4eb5baa3b9b0b9",
+    "Assets/Scripts/Skills/PlayerSkillManager.cs": "df4962ff763c9f2eab748a2bca03fcaf34c86405bd9c0728085dded4cc7030cc",
+    "Assets/Scripts/Stats/MysticShieldController.cs": "5caf8aa425040034fe165224dfd8ac104580836f236cbcd849ffe1763d292cda",
+    "Assets/Scripts/StatusEffects/IgniteVisualController.cs": "ef05bcfd23f73b0b8c6e9990848d33d94f7826cdac25367bf6111444d045f2a0",
+    "Assets/Scripts/StatusEffects/ShockVisualController.cs": "499e785cc8aa780a02448780a3c2879878bbcea85270259d623c40e84a8a5e9f",
+    "Assets/Scripts/StatusEffects/StatusEffectPresentation.cs": "ce309802750c3b082956648d1c5a911646789df0346140445ad255c5c20a92e6",
+    "Assets/Scripts/Visuals/PlayerLevelUpFeedback.cs": "f3138974e8f31b1c4e482b734a0d7fbf624a23343c207c4056467ed2cc2a8eeb",
+    "Assets/Tests/EditMode/Editor/RoomLootCollectorTests.cs": "3941f0a678472f7aa021f7c356df731e39de0880e7bf401e2cce9189697db6dd",
+    "Assets/UI/DeathScreen/DeathScreenOverlay.cs": "006ca0cbbf43d091ce3ed8562eebc4f315a7473467ec0de5af417b06f231883b",
+    "Assets/UI/Dungeon/RoomClearedBanner.cs": "631ac8ab01e3b7ec06b38c449a0a2f578089cfb3ccb00b18b11a31eaa997f65e",
+    "Assets/UI/Inventory/InventoryUI.Crafting.cs": "2dfc245451539a41358fe2d6b30009251c6ee6f06e6c2e306281d651baa9ad51",
+    "Assets/UI/PassiveTree/PassiveTreeUI.cs": "24086c3dad2bc1240e02a362ccb651e5d5b624ffe132a70bad19ca9d453a7d9a",
+    "Assets/UI/PlayerHUD/HUDController.cs": "0e6ed378396a35a25a161c6a5a87311bf019b1597dbdd9f5bdb94d2db74a3959",
+    "Assets/UI/SkillSlots/UISkillSlot.cs": "b9fb74d4a8b0bafd4ba361fc3802ad36d93c1de3b11a8c1a40461fbf1bcc237e",
+    "Docs/Art/Ambient_Particles.md": "f3dbbd23b975aa0f63f1f4257a035d7091ec656b8607d7a5c8346c821a21db0e",
+    "Docs/Art/CombatMovementPlan/STATUS.md": "0baa2326b5dcd0f23f1e16111abf4bda796169025eea109d365895a436c56362",
+    "Docs/Art/CombatMovementPlan/Step16_ReducedEffects.md": "5fc56947ece142d97d64110170502e7f9a2545d272f68776760764513349fad3",
+    "Docs/Art/Environment_Animations.md": "14b967358c2848fbfe9a6c331ef67dec13f1576b349012751430c0aa127e220a",
+    "Docs/Art/VisualAtmospherePlan/PLAN.md": "8db20ecc87cc17685b9ec449bab6e1e34606b40362d08741c72338227060327a"
+  }
+}

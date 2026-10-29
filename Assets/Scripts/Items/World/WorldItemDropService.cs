@@ -19,11 +19,11 @@ namespace Scripts.Items.World
         /// <summary>Delivers room loot to its exit container; returns a visual only for a loose ground drop.</summary>
         public static WorldDroppedItem Spawn(InventoryItem item, Vector2 position)
         {
-            TryDeliver(item, position, false, out WorldDroppedItem dropped);
+            TryDeliver(item, position, false, false, out WorldDroppedItem dropped);
             return dropped;
         }
 
-        private static bool TryDeliver(InventoryItem item, Vector2 position, bool projectToGround, out WorldDroppedItem dropped)
+        private static bool TryDeliver(InventoryItem item, Vector2 position, bool projectToGround, bool isPlayerDiscard, out WorldDroppedItem dropped)
         {
             dropped = null;
             if (item?.Data == null)
@@ -35,7 +35,7 @@ namespace Scripts.Items.World
                 var collector = parent.GetComponent<RoomLootCollector>();
                 if (collector == null)
                     collector = parent.gameObject.AddComponent<RoomLootCollector>();
-                if (collector.TryStore(item, new Vector3(position.x, position.y, 0f)))
+                if (collector.TryStore(item, new Vector3(position.x, position.y, 0f), isPlayerDiscard))
                     return true;
             }
 
@@ -47,7 +47,7 @@ namespace Scripts.Items.World
             go.transform.position = new Vector3(position.x, position.y, 0f);
 
             dropped = go.AddComponent<WorldDroppedItem>();
-            dropped.Initialize(item, PixelsPerUnit);
+            dropped.Initialize(item, PixelsPerUnit, isPlayerDiscard);
             if (dropped.ParticipatesInWorldLayout && !WorldLootCacheCoordinator.ProcessVisibleDrop(dropped))
                 WorldDroppedItemSpread.SeparateFromNeighbors(dropped);
             return true;
@@ -55,7 +55,7 @@ namespace Scripts.Items.World
 
         public static WorldDroppedItem SpawnOnGround(InventoryItem item, Vector2 position)
         {
-            TryDeliver(item, position, true, out WorldDroppedItem dropped);
+            TryDeliver(item, position, true, false, out WorldDroppedItem dropped);
             return dropped;
         }
 
@@ -64,7 +64,7 @@ namespace Scripts.Items.World
             if (item?.Data == null)
                 return false;
 
-            return TryDeliver(item, ResolveDropPositionAtPlayer(), false, out _);
+            return TryDeliver(item, ResolveDropPositionAtPlayer(), false, true, out _);
         }
 
         public static Vector2 ResolveDropPositionAtPlayer()

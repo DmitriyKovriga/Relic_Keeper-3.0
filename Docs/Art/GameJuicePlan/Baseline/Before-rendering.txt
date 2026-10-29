@@ -1,0 +1,5 @@
+Pipeline: UniversalRP (UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset)
+Quality: Ultra
+1 renderers; TrainingDummyArtworkMask; SpriteMask-Default; Universal Render Pipeline/2D/Sprite-Mask; supported=True; passes=3; keywords=
+28 renderers; Buildings; NULL MATERIAL
+2 renderers; GroundShadow; Sprites-Default; Sprites/Default; supported=True; passes=1; keywords=

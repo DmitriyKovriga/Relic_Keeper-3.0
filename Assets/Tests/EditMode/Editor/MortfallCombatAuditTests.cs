@@ -11,6 +11,18 @@ namespace RelicKeeper.Tests.EditMode
     {
         private readonly List<GameObject> _objects = new List<GameObject>();
         private static readonly Vector2 Origin = new Vector2(18000, 18000);
+        [TestCase(0L, 1, true)] [TestCase(-1L, 1, true)]
+        [TestCase(2500000L, 0, true)] [TestCase(2500000L, 2, true)] [TestCase(2500000L, 1, false)]
+        public void MissingOrAmbiguousGpuSamplesStayUnavailable(long nanoseconds, int blocks, bool supported)
+        {
+            Assert.That(CombatDecorationStressProbe.TryCameraGpuMilliseconds(nanoseconds, blocks, supported, out var ms), Is.False);
+            Assert.That(ms, Is.EqualTo(-1));
+        }
+        [Test] public void NativeGpuNanosecondsConvertToMillisecondsWithoutCpuFallback()
+        {
+            Assert.That(CombatDecorationStressProbe.TryCameraGpuMilliseconds(2500000, 1, true, out var ms), Is.True);
+            Assert.That(ms, Is.EqualTo(2.5f));
+        }
         private void Solid(Vector2 center, Vector2 size)
         {
             var go = new GameObject("Audit pad test") { layer = 6 }; _objects.Add(go);

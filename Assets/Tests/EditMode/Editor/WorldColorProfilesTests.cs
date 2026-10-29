@@ -171,6 +171,41 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void BuildSnapshotRestoresSourcesAndBlocksExecuteAlwaysRebinding()
+        {
+            var renderer = AddSprite(); WorldColorGrading.Bind(renderer, RenderDepthCategory.Player);
+            var duplicate = AddSprite(); duplicate.sharedMaterial = renderer.sharedMaterial;
+            WorldColorSaveGuard.BeginBuild();
+            try
+            {
+                Assert.That(renderer.sharedMaterial, Is.SameAs(_source));
+                Assert.That(duplicate.sharedMaterial, Is.SameAs(_source));
+                WorldColorGrading.Register(_controller);
+                _controller.RefreshColorGroups();
+                WorldColorGrading.Bind(renderer, RenderDepthCategory.Player);
+                Assert.That(renderer.sharedMaterial, Is.SameAs(_source));
+                // Scene loading can introduce renderers after the initial suspension.
+                var late = AddSprite(); WorldColorGrading.Bind(late, RenderDepthCategory.Environment);
+                Assert.That(late.sharedMaterial, Is.SameAs(_source));
+            }
+            finally { WorldColorSaveGuard.EndBuild(); }
+            Assert.That(WorldColorGrading.BindingsSuspended, Is.False);
+            Assert.That(renderer.sharedMaterial, Is.Not.Null);
+            Assert.That(Render().r, Is.GreaterThan(0.1f));
+        }
+
+        [Test]
+        public void BuildCleanupPreservesAnExistingSuspension()
+        {
+            WorldColorGrading.SetBindingsSuspended(true);
+            WorldColorSaveGuard.BeginBuild();
+            try { Assert.That(WorldColorGrading.BindingsSuspended, Is.True); }
+            finally { WorldColorSaveGuard.EndBuild(); }
+            Assert.That(WorldColorGrading.BindingsSuspended, Is.True);
+            WorldColorGrading.SetBindingsSuspended(false);
+        }
+
+        [Test]
         public void PlayTransitionRestoresMaterialsAndBlocksAllPreviewRebindingUntilEnteredMode()
         {
             var renderer = AddSprite(); WorldColorGrading.Bind(renderer, RenderDepthCategory.Player);

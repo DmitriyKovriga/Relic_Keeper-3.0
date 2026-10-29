@@ -1,0 +1,20 @@
+{
+  "service": "PixelLab MCP vfx_workbench",
+  "effect_id": "17daa889-1c20-4ab9-9d83-4836c14f37c1",
+  "step": "6374c1d1-41bd-46df-a969-5cb980ff5d38",
+  "editor": "https://pixellab.ai/create-vfx?effect=17daa889-1c20-4ab9-9d83-4836c14f37c1",
+  "download_root": "https://api.pixellab.ai/mcp/pixel-tools/b3b079a0-1cf3-4a26-bd90-ab983316c0f9/",
+  "source_sheet": "Assets/Resources/Visuals/LootCache/ValuableArrival.png",
+  "sha256": "3ede290291a150d6aecad8f5ef1de33df9fd1022aa2ed1ec6a487274460b8036",
+  "frame_size": [
+    43,
+    49
+  ],
+  "frames": 10,
+  "fps": 15,
+  "anchor_top_left": [
+    21,
+    32
+  ],
+  "ppu": 24
+}
