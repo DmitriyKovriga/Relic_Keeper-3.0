@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using Scripts.Skills;
 
-public class UISkillSlot : MonoBehaviour
+public partial class UISkillSlot : MonoBehaviour
 {
     private static readonly List<UISkillSlot> ActiveSlots = new List<UISkillSlot>(6);
 
@@ -42,6 +42,7 @@ public class UISkillSlot : MonoBehaviour
 
     private void OnDisable()
     {
+        ResetStateFeedback();
         ActiveSlots.Remove(this);
         if (_pointerInside)
             ItemTooltipController.Instance?.HideHudSkillTooltip(this);
@@ -50,6 +51,7 @@ public class UISkillSlot : MonoBehaviour
 
     private void Update()
     {
+        TickStateFeedback();
         if (IsHudTooltipBlocked())
         {
             if (ItemTooltipController.Instance != null && ItemTooltipController.Instance.IsShowingHudSkillTooltip(this))
@@ -110,6 +112,7 @@ public class UISkillSlot : MonoBehaviour
 
     public void Setup(SkillDataSO skill, string inputLabel, int slotIndex = -1)
     {
+        ResetStateFeedback();
         SlotIndex = slotIndex;
         _skill = skill;
         Setup(skill != null ? skill.Icon : null);
@@ -121,6 +124,7 @@ public class UISkillSlot : MonoBehaviour
 
     public void Clear()
     {
+        ResetStateFeedback();
         _skill = null;
         SlotIndex = -1;
         if (_iconImage != null)

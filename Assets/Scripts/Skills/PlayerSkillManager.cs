@@ -21,6 +21,7 @@ namespace Scripts.Skills
 
         public event System.Action<int, SkillDataSO> OnSkillSlotUpdated;
         public event System.Action OnSkillsCanceled;
+        public event System.Action<int, SkillBehaviour, SkillCastResult> OnSkillCastAttempted;
 
         private readonly Dictionary<int, SkillBehaviour> _activeSkills = new();
         private readonly Dictionary<int, (string Item, SkillDataSO Skill, int Index)> _skillKeys = new();
@@ -150,17 +151,39 @@ namespace Scripts.Skills
 
         public void UseSkill(int slotIndex)
         {
+            UseSkillWithResult(slotIndex);
+        }
+
+        public void UseSkill(int slotIndex, bool freshPress)
+        {
+            UseSkillWithResult(slotIndex, freshPress);
+        }
+
+        public SkillCastResult UseSkillWithResult(int slotIndex, bool freshPress = true)
+        {
             if (_suppressSkillUsage || GamePauseService.IsPaused)
-                return;
+                return GamePauseService.IsPaused ? SkillCastResult.Paused : SkillCastResult.Blocked;
 
             foreach (var active in _activeSkills.Values)
                 if (active != null && active.IsCasting && active.Data?.Recipe?.Steps != null
                     && active.Data.Recipe.Steps.Exists(step => step?.StepDefinition?.Id == "FallingAnvil"))
-                    return;
+                {
+                    if (freshPress && _activeSkills.TryGetValue(slotIndex, out var blocked) && blocked != null)
+                        OnSkillCastAttempted?.Invoke(slotIndex, blocked, SkillCastResult.Blocked);
+                    return SkillCastResult.Blocked;
+                }
 
             if (_activeSkills.TryGetValue(slotIndex, out var skillBehaviour) && skillBehaviour != null)
-                skillBehaviour.TryCast();
+            {
+                var result = skillBehaviour.TryCastWithResult();
+                if (result == SkillCastResult.Accepted || freshPress)
+                    OnSkillCastAttempted?.Invoke(slotIndex, skillBehaviour, result);
+                return result;
+            }
+            return SkillCastResult.Unavailable;
         }
+
+        public SkillBehaviour GetSkillRuntime(int slotIndex) => _activeSkills.TryGetValue(slotIndex, out var skill) ? skill : null;
 
         public float GetSkillCooldownNormalized(int slotIndex)
         {

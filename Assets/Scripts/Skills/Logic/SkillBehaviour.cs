@@ -246,27 +246,32 @@ namespace Scripts.Skills
 
         public void TryCast()
         {
-            if (GamePauseService.IsPaused) return;
+            TryCastWithResult();
+        }
+
+        public SkillCastResult TryCastWithResult()
+        {
+            if (GamePauseService.IsPaused) return SkillCastResult.Paused;
             if (_ownerStats != null && _ownerStats.TryGetComponent<PlayerWinterStormController>(out var storm)
                 && storm.IsActive && storm.Skill == _data)
-                return;
+                return SkillCastResult.Blocked;
             if (PlayerStasisController.IsActiveFor(_ownerStats))
-                return;
+                return SkillCastResult.Blocked;
 
             if (_isCasting)
-                return;
+                return SkillCastResult.Busy;
 
             if (_data == null)
-                return;
+                return SkillCastResult.Unavailable;
 
             if (CooldownRemaining > 0f)
-                return;
+                return SkillCastResult.Cooldown;
 
             if (_ownerStats == null || _ownerStats.Mana == null)
-                return;
+                return SkillCastResult.Unavailable;
 
             if (_ownerStats.Mana.Current < _data.ManaCost)
-                return;
+                return SkillCastResult.InsufficientMana;
 
             _ownerStats.Mana.Decrease(_data.ManaCost);
             StartCooldown();
@@ -276,6 +281,7 @@ namespace Scripts.Skills
             EditorAcceptedCastSequence++;
 #endif
             Execute();
+            return SkillCastResult.Accepted;
         }
 
         protected abstract void Execute();

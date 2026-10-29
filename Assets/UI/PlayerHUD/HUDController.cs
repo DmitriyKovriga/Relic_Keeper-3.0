@@ -7,7 +7,7 @@ using Scripts.Skills;
 using Scripts.StatusEffects;
 using UnityEngine.InputSystem;
 
-public class HUDController : MonoBehaviour
+public partial class HUDController : MonoBehaviour
 {
     private const int SkillSlotCount = 6;
     private const float SkillSlotLayoutSpacing = 6f;
@@ -199,6 +199,7 @@ public class HUDController : MonoBehaviour
             _skillManager = FindFirstObjectByType<PlayerSkillManager>();
             if (_skillManager != null) _skillManager.OnSkillSlotUpdated += UpdateSkillSlotUI;
         }
+        BindSkillStateEvents();
     }
 
     private void OnEnable()
@@ -206,17 +207,22 @@ public class HUDController : MonoBehaviour
         InputRebindSaver.RebindsChanged += RefreshAllSkillSlotBindings;
         GameplayPresentationSettings.Changed += ApplyPresentationSettings;
         RefreshAllSkillSlotBindings();
+        BindSkillStateEvents();
         ApplyPresentationSettings();
     }
 
     private void OnDisable()
     {
+        UnbindSkillStateEvents();
+        ClearSkillStateMessage();
         InputRebindSaver.RebindsChanged -= RefreshAllSkillSlotBindings;
         GameplayPresentationSettings.Changed -= ApplyPresentationSettings;
     }
 
     private void OnDestroy()
     {
+        UnbindSkillStateEvents();
+        if (_skillStateBadge != null) Destroy(_skillStateBadge.gameObject);
         if (_playerStats != null) _playerStats.OnAnyStatChanged -= UpdateUI;
         if (_skillManager != null) _skillManager.OnSkillSlotUpdated -= UpdateSkillSlotUI;
         InputRebindSaver.RebindsChanged -= RefreshAllSkillSlotBindings;
@@ -233,6 +239,7 @@ public class HUDController : MonoBehaviour
     private void Update()
     {
         UpdateCooldownOverlays();
+        TickSkillStateMessage();
         RefreshAdaptiveResourceTextIfNeeded();
         TickResourceBarEffects();
         if (ApplyStatusEffectHudSettings())
@@ -244,6 +251,7 @@ public class HUDController : MonoBehaviour
     private void UpdateSkillSlotUI(int index, SkillDataSO skill)
     {
         if (index < 0 || index >= _skillSlots.Length) return;
+        ClearSkillStateMessage();
 
         string inputLabel = GetSkillInputLabel(index);
         if (skill != null)
@@ -762,23 +770,22 @@ public class HUDController : MonoBehaviour
             if (slot == null)
                 continue;
 
-            if (i == 0)
-            {
-                slot.SetCooldownOverlay(0f, false);
-                slot.SetCooldownText(0f, false);
-                continue;
-            }
-
+            var runtime = _skillManager.GetSkillRuntime(i);
+            slot.BindFeedbackRuntime(runtime);
             bool hasCooldownSkill = _skillManager.SlotHasCooldownSkill(i);
             float normalized = _skillManager.GetSkillCooldownNormalized(i);
             float remaining = _skillManager.GetSkillCooldownRemaining(i);
-            slot.SetCooldownOverlay(normalized, hasCooldownSkill);
-            slot.SetCooldownText(remaining, hasCooldownSkill);
+            slot.SetCooldownOverlay(normalized, i != 0 && hasCooldownSkill);
+            slot.SetCooldownText(remaining, i != 0 && hasCooldownSkill);
+            bool canAfford = runtime != null && _playerStats?.Mana != null && _playerStats.Mana.Current >= runtime.Data.ManaCost;
+            if (slot.ObserveFeedbackCooldown(remaining, canAfford, runtime != null && runtime.IsCasting, GamePauseService.IsPaused))
+                ShowSkillStateMessage(i, runtime, Scripts.UI.SkillSlotCue.Ready);
         }
     }
 
     private void RefreshAllSkillSlotBindings()
     {
+        ClearSkillStateMessage();
         if (_skillSlots == null)
             return;
 

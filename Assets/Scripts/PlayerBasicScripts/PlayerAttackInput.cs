@@ -264,7 +264,7 @@ public class PlayerAttackInput : MonoBehaviour
             if (PlayerInteractController.TryHandleCursorPickupClick())
                 break;
             PlayerInteractController.NotifyActiveSkillInput();
-            _skillManager.UseSkill(i);
+            _skillManager.UseSkill(i, _pendingSkillPresses[i]);
         }
         // Preserve a tap until its first update, never until a later recovery,
         // cooldown, UI dismissal or resource refill. Held inputs retry normally.
