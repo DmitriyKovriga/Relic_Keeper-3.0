@@ -9,13 +9,17 @@ namespace Scripts.Enemies
         private const int AuraWidth = 18;
         private const int AuraHeight = 8;
         private const float AuraPixelsPerUnit = 24f;
+        private const float AimLineLength = 3f;
 
         private static Sprite s_auraSprite;
+        private static Sprite s_aimSprite;
 
         private EnemyEntity _entity;
+        private EnemyAttackController _attack;
         private SpriteRenderer _sourceRenderer;
         private SpriteRenderer _flashRenderer;
         private SpriteRenderer _auraRenderer;
+        private SpriteRenderer _aimRenderer;
         private float _duration;
         private float _elapsed;
 
@@ -24,6 +28,7 @@ namespace Scripts.Enemies
         public void Play(EnemyEntity entity, float duration)
         {
             _entity = entity != null ? entity : GetComponent<EnemyEntity>();
+            _attack = GetComponent<EnemyAttackController>();
             SpriteRenderer renderer = _entity != null
                 ? _entity.VisualRenderer
                 : GetComponentInChildren<SpriteRenderer>(true);
@@ -61,14 +66,14 @@ namespace Scripts.Enemies
 
         private void LateUpdate()
         {
-            if (!IsPlaying || _sourceRenderer == null)
+            if (!IsPlaying || _sourceRenderer == null || (_attack != null && !_attack.IsPreparingAttack))
             {
                 Stop();
                 return;
             }
 
             _elapsed += Time.deltaTime;
-            if (_elapsed >= _duration)
+            if (_attack == null && _elapsed >= _duration)
             {
                 Stop();
                 return;
@@ -84,6 +89,9 @@ namespace Scripts.Enemies
 
             float progress = Mathf.Clamp01(_elapsed / Mathf.Max(0.01f, _duration));
             float envelope = Mathf.Sin(progress * Mathf.PI);
+            // Keep the original mark readable until the authoritative strike ends preparation.
+            if (_attack != null && progress >= 0.5f)
+                envelope = Mathf.Max(0.5f, envelope);
             float pulse = Mathf.Clamp01(Mathf.Sin(progress * Mathf.PI * 4f));
 
             _flashRenderer.sprite = _sourceRenderer.sprite;
@@ -106,6 +114,56 @@ namespace Scripts.Enemies
                 1.6f);
             _auraRenderer.transform.localScale = new Vector3(baseWidth, 1f + pulse * 0.08f, 1f);
             _auraRenderer.color = new Color(1f, 0.16f, 0.05f, (0.35f + pulse * 0.45f) * envelope);
+            UpdateProjectileAim();
+        }
+
+        private void UpdateProjectileAim()
+        {
+            if (_attack == null || !_attack.TryGetPreparingProjectileAim(out Vector2 origin, out Vector2 direction))
+            {
+                if (_aimRenderer != null) _aimRenderer.gameObject.SetActive(false);
+                return;
+            }
+            if (_aimRenderer == null)
+            {
+                var aim = new GameObject("ProjectileAimLine");
+                aim.transform.SetParent(transform, false);
+                _aimRenderer = aim.AddComponent<SpriteRenderer>();
+                _aimRenderer.sprite = GetOrCreateAimSprite();
+                _aimRenderer.drawMode = SpriteDrawMode.Tiled;
+                _aimRenderer.size = new Vector2(AimLineLength, 1f / AuraPixelsPerUnit);
+                aim.AddComponent<WorldDepthSort>().ConfigureFixed(RenderDepthCategory.GameplayVfx, localOffset: 11);
+            }
+
+            _aimRenderer.gameObject.SetActive(true);
+            Vector3 localDirection = transform.InverseTransformVector(direction);
+            Vector3 localNormal = new Vector3(-localDirection.y, localDirection.x, 0f).normalized;
+            _aimRenderer.transform.localPosition = transform.InverseTransformPoint(new Vector3(origin.x, origin.y, transform.position.z));
+            _aimRenderer.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(localDirection.y, localDirection.x) * Mathf.Rad2Deg);
+            _aimRenderer.transform.localScale = new Vector3(localDirection.magnitude,
+                1f / Mathf.Max(.0001f, transform.TransformVector(localNormal).magnitude), 1f);
+            // A steady, short direction cue, not a full-range/hitbox prediction or another flashing mark.
+            _aimRenderer.color = new Color(1f, .24f, .12f, GameplayPresentationSettings.ReducedCombatEffects ? .45f : .6f);
+        }
+
+        private static Sprite GetOrCreateAimSprite()
+        {
+            if (s_aimSprite != null) return s_aimSprite;
+            var texture = new Texture2D(8, 1, TextureFormat.RGBA32, false)
+            {
+                name = "EnemyProjectileAimTexture",
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Repeat,
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            texture.SetPixels32(new[] { new Color32(255, 255, 255, 255), new Color32(255, 255, 255, 255),
+                new Color32(255, 255, 255, 255), new Color32(255, 255, 255, 255),
+                new Color32(0, 0, 0, 0), new Color32(0, 0, 0, 0), new Color32(0, 0, 0, 0), new Color32(0, 0, 0, 0) });
+            texture.Apply(false, true);
+            s_aimSprite = Sprite.Create(texture, new Rect(0, 0, 8, 1), new Vector2(0f, .5f), AuraPixelsPerUnit, 0, SpriteMeshType.FullRect);
+            s_aimSprite.name = "EnemyProjectileAim";
+            s_aimSprite.hideFlags = HideFlags.HideAndDontSave;
+            return s_aimSprite;
         }
 
         private void EnsureVisualObjects()
@@ -134,6 +192,8 @@ namespace Scripts.Enemies
                 _flashRenderer.gameObject.SetActive(active);
             if (_auraRenderer != null)
                 _auraRenderer.gameObject.SetActive(active);
+            if (_aimRenderer != null)
+                _aimRenderer.gameObject.SetActive(false);
         }
 
         private void DestroyVisualObjects()
@@ -142,8 +202,11 @@ namespace Scripts.Enemies
                 Destroy(_flashRenderer.gameObject);
             if (_auraRenderer != null)
                 Destroy(_auraRenderer.gameObject);
+            if (_aimRenderer != null)
+                Destroy(_aimRenderer.gameObject);
             _flashRenderer = null;
             _auraRenderer = null;
+            _aimRenderer = null;
         }
 
         private static Sprite GetOrCreateAuraSprite()

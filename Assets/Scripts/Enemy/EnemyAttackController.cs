@@ -158,6 +158,7 @@ namespace Scripts.Enemies
         private bool _isFrozen;
 
         public bool IsBusy => _phase != AttackPhase.Idle;
+        public bool IsPreparingAttack => _phase == AttackPhase.Telegraph || _phase == AttackPhase.Windup;
         public bool IsPlayingAttackAnimation => IsBusy && _phase != AttackPhase.Telegraph;
         public bool IsChargeAttackActive => IsBusy && _currentAttackVariant == AttackVariant.Charge;
         public string CurrentAttackAnimationStateName =>
@@ -298,7 +299,7 @@ namespace Scripts.Enemies
             _chargeDashTimeRemaining = 0f;
             _chargeDashDistanceRemaining = 0f;
             _locomotion?.Stop();
-            _attackTelegraphVfx?.Play(_entity, AttackTelegraphDuration);
+            _attackTelegraphVfx?.Play(_entity, AttackTelegraphDuration + Mathf.Max(0.01f, GetCurrentAttackConfig().Windup));
 
             return true;
         }
@@ -343,8 +344,6 @@ namespace Scripts.Enemies
 
         private void EnterWindupPhase()
         {
-            _attackTelegraphVfx?.Stop();
-
             AttackRuntimeConfig config = GetCurrentAttackConfig();
             _phase = AttackPhase.Windup;
             _phaseTimer = Mathf.Max(0.01f, config.Windup);
@@ -363,6 +362,8 @@ namespace Scripts.Enemies
 
         private void EnterActivePhase()
         {
+            // The real impact signal (or its existing timer fallback) owns the warning's end.
+            _attackTelegraphVfx?.Stop();
             AttackRuntimeConfig config = GetCurrentAttackConfig();
             _phase = AttackPhase.Active;
             if (_currentAttackVariant == AttackVariant.Charge && config.HasDashMotion)
@@ -433,16 +434,37 @@ namespace Scripts.Enemies
 
         private void PerformProjectileAttack(AttackRuntimeConfig config)
         {
-            if (_currentTarget == null || _data == null)
+            if (!TryResolveProjectileAim(out Vector2 origin, out Vector2 direction))
                 return;
 
-            Vector2 origin = ResolveProjectileOrigin();
-            Vector2 direction = ((Vector2)_currentTarget.position - origin);
+            EnemyProjectile.Spawn(_data, CreateDamageSnapshot(config), origin, direction, transform.parent, gameObject);
+            _lastAttackConnected = true;
+        }
+
+        public bool TryGetPreparingProjectileAim(out Vector2 origin, out Vector2 direction)
+        {
+            origin = direction = default;
+            if (!IsPreparingAttack || _data == null)
+                return false;
+            AttackRuntimeConfig config = GetCurrentAttackConfig();
+            if (config.DeliveryType != EnemyAttackDeliveryType.Projectile ||
+                (_currentAttackVariant == AttackVariant.Charge && config.HasDashMotion) ||
+                string.IsNullOrWhiteSpace(_data.Attack.ProjectileVisualResourcePath))
+                return false;
+            return TryResolveProjectileAim(out origin, out direction);
+        }
+
+        private bool TryResolveProjectileAim(out Vector2 origin, out Vector2 direction)
+        {
+            origin = direction = default;
+            if (_currentTarget == null || _data == null)
+                return false;
+            origin = ResolveProjectileOrigin();
+            direction = (Vector2)_currentTarget.position - origin;
             if (direction.sqrMagnitude <= 0.0001f)
                 direction = Vector2.right * (_locomotion != null ? _locomotion.FacingDirection : 1);
-
-            EnemyProjectile.Spawn(_data, CreateDamageSnapshot(config), origin, direction.normalized, transform.parent, gameObject);
-            _lastAttackConnected = true;
+            direction.Normalize();
+            return true;
         }
 
         private void PerformDirectTargetAttack(AttackRuntimeConfig config)

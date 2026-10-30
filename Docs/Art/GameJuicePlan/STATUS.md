@@ -3,7 +3,23 @@
 Started 2026-10-29. The HTML and `PLAN.md` remain the design proposal; this file
 records implementation evidence separately.
 
-## Current step — J04 Shock buildup and active electricity
+## Current step — J05 enemy anticipation and recovery
+
+Completed 2026-10-30; refined after user review. The original red overhead attack
+mark and accompanying flash are restored; replacement glyphs/placement changes
+are removed. Its full-preparation timing fix and existing recovery are retained.
+The requested projectile follow-up adds a short dashed aim line beside the
+original mark, following the same launch ray until release/cancellation. It is
+automatic for actual projectile attacks and retained with lower opacity in
+reduced effects. Original restoration passed 64 focused tests; the latest
+follow-up passed 30 targeted tests, plus native 480x270 moving-target left/right,
+solo/crowd and normal/reduced checks. Current [projectile preview](J05/ProjectileAim/ProjectileAimPreview.gif)
+and [states](J05/ProjectileAim/States.png) show the addition. See
+[Step 11](Step11_J05_EnemyIntent.md). Ordinary combat/HUD review and a standalone
+build remain separate. Next candidate: J10's repeated-attempt death/return audit,
+only adding feedback for an observed gap.
+
+## Previous step — J04 Shock buildup and active electricity
 
 Completed 2026-10-30. Successful partial procs show a short cyan trace; crossing
 the existing threshold gives one discharge and longer arcs. After user review,
@@ -193,7 +209,6 @@ J06 is delivered; validation and manual checks are in
 
 J04's Ignite/Shock treatments are delivered and the three-chain audit is recorded
 in [Step 10](Step10_J04_Shock.md). Mystic Shield retains its existing feedback.
-Review these in ordinary combat. Next candidate: J05 enemy anticipation/recovery
-for two families, changing presentation only where an actual gap is found.
-J10 depends on repeated-attempt observations; J07/J08 remain user-owned and
-excluded; J09 is last.
+J05's Knight/Mold presentation audit is delivered in [Step 11](Step11_J05_EnemyIntent.md).
+Review these in ordinary combat. Next candidate: J10, which depends on
+repeated-attempt observations; J07/J08 remain user-owned and excluded; J09 is last.
