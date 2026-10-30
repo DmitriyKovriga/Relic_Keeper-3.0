@@ -3,7 +3,67 @@
 Started 2026-10-29. The HTML and `PLAN.md` remain the design proposal; this file
 records implementation evidence separately.
 
-## Current step — J10 optional early return
+## Current phase — ordinary-play reviewed; tree feedback corrected
+
+Reviewed 2026-10-30. The user completed the isolated playthrough and described a
+small improvement, with a concrete complaint about square feedback on round
+passive nodes. The 2,729 post-handoff samples span 12m20.881s, including one
+32.671s recruitment sampling gap. Ten rooms, loot/equipment/tree use and one
+death/return are represented. No exceptions/load errors were found in the player
+log. This is readability/user feedback, not a performance test or controlled A/B.
+
+The tree now uses a thin circular transaction ring with transparent corners and
+no corner badge. Inventory/crafting slot feedback is unchanged. Compilation,
+**13 focused tests** and the existing native-size transaction check passed.
+The isolated test player was rebuilt successfully with the correction. The main
+save and project settings checksums were preserved. See
+[Step 15](Step15_FinalReview.md) for evidence, coverage limits and manual recheck.
+No additional effects were added in response to the modest subjective gain.
+J09 remains an audit without a new pilot; J07/J08 remain excluded/user-owned.
+
+## Previous phase — standalone review prepared
+
+Prepared 2026-10-30. A fresh isolated Windows development build succeeded and is
+open in **Relic_Keeper Juice Baseline**, at required character recruitment. The
+recorder was restarted after an idle expiry; current capture is
+`Logs/GameJuiceBaseline/20261030-144251/`. Preparation/smoke frames are excluded
+from ordinary-play acceptance. See [Step 14](Step14_FinalPlaytest.md),
+[recruitment smoke](FinalReview/RecruitmentSmoke.jpg) and
+[handoff marker](FinalReview/Handoff.json).
+
+The standalone smoke found a valid no-active-character save triggering a null
+class-ID lookup and a New Game fallback. Missing IDs now return null/false from
+the character database. New tests reproduced the exception before the fix;
+**25 focused tests passed** afterward. The corrected build loads that same save
+into recruitment, without the load error/default-character fallback. Main save
+and project settings checksums were preserved. The build's default-only light
+field serialization and new generated link.xml assets were backed up and removed
+from source changes; authored room/lighting values are unchanged.
+
+This confirms build/startup and recording readiness, not a completed full-run,
+performance benchmark or final usability acceptance. The user's 10-15-minute
+playthrough and recording review are the remaining gate. J09 was reviewed without
+a new pilot; J07/J08 remain user-owned and excluded.
+
+## Previous phase — J09 review complete; combined playtest pending
+
+Reviewed 2026-10-30. No new reactive-prop pilot was added: existing torches already
+have flame motion and player-driven light/shadow interaction; cache and portal
+feedback are covered by J01/J06. A further ordinary-play benefit was not established.
+This is the optional gate's review outcome, not an implemented/A-B-approved effect.
+The V14 props previously removed by user decision remain removed.
+
+The audit corrected an outdated test that counted Room 001's valid room-fill light
+as a duplicate torch. Runtime behavior, assets and lighting are preserved. Unity
+compilation and **10 focused tests passed** after the correction, including saved
+room wiring and rendered player/light interaction. See [Step 13](Step13_J09_Review.md)
+for the evidence and final 10-15-minute playtest checklist.
+
+The implemented slices are ready for a combined ordinary-play review and a fresh
+isolated build. That final acceptance/build has not been performed. J07/J08 remain
+user-owned and excluded; further prop reactions require a specific observed gap.
+
+## Previous step — J10 optional early return
 
 Completed 2026-10-30. The existing death summary keeps its appearance and statistics.
 A quiet localized Return to hub button becomes available after one second and a
@@ -228,4 +288,7 @@ J04's Ignite/Shock treatments are delivered and the three-chain audit is recorde
 in [Step 10](Step10_J04_Shock.md). Mystic Shield retains its existing feedback.
 J05's Knight/Mold presentation audit is delivered in [Step 11](Step11_J05_EnemyIntent.md).
 Review these in ordinary combat. J10 is delivered in [Step 12](Step12_J10_DeathReturn.md).
-The remaining J09 pilot is optional; J07/J08 remain user-owned and excluded.
+J09 was audited without a new pilot in [Step 13](Step13_J09_Review.md).
+Combined ordinary-play review is recorded in [Step 15](Step15_FinalReview.md);
+J07/J08 are excluded. The review reports modest improvement and its coverage
+limits; it does not claim measured performance or exhaustive acceptance.

@@ -19,12 +19,15 @@ public class CharacterDatabaseSO : ScriptableObject
 
     public CharacterDataSO GetCharacterByID(string id)
     {
+        // A saved party can legitimately be waiting for recruitment after death.
+        if (string.IsNullOrEmpty(id)) return null;
         if (_lookup == null) Init();
         return _lookup != null ? _lookup.GetValueOrDefault(id) : null;
     }
 
     public bool ContainsCharacter(string id)
     {
+        if (string.IsNullOrEmpty(id)) return false;
         if (_lookup == null) Init();
         return _lookup != null && _lookup.ContainsKey(id);
     }

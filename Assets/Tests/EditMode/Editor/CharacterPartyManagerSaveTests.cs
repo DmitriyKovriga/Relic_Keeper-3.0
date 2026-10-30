@@ -24,6 +24,44 @@ namespace RelicKeeper.Tests.EditMode
         }
 
         [Test]
+        public void NoActiveCharacterSaveCanResolveMissingClassWithoutResettingTheParty()
+        {
+            var database = ScriptableObject.CreateInstance<CharacterDatabaseSO>();
+            try
+            {
+                var save = new GameSaveData
+                {
+                    SaveVersion = GameSaveManager.CurrentSaveVersion,
+                    ActiveCharacterID = "",
+                    HighestDungeonStage = 17
+                };
+                save.Characters.Add(new CharacterSaveData("mage", "hostel-character"));
+                _manager.LoadFromSave(save, database, null);
+                Assert.That(_manager.HasActiveCharacter, Is.False);
+                string classId = _manager.GetCharacterData(_manager.ActiveCharacterID)?.CharacterClassID;
+                Assert.That(database.GetCharacterByID(classId), Is.Null,
+                    "GameSaveManager performs this lookup before opening required recruitment.");
+                Assert.That(_manager.HostelCharacterIDs, Does.Contain("hostel-character"));
+                Assert.That(_manager.HighestDungeonStage, Is.EqualTo(17));
+            }
+            finally { Object.DestroyImmediate(database); }
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("unknown-character")]
+        public void DatabaseMissingIdIsHandledAsMissingCharacter(string id)
+        {
+            var database = ScriptableObject.CreateInstance<CharacterDatabaseSO>();
+            try
+            {
+                Assert.That(database.GetCharacterByID(id), Is.Null);
+                Assert.That(database.ContainsCharacter(id), Is.False);
+            }
+            finally { Object.DestroyImmediate(database); }
+        }
+
+        [Test]
         public void NullCharacterId_IsHandledAsMissingCharacter()
         {
             Assert.That(_manager.HasCharacter(null), Is.False);

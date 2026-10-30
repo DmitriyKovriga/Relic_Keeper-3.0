@@ -1,0 +1,13 @@
+{
+  "buildMethod": "RelicKeeper.Editor.Combat.GameJuiceBaselineBuild.Build",
+  "result": "Succeeded",
+  "totalErrors": 0,
+  "totalWarnings": 0,
+  "totalSeconds": 79.007,
+  "output": "Builds/GameJuiceBaseline/GameJuiceBaseline.exe",
+  "assemblySha256": "B09ECA0852A93D985A2E2BC3CE44C29F2223A91563EF43C36EDB5F066A97266C",
+  "mainSaveSha256": "DF3EE83C407AE06D35F3A887EFFBCECD7FC0F1FBC7421F60AE88EE6CDE321044",
+  "projectSettingsSha256": "7B5D086AB83ACA2C6644D5A640AC20A9A12F497C0D785153858F867F36D8A47C",
+  "standaloneLaunchedAfterCorrection": false,
+  "nativeEditorRuntimeReport": "FinalReview/RoundNodeRuntimeReport.txt"
+}

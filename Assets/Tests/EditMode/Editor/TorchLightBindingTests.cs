@@ -98,7 +98,10 @@ namespace RelicKeeper.Tests.EditMode
                             if (map.GetTile(cell) is TileBase tile && tile.name.StartsWith("torch", System.StringComparison.OrdinalIgnoreCase)) torches++;
                     Assert.That(room.GetComponent<TorchLightBinding>(), Is.Not.Null, path);
                     Assert.That(room.GetComponent<TorchLightBinding>().LightCount, Is.EqualTo(torches), path);
-                    Assert.That(room.GetComponentsInChildren<LocalLight2DSource>().Length, Is.EqualTo(torches), "No obsolete duplicate source: " + path);
+                    // Room fills use the same component but are independently authored lights,
+                    // not duplicate torch sources (Room 001 intentionally includes CoolRoomFill).
+                    int torchSources = room.GetComponentsInChildren<LocalLight2DSource>().Count(source => !source.IsRoomFill);
+                    Assert.That(torchSources, Is.EqualTo(torches), "No obsolete duplicate torch source: " + path);
                     if (torches > 0) Assert.That(room.GetComponentsInChildren<LocalLightOccluder>(), Is.Not.Empty, path);
                     total += torches;
                 }

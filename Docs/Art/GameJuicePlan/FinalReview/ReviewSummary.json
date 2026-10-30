@@ -1,0 +1,28 @@
+{
+  "capture": "Logs/GameJuiceBaseline/20261030-144251",
+  "handoffFrame": 575,
+  "reviewedFirstFrame": {
+    "frame": "576",
+    "realtime": "151.421",
+    "scene": "HubScene"
+  },
+  "reviewedLastFrame": {
+    "frame": "3304",
+    "realtime": "892.302",
+    "scene": "HubScene"
+  },
+  "postHandoffSamples": 2729,
+  "observedSpanSeconds": 740.881,
+  "gapsOverOneSecond": [
+    {
+      "afterFrame": "615",
+      "beforeFrame": "616",
+      "seconds": 32.671
+    }
+  ],
+  "nextRoomSaveMessages": 9,
+  "permanentDeathMessages": 1,
+  "matchedErrorLines": [],
+  "userFeedback": "Almost the same, a little better; square passive-node allocation cue looks buggy because the nodes are round.",
+  "limits": "Up to 4 fps readability sample; no input telemetry, performance measurement, controlled A/B, or exhaustive edge-case coverage."
+}

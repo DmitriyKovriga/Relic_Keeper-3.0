@@ -34,7 +34,7 @@ namespace Scripts.Skills.PassiveTree.UI
             System.Action<string> onNodeRightClick)
         {
             _container = container;
-            _transactionFeedback = new UiTransactionFeedback(container);
+            _transactionFeedback = new UiTransactionFeedback(container, circular: true);
             _theme = theme;
             _tooltip = tooltip;
             _onNodeClick = onNodeClick;
@@ -85,7 +85,7 @@ namespace Scripts.Skills.PassiveTree.UI
 
         public void ShowTransaction(string id, bool accepted)
         {
-            if (_nodeVisuals.TryGetValue(id, out var node)) _transactionFeedback.Show(node, accepted);
+            if (_nodeVisuals.TryGetValue(id, out var node)) _transactionFeedback.Show(node.Q("Circle"), accepted);
         }
 
         public void ClearTransaction() => _transactionFeedback.Clear();

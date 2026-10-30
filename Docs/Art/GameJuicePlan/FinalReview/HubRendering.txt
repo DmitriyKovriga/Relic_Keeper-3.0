@@ -1,0 +1,11 @@
+Pipeline: UniversalRP (UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset)
+Quality: Ultra
+1 renderers; TrainingDummyArtworkMask; SpriteMask-Default; Universal Render Pipeline/2D/Sprite-Mask; supported=True; passes=3; keywords=
+7 renderers; Visual; HubArt (Environment); RelicKeeper/Sprites/World Color Unlit; supported=True; passes=1; keywords=
+8 renderers; NextRoomPortal; Sprite-Lit-Default (Characters); RelicKeeper/Sprites/World Color Lit; supported=True; passes=3; keywords=ETC1_EXTERNAL_ALPHA
+6 renderers; DungeonSharedBackground; HubArt (Background); RelicKeeper/Sprites/World Color Unlit; supported=True; passes=1; keywords=
+2 renderers; GroundShadow; Sprites-Default; Sprites/Default; supported=True; passes=1; keywords=
+2 renderers; [1] Dummy; HubArt (Characters); RelicKeeper/Sprites/World Color Unlit; supported=True; passes=1; keywords=
+2 renderers; FogBlend; HubFog (Background); RelicKeeper/Hub Fog; supported=True; passes=1; keywords=
+2 renderers; Tavern foundation; Sprite-Unlit-Default (Environment); RelicKeeper/Sprites/World Color Unlit; supported=True; passes=1; keywords=ETC1_EXTERNAL_ALPHA
+1 renderers; Buildings; HubBuildingWind (Environment); RelicKeeper/Hub Building Wind; supported=True; passes=1; keywords=

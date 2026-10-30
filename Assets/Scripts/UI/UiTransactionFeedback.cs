@@ -8,14 +8,18 @@ namespace Scripts.UI
     public sealed class UiTransactionFeedback : IDisposable
     {
         private readonly VisualElement _owner;
+        private readonly bool _circular;
         private VisualElement _overlay, _target;
         private IVisualElementScheduledItem _ticker;
         private float _started, _lastRejection = float.NegativeInfinity;
         private bool _accepted;
 
-        public UiTransactionFeedback(VisualElement owner)
+        public UiTransactionFeedback(VisualElement owner) : this(owner, false) { }
+
+        public UiTransactionFeedback(VisualElement owner, bool circular)
         {
             _owner = owner;
+            _circular = circular;
             _owner.RegisterCallback<DetachFromPanelEvent>(OnDetached);
         }
 
@@ -33,14 +37,18 @@ namespace Scripts.UI
             _overlay.style.borderLeftWidth = _overlay.style.borderRightWidth = 1;
             _overlay.style.borderTopColor = _overlay.style.borderBottomColor = color;
             _overlay.style.borderLeftColor = _overlay.style.borderRightColor = color;
-            _overlay.style.backgroundColor = new Color(color.r, color.g, color.b, .12f);
-            var mark = new Label(accepted ? "+" : "!") { pickingMode = PickingMode.Ignore };
-            mark.style.position = Position.Absolute; mark.style.right = 1; mark.style.top = 0;
-            mark.style.fontSize = 8; mark.style.color = color;
-            mark.style.unityFontStyleAndWeight = FontStyle.Bold;
-            mark.style.paddingLeft = mark.style.paddingRight = 0;
-            mark.style.paddingTop = mark.style.paddingBottom = 0;
-            _overlay.Add(mark); _owner.Add(_overlay);
+            _overlay.style.backgroundColor = _circular ? Color.clear : new Color(color.r, color.g, color.b, .12f);
+            if (!_circular)
+            {
+                var mark = new Label(accepted ? "+" : "!") { pickingMode = PickingMode.Ignore };
+                mark.style.position = Position.Absolute; mark.style.right = 1; mark.style.top = 0;
+                mark.style.fontSize = 8; mark.style.color = color;
+                mark.style.unityFontStyleAndWeight = FontStyle.Bold;
+                mark.style.paddingLeft = mark.style.paddingRight = 0;
+                mark.style.paddingTop = mark.style.paddingBottom = 0;
+                _overlay.Add(mark);
+            }
+            _owner.Add(_overlay);
             Tick(); _ticker = _owner.schedule.Execute(Tick).Every(16);
         }
 
@@ -52,9 +60,18 @@ namespace Scripts.UI
                 _target.resolvedStyle.display == DisplayStyle.None || age >= duration) { Clear(); return; }
             Rect bounds = _target.worldBound;
             Vector2 min = _owner.WorldToLocal(bounds.min), max = _owner.WorldToLocal(bounds.max);
-            _overlay.style.left = Mathf.Round(min.x); _overlay.style.top = Mathf.Round(min.y);
-            _overlay.style.width = Mathf.Max(1, Mathf.Round(max.x - min.x));
-            _overlay.style.height = Mathf.Max(1, Mathf.Round(max.y - min.y));
+            float width = Mathf.Max(1, _circular ? max.x - min.x : Mathf.Round(max.x - min.x));
+            float height = Mathf.Max(1, _circular ? max.y - min.y : Mathf.Round(max.y - min.y));
+            _overlay.style.left = _circular ? min.x : Mathf.Round(min.x);
+            _overlay.style.top = _circular ? min.y : Mathf.Round(min.y);
+            _overlay.style.width = width;
+            _overlay.style.height = height;
+            if (_circular)
+            {
+                float radius = Mathf.Min(width, height) * .5f;
+                _overlay.style.borderTopLeftRadius = _overlay.style.borderTopRightRadius = radius;
+                _overlay.style.borderBottomLeftRadius = _overlay.style.borderBottomRightRadius = radius;
+            }
             _overlay.style.opacity = _accepted ? 1f - age / duration :
                 (age < .12f || age >= .22f ? 1f - age / duration : .15f);
             _overlay.BringToFront();

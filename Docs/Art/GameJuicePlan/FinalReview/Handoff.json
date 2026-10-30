@@ -1,0 +1,13 @@
+{
+  "status": "Ready for user playthrough; final acceptance pending",
+  "capture": "Logs/GameJuiceBaseline/20261030-144251",
+  "handoffUtc": "2026-10-30T14:45:23.265766+00:00",
+  "handoffFrame": "575",
+  "handoffCaptureSeconds": "151.158",
+  "correctedSaveLoadSmokePassed": true,
+  "reviewWindow": "Relic_Keeper Juice Baseline",
+  "rejectedCaptures": {
+    "Logs/GameJuiceBaseline/20261030-114325": "loading-failure smoke only",
+    "Logs/GameJuiceBaseline/20261030-115608": "corrected smoke; recording expired during idle before handoff"
+  }
+}
