@@ -1,0 +1,6 @@
+{
+  "frames": 48,
+  "duration_seconds": 1.7855100000001585,
+  "observed_capture_rate": 26.32301135249639,
+  "note": "Actual Unity captures, 5x nearest-neighbor crop. Sampling rate is not runtime performance."
+}

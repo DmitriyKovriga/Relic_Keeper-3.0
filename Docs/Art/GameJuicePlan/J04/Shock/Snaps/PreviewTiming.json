@@ -1,0 +1,9 @@
+{
+  "frames": 96,
+  "capture_duration_seconds": 2.230978999999934,
+  "observed_capture_rate": 42.58220270114726,
+  "lit_samples": 27,
+  "quiet_samples": 69,
+  "visible_shape_seeds": 15,
+  "note": "Actual presentation samples, 5x nearest-neighbor crop. Capture cadence is not gameplay performance or the exact number of runtime discharges. GIF uses recorded timing."
+}

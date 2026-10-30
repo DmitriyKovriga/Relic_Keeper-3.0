@@ -3,7 +3,25 @@
 Started 2026-10-29. The HTML and `PLAN.md` remain the design proposal; this file
 records implementation evidence separately.
 
-## Current step — J04 Ignite burning presentation
+## Current step — J04 Shock buildup and active electricity
+
+Completed 2026-10-30. Successful partial procs show a short cyan trace; crossing
+the existing threshold gives one discharge and longer arcs. After user review,
+smoothly flowing paths were changed to fast, held-shape lightning snaps with
+irregular paired flashes and brief quiet gaps. Reduced mode has fewer/softer
+snaps; the entry accent is shorter. Refreshes
+do not replay activation. Ailment-owned presentation follows authoritative
+expiry/reset and no longer writes body tint/material channels. Damage, chance,
+threshold and duration rules remain unchanged. Reduced mode is quieter; no new
+popup or HUD element was added. **68 focused tests passed**, plus native checks
+for actual proc/threshold/refresh/expiry, animation, Ignite/freeze coexistence
+and ten enemies. See [Step 10](Step10_J04_Shock.md),
+[preview](J04/Shock/Snaps/ShockPreview.gif) and [state details](J04/Shock/Snaps/Detail.png).
+The three-chain audit retained Mystic Shield's existing dedicated response and
+charge/recharge display. Ordinary-combat review and a new standalone build remain
+separate from the controlled Editor checks.
+
+## Previous step — J04 Ignite burning presentation
 
 Completed 2026-10-30 at the user's request: animated sprite-masked burning,
 rising fire, warm glow and a small flickering surface light. Ignite recipients
@@ -173,7 +191,9 @@ J03 is delivered; validation and manual checks are in
 J06 is delivered; validation and manual checks are in
 [Step 08](Step08_J06_RoomResolution.md).
 
-J04's first Ignite slice is delivered at the user's request; review its burning
-effect in ordinary combat, then audit remaining build/status chains before
-adding cues. J05/J10 also depend on observed gaps; J07/J08 remain user-owned
-and excluded; J09 is last.
+J04's Ignite/Shock treatments are delivered and the three-chain audit is recorded
+in [Step 10](Step10_J04_Shock.md). Mystic Shield retains its existing feedback.
+Review these in ordinary combat. Next candidate: J05 enemy anticipation/recovery
+for two families, changing presentation only where an actual gap is found.
+J10 depends on repeated-attempt observations; J07/J08 remain user-owned and
+excluded; J09 is last.

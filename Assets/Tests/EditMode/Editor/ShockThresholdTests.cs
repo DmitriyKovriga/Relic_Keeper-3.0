@@ -217,6 +217,30 @@ namespace RelicKeeper.Tests.EditMode
             }
         }
 
+        [Test] public void SuccessfulPartialProcsShowBuildupButRejectedProcsDoNotCreateAnActiveShock()
+        {
+            _stats.GetStat(StatType.ShockChance).BaseValue = 0;
+            Assert.That(Proc(100),Is.False); Assert.That(_enemy.GetComponent<ShockVisualController>(),Is.Null);
+            _stats.GetStat(StatType.ShockChance).BaseValue = 100;
+            Assert.That(Proc(100),Is.False); var visual = _enemy.GetComponent<ShockVisualController>();
+            Assert.That(visual.IsActive,Is.False); Assert.That(visual.BuildupNormalized,Is.EqualTo(1f/3).Within(.0001f));
+            Assert.That(_ailments.DamageTakenMoreMultiplier,Is.EqualTo(1));
+            Assert.That(Proc(200),Is.True); Assert.That(visual.IsActive,Is.True); Assert.That(visual.BuildupNormalized,Is.Zero);
+            Tick(2.1f); Assert.That(visual.IsActive,Is.False); Assert.That(visual.BuildupNormalized,Is.Zero);
+        }
+
+        [Test] public void OwnedVisualDoesNotExpireBeforeTheActualAilmentOrReplayARefresh()
+        {
+            Assert.That(Proc(300),Is.True); var visual = _enemy.GetComponent<ShockVisualController>();
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            float activation = (float)typeof(ShockVisualController).GetField("_activationUntil",flags).GetValue(visual);
+            typeof(ShockVisualController).GetField("_remainingSeconds",flags).SetValue(visual,0);
+            typeof(ShockVisualController).GetMethod("Update",flags).Invoke(visual,null);
+            Assert.That(visual.IsActive,Is.True); Assert.That(Proc(1),Is.True);
+            Assert.That((float)typeof(ShockVisualController).GetField("_activationUntil",flags).GetValue(visual),Is.EqualTo(activation));
+            Tick(2.1f); Assert.That(visual.IsActive,Is.False);
+        }
+
         private bool Proc(float lightning, float physical = 0f)
         {
             return _ailments.TryApplyShock(_stats, _stats, new DamageSnapshot(_stats) { Lightning = lightning, Physical = physical });

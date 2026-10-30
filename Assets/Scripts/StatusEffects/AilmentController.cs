@@ -545,6 +545,8 @@ namespace Scripts.StatusEffects
                     return false;
                 _shockThresholdDamage += hitSnapshot.Lightning * effectiveness / 100f;
                 float threshold = maxHealth * ShockMaxHealthThresholdFraction;
+                EnsureShockVisual();
+                _shockVisual?.SetBuildup(_shockThresholdDamage / threshold);
                 if (_shockThresholdDamage < threshold && !Mathf.Approximately(_shockThresholdDamage, threshold))
                     return false;
             }
