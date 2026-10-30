@@ -3,7 +3,24 @@
 Started 2026-10-29. The HTML and `PLAN.md` remain the design proposal; this file
 records implementation evidence separately.
 
-## Current step — J05 enemy anticipation and recovery
+## Current step — J10 optional early return
+
+Completed 2026-10-30. The existing death summary keeps its appearance and statistics.
+A quiet localized Return to hub button becomes available after one second and a
+release of held confirmation controls. Click, Enter/Space or gamepad South can
+shorten the wait; the six-second automatic return remains. The title/button fade
+and a fully rendered black frame still precede the exactly-once return callback.
+No death rules, recruitment, progress or save format changed. **16 focused tests
+passed**, plus native 480x270 EN/RU, live locale switch, large values, actual UI
+submit, held/repeated input, three sequences and rendered-cover checks. Native
+early callbacks occurred at 2.206/2.202 seconds; automatic return at 6.020 seconds.
+See [Step 12](Step12_J10_DeathReturn.md) and [preview](J10/DeathSummaryENRU.png).
+Controlled callbacks do not remove a real character; ordinary combat/death and a
+fresh standalone build remain separate checks. Next candidate: optional J09,
+starting with one existing prop only if a useful reaction warrants it. J07/J08
+remain user-owned and excluded.
+
+## Previous step — J05 enemy anticipation and recovery
 
 Completed 2026-10-30; refined after user review. The original red overhead attack
 mark and accompanying flash are restored; replacement glyphs/placement changes
@@ -210,5 +227,5 @@ J06 is delivered; validation and manual checks are in
 J04's Ignite/Shock treatments are delivered and the three-chain audit is recorded
 in [Step 10](Step10_J04_Shock.md). Mystic Shield retains its existing feedback.
 J05's Knight/Mold presentation audit is delivered in [Step 11](Step11_J05_EnemyIntent.md).
-Review these in ordinary combat. Next candidate: J10, which depends on
-repeated-attempt observations; J07/J08 remain user-owned and excluded; J09 is last.
+Review these in ordinary combat. J10 is delivered in [Step 12](Step12_J10_DeathReturn.md).
+The remaining J09 pilot is optional; J07/J08 remain user-owned and excluded.

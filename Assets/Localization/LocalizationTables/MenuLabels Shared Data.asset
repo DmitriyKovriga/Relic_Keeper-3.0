@@ -2455,6 +2455,10 @@ MonoBehaviour:
     m_Key: settings.worldInfo.always
     m_Metadata:
       m_Items: []
+  - m_Id: 121224723633631232
+    m_Key: ui.death.return_to_hub
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
