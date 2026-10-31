@@ -65,19 +65,20 @@ namespace RelicKeeper.Tests.EditMode
             Assert.That(ailments.GetStackCount(AilmentType.Ignite), Is.EqualTo(1));
         }
 
-        [Test]
-        public void Ignite_SpreadsToCleanNeighborAfterTwoSeconds()
+        [TestCase(0.5f)]
+        [TestCase(2f)]
+        public void Ignite_SpreadsToCleanNeighborAfterConfiguredDelay(float delay)
         {
             AilmentController burning = CreateBurningEnemy("burning", Vector3.zero, out PlayerStats source);
             AilmentController clean = CreateBurningEnemy("clean", new Vector3(1.5f, 0f, 0f), out _);
             source.GetStat(StatType.IgniteChance).BaseValue = 100f;
             source.GetStat(StatType.IgniteDamageMult).BaseValue = 20f;
             source.GetStat(StatType.IgniteDuration).BaseValue = 4f;
-            source.GetStat(StatType.IgniteSpreadDuration).BaseValue = 2f;
+            source.GetStat(StatType.IgniteSpreadDelay).BaseValue = delay;
 
             Assert.That(burning.TryApplyIgnite(source, source, new DamageSnapshot(source) { Fire = 80f }), Is.True);
             Physics2D.SyncTransforms();
-            Tick(burning, 1.9f);
+            Tick(burning, delay - 0.1f);
             Assert.That(clean.GetStackCount(AilmentType.Ignite), Is.EqualTo(0));
 
             Tick(burning, 0.2f);

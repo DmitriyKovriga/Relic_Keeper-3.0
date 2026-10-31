@@ -15,8 +15,8 @@ MonoBehaviour:
   UniqueID: Resources/Affixes/ByStat/Ailments/IgniteSpreadDuration/IgniteSpreadDuration_Flat_Light
   GroupID: IgniteSpreadDuration_Flat_Light
   Tier: 0
-  NameKey: affix_name_ignitespreadduration_flat_light
-  TranslationKey: affix_flat_ignitespreadduration
+  NameKey: affix_name_ignitespreaddelay_flat_light
+  TranslationKey: affix_flat_ignitespreaddelay
   LockAutoLocalization: 0
   TagIds:
   - Ailments

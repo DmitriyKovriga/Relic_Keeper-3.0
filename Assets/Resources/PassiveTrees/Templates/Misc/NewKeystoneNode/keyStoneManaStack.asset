@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Skills.PassiveTree.PassiveNodeTemplateSO
   Name: keyStoneManaStack
   Description: 
-  Icon: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 1eca863f4e11df74794402a682676328, type: 3}
   Modifiers:
   - Stat: 0
     Value: 10

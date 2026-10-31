@@ -63,7 +63,7 @@ namespace Scripts.Editor.Affixes
 
         public static void GenerateIgniteSpreadFamiliesFromCommandLine()
         {
-            int created = GenerateFamilies(new HashSet<StatType> { StatType.IgniteSpreadDuration });
+            int created = GenerateFamilies(new HashSet<StatType> { StatType.IgniteSpreadDelay });
             Debug.Log($"[Affix Content] Ignite spread families generated. Created: {created}.");
         }
 

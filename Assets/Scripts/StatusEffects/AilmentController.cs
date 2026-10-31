@@ -16,7 +16,7 @@ namespace Scripts.StatusEffects
         private const float DefaultBleedDamageMult = 50f;
         private const float DefaultIgniteChance = 25f;
         private const float DefaultIgniteDuration = 4f;
-        private const float DefaultIgniteSpreadDuration = 2f;
+        private const float DefaultIgniteSpreadDelay = 2f;
         private const float IgniteSpreadRadius = 2.5f;
         private const float DefaultIgniteDamageMult = 20f;
         private const float IgniteFireDamageShareThreshold = 0.3f;
@@ -992,7 +992,7 @@ namespace Scripts.StatusEffects
         {
             int strongest = FindStrongestIgniteStackIndex();
             if (strongest < 0)
-                return DefaultIgniteSpreadDuration;
+                return DefaultIgniteSpreadDelay;
 
             TryResolveStatsProvider(_igniteStacks[strongest].Source, out IStatsProvider sourceStats);
             return ResolveIgniteSpreadSeconds(sourceStats);
@@ -1001,10 +1001,10 @@ namespace Scripts.StatusEffects
         private static float ResolveIgniteSpreadSeconds(IStatsProvider sourceStats)
         {
             if (sourceStats == null)
-                return DefaultIgniteSpreadDuration;
+                return DefaultIgniteSpreadDelay;
 
-            float seconds = sourceStats.GetValue(StatType.IgniteSpreadDuration);
-            return seconds > 0f ? seconds : DefaultIgniteSpreadDuration;
+            float seconds = sourceStats.GetValue(StatType.IgniteSpreadDelay);
+            return seconds > 0f ? seconds : DefaultIgniteSpreadDelay;
         }
 
         private static int ResolveMaxIgniteStacks(IStatsProvider sourceStats)

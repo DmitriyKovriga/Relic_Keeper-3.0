@@ -15,8 +15,8 @@ MonoBehaviour:
   UniqueID: Resources/Affixes/ByStat/Ailments/IgniteSpreadDuration/IgniteSpreadDuration_Increase_Light
   GroupID: IgniteSpreadDuration_Increase_Light
   Tier: 0
-  NameKey: affix_name_ignitespreadduration_increase_light
-  TranslationKey: affix_increase_ignitespreadduration
+  NameKey: affix_name_ignitespreaddelay_increase_light
+  TranslationKey: affix_increase_ignitespreaddelay
   LockAutoLocalization: 0
   TagIds:
   - Ailments

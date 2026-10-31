@@ -91,18 +91,54 @@ namespace Scripts.Skills.PassiveTree
 
         public static string Describe(PassiveHitScalingRule rule, bool ru, Func<SerializableStatModifier, string> formatModifier)
         {
+            if (TryDescribeChainDamage(rule, ru, out string chainDamage)) return chainDamage;
+            if (rule.Source == PassiveHitScalingSource.MysticShieldSkill || rule.Source == PassiveHitScalingSource.NonMysticShieldSkill)
+            {
+                bool uses = rule.Source == PassiveHitScalingSource.MysticShieldSkill;
+                string header = uses
+                    ? (ru ? "Навыки, использующие Мистический щит:" : "Skills using Mystic Shield:")
+                    : (ru ? "Навыки, не использующие Мистический щит:" : "Skills not using Mystic Shield:");
+                return header + FormatModifierBlock(rule.ModifiersPerStep, formatModifier);
+            }
             string step = $"{N(rule.SourcePerStep, ru)}";
             string per = rule.Source switch
             {
                 PassiveHitScalingSource.ProjectileFlightDistance => ru ? $"за каждые {step} ед. пройденного пути" : $"per {step} units travelled",
+                PassiveHitScalingSource.ChainBounceCount => Math.Abs(rule.SourcePerStep - 1f) < .0001f
+                    ? (ru ? "за каждый отскок цепи" : "per chain bounce")
+                    : (ru ? $"за каждые {step} отскоков цепи" : $"per {step} chain bounces"),
                 _ => ru ? $"за каждые {step} с полёта" : $"per {step} s of flight"
             };
-            var sb = new StringBuilder(ru ? $"Снаряд при попадании получает {per}" : $"Projectile hits gain {per}");
+            var sb = new StringBuilder(rule.Source == PassiveHitScalingSource.ChainBounceCount
+                ? (ru ? $"Попадания получают {per}" : $"Hits gain {per}")
+                : (ru ? $"Снаряд при попадании получает {per}" : $"Projectile hits gain {per}"));
             if (rule.MaxSteps > 0f)
                 sb.Append(ru ? $" (не более {N(rule.MaxSteps, ru)} раз)" : $" (up to {N(rule.MaxSteps, ru)} times)");
             sb.Append(':');
             sb.Append(FormatModifierBlock(rule.ModifiersPerStep, formatModifier));
             return sb.ToString();
+        }
+
+        private static bool TryDescribeChainDamage(PassiveHitScalingRule rule, bool ru, out string text)
+        {
+            text = null;
+            if (rule.Source != PassiveHitScalingSource.ChainBounceCount || rule.ModifiersPerStep?.Count != 4) return false;
+            float value = rule.ModifiersPerStep[0].Value;
+            var channels = new HashSet<StatType>();
+            foreach (var modifier in rule.ModifiersPerStep)
+            {
+                if (modifier.Type != StatModType.PercentMult || Math.Abs(modifier.Value - value) > .0001f) return false;
+                channels.Add(modifier.Stat);
+            }
+            if (!channels.SetEquals(new[] { StatType.DamagePhysical, StatType.DamageFire, StatType.DamageCold, StatType.DamageLightning })) return false;
+            string step = Math.Abs(rule.SourcePerStep - 1f) < .0001f
+                ? (ru ? "за каждый отскок цепи" : "per chain bounce")
+                : (ru ? $"за каждые {N(rule.SourcePerStep, ru)} отскоков цепи" : $"per {N(rule.SourcePerStep, ru)} chain bounces");
+            text = ru ? $"На {N(value, ru)}% больше урона {step}" : $"{N(value, ru)}% more damage {step}";
+            if (rule.MaxSteps > 0)
+                text += ru ? $", не более {N(value * rule.MaxSteps, ru)}% больше урона." : $", up to {N(value * rule.MaxSteps, ru)}% more damage.";
+            else text += ".";
+            return true;
         }
 
         public static string DescribeCondition(PassiveCondition condition, bool ru)

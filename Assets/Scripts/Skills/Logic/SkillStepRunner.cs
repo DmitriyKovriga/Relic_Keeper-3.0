@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Scripts.Stats;
 using Scripts.Skills.Steps;
+using Scripts.Skills.PassiveTree;
 using Scripts.Skills.Modules;
 using Scripts.Skills.Projectiles;
 using Scripts.Combat;
@@ -1210,7 +1211,7 @@ namespace Scripts.Skills
             Vector3 previous = chainResult.StartPosition;
             for (int i = 0; i < chainResult.Targets.Count; i++)
             {
-                DealDamageToChainTarget(step, chainResult.Targets[i], hitResults, previous);
+                DealDamageToChainTarget(step, chainResult.Targets[i], hitResults, previous, i);
                 previous = chainResult.Targets[i].Position;
             }
 
@@ -1227,14 +1228,14 @@ namespace Scripts.Skills
                 if (i > 0)
                     yield return new WaitForSeconds(delayPerSegment);
 
-                DealDamageToChainTarget(step, chainResult.Targets[i], hitResults, previous);
+                DealDamageToChainTarget(step, chainResult.Targets[i], hitResults, previous, i);
                 previous = chainResult.Targets[i].Position;
                 if (hitResults.Count > 0)
                     _ctx?.RegisterHitResults(stepIndex, hitResults);
             }
         }
 
-        private void DealDamageToChainTarget(StepEntry step, SkillStepContext.ChainTarget chainTarget, List<SkillStepContext.HitResult> hitResults, Vector3 hitOrigin)
+        private void DealDamageToChainTarget(StepEntry step, SkillStepContext.ChainTarget chainTarget, List<SkillStepContext.HitResult> hitResults, Vector3 hitOrigin, int bounceCount)
         {
             IDamageable target = chainTarget.Target;
             if (target == null)
@@ -1251,7 +1252,7 @@ namespace Scripts.Skills
 
             float mult = ResolveDamageMultiplier(step);
             DamageContext damageContext = ResolveDamageContext();
-            IStatsProvider scopedStats = BuildScopedStatsProvider(step, target);
+            IStatsProvider scopedStats = BuildScopedStatsProvider(step, target, bounceCount);
             DamageSnapshot snapshot = DamageCalculator.CreateDamageSnapshot(scopedStats, mult, damageContext, step.DamageConversions);
             snapshot.Source = _ownerStats;
             PushbackResolver.BindToSnapshot(snapshot, SkillPushback.IsEnabled(_data), scopedStats, hitOrigin);
@@ -1746,7 +1747,7 @@ namespace Scripts.Skills
             return System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(target);
         }
 
-        private IStatsProvider BuildScopedStatsProvider(StepEntry step, IDamageable target)
+        private IStatsProvider BuildScopedStatsProvider(StepEntry step, IDamageable target, int chainBounceCount = 0)
         {
             IStatsProvider weaponStats = ResolveSkillStats();
             var modifiers = new List<SerializableStatModifier>();
@@ -1755,6 +1756,8 @@ namespace Scripts.Skills
                 modifiers.AddRange(step.ScopedStatModifiers);
 
             AppendTargetAilmentStackModifiers(step, target, modifiers);
+            if (chainBounceCount > 0)
+                PassiveEffectRuntime.AppendHitModifiers(_ownerStats, PassiveHitContext.Chain(chainBounceCount), modifiers);
             return modifiers.Count > 0 ? new ScopedStatsProvider(weaponStats, modifiers) : weaponStats;
         }
 

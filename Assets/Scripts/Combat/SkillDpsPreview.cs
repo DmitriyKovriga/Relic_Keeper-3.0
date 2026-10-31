@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Scripts.Skills;
+using Scripts.Skills.PassiveTree;
 using Scripts.Skills.Steps;
 using Scripts.Stats;
 using Scripts.StatusEffects;
@@ -93,6 +94,7 @@ namespace Scripts.Combat
                 return new SkillDpsPreview(default, null);
             IStatsProvider scopedStats = WeaponHandStatScope.ForSkill(stats, skillSlot) ?? stats;
             scopedStats = StatLinkModifiers.Apply(scopedStats, skill?.StatLinks);
+            scopedStats = PassiveEffectRuntime.ApplySkillHitModifiers(stats as PlayerStats, skill, scopedStats);
             float castsPerSecond = ResolveCastsPerSecond(skill, scopedStats, skillSlot);
             SkillHitDpsPreview hit = BuildHitPreview(skill, scopedStats, castsPerSecond);
             return new SkillDpsPreview(hit, BuildDotPreviews(scopedStats, hit));

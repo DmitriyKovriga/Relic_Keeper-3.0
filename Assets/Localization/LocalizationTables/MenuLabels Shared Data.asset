@@ -1764,7 +1764,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 120000000000000010
-    m_Key: stats.IgniteSpreadDuration
+    m_Key: stats.IgniteSpreadDelay
     m_Metadata:
       m_Items: []
   - m_Id: 111508801381720064
@@ -2457,6 +2457,18 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 121224723633631232
     m_Key: ui.death.return_to_hub
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121738768031772672
+    m_Key: passive.node.ManaBarrier.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121738768082104320
+    m_Key: passive.node.ManaBarrier.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121742962931363840
+    m_Key: stats.ManaBarrierAbsorption
     m_Metadata:
       m_Items: []
   m_Metadata:

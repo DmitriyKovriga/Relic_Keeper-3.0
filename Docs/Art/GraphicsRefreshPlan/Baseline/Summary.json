@@ -1,0 +1,35 @@
+{
+  "room": {
+    "path": "Assets/Resources/Prefabs/Dungeon/MineDungeon/MortfallRoom_001.prefab",
+    "guid": "0ae89356c4f038e46889e9a61ff9975c",
+    "localId": 8919589073607077528
+  },
+  "maps": [
+    {
+      "path": "MortfallRoom_001/Grid/Background",
+      "occupiedCells": 140
+    },
+    {
+      "path": "MortfallRoom_001/Grid/Environment",
+      "occupiedCells": 10
+    },
+    {
+      "path": "MortfallRoom_001/Grid/Ground",
+      "occupiedCells": 7647
+    },
+    {
+      "path": "MortfallRoom_001/Grid/Platforms",
+      "occupiedCells": 8
+    },
+    {
+      "path": "MortfallRoom_001/Grid/WallDetails",
+      "occupiedCells": 12
+    }
+  ],
+  "collisionComponents": 9,
+  "spawnComponents": 11,
+  "portals": 1,
+  "sourceRevision": "8b383bc046bf44fe4cc643d7772067a0f4139649",
+  "baselineSnapshot": "RoomSemanticSnapshot.json.gz",
+  "baselineMode": "Isolated source-art copies; static actors and staged existing HUD; no gameplay simulation."
+}

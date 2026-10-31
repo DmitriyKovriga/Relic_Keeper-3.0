@@ -88,6 +88,19 @@ namespace Scripts.Skills.PassiveTree
                 runtime.CollectHitModifiers(context, into);
         }
 
+        public static IStatsProvider ApplySkillHitModifiers(PlayerStats owner, SkillDataSO skill, IStatsProvider stats)
+        {
+            if (skill == null || !TryGet(owner, out var runtime)) return stats;
+            bool hasSkillRules = false;
+            foreach (var rule in runtime._hitRules)
+                if (rule.Source == PassiveHitScalingSource.MysticShieldSkill || rule.Source == PassiveHitScalingSource.NonMysticShieldSkill)
+                { hasSkillRules = true; break; }
+            if (!hasSkillRules) return stats;
+            var modifiers = new List<SerializableStatModifier>();
+            runtime.CollectHitModifiers(PassiveHitContext.ForSkill(skill), modifiers);
+            return modifiers.Count > 0 ? new ScopedStatsProvider(stats, modifiers) : stats;
+        }
+
         public static void ApplyEnemyDamageTakenLayers(object source, Transform target,
             ref float flatPercent, ref float additivePercent, ref float moreMultiplier)
         {

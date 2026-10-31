@@ -1,0 +1,79 @@
+{
+  "verifiedUtc": "2026-10-30T22:09:26.681315+00:00",
+  "scope": "G00/G01 native visual-only references and protected concepts; G02 B selection/specification. No production asset integration.",
+  "sourceHashesChecked": 208,
+  "packageInputsResolvedViaCache": [
+    {
+      "virtual": "Packages/com.unity.2d.tilemap.extras/Runtime/Tiles/RuleTile/RuleTile.cs",
+      "physical": "Library/PackageCache/com.unity.2d.tilemap.extras@3dde84bf3867/Runtime/Tiles/RuleTile/RuleTile.cs"
+    },
+    {
+      "virtual": "Packages/com.unity.2d.tilemap.extras/Runtime/Tiles/RuleTile/RuleTile.cs.meta",
+      "physical": "Library/PackageCache/com.unity.2d.tilemap.extras@3dde84bf3867/Runtime/Tiles/RuleTile/RuleTile.cs.meta"
+    },
+    {
+      "virtual": "Packages/com.unity.render-pipelines.universal/Runtime/2D/Light2D.cs",
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@e9f15c489688/Runtime/2D/Light2D.cs"
+    },
+    {
+      "virtual": "Packages/com.unity.render-pipelines.universal/Runtime/2D/Light2D.cs.meta",
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@e9f15c489688/Runtime/2D/Light2D.cs.meta"
+    },
+    {
+      "virtual": "Packages/com.unity.render-pipelines.universal/Runtime/2D/Shadows/ShadowCaster2D.cs",
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@e9f15c489688/Runtime/2D/Shadows/ShadowCaster2D.cs"
+    },
+    {
+      "virtual": "Packages/com.unity.render-pipelines.universal/Runtime/2D/Shadows/ShadowCaster2D.cs.meta",
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@e9f15c489688/Runtime/2D/Shadows/ShadowCaster2D.cs.meta"
+    },
+    {
+      "virtual": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Lit-Default.mat",
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@e9f15c489688/Runtime/Materials/Sprite-Lit-Default.mat"
+    },
+    {
+      "virtual": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Lit-Default.mat.meta",
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@e9f15c489688/Runtime/Materials/Sprite-Lit-Default.mat.meta"
+    },
+    {
+      "virtual": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat",
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@e9f15c489688/Runtime/Materials/Sprite-Unlit-Default.mat"
+    },
+    {
+      "virtual": "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat.meta",
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@e9f15c489688/Runtime/Materials/Sprite-Unlit-Default.mat.meta"
+    },
+    {
+      "virtual": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Lit-Default.shader",
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@e9f15c489688/Shaders/2D/Sprite-Lit-Default.shader"
+    },
+    {
+      "virtual": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Lit-Default.shader.meta",
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@e9f15c489688/Shaders/2D/Sprite-Lit-Default.shader.meta"
+    },
+    {
+      "virtual": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Unlit-Default.shader",
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@e9f15c489688/Shaders/2D/Sprite-Unlit-Default.shader"
+    },
+    {
+      "virtual": "Packages/com.unity.render-pipelines.universal/Shaders/2D/Sprite-Unlit-Default.shader.meta",
+      "physical": "Library/PackageCache/com.unity.render-pipelines.universal@e9f15c489688/Shaders/2D/Sprite-Unlit-Default.shader.meta"
+    }
+  ],
+  "changedSources": [],
+  "semanticSnapshotSha256": "87c76dd9900970da8b6a88d9d0c4c5779e4db0ddfe20f3372f942fa9c7762b41",
+  "protectedPixels": 48888,
+  "protectedMismatches": 0,
+  "compile": "passed",
+  "editMode": {
+    "filter": "MortfallWallTests;WorldColorProfilesWindowTests",
+    "passed": 16,
+    "failed": 0,
+    "skipped": 0
+  },
+  "mainSaveSha256": "df3ee83c407ae06d35f3a887effbcecd7fc0f1fbc7421f60ae88ee6cde321044",
+  "docsLinks": "resolve",
+  "conceptSheetMatchesFinalNativeFiles": true,
+  "productionAssetsCreated": false,
+  "gameplayOrPerformanceTested": false
+}

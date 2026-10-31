@@ -1,0 +1,32 @@
+{
+    "method": "Built-in image-generation paintovers, nearest-neighbor native resampling, exact frozen-source pixels restored inside captured terrain/HUD/actor/decoration alpha masks plus one-pixel clearance. These are concepts, not Unity integration or a physical geometry test.",
+    "baselineSha256": "eee44ff88595dcf630b0323a8164a8177d2990866fb4936283c42d5236cf527c",
+    "protectedMaskSha256": "72f06b50a8745b08350cb1e7bab674ad869393c3f4e35160af9e0062e50763f0",
+    "protectedPixels": 48888,
+    "concepts": [
+        {
+            "id": "A",
+            "rawSha256": "19552ad6bcc73b1ec2c1544b4aa857e8afdc3e6629ef37feb0e391533def8267",
+            "nativeSha256": "0d49ac4a5b800fb01d7b277180cd859da383e52c07d57fa2d16fabe0e9ce811c",
+            "rawWidth": 1672,
+            "rawHeight": 941,
+            "protectedPixelMismatches": 0
+        },
+        {
+            "id": "B",
+            "rawSha256": "5f1803c985960a6378e613045312433855e1a9c48c2af9a984d2413e1e257992",
+            "nativeSha256": "0739ba853581cb6969459a285e3e1212125f8989299ec8b9d0f08cca9aff415d",
+            "rawWidth": 1672,
+            "rawHeight": 941,
+            "protectedPixelMismatches": 0
+        },
+        {
+            "id": "C",
+            "rawSha256": "ab2574753a5712d9cdd0a754c9620b0830fc18920be427b6f6bd96044a1bbda9",
+            "nativeSha256": "5e97fb4b839150fa350189a7891e2eb599daa127efdfca8b753501702412ab1f",
+            "rawWidth": 1672,
+            "rawHeight": 941,
+            "protectedPixelMismatches": 0
+        }
+    ]
+}

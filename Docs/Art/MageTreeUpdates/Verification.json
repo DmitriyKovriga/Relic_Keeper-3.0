@@ -1,0 +1,34 @@
+{
+  "totalNodes": 146,
+  "templatedPlacements": 117,
+  "uniqueTemplates": 46,
+  "unassignedNodesUntouched": 29,
+  "missingAuthoredIcons": 0,
+  "missingAuthoredEffectData": 0,
+  "treeByteIdenticalToHEAD": true,
+  "uniquePassingTests": 116,
+  "testRuns": [
+    {
+      "file": "Core57.xml",
+      "passed": 57
+    },
+    {
+      "file": "Nearby.xml",
+      "passed": 62
+    },
+    {
+      "file": "FinalUI39.xml",
+      "passed": 39
+    },
+    {
+      "file": "FinalDps34.json",
+      "passed": 34
+    }
+  ],
+  "nativePreview": "480x270 real renderer and tooltips, EN/RU; temporary layout fixture",
+  "saveUnchanged": true,
+  "iconSize": [
+    48,
+    48
+  ]
+}

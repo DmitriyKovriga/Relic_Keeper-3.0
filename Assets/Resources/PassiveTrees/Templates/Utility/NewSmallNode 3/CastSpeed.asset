@@ -17,7 +17,7 @@ MonoBehaviour:
   Icon: {fileID: 21300000, guid: 2f0db8885cd7998458c5e513633a0c4b, type: 3}
   Modifiers:
   - Stat: 29
-    Value: 8
+    Value: 10
     Type: 200
   StatScalingRules: []
   ConditionalModifiers: []

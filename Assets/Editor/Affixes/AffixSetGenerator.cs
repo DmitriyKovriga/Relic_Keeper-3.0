@@ -170,7 +170,7 @@ namespace Scripts.Editor.Affixes
 
                 StatAffixGenType genType = statsDb.GetAffixGenType(stat);
                 string category = statsDb.GetCategory(stat);
-                string statName = stat.ToString();
+                string statName = GetGeneratedContentStem(stat);
                 string folder = $"{affixesBaseFolder}/ByStat/{category}/{statName}";
 
                 EnsureFolder($"{affixesBaseFolder}/ByStat");
@@ -377,7 +377,7 @@ namespace Scripts.Editor.Affixes
             EnsureValueUnitLocalizations(menuLabels);
 
             string category = statsDb.GetCategory(stat);
-            string statName = stat.ToString();
+            string statName = GetGeneratedContentStem(stat);
             string folder = $"{affixesBaseFolder}/ByStat/{category}/{statName}";
             EnsureFolder($"{affixesBaseFolder}/ByStat");
             EnsureFolder($"{affixesBaseFolder}/ByStat/{category}");
@@ -503,9 +503,13 @@ namespace Scripts.Editor.Affixes
         public static string GetGeneratedFolderPath(StatsDatabaseSO statsDb, StatType stat, string affixesBaseFolder)
         {
             string category = statsDb != null ? statsDb.GetCategory(stat) : StatsDatabaseSO.DefaultCategoryFor(stat);
-            string statName = stat.ToString();
+            string statName = GetGeneratedContentStem(stat);
             return $"{affixesBaseFolder}/ByStat/{category}/{statName}";
         }
+
+        // Existing generated affix paths/group IDs are save identities, independent of the stat's display name.
+        private static string GetGeneratedContentStem(StatType stat) =>
+            stat == StatType.IgniteSpreadDelay ? "IgniteSpreadDuration" : stat.ToString();
 
         public static bool IsKindAllowedForGenType(StatAffixModifierKind kind, StatAffixGenType genType)
         {
@@ -543,7 +547,7 @@ namespace Scripts.Editor.Affixes
 
                     foreach (string strength in Strengths)
                     {
-                        string fileName = $"{stat}_{kindDisplayName}_{strength}.asset";
+                        string fileName = $"{GetGeneratedContentStem(stat)}_{kindDisplayName}_{strength}.asset";
                         string assetPath = Path.Combine(folder, fileName).Replace('\\', '/');
                         definitions.Add(new GeneratedAffixDefinition(stat, modType, kind, strength, genType, negativeFlat, assetPath));
                     }
@@ -558,7 +562,7 @@ namespace Scripts.Editor.Affixes
             var affix = ScriptableObject.CreateInstance<ItemAffixSO>();
             string groupKindId = GetGeneratedKindDisplayName(kind, negativeFlat);
             string nameKeyKindId = GetGeneratedKindLocalizationId(kind, negativeFlat);
-            affix.GroupID = $"{stat}_{groupKindId}_{strength}";
+            affix.GroupID = $"{GetGeneratedContentStem(stat)}_{groupKindId}_{strength}";
             affix.Tier = tier;
             affix.TranslationKey = BuildValueKey(stat, kind, AffixValueMode.Single);
             affix.NameKey = $"affix_name_{stat.ToString().ToLowerInvariant()}_{nameKeyKindId}_{strength.ToLowerInvariant()}_t{tier}";
@@ -590,7 +594,7 @@ namespace Scripts.Editor.Affixes
             var result = ScriptableObject.CreateInstance<ItemAffixSO>();
             string groupKindId = GetGeneratedKindDisplayName(kind, negativeFlat);
             string nameKeyKindId = GetGeneratedKindLocalizationId(kind, negativeFlat);
-            result.GroupID = $"{stat}_{groupKindId}_{strength}";
+            result.GroupID = $"{GetGeneratedContentStem(stat)}_{groupKindId}_{strength}";
             result.UniqueID = result.GroupID;
             result.TranslationKey = BuildValueKey(stat, kind, AffixValueMode.Single);
             result.NameKey = $"affix_name_{stat.ToString().ToLowerInvariant()}_{nameKeyKindId}_{strength.ToLowerInvariant()}";

@@ -91,3 +91,5 @@ MonoBehaviour:
     Value: 0
   - Type: 122
     Value: 100
+  - Type: 123
+    Value: 0

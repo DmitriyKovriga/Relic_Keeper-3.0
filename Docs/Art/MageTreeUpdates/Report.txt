@@ -1,0 +1,1 @@
+PASS: native 480x270 real tree renderer/icons and tooltips in EN/RU; live mana absorption 50/50 on disposable player. Layout is a presentation fixture, not a changed tree graph. Inspect captures separately.

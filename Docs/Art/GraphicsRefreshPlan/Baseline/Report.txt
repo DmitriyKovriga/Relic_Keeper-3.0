@@ -1,0 +1,1 @@
+PASS: two native visual-only views; room hash preserved; semantic tile/collision/spawn/portal snapshot recorded. Gameplay and performance not exercised.

@@ -882,6 +882,7 @@ namespace Scripts.Stats
 
         public static string DefaultCategoryFor(StatType type)
         {
+            if (type == StatType.ManaBarrierAbsorption) return "Defense";
             if (type == StatType.ShockwaveDamage) return "Damage";
             if (type == StatType.ExecutionThreshold) return "Combat";
             if (IsCooldownRecoveryStat(type)) return "Speed";
@@ -901,13 +902,14 @@ namespace Scripts.Stats
 
         public static StatDisplayFormat DefaultFormatFor(StatType type)
         {
+            if (type == StatType.ManaBarrierAbsorption) return StatDisplayFormat.Percent;
             if (type == StatType.ShockwaveDamage) return StatDisplayFormat.Percent;
             if (type == StatType.ExecutionThreshold || type == StatType.BleedExtraction || type == StatType.BleedExtractionChance) return StatDisplayFormat.Percent;
             if (type == StatType.DamagePhysical || type == StatType.DamageFire || type == StatType.DamageCold || type == StatType.DamageLightning)
                 return StatDisplayFormat.Damage;
 
             if (type == StatType.ShockDuration || type == StatType.FreezeDuration || type == StatType.BleedDuration ||
-                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.IgniteSpreadDuration ||
+                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.IgniteSpreadDelay ||
                 type == StatType.StunDuration ||
                 type == StatType.MysticShieldRechargeDuration || IsCooldownRecoveryStat(type))
                 return StatDisplayFormat.Time;
@@ -982,7 +984,7 @@ namespace Scripts.Stats
             if (type == StatType.MaxMysticShield)
                 return StatValueUnit.MysticShield;
             if (type == StatType.ShockDuration || type == StatType.FreezeDuration || type == StatType.BleedDuration ||
-                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.IgniteSpreadDuration ||
+                type == StatType.PoisonDuration || type == StatType.IgniteDuration || type == StatType.IgniteSpreadDelay ||
                 type == StatType.StunDuration ||
                 type == StatType.MysticShieldRechargeDuration || IsCooldownRecoveryStat(type))
                 return StatValueUnit.Seconds;
@@ -1073,7 +1075,7 @@ namespace Scripts.Stats
                 case StatType.IgniteDamage:
                 case StatType.IgniteDamageMult:
                 case StatType.IgniteDuration:
-                case StatType.IgniteSpreadDuration:
+                case StatType.IgniteSpreadDelay:
                 case StatType.FreezeChance:
                 case StatType.FreezeDuration:
                 case StatType.ShockChance:
@@ -1109,7 +1111,7 @@ namespace Scripts.Stats
                 case StatType.IgniteDamage:
                 case StatType.IgniteDamageMult:
                 case StatType.IgniteDuration:
-                case StatType.IgniteSpreadDuration:
+                case StatType.IgniteSpreadDelay:
                 case StatType.ChanseToAvoidIgnite:
                     return StatDamageChannelFlags.Fire;
 

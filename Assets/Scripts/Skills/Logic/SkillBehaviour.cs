@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Scripts.Stats;
 using Scripts.Combat;
+using Scripts.Skills.PassiveTree;
 
 namespace Scripts.Skills
 {
@@ -159,7 +160,8 @@ namespace Scripts.Skills
 
         protected IStatsProvider ResolveSkillStats()
         {
-            return StatLinkModifiers.Apply(WeaponHandStatScope.ForSkill(_ownerStats, _slotIndex), _data?.StatLinks);
+            var stats = StatLinkModifiers.Apply(WeaponHandStatScope.ForSkill(_ownerStats, _slotIndex), _data?.StatLinks);
+            return PassiveEffectRuntime.ApplySkillHitModifiers(_ownerStats, _data, stats);
         }
 
         protected float ResolveSkillSpeedMultiplier()

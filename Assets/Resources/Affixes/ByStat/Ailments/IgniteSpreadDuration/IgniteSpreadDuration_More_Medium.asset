@@ -15,8 +15,8 @@ MonoBehaviour:
   UniqueID: Resources/Affixes/ByStat/Ailments/IgniteSpreadDuration/IgniteSpreadDuration_More_Medium
   GroupID: IgniteSpreadDuration_More_Medium
   Tier: 0
-  NameKey: affix_name_ignitespreadduration_more_medium
-  TranslationKey: affix_more_ignitespreadduration
+  NameKey: affix_name_ignitespreaddelay_more_medium
+  TranslationKey: affix_more_ignitespreaddelay
   LockAutoLocalization: 0
   TagIds:
   - Ailments

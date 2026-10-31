@@ -18,7 +18,10 @@ MonoBehaviour:
   Modifiers:
   - Stat: 115
     Value: 10
-    Type: 100
+    Type: 210
+  - Stat: 68
+    Value: 10
+    Type: 200
   StatScalingRules: []
   ConditionalModifiers: []
   TriggeredEffects: []

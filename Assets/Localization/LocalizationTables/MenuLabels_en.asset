@@ -2725,7 +2725,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 120000000000000010
-    m_Localized: Ignite Spread
+    m_Localized: Ignite Spread Delay
     m_Metadata:
       m_Items: []
   - m_Id: 111508801381720064
@@ -2873,7 +2873,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 115829332440506369
-    m_Localized: 
+    m_Localized: Maximum Mystic Shield capacity also grants spell damage, regardless
+      of remaining charges.
     m_Metadata:
       m_Items: []
   - m_Id: 115837136844873728
@@ -2937,7 +2938,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 117297993114181633
-    m_Localized: 
+    m_Localized: Specialize critical strikes around skills that use Mystic Shield.
     m_Metadata:
       m_Items: []
   - m_Id: 117300940745203712
@@ -2945,7 +2946,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 117300940745203713
-    m_Localized: 
+    m_Localized: Successive chain bounces build damage. The first target receives
+      no bounce bonus.
     m_Metadata:
       m_Items: []
   - m_Id: 117303545378627584
@@ -3418,6 +3420,19 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 121224723633631232
     m_Localized: Return to hub
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121738768031772672
+    m_Localized: Mana Barrier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121738768082104320
+    m_Localized: Mana absorbs part of incoming damage before Health. One Mana pays
+      one damage; any shortfall reaches Health.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 121742962931363840
+    m_Localized: Mana Barrier Absorption
     m_Metadata:
       m_Items: []
   references:

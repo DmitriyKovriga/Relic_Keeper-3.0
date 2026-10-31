@@ -240,7 +240,13 @@ namespace Scripts.Skills.PassiveTree
         [InspectorName("Projectile flight time (s)")]
         ProjectileFlightSeconds,
         [InspectorName("Projectile flight distance (units)")]
-        ProjectileFlightDistance
+        ProjectileFlightDistance,
+        [InspectorName("Chain bounce count")]
+        ChainBounceCount,
+        [InspectorName("Skill uses Mystic Shield")]
+        MysticShieldSkill,
+        [InspectorName("Skill does not use Mystic Shield")]
+        NonMysticShieldSkill
     }
 
     /// <summary>Per-hit modifiers that grow with a property of the hit, e.g. how long the projectile flew.</summary>
@@ -261,6 +267,9 @@ namespace Scripts.Skills.PassiveTree
             {
                 PassiveHitScalingSource.ProjectileFlightSeconds => context.IsProjectile ? context.FlightSeconds : 0f,
                 PassiveHitScalingSource.ProjectileFlightDistance => context.IsProjectile ? context.FlightDistance : 0f,
+                PassiveHitScalingSource.ChainBounceCount => context.ChainBounceCount,
+                PassiveHitScalingSource.MysticShieldSkill => context.HasSkill && context.UsesMysticShield ? 1f : 0f,
+                PassiveHitScalingSource.NonMysticShieldSkill => context.HasSkill && !context.UsesMysticShield ? 1f : 0f,
                 _ => 0f
             };
             if (source <= 0f || SourcePerStep <= 0.0001f)
@@ -280,17 +289,30 @@ namespace Scripts.Skills.PassiveTree
         public readonly bool IsProjectile;
         public readonly float FlightSeconds;
         public readonly float FlightDistance;
+        public readonly int ChainBounceCount;
+        public readonly bool HasSkill, UsesMysticShield;
 
         public PassiveHitContext(bool isProjectile, float flightSeconds, float flightDistance)
+            : this(isProjectile, flightSeconds, flightDistance, 0, null) { }
+
+        public PassiveHitContext(bool isProjectile, float flightSeconds, float flightDistance, int chainBounceCount, SkillDataSO skill)
         {
             IsProjectile = isProjectile;
             FlightSeconds = flightSeconds;
             FlightDistance = flightDistance;
+            ChainBounceCount = Mathf.Max(0, chainBounceCount);
+            HasSkill = skill != null;
+            UsesMysticShield = MysticShieldSkillEffectiveness.UsesShield(skill);
         }
 
         public static PassiveHitContext Projectile(float flightSeconds, float flightDistance)
         {
             return new PassiveHitContext(true, flightSeconds, flightDistance);
         }
+
+        public static PassiveHitContext Projectile(float flightSeconds, float flightDistance, int chainBounceCount, SkillDataSO skill) =>
+            new PassiveHitContext(true, flightSeconds, flightDistance, chainBounceCount, skill);
+        public static PassiveHitContext ForSkill(SkillDataSO skill) => new PassiveHitContext(false, 0f, 0f, 0, skill);
+        public static PassiveHitContext Chain(int bounceCount) => new PassiveHitContext(false, 0f, 0f, bounceCount, null);
     }
 }

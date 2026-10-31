@@ -25,6 +25,9 @@ MonoBehaviour:
   - Stat: 72
     Value: 25
     Type: 200
+  - Stat: 32
+    Value: 25
+    Type: 200
   StatScalingRules: []
   ConditionalModifiers: []
   TriggeredEffects: []

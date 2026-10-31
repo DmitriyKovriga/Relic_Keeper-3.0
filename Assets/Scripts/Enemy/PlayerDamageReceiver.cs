@@ -138,7 +138,11 @@ namespace Scripts.Enemies
             result.FinalDamage = Mathf.Max(0f, total);
             if (result.FinalDamage > 0f)
             {
-                _stats.Health.Decrease(result.FinalDamage);
+                result.ManaBefore = _stats.Mana != null ? _stats.Mana.Current : 0f;
+                result.DamageToHealth = ApplyManaBarrier(result.FinalDamage, out result.ManaAbsorbedDamage);
+                result.ManaAfter = _stats.Mana != null ? _stats.Mana.Current : 0f;
+                if (result.DamageToHealth > 0f)
+                    _stats.Health.Decrease(result.DamageToHealth);
                 GameplayEventBus.Raise(
                     GameplayEventType.DamageTaken,
                     source: GameplayEventContext.ResolveGameObject(damage.Source),
@@ -178,7 +182,9 @@ namespace Scripts.Enemies
                 IsDirectHit = false
             };
 
-            _stats.Health.Decrease(finalDamage);
+            float damageToHealth = ApplyManaBarrier(finalDamage, out _);
+            if (damageToHealth > 0f)
+                _stats.Health.Decrease(damageToHealth);
             GameplayEventBus.Raise(
                 GameplayEventType.DamageTaken,
                 source: GameplayEventContext.ResolveGameObject(source),
@@ -200,8 +206,19 @@ namespace Scripts.Enemies
             return DungeonController.Instance.CurrentModifiers.EnemyDamageDealtMultiplier;
         }
 
+        private float ApplyManaBarrier(float damage, out float absorbed)
+        {
+            absorbed = 0f;
+            if (damage <= 0f || _stats?.Mana == null) return damage;
+            float percent = Mathf.Clamp(_stats.GetValue(StatType.ManaBarrierAbsorption), 0f, 100f);
+            absorbed = Mathf.Min(damage * percent / 100f, Mathf.Max(0f, _stats.Mana.Current));
+            if (absorbed > 0f) _stats.Mana.Decrease(absorbed);
+            return Mathf.Max(0f, damage - absorbed);
+        }
+
         public struct DamageResolution
         {
+            public float ManaBefore, ManaAfter, ManaAbsorbedDamage, DamageToHealth;
             public bool WasImmune;
             public bool WasEvaded;
             public bool WasParried;

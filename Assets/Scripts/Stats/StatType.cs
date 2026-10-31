@@ -173,7 +173,7 @@ namespace Scripts.Stats
         RangeDamage,
 
         // Seconds between ignite jumps to a nearby enemy. Base is 2 seconds.
-        IgniteSpreadDuration,
+        IgniteSpreadDelay = 115,
 
         // Percentage scalars. Appended to preserve serialized enum values.
         ShockApplicationEffectiveness,
@@ -190,6 +190,9 @@ namespace Scripts.Stats
         BleedExtractionChance,
 
         // Percentage scalar for collision shockwaves; 100 = normal damage.
-        ShockwaveDamage
+        ShockwaveDamage,
+
+        // Percentage of incoming post-mitigation damage paid from available mana, one mana per damage.
+        ManaBarrierAbsorption
     }
 }

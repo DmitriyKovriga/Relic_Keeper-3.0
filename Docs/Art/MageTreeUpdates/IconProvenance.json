@@ -1,0 +1,62 @@
+{
+  "tool": "PixelLab create_image_pro_flash",
+  "styleReference": "Assets/Resources/PassiveTrees/Templates/Mana/NewNotableNode 3/grandMana.png",
+  "icons": [
+    {
+      "assetPath": "Assets/Resources/PassiveTrees/Templates/Misc/NewKeystoneNode 1/ManaBarrier.png",
+      "jobId": "7c56c6a7-8d20-49ce-8012-8f40ac306ecd",
+      "imageId": "a8779236-fa6c-5e73-8ecd-cf2a2e533010",
+      "request": {
+        "description": "Circular mage passive-tree keystone icon, 48x48 native pixel art. A small hooded mage silhouette enclosed by a cobalt mana bubble, a single incoming ember being caught and converted into a bright cyan drop at the mage's raised palm. Abstract character pose and aura composition, clear at small size, deep navy shadows, pale cyan highlights, restrained violet. Transparent outside the compact central circular composition. Match reference's crisp clusters, painted RPG pixel texture and cool mana palette. No heraldic shield, no physical shield object, no shield badge, no lettering, no numbers, no frame, no UI border. Opaque painted forms, not a soft blurry VFX cloud.",
+        "width": 48,
+        "height": 48,
+        "no_background": true,
+        "style_image": {
+          "url": "upload:33e3fa31-48c7-430a-9088-b93e519553e5",
+          "usage_description": "Match this existing mage-tree icon's pixel clusters, cool cyan/navy palette and restrained RPG shading; create a new character-and-aura motif, not a copy of the water droplet."
+        },
+        "style_options": {
+          "color_palette": true,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        },
+        "seed": 418
+      }
+    },
+    {
+      "assetPath": "Assets/Resources/PassiveTrees/Templates/Misc/NewKeystoneNode/ManaPower.png",
+      "jobId": "e37e3e0a-7967-4c37-bab5-efec582b30f7",
+      "imageId": "42178c69-3b95-5602-8d06-e0f43645b1fc",
+      "request": {
+        "description": "Circular mage passive-tree keystone icon, 48x48 native pixel art. A hooded mage silhouette with a rising spiral of bright cobalt mana droplets and a small pale-blue star forming above an outstretched hand; a deep crescent mana reservoir cradles the figure. Convey accumulated mana transforming into spell power. Abstract character pose and aura, simple readable diagonal energy flow, navy shadows and cyan/silver highlights with restrained violet. Transparent outside the compact circular artwork. Same crisp RPG pixel-art clusters and material shading as reference, no text, no numerals, no UI border, no frame, no heraldic or physical shields.",
+        "width": 48,
+        "height": 48,
+        "no_background": true,
+        "style_image": {
+          "url": "upload:33e3fa31-48c7-430a-9088-b93e519553e5",
+          "usage_description": "Match this existing mage-tree icon's pixel clusters, cool cyan/navy palette and restrained RPG shading; create a new character-and-aura motif, not a copy of the water droplet."
+        },
+        "style_options": {
+          "color_palette": true,
+          "outline": true,
+          "detail": true,
+          "shading": true
+        },
+        "seed": 419
+      }
+    }
+  ],
+  "imports": {
+    "native": [
+      48,
+      48
+    ],
+    "pixelsPerUnit": 100,
+    "filter": "Point",
+    "mipmaps": false,
+    "compression": "Uncompressed",
+    "alpha": "preserved"
+  },
+  "note": "PPU follows the existing UI-icon imports; world 24 PPU is unrelated. Temporary upload references can be recreated from the named style asset."
+}

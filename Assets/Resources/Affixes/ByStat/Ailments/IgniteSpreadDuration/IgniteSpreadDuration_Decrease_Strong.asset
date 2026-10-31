@@ -15,8 +15,8 @@ MonoBehaviour:
   UniqueID: Resources/Affixes/ByStat/Ailments/IgniteSpreadDuration/IgniteSpreadDuration_Decrease_Strong
   GroupID: IgniteSpreadDuration_Decrease_Strong
   Tier: 0
-  NameKey: affix_name_ignitespreadduration_decrease_strong
-  TranslationKey: affix_decrease_ignitespreadduration
+  NameKey: affix_name_ignitespreaddelay_decrease_strong
+  TranslationKey: affix_decrease_ignitespreaddelay
   LockAutoLocalization: 0
   TagIds:
   - Ailments

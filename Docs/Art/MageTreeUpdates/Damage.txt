@@ -1,0 +1,1 @@
+100 incoming damage -> 50 Health, 50 Mana. Disposable player, no save edits.

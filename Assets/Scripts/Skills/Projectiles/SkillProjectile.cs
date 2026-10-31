@@ -55,6 +55,7 @@ namespace Scripts.Skills.Projectiles
         public float RotationDegreesPerSecond = 720f;
         public int RemainingForks;
         public int RemainingChains;
+        public int ChainBounceCount;
         public int RemainingPierces;
         public bool InfinitePierce;
         public bool IgnoreFork;
@@ -891,7 +892,7 @@ namespace Scripts.Skills.Projectiles
             AppendTargetAilmentStackModifiers(step, target, modifiers);
             PassiveEffectRuntime.AppendHitModifiers(
                 _data.OwnerStats,
-                PassiveHitContext.Projectile(_age, _travelledDistance),
+                PassiveHitContext.Projectile(_age, _travelledDistance, _data.ChainBounceCount, _data.Skill),
                 modifiers);
             return modifiers.Count > 0 ? new ScopedStatsProvider(weaponStats, modifiers) : weaponStats;
         }
@@ -941,6 +942,7 @@ namespace Scripts.Skills.Projectiles
                 return false;
 
             _data.RemainingChains--;
+            _data.ChainBounceCount++;
             Vector2 toTarget = (Vector2)nextTarget.position - (Vector2)transform.position;
             if (toTarget.sqrMagnitude > 0.0001f)
                 _direction = toTarget.normalized;
